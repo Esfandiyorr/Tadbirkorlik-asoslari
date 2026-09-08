@@ -1,39 +1,37 @@
-# Tadbirkorlik asoslari — M1-mavzu (HTML taqdimot)
+# Tadbirkorlik asoslari — interaktiv HTML taqdimotlar
 
-**Mavzu:** Tadbirkorlik tafakkuri va biznes imkoniyatlarni aniqlash
-**Muassasa:** Termiz davlat universiteti · Ma'ruza · 2 soat
+**Muassasa:** Termiz davlat universiteti · Fan: Tadbirkorlik asoslari
+
+| Fayl | Mavzu | Hajmi |
+|---|---|---|
+| [`index.html`](index.html) | **M1** — Tadbirkorlik tafakkuri va biznes imkoniyatlarni aniqlash | 18 slayd · 15 test |
+| [`mavzu-2.html`](mavzu-2.html) | **M2** — Mijoz muammosi asosida biznes g'oyani shakllantirish | 18 slayd · 15 test |
+
+Har bir fayl mustaqil ishlaydi: internet, o'rnatish yoki qo'shimcha fayl talab qilinmaydi. Taqdimotlar bir-biriga yuqoridagi **M1 / M2** tugmasi orqali bog'langan.
 
 ## Ishga tushirish
 
-`index.html` faylini istalgan brauzerda oching — hech qanday o'rnatish yoki internet talab qilinmaydi (bitta fayl, barcha uslub va skriptlar ichida).
+Faylni brauzerda oching (ikki marta bosing). Yoki GitHub Pages orqali havola qilib tarqating.
 
-## Tarkibi (18 slayd)
+## M1 — Tadbirkorlik tafakkuri (18 slayd)
 
-| № | Slayd | № | Slayd |
-|---|---|---|---|
-| 1 | Muqova | 10 | Oilaviy va ijtimoiy tadbirkorlik |
-| 2 | Maqsad va natijalar | 11 | Tadbirkorlik tafakkuri (xodim vs tadbirkor) |
-| 3 | Reja va tayanch tushunchalar | 12 | 7 ta belgi va 5 ta xato |
-| 4 | Tadbirkorlik nima? (4 ustun) | 13 | Muammo = imkoniyat (manbalar, 4 filtr) |
-| 5 | Tadbirkor kim? | 14 | Muammo–Yechim–Mijoz–Daromad zanjiri |
-| 6 | O'zbekiston statistikasi | 15 | Xulosa, mustaqil ish, adabiyotlar |
-| 7 | Tadbirkorlikning 5 shakli | 16 | 🎁 Eng boy tadbirkorlar va kompaniyalar |
-| 8 | Mikro va kichik biznes | 17 | 🎁 10+ qiziqarli fakt |
-| 9 | Startap ≠ yangi biznes | 18 | 🧪 Interaktiv test (15 savol) |
+Muqova · maqsad · reja va tushunchalar · tadbirkorlik ta'rifi va 4 ustuni · tadbirkorning kapitali · O'zbekiston statistikasi · 5 ta shakl · mikro va kichik biznes · startap ≠ yangi biznes · oilaviy va ijtimoiy tadbirkorlik · xodim vs tadbirkor tafakkuri · 7 belgi va 5 xato · muammo manbalari va 4 filtr · Muammo–Yechim–Mijoz–Daromad zanjiri · xulosa va mustaqil ish · 🎁 eng boy tadbirkorlar va kompaniyalar · 🎁 qiziqarli faktlar · 🧪 test.
+
+## M2 — Mijoz muammosi asosida g'oya (18 slayd)
+
+Muqova · maqsad · reja va tushunchalar · mijoz muammosining 3 qatlami ("dori" va "vitamin") · bozordagi 6 turdagi bo'shliq · 4 usulning qiyosi · **kuzatish** · **mijoz bilan suhbat (Mom Test)** · **so'rovnoma** · **fikrlar shturmi** (HMW, SCAMPER, 6-3-5) · insayt → gipoteza, ICE ball va saralash matritsasi · qiymat taklifi · **MVP nima va nima emas** (skeytbord qoidasi) · **eng kam xarajatli MVP turlari** (namuna, katalog, raqamli maket, landing, konsyerj, pre-order) · MVPni sinash va davom/pivot/to'xtat qarori · xulosa va mustaqil ish · 🎁 mashhur kompaniyalarning birinchi MVPlari · 🧪 test.
 
 ## Imkoniyatlar
 
-- 🌙 **Tun / Kun rejimi** — `D` tugmasi yoki yuqoridagi tugma; tanlov brauzer xotirasida saqlanadi
+- 🌙 **Tun / Kun rejimi** — `D` tugmasi; tanlov brauzer xotirasida saqlanadi
 - ⌨️ **Klaviatura:** `→ / Space / PgDn` keyingi, `← / PgUp` oldingi, `Home/End`, `1…9` slayd raqami, `O` slaydlar ro'yxati, `F` to'liq ekran, `T` vaqt hisoblagich, `P` PDF, `?` yordam, `Esc` yopish
 - 📱 **Swipe** — telefonda chapga/o'ngga surish
-- ▦ **Slaydlar ro'yxati** (overview) va progress chizig'i
-- ⏱ **Ma'ruza taymeri** (2 soatlik mashg'ulot uchun)
-- 🖨 **PDF / chop etish rejimi** — barcha slaydlar alohida sahifada
-- 🔢 **Statistik raqamlar animatsiyasi**
-- 🧪 **Interaktiv test:** darhol tekshirish, izohli javob, ball, foiz va yakuniy baho; qayta boshlash tugmasi
-- 💾 Oxirgi ochilgan slayd eslab qolinadi
+- ▦ Slaydlar ro'yxati (overview), progress chizig'i, ma'ruza taymeri
+- 🖨 PDF / chop etish rejimi — har bir slayd alohida sahifada
+- 🧪 Interaktiv test: darhol tekshirish, izohli javob, ball, foiz va yakuniy baho
+- 💾 Oxirgi ochilgan slayd har bir mavzu uchun alohida eslab qolinadi
 
 ## Logotip
 
-Taqdimotdagi TerDU gerbi **SVG ko'rinishida chizilgan** (internetsiz ham ishlaydi).
-Agar universitetning rasmiy rasm faylidan foydalanmoqchi bo'lsangiz — `logo.png` nomli faylni `index.html` yoniga qo'ying, taqdimot uni **avtomatik** ishlatadi.
+TerDU gerbi **SVG ko'rinishida** chizilgan — internetsiz ham ishlaydi va cheksiz kattalashtirilganda ham sifati yo'qolmaydi.
+Universitetning rasmiy rasm faylidan foydalanmoqchi bo'lsangiz: `logo.png` faylini shu papkaga qo'ying — ikkala taqdimot uni **avtomatik** ishlatadi.

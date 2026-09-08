@@ -1,0 +1,1226 @@
+<!DOCTYPE html>
+<html lang="uz" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mijoz muammosi asosida biznes g'oyani shakllantirish — TerDU</title>
+<meta name="description" content="Tadbirkorlik asoslari. M2-mavzu: Mijoz muammosi asosida biznes g'oyani shakllantirish, g'oyani topish usullari va MVP. Termiz davlat universiteti.">
+<style>
+/* ================== TOKENS ================== */
+:root{
+  --bg:#eef3fb; --bg2:#e6ecf9;
+  --panel:#ffffff; --panel2:#f7f9fe;
+  --ink:#0d1b2a; --ink2:#1f2d3d; --muted:#5b6b82;
+  --line:#e1e8f4; --shadow:0 18px 40px -18px rgba(13,27,42,.35);
+  --green:#12a150; --green2:#0b7a3c;
+  --orange:#f97316; --amber:#f59e0b;
+  --violet:#7c3aed; --pink:#ec4899;
+  --blue:#2563eb; --cyan:#0891b2;
+  --red:#e11d48; --teal:#0d9488;
+  --chip:#f1f5fd;
+  --ok:#12a150; --err:#e11d48;
+}
+:root[data-theme="dark"]{
+  --bg:#080f1d; --bg2:#0d1728;
+  --panel:#111b2e; --panel2:#0e1726;
+  --ink:#eaf1ff; --ink2:#dbe6fb; --muted:#9db0cd;
+  --line:#22304c; --shadow:0 18px 44px -18px rgba(0,0,0,.75);
+  --green:#2ee07f; --green2:#12a150;
+  --orange:#ff9d4d; --amber:#fbbf24;
+  --violet:#a78bfa; --pink:#f472b6;
+  --blue:#60a5fa; --cyan:#22d3ee;
+  --red:#fb7185; --teal:#2dd4bf;
+  --chip:#17243c;
+  --ok:#2ee07f; --err:#fb7185;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; color:var(--ink);
+  font-family:"Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
+  background:
+    radial-gradient(1100px 600px at 8% -10%, rgba(18,161,80,.20), transparent 60%),
+    radial-gradient(900px 520px at 100% 0%, rgba(124,58,237,.20), transparent 55%),
+    radial-gradient(900px 600px at 50% 115%, rgba(249,115,22,.18), transparent 60%),
+    linear-gradient(160deg,var(--bg),var(--bg2));
+  background-attachment:fixed;
+  overflow:hidden;
+  transition:background .4s ease,color .3s ease;
+}
+/* ================== LAYOUT ================== */
+#app{display:flex;flex-direction:column;height:100vh;height:100dvh}
+.topbar{
+  display:flex;align-items:center;gap:14px;padding:10px 18px;
+  background:color-mix(in srgb,var(--panel) 82%,transparent);
+  backdrop-filter:blur(14px);border-bottom:1px solid var(--line);z-index:30;flex:0 0 auto;
+}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}
+.brand .logo{width:44px;height:44px;flex:0 0 auto;filter:drop-shadow(0 4px 8px rgba(0,0,0,.15))}
+.brand b{display:block;font-size:14px;line-height:1.15;letter-spacing:.2px}
+.brand span{display:block;font-size:11.5px;color:var(--muted)}
+.spacer{flex:1}
+.tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.btn{
+  border:1px solid var(--line);background:var(--panel);color:var(--ink);
+  padding:8px 12px;border-radius:12px;font-size:13px;font-weight:600;cursor:pointer;
+  display:inline-flex;align-items:center;gap:7px;transition:.18s;white-space:nowrap;
+}
+.btn:hover{transform:translateY(-2px);border-color:transparent;box-shadow:0 10px 22px -12px rgba(0,0,0,.5)}
+.btn.accent{background:linear-gradient(135deg,var(--green),var(--teal));color:#fff;border-color:transparent}
+.btn.warn{background:linear-gradient(135deg,var(--orange),var(--amber));color:#231000;border-color:transparent}
+.btn.ghost{background:transparent}
+a.btn{text-decoration:none;color:var(--ink)}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+#timer{font-variant-numeric:tabular-nums;font-weight:800;letter-spacing:.5px;color:var(--violet)}
+
+.progress-wrap{height:5px;background:color-mix(in srgb,var(--line) 70%,transparent);flex:0 0 auto}
+#progress{height:100%;width:0;border-radius:0 6px 6px 0;
+  background:linear-gradient(90deg,var(--green),var(--cyan),var(--violet),var(--orange));
+  transition:width .35s cubic-bezier(.4,0,.2,1)}
+
+#deck{position:relative;flex:1 1 auto;overflow:hidden}
+.slide{
+  position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;
+  padding:26px clamp(16px,4vw,54px) 34px;
+  opacity:0;visibility:hidden;transform:translateX(40px) scale(.985);
+  transition:opacity .4s ease,transform .45s cubic-bezier(.22,1,.36,1),visibility .45s;
+}
+.slide.active{opacity:1;visibility:visible;transform:none}
+.slide.prev{transform:translateX(-40px) scale(.985)}
+.inner{max-width:1240px;margin:0 auto}
+
+.navbar{
+  display:flex;align-items:center;gap:12px;padding:9px 18px;flex:0 0 auto;
+  background:color-mix(in srgb,var(--panel) 82%,transparent);
+  backdrop-filter:blur(14px);border-top:1px solid var(--line);z-index:30;
+}
+.counter{font-size:13px;font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums}
+.dots{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;flex:1}
+.dot{width:9px;height:9px;border-radius:50%;border:none;padding:0;cursor:pointer;
+  background:color-mix(in srgb,var(--muted) 45%,transparent);transition:.2s}
+.dot:hover{transform:scale(1.4)}
+.dot.on{width:26px;border-radius:6px;background:linear-gradient(90deg,var(--green),var(--cyan))}
+
+/* ================== TYPO ================== */
+.kicker{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:800;
+  letter-spacing:1.6px;text-transform:uppercase;color:#fff;padding:6px 14px;border-radius:999px;
+  background:linear-gradient(135deg,var(--violet),var(--pink));box-shadow:0 8px 18px -10px var(--violet)}
+h1{font-size:clamp(26px,4.4vw,50px);line-height:1.1;margin:14px 0 10px;letter-spacing:-.5px}
+h2{font-size:clamp(21px,3.1vw,35px);line-height:1.16;margin:8px 0 16px;letter-spacing:-.3px}
+h3{font-size:clamp(16px,2vw,21px);margin:0 0 8px}
+p,li{font-size:clamp(14px,1.35vw,17.5px);line-height:1.6;color:var(--ink2)}
+.lead{font-size:clamp(15px,1.6vw,19px);color:var(--muted)}
+.grad{background:linear-gradient(120deg,var(--green),var(--cyan) 45%,var(--violet));
+  -webkit-background-clip:text;background-clip:text;color:transparent}
+.grad-w{background:linear-gradient(120deg,var(--orange),var(--pink) 55%,var(--violet));
+  -webkit-background-clip:text;background-clip:text;color:transparent}
+small.note{display:block;margin-top:12px;color:var(--muted);font-size:12.5px}
+
+/* ================== BLOCKS ================== */
+.card{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:18px 20px;
+  box-shadow:var(--shadow);position:relative;overflow:hidden}
+.card::before{content:"";position:absolute;inset:0 auto 0 0;width:5px;background:var(--c,var(--green))}
+.card h3{color:var(--c,var(--green))}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.g5{grid-template-columns:repeat(5,minmax(0,1fr))}
+@media(max-width:980px){.g3,.g4,.g5{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:640px){.g2,.g3,.g4,.g5{grid-template-columns:1fr}}
+
+.def{border-radius:20px;padding:20px 24px;color:#fff;box-shadow:var(--shadow);
+  background:linear-gradient(135deg,var(--green2),var(--teal) 55%,var(--cyan));font-size:clamp(15px,1.7vw,20px);line-height:1.5}
+.def b{color:#fffbe8}
+.quote{border-left:6px solid var(--amber);background:var(--panel2);border-radius:0 16px 16px 0;
+  padding:14px 18px;font-style:italic;color:var(--ink2)}
+.pill{display:inline-block;margin:4px 6px 0 0;padding:6px 12px;border-radius:999px;background:var(--chip);
+  border:1px solid var(--line);font-size:13px;font-weight:600;color:var(--ink2)}
+.pill.g{background:color-mix(in srgb,var(--green) 16%,transparent);border-color:transparent;color:var(--green2)}
+:root[data-theme="dark"] .pill.g{color:var(--green)}
+.icon{font-size:26px;line-height:1;display:block;margin-bottom:6px}
+ul.clean{margin:6px 0 0;padding-left:20px}
+ul.clean li{margin-bottom:6px}
+ul.tick{list-style:none;margin:6px 0 0;padding:0}
+ul.tick li{position:relative;padding-left:28px;margin-bottom:8px}
+ul.tick li::before{content:"✔";position:absolute;left:0;top:0;color:var(--green);font-weight:900}
+ul.cross li::before{content:"✕";color:var(--red)}
+
+table{width:100%;border-collapse:separate;border-spacing:0;background:var(--panel);
+  border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:var(--shadow);font-size:clamp(13px,1.25vw,16px)}
+th,td{padding:10px 13px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+thead th{background:linear-gradient(135deg,var(--violet),var(--blue));color:#fff;font-weight:700;letter-spacing:.2px}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:nth-child(even){background:var(--panel2)}
+tbody tr:hover{background:color-mix(in srgb,var(--cyan) 10%,transparent)}
+.tw{overflow-x:auto;border-radius:16px}
+td.g{color:var(--green);font-weight:700}
+td.r{color:var(--red);font-weight:700}
+
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:18px;text-align:center;box-shadow:var(--shadow)}
+.stat .num{font-size:clamp(26px,4.2vw,46px);font-weight:900;line-height:1;
+  background:linear-gradient(135deg,var(--green),var(--cyan));-webkit-background-clip:text;background-clip:text;color:transparent}
+.stat.o .num{background:linear-gradient(135deg,var(--orange),var(--pink));-webkit-background-clip:text;background-clip:text}
+.stat.v .num{background:linear-gradient(135deg,var(--violet),var(--blue));-webkit-background-clip:text;background-clip:text}
+.stat p{margin:8px 0 0;font-size:13.5px;color:var(--muted)}
+
+.chain{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;align-items:stretch}
+@media(max-width:860px){.chain{grid-template-columns:1fr}}
+.link{border-radius:18px;padding:16px;color:#fff;box-shadow:var(--shadow);position:relative}
+.link h3{color:#fff;font-size:15px;letter-spacing:1px;text-transform:uppercase;opacity:.95}
+.link p{color:#fff;opacity:.95;font-size:14px;margin:6px 0 0}
+.l1{background:linear-gradient(135deg,#e11d48,#f97316)}
+.l2{background:linear-gradient(135deg,#f59e0b,#12a150)}
+.l3{background:linear-gradient(135deg,#0891b2,#2563eb)}
+.l4{background:linear-gradient(135deg,#7c3aed,#ec4899)}
+.link::after{content:"➜";position:absolute;right:-16px;top:50%;transform:translateY(-50%);
+  font-size:20px;color:var(--muted);z-index:2}
+.link:last-child::after{content:""}
+@media(max-width:860px){.link::after{right:50%;top:auto;bottom:-15px;transform:translateX(50%) rotate(90deg)}}
+
+.fact{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:var(--shadow);
+  transition:.2s;cursor:default}
+.fact:hover{transform:translateY(-5px)}
+.fact b{display:block;color:var(--violet);margin-bottom:4px;font-size:15px}
+.fact p{margin:0;font-size:14px;color:var(--muted)}
+.rich{display:flex;align-items:center;gap:12px;background:var(--panel);border:1px solid var(--line);
+  border-radius:16px;padding:12px 14px;box-shadow:var(--shadow)}
+.rich .rk{width:34px;height:34px;flex:0 0 auto;border-radius:50%;display:grid;place-items:center;font-weight:900;color:#fff;
+  background:linear-gradient(135deg,var(--amber),var(--orange))}
+.rich b{display:block;font-size:15px}
+.rich span{font-size:12.5px;color:var(--muted)}
+
+/* ================== TITLE SLIDE ================== */
+.title-wrap{display:grid;grid-template-columns:auto 1fr;gap:clamp(18px,3vw,42px);align-items:center;min-height:100%}
+@media(max-width:820px){.title-wrap{grid-template-columns:1fr;text-align:center;justify-items:center}}
+.big-logo{width:clamp(150px,20vw,240px);height:auto;animation:float 5s ease-in-out infinite;
+  filter:drop-shadow(0 16px 26px rgba(0,0,0,.25))}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+.meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.meta div{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:10px 14px;font-size:13.5px;box-shadow:var(--shadow)}
+.meta b{color:var(--green)}
+
+/* ================== TEST ================== */
+.qbox{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:16px 18px;margin-bottom:14px;box-shadow:var(--shadow)}
+.qbox .q{font-weight:800;margin:0 0 10px;font-size:16px}
+.qbox .q i{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:8px;margin-right:8px;
+  background:linear-gradient(135deg,var(--violet),var(--blue));color:#fff;font-style:normal;font-size:13px;font-weight:900;vertical-align:-4px}
+.opt{display:block;width:100%;text-align:left;border:1.5px solid var(--line);background:var(--panel2);color:var(--ink);
+  border-radius:12px;padding:10px 14px;margin-bottom:8px;font-size:14.5px;cursor:pointer;transition:.15s;font-family:inherit}
+.opt:hover:not(:disabled){border-color:var(--blue);transform:translateX(5px)}
+.opt .k{font-weight:900;margin-right:8px;color:var(--blue)}
+.opt.right{background:color-mix(in srgb,var(--ok) 18%,var(--panel));border-color:var(--ok);color:var(--ink)}
+.opt.wrong{background:color-mix(in srgb,var(--err) 18%,var(--panel));border-color:var(--err)}
+.opt:disabled{cursor:default}
+.fb{margin:6px 0 0;font-size:13.5px;font-weight:700;display:none}
+.fb.show{display:block}
+.fb.ok{color:var(--ok)}.fb.no{color:var(--err)}
+.scorebar{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  background:linear-gradient(135deg,var(--violet),var(--blue));color:#fff;border-radius:16px;padding:12px 16px;margin-bottom:16px;box-shadow:var(--shadow)}
+.scorebar b{font-size:19px}
+.result{display:none;border-radius:20px;padding:22px;text-align:center;color:#fff;box-shadow:var(--shadow);
+  background:linear-gradient(135deg,var(--green2),var(--teal),var(--cyan))}
+.result.show{display:block;animation:pop .45s cubic-bezier(.2,1.3,.4,1)}
+.result .pct{font-size:clamp(38px,7vw,68px);font-weight:900;line-height:1}
+@keyframes pop{from{transform:scale(.9);opacity:0}to{transform:none;opacity:1}}
+
+/* ================== OVERLAYS ================== */
+.overlay{position:fixed;inset:0;z-index:60;display:none;padding:22px;overflow:auto;
+  background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px)}
+.overlay.show{display:block;animation:fade .25s ease}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.ov-head{display:flex;align-items:center;gap:12px;max-width:1200px;margin:0 auto 16px}
+.thumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px;max-width:1200px;margin:0 auto}
+.thumb{border:1.5px solid var(--line);background:var(--panel);border-radius:14px;padding:12px;cursor:pointer;text-align:left;
+  transition:.18s;box-shadow:var(--shadow);color:var(--ink);font-family:inherit}
+.thumb:hover{transform:translateY(-4px);border-color:var(--green)}
+.thumb.on{border-color:var(--green);background:color-mix(in srgb,var(--green) 12%,var(--panel))}
+.thumb i{font-style:normal;font-size:11px;font-weight:900;color:var(--muted);letter-spacing:1px}
+.thumb b{display:block;margin-top:5px;font-size:14px;line-height:1.25}
+kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;border-radius:7px;
+  padding:2px 8px;font-family:inherit;font-size:12.5px;font-weight:700}
+.helpbox{max-width:560px;margin:8vh auto;background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:22px;box-shadow:var(--shadow)}
+.helpbox div{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px dashed var(--line);font-size:14px}
+.helpbox div:last-child{border:none}
+
+.hint{position:fixed;left:50%;bottom:64px;transform:translateX(-50%);z-index:40;
+  background:color-mix(in srgb,var(--panel) 92%,transparent);border:1px solid var(--line);border-radius:999px;
+  padding:8px 16px;font-size:12.5px;color:var(--muted);box-shadow:var(--shadow);transition:opacity .5s}
+.hint.hide{opacity:0;pointer-events:none}
+
+@media print{
+  body{overflow:visible;background:#fff}
+  .topbar,.navbar,.progress-wrap,.overlay,.hint{display:none!important}
+  #deck{overflow:visible;height:auto}
+  .slide{position:static;opacity:1;visibility:visible;transform:none;page-break-after:always;min-height:auto}
+}
+</style>
+</head>
+<body>
+<!-- ====== TerDU LOGOTIPI (SVG) ====== -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="terdu" viewBox="0 0 200 200">
+    <defs>
+      <clipPath id="tdClip"><circle cx="100" cy="100" r="68"/></clipPath>
+      <linearGradient id="tdRay" x1="0" y1="1" x2="0" y2="0">
+        <stop offset="0" stop-color="#bfe3cb" stop-opacity="0"/>
+        <stop offset=".55" stop-color="#7fc79a" stop-opacity=".55"/>
+        <stop offset="1" stop-color="#3f8f5d" stop-opacity=".75"/>
+      </linearGradient>
+      <path id="tdArc" d="M100,100 m-79,0 a79,79 0 1,1 158,0"/>
+    </defs>
+    <circle cx="100" cy="100" r="99" fill="#ffffff"/>
+    <circle cx="100" cy="100" r="96" fill="none" stroke="#1b5e34" stroke-width="4.5"/>
+    <circle cx="100" cy="100" r="90" fill="none" stroke="#1b5e34" stroke-width="1.5"/>
+    <circle cx="100" cy="100" r="68" fill="none" stroke="#1b5e34" stroke-width="1.4"/>
+    <g clip-path="url(#tdClip)">
+      <circle cx="100" cy="100" r="68" fill="#ffffff"/>
+      <g transform="translate(100,150)" fill="url(#tdRay)">
+        <rect x="-3.2" y="-104" width="6.4" height="104" transform="rotate(-72)"/>
+        <rect x="-3.2" y="-104" width="6.4" height="104" transform="rotate(-64)"/>
+        <rect x="-3.2" y="-104" width="6.4" height="104" transform="rotate(-56)"/>
+        <rect x="-3.2" y="-104" width="6.4" height="104" transform="rotate(-48)"/>
+        <rect x="-3.2" y="-104" width="6.4" height="104" transform="rotate(-40)"/>
+        <rect x="-3.2" y="-104" width="6.4" height="104" transform="rotate(-32)"/>
+        <rect x="-3.2" y="-104" width="6.4" height="104" transform="rotate(-24)"/>
+        <rect x="-3.2" y="-104" width="6.4" height="104" transform="rotate(-16)"/>
+        <rect x="-3.2" y="-104" width="6.4" height="104" transform="rotate(-8)"/>
+        <rect x="-3.2" y="-104" width="6.4" height="104" transform="rotate(0)"/>
+        <rect x="-3.2" y="-104" width="6.4" height="104" transform="rotate(8)"/>
+        <rect x="-3.2" y="-104" width="6.4" height="104" transform="rotate(16)"/>
+        <rect x="-3.2" y="-104" width="6.4" height="104" transform="rotate(24)"/>
+        <rect x="-3.2" y="-104" width="6.4" height="104" transform="rotate(32)"/>
+        <rect x="-3.2" y="-104" width="6.4" height="104" transform="rotate(40)"/>
+        <rect x="-3.2" y="-104" width="6.4" height="104" transform="rotate(48)"/>
+        <rect x="-3.2" y="-104" width="6.4" height="104" transform="rotate(56)"/>
+        <rect x="-3.2" y="-104" width="6.4" height="104" transform="rotate(64)"/>
+        <rect x="-3.2" y="-104" width="6.4" height="104" transform="rotate(72)"/>
+      </g>
+    </g>
+    <g clip-path="url(#tdClip)" stroke="#1b5e34" stroke-linejoin="round">
+      <g fill="#ffffff" stroke-width="1.5">
+        <path d="M42,104 L52,97 L62,104 Z"/><path d="M138,104 L148,97 L158,104 Z"/>
+        <rect x="40" y="104" width="44" height="42"/><rect x="116" y="104" width="44" height="42"/>
+        <rect x="36" y="146" width="128" height="5"/>
+      </g>
+      <g fill="none" stroke-width="1" opacity=".95"><rect x="44" y="108" width="6.5" height="8.5"/><rect x="54" y="108" width="6.5" height="8.5"/><rect x="64" y="108" width="6.5" height="8.5"/><rect x="74" y="108" width="6.5" height="8.5"/><rect x="44" y="120" width="6.5" height="8.5"/><rect x="54" y="120" width="6.5" height="8.5"/><rect x="64" y="120" width="6.5" height="8.5"/><rect x="74" y="120" width="6.5" height="8.5"/><rect x="44" y="132" width="6.5" height="8.5"/><rect x="54" y="132" width="6.5" height="8.5"/><rect x="64" y="132" width="6.5" height="8.5"/><rect x="74" y="132" width="6.5" height="8.5"/><rect x="120" y="108" width="6.5" height="8.5"/><rect x="130" y="108" width="6.5" height="8.5"/><rect x="140" y="108" width="6.5" height="8.5"/><rect x="150" y="108" width="6.5" height="8.5"/><rect x="120" y="120" width="6.5" height="8.5"/><rect x="130" y="120" width="6.5" height="8.5"/><rect x="140" y="120" width="6.5" height="8.5"/><rect x="150" y="120" width="6.5" height="8.5"/><rect x="120" y="132" width="6.5" height="8.5"/><rect x="130" y="132" width="6.5" height="8.5"/><rect x="140" y="132" width="6.5" height="8.5"/><rect x="150" y="132" width="6.5" height="8.5"/></g>
+      <g fill="#ffffff" stroke-width="1.6">
+        <rect x="80" y="88" width="40" height="9" rx="1"/>
+        <path d="M76,97 h48 v6 h-48 Z"/>
+        <rect x="78" y="103" width="44" height="43"/>
+      </g>
+      <g fill="#ffffff" stroke-width="1.1"><rect x="81" y="105" width="5" height="39" rx="2.2"/><rect x="89" y="105" width="5" height="39" rx="2.2"/><rect x="97" y="105" width="5" height="39" rx="2.2"/><rect x="105" y="105" width="5" height="39" rx="2.2"/><rect x="113" y="105" width="5" height="39" rx="2.2"/></g>
+    </g>
+    <text x="100" y="94.6" text-anchor="middle" font-family="Georgia,serif" font-size="4.6" font-weight="700" fill="#1b5e34" letter-spacing=".15">TERMEZ STATE UNIVERSITY</text>
+    <g stroke="#1b5e34" stroke-width="1.8" fill="#ffffff" stroke-linejoin="round">
+      <path d="M100,150 C86,141 64,139 44,145 L44,166 C64,160 86,162 100,171 C114,162 136,160 156,166 L156,145 C136,139 114,141 100,150 Z"/>
+      <path d="M100,150 V171" stroke-width="1.4"/>
+      <path d="M100,155 C88,148 70,146 52,150 M100,155 C112,148 130,146 148,150" fill="none" stroke-width=".9" opacity=".65"/>
+    </g>
+    <g stroke="#4f9e6b" stroke-width=".85" opacity=".85" fill="none">
+      <path d="M52,157 C68,155 84,157 94,161 M148,157 C132,155 116,157 106,161"/>
+      <path d="M54,161 C69,159 84,161 94,165 M146,161 C131,159 116,161 106,165"/>
+    </g>
+    <g fill="#1b5e34" opacity=".92"><ellipse cx="70.0" cy="174.2" rx="4.2" ry="2.2" transform="rotate(202 70.0 174.2)"/><ellipse cx="58.8" cy="168.6" rx="4.0" ry="2.2" transform="rotate(211 58.8 168.6)"/><ellipse cx="48.6" cy="161.3" rx="3.7" ry="2.2" transform="rotate(220 48.6 161.3)"/><ellipse cx="39.6" cy="152.5" rx="3.5" ry="2.2" transform="rotate(229 39.6 152.5)"/><ellipse cx="32.2" cy="142.4" rx="3.2" ry="2.2" transform="rotate(238 32.2 142.4)"/><ellipse cx="26.4" cy="131.3" rx="3.0" ry="2.2" transform="rotate(247 26.4 131.3)"/><ellipse cx="130.0" cy="174.2" rx="4.2" ry="2.2" transform="rotate(158 130.0 174.2)"/><ellipse cx="141.2" cy="168.6" rx="4.0" ry="2.2" transform="rotate(149 141.2 168.6)"/><ellipse cx="151.4" cy="161.3" rx="3.7" ry="2.2" transform="rotate(140 151.4 161.3)"/><ellipse cx="160.4" cy="152.5" rx="3.5" ry="2.2" transform="rotate(131 160.4 152.5)"/><ellipse cx="167.8" cy="142.4" rx="3.2" ry="2.2" transform="rotate(122 167.8 142.4)"/><ellipse cx="173.6" cy="131.3" rx="3.0" ry="2.2" transform="rotate(113 173.6 131.3)"/></g>
+    <g fill="none" stroke="#1b5e34" stroke-width="1.4" stroke-linecap="round"><path d="M71.5,170.5 A76,76 0 0 0 30.0,129.7"/><path d="M128.5,170.5 A76,76 0 0 1 170.0,129.7"/></g>
+    <text font-family="Georgia,serif" fill="#1b5e34" font-size="13.4" font-weight="700" letter-spacing=".75">
+      <textPath href="#tdArc" startOffset="50%" text-anchor="middle">TERMIZ DAVLAT UNIVERSITETI</textPath>
+    </text>
+    <text x="100" y="179" text-anchor="middle" font-family="Georgia,serif" font-size="12.5" font-weight="700" fill="#1b5e34">TerDU</text>
+    <text x="100" y="189" text-anchor="middle" font-family="Georgia,serif" font-size="7.6" font-weight="700" fill="#1b5e34" letter-spacing="1.2">1954</text>
+    <circle cx="21" cy="100" r="2.4" fill="#1b5e34"/><circle cx="179" cy="100" r="2.4" fill="#1b5e34"/>
+  </symbol>
+</svg>
+
+<div id="app">
+  <!-- ====== TOPBAR ====== -->
+  <header class="topbar">
+    <div class="brand">
+      <svg class="logo" viewBox="0 0 200 200"><use href="#terdu"/></svg>
+      <div>
+        <b>TERMIZ DAVLAT UNIVERSITETI</b>
+        <span>Tadbirkorlik asoslari · M2-mavzu</span>
+      </div>
+    </div>
+    <div class="spacer"></div>
+    <div class="tools">
+      <a class="btn ghost" href="index.html" title="M1-mavzuga o'tish">📑 M1-mavzu</a>
+      <button class="btn ghost" id="btnTimer" title="Vaqt hisoblagich (T)">⏱ <span id="timer">00:00</span></button>
+      <button class="btn ghost" id="btnGrid" title="Slaydlar ro'yxati (O)">▦ Slaydlar</button>
+      <button class="btn ghost" id="btnTheme" title="Tun / Kun rejimi (D)">🌙 <span id="themeTxt">Tun</span></button>
+      <button class="btn ghost" id="btnFull" title="To'liq ekran (F)">⛶ Ekran</button>
+      <button class="btn ghost" id="btnPrint" title="Chop etish / PDF (P)">🖨 PDF</button>
+      <button class="btn ghost" id="btnHelp" title="Yordam (?)">❔</button>
+    </div>
+  </header>
+  <div class="progress-wrap"><div id="progress"></div></div>
+
+  <main id="deck">
+  <!-- ============ 1 ============ -->
+  <section class="slide" data-title="Muqova">
+    <div class="inner title-wrap">
+      <svg class="big-logo" viewBox="0 0 200 200"><use href="#terdu"/></svg>
+      <div>
+        <span class="kicker">M2-mavzu · Ma'ruza · 2 soat</span>
+        <h1 class="grad">MIJOZ MUAMMOSI ASOSIDA BIZNES G'OYANI SHAKLLANTIRISH</h1>
+        <p class="lead">Bozordagi bo'shliqlar va real muammolardan g'oya topish · kuzatish, suhbat, so'rovnoma va fikrlar shturmi · <b>eng kam xarajatli sinov mahsuloti (MVP)</b>.</p>
+        <div class="meta">
+          <div>📚 Fan: <b>Tadbirkorlik asoslari</b></div>
+          <div>🎓 <b>Termiz davlat universiteti</b></div>
+          <div>🗂 <b>18</b> slayd · <b>15</b> ta test</div>
+          <div>⌨️ <b>→</b> tugmasi bilan davom eting</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 2 ============ -->
+  <section class="slide" data-title="Maqsad va natijalar">
+    <div class="inner">
+      <span class="kicker">Mavzuning maqsadi</span>
+      <h2>Mashg'ulot yakunida talaba <span class="grad">nimani uddalaydi?</span></h2>
+      <div class="def">Maqsad: talabani "menda g'oya bor" bosqichidan <b>"menda tekshirilgan mijoz muammosi va sinovdan o'tgan MVP bor"</b> bosqichiga olib chiqish. G'oya boshda emas — <b>mijozning og'rig'ida</b> tug'iladi.</div>
+      <div class="grid g3" style="margin-top:16px">
+        <div class="card" style="--c:var(--green)"><span class="icon">🎯</span><h3>Ajrata oladi</h3><p>Mijozning yuzaki shikoyatini asl ehtiyojidan va yashirin sababdan farqlaydi.</p></div>
+        <div class="card" style="--c:var(--blue)"><span class="icon">🕳</span><h3>Topa oladi</h3><p>Bozordagi 6 turdagi bo'shliqni aniqlab, ularni g'oyaga aylantiradi.</p></div>
+        <div class="card" style="--c:var(--violet)"><span class="icon">🔬</span><h3>Qo'llay oladi</h3><p>Kuzatish, suhbat, so'rovnoma va fikrlar shturmini amalda o'tkazadi.</p></div>
+        <div class="card" style="--c:var(--orange)"><span class="icon">🗣</span><h3>Suhbatlasha oladi</h3><p>"Mom Test" qoidalari bo'yicha xolis mijoz suhbatini olib boradi.</p></div>
+        <div class="card" style="--c:var(--pink)"><span class="icon">📊</span><h3>Saralay oladi</h3><p>G'oyalarni ta'sir × qiyinlik matritsasi va ICE ball bilan tartiblaydi.</p></div>
+        <div class="card" style="--c:var(--cyan)"><span class="icon">🛠</span><h3>Yasay oladi</h3><p>1 hafta va minimal pul bilan MVP — namuna, katalog yoki raqamli maket tayyorlaydi.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 3 ============ -->
+  <section class="slide" data-title="Reja va tushunchalar">
+    <div class="inner">
+      <span class="kicker">Ma'ruza rejasi</span>
+      <h2>G'oyadan <span class="grad">sinovgacha</span> — 5 bosqich</h2>
+      <div class="grid g5">
+        <div class="card" style="--c:var(--red)"><span class="icon">1️⃣</span><h3>Muammo</h3><p>Mijoz muammosining qatlamlari va "og'riq" darajasi.</p></div>
+        <div class="card" style="--c:var(--orange)"><span class="icon">2️⃣</span><h3>Bo'shliq</h3><p>Bozordagi 6 turdagi bo'shliqni aniqlash.</p></div>
+        <div class="card" style="--c:var(--green)"><span class="icon">3️⃣</span><h3>Usullar</h3><p>Kuzatish · suhbat · so'rovnoma · fikrlar shturmi.</p></div>
+        <div class="card" style="--c:var(--blue)"><span class="icon">4️⃣</span><h3>Tahlil</h3><p>Insayt → gipoteza → saralash → qiymat taklifi.</p></div>
+        <div class="card" style="--c:var(--violet)"><span class="icon">5️⃣</span><h3>MVP</h3><p>Namuna, katalog, raqamli maket va sinov.</p></div>
+      </div>
+      <h3 style="margin-top:22px">🔑 Tayanch tushunchalar</h3>
+      <div>
+        <span class="pill g">mijoz muammosi</span><span class="pill">og'riq nuqtasi (pain point)</span><span class="pill">bozor bo'shlig'i</span>
+        <span class="pill">insayt</span><span class="pill g">kuzatish</span><span class="pill">chuqur suhbat</span><span class="pill">Mom Test</span>
+        <span class="pill">so'rovnoma</span><span class="pill g">fikrlar shturmi</span><span class="pill">HMW savoli</span><span class="pill">SCAMPER</span>
+        <span class="pill">gipoteza</span><span class="pill">ICE ball</span><span class="pill g">qiymat taklifi</span><span class="pill g">MVP</span>
+        <span class="pill">prototip</span><span class="pill">raqamli maket</span><span class="pill">validatsiya</span><span class="pill">pivot</span><span class="pill">erta foydalanuvchi</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 4 ============ -->
+  <section class="slide" data-title="Mijoz muammosi">
+    <div class="inner">
+      <span class="kicker">1-savol</span>
+      <h2>Mijoz <span class="grad-w">mahsulot sotib olmaydi</span> — u muammodan qutuladi</h2>
+      <div class="def">Klassik qoida: odam <b>parma (drel)</b> sotib olmaydi — unga <b>devordagi 6 mm teshik</b> kerak. Aslida esa unga <b>devorga osilgan rasm</b> va undan keladigan xursandchilik kerak. Siz sotayotgan narsa — mahsulot emas, <b>muammoning yechimi</b>.</div>
+      <h3 style="margin-top:16px">Muammoning 3 qatlami</h3>
+      <div class="grid g3">
+        <div class="card" style="--c:var(--red)"><h3>1-qatlam: Yuzaki shikoyat</h3><p>Mijoz aytadigan gap.</p><p class="lead" style="font-size:15px">"Internet do'koningiz sekin ekan."</p></div>
+        <div class="card" style="--c:var(--orange)"><h3>2-qatlam: Asl ehtiyoj</h3><p>Shikoyat ortidagi maqsad.</p><p class="lead" style="font-size:15px">"Menga buyurtmani 2 daqiqada rasmiylashtirish kerak."</p></div>
+        <div class="card" style="--c:var(--green)"><h3>3-qatlam: Yashirin sabab</h3><p>Nega bu unga muhim.</p><p class="lead" style="font-size:15px">"Ishdan bo'sh vaqtim atigi 10 daqiqa, kechiksam bolamni maktabdan olib ketolmayman."</p></div>
+      </div>
+      <div class="grid g2" style="margin-top:16px">
+        <div class="card" style="--c:var(--violet)"><h3>💊 "Dori" muammomi yoki 🍬 "vitamin"?</h3>
+          <p><b>Dori</b> — og'riq kuchli, mijoz bugun yechim izlaydi, pul to'lashga tayyor.<br><b>Vitamin</b> — "bo'lsa yaxshi bo'lardi", lekin bo'lmasa ham yashayveradi.</p>
+          <p style="color:var(--green);font-weight:700">Yosh tadbirkor faqat "dori" muammolarni tanlashi kerak.</p>
+        </div>
+        <div class="card" style="--c:var(--blue)"><h3>🔎 Og'riqni o'lchash: 3 ta belgi</h3>
+          <ul class="tick">
+            <li><b>Vaqt:</b> muammo haftasiga necha soatini yeydi?</li>
+            <li><b>Pul:</b> hozir bu muammoga qancha sarflayapti?</li>
+            <li><b>Harakat:</b> uni hal qilish uchun allaqachon nimadir qilganmi? (eng kuchli signal)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 5 ============ -->
+  <section class="slide" data-title="Bozor bo'shliqlari">
+    <div class="inner">
+      <span class="kicker">2-savol</span>
+      <h2>Bozordagi <span class="grad">6 turdagi bo'shliq</span></h2>
+      <p class="lead">Bo'shliq — bu <b>talab bor, ammo yechim yo'q yoki yomon</b> bo'lgan joy. Har bir bo'shliq — tayyor biznes imkoniyati.</p>
+      <div class="grid g3">
+        <div class="card" style="--c:var(--green)"><span class="icon">👥</span><h3>1. Segment bo'shlig'i</h3><p>Xizmat ko'rsatilmayotgan guruh bor.</p><p style="color:var(--muted);font-size:13.5px">Chap qo'l bilan yozuvchilar, ko'p bolali onalar, ko'zi ojizlar uchun mahsulot</p></div>
+        <div class="card" style="--c:var(--blue)"><span class="icon">📍</span><h3>2. Geografik bo'shliq</h3><p>Boshqa shaharda bor, bizda yo'q.</p><p style="color:var(--muted);font-size:13.5px">Toshkentda ommalashgan servis Termizda yo'q</p></div>
+        <div class="card" style="--c:var(--orange)"><span class="icon">💵</span><h3>3. Narx bo'shlig'i</h3><p>Yo juda qimmat, yo juda arzon-sifatsiz — o'rtasi yo'q.</p><p style="color:var(--muted);font-size:13.5px">"O'rta narxdagi sifatli tushlik" segmenti bo'sh</p></div>
+        <div class="card" style="--c:var(--violet)"><span class="icon">⭐</span><h3>4. Sifat va servis bo'shlig'i</h3><p>Mahsulot bor, xizmat yomon.</p><p style="color:var(--muted);font-size:13.5px">Kechikish, qo'pol muomala, kafolat yo'qligi</p></div>
+        <div class="card" style="--c:var(--cyan)"><span class="icon">⚙️</span><h3>5. Texnologik bo'shliq</h3><p>Jarayon hali ham qo'lda bajariladi.</p><p style="color:var(--muted);font-size:13.5px">Daftarda yuritiladigan hisob, qo'lda navbat</p></div>
+        <div class="card" style="--c:var(--pink)"><span class="icon">⏱</span><h3>6. Vaqt va qulaylik bo'shlig'i</h3><p>Bor, lekin uzoq/noqulay/kech.</p><p style="color:var(--muted);font-size:13.5px">Faqat 9:00–17:00 ishlaydigan xizmat</p></div>
+      </div>
+      <div class="quote" style="margin-top:16px">🔦 <b>Bo'shliqni topish uchun 3 ta oddiy joy:</b> ① marketpleysdagi <b>1–2 yulduzli sharhlar</b> ② Telegram guruhlaridagi savollar ("kim biladi, qayerda bor?") ③ raqobatchining <b>"biz buni qilmaymiz"</b> deb rad etadigan buyurtmalari.</div>
+    </div>
+  </section>
+
+  <!-- ============ 6 ============ -->
+  <section class="slide" data-title="4 ta usul">
+    <div class="inner">
+      <span class="kicker">3-savol</span>
+      <h2>G'oyani topish va tahlil qilishning <span class="grad">4 ta usuli</span></h2>
+      <div class="grid g4">
+        <div class="card" style="--c:var(--green)"><span class="icon">👁</span><h3>Kuzatish</h3><p>Odamlar <b>nima deyishini</b> emas, <b>nima qilishini</b> ko'rasiz.</p></div>
+        <div class="card" style="--c:var(--blue)"><span class="icon">🗣</span><h3>Mijoz bilan suhbat</h3><p>Muammoning <b>sababini va tarixini</b> chuqur ochasiz.</p></div>
+        <div class="card" style="--c:var(--orange)"><span class="icon">📋</span><h3>So'rovnoma</h3><p>Taxminni <b>ko'p sonli odamda</b> raqam bilan tekshirasiz.</p></div>
+        <div class="card" style="--c:var(--violet)"><span class="icon">💡</span><h3>Fikrlar shturmi</h3><p>Bitta muammoga <b>o'nlab yechim</b> variantini yaratasiz.</p></div>
+      </div>
+      <div class="tw" style="margin-top:16px"><table>
+        <thead><tr><th>Mezon</th><th>👁 Kuzatish</th><th>🗣 Suhbat</th><th>📋 So'rovnoma</th><th>💡 Shturm</th></tr></thead>
+        <tbody>
+          <tr><td><b>Nima beradi</b></td><td>Haqiqiy xatti-harakat</td><td>Sabab va kontekst</td><td>Raqam, ulush, foiz</td><td>Yechim variantlari</td></tr>
+          <tr><td><b>Qachon</b></td><td>Eng boshida</td><td>Boshida va doimo</td><td>Gipoteza tayyor bo'lgach</td><td>Muammo aniqlangach</td></tr>
+          <tr><td><b>Namuna hajmi</b></td><td>5–10 vaziyat</td><td>10–20 kishi</td><td>50–100+ kishi</td><td>4–8 kishilik jamoa</td></tr>
+          <tr><td><b>Xarajat</b></td><td class="g">Bepul</td><td class="g">Bepul</td><td class="g">Deyarli bepul</td><td class="g">Bepul</td></tr>
+          <tr><td><b>Vaqt</b></td><td>2–3 kun</td><td>1 hafta</td><td>3–5 kun</td><td>1–2 soat</td></tr>
+          <tr><td><b>Asosiy xavfi</b></td><td class="r">Noto'g'ri talqin qilish</td><td class="r">Yetaklovchi savol berish</td><td class="r">Kichik yoki noto'g'ri auditoriya</td><td class="r">Mijozsiz "xayolparastlik"</td></tr>
+        </tbody>
+      </table></div>
+      <div class="quote" style="margin-top:14px">⚖️ <b>Oltin qoida:</b> to'rttasi bir-birini almashtirmaydi — <b>to'ldiradi</b>. Kuzatish gipoteza tug'diradi → suhbat uni chuqurlashtiradi → so'rovnoma raqam bilan tasdiqlaydi → shturm yechim beradi.</div>
+    </div>
+  </section>
+
+  <!-- ============ 7 ============ -->
+  <section class="slide" data-title="Kuzatish">
+    <div class="inner">
+      <span class="kicker">3.1 · Usul</span>
+      <h2>👁 Kuzatish — <span class="grad">so'zga emas, harakatga qarang</span></h2>
+      <div class="grid g2">
+        <div>
+          <div class="def" style="background:linear-gradient(135deg,var(--green2),var(--teal))">Odamlar nima <b>deyishi</b> bilan nima <b>qilishi</b> ko'pincha mos kelmaydi. Kuzatish — mijozni o'z muhitida, hech narsa so'ramasdan, jimgina kuzatib, <b>real xatti-harakatini</b> yozib borish usuli.</div>
+          <h3 style="margin-top:14px">Nimalarga e'tibor berish kerak?</h3>
+          <ul class="tick">
+            <li><b>Kutish va navbat:</b> odam qayerda vaqt yo'qotmoqda?</li>
+            <li><b>"Qo'lbola" yechimlar:</b> skotch bilan yopishtirilgan, daftarda yuritilgan — bu <b>eng kuchli signal</b>, chunki odam muammoni o'zi hal qilishga urinyapti.</li>
+            <li><b>Takroriy harakat:</b> bir ishni kuniga necha marta qayta bajaradi?</li>
+            <li><b>Yuz ifodasi va e'tiroz:</b> qaysi bosqichda asabiylashadi yoki voz kechadi?</li>
+            <li><b>Voz kechish nuqtasi:</b> qayerda "keyin qilaman" deb ketib qoladi?</li>
+          </ul>
+        </div>
+        <div>
+          <h3>📓 Kuzatuv daftari shabloni</h3>
+          <div class="tw"><table>
+            <thead><tr><th>Sana / joy</th><th>Kim</th><th>Nima qildi</th><th>Qiyinchilik</th><th>G'oya</th></tr></thead>
+            <tbody>
+              <tr><td>12.09 / oshxona</td><td>1-kurs talabalari</td><td>Navbatda 27 daqiqa turdi</td><td>Tanaffus yetmadi, ovqatsiz ketdi</td><td class="g">Oldindan buyurtma boti</td></tr>
+              <tr><td>13.09 / bekat</td><td>Ishga shoshayotganlar</td><td>Taksi kutdi, 3 marta qo'ng'iroq qildi</td><td>Ertalab mashina yo'q</td><td class="g">Mahalla ichi jamoaviy qatnov</td></tr>
+              <tr><td>14.09 / do'kon</td><td>Sotuvchi</td><td>Hisobni daftarda yuritdi</td><td>Kechqurun 40 daq. hisob-kitob</td><td class="g">Oddiy savdo ilovasi</td></tr>
+            </tbody>
+          </table></div>
+          <div class="card" style="--c:var(--orange);margin-top:12px">
+            <h3>⚠️ Kuzatishda 3 ta xato</h3>
+            <ul class="tick cross">
+              <li>Aralashib ketish: maslahat berib, tabiiy holatni buzish.</li>
+              <li>Bitta holatdan xulosa chiqarish — kamida <b>5–10 ta</b> vaziyat kerak.</li>
+              <li>Faqat eslab qolish — yozmasangiz, ertaga <b>talqin</b> qolib, <b>fakt</b> yo'qoladi.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 8 ============ -->
+  <section class="slide" data-title="Mijoz bilan suhbat">
+    <div class="inner">
+      <span class="kicker">3.2 · Usul</span>
+      <h2>🗣 Mijoz bilan suhbat — <span class="grad">"Mom Test"</span> qoidalari</h2>
+      <div class="def" style="background:linear-gradient(135deg,var(--blue),var(--violet))">Mom Test qoidasi: savolingiz shunday bo'lsinki, unga <b>hatto onangiz ham yolg'on maqtov ayta olmasin</b>. Buning uchun g'oyangiz haqida emas — <b>mijozning o'tmishdagi hayoti</b> haqida so'rang.</div>
+      <div class="grid g3" style="margin-top:14px">
+        <div class="card" style="--c:var(--green)"><h3>1-qoida</h3><p>G'oyangiz haqida <b>gapirmang</b>. Mijozning hayoti haqida so'rang.</p></div>
+        <div class="card" style="--c:var(--blue)"><h3>2-qoida</h3><p>Kelajak emas, <b>o'tmish</b> haqida so'rang: "qilar edingizmi?" emas, "oxirgi marta qachon qildingiz?"</p></div>
+        <div class="card" style="--c:var(--violet)"><h3>3-qoida</h3><p>Ko'p <b>gapiring emas — tinglang</b>. Suhbatning 80% vaqti mijozniki.</p></div>
+      </div>
+      <div class="grid g2" style="margin-top:14px">
+        <div class="card" style="--c:var(--green)">
+          <h3>✅ Yaxshi savollar</h3>
+          <ul class="tick">
+            <li>"Bu ishni oxirgi marta qachon va qanday bajardingiz?"</li>
+            <li>"Unda eng qiyin bo'lgan joyi nima edi?"</li>
+            <li>"Hozir buni qanday hal qilyapsiz?"</li>
+            <li>"Bu muammo sizga haftasiga qancha vaqt/pulga tushadi?"</li>
+            <li>"Buni hal qilish uchun avval nimalarni sinab ko'rgansiz?"</li>
+            <li>"Nega o'sha yechim sizga to'g'ri kelmadi?"</li>
+            <li>"Bu mavzuda yana kim bilan gaplashsam bo'ladi?"</li>
+          </ul>
+        </div>
+        <div class="card" style="--c:var(--red)">
+          <h3>❌ Yomon savollar</h3>
+          <ul class="tick cross">
+            <li>"Mening g'oyam yoqdimi?" → faqat xushomad olasiz</li>
+            <li>"Shunday ilova bo'lsa, ishlatarmidingiz?" → "ha" deydi, ishlatmaydi</li>
+            <li>"Buning uchun 50 ming to'larmidingiz?" → xayoliy pul, xayoliy javob</li>
+            <li>"Sizga bu muammo bezovta qiladi-a?" → yetaklovchi savol</li>
+            <li>"Kelajakda nima qilasiz?" → taxmin, fakt emas</li>
+          </ul>
+          <div class="quote" style="margin-top:10px">Maqtov — ma'lumot emas. Faqat <b>fakt, raqam va o'tmishdagi harakat</b> ma'lumot hisoblanadi.</div>
+        </div>
+      </div>
+      <small class="note">Amaliy me'yor: kamida <b>10–20 ta</b> suhbat. Har biri 15–20 daqiqa. Suhbatdan keyin 3 ta narsani yozing: fakt, iqtibos (mijozning aynan so'zi), keyingi qadam.</small>
+    </div>
+  </section>
+
+  <!-- ============ 9 ============ -->
+  <section class="slide" data-title="So'rovnoma">
+    <div class="inner">
+      <span class="kicker">3.3 · Usul</span>
+      <h2>📋 So'rovnoma — <span class="grad">taxminni raqamga aylantirish</span></h2>
+      <p class="lead">So'rovnoma g'oya <b>topish</b> uchun emas, allaqachon topilgan gipotezani <b>ko'p odamda tekshirish</b> uchun kerak. Google Forms yoki Telegram so'rovi — bepul va yetarli.</p>
+      <div class="grid g2">
+        <div class="card" style="--c:var(--blue)">
+          <h3>🧱 Tuzilishi (8–10 savol, 3 daqiqa)</h3>
+          <ul class="clean">
+            <li><b>1–2. Skrining:</b> "Siz TTJda yashaysizmi?" — kerakli auditoriyani ajratadi.</li>
+            <li><b>3–5. Xatti-harakat:</b> "Oxirgi 7 kunda necha marta duch keldingiz?", "Qancha vaqt ketdi?"</li>
+            <li><b>6–7. Hozirgi yechim:</b> "Hozir buni qanday hal qilyapsiz?", "Nimasi yoqmaydi?"</li>
+            <li><b>8. To'lov signali:</b> "Oxirgi marta shunga o'xshash xizmatga qancha to'lagansiz?"</li>
+            <li><b>9. Ochiq savol:</b> "Bu jarayonda eng bezovta qiladigan narsa nima?"</li>
+            <li><b>10. Kontakt:</b> "Sinovda qatnashishga tayyormisiz? Telegram raqamingiz."</li>
+          </ul>
+        </div>
+        <div>
+          <div class="card" style="--c:var(--green)">
+            <h3>📐 Savol turlari</h3>
+            <p><b>Yopiq</b> (ha/yo'q, variantli) → tez sanaladi · <b>Shkalali</b> (1–5) → qiyoslanadi · <b>Ochiq</b> (matn) → jonli iqtibos beradi. Nisbati taxminan <b>70% yopiq + 30% ochiq</b>.</p>
+          </div>
+          <div class="card" style="--c:var(--red);margin-top:12px">
+            <h3>⚠️ 5 ta tipik xato</h3>
+            <ul class="tick cross">
+              <li><b>Yetaklovchi savol:</b> "Navbatda turish yomon-a?"</li>
+              <li><b>Ikki savol bittada:</b> "Tez va arzon bo'lsa yoqadimi?"</li>
+              <li><b>Kichik namuna:</b> 12 ta javob bilan xulosa chiqarish (kamida 50–100 kerak).</li>
+              <li><b>Faqat do'stlar:</b> ular sizni xafa qilmaslikka harakat qiladi.</li>
+              <li><b>Xayoliy narx:</b> "to'larmidingiz?" — real to'lov emas.</li>
+            </ul>
+          </div>
+          <div class="quote" style="margin-top:12px">📊 So'rovnoma natijasini shunday o'qing: <b>"100 kishidan 68 tasi haftasiga 2+ marta duch kelgan va 41 tasi hozir buning uchun pul sarflamoqda"</b> — mana shu biznes uchun asos.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 10 ============ -->
+  <section class="slide" data-title="Fikrlar shturmi">
+    <div class="inner">
+      <span class="kicker">3.4 · Usul</span>
+      <h2>💡 Fikrlar shturmi — <span class="grad">miqdordan sifat tug'iladi</span></h2>
+      <div class="grid g2">
+        <div>
+          <div class="card" style="--c:var(--violet)">
+            <h3>🚦 4 ta asosiy qoida</h3>
+            <ul class="tick">
+              <li><b>Tanqid taqiqlanadi.</b> Baholash keyin — avval yig'amiz.</li>
+              <li><b>Miqdor muhim.</b> Maqsad: 20 daqiqada <b>50+ g'oya</b>.</li>
+              <li><b>G'alati g'oyalar rag'batlantiriladi.</b> Ular ko'pincha yangi yo'l ochadi.</li>
+              <li><b>G'oyalarni birlashtiring.</b> Boshqaning fikri ustiga qurish mumkin.</li>
+            </ul>
+          </div>
+          <div class="card" style="--c:var(--cyan);margin-top:12px">
+            <h3>⏱ 60 daqiqalik sxema</h3>
+            <p><b>5 daq.</b> muammoni aniq bayon qilish → <b>10 daq.</b> jimgina yakka yozish → <b>20 daq.</b> ovoz chiqarib yig'ish → <b>10 daq.</b> guruhlash → <b>10 daq.</b> ovoz berish → <b>5 daq.</b> 3 ta g'oyani tanlash.</p>
+          </div>
+        </div>
+        <div>
+          <div class="card" style="--c:var(--orange)">
+            <h3>❓ HMW — "Qanday qilib biz...?"</h3>
+            <p>Muammoni savolga aylantiring — miya darhol yechim izlay boshlaydi.</p>
+            <p style="color:var(--red)">❌ "Talabalar navbatda ko'p turadi."</p>
+            <p style="color:var(--green)"><b>✅ "Qanday qilib biz talabaga navbatsiz, 5 daqiqada tushlik yetkaza olamiz?"</b></p>
+          </div>
+          <div class="card" style="--c:var(--green);margin-top:12px">
+            <h3>🔧 SCAMPER — g'oyani "aylantirish"</h3>
+            <p><b>S</b>—almashtir · <b>C</b>—birlashtir · <b>A</b>—moslashtir · <b>M</b>—o'zgartir/kattalashtir · <b>P</b>—boshqa maqsadda ishlat · <b>E</b>—olib tashla · <b>R</b>—teskari qil.</p>
+            <p style="font-size:13.5px;color:var(--muted)">Misol: oshxona + yetkazib berish (C) · oshxonasiz faqat bot (E) · mijoz emas, o'qituvchilar uchun (A).</p>
+          </div>
+          <div class="card" style="--c:var(--pink);margin-top:12px">
+            <h3>✍️ 6-3-5 usuli</h3>
+            <p><b>6</b> kishi × <b>3</b> g'oya × <b>5</b> daqiqa, so'ng varaqlar almashtiriladi. 30 daqiqada <b>108 ta</b> g'oya to'planadi.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 11 ============ -->
+  <section class="slide" data-title="Tahlil va saralash">
+    <div class="inner">
+      <span class="kicker">4-savol</span>
+      <h2>Ma'lumotdan <span class="grad">insayt</span>, insaytdan <span class="grad">gipoteza</span></h2>
+      <div class="grid g3">
+        <div class="card" style="--c:var(--blue)"><h3>1. Fakt</h3><p>"10 ta talabadan 7 tasi tushlikni 20 daqiqadan ko'p kutgan."</p></div>
+        <div class="card" style="--c:var(--violet)"><h3>2. Insayt</h3><p>"Talaba uchun muammo — ovqat emas, <b>vaqt</b>. U navbat uchun darsini qurbon qilmoqchi emas."</p></div>
+        <div class="card" style="--c:var(--green)"><h3>3. Gipoteza</h3><p>"Agar oldindan buyurtma va belgilangan vaqtda olish imkoni bo'lsa, talabalarning kamida 30% i undan foydalanadi."</p></div>
+      </div>
+      <div class="card" style="--c:var(--orange);margin-top:14px">
+        <h3>🧾 Muammo bayonoti (problem statement) shabloni</h3>
+        <p style="font-size:17px"><b>[Mijoz turi]</b> — <b>[qanday vaziyatda]</b> — <b>[qanday muammoga]</b> duch keladi, chunki <b>[sabab]</b>. Bu unga <b>[vaqt/pul yo'qotishi]</b>ga olib keladi.</p>
+        <p style="color:var(--green)"><b>Misol:</b> "TTJda yashovchi 1–2-kurs talabasi — tanaffus 45 daqiqa bo'lganda — tushlikka ulgurmaydi, chunki navbat 25–40 daqiqa oladi. Natijada haftasiga 2–3 marta ovqatsiz qoladi."</p>
+      </div>
+      <div class="grid g2" style="margin-top:14px">
+        <div class="card" style="--c:var(--pink)">
+          <h3>📊 Saralash matritsasi: ta'sir × qiyinlik</h3>
+          <div class="tw"><table>
+            <thead><tr><th></th><th>Oson</th><th>Qiyin</th></tr></thead>
+            <tbody>
+              <tr><td><b>Katta ta'sir</b></td><td class="g">⭐ Birinchi shu! (tez g'alaba)</td><td>Reja qiling, resurs kerak</td></tr>
+              <tr><td><b>Kichik ta'sir</b></td><td>Bo'sh vaqtda</td><td class="r">✕ Umuman qilmang</td></tr>
+            </tbody>
+          </table></div>
+        </div>
+        <div class="card" style="--c:var(--teal)">
+          <h3>🔢 ICE ball bilan tartiblash (1–10)</h3>
+          <p><b>I</b>mpact (ta'sir) × <b>C</b>onfidence (ishonch) × <b>E</b>ase (yengillik)</p>
+          <div class="tw"><table>
+            <thead><tr><th>G'oya</th><th>I</th><th>C</th><th>E</th><th>Ball</th></tr></thead>
+            <tbody>
+              <tr><td>Tushlik boti</td><td>9</td><td>8</td><td>7</td><td class="g">504</td></tr>
+              <tr><td>Kir yuvish xizmati</td><td>8</td><td>7</td><td>6</td><td>336</td></tr>
+              <tr><td>Talabalar uchun ilova</td><td>9</td><td>4</td><td>3</td><td class="r">108</td></tr>
+            </tbody>
+          </table></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 12 ============ -->
+  <section class="slide" data-title="Qiymat taklifi">
+    <div class="inner">
+      <span class="kicker">4.2</span>
+      <h2>Qiymat taklifi — <span class="grad">g'oyani bitta jumlaga sig'dirish</span></h2>
+      <div class="def" style="background:linear-gradient(135deg,var(--violet),var(--blue))">
+        <b>[Kim uchun]</b> — biz <b>[qanday muammoni]</b> — <b>[qanday yechim]</b> orqali hal qilamiz. Mavjud usuldan farqi — <b>[aniq ustunlik]</b>.
+      </div>
+      <div class="grid g2" style="margin-top:14px">
+        <div class="card" style="--c:var(--green)">
+          <h3>✅ Kuchli misol</h3>
+          <p style="font-size:16px">"TTJda yashovchi <b>1–2-kurs talabalari</b> uchun biz <b>tushlik navbatida 30 daqiqa yo'qotish</b> muammosini <b>Telegram-bot orqali oldindan buyurtma</b> bilan hal qilamiz. Farqi — ovqat <b>belgilangan vaqtda, navbatsiz</b> topshiriladi."</p>
+        </div>
+        <div class="card" style="--c:var(--red)">
+          <h3>❌ Kuchsiz misol</h3>
+          <p style="font-size:16px">"Biz talabalar uchun <b>zamonaviy va qulay</b> ovqat platformasi yaratamiz."</p>
+          <p style="color:var(--muted)">Kim aniq emas · muammo yo'q · farqi yo'q · "zamonaviy, qulay, sifatli" — bu <b>bo'sh so'zlar</b>, ularni har qanday raqobatchi ham ayta oladi.</p>
+        </div>
+      </div>
+      <h3 style="margin-top:16px">Tekshiruv: 4 ta savolga "ha" deya olasizmi?</h3>
+      <div class="grid g4">
+        <div class="card" style="--c:var(--cyan)"><h3>👤 Aniqmi?</h3><p>Mijozni ko'chada tanib olish mumkinmi?</p></div>
+        <div class="card" style="--c:var(--orange)"><h3>💥 Og'riqlimi?</h3><p>Muammo "dori" darajasidami?</p></div>
+        <div class="card" style="--c:var(--violet)"><h3>🔀 Farqlimi?</h3><p>Raqobatchi buni ayta olmaydimi?</p></div>
+        <div class="card" style="--c:var(--green)"><h3>📏 O'lchanadimi?</h3><p>Natijani raqamda ko'rsata olasizmi?</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 13 ============ -->
+  <section class="slide" data-title="MVP nima?">
+    <div class="inner">
+      <span class="kicker">5-savol</span>
+      <h2>MVP — <span class="grad">eng kam xarajatli sinov mahsuloti</span></h2>
+      <div class="def" style="background:linear-gradient(135deg,var(--orange),var(--pink))">MVP (Minimum Viable Product) — g'oyangizni tekshirish uchun yetarli bo'lgan <b>eng oddiy, eng arzon va eng tez</b> variant. Uning maqsadi — <b>pul topish emas, javob olish</b>: "mijozga bu haqiqatan kerakmi?"</div>
+      <h3 style="margin-top:16px">🛹 Mashhur "skeytbord" qoidasi</h3>
+      <div class="chain">
+        <div class="link l1"><h3>1-qadam</h3><p>🛹 Skeytbord</p><p style="font-size:12.5px">Mijoz allaqachon <b>harakatlana oladi</b> va fikr bildiradi</p></div>
+        <div class="link l2"><h3>2-qadam</h3><p>🛴 Samokat</p><p style="font-size:12.5px">Boshqaruv qo'shildi — qulayroq</p></div>
+        <div class="link l3"><h3>3-qadam</h3><p>🚲 Velosiped</p><p style="font-size:12.5px">Tezroq, uzoqroq masofa</p></div>
+        <div class="link l4"><h3>4-qadam</h3><p>🚗 Avtomobil</p><p style="font-size:12.5px">To'liq mahsulot — <b>oxirida</b>, mijoz tasdiqlagach</p></div>
+      </div>
+      <p style="margin-top:10px;color:var(--red);font-weight:700">❌ Noto'g'ri yo'l: g'ildirak → kuzov → dvigatel → mashina. Bunda mijoz <b>oxirigacha hech narsani sinab ko'rmaydi</b> va butun pul yo'qoladi.</p>
+      <div class="grid g2" style="margin-top:14px">
+        <div class="card" style="--c:var(--green)"><h3>✅ MVP bu —</h3>
+          <ul class="tick">
+            <li>Bitta <b>eng muhim</b> muammoni yechadi</li>
+            <li>Real mijoz qo'lida sinaladi</li>
+            <li>1 hafta – 1 oyda tayyor bo'ladi</li>
+            <li>Aniq savolga javob beradi (metrikasi bor)</li>
+          </ul>
+        </div>
+        <div class="card" style="--c:var(--red)"><h3>❌ MVP bu emas —</h3>
+          <ul class="tick cross">
+            <li>Yarim tayyor, buzuq mahsulot</li>
+            <li>Faqat prezentatsiya yoki slayd</li>
+            <li>"Hamma funksiya bo'lsin" deb 6 oy yasalgan ilova</li>
+            <li>Faqat do'stlarga ko'rsatilgan namuna</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 14 ============ -->
+  <section class="slide" data-title="MVP turlari">
+    <div class="inner">
+      <span class="kicker">5.2 · Amaliyot</span>
+      <h2>Eng kam xarajatli <span class="grad">MVP turlari</span></h2>
+      <div class="tw"><table>
+        <thead><tr><th>MVP turi</th><th>Nima qilinadi</th><th>Xarajat / muddat</th><th>Nimani tekshiradi</th></tr></thead>
+        <tbody>
+          <tr><td><b>🧵 Oddiy namuna</b><br><span style="color:var(--muted);font-size:13px">qo'lda tayyorlangan</span></td><td>1–5 dona mahsulotni o'z qo'lingiz bilan yasab, mijozga berish</td><td class="g">Deyarli bepul · 2–5 kun</td><td>Sifat, narx, mijoz reaksiyasi</td></tr>
+          <tr><td><b>📖 Katalog / varaqa</b></td><td>Mahsulot rasmi, tavsifi va narxi bo'lgan PDF yoki bosma varaqa tarqatish</td><td class="g">20–50 ming so'm · 1–2 kun</td><td>Qiziqish va buyurtma soni</td></tr>
+          <tr><td><b>🖼 Raqamli maket</b><br><span style="color:var(--muted);font-size:13px">Figma, Canva, PowerPoint</span></td><td>Ilova yoki sayt ekranlarini "bosiladigan" rasm ko'rinishida yasash</td><td class="g">Bepul · 1–3 kun</td><td>Tushunarlilik, foydalanish yo'li</td></tr>
+          <tr><td><b>🌐 Landing + tugma testi</b></td><td>Bitta sahifa + "Buyurtma berish" tugmasi; bosganlar soni sanaladi</td><td class="g">Bepul–100 ming · 1 kun</td><td>Real qiziqish (so'z emas, klik)</td></tr>
+          <tr><td><b>🤵 Konsyerj MVP</b></td><td>Avtomatika o'rniga hamma ishni <b>qo'lda</b> qilasiz (bot o'rniga o'zingiz yozasiz)</td><td class="g">Bepul · 1 hafta</td><td>Jarayon ishlaydimi, mijoz qoladimi</td></tr>
+          <tr><td><b>🎩 "Sehrgar Oz"</b></td><td>Mijoz avtomatik tizim deb o'ylaydi, ortida odam ishlaydi</td><td class="g">Bepul · 1 hafta</td><td>Talab va sifat me'yori</td></tr>
+          <tr><td><b>💳 Oldindan buyurtma</b><br><span style="color:var(--muted);font-size:13px">pre-order / oldindan to'lov</span></td><td>Mahsulot tayyor bo'lmasdan oldin buyurtma va oldindan to'lov yig'ish</td><td class="g">Bepul · 3–7 kun</td><td class="g">Eng kuchli dalil: <b>real pul</b></td></tr>
+        </tbody>
+      </table></div>
+      <div class="quote" style="margin-top:14px">🎓 <b>Talaba uchun tavsiya:</b> ilova yozishga shoshilmang. Ko'pchilik g'oyani <b>Telegram-bot, Google Forms va Excel</b> uchligi bilan sinab ko'rish mumkin — bu bir hafta va deyarli nol so'm.</div>
+    </div>
+  </section>
+
+  <!-- ============ 15 ============ -->
+  <section class="slide" data-title="MVPni sinash">
+    <div class="inner">
+      <span class="kicker">5.3 · Sinov</span>
+      <h2>MVPni qanday sinaymiz va <span class="grad">natijani qanday o'qiymiz?</span></h2>
+      <div class="card" style="--c:var(--violet)">
+        <h3>🧪 Sinov formulasi</h3>
+        <p style="font-size:17px">Men <b>[kimning]</b> <b>[qanday xatti-harakati]</b>ni tekshiraman. Agar <b>[metrika]</b> <b>[mezon]</b>dan yuqori bo'lsa — gipoteza <b>tasdiqlandi</b>.</p>
+        <p style="color:var(--green)"><b>Misol:</b> "50 ta talabaga botni yuboraman. Agar <b>15 tasi</b> (30%) haqiqiy buyurtma bersa — davom etaman."</p>
+      </div>
+      <div class="grid g2" style="margin-top:14px">
+        <div class="card" style="--c:var(--cyan)">
+          <h3>🗓 7 kunlik sinov rejasi</h3>
+          <ul class="clean">
+            <li><b>1-kun:</b> gipoteza va metrikani yozish</li>
+            <li><b>2–3-kun:</b> MVPni yasash (bot / maket / katalog)</li>
+            <li><b>4-kun:</b> 20–50 ta mijozga yetkazish</li>
+            <li><b>5–6-kun:</b> buyurtma qabul qilish, qo'lda bajarish</li>
+            <li><b>7-kun:</b> raqamlarni sanash va qaror qabul qilish</li>
+          </ul>
+        </div>
+        <div class="card" style="--c:var(--orange)">
+          <h3>📈 Nimani sanaymiz? (metrikalar)</h3>
+          <ul class="tick">
+            <li>Nechta odam ko'rdi → nechtasi <b>bosdi</b></li>
+            <li>Nechtasi <b>buyurtma berdi</b> (konversiya, %)</li>
+            <li>Nechtasi <b>pul to'ladi</b> — eng muhim raqam</li>
+            <li>Nechtasi <b>ikkinchi marta qaytdi</b></li>
+            <li>Bitta mijozdan <b>o'rtacha daromad</b> va tannarx</li>
+          </ul>
+        </div>
+      </div>
+      <h3 style="margin-top:16px">Natijaga ko'ra 3 ta qaror</h3>
+      <div class="grid g3">
+        <div class="card" style="--c:var(--green)"><h3>✅ Davom etish</h3><p>Mezon bajarildi → MVPni kengaytiring, avtomatlashtiring, narxni sinang.</p></div>
+        <div class="card" style="--c:var(--orange)"><h3>🔄 Pivot (burilish)</h3><p>Qiziqish bor, lekin boshqa segmentda yoki boshqa yechim shaklida → gipotezani o'zgartirib qayta sinang.</p></div>
+        <div class="card" style="--c:var(--red)"><h3>🛑 To'xtatish</h3><p>Muammo "vitamin" bo'lib chiqdi, hech kim to'lamaydi → g'oyani qo'ying va yangi muammoga o'ting. <b>Bu ham yutuq</b> — siz katta pulni tejadingiz.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 16 ============ -->
+  <section class="slide" data-title="Xulosa va topshiriq">
+    <div class="inner">
+      <span class="kicker">Xulosa</span>
+      <h2>Esda qoladigan <span class="grad">6 ta fikr</span></h2>
+      <div class="grid g3">
+        <div class="card" style="--c:var(--green)"><h3>1</h3><p>Mijoz mahsulot emas, <b>muammosining yechimini</b> sotib oladi. Avval og'riqni toping.</p></div>
+        <div class="card" style="--c:var(--blue)"><h3>2</h3><p>Bozor bo'shlig'i — <b>talab bor, yechim yo'q</b> joy. U 6 xil ko'rinishda uchraydi.</p></div>
+        <div class="card" style="--c:var(--violet)"><h3>3</h3><p>To'rt usul bir-birini to'ldiradi: <b>kuzatish → suhbat → so'rovnoma → shturm</b>.</p></div>
+        <div class="card" style="--c:var(--orange)"><h3>4</h3><p><b>Mom Test:</b> g'oyangizni maqtatmang — mijozning o'tmishdagi harakati haqida so'rang.</p></div>
+        <div class="card" style="--c:var(--pink)"><h3>5</h3><p>G'oya <b>gipoteza</b>ga, gipoteza <b>o'lchanadigan sinovga</b> aylantirilishi shart.</p></div>
+        <div class="card" style="--c:var(--cyan)"><h3>6</h3><p><b>MVP</b> — pul topish uchun emas, javob olish uchun. Eng arzon namuna eng qimmat xatodan yaxshiroq.</p></div>
+      </div>
+      <div class="grid g2" style="margin-top:16px">
+        <div class="card" style="--c:var(--amber)">
+          <span class="icon">📓</span><h3>Mustaqil ish: "Muammodan MVPgacha — 7 kun"</h3>
+          <ul class="clean">
+            <li><b>Kuzatish:</b> 3 kun davomida 5 ta vaziyatni kuzatuv daftariga yozing.</li>
+            <li><b>Suhbat:</b> Mom Test qoidalari bo'yicha <b>5 nafar</b> potensial mijoz bilan suhbatlashing, har biridan 1 ta iqtibos keltiring.</li>
+            <li><b>So'rovnoma:</b> 8 savoldan iborat so'rovnoma tuzing va kamida <b>30 ta</b> javob to'plang.</li>
+            <li><b>Tahlil:</b> muammo bayonotini yozing va 5 ta g'oyani ICE ball bilan tartiblang.</li>
+            <li><b>MVP:</b> eng yuqori balli g'oya uchun <b>bitta</b> MVP tayyorlang (namuna, katalog yoki raqamli maket) va uni 10 kishiga ko'rsating.</li>
+            <li><b>Natija:</b> metrikani, olingan javoblarni va qaroringizni (davom / pivot / to'xtat) yozing.</li>
+          </ul>
+          <p style="margin-top:8px;font-size:13.5px;color:var(--muted)">Hajmi: 2–3 bet + MVP rasmi. Baholash: dala ishi sifati 30% · tahlil mantiqiyligi 30% · MVP va metrika 40%.</p>
+        </div>
+        <div class="card" style="--c:var(--teal)">
+          <span class="icon">📚</span><h3>Adabiyotlar va vositalar</h3>
+          <ul class="clean">
+            <li>Rob Fitzpatrick — <b>The Mom Test</b></li>
+            <li>Eric Ries — <b>The Lean Startup</b></li>
+            <li>Osterwalder — <b>Value Proposition Design</b></li>
+            <li>Steve Blank — <b>The Four Steps to the Epiphany</b></li>
+            <li>Tim Brown — <b>Change by Design</b> (dizayn tafakkuri)</li>
+          </ul>
+          <p style="margin-top:8px"><b>Bepul vositalar:</b></p>
+          <p><span class="pill g">Google Forms</span><span class="pill g">Telegram Bot</span><span class="pill g">Figma</span><span class="pill g">Canva</span><span class="pill g">Google Sheets</span><span class="pill g">Trello</span></p>
+          <p style="font-size:13px;color:var(--muted)">Statistika va ro'yxatdan o'tish: stat.uz · birdarcha.uz · my.soliq.uz</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 17 ============ -->
+  <section class="slide" data-title="Qiziqarli faktlar">
+    <div class="inner">
+      <span class="kicker">🎁 Bonus · Ilhom uchun</span>
+      <h2>Mashhur kompaniyalarning <span class="grad-w">birinchi MVPlari</span></h2>
+      <div class="grid g3">
+        <div class="fact"><b>📼 Dropbox — 3 daqiqalik video</b><p>Dasturni yozishdan <b>oldin</b> uning qanday ishlashini tushuntiruvchi oddiy video qo'yishdi. Bir kechada kutish ro'yxati <b>5 000 dan 75 000 kishiga</b> chiqdi. Kod keyin yozildi.</p></div>
+        <div class="fact"><b>👟 Zappos — do'kondagi rasm</b><p>Asoschi ombor qurmadi: yaqin do'kondagi poyabzalni suratga olib saytga qo'ydi. Buyurtma kelsa — o'sha do'kondan sotib olib jo'natdi. Bugun bu <b>milliardlik</b> kompaniya.</p></div>
+        <div class="fact"><b>🛏 Airbnb — 3 ta havo matrasi</b><p>Konferensiya paytida mehmonxonalar to'lgan edi. Asoschilar o'z xonalarini ijaraga berib, MVPni bir hafta ichida sinab ko'rishdi.</p></div>
+        <div class="fact"><b>🎟 Groupon — oddiy blog</b><p>Birinchi versiya WordPress blog va qo'lda yuborilgan PDF kuponlar edi. Hech qanday platforma yo'q — faqat qo'l mehnati.</p></div>
+        <div class="fact"><b>📊 Buffer — ikki sahifa</b><p>Faqat ikkita sahifa: "narxlar" va "ro'yxatdan o'tish". Odamlar tugmani bosdi — demak, talab bor. Mahsulot keyin yaratildi.</p></div>
+        <div class="fact"><b>🍔 McDonald's — sanoat oshxonasi</b><p>Aka-uka Makdonaldlar oshxona jarayonini tennis kortiga bo'r bilan chizib, xodimlar bilan "repetitsiya" qilib sinashgan — bu ham MVP.</p></div>
+        <div class="fact"><b>📱 Instagram — pivot natijasi</b><p>Dastlab u Burbn nomli geolokatsiya ilovasi edi. Foydalanuvchilar faqat <b>rasm ulashishni</b> ishlatgani ko'rilgach, qolgani olib tashlandi.</p></div>
+        <div class="fact"><b>🎮 Slack — o'yin qoldig'i</b><p>Slack o'yin kompaniyasining <b>ichki chat vositasi</b> edi. O'yin muvaffaqiyatsiz tugadi, chat esa milliardlik biznesga aylandi.</p></div>
+        <div class="fact"><b>🥤 Coca-Cola — kuniga 9 stakan</b><p>Birinchi yili kuniga o'rtacha 9 stakan sotgan. Sabr va sinov — strategiyaning bir qismi.</p></div>
+        <div class="fact"><b>📉 Eng ko'p uchraydigan sabab</b><p>Startaplar yopilishining asosiy sabablaridan biri — <b>"bozorga kerak bo'lmagan mahsulot"</b> yaratish (taxminan har uchtadan bittasi).</p></div>
+        <div class="fact"><b>💬 5 foydalanuvchi qoidasi</b><p>Foydalanish qulayligidagi muammolarning taxminan <b>85 foizi</b> atigi 5 nafar odam bilan sinovda aniqlanadi (Nilsen qoidasi).</p></div>
+        <div class="fact"><b>🇺🇿 Bizda ham imkoniyat</b><p>O'zbekistonda 1,2 milliondan ortiq kichik tadbirkorlik subyekti bor. Ularning aksariyati — <b>oddiy mahalliy muammodan</b> boshlangan.</p></div>
+      </div>
+      <div class="quote" style="margin-top:16px">💡 Umumiy xulosa: bu kompaniyalarning birortasi ham <b>mukammal mahsulot</b> bilan boshlamagan. Ular <b>eng arzon sinovdan</b> boshlagan va mijozning javobiga qarab o'sgan.</div>
+    </div>
+  </section>
+
+  <!-- ============ 18 ============ -->
+  <section class="slide" data-title="TEST · Bilimni tekshirish">
+    <div class="inner">
+      <span class="kicker">Yakuniy nazorat</span>
+      <h2>🧪 Test topshiriqlari — <span class="grad">o'zingizni sinang</span></h2>
+      <div class="scorebar">
+        <span>Natija: <b><span id="scoreNow">0</span> / <span id="scoreMax">15</span></b></span>
+        <span>Javob berildi: <b id="answered">0</b></span>
+        <div class="spacer"></div>
+        <button class="btn warn" id="btnReset">↻ Testni qayta boshlash</button>
+      </div>
+      <div id="testWrap"></div>
+      <div class="result" id="result">
+        <div class="pct" id="pct">0%</div>
+        <h3 id="resTitle" style="color:#fff;margin:10px 0 4px">Natija</h3>
+        <p id="resTxt" style="color:#fff;opacity:.95;margin:0"></p>
+      </div>
+      <div class="card" style="--c:var(--green);margin-top:18px;text-align:center">
+        <h3>🎓 Rahmat! E'tiboringiz uchun tashakkur</h3>
+        <p>Endi navbat amaliyotda: <b>daftar, 5 ta suhbat va 1 ta MVP</b>. Keyingi mashg'ulotda har biringiz o'z sinovingiz natijasini taqdim etasiz.</p>
+        <p style="color:var(--muted);font-size:13.5px">Termiz davlat universiteti · Tadbirkorlik asoslari</p>
+      </div>
+    </div>
+  </section>
+
+  </main>
+
+  <!-- ====== NAVBAR ====== -->
+  <footer class="navbar">
+    <button class="btn" id="btnPrev">← Orqaga</button>
+    <span class="counter"><b id="cur">1</b> / <span id="total">18</span></span>
+    <div class="dots" id="dots"></div>
+    <span class="counter" id="slideName"></span>
+    <button class="btn accent" id="btnNext">Keyingi →</button>
+  </footer>
+</div>
+
+<!-- ====== OVERLAYS ====== -->
+<div class="overlay" id="overview">
+  <div class="ov-head">
+    <h3 style="margin:0;flex:1">▦ Barcha slaydlar</h3>
+    <button class="btn" id="ovClose">✕ Yopish</button>
+  </div>
+  <div class="thumbs" id="thumbs"></div>
+</div>
+
+<div class="overlay" id="help">
+  <div class="helpbox">
+    <h3 style="margin-top:0">⌨️ Klaviatura va imkoniyatlar</h3>
+    <div><span>Keyingi slayd</span><span><kbd>→</kbd> <kbd>Space</kbd> <kbd>PgDn</kbd></span></div>
+    <div><span>Oldingi slayd</span><span><kbd>←</kbd> <kbd>PgUp</kbd></span></div>
+    <div><span>Birinchi / oxirgi slayd</span><span><kbd>Home</kbd> <kbd>End</kbd></span></div>
+    <div><span>Slaydlar ro'yxati</span><span><kbd>O</kbd></span></div>
+    <div><span>Tun / Kun rejimi</span><span><kbd>D</kbd></span></div>
+    <div><span>To'liq ekran</span><span><kbd>F</kbd></span></div>
+    <div><span>Vaqt hisoblagich (start/stop)</span><span><kbd>T</kbd></span></div>
+    <div><span>Chop etish / PDF</span><span><kbd>P</kbd></span></div>
+    <div><span>Slayd raqamiga o'tish</span><span><kbd>1</kbd>…<kbd>9</kbd></span></div>
+    <div><span>Yopish</span><span><kbd>Esc</kbd></span></div>
+    <p style="color:var(--muted);font-size:13px;margin:14px 0 0">📱 Telefonda chapga/o'ngga surib (swipe) slaydlarni almashtirish mumkin. Ochilgan slayd brauzer xotirasida saqlanadi.</p>
+    <button class="btn accent" id="helpClose" style="margin-top:14px;width:100%;justify-content:center">Tushunarli</button>
+  </div>
+</div>
+
+<div class="hint" id="hint">⌨️ <kbd>→</kbd> keyingi slayd · <kbd>D</kbd> tun/kun · <kbd>O</kbd> ro'yxat · <kbd>F</kbd> to'liq ekran</div>
+
+<script>
+(function(){
+"use strict";
+/* ================= SLAYD BOSHQARUVI ================= */
+var slides=[].slice.call(document.querySelectorAll(".slide"));
+var total=slides.length, idx=0;
+var $=function(s){return document.querySelector(s)};
+$("#total").textContent=total;
+$("#scoreMax");
+
+var dots=$("#dots"), thumbs=$("#thumbs");
+slides.forEach(function(s,i){
+  var d=document.createElement("button");
+  d.className="dot"; d.title=(i+1)+". "+s.dataset.title;
+  d.onclick=function(){go(i)};
+  dots.appendChild(d);
+  var t=document.createElement("button");
+  t.className="thumb";
+  t.innerHTML="<i>SLAYD "+(i+1)+"</i><b>"+s.dataset.title+"</b>";
+  t.onclick=function(){go(i);closeAll()};
+  thumbs.appendChild(t);
+});
+var dotEls=[].slice.call(dots.children), thEls=[].slice.call(thumbs.children);
+
+function go(n){
+  n=Math.max(0,Math.min(total-1,n));
+  slides.forEach(function(s,i){
+    s.classList.toggle("active",i===n);
+    s.classList.toggle("prev",i<n);
+  });
+  dotEls.forEach(function(d,i){d.classList.toggle("on",i===n)});
+  thEls.forEach(function(d,i){d.classList.toggle("on",i===n)});
+  idx=n;
+  $("#cur").textContent=n+1;
+  $("#slideName").textContent=slides[n].dataset.title;
+  $("#progress").style.width=((n+1)/total*100)+"%";
+  $("#btnPrev").disabled=(n===0);
+  $("#btnNext").disabled=(n===total-1);
+  slides[n].scrollTop=0;
+  try{localStorage.setItem("terdu_m2_slide",n)}catch(e){}
+  var hn=document.getElementById("hint"); if(hn&&n>0)hn.classList.add("hide");
+  if(slides[n].querySelector("[data-count]")) countUp(slides[n]);
+}
+$("#btnPrev").onclick=function(){go(idx-1)};
+$("#btnNext").onclick=function(){go(idx+1)};
+
+/* ================= RAQAMLAR ANIMATSIYASI ================= */
+function countUp(slide){
+  slide.querySelectorAll("[data-count]").forEach(function(el){
+    var end=parseFloat(el.dataset.count), dec=parseInt(el.dataset.dec||"0",10), suf=el.dataset.suf||"";
+    var t0=null, dur=1100;
+    function step(ts){
+      if(!t0)t0=ts;
+      var p=Math.min(1,(ts-t0)/dur), e=1-Math.pow(1-p,3);
+      var v=(end*e).toFixed(dec).replace(".",",");
+      el.textContent=v+suf;
+      if(p<1)requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  });
+}
+
+/* ================= TUN / KUN REJIMI ================= */
+function setTheme(t){
+  document.documentElement.setAttribute("data-theme",t);
+  $("#btnTheme").innerHTML=(t==="dark"?"☀️ ":"🌙 ")+"<span id='themeTxt'>"+(t==="dark"?"Kun":"Tun")+"</span>";
+  try{localStorage.setItem("terdu_theme",t)}catch(e){}
+}
+$("#btnTheme").onclick=function(){
+  setTheme(document.documentElement.getAttribute("data-theme")==="dark"?"light":"dark");
+};
+
+/* ================= TO'LIQ EKRAN / CHOP ETISH ================= */
+$("#btnFull").onclick=function(){
+  if(!document.fullscreenElement){ (document.documentElement.requestFullscreen||function(){})().catch(function(){}); }
+  else{ document.exitFullscreen(); }
+};
+$("#btnPrint").onclick=function(){window.print()};
+
+/* ================= VAQT HISOBLAGICH ================= */
+var sec=0, tick=null;
+function fmt(s){var m=Math.floor(s/60),r=s%60;return (m<10?"0":"")+m+":"+(r<10?"0":"")+r}
+$("#btnTimer").onclick=function(){
+  if(tick){clearInterval(tick);tick=null;}
+  else{ tick=setInterval(function(){sec++;document.getElementById("timer").textContent=fmt(sec);},1000); }
+};
+
+/* ================= OVERLAYLAR ================= */
+function closeAll(){$("#overview").classList.remove("show");$("#help").classList.remove("show")}
+$("#btnGrid").onclick=function(){$("#overview").classList.toggle("show")};
+$("#ovClose").onclick=closeAll;
+$("#btnHelp").onclick=function(){$("#help").classList.toggle("show")};
+$("#helpClose").onclick=closeAll;
+$("#overview").addEventListener("click",function(e){if(e.target===this)closeAll()});
+$("#help").addEventListener("click",function(e){if(e.target===this)closeAll()});
+
+/* ================= KLAVIATURA ================= */
+document.addEventListener("keydown",function(e){
+  var k=e.key;
+  if(k==="Escape"){closeAll();return}
+  if(/^(INPUT|TEXTAREA)$/.test(e.target.tagName))return;
+  if(k==="ArrowRight"||k===" "||k==="PageDown"){e.preventDefault();go(idx+1)}
+  else if(k==="ArrowLeft"||k==="PageUp"){e.preventDefault();go(idx-1)}
+  else if(k==="Home"){go(0)}
+  else if(k==="End"){go(total-1)}
+  else if(k==="o"||k==="O"||k==="Ў"){$("#btnGrid").click()}
+  else if(k==="d"||k==="D"){$("#btnTheme").click()}
+  else if(k==="f"||k==="F"){$("#btnFull").click()}
+  else if(k==="t"||k==="T"){$("#btnTimer").click()}
+  else if(k==="p"||k==="P"){e.preventDefault();window.print()}
+  else if(k==="?"){$("#btnHelp").click()}
+  else if(/^[1-9]$/.test(k)){go(parseInt(k,10)-1)}
+});
+
+/* ================= SWIPE (telefon uchun) ================= */
+var x0=null,y0=null;
+document.getElementById("deck").addEventListener("touchstart",function(e){
+  x0=e.changedTouches[0].clientX; y0=e.changedTouches[0].clientY;
+},{passive:true});
+document.getElementById("deck").addEventListener("touchend",function(e){
+  if(x0===null)return;
+  var dx=e.changedTouches[0].clientX-x0, dy=e.changedTouches[0].clientY-y0;
+  if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)*1.6){ dx<0?go(idx+1):go(idx-1); }
+  x0=null;
+},{passive:true});
+
+/* ================= TEST ================= */
+var Q=[
+ {q:"Mijoz aslida nimani sotib oladi?",
+  a:["Mahsulotning o'zini","O'z muammosining yechimini va undan keladigan natijani",
+     "Eng arzon narxni","Reklamada ko'rgan brendni"],c:1,
+  e:"Klassik misol: odamga parma emas, devordagi teshik — aslida esa osilgan rasm kerak."},
+ {q:"\"Dori\" va \"vitamin\" muammo o'rtasidagi asosiy farq nimada?",
+  a:["Dori muammo arzonroq yechiladi","Vitamin muammo faqat yirik biznesga tegishli",
+     "Dori muammo kuchli og'riq beradi, mijoz bugun yechim izlaydi va to'lashga tayyor",
+     "Ular orasida farq yo'q"],c:2,
+  e:"Yosh tadbirkor uchun eng xavfsiz tanlov — \"dori\" darajasidagi og'riqli muammo."},
+ {q:"Kuzatish usulining asosiy afzalligi nimada?",
+  a:["Odamlar nima deyishini eshitasiz","Odamlarning real xatti-harakatini ko'rasiz, so'zini emas",
+     "Bir kunda 1000 kishini qamrab olasiz","Statistik ishonchlilik beradi"],c:1,
+  e:"Odamlar aytgan gap bilan qilgan ishi ko'pincha mos kelmaydi — kuzatish faktni ko'rsatadi."},
+ {q:"Kuzatuv paytida qaysi belgi eng kuchli signal hisoblanadi?",
+  a:["Mijozning kulib turishi","Mijozning muammoni o'zicha, qo'lbola usulda hal qilishga urinishi",
+     "Mijozning g'oyangizni maqtashi","Ko'p odam borligi"],c:1,
+  e:"Qo'lbola yechim (skotch, daftar, Excel) — odam muammoga o'zi vaqt sarflayotganining isboti."},
+ {q:"\"Mom Test\" qoidasiga ko'ra qaysi savol to'g'ri hisoblanadi?",
+  a:["\"Mening g'oyam sizga yoqdimi?\"","\"Shunday ilova bo'lsa ishlatarmidingiz?\"",
+     "\"Bu ishni oxirgi marta qachon va qanday bajargansiz?\"","\"Buning uchun 50 ming to'larmidingiz?\""],c:2,
+  e:"O'tmishdagi real harakat — fakt; kelajak haqidagi javob esa faqat taxmin va xushomad."},
+ {q:"So'rovnoma asosan nima uchun ishlatiladi?",
+  a:["G'oyani noldan o'ylab topish uchun","Tayyor gipotezani ko'p sonli odamda raqam bilan tekshirish uchun",
+     "Raqobatchini o'rganish uchun","Mahsulot dizaynini chizish uchun"],c:1,
+  e:"So'rovnoma — miqdoriy usul: u \"nechta foiz\" degan savolga javob beradi."},
+ {q:"Quyidagilardan qaysi biri so'rovnomadagi xato hisoblanadi?",
+  a:["\"Oxirgi 7 kunda necha marta duch keldingiz?\"","\"Hozir buni qanday hal qilyapsiz?\"",
+     "\"Navbatda turish juda yomon-a?\"","\"Bu jarayonda eng bezovta qiladigan narsa nima?\""],c:2,
+  e:"Bu — yetaklovchi savol: u mijozga javobni oldindan aytib qo'yadi."},
+ {q:"Fikrlar shturmining asosiy qoidasi qaysi?",
+  a:["Har bir g'oyani darhol tanqid qilish","Faqat rahbar g'oya aytishi",
+     "Tanqid qilinmaydi, maqsad — imkon qadar ko'p g'oya to'plash","Faqat amalga oshadigan g'oyalar aytiladi"],c:2,
+  e:"Baholash keyingi bosqichda bo'ladi; shturm paytida miqdor sifatdan muhimroq."},
+ {q:"HMW (\"Qanday qilib biz...?\") savolining vazifasi nima?",
+  a:["Muammoni yechim izlashga undaydigan savolga aylantirish","Mijozdan pul so'rash",
+     "Raqobatchini tanqid qilish","Byudjetni hisoblash"],c:0,
+  e:"Misol: \"Qanday qilib biz talabaga 5 daqiqada navbatsiz tushlik yetkaza olamiz?\""},
+ {q:"\"6-3-5\" usuli nimani anglatadi?",
+  a:["6 kun, 3 mijoz, 5 g'oya","6 kishi, har biri 3 g'oya, 5 daqiqada — so'ng varaqlar almashtiriladi",
+     "6 ta savol, 3 ta javob, 5 ball","6 oy, 3 bosqich, 5 xodim"],c:1,
+  e:"30 daqiqada 108 tagacha g'oya to'plash imkonini beradigan tez texnika."},
+ {q:"MVP (eng kam xarajatli sinov mahsuloti) ning asosiy maqsadi nima?",
+  a:["Darhol katta foyda olish","Investorga chiroyli ko'rinish",
+     "G'oyani eng arzon va tez yo'l bilan tekshirib, mijozdan javob olish","Raqobatchidan oshib ketish"],c:2,
+  e:"MVP savolga javob beradi: \"mijozga bu haqiqatan kerakmi?\""},
+ {q:"Quyidagilardan qaysi biri MVP hisoblanmaydi?",
+  a:["Qo'lda tayyorlangan 5 dona namuna","Figmada chizilgan raqamli maket",
+     "Barcha funksiyalari bilan 6 oy davomida yasalgan, hali mijoz ko'rmagan ilova",
+     "Bitta sahifali sayt va \"Buyurtma berish\" tugmasi"],c:2,
+  e:"MVPning sharti — tez, arzon va real mijoz qo'lida sinalishi."},
+ {q:"G'oyaning to'g'riligini tasdiqlovchi eng kuchli dalil qaysi?",
+  a:["Do'stlarning maqtovi","Ijtimoiy tarmoqdagi layklar",
+     "Mijozning real to'lovi yoki oldindan buyurtmasi","So'rovnomadagi \"ha, qiziq\" javoblari"],c:2,
+  e:"Pul — eng halol ovoz. Shuning uchun pre-order eng ishonchli MVP turlaridan biri."},
+ {q:"BONUS: Dropbox o'zining birinchi MVPsi sifatida nimadan foydalangan?",
+  a:["3 daqiqalik tushuntiruvchi video","To'liq tayyor dastur","Bosma katalog","Televizion reklama"],c:0,
+  e:"Video ko'rsatilgach kutish ro'yxati bir kechada 5 000 dan 75 000 kishiga o'sgan — kod keyin yozilgan."},
+ {q:"BONUS: Zappos asoschisi birinchi sinovni qanday o'tkazgan?",
+  a:["Katta ombor qurgan","Yaqin do'kondagi poyabzalni suratga olib saytga qo'ygan va buyurtma kelsa o'sha do'kondan sotib olgan",
+     "Fabrika bilan shartnoma tuzgan","Investordan 1 mln dollar olgan"],c:1,
+  e:"Zaxira ham, ombor ham bo'lmagan — faqat talab tekshirilgan."}
+];
+var picked=new Array(Q.length).fill(null), KEYS=["A","B","C","D"];
+$("#scoreMax").textContent=Q.length;
+
+function renderTest(){
+  var w=$("#testWrap"); w.innerHTML="";
+  Q.forEach(function(item,qi){
+    var box=document.createElement("div"); box.className="qbox";
+    var h=document.createElement("p"); h.className="q";
+    h.innerHTML="<i>"+(qi+1)+"</i>"+item.q;
+    box.appendChild(h);
+    item.a.forEach(function(txt,ai){
+      var b=document.createElement("button");
+      b.className="opt"; b.type="button";
+      b.innerHTML="<span class='k'>"+KEYS[ai]+")</span>"+txt;
+      b.onclick=function(){answer(qi,ai,box)};
+      box.appendChild(b);
+    });
+    var fb=document.createElement("p"); fb.className="fb"; box.appendChild(fb);
+    w.appendChild(box);
+  });
+}
+function answer(qi,ai,box){
+  if(picked[qi]!==null)return;
+  picked[qi]=ai;
+  var opts=[].slice.call(box.querySelectorAll(".opt")), fb=box.querySelector(".fb");
+  opts.forEach(function(o,i){
+    o.disabled=true;
+    if(i===Q[qi].c)o.classList.add("right");
+    else if(i===ai)o.classList.add("wrong");
+  });
+  var ok=(ai===Q[qi].c);
+  fb.className="fb show "+(ok?"ok":"no");
+  fb.textContent=(ok?"✅ To'g'ri! ":"❌ Noto'g'ri. To'g'ri javob: "+KEYS[Q[qi].c]+") — ")+Q[qi].e;
+  updateScore();
+}
+function updateScore(){
+  var s=0,a=0;
+  picked.forEach(function(p,i){ if(p!==null){a++; if(p===Q[i].c)s++;} });
+  $("#scoreNow").textContent=s; $("#answered").textContent=a;
+  if(a===Q.length){
+    var pct=Math.round(s/Q.length*100), r=$("#result");
+    $("#pct").textContent=pct+"%";
+    var t,x;
+    if(pct>=90){t="🏆 A'lo natija!";x="Siz mavzuni mukammal o'zlashtirgansiz. Endi g'oyangizni amalda sinash vaqti keldi!";}
+    else if(pct>=75){t="🎉 Juda yaxshi!";x="Asosiy tushunchalar mustahkam. Startap va zanjir mavzularini yana bir bor ko'rib chiqing.";}
+    else if(pct>=50){t="👍 Yaxshi, lekin yetarli emas";x="Ma'ruzaning 2, 3 va 5-savollarini qayta o'qing va testni takrorlang.";}
+    else{t="📚 Takrorlash zarur";x="Slaydlarni boshidan ko'rib chiqing — ayniqsa ta'rif, shakllar va zanjir qismini.";}
+    $("#resTitle").textContent=t; $("#resTxt").textContent=x+"  ("+s+" / "+Q.length+" to'g'ri javob)";
+    r.classList.add("show");
+    r.scrollIntoView({behavior:"smooth",block:"center"});
+  }
+}
+$("#btnReset").onclick=function(){
+  picked=new Array(Q.length).fill(null);
+  $("#result").classList.remove("show");
+  renderTest(); updateScore();
+  $("#testWrap").scrollIntoView({behavior:"smooth",block:"start"});
+};
+renderTest();
+
+/* ================= HAQIQIY LOGOTIP (logo.png bo'lsa) ================= */
+(function(){
+  var im=new Image();
+  im.onload=function(){
+    document.querySelectorAll("svg.logo, svg.big-logo").forEach(function(sv){
+      var img=document.createElement("img");
+      img.src="logo.png"; img.alt="Termiz davlat universiteti logotipi";
+      img.className=sv.className.baseVal;
+      img.style.objectFit="contain";
+      sv.replaceWith(img);
+    });
+  };
+  im.src="logo.png";
+})();
+
+/* ================= START ================= */
+try{
+  var th=localStorage.getItem("terdu_theme");
+  setTheme(th|| (window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"));
+  var sv=parseInt(localStorage.getItem("terdu_m2_slide"),10);
+  go(isNaN(sv)?0:sv);
+}catch(e){ setTheme("light"); go(0); }
+setTimeout(function(){document.getElementById("hint").classList.add("hide")},7000);
+})();
+</script>
+</body>
+</html>
