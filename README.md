@@ -61,7 +61,8 @@ Annuitet formulasi bosqichma-bosqich tushuntirilgan. Kalkulyatorga summa, yillik
 kiritsangiz — oylik to'lov, jami to'lov, ortiqcha to'lov va uning ulushi darhol hisoblanadi.
 3 ta masalada talaba javobini maydonga yozib **Tekshirish** tugmasini bosadi. Tizim javobni aniq qiymat bilan
 solishtiradi (1,5% farqgacha to'g'ri hisoblanadi), **to'g'ri yoki xato ekanini aniq aytadi** va **bosqichma-bosqich
-yechimni avtomatik ochadi** — talaba qayerda xato qilganini ko'radi. Yuqorida "To'g'ri yechilgan: X / 3" ball paneli
+yechimni avtomatik ochadi** — talaba qayerda xato qilganini ko'radi. Yechimni oldindan ko'rish mumkin emas:
+"Yechim" tugmasi javob yozib tekshirilmaguncha **qulflangan** turadi. Yuqorida "To'g'ri yechilgan: X / 3" ball paneli
 va "Qaytadan boshlash" tugmasi bor. Masalalar ham ikki tilda.
 
 ## Imkoniyatlar

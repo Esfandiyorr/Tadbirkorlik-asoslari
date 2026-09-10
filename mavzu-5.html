@@ -981,6 +981,8 @@ var UI={
  tPlaceholder:["Javobingiz (so'mda)","Your answer (in so'm)"],
  tCheck:["✔ Tekshirish","✔ Check"],
  tShow:["📖 Yechimni ko'rsatish","📖 Show the solution"],
+ tLocked:["🔒 Yechim (avval javob yozing)","🔒 Solution (enter your answer first)"],
+ tLockTip:["Yechim javobni yozib \"Tekshirish\" tugmasi bosilgandan keyin ochiladi.","The solution opens after you type an answer and press \"Check\"."],
  tHide:["📕 Yechimni yashirish","📕 Hide the solution"],
  tRight:["✅ To'g'ri ishlagansiz!","✅ You solved it correctly!"],
  tYour:["sizning javobingiz:","your answer:"],
@@ -1201,11 +1203,11 @@ function renderTasks(){
     d.innerHTML='<h3>'+(k+1)+"-"+UIT("tTask")+'</h3><p>'+taskText(t,"q")+'</p>'+
       '<div class="ans"><input type="text" inputmode="numeric" placeholder="'+UIT("tPlaceholder")+'">'+
       '<button class="btn accent">'+UIT("tCheck")+'</button>'+
-      '<button class="btn">'+UIT("tShow")+'</button></div>'+
+      '<button class="btn" disabled title="'+UIT("tLockTip")+'">'+UIT("tLocked")+'</button></div>'+
       '<p class="fbk"></p><div class="sol">'+taskText(t,"sol")+'</div>';
     var inp=d.querySelector("input"), btns=d.querySelectorAll("button"), fb=d.querySelector(".fbk"), sol=d.querySelector(".sol");
     if(keep[k]) inp.value=keep[k];
-    if(st[k]){ d.dataset.state=st[k]; d.style.setProperty("--c", st[k]==="ok"?"var(--ok)":"var(--err)");
+    if(st[k]){ d.dataset.state=st[k]; btns[1].disabled=false; btns[1].removeAttribute("title"); d.style.setProperty("--c", st[k]==="ok"?"var(--ok)":"var(--err)");
                inp.classList.add(st[k]==="ok"?"ok":"bad");
                sol.classList.add("show"); btns[1].textContent=UIT("tHide");
                fb.className="fbk show "+(st[k]==="ok"?"ok":"no");
@@ -1230,10 +1232,15 @@ function renderTasks(){
         d.style.setProperty("--c","var(--err)");
       }
       d.dataset.state=ok?"ok":"no";
+      btns[1].disabled=false; btns[1].removeAttribute("title");
       sol.classList.add("show"); btns[1].textContent=UIT("tHide");
       taskScore();
     };
-    btns[1].onclick=function(){ sol.classList.toggle("show"); btns[1].textContent=sol.classList.contains("show")?UIT("tHide"):UIT("tShow"); };
+    btns[1].onclick=function(){
+      if(btns[1].disabled) return;
+      sol.classList.toggle("show");
+      btns[1].textContent=sol.classList.contains("show")?UIT("tHide"):UIT("tShow");
+    };
     w.appendChild(d);
   });
   taskScore();
@@ -1257,7 +1264,8 @@ function taskScore(){
       var i=d.querySelector("input"); i.value=""; i.classList.remove("ok","bad");
       d.querySelector(".fbk").className="fbk";
       d.querySelector(".sol").classList.remove("show");
-      d.querySelectorAll("button")[1].textContent=UIT("tShow");
+      var b2=d.querySelectorAll("button")[1];
+      b2.textContent=UIT("tLocked"); b2.disabled=true; b2.title=UIT("tLockTip");
     });
     renderTasks(); taskScore();
   };
