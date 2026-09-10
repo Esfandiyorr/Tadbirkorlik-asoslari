@@ -57,13 +57,16 @@ ish haqi va mulk bo'yicha boshqa to'lovlar · **soliq imtiyozlari** · **my.soli
 💳 **kredit to'lovi kalkulyatori** · 🧮 **3 ta masala**.
 
 ### Kalkulyator va masalalar
+
 Annuitet formulasi bosqichma-bosqich tushuntirilgan. Kalkulyatorga summa, yillik stavka, muddat va imtiyozli davrni
 kiritsangiz — oylik to'lov, jami to'lov, ortiqcha to'lov va uning ulushi darhol hisoblanadi.
-3 ta masalada talaba javobini maydonga yozib **Tekshirish** tugmasini bosadi. Tizim javobni aniq qiymat bilan
-solishtiradi (1,5% farqgacha to'g'ri hisoblanadi), **to'g'ri yoki xato ekanini aniq aytadi** va **bosqichma-bosqich
-yechimni avtomatik ochadi** — talaba qayerda xato qilganini ko'radi. Yechimni oldindan ko'rish mumkin emas:
-"Yechim" tugmasi javob yozib tekshirilmaguncha **qulflangan** turadi. Yuqorida "To'g'ri yechilgan: X / 3" ball paneli
-va "Qaytadan boshlash" tugmasi bor. Masalalar ham ikki tilda.
+
+**Yechim tugmasi talaba o'z javobini yozmaguncha qulflangan** turadi — bo'sh maydonda "Tekshirish" bosilsa ham
+hech qanday javob ko'rsatilmaydi. Javob yozilishi bilan tugma ochiladi (javob o'chirilsa yana qulflanadi).
+"Tekshirish" javobni aniq qiymat bilan solishtiradi (1,5% farqgacha to'g'ri hisoblanadi): **to'g'ri bo'lsa** ✅ tasdiq
+va bosqichma-bosqich yechim darhol ochiladi, **xato bo'lsa** faqat yo'nalish beriladi (javob katta yoki kichikligi) —
+aniq qiymat oshkor qilinmaydi, talaba xohlasa yechimni o'zi ochib solishtiradi. Yuqorida
+"To'g'ri yechilgan: X / 3 · Tekshirildi: Y" ball paneli va "Qaytadan boshlash" tugmasi bor. Masalalar ham ikki tilda.
 
 ## Imkoniyatlar
 
