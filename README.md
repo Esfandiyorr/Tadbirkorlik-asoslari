@@ -33,13 +33,20 @@ kreditga 7 qadamda tayyorgarlik va 5 tipik xato · xulosa, mustaqil ish va **foy
 
 ## Imkoniyatlar
 
+- 🌐 **UZ ⇄ ENG til almashtirish** — `L` tugmasi yoki yuqoridagi 🌐 tugma: barcha slaydlar, jadvallar, interfeys va test to'liq ingliz tiliga o'tadi (tanlov saqlanadi)
 - 🌙 **Tun / Kun rejimi** — `D` tugmasi; tanlov brauzer xotirasida saqlanadi
-- ⌨️ **Klaviatura:** `→ / Space / PgDn` keyingi, `← / PgUp` oldingi, `Home/End`, `1…9` slayd raqami, `O` slaydlar ro'yxati, `F` to'liq ekran, `T` vaqt hisoblagich, `P` PDF, `?` yordam, `Esc` yopish
+- ⌨️ **Klaviatura:** `→ / Space / PgDn` keyingi, `← / PgUp` oldingi, `Home/End`, `1…9` slayd raqami, `O` slaydlar ro'yxati, `L` uz/eng, `F` to'liq ekran, `T` vaqt hisoblagich, `P` PDF, `?` yordam, `Esc` yopish
 - 📱 **Swipe** — telefonda chapga/o'ngga surish
 - ▦ Slaydlar ro'yxati (overview), progress chizig'i, ma'ruza taymeri
 - 🖨 PDF / chop etish rejimi — har bir slayd alohida sahifada
 - 🧪 Interaktiv test: darhol tekshirish, izohli javob, ball, foiz va yakuniy baho
 - 💾 Oxirgi ochilgan slayd har bir mavzu uchun alohida eslab qolinadi
+
+## Tarjima (UZ / ENG)
+
+Uchala taqdimot ham to'liq ikki tilli: slayd matnlari, jadvallar, tugmalar, yordam oynasi va test savollari
+inglizcha variantga ega. Tarjimalar HTML fayl ichida (`EN` lug'ati va `QEN` massivi) saqlanadi —
+tugma bosilganda sahifa qayta yuklanmaydi, test javoblari ham saqlanib qoladi.
 
 ## Logotip
 
