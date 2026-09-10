@@ -33,5 +33,9 @@ Muqova · maqsad · reja va tushunchalar · mijoz muammosining 3 qatlami ("dori"
 
 ## Logotip
 
-TerDU gerbi **SVG ko'rinishida** chizilgan — internetsiz ham ishlaydi va cheksiz kattalashtirilganda ham sifati yo'qolmaydi.
-Universitetning rasmiy rasm faylidan foydalanmoqchi bo'lsangiz: `logo.png` faylini shu papkaga qo'ying — ikkala taqdimot uni **avtomatik** ishlatadi.
+Taqdimotlarda universitetning rasmiy gerbi — `logo_tersu.png` — ishlatiladi. Rasm HTML fayl ichiga
+(base64 ko'rinishida) singdirilgan, shuning uchun taqdimotni yolg'iz o'zini yuklab olsangiz yoki
+internetsiz ochsangiz ham logotip joyida turadi.
+
+Logotipni almashtirish uchun `logo_tersu.png` faylini yangisi bilan almashtiring va shu papkada
+quyidagi buyruqni bajaring (yoki menga ayting — qayta singdirib beraman).
