@@ -1,0 +1,49 @@
+/* ================== REYTING TIZIMI ================== */
+.rt-chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel);
+  border-radius:999px;padding:5px 12px;font-size:13px;font-weight:700;cursor:pointer;transition:.18s;color:var(--ink)}
+.rt-chip:hover{transform:translateY(-2px);box-shadow:0 10px 22px -12px rgba(0,0,0,.45)}
+.rt-chip b{color:var(--green)}
+.rt-ov{position:fixed;inset:0;z-index:80;display:none;padding:20px;overflow:auto;
+  background:color-mix(in srgb,var(--bg) 90%,transparent);backdrop-filter:blur(12px)}
+.rt-ov.show{display:block;animation:fade .25s ease}
+.rt-box{max-width:1000px;margin:0 auto;background:var(--panel);border:1px solid var(--line);border-radius:22px;
+  padding:22px;box-shadow:var(--shadow)}
+.rt-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.rt-head h2{margin:0;flex:1;font-size:clamp(19px,2.5vw,28px)}
+.rt-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.rt-tab{border:1px solid var(--line);background:var(--panel2);color:var(--ink);border-radius:12px;padding:8px 14px;
+  font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit;transition:.15s}
+.rt-tab:hover{border-color:var(--blue)}
+.rt-tab.on{background:linear-gradient(135deg,var(--violet),var(--blue));color:#fff;border-color:transparent}
+.rt-pane{display:none}.rt-pane.on{display:block}
+.rt-table{width:100%;border-collapse:separate;border-spacing:0;font-size:14.5px}
+.rt-table th{background:linear-gradient(135deg,var(--violet),var(--blue));color:#fff;padding:10px 12px;text-align:left;font-weight:700}
+.rt-table th:first-child{border-radius:12px 0 0 0}.rt-table th:last-child{border-radius:0 12px 0 0}
+.rt-table td{padding:10px 12px;border-bottom:1px solid var(--line)}
+.rt-table tr.me td{background:color-mix(in srgb,var(--green) 14%,transparent);font-weight:700}
+.rt-medal{font-size:17px}
+.rt-form{display:grid;gap:12px;max-width:420px;margin:0 auto}
+.rt-form label{font-size:13.5px;font-weight:700;color:var(--muted)}
+.rt-form input,.rt-form select{width:100%;margin-top:5px;padding:11px 13px;border:1.5px solid var(--line);border-radius:12px;
+  background:var(--panel2);color:var(--ink);font-size:15px;font-weight:600;font-family:inherit;outline:none}
+.rt-form input:focus,.rt-form select:focus{border-color:var(--blue)}
+.rt-gate{position:fixed;inset:0;z-index:120;display:grid;place-items:center;padding:20px;overflow:auto;
+  background:linear-gradient(160deg,var(--bg),var(--bg2))}
+.rt-gate .rt-box{max-width:560px;width:100%}
+.rt-bar{height:9px;border-radius:99px;background:var(--chip);overflow:hidden;margin-top:6px}
+.rt-bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--green),var(--cyan))}
+.rt-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.rt-card{background:var(--panel2);border:1px solid var(--line);border-radius:16px;padding:14px}
+.rt-card span{display:block;font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+.rt-card b{display:block;font-size:24px;color:var(--green);margin-top:3px}
+.rt-topic{display:flex;align-items:center;gap:12px;background:var(--panel2);border:1px solid var(--line);
+  border-radius:14px;padding:12px 14px;margin-bottom:9px}
+.rt-topic .t{flex:1}.rt-topic .t b{display:block;font-size:15px}
+.rt-topic .t span{font-size:12.5px;color:var(--muted)}
+.rt-topic.locked{opacity:.72}
+.rt-toast{position:fixed;right:18px;bottom:74px;z-index:130;background:linear-gradient(135deg,var(--green),var(--teal));
+  color:#fff;font-weight:800;padding:11px 18px;border-radius:14px;box-shadow:var(--shadow);opacity:0;transform:translateY(14px);
+  transition:.35s;pointer-events:none;font-size:14.5px}
+.rt-toast.show{opacity:1;transform:none}
+.rt-note{font-size:12.5px;color:var(--muted);margin-top:10px;line-height:1.5}
+@media print{.rt-ov,.rt-gate,.rt-toast{display:none!important}}

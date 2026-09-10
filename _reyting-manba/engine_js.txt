@@ -1,0 +1,269 @@
+/* ================== TerDU REYTING TIZIMI ================== */
+var RT=(function(){
+"use strict";
+var CFG=window.RT_CFG||{};
+var LS={stu:"terdu_student", prog:"terdu_progress_v1"};
+var S=null, P=null, cloudOn=false, fb=null, listCache=[], listAt=0;
+
+/* ---------- saqlash ---------- */
+function lget(k,d){ try{var v=localStorage.getItem(k); return v?JSON.parse(v):d;}catch(e){return d;} }
+function lset(k,v){ try{localStorage.setItem(k,JSON.stringify(v));}catch(e){} }
+function uid(){ return "s"+Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+function load(){
+  S=lget(LS.stu,null);
+  P=lget(LS.prog,{total:0,topics:{},log:{}});
+  if(!P.topics) P.topics={};
+  if(!P.log) P.log={};
+}
+function save(){ lset(LS.stu,S); lset(LS.prog,P); cloudSave(); }
+
+/* ---------- bulut (Firebase) ---------- */
+function script(src,cb){ var e=document.createElement("script"); e.src=src; e.onload=cb; e.onerror=function(){cb(true);}; document.head.appendChild(e); }
+function cloudInit(done){
+  if(!CFG.firebase||!CFG.firebase.databaseURL){ done(false); return; }
+  var b="https://www.gstatic.com/firebasejs/9.23.0/";
+  script(b+"firebase-app-compat.js",function(err){
+    if(err||!window.firebase){ done(false); return; }
+    script(b+"firebase-database-compat.js",function(err2){
+      if(err2){ done(false); return; }
+      try{ fb=firebase.apps.length?firebase.app():firebase.initializeApp(CFG.firebase); cloudOn=true; done(true); }
+      catch(e){ done(false); }
+    });
+  });
+}
+function cloudSave(){
+  if(!cloudOn||!S) return;
+  try{
+    firebase.database().ref("students/"+S.id).set({
+      id:S.id,name:S.name,surname:S.surname,group:S.group,
+      total:P.total,topics:topicSummary(),updated:Date.now()
+    });
+  }catch(e){}
+}
+function cloudList(cb){
+  if(!cloudOn){ cb(null); return; }
+  try{
+    firebase.database().ref("students").once("value").then(function(sn){
+      var v=sn.val()||{}, a=[];
+      for(var k in v) a.push(v[k]);
+      cb(a);
+    }).catch(function(){ cb(null); });
+  }catch(e){ cb(null); }
+}
+
+/* ---------- ballar ---------- */
+function topicSummary(){
+  var o={};
+  for(var t in P.topics){ o[t]={p:P.topics[t].p||0,s:Object.keys(P.topics[t].slides||{}).length}; }
+  return o;
+}
+function topicObj(){
+  var t=CFG.topic||"m0";
+  if(!P.topics[t]) P.topics[t]={p:0,slides:{},acts:{}};
+  return P.topics[t];
+}
+function award(key,pts,label){
+  if(!S) return;
+  var t=topicObj(), full=(CFG.topic||"m0")+":"+key;
+  if(P.log[full]) return;
+  P.log[full]=pts; t.p=(t.p||0)+pts; P.total=(P.total||0)+pts;
+  if(key.indexOf("slide")===0) t.slides[key]=1; else t.acts[key]=pts;
+  save(); chipUpdate(); toast("+"+pts+" ball"+(label?" · "+label:""));
+}
+function slideSeen(n){
+  award("slide"+n,CFG.pSlide||2,"slayd");
+  var t=topicObj(), seen=Object.keys(t.slides).length;
+  if(CFG.slides && seen>=CFG.slides) award("allSlides",CFG.pAll||10,"mavzu to'liq");
+}
+
+/* ---------- interfeys ---------- */
+function el(html){ var d=document.createElement("div"); d.innerHTML=html.trim(); return d.firstChild; }
+function esc(x){ return String(x==null?"":x).replace(/[<>&"]/g,function(c){return {"<":"&lt;",">":"&gt;","&":"&amp;",'"':"&quot;"}[c];}); }
+function toast(txt){
+  var t=document.getElementById("rtToast");
+  if(!t){ t=el('<div class="rt-toast" id="rtToast"></div>'); document.body.appendChild(t); }
+  t.textContent=txt; t.classList.add("show");
+  clearTimeout(t._h); t._h=setTimeout(function(){ t.classList.remove("show"); },1800);
+}
+function chipUpdate(){
+  var c=document.getElementById("rtChip"); if(!c||!S) return;
+  c.innerHTML="🏆 "+esc(S.name)+" · <b>"+(P.total||0)+"</b>";
+}
+function T(uz,en){ return (window.lang==="en"&&en)?en:uz; }
+
+function gate(){
+  if(S){ start(); return; }
+  var g=el('<div class="rt-gate" id="rtGate"><div class="rt-box">'+
+    '<h2 style="margin-top:0">🎓 '+T("Ro\'yxatdan o\'ting","Register")+'</h2>'+
+    '<p style="color:var(--muted);margin-top:-4px">'+T(
+      "Taqdimotni ochish uchun ism, familiya va guruhingizni kiriting. Ballaringiz shu ism bilan reytingda ko\'rinadi.",
+      "Enter your name, surname and group to open the presentation. Your points will appear in the rating under this name.")+'</p>'+
+    '<div class="rt-form">'+
+      '<label>'+T("Ism","First name")+'<input id="rtN" autocomplete="given-name" placeholder="'+T("Ismingiz","Your first name")+'"></label>'+
+      '<label>'+T("Familiya","Surname")+'<input id="rtS" autocomplete="family-name" placeholder="'+T("Familiyangiz","Your surname")+'"></label>'+
+      '<label>'+T("Guruh","Group")+'<input id="rtG" placeholder="'+T("Masalan: 101-22 IQT","For example: 101-22")+'"></label>'+
+      '<p id="rtErr" style="color:var(--red);font-weight:700;display:none;margin:0"></p>'+
+      '<button class="btn accent" id="rtGo" style="justify-content:center;padding:12px">'+T("Boshlash →","Start →")+'</button>'+
+    '</div>'+
+    '<p class="rt-note">'+T(
+      "Ma\'lumot faqat o\'qituvchi reytingi uchun ishlatiladi. Ballar slaydlarni o\'qish va topshiriqlarni bajarish orqali to\'planadi.",
+      "The data is used only for the teacher\'s rating. Points are earned by reading slides and completing tasks.")+'</p>'+
+    '</div></div>');
+  document.body.appendChild(g);
+  function submit(){
+    var n=document.getElementById("rtN").value.trim(),
+        s=document.getElementById("rtS").value.trim(),
+        gr=document.getElementById("rtG").value.trim();
+    if(n.length<2||s.length<2||gr.length<2){
+      var e=document.getElementById("rtErr"); e.style.display="block";
+      e.textContent=T("Ism, familiya va guruhni to'liq kiriting.","Please fill in your name, surname and group.");
+      return;
+    }
+    S={id:uid(),name:n,surname:s,group:gr,at:Date.now()};
+    save(); g.remove(); start();
+  }
+  document.getElementById("rtGo").onclick=submit;
+  ["rtN","rtS","rtG"].forEach(function(id){
+    document.getElementById(id).addEventListener("keydown",function(e){ if(e.key==="Enter") submit(); });
+  });
+}
+
+function overlay(){
+  var o=document.getElementById("rtOv");
+  if(o) return o;
+  o=el('<div class="rt-ov" id="rtOv"><div class="rt-box">'+
+    '<div class="rt-head"><h2>🏆 '+T("Eng faol talabalar","Most active students")+'</h2>'+
+      '<button class="btn" id="rtClose">✕ '+T("Yopish","Close")+'</button></div>'+
+    '<div class="rt-tabs">'+
+      '<button class="rt-tab on" data-p="top">🥇 '+T("Reyting","Rating")+'</button>'+
+      '<button class="rt-tab" data-p="me">📊 '+T("Mening natijam","My result")+'</button>'+
+      '<button class="rt-tab" data-p="tp">📚 '+T("Mavzular","Topics")+'</button>'+
+      '<button class="rt-tab" data-p="tc">🔑 '+T("O\'qituvchi","Teacher")+'</button>'+
+    '</div>'+
+    '<div class="rt-pane on" id="rtTop"></div>'+
+    '<div class="rt-pane" id="rtMe"></div>'+
+    '<div class="rt-pane" id="rtTp"></div>'+
+    '<div class="rt-pane" id="rtTc"></div>'+
+  '</div></div>');
+  document.body.appendChild(o);
+  o.querySelector("#rtClose").onclick=function(){ o.classList.remove("show"); };
+  o.addEventListener("click",function(e){ if(e.target===o) o.classList.remove("show"); });
+  o.querySelectorAll(".rt-tab").forEach(function(b){
+    b.onclick=function(){
+      o.querySelectorAll(".rt-tab").forEach(function(x){x.classList.remove("on");});
+      o.querySelectorAll(".rt-pane").forEach(function(x){x.classList.remove("on");});
+      b.classList.add("on");
+      document.getElementById({top:"rtTop",me:"rtMe",tp:"rtTp",tc:"rtTc"}[b.dataset.p]).classList.add("on");
+    };
+  });
+  return o;
+}
+function renderTop(){
+  var box=document.getElementById("rtTop");
+  box.innerHTML='<p style="color:var(--muted)">'+T("Yuklanmoqda…","Loading…")+'</p>';
+  function draw(list){
+    list.sort(function(a,b){ return (b.total||0)-(a.total||0); });
+    var rows=list.map(function(x,i){
+      var m=["🥇","🥈","🥉"][i]||(i+1)+".";
+      return '<tr class="'+(S&&x.id===S.id?"me":"")+'"><td class="rt-medal">'+m+'</td><td>'+esc(x.name)+" "+esc(x.surname)+
+        '</td><td>'+esc(x.group)+'</td><td><b>'+(x.total||0)+'</b></td><td>'+Object.keys(x.topics||{}).length+'</td></tr>';
+    }).join("");
+    box.innerHTML='<div class="tw"><table class="rt-table"><thead><tr><th>#</th><th>'+T("Talaba","Student")+'</th><th>'+
+      T("Guruh","Group")+'</th><th>'+T("Ball","Points")+'</th><th>'+T("Mavzu","Topics")+'</th></tr></thead><tbody>'+
+      (rows||'<tr><td colspan="5">'+T("Hozircha ro'yxat bo'sh.","The list is empty for now.")+'</td></tr>')+'</tbody></table></div>'+
+      (cloudOn?'':'<p class="rt-note">⚠️ '+T(
+        "Umumiy reyting hali ulanmagan — hozir faqat sizning natijangiz ko'rinadi. O'qituvchi bazani ulagach, barcha talabalar ro'yxati shu yerda chiqadi.",
+        "The shared rating is not connected yet — only your own result is shown. Once the teacher connects the database, every student will appear here.")+'</p>');
+  }
+  cloudList(function(a){
+    if(a&&a.length) draw(a);
+    else draw(S?[{id:S.id,name:S.name,surname:S.surname,group:S.group,total:P.total,topics:topicSummary()}]:[]);
+  });
+}
+function renderMe(){
+  var box=document.getElementById("rtMe"); if(!S) return;
+  var t=topicObj(), seen=Object.keys(t.slides).length, tot=CFG.slides||1;
+  var pct=Math.min(100,Math.round(seen/tot*100));
+  box.innerHTML='<div class="rt-grid">'+
+    '<div class="rt-card"><span>'+T("Umumiy ball","Total points")+'</span><b>'+(P.total||0)+'</b></div>'+
+    '<div class="rt-card"><span>'+T("Shu mavzudagi ball","Points in this topic")+'</span><b>'+(t.p||0)+'</b></div>'+
+    '<div class="rt-card"><span>'+T("Ko'rilgan slayd","Slides viewed")+'</span><b>'+seen+" / "+tot+'</b></div>'+
+    '<div class="rt-card"><span>'+T("Bajarilgan topshiriq","Tasks completed")+'</span><b>'+Object.keys(t.acts||{}).length+'</b></div>'+
+    '</div><div class="rt-bar" style="margin-top:14px"><i style="width:'+pct+'%"></i></div>'+
+    '<p class="rt-note">'+esc(S.name)+" "+esc(S.surname)+" · "+esc(S.group)+'</p>'+
+    '<h3 style="margin-top:16px">'+T("Ball qanday to'planadi?","How are points earned?")+'</h3>'+
+    '<ul class="clean"><li>'+T("Har bir yangi slayd","Each new slide")+' — <b>+'+(CFG.pSlide||2)+'</b></li>'+
+    '<li>'+T("Mavzuni to'liq ko'rish","Viewing the whole topic")+' — <b>+'+(CFG.pAll||10)+'</b></li>'+
+    '<li>'+T("Testdagi har bir to'g'ri javob","Each correct test answer")+' — <b>+5</b></li>'+
+    '<li>'+T("Krossvorddagi har bir so'z","Each crossword word")+' — <b>+4</b> ('+T("to'liq","full")+' +15)</li>'+
+    '<li>'+T("To'g'ri yechilgan masala","Each problem solved correctly")+' — <b>+15</b></li></ul>';
+}
+function renderTp(){
+  var box=document.getElementById("rtTp");
+  var list=(CFG.topics||[]).map(function(x){
+    var mine=(P.topics[x.id]||{}), p=mine.p||0;
+    var open=x.open, cur=(x.id===CFG.topic);
+    return '<div class="rt-topic'+(open?"":" locked")+'"><div style="font-size:22px">'+(open?"📗":"🔒")+'</div>'+
+      '<div class="t"><b>'+esc(x.title)+(cur?' · <span style="color:var(--green)">'+T("hozirgi","current")+'</span>':'')+'</b>'+
+      '<span>'+(open?T("Ochiq","Open"):T("Yopiq — o'qituvchi darsda ochadi","Locked — the teacher will open it in class"))+
+      ' · '+T("ballingiz","your points")+": "+p+'</span></div>'+
+      (open&&!cur?'<a class="btn accent" href="'+x.file+'">'+T("Ochish","Open")+'</a>':'')+'</div>';
+  }).join("");
+  box.innerHTML=list+'<p class="rt-note">'+T(
+    "Yopiq mavzular saytga umuman yuklanmagan — ular o'qituvchi darsni o'tgach ochiladi.",
+    "Locked topics are not published on the site at all — they open once the teacher has given the lesson.")+'</p>';
+}
+function renderTc(){
+  var box=document.getElementById("rtTc");
+  box.innerHTML='<div class="rt-form" style="max-width:340px;margin:0"><label>'+T("O'qituvchi kodi","Teacher code")+
+    '<input id="rtCode" type="password" placeholder="••••••"></label>'+
+    '<button class="btn accent" id="rtCodeGo" style="justify-content:center">'+T("Kirish","Enter")+'</button></div>'+
+    '<div id="rtTcOut" style="margin-top:14px"></div>';
+  document.getElementById("rtCodeGo").onclick=function(){
+    var v=document.getElementById("rtCode").value;
+    var out=document.getElementById("rtTcOut");
+    if(v!==(CFG.teacher||"terdu2026")){ out.innerHTML='<p style="color:var(--red);font-weight:700">'+T("Kod noto'g'ri.","Wrong code.")+'</p>'; return; }
+    out.innerHTML='<p style="color:var(--muted)">'+T("Yuklanmoqda…","Loading…")+'</p>';
+    cloudList(function(a){
+      var list=a&&a.length?a:(S?[{id:S.id,name:S.name,surname:S.surname,group:S.group,total:P.total,topics:topicSummary()}]:[]);
+      list.sort(function(x,y){return (y.total||0)-(x.total||0);});
+      var rows=list.map(function(x,i){ return (i+1)+";"+x.name+";"+x.surname+";"+x.group+";"+(x.total||0); }).join("\n");
+      out.innerHTML='<div class="tw"><table class="rt-table"><thead><tr><th>#</th><th>'+T("Talaba","Student")+
+        '</th><th>'+T("Guruh","Group")+'</th><th>'+T("Ball","Points")+'</th></tr></thead><tbody>'+
+        list.map(function(x,i){return '<tr><td>'+(i+1)+'</td><td>'+esc(x.name)+" "+esc(x.surname)+'</td><td>'+esc(x.group)+'</td><td><b>'+(x.total||0)+'</b></td></tr>';}).join("")+
+        '</tbody></table></div><button class="btn warn" id="rtCsv" style="margin-top:12px">⬇ CSV</button>'+
+        '<p class="rt-note">'+T("Jami talaba","Total students")+": "+list.length+(cloudOn?"":" · "+T("(faqat shu qurilma)","(this device only)"))+'</p>';
+      document.getElementById("rtCsv").onclick=function(){
+        var csv="﻿#;Ism;Familiya;Guruh;Ball\n"+rows;
+        var a2=document.createElement("a");
+        a2.href="data:text/csv;charset=utf-8,"+encodeURIComponent(csv);
+        a2.download="terdu-reyting.csv"; a2.click();
+      };
+    });
+  };
+}
+function openOv(){
+  overlay().classList.add("show");
+  renderTop(); renderMe(); renderTp(); renderTc();
+}
+
+/* ---------- ishga tushirish ---------- */
+function chip(){
+  var tools=document.querySelector(".topbar .tools"); if(!tools) return;
+  var c=el('<button class="rt-chip" id="rtChip" title="'+T("Reyting va ballaringiz","Rating and your points")+'">🏆</button>');
+  tools.insertBefore(c,tools.firstChild);
+  c.onclick=openOv;
+  chipUpdate();
+}
+function start(){
+  chip();
+  if(typeof idx!=="undefined") slideSeen(idx);
+  window.RT_ready=true;
+  if(window.RT_pending){ window.RT_pending.forEach(function(a){ award(a[0],a[1],a[2]); }); window.RT_pending=null; }
+}
+load();
+cloudInit(function(){ if(S) cloudSave(); });
+if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",gate); else gate();
+
+return {award:award, slideSeen:slideSeen, open:openOv, student:function(){return S;}, points:function(){return P;}};
+})();
