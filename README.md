@@ -5,10 +5,10 @@
 | Fayl | Mavzu | Hajmi |
 |---|---|---|
 | [`index.html`](index.html) | **M1** — Tadbirkorlik tafakkuri va biznes imkoniyatlarni aniqlash | 18 slayd · 15 test |
-| [`mavzu-2.html`](mavzu-2.html) | **M2** — Mijoz muammosi asosida biznes g'oyani shakllantirish | 18 slayd · 15 test |
-| [`mavzu-3.html`](mavzu-3.html) | **M3** — Mahsulotni kam xarajat bilan bozorda sinab ko'rish (moliyalashtirish va kredit) | 15 slayd · 15 test |
-| [`mavzu-4.html`](mavzu-4.html) | **M4** — Biznesni qonuniy rasmiylashtirish va davlat ro'yxatidan o'tkazish | 18 slayd · 🎬 kinolar · 🧩 krossvord |
-| [`mavzu-5.html`](mavzu-5.html) | **M5** — Tadbirkor qanday soliqlarni to'laydi va hujjatlarni yuritadi | 18 slayd · 💳 kalkulyator · 🧮 3 masala |
+| 🔒 `mavzu-2.html` | **M2** — Mijoz muammosi asosida biznes g'oyani shakllantirish | 18 slayd · 15 test |
+| 🔒 `mavzu-3.html` | **M3** — Mahsulotni kam xarajat bilan bozorda sinab ko'rish (moliyalashtirish va kredit) | 15 slayd · 15 test |
+| 🔒 `mavzu-4.html` | **M4** — Biznesni qonuniy rasmiylashtirish va davlat ro'yxatidan o'tkazish | 18 slayd · 🎬 kinolar · 🧩 krossvord |
+| 🔒 `mavzu-5.html` | **M5** — Tadbirkor qanday soliqlarni to'laydi va hujjatlarni yuritadi | 18 slayd · 💳 kalkulyator · 🧮 3 masala |
 
 Har bir fayl mustaqil ishlaydi: internet, o'rnatish yoki qo'shimcha fayl talab qilinmaydi. Taqdimotlar bir-biriga yuqoridagi **M1 … M5** tugmalari orqali bog'langan.
 
@@ -67,6 +67,34 @@ hech qanday javob ko'rsatilmaydi. Javob yozilishi bilan tugma ochiladi (javob o'
 va bosqichma-bosqich yechim darhol ochiladi, **xato bo'lsa** faqat yo'nalish beriladi (javob katta yoki kichikligi) —
 aniq qiymat oshkor qilinmaydi, talaba xohlasa yechimni o'zi ochib solishtiradi. Yuqorida
 "To'g'ri yechilgan: X / 3 · Tekshirildi: Y" ball paneli va "Qaytadan boshlash" tugmasi bor. Masalalar ham ikki tilda.
+
+
+## 🏆 Reyting tizimi va mavzularni ochish
+
+**Talaba uchun:** taqdimotni ochganda ism, familiya va guruhini kiritadi — shundan keyin slaydlar ochiladi.
+Yuqori panelda 🏆 tugmasi turadi: u yerda **reyting**, **shaxsiy natija**, **mavzular ro'yxati** va
+**o'qituvchi bo'limi** bor.
+
+**Ballar:**
+
+| Harakat | Ball |
+|---|---|
+| Har bir yangi slaydni ochish | +2 |
+| Mavzuni to'liq ko'rish | +10 |
+| Testdagi har bir to'g'ri javob | +5 |
+| Krossvorddagi har bir so'z | +4 (to'liq yechilsa +15) |
+| To'g'ri yechilgan masala | +15 |
+
+Har bir ball **bir marta** beriladi — qayta ochish yoki qayta yechish ball qo'shmaydi.
+
+**Mavzularning qulfi:** hozircha faqat **M1 ochiq**. M2–M5 fayllari saytda umuman yo'q — ular
+`yopiq-mavzular` shoxchasida saqlanadi, shuning uchun havolani bilgan talaba ham ularni ocholmaydi (404).
+O'qituvchi darsni o'tgach "M2 ni och" desa, mavzu asosiy shoxchaga qaytariladi va sayt yangilanadi.
+
+**Umumiy reyting:** barcha talabalarning bali bir ro'yxatda ko'rinishi uchun bepul Firebase bazasi ulanadi
+(`_reyting-manba/config.json` dagi `firebase` maydoni). Baza ulanmaguncha har bir talaba faqat o'z natijasini ko'radi.
+
+**O'qituvchi kodi:** `terdu2026` (🏆 → O'qituvchi bo'limi) — barcha natijalar va CSV eksport.
 
 ## Imkoniyatlar
 
