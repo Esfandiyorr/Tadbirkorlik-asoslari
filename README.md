@@ -37,5 +37,6 @@ Taqdimotlarda universitetning rasmiy gerbi — `logo_tersu.png` — ishlatiladi.
 (base64 ko'rinishida) singdirilgan, shuning uchun taqdimotni yolg'iz o'zini yuklab olsangiz yoki
 internetsiz ochsangiz ham logotip joyida turadi.
 
-Logotipni almashtirish uchun `logo_tersu.png` faylini yangisi bilan almashtiring va shu papkada
-quyidagi buyruqni bajaring (yoki menga ayting — qayta singdirib beraman).
+Logotip HTML ichiga singdirilgani uchun `logo_tersu.png` faylini almashtirishning o'zi yetarli emas —
+rasm qaytadan HTML fayllarga joylanishi kerak. Yangi logotip kerak bo'lsa, faylni repozitoriyga
+yuklang va shuni aytsangiz, ikkala taqdimotga qayta singdirib beraman.
