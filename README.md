@@ -6,8 +6,9 @@
 |---|---|---|
 | [`index.html`](index.html) | **M1** — Tadbirkorlik tafakkuri va biznes imkoniyatlarni aniqlash | 18 slayd · 15 test |
 | [`mavzu-2.html`](mavzu-2.html) | **M2** — Mijoz muammosi asosida biznes g'oyani shakllantirish | 18 slayd · 15 test |
+| [`mavzu-3.html`](mavzu-3.html) | **M3** — Mahsulotni kam xarajat bilan bozorda sinab ko'rish (moliyalashtirish va kredit) | 15 slayd · 15 test |
 
-Har bir fayl mustaqil ishlaydi: internet, o'rnatish yoki qo'shimcha fayl talab qilinmaydi. Taqdimotlar bir-biriga yuqoridagi **M1 / M2** tugmasi orqali bog'langan.
+Har bir fayl mustaqil ishlaydi: internet, o'rnatish yoki qo'shimcha fayl talab qilinmaydi. Taqdimotlar bir-biriga yuqoridagi **M1 / M2 / M3** tugmalari orqali bog'langan.
 
 ## Ishga tushirish
 
@@ -20,6 +21,15 @@ Muqova · maqsad · reja va tushunchalar · tadbirkorlik ta'rifi va 4 ustuni · 
 ## M2 — Mijoz muammosi asosida g'oya (18 slayd)
 
 Muqova · maqsad · reja va tushunchalar · mijoz muammosining 3 qatlami ("dori" va "vitamin") · bozordagi 6 turdagi bo'shliq · 4 usulning qiyosi · **kuzatish** · **mijoz bilan suhbat (Mom Test)** · **so'rovnoma** · **fikrlar shturmi** (HMW, SCAMPER, 6-3-5) · insayt → gipoteza, ICE ball va saralash matritsasi · qiymat taklifi · **MVP nima va nima emas** (skeytbord qoidasi) · **eng kam xarajatli MVP turlari** (namuna, katalog, raqamli maket, landing, konsyerj, pre-order) · MVPni sinash va davom/pivot/to'xtat qarori · xulosa va mustaqil ish · 🎁 mashhur kompaniyalarning birinchi MVPlari · 🧪 test.
+
+## M3 — Mahsulotni kam xarajat bilan sinash va moliyalashtirish (15 slayd)
+
+Muqova · maqsad · reja va tushunchalar · **avval arzon sinov, keyin katta pul** (pulning 3 bosqichi) ·
+**moliyalashtirishning 8 ta manbai** · qaysi bosqichda qaysi pul + kredit va investor qiyosi ·
+**kreditning afzalliklari va xavflari** · **biznes krediti ≠ iste'mol krediti** (9 mezon bo'yicha jadval) ·
+amaliy hisob: bir xil 30 mln so'm — ikki xil natija · **garov va kafillik** ·
+**imtiyozli davr, annuitet/differensial to'lov va samarali stavka** · **pul oqimi (cash flow) tahlili** ·
+kreditga 7 qadamda tayyorgarlik va 5 tipik xato · xulosa, mustaqil ish va **foydali havolalar** · 🧪 15 savolli test.
 
 ## Imkoniyatlar
 
