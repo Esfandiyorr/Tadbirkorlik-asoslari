@@ -7,8 +7,9 @@
 | [`index.html`](index.html) | **M1** — Tadbirkorlik tafakkuri va biznes imkoniyatlarni aniqlash | 18 slayd · 15 test |
 | [`mavzu-2.html`](mavzu-2.html) | **M2** — Mijoz muammosi asosida biznes g'oyani shakllantirish | 18 slayd · 15 test |
 | [`mavzu-3.html`](mavzu-3.html) | **M3** — Mahsulotni kam xarajat bilan bozorda sinab ko'rish (moliyalashtirish va kredit) | 15 slayd · 15 test |
+| [`mavzu-4.html`](mavzu-4.html) | **M4** — Biznesni qonuniy rasmiylashtirish va davlat ro'yxatidan o'tkazish | 18 slayd · 🎬 kinolar · 🧩 krossvord |
 
-Har bir fayl mustaqil ishlaydi: internet, o'rnatish yoki qo'shimcha fayl talab qilinmaydi. Taqdimotlar bir-biriga yuqoridagi **M1 / M2 / M3** tugmalari orqali bog'langan.
+Har bir fayl mustaqil ishlaydi: internet, o'rnatish yoki qo'shimcha fayl talab qilinmaydi. Taqdimotlar bir-biriga yuqoridagi **M1 / M2 / M3 / M4** tugmalari orqali bog'langan.
 
 ## Ishga tushirish
 
@@ -30,6 +31,20 @@ Muqova · maqsad · reja va tushunchalar · **avval arzon sinov, keyin katta pul
 amaliy hisob: bir xil 30 mln so'm — ikki xil natija · **garov va kafillik** ·
 **imtiyozli davr, annuitet/differensial to'lov va samarali stavka** · **pul oqimi (cash flow) tahlili** ·
 kreditga 7 qadamda tayyorgarlik va 5 tipik xato · xulosa, mustaqil ish va **foydali havolalar** · 🧪 15 savolli test.
+
+## M4 — Biznesni qonuniy rasmiylashtirish (18 slayd)
+
+Muqova · maqsad · reja va tushunchalar · **nega rasmiylashtirish kerak** (8 sabab) · shaklni tanlash mezonlari ·
+**YaTT** · **MChJ** · **oilaviy korxona va kooperativ** · to'rt shaklning qiyosiy jadvali ·
+**onlayn ro'yxatdan o'tish: 5 qadam** (birdarcha.uz) · **firma nomi** · **yuridik manzil** · **E-IMZO** ·
+**litsenziya, ruxsatnoma va bildirishnoma** · **noqonuniy faoliyatning huquqiy xavflari** ·
+xulosa, mustaqil ish va foydali havolalar · 🎬 **tadbirkorlik haqidagi eng mashhur kinolar** ·
+🧩 **interaktiv krossvord** (18 ta so'z, 16×17 panjara).
+
+### Krossvord haqida
+Kataklarga to'g'ridan-to'g'ri yozish, so'z yo'nalishini bosib almashtirish, `Tekshirish` (to'g'ri/xato kataklarni bo'yaydi),
+`Bitta harf` (maslahat), `Javoblar` va `Tozalash` tugmalari bor. Kiritilgan harflar brauzer xotirasida saqlanadi,
+til almashtirilganda ham yo'qolmaydi. Savollar ikki tilda.
 
 ## Imkoniyatlar
 
