@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Biznesni qonuniy rasmiylashtirish va davlat ro'yxatidan o'tkazish — TerDU</title>
-<meta name="description" content="Tadbirkorlik asoslari. M4-mavzu: biznesni qonuniy rasmiylashtirish, YaTT, MChJ, oilaviy korxona va kooperativ, onlayn ro'yxatdan o'tkazish, E-IMZO, litsenziya va ruxsatnomalar. Termiz davlat universiteti.">
+<title>Tadbirkor qanday soliqlarni to'laydi va hujjatlarni yuritadi — TerDU</title>
+<meta name="description" content="Tadbirkorlik asoslari. M5-mavzu: soliq rejimlari, soddalashtirilgan va umumiy tizim, soliq imtiyozlari, my.soliq.uz, birlamchi hujjatlar va kredit to'lovini hisoblash. Termiz davlat universiteti.">
 <style>
 /* ================== TOKENS ================== */
 :root{
@@ -251,33 +251,38 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 .hint.hide{opacity:0;pointer-events:none}
 
 
-/* ================== KROSSVORD ================== */
-.xw-bar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;background:linear-gradient(135deg,var(--violet),var(--blue));
-  color:#fff;border-radius:16px;padding:12px 16px;box-shadow:var(--shadow)}
-.xw-bar b{font-size:18px}
-.xw-wrap{display:grid;grid-template-columns:auto minmax(280px,1fr);gap:18px;align-items:start}
-@media(max-width:900px){.xw-wrap{grid-template-columns:1fr}}
-.xw-grid{--cell:clamp(17px,2.4vw,31px);display:grid;gap:2px;background:transparent;
-  padding:10px;border-radius:16px;border:1px solid var(--line);background:var(--panel);box-shadow:var(--shadow);overflow-x:auto}
-.xw-cell{position:relative;width:var(--cell);height:var(--cell)}
-.xw-cell.block{background:transparent}
-.xw-cell input{width:100%;height:100%;border:1px solid var(--line);border-radius:4px;background:var(--panel2);
-  color:var(--ink);text-align:center;font-weight:800;font-size:calc(var(--cell)*.55);font-family:inherit;
-  text-transform:uppercase;padding:0;outline:none;transition:.12s}
-.xw-cell input:focus{border-color:var(--blue);background:color-mix(in srgb,var(--blue) 22%,var(--panel));transform:scale(1.06);z-index:2}
-.xw-cell.active input{background:color-mix(in srgb,var(--cyan) 18%,var(--panel))}
-.xw-cell.ok input{background:color-mix(in srgb,var(--ok) 30%,var(--panel));border-color:var(--ok)}
-.xw-cell.bad input{background:color-mix(in srgb,var(--err) 28%,var(--panel));border-color:var(--err)}
-.xw-num{position:absolute;top:0;left:2px;font-size:calc(var(--cell)*.32);font-weight:800;color:var(--muted);pointer-events:none;z-index:3;line-height:1}
-.xw-clues{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-@media(max-width:1200px){.xw-clues{grid-template-columns:1fr}}
-.xw-list{margin:6px 0 0;padding-left:2px;list-style:none}
-.xw-list li{margin-bottom:7px;font-size:13.5px;line-height:1.4;cursor:pointer;padding:5px 8px;border-radius:8px;
-  border-left:3px solid transparent;transition:.15s;color:var(--ink2)}
-.xw-list li:hover{background:var(--chip)}
-.xw-list li.on{background:color-mix(in srgb,var(--cyan) 14%,transparent);border-left-color:var(--cyan)}
-.xw-list li.solved{color:var(--muted);text-decoration:line-through;border-left-color:var(--ok)}
-.xw-list li b{color:var(--blue);margin-right:5px}
+/* ================== KALKULYATOR VA MASALALAR ================== */
+.calc{display:grid;grid-template-columns:minmax(200px,260px) 1fr;gap:14px;align-items:start}
+@media(max-width:900px){.calc{grid-template-columns:1fr}}
+.calc-in{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:var(--shadow)}
+.calc-in label{display:block;margin-bottom:12px;font-size:13.5px;font-weight:700;color:var(--muted)}
+.calc-in input,.calc-in select{width:100%;margin-top:5px;padding:9px 11px;border:1.5px solid var(--line);border-radius:10px;
+  background:var(--panel2);color:var(--ink);font-size:15px;font-weight:700;font-family:inherit;outline:none}
+.calc-in input:focus,.calc-in select:focus{border-color:var(--blue)}
+.calc-out{display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:10px}
+.calc-card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:var(--shadow);border-left:5px solid var(--c,var(--green))}
+.calc-card span{display:block;font-size:11.5px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.3px}
+.calc-card b{display:block;font-size:clamp(15px,1.45vw,21px);margin-top:4px;color:var(--c,var(--green));
+  font-variant-numeric:tabular-nums;white-space:nowrap}
+.calc-note{grid-column:1/-1;font-size:13px;color:var(--muted)}
+.task{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:16px 18px;margin-bottom:14px;box-shadow:var(--shadow);
+  border-left:5px solid var(--c,var(--violet))}
+.task h3{color:var(--c,var(--violet));margin-bottom:6px}
+.task .ans{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px}
+.task .ans input{flex:1;min-width:180px;padding:9px 12px;border:1.5px solid var(--line);border-radius:10px;background:var(--panel2);
+  color:var(--ink);font-size:15px;font-weight:700;font-family:inherit;outline:none}
+.task .ans input:focus{border-color:var(--blue)}
+.task .ans input.ok{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 16%,var(--panel))}
+.task .ans input.bad{border-color:var(--err);background:color-mix(in srgb,var(--err) 16%,var(--panel))}
+.task .fbk{margin:8px 0 0;font-size:14px;font-weight:700;display:none}
+.task .fbk.show{display:block}
+.task .fbk.ok{color:var(--ok)}.task .fbk.no{color:var(--err)}
+.sol{display:none;margin-top:10px;background:var(--panel2);border-radius:12px;padding:12px 14px;font-size:14px;line-height:1.65;border-left:3px solid var(--amber)}
+.sol.show{display:block}
+.sol code{background:var(--chip);padding:1px 6px;border-radius:5px;font-size:13.5px}
+.formula{background:linear-gradient(135deg,var(--violet),var(--blue));color:#fff;border-radius:16px;padding:16px 20px;
+  text-align:center;font-size:clamp(16px,2.4vw,24px);font-weight:800;letter-spacing:.4px;box-shadow:var(--shadow)}
+.formula small{display:block;margin-top:6px;font-size:13px;font-weight:600;opacity:.92;letter-spacing:0}
 .lnk{color:var(--blue);font-weight:600;text-decoration:none;border-bottom:1px dashed currentColor}
 .lnk:hover{color:var(--violet)}
 @media print{
@@ -297,7 +302,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
       <div class="logo terdu-logo" role="img" aria-label="Termiz davlat universiteti logotipi"></div>
       <div>
         <b data-ui="uni">TERMIZ DAVLAT UNIVERSITETI</b>
-        <span data-ui="subj">Tadbirkorlik asoslari · M4-mavzu</span>
+        <span data-ui="subj">Tadbirkorlik asoslari · M5-mavzu</span>
       </div>
     </div>
     <div class="spacer"></div>
@@ -305,7 +310,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
       <a class="btn ghost" href="index.html" title="M1-mavzuga o'tish">📑 M1</a>
       <a class="btn ghost" href="mavzu-2.html" title="M2-mavzuga o'tish">📑 M2</a>
       <a class="btn ghost" href="mavzu-3.html" title="M3-mavzuga o'tish">📑 M3</a>
-      <a class="btn ghost" href="mavzu-5.html" title="M5-mavzuga o'tish">📑 M5</a>
+      <a class="btn ghost" href="mavzu-4.html" title="M4-mavzuga o'tish">📑 M4</a>
       <button class="btn ghost" id="btnLang" title="O'zbekcha / English (L)">🌐 <span id="langTxt">ENG</span></button>
       <button class="btn ghost" id="btnTimer" title="Vaqt hisoblagich (T)">⏱ <span id="timer">00:00</span></button>
       <button class="btn ghost" id="btnGrid" title="Slaydlar ro'yxati (O)" data-ui="grid">▦ Slaydlar</button>
@@ -323,13 +328,13 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
     <div class="inner title-wrap">
       <div class="big-logo terdu-logo" role="img" aria-label="Termiz davlat universiteti logotipi"></div>
       <div>
-        <span class="kicker" data-i="0">M4-mavzu · Ma'ruza · 2 soat</span>
-        <h1 class="grad" data-i="1">BIZNESNI QONUNIY RASMIYLASHTIRISH VA DAVLAT RO'YXATIDAN O'TKAZISH</h1>
-        <p class="lead" data-i="2">Tashkiliy-huquqiy shakllar: YaTT, MChJ, oilaviy korxona va kooperativ · onlayn ro'yxatdan o'tish: firma nomi, yuridik manzil va E-IMZO · <b>litsenziya, ruxsatnoma va noqonuniy faoliyat xavflari</b>.</p>
+        <span class="kicker" data-i="0">M5-mavzu · Ma'ruza · 2 soat</span>
+        <h1 class="grad" data-i="1">TADBIRKOR QANDAY SOLIQLARNI TO'LAYDI VA HUJJATLARNI YURITADI</h1>
+        <p class="lead" data-i="2">Soddalashtirilgan va umumiy soliq tizimi · soliq imtiyozlari · <b>my.soliq.uz</b> shaxsiy kabineti va elektron hisobotlar · hisob-faktura, chek, yuk xati va daromad-xarajat daftari.</p>
         <div class="meta">
           <div data-i="3">📚 Fan: <b>Tadbirkorlik asoslari</b></div>
           <div data-i="4">🎓 <b>Termiz davlat universiteti</b></div>
-          <div data-i="5">🗂 <b>18</b> slayd · 🎬 kinolar · 🧩 krossvord</div>
+          <div data-i="5">🗂 <b>18</b> slayd · 💳 kalkulyator · 🧮 3 masala</div>
           <div data-i="6">⌨️ <b>→</b> tugmasi bilan davom eting</div>
         </div>
       </div>
@@ -340,15 +345,15 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
   <section class="slide" data-title="Maqsad va natijalar" data-title-en="Aims and outcomes">
     <div class="inner">
       <span class="kicker" data-i="7">Mavzuning maqsadi</span>
-      <h2 data-i="8">Mashg'ulot yakunida talaba <span class="grad">nimani biladi?</span></h2>
-      <div class="def" data-i="9">Maqsad: talabani <b>"g'oyam bor"</b> bosqichidan <b>"biznesim rasman ro'yxatdan o'tgan va qonuniy ishlaydi"</b> bosqichiga olib chiqish — shaklni to'g'ri tanlash, onlayn ro'yxatdan o'tish va ruxsat talablarini bilish.</div>
+      <h2 data-i="8">Mashg'ulot yakunida talaba <span class="grad">nimani uddalaydi?</span></h2>
+      <div class="def" data-i="9">Maqsad: talabani <b>"soliqdan qo'rqish"</b> bosqichidan <b>"soliqni rejalashtirish va hujjatni tartibli yuritish"</b> bosqichiga olib chiqish. Soliq — jarima emas, <b>biznes xarajatining bir qismi</b>: uni oldindan hisoblash mumkin.</div>
       <div class="grid g3" style="margin-top:16px">
-        <div class="card" style="--c:var(--green)"><span class="icon">🏛</span><h3 data-i="10">Farqlay oladi</h3><p data-i="11">YaTT, MChJ, oilaviy korxona va kooperativni bir-biridan ajratadi.</p></div>
-        <div class="card" style="--c:var(--blue)"><span class="icon">🎯</span><h3 data-i="12">Tanlay oladi</h3><p data-i="13">O'z g'oyasiga mos tashkiliy-huquqiy shaklni asoslab tanlaydi.</p></div>
-        <div class="card" style="--c:var(--violet)"><span class="icon">💻</span><h3 data-i="14">Ro'yxatdan o'tkazadi</h3><p data-i="15">Onlayn ro'yxatdan o'tish bosqichlarini ketma-ketligi bilan biladi.</p></div>
-        <div class="card" style="--c:var(--orange)"><span class="icon">🔑</span><h3 data-i="16">Tayyorlaydi</h3><p data-i="17">Firma nomi, yuridik manzil va E-IMZO talablarini oldindan hisobga oladi.</p></div>
-        <div class="card" style="--c:var(--pink)"><span class="icon">📜</span><h3 data-i="18">Tekshiradi</h3><p data-i="19">Faoliyati litsenziya, ruxsatnoma yoki bildirishnoma talab qilishini aniqlaydi.</p></div>
-        <div class="card" style="--c:var(--red)"><span class="icon">⚖️</span><h3 data-i="20">Baholaydi</h3><p data-i="21">Noqonuniy faoliyatning huquqiy va moliyaviy xavflarini tushunadi.</p></div>
+        <div class="card" style="--c:var(--green)"><span class="icon">🧾</span><h3 data-i="10">Farqlay oladi</h3><p data-i="11">Soddalashtirilgan va umumiy soliq tizimini mezonlar bo'yicha ajratadi.</p></div>
+        <div class="card" style="--c:var(--blue)"><span class="icon">🎯</span><h3 data-i="12">Tanlay oladi</h3><p data-i="13">O'z biznesi hajmiga mos soliq rejimini asoslab tanlaydi.</p></div>
+        <div class="card" style="--c:var(--violet)"><span class="icon">💻</span><h3 data-i="14">Ishlata oladi</h3><p data-i="15">my.soliq.uz kabinetining asosiy bo'limlari va hisobot tartibini biladi.</p></div>
+        <div class="card" style="--c:var(--orange)"><span class="icon">📄</span><h3 data-i="16">Rasmiylashtiradi</h3><p data-i="17">Hisob-faktura, chek va yuk xatining vazifasini va tartibini tushunadi.</p></div>
+        <div class="card" style="--c:var(--pink)"><span class="icon">📒</span><h3 data-i="18">Yuritadi</h3><p data-i="19">Daromad-xarajat daftarini to'g'ri to'ldiradi va foydani hisoblaydi.</p></div>
+        <div class="card" style="--c:var(--cyan)"><span class="icon">💳</span><h3 data-i="20">Hisoblaydi</h3><p data-i="21">Kredit oylik to'lovini annuitet formulasi bilan mustaqil hisoblaydi.</p></div>
       </div>
     </div>
   </section>
@@ -357,410 +362,444 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
   <section class="slide" data-title="Reja va tushunchalar" data-title-en="Plan and concepts">
     <div class="inner">
       <span class="kicker" data-i="22">Ma'ruza rejasi</span>
-      <h2 data-i="23">Bugungi <span class="grad">3 ta blok</span></h2>
-      <div class="grid g3">
-        <div class="card" style="--c:var(--green)"><span class="icon">1️⃣</span><h3 data-i="24">Shakllar</h3><p data-i="25">YaTT, MChJ, oilaviy korxona va kooperativ: farqlari va tanlash mezonlari.</p></div>
-        <div class="card" style="--c:var(--blue)"><span class="icon">2️⃣</span><h3 data-i="26">Ro'yxatdan o'tish</h3><p data-i="27">Onlayn tartib: firma nomi, yuridik manzil, E-IMZO, guvohnoma.</p></div>
-        <div class="card" style="--c:var(--violet)"><span class="icon">3️⃣</span><h3 data-i="28">Ruxsat va javobgarlik</h3><p data-i="29">Litsenziya, ruxsatnoma, bildirishnoma va noqonuniy faoliyat oqibatlari.</p></div>
+      <h2 data-i="23">Bugungi <span class="grad">3 ta blok</span> va yakuniy amaliyot</h2>
+      <div class="grid g4">
+        <div class="card" style="--c:var(--green)"><span class="icon">1️⃣</span><h3 data-i="24">Soliq rejimlari</h3><p data-i="25">Soddalashtirilgan, umumiy tizim, ish haqi to'lovlari va imtiyozlar.</p></div>
+        <div class="card" style="--c:var(--blue)"><span class="icon">2️⃣</span><h3 data-i="26">my.soliq.uz</h3><p data-i="27">Shaxsiy kabinet va elektron hisobot topshirish tartibi.</p></div>
+        <div class="card" style="--c:var(--violet)"><span class="icon">3️⃣</span><h3 data-i="28">Hujjatlar</h3><p data-i="29">Hisob-faktura, chek, yuk xati va daromad-xarajat daftari.</p></div>
+        <div class="card" style="--c:var(--orange)"><span class="icon">4️⃣</span><h3 data-i="30">Amaliyot</h3><p data-i="31">Kredit to'lovi kalkulyatori va 3 ta masala.</p></div>
       </div>
-      <h3 style="margin-top:22px" data-i="30">🔑 Tayanch tushunchalar</h3>
-      <div data-i="31">
-        <span class="pill g">tashkiliy-huquqiy shakl</span><span class="pill">yuridik shaxs</span><span class="pill">jismoniy shaxs</span>
-        <span class="pill g">YaTT</span><span class="pill g">MChJ</span><span class="pill">oilaviy korxona</span><span class="pill">kooperativ</span>
-        <span class="pill">ta'sischi</span><span class="pill">ustav (nizom)</span><span class="pill">ustav fondi</span><span class="pill">ulush</span>
-        <span class="pill g">davlat ro'yxatidan o'tkazish</span><span class="pill">guvohnoma</span><span class="pill">firma nomi</span>
-        <span class="pill">yuridik manzil</span><span class="pill g">E-IMZO (ERI)</span><span class="pill">STIR</span>
-        <span class="pill g">litsenziya</span><span class="pill">ruxsatnoma</span><span class="pill">bildirishnoma</span><span class="pill">javobgarlik</span>
+      <h3 style="margin-top:22px" data-i="32">🔑 Tayanch tushunchalar</h3>
+      <div data-i="33">
+        <span class="pill g">soliq rejimi</span><span class="pill g">aylanma solig'i</span><span class="pill">soddalashtirilgan tartib</span>
+        <span class="pill g">QQS</span><span class="pill">foyda solig'i</span><span class="pill">JShDS</span><span class="pill">ijtimoiy soliq</span>
+        <span class="pill">soliq bazasi</span><span class="pill">stavka</span><span class="pill">soliq davri</span><span class="pill g">soliq imtiyozi</span>
+        <span class="pill g">my.soliq.uz</span><span class="pill">elektron hisobot</span><span class="pill">STIR</span>
+        <span class="pill g">hisob-faktura (EHF)</span><span class="pill">kassa cheki</span><span class="pill">yuk xati</span>
+        <span class="pill g">daromad-xarajat daftari</span><span class="pill">tannarx</span><span class="pill">sof foyda</span>
       </div>
-      <small class="note" data-i="32">⚠️ Huquqiy talablar va tartiblar o'zgarib turadi. Ma'ruzada umumiy mantiq beriladi — aniq shartlarni doim <b>lex.uz</b> va <b>birdarcha.uz</b> dan tekshiring.</small>
+      <small class="note" data-i="34">⚠️ Soliq stavkalari va chegaralari har yili Soliq kodeksiga kiritiladigan o'zgartishlar bilan yangilanadi. Ma'ruzada <b>mantiq va tartib</b> beriladi — aniq raqamlarni doim <b>soliq.uz</b> va <b>lex.uz</b> dan tekshiring.</small>
     </div>
   </section>
 
   <!-- ============ 4 ============ -->
-  <section class="slide" data-title="Nega rasmiylashtirish kerak?" data-title-en="Why formalise a business?">
+  <section class="slide" data-title="Soliq nima va nega?" data-title-en="What is a tax and why?">
     <div class="inner">
-      <span class="kicker" data-i="33">1-blok</span>
-      <h2 data-i="34">Nega biznesni <span class="grad">rasmiylashtirish</span> kerak?</h2>
-      <div class="def" data-i="35">Rasmiylashtirish — bu "davlatga soliq to'lash" degani emas. Bu — <b>biznesingizga huquq berish</b>: shartnoma tuzish, sudda himoyalanish, kredit olish va yirik mijoz bilan ishlash huquqi.</div>
-      <div class="grid g4" style="margin-top:16px">
-        <div class="card" style="--c:var(--green)"><span class="icon">🛡</span><h3 data-i="36">Huquqiy himoya</h3><p data-i="37">Nizo chiqsa, sudga murojaat qila olasiz. Norasmiy bitimni sud himoya qilmaydi.</p></div>
-        <div class="card" style="--c:var(--blue)"><span class="icon">📄</span><h3 data-i="38">Shartnoma tuzish</h3><p data-i="39">Yirik mijoz, korxona va davlat tashkiloti faqat rasmiy subyekt bilan ishlaydi.</p></div>
-        <div class="card" style="--c:var(--violet)"><span class="icon">🏦</span><h3 data-i="40">Bank va kredit</h3><p data-i="41">Hisob raqam ochish, to'lovlarni qabul qilish, kredit va lizing imkoniyati.</p></div>
-        <div class="card" style="--c:var(--orange)"><span class="icon">🎁</span><h3 data-i="42">Grant va imtiyoz</h3><p data-i="43">Davlat dasturlari, subsidiya va imtiyozli kreditlar faqat rasmiy biznesga.</p></div>
-        <div class="card" style="--c:var(--pink)"><span class="icon">🌍</span><h3 data-i="44">Eksport va tender</h3><p data-i="45">Xorijga chiqish, marketpleyslar va davlat xaridlarida qatnashish imkoni.</p></div>
-        <div class="card" style="--c:var(--cyan)"><span class="icon">⭐</span><h3 data-i="46">Ishonch va brend</h3><p data-i="47">Rasmiy nom, chek va kafolat — mijoz ishonchini oshiradi.</p></div>
-        <div class="card" style="--c:var(--teal)"><span class="icon">👷</span><h3 data-i="48">Xodim va staj</h3><p data-i="49">Xodimni rasmiy ishga olish, mehnat stajini va pensiyani shakllantirish.</p></div>
-        <div class="card" style="--c:var(--red)"><span class="icon">⚠️</span><h3 data-i="50">Xavfsizlik</h3><p data-i="51">Jarima, faoliyatni to'xtatish va musodara xavfidan xoli bo'lasiz.</p></div>
+      <span class="kicker" data-i="35">1-blok</span>
+      <h2 data-i="36">Soliq — <span class="grad">jarima emas, xarajat</span></h2>
+      <div class="def" data-i="37">Soliq — davlat byudjetiga to'lanadigan <b>majburiy va qaytarilmas to'lov</b>. Tadbirkor uchun u kutilmagan zarba emas: soliq <b>oldindan hisoblanadi</b> va mahsulot narxiga <b>xarajat sifatida</b> kiritiladi.</div>
+      <div class="grid g2" style="margin-top:16px">
+        <div class="card" style="--c:var(--green)">
+          <h3 data-i="38">💡 To'g'ri fikrlash</h3>
+          <p style="font-size:16px" data-i="39">Narxni belgilashda tartib shunday bo'lishi kerak:</p>
+          <p style="font-size:16px" data-i="40"><b>Tannarx + soliq + boshqa xarajat + foyda = narx</b></p>
+          <p style="color:var(--red);font-weight:700" data-i="41">✕ Xato: avval narx qo'yib, keyin "soliq qayerdan chiqadi?" deb o'ylash.</p>
+        </div>
+        <div class="card" style="--c:var(--blue)">
+          <h3 data-i="42">📌 Soliq intizomi nima beradi?</h3>
+          <ul class="tick">
+            <li data-i="43"><b>Jarimasiz ishlash</b> — kechikish uchun penya to'lamaysiz</li>
+            <li data-i="44"><b>Kredit va grant</b> — bank hisobot va aylanmani so'raydi</li>
+            <li data-i="45"><b>Tender va yirik mijoz</b> — soliq qarzi yo'qligi talab qilinadi</li>
+            <li data-i="46"><b>Aniq raqam</b> — biznes foydali yoki foydasizligini ko'rasiz</li>
+            <li data-i="47"><b>Xotirjamlik</b> — tekshiruvdan qo'rqmaysiz</li>
+          </ul>
+        </div>
       </div>
+      <div class="quote" style="margin-top:14px" data-i="48">🧠 Yodda tuting: soliqni <b>yashirish</b> emas, qonuniy yo'l bilan <b>optimallashtirish</b> kerak — to'g'ri rejimni tanlash, imtiyozlardan foydalanish va xarajatlarni hujjat bilan tasdiqlash orqali.</div>
     </div>
   </section>
 
   <!-- ============ 5 ============ -->
-  <section class="slide" data-title="Shaklni tanlash mezonlari" data-title-en="Choosing a legal form">
+  <section class="slide" data-title="Soliq rejimlari" data-title-en="Tax regimes">
     <div class="inner">
       <span class="kicker">1.2</span>
-      <h2 data-i="52">Tashkiliy-huquqiy shakl: <span class="grad">nima va qanday tanlanadi?</span></h2>
-      <p class="lead" data-i="53"><b>Tashkiliy-huquqiy shakl</b> — biznesingizning qonun oldidagi "shaxsi": kim egasi, kim javobgar, qanday hisobot yuritiladi va daromad qanday taqsimlanadi.</p>
-      <div class="grid g2">
-        <div class="card" style="--c:var(--blue)">
-          <h3 data-i="54">🧭 Tanlashda 6 ta savol</h3>
-          <ul class="tick">
-            <li data-i="55"><b>Javobgarlik:</b> qarz chiqsa, shaxsiy mulkim bilan javob beramanmi?</li>
-            <li data-i="56"><b>Sheriklar:</b> yolg'iz ishlaymanmi yoki ta'sischilar bir nechtami?</li>
-            <li data-i="57"><b>Miqyos:</b> mijozlarim jismoniy shaxslarmi yoki yirik korxonalarmi?</li>
-            <li data-i="58"><b>Hisobot:</b> buxgalteriya yuritishga vaqtim va imkonim bormi?</li>
-            <li data-i="59"><b>Investitsiya:</b> kelajakda sherik yoki investor kiritamanmi?</li>
-            <li data-i="60"><b>Faoliyat turi:</b> litsenziya yoki ruxsat talab qilinadimi?</li>
-          </ul>
-        </div>
-        <div class="card" style="--c:var(--green)">
-          <h3 data-i="61">⚖️ Eng muhim farq — javobgarlik</h3>
-          <p data-i="62"><b>YaTT</b> — jismoniy shaxs sifatida <b>butun shaxsiy mulki</b> bilan javob beradi.</p>
-          <p data-i="63"><b>MChJ</b> — ta'sischi <b>faqat ustav fondiga qo'shgan ulushi</b> doirasida javob beradi (shuning uchun "mas'uliyati cheklangan").</p>
-          <div class="quote" style="margin-top:10px" data-i="64">Oddiy qoida: xavf va aylanma kichik bo'lsa — <b>YaTT</b>. Sheriklar, yirik shartnomalar va o'sish rejasi bo'lsa — <b>MChJ</b>.</div>
-        </div>
+      <h2 data-i="49">Kichik biznes uchun <span class="grad">soliq rejimlari</span></h2>
+      <p class="lead" data-i="50">Tadbirkor barcha soliqni to'lamaydi — u <b>o'z rejimiga tegishli</b> soliqlarni to'laydi. Rejim aylanma hajmi, faoliyat turi va tanlovga bog'liq.</p>
+      <div class="grid g3">
+        <div class="card" style="--c:var(--green)"><span class="icon">👤</span><h3 data-i="51">YaTT tartibi</h3><p data-i="52">Yakka tartibdagi tadbirkor uchun soddalashtirilgan tartib: faoliyat turiga qarab <b>qat'iy belgilangan soliq</b> yoki aylanma bo'yicha to'lov + ijtimoiy soliq.</p></div>
+        <div class="card" style="--c:var(--blue)"><span class="icon">📉</span><h3 data-i="53">Soddalashtirilgan tartib</h3><p data-i="54">Yillik aylanmasi belgilangan chegaradan oshmagan subyektlar uchun — <b>aylanma solig'i</b>. QQS to'lanmaydi.</p></div>
+        <div class="card" style="--c:var(--violet)"><span class="icon">📊</span><h3 data-i="55">Umumiy tizim</h3><p data-i="56">Chegaradan oshgan yoki o'zi tanlagan subyektlar uchun — <b>QQS + foyda solig'i</b> va to'liq hisobot.</p></div>
       </div>
+      <div class="card" style="--c:var(--orange);margin-top:16px">
+        <h3 data-i="57">🔄 Rejim qanday o'zgaradi?</h3>
+        <p data-i="58"><b>1.</b> Aylanma belgilangan chegaradan oshsa → <b>majburiy</b> ravishda umumiy tizimga o'tiladi.<br>
+           <b>2.</b> Chegaradan past bo'lsa ham, tadbirkor <b>ixtiyoriy</b> ravishda QQS to'lovchisi bo'lishi mumkin — bu yirik mijozlar bilan ishlashda foydali.<br>
+           <b>3.</b> Rejim o'zgarishi haqida soliq organiga xabar beriladi va u <b>soliq davri</b> boshidan kuchga kiradi.</p>
+      </div>
+      <small class="note" data-i="59">Chegara miqdori (yillik aylanma) va stavkalar Soliq kodeksida belgilanadi hamda o'zgarib turadi — amaldagi qiymatni <b>soliq.uz</b> dan tekshiring.</small>
     </div>
   </section>
 
   <!-- ============ 6 ============ -->
-  <section class="slide" data-title="YaTT" data-title-en="Sole entrepreneur (IE)">
+  <section class="slide" data-title="Soddalashtirilgan tartib" data-title-en="The simplified regime">
     <div class="inner">
-      <span class="kicker" data-i="65">1.3 · Shakl</span>
-      <h2 data-i="66"><span class="grad">YaTT</span> — yakka tartibdagi tadbirkor</h2>
-      <div class="def" style="background:linear-gradient(135deg,var(--green2),var(--teal))" data-i="67">YaTT — <b>yuridik shaxs tashkil etmasdan</b>, jismoniy shaxs sifatida tadbirkorlik bilan shug'ullanadigan shaxs. Bu — biznesga kirishning <b>eng oddiy va eng arzon</b> yo'li.</div>
+      <span class="kicker">1.3</span>
+      <h2 data-i="60">Soddalashtirilgan tartib — <span class="grad">aylanma solig'i</span></h2>
+      <div class="def" style="background:linear-gradient(135deg,var(--green2),var(--teal))" data-i="61">Aylanma solig'i <b>tushumdan</b> (yalpi aylanmadan) hisoblanadi. Xarajatni hisobga olish, QQS yuritish va murakkab hisob-kitob talab qilinmaydi — shuning uchun u <b>yangi va kichik biznes</b> uchun qulay.</div>
       <div class="grid g2" style="margin-top:14px">
         <div class="card" style="--c:var(--green)">
-          <h3 data-i="68">✅ Afzalliklari</h3>
+          <h3 data-i="62">✅ Afzalliklari</h3>
           <ul class="tick">
-            <li data-i="69">Ro'yxatdan o'tish tez va oson, hujjat kam</li>
-            <li data-i="70">Ustav fondi va ta'sis hujjatlari talab qilinmaydi</li>
-            <li data-i="71">Soddalashtirilgan soliq va hisobot tartibi</li>
-            <li data-i="72">Daromadni erkin ishlatadi — dividend rasmiylashtirish shart emas</li>
-            <li data-i="73">Faoliyatni to'xtatish ham nisbatan oson</li>
+            <li data-i="63">Hisoblash oson: <b>tushum × stavka</b></li>
+            <li data-i="64">QQS hisobi va hisob-fakturalar yuki kamayadi</li>
+            <li data-i="65">Buxgalteriya xarajati past</li>
+            <li data-i="66">Hisobot soddaroq va kamroq</li>
           </ul>
         </div>
         <div class="card" style="--c:var(--red)">
-          <h3 data-i="74">⚠️ Kamchiliklari va xavflari</h3>
+          <h3 data-i="67">⚠️ Kamchiliklari</h3>
           <ul class="tick cross">
-            <li data-i="75"><b>Butun shaxsiy mulk bilan javobgarlik</b> — eng katta xavf</li>
-            <li data-i="76">Sherik (ta'sischi) qo'shish imkoni yo'q</li>
-            <li data-i="77">Ba'zi yirik mijozlar va tenderlar yuridik shaxsni afzal ko'radi</li>
-            <li data-i="78">Biznesni sotish yoki ulushini berish qiyin</li>
-            <li data-i="79">Ayrim faoliyat turlari YaTT uchun taqiqlangan bo'lishi mumkin</li>
+            <li data-i="68">Xarajat hisobga olinmaydi — <b>zarar ko'rsangiz ham soliq bor</b></li>
+            <li data-i="69">QQS to'lovchi yirik mijozlar siz bilan ishlashni istamasligi mumkin</li>
+            <li data-i="70">Aylanma o'sganda majburiy ravishda rejim o'zgaradi</li>
           </ul>
         </div>
       </div>
-      <div class="quote" style="margin-top:14px" data-i="80">🎓 <b>Talaba uchun:</b> repetitorlik, dizayn, foto/video, mayda savdo, hunarmandchilik kabi ishlarni boshlashda odatda YaTT yetarli. Biznes o'sgach, MChJga o'tish mumkin.</div>
+      <div class="card" style="--c:var(--blue);margin-top:14px">
+        <h3 data-i="71">🧮 Oddiy misol (shartli)</h3>
+        <p data-i="72">Oylik tushum <b>60 000 000 so'm</b>, aylanma solig'i stavkasi <b>4%</b> deb olsak:</p>
+        <p style="font-size:17px" data-i="73"><b>60 000 000 × 4% = 2 400 000 so'm</b> — soliq. Xarajat qancha bo'lishidan qat'i nazar, baza — <b>tushum</b>.</p>
+        <p style="color:var(--muted)" data-i="74">Shuning uchun rentabelligi past (foyda ulushi kichik) biznesda aylanma solig'i og'ir tushishi mumkin — bunday holatda umumiy tizim foydaliroq bo'lishi ehtimoli bor.</p>
+      </div>
+      <small class="note" data-i="75">Aylanma solig'ining asosiy stavkasi va ayrim faoliyat turlari uchun alohida stavkalar qonunda belgilanadi — aniq foizni <b>soliq.uz</b> dan tekshiring.</small>
     </div>
   </section>
 
   <!-- ============ 7 ============ -->
-  <section class="slide" data-title="MChJ" data-title-en="Limited liability company">
+  <section class="slide" data-title="Umumiy soliq tizimi" data-title-en="The general tax system">
     <div class="inner">
-      <span class="kicker" data-i="81">1.4 · Shakl</span>
-      <h2 data-i="82"><span class="grad">MChJ</span> — mas'uliyati cheklangan jamiyat</h2>
-      <div class="def" style="background:linear-gradient(135deg,var(--blue),var(--violet))" data-i="83">MChJ — ustav fondi <b>ulushlarga bo'lingan</b> yuridik shaxs. Ta'sischilar jamiyat majburiyatlari bo'yicha <b>o'z ulushlari doirasida</b> javob beradi — shaxsiy uyi yoki mashinasi bilan emas.</div>
-      <div class="grid g3" style="margin-top:14px">
-        <div class="card" style="--c:var(--blue)"><h3 data-i="84">👥 Ta'sischilar</h3><p data-i="85">Bir kishidan bir necha kishigacha bo'lishi mumkin (qonunda yuqori chegara belgilangan). Har birining <b>ulushi</b> foizda qayd etiladi.</p></div>
-        <div class="card" style="--c:var(--violet)"><h3 data-i="86">📜 Ustav (nizom)</h3><p data-i="87">Asosiy ta'sis hujjati: nomi, manzili, faoliyat turi, ustav fondi, boshqaruv tartibi va ulushlar yozib qo'yiladi.</p></div>
-        <div class="card" style="--c:var(--teal)"><h3 data-i="88">💰 Ustav fondi</h3><p data-i="89">Ta'sischilarning boshlang'ich hissasi. Pul yoki mol-mulk shaklida bo'lishi mumkin; miqdori ta'sis hujjatlarida belgilanadi.</p></div>
-        <div class="card" style="--c:var(--orange)"><h3 data-i="90">👔 Boshqaruv</h3><p data-i="91">Oliy organ — ta'sischilar umumiy yig'ilishi. Kundalik ishni <b>direktor</b> yuritadi va uning vakolati ustavda yoziladi.</p></div>
-        <div class="card" style="--c:var(--green)"><h3 data-i="92">📈 O'sish uchun qulay</h3><p data-i="93">Sherik va investor kiritish, ulushni sotish, filial ochish va yirik shartnomalar tuzish osonroq.</p></div>
-        <div class="card" style="--c:var(--red)"><h3 data-i="94">📊 Talablari ko'proq</h3><p data-i="95">Buxgalteriya hisobi, muntazam hisobotlar, majlis bayonnomalari — ya'ni ko'proq intizom va xarajat.</p></div>
+      <span class="kicker">1.4</span>
+      <h2 data-i="76">Umumiy tizim — <span class="grad">QQS va foyda solig'i</span></h2>
+      <div class="grid g2">
+        <div class="card" style="--c:var(--violet)">
+          <h3 data-i="77">🧾 QQS — qo'shilgan qiymat solig'i</h3>
+          <p data-i="78">QQS <b>xaridor tomonidan</b> to'lanadi, tadbirkor esa uni yig'ib davlatga o'tkazadi. Amaldagi asosiy stavka — <b>12%</b>.</p>
+          <p data-i="79"><b>Asosiy qoida:</b> byudjetga <b>hisoblangan QQS − hisobga olinadigan QQS</b> farqi to'lanadi.</p>
+          <div class="quote" style="margin-top:8px" data-i="80">Misol: mahsulotni QQS bilan 11 200 000 so'mga sotdingiz (QQS = 1 200 000). Xomashyoni QQS bilan sotib olgansiz va undagi QQS = 700 000. Byudjetga: <b>1 200 000 − 700 000 = 500 000 so'm</b>.</div>
+        </div>
+        <div class="card" style="--c:var(--blue)">
+          <h3 data-i="81">📈 Foyda solig'i</h3>
+          <p data-i="82">Baza — <b>sof foyda</b>: daromaddan qonunda ruxsat etilgan xarajatlar chegirilgandan keyin qolgan summa. Asosiy stavka — <b>15%</b> (ayrim toifalar uchun boshqacha).</p>
+          <p data-i="83"><b>Muhim:</b> xarajat faqat <b>hujjat bilan tasdiqlangan</b> bo'lsa chegiriladi. Hujjatsiz xarajat — soliqni kamaytirmaydi.</p>
+          <div class="quote" style="margin-top:8px" data-i="84">Shuning uchun umumiy tizimda <b>birlamchi hujjatlar</b> (hisob-faktura, chek, yuk xati) hal qiluvchi ahamiyatga ega.</div>
+        </div>
       </div>
-      <small class="note" data-i="96">Ustav fondining eng kam miqdori, ta'sischilar soni va boshqa talablar qonun hujjatlarida belgilanadi va o'zgarishi mumkin — <b>lex.uz</b> dan amaldagi tahririni tekshiring.</small>
+      <div class="card" style="--c:var(--green);margin-top:14px">
+        <h3 data-i="85">🤔 Umumiy tizim qachon foydali?</h3>
+        <p data-i="86">① Mijozlaringiz — QQS to'lovchi yirik korxonalar (ular sizdan hisob-faktura kutadi) · ② Xarajat ulushi katta, foyda ulushi kichik · ③ Import yoki eksport bilan ishlaysiz · ④ Aylanma chegaradan oshgan.</p>
+      </div>
+      <small class="note" data-i="87">Stavkalar 2026-yil holatidagi asosiy ko'rsatkichlar sifatida keltirilgan; ular o'zgarishi mumkin — <b>soliq.uz</b> va <b>lex.uz</b> dan tekshiring.</small>
     </div>
   </section>
 
   <!-- ============ 8 ============ -->
-  <section class="slide" data-title="Oilaviy korxona va kooperativ" data-title-en="Family enterprise and cooperative">
+  <section class="slide" data-title="Rejimlar taqqoslash" data-title-en="Comparing the regimes">
     <div class="inner">
-      <span class="kicker" data-i="97">1.5 · Shakl</span>
-      <h2 data-i="98"><span class="grad">Oilaviy korxona</span> va <span class="grad">kooperativ</span></h2>
-      <div class="grid g2">
-        <div class="card" style="--c:var(--orange)">
-          <span class="icon">👨‍👩‍👧</span><h3 data-i="99">Oilaviy korxona</h3>
-          <p data-i="100">A'zolari <b>bir oila a'zolaridan</b> iborat bo'lgan korxona. Mol-mulki a'zolarning <b>umumiy mulki</b> hisoblanadi va daromad kelishuvga muvofiq taqsimlanadi.</p>
-          <ul class="tick">
-            <li data-i="101">Ishonch yuqori, nazorat xarajati past</li>
-            <li data-i="102">Hunar va tajriba oila ichida saqlanadi</li>
-            <li data-i="103">Uy sharoitidagi ishlab chiqarish uchun qulay</li>
-          </ul>
-          <ul class="tick cross" style="margin-top:8px">
-            <li data-i="104">Oilaviy nizo to'g'ridan-to'g'ri biznesga uriladi</li>
-            <li data-i="105">A'zolik va daromad taqsimoti oldindan yozilmasa — janjal chiqadi</li>
-          </ul>
-        </div>
-        <div class="card" style="--c:var(--violet)">
-          <span class="icon">🤝</span><h3 data-i="106">Kooperativ</h3>
-          <p data-i="107">A'zolarining <b>mehnati va mulkiy hissasi</b> asosida birgalikda faoliyat yuritadigan tashkilot. Asosiy tamoyil — <b>"bitta a'zo — bitta ovoz"</b>.</p>
-          <ul class="tick">
-            <li data-i="108">Kichik ishlab chiqaruvchilarni birlashtiradi (dehqonlar, hunarmandlar)</li>
-            <li data-i="109">Xarajat, texnika va bozorni birgalikda ishlatish imkonini beradi</li>
-            <li data-i="110">Daromad a'zolarning hissasi va mehnatiga qarab taqsimlanadi</li>
-          </ul>
-          <ul class="tick cross" style="margin-top:8px">
-            <li data-i="111">Qaror qabul qilish sekinroq — kelishuv kerak</li>
-            <li data-i="112">Boshqaruv intizomi kuchsiz bo'lsa, mas'uliyat "yuvilib" ketadi</li>
-          </ul>
-        </div>
-      </div>
-      <div class="quote" style="margin-top:14px" data-i="113">💡 Misol: bitta qishloqdagi 15 ta issiqxona egasi kooperativ tuzib, mahsulotni <b>birgalikda saralaydi, qadoqlaydi va eksport qiladi</b> — yakka holda ular bunday hajmni ko'tara olmaydi.</div>
+      <span class="kicker" data-i="88">1.5 · Umumlashtirish</span>
+      <h2 data-i="89">Ikki rejimning <span class="grad">qiyosiy jadvali</span></h2>
+      <div class="tw"><table>
+        <thead><tr><th data-i="90">Mezon</th><th data-i="91">📉 Soddalashtirilgan (aylanma solig'i)</th><th data-i="92">📊 Umumiy tizim (QQS + foyda solig'i)</th></tr></thead>
+        <tbody>
+          <tr><td data-i="93"><b>Soliq bazasi</b></td><td data-i="94">Yalpi tushum (aylanma)</td><td class="g" data-i="95">Sof foyda va qo'shilgan qiymat</td></tr>
+          <tr><td data-i="96"><b>Xarajat hisobga olinadimi</b></td><td class="r" data-i="97">Yo'q</td><td class="g" data-i="98">Ha, hujjat bilan tasdiqlansa</td></tr>
+          <tr><td data-i="99"><b>QQS</b></td><td data-i="100">To'lanmaydi</td><td data-i="101">Hisoblanadi va hisobga olinadi</td></tr>
+          <tr><td data-i="102"><b>Hisobot</b></td><td class="g" data-i="103">Sodda, kamroq</td><td data-i="104">To'liq va muntazam</td></tr>
+          <tr><td data-i="105"><b>Buxgalteriya</b></td><td class="g" data-i="106">Minimal</td><td class="r" data-i="107">Malakali buxgalter kerak</td></tr>
+          <tr><td data-i="108"><b>Zarar ko'rilganda</b></td><td class="r" data-i="109">Soliq baribir to'lanadi</td><td class="g" data-i="110">Foyda bo'lmasa, foyda solig'i ham bo'lmaydi</td></tr>
+          <tr><td data-i="111"><b>Yirik mijoz uchun</b></td><td class="r" data-i="112">Ular QQSni hisobga ololmaydi</td><td class="g" data-i="113">Hisob-faktura beradi — qulay</td></tr>
+          <tr><td data-i="114"><b>Kimga mos</b></td><td data-i="115">Yangi, kichik, xizmat ko'rsatuvchi biznes</td><td data-i="116">Ishlab chiqarish, ulgurji savdo, eksport</td></tr>
+        </tbody>
+      </table></div>
+      <div class="quote" style="margin-top:14px" data-i="117">📌 Qaror qabul qilish qoidasi: <b>foyda ulushingiz yuqori</b> bo'lsa — soddalashtirilgan tartib odatda arzon; <b>xarajat ulushi katta</b> bo'lsa yoki mijozlaringiz QQS to'lovchi bo'lsa — umumiy tizim foydaliroq. Har ikkalasini <b>raqam bilan solishtirib ko'ring</b>.</div>
     </div>
   </section>
 
   <!-- ============ 9 ============ -->
-  <section class="slide" data-title="Shakllar taqqoslash" data-title-en="Comparing the forms">
+  <section class="slide" data-title="Boshqa to'lovlar" data-title-en="Other payments">
     <div class="inner">
-      <span class="kicker" data-i="114">1.6 · Umumlashtirish</span>
-      <h2 data-i="115">To'rt shaklning <span class="grad">qiyosiy jadvali</span></h2>
-      <div class="tw"><table>
-        <thead><tr><th data-i="116">Mezon</th><th data-i="117">👤 YaTT</th><th data-i="118">🏢 MChJ</th><th data-i="119">👨‍👩‍👧 Oilaviy korxona</th><th data-i="120">🤝 Kooperativ</th></tr></thead>
-        <tbody>
-          <tr><td data-i="121"><b>Maqomi</b></td><td data-i="122">Jismoniy shaxs</td><td class="g" data-i="123">Yuridik shaxs</td><td data-i="124">Yuridik shaxs</td><td data-i="125">Yuridik shaxs</td></tr>
-          <tr><td data-i="126"><b>Egalari</b></td><td data-i="127">Bitta shaxs</td><td data-i="128">Bir yoki bir necha ta'sischi</td><td data-i="129">Oila a'zolari</td><td data-i="130">A'zolar (odatda ko'p)</td></tr>
-          <tr><td data-i="131"><b>Javobgarlik</b></td><td class="r" data-i="132">Butun shaxsiy mulk bilan</td><td class="g" data-i="133">Ulush doirasida</td><td data-i="134">Umumiy mulk doirasida</td><td data-i="135">Nizomga muvofiq</td></tr>
-          <tr><td data-i="136"><b>Ta'sis hujjati</b></td><td data-i="137">Talab qilinmaydi</td><td data-i="138">Ustav (nizom)</td><td data-i="139">Ustav</td><td data-i="140">Ustav</td></tr>
-          <tr><td data-i="141"><b>Ustav fondi</b></td><td data-i="142">Yo'q</td><td data-i="143">Ulushlarga bo'lingan</td><td data-i="144">A'zolar hissasi</td><td data-i="145">Pay (ulush) badallari</td></tr>
-          <tr><td data-i="146"><b>Hisobot</b></td><td class="g" data-i="147">Sodda</td><td data-i="148">To'liq buxgalteriya</td><td data-i="149">To'liq</td><td data-i="150">To'liq</td></tr>
-          <tr><td data-i="151"><b>Sherik qo'shish</b></td><td class="r" data-i="152">Mumkin emas</td><td class="g" data-i="153">Oson</td><td data-i="154">Oila doirasida</td><td data-i="155">Yangi a'zo qabul qilinadi</td></tr>
-          <tr><td data-i="156"><b>Kimga mos</b></td><td data-i="157">Yakka xizmat, mayda savdo</td><td data-i="158">O'suvchi biznes, sheriklar</td><td data-i="159">Oilaviy ishlab chiqarish</td><td data-i="160">Kichik ishlab chiqaruvchilar guruhi</td></tr>
-        </tbody>
-      </table></div>
-      <div class="quote" style="margin-top:14px" data-i="161">📌 Shaklni <b>bir marta va abadiy</b> tanlash shart emas: biznes o'sganda YaTTdan MChJga o'tish yoki kooperativ tuzish mumkin. Muhimi — <b>bugungi bosqichga mos</b> shaklni tanlash.</div>
+      <span class="kicker">1.6</span>
+      <h2 data-i="118">Xodim va mulk bilan bog'liq <span class="grad">boshqa to'lovlar</span></h2>
+      <p class="lead" data-i="119">Rejimdan qat'i nazar, xodim ishga olsangiz yoki mol-mulkingiz bo'lsa, qo'shimcha majburiyatlar paydo bo'ladi.</p>
+      <div class="grid g4">
+        <div class="card" style="--c:var(--blue)"><span class="icon">👷</span><h3 data-i="120">JShDS</h3><p data-i="121">Jismoniy shaxslardan olinadigan daromad solig'i — <b>xodim ish haqidan ushlab qolinadi</b> va byudjetga o'tkaziladi. Asosiy stavka — 12%.</p></div>
+        <div class="card" style="--c:var(--violet)"><span class="icon">🏥</span><h3 data-i="122">Ijtimoiy soliq</h3><p data-i="123">Ish haqi fondidan <b>ish beruvchi hisobidan</b> to'lanadi. Pensiya va ijtimoiy ta'minot uchun asos bo'ladi.</p></div>
+        <div class="card" style="--c:var(--orange)"><span class="icon">🏢</span><h3 data-i="124">Mol-mulk va yer</h3><p data-i="125">Korxonaga tegishli bino, inshoot va yer uchastkasi bo'lsa — mol-mulk va yer solig'i to'lanadi.</p></div>
+        <div class="card" style="--c:var(--teal)"><span class="icon">💧</span><h3 data-i="126">Resurs to'lovlari</h3><p data-i="127">Suvdan foydalanish, yer qa'ridan foydalanish va aktsiz kabi maxsus soliqlar — faoliyat turiga qarab.</p></div>
+      </div>
+      <div class="card" style="--c:var(--red);margin-top:16px">
+        <h3 data-i="128">⚠️ Eng ko'p yo'l qo'yiladigan xatolar</h3>
+        <div class="grid g2">
+          <ul class="tick cross">
+            <li data-i="129">Xodimni <b>rasmiylashtirmasdan</b> ishlatish (jarima + staj yo'qoladi)</li>
+            <li data-i="130">Ish haqini "konvertda" berish va JShDSni o'tkazmaslik</li>
+          </ul>
+          <ul class="tick cross">
+            <li data-i="131">Soliq to'lovi muddatini nazorat qilmaslik → <b>penya</b></li>
+            <li data-i="132">Shaxsiy va biznes pulini aralashtirib yuborish</li>
+          </ul>
+        </div>
+      </div>
+      <small class="note" data-i="133">Stavkalar toifaga (masalan, byudjet tashkilotlari, alohida hududlar) qarab farq qiladi va yangilanadi — aniq qiymatlarni <b>soliq.uz</b> dan tekshiring.</small>
     </div>
   </section>
 
   <!-- ============ 10 ============ -->
-  <section class="slide" data-title="Onlayn ro'yxatdan o'tish" data-title-en="Online registration">
+  <section class="slide" data-title="Soliq imtiyozlari" data-title-en="Tax incentives">
     <div class="inner">
-      <span class="kicker" data-i="162">2-blok</span>
-      <h2 data-i="163">Onlayn ro'yxatdan o'tish: <span class="grad">5 qadam</span></h2>
-      <p class="lead" data-i="164">Bugun biznesni ro'yxatdan o'tkazish uchun idoralarni aylanish shart emas: butun jarayon <b>birdarcha.uz</b> yagona interaktiv davlat xizmatlari portali orqali onlayn bajariladi.</p>
-      <div class="chain">
-        <div class="link l1"><h3 data-i="165">1-qadam</h3><p data-i="166">Tayyorgarlik</p><p style="font-size:12.5px" data-i="167">Shaklni tanlang · firma nomini o'ylang · yuridik manzilni aniqlang · <b>E-IMZO</b> oling</p></div>
-        <div class="link l2"><h3 data-i="168">2-qadam</h3><p data-i="169">Ariza to'ldirish</p><p style="font-size:12.5px" data-i="170">Portalga E-IMZO bilan kiring · nom bandligini tekshiring · faoliyat turini (kod) tanlang</p></div>
-        <div class="link l3"><h3 data-i="171">3-qadam</h3><p data-i="172">Hujjat va to'lov</p><p style="font-size:12.5px" data-i="173">Ta'sischilar ma'lumoti · ustav (MChJ uchun) · davlat boji onlayn to'lanadi</p></div>
-        <div class="link l4"><h3 data-i="174">4-qadam</h3><p data-i="175">Guvohnoma</p><p style="font-size:12.5px" data-i="176">Ro'yxatga olish <b>guvohnomasi</b> va <b>STIR</b> elektron shaklda beriladi</p></div>
+      <span class="kicker">1.7</span>
+      <h2 data-i="134"><span class="grad">Soliq imtiyozlari</span> — qonuniy yengillik</h2>
+      <div class="def" style="background:linear-gradient(135deg,var(--violet),var(--pink))" data-i="135">Imtiyoz — bu "yashirish" emas, <b>davlat o'zi taklif qilgan qonuniy yengillik</b>. Undan foydalanmaslik — pulni shunchaki ortiqcha to'lash demakdir.</div>
+      <div class="grid g3" style="margin-top:14px">
+        <div class="card" style="--c:var(--green)"><h3 data-i="136">1. To'liq ozod qilish</h3><p data-i="137">Ayrim faoliyat turlari yoki subyektlar muayyan soliqdan <b>butunlay ozod</b> etiladi.</p></div>
+        <div class="card" style="--c:var(--blue)"><h3 data-i="138">2. Kamaytirilgan stavka</h3><p data-i="139">Umumiy stavka o'rniga <b>past stavka</b> qo'llaniladi (masalan, alohida hududlarda).</p></div>
+        <div class="card" style="--c:var(--orange)"><h3 data-i="140">3. Muddatni kechiktirish</h3><p data-i="141">To'lov muddati <b>uzaytiriladi</b> yoki bo'lib-bo'lib to'lash imkoni beriladi.</p></div>
       </div>
-      <div class="card" style="--c:var(--green);margin-top:14px">
-        <h3 data-i="177">5-qadam: ro'yxatdan keyin darhol qilinadigan ishlar</h3>
-        <div class="grid g4">
-          <div><b>🏦 Hisob raqam</b><p style="font-size:13.5px;margin:4px 0 0" data-i="178">Bankda hisob raqam ochish (ko'p hollarda onlayn)</p></div>
-          <div><b>🧾 Soliq</b><p style="font-size:13.5px;margin:4px 0 0" data-i="179">my.soliq.uz kabinetini faollashtirish, soliq turini tanlash</p></div>
-          <div><b>🖨 Kassa va chek</b><p style="font-size:13.5px;margin:4px 0 0" data-i="180">Zarur bo'lsa onlayn-kassa yoki virtual kassani ulash</p></div>
-          <div><b>📜 Ruxsat</b><p style="font-size:13.5px;margin:4px 0 0" data-i="181">Faoliyat litsenziya yoki ruxsatnoma talab qilsa — uni olish</p></div>
+      <div class="grid g2" style="margin-top:14px">
+        <div class="card" style="--c:var(--cyan)">
+          <h3 data-i="142">🎯 Imtiyoz odatda kimga beriladi?</h3>
+          <ul class="tick">
+            <li data-i="143">Yangi tashkil etilgan va ayrim sohalarda faoliyat yurituvchi subyektlar</li>
+            <li data-i="144"><b>IT-park</b> rezidentlari kabi maxsus maqomga ega tashkilotlar</li>
+            <li data-i="145">Kam ta'minlangan tumanlar va maxsus iqtisodiy zonalarda ishlovchilar</li>
+            <li data-i="146">Nogironligi bo'lgan shaxslar mehnatidan foydalanuvchi korxonalar</li>
+            <li data-i="147">Eksportga yo'naltirilgan va ayrim ijtimoiy yo'naltirilgan faoliyatlar</li>
+          </ul>
+        </div>
+        <div class="card" style="--c:var(--amber)">
+          <h3 data-i="148">📝 Imtiyozdan qanday foydalaniladi?</h3>
+          <p data-i="149"><b>1.</b> Faoliyatingizga tegishli imtiyozni <b>rasmiy ro'yxatdan</b> toping (soliq.uz / lex.uz)<br>
+             <b>2.</b> Shartlarini tekshiring — ular odatda <b>aniq talab</b> bilan keladi<br>
+             <b>3.</b> Kerakli hujjat yoki maqomni rasmiylashtiring<br>
+             <b>4.</b> Hisobotda imtiyozni <b>to'g'ri aks ettiring</b><br>
+             <b>5.</b> Shart buzilsa — imtiyoz bekor qilinib, soliq <b>qayta hisoblanishi</b> mumkin</p>
         </div>
       </div>
-      <small class="note" data-i="182">Amaldagi bosqichlar, hujjatlar ro'yxati va davlat boji miqdori o'zgarishi mumkin — <b>birdarcha.uz</b> va <b>lex.uz</b> dagi joriy tartibga tayaning.</small>
+      <small class="note" data-i="150">Imtiyozlar ro'yxati va shartlari tez-tez yangilanadi — har safar amaldagi hujjatni tekshiring va shubha bo'lsa soliq maslahatchisiga murojaat qiling.</small>
     </div>
   </section>
 
   <!-- ============ 11 ============ -->
-  <section class="slide" data-title="Firma nomi" data-title-en="Company name">
+  <section class="slide" data-title="my.soliq.uz kabineti" data-title-en="The my.soliq.uz cabinet">
     <div class="inner">
-      <span class="kicker">2.2</span>
-      <h2 data-i="183"><span class="grad">Firma nomi</span> — biznesning huquqiy ismi</h2>
-      <div class="grid g2">
-        <div>
-          <div class="def" style="background:linear-gradient(135deg,var(--violet),var(--pink))" data-i="184">Firma nomi — korxonaning <b>rasmiy, takrorlanmas nomi</b>. U ro'yxatdan o'tkazilgach himoyalanadi: boshqa korxona xuddi shu nom bilan ro'yxatdan o'ta olmaydi.</div>
-          <h3 style="margin-top:14px" data-i="185">Talablar</h3>
+      <span class="kicker" data-i="151">2-blok</span>
+      <h2 data-i="152"><span class="grad">my.soliq.uz</span> — soliq to'lovchining shaxsiy kabineti</h2>
+      <div class="def" data-i="153">Shaxsiy kabinet — tadbirkorning <b>soliq bo'yicha ish stoli</b>: hisobot topshirish, qarzni ko'rish, to'lov qilish, hisob-faktura yuborish va soliq organi bilan yozishmalar shu yerda amalga oshiriladi. Idoraga borish shart emas.</div>
+      <div class="grid g2" style="margin-top:16px">
+        <div class="card" style="--c:var(--blue)">
+          <h3 data-i="154">🔐 Kabinetga qanday kiriladi?</h3>
           <ul class="tick">
-            <li data-i="186">Nomda <b>tashkiliy-huquqiy shakl</b> ko'rsatiladi (masalan, "MChJ")</li>
-            <li data-i="187">Nom <b>band bo'lmasligi</b> kerak — portalda oldindan tekshiriladi</li>
-            <li data-i="188">Boshqa brendga <b>chalkashtiradigan darajada o'xshash</b> bo'lmasligi kerak</li>
-            <li data-i="189">Davlat nomi va rasmiy nomlardan foydalanish <b>alohida ruxsat</b> talab qiladi</li>
-            <li data-i="190">Axloqqa zid, adashtiruvchi yoki taqiqlangan so'zlar ishlatilmaydi</li>
+            <li data-i="155"><b>E-IMZO (ERI kaliti)</b> orqali — asosiy va eng ishonchli usul</li>
+            <li data-i="156"><b>OneID</b> yagona identifikatsiya tizimi orqali</li>
+            <li data-i="157">Kirish uchun <b>STIR</b> va faol kalit talab qilinadi</li>
+            <li data-i="158">Kalit muddati tugasa — kabinetga kira olmaysiz, oldindan yangilang</li>
+          </ul>
+          <div class="quote" style="margin-top:10px" data-i="159">🛡 Kalitni buxgalterga bersangiz ham, <b>javobgarlik sizda</b> qoladi. Kim qaysi hujjatni imzolayotganini nazorat qiling.</div>
+        </div>
+        <div class="card" style="--c:var(--violet)">
+          <h3 data-i="160">🧭 Asosiy bo'limlar</h3>
+          <ul class="tick">
+            <li data-i="161"><b>Hisobotlar</b> — topshirish, tarix va qabul qilinganlik holati</li>
+            <li data-i="162"><b>Shaxsiy varaqa</b> — soliq bo'yicha qarz yoki ortiqcha to'lov</li>
+            <li data-i="163"><b>To'lovlar</b> — byudjetga to'lov va uni taqsimlash</li>
+            <li data-i="164"><b>Hisob-fakturalar (EHF)</b> — yuborilgan va qabul qilingan hujjatlar</li>
+            <li data-i="165"><b>Xabarnomalar</b> — soliq organidan kelgan talab va bildirishnomalar</li>
+            <li data-i="166"><b>Murojaatlar</b> — savol yuborish va javob olish</li>
           </ul>
         </div>
-        <div>
-          <div class="card" style="--c:var(--blue)">
-            <h3 data-i="191">🏷 Firma nomi va tovar belgisi — bir narsa emas</h3>
-            <div class="tw"><table>
-              <thead><tr><th data-i="192">Firma nomi</th><th data-i="193">Tovar belgisi (brend)</th></tr></thead>
-              <tbody>
-                <tr><td data-i="194">Korxonaning huquqiy nomi</td><td data-i="195">Mahsulot/xizmat belgisi, logotip</td></tr>
-                <tr><td data-i="196">Ro'yxatdan o'tishda beriladi</td><td data-i="197">Alohida ro'yxatdan o'tkaziladi</td></tr>
-                <tr><td data-i="198">Hujjatlarda ishlatiladi</td><td data-i="199">Reklama va qadoqda ishlatiladi</td></tr>
-              </tbody>
-            </table></div>
-          </div>
-          <div class="card" style="--c:var(--green);margin-top:12px">
-            <h3 data-i="200">💡 Yaxshi nom tanlash</h3>
-            <ul class="tick">
-              <li data-i="201">Qisqa, talaffuzi oson va eslab qolinadigan</li>
-              <li data-i="202">Domen va ijtimoiy tarmoqdagi nomi bo'sh bo'lsin</li>
-              <li data-i="203">Faoliyatni juda tor cheklab qo'ymasin (kelajakda kengayasiz)</li>
-              <li data-i="204">Boshqa tilda kulgili yoki noqulay ma'no bermasin</li>
-            </ul>
-          </div>
-        </div>
       </div>
+      <small class="note" data-i="167">Bo'limlar nomi va interfeys vaqti-vaqti bilan yangilanadi — amaldagi ko'rinishni <b>my.soliq.uz</b> saytidan ko'ring.</small>
     </div>
   </section>
 
   <!-- ============ 12 ============ -->
-  <section class="slide" data-title="Yuridik manzil" data-title-en="Legal address">
+  <section class="slide" data-title="Elektron hisobot" data-title-en="Electronic reporting">
     <div class="inner">
-      <span class="kicker">2.3</span>
-      <h2 data-i="205"><span class="grad">Yuridik manzil</span> — korxonaning rasmiy joyi</h2>
-      <div class="def" data-i="206">Yuridik manzil — korxona <b>rasman joylashgan</b> va unga rasmiy xatlar, tekshiruv xabarlari hamda sud hujjatlari yuboriladigan manzil. U ro'yxatdan o'tish arizasida ko'rsatiladi.</div>
-      <div class="grid g3" style="margin-top:16px">
-        <div class="card" style="--c:var(--blue)"><h3 data-i="207">📍 Nima bo'lishi mumkin</h3><p data-i="208">O'z mulkingiz, ijaraga olingan ofis yoki bino. Ayrim hollarda qonun hujjatlarida belgilangan tartibda <b>turar joy</b> ham ishlatilishi mumkin.</p></div>
-        <div class="card" style="--c:var(--violet)"><h3 data-i="209">📑 Nima talab qilinadi</h3><p data-i="210">Manzilga <b>huquqni tasdiqlovchi asos</b>: mulk hujjati yoki <b>ijara shartnomasi</b>. Manzil aniq va to'liq yozilishi shart.</p></div>
-        <div class="card" style="--c:var(--orange)"><h3 data-i="211">🔄 O'zgarganda</h3><p data-i="212">Manzil o'zgarsa, o'zgarish <b>ro'yxatdan o'tkazuvchi organga xabar qilinadi</b> va hujjatlarga kiritiladi.</p></div>
+      <span class="kicker">2.2</span>
+      <h2 data-i="168">Elektron hisobotni <span class="grad">topshirish tartibi</span></h2>
+      <div class="chain">
+        <div class="link l1"><h3 data-i="169">1–2-qadam</h3><p data-i="170">Tayyorgarlik</p><p style="font-size:12.5px" data-i="171">Davr ma'lumotlarini yig'ing (tushum, xarajat, ish haqi) · kabinetga E-IMZO bilan kiring</p></div>
+        <div class="link l2"><h3 data-i="172">3-qadam</h3><p data-i="173">Shaklni tanlash</p><p style="font-size:12.5px" data-i="174">Rejimingizga mos hisobot shaklini va <b>soliq davrini</b> tanlang</p></div>
+        <div class="link l3"><h3 data-i="175">4-qadam</h3><p data-i="176">To'ldirish va tekshirish</p><p style="font-size:12.5px" data-i="177">Ma'lumotni kiriting · tizim <b>xatolarni avtomatik tekshiradi</b></p></div>
+        <div class="link l4"><h3 data-i="178">5–6-qadam</h3><p data-i="179">Imzolash va to'lov</p><p style="font-size:12.5px" data-i="180">E-IMZO bilan imzolab yuboring · <b>qabul qilingani</b>ni tekshiring · soliqni to'lang</p></div>
       </div>
-      <div class="card" style="--c:var(--red);margin-top:14px">
-        <h3 data-i="213">⚠️ Eng ko'p uchraydigan xatolar</h3>
-        <div class="grid g2">
-          <ul class="tick cross">
-            <li data-i="214">Mavjud bo'lmagan yoki "qog'ozdagi" manzilni ko'rsatish</li>
-            <li data-i="215">Ijara shartnomasi tugagach, manzilni yangilamaslik</li>
-          </ul>
-          <ul class="tick cross">
-            <li data-i="216">Manzil egasidan rozilik olmaslik</li>
-            <li data-i="217">Rasmiy xatlarni kuzatmaslik — muddat o'tib ketadi</li>
+      <div class="grid g2" style="margin-top:16px">
+        <div class="card" style="--c:var(--green)">
+          <h3 data-i="181">🗓 Muddatlar haqida</h3>
+          <ul class="tick">
+            <li data-i="182">Har bir soliqning <b>o'z davri</b> bor: oylik, choraklik yoki yillik</li>
+            <li data-i="183">Hisobot muddati va to'lov muddati <b>bir xil bo'lmasligi</b> mumkin</li>
+            <li data-i="184">Muddat dam olish kuniga to'g'ri kelsa, keyingi ish kuniga o'tadi</li>
+            <li data-i="185">Kalendarni oldindan tuzing va <b>eslatma</b> qo'ying</li>
           </ul>
         </div>
-        <p style="margin-top:8px;color:var(--muted)" data-i="218">Oqibati: xabarnomani olmay qolish, jarima, hisobot muddatini o'tkazib yuborish va hatto faoliyatni to'xtatish xavfi.</p>
+        <div class="card" style="--c:var(--red)">
+          <h3 data-i="186">⏰ Kechiksangiz nima bo'ladi?</h3>
+          <ul class="tick cross">
+            <li data-i="187">Kechiktirilgan har kun uchun <b>penya</b> hisoblanadi</li>
+            <li data-i="188">Hisobotni topshirmaslik uchun <b>jarima</b> qo'llaniladi</li>
+            <li data-i="189">Qarz to'planib borsa — hisobvaraq bo'yicha cheklovlar qo'llanishi mumkin</li>
+            <li data-i="190">Soliq qarzi bo'lsa, tender va imtiyozlarga yo'l yopiladi</li>
+          </ul>
+          <div class="quote" style="margin-top:10px" data-i="191">Amaliy maslahat: hisobotni <b>oxirgi kunga qoldirmang</b> — tizim band bo'lishi yoki kalit muddati tugagan bo'lishi mumkin.</div>
+        </div>
       </div>
     </div>
   </section>
 
   <!-- ============ 13 ============ -->
-  <section class="slide" data-title="E-IMZO" data-title-en="E-IMZO (digital signature)">
+  <section class="slide" data-title="Hisob-faktura" data-title-en="The invoice">
     <div class="inner">
-      <span class="kicker">2.4</span>
-      <h2 data-i="219"><span class="grad">E-IMZO</span> — elektron raqamli imzo</h2>
-      <div class="def" style="background:linear-gradient(135deg,var(--green2),var(--cyan))" data-i="220">E-IMZO (ERI) — sizning <b>elektron muhringiz va imzoyingiz</b>. U onlayn hujjatning aynan siz tomondan imzolanganini tasdiqlaydi va qo'l imzosi bilan <b>teng kuchga</b> ega.</div>
-      <div class="grid g3" style="margin-top:14px">
-        <div class="card" style="--c:var(--blue)"><h3 data-i="221">🧾 Nima uchun kerak?</h3><ul class="tick">
-          <li data-i="222">Biznesni onlayn ro'yxatdan o'tkazish</li>
-          <li data-i="223">Soliq hisobotlari va my.soliq.uz kabineti</li>
-          <li data-i="224">Elektron shartnoma va hisob-fakturalar</li>
-          <li data-i="225">Davlat xizmatlari va tenderlar</li>
-        </ul></div>
-        <div class="card" style="--c:var(--violet)"><h3 data-i="226">🔑 Qanday olinadi?</h3><ul class="tick">
-          <li data-i="227">Ro'yxatga olish markazi orqali rasmiylashtiriladi</li>
-          <li data-i="228">Pasport (ID) va shaxsiy ma'lumotlar talab qilinadi</li>
-          <li data-i="229">Kalit fayl va parol beriladi, muddati cheklangan</li>
-          <li data-i="230">Muddati tugashidan oldin yangilanadi</li>
-        </ul></div>
-        <div class="card" style="--c:var(--red)"><h3 data-i="231">🛡 Xavfsizlik qoidalari</h3><ul class="tick cross">
-          <li data-i="232">Kalit va parolni <b>hech kimga bermang</b> — bu imzoingiz</li>
-          <li data-i="233">Kalitni umumiy kompyuterda saqlamang</li>
-          <li data-i="234">Parolni oddiy qilib qo'ymang, davriy yangilang</li>
-          <li data-i="235">Yo'qolsa — darhol bekor qilishni so'rang</li>
-        </ul></div>
+      <span class="kicker" data-i="192">3-blok</span>
+      <h2 data-i="193">Birlamchi hujjatlar va <span class="grad">hisob-faktura (EHF)</span></h2>
+      <div class="def" style="background:linear-gradient(135deg,var(--blue),var(--violet))" data-i="194">Birlamchi hujjat — <b>xo'jalik operatsiyasining dalili</b>. Hujjat bo'lmasa, xarajat ham, QQS hisobi ham, sudda himoya ham yo'q. Qoida oddiy: <b>hujjatsiz operatsiya — bo'lmagan operatsiya</b>.</div>
+      <div class="grid g2" style="margin-top:14px">
+        <div class="card" style="--c:var(--violet)">
+          <h3 data-i="195">🧾 Hisob-faktura nima?</h3>
+          <p data-i="196">Tovar yoki xizmat yetkazib berilganini va uning <b>qiymati hamda QQS summasini</b> tasdiqlovchi asosiy hujjat. Bugungi kunda u <b>elektron shaklda (EHF)</b> rasmiylashtiriladi va kabinet orqali yuboriladi.</p>
+          <p data-i="197"><b>Nima uchun muhim:</b> xaridor QQSni <b>hisobga olishi</b> uchun, sotuvchi esa daromadni tasdiqlashi uchun.</p>
+          <ul class="tick">
+            <li data-i="198">Yuborilgandan so'ng qarshi tomon uni <b>qabul qiladi</b> yoki rad etadi</li>
+            <li data-i="199">Xato bo'lsa — tuzatuvchi yoki bekor qiluvchi hujjat rasmiylashtiriladi</li>
+            <li data-i="200">Barcha EHFlar kabinetda saqlanadi va soliq organiga ko'rinadi</li>
+          </ul>
+        </div>
+        <div class="card" style="--c:var(--blue)">
+          <h3 data-i="201">📋 Hisob-fakturada nima bo'ladi?</h3>
+          <div class="tw"><table>
+            <tbody>
+              <tr><td data-i="202"><b>Raqami va sanasi</b></td><td data-i="203">Hujjatning identifikatori</td></tr>
+              <tr><td data-i="204"><b>Taraflar</b></td><td data-i="205">Sotuvchi va xaridor nomi, STIRi, manzili</td></tr>
+              <tr><td data-i="206"><b>Tovar/xizmat</b></td><td data-i="207">Nomi, o'lchov birligi, miqdori</td></tr>
+              <tr><td data-i="208"><b>Narx va summa</b></td><td data-i="209">Birlik narxi, jami qiymat</td></tr>
+              <tr><td data-i="210"><b>QQS</b></td><td data-i="211">Stavka va soliq summasi</td></tr>
+              <tr><td data-i="212"><b>Imzo</b></td><td data-i="213">E-IMZO bilan elektron imzo</td></tr>
+            </tbody>
+          </table></div>
+        </div>
       </div>
-      <div class="quote" style="margin-top:14px" data-i="236">⚖️ Muhim: E-IMZO bilan imzolangan hujjat uchun <b>siz javobgarsiz</b>. "Kalitim boshqa odamda edi" degan gap sizni majburiyatdan ozod qilmaydi.</div>
     </div>
   </section>
 
   <!-- ============ 14 ============ -->
-  <section class="slide" data-title="Litsenziya va ruxsatnoma" data-title-en="Licence and permit">
+  <section class="slide" data-title="Chek va yuk xati" data-title-en="Receipt and waybill">
     <div class="inner">
-      <span class="kicker" data-i="237">3-blok</span>
-      <h2 data-i="238"><span class="grad">Litsenziya</span>, <span class="grad">ruxsatnoma</span> va <span class="grad">bildirishnoma</span></h2>
-      <p class="lead" data-i="239">Ro'yxatdan o'tish — bu "hamma ishni qilishim mumkin" degani emas. Ayrim faoliyat turlari <b>qo'shimcha ruxsat</b> talab qiladi. Qonunchilikda uch xil tartib mavjud:</p>
-      <div class="grid g3">
-        <div class="card" style="--c:var(--red)"><span class="icon">📜</span><h3 data-i="240">Litsenziya</h3><p data-i="241">Eng qat'iy tartib. Muayyan talablarga javob berish shart: xodim malakasi, joy, uskuna, moliyaviy shartlar.</p><p style="color:var(--muted);font-size:13.5px" data-i="242">Misollar: farmatsevtika, alkogol mahsulotlari, bank va sug'urta, xususiy qo'riqlash, ayrim transport va ta'lim xizmatlari.</p></div>
-        <div class="card" style="--c:var(--orange)"><span class="icon">🗂</span><h3 data-i="243">Ruxsatnoma</h3><p data-i="244">Yengilroq, ammo majburiy tartib. Odatda aniq obyekt yoki jarayonga beriladi.</p><p style="color:var(--muted);font-size:13.5px" data-i="245">Misollar: ayrim qurilish ishlari, sanitariya-epidemiologiya xulosasi talab qiladigan faoliyat, reklama va joylashtirish bilan bog'liq holatlar.</p></div>
-        <div class="card" style="--c:var(--green)"><span class="icon">📨</span><h3 data-i="246">Bildirishnoma</h3><p data-i="247">Eng yengil tartib: ruxsat kutilmaydi — vakolatli organ <b>xabardor qilinadi</b> va faoliyat boshlanadi.</p><p style="color:var(--muted);font-size:13.5px" data-i="248">Bu tartib tadbirkorlik yukini kamaytirish uchun joriy etilgan.</p></div>
+      <span class="kicker">3.2</span>
+      <h2 data-i="214"><span class="grad">Kassa cheki</span> va <span class="grad">yuk xati</span></h2>
+      <div class="grid g2">
+        <div class="card" style="--c:var(--green)">
+          <span class="icon">🧾</span><h3 data-i="215">Kassa cheki</h3>
+          <p data-i="216">Aholiga (jismoniy shaxsga) sotuvda <b>chek berish majburiy</b>. Chek — xaridorning huquqi va sotuvchining daromadi dalili.</p>
+          <ul class="tick">
+            <li data-i="217">Onlayn-kassa yoki <b>virtual kassa</b> orqali rasmiylashtiriladi</li>
+            <li data-i="218">Chekdagi <b>QR-kod</b> orqali uning haqiqiyligini tekshirish mumkin</li>
+            <li data-i="219">Chek berilmasa — bu qonunbuzarlik va jarima asosidir</li>
+            <li data-i="220">Qaytarish va kafolat masalasida chek asosiy hujjat bo'ladi</li>
+          </ul>
+          <div class="quote" style="margin-top:10px" data-i="221">🧑‍🎓 Talabaga maslahat: xarid qilganda chekni oling — bu nafaqat sizning huquqingiz, balki xarajatingizni tasdiqlovchi hujjat.</div>
+        </div>
+        <div class="card" style="--c:var(--orange)">
+          <span class="icon">🚚</span><h3 data-i="222">Yuk xati (TTN)</h3>
+          <p data-i="223">Tovarning <b>bir joydan boshqa joyga ko'chirilganini</b> tasdiqlovchi hujjat. U tovarning yo'lda qonuniy ekanini ko'rsatadi.</p>
+          <ul class="tick">
+            <li data-i="224">Kim yubordi, kim qabul qildi, qanday transport bilan</li>
+            <li data-i="225">Tovar nomi, miqdori, o'lchov birligi va qiymati</li>
+            <li data-i="226">Yo'nalish: chiqish va yetkazish manzili</li>
+            <li data-i="227">Bugun ko'p hollarda <b>elektron shaklda</b> rasmiylashtiriladi</li>
+          </ul>
+          <div class="quote" style="margin-top:10px" data-i="228">⚠️ Yuk xatisiz tashilayotgan tovar <b>hujjatsiz tovar</b> deb baholanishi va jarimaga sabab bo'lishi mumkin.</div>
+        </div>
       </div>
-      <div class="card" style="--c:var(--blue);margin-top:14px">
-        <h3 data-i="249">🔎 Qanday tekshiriladi?</h3>
-        <p data-i="250"><b>1.</b> Faoliyat turingizni aniq nomlang → <b>2.</b> Litsenziya, ruxsatnoma va bildirishnoma talab qilinadigan turlarning <b>yagona ro'yxati</b>ni ko'ring → <b>3.</b> Vakolatli organni aniqlang → <b>4.</b> Talab va muddatlarni oldindan hisoblang.</p>
-        <p style="color:var(--green);font-weight:700" data-i="251">Ruxsatni faoliyat boshlashdan <b>oldin</b> oling — keyin emas.</p>
+      <div class="card" style="--c:var(--red);margin-top:14px">
+        <h3 data-i="229">📁 Hujjatlarni saqlash qoidasi</h3>
+        <p data-i="230">Birlamchi hujjatlar qonunda belgilangan muddat davomida <b>saqlanishi shart</b>. Elektron hujjatlar kabinetda saqlansa ham, muhim shartnoma va hisob-fakturalarning <b>nusxasini o'zingizda</b> tartibli papkada saqlang: sana bo'yicha, kontragent bo'yicha.</p>
       </div>
-      <small class="note" data-i="252">Ro'yxatlar va tartiblar qonun hujjatlari bilan belgilanadi hamda yangilanib turadi — aniq holatni <b>lex.uz</b> va vakolatli organ saytidan tekshiring.</small>
     </div>
   </section>
 
   <!-- ============ 15 ============ -->
-  <section class="slide" data-title="Noqonuniy faoliyat xavflari" data-title-en="Risks of illegal activity">
+  <section class="slide" data-title="Daromad-xarajat daftari" data-title-en="Income-expense ledger">
     <div class="inner">
-      <span class="kicker" data-i="253">3.2 · Ogohlantirish</span>
-      <h2 data-i="254">Noqonuniy faoliyatning <span class="grad-w">huquqiy xavflari</span></h2>
-      <div class="def" style="background:linear-gradient(135deg,var(--red),var(--orange))" data-i="255">"Kichkina ish-ku, keyin rasmiylashtiraman" — eng qimmatga tushadigan gap. Ro'yxatdan o'tmasdan yoki litsenziyasiz ishlash <b>ma'muriy, ayrim hollarda jinoiy javobgarlik</b>ka olib keladi.</div>
-      <div class="grid g4" style="margin-top:16px">
-        <div class="card" style="--c:var(--red)"><span class="icon">💸</span><h3 data-i="256">Jarima</h3><p data-i="257">Ro'yxatdan o'tmasdan yoki ruxsatsiz faoliyat uchun ma'muriy jarima solinadi.</p></div>
-        <div class="card" style="--c:var(--orange)"><span class="icon">📦</span><h3 data-i="258">Musodara</h3><p data-i="259">Noqonuniy faoliyatdan olingan daromad va mol-mulk davlat foydasiga olinishi mumkin.</p></div>
-        <div class="card" style="--c:var(--violet)"><span class="icon">🛑</span><h3 data-i="260">To'xtatish</h3><p data-i="261">Faoliyat to'xtatiladi, litsenziya to'xtatib turiladi yoki bekor qilinadi.</p></div>
-        <div class="card" style="--c:var(--pink)"><span class="icon">⚖️</span><h3 data-i="262">Jinoiy javobgarlik</h3><p data-i="263">Katta miqdordagi daromad yoki takroriy qonunbuzarlikda jinoiy javobgarlik nazarda tutilgan.</p></div>
+      <span class="kicker">3.3</span>
+      <h2 data-i="231"><span class="grad">Daromad-xarajat daftari</span> — biznesning kundaligi</h2>
+      <p class="lead" data-i="232">Bu daftar — <b>eng oddiy va eng foydali</b> moliyaviy vosita. U bo'lmasa, tadbirkor foyda ko'ryaptimi yoki zarar ko'ryaptimi — bilmaydi.</p>
+      <div class="tw"><table>
+        <thead><tr><th data-i="233">Sana</th><th data-i="234">Hujjat</th><th data-i="235">Operatsiya mazmuni</th><th data-i="236">Daromad</th><th data-i="237">Xarajat</th><th data-i="238">Qoldiq</th></tr></thead>
+        <tbody>
+          <tr><td>03.09</td><td data-i="239">Chek №112</td><td data-i="240">Mahsulot sotuvi (25 dona)</td><td class="g">3 750 000</td><td>—</td><td>3 750 000</td></tr>
+          <tr><td>05.09</td><td data-i="241">EHF №0041</td><td data-i="242">Xomashyo xaridi</td><td>—</td><td class="r">1 900 000</td><td>1 850 000</td></tr>
+          <tr><td>07.09</td><td data-i="243">Shartnoma</td><td data-i="244">Ijara to'lovi (sentabr)</td><td>—</td><td class="r">1 200 000</td><td>650 000</td></tr>
+          <tr><td>12.09</td><td data-i="245">EHF №0058</td><td data-i="246">Korxonaga ulgurji sotuv</td><td class="g">5 400 000</td><td>—</td><td>6 050 000</td></tr>
+          <tr><td>15.09</td><td data-i="247">Vedomost</td><td data-i="248">Ish haqi (2 xodim)</td><td>—</td><td class="r">2 800 000</td><td>3 250 000</td></tr>
+        </tbody>
+      </table></div>
+      <div class="grid g3" style="margin-top:14px">
+        <div class="card" style="--c:var(--green)"><h3 data-i="249">✅ Yuritish qoidalari</h3><ul class="tick">
+          <li data-i="250">Har bir yozuv <b>hujjatga tayanadi</b> (chek, EHF, shartnoma)</li>
+          <li data-i="251">Yozuv <b>o'sha kuni yoki ertasiga</b> kiritiladi</li>
+          <li data-i="252">Shaxsiy xarajat bu yerga <b>yozilmaydi</b></li>
+          <li data-i="253">Oy oxirida jami hisoblanadi va tekshiriladi</li>
+        </ul></div>
+        <div class="card" style="--c:var(--blue)"><h3 data-i="254">📊 Nima beradi?</h3><ul class="tick">
+          <li data-i="255">Sof foyda: <b>daromad − xarajat</b></li>
+          <li data-i="256">Qaysi xarajat "yeb qo'yayotgani" ko'rinadi</li>
+          <li data-i="257">Soliq va kredit to'lovini rejalashtirish oson bo'ladi</li>
+          <li data-i="258">Hisobot topshirish uchun tayyor ma'lumot</li>
+        </ul></div>
+        <div class="card" style="--c:var(--violet)"><h3 data-i="259">🛠 Nimada yuritiladi?</h3><ul class="tick">
+          <li data-i="260">Oddiy daftar yoki <b>Excel / Google Sheets</b></li>
+          <li data-i="261">Buxgalteriya dasturi yoki mobil ilova</li>
+          <li data-i="262">Muhimi — <b>doimiylik</b>, vositasi emas</li>
+        </ul></div>
       </div>
-      <div class="grid g2" style="margin-top:14px">
-        <div class="card" style="--c:var(--red)">
-          <h3 data-i="264">❌ Ko'p uchraydigan qonunbuzarliklar</h3>
-          <ul class="tick cross">
-            <li data-i="265">Umuman ro'yxatdan o'tmasdan doimiy savdo yoki xizmat</li>
-            <li data-i="266">Litsenziya talab qilinadigan ish bilan ruxsatsiz shug'ullanish</li>
-            <li data-i="267">Chek bermaslik, tushumni yashirish, soliq to'lamaslik</li>
-            <li data-i="268">Xodimni rasmiylashtirmasdan ishlatish</li>
-            <li data-i="269">Boshqa brend nomi va logotipidan ruxsatsiz foydalanish</li>
-          </ul>
-        </div>
-        <div class="card" style="--c:var(--muted)">
-          <h3 data-i="270">💥 Pul bilan o'lchanmaydigan zarar</h3>
-          <ul class="tick cross">
-            <li data-i="271">Mijoz to'lamasa ham, sudda himoyalana olmaysiz</li>
-            <li data-i="272">Kredit, grant va tenderlarga yo'l yopiladi</li>
-            <li data-i="273">Yirik hamkorlar siz bilan shartnoma tuzmaydi</li>
-            <li data-i="274">Obro' yo'qoladi — uni tiklash yillar oladi</li>
-          </ul>
-          <div class="quote" style="margin-top:10px" data-i="275">Qoida: <b>rasmiylashtirish — xarajat emas, sug'urta.</b> U bir marta to'lanadi, himoyasi esa doimiy.</div>
-        </div>
-      </div>
-      <small class="note" data-i="276">Javobgarlik turlari va miqdorlari Ma'muriy javobgarlik to'g'risidagi kodeks hamda Jinoyat kodeksi bilan belgilanadi va o'zgarib turadi — amaldagi normalarni <b>lex.uz</b> dan tekshiring.</small>
     </div>
   </section>
 
   <!-- ============ 16 ============ -->
   <section class="slide" data-title="Xulosa va resurslar" data-title-en="Summary and resources">
     <div class="inner">
-      <span class="kicker" data-i="277">Xulosa · Topshiriq · Havolalar</span>
-      <h2 data-i="278">Yakuniy <span class="grad">xulosa</span> va <span class="grad">foydali resurslar</span></h2>
+      <span class="kicker" data-i="263">Xulosa · Topshiriq · Havolalar</span>
+      <h2 data-i="264">Yakuniy <span class="grad">xulosa</span> va <span class="grad">foydali resurslar</span></h2>
       <div class="grid g2">
         <div>
           <div class="card" style="--c:var(--green)">
-            <h3 data-i="279">📌 Esda qoladigan 6 ta fikr</h3>
+            <h3 data-i="265">📌 Esda qoladigan 6 ta fikr</h3>
             <ul class="tick">
-              <li data-i="280">Rasmiylashtirish — bu <b>huquq olish</b>: shartnoma, sud himoyasi, bank va grant.</li>
-              <li data-i="281">Shakllar orasidagi asosiy farq — <b>javobgarlik</b>: YaTT shaxsiy mulki bilan, MChJ ulush doirasida.</li>
-              <li data-i="282">Oilaviy korxona ishonchga, kooperativ esa <b>birgalikdagi kuchga</b> tayanadi.</li>
-              <li data-i="283">Ro'yxatdan o'tish onlayn: <b>firma nomi + yuridik manzil + E-IMZO</b> — uchtasi oldindan tayyor bo'lsin.</li>
-              <li data-i="284">Ayrim faoliyat <b>litsenziya, ruxsatnoma yoki bildirishnoma</b> talab qiladi — oldindan tekshiring.</li>
-              <li data-i="285">Noqonuniy faoliyat: jarima, musodara, faoliyatni to'xtatish va obro' yo'qotish.</li>
+              <li data-i="266">Soliq — jarima emas, <b>oldindan hisoblanadigan xarajat</b>: uni narxga kiriting.</li>
+              <li data-i="267"><b>Soddalashtirilgan tartib</b> tushumdan, <b>umumiy tizim</b> foydadan olinadi.</li>
+              <li data-i="268">Xarajatni faqat <b>hujjat</b> tasdiqlaydi — hujjatsiz xarajat soliqni kamaytirmaydi.</li>
+              <li data-i="269"><b>Imtiyoz</b> — qonuniy yengillik; undan foydalanmaslik ortiqcha to'lovdir.</li>
+              <li data-i="270"><b>my.soliq.uz</b> + E-IMZO — hisobot, to'lov va hisob-fakturaning yagona joyi.</li>
+              <li data-i="271"><b>Daromad-xarajat daftari</b> — biznes sog'lig'ining kundalik o'lchovi.</li>
             </ul>
           </div>
           <div class="card" style="--c:var(--amber);margin-top:12px">
-            <h3 data-i="286">📓 Mustaqil ish: "Mening korxonam hujjatda"</h3>
+            <h3 data-i="272">📓 Mustaqil ish: "Bir oylik moliyaviy suratim"</h3>
             <ul class="clean">
-              <li data-i="287">O'z g'oyangiz uchun <b>tashkiliy-huquqiy shakl</b>ni tanlang va 5 ta dalil bilan asoslang.</li>
-              <li data-i="288"><b>3 ta firma nomi</b> variantini yozing va ular band emasligini portalda tekshiring.</li>
-              <li data-i="289"><b>Yuridik manzil</b> uchun qanday hujjat kerakligini aniqlang.</li>
-              <li data-i="290">Faoliyatingiz <b>litsenziya/ruxsatnoma/bildirishnoma</b> talab qiladimi — yozib, manbasini ko'rsating.</li>
-              <li data-i="291">Ro'yxatdan o'tish <b>bosqichlari va taxminiy xarajati</b>ni jadval qilib keltiring.</li>
+              <li data-i="273">O'z g'oyangiz uchun <b>bir oylik daromad-xarajat daftari</b>ni to'ldiring (kamida 10 ta yozuv).</li>
+              <li data-i="274">Oylik <b>sof foyda</b>ni hisoblang.</li>
+              <li data-i="275">Ikkala rejimda soliqni <b>taqqoslab</b> hisoblang: aylanma solig'i va foyda solig'i variantlari.</li>
+              <li data-i="276">Qaysi rejim sizga arzon tushishini <b>raqam bilan</b> asoslang.</li>
+              <li data-i="277">Agar kredit olsangiz — oylik to'lovni hisoblab, uni daftarga xarajat sifatida qo'shing.</li>
             </ul>
-            <p style="font-size:13.5px;color:var(--muted);margin-top:6px" data-i="292">Hajmi: 1–2 bet. Baholash: shakl tanlovining asosliligi 40% · tekshirilgan manbalar 30% · jadval aniqligi 30%.</p>
+            <p style="font-size:13.5px;color:var(--muted);margin-top:6px" data-i="278">Hajmi: 1–2 bet + jadval. Baholash: daftar to'liqligi 30% · soliq hisobi 40% · asoslangan xulosa 30%.</p>
           </div>
         </div>
         <div>
           <div class="card" style="--c:var(--blue)">
-            <h3 data-i="293">🔗 Foydali resurslar (havolalar)</h3>
+            <h3 data-i="279">🔗 Foydali resurslar (havolalar)</h3>
             <ul class="clean">
-              <li data-i="294"><a class="lnk" href="https://birdarcha.uz" target="_blank" rel="noopener">birdarcha.uz</a> — biznesni onlayn ro'yxatdan o'tkazish</li>
-              <li data-i="295"><a class="lnk" href="https://my.gov.uz" target="_blank" rel="noopener">my.gov.uz</a> — yagona interaktiv davlat xizmatlari portali</li>
-              <li data-i="296"><a class="lnk" href="https://lex.uz" target="_blank" rel="noopener">lex.uz</a> — qonun hujjatlari bazasi (shakllar, litsenziya, javobgarlik)</li>
-              <li data-i="297"><a class="lnk" href="https://my.soliq.uz" target="_blank" rel="noopener">my.soliq.uz</a> — soliq to'lovchining shaxsiy kabineti</li>
-              <li data-i="298"><a class="lnk" href="https://soliq.uz" target="_blank" rel="noopener">soliq.uz</a> — Soliq qo'mitasi: soliq turlari va hisobotlar</li>
-              <li data-i="299"><a class="lnk" href="https://e-imzo.uz" target="_blank" rel="noopener">e-imzo.uz</a> — elektron raqamli imzo tizimi</li>
-              <li data-i="300"><a class="lnk" href="https://stat.uz" target="_blank" rel="noopener">stat.uz</a> — rasmiy statistika va faoliyat kodlari</li>
-              <li data-i="301"><a class="lnk" href="https://ombudsman.uz" target="_blank" rel="noopener">ombudsman.uz</a> — Biznes ombudsmani: huquqlarni himoya qilish</li>
-              <li data-i="302"><a class="lnk" href="https://regulation.gov.uz" target="_blank" rel="noopener">regulation.gov.uz</a> — normativ hujjatlar loyihalari muhokamasi</li>
+              <li data-i="280"><a class="lnk" href="https://my.soliq.uz" target="_blank" rel="noopener">my.soliq.uz</a> — soliq to'lovchining shaxsiy kabineti</li>
+              <li data-i="281"><a class="lnk" href="https://soliq.uz" target="_blank" rel="noopener">soliq.uz</a> — Soliq qo'mitasi: stavkalar, shakllar, yo'riqnomalar</li>
+              <li data-i="282"><a class="lnk" href="https://lex.uz" target="_blank" rel="noopener">lex.uz</a> — Soliq kodeksi va boshqa hujjatlar</li>
+              <li data-i="283"><a class="lnk" href="https://e-imzo.uz" target="_blank" rel="noopener">e-imzo.uz</a> — elektron raqamli imzo</li>
+              <li data-i="284"><a class="lnk" href="https://birdarcha.uz" target="_blank" rel="noopener">birdarcha.uz</a> — ro'yxatdan o'tkazish va davlat xizmatlari</li>
+              <li data-i="285"><a class="lnk" href="https://cbu.uz" target="_blank" rel="noopener">cbu.uz</a> — Markaziy bank: stavkalar va bank ma'lumotlari</li>
+              <li data-i="286"><a class="lnk" href="https://stat.uz" target="_blank" rel="noopener">stat.uz</a> — rasmiy statistika</li>
+              <li data-i="287"><a class="lnk" href="https://ombudsman.uz" target="_blank" rel="noopener">ombudsman.uz</a> — Biznes ombudsmani</li>
             </ul>
-            <small class="note" data-i="303">⚠️ Tartib, muddat va to'lovlar o'zgarishi mumkin. Kursda o'rganilgan mantiq doimiy, aniq raqamlar esa — <b>rasmiy manbadan</b>.</small>
+            <p style="margin-top:8px" data-i="288"><b>Vositalar:</b> <span class="pill g">Excel / Google Sheets</span><span class="pill g">bank kredit kalkulyatori</span><span class="pill g">kalendar eslatmalari</span></p>
+            <small class="note" data-i="289">⚠️ Stavkalar, chegaralar va imtiyozlar har yili yangilanadi. Bu taqdimotdagi raqamlar <b>o'quv misoli</b> sifatida keltirilgan — qaror qabul qilishdan oldin rasmiy manbani tekshiring.</small>
           </div>
         </div>
       </div>
@@ -768,73 +807,58 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
   </section>
 
   <!-- ============ 17 ============ -->
-  <section class="slide" data-title="Tadbirkorlik haqidagi kinolar" data-title-en="Films about entrepreneurship">
+  <section class="slide" data-title="Kredit to'lovini hisoblash" data-title-en="Calculating loan payments">
     <div class="inner">
-      <span class="kicker" data-i="304">🎬 Bonus · Ilhom uchun</span>
-      <h2 data-i="305">Tadbirkorlik haqidagi <span class="grad-w">eng mashhur kinolar</span></h2>
-      <div class="grid g3">
-        <div class="fact"><b>🍔 The Founder (2016)</b><p data-i="306">Ray Krok McDonald's ni qanday tarmoqqa aylantirgani. <b>Nimani o'rgatadi:</b> tizim, standart va franshiza kuchi — hamda sheriklik axloqi savollari.</p></div>
-        <div class="fact"><b>💻 The Social Network (2010)</b><p data-i="307">Facebook ning tug'ilishi. <b>Nimani o'rgatadi:</b> ulush, ta'sischilar kelishuvi va hujjat rasmiylashtirishning naqadar muhimligi.</p></div>
-        <div class="fact"><b>👟 Air (2023)</b><p data-i="308">Nike ning Maykl Jordan bilan shartnomasi. <b>Nimani o'rgatadi:</b> muzokara, tavakkal va brend qiymati.</p></div>
-        <div class="fact"><b>🕹 Tetris (2023)</b><p data-i="309">O'yin huquqlari uchun kurash. <b>Nimani o'rgatadi:</b> intellektual mulk va litsenziya shartnomalari.</p></div>
-        <div class="fact"><b>📱 BlackBerry (2023)</b><p data-i="310">Bir vaqtlar yetakchi bo'lgan kompaniyaning qulashi. <b>Nimani o'rgatadi:</b> o'zgarishga kech qolish qanday tugaydi.</p></div>
-        <div class="fact"><b>😊 The Pursuit of Happyness (2006)</b><p data-i="311">Nol nuqtadan boshlagan otaning yo'li. <b>Nimani o'rgatadi:</b> qat'iyat va og'ir sharoitda ham davom etish.</p></div>
-        <div class="fact"><b>🧽 Joy (2015)</b><p data-i="312">Uy bekasidan ixtirochi-tadbirkorga. <b>Nimani o'rgatadi:</b> patent, ishlab chiqarish va sotuv kanalini egallash.</p></div>
-        <div class="fact"><b>🍎 Steve Jobs (2015)</b><p data-i="313">Apple asoschisining murakkab portreti. <b>Nimani o'rgatadi:</b> mahsulot ustidagi vasvasa va jamoa bilan munosabat.</p></div>
-        <div class="fact"><b>⚾ Moneyball (2011)</b><p data-i="314">Ma'lumotlar asosida qaror qabul qilish. <b>Nimani o'rgatadi:</b> raqam va tahlil eski tajribadan ustun kelishi mumkin.</p></div>
-        <div class="fact"><b>🔧 Flash of Genius (2008)</b><p data-i="315">Ixtirochining yirik korporatsiya bilan sud kurashi. <b>Nimani o'rgatadi:</b> patent va mualliflik huquqini himoya qilish.</p></div>
-        <div class="fact"><b>🏎 Ford v Ferrari (2019)</b><p data-i="316">Muhandislik va boshqaruv to'qnashuvi. <b>Nimani o'rgatadi:</b> jamoa, byudjet va maqsad ustidagi kelishuv.</p></div>
-        <div class="fact"><b>📉 The Big Short (2015)</b><p data-i="317">2008-yilgi moliyaviy inqiroz sabablari. <b>Nimani o'rgatadi:</b> tavakkalni tushunish va tizimli xavflarni ko'ra bilish.</p></div>
-      </div>
-      <div class="grid g2" style="margin-top:14px">
-        <div class="card" style="--c:var(--violet)"><h3 data-i="318">📺 Seriallar va hujjatli filmlar</h3>
-          <p data-i="319"><b>Shark Tank / Dragons' Den</b> — g'oyani investorga taqdim etish maktabi · <b>The Playlist</b> (Spotify) · <b>Super Pumped</b> (Uber) · <b>WeCrashed</b> (WeWork) · <b>Becoming Warren Buffett</b> — investitsion tafakkur.</p>
+      <span class="kicker" data-i="290">💳 Amaliy blok</span>
+      <h2 data-i="291">Kredit to'lovi: <span class="grad">nechi foizga, nechi yilga → oyiga qancha?</span></h2>
+      <div class="grid g2">
+        <div>
+          <div class="formula" data-i="292">A = P × i ÷ (1 − (1 + i)<sup>−n</sup>)
+            <small>P — kredit summasi · i — <b>oylik</b> foiz (yillik ÷ 12 ÷ 100) · n — oylar soni · A — oylik to'lov</small>
+          </div>
+          <div class="card" style="--c:var(--violet);margin-top:12px">
+            <h3 data-i="293">📐 4 qadamda hisoblash</h3>
+            <p data-i="294"><b>1-qadam.</b> Yillik stavkani oylikka aylantiring: <b>i = yillik % ÷ 12 ÷ 100</b><br>
+               <b>2-qadam.</b> Muddatni oyga aylantiring: <b>n = yil × 12</b><br>
+               <b>3-qadam.</b> Formulaga qo'ying va oylik to'lovni (A) toping<br>
+               <b>4-qadam.</b> Jami to'lov = <b>A × n</b>, ortiqcha to'lov = <b>A × n − P</b></p>
+          </div>
+          <div class="card" style="--c:var(--green);margin-top:12px">
+            <h3 data-i="295">🧮 Namuna: 30 mln so'm, yiliga 24%, 3 yil</h3>
+            <p data-i="296"><b>i</b> = 24 ÷ 12 ÷ 100 = <b>0,02</b> · <b>n</b> = 3 × 12 = <b>36</b><br>
+               (1 + 0,02)<sup>−36</sup> = 0,4902 → 1 − 0,4902 = <b>0,5098</b><br>
+               <b>A</b> = 30 000 000 × 0,02 ÷ 0,5098 ≈ <b>1 176 986 so'm</b><br>
+               Jami: 1 176 986 × 36 ≈ <b>42 371 000</b> · Ortiqcha: ≈ <b>12 371 000 so'm</b></p>
+          </div>
         </div>
-        <div class="card" style="--c:var(--red)"><h3 data-i="320">⚠️ Diqqat bilan ko'ring</h3>
-          <p data-i="321"><b>The Wolf of Wall Street (2013)</b> va <b>Inventing Anna (2022)</b> — bu asarlar qahramonlari <b>ijobiy namuna emas</b>: ular firibgarlik va qonunbuzarlik oqibatlarini ko'rsatadi. Ularni "qanday qilmaslik kerak" darsi sifatida ko'ring.</p>
+        <div>
+          <h3 data-i="297">🖩 Kalkulyator — o'zingiz sinab ko'ring</h3>
+          <div class="calc">
+            <div class="calc-in">
+              <label><span data-ui="cLabSum" data-i="298">Kredit summasi (so'm)</span><input id="cSum" type="number" value="30000000" step="1000000" min="0"></label>
+              <label><span data-ui="cLabRate" data-i="299">Yillik foiz stavkasi (%)</span><input id="cRate" type="number" value="24" step="0.5" min="0"></label>
+              <label><span data-ui="cLabTerm" data-i="300">Muddat (oy)</span><input id="cTerm" type="number" value="36" step="1" min="1"></label>
+              <label><span data-ui="cLabGrace" data-i="301">Imtiyozli davr (oy)</span><input id="cGrace" type="number" value="0" step="1" min="0"></label>
+            </div>
+            <div class="calc-out" id="cOut"></div>
+          </div>
+          <div class="quote" style="margin-top:12px" data-i="302">💡 Sinab ko'ring: muddatni 36 oydan 60 oyga uzaytiring — <b>oylik to'lov kamayadi</b>, lekin <b>jami to'lov ortadi</b>. Mana shu — "qulaylikning narxi".</div>
         </div>
       </div>
-      <div class="quote" style="margin-top:14px" data-i="322">🎯 <b>Topshiriq:</b> shu ro'yxatdan bitta filmni ko'ring va yarim betlik tahlil yozing: qahramon qanday <b>muammoni</b> hal qildi, qanday <b>huquqiy xato</b>ga yo'l qo'ydi va siz undan nima o'rgandingiz?</div>
     </div>
   </section>
 
   <!-- ============ 18 ============ -->
-  <section class="slide" data-title="KROSSVORD" data-title-en="CROSSWORD">
+  <section class="slide" data-title="MASALALAR" data-title-en="PROBLEMS">
     <div class="inner">
-      <span class="kicker" data-i="323">🧩 Yakuniy mashq</span>
-      <h2 data-i="324">Krossvord — <span class="grad">taqdimot bo'yicha 18 ta savol</span></h2>
-      <div class="xw-bar">
-        <span><span data-ui="xwSolved" data-i="325">Topilgan so'zlar:</span> <b><span id="xwDone">0</span> / <span id="xwTotal">18</span></b></span>
-        <span><span data-ui="xwLetters" data-i="326">To'ldirilgan katak:</span> <b id="xwCells">0</b></span>
-        <div class="spacer"></div>
-        <button class="btn accent" id="xwCheck" data-ui="xwCheckBtn" data-i="327">✔ Tekshirish</button>
-        <button class="btn" id="xwHint" data-ui="xwHintBtn" data-i="328">💡 Bitta harf</button>
-        <button class="btn warn" id="xwReveal" data-ui="xwRevealBtn" data-i="329">👁 Javoblar</button>
-        <button class="btn" id="xwClear" data-ui="xwClearBtn" data-i="330">🗑 Tozalash</button>
-      </div>
-      <p class="lead" style="margin:10px 0" data-ui="xwHelp" data-i="331">Kataklarga harflarni yozing. Apostrof (ʻ) va tirelar ishlatilmaydi: <b>o'</b> → <b>O</b>, <b>g'</b> → <b>G</b>, <b>E-IMZO</b> → <b>EIMZO</b>. Katakni bosib, so'z yo'nalishini almashtirish mumkin.</p>
-      <div class="xw-wrap">
-        <div id="xwGrid" class="xw-grid"></div>
-        <div class="xw-clues">
-          <div>
-            <h3 style="color:var(--blue)" data-ui="xwAcross" data-i="332">➡️ Gorizontal</h3>
-            <ol id="xwAcrossList" class="xw-list"></ol>
-          </div>
-          <div>
-            <h3 style="color:var(--violet)" data-ui="xwDown" data-i="333">⬇️ Vertikal</h3>
-            <ol id="xwDownList" class="xw-list"></ol>
-          </div>
-        </div>
-      </div>
-      <div class="result" id="xwResult">
-        <div class="pct" id="xwPct">0%</div>
-        <h3 id="xwResTitle" style="color:#fff;margin:10px 0 4px" data-i="334">Natija</h3>
-        <p id="xwResTxt" style="color:#fff;opacity:.95;margin:0"></p>
-      </div>
+      <span class="kicker" data-i="303">🧮 Mustaqil yechish</span>
+      <h2 data-i="304">3 ta masala — <span class="grad">javobingizni hisoblab yozing</span></h2>
+      <p class="lead" data-i="305">Har bir masalani daftaringizda formula bilan yeching, so'ng javobni maydonga yozib <b>tekshiring</b>. Javob <b>so'mda</b>, faqat raqam bilan kiritiladi (masalan: 1268906). Farq 1,5% gacha bo'lsa javob to'g'ri hisoblanadi.</p>
+      <div id="taskWrap"></div>
       <div class="card" style="--c:var(--green);margin-top:18px;text-align:center">
-        <h3 data-i="335">🎓 Rahmat! E'tiboringiz uchun tashakkur</h3>
-        <p data-i="336">Keyingi mashg'ulotga o'z g'oyangiz uchun <b>tanlangan shakl, firma nomi variantlari va ruxsat talablari</b> ro'yxatini tayyorlab keling.</p>
-        <p style="color:var(--muted);font-size:13.5px" data-i="337">Termiz davlat universiteti · Tadbirkorlik asoslari</p>
+        <h3 data-i="306">🎓 Rahmat! E'tiboringiz uchun tashakkur</h3>
+        <p data-i="307">Keyingi mashg'ulotga <b>bir oylik daromad-xarajat daftaringiz</b> va ikki rejimdagi soliq hisobini tayyorlab keling.</p>
+        <p style="color:var(--muted);font-size:13.5px" data-i="308">Termiz davlat universiteti · Tadbirkorlik asoslari</p>
       </div>
     </div>
   </section>
@@ -931,26 +955,33 @@ var UI={
  r0x:["Slaydlarni boshidan ko'rib chiqing va testni qaytadan yeching.",
       "Go through the slides from the beginning and take the test again."],
 
- xwSolved:["Topilgan so'zlar:","Words solved:"],
- xwLetters:["To'ldirilgan katak:","Cells filled:"],
- xwCheckBtn:["✔ Tekshirish","✔ Check"],
- xwHintBtn:["💡 Bitta harf","💡 One letter"],
- xwRevealBtn:["👁 Javoblar","👁 Reveal"],
- xwClearBtn:["🗑 Tozalash","🗑 Clear"],
- xwAcross:["➡️ Gorizontal","➡️ Across"],
- xwDown:["⬇️ Vertikal","⬇️ Down"],
- xwHelp:["Kataklarga harflarni yozing. Apostrof (ʻ) va tirelar ishlatilmaydi: <b>o'</b> → <b>O</b>, <b>g'</b> → <b>G</b>, <b>E-IMZO</b> → <b>EIMZO</b>. Katakni bosib, so'z yo'nalishini almashtirish mumkin.",
-         "Type the letters into the cells. Apostrophes and hyphens are not used: <b>o'</b> → <b>O</b>, <b>g'</b> → <b>G</b>, <b>E-IMZO</b> → <b>EIMZO</b>. Click a cell again to switch the word direction."],
- xwWrong:["xato harf","wrong letters"],
- xw100t:["🏆 Krossvord to'liq yechildi!","🏆 The crossword is fully solved!"],
- xw100x:["Barcha 18 ta so'z topildi. Mavzuni mustahkam o'zlashtirgansiz!","All 18 words found. You have mastered the topic!"],
- xw70t:["🎉 Juda yaxshi natija","🎉 Very good result"],
- xw70x:["Ko'p so'z topildi. Qolganlari uchun tegishli slaydlarni qayta ko'ring.","Most words are found. Review the related slides for the rest."],
- xw40t:["👍 Yaxshi boshlanish","👍 A good start"],
- xw40x:["Yarmiga yaqini topildi. Shakllar va ruxsat turlari qismini takrorlang.","Almost half are found. Revise the sections on forms and permits."],
- xw0t:["📚 Takrorlash zarur","📚 Revision needed"],
- xw0x:["Slaydlarni boshidan ko'rib chiqing va krossvordni qaytadan yeching.","Go through the slides from the start and try the crossword again."],
- subj:["", "Fundamentals of Entrepreneurship · Topic 4"]
+ cLabSum:["Kredit summasi (so'm)","Loan amount (so'm)"],
+ cLabRate:["Yillik foiz stavkasi (%)","Annual interest rate (%)"],
+ cLabTerm:["Muddat (oy)","Term (months)"],
+ cLabGrace:["Imtiyozli davr (oy)","Grace period (months)"],
+ cMonthly:["Oylik to'lov","Monthly payment"],
+ cTotal:["Jami to'lov","Total paid"],
+ cOver:["Ortiqcha to'lov","Overpayment"],
+ cOverPct:["Ortiqcha to'lov ulushi","Overpayment share"],
+ cGracePay:["Imtiyozli davrda","During the grace period"],
+ cMon:["oy","months"],
+ cSum2:["so'm","so'm"],
+ cFirst:["1-oyda to'lov tarkibi","Structure of the 1st payment"],
+ cIntPart:["foiz","interest"],
+ cPrinPart:["asosiy qarz","principal"],
+ cHint:["Har oyda foiz ulushi kamayib, asosiy qarz ulushi ortib boradi.",
+        "Every month the interest share falls and the principal share grows."],
+ tTask:["masala","task"],
+ tPlaceholder:["Javobingiz (so'mda)","Your answer (in so'm)"],
+ tCheck:["✔ Tekshirish","✔ Check"],
+ tShow:["📖 Yechimni ko'rsatish","📖 Show the solution"],
+ tHide:["📕 Yechimni yashirish","📕 Hide the solution"],
+ tRight:["✅ To'g'ri! Aniq javob:","✅ Correct! The exact answer is:"],
+ tWrong:["❌ Noto'g'ri.","❌ Incorrect."],
+ tTooBig:[" Javobingiz haqiqiy qiymatdan katta — formulani qayta tekshiring."," Your answer is larger than the real value — check the formula again."],
+ tTooSmall:[" Javobingiz haqiqiy qiymatdan kichik — oylik stavkani to'g'ri hisobladingizmi?"," Your answer is smaller than the real value — did you compute the monthly rate correctly?"],
+ tEmpty:["Avval javobni raqamda kiriting.","Enter your answer as a number first."],
+ subj:["", "Fundamentals of Entrepreneurship · Topic 5"]
 };
 var lang="uz", i18nNodes=[], i18nOrig=[], uiNodes=[], uiOrig=[];
 function UIT(k){ return (UI[k]||["",""])[lang==="en"?1:0]; }
@@ -992,7 +1023,7 @@ function go(n){
   $("#btnPrev").disabled=(n===0);
   $("#btnNext").disabled=(n===total-1);
   slides[n].scrollTop=0;
-  try{localStorage.setItem("terdu_m4_slide",n)}catch(e){}
+  try{localStorage.setItem("terdu_m5_slide",n)}catch(e){}
   var hn=document.getElementById("hint"); if(hn&&n>0)hn.classList.add("hide");
   if(slides[n].querySelector("[data-count]")) countUp(slides[n]);
 }
@@ -1082,8 +1113,8 @@ document.getElementById("deck").addEventListener("touchend",function(e){
 
 /* (bu mavzuda test o'rniga krossvord ishlatiladi) */
 /* ================= UZ / ENG mexanizmi ================= */
-var EN={"0": "Topic 4 · Lecture · 2 hours", "1": "LEGAL FORMALISATION OF A BUSINESS AND STATE REGISTRATION", "2": "Legal forms: sole entrepreneur (IE), LLC, family enterprise and cooperative · online registration: company name, legal address and E-IMZO · <b>licences, permits and the risks of illegal activity</b>.", "3": "📚 Course: <b>Fundamentals of Entrepreneurship</b>", "4": "🎓 <b>Termez State University</b>", "5": "🗂 <b>18</b> slides · 🎬 films · 🧩 crossword", "6": "⌨️ Press <b>→</b> to continue", "7": "Aim of the topic", "8": "What will the student <span class=\"grad\">know by the end?</span>", "9": "Aim: to move the student from <b>\"I have an idea\"</b> to <b>\"my business is officially registered and operates lawfully\"</b> — choosing the right form, registering online and knowing the permit requirements.", "10": "Can distinguish", "11": "Tells the sole entrepreneur, LLC, family enterprise and cooperative apart.", "12": "Can choose", "13": "Chooses and justifies the legal form that fits their own idea.", "14": "Can register", "15": "Knows the steps of online registration in the right order.", "16": "Can prepare", "17": "Takes the company name, legal address and E-IMZO requirements into account in advance.", "18": "Can check", "19": "Determines whether the activity requires a licence, a permit or a notification.", "20": "Can assess", "21": "Understands the legal and financial risks of operating illegally.", "22": "Lecture plan", "23": "Today's <span class=\"grad\">3 blocks</span>", "24": "Legal forms", "25": "IE, LLC, family enterprise and cooperative: differences and how to choose.", "26": "Registration", "27": "The online procedure: company name, legal address, E-IMZO, certificate.", "28": "Permits and liability", "29": "Licences, permits, notifications and the consequences of illegal activity.", "30": "🔑 Key concepts", "31": "<span class=\"pill g\">legal form</span><span class=\"pill\">legal entity</span><span class=\"pill\">natural person</span>\n        <span class=\"pill g\">sole entrepreneur (IE)</span><span class=\"pill g\">LLC</span><span class=\"pill\">family enterprise</span><span class=\"pill\">cooperative</span>\n        <span class=\"pill\">founder</span><span class=\"pill\">charter (articles)</span><span class=\"pill\">charter fund</span><span class=\"pill\">share</span>\n        <span class=\"pill g\">state registration</span><span class=\"pill\">certificate</span><span class=\"pill\">company name</span>\n        <span class=\"pill\">legal address</span><span class=\"pill g\">E-IMZO (digital signature)</span><span class=\"pill\">taxpayer ID</span>\n        <span class=\"pill g\">licence</span><span class=\"pill\">permit</span><span class=\"pill\">notification</span><span class=\"pill\">liability</span>", "32": "⚠️ Legal requirements and procedures change over time. The lecture gives the general logic — always check the exact conditions on <b>lex.uz</b> and <b>birdarcha.uz</b>.", "33": "Block 1", "34": "Why should a business be <span class=\"grad\">formalised</span>?", "35": "Formalisation does not simply mean \"paying taxes to the state\". It means <b>giving your business rights</b>: the right to sign contracts, to be protected in court, to take a loan and to work with large clients.", "36": "Legal protection", "37": "If a dispute arises you can go to court. A court does not protect an informal deal.", "38": "Signing contracts", "39": "Large clients, companies and state bodies only work with a registered entity.", "40": "Bank and credit", "41": "Opening an account, accepting payments, access to loans and leasing.", "42": "Grants and benefits", "43": "State programmes, subsidies and subsidised loans go only to registered businesses.", "44": "Export and tenders", "45": "Access to foreign markets, marketplaces and public procurement.", "46": "Trust and brand", "47": "An official name, receipts and a guarantee increase customer trust.", "48": "Staff and service record", "49": "Hiring employees officially and building their work record and pension.", "50": "Safety", "51": "You avoid the risk of fines, suspension of activity and confiscation.", "52": "The legal form: <span class=\"grad\">what it is and how to choose it</span>", "53": "A <b>legal form</b> is your business's \"identity\" before the law: who owns it, who is liable, how reporting is done and how income is distributed.", "54": "🧭 6 questions when choosing", "55": "<b>Liability:</b> if there is a debt, do I answer with my personal property?", "56": "<b>Partners:</b> am I working alone or are there several founders?", "57": "<b>Scale:</b> are my customers private individuals or large companies?", "58": "<b>Reporting:</b> do I have the time and capacity for bookkeeping?", "59": "<b>Investment:</b> will I bring in a partner or an investor in the future?", "60": "<b>Type of activity:</b> is a licence or a permit required?", "61": "⚖️ The key difference is liability", "62": "<b>IE</b> — as a natural person, answers with <b>all personal property</b>.", "63": "<b>LLC</b> — a founder answers only <b>within their share in the charter fund</b> (that is why it is called \"limited liability\").", "64": "A simple rule: if risk and turnover are small — <b>IE</b>. If there are partners, large contracts and growth plans — <b>LLC</b>.", "65": "1.3 · Legal form", "66": "<span class=\"grad\">IE</span> — the sole (individual) entrepreneur", "67": "An IE is a person who carries out entrepreneurial activity as a natural person, <b>without setting up a legal entity</b>. It is the <b>simplest and cheapest</b> way into business.", "68": "✅ Advantages", "69": "Registration is quick and easy, with few documents", "70": "No charter fund or founding documents are required", "71": "A simplified tax and reporting regime", "72": "Income is used freely — no need to formalise dividends", "73": "Closing the activity is also relatively easy", "74": "⚠️ Disadvantages and risks", "75": "<b>Liability with all personal property</b> — the biggest risk", "76": "You cannot add a partner (co-founder)", "77": "Some large clients and tenders prefer a legal entity", "78": "Selling the business or transferring a share is difficult", "79": "Certain types of activity may be closed to an IE", "80": "🎓 <b>For students:</b> for tutoring, design, photo/video, small trade or crafts an IE is usually enough. Once the business grows you can move to an LLC.", "81": "1.4 · Legal form", "82": "<span class=\"grad\">LLC</span> — a limited liability company", "83": "An LLC is a legal entity whose charter fund is <b>divided into shares</b>. The founders answer for the company's obligations <b>within their shares</b> — not with their house or car.", "84": "👥 Founders", "85": "From one person to several (the law sets an upper limit). Each founder's <b>share</b> is recorded as a percentage.", "86": "📜 Charter (articles)", "87": "The main founding document: the name, address, types of activity, charter fund, management rules and shares are written in it.", "88": "💰 Charter fund", "89": "The founders' initial contribution. It may be in money or in property; the amount is set in the founding documents.", "90": "👔 Management", "91": "The supreme body is the general meeting of founders. Day-to-day work is run by the <b>director</b>, whose powers are set out in the charter.", "92": "📈 Convenient for growth", "93": "Bringing in partners and investors, selling a share, opening branches and signing large contracts are easier.", "94": "📊 More requirements", "95": "Bookkeeping, regular reports, minutes of meetings — that is, more discipline and more cost.", "96": "The minimum charter fund, the number of founders and other requirements are set by law and may change — check the current version on <b>lex.uz</b>.", "97": "1.5 · Legal form", "98": "<span class=\"grad\">Family enterprise</span> and <span class=\"grad\">cooperative</span>", "99": "Family enterprise", "100": "An enterprise whose members are all <b>from one family</b>. Its property is the members' <b>joint property</b> and income is distributed by agreement.", "101": "High trust, low cost of control", "102": "The craft and experience stay within the family", "103": "Convenient for production at home", "104": "A family quarrel hits the business directly", "105": "If membership and income sharing are not written down in advance, conflict follows", "106": "Cooperative", "107": "An organisation operating jointly on the basis of its members' <b>labour and property contributions</b>. The core principle is <b>\"one member — one vote\"</b>.", "108": "It unites small producers (farmers, craftsmen)", "109": "It allows costs, equipment and markets to be shared", "110": "Income is distributed according to each member's contribution and labour", "111": "Decisions take longer — agreement is needed", "112": "If management discipline is weak, responsibility gets \"diluted\"", "113": "💡 Example: 15 greenhouse owners in one village form a cooperative and <b>sort, pack and export</b> the produce together — alone none of them could handle such a volume.", "114": "1.6 · Summary", "115": "A <span class=\"grad\">comparison table</span> of the four forms", "116": "Criterion", "117": "👤 IE", "118": "🏢 LLC", "119": "👨‍👩‍👧 Family enterprise", "120": "🤝 Cooperative", "121": "<b>Status</b>", "122": "Natural person", "123": "Legal entity", "124": "Legal entity", "125": "Legal entity", "126": "<b>Owners</b>", "127": "One person", "128": "One or several founders", "129": "Family members", "130": "Members (usually many)", "131": "<b>Liability</b>", "132": "With all personal property", "133": "Within the share", "134": "Within the joint property", "135": "According to the charter", "136": "<b>Founding document</b>", "137": "Not required", "138": "Charter (articles)", "139": "Charter", "140": "Charter", "141": "<b>Charter fund</b>", "142": "None", "143": "Divided into shares", "144": "Members' contributions", "145": "Share contributions", "146": "<b>Reporting</b>", "147": "Simple", "148": "Full bookkeeping", "149": "Full", "150": "Full", "151": "<b>Adding a partner</b>", "152": "Not possible", "153": "Easy", "154": "Within the family", "155": "A new member is admitted", "156": "<b>Who it suits</b>", "157": "Solo services, small trade", "158": "A growing business with partners", "159": "Family production", "160": "A group of small producers", "161": "📌 The form does not have to be chosen <b>once and for ever</b>: as the business grows you can move from an IE to an LLC or set up a cooperative. What matters is choosing the form that fits <b>today's stage</b>.", "162": "Block 2", "163": "Online registration: <span class=\"grad\">5 steps</span>", "164": "Today you do not have to walk around offices to register a business: the whole process is done online through the <b>birdarcha.uz</b> single portal of interactive public services.", "165": "Step 1", "166": "Preparation", "167": "Choose the form · think of a company name · settle the legal address · obtain an <b>E-IMZO</b>", "168": "Step 2", "169": "Filling in the application", "170": "Log in to the portal with your E-IMZO · check that the name is free · choose the activity code", "171": "Step 3", "172": "Documents and payment", "173": "Founders' details · the charter (for an LLC) · the state duty is paid online", "174": "Step 4", "175": "Certificate", "176": "The registration <b>certificate</b> and the <b>taxpayer ID</b> are issued electronically", "177": "Step 5: what to do immediately after registration", "178": "Open a bank account (in most cases online)", "179": "Activate the my.soliq.uz cabinet and choose the tax regime", "180": "Connect an online or virtual cash register if required", "181": "Obtain a licence or permit if the activity requires one", "182": "The current steps, the list of documents and the amount of the state duty may change — rely on the procedure currently published on <b>birdarcha.uz</b> and <b>lex.uz</b>.", "183": "<span class=\"grad\">The company name</span> — the legal name of the business", "184": "A company name is the <b>official, unique name</b> of the company. Once registered it is protected: another company cannot register under the same name.", "185": "Requirements", "186": "The name must indicate the <b>legal form</b> (for example, \"LLC\")", "187": "The name must <b>not already be taken</b> — this is checked on the portal in advance", "188": "It must not be <b>confusingly similar</b> to another brand", "189": "Using the name of the state or official names requires <b>a separate permission</b>", "190": "Immoral, misleading or prohibited words are not allowed", "191": "🏷 A company name and a trademark are not the same", "192": "Company name", "193": "Trademark (brand)", "194": "The legal name of the company", "195": "The sign or logo of a product or service", "196": "Given at registration", "197": "Registered separately", "198": "Used in documents", "199": "Used in advertising and on packaging", "200": "💡 Choosing a good name", "201": "Short, easy to pronounce and easy to remember", "202": "The domain and the social media handle should be free", "203": "It should not restrict the activity too narrowly (you will expand)", "204": "It should not mean something funny or awkward in another language", "205": "<span class=\"grad\">The legal address</span> — the official location of the company", "206": "The legal address is the place where the company is <b>officially located</b> and to which official letters, inspection notices and court documents are sent. It is stated in the registration application.", "207": "📍 What it can be", "208": "Your own property, a rented office or building. In certain cases a <b>residential property</b> may also be used, in the manner set by law.", "209": "📑 What is required", "210": "A <b>document proving your right</b> to the address: a title deed or a <b>lease contract</b>. The address must be written accurately and in full.", "211": "🔄 If it changes", "212": "If the address changes, the change is <b>reported to the registering body</b> and entered into the documents.", "213": "⚠️ The most common mistakes", "214": "Giving a non-existent or \"paper only\" address", "215": "Not updating the address after the lease contract expires", "216": "Not obtaining the consent of the owner of the address", "217": "Not monitoring official letters — deadlines pass unnoticed", "218": "The consequences: missing a notice, fines, missing a reporting deadline and even the risk of your activity being suspended.", "219": "<span class=\"grad\">E-IMZO</span> — the electronic digital signature", "220": "E-IMZO is your <b>electronic seal and signature</b>. It confirms that an online document was signed by you personally and has <b>the same legal force</b> as a handwritten signature.", "221": "🧾 Why is it needed?", "222": "Registering a business online", "223": "Tax reports and the my.soliq.uz cabinet", "224": "Electronic contracts and invoices", "225": "Public services and tenders", "226": "🔑 How is it obtained?", "227": "It is issued through a registration centre", "228": "A passport (ID) and personal data are required", "229": "A key file and a password are issued, valid for a limited period", "230": "It is renewed before the period expires", "231": "🛡 Security rules", "232": "<b>Never give</b> the key and password to anyone — it is your signature", "233": "Do not keep the key on a shared computer", "234": "Do not use a simple password; change it regularly", "235": "If it is lost — ask for it to be revoked immediately", "236": "⚖️ Important: <b>you are responsible</b> for a document signed with your E-IMZO. Saying \"someone else had my key\" does not free you from the obligation.", "237": "Block 3", "238": "<span class=\"grad\">Licence</span>, <span class=\"grad\">permit</span> and <span class=\"grad\">notification</span>", "239": "Registration does not mean \"I can now do anything\". Certain types of activity require <b>an additional authorisation</b>. The law provides three different regimes:", "240": "Licence", "241": "The strictest regime. You must meet specific requirements: staff qualifications, premises, equipment and financial conditions.", "242": "Examples: pharmaceuticals, alcohol products, banking and insurance, private security, certain transport and education services.", "243": "Permit", "244": "A lighter but still compulsory regime. It is usually issued for a specific object or process.", "245": "Examples: certain construction works, activities requiring a sanitary and epidemiological conclusion, cases connected with advertising and its placement.", "246": "Notification", "247": "The lightest regime: no approval is awaited — the authorised body is <b>informed</b> and the activity begins.", "248": "This regime was introduced to reduce the burden on entrepreneurs.", "249": "🔎 How do you check?", "250": "<b>1.</b> Name your type of activity precisely → <b>2.</b> Look at the <b>single list</b> of activities requiring a licence, a permit or a notification → <b>3.</b> Identify the authorised body → <b>4.</b> Work out the requirements and deadlines in advance.", "251": "Obtain the authorisation <b>before</b> starting the activity — not afterwards.", "252": "The lists and procedures are set by law and are updated regularly — check your specific case on <b>lex.uz</b> and on the website of the authorised body.", "253": "3.2 · Warning", "254": "The <span class=\"grad-w\">legal risks</span> of illegal activity", "255": "\"It's a small business, I'll register it later\" — the most expensive sentence there is. Working without registration or without a licence leads to <b>administrative and, in some cases, criminal liability</b>.", "256": "Fine", "257": "An administrative fine is imposed for operating without registration or authorisation.", "258": "Confiscation", "259": "Income and property obtained from illegal activity may be transferred to the state.", "260": "Suspension", "261": "The activity is stopped and the licence is suspended or revoked.", "262": "Criminal liability", "263": "For large amounts of income or repeated violations, criminal liability is provided for.", "264": "❌ The most common violations", "265": "Trading or providing services regularly without any registration", "266": "Doing work that requires a licence without having one", "267": "Not issuing receipts, hiding revenue, not paying taxes", "268": "Employing staff without formal contracts", "269": "Using another company's brand name and logo without permission", "270": "💥 Damage that cannot be measured in money", "271": "If a customer does not pay, you cannot defend yourself in court", "272": "The road to loans, grants and tenders is closed", "273": "Large partners will not sign contracts with you", "274": "Reputation is lost — and restoring it takes years", "275": "The rule: <b>formalisation is not a cost, it is insurance.</b> You pay once, and the protection is permanent.", "276": "The types and amounts of liability are set by the Code of Administrative Liability and the Criminal Code and change over time — check the current rules on <b>lex.uz</b>.", "277": "Summary · Assignment · Links", "278": "Final <span class=\"grad\">summary</span> and <span class=\"grad\">useful resources</span>", "279": "📌 6 ideas to remember", "280": "Formalisation means <b>gaining rights</b>: contracts, court protection, banking and grants.", "281": "The main difference between the forms is <b>liability</b>: an IE answers with personal property, an LLC within the share.", "282": "A family enterprise relies on trust, a cooperative on <b>collective strength</b>.", "283": "Registration is online: <b>company name + legal address + E-IMZO</b> — have all three ready in advance.", "284": "Some activities require <b>a licence, a permit or a notification</b> — check in advance.", "285": "Illegal activity: fines, confiscation, suspension of the business and loss of reputation.", "286": "📓 Independent work: \"My company on paper\"", "287": "Choose the <b>legal form</b> for your idea and justify it with 5 arguments.", "288": "Write <b>3 company name</b> options and check on the portal that they are free.", "289": "Find out what document is needed for the <b>legal address</b>.", "290": "State whether your activity requires <b>a licence / permit / notification</b> and cite your source.", "291": "Present the <b>steps and the estimated cost</b> of registration as a table.", "292": "Length: 1–2 pages. Marking: justification of the chosen form 40% · verified sources 30% · accuracy of the table 30%.", "293": "🔗 Useful resources (links)", "294": "<a class=\"lnk\" href=\"https://birdarcha.uz\" target=\"_blank\" rel=\"noopener\">birdarcha.uz</a> — registering a business online", "295": "<a class=\"lnk\" href=\"https://my.gov.uz\" target=\"_blank\" rel=\"noopener\">my.gov.uz</a> — the single portal of interactive public services", "296": "<a class=\"lnk\" href=\"https://lex.uz\" target=\"_blank\" rel=\"noopener\">lex.uz</a> — legislation database (legal forms, licensing, liability)", "297": "<a class=\"lnk\" href=\"https://my.soliq.uz\" target=\"_blank\" rel=\"noopener\">my.soliq.uz</a> — the taxpayer's personal cabinet", "298": "<a class=\"lnk\" href=\"https://soliq.uz\" target=\"_blank\" rel=\"noopener\">soliq.uz</a> — the Tax Committee: tax types and reporting", "299": "<a class=\"lnk\" href=\"https://e-imzo.uz\" target=\"_blank\" rel=\"noopener\">e-imzo.uz</a> — the electronic digital signature system", "300": "<a class=\"lnk\" href=\"https://stat.uz\" target=\"_blank\" rel=\"noopener\">stat.uz</a> — official statistics and activity codes", "301": "<a class=\"lnk\" href=\"https://ombudsman.uz\" target=\"_blank\" rel=\"noopener\">ombudsman.uz</a> — the Business Ombudsman: protection of rights", "302": "<a class=\"lnk\" href=\"https://regulation.gov.uz\" target=\"_blank\" rel=\"noopener\">regulation.gov.uz</a> — discussion of draft regulations", "303": "⚠️ Procedures, deadlines and fees may change. The logic you learn in this course stays the same; the exact figures must come from <b>an official source</b>.", "304": "🎬 Bonus · For inspiration", "305": "The <span class=\"grad-w\">most famous films</span> about entrepreneurship", "306": "How Ray Kroc turned McDonald's into a chain. <b>What it teaches:</b> the power of systems, standards and franchising — and questions of partnership ethics.", "307": "The birth of Facebook. <b>What it teaches:</b> how important shares, a founders' agreement and proper paperwork really are.", "308": "Nike's deal with Michael Jordan. <b>What it teaches:</b> negotiation, risk-taking and the value of a brand.", "309": "The fight over the rights to a game. <b>What it teaches:</b> intellectual property and licensing contracts.", "310": "The fall of a company that was once the leader. <b>What it teaches:</b> how being late to change ends.", "311": "The path of a father who started from zero. <b>What it teaches:</b> persistence and carrying on in hard conditions.", "312": "From housewife to inventor and entrepreneur. <b>What it teaches:</b> patents, production and owning the sales channel.", "313": "A complex portrait of Apple's founder. <b>What it teaches:</b> obsession with the product and relationships with the team.", "314": "Making decisions based on data. <b>What it teaches:</b> numbers and analysis can beat old experience.", "315": "An inventor's court battle against a large corporation. <b>What it teaches:</b> defending patents and copyright.", "316": "A clash between engineering and management. <b>What it teaches:</b> agreeing on the team, the budget and the goal.", "317": "The causes of the 2008 financial crisis. <b>What it teaches:</b> understanding risk and seeing systemic dangers.", "318": "📺 Series and documentaries", "319": "<b>Shark Tank / Dragons' Den</b> — a school of pitching to investors · <b>The Playlist</b> (Spotify) · <b>Super Pumped</b> (Uber) · <b>WeCrashed</b> (WeWork) · <b>Becoming Warren Buffett</b> — investment thinking.", "320": "⚠️ Watch with caution", "321": "<b>The Wolf of Wall Street (2013)</b> and <b>Inventing Anna (2022)</b> — the characters in these works are <b>not positive role models</b>: they show the consequences of fraud and law-breaking. Watch them as a lesson in \"how not to do it\".", "322": "🎯 <b>Assignment:</b> watch one film from this list and write a half-page analysis: what <b>problem</b> did the hero solve, what <b>legal mistake</b> did they make, and what did you learn from it?", "323": "🧩 Final exercise", "324": "Crossword — <span class=\"grad\">18 questions on the presentation</span>", "325": "Words solved:", "326": "Cells filled:", "327": "✔ Check", "328": "💡 One letter", "329": "👁 Reveal", "330": "🗑 Clear", "331": "Type the letters into the cells. Apostrophes and hyphens are not used: <b>o'</b> → <b>O</b>, <b>g'</b> → <b>G</b>, <b>E-IMZO</b> → <b>EIMZO</b>. Click a cell again to switch the word direction.", "332": "➡️ Across", "333": "⬇️ Down", "334": "Result", "335": "🎓 Thank you for your attention!", "336": "For the next class, prepare a list with <b>your chosen legal form, company name options and permit requirements</b> for your own idea.", "337": "Termez State University · Fundamentals of Entrepreneurship"};
-var XW={"w": 16, "h": 17, "grid": ["R..T............", "U.JARIMA........", "X..S............", "SOLIQ.M...G.....", "A..S.YATT.USTAV.", "T..C..N...V.....", "N..H..Z.B.O.K...", "O.BILDIRISHNOMA.", "M...I.L.R.N.O...", "A...T...D.O.P.M.", ".ULUSH..A.M.E.U.", "....E.FIRMA.R.S.", ".E..N...C...A.O.", ".I..Z...H...T.D.", ".M..I..MASULIYAT", ".Z..Y.......V.R.", ".OILAVIY......A."], "words": [{"a": "RUXSATNOMA", "r": 0, "c": 0, "d": "v", "n": 1, "clue": "Litsenziyadan yengilroq, ammo majburiy bo'lgan ikkinchi turdagi ruxsat berish hujjati", "clueEn": "The second, lighter but still compulsory type of authorisation document"}, {"a": "TASISCHI", "r": 0, "c": 3, "d": "v", "n": 2, "clue": "Korxonani tashkil etuvchi va ustav fondiga hissa qo'shuvchi shaxs", "clueEn": "The person who sets up the company and contributes to its charter fund"}, {"a": "JARIMA", "r": 1, "c": 2, "d": "h", "n": 3, "clue": "Ma'muriy huquqbuzarlik uchun qo'llaniladigan pul undiruvi", "clueEn": "The monetary penalty applied for an administrative offence"}, {"a": "SOLIQ", "r": 3, "c": 0, "d": "h", "n": 4, "clue": "Davlat byudjetiga to'lanadigan majburiy to'lov", "clueEn": "The compulsory payment made to the state budget"}, {"a": "MANZIL", "r": 3, "c": 6, "d": "v", "n": 5, "clue": "Korxona rasman joylashgan joy — yuridik …", "clueEn": "The place where the company is officially located — the legal …"}, {"a": "GUVOHNOMA", "r": 3, "c": 10, "d": "v", "n": 6, "clue": "Davlat ro'yxatidan o'tkazilganlikni tasdiqlovchi rasmiy hujjat", "clueEn": "The official document confirming state registration"}, {"a": "YATT", "r": 4, "c": 5, "d": "h", "n": 7, "clue": "Yuridik shaxs tashkil etmagan tadbirkor (qisqartma)", "clueEn": "An entrepreneur without a legal entity (abbreviation)"}, {"a": "USTAV", "r": 4, "c": 10, "d": "h", "n": 8, "clue": "MChJning asosiy ta'sis hujjati", "clueEn": "The main founding document of an LLC"}, {"a": "BIRDARCHA", "r": 6, "c": 8, "d": "v", "n": 9, "clue": "Biznesni onlayn ro'yxatdan o'tkazish uchun yagona davlat portali (…uz)", "clueEn": "The single state portal for registering a business online (…uz)"}, {"a": "KOOPERATIV", "r": 6, "c": 12, "d": "v", "n": 10, "clue": "A'zolarining mehnati va mulkiy hissasi asosida birgalikda faoliyat yurituvchi tashkilot", "clueEn": "An organisation run jointly on the basis of its members' labour and property shares"}, {"a": "BILDIRISHNOMA", "r": 7, "c": 2, "d": "h", "n": 11, "clue": "Ruxsat olmasdan, faqat vakolatli organni xabardor qilish orqali faoliyatni boshlash tartibi", "clueEn": "Starting an activity merely by notifying the authorised body, without obtaining a permit"}, {"a": "LITSENZIYA", "r": 7, "c": 4, "d": "v", "n": 12, "clue": "Alohida faoliyat turlari uchun davlat organi beradigan maxsus ruxsat hujjati", "clueEn": "A special state document required for certain regulated types of activity"}, {"a": "MUSODARA", "r": 9, "c": 14, "d": "v", "n": 13, "clue": "Noqonuniy faoliyatdan olingan daromad va mol-mulkni davlat foydasiga olib qo'yish", "clueEn": "Confiscation of income and property obtained from illegal activity"}, {"a": "ULUSH", "r": 10, "c": 1, "d": "h", "n": 14, "clue": "MChJ ta'sischisining ustav fondidagi hissasi", "clueEn": "An LLC founder's share in the charter fund"}, {"a": "FIRMA", "r": 11, "c": 6, "d": "h", "n": 15, "clue": "Korxonaning takrorlanmas rasmiy nomi — … nomi", "clueEn": "The unique official name of a company — the … name"}, {"a": "EIMZO", "r": 12, "c": 1, "d": "v", "n": 16, "clue": "Onlayn hujjatlarni imzolash uchun ishlatiladigan elektron raqamli imzo kaliti", "clueEn": "The electronic digital signature key used to sign documents online"}, {"a": "MASULIYAT", "r": 14, "c": 7, "d": "h", "n": 17, "clue": "MChJ nomidagi \"cheklangan\" so'zi aynan shu tushunchaga tegishli", "clueEn": "The concept that the word \"limited\" in LLC actually refers to"}, {"a": "OILAVIY", "r": 16, "c": 1, "d": "h", "n": 18, "clue": "A'zolari bir oila a'zolaridan iborat bo'lgan korxona turi", "clueEn": "The type of enterprise whose members are all from one family"}]};
+var EN={"0": "Topic 5 · Lecture · 2 hours", "1": "WHAT TAXES AN ENTREPRENEUR PAYS AND HOW THEY KEEP RECORDS", "2": "The simplified and the general tax system · tax incentives · the <b>my.soliq.uz</b> personal cabinet and electronic reporting · invoices, receipts, waybills and the income-expense ledger.", "3": "📚 Course: <b>Fundamentals of Entrepreneurship</b>", "4": "🎓 <b>Termez State University</b>", "5": "🗂 <b>18</b> slides · 💳 calculator · 🧮 3 problems", "6": "⌨️ Press <b>→</b> to continue", "7": "Aim of the topic", "8": "What will the student <span class=\"grad\">be able to do?</span>", "9": "Aim: to move the student from <b>\"being afraid of taxes\"</b> to <b>\"planning taxes and keeping orderly records\"</b>. A tax is not a fine — it is <b>part of the cost of doing business</b> and it can be calculated in advance.", "10": "Can distinguish", "11": "Separates the simplified and the general tax system by clear criteria.", "12": "Can choose", "13": "Chooses and justifies the tax regime that fits the size of their business.", "14": "Can use", "15": "Knows the main sections of the my.soliq.uz cabinet and the reporting procedure.", "16": "Can document", "17": "Understands the purpose and the rules of invoices, receipts and waybills.", "18": "Can keep records", "19": "Fills in the income-expense ledger correctly and calculates the profit.", "20": "Can calculate", "21": "Calculates a monthly loan payment independently with the annuity formula.", "22": "Lecture plan", "23": "Today's <span class=\"grad\">3 blocks</span> and the final practice", "24": "Tax regimes", "25": "The simplified system, the general system, payroll taxes and incentives.", "26": "my.soliq.uz", "27": "The personal cabinet and how to file electronic reports.", "28": "Documents", "29": "Invoice, receipt, waybill and the income-expense ledger.", "30": "Practice", "31": "The loan payment calculator and 3 problems.", "32": "🔑 Key concepts", "33": "<span class=\"pill g\">tax regime</span><span class=\"pill g\">turnover tax</span><span class=\"pill\">simplified system</span>\n        <span class=\"pill g\">VAT</span><span class=\"pill\">profit tax</span><span class=\"pill\">personal income tax</span><span class=\"pill\">social tax</span>\n        <span class=\"pill\">tax base</span><span class=\"pill\">rate</span><span class=\"pill\">tax period</span><span class=\"pill g\">tax incentive</span>\n        <span class=\"pill g\">my.soliq.uz</span><span class=\"pill\">electronic report</span><span class=\"pill\">taxpayer ID</span>\n        <span class=\"pill g\">invoice (e-invoice)</span><span class=\"pill\">cash receipt</span><span class=\"pill\">waybill</span>\n        <span class=\"pill g\">income-expense ledger</span><span class=\"pill\">cost price</span><span class=\"pill\">net profit</span>", "34": "⚠️ Tax rates and thresholds are updated every year by amendments to the Tax Code. The lecture gives the <b>logic and the procedure</b> — always check the exact figures on <b>soliq.uz</b> and <b>lex.uz</b>.", "35": "Block 1", "36": "A tax is <span class=\"grad\">not a fine, it is a cost</span>", "37": "A tax is a <b>compulsory, non-refundable payment</b> to the state budget. For an entrepreneur it is not a sudden blow: tax is <b>calculated in advance</b> and built into the price <b>as a cost</b>.", "38": "💡 The right way to think", "39": "When setting a price the order should be:", "40": "<b>Cost price + tax + other expenses + profit = price</b>", "41": "✕ Wrong: setting the price first and only then wondering \"where will the tax come from?\"", "42": "📌 What does tax discipline give you?", "43": "<b>Working without fines</b> — you pay no penalties for being late", "44": "<b>Loans and grants</b> — the bank asks for reports and turnover", "45": "<b>Tenders and large clients</b> — proof of no tax debt is required", "46": "<b>Clear numbers</b> — you can see whether the business is profitable", "47": "<b>Peace of mind</b> — you are not afraid of an inspection", "48": "🧠 Remember: taxes should not be <b>hidden</b> but <b>optimised legally</b> — by choosing the right regime, using incentives and confirming expenses with documents.", "49": "<span class=\"grad\">Tax regimes</span> for small business", "50": "An entrepreneur does not pay every tax — only the taxes <b>that belong to their regime</b>. The regime depends on turnover, the type of activity and your own choice.", "51": "The IE regime", "52": "A simplified regime for a sole entrepreneur: depending on the activity, either a <b>fixed tax</b> or a payment based on turnover, plus social tax.", "53": "Simplified regime", "54": "For businesses whose annual turnover stays below the set threshold — the <b>turnover tax</b>. No VAT is paid.", "55": "General system", "56": "For those above the threshold or who choose it themselves — <b>VAT + profit tax</b> and full reporting.", "57": "🔄 How does the regime change?", "58": "<b>1.</b> If turnover exceeds the threshold → the business moves to the general system <b>compulsorily</b>.<br>\n           <b>2.</b> Even below the threshold an entrepreneur may become a VAT payer <b>voluntarily</b> — this helps when working with large clients.<br>\n           <b>3.</b> The tax authority is notified of the change and it takes effect from the start of the <b>tax period</b>.", "59": "The threshold (annual turnover) and the rates are set by the Tax Code and change over time — check the current values on <b>soliq.uz</b>.", "60": "The simplified regime — <span class=\"grad\">the turnover tax</span>", "61": "The turnover tax is calculated on <b>revenue</b> (gross turnover). There is no need to account for expenses, run VAT or make complex calculations — that is why it suits <b>new and small businesses</b>.", "62": "✅ Advantages", "63": "Easy to calculate: <b>revenue × rate</b>", "64": "Less VAT accounting and fewer invoices", "65": "Low bookkeeping costs", "66": "Simpler and fewer reports", "67": "⚠️ Disadvantages", "68": "Expenses are not taken into account — <b>you pay tax even at a loss</b>", "69": "Large VAT-paying clients may be reluctant to work with you", "70": "When turnover grows, the regime changes compulsorily", "71": "🧮 A simple example (hypothetical)", "72": "If monthly revenue is <b>60,000,000 so'm</b> and the turnover tax rate is <b>4%</b>:", "73": "<b>60,000,000 × 4% = 2,400,000 so'm</b> of tax. Whatever the expenses are, the base is <b>revenue</b>.", "74": "That is why in a low-margin business (a small share of profit) the turnover tax can be heavy — in such a case the general system may well be cheaper.", "75": "The basic turnover tax rate and the special rates for certain activities are set by law — check the exact percentage on <b>soliq.uz</b>.", "76": "The general system — <span class=\"grad\">VAT and profit tax</span>", "77": "🧾 VAT — value added tax", "78": "VAT is paid <b>by the buyer</b>; the entrepreneur collects it and transfers it to the state. The current basic rate is <b>12%</b>.", "79": "<b>The main rule:</b> what goes to the budget is the difference between <b>output VAT and input VAT</b>.", "80": "Example: you sold goods for 11,200,000 so'm including VAT (VAT = 1,200,000). You bought raw materials with VAT of 700,000. To the budget: <b>1,200,000 − 700,000 = 500,000 so'm</b>.", "81": "📈 Profit tax", "82": "The base is <b>net profit</b>: income minus the expenses allowed by law. The basic rate is <b>15%</b> (different for some categories).", "83": "<b>Important:</b> an expense is deducted only if it is <b>confirmed by a document</b>. An undocumented expense does not reduce tax.", "84": "That is why in the general system <b>primary documents</b> (invoice, receipt, waybill) are decisive.", "85": "🤔 When is the general system better?", "86": "① Your clients are large VAT-paying companies (they expect an invoice from you) · ② Your expense share is large and the profit share small · ③ You work with imports or exports · ④ Your turnover exceeds the threshold.", "87": "The rates are given as the main indicators as of 2026; they may change — check <b>soliq.uz</b> and <b>lex.uz</b>.", "88": "1.5 · Summary", "89": "A <span class=\"grad\">comparison table</span> of the two regimes", "90": "Criterion", "91": "📉 Simplified (turnover tax)", "92": "📊 General system (VAT + profit tax)", "93": "<b>Tax base</b>", "94": "Gross revenue (turnover)", "95": "Net profit and added value", "96": "<b>Are expenses counted?</b>", "97": "No", "98": "Yes, if confirmed by documents", "99": "<b>VAT</b>", "210": "<b>VAT</b>", "100": "Not paid", "101": "Charged and offset", "102": "<b>Reporting</b>", "103": "Simple, less of it", "104": "Full and regular", "105": "<b>Bookkeeping</b>", "106": "Minimal", "107": "A qualified accountant is needed", "108": "<b>In case of a loss</b>", "109": "The tax is still payable", "110": "No profit means no profit tax", "111": "<b>For large clients</b>", "112": "They cannot offset the VAT", "113": "You issue an invoice — convenient", "114": "<b>Who it suits</b>", "115": "New, small, service businesses", "116": "Manufacturing, wholesale, export", "117": "📌 The decision rule: if your <b>profit share is high</b>, the simplified regime is usually cheaper; if your <b>expense share is large</b> or your clients pay VAT, the general system is better. <b>Compare both with real numbers</b>.", "118": "Other payments related to <span class=\"grad\">staff and property</span>", "119": "Whatever your regime, hiring staff or owning property creates additional obligations.", "120": "Personal income tax", "121": "Income tax on individuals — it is <b>withheld from the employee's salary</b> and transferred to the budget. The basic rate is 12%.", "122": "Social tax", "123": "Paid on the payroll <b>at the employer's expense</b>. It forms the basis for pensions and social security.", "124": "Property and land", "125": "If the company owns buildings, structures or a land plot — property and land tax is paid.", "126": "Resource payments", "127": "Special taxes such as water use, subsoil use and excise — depending on the type of activity.", "128": "⚠️ The most common mistakes", "129": "Employing staff <b>without formal contracts</b> (a fine, and the work record is lost)", "130": "Paying wages \"in an envelope\" and not transferring income tax", "131": "Not tracking tax payment deadlines → <b>penalties</b>", "132": "Mixing personal and business money", "133": "Rates differ by category (for example, budget organisations, special districts) and are updated — check the exact values on <b>soliq.uz</b>.", "134": "<span class=\"grad\">Tax incentives</span> — a legal relief", "135": "An incentive is not \"hiding\" anything — it is <b>a legal relief offered by the state itself</b>. Not using it simply means overpaying.", "136": "1. Full exemption", "137": "Certain activities or entities are <b>fully exempt</b> from a particular tax.", "138": "2. A reduced rate", "139": "A <b>lower rate</b> is applied instead of the general one (for example, in certain districts).", "140": "3. Deferral", "141": "The payment deadline is <b>extended</b> or payment by instalments is allowed.", "142": "🎯 Who usually gets an incentive?", "143": "Newly created entities and those working in certain sectors", "144": "Organisations with a special status, such as <b>IT Park</b> residents", "145": "Businesses operating in less developed districts and special economic zones", "146": "Companies employing people with disabilities", "147": "Export-oriented and certain socially oriented activities", "148": "📝 How do you use an incentive?", "149": "<b>1.</b> Find the incentive relevant to your activity in the <b>official list</b> (soliq.uz / lex.uz)<br>\n             <b>2.</b> Check its conditions — they usually come with <b>specific requirements</b><br>\n             <b>3.</b> Obtain the necessary document or status<br>\n             <b>4.</b> Reflect the incentive <b>correctly in your report</b><br>\n             <b>5.</b> If a condition is broken, the incentive is cancelled and the tax may be <b>recalculated</b>", "150": "The list of incentives and their conditions are updated frequently — check the current document each time and consult a tax adviser if in doubt.", "151": "Block 2", "152": "<span class=\"grad\">my.soliq.uz</span> — the taxpayer's personal cabinet", "153": "The personal cabinet is the entrepreneur's <b>tax desk</b>: filing reports, seeing debts, making payments, sending invoices and corresponding with the tax authority all happen here. There is no need to visit an office.", "154": "🔐 How do you log in?", "155": "With an <b>E-IMZO (digital signature key)</b> — the main and most secure way", "156": "Through the <b>OneID</b> single identification system", "157": "You need your <b>taxpayer ID</b> and an active key to log in", "158": "If the key expires you cannot log in — renew it in advance", "159": "🛡 Even if you give the key to your accountant, <b>the responsibility stays with you</b>. Control who signs which document.", "160": "🧭 The main sections", "161": "<b>Reports</b> — filing, history and acceptance status", "162": "<b>Personal account</b> — tax debt or overpayment", "163": "<b>Payments</b> — payments to the budget and their allocation", "164": "<b>Invoices (e-invoices)</b> — documents sent and received", "165": "<b>Notices</b> — demands and notifications from the tax authority", "166": "<b>Applications</b> — sending questions and receiving answers", "167": "Section names and the interface are updated from time to time — see the current layout on <b>my.soliq.uz</b>.", "168": "How to <span class=\"grad\">file an electronic report</span>", "169": "Steps 1–2", "170": "Preparation", "171": "Collect the period's data (revenue, expenses, payroll) · log in to the cabinet with your E-IMZO", "172": "Step 3", "173": "Choosing the form", "174": "Choose the report form that matches your regime and the <b>tax period</b>", "175": "Step 4", "176": "Filling in and checking", "177": "Enter the data · the system <b>checks for errors automatically</b>", "178": "Steps 5–6", "179": "Signing and payment", "180": "Sign with your E-IMZO and send · check that it was <b>accepted</b> · pay the tax", "181": "🗓 About deadlines", "182": "Every tax has <b>its own period</b>: monthly, quarterly or annual", "183": "The reporting deadline and the payment deadline <b>may differ</b>", "184": "If a deadline falls on a day off, it moves to the next working day", "185": "Build a calendar in advance and set <b>reminders</b>", "186": "⏰ What happens if you are late?", "187": "A <b>penalty</b> is charged for every day of delay", "188": "A <b>fine</b> is applied for failing to file a report", "189": "If debt accumulates, restrictions may be applied to the bank account", "190": "With a tax debt, the road to tenders and incentives is closed", "191": "Practical advice: do not leave the report <b>until the last day</b> — the system may be busy or your key may have expired.", "192": "Block 3", "193": "Primary documents and the <span class=\"grad\">invoice (e-invoice)</span>", "194": "A primary document is <b>the evidence of a business transaction</b>. Without it there is no expense, no VAT offset and no protection in court. The rule is simple: <b>an undocumented transaction is a transaction that never happened</b>.", "195": "🧾 What is an invoice?", "196": "The main document confirming that goods or services were delivered and stating <b>their value and the VAT amount</b>. Today it is issued <b>electronically</b> and sent through the cabinet.", "197": "<b>Why it matters:</b> so that the buyer can <b>offset the VAT</b> and the seller can confirm the income.", "198": "Once sent, the other party either <b>accepts</b> or rejects it", "199": "If there is an error, a correcting or cancelling document is issued", "200": "All e-invoices are stored in the cabinet and visible to the tax authority", "201": "📋 What does an invoice contain?", "202": "<b>Number and date</b>", "203": "The identifier of the document", "204": "<b>The parties</b>", "205": "Names, taxpayer IDs and addresses of the seller and the buyer", "206": "<b>Goods/services</b>", "207": "Name, unit of measurement, quantity", "208": "<b>Price and amount</b>", "209": "Unit price, total value", "211": "The rate and the amount of tax", "212": "<b>Signature</b>", "213": "An electronic signature with E-IMZO", "214": "<span class=\"grad\">The cash receipt</span> and <span class=\"grad\">the waybill</span>", "215": "Cash receipt", "216": "When selling to the public (a private individual) <b>issuing a receipt is compulsory</b>. A receipt is the buyer's right and proof of the seller's income.", "217": "It is issued through an online cash register or a <b>virtual cash register</b>", "218": "The <b>QR code</b> on the receipt can be used to verify that it is genuine", "219": "Failing to issue a receipt is a violation and grounds for a fine", "220": "In cases of returns and warranty claims the receipt is the main document", "221": "🧑‍🎓 Advice for students: always take the receipt when you buy something — it is both your right and proof of your expense.", "222": "Waybill", "223": "The document confirming that goods have been <b>moved from one place to another</b>. It shows that the goods in transit are legal.", "224": "Who sent them, who received them, by what transport", "225": "The name, quantity, unit of measurement and value of the goods", "226": "The route: the place of departure and the delivery address", "227": "Today it is mostly issued <b>in electronic form</b>", "228": "⚠️ Goods transported without a waybill may be treated as <b>undocumented goods</b> and lead to a fine.", "229": "📁 The rule on keeping documents", "230": "Primary documents <b>must be kept</b> for the period set by law. Even though electronic documents are stored in the cabinet, keep <b>your own copies</b> of important contracts and invoices in an orderly folder: by date and by counterparty.", "231": "<span class=\"grad\">The income-expense ledger</span> — the diary of the business", "232": "This ledger is the <b>simplest and most useful</b> financial tool. Without it an entrepreneur does not know whether they are making a profit or a loss.", "233": "Date", "234": "Document", "235": "Description of the transaction", "236": "Income", "237": "Expense", "238": "Balance", "239": "Receipt no. 112", "240": "Sale of goods (25 units)", "241": "E-invoice no. 0041", "242": "Purchase of raw materials", "243": "Contract", "244": "Rent payment (September)", "245": "E-invoice no. 0058", "246": "Wholesale sale to a company", "247": "Payroll sheet", "248": "Wages (2 employees)", "249": "✅ Rules for keeping it", "250": "Every entry <b>rests on a document</b> (receipt, e-invoice, contract)", "251": "The entry is made <b>the same day or the next</b>", "252": "Personal expenses are <b>not written here</b>", "253": "At the end of the month the totals are calculated and checked", "254": "📊 What does it give you?", "255": "Net profit: <b>income − expenses</b>", "256": "You can see which expense is \"eating\" the money", "257": "Planning tax and loan payments becomes easy", "258": "Ready data for filing reports", "259": "🛠 Where do you keep it?", "260": "A simple notebook or <b>Excel / Google Sheets</b>", "261": "Accounting software or a mobile app", "262": "What matters is <b>consistency</b>, not the tool", "263": "Summary · Assignment · Links", "264": "Final <span class=\"grad\">summary</span> and <span class=\"grad\">useful resources</span>", "265": "📌 6 ideas to remember", "266": "A tax is not a fine but <b>a cost you can calculate in advance</b>: build it into the price.", "267": "The <b>simplified regime</b> is taken from revenue, the <b>general system</b> from profit.", "268": "Only a <b>document</b> confirms an expense — an undocumented expense does not reduce tax.", "269": "An <b>incentive</b> is a legal relief; not using it means overpaying.", "270": "<b>my.soliq.uz</b> + E-IMZO — one place for reports, payments and invoices.", "271": "The <b>income-expense ledger</b> is the daily measure of the health of the business.", "272": "📓 Independent work: \"My financial snapshot for one month\"", "273": "Fill in a <b>one-month income-expense ledger</b> for your own idea (at least 10 entries).", "274": "Calculate the monthly <b>net profit</b>.", "275": "Calculate the tax under both regimes <b>and compare</b>: the turnover tax and the profit tax options.", "276": "Justify <b>with numbers</b> which regime is cheaper for you.", "277": "If you take a loan — calculate the monthly payment and add it to the ledger as an expense.", "278": "Length: 1–2 pages + the table. Marking: completeness of the ledger 30% · tax calculation 40% · reasoned conclusion 30%.", "279": "🔗 Useful resources (links)", "280": "<a class=\"lnk\" href=\"https://my.soliq.uz\" target=\"_blank\" rel=\"noopener\">my.soliq.uz</a> — the taxpayer's personal cabinet", "281": "<a class=\"lnk\" href=\"https://soliq.uz\" target=\"_blank\" rel=\"noopener\">soliq.uz</a> — the Tax Committee: rates, forms, guidance", "282": "<a class=\"lnk\" href=\"https://lex.uz\" target=\"_blank\" rel=\"noopener\">lex.uz</a> — the Tax Code and other legislation", "283": "<a class=\"lnk\" href=\"https://e-imzo.uz\" target=\"_blank\" rel=\"noopener\">e-imzo.uz</a> — the electronic digital signature", "284": "<a class=\"lnk\" href=\"https://birdarcha.uz\" target=\"_blank\" rel=\"noopener\">birdarcha.uz</a> — registration and public services", "285": "<a class=\"lnk\" href=\"https://cbu.uz\" target=\"_blank\" rel=\"noopener\">cbu.uz</a> — the Central Bank: rates and bank data", "286": "<a class=\"lnk\" href=\"https://stat.uz\" target=\"_blank\" rel=\"noopener\">stat.uz</a> — official statistics", "287": "<a class=\"lnk\" href=\"https://ombudsman.uz\" target=\"_blank\" rel=\"noopener\">ombudsman.uz</a> — the Business Ombudsman", "288": "<b>Tools:</b> <span class=\"pill g\">Excel / Google Sheets</span><span class=\"pill g\">a bank loan calculator</span><span class=\"pill g\">calendar reminders</span>", "289": "⚠️ Rates, thresholds and incentives are updated every year. The figures in this presentation are given as <b>teaching examples</b> — check an official source before making a decision.", "290": "💳 Practical block", "291": "Loan payments: <span class=\"grad\">at what rate, for how many years → how much per month?</span>", "292": "A = P × i ÷ (1 − (1 + i)<sup>−n</sup>)\n            <small>P — the loan amount · i — the <b>monthly</b> rate (annual ÷ 12 ÷ 100) · n — the number of months · A — the monthly payment</small>", "293": "📐 Calculating it in 4 steps", "294": "<b>Step 1.</b> Convert the annual rate into a monthly one: <b>i = annual % ÷ 12 ÷ 100</b><br>\n               <b>Step 2.</b> Convert the term into months: <b>n = years × 12</b><br>\n               <b>Step 3.</b> Put them into the formula and find the monthly payment (A)<br>\n               <b>Step 4.</b> Total paid = <b>A × n</b>, overpayment = <b>A × n − P</b>", "295": "🧮 Example: 30 million so'm, 24% a year, 3 years", "296": "<b>i</b> = 24 ÷ 12 ÷ 100 = <b>0.02</b> · <b>n</b> = 3 × 12 = <b>36</b><br>\n               (1 + 0.02)<sup>−36</sup> = 0.4902 → 1 − 0.4902 = <b>0.5098</b><br>\n               <b>A</b> = 30,000,000 × 0.02 ÷ 0.5098 ≈ <b>1,176,986 so'm</b><br>\n               Total: 1,176,986 × 36 ≈ <b>42,371,000</b> · Overpayment: ≈ <b>12,371,000 so'm</b>", "297": "🖩 The calculator — try it yourself", "298": "Loan amount (so'm)", "299": "Annual interest rate (%)", "300": "Term (months)", "301": "Grace period (months)", "302": "💡 Try this: extend the term from 36 to 60 months — the <b>monthly payment falls</b> but the <b>total paid rises</b>. That is the price of convenience.", "303": "🧮 Solve on your own", "304": "3 problems — <span class=\"grad\">calculate and enter your answer</span>", "305": "Solve each problem in your notebook using the formula, then type the answer in the field and press <b>Check</b>. The answer is <b>in so'm</b>, digits only (for example: 1268906). An answer within 1.5% counts as correct.", "306": "🎓 Thank you for your attention!", "307": "For the next class, prepare <b>your one-month income-expense ledger</b> and the tax calculation under both regimes.", "308": "Termez State University · Fundamentals of Entrepreneurship"};
+var TASKS=[{"color": "var(--green)", "ans": 1268906, "tol": 0.015, "q": "Tadbirkor <b>24 000 000 so'm</b> kredit oldi. Yillik stavka — <b>24%</b>, muddat — <b>24 oy</b>, to'lov turi — annuitet (har oy bir xil). <b>Oylik to'lov qancha bo'ladi?</b>", "qEn": "An entrepreneur took a loan of <b>24,000,000 so'm</b>. The annual rate is <b>24%</b>, the term is <b>24 months</b>, with annuity payments (the same every month). <b>What is the monthly payment?</b>", "sol": "<b>Yechim:</b><br>i = 24 ÷ 12 ÷ 100 = <code>0,02</code> · n = <code>24</code><br>(1 + 0,02)<sup>−24</sup> ≈ <code>0,6217</code> → 1 − 0,6217 = <code>0,3783</code><br>A = 24 000 000 × 0,02 ÷ 0,3783 ≈ <b>1 268 906 so'm</b><br>Jami to'lov ≈ 30 453 752 so'm · ortiqcha to'lov ≈ <b>6 453 752 so'm</b>.", "solEn": "<b>Solution:</b><br>i = 24 ÷ 12 ÷ 100 = <code>0.02</code> · n = <code>24</code><br>(1 + 0.02)<sup>−24</sup> ≈ <code>0.6217</code> → 1 − 0.6217 = <code>0.3783</code><br>A = 24,000,000 × 0.02 ÷ 0.3783 ≈ <b>1,268,906 so'm</b><br>Total ≈ 30,453,752 so'm · overpayment ≈ <b>6,453,752 so'm</b>."}, {"color": "var(--blue)", "ans": 15074312, "tol": 0.015, "q": "Korxona <b>50 000 000 so'm</b> kredit oladi: yillik stavka — <b>18%</b>, muddat — <b>3 yil</b>, annuitet to'lov. <b>Kredit bo'yicha jami ortiqcha to'lov (foizlar summasi) qancha bo'ladi?</b>", "qEn": "A company takes a loan of <b>50,000,000 so'm</b>: annual rate <b>18%</b>, term <b>3 years</b>, annuity payments. <b>What is the total overpayment (the sum of interest) on the loan?</b>", "sol": "<b>Yechim:</b><br>i = 18 ÷ 12 ÷ 100 = <code>0,015</code> · n = 3 × 12 = <code>36</code><br>(1 + 0,015)<sup>−36</sup> ≈ <code>0,5851</code> → 1 − 0,5851 = <code>0,4149</code><br>A = 50 000 000 × 0,015 ÷ 0,4149 ≈ <b>1 807 620 so'm</b><br>Jami to'lov = 1 807 620 × 36 ≈ <code>65 074 312</code><br>Ortiqcha to'lov = 65 074 312 − 50 000 000 ≈ <b>15 074 312 so'm</b>.", "solEn": "<b>Solution:</b><br>i = 18 ÷ 12 ÷ 100 = <code>0.015</code> · n = 3 × 12 = <code>36</code><br>(1 + 0.015)<sup>−36</sup> ≈ <code>0.5851</code> → 1 − 0.5851 = <code>0.4149</code><br>A = 50,000,000 × 0.015 ÷ 0.4149 ≈ <b>1,807,620 so'm</b><br>Total = 1,807,620 × 36 ≈ <code>65,074,312</code><br>Overpayment = 65,074,312 − 50,000,000 ≈ <b>15,074,312 so'm</b>."}, {"color": "var(--violet)", "ans": 6882487, "tol": 0.02, "q": "Bir xil <b>40 000 000 so'm</b> kredit yillik <b>30%</b> stavkada ikki xil muddatga taklif qilindi: <b>12 oy</b> va <b>24 oy</b>. Ikkala variantdagi <b>ortiqcha to'lovlar farqi</b> qancha? (Ya'ni 24 oylik variant necha so'm qimmatga tushadi?)", "qEn": "The same loan of <b>40,000,000 so'm</b> at <b>30%</b> a year is offered for two terms: <b>12 months</b> and <b>24 months</b>. What is the <b>difference between the overpayments</b> of the two options? (That is, how much more expensive is the 24-month option?)", "sol": "<b>Yechim:</b> i = 30 ÷ 12 ÷ 100 = <code>0,025</code><br><b>12 oy:</b> (1,025)<sup>−12</sup> ≈ 0,7436 → 1 − 0,7436 = 0,2564 · A ≈ <b>3 899 485</b> · jami ≈ 46 793 821 · ortiqcha ≈ <code>6 793 821</code><br><b>24 oy:</b> (1,025)<sup>−24</sup> ≈ 0,5529 → 1 − 0,5529 = 0,4471 · A ≈ <b>2 236 513</b> · jami ≈ 53 676 308 · ortiqcha ≈ <code>13 676 308</code><br>Farq = 13 676 308 − 6 793 821 ≈ <b>6 882 487 so'm</b>.<br><i>Xulosa: muddatni ikki barobar uzaytirish oylik to'lovni 1,7 barobar yengillatdi, ammo ortiqcha to'lovni 2 barobardan ko'proq oshirdi.</i>", "solEn": "<b>Solution:</b> i = 30 ÷ 12 ÷ 100 = <code>0.025</code><br><b>12 months:</b> (1.025)<sup>−12</sup> ≈ 0.7436 → 1 − 0.7436 = 0.2564 · A ≈ <b>3,899,485</b> · total ≈ 46,793,821 · overpayment ≈ <code>6,793,821</code><br><b>24 months:</b> (1.025)<sup>−24</sup> ≈ 0.5529 → 1 − 0.5529 = 0.4471 · A ≈ <b>2,236,513</b> · total ≈ 53,676,308 · overpayment ≈ <code>13,676,308</code><br>Difference = 13,676,308 − 6,793,821 ≈ <b>6,882,487 so'm</b>.<br><i>Conclusion: doubling the term made the monthly payment 1.7× lighter but more than doubled the overpayment.</i>"}];
 
 (function(){
   i18nNodes=[].slice.call(document.querySelectorAll("[data-i]"));
@@ -1111,186 +1142,78 @@ function applyLang(L){
   });
   dotEls.forEach(function(d,i){ d.title=(i+1)+". "+((lang==="en"&&slides[i].dataset.titleEn)?slides[i].dataset.titleEn:slides[i].dataset.title); });
   $("#slideName").textContent=(lang==="en"&&slides[idx].dataset.titleEn)?slides[idx].dataset.titleEn:slides[idx].dataset.title;
-  if(typeof renderXW==="function"){ renderXW(); xwHighlight(); }
+  if(typeof calcRun==="function"){ calcRun(); renderTasks(); }
   try{localStorage.setItem("terdu_lang",lang)}catch(e){}
 }
 $("#btnLang").onclick=function(){ applyLang(lang==="en"?"uz":"en"); };
 
 
-/* ================= KROSSVORD ================= */
-var XWuser={}, xwDir="h", xwActive=null;
-function XWords(){ return XW.words; }
-function xwClue(w){ return (lang==="en"&&w.clueEn)?w.clueEn:w.clue; }
-function xwKey(r,c){ return r+"_"+c; }
-function xwLetter(r,c){ var ch=XW.grid[r].charAt(c); return ch==="."?"":ch; }
-function xwCellsOf(w){ var a=[]; for(var i=0;i<w.a.length;i++) a.push(w.d==="h"?[w.r,w.c+i]:[w.r+i,w.c]); return a; }
-function xwSolved(w){ return xwCellsOf(w).every(function(p){ return (XWuser[xwKey(p[0],p[1])]||"")===xwLetter(p[0],p[1]); }); }
-function xwSave(){ try{ localStorage.setItem("terdu_m4_xw",JSON.stringify(XWuser)); }catch(e){} }
-function xwLoad(){ try{ var v=localStorage.getItem("terdu_m4_xw"); if(v) XWuser=JSON.parse(v)||{}; }catch(e){ XWuser={}; } }
-
-function renderXW(){
-  var g=document.getElementById("xwGrid"); if(!g) return;
-  g.innerHTML=""; g.style.gridTemplateColumns="repeat("+XW.w+",var(--cell))";
-  var nums={};
-  XWords().forEach(function(w){ nums[xwKey(w.r,w.c)]=w.n; });
-  for(var r=0;r<XW.h;r++){
-    for(var c=0;c<XW.w;c++){
-      var d=document.createElement("div");
-      d.className="xw-cell"+(xwLetter(r,c)?"":" block");
-      if(xwLetter(r,c)){
-        if(nums[xwKey(r,c)]){ var s=document.createElement("span"); s.className="xw-num"; s.textContent=nums[xwKey(r,c)]; d.appendChild(s); }
-        var inp=document.createElement("input");
-        inp.type="text"; inp.maxLength=1; inp.dataset.r=r; inp.dataset.c=c;
-        inp.value=XWuser[xwKey(r,c)]||"";
-        inp.setAttribute("inputmode","text"); inp.setAttribute("autocomplete","off"); inp.setAttribute("autocapitalize","characters");
-        inp.addEventListener("input",xwOnInput);
-        inp.addEventListener("keydown",xwOnKey);
-        inp.addEventListener("focus",xwOnFocus);
-        inp.addEventListener("click",xwOnClick);
-        d.appendChild(inp);
-      }
-      g.appendChild(d);
-    }
-  }
-  var ac=document.getElementById("xwAcrossList"), dn=document.getElementById("xwDownList");
-  ac.innerHTML=""; dn.innerHTML="";
-  XWords().forEach(function(w,i){
-    var li=document.createElement("li");
-    li.innerHTML="<b>"+w.n+".</b> "+xwClue(w)+" <span style='color:var(--muted)'>("+w.a.length+")</span>";
-    li.onclick=function(){ xwFocusWord(i); };
-    li.dataset.i=i;
-    (w.d==="h"?ac:dn).appendChild(li);
+/* ================= KREDIT KALKULYATORI ================= */
+function nfmt(x){ return Math.round(x).toString().replace(/\B(?=(\d{3})+(?!\d))/g," "); }
+function annuity(P,r,n){ var i=r/100/12; if(i<=0) return P/n; return P*i/(1-Math.pow(1+i,-n)); }
+function calcRun(){
+  var P=parseFloat(document.getElementById("cSum").value)||0;
+  var r=parseFloat(document.getElementById("cRate").value)||0;
+  var n=parseInt(document.getElementById("cTerm").value,10)||0;
+  var g=parseInt(document.getElementById("cGrace").value,10)||0;
+  var out=document.getElementById("cOut"); if(!out) return;
+  if(P<=0||n<=0){ out.innerHTML=""; return; }
+  if(g>=n) g=0;
+  var i=r/100/12, gPay=P*i, aPay=annuity(P,r,n-g);
+  var total=gPay*g+aPay*(n-g), over=total-P;
+  var firstInt=P*i, firstPrin=aPay-firstInt;
+  var cur=", "+UIT("cSum2");
+  var rows=[
+    [UIT("cMonthly")+cur,nfmt(aPay),"var(--green)"],
+    [UIT("cTotal")+cur,nfmt(total),"var(--blue)"],
+    [UIT("cOver")+cur,nfmt(over),"var(--red)"],
+    [UIT("cOverPct"),(P>0?(over/P*100).toFixed(1):0)+" %","var(--orange)"]
+  ];
+  if(g>0) rows.splice(1,0,[UIT("cGracePay")+cur+" × "+g+" "+UIT("cMon"),nfmt(gPay),"var(--violet)"]);
+  var html=rows.map(function(x){ return '<div class="calc-card" style="--c:'+x[2]+'"><span>'+x[0]+'</span><b>'+x[1]+'</b></div>'; }).join("");
+  html+='<div class="calc-note">'+UIT("cFirst")+": <b>"+nfmt(firstInt)+"</b> "+UIT("cIntPart")+" + <b>"+nfmt(firstPrin)+"</b> "+UIT("cPrinPart")+
+        ". "+UIT("cHint")+"</div>";
+  out.innerHTML=html;
+}
+/* ================= MASALALAR ================= */
+function taskText(t,k){ return (lang==="en"&&t[k+"En"])?t[k+"En"]:t[k]; }
+function renderTasks(){
+  var w=document.getElementById("taskWrap"); if(!w) return;
+  var keep=[].slice.call(w.querySelectorAll(".ans input")).map(function(i){return i.value;});
+  w.innerHTML="";
+  TASKS.forEach(function(t,k){
+    var d=document.createElement("div");
+    d.className="task"; d.style.setProperty("--c",t.color||"var(--violet)");
+    d.innerHTML='<h3>'+(k+1)+"-"+UIT("tTask")+'</h3><p>'+taskText(t,"q")+'</p>'+
+      '<div class="ans"><input type="text" inputmode="numeric" placeholder="'+UIT("tPlaceholder")+'">'+
+      '<button class="btn accent">'+UIT("tCheck")+'</button>'+
+      '<button class="btn">'+UIT("tShow")+'</button></div>'+
+      '<p class="fbk"></p><div class="sol">'+taskText(t,"sol")+'</div>';
+    var inp=d.querySelector("input"), btns=d.querySelectorAll("button"), fb=d.querySelector(".fbk"), sol=d.querySelector(".sol");
+    if(keep[k]) inp.value=keep[k];
+    btns[0].onclick=function(){
+      var raw=(inp.value||"").replace(/[^\d.,]/g,"").replace(/\s/g,"").replace(",",".");
+      var v=parseFloat(raw);
+      inp.classList.remove("ok","bad"); fb.className="fbk show";
+      if(isNaN(v)){ fb.classList.add("no"); fb.textContent=UIT("tEmpty"); return; }
+      var diff=Math.abs(v-t.ans)/t.ans;
+      if(diff<=(t.tol||0.015)){ inp.classList.add("ok"); fb.classList.add("ok"); fb.textContent=UIT("tRight")+" "+nfmt(t.ans)+" "+UIT("cSum2"); }
+      else { inp.classList.add("bad"); fb.classList.add("no");
+             fb.textContent=UIT("tWrong")+(v>t.ans?UIT("tTooBig"):UIT("tTooSmall")); }
+    };
+    btns[1].onclick=function(){ sol.classList.toggle("show"); btns[1].textContent=sol.classList.contains("show")?UIT("tHide"):UIT("tShow"); };
+    w.appendChild(d);
   });
-  document.getElementById("xwTotal").textContent=XWords().length;
-  xwStatus();
 }
-function xwInput(r,c){ return document.querySelector('#xwGrid input[data-r="'+r+'"][data-c="'+c+'"]'); }
-function xwWordAt(r,c,d){
-  var f=null;
-  XWords().forEach(function(w,i){ if(w.d===d && xwCellsOf(w).some(function(p){return p[0]===r&&p[1]===c;})) f=i; });
-  return f;
-}
-function xwFocusWord(i){
-  var w=XWords()[i]; xwDir=w.d; xwActive=i;
-  var inp=xwInput(w.r,w.c); if(inp){ inp.focus(); inp.select(); }
-  xwHighlight();
-}
-function xwHighlight(){
-  document.querySelectorAll("#xwGrid .xw-cell").forEach(function(el){ el.classList.remove("active"); });
-  document.querySelectorAll(".xw-list li").forEach(function(li){ li.classList.remove("on"); });
-  if(xwActive===null) return;
-  var w=XWords()[xwActive];
-  xwCellsOf(w).forEach(function(p){ var inp=xwInput(p[0],p[1]); if(inp) inp.parentNode.classList.add("active"); });
-  var li=document.querySelector('.xw-list li[data-i="'+xwActive+'"]'); if(li) li.classList.add("on");
-}
-function xwOnFocus(e){
-  var r=+e.target.dataset.r, c=+e.target.dataset.c;
-  var i=xwWordAt(r,c,xwDir); if(i===null) i=xwWordAt(r,c,xwDir==="h"?"v":"h");
-  if(i!==null){ xwActive=i; xwDir=XWords()[i].d; }
-  xwHighlight();
-}
-function xwOnClick(e){
-  var r=+e.target.dataset.r, c=+e.target.dataset.c;
-  var other=xwDir==="h"?"v":"h";
-  if(xwActive!==null){
-    var cur=XWords()[xwActive];
-    if(xwCellsOf(cur).some(function(p){return p[0]===r&&p[1]===c;})){
-      var alt=xwWordAt(r,c,other);
-      if(alt!==null){ xwDir=other; xwActive=alt; xwHighlight(); }
-    }
-  }
-}
-function xwStep(r,c,back){
-  var dr=xwDir==="v"?1:0, dc=xwDir==="h"?1:0;
-  if(back){ dr=-dr; dc=-dc; }
-  var nr=r+dr, nc=c+dc;
-  var inp=xwInput(nr,nc); if(inp){ inp.focus(); inp.select(); }
-}
-function xwOnInput(e){
-  var t=e.target, r=+t.dataset.r, c=+t.dataset.c;
-  var v=(t.value||"").toUpperCase().replace(/[^A-Z]/g,"").slice(-1);
-  t.value=v;
-  if(v) XWuser[xwKey(r,c)]=v; else delete XWuser[xwKey(r,c)];
-  t.parentNode.classList.remove("ok","bad");
-  xwSave(); xwStatus();
-  if(v) xwStep(r,c,false);
-}
-function xwOnKey(e){
-  var t=e.target, r=+t.dataset.r, c=+t.dataset.c;
-  if(e.key==="Backspace"&&!t.value){ e.preventDefault(); xwStep(r,c,true); return; }
-  if(e.key==="ArrowRight"){ e.preventDefault(); xwDir="h"; var i=xwWordAt(r,c,"h"); if(i!==null){xwActive=i;xwHighlight();} var n=xwInput(r,c+1); if(n)n.focus(); }
-  if(e.key==="ArrowLeft"){ e.preventDefault(); xwDir="h"; var n2=xwInput(r,c-1); if(n2)n2.focus(); }
-  if(e.key==="ArrowDown"){ e.preventDefault(); xwDir="v"; var i2=xwWordAt(r,c,"v"); if(i2!==null){xwActive=i2;xwHighlight();} var n3=xwInput(r+1,c); if(n3)n3.focus(); }
-  if(e.key==="ArrowUp"){ e.preventDefault(); xwDir="v"; var n4=xwInput(r-1,c); if(n4)n4.focus(); }
-}
-function xwStatus(){
-  var done=0, filled=0;
-  XWords().forEach(function(w,i){
-    var s=xwSolved(w); if(s) done++;
-    var li=document.querySelector('.xw-list li[data-i="'+i+'"]');
-    if(li) li.classList.toggle("solved",s);
-  });
-  for(var k in XWuser){ if(XWuser[k]) filled++; }
-  document.getElementById("xwDone").textContent=done;
-  document.getElementById("xwCells").textContent=filled;
-  return done;
-}
-function xwCheck(){
-  var wrong=0, total=0;
-  XWords().forEach(function(w){
-    xwCellsOf(w).forEach(function(p){
-      var inp=xwInput(p[0],p[1]); if(!inp) return;
-      var v=XWuser[xwKey(p[0],p[1])]||"";
-      inp.parentNode.classList.remove("ok","bad");
-      if(v){ total++; if(v===xwLetter(p[0],p[1])) inp.parentNode.classList.add("ok"); else { inp.parentNode.classList.add("bad"); wrong++; } }
-    });
-  });
-  var done=xwStatus(), all=XWords().length, pct=Math.round(done/all*100);
-  var r=document.getElementById("xwResult");
-  document.getElementById("xwPct").textContent=pct+"%";
-  var t,x;
-  if(done===all){ t=UIT("xw100t"); x=UIT("xw100x"); }
-  else if(pct>=70){ t=UIT("xw70t"); x=UIT("xw70x"); }
-  else if(pct>=40){ t=UIT("xw40t"); x=UIT("xw40x"); }
-  else { t=UIT("xw0t"); x=UIT("xw0x"); }
-  document.getElementById("xwResTitle").textContent=t;
-  document.getElementById("xwResTxt").textContent=x+"  ("+done+" / "+all+" · "+UIT("xwWrong")+": "+wrong+")";
-  r.classList.add("show");
-}
-function xwHint(){
-  var pool=[];
-  var list = (xwActive!==null) ? [XWords()[xwActive]] : XWords();
-  list.forEach(function(w){ xwCellsOf(w).forEach(function(p){ if((XWuser[xwKey(p[0],p[1])]||"")!==xwLetter(p[0],p[1])) pool.push(p); }); });
-  if(!pool.length){ list=XWords(); list.forEach(function(w){ xwCellsOf(w).forEach(function(p){ if((XWuser[xwKey(p[0],p[1])]||"")!==xwLetter(p[0],p[1])) pool.push(p); }); }); }
-  if(!pool.length) return;
-  var p=pool[Math.floor(Math.random()*pool.length)];
-  XWuser[xwKey(p[0],p[1])]=xwLetter(p[0],p[1]);
-  var inp=xwInput(p[0],p[1]); if(inp){ inp.value=xwLetter(p[0],p[1]); inp.parentNode.classList.add("ok"); }
-  xwSave(); xwStatus();
-}
-function xwReveal(){
-  for(var r=0;r<XW.h;r++) for(var c=0;c<XW.w;c++){
-    if(xwLetter(r,c)){ XWuser[xwKey(r,c)]=xwLetter(r,c); var inp=xwInput(r,c); if(inp){ inp.value=xwLetter(r,c); inp.parentNode.classList.add("ok"); } }
-  }
-  xwSave(); xwStatus();
-}
-function xwClear(){
-  XWuser={}; xwSave();
-  document.querySelectorAll("#xwGrid input").forEach(function(i){ i.value=""; i.parentNode.classList.remove("ok","bad"); });
-  document.getElementById("xwResult").classList.remove("show");
-  xwStatus();
-}
-document.getElementById("xwCheck").onclick=xwCheck;
-document.getElementById("xwHint").onclick=xwHint;
-document.getElementById("xwReveal").onclick=xwReveal;
-document.getElementById("xwClear").onclick=xwClear;
-xwLoad(); renderXW();
-
+["cSum","cRate","cTerm","cGrace"].forEach(function(id){
+  var el=document.getElementById(id); if(el) el.addEventListener("input",calcRun);
+});
+calcRun(); renderTasks();
 /* ================= START ================= */
 try{
   var th=localStorage.getItem("terdu_theme");
   setTheme(th|| (window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"));
-  var sv=parseInt(localStorage.getItem("terdu_m4_slide"),10);
+  var sv=parseInt(localStorage.getItem("terdu_m5_slide"),10);
   go(isNaN(sv)?0:sv);
 }catch(e){ setTheme("light"); go(0); }
 try{ applyLang(localStorage.getItem("terdu_lang")==="en"?"en":"uz"); }catch(e){}

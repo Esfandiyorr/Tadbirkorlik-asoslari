@@ -8,8 +8,9 @@
 | [`mavzu-2.html`](mavzu-2.html) | **M2** — Mijoz muammosi asosida biznes g'oyani shakllantirish | 18 slayd · 15 test |
 | [`mavzu-3.html`](mavzu-3.html) | **M3** — Mahsulotni kam xarajat bilan bozorda sinab ko'rish (moliyalashtirish va kredit) | 15 slayd · 15 test |
 | [`mavzu-4.html`](mavzu-4.html) | **M4** — Biznesni qonuniy rasmiylashtirish va davlat ro'yxatidan o'tkazish | 18 slayd · 🎬 kinolar · 🧩 krossvord |
+| [`mavzu-5.html`](mavzu-5.html) | **M5** — Tadbirkor qanday soliqlarni to'laydi va hujjatlarni yuritadi | 18 slayd · 💳 kalkulyator · 🧮 3 masala |
 
-Har bir fayl mustaqil ishlaydi: internet, o'rnatish yoki qo'shimcha fayl talab qilinmaydi. Taqdimotlar bir-biriga yuqoridagi **M1 / M2 / M3 / M4** tugmalari orqali bog'langan.
+Har bir fayl mustaqil ishlaydi: internet, o'rnatish yoki qo'shimcha fayl talab qilinmaydi. Taqdimotlar bir-biriga yuqoridagi **M1 … M5** tugmalari orqali bog'langan.
 
 ## Ishga tushirish
 
@@ -45,6 +46,21 @@ xulosa, mustaqil ish va foydali havolalar · 🎬 **tadbirkorlik haqidagi eng ma
 Kataklarga to'g'ridan-to'g'ri yozish, so'z yo'nalishini bosib almashtirish, `Tekshirish` (to'g'ri/xato kataklarni bo'yaydi),
 `Bitta harf` (maslahat), `Javoblar` va `Tozalash` tugmalari bor. Kiritilgan harflar brauzer xotirasida saqlanadi,
 til almashtirilganda ham yo'qolmaydi. Savollar ikki tilda.
+
+## M5 — Soliqlar va hujjatlar (18 slayd)
+
+Muqova · maqsad · reja va tushunchalar · **soliq — jarima emas, xarajat** · soliq rejimlari ·
+**soddalashtirilgan tartib (aylanma solig'i)** · **umumiy tizim (QQS + foyda solig'i)** · rejimlarning qiyosiy jadvali ·
+ish haqi va mulk bo'yicha boshqa to'lovlar · **soliq imtiyozlari** · **my.soliq.uz kabineti** ·
+**elektron hisobot topshirish tartibi** · **hisob-faktura (EHF)** · **chek va yuk xati** ·
+**daromad-xarajat daftari** (namuna jadval bilan) · xulosa, mustaqil ish va havolalar ·
+💳 **kredit to'lovi kalkulyatori** · 🧮 **3 ta masala**.
+
+### Kalkulyator va masalalar
+Annuitet formulasi bosqichma-bosqich tushuntirilgan. Kalkulyatorga summa, yillik stavka, muddat va imtiyozli davrni
+kiritsangiz — oylik to'lov, jami to'lov, ortiqcha to'lov va uning ulushi darhol hisoblanadi.
+3 ta masalada talaba javobini maydonga yozib **tekshiradi** (1,5% farqgacha to'g'ri hisoblanadi),
+xohlasa **bosqichma-bosqich yechimni** ochadi. Masalalar ham ikki tilda.
 
 ## Imkoniyatlar
 
