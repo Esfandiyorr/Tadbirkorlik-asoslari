@@ -102,8 +102,13 @@ bo'yicha ball beriladi (100 / 75 / 50 / 25, teng natijalar o'rtacha oladi).
   yo'qotadi. O'yin — talabalar uchun kichik chalg'ish, baho vositasi emas.
 - Tugagan xona 3 daqiqadan keyin o'chiriladi, tashlab ketilgani 6 soatdan keyin
   (`arena/meta/cleanAt` qulfi bilan).
-- 10 ta o'yin: viktorina, so'z topish, 2048, ilon, xotira kartalari, tez yozish,
-  reaksiya, matematika, rasm topish (birgalikda chiziladi), uch toshcha.
+- **13 ta o'yin:** viktorina, so'z topish, 2048, ilon, xotira kartalari, tez yozish,
+  reaksiya, matematika, rasm topish, **josus (3–12 kishi)**, uch toshcha,
+  **shashka**, **shaxmat**.
+- **Xona 12 kishigacha:** yaratishda 4/6/8/12 tanlanadi. Ball o'rin bo'yicha
+  taqsimlanadi (1-o'rin 100, oxirgisi 10). Juftlik o'yinlari (uch toshcha,
+  shashka, shaxmat) o'yinchilarni juftlarga bo'ladi, toq qolgani o'rtacha ball oladi.
+- **Yolg'iz mashq:** bosh sahifadagi 🎯 tugmasi bitta kishilik xona ochadi.
 
 **Cheklov (halol eslatma):** sayt GitHub Pages'da, ya'ni serversiz ishlaydi.
 Shuning uchun ballni serverda qayta hisoblash imkoni yo'q. Himoya choralari:
