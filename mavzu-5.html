@@ -289,6 +289,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 
 
+
 /* RT:BEGIN */
 /* ================== REYTING TIZIMI ================== */
 .rt-chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel);
@@ -356,6 +357,49 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 .rt-toast.show{opacity:1;transform:none}
 .rt-note{font-size:12.5px;color:var(--muted);margin-top:10px;line-height:1.5}
 @media print{.rt-ov,.rt-gate,.rt-toast{display:none!important}}
+/* ================== MUSIQA PLEYERI ================== */
+#mzTab{position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:70;
+  background:linear-gradient(135deg,var(--violet),var(--pink));color:#fff;border:none;
+  border-radius:14px 0 0 14px;padding:12px 9px;cursor:pointer;box-shadow:var(--shadow);
+  font-size:19px;line-height:1;transition:.2s}
+#mzTab:hover{padding-right:13px}
+#mzTab.on{background:linear-gradient(135deg,var(--green),var(--teal))}
+#mzPanel{position:fixed;right:-340px;top:50%;transform:translateY(-50%);z-index:71;width:320px;max-width:92vw;
+  background:var(--panel);border:1px solid var(--line);border-radius:18px 0 0 18px;border-right:none;
+  box-shadow:var(--shadow);padding:16px;transition:right .32s cubic-bezier(.22,1,.36,1)}
+#mzPanel.show{right:0}
+#mzPanel h3{margin:0 0 10px;font-size:16px;display:flex;align-items:center;gap:8px}
+#mzPanel h3 span{flex:1}
+#mzPanel .x{border:none;background:transparent;color:var(--muted);font-size:17px;cursor:pointer;line-height:1}
+.mz-list{max-height:38vh;overflow:auto;margin:0 0 12px;padding:0;list-style:none}
+.mz-list li{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:11px;cursor:pointer;
+  font-size:13.5px;font-weight:600;color:var(--ink2);transition:.15s}
+.mz-list li:hover{background:var(--chip)}
+.mz-list li.on{background:color-mix(in srgb,var(--violet) 16%,transparent);color:var(--violet)}
+.mz-list li i{font-style:normal;font-size:15px;width:18px;text-align:center}
+.mz-list li b{flex:1;font-weight:700}
+.mz-list li span{font-size:11.5px;color:var(--muted);font-weight:600}
+.mz-now{background:var(--panel2);border-radius:13px;padding:11px 12px;margin-bottom:10px}
+.mz-now b{display:block;font-size:14px}
+.mz-now span{font-size:12px;color:var(--muted)}
+.mz-bar{height:6px;border-radius:99px;background:var(--chip);margin:9px 0 4px;cursor:pointer;position:relative}
+.mz-bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--violet),var(--pink));width:0}
+.mz-time{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+.mz-ctrl{display:flex;align-items:center;gap:8px;justify-content:center;margin-top:8px}
+.mz-btn{border:1px solid var(--line);background:var(--panel2);color:var(--ink);border-radius:11px;
+  width:38px;height:38px;display:grid;place-items:center;cursor:pointer;font-size:15px;transition:.15s}
+.mz-btn:hover{border-color:var(--violet);transform:translateY(-2px)}
+.mz-btn.play{width:46px;height:46px;font-size:18px;background:linear-gradient(135deg,var(--violet),var(--blue));
+  color:#fff;border-color:transparent}
+.mz-btn.on{border-color:var(--green);color:var(--green)}
+.mz-vol{display:flex;align-items:center;gap:8px;margin-top:10px}
+.mz-vol input{flex:1;accent-color:var(--violet)}
+.mz-note{font-size:11.5px;color:var(--muted);margin:8px 0 0;line-height:1.45}
+@media(max-width:640px){
+  #mzPanel{width:88vw;top:auto;bottom:60px;transform:none;border-radius:18px 0 0 18px}
+  #mzTab{top:auto;bottom:120px;transform:none}
+}
+@media print{#mzTab,#mzPanel{display:none!important}}
 /* RT:END */
 @media print{
   body{overflow:visible;background:#fff}
@@ -983,8 +1027,9 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 
 
+
 <!-- RT:BEGIN -->
-<script>var RT_CFG={"topic": "m5", "slides": 18, "pSlide": 2, "pAll": 10, "teacher": "terdu2026", "firebase": {"db": "tadbirkorlik-asoslari-default-rtdb", "regions": ["europe-west1", "us-central1", "asia-southeast1", "europe-west4", "asia-east1", "us-east1", "northamerica-northeast1"]}, "topics": [{"id": "m1", "file": "index.html", "title": "M1 · Tadbirkorlik tafakkuri va biznes imkoniyatlar", "open": true}, {"id": "m2", "file": "mavzu-2.html", "title": "M2 · Mijoz muammosi asosida biznes g'oya", "open": false}, {"id": "m3", "file": "mavzu-3.html", "title": "M3 · Mahsulotni kam xarajat bilan sinash (moliya va kredit)", "open": false}, {"id": "m4", "file": "mavzu-4.html", "title": "M4 · Biznesni qonuniy rasmiylashtirish", "open": false}, {"id": "m5", "file": "mavzu-5.html", "title": "M5 · Soliqlar va hujjatlar", "open": false}]};</script>
+<script>var RT_CFG={"topic": "m5", "slides": 18, "pSlide": 2, "pAll": 10, "teacher": "terdu2026", "firebase": {"db": "tadbirkorlik-asoslari-default-rtdb", "regions": ["europe-west1", "us-central1", "asia-southeast1", "europe-west4", "asia-east1", "us-east1", "northamerica-northeast1"]}, "topics": [{"id": "m1", "file": "index.html", "title": "M1 · Tadbirkorlik tafakkuri va biznes imkoniyatlar", "open": true}, {"id": "m2", "file": "mavzu-2.html", "title": "M2 · Mijoz muammosi asosida biznes g'oya", "open": false}, {"id": "m3", "file": "mavzu-3.html", "title": "M3 · Mahsulotni kam xarajat bilan sinash (moliya va kredit)", "open": false}, {"id": "m4", "file": "mavzu-4.html", "title": "M4 · Biznesni qonuniy rasmiylashtirish", "open": false}, {"id": "m5", "file": "mavzu-5.html", "title": "M5 · Soliqlar va hujjatlar", "open": false}], "tracks": [{"file": "Musofir.mp3", "title": "Musofir", "artist": ""}]};</script>
 <script>
 /* ================== TerDU REYTING TIZIMI ================== */
 var RT=(function(){
@@ -1303,6 +1348,110 @@ cloudInit(function(ok){ if(ok&&S) cloudSave(); });
 if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",gate); else gate();
 
 return {award:award, slideSeen:slideSeen, open:openOv, student:function(){return S;}, points:function(){return P;}};
+})();
+</script>
+<script>
+/* ================== MUSIQA PLEYERI ================== */
+(function(){
+var CFG=window.RT_CFG||{}, TR=CFG.tracks||[];
+if(!TR.length) return;
+function L(uz,en){ var l=document.documentElement.getAttribute("lang")||"uz"; return (l==="en"&&en)?en:uz; }
+function mk(h){ var d=document.createElement("div"); d.innerHTML=h.trim(); return d.firstChild; }
+function esc(x){ return String(x==null?"":x).replace(/[<>&"]/g,function(c){return {"<":"&lt;",">":"&gt;","&":"&amp;",'"':"&quot;"}[c];}); }
+function tfmt(s){ if(!isFinite(s)||s<0) s=0; var m=Math.floor(s/60), r=Math.floor(s%60); return m+":"+(r<10?"0":"")+r; }
+function get(k,d){ try{var v=localStorage.getItem(k); return v===null?d:v;}catch(e){return d;} }
+function set(k,v){ try{localStorage.setItem(k,v);}catch(e){} }
+
+var au=new Audio(), cur=parseInt(get("terdu_mz_i","0"),10)||0, loop=get("terdu_mz_loop","1")==="1";
+if(cur>=TR.length) cur=0;
+au.volume=parseFloat(get("terdu_mz_vol","0.7"));
+au.preload="none";
+
+var tab=mk('<button id="mzTab" title="'+L("Qo\'shiqlar","Music")+'">🎵</button>');
+var panel=mk('<div id="mzPanel">'+
+  '<h3>🎵 <span>'+L("Qo\'shiqlar","Music")+'</span><button class="x" id="mzX">✕</button></h3>'+
+  '<ul class="mz-list" id="mzList"></ul>'+
+  '<div class="mz-now"><b id="mzTitle"></b><span id="mzArtist"></span>'+
+    '<div class="mz-bar" id="mzBar"><i id="mzFill"></i></div>'+
+    '<div class="mz-time"><span id="mzCur">0:00</span><span id="mzDur">0:00</span></div>'+
+    '<div class="mz-ctrl">'+
+      '<button class="mz-btn" id="mzPrev" title="'+L("Oldingi","Previous")+'">⏮</button>'+
+      '<button class="mz-btn play" id="mzPlay" title="'+L("Ijro / To\'xtatish","Play / Pause")+'">▶</button>'+
+      '<button class="mz-btn" id="mzNext" title="'+L("Keyingi","Next")+'">⏭</button>'+
+      '<button class="mz-btn" id="mzLoop" title="'+L("Takrorlash","Repeat")+'">🔁</button>'+
+    '</div>'+
+    '<div class="mz-vol">🔊<input type="range" id="mzVol" min="0" max="1" step="0.05"></div>'+
+  '</div>'+
+  '<p class="mz-note" id="mzNote">'+L("Musiqa slaydlar bilan birga ishlaydi va mavzu almashtirilganda to\'xtaydi.",
+      "The music plays alongside the slides and stops when you switch topics.")+'</p>'+
+'</div>');
+document.body.appendChild(tab); document.body.appendChild(panel);
+
+function renderList(){
+  var ul=document.getElementById("mzList"); ul.innerHTML="";
+  TR.forEach(function(t,i){
+    var li=mk('<li'+(i===cur?' class="on"':'')+'><i>'+(i===cur&&!au.paused?"▶":"♪")+'</i><b>'+esc(t.title||t.file)+'</b>'+
+              (t.artist?'<span>'+esc(t.artist)+'</span>':'')+'</li>');
+    li.onclick=function(){ pick(i,true); };
+    ul.appendChild(li);
+  });
+}
+function meta(){
+  var t=TR[cur]||{};
+  document.getElementById("mzTitle").textContent=t.title||t.file||"";
+  document.getElementById("mzArtist").textContent=t.artist||L("Fon musiqasi","Background music");
+}
+function pick(i,play){
+  cur=(i+TR.length)%TR.length; set("terdu_mz_i",cur);
+  au.src=TR[cur].file; meta(); renderList();
+  if(play) au.play().catch(function(){});
+}
+function sync(){
+  document.getElementById("mzPlay").textContent=au.paused?"▶":"⏸";
+  tab.classList.toggle("on",!au.paused);
+  renderList();
+}
+au.addEventListener("timeupdate",function(){
+  var d=au.duration||0;
+  document.getElementById("mzFill").style.width=(d?au.currentTime/d*100:0)+"%";
+  document.getElementById("mzCur").textContent=tfmt(au.currentTime);
+  document.getElementById("mzDur").textContent=tfmt(d);
+});
+au.addEventListener("ended",function(){ if(TR.length>1) pick(cur+1,true); else if(loop){ au.currentTime=0; au.play().catch(function(){}); } else sync(); });
+au.addEventListener("play",sync); au.addEventListener("pause",sync);
+au.loop=loop&&TR.length===1;
+
+document.getElementById("mzPlay").onclick=function(){
+  if(!au.src) pick(cur,false);
+  if(au.paused) au.play().catch(function(){}); else au.pause();
+};
+document.getElementById("mzPrev").onclick=function(){ pick(cur-1,!au.paused); };
+document.getElementById("mzNext").onclick=function(){ pick(cur+1,!au.paused); };
+document.getElementById("mzLoop").onclick=function(){
+  loop=!loop; set("terdu_mz_loop",loop?"1":"0");
+  au.loop=loop&&TR.length===1;
+  document.getElementById("mzLoop").classList.toggle("on",loop);
+};
+document.getElementById("mzBar").onclick=function(e){
+  var r=this.getBoundingClientRect(), d=au.duration||0;
+  if(d) au.currentTime=Math.max(0,Math.min(d,(e.clientX-r.left)/r.width*d));
+};
+var vol=document.getElementById("mzVol");
+vol.value=au.volume;
+vol.oninput=function(){ au.volume=parseFloat(this.value); set("terdu_mz_vol",this.value); };
+tab.onclick=function(){ panel.classList.toggle("show"); };
+document.getElementById("mzX").onclick=function(){ panel.classList.remove("show"); };
+document.getElementById("mzLoop").classList.toggle("on",loop);
+
+var lb=document.getElementById("btnLang");
+if(lb) lb.addEventListener("click",function(){ setTimeout(function(){
+  panel.querySelector("h3 span").textContent=L("Qo'shiqlar","Music");
+  document.getElementById("mzNote").textContent=L("Musiqa slaydlar bilan birga ishlaydi va mavzu almashtirilganda to'xtaydi.",
+    "The music plays alongside the slides and stops when you switch topics.");
+  tab.title=L("Qo'shiqlar","Music"); meta();
+},40); });
+
+pick(cur,false); sync();
 })();
 </script>
 <!-- RT:END -->
