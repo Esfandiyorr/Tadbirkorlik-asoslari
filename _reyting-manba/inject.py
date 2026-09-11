@@ -2,11 +2,13 @@
 """Taqdimotlarga reyting tizimini o'rnatadi (qayta-qayta ishlata olinadi)."""
 import re,sys,json,os
 BASE='/home/user/Tadbirkorlik-asoslari/'
-SC='/tmp/claude-0/-home-user-Tadbirkorlik-asoslari/c1f8371d-fb60-57b1-a7cf-459d5d040310/scratchpad/reyting/'
+SC=BASE+'_reyting-manba/'
 CSS=open(SC+'engine_css.txt',encoding='utf-8').read()
 JS=open(SC+'engine_js.txt',encoding='utf-8').read()
 MCSS=open(SC+'music_css.txt',encoding='utf-8').read()
 MJS=open(SC+'music_js.txt',encoding='utf-8').read()
+CCSS=open(SC+'chat_css.txt',encoding='utf-8').read()
+CJS=open(SC+'chat_js.txt',encoding='utf-8').read()
 CONF=json.load(open(SC+'config.json',encoding='utf-8'))
 
 DECKS={
@@ -32,7 +34,7 @@ def inject(fn,meta):
     s=strip(s,B,E); s=strip(s,HB,HE)
 
     # --- CSS ---
-    s=s.replace('@media print{', B+"\n"+CSS.strip()+"\n"+MCSS.strip()+"\n"+E+"\n@media print{",1)
+    s=s.replace('@media print{', B+"\n"+CSS.strip()+"\n"+MCSS.strip()+"\n"+CCSS.strip()+"\n"+E+"\n@media print{",1)
 
     # --- topbar havolalarini olib tashlash (yopiq mavzular 404 bermasin) ---
     s=re.sub(r'      <a class="btn ghost" href="[^"]+" title="[^"]+">📑 M\d</a>\n','',s)
@@ -43,7 +45,8 @@ def inject(fn,meta):
              tracks=CONF.get('tracks',[]))
     block=(HB+'\n<script>var RT_CFG='+json.dumps(cfg,ensure_ascii=False)+';</script>\n'
            '<script>\n'+JS.strip()+'\n</script>\n'
-           '<script>\n'+MJS.strip()+'\n</script>\n'+HE+'\n')
+           '<script>\n'+MJS.strip()+'\n</script>\n'
+           '<script>\n'+CJS.strip()+'\n</script>\n'+HE+'\n')
     i=s.rindex('<script>')          # taqdimotning asosiy skripti
     s=s[:i]+block+s[i:]
 

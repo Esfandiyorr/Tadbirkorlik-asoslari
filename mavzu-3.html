@@ -257,6 +257,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 
 
+
 /* RT:BEGIN */
 /* ================== REYTING TIZIMI ================== */
 .rt-chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel);
@@ -324,6 +325,9 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 .rt-toast.show{opacity:1;transform:none}
 .rt-note{font-size:12.5px;color:var(--muted);margin-top:10px;line-height:1.5}
 @media print{.rt-ov,.rt-gate,.rt-toast{display:none!important}}
+.rt-badge{display:inline-block;min-width:20px;padding:1px 7px;border-radius:99px;font-size:12.5px;font-weight:800;
+  background:linear-gradient(135deg,var(--violet),var(--blue));color:#fff;vertical-align:middle}
+.rt-table td .btn{padding:6px 10px;font-size:12.5px}
 /* ================== MUSIQA PLEYERI ================== */
 #mzTab{position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:70;
   background:linear-gradient(135deg,var(--violet),var(--pink));color:#fff;border:none;
@@ -367,6 +371,51 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
   #mzTab{top:auto;bottom:120px;transform:none}
 }
 @media print{#mzTab,#mzPanel{display:none!important}}
+/* ================== CHAT ================== */
+.ch-tab{position:fixed;left:0;top:50%;transform:translateY(-50%);z-index:70;border:1px solid var(--line);border-left:none;
+  background:var(--panel);color:var(--ink);border-radius:0 14px 14px 0;padding:12px 9px;cursor:pointer;font-size:19px;
+  box-shadow:var(--shadow);transition:.18s;font-family:inherit}
+.ch-tab:hover{padding-left:13px;border-color:var(--violet)}
+.ch-tab i{display:block;font-style:normal;font-size:10.5px;font-weight:800;letter-spacing:.5px;color:var(--muted);margin-top:3px}
+.ch-dot{position:absolute;top:4px;right:4px;min-width:17px;height:17px;line-height:17px;border-radius:99px;font-size:10.5px;
+  font-weight:800;color:#fff;background:var(--red,#e5484d);display:none;padding:0 4px}
+.ch-dot.on{display:block}
+.ch-panel{position:fixed;left:0;top:0;bottom:0;width:min(330px,86vw);z-index:75;background:var(--panel);
+  border-right:1px solid var(--line);box-shadow:var(--shadow);transform:translateX(-104%);transition:transform .28s ease;
+  display:flex;flex-direction:column}
+.ch-panel.show{transform:none}
+.ch-hd{display:flex;align-items:center;gap:8px;padding:13px 14px;border-bottom:1px solid var(--line)}
+.ch-hd b{flex:1;font-size:15px}
+.ch-x{border:none;background:var(--chip);color:var(--ink);border-radius:10px;width:30px;height:30px;cursor:pointer;
+  font-size:15px;font-family:inherit}
+.ch-rules{margin:10px 12px 0;padding:10px 12px;border-radius:13px;font-size:11.8px;line-height:1.55;
+  background:color-mix(in srgb,var(--amber,#f5a524) 14%,transparent);border:1px solid color-mix(in srgb,var(--amber,#f5a524) 38%,transparent)}
+.ch-rules b{display:block;font-size:12.5px;margin-bottom:3px}
+.ch-rules u{display:block;text-decoration:none}
+.ch-list{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px}
+.ch-msg{background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:8px 11px;font-size:13.3px;line-height:1.5;
+  position:relative;word-break:break-word}
+.ch-msg.me{background:color-mix(in srgb,var(--green) 15%,transparent);border-color:color-mix(in srgb,var(--green) 40%,transparent)}
+.ch-msg .w{display:flex;gap:6px;align-items:baseline;margin-bottom:2px}
+.ch-msg .n{font-weight:800;font-size:12.2px;color:var(--blue)}
+.ch-msg.me .n{color:var(--green)}
+.ch-msg .g{font-size:10.5px;color:var(--muted)}
+.ch-msg .tm{margin-left:auto;font-size:10.5px;color:var(--muted)}
+.ch-msg .del{position:absolute;right:5px;bottom:4px;border:none;background:none;cursor:pointer;font-size:12px;opacity:.55}
+.ch-msg .del:hover{opacity:1}
+.ch-empty{color:var(--muted);font-size:12.5px;text-align:center;margin:auto}
+.ch-in{border-top:1px solid var(--line);padding:10px 12px;display:flex;gap:7px;align-items:flex-end}
+.ch-in textarea{flex:1;resize:none;height:40px;max-height:96px;padding:9px 11px;border:1.5px solid var(--line);border-radius:12px;
+  background:var(--panel2);color:var(--ink);font-size:13.5px;font-family:inherit;outline:none;line-height:1.4}
+.ch-in textarea:focus{border-color:var(--violet)}
+.ch-send{border:none;background:linear-gradient(135deg,var(--violet),var(--blue));color:#fff;border-radius:12px;
+  width:42px;height:40px;cursor:pointer;font-size:16px;font-family:inherit}
+.ch-send:disabled{opacity:.45;cursor:not-allowed}
+.ch-warn{font-size:11.5px;font-weight:700;color:var(--red,#e5484d);padding:0 12px 8px;display:none}
+.ch-warn.on{display:block}
+.ch-lock{margin:auto;text-align:center;padding:18px;color:var(--muted);font-size:13px;line-height:1.6}
+@media print{.ch-tab,.ch-panel{display:none!important}}
+@media(max-width:520px){.ch-tab{padding:9px 7px;font-size:16px}}
 /* RT:END */
 @media print{
   body{overflow:visible;background:#fff}
@@ -885,6 +934,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 
 
+
 <!-- RT:BEGIN -->
 <script>var RT_CFG={"topic": "m3", "slides": 15, "pSlide": 2, "pAll": 10, "teacher": "terdu2026", "firebase": {"db": "tadbirkorlik-asoslari-default-rtdb", "regions": ["europe-west1", "us-central1", "asia-southeast1", "europe-west4", "asia-east1", "us-east1", "northamerica-northeast1"]}, "topics": [{"id": "m1", "file": "index.html", "title": "M1 · Tadbirkorlik tafakkuri va biznes imkoniyatlar", "open": true}, {"id": "m2", "file": "mavzu-2.html", "title": "M2 · Mijoz muammosi asosida biznes g'oya", "open": false}, {"id": "m3", "file": "mavzu-3.html", "title": "M3 · Mahsulotni kam xarajat bilan sinash (moliya va kredit)", "open": false}, {"id": "m4", "file": "mavzu-4.html", "title": "M4 · Biznesni qonuniy rasmiylashtirish", "open": false}, {"id": "m5", "file": "mavzu-5.html", "title": "M5 · Soliqlar va hujjatlar", "open": false}], "tracks": [{"file": "Musofir.mp3", "title": "Musofir", "artist": ""}]};</script>
 <script>
@@ -894,6 +944,7 @@ var RT=(function(){
 var CFG=window.RT_CFG||{};
 var LS={stu:"terdu_student", prog:"terdu_progress_v1"};
 var S=null, P=null, cloudOn=false, fb=null, listCache=[], listAt=0;
+var tcList=[], isTc=false; try{ isTc=sessionStorage.getItem("terdu_tc")==="1"; }catch(e){}
 
 /* ---------- saqlash ---------- */
 function lget(k,d){ try{var v=localStorage.getItem(k); return v?JSON.parse(v):d;}catch(e){return d;} }
@@ -944,14 +995,28 @@ function cloudInit(done){
     });
   })();
 }
-function cloudSave(){
+function rec(){
+  return {id:S.id,name:S.name,surname:S.surname,group:S.group,
+          total:P.total||0,topics:topicSummary(),at:S.at||Date.now(),updated:Date.now()};
+}
+function cloudSave(){            /* status maydoniga tegmaydi — uni faqat o'qituvchi o'zgartiradi */
   if(!cloudOn||!BASE||!S) return;
-  var rec={id:S.id,name:S.name,surname:S.surname,group:S.group,
-           total:P.total||0,topics:topicSummary(),updated:Date.now()};
+  try{
+    fetch(BASE+"/students/"+S.id+".json",{method:"PATCH",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify(rec())}).catch(function(){});
+  }catch(e){}
+}
+function cloudCreate(){          /* faqat ro'yxatdan o'tishda: status="pending" */
+  if(!cloudOn||!BASE||!S) return;
+  var r=rec(); r.status="pending";
   try{
     fetch(BASE+"/students/"+S.id+".json",{method:"PUT",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify(rec)}).catch(function(){});
+      body:JSON.stringify(r)}).catch(function(){});
   }catch(e){}
+}
+function cloudDrop(id){
+  if(!cloudOn||!BASE) return;
+  try{ fetch(BASE+"/students/"+id+".json",{method:"DELETE"}).catch(function(){}); }catch(e){}
 }
 function cloudList(cb){
   if(!cloudOn||!BASE){ cb(null); return; }
@@ -968,6 +1033,18 @@ function cloudStatus(){
   if(CFG.firebase) return {ok:false,txt:T("bazaga ulanib bo'lmadi","could not connect to the database")};
   return {ok:false,txt:T("baza ulanmagan","no database configured")};
 }
+function cloudStatusOf(id,cb){
+  if(!cloudOn||!BASE){ cb(null); return; }
+  fetch(BASE+"/students/"+id+"/status.json").then(function(r){return r.ok?r.json():null;})
+    .then(function(v){ cb(v); }).catch(function(){ cb(null); });
+}
+function cloudSetStatus(id,st,cb){
+  if(!cloudOn||!BASE){ cb&&cb(false); return; }
+  fetch(BASE+"/students/"+id+"/status.json",{method:"PUT",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify(st)}).then(function(r){ cb&&cb(r.ok); }).catch(function(){ cb&&cb(false); });
+}
+function approved(){ return !cloudOn || (S&&S.status==="ok"); }
+
 /* ---------- ballar ---------- */
 function topicSummary(){
   var o={};
@@ -980,7 +1057,7 @@ function topicObj(){
   return P.topics[t];
 }
 function award(key,pts,label){
-  if(!S) return;
+  if(!S||!approved()) return;
   var t=topicObj(), full=(CFG.topic||"m0")+":"+key;
   if(P.log[full]) return;
   P.log[full]=pts; t.p=(t.p||0)+pts; P.total=(P.total||0)+pts;
@@ -1009,7 +1086,14 @@ function chipUpdate(){
 function T(uz,en){ var l=(document.documentElement.getAttribute("lang")||"uz"); return (l==="en"&&en)?en:uz; }
 
 function gate(){
-  if(S){ start(); return; }
+  if(S){
+    if(!cloudOn||S.status==="ok"){ start(); return; }
+    cloudStatusOf(S.id,function(st){
+      if(st==="ok"){ S.status="ok"; save(); start(); }
+      else { S.status=st||"pending"; save(); waitScreen(); }
+    });
+    return;
+  }
   var g=el('<div class="rt-gate" id="rtGate"><div class="rt-box">'+
     '<h2 style="margin-top:0">🎓 '+T("Ro\'yxatdan o\'ting","Register")+'</h2>'+
     '<p style="color:var(--muted);margin-top:-4px">'+T(
@@ -1036,8 +1120,9 @@ function gate(){
       e.textContent=T("Ism, familiya va guruhni to'liq kiriting.","Please fill in your name, surname and group.");
       return;
     }
-    S={id:uid(),name:n,surname:s,group:gr,at:Date.now()};
-    save(); g.remove(); start();
+    S={id:uid(),name:n,surname:s,group:gr,at:Date.now(),status:cloudOn?"pending":"ok"};
+    lset(LS.stu,S); lset(LS.prog,P); cloudCreate();
+    g.remove(); if(approved()) start(); else waitScreen();
   }
   document.getElementById("rtGo").onclick=submit;
   ["rtN","rtS","rtG"].forEach(function(id){
@@ -1045,6 +1130,40 @@ function gate(){
   });
 }
 
+function waitScreen(){
+  var old=document.getElementById("rtWait"); if(old) old.remove();
+  var w=el('<div class="rt-gate" id="rtWait"><div class="rt-box" style="text-align:center">'+
+    '<div style="font-size:44px">⏳</div>'+
+    '<h2 style="margin:6px 0 4px">'+T("O\'qituvchi tasdig\'ini kuting","Waiting for the teacher\'s approval")+'</h2>'+
+    '<p style="color:var(--muted);margin-top:0">'+T(
+      "So\'rovingiz yuborildi. O\'qituvchi ro\'yxatdan tasdiqlagach, taqdimot va chat ochiladi.",
+      "Your request has been sent. Once the teacher approves you, the presentation and the chat will open.")+'</p>'+
+    '<div class="rt-card" style="text-align:left;margin:14px 0"><span>'+T("Yuborilgan ma\'lumot","Submitted data")+'</span>'+
+      '<b style="font-size:17px">'+esc(S.name)+" "+esc(S.surname)+'</b>'+
+      '<p class="rt-note" style="margin:2px 0 0">'+T("Guruh","Group")+": "+esc(S.group)+'</p></div>'+
+    '<div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">'+
+      '<button class="btn accent" id="rtChk">🔄 '+T("Tekshirish","Check")+'</button>'+
+      '<button class="btn" id="rtEdit">✏️ '+T("Ma\'lumotni o\'zgartirish","Edit my data")+'</button>'+
+      '<button class="btn" id="rtTcOpen">🔑 '+T("O\'qituvchi","Teacher")+'</button></div>'+
+    '<p class="rt-note" id="rtWaitMsg"></p>'+
+    '</div></div>');
+  document.body.appendChild(w);
+  function check(quiet){
+    cloudStatusOf(S.id,function(st){
+      if(st==="ok"){ S.status="ok"; save(); w.remove(); start(); return; }
+      if(st==="blocked"){ document.getElementById("rtWaitMsg").textContent=T("Ro\'yxatdan o\'tishingiz rad etilgan. O\'qituvchiga murojaat qiling.","Your registration was rejected. Please contact the teacher."); return; }
+      if(!quiet) document.getElementById("rtWaitMsg").textContent=T("Hali tasdiqlanmagan. Biroz kuting va qayta tekshiring.","Not approved yet. Please wait a moment and check again.");
+    });
+  }
+  document.getElementById("rtChk").onclick=function(){ check(false); };
+  document.getElementById("rtTcOpen").onclick=function(){ openOv("tc"); };
+  document.getElementById("rtEdit").onclick=function(){
+    if(cloudOn&&S) cloudDrop(S.id);
+    S=null; lset(LS.stu,null); w.remove(); gate();
+  };
+  setInterval(function(){ check(true); },12000);
+  cloudSave();
+}
 function overlay(){
   var o=document.getElementById("rtOv");
   if(o) return o;
@@ -1132,38 +1251,102 @@ function renderTp(){
 }
 function renderTc(){
   var box=document.getElementById("rtTc");
-  box.innerHTML='<div class="rt-form" style="max-width:340px;margin:0"><label>'+T("O'qituvchi kodi","Teacher code")+
+  if(box.dataset.on==="1"){ tcLoad(); return; }
+  box.innerHTML='<div class="rt-form" style="max-width:340px;margin:0"><label>'+T("O\'qituvchi kodi","Teacher code")+
     '<input id="rtCode" type="password" placeholder="••••••"></label>'+
     '<button class="btn accent" id="rtCodeGo" style="justify-content:center">'+T("Kirish","Enter")+'</button></div>'+
     '<div id="rtTcOut" style="margin-top:14px"></div>';
   document.getElementById("rtCodeGo").onclick=function(){
     var v=document.getElementById("rtCode").value;
-    var out=document.getElementById("rtTcOut");
-    if(v!==(CFG.teacher||"terdu2026")){ out.innerHTML='<p style="color:var(--red);font-weight:700">'+T("Kod noto'g'ri.","Wrong code.")+'</p>'; return; }
-    out.innerHTML='<p style="color:var(--muted)">'+T("Yuklanmoqda…","Loading…")+'</p>';
-    cloudList(function(a){
-      var list=a&&a.length?a:(S?[{id:S.id,name:S.name,surname:S.surname,group:S.group,total:P.total,topics:topicSummary()}]:[]);
-      list.sort(function(x,y){return (y.total||0)-(x.total||0);});
-      var rows=list.map(function(x,i){ return (i+1)+";"+x.name+";"+x.surname+";"+x.group+";"+(x.total||0); }).join("\n");
-      var stt=cloudStatus();
-      out.innerHTML='<p class="rt-note" style="margin-top:0">'+(stt.ok?"🟢 ":"🟠 ")+esc(stt.txt)+'</p>'+
-        '<div class="tw"><table class="rt-table"><thead><tr><th>#</th><th>'+T("Talaba","Student")+
-        '</th><th>'+T("Guruh","Group")+'</th><th>'+T("Ball","Points")+'</th></tr></thead><tbody>'+
-        list.map(function(x,i){return '<tr><td>'+(i+1)+'</td><td>'+esc(x.name)+" "+esc(x.surname)+'</td><td>'+esc(x.group)+'</td><td><b>'+(x.total||0)+'</b></td></tr>';}).join("")+
-        '</tbody></table></div><button class="btn warn" id="rtCsv" style="margin-top:12px">⬇ CSV</button>'+
-        '<p class="rt-note">'+T("Jami talaba","Total students")+": "+list.length+(cloudOn?"":" · "+T("(faqat shu qurilma)","(this device only)"))+'</p>';
-      document.getElementById("rtCsv").onclick=function(){
-        var csv="﻿#;Ism;Familiya;Guruh;Ball\n"+rows;
-        var a2=document.createElement("a");
-        a2.href="data:text/csv;charset=utf-8,"+encodeURIComponent(csv);
-        a2.download="terdu-reyting.csv"; a2.click();
-      };
-    });
+    if(v!==(CFG.teacher||"terdu2026")){
+      document.getElementById("rtTcOut").innerHTML='<p style="color:var(--red);font-weight:700">'+T("Kod noto\'g\'ri.","Wrong code.")+'</p>';
+      return;
+    }
+    isTc=true; try{ sessionStorage.setItem("terdu_tc","1"); }catch(e){}
+    box.dataset.on="1";
+    box.innerHTML='<div id="rtTcOut"></div>';
+    tcLoad();
+  };
+  if(isTc){ box.dataset.on="1"; box.innerHTML='<div id="rtTcOut"></div>'; tcLoad(); }
+}
+function tcLoad(){
+  var out=document.getElementById("rtTcOut"); if(!out) return;
+  if(!out.innerHTML) out.innerHTML='<p style="color:var(--muted)">'+T("Yuklanmoqda…","Loading…")+'</p>';
+  cloudList(function(a){
+    tcList=a&&a.length?a:(S?[{id:S.id,name:S.name,surname:S.surname,group:S.group,total:P.total,status:S.status||"ok",topics:topicSummary()}]:[]);
+    tcDraw();
+  });
+}
+function tcAct(id,st,btn){
+  if(btn){ btn.disabled=true; btn.textContent="…"; }
+  cloudSetStatus(id,st,function(ok){
+    if(!ok){ toast(T("Xatolik — qayta urining","Error — please try again")); tcLoad(); return; }
+    for(var i=0;i<tcList.length;i++) if(tcList[i].id===id) tcList[i].status=st;
+    tcDraw();
+    toast(st==="ok"?T("Tasdiqlandi","Approved"):T("Bloklandi","Blocked"));
+  });
+}
+function tcRow(x,btns){
+  return '<tr><td><b>'+esc(x.name)+" "+esc(x.surname)+'</b></td><td>'+esc(x.group)+
+    '</td><td><b>'+(x.total||0)+'</b></td><td style="white-space:nowrap">'+btns+'</td></tr>';
+}
+function tcDraw(){
+  var out=document.getElementById("rtTcOut"); if(!out) return;
+  var st=function(x){ return x.status||"pending"; };
+  var pend=tcList.filter(function(x){return st(x)==="pending";});
+  var okl=tcList.filter(function(x){return st(x)==="ok";});
+  var blk=tcList.filter(function(x){return st(x)==="blocked";});
+  okl.sort(function(x,y){return (y.total||0)-(x.total||0);});
+  var cs=cloudStatus();
+  var h='<p class="rt-note" style="margin-top:0">'+(cs.ok?"🟢 ":"🟠 ")+esc(cs.txt)+'</p>'+
+    '<div class="rt-head" style="margin:4px 0 10px"><h3 style="margin:0">⏳ '+T("Tasdiq kutmoqda","Waiting for approval")+
+    ' <span class="rt-badge">'+pend.length+'</span></h3><button class="btn" id="rtTcRef">🔄 '+T("Yangilash","Refresh")+'</button></div>';
+  h+= pend.length ? '<div class="tw"><table class="rt-table"><tbody>'+pend.map(function(x){
+        return tcRow(x,'<button class="btn accent rt-a" data-id="'+esc(x.id)+'" data-st="ok">✅ '+T("Tasdiqlash","Approve")+'</button> '+
+                       '<button class="btn warn rt-a" data-id="'+esc(x.id)+'" data-st="blocked">❌ '+T("Rad etish","Reject")+'</button>');
+      }).join("")+'</tbody></table></div>'
+      : '<p class="rt-note">'+T("Yangi so\'rov yo\'q.","No new requests.")+'</p>';
+  h+='<h3 style="margin:18px 0 8px">✅ '+T("Tasdiqlangan talabalar","Approved students")+' <span class="rt-badge">'+okl.length+'</span></h3>';
+  h+= okl.length ? '<div class="tw"><table class="rt-table"><thead><tr><th>'+T("Talaba","Student")+'</th><th>'+
+        T("Guruh","Group")+'</th><th>'+T("Ball","Points")+'</th><th></th></tr></thead><tbody>'+okl.map(function(x){
+        return tcRow(x,'<button class="btn rt-a" data-id="'+esc(x.id)+'" data-st="blocked">🚫 '+T("Bloklash","Block")+'</button>');
+      }).join("")+'</tbody></table></div>'
+      : '<p class="rt-note">'+T("Hali tasdiqlangan talaba yo\'q.","No approved students yet.")+'</p>';
+  if(blk.length){
+    h+='<h3 style="margin:18px 0 8px">🚫 '+T("Bloklanganlar","Blocked")+' <span class="rt-badge">'+blk.length+'</span></h3>'+
+      '<div class="tw"><table class="rt-table"><tbody>'+blk.map(function(x){
+        return tcRow(x,'<button class="btn accent rt-a" data-id="'+esc(x.id)+'" data-st="ok">♻️ '+T("Tiklash","Restore")+'</button>');
+      }).join("")+'</tbody></table></div>';
+  }
+  h+='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px">'+
+     '<button class="btn warn" id="rtCsv">⬇ CSV</button>'+
+     '<button class="btn" id="rtTcOut2">🚪 '+T("Chiqish","Log out")+'</button></div>'+
+     '<p class="rt-note">'+T("Jami talaba","Total students")+": "+tcList.length+(cloudOn?"":" · "+T("(faqat shu qurilma)","(this device only)"))+'</p>'+
+     '<p class="rt-note">'+T("Talaba faqat siz tasdiqlagandan keyin taqdimot va chatga kira oladi.",
+       "A student can enter the presentation and the chat only after you approve them.")+'</p>';
+  out.innerHTML=h;
+  out.querySelectorAll(".rt-a").forEach(function(b){
+    b.onclick=function(){ tcAct(b.dataset.id,b.dataset.st,b); };
+  });
+  document.getElementById("rtTcRef").onclick=tcLoad;
+  document.getElementById("rtTcOut2").onclick=function(){
+    isTc=false; try{ sessionStorage.removeItem("terdu_tc"); }catch(e){}
+    var box=document.getElementById("rtTc"); box.dataset.on=""; renderTc();
+  };
+  document.getElementById("rtCsv").onclick=function(){
+    var rows=tcList.map(function(x,i){ return (i+1)+";"+x.name+";"+x.surname+";"+x.group+";"+(x.total||0)+";"+(x.status||"pending"); }).join("\n");
+    var a2=document.createElement("a");
+    a2.href="data:text/csv;charset=utf-8,"+encodeURIComponent("﻿#;Ism;Familiya;Guruh;Ball;Holat\n"+rows);
+    a2.download="terdu-reyting.csv"; a2.click();
   };
 }
-function openOv(){
-  overlay().classList.add("show");
+function openOv(tab){
+  var o=overlay(); o.classList.add("show");
   renderTop(); renderMe(); renderTp(); renderTc();
+  if(tab){
+    var t=o.querySelector('.rt-tab[data-p="'+tab+'"]');
+    if(t) t.click();
+  }
 }
 
 /* ---------- ishga tushirish ---------- */
@@ -1194,17 +1377,41 @@ function chip(){
   var lb=document.getElementById("btnLang");
   if(lb) lb.addEventListener("click",function(){ setTimeout(function(){ navBuild(); chipUpdate(); },30); });
 }
+function watchStatus(){
+  if(!cloudOn||!S) return;
+  setInterval(function(){
+    if(document.hidden) return;
+    cloudStatusOf(S.id,function(st){
+      if(st&&st!=="ok"){ S.status=st; lset(LS.stu,S); location.reload(); }
+    });
+  },60000);
+}
 function start(){
-  chip();
+  chip(); watchStatus();
   if(typeof idx!=="undefined") slideSeen(idx);
   window.RT_ready=true;
   if(window.RT_pending){ window.RT_pending.forEach(function(a){ award(a[0],a[1],a[2]); }); window.RT_pending=null; }
 }
 load();
-cloudInit(function(ok){ if(ok&&S) cloudSave(); });
-if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",gate); else gate();
+var booted=false;
+function boot(){ if(booted) return; booted=true; gate(); }
+function splash(on){
+  var d=document.getElementById("rtSplash");
+  if(on){ if(!d){ d=el('<div class="rt-gate" id="rtSplash"><div class="rt-box" style="text-align:center">'+
+      '<div style="font-size:40px">🔌</div><p style="color:var(--muted)">'+T("Bazaga ulanmoqda…","Connecting to the database…")+'</p></div></div>');
+      document.body.appendChild(d); } }
+  else if(d) d.remove();
+}
+function connect(){
+  splash(true);
+  setTimeout(function(){ splash(false); boot(); },9000);
+  cloudInit(function(ok){ if(ok&&S) cloudSave(); splash(false); boot(); });
+}
+if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",connect); else connect();
 
-return {award:award, slideSeen:slideSeen, open:openOv, student:function(){return S;}, points:function(){return P;}};
+return {award:award, slideSeen:slideSeen, open:openOv, student:function(){return S;}, points:function(){return P;},
+        ok:approved, teacher:function(){return isTc;}, cloud:function(){return {on:cloudOn,base:BASE};},
+        t:T, esc:esc, toast:toast};
 })();
 </script>
 <script>
@@ -1309,6 +1516,175 @@ if(lb) lb.addEventListener("click",function(){ setTimeout(function(){
 },40); });
 
 pick(cur,false); sync();
+})();
+</script>
+<script>
+/* ================== TerDU CHAT ================== */
+var CH=(function(){
+"use strict";
+var CFG=window.RT_CFG||{};
+var open=false, msgs=[], keys=[], last=0, seen=0, timer=null, busy=false;
+function T(uz,en){ var l=(document.documentElement.getAttribute("lang")||"uz"); return (l==="en"&&en)?en:uz; }
+function esc(x){ return String(x==null?"":x).replace(/[<>&"]/g,function(c){return {"<":"&lt;",">":"&gt;","&":"&amp;",'"':"&quot;"}[c];}); }
+function el(h){ var d=document.createElement("div"); d.innerHTML=h.trim(); return d.firstChild; }
+function base(){ var c=window.RT&&RT.cloud?RT.cloud():null; return (c&&c.on)?c.base:null; }
+function me(){ return window.RT&&RT.student?RT.student():null; }
+function isTc(){ return !!(window.RT&&RT.teacher&&RT.teacher()); }
+
+/* ---------- qoidalar nazorati ---------- */
+var BAD=("jalab,kot,qoti,qotoq,skay,onangni,onasini,otangni,padar,haromi,harom zoda,ahmoq,jinni,tentak,eshak,"+
+ "bler,blya,blyat,suka,pizd,huy,xuy,ebat,ebal,nahuy,pidr,mudak,gandon,dolbo,zaeb,"+
+ "fuck,fck,shit,bitch,asshole,bastard,dick,cunt,whore,slut,nigger,retard").split(",");
+function norm(s){
+  return s.toLowerCase()
+    .replace(/[ʻʼ'`’‘]/g,"")
+    .replace(/[4@]/g,"a").replace(/[0]/g,"o").replace(/[1!|]/g,"i").replace(/[3]/g,"e").replace(/[5$]/g,"s")
+    .replace(/(.)\1{2,}/g,"$1$1")
+    .replace(/[^a-zЀ-ӿ ]+/g," ");
+}
+function badWord(s){
+  var n=norm(s), flat=n.replace(/ +/g,"");
+  for(var i=0;i<BAD.length;i++){
+    var b=BAD[i].trim(); if(b.length<3) continue;
+    if(n.indexOf(b)>=0||flat.indexOf(b.replace(/ /g,""))>=0) return true;
+  }
+  return false;
+}
+function hasImage(s){
+  return /data:image/i.test(s) || /https?:\/\/\S+\.(jpg|jpeg|png|gif|webp|bmp|svg|mp4|webm)/i.test(s) ||
+         /<\s*img/i.test(s);
+}
+
+/* ---------- bulut ---------- */
+function pull(cb){
+  var b=base(); if(!b){ cb&&cb(false); return; }
+  fetch(b+'/chat.json?orderBy="$key"&limitToLast=80').then(function(r){ return r.ok?r.json():null; })
+  .then(function(v){
+    var a=[],k=[];
+    if(v){ Object.keys(v).sort().forEach(function(key){ if(v[key]&&v[key].t){ a.push(v[key]); k.push(key); } }); }
+    msgs=a; keys=k; cb&&cb(true);
+  }).catch(function(){ cb&&cb(false); });
+}
+function push(rec,cb){
+  var b=base(); if(!b){ cb(false); return; }
+  fetch(b+"/chat.json",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(rec)})
+    .then(function(r){ cb(r.ok); }).catch(function(){ cb(false); });
+}
+function del(key){
+  var b=base(); if(!b) return;
+  fetch(b+"/chat/"+key+".json",{method:"DELETE"}).then(function(){ pull(draw); }).catch(function(){});
+}
+
+/* ---------- interfeys ---------- */
+function hhmm(t){ var d=new Date(t||0); function z(n){return (n<10?"0":"")+n;} return z(d.getHours())+":"+z(d.getMinutes()); }
+function draw(){
+  var list=document.getElementById("chList"); if(!list) return;
+  var S=me();
+  if(!msgs.length){
+    list.innerHTML='<p class="ch-empty">'+T("Hozircha xabar yo\'q. Birinchi bo\'lib yozing 👋","No messages yet. Be the first to write 👋")+'</p>';
+  }else{
+    list.innerHTML=msgs.map(function(m,i){
+      var mine=S&&m.id===S.id;
+      return '<div class="ch-msg'+(mine?" me":"")+'"><div class="w"><span class="n">'+esc(m.n)+'</span>'+
+        '<span class="g">'+esc(m.g||"")+'</span><span class="tm">'+hhmm(m.at)+'</span></div>'+esc(m.t)+
+        (isTc()?'<button class="del" data-k="'+esc(keys[i])+'" title="'+T("O\'chirish","Delete")+'">🗑</button>':'')+'</div>';
+    }).join("");
+    list.querySelectorAll(".del").forEach(function(b){ b.onclick=function(){ del(b.dataset.k); }; });
+    list.scrollTop=list.scrollHeight;
+  }
+  badge();
+}
+function badge(){
+  var d=document.getElementById("chDot"); if(!d) return;
+  if(open){ seen=msgs.length; try{localStorage.setItem("terdu_chat_seen",seen);}catch(e){} d.classList.remove("on"); return; }
+  var n=msgs.length-seen;
+  if(n>0){ d.textContent=n>99?"99+":n; d.classList.add("on"); } else d.classList.remove("on");
+}
+function warn(txt){
+  var w=document.getElementById("chWarn"); if(!w) return;
+  if(!txt){ w.classList.remove("on"); return; }
+  w.textContent=txt; w.classList.add("on");
+  clearTimeout(w._h); w._h=setTimeout(function(){ w.classList.remove("on"); },5000);
+}
+function send(){
+  var ta=document.getElementById("chTa"); if(!ta) return;
+  var v=ta.value.replace(/\s+/g," ").trim();
+  if(!v) return;
+  if(!(window.RT&&RT.ok&&RT.ok())){ warn(T("Avval o'qituvchi sizni tasdiqlashi kerak.","The teacher must approve you first.")); return; }
+  if(v.length>300){ warn(T("Xabar juda uzun (300 belgigacha).","The message is too long (300 characters max).")); return; }
+  if(hasImage(v)){ warn(T("⛔ Rasm va video havolalari taqiqlangan — faqat matn yozing.","⛔ Image and video links are not allowed — text only.")); return; }
+  if(badWord(v)){ warn(T("⛔ Haqoratli so'z aniqlandi. Iltimos, hurmat bilan yozing.","⛔ Offensive language detected. Please write respectfully.")); return; }
+  if(Date.now()-last<2500){ warn(T("Biroz sekinroq yozing.","Please write a bit more slowly.")); return; }
+  var S=me(); if(!S) return;
+  busy=true; document.getElementById("chSend").disabled=true;
+  push({id:S.id,n:S.name+" "+S.surname,g:S.group,t:v,at:Date.now()},function(ok){
+    busy=false; document.getElementById("chSend").disabled=false;
+    if(!ok){ warn(T("Yuborilmadi — internetni tekshiring.","Not sent — check your connection.")); return; }
+    ta.value=""; last=Date.now(); warn("");
+    pull(function(){ seen=msgs.length; draw(); });
+  });
+}
+function build(){
+  if(document.getElementById("chTab")) return;
+  var t=el('<button class="ch-tab" id="chTab" title="'+T("Talabalar chati","Student chat")+'">💬<i>CHAT</i><span class="ch-dot" id="chDot"></span></button>');
+  var p=el('<aside class="ch-panel" id="chPanel">'+
+    '<div class="ch-hd"><b>💬 '+T("Talabalar chati","Student chat")+'</b><button class="ch-x" id="chX">✕</button></div>'+
+    '<div class="ch-rules"><b>📌 '+T("Chat qoidalari","Chat rules")+'</b>'+
+      '<u>⛔ '+T("So\'kinish, haqorat va qo\'pol gaplar taqiqlanadi.","No swearing, insults or rude language.")+'</u>'+
+      '<u>⛔ '+T("Yomon rasm, video va havolalar yuborish mumkin emas.","Do not post bad images, videos or links.")+'</u>'+
+      '<u>✅ '+T("Faqat dars va tadbirkorlik mavzusida muloqot qiling.","Keep the conversation about the lesson and entrepreneurship.")+'</u>'+
+      '<u>👨‍🏫 '+T("O\'qituvchi chatni ko\'rib boradi: qoidabuzar bloklanadi.","The teacher monitors the chat: rule-breakers are blocked.")+'</u></div>'+
+    '<div class="ch-list" id="chList"></div>'+
+    '<p class="ch-warn" id="chWarn"></p>'+
+    '<div class="ch-in"><textarea id="chTa" maxlength="300" placeholder="'+T("Xabar yozing…","Write a message…")+'"></textarea>'+
+      '<button class="ch-send" id="chSend" title="'+T("Yuborish","Send")+'">➤</button></div>'+
+  '</aside>');
+  document.body.appendChild(t); document.body.appendChild(p);
+  try{ seen=parseInt(localStorage.getItem("terdu_chat_seen")||"0",10)||0; }catch(e){}
+  t.onclick=toggle;
+  document.getElementById("chX").onclick=toggle;
+  document.getElementById("chSend").onclick=send;
+  document.getElementById("chTa").addEventListener("keydown",function(e){
+    if(e.key==="Enter"&&!e.shiftKey){ e.preventDefault(); send(); }
+  });
+  if(!base()){
+    document.getElementById("chList").innerHTML='<p class="ch-lock">🔌 '+T(
+      "Chat serverga ulanmagan. O'qituvchi bazani ulagach, chat ishlaydi.",
+      "The chat is not connected to the server. It will work once the teacher connects the database.")+'</p>';
+    document.getElementById("chTa").disabled=true; document.getElementById("chSend").disabled=true;
+    return;
+  }
+  pull(function(){ if(!seen) seen=msgs.length; draw(); });
+  tick();
+  document.addEventListener("visibilitychange",function(){ if(!document.hidden) refresh(); });
+}
+function refresh(){ pull(function(ok){ if(ok) draw(); }); }
+function tick(){
+  clearTimeout(timer);
+  timer=setTimeout(function(){ if(!document.hidden&&!busy) refresh(); tick(); }, open?5000:25000);
+}
+function toggle(){
+  var p=document.getElementById("chPanel"); if(!p) return;
+  open=!open; p.classList.toggle("show",open);
+  if(open){ refresh(); seen=msgs.length; badge(); setTimeout(function(){ var l=document.getElementById("chList"); if(l) l.scrollTop=l.scrollHeight; },60); }
+  tick();
+}
+function langSync(){
+  var tab=document.getElementById("chTab"); if(!tab) return;
+  var was=open; tab.remove(); var p=document.getElementById("chPanel"); if(p) p.remove();
+  build(); if(was){ open=false; toggle(); }
+}
+function wait(){
+  if(window.RT_ready&&window.RT&&RT.ok&&RT.ok()){
+    build();
+    var lb=document.getElementById("btnLang");
+    if(lb) lb.addEventListener("click",function(){ setTimeout(langSync,40); });
+    return;
+  }
+  setTimeout(wait,900);
+}
+if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",wait); else wait();
+return {open:function(){ if(!open) toggle(); }, refresh:refresh};
 })();
 </script>
 <!-- RT:END -->
