@@ -53,8 +53,11 @@ Tasdiqlanmagan talabaga ball berilmaydi va chat ochilmaydi. Tasdiqlangan talaban
 
 ### Haftalik tozalash
 
-- Har qanday ochiq sahifa soatiga bir marta `meta/cleanAt` ni tekshiradi va
-  **7 kundan eski** xabarlar bilan media fayllarini o'chiradi.
+- Har qanday ochiq sahifa yarim soatda bir marta `meta/cleanAt` ni tekshiradi va:
+  - **videolarni 1 kundan keyin** o'chiradi (media yozuvi o'chadi, xabarda matn bo'lsa
+    matni qoladi va "🎬 Video muddati tugadi" deb ko'rsatiladi, matnsiz bo'lsa xabar ham o'chadi);
+  - **matn va rasmlarni 7 kundan keyin** butunlay o'chiradi.
+- Video kaliti `v` bilan, rasm kaliti `m` bilan boshlanadi — muddat shu bo'yicha ajratiladi.
 - Vaqt kalitning ichida saqlanadi (`c00001736…_ab12`), shuning uchun tozalash
   xabar matnini yuklamasdan (`?shallow=true`) ishlaydi.
 
