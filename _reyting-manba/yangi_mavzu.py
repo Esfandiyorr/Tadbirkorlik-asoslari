@@ -9,7 +9,7 @@ Ishlatish:
   2) python3 _reyting-manba/yangi_mavzu.py mavzu_<N>_matn.py mavzu-<N>.html "Sarlavha" N
   3) config.json ga mavzuni qo'shing va python3 _reyting-manba/inject.py ni ishga tushiring.
 """
-import json,re,sys,os
+import json,re,sys,os,subprocess
 BASE=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))+'/'
 SHABLON=BASE+'mavzu-3.html'          # test dvigateli bor namuna (15 savol)
 
@@ -22,7 +22,10 @@ def yig(matn_fayl,chiqish,sarlavha,raqam,tavsif=""):
     exec(open(matn_fayl,encoding='utf-8').read(),ns)
     S,UZ,EN,Q=ns['S'],ns['UZ'],ns['EN'],ns['Q']
 
-    s=open(SHABLON,encoding='utf-8').read()
+    if os.path.exists(SHABLON): s=open(SHABLON,encoding='utf-8').read()
+    else:  # yopiq mavzular shoxchasidan olinadi
+        s=subprocess.run(['git','-C',BASE,'show','yopiq-mavzular:'+os.path.basename(SHABLON)],
+                         capture_output=True,text=True,check=True).stdout
     for b,e in [('<!-- RT:BEGIN -->','<!-- RT:END -->'),('/* RT:BEGIN */','/* RT:END */')]:
         if b in s: i=s.index(b); j=s.index(e)+len(e); s=s[:i]+s[j:]
     s=re.sub(r'<title>.*?</title>','<title>%s — TerDU</title>'%sarlavha,s,count=1,flags=re.S)
