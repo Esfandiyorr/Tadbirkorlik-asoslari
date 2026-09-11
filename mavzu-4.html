@@ -289,6 +289,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 
 
+
 /* RT:BEGIN */
 /* ================== REYTING TIZIMI ================== */
 .rt-chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel);
@@ -1062,6 +1063,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 </div>
 
 <div class="hint" id="hint" data-ui="hint">⌨️ <kbd>→</kbd> keyingi slayd · <kbd>D</kbd> tun/kun · <kbd>L</kbd> uz/eng · <kbd>O</kbd> ro'yxat · <kbd>F</kbd> to'liq ekran</div>
+
 
 
 
@@ -2174,6 +2176,7 @@ function go(n){
   slides[n].scrollTop=0;
   if(window.RT) RT.slideSeen(n);
   try{localStorage.setItem("terdu_m4_slide",n)}catch(e){}
+  try{history.replaceState(null,"","#"+(n+1));}catch(e){} /* RT_HASH */
   var hn=document.getElementById("hint"); if(hn&&n>0)hn.classList.add("hide");
   if(slides[n].querySelector("[data-count]")) countUp(slides[n]);
 }
@@ -2472,8 +2475,13 @@ xwLoad(); renderXW();
 try{
   var th=localStorage.getItem("terdu_theme");
   setTheme(th|| (window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"));
-  var sv=parseInt(localStorage.getItem("terdu_m4_slide"),10);
+  var hv=parseInt((location.hash||"").replace(/[^0-9]/g,""),10);
+  var sv=isNaN(hv)?parseInt(localStorage.getItem("terdu_m4_slide"),10):(hv-1);
   go(isNaN(sv)?0:sv);
+  window.addEventListener("hashchange",function(){
+    var h=parseInt((location.hash||"").replace(/[^0-9]/g,""),10);
+    if(!isNaN(h)&&h-1!==idx) go(h-1);
+  });
 }catch(e){ setTheme("light"); go(0); }
 try{ applyLang(localStorage.getItem("terdu_lang")==="en"?"en":"uz"); }catch(e){}
 setTimeout(function(){document.getElementById("hint").classList.add("hide")},7000);

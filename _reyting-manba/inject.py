@@ -50,6 +50,19 @@ def inject(fn,meta):
     i=s.rindex('<script>')          # taqdimotning asosiy skripti
     s=s[:i]+block+s[i:]
 
+    # --- chuqur havola: #5 -> 5-slayd ---
+    if 'RT_HASH' not in s:
+        s=re.sub(r'(  try\{localStorage\.setItem\("terdu_[a-z0-9_]*slide",n\)\}catch\(e\)\{\})',
+                 r'\1\n  try{history.replaceState(null,"","#"+(n+1));}catch(e){} /* RT_HASH */', s, count=1)
+        s=re.sub(r'  var sv=parseInt\(localStorage\.getItem\("(terdu_[a-z0-9_]*slide)"\),10\);\n  go\(isNaN\(sv\)\?0:sv\);',
+                 lambda m: ('  var hv=parseInt((location.hash||"").replace(/[^0-9]/g,""),10);\n'
+                            '  var sv=isNaN(hv)?parseInt(localStorage.getItem("%s"),10):(hv-1);\n'
+                            '  go(isNaN(sv)?0:sv);\n'
+                            '  window.addEventListener("hashchange",function(){\n'
+                            '    var h=parseInt((location.hash||"").replace(/[^0-9]/g,""),10);\n'
+                            '    if(!isNaN(h)&&h-1!==idx) go(h-1);\n'
+                            '  });')%m.group(1), s, count=1)
+
     # --- ballar uchun ilgaklar ---
     if 'if(window.RT) RT.slideSeen(n);' not in s:
         s=s.replace('  try{localStorage.setItem("terdu_','  if(window.RT) RT.slideSeen(n);\n  try{localStorage.setItem("terdu_',1)
