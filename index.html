@@ -269,6 +269,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 
 
+
 /* RT:BEGIN */
 /* ================== REYTING TIZIMI ================== */
 .rt-chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel);
@@ -1007,6 +1008,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 
 
+
 <!-- RT:BEGIN -->
 <script>var RT_CFG={"topic": "m1", "slides": 18, "pSlide": 2, "pAll": 10, "teacher": "terdu2026", "firebase": {"db": "tadbirkorlik-asoslari-default-rtdb", "regions": ["europe-west1", "us-central1", "asia-southeast1", "europe-west4", "asia-east1", "us-east1", "northamerica-northeast1"]}, "topics": [{"id": "m1", "file": "index.html", "title": "M1 · Tadbirkorlik tafakkuri va biznes imkoniyatlar", "open": true}, {"id": "m2", "file": "mavzu-2.html", "title": "M2 · Mijoz muammosi asosida biznes g'oya", "open": false}, {"id": "m3", "file": "mavzu-3.html", "title": "M3 · Mahsulotni kam xarajat bilan sinash (moliya va kredit)", "open": false}, {"id": "m4", "file": "mavzu-4.html", "title": "M4 · Biznesni qonuniy rasmiylashtirish", "open": false}, {"id": "m5", "file": "mavzu-5.html", "title": "M5 · Soliqlar va hujjatlar", "open": false}], "tracks": [{"file": "Musofir.mp3", "title": "Musofir", "artist": ""}]};</script>
 <script>
@@ -1222,9 +1224,10 @@ function waitScreen(){
     '<p class="rt-note" id="rtWaitMsg"></p>'+
     '</div></div>');
   document.body.appendChild(w);
+  var iv=null;
   function check(quiet){
     cloudStatusOf(S.id,function(st){
-      if(st==="ok"){ S.status="ok"; save(); w.remove(); start(); return; }
+      if(st==="ok"){ S.status="ok"; save(); clearInterval(iv); w.remove(); start(); return; }
       if(st==="blocked"){ document.getElementById("rtWaitMsg").textContent=T("Ro\'yxatdan o\'tishingiz rad etilgan. O\'qituvchiga murojaat qiling.","Your registration was rejected. Please contact the teacher."); return; }
       if(!quiet) document.getElementById("rtWaitMsg").textContent=T("Hali tasdiqlanmagan. Biroz kuting va qayta tekshiring.","Not approved yet. Please wait a moment and check again.");
     });
@@ -1233,9 +1236,9 @@ function waitScreen(){
   document.getElementById("rtTcOpen").onclick=function(){ openOv("tc"); };
   document.getElementById("rtEdit").onclick=function(){
     if(cloudOn&&S) cloudDrop(S.id);
-    S=null; lset(LS.stu,null); w.remove(); gate();
+    clearInterval(iv); S=null; lset(LS.stu,null); w.remove(); gate();
   };
-  setInterval(function(){ check(true); },12000);
+  iv=setInterval(function(){ check(true); },12000);
   cloudSave();
 }
 function overlay(){
@@ -1362,7 +1365,43 @@ function tcAct(id,st,btn){
 }
 function tcRow(x,btns){
   return '<tr><td><b>'+esc(x.name)+" "+esc(x.surname)+'</b></td><td>'+esc(x.group)+
-    '</td><td><b>'+(x.total||0)+'</b></td><td style="white-space:nowrap">'+btns+'</td></tr>';
+    '</td><td><b>'+(x.total||0)+'</b></td><td style="white-space:nowrap">'+btns+
+    ' <button class="btn rt-del" data-id="'+esc(x.id)+'" data-nm="'+esc(x.name+" "+x.surname)+
+    '" title="'+T("Ro\'yxatdan butunlay o\'chirish","Delete from the list")+'">🗑</button></td></tr>';
+}
+function dupGroups(){
+  var by={}, out=[];
+  tcList.forEach(function(x){
+    var k=((x.name||"")+" "+(x.surname||"")).toLowerCase().replace(/\s+/g," ").trim();
+    (by[k]=by[k]||[]).push(x);
+  });
+  for(var k in by) if(by[k].length>1) out.push(by[k]);
+  return out;
+}
+function tcDedupe(){
+  var gr=dupGroups(); if(!gr.length) return;
+  var kill=[], names=[];
+  gr.forEach(function(a){
+    a.sort(function(x,y){                       /* eng ko'p ballik, keyin eng yangisi qoladi */
+      return (y.total||0)-(x.total||0) || (y.updated||y.at||0)-(x.updated||x.at||0);
+    });
+    names.push(a[0].name+" "+a[0].surname+" ("+(a.length-1)+")");
+    kill=kill.concat(a.slice(1));
+  });
+  if(!confirm(T("Takroriy yozuvlar o'chirilsinmi","Delete duplicate records")+"?\n"+names.join("\n")+
+     "\n\n"+T("Har biridan eng ko'p ballisi qoldiriladi.","The one with the most points is kept for each."))) return;
+  kill.forEach(function(x){ cloudDrop(x.id); });
+  var ids=kill.map(function(x){return x.id;});
+  tcList=tcList.filter(function(x){ return ids.indexOf(x.id)<0; });
+  tcDraw(); toast(T("Tozalandi","Cleaned")+": "+kill.length);
+  if(S&&ids.indexOf(S.id)>=0){ lset(LS.stu,null); setTimeout(function(){ location.reload(); },700); }
+}
+function tcDel(id,nm){
+  if(!confirm(T("Ro\'yxatdan o\'chirilsinmi","Delete from the list")+": "+nm+"?")) return;
+  cloudDrop(id);
+  tcList=tcList.filter(function(x){ return x.id!==id; });
+  tcDraw(); toast(T("O\'chirildi","Deleted"));
+  if(S&&S.id===id){ lset(LS.stu,null); lset(LS.prog,{total:0,topics:{},log:{}}); setTimeout(function(){ location.reload(); },700); }
 }
 function tcDraw(){
   var out=document.getElementById("rtTcOut"); if(!out) return;
@@ -1392,7 +1431,9 @@ function tcDraw(){
         return tcRow(x,'<button class="btn accent rt-a" data-id="'+esc(x.id)+'" data-st="ok">♻️ '+T("Tiklash","Restore")+'</button>');
       }).join("")+'</tbody></table></div>';
   }
+  var dn=dupGroups().reduce(function(a,g){ return a+g.length-1; },0);
   h+='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px">'+
+     (dn?'<button class="btn warn" id="rtDup">🧹 '+T("Takrorlarni tozalash","Clean duplicates")+' ('+dn+')</button>':'')+
      '<button class="btn warn" id="rtCsv">⬇ CSV</button>'+
      '<button class="btn" id="rtTcOut2">🚪 '+T("Chiqish","Log out")+'</button></div>'+
      '<p class="rt-note">'+T("Jami talaba","Total students")+": "+tcList.length+(cloudOn?"":" · "+T("(faqat shu qurilma)","(this device only)"))+'</p>'+
@@ -1402,7 +1443,11 @@ function tcDraw(){
   out.querySelectorAll(".rt-a").forEach(function(b){
     b.onclick=function(){ tcAct(b.dataset.id,b.dataset.st,b); };
   });
+  out.querySelectorAll(".rt-del").forEach(function(b){
+    b.onclick=function(){ tcDel(b.dataset.id,b.dataset.nm); };
+  });
   document.getElementById("rtTcRef").onclick=tcLoad;
+  var db=document.getElementById("rtDup"); if(db) db.onclick=tcDedupe;
   document.getElementById("rtTcOut2").onclick=function(){
     isTc=false; try{ sessionStorage.removeItem("terdu_tc"); }catch(e){}
     var box=document.getElementById("rtTc"); box.dataset.on=""; renderTc();
@@ -1452,6 +1497,7 @@ function navBuild(){
 }
 function chip(){
   var tools=document.querySelector(".topbar .tools"); if(!tools) return;
+  var dup=document.getElementById("rtChip"); if(dup) dup.remove();
   var c=el('<button class="rt-chip" id="rtChip" title="'+T("Reyting va ballaringiz","Rating and your points")+'">🏆</button>');
   tools.insertBefore(c,tools.firstChild);
   c.onclick=openOv;
@@ -1460,16 +1506,19 @@ function chip(){
   var lb=document.getElementById("btnLang");
   if(lb) lb.addEventListener("click",function(){ setTimeout(function(){ navBuild(); chipUpdate(); },30); });
 }
+var wIv=null;
 function watchStatus(){
-  if(!cloudOn||!S) return;
-  setInterval(function(){
+  if(!cloudOn||!S||wIv) return;
+  wIv=setInterval(function(){
     if(document.hidden) return;
     cloudStatusOf(S.id,function(st){
       if(st&&st!=="ok"){ S.status=st; lset(LS.stu,S); location.reload(); }
     });
   },60000);
 }
+var started=false;
 function start(){
+  if(started) return; started=true;
   chip(); watchStatus();
   if(typeof idx!=="undefined") slideSeen(idx);
   window.RT_ready=true;
