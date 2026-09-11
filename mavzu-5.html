@@ -296,6 +296,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 
 
+
 /* RT:BEGIN */
 /* ================== REYTING TIZIMI ================== */
 .rt-chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel);
@@ -1107,6 +1108,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 
 
+
 <!-- RT:BEGIN -->
 <script>var RT_CFG={"topic": "m5", "slides": 18, "pSlide": 2, "pAll": 10, "teacher": "terdu2026", "firebase": {"db": "tadbirkorlik-asoslari-default-rtdb", "regions": ["europe-west1", "us-central1", "asia-southeast1", "europe-west4", "asia-east1", "us-east1", "northamerica-northeast1"]}, "topics": [{"id": "m1", "file": "index.html", "title": "M1 · Tadbirkorlik tafakkuri va biznes imkoniyatlar", "open": true}, {"id": "m2", "file": "mavzu-2.html", "title": "M2 · Mijoz muammosi asosida biznes g'oya", "open": false}, {"id": "m3", "file": "mavzu-3.html", "title": "M3 · Mahsulotni kam xarajat bilan sinash (moliya va kredit)", "open": false}, {"id": "m4", "file": "mavzu-4.html", "title": "M4 · Biznesni qonuniy rasmiylashtirish", "open": false}, {"id": "m5", "file": "mavzu-5.html", "title": "M5 · Soliqlar va hujjatlar", "open": false}], "tracks": [{"file": "Musofir.mp3", "title": "Musofir", "artist": ""}]};</script>
 <script>
@@ -1775,7 +1777,7 @@ var CH=(function(){
 "use strict";
 var CFG=window.RT_CFG||{};
 var shown=false, msgs=[], keys=[], last=0, seen=0, timer=null, busy=false;
-var MED={}, pend={}, att=null, canMedia=false, WEEK=7*24*3600*1000;
+var MED={}, pend={}, att=null, canMedia=false, DAY=24*3600*1000, WEEK=7*DAY;
 function T(uz,en){ var l=(document.documentElement.getAttribute("lang")||"uz"); return (l==="en"&&en)?en:uz; }
 function esc(x){ return String(x==null?"":x).replace(/[<>&"]/g,function(c){return {"<":"&lt;",">":"&gt;","&":"&amp;",'"':"&quot;"}[c];}); }
 function el(h){ var d=document.createElement("div"); d.innerHTML=h.trim(); return d.firstChild; }
@@ -1788,7 +1790,7 @@ function $(id){ return document.getElementById(id); }
 function nkey(p){ var t=String(Date.now()); while(t.length<14) t="0"+t; return p+t+"_"+Math.random().toString(36).slice(2,6); }
 var PC="-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz";
 function keyTime(k){
-  var m=/^[cm](\d{14})_/.exec(k); if(m) return parseInt(m[1],10);
+  var m=/^[cmv](\d{14})_/.exec(k); if(m) return parseInt(m[1],10);
   if(k.charAt(0)==="-"){ var t=0; for(var i=0;i<8;i++){ var c=PC.indexOf(k.charAt(i)); if(c<0) return 0; t=t*64+c; } return t; }
   return 0;
 }
@@ -1850,7 +1852,7 @@ function putMsg(rec,cb){
 }
 function putMedia(type,data,cb){
   var b=base(); if(!b){ cb(null); return; }
-  var k=nkey("m"), S=me();
+  var k=nkey(type==="video"?"v":"m"), S=me();   /* v... = video (1 kun), m... = rasm (1 hafta) */
   fetch(b+"/media/"+k+".json",{method:"PUT",headers:{"Content-Type":"application/json"},
     body:JSON.stringify({t:type,d:data,at:Date.now(),by:S?S.id:""})})
     .then(function(r){ cb(r.ok?k:null); }).catch(function(){ cb(null); });
@@ -1876,34 +1878,51 @@ function mediaRight(cb){
 }
 
 /* ---------- haftalik tozalash ---------- */
-function purge(before){
+function purge(now){
   var b=base(); if(!b) return;
-  ["chat","media"].forEach(function(node){
-    fetch(b+"/"+node+".json?shallow=true").then(function(r){ return r.ok?r.json():null; })
-    .then(function(v){
-      if(!v) return;
-      Object.keys(v).forEach(function(k){
-        var t=keyTime(k);
-        if(t&&t<before) fetch(b+"/"+node+"/"+k+".json",{method:"DELETE"}).catch(function(){});
-      });
-    }).catch(function(){});
-  });
+  var week=now-WEEK, day=now-DAY;
+  /* media: video 1 kundan, rasm 1 haftadan keyin */
+  fetch(b+"/media.json?shallow=true").then(function(r){ return r.ok?r.json():null; })
+  .then(function(v){
+    if(!v) return;
+    Object.keys(v).forEach(function(k){
+      var t=keyTime(k), lim=(k.charAt(0)==="v")?day:week;
+      if(t&&t<lim) fetch(b+"/media/"+k+".json",{method:"DELETE"}).catch(function(){});
+    });
+  }).catch(function(){});
+  /* xabarlar: 1 haftadan eskisi butunlay, video esa 1 kundan keyin xabardan ajratiladi */
+  fetch(b+"/chat.json").then(function(r){ return r.ok?r.json():null; })
+  .then(function(v){
+    if(!v) return;
+    Object.keys(v).forEach(function(k){
+      var m=v[k]||{}, t=keyTime(k)||m.at||0; if(!t) return;
+      if(t<week){ fetch(b+"/chat/"+k+".json",{method:"DELETE"}).catch(function(){}); return; }
+      if(m.mt==="video"&&t<day){
+        if(m.mk) fetch(b+"/media/"+m.mk+".json",{method:"DELETE"}).catch(function(){});
+        if(m.t||m.yt) fetch(b+"/chat/"+k+".json",{method:"PATCH",headers:{"Content-Type":"application/json"},
+              body:JSON.stringify({mk:null,mt:null,vx:1})}).catch(function(){});
+        else fetch(b+"/chat/"+k+".json",{method:"DELETE"}).catch(function(){});
+      }
+    });
+  }).catch(function(){});
 }
 function sweep(){
   var b=base(); if(!b) return;
   fetch(b+"/meta/cleanAt.json").then(function(r){ return r.ok?r.json():null; })
   .then(function(v){
     var now=Date.now();
-    if(v&&now-v<3600000) return;                     /* soatiga bir marta yetadi */
+    if(v&&now-v<1800000) return;                     /* yarim soatda bir marta yetadi */
     fetch(b+"/meta/cleanAt.json",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(now)}).catch(function(){});
-    purge(now-WEEK);
+    purge(now);
   }).catch(function(){});
 }
 function wipe(){                                      /* o'qituvchi: hammasini o'chirish */
   if(!isTc()) return;
   if(!confirm(T("Chatdagi barcha xabarlar o'chirilsinmi?","Delete every message in the chat?"))) return;
-  purge(Date.now()+1);
-  setTimeout(function(){ pull(draw); },800);
+  var b=base(); if(!b) return;
+  Promise.all(["chat","media"].map(function(n){
+    return fetch(b+"/"+n+".json",{method:"DELETE"}).catch(function(){});
+  })).then(function(){ MED={}; pend={}; pull(draw); });
 }
 
 /* ---------- rasm/video tayyorlash ---------- */
@@ -1952,10 +1971,13 @@ function hhmm(t){ var d=new Date(t||0); function z(n){return (n<10?"0":"")+n;} r
 function mediaHtml(m){
   if(m.yt) return '<div class="ch-yt"><iframe src="https://www.youtube-nocookie.com/embed/'+esc(m.yt)+
     '" allowfullscreen loading="lazy" referrerpolicy="no-referrer"></iframe></div>';
+  if(m.vx) return '<div class="ch-ph">🎬 '+T("Video muddati tugadi (1 kun)","The video expired (one day)")+'</div>';
   if(!m.mk) return "";
   var d=MED[m.mk];
   if(d===undefined){ getMedia(m.mk); return '<div class="ch-ph">⏳ '+T("yuklanmoqda…","loading…")+'</div>'; }
-  if(d===null) return '<div class="ch-ph">🚫 '+T("ochilmadi","could not load")+'</div>';
+  if(d===null) return '<div class="ch-ph">'+(m.mt==="video"
+      ? "🎬 "+T("Video o'chirilgan (1 kundan keyin)","The video was deleted (after one day)")
+      : "🚫 "+T("ochilmadi","could not load"))+'</div>';
   return m.mt==="video" ? '<video class="ch-md" src="'+d+'" controls playsinline preload="metadata"></video>'
                         : '<img class="ch-md" src="'+d+'" alt="" loading="lazy">';
 }
@@ -2041,7 +2063,8 @@ function build(){
       '<u>⛔ '+T("So\'kinish, haqorat va qo\'pol gaplar taqiqlanadi.","No swearing, insults or rude language.")+'</u>'+
       '<u>⛔ '+T("Yomon rasm va videolar yuborish qat\'iyan man etiladi.","Bad images and videos are strictly forbidden.")+'</u>'+
       '<u>✅ '+T("Faqat dars va tadbirkorlik mavzusida muloqot qiling.","Keep the conversation about the lesson and entrepreneurship.")+'</u>'+
-      '<u>🗓 '+T("Xabarlar 1 haftadan keyin avtomatik o\'chiriladi.","Messages are deleted automatically after one week.")+'</u>'+
+      '<u>🗓 '+T("Videolar 1 kundan, boshqa xabarlar 1 haftadan keyin avtomatik o\'chiriladi.",
+        "Videos are deleted after one day, other messages after one week.")+'</u>'+
       '<u>👨‍🏫 '+T("O\'qituvchi chatni ko\'rib boradi: qoidabuzar bloklanadi.","The teacher monitors the chat: rule-breakers are blocked.")+'</u></div>'+
     '<div class="ch-list" id="chList"></div>'+
     '<p class="ch-hint" id="chHint">🔒 '+T("Rasm, video va havola yuborish faqat o\'qituvchi ruxsat bergan talabalarga ochiq.",
