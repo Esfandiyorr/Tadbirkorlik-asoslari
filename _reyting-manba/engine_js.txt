@@ -169,6 +169,7 @@ function gate(){
     '<p class="rt-note">'+T(
       "Ma\'lumot faqat o\'qituvchi reytingi uchun ishlatiladi. Ballar slaydlarni o\'qish va topshiriqlarni bajarish orqali to\'planadi.",
       "The data is used only for the teacher\'s rating. Points are earned by reading slides and completing tasks.")+'</p>'+
+    '<button class="rt-tclink" id="rtGateTc">🔑 '+T("O\'qituvchi bo\'limiga kirish","Teacher panel")+'</button>'+
     '</div></div>');
   document.body.appendChild(g);
   function submit(){
@@ -185,6 +186,7 @@ function gate(){
     g.remove(); if(approved()) start(); else waitScreen();
   }
   document.getElementById("rtGo").onclick=submit;
+  document.getElementById("rtGateTc").onclick=function(){ openOv("tc"); };
   ["rtN","rtS","rtG"].forEach(function(id){
     document.getElementById(id).addEventListener("keydown",function(e){ if(e.key==="Enter") submit(); });
   });
@@ -242,8 +244,8 @@ function overlay(){
     '<div class="rt-pane" id="rtTc"></div>'+
   '</div></div>');
   document.body.appendChild(o);
-  o.querySelector("#rtClose").onclick=function(){ o.classList.remove("show"); };
-  o.addEventListener("click",function(e){ if(e.target===o) o.classList.remove("show"); });
+  o.querySelector("#rtClose").onclick=closeOv;
+  o.addEventListener("click",function(e){ if(e.target===o) closeOv(); });
   o.querySelectorAll(".rt-tab").forEach(function(b){
     b.onclick=function(){
       o.querySelectorAll(".rt-tab").forEach(function(x){x.classList.remove("on");});
@@ -400,8 +402,17 @@ function tcDraw(){
     a2.download="terdu-reyting.csv"; a2.click();
   };
 }
+function under(hide){            /* ro'yxat/kutish ekrani ustidan ochilganda uni yashiradi */
+  ["rtGate","rtWait","rtSplash"].forEach(function(id){
+    var d=document.getElementById(id); if(d) d.style.visibility=hide?"hidden":"";
+  });
+}
+function closeOv(){
+  var o=document.getElementById("rtOv"); if(o) o.classList.remove("show");
+  under(false);
+}
 function openOv(tab){
-  var o=overlay(); o.classList.add("show");
+  var o=overlay(); o.classList.add("show"); under(true);
   renderTop(); renderMe(); renderTp(); renderTc();
   if(tab){
     var t=o.querySelector('.rt-tab[data-p="'+tab+'"]');
