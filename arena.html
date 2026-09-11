@@ -292,16 +292,21 @@ function chrome(){
 
 /* ---------- Firebase RTDB (REST) ---------- */
 var CFG={db:"tadbirkorlik-asoslari-default-rtdb",
-  regions:["europe-west1","us-central1","asia-southeast1","europe-west4","asia-east1","us-east1","northamerica-northeast1"]};
+  url:"https://tadbirkorlik-asoslari-default-rtdb.asia-southeast1.firebasedatabase.app",
+  regions:["asia-southeast1","europe-west1","us-central1","europe-west4","asia-east1","us-east1","northamerica-northeast1"]};
 var BASE=null, online=false;
 function bases(){
-  var o=["https://"+CFG.db+".firebaseio.com"];
-  CFG.regions.forEach(function(r){ o.push("https://"+CFG.db+"."+r+".firebasedatabase.app"); });
+  var o=[];
+  if(CFG.url) o.push(CFG.url.replace(/\/+$/,""));
+  CFG.regions.forEach(function(r){ var u="https://"+CFG.db+"."+r+".firebasedatabase.app"; if(o.indexOf(u)<0) o.push(u); });
+  o.push("https://"+CFG.db+".firebaseio.com");
   return o;
 }
 function connect(done){
   var saved=null; try{ saved=localStorage.getItem("terdu_base"); }catch(e){}
-  var list=bases(); if(saved){ list=[saved].concat(list.filter(function(x){return x!==saved})); }
+  var list=bases();
+  if(saved&&list.indexOf(saved)>=0) list=[saved].concat(list.filter(function(x){return x!==saved}));
+  else if(saved){ try{ localStorage.removeItem("terdu_base"); }catch(e){} }
   var i=0;
   (function next(){
     if(i>=list.length){ done(false); return; }
@@ -323,11 +328,11 @@ function reqRaw(m,path,body,cb){
     var status=0;
     fetch(url,o).then(function(r){ status=r.status; return r.text(); })
      .then(function(t){
-       if(status<200||status>=300){ LASTERR=status+" · "+url.replace(/^https:\/\//,"").slice(0,44)+" · "+String(t||"").slice(0,90); cb(null,status,t); return; }
+       if(status<200||status>=300){ if(!RECON) LASTERR=status+" · "+url.replace(/^https:\/\//,"").slice(0,44)+" · "+String(t||"").slice(0,90); cb(null,status,t); return; }
        var v=null; try{ v=t?JSON.parse(t):null; }catch(e){}
        cb(v,status,t);
      })
-     .catch(function(){ LASTERR=L("tarmoq xatosi","network error")+" · "+url.replace(/^https:\/\//,"").slice(0,44); cb(null,0,"net"); });
+     .catch(function(){ if(!RECON) LASTERR=L("tarmoq xatosi","network error")+" · "+url.replace(/^https:\/\//,"").slice(0,44); cb(null,0,"net"); });
   }catch(e){ LASTERR=L("tarmoq xatosi","network error"); cb(null,0,"net"); }
 }
 /* boshqa manzilga o'tib qayta urinish (baza regioni noto'g'ri tanlangan bo'lsa) */
@@ -2328,23 +2333,40 @@ function vHome(){
   document.getElementById("bJoin").onclick=function(){ nav("#/join"); };
   document.getElementById("bDiag").onclick=function(){
     var box=document.getElementById("diag");
-    box.innerHTML=card('<p class="note">'+L("Tekshirilmoqda…","Testing…")+'</p>');
-    var out=[];
-    out.push((BASE?"🟢 ":"🔴 ")+L("Baza manzili","Database")+": "+esc(BASE||"-"));
-    DB.set("_test/"+ME.id,{at:Date.now()},function(res,st1,t1){
-      out.push((res?"✅ ":"❌ ")+L("Yozish","Write")+": "+(res?"OK":(st1+" "+String(t1||"").slice(0,70))));
-      DB.get("_test/"+ME.id,function(v2,st2){
-        out.push((v2?"✅ ":"❌ ")+L("O'qish","Read")+": "+(v2?"OK":st2));
-        DB.del("_test/"+ME.id);
-        var bad=out.some(function(x){ return x.indexOf("❌")===0; });
-        box.innerHTML=card('<div class="rt-diag" style="line-height:1.9">'+out.map(function(x){return "<div>"+x+"</div>"}).join("")+
-          (bad?'<p class="note" style="margin-top:8px">'+L("Yechim: Firebase → Realtime Database → Rules ga quyidagini qo'shing va Publish qiling:",
-            "Fix: add this to Firebase → Realtime Database → Rules and publish:")+
-            '<code style="display:block;margin-top:6px;font-size:11px;word-break:break-all;background:var(--chip);padding:8px;border-radius:9px">'+
-            '{"rules":{"students":{".read":true,".write":true},"chat":{".read":true,".write":true},"media":{".read":true,".write":true},"meta":{".read":true,".write":true},"arena":{".read":true,".write":true}}}</code></p>'
-           :'<p class="note" style="margin-top:8px">✅ '+L("Hammasi joyida — musobaqa yaratish ishlaydi.","All good — creating a competition works.")+'</p>')+'</div>');
-      });
-    });
+    box.innerHTML=card('<p class="note">'+L("Barcha manzillar tekshirilmoqda… (10–20 soniya)","Testing every host… (10–20 s)")+'</p>');
+    var list=bases(), out=[], good=null, i=0;
+    function line(b,txt,ok){ return (ok?"✅ ":"❌ ")+'<b style="font-family:ui-monospace,monospace;font-size:11.5px">'+
+      esc(b.replace("https://","").replace("tadbirkorlik-asoslari-default-rtdb","…rtdb"))+'</b> — '+txt; }
+    function show(){
+      box.innerHTML=card('<div class="rt-diag" style="line-height:2">'+out.join("")+
+        (good?'<p class="note" style="margin-top:10px">✅ '+L("Ishlaydigan manzil topildi va saqlandi","A working host was found and saved")+
+              ': <b>'+esc(good)+'</b><br>'+L("Endi musobaqa yaratib ko'ring.","Now try creating a competition.")+'</p>'
+             :'<p class="note" style="margin-top:10px">⚠️ '+L("Hech bir manzil ishlamadi. Yuqoridagi kodlarga qarang: 401/403 — qoidalar; 404 — baza boshqa nomda; tarmoq — internet yoki bloklash.",
+               "No host worked. Look at the codes above: 401/403 — rules; 404 — different database name; network — connection or blocking.")+'</p>')+
+        '<p class="note">'+L("Baza nomi","Database name")+': <b>'+esc(CFG.db)+'</b></p></div>');
+    }
+    (function next(){
+      if(i>=list.length){ if(good){ BASE=good; online=true; try{localStorage.setItem("terdu_base",good)}catch(e){} } show(); return; }
+      var b=list[i++];
+      var fin2=false, t=setTimeout(function(){ if(!fin2){ fin2=true; out.push("<div>"+line(b,L("javob yo'q (5 s)","no answer (5 s)"),false)+"</div>"); show(); next(); } },5000);
+      fetch(b+"/arena/_t.json",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(Date.now())})
+      .then(function(r){ return r.text().then(function(tx){ return {s:r.status,t:tx}; }); })
+      .then(function(r){
+        if(fin2) return; fin2=true; clearTimeout(t);
+        if(r.s>=200&&r.s<300){
+          good=good||b;
+          out.push("<div>"+line(b,L("yozish va o'qish ishlaydi","read and write work"),true)+"</div>");
+          fetch(b+"/arena/_t.json",{method:"DELETE"}).catch(function(){});
+        } else {
+          var why=(r.s===401||r.s===403)?L("qoidalarda ruxsat yo'q","rules deny access"):
+                  (r.s===404?L("bunday baza yo'q","no such database"):("HTTP "+r.s));
+          out.push("<div>"+line(b,why+" ("+r.s+")",false)+"</div>");
+        }
+        show(); next();
+      })
+      .catch(function(){ if(fin2) return; fin2=true; clearTimeout(t);
+        out.push("<div>"+line(b,L("ulanib bo'lmadi","cannot connect"),false)+"</div>"); show(); next(); });
+    })();
   };
   document.getElementById("bSolo").onclick=function(){
     var code=newCode(), games=shuffle(GLIST.filter(function(g){return !GAMES[g].shared&&!GAMES[g].minp}),rng(Date.now())).slice(0,4);

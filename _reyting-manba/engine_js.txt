@@ -24,10 +24,10 @@ function bases(){
   var f=CFG.firebase||{}, out=[];
   if(f.url) out.push(f.url.replace(/\/+$/,""));
   if(f.db){
-    out.push("https://"+f.db+".firebaseio.com");
-    (f.regions||["europe-west1","us-central1","asia-southeast1","europe-west4","asia-east1"]).forEach(function(r){
+    (f.regions||["asia-southeast1","europe-west1","us-central1","europe-west4","asia-east1"]).forEach(function(r){
       if(r) out.push("https://"+f.db+"."+r+".firebasedatabase.app");
     });
+    out.push("https://"+f.db+".firebaseio.com");
   }
   return out;
 }
