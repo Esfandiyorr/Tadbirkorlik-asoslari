@@ -96,6 +96,26 @@ O'qituvchi darsni o'tgach "M2 ni och" desa, mavzu asosiy shoxchaga qaytariladi v
 
 **O'qituvchi kodi:** `terdu2026` (🏆 → O'qituvchi bo'limi) — barcha natijalar va CSV eksport.
 
+
+## 🎵 Qo'shiqlar (fon musiqasi)
+
+Har bir taqdimotning **o'ng chekkasida 🎵 tugmasi** turadi — bosilganda qo'shiqlar ro'yxati ochiladi:
+ijro/to'xtatish, oldingi/keyingi, takrorlash, ovoz balandligi va vaqt chizig'i bor. Tanlangan qo'shiq,
+ovoz darajasi va takrorlash holati brauzerda eslab qolinadi.
+
+**Yangi qo'shiq qo'shish:** mp3 faylni repozitoriyaga yuklang va `_reyting-manba/config.json` dagi
+`tracks` ro'yxatiga qo'shing:
+
+```json
+"tracks": [
+  {"file": "Musofir.mp3", "title": "Musofir", "artist": ""},
+  {"file": "Yangi.mp3",   "title": "Yangi qo'shiq", "artist": "Ijrochi"}
+]
+```
+
+So'ng `python3 _reyting-manba/inject.py` ni ishga tushirib, o'zgarishni push qiling — yoki shunchaki
+menga ayting, qo'shib beraman.
+
 ## Imkoniyatlar
 
 - 🌐 **UZ ⇄ ENG til almashtirish** — `L` tugmasi yoki yuqoridagi 🌐 tugma: barcha slaydlar, jadvallar, interfeys va test to'liq ingliz tiliga o'tadi (tanlov saqlanadi)
