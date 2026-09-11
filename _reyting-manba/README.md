@@ -15,7 +15,10 @@ Realtime Database → **Rules** bo'limiga faqat shuni qo'ying (eskisini butunlay
 ```
 
 To'rttala bo'lim ham kerak: `chat` — xabarlar, `media` — rasm va videolar,
-`meta` — haftalik tozalash vaqti.
+`meta` — tozalash vaqti. `media` bo'lmasa rasm yuborishda "Fayl yuborilmadi" chiqadi.
+
+**Tekshirish:** 🏆 → 🔑 O'qituvchi → **🔎 Chat tekshiruvi** tugmasi to'rttala bo'limga
+sinov yozuvi yozib ko'radi va qaysi biri yopiqligini ko'rsatadi.
 
 ## Yangi talabani tasdiqlash
 

@@ -298,6 +298,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 
 
+
 /* RT:BEGIN */
 /* ================== REYTING TIZIMI ================== */
 .rt-chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel);
@@ -371,6 +372,10 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 .rt-tclink{display:block;width:100%;margin-top:10px;border:1px dashed var(--line);background:none;color:var(--muted);
   border-radius:12px;padding:9px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;transition:.16s}
 .rt-tclink:hover{border-color:var(--violet);color:var(--ink)}
+.rt-diag{margin-top:10px;background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:12px 14px;
+  font-size:13.5px;line-height:1.85}
+.rt-diag i{font-style:normal;font-weight:800;font-family:ui-monospace,Menlo,Consolas,monospace}
+.rt-diag .rt-note{margin-top:8px}
 /* ================== MUSIQA PLEYERI ================== */
 #mzTab{position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:70;
   background:linear-gradient(135deg,var(--violet),var(--pink));color:#fff;border:none;
@@ -1111,6 +1116,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 
 
+
 <!-- RT:BEGIN -->
 <script>var RT_CFG={"topic": "m5", "slides": 18, "pSlide": 2, "pAll": 10, "teacher": "terdu2026", "firebase": {"db": "tadbirkorlik-asoslari-default-rtdb", "regions": ["europe-west1", "us-central1", "asia-southeast1", "europe-west4", "asia-east1", "us-east1", "northamerica-northeast1"]}, "topics": [{"id": "m1", "file": "index.html", "title": "M1 · Tadbirkorlik tafakkuri va biznes imkoniyatlar", "open": true}, {"id": "m2", "file": "mavzu-2.html", "title": "M2 · Mijoz muammosi asosida biznes g'oya", "open": false}, {"id": "m3", "file": "mavzu-3.html", "title": "M3 · Mahsulotni kam xarajat bilan sinash (moliya va kredit)", "open": false}, {"id": "m4", "file": "mavzu-4.html", "title": "M4 · Biznesni qonuniy rasmiylashtirish", "open": false}, {"id": "m5", "file": "mavzu-5.html", "title": "M5 · Soliqlar va hujjatlar", "open": false}], "tracks": [{"file": "Musofir.mp3", "title": "Musofir", "artist": ""}]};</script>
 <script>
@@ -1220,6 +1226,37 @@ function cloudSetStatus(id,st,cb){
     body:JSON.stringify(st)}).then(function(r){ cb&&cb(r.ok); }).catch(function(){ cb&&cb(false); });
 }
 function approved(){ return !cloudOn || (S&&S.status==="ok"); }
+var RULES='{"rules":{"students":{".read":true,".write":true},"chat":{".read":true,".write":true},'+
+  '"media":{".read":true,".write":true},"meta":{".read":true,".write":true}}}';
+function tcTest(){
+  var out=document.getElementById("rtTcDiag"); if(!out) return;
+  if(!cloudOn||!BASE){ out.innerHTML='<p class="rt-note">🟠 '+T("Baza ulanmagan.","No database connected.")+'</p>'; return; }
+  out.innerHTML='<p class="rt-note">'+T("Tekshirilmoqda…","Testing…")+'</p>';
+  var nodes=["students","chat","media","meta"], res=[], i=0;
+  (function next(){
+    if(i>=nodes.length){
+      var bad=res.filter(function(x){ return !x.ok; });
+      out.innerHTML='<div class="rt-diag">'+
+        res.map(function(x){ return '<div>'+(x.ok?"✅ ":"❌ ")+'<i>'+x.n+'</i>'+(x.ok?"":" — "+esc(x.e))+'</div>'; }).join("")+
+        (bad.length?'<p class="rt-note" style="margin-top:8px">'+T("Yechim: Firebase → Realtime Database → Rules ga faqat shuni qo'ying va Publish qiling:",
+          "Fix: put only this into Firebase → Realtime Database → Rules and publish:")+
+          '<br><code style="display:block;margin-top:6px;font-size:11px;word-break:break-all;background:var(--chip);padding:8px;border-radius:9px">'+
+          esc(RULES)+'</code></p>'
+         :'<p class="rt-note" style="margin-top:8px">✅ '+T("Hammasi joyida — rasm va video yuborish ishlaydi.",
+           "Everything is fine — sending images and videos works.")+'</p>')+'</div>';
+      return;
+    }
+    var n=nodes[i++];
+    fetch(BASE+"/"+n+"/_test.json",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(Date.now())})
+    .then(function(r){
+      if(r.ok){ res.push({n:n,ok:true}); fetch(BASE+"/"+n+"/_test.json",{method:"DELETE"}).catch(function(){}); next(); return; }
+      return r.text().then(function(t){
+        res.push({n:n,ok:false,e:(r.status===401||r.status===403)?T("qoidalarda ruxsat yo'q","denied by rules"):(r.status+" "+String(t).slice(0,40))});
+        next();
+      });
+    }).catch(function(){ res.push({n:n,ok:false,e:T("tarmoq xatosi","network error")}); next(); });
+  })();
+}
 function cloudSetMedia(id,v,cb){
   if(!cloudOn||!BASE){ cb&&cb(false); return; }
   fetch(BASE+"/students/"+id+"/media.json",{method:"PUT",headers:{"Content-Type":"application/json"},
@@ -1546,7 +1583,9 @@ function tcDraw(){
   h+='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px">'+
      (dn?'<button class="btn warn" id="rtDup">🧹 '+T("Takrorlarni tozalash","Clean duplicates")+' ('+dn+')</button>':'')+
      '<button class="btn warn" id="rtCsv">⬇ CSV</button>'+
+     '<button class="btn" id="rtTcDiagGo">🔎 '+T("Chat tekshiruvi","Chat self-test")+'</button>'+
      '<button class="btn" id="rtTcOut2">🚪 '+T("Chiqish","Log out")+'</button></div>'+
+     '<div id="rtTcDiag"></div>'+
      '<p class="rt-note">'+T("Jami talaba","Total students")+": "+tcList.length+(cloudOn?"":" · "+T("(faqat shu qurilma)","(this device only)"))+'</p>'+
      '<p class="rt-note">'+T("Talaba faqat siz tasdiqlagandan keyin taqdimot va chatga kira oladi.",
        "A student can enter the presentation and the chat only after you approve them.")+'</p>';
@@ -1570,6 +1609,7 @@ function tcDraw(){
     };
   });
   document.getElementById("rtTcRef").onclick=tcLoad;
+  document.getElementById("rtTcDiagGo").onclick=tcTest;
   var db=document.getElementById("rtDup"); if(db) db.onclick=tcDedupe;
   document.getElementById("rtTcOut2").onclick=function(){
     isTc=false; try{ sessionStorage.removeItem("terdu_tc"); }catch(e){}
@@ -1847,17 +1887,33 @@ function pull(cb){
     msgs=a; keys=k; cb&&cb(true);
   }).catch(function(){ cb&&cb(false); });
 }
+function why(status,txt){          /* Firebase xatosini tushunarli qilib beradi */
+  txt=String(txt||"");
+  if(status===401||status===403||/permission|denied/i.test(txt))
+    return T("Firebase qoidalarida ruxsat yo'q. O'qituvchi: Realtime Database → Rules ga media va meta bo'limlarini qo'shsin.",
+             "The Firebase rules deny access. Teacher: add the media and meta sections in Realtime Database → Rules.");
+  if(status===413||/too large|exceed/i.test(txt))
+    return T("Fayl baza uchun juda katta. Kichikroq video tanlang.","The file is too large for the database. Choose a smaller video.");
+  if(!status) return T("Internet uzildi — qayta urining.","The connection dropped — please try again.");
+  return T("Yuborilmadi","Not sent")+" ("+status+")";
+}
 function putMsg(rec,cb){
-  var b=base(); if(!b){ cb(false); return; }
+  var b=base(); if(!b){ cb(false,T("Baza ulanmagan","No database")); return; }
   fetch(b+"/chat/"+nkey("c")+".json",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(rec)})
-    .then(function(r){ cb(r.ok); }).catch(function(){ cb(false); });
+    .then(function(r){
+      if(r.ok){ cb(true); return; }
+      return r.text().then(function(t){ cb(false,why(r.status,t)); });
+    }).catch(function(){ cb(false,why(0,"")); });
 }
 function putMedia(type,data,cb){
-  var b=base(); if(!b){ cb(null); return; }
+  var b=base(); if(!b){ cb(null,T("Baza ulanmagan","No database")); return; }
   var k=nkey(type==="video"?"v":"m"), S=me();   /* v... = video (1 kun), m... = rasm (1 hafta) */
   fetch(b+"/media/"+k+".json",{method:"PUT",headers:{"Content-Type":"application/json"},
     body:JSON.stringify({t:type,d:data,at:Date.now(),by:S?S.id:""})})
-    .then(function(r){ cb(r.ok?k:null); }).catch(function(){ cb(null); });
+    .then(function(r){
+      if(r.ok){ cb(k); return; }
+      return r.text().then(function(t){ cb(null,why(r.status,t)); });
+    }).catch(function(){ cb(null,why(0,"")); });
 }
 function getMedia(k){
   var b=base(); if(!b||pend[k]) return;
@@ -2035,17 +2091,18 @@ function send(){
     if(mk){ rec.mk=mk; rec.mt=mt; }
     if(canMedia&&/https?:\/\//.test(v)) rec.lk=1;    /* havola faqat ruxsatlilarda bosiladigan bo'ladi */
     if(yt) rec.yt=yt;
-    putMsg(rec,function(ok){
+    putMsg(rec,function(ok,err){
       busy=false; $("chSend").disabled=false;
-      if(!ok){ warn(T("Yuborilmadi — internetni tekshiring.","Not sent — check your connection.")); return; }
+      if(!ok){ $("chAtt").classList.remove("on"); warn(err||T("Yuborilmadi.","Not sent.")); return; }
       ta.value=""; att=null; $("chAtt").classList.remove("on"); $("chFile").value=""; last=Date.now(); warn("");
       pull(function(){ seen=msgs.length; draw(); });
     });
   }
   if(att){
     $("chAtt").textContent="⏳ "+T("yuborilmoqda…","uploading…");
-    putMedia(att.type,att.data,function(k){
-      if(!k){ busy=false; $("chSend").disabled=false; warn(T("Fayl yuborilmadi.","The file was not uploaded.")); return; }
+    putMedia(att.type,att.data,function(k,err){
+      if(!k){ busy=false; $("chSend").disabled=false; $("chAtt").classList.remove("on");
+              warn((err||"")+" "+T("Fayl yuborilmadi.","The file was not uploaded.")); return; }
       post(k,att.type);
     });
   } else post(null,null);
