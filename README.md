@@ -5,7 +5,7 @@
 | Fayl | Mavzu | Hajmi |
 |---|---|---|
 | [`index.html`](index.html) | **M1** — Tadbirkorlik tafakkuri va biznes imkoniyatlarni aniqlash | 18 slayd · 15 test |
-| [`mavzu-2.html`](mavzu-2.html) | **M2** — Mijoz muammosi asosida biznes g'oyani shakllantirish | 18 slayd · 15 test |
+| 🔒 `mavzu-2.html` | **M2** — Mijoz muammosi asosida biznes g'oyani shakllantirish | 18 slayd · 15 test |
 | 🔒 `mavzu-3.html` | **M3** — Mahsulotni kam xarajat bilan bozorda sinab ko'rish (moliyalashtirish va kredit) | 15 slayd · 15 test |
 | 🔒 `mavzu-4.html` | **M4** — Biznesni qonuniy rasmiylashtirish va davlat ro'yxatidan o'tkazish | 18 slayd · 🎬 kinolar · 🧩 krossvord |
 | 🔒 `mavzu-5.html` | **M5** — Tadbirkor qanday soliqlarni to'laydi va hujjatlarni yuritadi | 18 slayd · 💳 kalkulyator · 🧮 3 masala |
@@ -87,7 +87,7 @@ Yuqori panelda 🏆 tugmasi turadi: u yerda **reyting**, **shaxsiy natija**, **m
 
 Har bir ball **bir marta** beriladi — qayta ochish yoki qayta yechish ball qo'shmaydi.
 
-**Mavzularning qulfi:** hozircha **M1 va M2 ochiq**. M3–M5 fayllari saytda umuman yo'q — ular
+**Mavzularning qulfi:** hozircha faqat **M1 ochiq**. M2–M5 fayllari saytda umuman yo'q — ular
 `yopiq-mavzular` shoxchasida saqlanadi, shuning uchun havolani bilgan talaba ham ularni ocholmaydi (404).
 O'qituvchi darsni o'tgach "M2 ni och" desa, mavzu asosiy shoxchaga qaytariladi va sayt yangilanadi.
 
