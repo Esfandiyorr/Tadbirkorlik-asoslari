@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Tadbirkorlik tafakkuri va biznes imkoniyatlarni aniqlash — TerDU</title>
-<meta name="description" content="Tadbirkorlik asoslari. M1-mavzu: Tadbirkorlik tafakkuri va biznes imkoniyatlarni aniqlash. Termiz davlat universiteti.">
+<title>Biznes-model qanday ishlaydi — TerDU</title>
+<meta name="description" content="Tadbirkorlik asoslari · 6-mavzu: biznes-model, Osterwalder Canvas, obuna, franshiza, platforma, B2B va B2C modellari.">
 <style>
 /* ================== TOKENS ================== */
 :root{
@@ -250,22 +250,8 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
   padding:8px 16px;font-size:12.5px;color:var(--muted);box-shadow:var(--shadow);transition:opacity .5s}
 .hint.hide{opacity:0;pointer-events:none}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+.lnk{color:var(--blue);font-weight:600;text-decoration:none;border-bottom:1px dashed currentColor}
+.lnk:hover{color:var(--violet)}
 
 
 
@@ -481,7 +467,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
       <div class="logo terdu-logo" role="img" aria-label="Termiz davlat universiteti logotipi"></div>
       <div>
         <b data-ui="uni">TERMIZ DAVLAT UNIVERSITETI</b>
-        <span data-ui="subj">Tadbirkorlik asoslari · M1-mavzu</span>
+        <span data-ui="subj">Tadbirkorlik asoslari · M6-mavzu</span>
       </div>
     </div>
     <div class="spacer"></div>
@@ -498,15 +484,14 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
   <div class="progress-wrap"><div id="progress"></div></div>
 
   <main id="deck">
-
   <!-- ============ 1 ============ -->
   <section class="slide" data-title="Muqova" data-title-en="Cover">
     <div class="inner title-wrap">
       <div class="big-logo terdu-logo" role="img" aria-label="Termiz davlat universiteti logotipi"></div>
       <div>
-        <span class="kicker" data-i="0">M1-mavzu · Ma'ruza · 2 soat</span>
-        <h1 class="grad" data-i="1">TADBIRKORLIK TAFAKKURI VA BIZNES IMKONIYATLARNI ANIQLASH</h1>
-        <p class="lead" data-i="2">Tadbirkorlik — bino yoki katta kapital emas. Bu — <b>muammoni ko'ra bilish</b> va uni yechishga <b>jur'at etish</b> san'ati.</p>
+        <span class="kicker" data-i="0">M6-mavzu · Ma'ruza · 2 soat</span>
+        <h1 class="grad" data-i="1">BIZNES-MODEL QANDAY ISHLAYDI</h1>
+        <p class="lead" data-i="2">Biznes-modelning maqsadi · <b>Osterwalder Canvas</b>ning 9 bloki · obuna, franshiza, onlayn platforma, B2B va B2C modellari · dunyodagi muvaffaqiyatli modellar.</p>
         <div class="meta">
           <div data-i="3">📚 Fan: <b>Tadbirkorlik asoslari</b></div>
           <div data-i="4">🎓 <b>Termiz davlat universiteti</b></div>
@@ -517,464 +502,470 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
     </div>
   </section>
 
-  <!-- ============ 2 ============ -->
   <section class="slide" data-title="Maqsad va natijalar" data-title-en="Aims and outcomes">
     <div class="inner">
       <span class="kicker" data-i="7">Mavzuning maqsadi</span>
-      <h2 data-i="8">Mashg'ulot yakunida talaba <span class="grad">nimani biladi?</span></h2>
-      <div class="def" data-i="9">Maqsad: talabalarda tadbirkorlik haqidagi mustahkam tasavvurni shakllantirish, uning shakllarini farqlash va — eng muhimi — <b>atrofdagi oddiy muammolarni biznes imkoniyati sifatida ko'rish</b> ko'nikmasini uyg'otish.</div>
+      <h2 data-i="8">Mashg'ulot yakunida talaba <span class="grad">nima qila oladi?</span></h2>
+      <div class="def" data-i="9">Maqsad: talabani <b>"menda g'oya bor"</b> bosqichidan <b>"mening biznesim qanday ishlaydi va qayerdan pul topadi"</b> bosqichiga o'tkazish. Biznes-model — bu <b>tushuntirish emas, chizma</b>: uni bir varaqqa sig'dirish mumkin.</div>
       <div class="grid g3" style="margin-top:16px">
-        <div class="card" style="--c:var(--green)"><span class="icon">🗣</span><h3 data-i="10">Izohlay oladi</h3><p data-i="11">Tadbirkorlik nima va tadbirkor kim ekanini o'z so'zlari bilan tushuntiradi.</p></div>
-        <div class="card" style="--c:var(--blue)"><span class="icon">🧩</span><h3 data-i="12">Farqlay oladi</h3><p data-i="13">Mikrobiznes, kichik biznes, startap, oilaviy va ijtimoiy tadbirkorlikni ajratadi.</p></div>
-        <div class="card" style="--c:var(--violet)"><span class="icon">🧠</span><h3 data-i="14">Tushunadi</h3><p data-i="15">"Xodim tafakkuri" bilan "tadbirkor tafakkuri" o'rtasidagi farqni anglaydi.</p></div>
-        <div class="card" style="--c:var(--orange)"><span class="icon">🔎</span><h3 data-i="16">Topa oladi</h3><p data-i="17">Kundalik hayotdan kamida 3 ta muammoni topib, biznes g'oyaga aylantiradi.</p></div>
-        <div class="card" style="--c:var(--pink)"><span class="icon">🔗</span><h3 data-i="18">Tuza oladi</h3><p data-i="19">"Muammo – Yechim – Mijoz – Daromad manbai" zanjirini mustaqil quradi.</p></div>
-        <div class="card" style="--c:var(--cyan)"><span class="icon">✅</span><h3 data-i="20">Baholay oladi</h3><p data-i="21">G'oyani 4 ta filtr orqali tekshirib, kuchli va kuchsizini ajratadi.</p></div>
+        <div class="card" style="--c:var(--green)"><span class="icon">🧩</span><h3 data-i="10">Tushuntira oladi</h3><p data-i="11">Biznes-model nima ekanini va g'oyadan qanday farq qilishini izohlaydi.</p></div>
+        <div class="card" style="--c:var(--blue)"><span class="icon">🗺</span><h3 data-i="12">Chiza oladi</h3><p data-i="13">Osterwalder Canvasning 9 blokini ketma-ketligi bilan to'ldiradi.</p></div>
+        <div class="card" style="--c:var(--violet)"><span class="icon">💎</span><h3 data-i="14">Shakllantira oladi</h3><p data-i="15">Mijoz segmenti uchun aniq qiymat taklifini yozadi.</p></div>
+        <div class="card" style="--c:var(--orange)"><span class="icon">🔀</span><h3 data-i="16">Tanlay oladi</h3><p data-i="17">Obuna, franshiza, platforma, B2B va B2C modellaridan mosini tanlaydi.</p></div>
+        <div class="card" style="--c:var(--pink)"><span class="icon">🧮</span><h3 data-i="18">Hisoblay oladi</h3><p data-i="19">Daromad oqimi va xarajat tuzilmasini solishtirib, model foydaliligini baholaydi.</p></div>
+        <div class="card" style="--c:var(--cyan)"><span class="icon">🔍</span><h3 data-i="20">Tahlil qila oladi</h3><p data-i="21">Mashhur kompaniyalarning modelini blokma-blok ajratib ko'rsatadi.</p></div>
       </div>
     </div>
   </section>
 
-  <!-- ============ 3 ============ -->
   <section class="slide" data-title="Reja va tushunchalar" data-title-en="Plan and concepts">
     <div class="inner">
       <span class="kicker" data-i="22">Ma'ruza rejasi</span>
-      <h2 data-i="23">Bugun <span class="grad">5 ta bosqich</span>ni bosib o'tamiz</h2>
-      <div class="grid g5">
-        <div class="card" style="--c:var(--green)"><span class="icon">1️⃣</span><h3 data-i="24">Tushuncha</h3><p data-i="25">Tadbirkorlik nima va uning mohiyati.</p></div>
-        <div class="card" style="--c:var(--blue)"><span class="icon">2️⃣</span><h3 data-i="26">Shakllari</h3><p data-i="27">Mikro, kichik, startap, oilaviy, ijtimoiy.</p></div>
-        <div class="card" style="--c:var(--violet)"><span class="icon">3️⃣</span><h3 data-i="28">Tafakkur</h3><p data-i="29">Mindset va uning belgilari.</p></div>
-        <div class="card" style="--c:var(--orange)"><span class="icon">4️⃣</span><h3 data-i="30">Imkoniyat</h3><p data-i="31">Muammoni biznesga aylantirish.</p></div>
-        <div class="card" style="--c:var(--pink)"><span class="icon">5️⃣</span><h3 data-i="32">Zanjir</h3><p data-i="33">Muammo–Yechim–Mijoz–Daromad.</p></div>
-      </div>
-      <h3 style="margin-top:22px" data-i="34">🔑 Tayanch tushunchalar</h3>
-      <div data-i="35">
-        <span class="pill g">tadbirkorlik</span><span class="pill">tadbirkor</span><span class="pill">tavakkalchilik (risk)</span>
-        <span class="pill">resurs</span><span class="pill">qo'shilgan qiymat</span><span class="pill g">mikrobiznes</span>
-        <span class="pill">kichik biznes</span><span class="pill g">startap</span><span class="pill">masshtablanish</span>
-        <span class="pill">oilaviy tadbirkorlik</span><span class="pill">ijtimoiy tadbirkorlik</span><span class="pill g">tadbirkorlik tafakkuri</span>
-        <span class="pill">biznes imkoniyat</span><span class="pill">mijoz</span><span class="pill">monetizatsiya</span><span class="pill">qiymat zanjiri</span>
-      </div>
-    </div>
-  </section>
-
-  <!-- ============ 4 ============ -->
-  <section class="slide" data-title="Tadbirkorlik nima?" data-title-en="What is entrepreneurship?">
-    <div class="inner">
-      <span class="kicker" data-i="36">1-savol</span>
-      <h2 data-i="37">Tadbirkorlik — bu <span class="grad">joy emas, fikrlash usuli</span></h2>
-      <p class="lead" data-i="38">Ko'pchilik "tadbirkorlik" so'zini eshitganda do'kon, rasta yoki zavodni tasavvur qiladi. Aslida tadbirkorlik — bino emas, <b>faoliyat turi</b> va <b>fikrlash usuli</b>.</p>
-      <div class="def" data-i="39">Tadbirkorlik — insonning <b>o'z tashabbusi</b> bilan, <b>o'z mas'uliyati va tavakkalchiligi</b> asosida, boshqa odamlarning <b>muammosini hal qiladigan</b> mahsulot yoki xizmat yaratib, shu orqali <b>muntazam daromad</b> olishga qaratilgan <b>qonuniy</b> faoliyatidir.</div>
-      <p style="margin-top:14px" data-i="40">O'zbekiston Respublikasining "Tadbirkorlik faoliyati erkinligining kafolatlari to'g'risida"gi Qonunida ham u <b>tavakkalchilik asosida</b> amalga oshiriladigan, <b>daromad olishga qaratilgan tashabbuskor faoliyat</b> sifatida belgilangan.</p>
-      <h3 style="margin-top:14px" data-i="41">Ta'rifning 4 ta ustuni</h3>
-      <div class="tw"><table>
-        <thead><tr><th data-i="42">Ustun</th><th data-i="43">Ma'nosi</th><th data-i="44">Oddiy misol</th></tr></thead>
-        <tbody>
-          <tr><td class="g" data-i="45">🚀 Tashabbus</td><td data-i="46">Hech kim buyurmaydi — o'zing boshlaysan</td><td data-i="47">Mahallada quruq tozalash xizmati yo'qligini ko'rib, shu xizmatni ochish</td></tr>
-          <tr><td class="g" data-i="48">🎲 Tavakkalchilik</td><td data-i="49">Natija kafolatlanmagan, yo'qotish ehtimoli bor</td><td data-i="50">10 mln so'm kiritding — mijoz kelmasligi ham mumkin</td></tr>
-          <tr><td class="g" data-i="51">💎 Qiymat yaratish</td><td data-i="52">Odamlarga foydali biror narsa yaratasan</td><td data-i="53">Vaqtni tejaydi, arzonroq, sifatliroq, qulayroq bo'ladi</td></tr>
-          <tr><td class="g" data-i="54">💰 Daromad</td><td data-i="55">Bu xayriya emas — foyda olish maqsadi bor</td><td data-i="56">Xarajat 30 ming, narx 50 ming → foyda 20 ming so'm</td></tr>
-        </tbody>
-      </table></div>
-    </div>
-  </section>
-
-  <!-- ============ 5 ============ -->
-  <section class="slide" data-title="Tadbirkor kim?" data-title-en="Who is an entrepreneur?">
-    <div class="inner">
-      <span class="kicker" data-i="57">Tadbirkorning kapitali</span>
-      <h2 data-i="58">Tadbirkorning birinchi quroli — <span class="grad-w">pul emas</span></h2>
-      <div class="grid g2">
-        <div>
-          <div class="def" style="background:linear-gradient(135deg,var(--violet),var(--blue))" data-i="59">Tadbirkor — mavjud resurslarni (pul, vaqt, bilim, texnika, odamlar) <b>yangicha birlashtirib</b>, ilgari bo'lmagan <b>qiymat yaratadigan</b> va natija uchun <b>shaxsan javob beradigan</b> inson.</div>
-          <div class="quote" style="margin-top:14px" data-i="60">"Menda pul yo'q, shuning uchun biznes boshlay olmayman" — bu eng keng tarqalgan yolg'on bahona. Pul — ketma-ketlikda <b>birinchi emas, uchinchi</b> qadam.</div>
-        </div>
-        <div>
-          <div class="card" style="--c:var(--green)">
-            <h3 data-i="61">Tadbirkorning birinchi kapitali</h3>
-            <ul class="tick">
-              <li data-i="62"><b>Muammoni ko'ra bilish</b> qobiliyati</li>
-              <li data-i="63"><b>Odamlar bilan gaplasha olish</b> ko'nikmasi</li>
-              <li data-i="64"><b>Kichikdan boshlab sinab ko'rishga jur'at</b></li>
-            </ul>
-          </div>
-          <div class="card" style="--c:var(--orange);margin-top:14px">
-            <h3 data-i="65">To'g'ri ketma-ketlik</h3>
-            <p style="font-size:16px" data-i="66"><b>1.</b> Muammoni top → <b>2.</b> Yechimni sina → <b>3.</b> Kengaytirish uchun mablag' jalb qil</p>
-            <p style="color:var(--red);font-weight:700;margin-top:6px" data-i="67">✕ Noto'g'ri: kredit ol → mahsulot yasa → mijoz qidir</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ============ 6 ============ -->
-  <section class="slide" data-title="O'zbekiston statistikasi" data-title-en="Statistics of Uzbekistan">
-    <div class="inner">
-      <span class="kicker" data-i="68">O'zbekiston misolida</span>
-      <h2 data-i="69">Kichik biznes — iqtisodiyotning <span class="grad">asosiy dvigateli</span></h2>
+      <h2 data-i="23">Bugungi <span class="grad">4 ta blok</span></h2>
       <div class="grid g4">
-        <div class="stat"><div class="num" data-count="1236.1" data-dec="1">0</div><p data-i="70">ming kichik tadbirkorlik subyekti (2026-yil 1-iyul)</p></div>
-        <div class="stat o"><div class="num" data-count="50.5" data-dec="1" data-suf="%">0</div><p data-i="71">kichik biznesning YaIMdagi ulushi (518,7 trln so'm)</p></div>
-        <div class="stat v"><div class="num" data-count="55" data-suf="%">0</div><p data-i="72">maqsad: KO'Bning YaIMdagi ulushi (PF-50, 2025)</p></div>
-        <div class="stat"><div class="num" data-count="75" data-suf="%">0</div><p data-i="73">maqsad: bandlikdagi ulush</p></div>
+        <div class="card" style="--c:var(--green)"><span class="icon">1️⃣</span><h3 data-i="24">Model nima</h3><p data-i="25">Biznes-modelning maqsadi va g'oyadan farqi.</p></div>
+        <div class="card" style="--c:var(--blue)"><span class="icon">2️⃣</span><h3 data-i="26">Canvas 9 blok</h3><p data-i="27">Mijoz, qiymat, kanal, resurs, hamkor va xarajat.</p></div>
+        <div class="card" style="--c:var(--violet)"><span class="icon">3️⃣</span><h3 data-i="28">Zamonaviy modellar</h3><p data-i="29">Obuna, franshiza, platforma, B2B, B2C.</p></div>
+        <div class="card" style="--c:var(--orange)"><span class="icon">4️⃣</span><h3 data-i="30">Muvaffaqiyat misollari</h3><p data-i="31">Dunyo kompaniyalari modelining tahlili.</p></div>
       </div>
-      <div class="grid g4" style="margin-top:14px">
-        <div class="card" style="--c:var(--blue)"><h3 data-i="74">375,1 ming</h3><p data-i="75">Yakka tartibdagi tadbirkorlar (YaTT)</p></div>
-        <div class="card" style="--c:var(--green)"><h3 data-i="76">526,7 ming</h3><p data-i="77">Kichik korxona va mikrofirmalar</p></div>
-        <div class="card" style="--c:var(--orange)"><h3 data-i="78">23,2 ming</h3><p data-i="79">Hunarmandlar</p></div>
-        <div class="card" style="--c:var(--pink)"><h3 data-i="80">5,1 ming</h3><p data-i="81">Oilaviy tadbirkorlar</p></div>
+      <h3 style="margin-top:22px" data-i="32">🔑 Tayanch tushunchalar</h3>
+      <div data-i="33">
+        <span class="pill g">biznes-model</span><span class="pill">Osterwalder Canvas</span><span class="pill g">mijozlar segmenti</span>
+        <span class="pill g">qiymat taklifi</span><span class="pill">kanallar</span><span class="pill">mijoz bilan munosabat</span>
+        <span class="pill g">daromad oqimi</span><span class="pill">asosiy resurslar</span><span class="pill">asosiy faoliyat</span>
+        <span class="pill">asosiy hamkorlar</span><span class="pill g">xarajatlar tuzilmasi</span><span class="pill">birlik iqtisodiyoti</span>
+        <span class="pill g">obuna (subscription)</span><span class="pill g">franshiza</span><span class="pill">royalti</span>
+        <span class="pill g">onlayn platforma</span><span class="pill">tarmoq effekti</span><span class="pill g">B2B</span><span class="pill g">B2C</span>
+        <span class="pill">freemium</span><span class="pill">masshtablanish</span>
       </div>
-      <div class="quote" style="margin-top:16px" data-i="82">Mamlakatda yaratilgan <b>har ikki so'mning bittasi</b> kichik biznes hissasiga to'g'ri keladi. Demak, tadbirkorlik — "qo'shimcha shug'ullanish" emas, balki yosh mutaxassis uchun <b>keng imkoniyat maydoni</b>.</div>
-      <small class="note" data-i="83">Manba: Milliy statistika qo'mitasi (stat.uz); O'zR Prezidentining 2025-yil 19-martdagi PF-50-son Farmoni.</small>
     </div>
   </section>
 
-  <!-- ============ 7 ============ -->
-  <section class="slide" data-title="Tadbirkorlik shakllari" data-title-en="Forms of entrepreneurship">
+  <section class="slide" data-title="Biznes-model nima?" data-title-en="What is a business model?">
     <div class="inner">
-      <span class="kicker" data-i="84">2-savol</span>
-      <h2 data-i="85">Tadbirkorlikning <span class="grad">5 ta zamonaviy shakli</span></h2>
-      <p class="lead" data-i="86">Tadbirkorlik yagona qolipda bo'lmaydi. Birini ikkinchisidan "yaxshiroq" deb bo'lmaydi — har birining o'z maqsadi va miqyosi bor.</p>
-      <div class="grid g5">
-        <div class="card" style="--c:var(--green)"><span class="icon">🌱</span><h3 data-i="87">Mikrobiznes</h3><p data-i="88">1–5 kishi, minimal kapital, mahalliy bozor.</p><p style="color:var(--muted);font-size:13px" data-i="89">Tort pishirish, telefon ta'miri, repetitorlik</p></div>
-        <div class="card" style="--c:var(--blue)"><span class="icon">🏪</span><h3 data-i="90">Kichik biznes</h3><p data-i="91">Tuzilma, buxgalteriya, doimiy joy va mijoz bazasi.</p><p style="color:var(--muted);font-size:13px" data-i="92">Kafe, tikuv sexi, avtoservis</p></div>
-        <div class="card" style="--c:var(--violet)"><span class="icon">🚀</span><h3 data-i="93">Startap</h3><p data-i="94">Noaniqlik + innovatsiya + tez masshtablanish.</p><p style="color:var(--muted);font-size:13px" data-i="95">Yetkazib berish platformasi</p></div>
-        <div class="card" style="--c:var(--orange)"><span class="icon">👨‍👩‍👧</span><h3 data-i="96">Oilaviy</h3><p data-i="97">Egalari va ishchi kuchi — bir oila a'zolari.</p><p style="color:var(--muted);font-size:13px" data-i="98">Oilaviy non yopish korxonasi</p></div>
-        <div class="card" style="--c:var(--pink)"><span class="icon">🤝</span><h3 data-i="99">Ijtimoiy</h3><p data-i="100">Maqsad — ijtimoiy muammoni hal qilish, foyda — vosita.</p><p style="color:var(--muted);font-size:13px" data-i="101">Chiqindini qayta ishlash</p></div>
+      <span class="kicker" data-i="34">1-blok</span>
+      <h2 data-i="35">Biznes-model — <span class="grad">pul qanday aylanishining chizmasi</span></h2>
+      <div class="def" data-i="36"><b>Biznes-model</b> — tashkilot <b>kim uchun</b>, <b>qanday qiymat</b> yaratishi, uni <b>qanday yetkazishi</b> va bundan <b>qanday daromad olishi</b>ni tushuntiruvchi tizim. Qisqasi: <b>qiymat yaratish → yetkazish → pulga aylantirish</b>.</div>
+      <div class="grid g3" style="margin-top:16px">
+        <div class="card" style="--c:var(--green)"><span class="icon">🎯</span><h3 data-i="37">Kim uchun?</h3><p data-i="38">Mijoz kim, uning qanday muammosi bor va u bu muammoni hal qilishga tayyormi.</p></div>
+        <div class="card" style="--c:var(--blue)"><span class="icon">🎁</span><h3 data-i="39">Nima beramiz?</h3><p data-i="40">Qanday qiymat yaratamiz va u raqobatchinikidan nimasi bilan farq qiladi.</p></div>
+        <div class="card" style="--c:var(--violet)"><span class="icon">💰</span><h3 data-i="41">Qanday daromad?</h3><p data-i="42">Kim, nima uchun, qancha va qanday tartibda pul to'laydi.</p></div>
       </div>
-      <div class="quote" style="margin-top:18px" data-i="102">📈 Qonunchilikda rag'batlantiriladigan yiriklashuv zanjiri: <b>o'zini o'zi band qilgan shaxs → YaTT → kichik biznes → o'rta biznes → yirik korxona</b>.</div>
-    </div>
-  </section>
-
-  <!-- ============ 8 ============ -->
-  <section class="slide" data-title="Mikro va kichik biznes" data-title-en="Micro and small business">
-    <div class="inner">
-      <span class="kicker">2.1 – 2.2</span>
-      <h2 data-i="103">Mikrobiznes va <span class="grad">kichik biznes</span></h2>
+      <div class="quote" style="margin-top:16px" data-i="43">📌 <b>Asosiy qoida:</b> biznes-model savolga javob beradi — <b>"Bir so'm qayerdan kiradi va qayerga chiqadi?"</b> Agar bu savolga aniq javob bo'lmasa, oldingizda biznes emas, hali <b>faqat g'oya</b> turibdi.</div>
+      <h3 style="margin-top:20px" data-i="44">🧭 Biznes-model nimani hal qiladi?</h3>
       <div class="grid g2">
-        <div class="card" style="--c:var(--green)">
-          <span class="icon">🌱</span><h3 data-i="104">Mikrobiznes — eng kichik miqyos</h3>
-          <ul class="tick">
-            <li data-i="105">Kam xarajat bilan boshlanadi (ba'zan 1–2 mln so'm)</li>
-            <li data-i="106">Mahalliy bozorga xizmat qiladi (mahalla, tuman)</li>
-            <li data-i="107">Tez ishga tushadi, tez to'xtatiladi</li>
-            <li data-i="108">Daromad barqaror, ammo o'sish sekin</li>
+        <div class="card" style="--c:var(--cyan)"><span class="icon">🗺</span><h3 data-i="45">Yo'l xaritasi beradi</h3><p data-i="46">Qaysi ishni birinchi qilish kerakligi ko'rinadi: avval mijoz, keyin mahsulot, keyin kanal.</p></div>
+        <div class="card" style="--c:var(--orange)"><span class="icon">💸</span><h3 data-i="47">Pulni tejaydi</h3><p data-i="48">Xato model qog'ozda 1 kunda, amalda esa oylar va millionlar bilan tuzatiladi.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide" data-title="G'oya va model farqi" data-title-en="Idea vs model">
+    <div class="inner">
+      <span class="kicker" data-i="49">1.2 · Eng ko'p adashtiradigan joy</span>
+      <h2 data-i="50">Har qanday g'oya <span class="grad">biznes-model emas!</span></h2>
+      <div class="grid g2">
+        <div class="card" style="--c:var(--red)">
+          <span class="icon">💡</span><h3 data-i="51">G'oya</h3>
+          <p data-i="52">"Talabalar uchun arzon tushlik yetkazib beruvchi xizmat ochsam." — Bu <b>bir gap</b>. Unda na narx, na yetkazish usuli, na foyda hisobi bor.</p>
+          <ul class="tick cross">
+            <li data-i="53">Kim to'laydi — noma'lum</li>
+            <li data-i="54">Bir buyurtmadan qancha foyda qolishi hisoblanmagan</li>
+            <li data-i="55">Mijozgacha qanday yetib borish aytilmagan</li>
           </ul>
-          <p style="margin-top:10px" data-i="109"><b>Misollar:</b> uyda tort pishirish, telefon ta'mirlash, SMM-dizayn, repetitorlik, gulchilik, uy tozalash, foto/video xizmat.</p>
-          <p style="color:var(--muted);font-size:13.5px" data-i="110">Ko'pincha "o'zini o'zi band qilgan shaxs" yoki <b>YaTT</b> maqomida rasmiylashtiriladi.</p>
+        </div>
+        <div class="card" style="--c:var(--green)">
+          <span class="icon">🧩</span><h3 data-i="56">Biznes-model</h3>
+          <p data-i="57">"TerDU talabalariga 20 000 so'mlik tushlikni Telegram-bot orqali oldindan buyurtma qilib, 12:00 da yotoqxonaga yetkazamiz." — Bu <b>tizim</b>.</p>
+          <ul class="tick">
+            <li data-i="58">Mijoz aniq: 1-kurs talabalari</li>
+            <li data-i="59">Kanal aniq: Telegram-bot va yotoqxona</li>
+            <li data-i="60">Daromad aniq: har bir tushlikdan ustama</li>
+          </ul>
+        </div>
+      </div>
+      <h3 style="margin-top:20px" data-i="61">❓ Modelingizni tekshiradigan 3 ta savol</h3>
+      <div class="grid g3">
+        <div class="card" style="--c:var(--blue)"><span class="icon">1️⃣</span><h3 data-i="62">Kim to'laydi?</h3><p data-i="63">Ba'zan iste'molchi va to'lovchi — <b>har xil odam</b> (masalan, bola o'ynaydi, ota to'laydi).</p></div>
+        <div class="card" style="--c:var(--violet)"><span class="icon">2️⃣</span><h3 data-i="64">Nima uchun aynan sizga?</h3><p data-i="65">Mijoz raqobatchini qo'yib, sizni tanlashi uchun <b>bitta aniq sabab</b> bo'lishi kerak.</p></div>
+        <div class="card" style="--c:var(--orange)"><span class="icon">3️⃣</span><h3 data-i="66">Ko'paytirish mumkinmi?</h3><p data-i="67">Mijoz 10 barobar ko'paysa, model ishlaydimi yoki <b>sinadimi</b>?</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Osterwalder Canvas" data-title-en="The Osterwalder Canvas">
+    <div class="inner">
+      <span class="kicker" data-i="68">2-blok</span>
+      <h2 data-i="69">Biznes-model sxemasi — <span class="grad">9 ta blok</span></h2>
+      <div class="def" data-i="70"><b>Business Model Canvas</b> — shveytsariyalik olim <b>Aleksandr Osterwalder</b> taklif qilgan chizma. Butun biznesni <b>bitta varaqdagi 9 ta katak</b>ka joylaydi. Uni o'zgartirish oson, shuning uchun startaplar avval canvasni, keyin mahsulotni yasaydi.</div>
+      <div class="grid g4" style="margin-top:16px">
+        <div class="card" style="--c:var(--green)"><span class="icon">👥</span><h3 data-i="71">① Mijozlar segmenti</h3><p data-i="72">Biz kim uchun ishlaymiz? Eng muhim mijoz kim?</p></div>
+        <div class="card" style="--c:var(--green)"><span class="icon">💎</span><h3 data-i="73">② Qiymat taklifi</h3><p data-i="74">Mijozning qaysi muammosini hal qilamiz?</p></div>
+        <div class="card" style="--c:var(--blue)"><span class="icon">🚚</span><h3 data-i="75">③ Kanallar</h3><p data-i="76">Mijozga qanday yetib boramiz va yetkazamiz?</p></div>
+        <div class="card" style="--c:var(--blue)"><span class="icon">💬</span><h3 data-i="77">④ Munosabat</h3><p data-i="78">Mijozni qanday jalb qilamiz va ushlab qolamiz?</p></div>
+        <div class="card" style="--c:var(--violet)"><span class="icon">💰</span><h3 data-i="79">⑤ Daromad oqimlari</h3><p data-i="80">Mijoz nima uchun va qanday to'laydi?</p></div>
+        <div class="card" style="--c:var(--orange)"><span class="icon">🏭</span><h3 data-i="81">⑥ Asosiy resurslar</h3><p data-i="82">Model ishlashi uchun nima zarur?</p></div>
+        <div class="card" style="--c:var(--orange)"><span class="icon">⚙️</span><h3 data-i="83">⑦ Asosiy faoliyat</h3><p data-i="84">Har kuni qanday ishni bajaramiz?</p></div>
+        <div class="card" style="--c:var(--cyan)"><span class="icon">🤝</span><h3 data-i="85">⑧ Asosiy hamkorlar</h3><p data-i="86">Kim bizga yordam beradi va nimani tashqaridan olamiz?</p></div>
+      </div>
+      <div class="card" style="--c:var(--red);margin-top:14px"><span class="icon">🧾</span><h3 data-i="87">⑨ Xarajatlar tuzilmasi</h3><p data-i="88">Modelning eng qimmat qismi nima? Qaysi resurs va faoliyat eng ko'p pul talab qiladi? <b>Daromad xarajatdan katta bo'lsagina</b> model yashaydi.</p></div>
+      <small class="note" data-i="89">To'ldirish tartibi: <b>① mijoz → ② qiymat → ③ kanal → ④ munosabat → ⑤ daromad → ⑥ resurs → ⑦ faoliyat → ⑧ hamkor → ⑨ xarajat</b>. Ya'ni har doim <b>mijozdan</b> boshlanadi, <b>puldan</b> emas.</small>
+    </div>
+  </section>
+
+  <section class="slide" data-title="① Mijozlar segmenti" data-title-en="① Customer segments">
+    <div class="inner">
+      <span class="kicker" data-i="90">2.1 · Birinchi blok</span>
+      <h2 data-i="91">① Mijozlar segmenti — <span class="grad">"hamma uchun" degani "hech kim uchun"</span></h2>
+      <div class="def" data-i="92"><b>Segment</b> — ehtiyoji, xatti-harakati va to'lov imkoniyati o'xshash <b>mijozlar guruhi</b>. Har bir segment uchun alohida qiymat taklifi, alohida kanal va ko'pincha alohida narx bo'ladi.</div>
+      <div class="grid g3" style="margin-top:16px">
+        <div class="card" style="--c:var(--green)"><span class="icon">🎯</span><h3 data-i="93">Ommaviy bozor</h3><p data-i="94">Katta va bir xil guruh: ichimlik suvi, non, uyali aloqa.</p></div>
+        <div class="card" style="--c:var(--blue)"><span class="icon">🔬</span><h3 data-i="95">Tor bozor (nisha)</h3><p data-i="96">Juda aniq guruh: diabet bemorlari uchun shirinlik, chap qo'llar uchun asboblar.</p></div>
+        <div class="card" style="--c:var(--violet)"><span class="icon">🧱</span><h3 data-i="97">Segmentlangan</h3><p data-i="98">Bir mahsulotning turli darajalari: oddiy va biznes-klass xizmatlar.</p></div>
+        <div class="card" style="--c:var(--orange)"><span class="icon">🔀</span><h3 data-i="99">Diversifikatsiyalangan</h3><p data-i="100">Butunlay boshqa ikki guruh: ham aholi, ham davlat tashkilotlari.</p></div>
+        <div class="card" style="--c:var(--pink)"><span class="icon">⚖️</span><h3 data-i="101">Ko'p tomonlama</h3><p data-i="102">Ikki guruh bir vaqtda kerak: haydovchi va yo'lovchi, sotuvchi va xaridor.</p></div>
+        <div class="card" style="--c:var(--cyan)"><span class="icon">🏢</span><h3 data-i="103">Korporativ</h3><p data-i="104">Mijoz — jismoniy shaxs emas, tashkilot: kafe, maktab, zavod.</p></div>
+      </div>
+      <div class="quote" style="margin-top:16px" data-i="105">🧑‍🎓 <b>Talaba uchun mashq:</b> "Mening mijozim — yoshlar" deb yozmang. <b>"Termiz shahridagi, yotoqxonada yashaydigan, oyiga 1,5 mln so'mgacha sarflaydigan 1–2-kurs talabalari"</b> deb yozing. Segment qanchalik aniq bo'lsa, reklama shuncha arzon tushadi.</div>
+    </div>
+  </section>
+
+  <section class="slide" data-title="② Qiymat taklifi" data-title-en="② Value proposition">
+    <div class="inner">
+      <span class="kicker" data-i="106">2.2 · Canvasning yuragi</span>
+      <h2 data-i="107">② Qiymat taklifi — <span class="grad">mijoz nima uchun aynan sizga to'laydi</span></h2>
+      <div class="def" data-i="108"><b>Qiymat taklifi</b> — mijoz sizni tanlashining sababi. U mahsulot ta'rifi emas, <b>mijozning foydasi</b>: tejalgan vaqt, kamaygan xarajat, yo'qolgan bosh og'rig'i.</div>
+      <div class="grid g2" style="margin-top:14px">
+        <div class="card" style="--c:var(--green)">
+          <span class="icon">🧮</span><h3 data-i="109">Qiymat qanday yaratiladi?</h3>
+          <ul class="tick">
+            <li data-i="110"><b>Yangilik</b> — ilgari bo'lmagan ehtiyojni qondirish</li>
+            <li data-i="111"><b>Unumdorlik</b> — tez, kuchli, sifatliroq bajarish</li>
+            <li data-i="112"><b>Narx</b> — xuddi shu natijani arzonroqqa berish</li>
+            <li data-i="113"><b>Qulaylik</b> — mijozning vaqti va kuchini tejash</li>
+            <li data-i="114"><b>Xavfni kamaytirish</b> — kafolat, qaytarish, sinov muddati</li>
+            <li data-i="115"><b>Brend va maqom</b> — mijoz o'zini qanday his qilishi</li>
+          </ul>
         </div>
         <div class="card" style="--c:var(--blue)">
-          <span class="icon">🏪</span><h3 data-i="111">Kichik biznes — tartibga solingan tizim</h3>
-          <ul class="tick">
-            <li data-i="112">Aniq tashkiliy tuzilma bor (sotuvchi, ishlab chiqaruvchi, hisobchi)</li>
-            <li data-i="113">Bank krediti, ijara, soliq hisoboti bilan ishlaydi</li>
-            <li data-i="114">Barqaror mijozlar bazasi shakllangan</li>
-            <li data-i="115">Foyda qayta biznesga investitsiya qilinadi</li>
-          </ul>
-          <p style="margin-top:10px" data-i="116"><b>Misollar:</b> non zavodchasi, tikuv sexi, kafe, avtoservis, o'quv markazi, qurilish materiallari do'koni.</p>
-          <p style="color:var(--muted);font-size:13.5px" data-i="117">Doimiy joy: do'kon, ustaxona yoki ofis mavjud.</p>
+          <span class="icon">📝</span><h3 data-i="116">Formula bo'yicha yozing</h3>
+          <p data-i="117">Bitta gapga sig'diring:</p>
+          <div class="quote" data-i="118"><b>[Mijoz]</b> uchun <b>[muammo]</b>ni <b>[yechim]</b> orqali hal qilamiz, natijada u <b>[aniq foyda]</b>ga erishadi.</div>
+          <p data-i="119"><b>Misol:</b> "Yotoqxonadagi talaba uchun issiq ovqat muammosini oldindan buyurtma va 12:00 da yetkazib berish orqali hal qilamiz — u <b>navbatda 40 daqiqa turmaydi</b>."</p>
+          <p data-i="120">✕ <b>Yomon misol:</b> "Biz sifatli va arzon ovqat taklif qilamiz." — Buni <b>har kim</b> ayta oladi, demak bu qiymat taklifi emas.</p>
         </div>
       </div>
+      <small class="note" data-i="121">Tekshiruv: qiymat taklifingizni raqobatchining nomiga almashtirsangiz ham to'g'ri chiqsa — u <b>hali yetarlicha aniq emas</b>.</small>
     </div>
   </section>
 
-  <!-- ============ 9 ============ -->
-  <section class="slide" data-title="Startap ≠ yangi biznes" data-title-en="Startup ≠ new business">
+  <section class="slide" data-title="③ Kanallar" data-title-en="③ Channels">
     <div class="inner">
-      <span class="kicker" data-i="118">2.3 · Eng ko'p adashtiradigan tushuncha</span>
-      <h2 data-i="119">Har qanday yangi biznes <span class="grad-w">startap emas!</span></h2>
-      <div class="def" style="background:linear-gradient(135deg,var(--violet),var(--pink))" data-i="120">Startap — <b>noaniqlik sharoitida</b> ishlaydigan, <b>tez va katta miqyosda o'sish (masshtablanish)</b> uchun mo'ljallangan, odatda <b>innovatsion yoki texnologik</b> yechimga asoslangan yosh tashkilot.</div>
-      <div class="tw" style="margin-top:14px"><table>
-        <thead><tr><th data-i="121">Mezon</th><th data-i="122">🏪 Kichik biznes</th><th data-i="123">🚀 Startap</th></tr></thead>
+      <span class="kicker" data-i="122">2.3 · Mijozgacha bo'lgan yo'l</span>
+      <h2 data-i="123">③ Kanallar — <span class="grad">qiymat mijozga qanday yetib boradi</span></h2>
+      <div class="def" data-i="124"><b>Kanal</b> — mijoz mahsulot haqida <b>biladigan</b>, uni <b>baholaydigan</b>, <b>sotib oladigan</b>, <b>qo'lga oladigan</b> va <b>yordam oladigan</b> yo'l. Bitta kanal emas, <b>5 ta bosqich</b> borligini unutmang.</div>
+      <div class="tw"><table>
+        <thead><tr><th data-i="125">Bosqich</th><th data-i="126">Savol</th><th data-i="127">Misol</th></tr></thead>
         <tbody>
-          <tr><td data-i="124"><b>Maqsad</b></td><td data-i="125">Barqaror, doimiy daromad</td><td data-i="126">Tez va keskin o'sish</td></tr>
-          <tr><td data-i="127"><b>Model</b></td><td data-i="128">Sinalgan model (do'kon, kafe)</td><td data-i="129">Yangi, sinalmagan model</td></tr>
-          <tr><td data-i="130"><b>Miqyos</b></td><td data-i="131">Mahalliy (mahalla, shahar)</td><td data-i="132">Milliy yoki global</td></tr>
-          <tr><td data-i="133"><b>Mijoz soni</b></td><td data-i="134">Yuzlab – minglab</td><td data-i="135">Yuz minglab – millionlab</td></tr>
-          <tr><td data-i="136"><b>Pul manbai</b></td><td data-i="137">O'z mablag'i, kredit</td><td data-i="138">Investor, venchur kapital</td></tr>
-          <tr><td data-i="139"><b>Xavf darajasi</b></td><td data-i="140">O'rtacha</td><td data-i="141">Juda yuqori</td></tr>
-          <tr><td data-i="142"><b>Misol</b></td><td data-i="143">Mahalladagi oshxona</td><td data-i="144">Ovqat yetkazib berish platformasi</td></tr>
+          <tr><td data-i="128"><b>1. Xabardorlik</b></td><td data-i="129">Mijoz bizni qanday biladi?</td><td data-i="130">Instagram, Telegram kanal, og'zaki reklama</td></tr>
+          <tr><td data-i="131"><b>2. Baholash</b></td><td data-i="132">Taklifni qanday solishtiradi?</td><td data-i="133">Sayt, sharhlar, tanishlarning tavsiyasi</td></tr>
+          <tr><td data-i="134"><b>3. Sotib olish</b></td><td data-i="135">Qayerda va qanday to'laydi?</td><td data-i="136">Do'kon, bot, Payme/Click, naqd</td></tr>
+          <tr><td data-i="137"><b>4. Yetkazish</b></td><td data-i="138">Mahsulotni qanday oladi?</td><td data-i="139">Kuryer, o'zi olib ketish, yuklab olish</td></tr>
+          <tr><td data-i="140"><b>5. Xizmat</b></td><td data-i="141">Muammo chiqsa nima bo'ladi?</td><td data-i="142">Qo'llab-quvvatlash, kafolat, qaytarish</td></tr>
         </tbody>
       </table></div>
-      <div class="quote" style="margin-top:14px" data-i="145">⭐ <b>Muhim qoida:</b> bitta oshxona ochish — <b>kichik biznes</b>. Yuzlab oshxonani bitta ilovaga ulash — <b>startap</b>.</div>
-    </div>
-  </section>
-
-  <!-- ============ 10 ============ -->
-  <section class="slide" data-title="Oilaviy va ijtimoiy" data-title-en="Family and social">
-    <div class="inner">
-      <span class="kicker">2.4 – 2.5</span>
-      <h2 data-i="146">Oilaviy va <span class="grad">ijtimoiy</span> tadbirkorlik</h2>
-      <div class="grid g2">
-        <div>
-          <h3 style="color:var(--orange)" data-i="147">👨‍👩‍👧 Oilaviy tadbirkorlik</h3>
-          <div class="tw"><table>
-            <thead><tr><th data-i="148">Kuchli tomonlari</th><th data-i="149">Zaif tomonlari</th></tr></thead>
-            <tbody>
-              <tr><td class="g" data-i="150">Ishonch yuqori, nazorat xarajati past</td><td class="r" data-i="151">Oilaviy va ishchi munosabatlar aralashadi</td></tr>
-              <tr><td class="g" data-i="152">Mehnat resursi arzon va sodiq</td><td class="r" data-i="153">Vazifalar aniq taqsimlanmasligi mumkin</td></tr>
-              <tr><td class="g" data-i="154">Hunar avloddan-avlodga o'tadi</td><td class="r" data-i="155">Professional kadr jalb qilish qiyin</td></tr>
-              <tr><td class="g" data-i="156">Qiyin paytda oila jamg'armasi zaxira</td><td class="r" data-i="157">Nizolar biznesga ham, oilaga ham zarar</td></tr>
-            </tbody>
-          </table></div>
-          <p style="margin-top:8px;font-size:14px" data-i="158"><b>Misollar:</b> oilaviy non yopish korxonasi, kulolchilik va kashtachilik ustaxonasi, oilaviy issiqxona xo'jaligi. O'zbekistonda <b>oilaviy korxona</b> — alohida huquqiy maqom.</p>
-        </div>
-        <div>
-          <h3 style="color:var(--pink)" data-i="159">🤝 Ijtimoiy tadbirkorlik</h3>
-          <div class="card" style="--c:var(--pink)">
-            <p data-i="160">Asosiy maqsad — <b>ijtimoiy muammoni hal qilish</b>, foyda esa shu maqsadga xizmat qiluvchi <b>vosita</b>. Bu xayriya emas: ijtimoiy tadbirkorlik <b>o'zini o'zi moliyalashtiradi</b>.</p>
-            <div class="grid g2" style="margin-top:10px">
-              <div style="background:var(--chip);border-radius:14px;padding:10px 12px"><b style="color:var(--red)">🎁 Xayriya</b><p style="font-size:13.5px;margin:4px 0 0" data-i="161">Pul yig'adi va tarqatadi → mablag' tugagach <b>to'xtaydi</b>.</p></div>
-              <div style="background:var(--chip);border-radius:14px;padding:10px 12px"><b style="color:var(--green)">♻️ Ijtimoiy tadbirkorlik</b><p style="font-size:13.5px;margin:4px 0 0" data-i="162">Daromad topadi va muammoni hal qilishni <b>davom ettiradi</b> → barqaror.</p></div>
-            </div>
-            <ul class="tick" style="margin-top:12px">
-              <li data-i="163">Nogironligi bo'lgan shaxslarni ishga joylashtiradigan tikuv sexi</li>
-              <li data-i="164">Chiqindini qayta ishlab, mahsulot yasaydigan korxona</li>
-              <li data-i="165">Qishloq maktablari uchun arzon ta'lim platformasi</li>
-              <li data-i="166">Ko'zi ojiz odamlar uchun audiokitob xizmati</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ============ 11 ============ -->
-  <section class="slide" data-title="Tadbirkorlik tafakkuri" data-title-en="Entrepreneurial mindset">
-    <div class="inner">
-      <span class="kicker" data-i="167">3-savol · Mindset</span>
-      <h2 data-i="168">Bir xil vaziyat — <span class="grad">ikki xil ko'z</span></h2>
-      <div class="grid g2">
-        <div class="card" style="--c:var(--red)"><span class="icon">😤</span><h3 data-i="169">Birinchi odam</h3><p style="font-size:17px" data-i="170">"Eh, qanday noqulay. Nega bekat qurilmayapti?"</p></div>
-        <div class="card" style="--c:var(--green)"><span class="icon">💡</span><h3 data-i="171">Ikkinchi odam</h3><p style="font-size:17px" data-i="172">"Demak, bu yerda har kuni kamida 200 kishi transport kutadi. Ular yomg'irdan panoh va issiq choy izlaydi. Shu yerda kichik kioska ochsam-chi?"</p></div>
-      </div>
-      <p class="lead" style="margin-top:10px" data-i="173">Ikkalasi ham bir xil narsani ko'rdi, ammo faqat bittasi <b>imkoniyat</b> ko'rdi. Ana shu farq — <b>tadbirkorlik tafakkuri</b>.</p>
-      <div class="tw" style="margin-top:12px"><table>
-        <thead><tr><th data-i="174">Vaziyat</th><th data-i="175">👔 Xodim tafakkuri</th><th data-i="176">🚀 Tadbirkor tafakkuri</th></tr></thead>
-        <tbody>
-          <tr><td data-i="177"><b>Daromad</b></td><td data-i="178">"Oyligim qancha?"</td><td class="g" data-i="179">"Qancha qiymat yaratsam, shuncha olaman"</td></tr>
-          <tr><td data-i="180"><b>Muammo</b></td><td data-i="181">"Bu mening ishim emas"</td><td class="g" data-i="182">"Bu muammoni kim hal qilsa, pul topadi"</td></tr>
-          <tr><td data-i="183"><b>Xatolik</b></td><td data-i="184">"Aybdor kim?"</td><td class="g" data-i="185">"Bundan nima o'rgandim?"</td></tr>
-          <tr><td data-i="186"><b>Vaqt</b></td><td data-i="187">"Ish 18:00 da tugaydi"</td><td class="g" data-i="188">"Natija chiqmaguncha tugamaydi"</td></tr>
-          <tr><td data-i="189"><b>Xavf</b></td><td data-i="190">"Xavfsiz bo'lgani ma'qul"</td><td class="g" data-i="191">"Hisoblangan xavfni qabul qilaman"</td></tr>
-          <tr><td data-i="192"><b>Bilim</b></td><td data-i="193">"Diplom oldim, tamom"</td><td class="g" data-i="194">"Har oy yangi narsa o'rganaman"</td></tr>
-        </tbody>
-      </table></div>
-      <small class="note" data-i="195">Diqqat: "xodim tafakkuri yomon" degani emas — bu shunchaki turli xil yondashuv.</small>
-    </div>
-  </section>
-
-  <!-- ============ 12 ============ -->
-  <section class="slide" data-title="7 belgi va 5 xato" data-title-en="7 traits and 5 mistakes">
-    <div class="inner">
-      <span class="kicker">3.3 – 3.4</span>
-      <h2 data-i="196">Tafakkurning <span class="grad">7 ta belgisi</span> va yoshlarning <span class="grad-w">5 ta xatosi</span></h2>
-      <div class="grid g2">
-        <div>
-          <div class="grid g2">
-            <div class="card" style="--c:var(--green)"><h3 data-i="197">1. Muammoga sezgirlik</h3><p data-i="198">Har bir shikoyat — bepul bozor tadqiqoti.</p></div>
-            <div class="card" style="--c:var(--teal)"><h3 data-i="199">2. Mijozga yo'naltirilganlik</h3><p data-i="200">"Menga yoqdi" emas — "mijozga kerakmi?"</p></div>
-            <div class="card" style="--c:var(--cyan)"><h3 data-i="201">3. Harakatga tezlik</h3><p data-i="202">1 yil reja emas — 1 hafta ichida kichik sinov.</p></div>
-            <div class="card" style="--c:var(--blue)"><h3 data-i="203">4. Hisoblangan tavakkal</h3><p data-i="204">"Eng ko'pi bilan qancha yo'qotaman?"</p></div>
-            <div class="card" style="--c:var(--violet)"><h3 data-i="205">5. Xatodan ma'lumot olish</h3><p data-i="206">Sotilmagan mahsulot — bozorning javobi.</p></div>
-            <div class="card" style="--c:var(--pink)"><h3 data-i="207">6. Topqirlik</h3><p data-i="208">"Menda yo'q" emas — "kimda bor?"</p></div>
-            <div class="card" style="--c:var(--orange)"><h3 data-i="209">7. Qat'iylik</h3><p data-i="210">100 ta "yo'q"dan keyin ham davom etadi.</p></div>
-          </div>
-        </div>
-        <div class="card" style="--c:var(--red)">
-          <span class="icon">⚠️</span><h3 data-i="211">Yosh tadbirkorlarning 5 ta xatosi</h3>
-          <ul class="tick cross">
-            <li data-i="212"><b>Mahsulotga oshiq bo'lish.</b> Oylab mahsulot yasab, keyin "mijoz yo'q" ekanini bilish.</li>
-            <li data-i="213"><b>Katta boshlash.</b> Sinovsiz katta ijara va katta zaxira olish.</li>
-            <li data-i="214"><b>Bozorni so'ramaslik.</b> "Menga yoqdi, demak hammaga yoqadi".</li>
-            <li data-i="215"><b>Hisob-kitobsiz narx.</b> Tannarxni bilmay, raqobatchidan arzon qo'yish.</li>
-            <li data-i="216"><b>Yolg'iz ishlash.</b> Maslahat, mentor va jamoadan voz kechish.</li>
-          </ul>
-          <div class="quote" style="margin-top:12px" data-i="217">Yechim: <b>kichik sinov → mijoz bilan suhbat → tannarxni hisoblash → mentor topish</b>.</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ============ 13 ============ -->
-  <section class="slide" data-title="Muammo = imkoniyat" data-title-en="Problem = opportunity">
-    <div class="inner">
-      <span class="kicker" data-i="218">4-savol</span>
-      <h2 data-i="219">G'oya <span class="grad">o'ylab topilmaydi</span> — u topiladi</h2>
-      <div class="def" style="background:linear-gradient(135deg,var(--orange),var(--pink))" data-i="220">Har bir biznes — <b>kimningdir muammosining pullik yechimi</b>. G'oyalar yaratilmaydi: ular allaqachon odamlarning <b>noroziligi ichida</b> yashiringan.</div>
       <div class="grid g2" style="margin-top:14px">
-        <div>
-          <h3 data-i="221">🔍 Muammolarni qayerdan izlash kerak?</h3>
-          <div class="tw"><table>
-            <thead><tr><th data-i="222">Manba</th><th data-i="223">Misol</th></tr></thead>
-            <tbody>
-              <tr><td data-i="224"><b>O'z kundalik hayotingiz</b><br><span style="color:var(--muted);font-size:13px">Bir kun sizni bezovta qilgan narsalarni yozing</span></td><td data-i="225">"Navbat uzun edi", "yetkazib berish kechikdi"</td></tr>
-              <tr><td data-i="226"><b>Boshqalarning shikoyati</b><br><span style="color:var(--muted);font-size:13px">Oila, kursdosh, qo'shni nimadan nolimoqda?</span></td><td data-i="227">Telegram guruhlari, marketpleysdagi 1–2 yulduzli sharhlar</td></tr>
-              <tr><td data-i="228"><b>Kasbiy tajriba</b><br><span style="color:var(--muted);font-size:13px">Amaliyotdagi samarasiz jarayonlar</span></td><td data-i="229">"Nega buni hali ham qo'lda qilishadi?"</td></tr>
-              <tr><td data-i="230"><b>Bozor bo'shliqlari</b><br><span style="color:var(--muted);font-size:13px">Boshqa joyda bor, sizda yo'q xizmat</span></td><td data-i="231">Xorijda ommalashgan, bizda yo'q servis</td></tr>
-              <tr><td data-i="232"><b>O'zgarishlar</b><br><span style="color:var(--muted);font-size:13px">Yangi qonun, texnologiya, odat</span></td><td data-i="233">Yangi soliq tartibi → buxgalteriya xizmatiga talab</td></tr>
-            </tbody>
-          </table></div>
-        </div>
-        <div>
-          <h3 data-i="234">🧪 Har qanday muammo biznesga aylanadimi? <span style="color:var(--red)">Yo'q!</span></h3>
-          <div class="grid g2">
-            <div class="card" style="--c:var(--green)"><h3 data-i="235">1. Chastota</h3><p data-i="236">Bu muammo tez-tez uchraydimi?</p><p style="color:var(--red);font-size:13.5px" data-i="237">Yiliga bir marta → daromad kam</p></div>
-            <div class="card" style="--c:var(--orange)"><h3 data-i="238">2. Og'riq</h3><p data-i="239">Qanchalik bezovta qiladi?</p><p style="color:var(--red);font-size:13.5px" data-i="240">Kichik noqulaylikka pul to'lanmaydi</p></div>
-            <div class="card" style="--c:var(--blue)"><h3 data-i="241">3. To'lov qobiliyati</h3><p data-i="242">Mijozda pul bormi?</p><p style="color:var(--red);font-size:13.5px" data-i="243">Muammo bor, pul yo'q → biznes yo'q</p></div>
-            <div class="card" style="--c:var(--violet)"><h3 data-i="244">4. Yetarli miqdor</h3><p data-i="245">Duch keladiganlar ko'pmi?</p><p style="color:var(--red);font-size:13.5px" data-i="246">10 kishi uchun biznes qurilmaydi</p></div>
-          </div>
-          <div class="quote" style="margin-top:12px" data-i="247">✍️ <b>Amaliy mashq:</b> 5 daqiqada 10 ta muammo yozing → 4 ta filtrdan o'tkazing → faqat 1–2 tasi qoladi.</div>
-        </div>
+        <div class="card" style="--c:var(--green)"><span class="icon">🏠</span><h3 data-i="143">O'z kanali</h3><p data-i="144">O'z do'koni, sayti, boti, sotuvchisi. <b>Nazorat yuqori, foyda katta</b>, lekin qurish qimmat va sekin.</p></div>
+        <div class="card" style="--c:var(--orange)"><span class="icon">🤝</span><h3 data-i="145">Sherik kanali</h3><p data-i="146">Marketpleys, ulgurji sotuvchi, do'konlar tarmog'i. <b>Tez va keng</b>, lekin komissiya va nazoratning bir qismi yo'qoladi.</p></div>
       </div>
+      <small class="note" data-i="147">Boshlovchi tadbirkor uchun oqilona yo'l: <b>sherik kanali bilan tez boshlash</b>, pul kelgach <b>o'z kanalini qurish</b>.</small>
     </div>
   </section>
 
-  <!-- ============ 14 ============ -->
-  <section class="slide" data-title="Biznes zanjiri" data-title-en="The business chain">
+  <section class="slide" data-title="④ Munosabat · ⑤ Daromad" data-title-en="④ Relationships · ⑤ Revenue">
     <div class="inner">
-      <span class="kicker" data-i="248">5-savol · Eng kuchli vosita</span>
-      <h2 data-i="249">"Muammo – Yechim – Mijoz – Daromad manbai" <span class="grad">zanjiri</span></h2>
-      <div class="chain">
-        <div class="link l1"><h3 data-i="250">1. Muammo</h3><p data-i="251">Nima noto'g'ri?</p><p style="font-size:12.5px" data-i="252">❌ "Odamlar qiynalyapti"<br>✅ "Talabalar tushlik uchun kuniga 40 daqiqa navbatda turadi"</p></div>
-        <div class="link l2"><h3 data-i="253">2. Yechim</h3><p data-i="254">Buni qanday tuzataman?</p><p style="font-size:12.5px" data-i="255">❌ "Ilova yasayman"<br>✅ "Oldindan buyurtma + navbatsiz olib ketish uchun Telegram-bot"</p></div>
-        <div class="link l3"><h3 data-i="256">3. Mijoz</h3><p data-i="257">Buning uchun kim to'laydi?</p><p style="font-size:12.5px" data-i="258">❌ "Hamma talabalar"<br>✅ "Kuniga 2+ juftlikda o'qiydigan, vaqti kam 1–2-kurs talabalari"</p></div>
-        <div class="link l4"><h3 data-i="259">4. Daromad</h3><p data-i="260">Pul qanday kelib tushadi?</p><p style="font-size:12.5px" data-i="261">Sotuv · obuna · komissiya · reklama · xizmat haqi · franshiza</p></div>
+      <span class="kicker" data-i="148">2.4 · Ushlab qolish va pul</span>
+      <h2 data-i="149">④ Mijoz bilan munosabat va ⑤ <span class="grad">daromad oqimlari</span></h2>
+      <div class="grid g2">
+        <div class="card" style="--c:var(--blue)">
+          <span class="icon">💬</span><h3 data-i="150">④ Munosabat turlari</h3>
+          <ul class="tick">
+            <li data-i="151"><b>Shaxsiy xizmat</b> — jonli sotuvchi, menejer</li>
+            <li data-i="152"><b>Maxsus menejer</b> — yirik mijozga biriktirilgan xodim</li>
+            <li data-i="153"><b>O'z-o'ziga xizmat</b> — mijoz hamma ishni o'zi qiladi</li>
+            <li data-i="154"><b>Avtomatlashtirilgan</b> — bot, tavsiya tizimi</li>
+            <li data-i="155"><b>Hamjamiyat</b> — foydalanuvchilar guruhi, forum</li>
+            <li data-i="156"><b>Hammualliflik</b> — mijoz mahsulotni o'zi to'ldiradi</li>
+          </ul>
+          <p data-i="157">📌 Yangi mijoz jalb qilish eskisini saqlab qolishdan <b>bir necha barobar qimmat</b> — shuning uchun bu blok pulga bevosita ta'sir qiladi.</p>
+        </div>
+        <div class="card" style="--c:var(--violet)">
+          <span class="icon">💰</span><h3 data-i="158">⑤ Daromad oqimlari</h3>
+          <ul class="tick">
+            <li data-i="159"><b>Sotuv</b> — mahsulot mulki mijozga o'tadi</li>
+            <li data-i="160"><b>Foydalanish haqi</b> — xizmatdan foydalangani uchun</li>
+            <li data-i="161"><b>Obuna</b> — oylik yoki yillik doimiy to'lov</li>
+            <li data-i="162"><b>Ijara</b> — vaqtincha foydalanish huquqi</li>
+            <li data-i="163"><b>Litsenziya</b> — intellektual mulkdan foydalanish</li>
+            <li data-i="164"><b>Vositachilik haqi</b> — har bitimdan komissiya</li>
+            <li data-i="165"><b>Reklama</b> — auditoriyaga e'lon joylashtirish</li>
+          </ul>
+          <p data-i="166">🧠 Kuchli model — <b>bir nechta oqim</b>: masalan, mahsulot sotuvi + xizmat ko'rsatish + o'quv kursi.</p>
+        </div>
       </div>
-      <p style="margin-top:12px;font-weight:700;color:var(--red)" data-i="262">⛓ Zanjirning bironta bo'g'ini bo'sh qolsa — biznes ishlamaydi.</p>
-      <div class="tw" style="margin-top:10px"><table>
-        <thead><tr><th data-i="263">Misol</th><th data-i="264">Muammo</th><th data-i="265">Yechim</th><th data-i="266">Mijoz</th><th data-i="267">Daromad</th></tr></thead>
-        <tbody>
-          <tr><td data-i="268"><b>🍽 Talabalar tushligi</b></td><td data-i="269">Tanaffus 45 daq., navbat 25–40 daq.</td><td data-i="270">Telegram-bot orqali oldindan buyurtma</td><td data-i="271">Vaqti tig'iz 200–300 talaba</td><td class="g" data-i="272">Har buyurtmadan 10% komissiya</td></tr>
-          <tr><td data-i="273"><b>🧺 Kir yuvish</b></td><td data-i="274">TTJda mashina yetishmaydi, navbat 3–4 kun</td><td data-i="275">Olib ketib, 24 soatda yuvib-dazmollab qaytarish</td><td data-i="276">TTJda yashovchi talabalar</td><td class="g" data-i="277">1 kg narxi + oylik "cheksiz" obuna</td></tr>
-          <tr><td data-i="278"><b>🧵 Ijtimoiy loyiha</b></td><td data-i="279">Qishloq ayollarining hunari bor, bozori yo'q</td><td data-i="280">Brend qilib, onlayn platformada sotish</td><td data-i="281">Milliy hunarga qiziquvchilar va turistlar</td><td class="g" data-i="282">Sotuvdan 20–25% vositachilik</td></tr>
-        </tbody>
-      </table></div>
-      <div class="card" style="--c:var(--violet);margin-top:12px">
-        <h3 data-i="283">✅ Zanjirni tekshirish uchun 5 ta savol</h3>
-        <p style="margin:0" data-i="284">1) Bu muammoni oxirgi 7 kunda nechta odam boshdan kechirdi? · 2) Ular hozir uni qanday hal qilmoqda (raqobatchi kim)? · 3) Mening yechimim mavjud usuldan nimasi bilan yaxshi? · 4) Mijoz qancha to'lashga tayyor? · 5) Bitta sotuvdan qancha foyda qoladi?</p>
-        <p style="margin:8px 0 0;color:var(--green);font-weight:700" data-i="285">Javob bera olsangiz — sizda g'oya emas, <b>biznes gipotezasi</b> bor!</p>
-      </div>
+      <div class="quote" style="margin-top:14px" data-i="167">💡 <b>Narx qanday belgilanadi?</b> <b>Qat'iy narx</b> — hamma uchun bir xil (menyu, narxnoma). <b>Dinamik narx</b> — vaziyatga qarab o'zgaradi: savdolashuv, auksion, talabga qarab narx (aviachipta, taksi). Yangi biznes uchun avval <b>qat'iy narx</b> tavsiya etiladi — hisob-kitob osonroq.</div>
     </div>
   </section>
 
-  <!-- ============ 15 ============ -->
-  <section class="slide" data-title="Xulosa va topshiriq" data-title-en="Summary and assignment">
+  <section class="slide" data-title="⑥ Asosiy resurslar" data-title-en="⑥ Key resources">
     <div class="inner">
-      <span class="kicker" data-i="286">Xulosa</span>
-      <h2 data-i="287">Esda qoladigan <span class="grad">6 ta fikr</span></h2>
-      <div class="grid g3">
-        <div class="card" style="--c:var(--green)"><h3>1</h3><p data-i="288">Tadbirkorlik — bino yoki kapital emas, <b>muammoni ko'rish va yechishga jur'at</b>.</p></div>
-        <div class="card" style="--c:var(--blue)"><h3>2</h3><p data-i="289">Shakllar xilma-xil: mikro, kichik, startap, oilaviy, ijtimoiy. Birini boshqasidan <b>ustun deb bo'lmaydi</b>.</p></div>
-        <div class="card" style="--c:var(--violet)"><h3>3</h3><p data-i="290"><b>Startap ≠ har qanday yangi biznes.</b> Uning asosiy belgisi — tez masshtablanish.</p></div>
-        <div class="card" style="--c:var(--orange)"><h3>4</h3><p data-i="291">Tadbirkorlik tafakkuri — <b>o'rganiladigan ko'nikma</b>: shikoyat → imkoniyat, xato → ma'lumot.</p></div>
-        <div class="card" style="--c:var(--pink)"><h3>5</h3><p data-i="292">Poydevor — <b>Muammo–Yechim–Mijoz–Daromad</b> zanjiri. Bir bo'g'in uzilsa, biznes quladi.</p></div>
-        <div class="card" style="--c:var(--cyan)"><h3>6</h3><p data-i="293">O'zbekistonda kichik biznes <b>YaIMning yarmini</b> yaratmoqda — tarixiy qulay davr.</p></div>
+      <span class="kicker" data-i="168">2.5 · Modelning tayanchi</span>
+      <h2 data-i="169">⑥ Asosiy resurslar — <span class="grad">busiz model ishlamaydi</span></h2>
+      <div class="def" data-i="170"><b>Asosiy resurs</b> — qiymat taklifini yaratish, kanalni ishlatish va daromad olish uchun <b>majburiy</b> bo'lgan aktiv. Savol oddiy: <b>"Bu narsa bo'lmasa, biznes to'xtaydimi?"</b> Agar javob "ha" bo'lsa — bu asosiy resurs.</div>
+      <div class="grid g4" style="margin-top:16px">
+        <div class="card" style="--c:var(--orange)"><span class="icon">🏭</span><h3 data-i="171">Moddiy</h3><p data-i="172">Bino, uskuna, transport, do'kon, tovar zaxirasi, jihozlar.</p></div>
+        <div class="card" style="--c:var(--violet)"><span class="icon">🧠</span><h3 data-i="173">Intellektual</h3><p data-i="174">Brend, retsept, dasturiy ta'minot, patent, mijozlar bazasi.</p></div>
+        <div class="card" style="--c:var(--green)"><span class="icon">👨‍🍳</span><h3 data-i="175">Inson resursi</h3><p data-i="176">Oshpaz, dasturchi, sotuvchi, o'qituvchi — malakali jamoa.</p></div>
+        <div class="card" style="--c:var(--blue)"><span class="icon">💵</span><h3 data-i="177">Moliyaviy</h3><p data-i="178">O'z mablag'i, kredit liniyasi, investor puli, kafolat fondi.</p></div>
       </div>
       <div class="grid g2" style="margin-top:16px">
-        <div class="card" style="--c:var(--amber)">
-          <span class="icon">📓</span><h3 data-i="294">Mustaqil ish: "10 muammo – 1 imkoniyat"</h3>
-          <ul class="clean">
-            <li data-i="295">3 kun davomida kamida <b>10 ta muammo</b>ni daftarga yozing.</li>
-            <li data-i="296">Har birini 4 ta filtrdan o'tkazing va <b>1–5 ball</b> bilan baholang.</li>
-            <li data-i="297">Eng yuqori ball to'plagan <b>1 ta muammo</b>ni tanlang.</li>
-            <li data-i="298">Uning uchun <b>Muammo–Yechim–Mijoz–Daromad</b> jadvalini to'ldiring.</li>
-            <li data-i="299">Kamida <b>3 nafar potensial mijoz</b> bilan suhbatlashing.</li>
+        <div class="card" style="--c:var(--cyan)">
+          <span class="icon">⚖️</span><h3 data-i="179">Sotib olish yoki ijaraga olish?</h3>
+          <ul class="tick">
+            <li data-i="180">Boshida <b>ijara</b> — xavf kam, pul band bo'lmaydi</li>
+            <li data-i="181">Talab tasdiqlangach <b>sotib olish</b> — tannarx pasayadi</li>
+            <li data-i="182">Asosiy bo'lmagan ishni <b>tashqaridan</b> oling (autsorsing)</li>
           </ul>
-          <p style="margin-top:8px;font-size:13.5px;color:var(--muted)" data-i="300">Hajmi: 1–2 bet. Baholash: muammoning aniqligi 30% · zanjir mantiqiyligi 40% · mijoz suhbati 30%.</p>
         </div>
-        <div class="card" style="--c:var(--teal)">
-          <span class="icon">📚</span><h3 data-i="301">Adabiyotlar va foydali resurslar</h3>
-          <ul class="clean">
-            <li data-i="302">Eric Ries — <b>The Lean Startup</b></li>
-            <li data-i="303">Osterwalder &amp; Pigneur — <b>Business Model Generation</b></li>
-            <li data-i="304">Steve Blank — <b>The Four Steps to the Epiphany</b></li>
-            <li data-i="305">Muhammad Yunus — <b>Building Social Business</b></li>
-          </ul>
-          <p style="margin-top:8px" data-i="306"><span class="pill g">birdarcha.uz</span><span class="pill g">my.soliq.uz</span><span class="pill g">stat.uz</span><span class="pill g">lex.uz</span></p>
-          <p style="font-size:13px;color:var(--muted)" data-i="307">Normativ: "Tadbirkorlik faoliyati erkinligining kafolatlari to'g'risida"gi Qonun; PF-50-son Farmon (19.03.2025).</p>
+        <div class="card" style="--c:var(--red)">
+          <span class="icon">⚠️</span><h3 data-i="183">Tipik xato</h3>
+          <p data-i="184">Mijoz topilmasdan turib <b>qimmat uskuna sotib olish</b>. Uskuna — resurs, lekin mijoz yo'q bo'lsa, u <b>omborda turgan pul</b>ga aylanadi.</p>
+          <p data-i="185">🧠 To'g'ri tartib: <b>mijozni tasdiqla → kichik hajmda ishla → keyin resursga investitsiya qil</b>.</p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ============ 16 ============ -->
-  <section class="slide" data-title="Eng boy tadbirkorlar" data-title-en="The richest entrepreneurs">
+  <section class="slide" data-title="⑦ Faoliyat · ⑧ Hamkorlar" data-title-en="⑦ Activities · ⑧ Partners">
     <div class="inner">
-      <span class="kicker" data-i="308">🎁 Bonus · Qiziqarli ma'lumotlar</span>
-      <h2 data-i="309">Dunyoning <span class="grad-w">eng boy tadbirkorlari</span> va yirik kompaniyalar</h2>
+      <span class="kicker" data-i="186">2.6 · Ish va yordamchilar</span>
+      <h2 data-i="187">⑦ Asosiy faoliyat va ⑧ <span class="grad">asosiy hamkorlar</span></h2>
       <div class="grid g2">
-        <div>
-          <h3 data-i="310">💰 Eng boy odamlar (taxminiy, oxirgi yillar reytingi)</h3>
-          <div class="grid" style="gap:9px">
-            <div class="rich"><div class="rk">1</div><div data-i="311"><b>Elon Musk</b><span>Tesla, SpaceX, X · elektromobil va kosmos · ~400+ mlrd $</span></div></div>
-            <div class="rich"><div class="rk">2</div><div data-i="312"><b>Larry Ellison</b><span>Oracle · korporativ dasturiy ta'minot · ~200+ mlrd $</span></div></div>
-            <div class="rich"><div class="rk">3</div><div data-i="313"><b>Jeff Bezos</b><span>Amazon · onlayn savdo · garajda kitob sotishdan boshlagan</span></div></div>
-            <div class="rich"><div class="rk">4</div><div data-i="314"><b>Mark Zuckerberg</b><span>Meta (Facebook, Instagram, WhatsApp) · talabalik yotoqxonasida boshlagan</span></div></div>
-            <div class="rich"><div class="rk">5</div><div data-i="315"><b>Bernard Arnault</b><span>LVMH · 75+ hashamat brendi (Louis Vuitton, Dior)</span></div></div>
-            <div class="rich"><div class="rk">6</div><div data-i="316"><b>Bill Gates &amp; Warren Buffett</b><span>Microsoft · Berkshire Hathaway — investitsiya afsonasi</span></div></div>
-          </div>
-          <small class="note" data-i="317">Raqamlar aksiya narxiga qarab har kuni o'zgaradi — bu taxminiy ko'rsatkichlar (Forbes/Bloomberg reytinglari asosida).</small>
+        <div class="card" style="--c:var(--orange)">
+          <span class="icon">⚙️</span><h3 data-i="188">⑦ Asosiy faoliyat</h3>
+          <p data-i="189">Kompaniya <b>har kuni bajarishi shart</b> bo'lgan eng muhim ishlar. Uch xil bo'ladi:</p>
+          <ul class="tick">
+            <li data-i="190"><b>Ishlab chiqarish</b> — mahsulot yaratish, tayyorlash, yig'ish</li>
+            <li data-i="191"><b>Muammo yechish</b> — har bir mijozga alohida yechim (konsalting, ta'mirlash, tibbiyot)</li>
+            <li data-i="192"><b>Platforma boshqarish</b> — tizimni ishlatish va rivojlantirish (sayt, ilova, tarmoq)</li>
+          </ul>
+          <p data-i="193">📌 Bu blokni to'ldirishning oson yo'li: <b>qiymat taklifiga qarang</b> — uni yaratish uchun qanday ish qilinishi kerak?</p>
         </div>
-        <div>
-          <h3 data-i="318">🏢 Eng qimmat kompaniyalar</h3>
-          <div class="grid g2">
-            <div class="fact"><b>🍏 Apple</b><p data-i="319">1976-yilda garajda tug'ilgan. Bugun bozor qiymati <b>3 trillion dollardan</b> oshadi — bu ko'plab davlatlar iqtisodiyotidan katta.</p></div>
-            <div class="fact"><b>🎮 NVIDIA</b><p data-i="320">Video o'yin kartalaridan boshlab, sun'iy intellekt davrida dunyodagi eng qimmat kompaniyalardan biriga aylandi.</p></div>
-            <div class="fact"><b>🪟 Microsoft</b><p data-i="321">Ikki do'st — Gates va Allen 1975-yilda asos solgan. Bugun bulut va AI bozorining yetakchisi.</p></div>
-            <div class="fact"><b>📦 Amazon</b><p data-i="322">1994-yilda garajda <b>faqat kitob</b> sotgan. Bugun "hamma narsa do'koni" + dunyodagi eng yirik bulut xizmati.</p></div>
-            <div class="fact"><b>🔍 Google</b><p data-i="323">Nomi "googol" (10¹⁰⁰) so'zidagi xatodan kelib chiqqan. Ikki aspirant garajda boshlagan.</p></div>
-            <div class="fact"><b>🚗 Tesla</b><p data-i="324">Bir necha bor bankrotlik yoqasida turgan; bugun elektromobil sanoatining ramzi.</p></div>
-          </div>
+        <div class="card" style="--c:var(--cyan)">
+          <span class="icon">🤝</span><h3 data-i="194">⑧ Asosiy hamkorlar</h3>
+          <p data-i="195">Hamma ishni o'zingiz qilolmaysiz. Hamkor — <b>sizning zaif joyingizni to'ldiradigan</b> tashqi tomon.</p>
+          <ul class="tick">
+            <li data-i="196"><b>Yetkazib beruvchilar</b> — xomashyo, tovar, uskuna</li>
+            <li data-i="197"><b>Strategik ittifoq</b> — raqobatchi bo'lmagan kompaniya bilan hamkorlik</li>
+            <li data-i="198"><b>Qo'shma korxona</b> — yangi yo'nalishni birga ochish</li>
+            <li data-i="199"><b>Xizmat ko'rsatuvchilar</b> — logistika, buxgalteriya, IT, marketing</li>
+          </ul>
+          <p data-i="200">🎯 Hamkorlik 3 sababdan kerak: <b>xarajatni kamaytirish</b>, <b>xavfni bo'lishish</b>, <b>o'zingizda yo'q resursni olish</b>.</p>
         </div>
       </div>
+      <div class="quote" style="margin-top:14px" data-i="201">🧪 <b>Tekshiruv savoli:</b> "Agar shu hamkor ertaga ishlashdan bosh tortsa, biznesim necha kun ishlay oladi?" Javob <b>"bir necha kun"</b> bo'lsa — sizda <b>jiddiy qaramlik</b> bor. Yechim: <b>zaxira hamkor</b> topib qo'yish.</div>
     </div>
   </section>
 
-  <!-- ============ 17 ============ -->
-  <section class="slide" data-title="Qiziqarli faktlar" data-title-en="Interesting facts">
+  <section class="slide" data-title="⑨ Xarajatlar tuzilmasi" data-title-en="⑨ Cost structure">
     <div class="inner">
-      <span class="kicker" data-i="325">🎁 Bonus · Ilhom uchun</span>
-      <h2 data-i="326">Tadbirkorlik haqida <span class="grad">10 ta qiziqarli fakt</span></h2>
-      <div class="grid g3">
-        <div class="fact"><b>👟 35 dollarlik logotip</b><p data-i="327">Nike'ning mashhur "swoosh" belgisini talaba qiz atigi <b>35 dollarga</b> chizib bergan (1971). Bugun u dunyodagi eng tanilgan belgilardan biri.</p></div>
-        <div class="fact"><b>🍗 65 yoshda boshlagan</b><p data-i="328">KFC asoschisi polkovnik Sanders retseptini sotmoqchi bo'lganda <b>1000 dan ortiq marta rad javobi</b> olgan. U biznesni nafaqa yoshida qurgan.</p></div>
-        <div class="fact"><b>🛏 Havo matrasidan boshlangan</b><p data-i="329">Airbnb asoschilari ijara puliga yetmagani uchun mehmonlarga o'z xonasidagi <b>havo matrasini</b> ijaraga bergan. Bugun — global platforma.</p></div>
-        <div class="fact"><b>🍜 KFC ishga olmagan</b><p data-i="330">Alibaba asoschisi Jek Ma KFC'ga ishga kirmoqchi bo'lganda 24 nomzoddan 23 tasi olingan — <b>faqat u rad etilgan</b>. Keyin o'zi imperiya qurdi.</p></div>
-        <div class="fact"><b>🧹 5127 ta urinish</b><p data-i="331">Dyson changyutgichi <b>5127 ta prototip</b>dan keyin muvaffaqiyat qozongan. Muvaffaqiyatsizlik — mag'lubiyat emas, ma'lumot.</p></div>
-        <div class="fact"><b>🐦 52-o'yin</b><p data-i="332">Angry Birds — Rovio kompaniyasining <b>52-o'yini</b> edi. Undan oldingi 51 tasi tanilmagan.</p></div>
-        <div class="fact"><b>🧦 5000 dollarlik g'oya</b><p data-i="333">Spanx asoschisi Sara Bleykli jamg'armasidagi <b>5000 dollar</b> bilan boshlab, o'z kuchi bilan milliarderga aylangan birinchi ayollardan biri bo'ldi.</p></div>
-        <div class="fact"><b>📸 13 kishilik jamoa</b><p data-i="334">Instagram Facebook'ga <b>1 mlrd dollarga</b> sotilganda jamoada atigi 13 nafar xodim bor edi. Miqyos — odam soniga bog'liq emas.</p></div>
-        <div class="fact"><b>🪑 17 yoshli asoschi</b><p data-i="335">IKEA'ni Ingvar Kamprad <b>17 yoshida</b> tashkil etgan. Nomi — uning ismi, fermasi va qishlog'i bosh harflaridan.</p></div>
-        <div class="fact"><b>🥤 Kuniga 9 stakan</b><p data-i="336">Coca-Cola birinchi yili kuniga o'rtacha atigi <b>9 stakan</b> sotgan. Bugun sekundiga o'n minglab. Sabr — strategiya.</p></div>
-        <div class="fact"><b>📉 Statistika</b><p data-i="337">Startaplarning taxminan <b>90 foizi</b> muvaffaqiyatsizlikka uchraydi, eng ko'p sabab — <b>bozorga kerak bo'lmagan mahsulot</b> yaratish.</p></div>
-        <div class="fact"><b>🇺🇿 O'zbekiston</b><p data-i="338">Mamlakatda <b>1,2 milliondan ortiq</b> kichik tadbirkorlik subyekti bor va ular YaIMning <b>yarmini</b> yaratmoqda.</p></div>
+      <span class="kicker" data-i="202">2.7 · Haqiqat oni</span>
+      <h2 data-i="203">⑨ Xarajatlar tuzilmasi va <span class="grad">birlik iqtisodiyoti</span></h2>
+      <div class="grid g2">
+        <div class="card" style="--c:var(--red)">
+          <span class="icon">🧾</span><h3 data-i="204">Ikki xil xarajat</h3>
+          <p data-i="205"><b>Doimiy xarajat</b> — sotuv bo'lsa ham, bo'lmasa ham to'lanadi: ijara, oylik maosh, internet, litsenziya.</p>
+          <p data-i="206"><b>O'zgaruvchan xarajat</b> — har bir sotilgan birlikka bog'liq: xomashyo, qadoq, yetkazish, tranzaksiya komissiyasi.</p>
+          <p data-i="207">📌 Doimiy xarajat qancha katta bo'lsa, biznes <b>shuncha xavfli</b>: savdo tushsa ham u to'xtamaydi.</p>
+        </div>
+        <div class="card" style="--c:var(--green)">
+          <span class="icon">🧮</span><h3 data-i="208">Birlik iqtisodiyoti</h3>
+          <p data-i="209">Modelning sog'lomligi <b>bitta mijozdan</b> ko'rinadi. Eng oddiy hisob:</p>
+          <div class="quote" data-i="210"><b>Bir birlik foydasi = narx − o'zgaruvchan xarajat − mijoz jalb qilish xarajati</b></div>
+          <p data-i="211"><b>Misol:</b> tushlik narxi 20 000, tayyorlash 12 000, yetkazish 2 000, reklama bir mijozga 1 000 → foyda <b>5 000 so'm</b>.</p>
+          <p data-i="212">Doimiy xarajat oyiga 3 000 000 so'm bo'lsa: <b>3 000 000 ÷ 5 000 = 600 ta buyurtma</b> — bu <b>zararsizlik nuqtasi</b>.</p>
+        </div>
       </div>
-      <div class="quote" style="margin-top:16px" data-i="339">💡 Umumiy xulosa: bu odamlarning hech biri <b>katta pul bilan</b> boshlamagan. Ularning barchasi bitta narsadan boshlagan — <b>hal qilinmagan muammodan</b>.</div>
+      <div class="tw" style="margin-top:14px"><table>
+        <thead><tr><th data-i="213">Yondashuv</th><th data-i="214">Mohiyati</th><th data-i="215">Kimga mos</th></tr></thead>
+        <tbody>
+          <tr><td data-i="216"><b>Xarajatga yo'naltirilgan</b></td><td data-i="217">Maksimal arzonlashtirish, avtomatlashtirish, minimal xizmat</td><td data-i="218">Ommaviy bozor, arzon narx segmenti</td></tr>
+          <tr><td data-i="219"><b>Qiymatga yo'naltirilgan</b></td><td data-i="220">Yuqori sifat, shaxsiy xizmat, premium taassurot</td><td data-i="221">Premium segment, maxsus xizmatlar</td></tr>
+        </tbody>
+      </table></div>
+      <small class="note" data-i="222">⚠️ Eng ko'p uchraydigan xato: bir birlikdan <b>foyda qolmaydigan</b> modelni reklama bilan kengaytirish. Har bir yangi mijoz bunda <b>zararni ko'paytiradi</b> — avval birlik iqtisodiyotini musbat qiling, keyin o'sing.</small>
     </div>
   </section>
 
-  <!-- ============ 18 ============ -->
+  <section class="slide" data-title="Obuna va franshiza" data-title-en="Subscription and franchise">
+    <div class="inner">
+      <span class="kicker" data-i="223">3-blok</span>
+      <h2 data-i="224">Zamonaviy modellar I — <span class="grad">obuna va franshiza</span></h2>
+      <div class="grid g2">
+        <div class="card" style="--c:var(--violet)">
+          <span class="icon">🔁</span><h3 data-i="225">Obuna tizimi (subscription)</h3>
+          <p data-i="226">Mijoz bir martalik emas, <b>muntazam</b> to'laydi: oyiga yoki yiliga. Buning evaziga xizmat to'xtovsiz ishlaydi.</p>
+          <p data-i="227"><b>Misollar:</b> Netflix va Spotify (kontent), Microsoft 365 va Adobe Creative Cloud (dastur), sport zali abonementi, gazeta obunasi, oylik ovqat paketi.</p>
+          <ul class="tick">
+            <li data-i="228"><b>Daromad bashorat qilinadi</b> — kelgusi oyni rejalashtirish oson</li>
+            <li data-i="229"><b>Bir mijoz uzoq vaqt daromad beradi</b> (hayotiy qiymat o'sadi)</li>
+          </ul>
+          <ul class="tick cross">
+            <li data-i="230">Mijoz istalgan vaqtda <b>bekor qilishi</b> mumkin — ushlab qolish ustida doim ishlash kerak</li>
+            <li data-i="231">Qiymat har oy <b>qayta isbotlanishi</b> shart</li>
+          </ul>
+          <p data-i="232">🧠 Adobe 2013-yilda qutidagi litsenziyadan obunaga o'tdi — daromad bir martalikdan <b>doimiy oqim</b>ga aylandi.</p>
+        </div>
+        <div class="card" style="--c:var(--orange)">
+          <span class="icon">🏪</span><h3 data-i="233">Franshiza</h3>
+          <p data-i="234">Brend egasi (<b>franchayzer</b>) o'z nomi, texnologiyasi va standartlarini boshqa tadbirkorga (<b>franchayzi</b>) shartnoma asosida foydalanishga beradi.</p>
+          <p data-i="235"><b>To'lovlar:</b> boshlang'ich <b>franshiza haqi</b> (kirish to'lovi) va muntazam <b>royalti</b> — odatda tushumdan foiz.</p>
+          <ul class="tick">
+            <li data-i="236">Franchayzi <b>tayyor brend va tizim</b> oladi — xavf kamayadi</li>
+            <li data-i="237">Franchayzer <b>o'z puliga qurmasdan</b> tarmoqni kengaytiradi</li>
+          </ul>
+          <ul class="tick cross">
+            <li data-i="238">Franchayzi <b>standartga qattiq bog'langan</b> — ijodkorlik chegaralangan</li>
+            <li data-i="239">Bitta nuqtadagi xato <b>butun brendga</b> zarar yetkazadi</li>
+          </ul>
+          <p data-i="240">🍔 McDonald's restoranlarining katta qismi franshiza asosida ishlaydi. O'zbekistondagi xalqaro tarmoqlar ham shu yo'l bilan kirgan.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Platforma · B2B · B2C" data-title-en="Platform · B2B · B2C">
+    <div class="inner">
+      <span class="kicker" data-i="241">3.2 · Yana uch model</span>
+      <h2 data-i="242">Zamonaviy modellar II — <span class="grad">platforma, B2B va B2C</span></h2>
+      <div class="grid g3">
+        <div class="card" style="--c:var(--blue)">
+          <span class="icon">🌐</span><h3 data-i="243">Onlayn platforma</h3>
+          <p data-i="244">Kompaniya mahsulot ishlab chiqarmaydi — <b>ikki tomonni bog'laydi</b> va har bitimdan komissiya oladi.</p>
+          <p data-i="245"><b>Misollar:</b> Amazon va Uzum Market (sotuvchi ↔ xaridor), Uber va Yandex Go (haydovchi ↔ yo'lovchi), Airbnb (uy egasi ↔ mehmon), Booking (mehmonxona ↔ sayyoh).</p>
+          <p data-i="246">⚡ <b>Tarmoq effekti:</b> sotuvchi ko'paysa xaridor ko'payadi, xaridor ko'paysa sotuvchi ko'payadi. Shuning uchun platforma <b>tez o'sadi</b>, lekin <b>"tovuqmi-tuxummi"</b> muammosi bor: boshida ikkala tomon ham yo'q.</p>
+        </div>
+        <div class="card" style="--c:var(--green)">
+          <span class="icon">🏢</span><h3 data-i="247">B2B (biznesdan biznesga)</h3>
+          <p data-i="248">Mijoz — <b>tashkilot</b>. Non zavodi kafelarga non sotadi, IT kompaniya bankka dastur yozadi.</p>
+          <ul class="tick">
+            <li data-i="249">Bitim <b>katta</b>, mijoz soni <b>kam</b></li>
+            <li data-i="250">Qaror <b>uzoq</b> qabul qilinadi, bir necha kishi qatnashadi</li>
+            <li data-i="251">Shartnoma, hisob-faktura va <b>keyinchalik to'lov</b> odatiy holat</li>
+            <li data-i="252">Aloqa uzoq muddatli: bitta mijoz <b>yillar davomida</b> ishlaydi</li>
+          </ul>
+        </div>
+        <div class="card" style="--c:var(--pink)">
+          <span class="icon">🛍</span><h3 data-i="253">B2C (biznesdan iste'molchiga)</h3>
+          <p data-i="254">Mijoz — <b>oddiy xaridor</b>. Do'kon, kafe, sartaroshxona, onlayn kiyim savdosi.</p>
+          <ul class="tick">
+            <li data-i="255">Bitim <b>kichik</b>, mijoz soni <b>juda ko'p</b></li>
+            <li data-i="256">Qaror <b>tez</b>, ko'pincha his-tuyg'u asosida</li>
+            <li data-i="257">To'lov <b>darhol</b>, odatda naqd yoki karta bilan</li>
+            <li data-i="258">Reklama, brend va qadoq <b>hal qiluvchi</b> ahamiyatga ega</li>
+          </ul>
+        </div>
+      </div>
+      <div class="quote" style="margin-top:14px" data-i="259">🔀 Bir kompaniya <b>bir nechta modelni</b> birlashtira oladi: masalan, qahvaxona iste'molchiga qahva sotadi (B2C), ofislarga donada qahva yetkazadi (B2B), oylik "qahva abonementi" chiqaradi (obuna) va boshqa shaharda franshiza beradi. <b>Model — qat'iy qolip emas, konstruktor.</b></div>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Muvaffaqiyatli modellar" data-title-en="Successful models">
+    <div class="inner">
+      <span class="kicker" data-i="260">3.3 · Amaliyotdan</span>
+      <h2 data-i="261">Muvaffaqiyatli <span class="grad">biznes modellar</span> va ularning siri</h2>
+      <div class="tw"><table>
+        <thead><tr><th data-i="262">Kompaniya</th><th data-i="263">Model</th><th data-i="264">Asosiy g'oyasi (siri)</th></tr></thead>
+        <tbody>
+          <tr><td data-i="265"><b>Netflix</b></td><td data-i="266">Obuna</td><td data-i="267">Bitta kinoga emas, <b>cheksiz ko'rishga</b> to'lash: har oy barqaror daromad</td></tr>
+          <tr><td data-i="268"><b>Spotify</b></td><td data-i="269">Freemium + obuna</td><td data-i="270">Bepul reklamali versiya <b>mijozni jalb qiladi</b>, pullik versiya daromad beradi</td></tr>
+          <tr><td data-i="271"><b>McDonald's</b></td><td data-i="272">Franshiza</td><td data-i="273">Standart va brendni sotish — tarmoq <b>hamkorlar puliga</b> kengayadi</td></tr>
+          <tr><td data-i="274"><b>Amazon</b></td><td data-i="275">Platforma + savdo</td><td data-i="276">O'z tovari va <b>boshqalarning tovari</b> bitta saytda: komissiya + sotuv</td></tr>
+          <tr><td data-i="277"><b>Uber / Yandex Go</b></td><td data-i="278">Platforma</td><td data-i="279">Bitta ham avtomobili yo'q — <b>faqat bog'laydi</b> va komissiya oladi</td></tr>
+          <tr><td data-i="280"><b>Airbnb</b></td><td data-i="281">Platforma</td><td data-i="282">Mehmonxona qurmaydi — <b>bo'sh xonalarni</b> bozorga chiqaradi</td></tr>
+          <tr><td data-i="283"><b>Gillette</b></td><td data-i="284">"Ustara va tig'"</td><td data-i="285">Dastani arzon beradi, <b>almashtiriladigan tig'dan</b> doimiy daromad oladi</td></tr>
+          <tr><td data-i="286"><b>IKEA</b></td><td data-i="287">Xarajatga yo'naltirilgan</td><td data-i="288">Yig'ishni <b>mijozga topshiradi</b> — narx va logistika keskin arzonlashadi</td></tr>
+          <tr><td data-i="289"><b>Microsoft 365</b></td><td data-i="290">Litsenziyadan obunaga</td><td data-i="291">Bir martalik sotuv o'rniga <b>yillik to'lov</b>: mijoz doim yangilanishda</td></tr>
+          <tr><td data-i="292"><b>Uzum / Express24</b></td><td data-i="293">Onlayn platforma</td><td data-i="294">Mahalliy sotuvchi va xaridorni <b>bitta ilovada</b> uchrashtiradi</td></tr>
+        </tbody>
+      </table></div>
+      <div class="quote" style="margin-top:14px" data-i="295">🧠 <b>Umumiy qonuniyat:</b> bu kompaniyalarning hech biri shunchaki "yaxshi mahsulot" qilgani uchun yutmagan. Ularning har biri <b>pul aylanish tartibini</b> o'zgartirgan: kim to'laydi, qachon to'laydi va nima uchun to'laydi — ana shu savollarga <b>yangicha javob</b> topgan.</div>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Xulosa va mustaqil ish" data-title-en="Summary and assignment">
+    <div class="inner">
+      <span class="kicker" data-i="296">Xulosa · Topshiriq · Havolalar</span>
+      <h2 data-i="297">Yakuniy <span class="grad">xulosa</span> va <span class="grad">foydali resurslar</span></h2>
+      <div class="card" style="--c:var(--green)">
+        <span class="icon">📌</span><h3 data-i="298">Esda qoladigan 6 ta fikr</h3>
+        <ul class="tick">
+          <li data-i="299">Biznes-model — g'oya emas, <b>pul qanday aylanishining chizmasi</b>.</li>
+          <li data-i="300">Canvas har doim <b>mijozdan</b> boshlanadi, mahsulotdan emas.</li>
+          <li data-i="301">Qiymat taklifi <b>raqobatchiga to'g'ri kelmasligi</b> kerak — aks holda u aniq emas.</li>
+          <li data-i="302">Daromad oqimi bitta bo'lsa — model <b>zaif</b>; bir nechta bo'lsa — barqaror.</li>
+          <li data-i="303">Birlik iqtisodiyoti manfiy bo'lsa, <b>o'sish zararni ko'paytiradi</b>.</li>
+          <li data-i="304">Model — qat'iy qolip emas: obuna, franshiza, platforma va B2B/B2C <b>birlashtirilishi</b> mumkin.</li>
+        </ul>
+      </div>
+      <div class="grid g2" style="margin-top:16px">
+        <div class="card" style="--c:var(--violet)">
+          <span class="icon">📓</span><h3 data-i="305">Mustaqil ish: "Mening biznes-modelim"</h3>
+          <ul class="tick">
+            <li data-i="306">O'z g'oyangiz uchun <b>9 blokli canvas</b>ni to'liq to'ldiring.</li>
+            <li data-i="307">Mijoz segmentini <b>3 ta aniq belgi</b> bilan yozing (joy, yosh, ehtiyoj).</li>
+            <li data-i="308">Qiymat taklifini <b>formula bo'yicha bitta gapga</b> sig'diring.</li>
+            <li data-i="309">Bir birlik foydasini hisoblang va <b>zararsizlik nuqtasini</b> toping.</li>
+            <li data-i="310">Modelingiz qaysi turga yaqinligini (obuna, franshiza, platforma, B2B, B2C) <b>asoslang</b>.</li>
+          </ul>
+          <small class="note" data-i="311">Hajmi: 1–2 bet + canvas jadvali. Baholash: canvas to'liqligi 40% · hisob-kitob 30% · asoslangan xulosa 30%.</small>
+        </div>
+        <div class="card" style="--c:var(--blue)">
+          <span class="icon">🔗</span><h3 data-i="312">Foydali resurslar</h3>
+          <ul class="clean">
+            <li data-i="313"><a class="lnk" href="https://www.strategyzer.com/library/the-business-model-canvas" target="_blank" rel="noopener">strategyzer.com</a> — Canvasning rasmiy shabloni va qo'llanmasi</li>
+            <li data-i="314"><a class="lnk" href="https://birdarcha.uz" target="_blank" rel="noopener">birdarcha.uz</a> — biznesni ro'yxatdan o'tkazish va davlat xizmatlari</li>
+            <li data-i="315"><a class="lnk" href="https://stat.uz" target="_blank" rel="noopener">stat.uz</a> — bozor hajmini baholash uchun rasmiy statistika</li>
+            <li data-i="316"><a class="lnk" href="https://lex.uz" target="_blank" rel="noopener">lex.uz</a> — franshiza va shartnomalarga oid qonunchilik</li>
+            <li data-i="317"><a class="lnk" href="https://soliq.uz" target="_blank" rel="noopener">soliq.uz</a> — soliq rejimi modelga qanday ta'sir qilishi</li>
+            <li data-i="318"><a class="lnk" href="https://ibb.uz" target="_blank" rel="noopener">ibb.uz</a> — Kichik biznes va tadbirkorlikni qo'llab-quvvatlash</li>
+          </ul>
+          <p data-i="319"><b>Vositalar:</b> <span class="pill g">Canva / Figma (canvas chizish)</span><span class="pill g">Excel yoki Google Sheets</span><span class="pill g">Telegram-bot va marketpleyslar</span></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <section class="slide" data-title="TEST · Bilimni tekshirish" data-title-en="TEST · Check your knowledge">
     <div class="inner">
-      <span class="kicker" data-i="340">Yakuniy nazorat</span>
-      <h2 data-i="341">🧪 Test topshiriqlari — <span class="grad">o'zingizni sinang</span></h2>
+      <span class="kicker" data-i="320">Yakuniy nazorat</span>
+      <h2 data-i="321">🧪 Test topshiriqlari — <span class="grad">15 ta savol</span></h2>
       <div class="scorebar">
         <span><span data-ui="score">Natija:</span> <b><span id="scoreNow">0</span> / <span id="scoreMax">15</span></b></span>
         <span><span data-ui="answered">Javob berildi:</span> <b id="answered">0</b></span>
         <div class="spacer"></div>
-        <button class="btn warn" id="btnReset" data-i="342">↻ Testni qayta boshlash</button>
+        <button class="btn warn" id="btnReset" data-i="322">↻ Testni qayta boshlash</button>
       </div>
       <div id="testWrap"></div>
       <div class="result" id="result">
         <div class="pct" id="pct">0%</div>
-        <h3 id="resTitle" style="color:#fff;margin:10px 0 4px" data-i="343">Natija</h3>
+        <h3 id="resTitle" style="color:#fff;margin:10px 0 4px" data-i="323">Natija</h3>
         <p id="resTxt" style="color:#fff;opacity:.95;margin:0"></p>
       </div>
       <div class="card" style="--c:var(--green);margin-top:18px;text-align:center">
-        <h3 data-i="344">🎓 Rahmat! E'tiboringiz uchun tashakkur</h3>
-        <p data-i="345">Keyingi mavzuda biznes gipotezasini <b>amalda sinab ko'ramiz</b>. Daftaringizni tayyorlang — "10 muammo – 1 imkoniyat" topshirig'i sizni kutmoqda.</p>
-        <p style="color:var(--muted);font-size:13.5px" data-i="346">Termiz davlat universiteti · Tadbirkorlik asoslari</p>
+        <h3 data-i="324">🎓 Rahmat! E'tiboringiz uchun tashakkur</h3>
+        <p data-i="325">Keyingi mashg'ulotgacha o'z g'oyangiz uchun <b>9 blokli biznes-model canvas</b>ini to'ldirib keling — dars aynan shu chizmadan boshlanadi.</p>
+        <p style="color:var(--muted);font-size:13.5px" data-i="326">Termiz davlat universiteti · Tadbirkorlik asoslari</p>
       </div>
     </div>
   </section>
@@ -1037,24 +1028,8 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 <!-- RT:BEGIN -->
-<script>var RT_CFG={"topic": "m1", "slides": 18, "pSlide": 2, "pAll": 10, "teacher": "terdu2026", "firebase": {"db": "tadbirkorlik-asoslari-default-rtdb", "regions": ["europe-west1", "us-central1", "asia-southeast1", "europe-west4", "asia-east1", "us-east1", "northamerica-northeast1"]}, "topics": [{"id": "m1", "file": "index.html", "title": "M1 · Tadbirkorlik tafakkuri va biznes imkoniyatlar", "open": true}, {"id": "m2", "file": "mavzu-2.html", "title": "M2 · Mijoz muammosi asosida biznes g'oya", "open": false}, {"id": "m3", "file": "mavzu-3.html", "title": "M3 · Mahsulotni kam xarajat bilan sinash (moliya va kredit)", "open": false}, {"id": "m4", "file": "mavzu-4.html", "title": "M4 · Biznesni qonuniy rasmiylashtirish", "open": false}, {"id": "m5", "file": "mavzu-5.html", "title": "M5 · Soliqlar va hujjatlar", "open": false}, {"id": "m6", "file": "mavzu-6.html", "title": "M6 · Biznes-model qanday ishlaydi", "open": false}], "tracks": [{"file": "Musofir.mp3", "title": "Musofir", "artist": ""}]};</script>
+<script>var RT_CFG={"topic": "m6", "slides": 18, "pSlide": 2, "pAll": 10, "teacher": "terdu2026", "firebase": {"db": "tadbirkorlik-asoslari-default-rtdb", "regions": ["europe-west1", "us-central1", "asia-southeast1", "europe-west4", "asia-east1", "us-east1", "northamerica-northeast1"]}, "topics": [{"id": "m1", "file": "index.html", "title": "M1 · Tadbirkorlik tafakkuri va biznes imkoniyatlar", "open": true}, {"id": "m2", "file": "mavzu-2.html", "title": "M2 · Mijoz muammosi asosida biznes g'oya", "open": false}, {"id": "m3", "file": "mavzu-3.html", "title": "M3 · Mahsulotni kam xarajat bilan sinash (moliya va kredit)", "open": false}, {"id": "m4", "file": "mavzu-4.html", "title": "M4 · Biznesni qonuniy rasmiylashtirish", "open": false}, {"id": "m5", "file": "mavzu-5.html", "title": "M5 · Soliqlar va hujjatlar", "open": false}, {"id": "m6", "file": "mavzu-6.html", "title": "M6 · Biznes-model qanday ishlaydi", "open": false}], "tracks": [{"file": "Musofir.mp3", "title": "Musofir", "artist": ""}]};</script>
 <script>
 /* ================== TerDU REYTING TIZIMI ================== */
 var RT=(function(){
@@ -2179,7 +2154,7 @@ var UI={
  r0t:["📚 Takrorlash zarur","📚 Revision needed"],
  r0x:["Slaydlarni boshidan ko'rib chiqing va testni qaytadan yeching.",
       "Go through the slides from the beginning and take the test again."],
- subj:["", "Fundamentals of Entrepreneurship · Topic 1"]
+ subj:["Tadbirkorlik asoslari · M6-mavzu", "Fundamentals of Entrepreneurship · Topic 6"]
 };
 var lang="uz", i18nNodes=[], i18nOrig=[], uiNodes=[], uiOrig=[];
 function UIT(k){ return (UI[k]||["",""])[lang==="en"?1:0]; }
@@ -2222,7 +2197,7 @@ function go(n){
   $("#btnNext").disabled=(n===total-1);
   slides[n].scrollTop=0;
   if(window.RT) RT.slideSeen(n);
-  try{localStorage.setItem("terdu_slide",n)}catch(e){}
+  try{localStorage.setItem("terdu_m3_slide",n)}catch(e){}
   try{history.replaceState(null,"","#"+(n+1));}catch(e){} /* RT_HASH */
   var hn=document.getElementById("hint"); if(hn&&n>0)hn.classList.add("hide");
   if(slides[n].querySelector("[data-count]")) countUp(slides[n]);
@@ -2313,65 +2288,96 @@ document.getElementById("deck").addEventListener("touchend",function(e){
 
 /* ================= TEST ================= */
 var Q=[
- {q:"Tadbirkorlik faoliyatining eng muhim ajratuvchi belgisi qaysi?",
-  a:["Katta boshlang'ich kapitalning mavjudligi",
-     "Tavakkalchilik va shaxsiy mas'uliyat asosida daromad olishga qaratilganlik",
-     "Davlat buyurtmasi asosida ishlash",
-     "Doimiy oylik maosh olish"],c:1,
-  e:"Tadbirkorlik — tashabbus, tavakkalchilik, qiymat yaratish va daromad ustunlariga tayanadi."},
- {q:"Quyidagilardan qaysi biri startapning asosiy belgisi hisoblanadi?",
-  a:["Oilaviy mehnatga tayanishi","Faqat mahalliy bozorga xizmat qilishi",
-     "Tez va katta miqyosda o'sish (masshtablanish) imkoniyati","Foyda olishni maqsad qilmasligi"],c:2,
-  e:"Startapning asosiy belgisi — masshtablanish: milliy yoki global miqyosda tez o'sish."},
- {q:"Mahalladagi bitta kichik oshxona qaysi shaklga kiradi?",
-  a:["Startap","Mikrobiznes / kichik biznes","Ijtimoiy tadbirkorlik","Venchur loyiha"],c:1,
-  e:"Bitta oshxona — sinalgan model, mahalliy miqyos. Yuzlab oshxonani bitta ilovaga ulash esa — startap."},
- {q:"Ijtimoiy tadbirkorlikning xayriyadan asosiy farqi nimada?",
-  a:["Ijtimoiy tadbirkorlik daromad topib, o'zini o'zi moliyalashtiradi",
-     "Ijtimoiy tadbirkorlik soliq to'lamaydi","Xayriya har doim samaraliroq","Ijtimoiy tadbirkorlikda mijoz bo'lmaydi"],c:0,
-  e:"Xayriya mablag' tugagach to'xtaydi, ijtimoiy tadbirkorlik esa daromad hisobiga barqaror davom etadi."},
- {q:"\"Muammo – Yechim – Mijoz – Daromad manbai\" zanjirida oxirgi bo'g'in nimani anglatadi?",
-  a:["Mahsulot dizaynini","Xodimlar sonini",
-     "Pul biznesga qanday, kimdan va qaysi model orqali kelib tushishini","Ofis manzilini"],c:2,
-  e:"Monetizatsiya modellari: sotuv, obuna, komissiya, reklama, xizmat haqi, franshiza."},
- {q:"Quyidagi mijoz ta'riflaridan qaysi biri to'g'ri shakllantirilgan?",
-  a:["Hamma odamlar","Yoshlar","Butun O'zbekiston aholisi",
-     "TTJda yashovchi, kir yuvish mashinasiga navbat kutayotgan 1–2-kurs talabalari"],c:3,
-  e:"\"Hamma\" — mijoz emas. Mijoz aniq, o'lchanadigan guruh bo'lishi shart."},
- {q:"Muammoni baholashda \"to'lov qobiliyati\" filtri nimani tekshiradi?",
-  a:["Muammoning qanchalik tez-tez uchrashini","Mijozda bu muammoni hal qilish uchun pul bor-yo'qligini",
-     "Raqobatchilar sonini","Mahsulot rangini"],c:1,
-  e:"Muammo bor, ammo mijozda pul yo'q bo'lsa — biznes ham yo'q."},
- {q:"Tadbirkorlik tafakkuriga xos yondashuv qaysi?",
-  a:["\"Bu mening vazifam emas\"","\"Xatoga kim aybdor?\"",
-     "\"Bu muammoni kim yechsa, qiymat yaratadi\"","\"Ish vaqti tugadi, ertaga ko'ramiz\""],c:2,
-  e:"Tadbirkor muammoni ayb izlash emas, qiymat yaratish imkoniyati sifatida ko'radi."},
- {q:"2026-yil birinchi yarim yilligida O'zbekistonda kichik tadbirkorlikning YaIMdagi ulushi qanchani tashkil etdi?",
-  a:["20,5 %","35,0 %","50,5 %","78,0 %"],c:2,
-  e:"518,7 trln so'm — ya'ni yaratilgan har ikki so'mning bittasi kichik biznes hissasiga to'g'ri keladi."},
- {q:"Yosh tadbirkorning eng keng tarqalgan xatosi qaysi?",
-  a:["Mijoz bilan suhbatlashish","Mahsulotni bozorda sinamasdan, katta xarajat qilib ishlab chiqarish",
-     "Tannarxni hisoblash","Kichik miqyosdan boshlash"],c:1,
-  e:"\"Mahsulotga oshiq bo'lish\" — oylab yasab, keyin mijoz yo'qligini bilish."},
- {q:"Oilaviy tadbirkorlikning zaif tomoni qaysi?",
-  a:["Ishonch darajasining pastligi","Mehnat resursining qimmatligi",
-     "Oilaviy va ishchi munosabatlarning aralashib ketishi","Bilimning avloddan-avlodga o'tmasligi"],c:2,
-  e:"Rollar aralashganda nizolar ham biznesga, ham oilaga zarar yetkazadi."},
- {q:"Biznesni boshlashdagi to'g'ri ketma-ketlik qaysi?",
-  a:["Pul topish → ofis ijaraga olish → g'oya o'ylash",
-     "Muammoni topish → yechimni sinash → kengaytirish uchun mablag' jalb qilish",
-     "Katta kredit olish → mahsulot yasash → mijoz izlash",
-     "Reklama berish → do'kon ochish → muammo qidirish"],c:1,
-  e:"Pul — birinchi emas, uchinchi qadam."},
- {q:"BONUS: Nike kompaniyasining mashhur \"swoosh\" logotipi dastlab qanchaga chizib berilgan?",
-  a:["35 dollarga","3 500 dollarga","35 000 dollarga","Bepul, asoschining o'zi chizgan"],c:0,
-  e:"1971-yilda talaba qiz Kerolin Devidson uni 35 dollarga chizib bergan."},
- {q:"BONUS: Dyson changyutgichi bozorga chiqquniga qadar nechta prototip yasalgan?",
-  a:["27 ta","512 ta","5 127 ta","51 ta"],c:2,
-  e:"5 127 ta urinish — muvaffaqiyatsizlik mag'lubiyat emas, ma'lumot ekanining eng yaxshi isboti."},
- {q:"BONUS: Amazon 1994-yilda dastlab nima sotish bilan boshlangan?",
-  a:["Elektronika","Kitob","Kiyim","Oziq-ovqat"],c:1,
-  e:"Jeff Bezos garajda onlayn kitob do'konini ochgan — keyin \"hamma narsa do'koni\"ga aylangan."}
+ {q:"Biznes-model birinchi navbatda nimani tushuntiradi?",
+  a:["Kompaniyaning yillik soliq hisobotini tuzish tartibini",
+     "Xodimlar o'rtasida vazifalar qanday taqsimlanishini",
+     "Qiymat kim uchun yaratilib, qanday pulga aylanishini",
+     "Mahsulot ishlab chiqarish texnologiyasi bosqichlarini"],c:2,
+  e:"Model uch savolga javob beradi: kim uchun, qanday qiymat va qanday daromad."},
+ {q:"G'oya bilan biznes-modelning asosiy farqi nimada?",
+  a:["G'oya og'zaki aytiladi, model esa albatta chop etiladi",
+     "Model mijoz, kanal va daromadni aniq ko'rsatib beradi",
+     "G'oya xizmat sohasida, model esa savdoda qo'llaniladi",
+     "Model faqat yirik kompaniyalar uchun tuziladigan hujjat"],c:1,
+  e:"G'oya — bitta gap, model esa mijoz, kanal, daromad va xarajatdan iborat tizim."},
+ {q:"Canvasni to'ldirish qaysi blokdan boshlanishi kerak?",
+  a:["Xarajatlar tuzilmasi — avval sarfni bilish kerak bo'ladi",
+     "Asosiy resurslar — avval nima borligi aniqlanishi shart",
+     "Daromad oqimlari — avval foydani hisoblash kerak bo'ladi",
+     "Mijozlar segmenti — model har doim mijozdan boshlanadi"],c:3,
+  e:"Avval mijoz aniqlanadi; qiymat, kanal va daromad undan keyin keladi."},
+ {q:"\"Mening mijozim — yoshlar\" ta'rifi nega yaroqsiz?",
+  a:["Yoshlar hech qachon xizmat uchun pul to'lamaydi degani",
+     "Segment juda keng, kanal ham reklama ham noaniq qoladi",
+     "Yoshlar bilan ishlashga maxsus litsenziya talab etiladi",
+     "Bunday segment faqat onlayn savdoda ishlatilishi mumkin"],c:1,
+  e:"Segment qancha aniq bo'lsa, kanal aniqroq va reklama arzonroq bo'ladi."},
+ {q:"Kuchli qiymat taklifining belgisi qaysi javobda?",
+  a:["Unda mahsulotning barcha texnik xususiyatlari sanaladi",
+     "U raqobatchi nomiga almashtirilsa ham to'g'ri chiqadi",
+     "U mijozning aniq foydasini bitta gapda ko'rsatib beradi",
+     "Unda narx raqobatchinikidan past ekani ta'kidlanadi"],c:2,
+  e:"Qiymat taklifi mahsulot ta'rifi emas, mijozning aniq foydasi bo'lishi kerak."},
+ {q:"Kanal blokidagi \"baholash\" bosqichi nimani anglatadi?",
+  a:["Mijozning taklifni boshqalar bilan solishtirib ko'rishi",
+     "Xodimlarning yillik natijasini o'lchab chiqish tartibi",
+     "Mahsulot tannarxini qayta hisoblab chiqish jarayoni",
+     "Yetkazib beruvchini tanlashda qo'llanadigan mezonlar"],c:0,
+  e:"Kanalning 5 bosqichi: xabardorlik, baholash, sotib olish, yetkazish, xizmat."},
+ {q:"O'z kanali sherik kanalidan nimasi bilan farq qiladi?",
+  a:["O'z kanali komissiya evaziga keng qamrov berib turadi",
+     "O'z kanalida nazorat va foyda ulushi yuqoriroq bo'ladi",
+     "O'z kanali faqat xizmat ko'rsatuvchi biznesda uchraydi",
+     "O'z kanalida mijoz bilan bevosita aloqa bo'lmay qoladi"],c:1,
+  e:"O'z kanali qimmat va sekin quriladi, lekin nazorat va marja yuqori bo'ladi."},
+ {q:"Obuna modelining asosiy afzalligi nimadan iborat?",
+  a:["Mijoz bir marta to'laydi va boshqa xarajat qilmaydi",
+     "Kelgusi oylar daromadini oldindan rejalashtirish oson",
+     "Mahsulot sifatini har oy tekshirish shart bo'lmaydi",
+     "Reklamaga umuman pul sarflamaslik imkonini beradi"],c:1,
+  e:"Muntazam to'lov daromadni bashorat qilinadigan va barqaror qiladi."},
+ {q:"Franshizadagi royalti to'lovi nimani bildiradi?",
+  a:["Franchayzi to'laydigan muntazam to'lov, odatda tushumdan",
+     "Franchayzer beradigan bir martalik qaytmas yordam puli",
+     "Brendni ro'yxatga olish uchun davlatga to'lanadigan boj",
+     "Xodimlarga yillik natija uchun beriladigan mukofot puli"],c:0,
+  e:"Royalti — brend va tizimdan foydalanish uchun muntazam to'lanadigan haq."},
+ {q:"Onlayn platforma modelining mohiyati nimada?",
+  a:["Mahsulotni o'zi ishlab chiqarib, onlayn do'konda sotish",
+     "Ikki tomonni bog'lab, har bir bitimdan komissiya olish",
+     "Tovarni ulgurji olib, chakana narxda sotib yuborish",
+     "Reklama joylashtirish uchun bino ijaraga olib ishlash"],c:1,
+  e:"Platforma mahsulot yaratmaydi — u sotuvchi va xaridorni uchrashtiradi."},
+ {q:"Tarmoq effekti qanday ishlaydi?",
+  a:["Reklama byudjeti oshgani sari mahsulot tannarxi pasayadi",
+     "Bir tomon ko'paysa, ikkinchi tomon ham ko'payib boraveradi",
+     "Xodimlar soni ortgani sari boshqaruv xarajati kamayadi",
+     "Mahsulot turi ko'paygani sari mijoz ehtiyoji qisqaradi"],c:1,
+  e:"Sotuvchi ko'paysa xaridor, xaridor ko'paysa sotuvchi ko'payadi."},
+ {q:"B2B modelining B2C dan farqi qaysi javobda to'g'ri?",
+  a:["B2B da bitim kichik, mijoz ko'p va qaror juda tez bo'ladi",
+     "B2B da bitim katta, mijoz kam va qaror uzoq qabul qilinadi",
+     "B2B da to'lov faqat naqd, B2C da esa karta bilan bo'ladi",
+     "B2B da reklama hal qiluvchi, B2C da shartnoma hal qiluvchi"],c:1,
+  e:"B2B da mijoz — tashkilot: bitim yirik, qaror jamoaviy va sekin bo'ladi."},
+ {q:"Doimiy xarajatning o'zgaruvchan xarajatdan farqi nimada?",
+  a:["Doimiy xarajat sotuv bo'lmasa ham baribir to'lanaveradi",
+     "Doimiy xarajat har bir sotilgan birlikka bog'liq bo'ladi",
+     "Doimiy xarajat faqat ishlab chiqarish korxonalarida bo'ladi",
+     "Doimiy xarajat soliq to'langandan keyin hisobga olinadi"],c:0,
+  e:"Ijara va oylik maosh — savdo bo'lmasa ham to'lanadigan doimiy xarajat."},
+ {q:"Birlik iqtisodiyoti manfiy bo'lsa, nima qilish kerak?",
+  a:["Reklamani ko'paytirib, mijoz sonini tezda oshirish kerak",
+     "Narx, xarajat yoki modelning o'zini qayta ko'rib chiqish",
+     "Doimiy xarajatni oshirib, sifat darajasini oshirish kerak",
+     "Yangi filial ochib, savdo hajmini keskin kengaytirish lozim"],c:1,
+  e:"Har bir yangi mijoz zararni oshiradi — avval modelni tuzatish kerak."},
+ {q:"Zararsizlik nuqtasi qanday hisoblab topiladi?",
+  a:["Doimiy xarajat bir birlik foydasiga bo'linib topiladi",
+     "Yillik tushum xodimlar soniga bo'linib aniqlab olinadi",
+     "O'zgaruvchan xarajat sof foydaga ko'paytirib chiqiladi",
+     "Umumiy daromaddan soliq summasi ayirib tashlanadi xolos"],c:0,
+  e:"Misol: 3 000 000 doimiy xarajat ÷ 5 000 foyda = 600 ta buyurtma."}
 ];
 var picked=new Array(Q.length).fill(null), KEYS=["A","B","C","D"];
 $("#scoreMax").textContent=Q.length;
@@ -2436,8 +2442,10 @@ renderTest();
 
 
 /* ================= UZ / ENG mexanizmi ================= */
-var EN={"0": "Topic 1 · Lecture · 2 hours", "1": "ENTREPRENEURIAL MINDSET AND IDENTIFYING BUSINESS OPPORTUNITIES", "2": "Entrepreneurship is not a building or big capital. It is the art of <b>seeing a problem</b> and having the <b>courage to solve it</b>.", "3": "📚 Course: <b>Fundamentals of Entrepreneurship</b>", "4": "🎓 <b>Termez State University</b>", "5": "🗂 <b>18</b> slides · <b>15</b> test questions", "6": "⌨️ Press <b>→</b> to continue", "7": "Aim of the topic", "8": "What will the student <span class=\"grad\">know by the end?</span>", "9": "Aim: to build a solid understanding of entrepreneurship, to distinguish its forms and — most importantly — to awaken the skill of <b>seeing everyday problems around you as business opportunities</b>.", "10": "Can explain", "11": "Explains in their own words what entrepreneurship is and who an entrepreneur is.", "12": "Can distinguish", "13": "Tells apart micro business, small business, a startup, family and social entrepreneurship.", "14": "Understands", "15": "Grasps the difference between the \"employee mindset\" and the \"entrepreneur mindset\".", "16": "Can find", "17": "Finds at least 3 problems in everyday life and turns them into business ideas.", "18": "Can build", "19": "Builds the \"Problem – Solution – Customer – Revenue source\" chain independently.", "20": "Can evaluate", "21": "Tests an idea through 4 filters and separates the strong ones from the weak.", "22": "Lecture plan", "23": "Today we will go through <span class=\"grad\">5 stages</span>", "24": "Concept", "25": "What entrepreneurship is and its essence.", "26": "Forms", "27": "Micro, small, startup, family, social.", "28": "Mindset", "29": "The mindset and its traits.", "30": "Opportunity", "31": "Turning a problem into a business.", "32": "Chain", "33": "Problem–Solution–Customer–Revenue.", "34": "🔑 Key concepts", "35": "<span class=\"pill g\">entrepreneurship</span><span class=\"pill\">entrepreneur</span><span class=\"pill\">risk</span>\n        <span class=\"pill\">resource</span><span class=\"pill\">added value</span><span class=\"pill g\">micro business</span>\n        <span class=\"pill\">small business</span><span class=\"pill g\">startup</span><span class=\"pill\">scalability</span>\n        <span class=\"pill\">family entrepreneurship</span><span class=\"pill\">social entrepreneurship</span><span class=\"pill g\">entrepreneurial mindset</span>\n        <span class=\"pill\">business opportunity</span><span class=\"pill\">customer</span><span class=\"pill\">monetisation</span><span class=\"pill\">value chain</span>", "36": "Question 1", "37": "Entrepreneurship is <span class=\"grad\">not a place, but a way of thinking</span>", "38": "Most people picture a shop, a market stall or a factory when they hear the word \"entrepreneurship\". In reality it is not a building — it is a <b>type of activity</b> and a <b>way of thinking</b>.", "39": "Entrepreneurship is a <b>lawful</b> activity carried out on a person's <b>own initiative</b>, at their <b>own responsibility and risk</b>, creating a product or service that <b>solves other people's problems</b> and thereby earning a <b>regular income</b>.", "40": "The Law of the Republic of Uzbekistan \"On guarantees of freedom of entrepreneurial activity\" also defines it as an initiative activity carried out <b>at one's own risk</b> and <b>aimed at earning income</b>.", "41": "The 4 pillars of the definition", "42": "Pillar", "43": "Meaning", "44": "Simple example", "45": "🚀 Initiative", "46": "Nobody orders you — you start it yourself", "47": "Seeing that the neighbourhood has no dry-cleaning service and opening one", "48": "🎲 Risk", "49": "The result is not guaranteed, loss is possible", "50": "You invested 10 million so'm — customers may never come", "51": "💎 Value creation", "52": "You create something useful for people", "53": "It saves time, is cheaper, better or more convenient", "54": "💰 Income", "55": "This is not charity — the goal is profit", "56": "Cost 30 thousand, price 50 thousand → profit 20 thousand so'm", "57": "The entrepreneur's capital", "58": "An entrepreneur's first tool is <span class=\"grad-w\">not money</span>", "59": "An entrepreneur is a person who <b>combines existing resources in a new way</b> (money, time, knowledge, equipment, people), <b>creates value</b> that did not exist before and is <b>personally answerable</b> for the result.", "60": "\"I have no money, so I cannot start a business\" — this is the most common false excuse. Money is <b>not the first but the third</b> step in the sequence.", "61": "The entrepreneur's first capital", "62": "The ability to <b>see a problem</b>", "63": "The skill of <b>talking to people</b>", "64": "<b>The courage to start small and test</b>", "65": "The right sequence", "66": "<b>1.</b> Find the problem → <b>2.</b> Test the solution → <b>3.</b> Raise money to scale", "67": "✕ Wrong: take a loan → build the product → look for customers", "68": "The case of Uzbekistan", "69": "Small business is the <span class=\"grad\">main engine</span> of the economy", "70": "thousand small business entities (as of 1 July 2026)", "71": "share of small business in GDP (518.7 trillion so'm)", "72": "target: SME share in GDP (Decree PF-50, 2025)", "73": "target: share in employment", "74": "375.1 thousand", "75": "Individual entrepreneurs (IE)", "76": "526.7 thousand", "77": "Small enterprises and micro firms", "78": "23.2 thousand", "79": "Craftsmen", "80": "5.1 thousand", "81": "Family entrepreneurs", "82": "<b>One out of every two so'm</b> created in the country comes from small business. So entrepreneurship is not a \"side activity\" — it is a <b>wide field of opportunity</b> for a young specialist.", "83": "Source: National Statistics Committee (stat.uz); Decree PF-50 of the President of Uzbekistan, 19 March 2025.", "84": "Question 2", "85": "The <span class=\"grad\">5 modern forms</span> of entrepreneurship", "86": "Entrepreneurship does not come in a single mould. None is \"better\" than another — each has its own purpose and scale.", "87": "Micro business", "88": "1–5 people, minimal capital, local market.", "89": "Baking cakes, phone repair, tutoring", "90": "Small business", "91": "Structure, bookkeeping, a fixed location and a customer base.", "92": "Café, sewing workshop, car service", "93": "Startup", "94": "Uncertainty + innovation + fast scaling.", "95": "A delivery platform", "96": "Family", "97": "Owners and workforce are members of one family.", "98": "A family bakery", "99": "Social", "100": "The goal is to solve a social problem; profit is the tool.", "101": "Waste recycling", "102": "📈 The growth chain encouraged by law: <b>self-employed person → individual entrepreneur → small business → medium business → large enterprise</b>.", "103": "Micro business and <span class=\"grad\">small business</span>", "104": "Micro business — the smallest scale", "105": "Starts with low cost (sometimes 1–2 million so'm)", "106": "Serves the local market (neighbourhood, district)", "107": "Starts quickly, stops quickly", "108": "Income is steady, but growth is slow", "109": "<b>Examples:</b> baking cakes at home, phone repair, social media design, tutoring, flowers, house cleaning, photo/video services.", "110": "Usually registered as a \"self-employed person\" or an <b>individual entrepreneur</b>.", "111": "Small business — an organised system", "112": "There is a clear structure (seller, producer, accountant)", "113": "Works with bank loans, rent and tax reporting", "114": "A stable customer base has formed", "115": "Profit is reinvested into the business", "116": "<b>Examples:</b> a small bakery, sewing workshop, café, car service, training centre, building materials shop.", "117": "A permanent location: a shop, workshop or office.", "118": "2.3 · The most confusing concept", "119": "Not every new business is <span class=\"grad-w\">a startup!</span>", "120": "A startup is a young organisation working <b>under uncertainty</b>, designed for <b>fast and large-scale growth (scaling)</b>, usually based on an <b>innovative or technological</b> solution.", "121": "Criterion", "122": "🏪 Small business", "123": "🚀 Startup", "124": "<b>Goal</b>", "125": "Stable, steady income", "126": "Fast and sharp growth", "127": "<b>Model</b>", "128": "A proven model (shop, café)", "129": "A new, untested model", "130": "<b>Scale</b>", "131": "Local (neighbourhood, city)", "132": "National or global", "133": "<b>Number of customers</b>", "134": "Hundreds – thousands", "135": "Hundreds of thousands – millions", "136": "<b>Source of money</b>", "137": "Own funds, a loan", "138": "Investor, venture capital", "139": "<b>Level of risk</b>", "140": "Moderate", "141": "Very high", "142": "<b>Example</b>", "143": "A canteen in the neighbourhood", "144": "A food delivery platform", "145": "⭐ <b>Key rule:</b> opening one canteen is a <b>small business</b>. Connecting hundreds of canteens to one app is a <b>startup</b>.", "146": "Family and <span class=\"grad\">social</span> entrepreneurship", "147": "👨‍👩‍👧 Family entrepreneurship", "148": "Strengths", "149": "Weaknesses", "150": "High trust, low cost of control", "151": "Family and work relations get mixed up", "152": "Labour is cheap and loyal", "153": "Roles may not be clearly divided", "154": "The craft passes from generation to generation", "155": "Hiring professional staff is difficult", "156": "In hard times family savings act as a reserve", "157": "Conflicts harm both the business and the family", "158": "<b>Examples:</b> a family bakery, a pottery and embroidery workshop, a family greenhouse. In Uzbekistan a <b>family enterprise</b> is a separate legal status.", "159": "🤝 Social entrepreneurship", "160": "The main goal is <b>solving a social problem</b>, while profit is the <b>tool</b> that serves that goal. This is not charity: social entrepreneurship <b>funds itself</b>.", "161": "Collects and hands out money → <b>stops</b> when the funds run out.", "162": "Earns income and <b>keeps solving</b> the problem → sustainable.", "163": "A sewing workshop that employs people with disabilities", "164": "A company that recycles waste into products", "165": "A cheap education platform for rural schools", "166": "An audiobook service for blind people", "167": "Question 3 · Mindset", "168": "The same situation — <span class=\"grad\">two different eyes</span>", "169": "The first person", "170": "\"Oh, how inconvenient. Why isn't a bus stop being built?\"", "171": "The second person", "172": "\"So at least 200 people wait for transport here every day. They are looking for shelter from the rain and a hot cup of tea. What if I opened a small kiosk right here?\"", "173": "Both saw the same thing, but only one saw an <b>opportunity</b>. That difference is the <b>entrepreneurial mindset</b>.", "174": "Situation", "175": "👔 Employee mindset", "176": "🚀 Entrepreneur mindset", "177": "<b>Income</b>", "178": "\"How much is my salary?\"", "179": "\"The more value I create, the more I earn\"", "180": "<b>Problem</b>", "181": "\"That is not my job\"", "182": "\"Whoever solves this problem will earn money\"", "183": "<b>Mistake</b>", "184": "\"Who is to blame?\"", "185": "\"What did I learn from this?\"", "186": "<b>Time</b>", "187": "\"Work ends at 18:00\"", "188": "\"It ends when the result is there\"", "189": "<b>Risk</b>", "190": "\"Better to stay safe\"", "191": "\"I accept calculated risk\"", "192": "<b>Knowledge</b>", "193": "\"I got my diploma, that's it\"", "194": "\"I learn something new every month\"", "195": "Note: this does not mean the \"employee mindset\" is bad — it is simply a different approach.", "196": "The <span class=\"grad\">7 traits</span> of the mindset and the <span class=\"grad-w\">5 mistakes</span> of young entrepreneurs", "197": "1. Sensitivity to problems", "198": "Every complaint is free market research.", "199": "2. Customer focus", "200": "Not \"I like it\" but \"does the customer need it?\"", "201": "3. Bias to action", "202": "Not a one-year plan — a small test within a week.", "203": "4. Calculated risk", "204": "\"What is the most I can lose?\"", "205": "5. Learning from failure", "206": "An unsold product is the market's answer.", "207": "6. Resourcefulness", "208": "Not \"I don't have it\" but \"who does?\"", "209": "7. Persistence", "210": "Keeps going even after a hundred \"no\"s.", "211": "The 5 mistakes of young entrepreneurs", "212": "<b>Falling in love with the product.</b> Building it for months and only then finding out there are no customers.", "213": "<b>Starting big.</b> Taking expensive rent and large stock without testing.", "214": "<b>Not asking the market.</b> \"I like it, so everyone will like it\".", "215": "<b>Pricing without maths.</b> Undercutting competitors without knowing your own cost.", "216": "<b>Working alone.</b> Refusing advice, a mentor and a team.", "217": "The fix: <b>a small test → a customer interview → calculating cost → finding a mentor</b>.", "218": "Question 4", "219": "An idea is <span class=\"grad\">not invented</span> — it is found", "220": "Every business is <b>a paid solution to someone's problem</b>. Ideas are not created: they are already hidden inside people's <b>dissatisfaction</b>.", "221": "🔍 Where should you look for problems?", "222": "Source", "223": "Example", "263": "Example", "224": "<b>Your own daily life</b><br><span style=\"color:var(--muted);font-size:13px\">Write down everything that annoyed you in one day</span>", "225": "\"The queue was long\", \"the delivery was late\"", "226": "<b>Other people's complaints</b><br><span style=\"color:var(--muted);font-size:13px\">What are family, classmates and neighbours complaining about?</span>", "227": "Telegram groups, 1–2 star reviews on marketplaces", "228": "<b>Professional experience</b><br><span style=\"color:var(--muted);font-size:13px\">Inefficient processes seen during practice</span>", "229": "\"Why is this still done by hand?\"", "230": "<b>Market gaps</b><br><span style=\"color:var(--muted);font-size:13px\">A service that exists elsewhere but not here</span>", "231": "A service popular abroad that we do not have", "232": "<b>Changes</b><br><span style=\"color:var(--muted);font-size:13px\">A new law, technology or habit</span>", "233": "New tax rules → demand for accounting services", "234": "🧪 Does every problem become a business? <span style=\"color:var(--red)\">No!</span>", "235": "1. Frequency", "236": "Does this problem occur often?", "237": "Once a year → little income", "238": "2. Pain", "239": "How much does it bother people?", "240": "Nobody pays for a minor inconvenience", "241": "3. Ability to pay", "242": "Does the customer have money?", "243": "Problem yes, money no → no business", "244": "4. Sufficient number", "245": "Do many people face it?", "246": "You cannot build a business for 10 people", "247": "✍️ <b>Practical exercise:</b> write 10 problems in 5 minutes → run them through the 4 filters → only 1–2 will remain.", "248": "Question 5 · The most powerful tool", "249": "The \"Problem – Solution – Customer – Revenue source\" <span class=\"grad\">chain</span>", "250": "1. Problem", "251": "What is wrong?", "252": "❌ \"People are struggling\"<br>✅ \"Students spend 40 minutes a day queueing for lunch\"", "253": "2. Solution", "254": "How do I fix it?", "255": "❌ \"I will build an app\"<br>✅ \"A Telegram bot for pre-ordering and skipping the queue\"", "256": "3. Customer", "257": "Who pays for it?", "258": "❌ \"All students\"<br>✅ \"1st–2nd year students with 2+ classes a day and little time\"", "259": "4. Revenue", "260": "How does the money come in?", "261": "Sales · subscription · commission · advertising · service fee · franchise", "262": "⛓ If any link of the chain is empty — the business will not work.", "264": "Problem", "265": "Solution", "266": "Customer", "267": "Revenue", "268": "<b>🍽 Student lunch</b>", "269": "Break is 45 min, the queue takes 25–40 min", "270": "Pre-ordering through a Telegram bot", "271": "200–300 students short on time", "272": "10% commission on every order", "273": "<b>🧺 Laundry</b>", "274": "Not enough machines in the dormitory, a 3–4 day wait", "275": "Collect, wash and iron, return within 24 hours", "276": "Students living in the dormitory", "277": "Price per kg + a monthly \"unlimited\" subscription", "278": "<b>🧵 Social project</b>", "279": "Rural women have the craft but no market", "280": "Branding it and selling on an online platform", "281": "City dwellers and tourists interested in national crafts", "282": "20–25% intermediary share of sales", "283": "✅ 5 questions to test the chain", "284": "1) How many people experienced this problem in the last 7 days? · 2) How do they solve it now (who is the competitor)? · 3) How exactly is my solution better than the existing way? · 4) How much is the customer ready to pay? · 5) How much profit remains from one sale?", "285": "If you can answer them — you no longer have an idea, you have a <b>business hypothesis</b>!", "286": "Summary", "287": "<span class=\"grad\">6 ideas</span> to remember", "288": "Entrepreneurship is not a building or capital — it is <b>seeing a problem and daring to solve it</b>.", "289": "The forms are diverse: micro, small, startup, family, social. <b>None is superior</b> to another.", "290": "<b>A startup ≠ any new business.</b> Its key trait is fast scaling.", "291": "The entrepreneurial mindset is <b>a learnable skill</b>: complaint → opportunity, mistake → information.", "292": "The foundation is the <b>Problem–Solution–Customer–Revenue</b> chain. Break one link and the business collapses.", "293": "In Uzbekistan small business creates <b>half of GDP</b> — a historically favourable time.", "294": "Independent work: \"10 problems – 1 opportunity\"", "295": "Write at least <b>10 problems</b> in a notebook over 3 days.", "296": "Run each through the 4 filters and score it from <b>1 to 5</b>.", "297": "Choose the <b>one problem</b> with the highest score.", "298": "Fill in the <b>Problem–Solution–Customer–Revenue</b> table for it.", "299": "Talk to at least <b>3 potential customers</b>.", "300": "Length: 1–2 pages. Marking: clarity of the problem 30% · logic of the chain 40% · customer interviews 30%.", "301": "Literature and useful resources", "302": "Eric Ries — <b>The Lean Startup</b>", "303": "Osterwalder &amp; Pigneur — <b>Business Model Generation</b>", "304": "Steve Blank — <b>The Four Steps to the Epiphany</b>", "305": "Muhammad Yunus — <b>Building Social Business</b>", "306": "<span class=\"pill g\">birdarcha.uz</span><span class=\"pill g\">my.soliq.uz</span><span class=\"pill g\">stat.uz</span><span class=\"pill g\">lex.uz</span>", "307": "Legislation: the Law \"On guarantees of freedom of entrepreneurial activity\"; Decree PF-50 (19.03.2025).", "308": "🎁 Bonus · Interesting facts", "309": "The world's <span class=\"grad-w\">richest entrepreneurs</span> and largest companies", "310": "💰 The richest people (approximate, recent rankings)", "311": "<b>Elon Musk</b><span>Tesla, SpaceX, X · electric cars and space · ~$400+ bn</span>", "312": "<b>Larry Ellison</b><span>Oracle · corporate software · ~$200+ bn</span>", "313": "<b>Jeff Bezos</b><span>Amazon · online retail · started selling books in a garage</span>", "314": "<b>Mark Zuckerberg</b><span>Meta (Facebook, Instagram, WhatsApp) · started in a student dorm</span>", "315": "<b>Bernard Arnault</b><span>LVMH · 75+ luxury brands (Louis Vuitton, Dior)</span>", "316": "<b>Bill Gates &amp; Warren Buffett</b><span>Microsoft · Berkshire Hathaway — an investing legend</span>", "317": "The figures change daily with share prices — these are approximate values (based on Forbes/Bloomberg rankings).", "318": "🏢 The most valuable companies", "319": "Born in a garage in 1976. Today its market value exceeds <b>3 trillion dollars</b> — more than the economies of many countries.", "320": "Starting from video game cards, it became one of the world's most valuable companies in the age of artificial intelligence.", "321": "Founded by two friends, Gates and Allen, in 1975. Today it leads the cloud and AI market.", "322": "In 1994 it sold <b>only books</b> from a garage. Today it is the \"everything store\" plus the world's largest cloud service.", "323": "Its name came from a typo in the word \"googol\" (10¹⁰⁰). Two PhD students started it in a garage.", "324": "It stood on the edge of bankruptcy several times; today it is the symbol of the electric car industry.", "325": "🎁 Bonus · For inspiration", "326": "<span class=\"grad\">10 interesting facts</span> about entrepreneurship", "327": "Nike's famous \"swoosh\" was drawn by a student for just <b>35 dollars</b> (1971). Today it is one of the most recognised marks in the world.", "328": "KFC founder Colonel Sanders was rejected <b>more than 1000 times</b> when trying to sell his recipe. He built the business at retirement age.", "329": "The founders of Airbnb could not afford the rent, so they rented out an <b>air mattress</b> in their own room to guests. Today it is a global platform.", "330": "When Alibaba founder Jack Ma applied to KFC, 23 out of 24 candidates were hired — <b>only he was rejected</b>. Then he built his own empire.", "331": "The Dyson vacuum cleaner succeeded after <b>5,127 prototypes</b>. Failure is not defeat — it is information.", "332": "Angry Birds was Rovio's <b>52nd game</b>. The 51 before it went unnoticed.", "333": "Spanx founder Sara Blakely started with <b>5,000 dollars</b> of her savings and became one of the first self-made female billionaires.", "334": "When Instagram was sold to Facebook for <b>1 billion dollars</b>, the team had only 13 employees. Scale does not depend on headcount.", "335": "IKEA was founded by Ingvar Kamprad at the age of <b>17</b>. The name comes from the initials of his name, his farm and his village.", "336": "In its first year Coca-Cola sold an average of just <b>9 glasses a day</b>. Today it is tens of thousands per second. Patience is a strategy.", "337": "About <b>90 percent</b> of startups fail, and the most common reason is building <b>a product the market does not need</b>.", "338": "There are <b>more than 1.2 million</b> small business entities in the country and they create <b>half</b> of GDP.", "339": "💡 The common lesson: none of these people started <b>with big money</b>. They all started with one thing — <b>an unsolved problem</b>.", "340": "Final assessment", "341": "🧪 Test questions — <span class=\"grad\">check yourself</span>", "342": "↻ Restart the test", "343": "Result", "344": "🎓 Thank you for your attention!", "345": "In the next topic we will <b>test the business hypothesis in practice</b>. Get your notebook ready — the \"10 problems – 1 opportunity\" assignment is waiting for you.", "346": "Termez State University · Fundamentals of Entrepreneurship"};
-var QEN=[{"q": "What is the most important distinguishing feature of entrepreneurial activity?", "a": ["The availability of large starting capital", "Being aimed at earning income at one's own risk and responsibility", "Working on the basis of a state order", "Receiving a permanent monthly salary"], "c": 1, "e": "Entrepreneurship rests on four pillars: initiative, risk, value creation and income."}, {"q": "Which of the following is the key feature of a startup?", "a": ["Relying on family labour", "Serving only the local market", "The ability to grow fast and at large scale (scalability)", "Not aiming to make a profit"], "c": 2, "e": "The main sign of a startup is scaling: fast growth at national or global level."}, {"q": "Which form does a single small canteen in a neighbourhood belong to?", "a": ["A startup", "Micro business / small business", "Social entrepreneurship", "A venture project"], "c": 1, "e": "One canteen is a proven model at local scale. Connecting hundreds of canteens to one app would be a startup."}, {"q": "What is the main difference between social entrepreneurship and charity?", "a": ["Social entrepreneurship earns income and funds itself", "Social entrepreneurship pays no taxes", "Charity is always more effective", "Social entrepreneurship has no customers"], "c": 0, "e": "Charity stops when the funds run out, while social entrepreneurship continues sustainably from its own income."}, {"q": "In the \"Problem – Solution – Customer – Revenue source\" chain, what does the last link mean?", "a": ["The design of the product", "The number of employees", "How, from whom and through which model money comes into the business", "The office address"], "c": 2, "e": "Monetisation models: sales, subscription, commission, advertising, service fee, franchise."}, {"q": "Which of these customer definitions is formulated correctly?", "a": ["All people", "Young people", "The whole population of Uzbekistan", "1st–2nd year students living in the dormitory who are waiting for a washing machine"], "c": 3, "e": "\"Everyone\" is not a customer. A customer must be a specific, measurable group."}, {"q": "What does the \"ability to pay\" filter check when assessing a problem?", "a": ["How often the problem occurs", "Whether the customer has money to solve this problem", "The number of competitors", "The colour of the product"], "c": 1, "e": "If the problem exists but the customer has no money, there is no business."}, {"q": "Which approach belongs to the entrepreneurial mindset?", "a": ["\"That is not my task\"", "\"Who is to blame for the mistake?\"", "\"Whoever solves this problem creates value\"", "\"The working day is over, see you tomorrow\""], "c": 2, "e": "An entrepreneur sees a problem as a chance to create value, not as a reason to look for someone to blame."}, {"q": "What was the share of small business in the GDP of Uzbekistan in the first half of 2026?", "a": ["20.5 %", "35.0 %", "50.5 %", "78.0 %"], "c": 2, "e": "518.7 trillion so'm — that is, one out of every two so'm created comes from small business."}, {"q": "What is the most common mistake of a young entrepreneur?", "a": ["Talking to customers", "Producing at high cost without testing the product on the market", "Calculating the cost price", "Starting at a small scale"], "c": 1, "e": "\"Falling in love with the product\" — building it for months and only then discovering there are no customers."}, {"q": "Which of these is a weakness of family entrepreneurship?", "a": ["A low level of trust", "Expensive labour resources", "Family and work relationships getting mixed up", "Knowledge not passing between generations"], "c": 2, "e": "When roles get mixed, conflicts damage both the business and the family."}, {"q": "Which is the correct sequence for starting a business?", "a": ["Find money → rent an office → think of an idea", "Find the problem → test the solution → raise money to scale", "Take a big loan → build the product → look for customers", "Advertise → open a shop → look for a problem"], "c": 1, "e": "Money is not the first but the third step."}, {"q": "BONUS: How much was Nike's famous \"swoosh\" logo originally drawn for?", "a": ["35 dollars", "3,500 dollars", "35,000 dollars", "Free of charge, drawn by the founder"], "c": 0, "e": "In 1971 the student Carolyn Davidson drew it for 35 dollars."}, {"q": "BONUS: How many prototypes were made before the Dyson vacuum cleaner reached the market?", "a": ["27", "512", "5,127", "51"], "c": 2, "e": "5,127 attempts — the best proof that failure is not defeat but information."}, {"q": "BONUS: What did Amazon start by selling in 1994?", "a": ["Electronics", "Books", "Clothes", "Food"], "c": 1, "e": "Jeff Bezos opened an online bookshop in a garage — later it became the \"everything store\"."}];
+var EN={"0": "Topic 6 · Lecture · 2 hours", "1": "HOW A BUSINESS MODEL WORKS", "2": "The purpose of a business model · the nine blocks of the <b>Osterwalder Canvas</b> · subscription, franchise, online platform, B2B and B2C models · successful models from around the world.", "3": "📚 Course: <b>Fundamentals of Entrepreneurship</b>", "4": "🎓 <b>Termez State University</b>", "5": "🗂 <b>18</b> slides · <b>15</b> test questions", "6": "⌨️ Press <b>→</b> to continue", "7": "Aim of the topic", "8": "What will the student <span class=\"grad\">be able to do?</span>", "9": "Aim: to move the student from <b>\"I have an idea\"</b> to <b>\"this is how my business works and where its money comes from\"</b>. A business model is <b>a diagram, not an explanation</b>: it fits on a single sheet.", "10": "Can explain", "11": "Explains what a business model is and how it differs from an idea.", "12": "Can draw", "13": "Fills in the nine blocks of the Osterwalder Canvas in the right order.", "14": "Can formulate", "15": "Writes a precise value proposition for a customer segment.", "16": "Can choose", "17": "Chooses between the subscription, franchise, platform, B2B and B2C models.", "18": "Can calculate", "19": "Compares revenue streams with the cost structure and judges whether the model pays.", "20": "Can analyse", "21": "Breaks the model of a well-known company down block by block.", "22": "Lecture plan", "23": "Today's <span class=\"grad\">four blocks</span>", "24": "What a model is", "25": "The purpose of a business model and how it differs from an idea.", "26": "The nine blocks", "27": "Customers, value, channels, resources, partners and costs.", "28": "Modern models", "29": "Subscription, franchise, platform, B2B, B2C.", "30": "Success stories", "31": "An analysis of the models of global companies.", "32": "🔑 Key concepts", "33": "<span class=\"pill g\">business model</span><span class=\"pill\">Osterwalder Canvas</span><span class=\"pill g\">customer segments</span>\n        <span class=\"pill g\">value proposition</span><span class=\"pill\">channels</span><span class=\"pill\">customer relationships</span>\n        <span class=\"pill g\">revenue streams</span><span class=\"pill\">key resources</span><span class=\"pill\">key activities</span>\n        <span class=\"pill\">key partners</span><span class=\"pill g\">cost structure</span><span class=\"pill\">unit economics</span>\n        <span class=\"pill g\">subscription</span><span class=\"pill g\">franchise</span><span class=\"pill\">royalty</span>\n        <span class=\"pill g\">online platform</span><span class=\"pill\">network effect</span><span class=\"pill g\">B2B</span><span class=\"pill g\">B2C</span>\n        <span class=\"pill\">freemium</span><span class=\"pill\">scalability</span>", "34": "Block 1", "35": "A business model — <span class=\"grad\">the diagram of how money circulates</span>", "36": "A <b>business model</b> is the system that explains <b>for whom</b> an organisation creates <b>what value</b>, <b>how it delivers</b> that value and <b>how it earns</b> from it. In short: <b>create value → deliver it → turn it into money</b>.", "37": "For whom?", "38": "Who the customer is, what problem they have and whether they are ready to solve it.", "39": "What do we give?", "40": "What value we create and how it differs from what competitors offer.", "41": "What revenue?", "42": "Who pays, what for, how much and on what schedule.", "43": "📌 <b>The key rule:</b> a business model answers the question <b>\"where does each so'm come in and where does it go out?\"</b> Without a clear answer you are not looking at a business yet — only at <b>an idea</b>.", "44": "🧭 What does a business model solve?", "45": "It gives a road map", "46": "You can see what to do first: the customer, then the product, then the channel.", "47": "It saves money", "48": "A wrong model is fixed on paper in a day — in practice it costs months and millions.", "49": "1.2 · The most common confusion", "50": "Not every idea is <span class=\"grad\">a business model!</span>", "51": "An idea", "52": "\"What if I started a cheap lunch delivery service for students?\" — That is <b>one sentence</b>. It has no price, no delivery method and no profit calculation.", "53": "Who pays is unknown", "54": "The profit left from a single order has not been worked out", "55": "How you reach the customer is not stated", "56": "A business model", "57": "\"We deliver a 20,000 so'm lunch to TerSU students at 12:00 in the dormitory, ordered in advance through a Telegram bot.\" — That is <b>a system</b>.", "58": "The customer is defined: first-year students", "59": "The channel is defined: a Telegram bot and the dormitory", "60": "The revenue is defined: a mark-up on every lunch", "61": "❓ Three questions that test your model", "62": "Who pays?", "63": "Sometimes the user and the payer are <b>different people</b> (the child plays, the parent pays).", "64": "Why you in particular?", "65": "There must be <b>one clear reason</b> for the customer to choose you over a competitor.", "66": "Can it be scaled?", "67": "If customers grow tenfold, does the model still work — or <b>break</b>?", "68": "Block 2", "69": "The business model canvas — <span class=\"grad\">nine blocks</span>", "70": "The <b>Business Model Canvas</b> was proposed by the Swiss scholar <b>Alexander Osterwalder</b>. It puts a whole business into <b>nine boxes on one sheet</b>. It is easy to change, which is why start-ups build the canvas first and the product second.", "71": "① Customer segments", "72": "Who are we working for? Who is the most important customer?", "73": "② Value proposition", "74": "Which of the customer's problems do we solve?", "75": "③ Channels", "76": "How do we reach the customer and deliver to them?", "77": "④ Relationships", "78": "How do we attract customers and keep them?", "79": "⑤ Revenue streams", "80": "What does the customer pay for, and how?", "81": "⑥ Key resources", "82": "What is required for the model to work?", "83": "⑦ Key activities", "84": "What work do we do every day?", "85": "⑧ Key partners", "86": "Who helps us and what do we take from outside?", "87": "⑨ Cost structure", "88": "What is the most expensive part of the model? Which resource or activity costs the most? The model survives <b>only if revenue exceeds cost</b>.", "89": "The filling order: <b>① customer → ② value → ③ channel → ④ relationship → ⑤ revenue → ⑥ resources → ⑦ activities → ⑧ partners → ⑨ costs</b>. It always starts from <b>the customer</b>, never from the money.", "90": "2.1 · The first block", "91": "① Customer segments — <span class=\"grad\">\"for everyone\" means \"for no one\"</span>", "92": "A <b>segment</b> is a <b>group of customers</b> with similar needs, behaviour and ability to pay. Each segment gets its own value proposition, its own channel and often its own price.", "93": "Mass market", "94": "A large, uniform group: drinking water, bread, mobile service.", "95": "Niche market", "96": "A very specific group: sweets for people with diabetes, tools for left-handed users.", "97": "Segmented", "98": "Tiers of the same product: standard and business-class service.", "99": "Diversified", "100": "Two entirely different groups: the public and state organisations.", "101": "Multi-sided", "102": "Two groups are needed at once: drivers and riders, sellers and buyers.", "103": "Corporate", "104": "The customer is not a private person but an organisation: a cafe, a school, a factory.", "105": "🧑‍🎓 <b>Exercise:</b> do not write \"my customer is young people\". Write <b>\"first- and second-year students living in a dormitory in Termez who spend up to 1.5 million so'm a month\"</b>. The sharper the segment, the cheaper the advertising.", "106": "2.2 · The heart of the canvas", "107": "② Value proposition — <span class=\"grad\">why the customer pays you and not someone else</span>", "108": "The <b>value proposition</b> is the reason a customer chooses you. It is not a description of the product but <b>the customer's gain</b>: time saved, cost reduced, a headache removed.", "109": "How is value created?", "110": "<b>Newness</b> — meeting a need that did not exist before", "111": "<b>Performance</b> — doing it faster, stronger, better", "112": "<b>Price</b> — the same result for less money", "113": "<b>Convenience</b> — saving the customer time and effort", "114": "<b>Risk reduction</b> — a guarantee, returns, a trial period", "115": "<b>Brand and status</b> — how the customer feels about themselves", "116": "Write it to a formula", "117": "Fit it into a single sentence:", "118": "For <b>[customer]</b> we solve <b>[problem]</b> through <b>[solution]</b>, so that they gain <b>[a specific benefit]</b>.", "119": "<b>Example:</b> \"For a student in a dormitory we solve the hot-food problem with pre-ordering and delivery at 12:00 — they <b>do not spend 40 minutes in a queue</b>.\"", "120": "✕ <b>A bad example:</b> \"We offer good, cheap food.\" — <b>Anyone</b> can say that, so it is not a value proposition.", "121": "A test: if your value proposition still reads correctly with a competitor's name in it, it is <b>not specific enough yet</b>.", "122": "2.3 · The route to the customer", "123": "③ Channels — <span class=\"grad\">how value reaches the customer</span>", "124": "A <b>channel</b> is the path along which a customer <b>learns about</b> the product, <b>evaluates</b> it, <b>buys</b> it, <b>receives</b> it and <b>gets support</b>. Remember it is not one channel but <b>five stages</b>.", "125": "Stage", "126": "Question", "127": "Example", "128": "<b>1. Awareness</b>", "129": "How does the customer hear about us?", "130": "Instagram, a Telegram channel, word of mouth", "131": "<b>2. Evaluation</b>", "132": "How do they compare the offer?", "133": "A website, reviews, a friend's recommendation", "134": "<b>3. Purchase</b>", "135": "Where and how do they pay?", "136": "A shop, a bot, Payme/Click, cash", "137": "<b>4. Delivery</b>", "138": "How do they receive the product?", "139": "A courier, self-pickup, a download", "140": "<b>5. After-sales</b>", "141": "What happens if something goes wrong?", "142": "Support, a guarantee, returns", "143": "Own channel", "144": "Your own shop, site, bot or sales staff. <b>High control, bigger margin</b>, but expensive and slow to build.", "145": "Partner channel", "146": "A marketplace, a wholesaler, a retail chain. <b>Fast and wide</b>, but you lose a commission and some control.", "147": "A sensible path for a beginner: <b>start quickly through a partner channel</b>, then <b>build your own</b> once the money comes in.", "148": "2.4 · Retention and money", "149": "④ Customer relationships and ⑤ <span class=\"grad\">revenue streams</span>", "150": "④ Types of relationship", "151": "<b>Personal assistance</b> — a live salesperson or manager", "152": "<b>Dedicated assistance</b> — a manager assigned to a large client", "153": "<b>Self-service</b> — the customer does everything themselves", "154": "<b>Automated services</b> — a bot, a recommendation engine", "155": "<b>Communities</b> — a user group, a forum", "156": "<b>Co-creation</b> — the customer adds to the product themselves", "157": "📌 Winning a new customer costs <b>several times more</b> than keeping an existing one — so this block hits the money directly.", "158": "⑤ Revenue streams", "159": "<b>Asset sale</b> — ownership passes to the customer", "160": "<b>Usage fee</b> — payment for using the service", "161": "<b>Subscription</b> — a recurring monthly or yearly fee", "162": "<b>Renting</b> — the right to use for a period", "163": "<b>Licensing</b> — the use of intellectual property", "164": "<b>Brokerage fee</b> — a commission on each transaction", "165": "<b>Advertising</b> — placing ads in front of an audience", "166": "🧠 A strong model has <b>several streams</b>: for example product sales + services + a training course.", "167": "💡 <b>How is the price set?</b> A <b>fixed price</b> is the same for everyone (a menu, a price list). A <b>dynamic price</b> changes with the situation: negotiation, auction, demand-based pricing (air tickets, taxis). For a new business a <b>fixed price</b> is recommended first — the maths is simpler.", "168": "2.5 · The backbone of the model", "169": "⑥ Key resources — <span class=\"grad\">without them the model stops</span>", "170": "A <b>key resource</b> is an asset that is <b>indispensable</b> for creating the value proposition, running the channel and earning revenue. The test is simple: <b>\"if this disappeared, would the business stop?\"</b> If yes, it is a key resource.", "171": "Physical", "172": "Buildings, equipment, vehicles, shops, stock, fittings.", "173": "Intellectual", "174": "A brand, a recipe, software, a patent, a customer base.", "175": "Human", "176": "A cook, a developer, a salesperson, a teacher — a skilled team.", "177": "Financial", "178": "Own funds, a credit line, investor money, a guarantee fund.", "179": "Buy or rent?", "180": "At the start, <b>rent</b> — less risk, no money tied up", "181": "Once demand is proven, <b>buy</b> — the unit cost falls", "182": "Take non-core work <b>from outside</b> (outsourcing)", "183": "A typical mistake", "184": "<b>Buying expensive equipment</b> before finding a customer. Equipment is a resource, but with no customers it is just <b>money sitting in a warehouse</b>.", "185": "🧠 The right order: <b>confirm the customer → run small → then invest in resources</b>.", "186": "2.6 · The work and the helpers", "187": "⑦ Key activities and ⑧ <span class=\"grad\">key partners</span>", "188": "⑦ Key activities", "189": "The most important things a company <b>must do every day</b>. There are three kinds:", "190": "<b>Production</b> — creating, preparing and assembling the product", "191": "<b>Problem solving</b> — an individual solution for each client (consulting, repairs, medicine)", "192": "<b>Platform management</b> — running and developing the system (a site, an app, a network)", "193": "📌 An easy way to fill this block: <b>look at the value proposition</b> — what work is needed to create it?", "194": "⑧ Key partners", "195": "You cannot do everything yourself. A partner is an outside party that <b>covers your weak spot</b>.", "196": "<b>Suppliers</b> — raw materials, goods, equipment", "197": "<b>Strategic alliance</b> — cooperation with a non-competing company", "198": "<b>Joint venture</b> — opening a new line of business together", "199": "<b>Service providers</b> — logistics, accounting, IT, marketing", "200": "🎯 Partnerships exist for three reasons: <b>to cut costs</b>, <b>to share risk</b>, <b>to get a resource you lack</b>.", "201": "🧪 <b>A test question:</b> \"if this partner walked away tomorrow, how many days would my business keep running?\" If the answer is <b>a few days</b>, you have <b>a serious dependency</b>. The fix: line up <b>a back-up partner</b>.", "202": "2.7 · The moment of truth", "203": "⑨ Cost structure and <span class=\"grad\">unit economics</span>", "204": "Two kinds of cost", "205": "<b>Fixed costs</b> are paid whether you sell or not: rent, salaries, internet, licences.", "206": "<b>Variable costs</b> depend on each unit sold: raw materials, packaging, delivery, transaction fees.", "207": "📌 The larger the fixed costs, the <b>riskier</b> the business: they keep running even when sales fall.", "208": "Unit economics", "209": "The health of a model shows up in <b>a single customer</b>. The simplest calculation:", "210": "<b>Profit per unit = price − variable cost − customer acquisition cost</b>", "211": "<b>Example:</b> a lunch sells for 20,000, costs 12,000 to make, 2,000 to deliver and 1,000 in advertising per customer → profit <b>5,000 so'm</b>.", "212": "If fixed costs are 3,000,000 so'm a month: <b>3,000,000 ÷ 5,000 = 600 orders</b> — that is the <b>break-even point</b>.", "213": "Approach", "214": "What it means", "215": "Who it suits", "216": "<b>Cost-driven</b>", "217": "Maximum cost cutting, automation, minimal service", "218": "Mass market, the low-price segment", "219": "<b>Value-driven</b>", "220": "High quality, personal service, a premium experience", "221": "The premium segment, specialised services", "222": "⚠️ The most common mistake: scaling up with advertising a model that makes <b>no profit per unit</b>. Every new customer then <b>increases the loss</b> — make the unit economics positive first, then grow.", "223": "Block 3", "224": "Modern models I — <span class=\"grad\">subscription and franchise</span>", "225": "The subscription model", "226": "The customer pays <b>regularly</b> rather than once: monthly or yearly. In return the service runs without interruption.", "227": "<b>Examples:</b> Netflix and Spotify (content), Microsoft 365 and Adobe Creative Cloud (software), a gym membership, a newspaper subscription, a monthly meal plan.", "228": "<b>Revenue is predictable</b> — next month is easy to plan", "229": "<b>One customer earns for a long time</b> (lifetime value grows)", "230": "The customer can <b>cancel</b> at any moment — retention needs constant work", "231": "The value must be <b>proved again every month</b>", "232": "🧠 In 2013 Adobe moved from boxed licences to subscriptions — revenue turned from one-off into <b>a steady stream</b>.", "233": "Franchise", "234": "The brand owner (the <b>franchisor</b>) lets another entrepreneur (the <b>franchisee</b>) use its name, technology and standards under a contract.", "235": "<b>Payments:</b> an initial <b>franchise fee</b> to join and a recurring <b>royalty</b> — usually a percentage of turnover.", "236": "The franchisee gets <b>a ready brand and system</b> — less risk", "237": "The franchisor expands the network <b>without spending its own money</b>", "238": "The franchisee is <b>tied to the standards</b> — creativity is limited", "239": "A mistake at one outlet damages <b>the whole brand</b>", "240": "🍔 Most McDonald's restaurants are run as franchises. International chains have entered Uzbekistan the same way.", "241": "3.2 · Three more models", "242": "Modern models II — <span class=\"grad\">platform, B2B and B2C</span>", "243": "Online platform", "244": "The company makes no product — it <b>connects two sides</b> and takes a commission on each transaction.", "245": "<b>Examples:</b> Amazon and Uzum Market (seller ↔ buyer), Uber and Yandex Go (driver ↔ rider), Airbnb (host ↔ guest), Booking (hotel ↔ traveller).", "246": "⚡ <b>The network effect:</b> more sellers bring more buyers, and more buyers bring more sellers. That is why a platform <b>grows fast</b> — but it faces the <b>chicken-and-egg</b> problem: at the start neither side is there.", "247": "B2B (business to business)", "248": "The customer is <b>an organisation</b>. A bakery sells bread to cafes; an IT company writes software for a bank.", "249": "Deals are <b>large</b>, customers are <b>few</b>", "250": "Decisions take <b>a long time</b> and involve several people", "251": "Contracts, invoices and <b>deferred payment</b> are the norm", "252": "The relationship is long: one client can stay <b>for years</b>", "253": "B2C (business to consumer)", "254": "The customer is <b>an ordinary buyer</b>. A shop, a cafe, a barber, online clothes sales.", "255": "Deals are <b>small</b>, customers are <b>very many</b>", "256": "Decisions are <b>fast</b> and often emotional", "257": "Payment is <b>immediate</b>, usually cash or card", "258": "Advertising, branding and packaging are <b>decisive</b>", "259": "🔀 One company can combine <b>several models</b>: a coffee shop sells coffee to consumers (B2C), delivers beans to offices (B2B), launches a monthly \"coffee subscription\" and franchises in another city. <b>A model is not a rigid mould but a construction kit.</b>", "260": "3.3 · From practice", "261": "Successful <span class=\"grad\">business models</span> and their secret", "262": "Company", "263": "Model", "264": "The core idea", "265": "<b>Netflix</b>", "266": "Subscription", "267": "You pay not for one film but for <b>unlimited viewing</b>: steady revenue every month", "268": "<b>Spotify</b>", "269": "Freemium + subscription", "270": "The free ad-supported tier <b>attracts users</b>, the paid tier earns the money", "271": "<b>McDonald's</b>", "272": "Franchise", "273": "Selling standards and a brand — the network grows <b>on partners' money</b>", "274": "<b>Amazon</b>", "275": "Platform + retail", "276": "Its own goods and <b>other people's goods</b> on one site: commission plus sales", "277": "<b>Uber / Yandex Go</b>", "278": "Platform", "279": "It owns no cars — it only <b>connects</b> and takes a commission", "280": "<b>Airbnb</b>", "281": "Platform", "282": "It builds no hotels — it brings <b>empty rooms</b> to the market", "283": "<b>Gillette</b>", "284": "\"Razor and blades\"", "285": "The handle is cheap; the steady income comes from <b>replacement blades</b>", "286": "<b>IKEA</b>", "287": "Cost-driven", "288": "Assembly is <b>handed to the customer</b> — price and logistics drop sharply", "289": "<b>Microsoft 365</b>", "290": "From licence to subscription", "291": "Instead of a one-off sale, <b>an annual fee</b>: the customer is always up to date", "292": "<b>Uzum / Express24</b>", "293": "Online platform", "294": "It brings local sellers and buyers together <b>in one app</b>", "295": "🧠 <b>The common pattern:</b> none of these companies won simply by making \"a good product\". Each of them changed <b>the way money circulates</b>: who pays, when they pay and what they pay for — they found <b>a new answer</b> to those questions.", "296": "Summary · Assignment · Links", "297": "Final <span class=\"grad\">summary</span> and <span class=\"grad\">useful resources</span>", "298": "Six ideas to remember", "299": "A business model is not an idea but <b>the diagram of how money circulates</b>.", "300": "The canvas always starts from <b>the customer</b>, not the product.", "301": "A value proposition <b>must not fit a competitor</b> — otherwise it is not specific.", "302": "One revenue stream makes a model <b>fragile</b>; several make it resilient.", "303": "If the unit economics are negative, <b>growth multiplies the loss</b>.", "304": "A model is not a rigid mould: subscription, franchise, platform and B2B/B2C can be <b>combined</b>.", "305": "Independent work: \"My business model\"", "306": "Fill in the complete <b>nine-block canvas</b> for your own idea.", "307": "Describe the customer segment with <b>three concrete markers</b> (place, age, need).", "308": "Fit the value proposition into <b>one sentence using the formula</b>.", "309": "Calculate the profit per unit and find the <b>break-even point</b>.", "310": "<b>Justify</b> which type your model is closest to (subscription, franchise, platform, B2B, B2C).", "311": "Length: 1–2 pages + the canvas table. Marking: completeness 40% · calculations 30% · reasoned conclusion 30%.", "312": "Useful resources", "313": "<a class=\"lnk\" href=\"https://www.strategyzer.com/library/the-business-model-canvas\" target=\"_blank\" rel=\"noopener\">strategyzer.com</a> — the official canvas template and guide", "314": "<a class=\"lnk\" href=\"https://birdarcha.uz\" target=\"_blank\" rel=\"noopener\">birdarcha.uz</a> — business registration and public services", "315": "<a class=\"lnk\" href=\"https://stat.uz\" target=\"_blank\" rel=\"noopener\">stat.uz</a> — official statistics for estimating market size", "316": "<a class=\"lnk\" href=\"https://lex.uz\" target=\"_blank\" rel=\"noopener\">lex.uz</a> — legislation on franchising and contracts", "317": "<a class=\"lnk\" href=\"https://soliq.uz\" target=\"_blank\" rel=\"noopener\">soliq.uz</a> — how the tax regime affects the model", "318": "<a class=\"lnk\" href=\"https://ibb.uz\" target=\"_blank\" rel=\"noopener\">ibb.uz</a> — support for small business and entrepreneurship", "319": "<b>Tools:</b> <span class=\"pill g\">Canva / Figma for drawing the canvas</span><span class=\"pill g\">Excel or Google Sheets</span><span class=\"pill g\">Telegram bots and marketplaces</span>", "320": "Final check", "321": "🧪 Test — <span class=\"grad\">15 questions</span>", "322": "↻ Restart the test", "323": "Result", "324": "🎓 Thank you for your attention!", "325": "For the next class, fill in the <b>nine-block business model canvas</b> for your own idea — the lesson will start from that diagram.", "326": "Termez State University · Fundamentals of Entrepreneurship"};
+
+var QEN=[{"q": "What does a business model explain first of all?", "a": ["The procedure for preparing the annual tax report", "The way duties are divided among the employees", "For whom value is created and how it becomes money", "The stages of the product manufacturing technology"], "c": 2, "e": "A model answers three questions: for whom, what value and what revenue."}, {"q": "What is the main difference between an idea and a business model?", "a": ["An idea is spoken aloud while a model is always printed", "A model states the customer, the channel and the revenue", "An idea suits services and a model suits trading only", "A model is a document written only by large companies"], "c": 1, "e": "An idea is one sentence; a model is a system of customer, channel, revenue and cost."}, {"q": "Which block does filling in the canvas start from?", "a": ["The cost structure, since spending must be known first", "The key resources, since you must know what you have", "The revenue streams, since profit must be counted first", "The customer segments, since a model starts from people"], "c": 3, "e": "The customer comes first; value, channel and revenue follow from it."}, {"q": "Why is \"my customer is young people\" a poor definition?", "a": ["Because young people never pay for a service of any kind", "The segment is so wide that channel and advertising blur", "Because working with young people needs a special licence", "Because such a segment can only be used in online trade"], "c": 1, "e": "The sharper the segment, the clearer the channel and the cheaper the advertising."}, {"q": "Which answer describes a strong value proposition?", "a": ["It lists every technical feature the product has to offer", "It still reads correctly with a competitor's name in it", "It states the customer's concrete gain in one sentence", "It stresses that the price is lower than the rivals' price"], "c": 2, "e": "A value proposition is not a product description but the customer's concrete gain."}, {"q": "What does the \"evaluation\" stage of the channel block mean?", "a": ["The customer comparing your offer against other offers", "The procedure for measuring the staff's yearly results", "The process of recalculating the cost price of a product", "The criteria applied when picking a supplier of goods"], "c": 0, "e": "The five channel stages are awareness, evaluation, purchase, delivery and service."}, {"q": "How does an own channel differ from a partner channel?", "a": ["An own channel gives wide reach in exchange for a fee", "In an own channel control and the margin stay higher", "An own channel appears only in service businesses", "An own channel rules out direct contact with buyers"], "c": 1, "e": "An own channel is slow and costly to build, but control and margin are higher."}, {"q": "What is the main advantage of the subscription model?", "a": ["The customer pays once and never spends anything again", "Revenue for the coming months is easy to plan ahead", "There is no need to check the product quality monthly", "It removes the need to spend any money on advertising"], "c": 1, "e": "A recurring payment makes revenue predictable and steady."}, {"q": "What does a royalty payment mean in a franchise?", "a": ["A regular payment by the franchisee, usually from turnover", "A one-off non-returnable grant given by the franchisor", "A duty paid to the state for registering the brand name", "An extra yearly bonus paid to the staff for good results"], "c": 0, "e": "A royalty is a recurring fee for using the brand and the system."}, {"q": "What is the essence of the online platform model?", "a": ["Making the product yourself and selling it in an online shop", "Connecting two sides and taking a fee from each transaction", "Buying goods at wholesale and reselling them at retail prices", "Renting a building in order to place advertising inside it"], "c": 1, "e": "A platform creates no product — it brings sellers and buyers together."}, {"q": "How does the network effect work?", "a": ["The bigger the advertising budget, the lower the unit cost", "The more there are on one side, the more join the other", "The more employees there are, the lower the admin costs", "The wider the product range, the smaller the customer need"], "c": 1, "e": "More sellers bring more buyers, and more buyers bring more sellers."}, {"q": "Which answer states the difference between B2B and B2C correctly?", "a": ["In B2B deals are small, buyers many and decisions very fast", "In B2B deals are large, buyers few and decisions take long", "In B2B payment is always cash while in B2C it is by card", "In B2B advertising decides and in B2C the contract decides"], "c": 1, "e": "In B2B the customer is an organisation: deals are big and decisions collective."}, {"q": "How do fixed costs differ from variable costs?", "a": ["Fixed costs are paid even when nothing at all is sold", "Fixed costs depend on every single unit that is sold", "Fixed costs appear only in manufacturing enterprises", "Fixed costs are counted only after the tax is settled"], "c": 0, "e": "Rent and salaries are fixed costs: they are paid even with no sales."}, {"q": "What should be done if the unit economics are negative?", "a": ["Increase advertising and raise the number of buyers fast", "Change the price, the cost or the model itself beforehand", "Raise the fixed costs in order to lift the quality level", "Open a new branch and widen the total volume of sales"], "c": 1, "e": "Every new customer adds to the loss — fix the model first."}, {"q": "How is the break-even point calculated?", "a": ["The fixed costs are divided by the profit made per unit", "The yearly revenue is divided by the number of employees", "The variable cost is multiplied by the total net profit", "The tax amount is subtracted from the total revenue sum"], "c": 0, "e": "Example: 3,000,000 in fixed costs ÷ 5,000 profit = 600 orders."}];
+
 
 (function(){
   i18nNodes=[].slice.call(document.querySelectorAll("[data-i]"));
@@ -2476,7 +2484,7 @@ try{
   var th=localStorage.getItem("terdu_theme");
   setTheme(th|| (window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"));
   var hv=parseInt((location.hash||"").replace(/[^0-9]/g,""),10);
-  var sv=isNaN(hv)?parseInt(localStorage.getItem("terdu_slide"),10):(hv-1);
+  var sv=isNaN(hv)?parseInt(localStorage.getItem("terdu_m3_slide"),10):(hv-1);
   go(isNaN(sv)?0:sv);
   window.addEventListener("hashchange",function(){
     var h=parseInt((location.hash||"").replace(/[^0-9]/g,""),10);
