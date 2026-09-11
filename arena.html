@@ -315,10 +315,13 @@ function connect(done){
 }
 function req(m,path,body,cb){
   if(!BASE){ cb&&cb(null); return; }
-  var o={method:m}; if(body!==undefined&&body!==null){ o.headers={"Content-Type":"application/json"}; o.body=JSON.stringify(body); }
-  fetch(BASE+"/arena/"+path+".json",o).then(function(r){ return r.ok?r.text():null; })
-   .then(function(t){ var v=null; try{ v=t?JSON.parse(t):null; }catch(e){} cb&&cb(v); })
-   .catch(function(){ cb&&cb(null); });
+  var o={method:m};
+  if(body!==undefined){ o.headers={"Content-Type":"application/json"}; o.body=JSON.stringify(body); }
+  try{
+    fetch(BASE+"/arena/"+path+".json",o).then(function(r){ return r.ok?r.text():null; })
+     .then(function(t){ var v=null; try{ v=t?JSON.parse(t):null; }catch(e){} cb&&cb(v); })
+     .catch(function(){ cb&&cb(null); });
+  }catch(e){ cb&&cb(null); }
 }
 var DB={
   get:function(p,cb){ req("GET",p,null,cb); },
@@ -359,7 +362,7 @@ function rng(seed){ var x=seed||1; return function(){ x^=x<<13;x>>>=0; x^=x>>17;
 function shuffle(a,rand){ for(var i=a.length-1;i>0;i--){ var j=Math.floor(rand()*(i+1)); var t=a[i];a[i]=a[j];a[j]=t; } return a; }
 
 /* ---------- ball ---------- */
-var MAXP=12;
+var MAXP=20;
 function placePts(rank,n){
   if(n<=1) return 100;
   if(n<=4) return [100,75,50,25][rank-1];
@@ -1198,26 +1201,31 @@ addG("ttt",{ic:"⭕",nm:["Uch toshcha","Tic-Tac-Toe"],desc:["Juftlikda 3 ta part
  }});
 /* --- 11. Josus (Spy) — 3 kishidan 12 kishigacha --- */
 var SPOTS=[
- ["🏫","Universitet auditoriyasi","University lecture hall",["professor","talaba","laborant","navbatchi","dekan"]],
- ["🏥","Shifoxona","Hospital",["shifokor","hamshira","bemor","navbatchi","laborant"]],
- ["✈️","Aeroport","Airport",["uchuvchi","stюardessa","yo'lovchi","bojxonachi","yuk tashuvchi"]],
- ["🚉","Temir yo'l vokzali","Train station",["mashinist","konduktor","yo'lovchi","kassir","yuk tashuvchi"]],
- ["🏦","Bank","Bank",["kassir","mijoz","qo'riqchi","menejer","auditor"]],
- ["🍽","Restoran","Restaurant",["oshpaz","ofitsiant","mijoz","administrator","musiqachi"]],
- ["🏟","Stadion","Stadium",["futbolchi","hakam","muxlis","murabbiy","sharhlovchi"]],
- ["🎬","Kinoteatr","Cinema",["tomoshabin","kassir","operator","farrosh","sotuvchi"]],
- ["🛒","Bozor","Bazaar",["sotuvchi","xaridor","yuk tashuvchi","nazoratchi","choyxonachi"]],
- ["🏖","Dengiz sohili","Beach",["qutqaruvchi","sayyoh","muzqaymoqchi","suzuvchi","fotograf"]],
- ["🚢","Kema","Ship",["kapitan","matros","yo'lovchi","oshpaz","radist"]],
- ["🏨","Mehmonxona","Hotel",["administrator","mehmon","farrosh","qo'riqchi","ofitsiant"]],
- ["🏭","Zavod","Factory",["ishchi","muhandis","brigadir","nazoratchi","haydovchi"]],
- ["🎪","Sirk","Circus",["masxaraboz","akrobat","hayvon boquvchi","tomoshabin","boshlovchi"]],
- ["🏔","Tog' lageri","Mountain camp",["alpinist","yo'lboshchi","oshpaz","shifokor","fotograf"]],
- ["🚒","Yong'in bo'limi","Fire station",["o'tkinchi","haydovchi","navbatchi","boshliq","qutqaruvchi"]],
- ["📚","Kutubxona","Library",["kutubxonachi","talaba","o'qituvchi","navbatchi","tadqiqotchi"]],
- ["☕","Qahvaxona","Coffee shop",["barista","mijoz","kuryer","administrator","musiqachi"]],
- ["🚀","Kosmodrom","Spaceport",["kosmonavt","muhandis","dispetcher","shifokor","jurnalist"]],
- ["🏛","Muzey","Museum",["ekskursovod","tashrif buyuruvchi","qo'riqchi","restavrator","direktor"]]
+ ["🏫","Universitet auditoriyasi","University lecture hall",["professor","talaba","laborant","qorovul","dekan","farrosh","kutubxonachi","shifokor"]],
+ ["🏥","Shifoxona","Hospital",["shifokor","hamshira","bemor","qorovul","laborant","tez yordam haydovchisi","registrator","farrosh"]],
+ ["✈️","Aeroport","Airport",["uchuvchi","styuardessa","yo'lovchi","bojxonachi","qorovul","yuk tashuvchi","dispetcher","shifokor"]],
+ ["🚉","Temir yo'l vokzali","Train station",["mashinist","konduktor","yo'lovchi","kassir","qorovul","yuk tashuvchi","farrosh","shifokor"]],
+ ["🏦","Bank","Bank",["kassir","mijoz","qorovul","menejer","auditor","dasturchi","farrosh","inkassator"]],
+ ["🍽","Restoran","Restaurant",["oshpaz","ofitsiant","mijoz","administrator","musiqachi","qorovul","farrosh","yetkazib beruvchi"]],
+ ["🏟","Stadion","Stadium",["futbolchi","hakam","muxlis","murabbiy","sharhlovchi","qorovul","shifokor","sotuvchi"]],
+ ["🎬","Kinoteatr","Cinema",["tomoshabin","kassir","operator","farrosh","sotuvchi","qorovul","administrator","aktyor"]],
+ ["🛒","Bozor","Bazaar",["sotuvchi","xaridor","yuk tashuvchi","nazoratchi","choyxonachi","qorovul","farrosh","tarozibon"]],
+ ["🏖","Dengiz sohili","Beach",["qutqaruvchi","sayyoh","muzqaymoqchi","suzuvchi","fotograf","qorovul","shifokor","sotuvchi"]],
+ ["🚢","Kema","Ship",["kapitan","matros","yo'lovchi","oshpaz","radist","qorovul","shifokor","mexanik"]],
+ ["🏨","Mehmonxona","Hotel",["administrator","mehmon","farrosh","qorovul","ofitsiant","oshpaz","shvetsar","shifokor"]],
+ ["🏭","Zavod","Factory",["ishchi","muhandis","brigadir","nazoratchi","haydovchi","qorovul","shifokor","omborchi"]],
+ ["🎪","Sirk","Circus",["masxaraboz","akrobat","hayvon boquvchi","tomoshabin","boshlovchi","qorovul","shifokor","yorug'lik ustasi"]],
+ ["🏔","Tog' lageri","Mountain camp",["alpinist","yo'lboshchi","oshpaz","shifokor","fotograf","qorovul","radist","qutqaruvchi"]],
+ ["🚒","Yong'in bo'limi","Fire station",["o't o'chiruvchi","haydovchi","navbatchi","boshliq","qutqaruvchi","shifokor","qorovul","dispetcher"]],
+ ["📚","Kutubxona","Library",["kutubxonachi","talaba","o'qituvchi","qorovul","tadqiqotchi","farrosh","registrator","dasturchi"]],
+ ["☕","Qahvaxona","Coffee shop",["barista","mijoz","kuryer","administrator","musiqachi","qorovul","farrosh","oshpaz"]],
+ ["🚀","Kosmodrom","Spaceport",["kosmonavt","muhandis","dispetcher","shifokor","jurnalist","qorovul","texnik","boshliq"]],
+ ["🏛","Muzey","Museum",["ekskursovod","tashrif buyuruvchi","qorovul","restavrator","direktor","farrosh","kassir","fotograf"]],
+ ["🏛","Sud binosi","Courthouse",["sudya","advokat","guvoh","kotib","qorovul","jurnalist","tarjimon","farrosh"]],
+ ["🎓","Maktab","School",["o'qituvchi","o'quvchi","direktor","qorovul","oshpaz","shifokor","farrosh","psixolog"]],
+ ["🚓","Politsiya bo'limi","Police station",["inspektor","navbatchi","fuqaro","qorovul","tergovchi","haydovchi","kotib","shifokor"]],
+ ["🛩","Harbiy qism","Army base",["ofitser","askar","qorovul","shifokor","oshpaz","radist","haydovchi","qo'mondon"]],
+ ["🏗","Qurilish maydoni","Construction site",["usta","kranchi","muhandis","qorovul","payvandchi","haydovchi","shifokor","nazoratchi"]]
 ];
 var SPYQ=[
  ["Bu yerga tez-tez kelasizmi?","Do you come here often?"],
@@ -1232,7 +1240,7 @@ var SPYQ=[
  ["Bu yerda kim boshliq?","Who is in charge here?"]
 ];
 addG("spy",{ic:"🕵️",nm:["Josus","Spy"],desc:["Hammaga joy aytiladi, bittasiga — yo'q. Savol berib josusni toping!","Everyone learns the location except one. Ask questions and find the spy!"],
- dur:300,higher:true,minp:3,shared:true,
+ dur:330,higher:true,minp:3,shared:true,
  run:function(c){
   var n=c.players.length;
   if(n<3){
@@ -1243,10 +1251,16 @@ addG("spy",{ic:"🕵️",nm:["Josus","Spy"],desc:["Hammaga joy aytiladi, bittasi
   }
   /* joy va josus xona urug'idan aniqlanadi — hamma bir xil natijani hisoblaydi */
   var spot=SPOTS[Math.floor(c.rand()*SPOTS.length)];
-  var spyIdx=Math.floor(c.rand()*n), spyId=c.players[spyIdx].id;
-  var amSpy=(spyId===c.me.id);
+  var nSpy=(n>=14)?3:((n>=8)?2:1);
+  var idxs=[]; for(var q=0;q<n;q++) idxs.push(q);
+  shuffle(idxs,c.rand);
+  var spyIdxs=idxs.slice(0,nSpy);
+  var spyIds=spyIdxs.map(function(k){ return c.players[k].id; });
+  var amSpy=spyIds.indexOf(c.me.id)>=0;
   var roles=shuffle(spot[3].slice(),c.rand);
   var myRole=roles[c.players.map(function(p){return p.id}).indexOf(c.me.id)%roles.length];
+  var mates=spyIds.filter(function(x){return x!==c.me.id}).map(function(x){
+    return (c.players.filter(function(p){return p.id===x})[0]||{}).name||"?"; });
   var path="rooms/"+c.code+"/spy/r"+c.round;
   var fin=false, phase="role", voted=null, score=0;
   var T_ROLE=12000, T_TALK=Math.max(60000,(c.endAt-Date.now())-70000), T_VOTE=45000;
@@ -1263,7 +1277,9 @@ addG("spy",{ic:"🕵️",nm:["Josus","Spy"],desc:["Hammaga joy aytiladi, bittasi
         ? '<div class="card" style="--c:var(--red);text-align:center;background:linear-gradient(135deg,#e11d48,#7c3aed);color:#fff">'+
           '<div style="font-size:58px">🕵️</div><h2 style="color:#fff;margin:8px 0">'+L("SIZ JOSUSSIZ","YOU ARE THE SPY")+'</h2>'+
           '<p style="margin:0">'+L("Joy qayerligini bilmaysiz. Savollarga shunday javob beringki, sizni fosh qilmasin — va joyni toping.",
-            "You do not know the location. Answer so that nobody unmasks you — and try to work out where you are.")+'</p></div>'
+            "You do not know the location. Answer so that nobody unmasks you — and try to work out where you are.")+'</p>'+
+          (mates.length?'<p style="margin:10px 0 0;font-size:15px;background:rgba(0,0,0,.22);border-radius:12px;padding:8px">🤝 '+
+            L("Sherik josus(lar)","Fellow spies")+': <b>'+esc(mates.join(", "))+'</b></p>':'')+'</div>'
         : '<div class="card" style="text-align:center;background:linear-gradient(135deg,#12a150,#0891b2);color:#fff">'+
           '<div style="font-size:58px">'+spot[0]+'</div><h2 style="color:#fff;margin:8px 0">'+esc(L(spot[1],spot[2]))+'</h2>'+
           '<p style="margin:0;font-size:17px">'+L("Sizning rolingiz","Your role")+': <b>'+esc(myRole)+'</b></p>'+
@@ -1305,7 +1321,7 @@ addG("spy",{ic:"🕵️",nm:["Josus","Spy"],desc:["Hammaga joy aytiladi, bittasi
     if(g) g.onclick=function(){
       var pick=parseInt(c.el.querySelector("#spguess").value,10);
       var ok=(SPOTS[pick]===spot);
-      DB.set(path+"/guess",{id:c.me.id,ok:ok?1:0,at:Date.now()});
+      DB.set(path+"/guess/"+c.me.id,{ok:ok?1:0,at:Date.now()});
       if(ok){ c.fx.s.win(); c.fx.confetti(2500); score=400; }
       else { c.fx.s.no(); score=0; }
       fin=true; c.prog(100,score);
@@ -1351,15 +1367,16 @@ addG("spy",{ic:"🕵️",nm:["Josus","Spy"],desc:["Hammaga joy aytiladi, bittasi
       var votes=d.votes||{}, cnt={}, top=null, tn=0;
       Object.keys(votes).forEach(function(k){ var t=votes[k]; cnt[t]=(cnt[t]||0)+1; });
       Object.keys(cnt).forEach(function(k){ if(cnt[k]>tn){ tn=cnt[k]; top=k; } });
-      var caught=(top===spyId&&tn>n/2);
-      var spyName=(c.players.filter(function(p){return p.id===spyId})[0]||{}).name||"?";
-      if(amSpy) score=caught?50:350;
-      else { score=caught?250:60; if(votes[c.me.id]===spyId) score+=80; }
-      var msg=caught?("🎉 "+L("Josus fosh qilindi!","The spy was caught!")):("🕵️ "+L("Josus qutulib qoldi!","The spy escaped!"));
+      var caught=(spyIds.indexOf(top)>=0&&tn>=Math.max(2,Math.ceil(n/3)));
+      var spyNames=spyIds.map(function(x){ return (c.players.filter(function(p){return p.id===x})[0]||{}).name||"?"; });
+      if(amSpy) score=caught?60:380;
+      else { score=caught?260:70; if(spyIds.indexOf(votes[c.me.id])>=0) score+=90; }
+      var msg=caught?("🎉 "+(nSpy>1?L("Josus fosh qilindi!","A spy was caught!"):L("Josus fosh qilindi!","The spy was caught!")))
+                    :("🕵️ "+L("Josuslar qutulib qoldi!","The spies escaped!"));
       c.el.innerHTML=head(msg,"")+
         '<div class="card" style="text-align:center;background:linear-gradient(135deg,'+(caught?"#12a150,#0891b2":"#e11d48,#7c3aed")+');color:#fff">'+
-        '<div style="font-size:52px">🕵️</div><h2 style="color:#fff;margin:8px 0">'+esc(spyName)+'</h2>'+
-        '<p style="margin:0">'+L("josus edi","was the spy")+' · '+L("Joy","Location")+': '+spot[0]+" "+esc(L(spot[1],spot[2]))+'</p></div>'+
+        '<div style="font-size:52px">🕵️</div><h2 style="color:#fff;margin:8px 0">'+esc(spyNames.join(", "))+'</h2>'+
+        '<p style="margin:0">'+(nSpy>1?L("josuslar edi","were the spies"):L("josus edi","was the spy"))+' · '+L("Joy","Location")+': '+spot[0]+" "+esc(L(spot[1],spot[2]))+'</p></div>'+
         '<div class="card" style="margin-top:14px"><h3>🗳 '+L("Ovozlar","Votes")+'</h3>'+
         c.players.map(function(p){
           return '<div class="rank"><div class="nm" style="flex:1"><b>'+esc(p.name)+'</b></div><div class="pts">'+(cnt[p.id]||0)+'</div></div>';
@@ -1722,7 +1739,483 @@ addG("chess",{ic:"♟",nm:["Shaxmat","Chess"],desc:["Juftlikda · to'liq qoidala
     c.finish(d>1?240:(d<-1?90:150)); } }};
  }});
 
-var GLIST=["quiz","word","g2048","snake","memory","typing","react","math","doodle","spy","ttt","dama","chess"];
+/* --- 14. Jang maydoni (Wartime Glory uslubida strategiya) --- */
+var WCOL=["#2563eb","#e11d48","#12a150","#f59e0b","#7c3aed","#0891b2","#ec4899","#65a30d"];
+var WREG=[
+ {id:0,nm:["Shimol","North"],ic:"🏔",bonus:4,col:"#60a5fa"},
+ {id:1,nm:["G'arb","West"],ic:"🌲",bonus:3,col:"#34d399"},
+ {id:2,nm:["Markaz","Centre"],ic:"🏙",bonus:5,col:"#fbbf24"},
+ {id:3,nm:["Sharq","East"],ic:"⛰",bonus:3,col:"#f472b6"},
+ {id:4,nm:["Janub","South"],ic:"🏜",bonus:4,col:"#fb923c"}
+];
+/* 30 ta hudud: 6 ustun x 5 qator olti burchakli tarmoq */
+function warMap(){
+  var W=6,H=5,T=[];
+  for(var r=0;r<H;r++) for(var q=0;q<W;q++){
+    var i=r*W+q;
+    var reg=(r===0)?0:((r===4)?4:((q<2)?1:((q>3)?3:2)));
+    T.push({i:i,q:q,r:r,reg:reg,nb:[]});
+  }
+  function idx(q,r){ return (q<0||r<0||q>=W||r>=H)?-1:r*W+q; }
+  T.forEach(function(t){
+    var odd=t.r%2;
+    var d=odd?[[1,0],[-1,0],[0,-1],[1,-1],[0,1],[1,1]]:[[1,0],[-1,0],[-1,-1],[0,-1],[-1,1],[0,1]];
+    d.forEach(function(o){ var j=idx(t.q+o[0],t.r+o[1]); if(j>=0) t.nb.push(j); });
+  });
+  return T;
+}
+var WNAMES=["Alton","Beros","Ciran","Dovul","Ezgar","Farid","Gorin","Hayot","Irmoq","Jayron",
+ "Kesar","Lochin","Marad","Nurak","Ozod","Panj","Qoya","Rasel","Sarov","Tekin",
+ "Ulug'","Vodil","Xonobod","Yashil","Zarafshon","Anor","Burgut","Chinor","Damas","Elbek"];
+/* ---- kartalar ---- */
+var WCARDS=[
+ {id:"air",ic:"✈️",nm:["Havo zarbasi","Air Strike"],e:15,d:["Qo'shni dushman hududiga 3 ta qo'shin zarari","3 troop damage to an adjacent enemy territory"],t:"enemyAdj"},
+ {id:"bomb",ic:"☢️",nm:["Atom bombasi","Atomic Bomb"],e:45,d:["Nishonda qo'shinning yarmi, qo'shnilarida chorak qismi yo'q bo'ladi","Half the troops on the target and a quarter around it"],t:"any"},
+ {id:"chem",ic:"☣️",nm:["Kimyoviy hujum","Chemical Warfare"],e:25,d:["Qo'shni hududdagi qo'shinning 40% i yo'q bo'ladi","Kills 40% of the troops in an adjacent territory"],t:"enemyAdj"},
+ {id:"para",ic:"🪂",nm:["Desant","Paratroopers"],e:30,d:["Xaritaning istalgan hududiga 4 ta qo'shin tushiradi","Drops four troops onto any territory on the map"],t:"any"},
+ {id:"rein",ic:"🎖",nm:["Qo'shimcha qo'shin","Reinforcements"],e:15,d:["O'z hududingizga +4 qo'shin","Adds four troops to one of your territories"],t:"own"},
+ {id:"bunk",ic:"🛡",nm:["Bunker","Bunker"],e:15,d:["Bir raund himoya 2 barobar kuchayadi","Doubles the defence of a territory for one round"],t:"own"},
+ {id:"block",ic:"🚧",nm:["Blokada","Blockade"],e:25,d:["Bir raund quruqlikdagi hujumlardan to'liq himoya","Full protection from ground attacks for one round"],t:"own"},
+ {id:"mine",ic:"💣",nm:["Mina maydoni","Minefield"],e:15,d:["Hujumchilar 3 ta qo'shin yo'qotadi","Attackers lose three troops"],t:"own"},
+ {id:"prod",ic:"🏭",nm:["Harbiy ishlab chiqarish","War Production"],e:25,d:["3 raund davomida +3 qo'shin","Plus three troops each round for three rounds"],t:"self"},
+ {id:"power",ic:"⚡",nm:["Elektr stansiya","Powerplant"],e:10,d:["Keyingi raundda +15 energiya","Plus 15 energy next round"],t:"self"},
+ {id:"blitz",ic:"⚔️",nm:["Blitskrig","Blitzkrieg"],e:20,d:["Shu raundda 2 ta qo'shimcha hujum","Two extra attacks this round"],t:"self"},
+ {id:"sabo",ic:"🕳",nm:["Sabotaj","Sabotage"],e:25,d:["Raqib keyingi raundda 40% kam qo'shin oladi","The enemy gets 40% fewer troops next round"],t:"player"},
+ {id:"med",ic:"⛑",nm:["Shifokor","Medic"],e:15,d:["Hududingizdagi yo'qotilgan qo'shinlarning yarmi tiklanadi","Restores half of the troops lost in a territory"],t:"own"},
+ {id:"ally",ic:"🤝",nm:["Ittifoq","Alliance"],e:10,d:["Bir raund o'zaro hujum qilinmaydi","No attacks between you and that player for one round"],t:"player"}
+];
+function warCard(id){ for(var i=0;i<WCARDS.length;i++) if(WCARDS[i].id===id) return WCARDS[i]; return null; }
+/* ---- jang hisobi (tasodifiy emas) ---- */
+function warFight(att,def){
+  /* hujumchi biroz ko'p bo'lsa yutadi; qolgan qo'shin = att - def */
+  if(att>def) return {win:true,left:att-def,dleft:0};
+  return {win:false,left:0,dleft:def-att};
+}
+/* ---- maxfiy topshiriqlar ---- */
+function warGoals(rand,np){
+  var G=[
+   {id:"g1",nm:["12 ta hududni egallang","Hold twelve territories"],ck:function(s,me){ return terrOf(s,me).length>=12; }},
+   {id:"g2",nm:["Markaz mintaqasini to'liq egallang","Control the whole Centre region"],ck:function(s,me){ return regOwned(s,me,2); }},
+   {id:"g3",nm:["Shimol va Janubni egallang","Control the North and the South"],ck:function(s,me){ return regOwned(s,me,0)&&regOwned(s,me,4); }},
+   {id:"g4",nm:["Jami 45 ta qo'shin to'plang","Gather 45 troops in total"],ck:function(s,me){ return troopsOf(s,me)>=45; }},
+   {id:"g5",nm:["G'arb va Sharqni egallang","Control the West and the East"],ck:function(s,me){ return regOwned(s,me,1)&&regOwned(s,me,3); }}
+  ];
+  return G[Math.floor(rand()*G.length)];
+}
+function terrOf(st,me){ var o=[]; for(var i=0;i<st.m.length;i++) if(st.m[i].o===me) o.push(i); return o; }
+function troopsOf(st,me){ var n=0; for(var i=0;i<st.m.length;i++) if(st.m[i].o===me) n+=st.m[i].t; return n; }
+function regOwned(st,me,reg){
+  for(var i=0;i<st.m.length;i++) if(st.m[i].reg===reg&&st.m[i].o!==me) return false;
+  return true;
+}
+function warTroops(st,me,MAP){
+  var tr=terrOf(st,me), n=Math.max(3,Math.floor(tr.length/2));
+  WREG.forEach(function(R){ if(regOwned(st,me,R.id)) n+=R.bonus; });
+  if(st.prod&&st.prod[me]>0) n+=3;
+  if(st.sabo&&st.sabo[me]) n=Math.max(1,Math.round(n*0.6));
+  return n;
+}
+addG("war",{ic:"🗺",nm:["Jang maydoni","Battlefield"],desc:["Risk uslubidagi strategiya: hudud egallang, karta ishlating, dunyoni zabt eting","Risk-style strategy: take territories, play cards, conquer the map"],
+ dur:720,higher:true,unit:["ball","pts"],shared:true,minp:2,
+ run:function(c){
+  var MAP=warMap(), np=c.players.length, me=c.players.map(function(p){return p.id}).indexOf(c.me.id);
+  var base="rooms/"+c.code+"/war/r"+c.round;
+  var TEAM=(c.teams===true)&&np>=4;
+  var myTeam=TEAM?(me%2):me;
+  var ROUNDS=8, PLAN=62000;
+  var st=null, fin=false, sel=null, mode="deploy", orders=null, sent=false, goal=warGoals(c.rand,np), lastR=-1, lastPh="";
+  var score=0;
+  function isHost(){ return me===0; }
+  function teamOf(k){ return TEAM?(k%2):k; }
+  function ally(a,b){ return a===b||(TEAM&&teamOf(a)===teamOf(b)); }
+  /* ---------- boshlang'ich holat ---------- */
+  function initState(){
+    var m=MAP.map(function(t){ return {o:-1,t:1,reg:t.reg}; });
+    var order=[]; for(var i=0;i<MAP.length;i++) order.push(i);
+    shuffle(order,c.rand);
+    order.forEach(function(idx,k){ m[idx].o=k%np; m[idx].t=2+Math.floor(c.rand()*2); });
+    return {r:1,ph:"plan",dl:Date.now()+PLAN,m:m,en:{},tr:{},prod:{},sabo:{},conq:{},log:[]};
+  }
+  /* ---------- SVG xarita ---------- */
+  function hexPts(cx,cy,R){
+    var p=[];
+    for(var i=0;i<6;i++){ var a=Math.PI/180*(60*i-30); p.push((cx+R*Math.cos(a)).toFixed(1)+","+(cy+R*Math.sin(a)).toFixed(1)); }
+    return p.join(" ");
+  }
+  function drawMap(){
+    var R=38, w=R*Math.sqrt(3), h=R*1.5;
+    var W=w*6+w/2+16, H=h*4+R*2+16;
+    var sv='<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;max-width:560px;display:block;margin:0 auto">';
+    MAP.forEach(function(t){
+      var cell=st.m[t.i];
+      var cx=8+w/2+t.q*w+(t.r%2?w/2:0), cy=8+R+t.r*h;
+      var own=cell.o, col=(own>=0)?WCOL[TEAM?teamOf(own)*4:own]:"#9ca3af";
+      var isMine=(own===me), isAlly=(own>=0&&ally(own,me));
+      var glow=(sel===t.i)?';stroke:#fff;stroke-width:4':(isMine?';stroke:#fff;stroke-width:2.5':';stroke:rgba(0,0,0,.35);stroke-width:1.5');
+      sv+='<g class="wh" data-i="'+t.i+'" style="cursor:pointer">';
+      sv+='<polygon points="'+hexPts(cx,cy,R-2)+'" style="fill:'+col+';opacity:'+(isAlly?1:.82)+glow+'"/>';
+      if(st.shield&&st.shield[t.i]) sv+='<text x="'+(cx-R+12)+'" y="'+(cy-8)+'" font-size="14">🛡</text>';
+      if(st.mines&&st.mines[t.i]) sv+='<text x="'+(cx+6)+'" y="'+(cy-8)+'" font-size="13">💣</text>';
+      sv+='<text x="'+cx+'" y="'+(cy+7)+'" text-anchor="middle" font-size="19" font-weight="800" fill="#fff" style="text-shadow:0 1px 3px rgba(0,0,0,.7);pointer-events:none">'+cell.t+'</text>';
+      var pend=orders&&orders.dep&&orders.dep[t.i];
+      if(pend) sv+='<text x="'+(cx+R-16)+'" y="'+(cy+18)+'" font-size="12" fill="#fff" font-weight="800">+'+pend+'</text>';
+      sv+='</g>';
+    });
+    if(orders&&orders.att) orders.att.forEach(function(a){
+      var f=MAP[a.f], t=MAP[a.t];
+      var fx=8+w/2+f.q*w+(f.r%2?w/2:0), fy=8+R+f.r*h;
+      var tx=8+w/2+t.q*w+(t.r%2?w/2:0), ty=8+R+t.r*h;
+      sv+='<line x1="'+fx+'" y1="'+fy+'" x2="'+tx+'" y2="'+ty+'" stroke="#fff" stroke-width="3" stroke-dasharray="6 4" opacity=".9"/>'+
+        '<circle cx="'+((fx+tx)/2)+'" cy="'+((fy+ty)/2)+'" r="12" fill="#111827" opacity=".85"/>'+
+        '<text x="'+((fx+tx)/2)+'" y="'+((fy+ty)/2+4)+'" text-anchor="middle" font-size="11" fill="#fff" font-weight="800">'+a.n+'</text>';
+    });
+    sv+='</svg>';
+    return sv;
+  }
+  /* ---------- interfeys ---------- */
+  function vPlan(){
+    var myT=terrOf(st,me), tr=(st.tr&&st.tr[me])||0, en=(st.en&&st.en[me])||0;
+    var left=orders?orders.left:0, atk=orders?orders.maxAtt:0;
+    c.el.innerHTML=
+     '<div class="row" style="justify-content:space-between;margin-bottom:8px">'+
+      '<span class="kicker">'+L("Raund","Round")+' '+st.r+' / '+ROUNDS+'</span>'+
+      '<span class="tag ok">🪖 '+left+'</span><span class="tag" style="color:var(--amber)">⚡ '+en+'</span>'+
+      '<span class="tag">🏳️ '+myT.length+'</span>'+
+      '<span class="tag">⏳ <b id="wdl">--</b></span></div>'+
+     '<div class="row" style="gap:6px;margin-bottom:8px">'+
+      '<button class="btn sm '+(mode==="deploy"?"accent":"")+'" data-m="deploy">🪖 '+L("Joylashtirish","Deploy")+'</button>'+
+      '<button class="btn sm '+(mode==="attack"?"accent":"")+'" data-m="attack">⚔️ '+L("Hujum","Attack")+' ('+atk+')</button>'+
+      '<button class="btn sm '+(mode==="card"?"accent":"")+'" data-m="card">🃏 '+L("Kartalar","Cards")+'</button>'+
+      '<div style="flex:1"></div>'+
+      '<button class="btn sm warn" id="wready">'+(sent?"✅ "+L("Yuborildi","Sent"):"▶ "+L("Tayyor","Ready"))+'</button></div>'+
+     '<div id="wmap">'+drawMap()+'</div>'+
+     '<div id="wpanel" style="margin-top:10px"></div>'+
+     '<div class="opps" style="margin-top:10px;justify-content:center">'+c.players.map(function(p,k){
+        var cnt=terrOf(st,k).length;
+        return '<span class="opp"><span class="av" style="background:'+WCOL[TEAM?teamOf(k)*4:k]+'">'+
+          esc(initials(p.name,p.surname))+'</span>'+esc(p.name)+' <b>'+cnt+'</b>'+
+          (TEAM?' <span class="tag" style="padding:1px 6px">'+(teamOf(k)?"B":"A")+'</span>':'')+'</span>';
+      }).join("")+'</div>'+
+     '<div class="card flat" style="margin-top:10px;padding:10px"><b style="font-size:12.5px">🎯 '+L("Maxfiy topshiriq","Secret objective")+':</b> '+
+       '<span class="note">'+esc(L(goal.nm[0],goal.nm[1]))+'</span></div>';
+    [].slice.call(c.el.querySelectorAll("[data-m]")).forEach(function(b){
+      b.onclick=function(){ mode=b.dataset.m; sel=null; c.fx.s.tap(); vPlan(); };
+    });
+    c.el.querySelector("#wready").onclick=function(){ sendOrders(true); };
+    bindMap(); panel();
+  }
+  function bindMap(){
+    [].slice.call(c.el.querySelectorAll(".wh")).forEach(function(g){
+      g.onclick=function(){ tap(parseInt(g.dataset.i,10)); };
+    });
+  }
+  function redraw(){ var m=c.el.querySelector("#wmap"); if(m){ m.innerHTML=drawMap(); bindMap(); } panel(); }
+  function tap(i){
+    if(sent||fin) return;
+    var cell=st.m[i];
+    if(mode==="deploy"){
+      if(cell.o!==me) { toast(L("Bu sizning hududingiz emas","Not your territory")); return; }
+      if(orders.left<=0){ toast(L("Qo'shin qolmadi","No troops left")); return; }
+      orders.dep[i]=(orders.dep[i]||0)+1; orders.left--; c.fx.s.pop(); redraw();
+    } else if(mode==="attack"){
+      if(sel===null){
+        if(cell.o!==me){ toast(L("O'z hududingizni tanlang","Pick your own territory")); return; }
+        if(cell.t+(orders.dep[i]||0)<2){ toast(L("Kamida 2 ta qo'shin kerak","At least two troops needed")); return; }
+        sel=i; c.fx.s.tap(); redraw(); return;
+      }
+      if(i===sel){ sel=null; redraw(); return; }
+      if(ally(cell.o,me)){ toast(L("Ittifoqdoshga hujum qilib bo'lmaydi","You cannot attack an ally")); return; }
+      if(MAP[sel].nb.indexOf(i)<0){ toast(L("Faqat qo'shni hududga hujum qilinadi","Only adjacent territories")); return; }
+      if(orders.att.length>=orders.maxAtt){ toast(L("Hujumlar tugadi","No attacks left")); return; }
+      var avail=st.m[sel].t+(orders.dep[sel]||0)-1;
+      orders.att.forEach(function(a){ if(a.f===sel) avail-=a.n; });
+      if(avail<1){ toast(L("Bu hududda qo'shin yetarli emas","Not enough troops there")); return; }
+      askTroops(avail,function(n){
+        orders.att.push({f:sel,t:i,n:n}); sel=null; c.fx.s.ok(); redraw();
+      });
+    } else {
+      if(!orders.pend){ toast(L("Avval kartani tanlang","Choose a card first")); return; }
+      playCard(orders.pend,i);
+    }
+  }
+  function askTroops(max,cb){
+    var box=c.el.querySelector("#wpanel");
+    var n=Math.min(max,Math.max(1,Math.ceil(max/2)));
+    box.innerHTML='<div class="card"><b>'+L("Nechta qo'shin yuborasiz?","How many troops?")+'</b>'+
+      '<div class="row" style="margin-top:8px;align-items:center"><button class="btn sm" id="wm">−</button>'+
+      '<b id="wn" style="font-size:26px;min-width:48px;text-align:center">'+n+'</b>'+
+      '<button class="btn sm" id="wp">+</button><div style="flex:1"></div>'+
+      '<button class="btn accent" id="wok">⚔️ '+L("Hujum","Attack")+'</button>'+
+      '<button class="btn" id="wc">✕</button></div></div>';
+    function up(){ box.querySelector("#wn").textContent=n; }
+    box.querySelector("#wm").onclick=function(){ if(n>1){n--;up();} };
+    box.querySelector("#wp").onclick=function(){ if(n<max){n++;up();} };
+    box.querySelector("#wok").onclick=function(){ cb(n); };
+    box.querySelector("#wc").onclick=function(){ sel=null; redraw(); };
+  }
+  function panel(){
+    var box=c.el.querySelector("#wpanel"); if(!box) return;
+    if(mode==="card"){
+      var en=(st.en&&st.en[me])||0;
+      box.innerHTML='<div class="grid g3">'+WCARDS.map(function(k){
+        var on=(orders.pend===k.id), afford=en>=k.e&&!orders.used[k.id];
+        return '<button class="gcard'+(on?" on":"")+'" data-c="'+k.id+'" '+(afford?"":'style="opacity:.42"')+'>'+
+          '<span class="ic">'+k.ic+'</span><b>'+esc(L(k.nm[0],k.nm[1]))+'</b>'+
+          '<span>'+esc(L(k.d[0],k.d[1]))+'</span>'+
+          '<span class="tag" style="margin-top:6px;display:inline-block;color:var(--amber)">⚡ '+k.e+'</span></button>';
+      }).join("")+'</div>'+
+      (orders.pend?'<p class="note center" style="margin-top:8px">👆 '+L("Endi xaritadan nishonni tanlang","Now pick the target on the map")+'</p>':'');
+      [].slice.call(box.querySelectorAll("[data-c]")).forEach(function(b){
+        b.onclick=function(){
+          var k=warCard(b.dataset.c);
+          if(((st.en&&st.en[me])||0)<k.e){ toast(L("Energiya yetarli emas","Not enough energy")); return; }
+          if(orders.used[k.id]){ toast(L("Bu karta ishlatilgan","Card already used")); return; }
+          if(k.t==="self"){ playCard(k.id,-1); return; }
+          if(k.t==="player"){ pickPlayer(k.id); return; }
+          orders.pend=k.id; c.fx.s.tap(); panel();
+        };
+      });
+    } else if(mode==="attack"&&sel===null){
+      box.innerHTML='<p class="note center">⚔️ '+L("O'z hududingizni, keyin dushman hududini bosing","Tap your territory, then the enemy one")+'</p>'+
+        (orders.att.length?'<div class="card flat" style="padding:10px;margin-top:8px">'+orders.att.map(function(a,k){
+          return '<div class="row" style="justify-content:space-between;border-bottom:1px solid var(--line);padding:4px 0">'+
+            '<span>'+esc(WNAMES[a.f])+' → '+esc(WNAMES[a.t])+' · <b>'+a.n+'</b> 🪖</span>'+
+            '<button class="btn sm warn" data-x="'+k+'">✕</button></div>';
+        }).join("")+'</div>':'');
+      [].slice.call(box.querySelectorAll("[data-x]")).forEach(function(b){
+        b.onclick=function(){ orders.att.splice(parseInt(b.dataset.x,10),1); redraw(); };
+      });
+    } else if(mode==="deploy"){
+      box.innerHTML='<p class="note center">🪖 '+L("Hududingizni bosib qo'shin joylashtiring","Tap your territories to place troops")+
+        ' · <b>'+orders.left+'</b> '+L("qoldi","left")+'</p>';
+    }
+  }
+  function pickPlayer(cid){
+    var box=c.el.querySelector("#wpanel");
+    box.innerHTML='<div class="card"><b>'+L("Qaysi o'yinchiga?","Which player?")+'</b><div class="plist" style="margin-top:8px">'+
+      c.players.map(function(p,k){ return (k===me||ally(k,me))?"":
+        '<button class="pl" style="width:100%;font-family:inherit;cursor:pointer" data-p="'+k+'">'+
+        '<div class="av" style="background:'+WCOL[k]+'">'+esc(initials(p.name,p.surname))+'</div>'+
+        '<div class="nm"><b>'+esc(p.name)+'</b></div></button>'; }).join("")+'</div></div>';
+    [].slice.call(box.querySelectorAll("[data-p]")).forEach(function(b){
+      b.onclick=function(){ playCard(cid,-1,parseInt(b.dataset.p,10)); };
+    });
+  }
+  function playCard(cid,target,pl){
+    var k=warCard(cid);
+    if(((st.en&&st.en[me])||0)<k.e) return;
+    if(k.t==="own"&&st.m[target].o!==me){ toast(L("O'z hududingizni tanlang","Pick your own territory")); return; }
+    if(k.t==="enemyAdj"){
+      var okAdj=terrOf(st,me).some(function(i){ return MAP[i].nb.indexOf(target)>=0; });
+      if(!okAdj||ally(st.m[target].o,me)){ toast(L("Qo'shni dushman hududini tanlang","Pick an adjacent enemy territory")); return; }
+    }
+    orders.cards.push({c:cid,t:target,p:(pl===undefined?-1:pl)});
+    orders.used[cid]=1;
+    st.en[me]=((st.en&&st.en[me])||0)-k.e;
+    orders.pend=null; c.fx.s.ok();
+    c.fx.popAt(c.el.querySelector("#wmap"),k.ic,"#f59e0b");
+    redraw(); vPlan();
+  }
+  function sendOrders(manual){
+    if(sent) return;
+    sent=true;
+    DB.set(base+"/orders/"+me,{dep:orders.dep,att:orders.att,cards:orders.cards,at:Date.now()});
+    if(manual){ toast(L("Buyruqlar yuborildi","Orders sent")); c.fx.s.ok(); }
+    vPlan();
+  }
+  /* ---------- simulyatsiya (faqat host) ---------- */
+  function simulate(all){
+    var log=[], nm=c.players.map(function(p){return p.name});
+    st.shield={}; st.mines={}; var bunk={}, dmgLog=[];
+    /* A) himoya va o'z-o'ziga kartalar */
+    for(var k=0;k<np;k++){
+      var o=all[k]; if(!o||!o.cards) continue;
+      o.cards.forEach(function(x){
+        if(x.c==="block"){ st.shield[x.t]=1; log.push("🚧 "+nm[k]+": "+WNAMES[x.t]+" "+L("blokada","blockade")); }
+        if(x.c==="bunk"){ bunk[x.t]=2; log.push("🛡 "+nm[k]+": "+WNAMES[x.t]+" "+L("bunker","bunker")); }
+        if(x.c==="mine"){ st.mines[x.t]=3; log.push("💣 "+nm[k]+": "+WNAMES[x.t]+" "+L("mina","minefield")); }
+        if(x.c==="prod"){ st.prod[k]=3; log.push("🏭 "+nm[k]+": "+L("harbiy ishlab chiqarish","war production")); }
+        if(x.c==="power"){ st.en[k]=(st.en[k]||0)+15; log.push("⚡ "+nm[k]+": +15 "+L("energiya","energy")); }
+        if(x.c==="sabo"&&x.p>=0){ st.sabo[x.p]=1; log.push("🕳 "+nm[k]+" → "+nm[x.p]+": "+L("sabotaj","sabotage")); }
+        if(x.c==="med"&&st.m[x.t].o===k){ var add=Math.ceil((st.lost&&st.lost[x.t]||2)/2); st.m[x.t].t+=add; log.push("⛑ "+nm[k]+": "+WNAMES[x.t]+" +"+add); }
+        if(x.c==="rein"&&st.m[x.t].o===k){ st.m[x.t].t+=4; log.push("🎖 "+nm[k]+": "+WNAMES[x.t]+" +4"); }
+      });
+    }
+    /* B) qo'shin joylashtirish */
+    for(var k2=0;k2<np;k2++){
+      var o2=all[k2]; if(!o2||!o2.dep) continue;
+      Object.keys(o2.dep).forEach(function(i){
+        i=parseInt(i,10);
+        if(st.m[i]&&st.m[i].o===k2) st.m[i].t+=o2.dep[i];
+      });
+    }
+    /* C) maxsus hujum kartalari */
+    for(var k3=0;k3<np;k3++){
+      var o3=all[k3]; if(!o3||!o3.cards) continue;
+      o3.cards.forEach(function(x){
+        var cell=st.m[x.t];
+        if(x.c==="air"&&cell){ var d=Math.min(cell.t-0,3); cell.t=Math.max(0,cell.t-3); log.push("✈️ "+nm[k3]+" → "+WNAMES[x.t]+" −3"); }
+        if(x.c==="chem"&&cell){ var d2=Math.ceil(cell.t*0.4); cell.t-=d2; log.push("☣️ "+nm[k3]+" → "+WNAMES[x.t]+" −"+d2); }
+        if(x.c==="bomb"&&cell){
+          var d3=Math.ceil(cell.t/2); cell.t-=d3; log.push("☢️ "+nm[k3]+" → "+WNAMES[x.t]+" −"+d3);
+          MAP[x.t].nb.forEach(function(j){ var q=Math.ceil(st.m[j].t/4); st.m[j].t=Math.max(0,st.m[j].t-q); });
+        }
+        if(x.c==="para"&&cell){
+          if(cell.o===k3||cell.t===0){ cell.o=k3; cell.t+=4; }
+          else { var r=warFight(4,cell.t); if(r.win){ cell.o=k3; cell.t=r.left; st.conq[k3]=(st.conq[k3]||0)+1; } else cell.t=r.dleft; }
+          log.push("🪂 "+nm[k3]+" → "+WNAMES[x.t]);
+        }
+      });
+    }
+    /* D) quruqlikdagi hujumlar — bir nishonga kelganlari birlashtiriladi */
+    var byT={};
+    for(var k4=0;k4<np;k4++){
+      var o4=all[k4]; if(!o4||!o4.att) continue;
+      o4.att.forEach(function(a){
+        if(!st.m[a.f]||st.m[a.f].o!==k4) return;
+        var have=st.m[a.f].t-1; if(have<1) return;
+        var n=Math.min(a.n,have);
+        st.m[a.f].t-=n;
+        (byT[a.t]=byT[a.t]||[]).push({p:k4,n:n,f:a.f});
+      });
+    }
+    Object.keys(byT).forEach(function(ti){
+      ti=parseInt(ti,10);
+      var cell=st.m[ti], list=byT[ti];
+      if(st.shield[ti]){ log.push("🚧 "+WNAMES[ti]+": "+L("blokada hujumni to'xtatdi","the blockade stopped the attack")); return; }
+      var groups={};
+      list.forEach(function(x){ var t=teamOf(x.p); groups[t]=(groups[t]||0)+x.n; });
+      var keys=Object.keys(groups).map(Number);
+      keys.sort(function(a,b){ return groups[b]-groups[a]; });
+      var top=keys[0], att=groups[top];
+      keys.slice(1).forEach(function(o){ att-=Math.ceil(groups[o]/2); });
+      if(st.mines[ti]){ att=Math.max(0,att-3); log.push("💣 "+WNAMES[ti]+": "+L("mina −3","minefield −3")); }
+      var def=cell.t*(bunk[ti]?2:1);
+      var r=warFight(att,def);
+      var who=list.filter(function(x){ return teamOf(x.p)===top; })[0];
+      if(r.win){
+        var prev=cell.o; cell.o=who.p; cell.t=Math.max(1,r.left);
+        st.conq[who.p]=(st.conq[who.p]||0)+1;
+        log.push("⚔️ "+nm[who.p]+" "+L("egalladi","took")+" "+WNAMES[ti]+" ("+att+" vs "+def+")");
+      } else {
+        cell.t=Math.max(0,Math.ceil(r.dleft/(bunk[ti]?2:1)));
+        st.lost=st.lost||{}; st.lost[ti]=att;
+        log.push("🛡 "+WNAMES[ti]+" "+L("himoyalandi","held")+" ("+att+" vs "+def+")");
+      }
+      if(cell.t<=0) cell.t=1;
+    });
+    /* E) yangi raund resurslari */
+    for(var k5=0;k5<np;k5++){
+      st.tr[k5]=warTroops(st,k5,MAP);
+      st.en[k5]=(st.en[k5]||0)+10+5*Math.min(3,st.conq[k5]||0);
+      if(st.prod[k5]>0) st.prod[k5]--;
+      st.sabo[k5]=0; st.conq[k5]=0;
+    }
+    st.log=log.slice(-14);
+  }
+  function winnerCheck(){
+    var alive=[], counts=[];
+    for(var k=0;k<np;k++){ counts[k]=terrOf(st,k).length; if(counts[k]>0) alive.push(k); }
+    /* maxfiy topshiriq */
+    for(var k2=0;k2<np;k2++) if(goal.ck(st,k2)&&k2===me) return {end:true,why:"goal"};
+    var teams={};
+    alive.forEach(function(k){ teams[teamOf(k)]=(teams[teamOf(k)]||0)+counts[k]; });
+    if(Object.keys(teams).length<=1) return {end:true,why:"last"};
+    if(st.r>ROUNDS) return {end:true,why:"rounds"};
+    return {end:false};
+  }
+  /* ---------- natija ---------- */
+  function vEnd2(why){
+    if(fin) return; fin=true;
+    var counts=[]; for(var k=0;k<np;k++) counts[k]=terrOf(st,k).length;
+    var rank=[]; for(var k2=0;k2<np;k2++) rank.push({k:k2,n:counts[k2],t:troopsOf(st,k2)});
+    rank.sort(function(a,b){ return b.n-a.n||b.t-a.t; });
+    var mine2=counts[me], place=rank.map(function(x){return x.k}).indexOf(me)+1;
+    score=mine2*12+troopsOf(st,me)*2+(place===1?250:0)+(why==="goal"?200:0);
+    var champ=rank[0];
+    c.el.innerHTML='<div class="win"><div style="font-size:50px">🏆</div>'+
+      '<div class="big">'+esc(c.players[champ.k].name)+'</div>'+
+      '<p style="font-size:17px;margin:6px 0 0">'+(why==="goal"?L("maxfiy topshiriqni bajardi!","completed the secret objective!"):L("eng ko'p hududni egalladi!","holds the most territory!"))+'</p></div>'+
+      '<div style="margin-top:14px">'+drawMap()+'</div>'+
+      '<div class="card" style="margin-top:14px">'+rank.map(function(x,i){
+        return '<div class="rank"><div class="pos">'+(["🥇","🥈","🥉"][i]||(i+1)+".")+'</div>'+
+          '<div class="av" style="background:'+WCOL[x.k]+'">'+esc(initials(c.players[x.k].name,c.players[x.k].surname))+'</div>'+
+          '<div class="nm" style="flex:1"><b>'+esc(c.players[x.k].name)+'</b><span class="note">'+x.n+' '+L("hudud","territories")+' · '+x.t+' 🪖</span></div></div>';
+      }).join("")+'</div>'+
+      '<p class="note center" style="margin-top:10px">'+L("Sizning ballingiz","Your points")+': <b>'+score+'</b></p>';
+    if(place===1){ c.fx.s.win(); c.fx.confetti(3000); } else c.fx.s.lose();
+    c.prog(100,score); c.finish(score);
+  }
+  function vSim(){
+    c.el.innerHTML='<div class="center" style="padding:20px"><div style="font-size:46px">⚔️</div>'+
+      '<h2 style="margin:10px 0">'+L("Jang boryapti…","The battle is resolving…")+'</h2></div>'+
+      '<div style="margin-top:10px">'+drawMap()+'</div>'+
+      '<div class="card flat" style="margin-top:12px;padding:12px;font-size:13px;line-height:1.9" id="wlog">'+
+      (st.log||[]).map(function(x){ return "<div>"+esc(x)+"</div>"; }).join("")+'</div>';
+  }
+  /* ---------- sinxronlash ---------- */
+  function newRound(){
+    orders={dep:{},att:[],cards:[],used:{},pend:null,left:(st.tr&&st.tr[me])||3,maxAtt:3};
+    sent=false; sel=null; mode="deploy";
+  }
+  var hBusy=false, simDone={}, advDone={};
+  function hostLoop(){
+    if(!isHost()||fin||hBusy||!st) return;
+    if(st.ph==="plan"){
+      if(simDone[st.r]) return;
+      hBusy=true;
+      DB.get(base+"/orders",function(o){
+        var have=o?Object.keys(o).length:0;
+        if(!simDone[st.r]&&st.ph==="plan"&&(have>=np||Date.now()>st.dl)){
+          simDone[st.r]=1;
+          var all=[]; for(var k=0;k<np;k++) all[k]=(o&&o[k])||null;
+          simulate(all);
+          st.ph="sim"; st.dl=Date.now()+5200;
+          DB.set(base+"/st",st,function(){ DB.set(base+"/orders",null,function(){ hBusy=false; }); });
+        } else hBusy=false;
+      });
+    } else if(st.ph==="sim"&&Date.now()>st.dl){
+      if(advDone[st.r]) return;
+      advDone[st.r]=1; hBusy=true;
+      var w=winnerCheck();
+      if(w.end||st.r>=ROUNDS){ st.ph="end"; st.why=w.why||"rounds"; }
+      else { st.r++; st.ph="plan"; st.dl=Date.now()+PLAN; }
+      DB.set(base+"/st",st,function(){ hBusy=false; });
+    }
+  }
+  /* ---------- ishga tushirish ---------- */
+  if(isHost()){
+    DB.get(base+"/st",function(v){
+      if(!v){ st=initState();
+        for(var k=0;k<np;k++){ st.tr[k]=warTroops(st,k,MAP); st.en[k]=10; st.conq[k]=0; st.prod[k]=0; st.sabo[k]=0; }
+        DB.set(base+"/st",st); }
+    });
+  }
+  c.el.innerHTML='<div class="center" style="padding:24px"><div style="font-size:44px">🗺</div><p class="note">'+
+    L("Xarita tayyorlanmoqda…","Preparing the map…")+'</p></div>';
+  var hl=setInterval(hostLoop,1500);
+  watch(base+"/st",1400,function(v){
+    if(!v||fin) return;
+    var was=st;
+    st=v;
+    if(st.ph==="end"){ clearInterval(hl); vEnd2(st.why||"rounds"); return; }
+    if(st.r!==lastR||st.ph!==lastPh){
+      lastR=st.r; lastPh=st.ph;
+      if(st.ph==="plan"){ newRound(); c.fx.s.go(); vPlan(); }
+      else if(st.ph==="sim"){ if(!sent) sendOrders(false); c.fx.s.ok(); vSim(); }
+    } else if(st.ph==="plan"){
+      var dl=c.el.querySelector("#wdl");
+      if(dl) dl.textContent=Math.max(0,Math.ceil((st.dl-Date.now())/1000))+"s";
+      if(!sent&&Date.now()>st.dl-1200) sendOrders(false);
+    }
+    c.prog(Math.round((st.r-1)/ROUNDS*100),terrOf(st,me).length*12);
+  });
+  return {end:function(){ if(!fin){ fin=true; clearInterval(hl);
+      c.finish(st?terrOf(st,me).length*12+troopsOf(st,me)*2:60); } },
+    off:function(){ clearInterval(hl); }};
+ }});
+
+var GLIST=["quiz","word","g2048","snake","memory","typing","react","math","doodle","spy","war","ttt","dama","chess"];
 window.ARENA_TEST.GAMES=GAMES; window.ARENA_TEST.GLIST=GLIST; window.ARENA_TEST.FX=FX;
 
 /* ================== KO'RINISH VA OQIM ================== */
@@ -1736,10 +2229,12 @@ function gameCard(id,on,click){
   return '<button class="gcard'+(on?" on":"")+'" data-g="'+id+'"><span class="tick">✅</span>'+
     '<span class="ic">'+g.ic+'</span><b>'+esc(L(g.nm[0],g.nm[1]))+'</b><span>'+esc(L(g.desc[0],g.desc[1]))+'</span>'+tag+'</button>';
 }
-function plRow(p,host,me){
+function plRow(p,host,me,team){
   return '<div class="pl"><div class="av" style="background:'+colorOf(p.id)+'">'+esc(initials(p.name,p.surname))+'</div>'+
    '<div class="nm"><b>'+esc(p.name+" "+(p.surname||""))+(p.id===me?' <span class="tag">'+L("siz","you")+'</span>':'')+'</b>'+
    '<span>'+esc(p.group||"")+'</span></div>'+
+   (team!==undefined?'<span class="tag" style="background:'+(team?"rgba(236,72,153,.18)":"rgba(37,99,235,.18)")+'">'+
+     (team?"🅱 "+L("B jamoa","Team B"):"🅰 "+L("A jamoa","Team A"))+'</span>':'')+
    (p.id===host?'<span class="tag host">'+L("Host","Host")+'</span>':'')+
    (p.ready?'<span class="tag ok">'+L("Tayyor","Ready")+'</span>':'<span class="tag">'+L("Kutmoqda","Waiting")+'</span>')+'</div>';
 }
@@ -1831,11 +2326,16 @@ function vCreate(){
      '<label class="field"><span>'+L("Rejim","Mode")+'</span><select id="cm"><option value="all">'+L("Barcha o'yinlar ketma-ket","All selected games in order")+'</option><option value="rnd">'+L("Tasodifiy tartibda","Random order")+'</option></select></label>'+
      '<label class="field"><span>'+L("Har o'yin uchun vaqt","Time per game")+'</span><select id="ct">'+
        '<option value="0">'+L("O'yin o'z vaqti bilan","Each game's own limit")+'</option><option value="45">45 '+L("soniya","s")+'</option><option value="60">60 '+L("soniya","s")+'</option><option value="90">90 '+L("soniya","s")+'</option></select></label>'+
+     '<label class="field"><span>'+L("Jamoa rejimi","Team mode")+'</span><select id="ctm">'+
+       '<option value="0">'+L("Har kim o'zi uchun","Free-for-all")+'</option>'+
+       '<option value="1">'+L("Jamoa: 2×2 (juft-toq)","Teams: 2 vs 2")+'</option></select></label>'+
      '<label class="field"><span>'+L("Nechta o'yinchi","Players")+'</span><select id="cmx">'+
        '<option value="4">'+L("4 gacha (klassik)","Up to 4 (classic)")+'</option>'+
        '<option value="6">'+L("6 gacha","Up to 6")+'</option>'+
        '<option value="8">'+L("8 gacha","Up to 8")+'</option>'+
-       '<option value="12">'+L("12 gacha (katta guruh)","Up to 12 (big group)")+'</option></select></label>'+
+       '<option value="12">'+L("12 gacha (katta guruh)","Up to 12 (big group)")+'</option>'+
+       '<option value="16">'+L("16 gacha","Up to 16")+'</option>'+
+       '<option value="20">'+L("20 gacha (butun guruh)","Up to 20 (whole class)")+'</option></select></label>'+
      '<label class="field"><span>'+L("Ko'rinishi","Visibility")+'</span><select id="cp"><option value="1">'+L("Ochiq — ro'yxatda ko'rinadi","Public — shown in the list")+'</option><option value="0">'+L("Yopiq — faqat kod bilan","Private — code only")+'</option></select></label>')+
     card('<h3>🎯 '+L("O'yinlarni tanlang","Choose the games")+'</h3><p class="note" id="cc">3–10</p>'+
      '<div class="grid g4" id="cg" style="margin-top:10px">'+GLIST.map(function(g){return gameCard(g,sel.indexOf(g)>=0)}).join("")+'</div>')+
@@ -1860,9 +2360,10 @@ function vCreate(){
     var code=newCode(), name=(document.getElementById("cn").value||"").trim()||L("Musobaqa","Competition");
     var pub=document.getElementById("cp").value==="1", lim=parseInt(document.getElementById("ct").value,10)||0;
     var mx=parseInt(document.getElementById("cmx").value,10)||4;
+    var tm=document.getElementById("ctm").value==="1"?1:0;
     var games=sel.slice();
     if(document.getElementById("cm").value==="rnd") shuffle(games,rng(Date.now()));
-    var room={meta:{name:name,host:ME.id,hostName:ME.name+" "+(ME.surname||""),games:games,limit:lim,pub:pub,max:mx,at:Date.now(),status:"lobby"},
+    var room={meta:{name:name,host:ME.id,hostName:ME.name+" "+(ME.surname||""),games:games,limit:lim,pub:pub,max:mx,teams:tm,at:Date.now(),status:"lobby"},
       players:{}, state:{ph:"lobby",r:0}};
     room.players[ME.id]={id:ME.id,name:ME.name,surname:ME.surname||"",group:ME.group||"",ready:1,seen:Date.now()};
     DB.get("rooms/"+code,function(ex){
@@ -1965,7 +2466,8 @@ function render(v){
 function vLobby(v){
   var pls=plList(v), me=ME.id, host=v.meta.host, link=location.origin+location.pathname+"#/room/"+v.code;
   var cap=v.meta.max||4, solo=(cap===1);
-  var slots=pls.map(function(p){return plRow(p,host,me)}).join("");
+  var tmOn=(v.meta.teams===1);
+  var slots=pls.map(function(p,i){return plRow(p,host,me,tmOn?(i%2):undefined)}).join("");
   for(var i=pls.length;i<Math.min(cap,Math.max(4,pls.length+1));i++) slots+='<div class="pl empty"><div class="av" style="background:var(--muted)">?</div><div class="nm"><b>'+L("Bo'sh joy","Empty seat")+'</b><span>'+L("do'stingizni taklif qiling","invite a classmate")+'</span></div></div>';
   var mine=(v.players||{})[me]||{};
   APP.innerHTML='<div class="hero"><div style="flex:1;min-width:220px"><span class="kicker">'+L("Lobbi","Lobby")+'</span>'+
@@ -2090,7 +2592,7 @@ function vPlay(v){
     if(!started){
       started=true;
       var ctx={el:stage,seed:st.seed,rand:rng(st.seed),endAt:st.endAt,me:ME,players:pls,code:v.code,round:st.r,
-        fx:FX,L:L,prog:pushProg,
+        fx:FX,L:L,prog:pushProg,teams:(v.meta.teams===1),
         finish:function(raw){ if(sent) return; sent=true; pushProg(100,raw); lastPush=0; pushProg(100,raw); submit(v,st,raw); }};
       try{ inst=g.run(ctx); }
       catch(e){ stage.innerHTML='<p class="note center">'+L("O'yinni yuklashda xato","Error loading the game")+'</p>'; submit(v,st,0); }

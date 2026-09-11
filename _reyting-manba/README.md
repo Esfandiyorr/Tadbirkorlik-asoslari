@@ -102,10 +102,17 @@ bo'yicha ball beriladi (100 / 75 / 50 / 25, teng natijalar o'rtacha oladi).
   yo'qotadi. O'yin — talabalar uchun kichik chalg'ish, baho vositasi emas.
 - Tugagan xona 3 daqiqadan keyin o'chiriladi, tashlab ketilgani 6 soatdan keyin
   (`arena/meta/cleanAt` qulfi bilan).
-- **13 ta o'yin:** viktorina, so'z topish, 2048, ilon, xotira kartalari, tez yozish,
+- **14 ta o'yin:** viktorina, so'z topish, 2048, ilon, xotira kartalari, tez yozish,
   reaksiya, matematika, rasm topish, **josus (3–12 kishi)**, uch toshcha,
-  **shashka**, **shaxmat**.
-- **Xona 12 kishigacha:** yaratishda 4/6/8/12 tanlanadi. Ball o'rin bo'yicha
+  **shashka**, **shaxmat**, **jang maydoni** (Risk uslubidagi strategiya).
+- **Josus:** 25 ta joy, har birida 8 ta rol (qorovul, shifokor, farrosh…);
+  3–7 kishida 1 ta josus, 8–13 da 2 ta, 14+ da 3 ta josus bo'ladi va ular
+  bir-birini biladi.
+- **Jang maydoni:** 30 ta olti burchakli hudud, 5 ta mintaqa bonusi, 14 ta
+  karta, energiya (10 + 5×egallangan hudud, maks 25), qo'shin = hudud/2 +
+  bonuslar. Raund: rejalashtirish (62 s) → bir vaqtda simulyatsiya → natija.
+  8 raund yoki maxfiy topshiriq bajarilgunicha. Jamoa rejimi 2×2 ham bor.
+- **Xona 20 kishigacha:** yaratishda 4/6/8/12/16/20 tanlanadi. Ball o'rin bo'yicha
   taqsimlanadi (1-o'rin 100, oxirgisi 10). Juftlik o'yinlari (uch toshcha,
   shashka, shaxmat) o'yinchilarni juftlarga bo'ladi, toq qolgani o'rtacha ball oladi.
 - **Yolg'iz mashq:** bosh sahifadagi 🎯 tugmasi bitta kishilik xona ochadi.
