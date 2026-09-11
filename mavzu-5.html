@@ -297,6 +297,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 
 
+
 /* RT:BEGIN */
 /* ================== REYTING TIZIMI ================== */
 .rt-chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel);
@@ -1096,6 +1097,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 </div>
 
 <div class="hint" id="hint" data-ui="hint">⌨️ <kbd>→</kbd> keyingi slayd · <kbd>D</kbd> tun/kun · <kbd>L</kbd> uz/eng · <kbd>O</kbd> ro'yxat · <kbd>F</kbd> to'liq ekran</div>
+
 
 
 
@@ -1955,7 +1957,9 @@ function pick(file){
            "The video is too large (5 MB max). For a bigger one send a YouTube or Google Drive link — it appears in the chat as a link."));
     return;
   }
-  if(isImg&&file.size>12000000){ warn(T("Rasm juda katta.","The image is too large.")); return; }
+  if(isImg&&file.size>20000000){
+    warn(T("Rasm juda katta (20 MB gacha).","The image is too large (20 MB max).")); return;
+  }
   warn("");
   $("chAtt").textContent="⏳ "+T("tayyorlanmoqda…","preparing…"); $("chAtt").classList.add("on");
   (isImg?shrink:readVid)(file,function(d){
@@ -2072,7 +2076,7 @@ function build(){
     '<p class="ch-att" id="chAtt"></p>'+
     '<p class="ch-warn" id="chWarn"></p>'+
     '<div class="ch-in">'+
-      '<button class="ch-clip" id="chClip" style="display:none" title="'+T("Rasm (10 MB) yoki video (5 MB)","Image (10 MB) or video (5 MB)")+'">📎</button>'+
+      '<button class="ch-clip" id="chClip" style="display:none" title="'+T("Rasm (20 MB gacha) yoki video (5 MB gacha)","Image (up to 20 MB) or video (up to 5 MB)")+'">📎</button>'+
       '<input type="file" id="chFile" accept="image/*,video/*" style="display:none">'+
       '<textarea id="chTa" maxlength="300" placeholder="'+T("Xabar yozing…","Write a message…")+'"></textarea>'+
       '<button class="ch-send" id="chSend" title="'+T("Yuborish","Send")+'">➤</button></div>'+
