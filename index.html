@@ -268,6 +268,8 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 
 
+
+
 /* RT:BEGIN */
 /* ================== REYTING TIZIMI ================== */
 .rt-chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel);
@@ -291,7 +293,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
   #rtNav{order:5;flex:1 1 100%;min-width:0;margin-left:0;justify-content:flex-start}
   .rt-nav{font-size:11.5px;padding:5px 8px}
 }
-.rt-ov{position:fixed;inset:0;z-index:80;display:none;padding:20px;overflow:auto;
+.rt-ov{position:fixed;inset:0;z-index:140;display:none;padding:20px;overflow:auto;
   background:color-mix(in srgb,var(--bg) 90%,transparent);backdrop-filter:blur(12px)}
 .rt-ov.show{display:block;animation:fade .25s ease}
 .rt-box{max-width:1000px;margin:0 auto;background:var(--panel);border:1px solid var(--line);border-radius:22px;
@@ -338,6 +340,9 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 .rt-badge{display:inline-block;min-width:20px;padding:1px 7px;border-radius:99px;font-size:12.5px;font-weight:800;
   background:linear-gradient(135deg,var(--violet),var(--blue));color:#fff;vertical-align:middle}
 .rt-table td .btn{padding:6px 10px;font-size:12.5px}
+.rt-tclink{display:block;width:100%;margin-top:10px;border:1px dashed var(--line);background:none;color:var(--muted);
+  border-radius:12px;padding:9px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;transition:.16s}
+.rt-tclink:hover{border-color:var(--violet);color:var(--ink)}
 /* ================== MUSIQA PLEYERI ================== */
 #mzTab{position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:70;
   background:linear-gradient(135deg,var(--violet),var(--pink));color:#fff;border:none;
@@ -1002,6 +1007,8 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 
 
+
+
 <!-- RT:BEGIN -->
 <script>var RT_CFG={"topic": "m1", "slides": 18, "pSlide": 2, "pAll": 10, "teacher": "terdu2026", "firebase": {"db": "tadbirkorlik-asoslari-default-rtdb", "regions": ["europe-west1", "us-central1", "asia-southeast1", "europe-west4", "asia-east1", "us-east1", "northamerica-northeast1"]}, "topics": [{"id": "m1", "file": "index.html", "title": "M1 · Tadbirkorlik tafakkuri va biznes imkoniyatlar", "open": true}, {"id": "m2", "file": "mavzu-2.html", "title": "M2 · Mijoz muammosi asosida biznes g'oya", "open": false}, {"id": "m3", "file": "mavzu-3.html", "title": "M3 · Mahsulotni kam xarajat bilan sinash (moliya va kredit)", "open": false}, {"id": "m4", "file": "mavzu-4.html", "title": "M4 · Biznesni qonuniy rasmiylashtirish", "open": false}, {"id": "m5", "file": "mavzu-5.html", "title": "M5 · Soliqlar va hujjatlar", "open": false}], "tracks": [{"file": "Musofir.mp3", "title": "Musofir", "artist": ""}]};</script>
 <script>
@@ -1176,6 +1183,7 @@ function gate(){
     '<p class="rt-note">'+T(
       "Ma\'lumot faqat o\'qituvchi reytingi uchun ishlatiladi. Ballar slaydlarni o\'qish va topshiriqlarni bajarish orqali to\'planadi.",
       "The data is used only for the teacher\'s rating. Points are earned by reading slides and completing tasks.")+'</p>'+
+    '<button class="rt-tclink" id="rtGateTc">🔑 '+T("O\'qituvchi bo\'limiga kirish","Teacher panel")+'</button>'+
     '</div></div>');
   document.body.appendChild(g);
   function submit(){
@@ -1192,6 +1200,7 @@ function gate(){
     g.remove(); if(approved()) start(); else waitScreen();
   }
   document.getElementById("rtGo").onclick=submit;
+  document.getElementById("rtGateTc").onclick=function(){ openOv("tc"); };
   ["rtN","rtS","rtG"].forEach(function(id){
     document.getElementById(id).addEventListener("keydown",function(e){ if(e.key==="Enter") submit(); });
   });
@@ -1249,8 +1258,8 @@ function overlay(){
     '<div class="rt-pane" id="rtTc"></div>'+
   '</div></div>');
   document.body.appendChild(o);
-  o.querySelector("#rtClose").onclick=function(){ o.classList.remove("show"); };
-  o.addEventListener("click",function(e){ if(e.target===o) o.classList.remove("show"); });
+  o.querySelector("#rtClose").onclick=closeOv;
+  o.addEventListener("click",function(e){ if(e.target===o) closeOv(); });
   o.querySelectorAll(".rt-tab").forEach(function(b){
     b.onclick=function(){
       o.querySelectorAll(".rt-tab").forEach(function(x){x.classList.remove("on");});
@@ -1407,8 +1416,17 @@ function tcDraw(){
     a2.download="terdu-reyting.csv"; a2.click();
   };
 }
+function under(hide){            /* ro'yxat/kutish ekrani ustidan ochilganda uni yashiradi */
+  ["rtGate","rtWait","rtSplash"].forEach(function(id){
+    var d=document.getElementById(id); if(d) d.style.visibility=hide?"hidden":"";
+  });
+}
+function closeOv(){
+  var o=document.getElementById("rtOv"); if(o) o.classList.remove("show");
+  under(false);
+}
 function openOv(tab){
-  var o=overlay(); o.classList.add("show");
+  var o=overlay(); o.classList.add("show"); under(true);
   renderTop(); renderMe(); renderTp(); renderTc();
   if(tab){
     var t=o.querySelector('.rt-tab[data-p="'+tab+'"]');
