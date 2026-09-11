@@ -314,21 +314,52 @@ function connect(done){
     }).catch(function(){ if(!fin){fin=true;clearTimeout(t);next();} });
   })();
 }
-var LASTERR="";
-function req(m,path,body,cb){
-  if(!BASE){ cb&&cb(null,0,"no-base"); return; }
+var LASTERR="", TRIED={}, RECON=false;
+function reqRaw(m,path,body,cb){
   var o={method:m};
   if(body!==undefined){ o.headers={"Content-Type":"application/json"}; o.body=JSON.stringify(body); }
+  var url=BASE+"/arena/"+path+".json";
   try{
     var status=0;
-    fetch(BASE+"/arena/"+path+".json",o).then(function(r){ status=r.status; return r.text(); })
+    fetch(url,o).then(function(r){ status=r.status; return r.text(); })
      .then(function(t){
-       if(status<200||status>=300){ LASTERR=status+" "+String(t||"").slice(0,120); cb&&cb(null,status,t); return; }
+       if(status<200||status>=300){ LASTERR=status+" · "+url.replace(/^https:\/\//,"").slice(0,44)+" · "+String(t||"").slice(0,90); cb(null,status,t); return; }
        var v=null; try{ v=t?JSON.parse(t):null; }catch(e){}
-       cb&&cb(v,status,t);
+       cb(v,status,t);
      })
-     .catch(function(e){ LASTERR="tarmoq"; cb&&cb(null,0,"net"); });
-  }catch(e){ LASTERR="tarmoq"; cb&&cb(null,0,"net"); }
+     .catch(function(){ LASTERR=L("tarmoq xatosi","network error")+" · "+url.replace(/^https:\/\//,"").slice(0,44); cb(null,0,"net"); });
+  }catch(e){ LASTERR=L("tarmoq xatosi","network error"); cb(null,0,"net"); }
+}
+/* boshqa manzilga o'tib qayta urinish (baza regioni noto'g'ri tanlangan bo'lsa) */
+function failover(done){
+  if(RECON){ done(false); return; }
+  RECON=true;
+  var list=bases().filter(function(b){ return b!==BASE&&!TRIED[b]; });
+  var i=0;
+  (function next(){
+    if(i>=list.length){ RECON=false; done(false); return; }
+    var b=list[i++]; TRIED[b]=1;
+    var fin2=false, t=setTimeout(function(){ if(!fin2){fin2=true;next();} },4500);
+    fetch(b+"/arena.json?shallow=true").then(function(r){
+      if(fin2) return; fin2=true; clearTimeout(t);
+      if(r.status===200){ BASE=b; online=true; try{localStorage.setItem("terdu_base",b)}catch(e){}
+        RECON=false; done(true); }
+      else next();
+    }).catch(function(){ if(!fin2){fin2=true;clearTimeout(t);next();} });
+  })();
+}
+function req(m,path,body,cb){
+  if(!BASE){ cb&&cb(null,0,"no-base"); return; }
+  reqRaw(m,path,body,function(v,st,t){
+    if(v===null&&(st===0||st===404)){
+      failover(function(ok){
+        if(ok) reqRaw(m,path,body,function(v2,st2,t2){ cb&&cb(v2,st2,t2); });
+        else cb&&cb(v,st,t);
+      });
+      return;
+    }
+    cb&&cb(v,st,t);
+  });
 }
 function whyFail(status,txt){
   txt=String(txt||"");
@@ -2465,7 +2496,11 @@ function vRoom(code,tryN){
     if(!v||!v.meta){ APP.innerHTML=card('<div class="center"><div style="font-size:40px">🚪</div><h2>'+L("Bunday xona yo'q","No such room")+
       '</h2><p class="note">'+L("Kod noto'g'ri yoki musobaqa tugagan.","The code is wrong or the competition has ended.")+'</p>'+
       (LASTERR?'<p class="note">⚠️ '+esc(LASTERR)+'</p>':'')+
-      '<button class="btn accent" id="rb" style="margin-top:12px">← '+L("Orqaga","Back")+'</button></div>');
+      '<div class="row" style="justify-content:center;margin-top:12px">'+
+      '<button class="btn accent" id="rb">← '+L("Orqaga","Back")+'</button>'+
+      '<button class="btn" id="rd">🔎 '+L("Ulanish tekshiruvi","Connection test")+'</button></div>'+
+      '<div id="diag" style="margin-top:12px"></div></div>');
+      document.getElementById("rd").onclick=function(){ nav("#/"); setTimeout(function(){ var b=document.getElementById("bDiag"); if(b) b.click(); },400); };
       document.getElementById("rb").onclick=function(){ nav("#/"); }; return; }
     var pl=v.players||{}, n=Object.keys(pl).length;
     if(!pl[ME.id]){
