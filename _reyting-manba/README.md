@@ -93,11 +93,15 @@ bilan qo'shiladi, 3–10 ta mini-o'yin ketma-ket o'ynaladi, har raundda o'rin
 bo'yicha ball beriladi (100 / 75 / 50 / 25, teng natijalar o'rtacha oladi).
 
 - Kirish: darsdagi hisob bilan (`terdu_student`), o'qituvchi tasdig'i talab qilinadi.
-- Ma'lumotlar: `arena/rooms/<KOD>` (meta, players, state, scores, pts, tot),
-  `arena/public/<KOD>` — ochiq musobaqalar ro'yxati, `arena/hist/<talaba>` — tarix.
+- Ma'lumotlar: `arena/rooms/<KOD>` (meta, players, state, scores, pts, tot) va
+  `arena/public/<KOD>` — ochiq musobaqalar ro'yxati. **Tarix saqlanmaydi.**
 - Host raundni boshlaydi va ballni hisoblaydi; host 25 soniya ko'rinmasa,
   ro'yxatdagi birinchi faol o'yinchi uning o'rnini egallaydi.
-- Xonalar 24 soatdan keyin avtomatik o'chiriladi (`arena/meta/cleanAt` qulfi bilan).
+- **Arena ballari dars reytingidan butunlay ajratilgan:** ular `students/` ga
+  yozilmaydi, hech qayerda to'planmaydi va musobaqa tugashi bilan ahamiyatini
+  yo'qotadi. O'yin — talabalar uchun kichik chalg'ish, baho vositasi emas.
+- Tugagan xona 3 daqiqadan keyin o'chiriladi, tashlab ketilgani 6 soatdan keyin
+  (`arena/meta/cleanAt` qulfi bilan).
 - 10 ta o'yin: viktorina, so'z topish, 2048, ilon, xotira kartalari, tez yozish,
   reaksiya, matematika, rasm topish (birgalikda chiziladi), uch toshcha.
 
