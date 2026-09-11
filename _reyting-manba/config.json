@@ -5,14 +5,15 @@
   "firebase": {
     "db": "tadbirkorlik-asoslari-default-rtdb",
     "regions": [
+      "asia-southeast1",
       "europe-west1",
       "us-central1",
-      "asia-southeast1",
       "europe-west4",
       "asia-east1",
       "us-east1",
       "northamerica-northeast1"
-    ]
+    ],
+    "url": "https://tadbirkorlik-asoslari-default-rtdb.asia-southeast1.firebasedatabase.app"
   },
   "topics": [
     {
