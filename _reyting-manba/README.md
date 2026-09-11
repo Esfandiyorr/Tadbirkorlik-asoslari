@@ -11,10 +11,11 @@
 Realtime Database → **Rules** bo'limiga faqat shuni qo'ying (eskisini butunlay o'chirib):
 
 ```json
-{"rules":{"students":{".read":true,".write":true},"chat":{".read":true,".write":true}}}
+{"rules":{"students":{".read":true,".write":true},"chat":{".read":true,".write":true},"media":{".read":true,".write":true},"meta":{".read":true,".write":true}}}
 ```
 
-`chat` bo'lmasa chat ishlamaydi.
+To'rttala bo'lim ham kerak: `chat` — xabarlar, `media` — rasm va videolar,
+`meta` — haftalik tozalash vaqti.
 
 ## Yangi talabani tasdiqlash
 
@@ -30,9 +31,28 @@ Tasdiqlanmagan talabaga ball berilmaydi va chat ochilmaydi. Tasdiqlangan talaban
 
 - Chap chetdagi 💬 tugmasi orqali ochiladi; faqat tasdiqlangan talabalar yozadi.
 - Qoidalar eslatmasi chat tepasida doim turadi.
-- Haqoratli so'zlar, rasm/video havolalari va `<img>` avtomatik to'sib qo'yiladi;
-  xabar 300 belgidan oshmaydi, ketma-ket yozish 2,5 soniyaga cheklangan.
-- O'qituvchi kodini kiritgan brauzerda har bir xabar yonida 🗑 tugmasi chiqadi.
+- Haqoratli so'zlar avtomatik to'sib qo'yiladi; xabar 300 belgidan oshmaydi,
+  ketma-ket yozish 2,5 soniyaga cheklangan.
+- O'qituvchi kodini kiritgan brauzerda har bir xabar yonida 🗑 tugmasi,
+  chat tepasida esa 🧹 (hammasini tozalash) tugmasi chiqadi.
+
+### Rasm va video
+
+- Odatda **hamma talabaga yopiq**: 📎 tugmasi ko'rinmaydi, rasm/video havolalari to'siladi.
+- O'qituvchi bo'limida tasdiqlangan talaba yonidagi **🔒 Rasm yopiq / 🖼 Rasm ochiq**
+  tugmasi bilan har bir talabaga alohida ruxsat beriladi yoki qaytarib olinadi
+  (`students/<id>/media` maydoni). Talabada 5 soniyada o'zi ochiladi.
+- Rasm brauzerda 1000 px gacha kichraytiriladi va JPEG ga siqiladi (~10-150 KB).
+- Video 1,5 MB gacha; kattarog'i uchun YouTube havolasi yuboriladi — u pleyer bo'lib chiqadi.
+- Media asosiy xabardan alohida `media/` bo'limida saqlanadi va faqat ko'rilganda
+  yuklanadi — shuning uchun har 5 soniyalik yangilanish trafikni yemaydi.
+
+### Haftalik tozalash
+
+- Har qanday ochiq sahifa soatiga bir marta `meta/cleanAt` ni tekshiradi va
+  **7 kundan eski** xabarlar bilan media fayllarini o'chiradi.
+- Vaqt kalitning ichida saqlanadi (`c00001736…_ab12`), shuning uchun tozalash
+  xabar matnini yuklamasdan (`?shallow=true`) ishlaydi.
 
 **Mavzuni ochish tartibi:** `config.json` da kerakli mavzuning `"open"` qiymatini `true` qiling →
 mavzu faylini `yopiq-mavzular` shoxchasidan asosiy shoxchaga qaytaring → `python3 _reyting-manba/inject.py` →

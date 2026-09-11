@@ -104,6 +104,11 @@ function cloudSetStatus(id,st,cb){
     body:JSON.stringify(st)}).then(function(r){ cb&&cb(r.ok); }).catch(function(){ cb&&cb(false); });
 }
 function approved(){ return !cloudOn || (S&&S.status==="ok"); }
+function cloudSetMedia(id,v,cb){
+  if(!cloudOn||!BASE){ cb&&cb(false); return; }
+  fetch(BASE+"/students/"+id+"/media.json",{method:"PUT",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify(!!v)}).then(function(r){ cb&&cb(r.ok); }).catch(function(){ cb&&cb(false); });
+}
 
 /* ---------- ballar ---------- */
 function topicSummary(){
@@ -408,7 +413,11 @@ function tcDraw(){
   h+='<h3 style="margin:18px 0 8px">✅ '+T("Tasdiqlangan talabalar","Approved students")+' <span class="rt-badge">'+okl.length+'</span></h3>';
   h+= okl.length ? '<div class="tw"><table class="rt-table"><thead><tr><th>'+T("Talaba","Student")+'</th><th>'+
         T("Guruh","Group")+'</th><th>'+T("Ball","Points")+'</th><th></th></tr></thead><tbody>'+okl.map(function(x){
-        return tcRow(x,'<button class="btn rt-a" data-id="'+esc(x.id)+'" data-st="blocked">🚫 '+T("Bloklash","Block")+'</button>');
+        var on=(x.media===true);
+        return tcRow(x,'<button class="btn rt-m'+(on?" accent":"")+'" data-id="'+esc(x.id)+'" data-v="'+(on?"0":"1")+
+          '" title="'+T("Rasm va video yuborish huquqi","Permission to send images and videos")+'">'+
+          (on?"🖼 "+T("Rasm ochiq","Media on"):"🔒 "+T("Rasm yopiq","Media off"))+'</button> '+
+          '<button class="btn rt-a" data-id="'+esc(x.id)+'" data-st="blocked">🚫 '+T("Bloklash","Block")+'</button>');
       }).join("")+'</tbody></table></div>'
       : '<p class="rt-note">'+T("Hali tasdiqlangan talaba yo\'q.","No approved students yet.")+'</p>';
   if(blk.length){
@@ -431,6 +440,18 @@ function tcDraw(){
   });
   out.querySelectorAll(".rt-del").forEach(function(b){
     b.onclick=function(){ tcDel(b.dataset.id,b.dataset.nm); };
+  });
+  out.querySelectorAll(".rt-m").forEach(function(b){
+    b.onclick=function(){
+      var v=b.dataset.v==="1"; b.disabled=true; b.textContent="…";
+      cloudSetMedia(b.dataset.id,v,function(ok){
+        if(!ok){ toast(T("Xatolik","Error")); tcLoad(); return; }
+        for(var i=0;i<tcList.length;i++) if(tcList[i].id===b.dataset.id) tcList[i].media=v;
+        tcDraw();
+        if(S&&S.id===b.dataset.id&&window.CH&&CH.sync) CH.sync();
+        toast(v?T("Rasm/video ochildi","Media enabled"):T("Rasm/video yopildi","Media disabled"));
+      });
+    };
   });
   document.getElementById("rtTcRef").onclick=tcLoad;
   var db=document.getElementById("rtDup"); if(db) db.onclick=tcDedupe;
