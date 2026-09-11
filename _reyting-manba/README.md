@@ -67,3 +67,20 @@ Tasdiqlanmagan talabaga ball berilmaydi va chat ochilmaydi. Tasdiqlangan talaban
 **Mavzuni ochish tartibi:** `config.json` da kerakli mavzuning `"open"` qiymatini `true` qiling →
 mavzu faylini `yopiq-mavzular` shoxchasidan asosiy shoxchaga qaytaring → `python3 _reyting-manba/inject.py` →
 commit va push. Papka nomi `_` bilan boshlangani uchun GitHub Pages uni saytga chiqarmaydi.
+
+## Yangi mavzu qo'shish (tez yo'l)
+
+`yangi_mavzu.py` — tayyor taqdimotdan **faqat matnni** almashtiradigan yig'uvchi.
+Reyting, chat, musiqa, uz/eng, test dvigateli, tun/kun, klaviatura — hammasi
+shablondan o'zgarishsiz o'tadi.
+
+1. `mavzu_N_matn.py` yozing: `slide(sarlavha, sarlavha_en, HTML)` bilan slaydlar,
+   har bir matn `d(uz, en)` orqali (u `data-i="N"` qaytaradi va EN lug'atiga yozadi),
+   oxirida `Q=[{q,a,c,e,qe,ae,ee}, ...]` — 15 ta savol.
+2. `tekshir(Q)` — har bir savolda 4 variant uzunligi farqi 4 belgidan oshmasligini
+   tekshiradi (talab: to'g'ri va noto'g'ri javoblar bir xil uzunlikda).
+3. `python3 _reyting-manba/yangi_mavzu.py mavzu_N_matn.py mavzu-N.html "Sarlavha" N`
+4. `config.json` → `topics` ga `{"id":"mN","file":"mavzu-N.html","open":false}` qo'shing,
+   `inject.py` dagi `DECKS` ga ham qo'shing, so'ng `python3 _reyting-manba/inject.py`.
+5. Yangi mavzu **yopiq** holda `yopiq-mavzular` shoxchasiga, `config.json` va
+   qayta o'rnatilgan `index.html` asosiy shoxchaga commit qilinadi.
