@@ -178,6 +178,57 @@ canvas{max-width:100%;border-radius:14px;background:var(--panel2);touch-action:n
   .hud{top:56px;padding:9px 12px;gap:9px}
   .brand span{display:none}
 }
+
+/* ===== o'yin effektlari ===== */
+#fx{position:fixed;inset:0;pointer-events:none;z-index:88;display:none}
+.stage{position:relative;overflow:hidden}
+.stage.gb::before{content:"";position:absolute;inset:0;z-index:0;opacity:.5;
+  background:radial-gradient(circle at 15% 20%,var(--c1),transparent 45%),radial-gradient(circle at 85% 75%,var(--c2),transparent 45%);
+  animation:drift 14s ease-in-out infinite alternate}
+@keyframes drift{to{transform:scale(1.25) rotate(6deg)}}
+.stage>*{position:relative;z-index:1}
+.pop{position:fixed;z-index:92;font-weight:900;font-size:26px;color:var(--green);pointer-events:none;
+  text-shadow:0 2px 10px rgba(0,0,0,.25);animation:fly 1s ease-out forwards}
+@keyframes fly{to{transform:translateY(-64px) scale(1.25);opacity:0}}
+.shake{animation:shk .36s}
+@keyframes shk{0%,100%{transform:translateX(0)}20%{transform:translateX(-9px)}40%{transform:translateX(9px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+.ring{width:52px;height:52px;flex:none}
+.ring circle{fill:none;stroke-width:6;transform:rotate(-90deg);transform-origin:50% 50%}
+.ring .bgc{stroke:var(--chip)}
+.ring .fgc{stroke:var(--green);stroke-linecap:round;transition:stroke-dashoffset .2s linear}
+.opps{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.opp{display:flex;align-items:center;gap:6px;background:var(--panel2);border:1px solid var(--line);
+  border-radius:999px;padding:3px 9px 3px 3px;font-size:12px;font-weight:700}
+.opp .av{width:24px;height:24px;min-width:24px;border-radius:50%;display:grid;place-items:center;
+  font-size:10.5px;font-weight:800;color:#fff}
+.opp .pb{width:46px;height:5px;border-radius:9px;background:var(--chip);overflow:hidden}
+.opp .pb i{display:block;height:100%;background:linear-gradient(90deg,var(--green),var(--cyan));transition:width .4s}
+.opp.done{border-color:var(--green)}
+.streak{display:inline-block;background:linear-gradient(135deg,var(--orange),var(--red));color:#fff;
+  border-radius:999px;padding:3px 11px;font-size:12px;font-weight:800;animation:pop2 .3s}
+@keyframes pop2{from{transform:scale(.5)}to{transform:scale(1)}}
+.mc{transition:transform .3s;transform-style:preserve-3d}
+.mc.up,.mc.done{transform:rotateY(180deg)}
+.mc span{display:block;transform:rotateY(180deg)}
+.t2{animation:tin .18s}
+@keyframes tin{from{transform:scale(.6);opacity:.4}to{transform:scale(1);opacity:1}}
+.t2.mg{animation:tmg .22s}
+@keyframes tmg{50%{transform:scale(1.18)}}
+.wc.fl{animation:flip .45s}
+@keyframes flip{50%{transform:rotateX(90deg)}}
+.pad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:280px;margin:12px auto 0}
+.pad button{padding:15px 0;border-radius:12px;border:1px solid var(--line);background:var(--panel2);
+  font-size:20px;font-weight:800;font-family:inherit;color:var(--ink);cursor:pointer}
+.pad button:active{background:var(--chip)}
+.pad .ok{background:linear-gradient(135deg,var(--green),var(--teal));color:#fff;border-color:transparent}
+.pad .del{background:linear-gradient(135deg,var(--orange),var(--amber));color:#fff;border-color:transparent}
+.hint{display:inline-flex;gap:5px;align-items:center;font-family:ui-monospace,Menlo,monospace;font-size:20px;letter-spacing:5px}
+.wline{position:absolute;height:6px;border-radius:6px;background:var(--green);transform-origin:0 50%;animation:grow .4s ease-out}
+@keyframes grow{from{transform:scaleX(0)}}
+.lvl{display:flex;gap:4px;align-items:center}
+.lvl i{width:9px;height:9px;border-radius:50%;background:var(--chip);display:block}
+.lvl i.on{background:var(--amber)}
+
 @media print{.topbar,.hud{display:none}}
 </style>
 </head>
@@ -191,10 +242,13 @@ canvas{max-width:100%;border-radius:14px;background:var(--panel2);touch-action:n
   <div class="tools">
     <a class="btn ghost" href="index.html" id="btnBack">📚 <span data-ui="lessons">Darslar</span></a>
     <button class="btn ghost" id="btnLang">🌐 <span id="langTxt">ENG</span></button>
+    <button class="btn ghost" id="btnSnd" title="Ovoz">🔊</button>
+    <button class="btn ghost" id="btnMus" title="Musiqa">🎵</button>
     <button class="btn ghost" id="btnTheme">🌙 <span id="thTxt" data-ui="night">Tun</span></button>
   </div>
 </header>
 <main class="wrap" id="app"></main>
+<canvas id="fx"></canvas>
 <div class="toast" id="toast"></div>
 <script>
 /* ================== TerDU O'YIN ARENASI ================== */
@@ -218,6 +272,13 @@ function setTheme(t){
 }
 try{ setTheme(localStorage.getItem("terdu_theme")||"light"); }catch(e){ setTheme("light"); }
 $("#btnTheme").onclick=function(){ setTheme(document.documentElement.getAttribute("data-theme")==="dark"?"light":"dark"); };
+var MUS=null;
+$("#btnSnd").onclick=function(){ FX.mute(!FX.isMuted()); $("#btnSnd").textContent=FX.isMuted()?"🔇":"🔊"; if(!FX.isMuted()) FX.s.tap(); };
+$("#btnMus").onclick=function(){
+  if(!MUS){ MUS=new Audio("Musofir.mp3"); MUS.loop=true; MUS.volume=.35; }
+  if(MUS.paused){ MUS.play().then(function(){ $("#btnMus").textContent="⏸"; }).catch(function(){ toast(L("Musiqa fayli topilmadi","Music file not found")); }); }
+  else { MUS.pause(); $("#btnMus").textContent="🎵"; }
+};
 $("#btnLang").onclick=function(){ lang=(lang==="en")?"uz":"en"; try{localStorage.setItem("terdu_lang",lang)}catch(e){}
   document.documentElement.lang=lang; $("#langTxt").textContent=(lang==="en")?"UZ":"ENG"; chrome(); route(); };
 function chrome(){
@@ -317,153 +378,297 @@ function rankPoints(list,higher){
 }
 window.ARENA_TEST={rankPoints:rankPoints,rng:rng,seedOf:seedOf};
 
+
+/* ================== EFFEKTLAR (ovoz, konfetti, animatsiya) ================== */
+var FX=(function(){
+  var AC=null, muted=false;
+  try{ muted=localStorage.getItem("terdu_mute")==="1"; }catch(e){}
+  function ac(){ if(!AC){ try{ AC=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} } return AC; }
+  function beep(f,d,type,vol){
+    if(muted) return; var a=ac(); if(!a) return;
+    try{
+      var o=a.createOscillator(), g=a.createGain();
+      o.type=type||"sine"; o.frequency.value=f;
+      g.gain.setValueAtTime(vol||.06,a.currentTime);
+      g.gain.exponentialRampToValueAtTime(.0001,a.currentTime+(d||.12));
+      o.connect(g); g.connect(a.destination); o.start(); o.stop(a.currentTime+(d||.12)+.02);
+    }catch(e){}
+  }
+  function vib(ms){ try{ if(navigator.vibrate&&!muted) navigator.vibrate(ms); }catch(e){} }
+  var S={
+    tap:function(){ beep(520,.05,"triangle",.04); },
+    ok:function(){ beep(660,.09,"sine",.07); setTimeout(function(){beep(880,.12,"sine",.06)},70); vib(20); },
+    no:function(){ beep(190,.18,"sawtooth",.05); vib([25,40,25]); },
+    tick:function(){ beep(1100,.03,"square",.02); },
+    go:function(){ beep(440,.1); setTimeout(function(){beep(660,.16)},130); },
+    win:function(){ [523,659,784,1046].forEach(function(f,i){ setTimeout(function(){ beep(f,.22,"triangle",.07); },i*120); }); vib([40,60,40,60,90]); },
+    lose:function(){ [440,330,247].forEach(function(f,i){ setTimeout(function(){ beep(f,.2,"sine",.05); },i*130); }); },
+    pop:function(){ beep(880,.06,"square",.035); },
+    merge:function(){ beep(392,.08,"triangle",.05); }
+  };
+  function mute(v){ muted=v; try{localStorage.setItem("terdu_mute",v?"1":"0")}catch(e){} }
+  function isMuted(){ return muted; }
+  /* --- suzuvchi ball --- */
+  function pop(x,y,txt,col){
+    var d=document.createElement("div"); d.className="pop"; d.textContent=txt;
+    if(col) d.style.color=col;
+    d.style.left=(x-18)+"px"; d.style.top=(y-20)+"px";
+    document.body.appendChild(d); setTimeout(function(){ d.remove(); },1000);
+  }
+  function popAt(node,txt,col){
+    if(!node) return; var r=node.getBoundingClientRect();
+    pop(r.left+r.width/2, r.top+r.height/2, txt, col);
+  }
+  /* --- konfetti --- */
+  function confetti(ms){
+    var cv=document.getElementById("fx"); if(!cv) return;
+    cv.width=innerWidth; cv.height=innerHeight; cv.style.display="block";
+    var x=cv.getContext("2d"), cols=["#12a150","#2563eb","#7c3aed","#f59e0b","#ec4899","#0891b2"], P=[];
+    for(var i=0;i<130;i++) P.push({x:Math.random()*cv.width,y:-20-Math.random()*cv.height*.5,
+      w:5+Math.random()*7,h:8+Math.random()*10,c:cols[i%cols.length],
+      vy:2+Math.random()*3.4,vx:-1.4+Math.random()*2.8,r:Math.random()*6,vr:-.2+Math.random()*.4});
+    var t0=Date.now();
+    (function loop(){
+      x.clearRect(0,0,cv.width,cv.height);
+      P.forEach(function(p){ p.x+=p.vx; p.y+=p.vy; p.r+=p.vr;
+        x.save(); x.translate(p.x,p.y); x.rotate(p.r); x.fillStyle=p.c;
+        x.fillRect(-p.w/2,-p.h/2,p.w,p.h); x.restore(); });
+      if(Date.now()-t0<(ms||3200)) requestAnimationFrame(loop);
+      else { x.clearRect(0,0,cv.width,cv.height); cv.style.display="none"; }
+    })();
+  }
+  function shake(n){ if(!n) return; n.classList.add("shake"); setTimeout(function(){ n.classList.remove("shake"); },400); }
+  return {s:S,pop:pop,popAt:popAt,confetti:confetti,shake:shake,mute:mute,isMuted:isMuted,vib:vib};
+})();
+/* o'yin foni ranglari */
+var GBG={quiz:["#7c3aed33","#2563eb33"],word:["#12a15033","#0891b233"],g2048:["#f9731633","#f59e0b33"],
+ snake:["#12a15033","#84cc1633"],memory:["#ec489933","#7c3aed33"],typing:["#0891b233","#2563eb33"],
+ react:["#e11d4833","#f9731633"],math:["#2563eb33","#12a15033"],doodle:["#ec489933","#f59e0b33"],ttt:["#7c3aed33","#ec489933"]};
+
 /* ================== O'YINLAR ================== */
 var GAMES={};
 function addG(id,o){ o.id=id; GAMES[id]=o; }
+function bar(pct){ return '<div class="bar"><i style="width:'+pct+'%"></i></div>'; }
 
-/* --- 1. Viktorina --- */
+/* --- 1. Viktorina: ketma-ketlik bonusi, 50/50, kategoriya --- */
 var QBANK=[
- ["Tadbirkorlik nima?",["Foyda olishga qaratilgan mustaqil faoliyat","Davlat tomonidan beriladigan ish o'rni","Bank tomonidan beriladigan qarz turi","Soliq to'lashdan ozod etilgan faoliyat"],0],
- ["Biznes-model nimani ko'rsatadi?",["Pul qanday kirib, qanday chiqishini","Xodimlar ish vaqtining jadvalini","Binoning qurilish rejasini","Soliq hisobotining shaklini"],0],
- ["Marketingda 'segment' nima?",["Ehtiyoji o'xshash mijozlar guruhi","Do'kondagi tovar javoni","Reklama byudjetining qismi","Shartnomaning bir bo'limi"],0],
- ["Eng katta okean qaysi?",["Tinch okeani","Atlantika okeani","Hind okeani","Shimoliy muz okeani"],0],
- ["Suvning kimyoviy formulasi?",["H2O","CO2","O2","NaCl"],0],
- ["O'zbekiston poytaxti?",["Toshkent","Samarqand","Buxoro","Namangan"],0],
- ["Amir Temur qaysi shaharni poytaxt qilgan?",["Samarqand","Toshkent","Xiva","Qo'qon"],0],
- ["1 kilobayt necha baytga teng?",["1024","1000","512","2048"],0],
- ["Quyoshga eng yaqin sayyora?",["Merkuriy","Venera","Yer","Mars"],0],
- ["Inson tanasidagi eng katta organ?",["Teri","Jigar","O'pka","Yurak"],0],
- ["QQS qanday soliq?",["Qo'shilgan qiymat solig'i","Qishloq xo'jaligi solig'i","Qimmatbaho qog'oz solig'i","Qarz qoplash solig'i"],0],
- ["Startap kichik biznesdan nimasi bilan farq qiladi?",["Tez va katta o'sishga mo'ljallangani","Faqat onlayn ishlashi bilan","Soliq to'lamasligi bilan","Xodimi ko'pligi bilan"],0],
- ["Eng uzun daryo Afrikada?",["Nil","Kongo","Zambezi","Niger"],0],
- ["'Alpomish' qanday asar?",["Xalq dostoni","Roman","Ilmiy maqola","Qo'shiq matni"],0],
- ["Kompyuterning 'miyasi' qaysi qism?",["Protsessor","Monitor","Klaviatura","Printer"],0],
- ["Futbolda bir jamoada nechta o'yinchi maydonda bo'ladi?",["11","10","12","9"],0],
- ["Grant kreditdan nimasi bilan farq qiladi?",["Qaytarilmaydi","Foizi yuqori","Garov talab qiladi","Faqat banklar beradi"],0],
- ["Internetdagi 'domen' nima?",["Saytning manzil nomi","Kompyuter xotirasi","Dastur tili","Tarmoq kabeli"],0],
- ["Eng baland tog' cho'qqisi?",["Everest","Elbrus","Monblan","Kilimanjaro"],0],
- ["Yilning eng uzun kuni qaysi oyda?",["Iyun","Mart","Sentabr","Dekabr"],0],
- ["Franshiza nima?",["Brend va tizimdan foydalanish huquqi","Aksiya sotib olish","Soliq imtiyozi turi","Bankdagi omonat"],0],
- ["MChJ nimaning qisqartmasi?",["Mas'uliyati cheklangan jamiyat","Mahalliy chakana javobgarlik","Moliyaviy chegaralangan jamg'arma","Mustaqil chet el jamiyati"],0],
- ["Qaysi dastur jadval bilan ishlaydi?",["Excel","Photoshop","VLC","Zoom"],0],
- ["Pul oqimi (cash flow) nimani ko'rsatadi?",["Kassaga kirgan va chiqqan real pulni","Faqat sof foydani","Soliq summasini","Xodimlar sonini"],0]
+ ["biz","Tadbirkorlik nima?",["Foyda olishga qaratilgan mustaqil faoliyat","Davlat beradigan doimiy ish o'rni","Bankdan olinadigan uzoq muddatli qarz","Soliqdan ozod etilgan ijtimoiy faoliyat"],0],
+ ["biz","Biznes-model nimani ko'rsatadi?",["Pul qanday kirib, qanday chiqishini","Xodimlar ish vaqtining jadvalini","Binoning qurilish smetasini","Soliq hisobotining shaklini"],0],
+ ["biz","Marketingda 'segment' nima?",["Ehtiyoji o'xshash mijozlar guruhi","Do'kondagi tovar javoni","Reklama byudjetining qismi","Shartnomaning bir bo'limi"],0],
+ ["biz","QQS qanday soliq?",["Qo'shilgan qiymat solig'i","Qishloq xo'jaligi solig'i","Qimmatbaho qog'oz solig'i","Qarzni qoplash solig'i"],0],
+ ["biz","Startap kichik biznesdan nimasi bilan farq qiladi?",["Tez va katta o'sishga mo'ljallangani","Faqat onlayn ishlashi bilan","Soliq to'lamasligi bilan","Xodimi ko'pligi bilan"],0],
+ ["biz","Grant kreditdan nimasi bilan farq qiladi?",["Qaytarilmaydi","Foizi ancha yuqori","Garov talab qiladi","Faqat banklar beradi"],0],
+ ["biz","MChJ nimaning qisqartmasi?",["Mas'uliyati cheklangan jamiyat","Mahalliy chakana javobgarlik","Moliyaviy chegaralangan jamg'arma","Mustaqil chet el jamiyati"],0],
+ ["biz","Franshiza nima?",["Brend va tizimdan foydalanish huquqi","Aksiyalarni sotib olish shakli","Soliq imtiyozining bir turi","Bankdagi muddatli omonat"],0],
+ ["biz","Pul oqimi (cash flow) nimani ko'rsatadi?",["Kassaga kirgan va chiqqan real pulni","Faqat yillik sof foydani","To'langan soliq summasini","Xodimlar sonining o'zgarishini"],0],
+ ["fan","Suvning kimyoviy formulasi?",["H2O","CO2","O2","NaCl"],0],
+ ["fan","Quyoshga eng yaqin sayyora?",["Merkuriy","Venera","Yer","Mars"],0],
+ ["fan","Inson tanasidagi eng katta organ?",["Teri","Jigar","O'pka","Yurak"],0],
+ ["fan","1 kilobayt necha baytga teng?",["1024","1000","512","2048"],0],
+ ["fan","Kompyuterning 'miyasi' qaysi qism?",["Protsessor","Monitor","Klaviatura","Printer"],0],
+ ["fan","Eng baland tog' cho'qqisi?",["Everest","Elbrus","Monblan","Kilimanjaro"],0],
+ ["fan","Yorug'lik tezligi taxminan qancha?",["300 000 km/s","30 000 km/s","3 000 km/s","3 mln km/s"],0],
+ ["fan","Qaysi gaz nafas olish uchun zarur?",["Kislorod","Azot","Vodorod","Metan"],0],
+ ["tar","Amir Temur qaysi shaharni poytaxt qilgan?",["Samarqand","Toshkent","Xiva","Qo'qon"],0],
+ ["tar","'Alpomish' qanday asar?",["Xalq dostoni","Zamonaviy roman","Ilmiy maqola","Qo'shiq matni"],0],
+ ["tar","Registon majmuasi qaysi shaharda?",["Samarqand","Buxoro","Xiva","Shahrisabz"],0],
+ ["tar","Al-Xorazmiy nima bilan mashhur?",["Algoritm va algebra","Tibbiyot kitoblari","Me'morchilik","Astronomik teleskop"],0],
+ ["umu","Eng katta okean qaysi?",["Tinch okeani","Atlantika okeani","Hind okeani","Shimoliy muz okeani"],0],
+ ["umu","Eng uzun daryo Afrikada?",["Nil","Kongo","Zambezi","Niger"],0],
+ ["umu","Futbolda bir jamoada maydonda nechta o'yinchi?",["11","10","12","9"],0],
+ ["umu","Internetdagi 'domen' nima?",["Saytning manzil nomi","Kompyuter xotirasi","Dasturlash tili","Tarmoq kabeli"],0],
+ ["umu","Qaysi dastur jadval bilan ishlaydi?",["Excel","Photoshop","VLC","Zoom"],0],
+ ["umu","Yilning eng uzun kuni qaysi oyda?",["Iyun","Mart","Sentabr","Dekabr"],0],
+ ["umu","Olimpiada o'yinlari necha yilda bir marta?",["4","2","5","3"],0]
 ];
-addG("quiz",{ic:"🧠",nm:["Viktorina","Quiz Battle"],desc:["8 ta savol · to'g'ri javob va tezlik uchun ball","8 questions · points for accuracy and speed"],
- dur:80,higher:true,unit:["ball","pts"],
+var QCAT={biz:["💼 Biznes","💼 Business"],fan:["🔬 Fan","🔬 Science"],tar:["🏛 Tarix","🏛 History"],umu:["🌍 Umumiy","🌍 General"]};
+addG("quiz",{ic:"🧠",nm:["Viktorina","Quiz Battle"],desc:["10 ta savol · ketma-ket to'g'ri javob ballni oshiradi · bitta 50/50 yordami bor","Ten questions · a streak multiplies your points · one 50/50 lifeline"],
+ dur:95,higher:true,unit:["ball","pts"],
  run:function(c){
-  var qs=shuffle(QBANK.slice(),c.rand).slice(0,8).map(function(q){
-    var opts=q[1].map(function(t,i){return {t:t,ok:i===q[2]}});
-    shuffle(opts,c.rand); return {q:q[0],o:opts};
+  var qs=shuffle(QBANK.slice(),c.rand).slice(0,10).map(function(q){
+    var opts=q[2].map(function(t,i){return {t:t,ok:i===q[3]}});
+    shuffle(opts,c.rand); return {cat:q[0],q:q[1],o:opts};
   });
-  var i=0,score=0,locked=false;
+  var i=0,score=0,streak=0,best=0,locked=false,fifty=true;
   function draw(){
     if(i>=qs.length){ c.finish(score); return; }
-    var q=qs[i], t0=Date.now(), per=9000;
-    c.el.innerHTML='<div class="center"><span class="kicker">'+L("Savol","Question")+" "+(i+1)+" / "+qs.length+
-      '</span><h2 style="margin:12px 0 16px">'+esc(q.q)+'</h2></div><div id="qo"></div><p class="note center" id="qf"></p>';
-    var box=$("#qo",c.el);
+    var q=qs[i], t0=Date.now(), per=10000, cat=QCAT[q.cat]||["",""];
+    c.el.innerHTML='<div class="row" style="justify-content:space-between;margin-bottom:10px">'+
+      '<span class="kicker">'+L(cat[0],cat[1])+'</span>'+
+      '<span class="note">'+L("Savol","Question")+" "+(i+1)+" / "+qs.length+'</span>'+
+      (streak>1?'<span class="streak">🔥 '+streak+"x</span>":"")+'</div>'+
+      bar(Math.round(i/qs.length*100))+
+      '<h2 style="margin:16px 0 18px;text-align:center">'+esc(q.q)+'</h2><div id="qo"></div>'+
+      '<div class="row" style="justify-content:space-between;margin-top:8px">'+
+      (fifty?'<button class="btn sm warn" id="q50">✂️ 50/50</button>':'<span></span>')+
+      '<b id="qs">'+nf(score)+' '+L("ball","pts")+'</b></div><p class="note center" id="qf"></p>';
+    var box=c.el.querySelector("#qo"), btns=[];
     q.o.forEach(function(o,k){
-      var b=el('<button class="opt">'+esc(o.t)+'</button>');
+      var b=el('<button class="opt"><b style="color:var(--muted);margin-right:8px">'+"ABCD".charAt(k)+'</b>'+esc(o.t)+'</button>');
       b.onclick=function(){
-        if(locked) return; locked=true;
-        var dt=Date.now()-t0, sp=Math.max(0,Math.round((per-dt)/per*50));
-        $$(".opt",box).forEach(function(x,xi){ x.disabled=true; if(q.o[xi].ok) x.classList.add("right"); });
-        if(o.ok){ b.classList.add("right"); score+=100+sp; $("#qf",c.el).textContent="✅ "+L("To'g'ri","Correct")+" +"+(100+sp); }
-        else { b.classList.add("wrong"); $("#qf",c.el).textContent="❌ "+L("Noto'g'ri","Wrong"); }
-        setTimeout(function(){ i++; locked=false; draw(); },1100);
+        if(locked) return; locked=true; c.fx.s.tap();
+        var dt=Date.now()-t0, sp=Math.max(0,Math.round((per-dt)/per*60));
+        btns.forEach(function(x,xi){ x.disabled=true; if(q.o[xi].ok) x.classList.add("right"); });
+        if(o.ok){
+          streak++; best=Math.max(best,streak);
+          var mult=streak>=5?3:(streak>=3?2:1), gain=(100+sp)*mult;
+          score+=gain; c.fx.s.ok(); c.fx.popAt(b,"+"+gain);
+          c.el.querySelector("#qf").innerHTML="✅ "+L("To'g'ri","Correct")+(mult>1?' <span class="streak">'+mult+"x</span>":"");
+        } else {
+          streak=0; b.classList.add("wrong"); c.fx.s.no(); c.fx.shake(b);
+          c.el.querySelector("#qf").textContent="❌ "+L("Noto'g'ri","Wrong");
+        }
+        c.el.querySelector("#qs").textContent=nf(score)+" "+L("ball","pts");
+        c.prog(Math.round((i+1)/qs.length*100),score);
+        setTimeout(function(){ i++; locked=false; draw(); },1050);
       };
-      box.appendChild(b);
+      box.appendChild(b); btns.push(b);
     });
+    var f=c.el.querySelector("#q50");
+    if(f) f.onclick=function(){
+      if(!fifty) return; fifty=false; f.remove(); c.fx.s.pop();
+      var wrong=[]; q.o.forEach(function(o,k){ if(!o.ok) wrong.push(k); });
+      shuffle(wrong,c.rand).slice(0,2).forEach(function(k){ btns[k].disabled=true; btns[k].style.opacity=".3"; });
+    };
   }
-  draw();
+  c.prog(0,0); draw();
   return {end:function(){ c.finish(score); }};
  }});
 
-/* --- 2. So'z topish --- */
-var WORDS=["kitob","bahor","olmos","quyon","tarix","salom","bozor","foyda","soliq","talab","qiyin","oltin","temir","qalam","anjir"];
-addG("word",{ic:"🔤",nm:["So'z topish","Word Game"],desc:["5 harfli so'zni 6 urinishda toping","Guess the five-letter word in six tries"],
- dur:120,higher:true,unit:["ball","pts"],
+/* --- 2. So'z topish: animatsiya, yordam tugmasi --- */
+var WORDS=["kitob","bahor","olmos","quyon","tarix","salom","bozor","foyda","soliq","talab","qiyin","oltin","temir","qalam","anjir","mehmon","daftar","shakar","chiroq","bulbul","yulduz","dehqon","maktab","quyosh","asalari"];
+addG("word",{ic:"🔤",nm:["So'z topish","Word Game"],desc:["Yashirin so'zni 6 urinishda toping · yordam olsangiz ball kamayadi","Guess the hidden word in six tries · a hint costs points"],
+ dur:130,higher:true,unit:["ball","pts"],
  run:function(c){
-  var word=WORDS[Math.floor(c.rand()*WORDS.length)], row=0, cur="", done=false, st={};
-  var rows=[];
-  c.el.innerHTML='<div class="center"><span class="kicker">'+L("5 harfli so'z","Five letters")+'</span></div><div class="wr" id="wr"></div><div class="kb" id="kb"></div><p class="note center" id="wf"></p>';
-  var wr=$("#wr",c.el);
-  for(var r=0;r<6;r++){ var rr=el('<div class="wrow"></div>'); for(var k=0;k<5;k++) rr.appendChild(el('<div class="wc"></div>')); wr.appendChild(rr); rows.push(rr); }
+  var pool=WORDS.filter(function(w){ return w.length>=5&&w.length<=6; });
+  var word=pool[Math.floor(c.rand()*pool.length)], N=word.length;
+  var row=0, cur="", done=false, st={}, used=0, rows=[];
+  c.el.innerHTML='<div class="row" style="justify-content:space-between;margin-bottom:6px">'+
+    '<span class="kicker">'+N+' '+L("harf","letters")+'</span>'+
+    '<button class="btn sm warn" id="whint">💡 '+L("Yordam (−150)","Hint (−150)")+'</button></div>'+
+    '<div class="wr" id="wr"></div><div class="kb" id="kb"></div><p class="note center" id="wf"></p>';
+  var wr=c.el.querySelector("#wr");
+  for(var r=0;r<6;r++){ var rr=el('<div class="wrow"></div>');
+    for(var k=0;k<N;k++) rr.appendChild(el('<div class="wc"></div>'));
+    wr.appendChild(rr); rows.push(rr); }
   var KB=[["q","w","e","r","t","y","u","i","o","p"],["a","s","d","f","g","h","j","k","l"],["⏎","z","x","c","v","b","n","m","⌫"]];
-  var kb=$("#kb",c.el);
+  var kb=c.el.querySelector("#kb");
   KB.forEach(function(rw){ var d=el('<div class="kbr"></div>');
-    rw.forEach(function(ch){ var b=el('<button class="key'+(ch.length>1?" w":"")+'">'+ch+'</button>'); b.dataset.k=ch; b.onclick=function(){ key(ch); }; d.appendChild(b); });
+    rw.forEach(function(ch){ var b=el('<button class="key'+(ch.length>1?" w":"")+'">'+ch+'</button>');
+      b.dataset.k=ch; b.onclick=function(){ key(ch); }; d.appendChild(b); });
     kb.appendChild(d); });
-  function paint(){ var cells=rows[row].children; for(var k=0;k<5;k++) cells[k].textContent=cur.charAt(k)||""; }
+  function paint(){ var cells=rows[row].children; for(var k=0;k<N;k++) cells[k].textContent=cur.charAt(k)||""; }
   function key(ch){
     if(done) return;
-    if(ch==="⌫"){ cur=cur.slice(0,-1); paint(); return; }
+    if(ch==="⌫"){ cur=cur.slice(0,-1); paint(); c.fx.s.tap(); return; }
     if(ch==="⏎"){ submit(); return; }
-    if(cur.length<5){ cur+=ch; paint(); }
+    if(cur.length<N){ cur+=ch; paint(); c.fx.s.tap(); }
   }
+  c.el.querySelector("#whint").onclick=function(){
+    if(done) return;
+    var free=[]; for(var k=0;k<N;k++) if(st["#"+k]!=="g") free.push(k);
+    if(!free.length) return;
+    var pick=free[Math.floor(c.rand()*free.length)];
+    used++; st["#"+pick]="g"; c.fx.s.pop();
+    c.el.querySelector("#wf").innerHTML=L("Yordam","Hint")+': <span class="hint">'+
+      Array.apply(null,Array(N)).map(function(_,k){ return st["#"+k]==="g"?word.charAt(k).toUpperCase():"·"; }).join("")+'</span>';
+  };
   function submit(){
-    if(cur.length<5){ $("#wf",c.el).textContent=L("5 ta harf kiriting","Enter five letters"); return; }
-    var cells=rows[row].children, left=word.split(""), mark=new Array(5);
-    for(var k=0;k<5;k++) if(cur[k]===word[k]){ mark[k]="g"; left[left.indexOf(cur[k])]=null; }
-    for(var k2=0;k2<5;k2++) if(!mark[k2]){ var p=left.indexOf(cur[k2]); if(p>=0){ mark[k2]="y"; left[p]=null; } else mark[k2]="b"; }
-    for(var k3=0;k3<5;k3++){ cells[k3].classList.add(mark[k3]);
+    if(cur.length<N){ c.el.querySelector("#wf").textContent=N+" "+L("ta harf kiriting","letters required"); c.fx.shake(rows[row]); return; }
+    var cells=rows[row].children, left=word.split(""), mark=new Array(N);
+    for(var k=0;k<N;k++) if(cur[k]===word[k]){ mark[k]="g"; left[left.indexOf(cur[k])]=null; }
+    for(var k2=0;k2<N;k2++) if(!mark[k2]){ var p=left.indexOf(cur[k2]); if(p>=0){ mark[k2]="y"; left[p]=null; } else mark[k2]="b"; }
+    for(var k3=0;k3<N;k3++){ (function(k3){
+      setTimeout(function(){ cells[k3].classList.add("fl");
+        setTimeout(function(){ cells[k3].classList.add(mark[k3]); },210); },k3*110); })(k3);
       var kb2=kb.querySelector('[data-k="'+cur[k3]+'"]');
       if(kb2){ var pr={b:0,y:1,g:2}; if(pr[mark[k3]]>=(pr[st[cur[k3]]]||0)){ st[cur[k3]]=mark[k3]; kb2.className="key "+mark[k3]; } }
     }
-    if(cur===word){ done=true; var left2=Math.max(0,c.endAt-Date.now());
-      var pts=700-row*100+Math.round(left2/1000);
-      $("#wf",c.el).textContent="🎉 "+L("Topdingiz!","Solved!")+" +"+pts; c.finish(pts); return; }
-    row++; cur=""; 
-    if(row>=6){ done=true; $("#wf",c.el).textContent=L("So'z: ","The word: ")+word.toUpperCase(); c.finish(0); }
+    var win=(cur===word);
+    setTimeout(function(){
+      if(win){ done=true; var lf=Math.max(0,c.endAt-Date.now());
+        var pts=Math.max(50,900-row*120-used*150+Math.round(lf/1000)*2);
+        c.el.querySelector("#wf").textContent="🎉 "+L("Topdingiz!","Solved!")+" +"+pts;
+        c.fx.s.win(); c.fx.confetti(1800); c.prog(100,pts); c.finish(pts); return; }
+      row++; cur=""; c.prog(Math.round(row/6*100),0);
+      if(row>=6){ done=true; c.fx.s.lose();
+        c.el.querySelector("#wf").textContent=L("So'z: ","The word: ")+word.toUpperCase(); c.finish(0); }
+    },N*110+260);
+    cur="";
   }
   function onkey(e){ var k=e.key.toLowerCase();
     if(k==="enter") key("⏎"); else if(k==="backspace") key("⌫"); else if(/^[a-z]$/.test(k)) key(k); }
   document.addEventListener("keydown",onkey);
+  c.prog(0,0);
   return {end:function(){ if(!done){done=true;c.finish(0);} }, off:function(){ document.removeEventListener("keydown",onkey); }};
  }});
 
-/* --- 3. 2048 --- */
-addG("g2048",{ic:"🔢",nm:["2048","2048"],desc:["Bir xil raqamlarni qo'shib, eng katta ballni to'plang","Merge equal tiles and score the most"],
- dur:100,higher:true,unit:["ball","pts"],
+/* --- 3. 2048: animatsiya, eng katta plitka, bitta ortga qaytish --- */
+addG("g2048",{ic:"🔢",nm:["2048","2048"],desc:["Bir xil raqamlarni qo'shing · bitta 'ortga qaytish' imkoni bor","Merge equal tiles · one undo available"],
+ dur:110,higher:true,unit:["ball","pts"],
  run:function(c){
-  var b=[],score=0,over=false;
+  var b=[],score=0,over=false,undo=null,undoLeft=1,best=0;
   function empty(){ var o=[]; for(var i=0;i<16;i++) if(!b[i]) o.push(i); return o; }
-  function add(){ var e=empty(); if(!e.length) return; b[e[Math.floor(c.rand()*e.length)]]=c.rand()<0.9?2:4; }
+  function add(){ var e=empty(); if(!e.length) return -1; var i=e[Math.floor(c.rand()*e.length)]; b[i]=c.rand()<0.9?2:4; return i; }
   for(var i=0;i<16;i++) b[i]=0; add(); add();
-  c.el.innerHTML='<div class="center" style="margin-bottom:10px"><b style="font-size:20px">'+L("Ball","Score")+': <span id="sc2">0</span></b></div><div class="b2048" id="bd"></div><p class="note center">'+L("Strelka tugmalari yoki barmoq bilan suring","Use the arrow keys or swipe")+'</p>';
-  var bd=$("#bd",c.el);
+  c.el.innerHTML='<div class="row" style="justify-content:space-around;margin-bottom:10px">'+
+    '<div class="center"><span class="note">'+L("Ball","Score")+'</span><div style="font-size:24px;font-weight:900" id="sc2">0</div></div>'+
+    '<div class="center"><span class="note">'+L("Eng katta","Best tile")+'</span><div style="font-size:24px;font-weight:900" id="bt2">2</div></div>'+
+    '<button class="btn sm warn" id="un2">↩ '+L("Ortga (1)","Undo (1)")+'</button></div>'+
+    '<div class="b2048" id="bd"></div><p class="note center">'+L("Strelkalar yoki barmoq bilan suring","Arrow keys or swipe")+'</p>';
+  var bd=c.el.querySelector("#bd");
   var CL={2:"#eee4da",4:"#ede0c8",8:"#f2b179",16:"#f59563",32:"#f67c5f",64:"#f65e3b",128:"#edcf72",256:"#edcc61",512:"#edc850",1024:"#edc53f",2048:"#edc22e"};
-  function draw(){
+  function draw(newIdx,merged){
     bd.innerHTML="";
     for(var i=0;i<16;i++){ var v=b[i], t=el('<div class="t2">'+(v||"")+'</div>');
-      if(v){ t.style.background=CL[v]||"#3c3a32"; t.style.color=(v>4)?"#fff":"#776e65"; }
+      if(v){ t.style.background=CL[v]||"#3c3a32"; t.style.color=(v>4)?"#fff":"#776e65"; best=Math.max(best,v); }
+      if(i===newIdx) t.classList.add("t2");
+      if(merged&&merged.indexOf(i)>=0) t.classList.add("mg");
       bd.appendChild(t); }
-    $("#sc2",c.el).textContent=nf(score);
+    c.el.querySelector("#sc2").textContent=nf(score);
+    c.el.querySelector("#bt2").textContent=best;
+    c.prog(Math.min(100,Math.round(score/2000*100)),score);
   }
-  function line(a){ var v=a.filter(function(x){return x}), o=[];
-    for(var i=0;i<v.length;i++){ if(v[i]===v[i+1]){ o.push(v[i]*2); score+=v[i]*2; i++; } else o.push(v[i]); }
-    while(o.length<4) o.push(0); return o; }
+  function line(a,rowIdx,out){ var v=[],src=[];
+    a.forEach(function(x,k){ if(x){ v.push(x); src.push(k); } });
+    var o=[],mg=[];
+    for(var i=0;i<v.length;i++){
+      if(v[i]===v[i+1]){ o.push(v[i]*2); score+=v[i]*2; mg.push(o.length-1); i++; }
+      else o.push(v[i]);
+    }
+    while(o.length<4) o.push(0);
+    return {o:o,mg:mg};
+  }
   function move(d){
     if(over) return;
-    var old=b.join(","), n=[];
+    var old=b.join(","), oldScore=score, n=[], merged=[];
     for(var r=0;r<4;r++){
       var idx=[];
       for(var k=0;k<4;k++){
         if(d==="l") idx.push(r*4+k); else if(d==="r") idx.push(r*4+3-k);
         else if(d==="u") idx.push(k*4+r); else idx.push((3-k)*4+r);
       }
-      var vals=idx.map(function(i){return b[i]}), res=line(vals);
-      idx.forEach(function(i,k2){ n[i]=res[k2]; });
+      var res=line(idx.map(function(i){return b[i]}));
+      idx.forEach(function(i,k2){ n[i]=res.o[k2]; if(res.mg.indexOf(k2)>=0) merged.push(i); });
     }
-    b=n;
-    if(b.join(",")!==old){ add(); draw(); }
+    if(n.join(",")!==old){
+      undo={b:b.slice(),s:oldScore};
+      b=n; var ni=add();
+      if(merged.length) c.fx.s.merge(); else c.fx.s.tap();
+      draw(ni,merged);
+    }
     if(!empty().length){
       var can=false;
       for(var r2=0;r2<4;r2++) for(var k3=0;k3<4;k3++){ var i2=r2*4+k3;
         if(k3<3&&b[i2]===b[i2+1]) can=true; if(r2<3&&b[i2]===b[i2+4]) can=true; }
-      if(!can){ over=true; c.finish(score); }
+      if(!can){ over=true; c.fx.s.lose(); c.finish(score); }
     }
   }
+  c.el.querySelector("#un2").onclick=function(){
+    if(!undo||undoLeft<=0){ return; }
+    b=undo.b.slice(); score=undo.s; undo=null; undoLeft--; over=false;
+    this.textContent="↩ "+L("Ortga (0)","Undo (0)"); this.disabled=true; c.fx.s.pop(); draw();
+  };
   function onkey(e){ var m={ArrowLeft:"l",ArrowRight:"r",ArrowUp:"u",ArrowDown:"d"}[e.key];
     if(m){ e.preventDefault(); move(m); } }
   document.addEventListener("keydown",onkey);
@@ -478,37 +683,74 @@ addG("g2048",{ic:"🔢",nm:["2048","2048"],desc:["Bir xil raqamlarni qo'shib, en
   return {end:function(){ if(!over){over=true;c.finish(score);} }, off:function(){ document.removeEventListener("keydown",onkey); }};
  }});
 
-/* --- 4. Ilon --- */
-addG("snake",{ic:"🐍",nm:["Ilon","Snake"],desc:["Yem yeb, ilonni o'stiring — devorga urilmang","Eat the food and grow — avoid the walls"],
- dur:75,higher:true,unit:["ball","pts"],
+/* --- 4. Ilon: tezlashuv, oltin yem, pauza --- */
+addG("snake",{ic:"🐍",nm:["Ilon","Snake"],desc:["Yem yeb o'sing · oltin yem 30 ball · tezlik oshib boradi","Eat and grow · golden food is worth 30 · the speed rises"],
+ dur:85,higher:true,unit:["ball","pts"],
  run:function(c){
-  var N=17, sz=Math.min(340,Math.floor((Math.min(window.innerWidth-60,420))/N)*N), cell=sz/N;
-  c.el.innerHTML='<div class="center" style="margin-bottom:8px"><b style="font-size:20px">'+L("Ball","Score")+': <span id="sc3">0</span></b></div>'+
-   '<canvas id="cv" width="'+sz+'" height="'+sz+'"></canvas><p class="note center">'+L("Strelkalar yoki barmoq bilan boshqaring","Arrow keys or swipe to steer")+'</p>';
-  var cv=$("#cv",c.el), x=cv.getContext("2d");
-  var sn=[{x:8,y:8}], dir={x:1,y:0}, nd=dir, food={x:12,y:8}, score=0, dead=false, tm=null;
-  function place(){ do{ food={x:Math.floor(c.rand()*N),y:Math.floor(c.rand()*N)}; }
-    while(sn.some(function(s){return s.x===food.x&&s.y===food.y})); }
+  var N=17, sz=Math.min(360,Math.floor(Math.min(window.innerWidth-50,420)/N)*N), cell=sz/N;
+  c.el.innerHTML='<div class="row" style="justify-content:space-around;margin-bottom:8px">'+
+    '<div class="center"><span class="note">'+L("Ball","Score")+'</span><div style="font-size:22px;font-weight:900" id="sc3">0</div></div>'+
+    '<div class="center"><span class="note">'+L("Uzunlik","Length")+'</span><div style="font-size:22px;font-weight:900" id="ln3">1</div></div>'+
+    '<div class="center"><span class="note">'+L("Tezlik","Speed")+'</span><div class="lvl" id="sp3"></div></div></div>'+
+    '<canvas id="cv" width="'+sz+'" height="'+sz+'"></canvas>'+
+    '<p class="note center">'+L("Strelkalar yoki barmoq · bo'shliq — pauza","Arrows or swipe · space to pause")+'</p>';
+  var cv=c.el.querySelector("#cv"), x=cv.getContext("2d");
+  var sn=[{x:8,y:8}], dir={x:1,y:0}, nd=dir, food={x:12,y:8,g:0}, score=0, dead=false, tm=null, sp=145, paused=false, eaten=0;
+  function lvlDots(){
+    var n=Math.min(5,1+Math.floor(eaten/4));
+    c.el.querySelector("#sp3").innerHTML=Array.apply(null,Array(5)).map(function(_,i){ return '<i class="'+(i<n?"on":"")+'"></i>'; }).join("");
+  }
+  function place(){
+    do{ food={x:Math.floor(c.rand()*N),y:Math.floor(c.rand()*N),g:(c.rand()<0.18)?1:0}; }
+    while(sn.some(function(s){return s.x===food.x&&s.y===food.y}));
+  }
   function step(){
-    if(dead) return;
+    if(dead||paused) return;
     dir=nd;
     var h={x:sn[0].x+dir.x,y:sn[0].y+dir.y};
-    if(h.x<0||h.y<0||h.x>=N||h.y>=N||sn.some(function(s){return s.x===h.x&&s.y===h.y})){ dead=true; c.finish(score); return; }
+    if(h.x<0||h.y<0||h.x>=N||h.y>=N||sn.some(function(s){return s.x===h.x&&s.y===h.y})){
+      dead=true; c.fx.s.lose(); c.fx.shake(cv); c.finish(score); return; }
     sn.unshift(h);
-    if(h.x===food.x&&h.y===food.y){ score+=10; place(); } else sn.pop();
-    $("#sc3",c.el).textContent=score;
+    if(h.x===food.x&&h.y===food.y){
+      eaten++; var g=food.g?30:10; score+=g;
+      c.fx.s[food.g?"win":"ok"](); c.fx.popAt(cv,"+"+g,food.g?"#f59e0b":"#12a150");
+      place(); lvlDots();
+      if(eaten%4===0&&sp>70){ sp-=12; clearInterval(tm); tm=setInterval(step,sp); }
+    } else sn.pop();
+    c.el.querySelector("#sc3").textContent=score;
+    c.el.querySelector("#ln3").textContent=sn.length;
+    c.prog(Math.min(100,Math.round(score/300*100)),score);
     paint();
   }
   function paint(){
     var dk=document.documentElement.getAttribute("data-theme")==="dark";
-    x.fillStyle=dk?"#0e1726":"#f7f9fe"; x.fillRect(0,0,sz,sz);
-    x.fillStyle="#e11d48"; x.beginPath(); x.arc((food.x+.5)*cell,(food.y+.5)*cell,cell*.38,0,7); x.fill();
-    sn.forEach(function(s,i){ x.fillStyle=i?"#12a150":"#0b7a3c";
-      x.fillRect(s.x*cell+1,s.y*cell+1,cell-2,cell-2); });
+    x.fillStyle=dk?"#0b1424":"#f4f8ff"; x.fillRect(0,0,sz,sz);
+    x.strokeStyle=dk?"#16233a":"#e6eefc"; x.lineWidth=1;
+    for(var i=1;i<N;i++){ x.beginPath(); x.moveTo(i*cell,0); x.lineTo(i*cell,sz); x.stroke();
+      x.beginPath(); x.moveTo(0,i*cell); x.lineTo(sz,i*cell); x.stroke(); }
+    x.shadowBlur=food.g?18:8; x.shadowColor=food.g?"#f59e0b":"#e11d48";
+    x.fillStyle=food.g?"#f59e0b":"#e11d48";
+    x.beginPath(); x.arc((food.x+.5)*cell,(food.y+.5)*cell,cell*(food.g?.42:.36),0,7); x.fill();
+    x.shadowBlur=0;
+    sn.forEach(function(s,i){
+      var t=i/Math.max(1,sn.length);
+      x.fillStyle=i===0?"#0b7a3c":("rgba(18,161,80,"+(1-t*.55)+")");
+      var pad=i===0?1:2, r=i===0?7:5;
+      x.beginPath();
+      if(x.roundRect) x.roundRect(s.x*cell+pad,s.y*cell+pad,cell-pad*2,cell-pad*2,r);
+      else x.rect(s.x*cell+pad,s.y*cell+pad,cell-pad*2,cell-pad*2);
+      x.fill();
+    });
+    if(paused){ x.fillStyle="rgba(0,0,0,.45)"; x.fillRect(0,0,sz,sz);
+      x.fillStyle="#fff"; x.font="bold 22px sans-serif"; x.textAlign="center";
+      x.fillText(L("PAUZA","PAUSED"),sz/2,sz/2); }
   }
   function set(d){ if(d.x===-dir.x&&d.y===-dir.y) return; nd=d; }
-  function onkey(e){ var m={ArrowLeft:{x:-1,y:0},ArrowRight:{x:1,y:0},ArrowUp:{x:0,y:-1},ArrowDown:{x:0,y:1}}[e.key];
-    if(m){ e.preventDefault(); set(m); } }
+  function onkey(e){
+    if(e.key===" "){ e.preventDefault(); paused=!paused; paint(); return; }
+    var m={ArrowLeft:{x:-1,y:0},ArrowRight:{x:1,y:0},ArrowUp:{x:0,y:-1},ArrowDown:{x:0,y:1}}[e.key];
+    if(m){ e.preventDefault(); set(m); }
+  }
   document.addEventListener("keydown",onkey);
   var sx=0,sy=0;
   cv.addEventListener("touchstart",function(e){ sx=e.touches[0].clientX; sy=e.touches[0].clientY; },{passive:true});
@@ -517,55 +759,80 @@ addG("snake",{ic:"🐍",nm:["Ilon","Snake"],desc:["Yem yeb, ilonni o'stiring —
     if(Math.abs(dx)<20&&Math.abs(dy)<20) return;
     set(Math.abs(dx)>Math.abs(dy)?{x:dx>0?1:-1,y:0}:{x:0,y:dy>0?1:-1});
   });
-  paint(); tm=setInterval(step,140);
+  lvlDots(); paint(); c.prog(0,0); tm=setInterval(step,sp);
   return {end:function(){ if(!dead){dead=true;c.finish(score);} }, off:function(){ clearInterval(tm); document.removeEventListener("keydown",onkey); }};
  }});
 
-/* --- 5. Xotira --- */
-addG("memory",{ic:"🃏",nm:["Xotira kartalari","Memory Cards"],desc:["Bir xil juftlarni toping — xato kamroq bo'lsin","Find the matching pairs with fewest mistakes"],
- dur:90,higher:true,unit:["ball","pts"],
+/* --- 5. Xotira: 3D aylanish, kombo, raundga qarab kattalashadi --- */
+addG("memory",{ic:"🃏",nm:["Xotira kartalari","Memory Cards"],desc:["Juftlarni toping · ketma-ket topsangiz kombo bonusi beriladi","Find the pairs · consecutive matches earn a combo bonus"],
+ dur:100,higher:true,unit:["ball","pts"],
  run:function(c){
-  var EM=["🍎","🚀","⚽","🎸","🐱","🌵","🍕","🔑","🎯","🦊","💎","🧩"];
-  var pick=shuffle(EM.slice(),c.rand).slice(0,8), deck=shuffle(pick.concat(pick),c.rand);
-  var open=[], done=0, miss=0, lock=false, fin=false;
-  c.el.innerHTML='<div class="center" style="margin-bottom:10px"><b>'+L("Juft","Pairs")+': <span id="mp">0</span>/8 · '+L("Xato","Mistakes")+': <span id="mm">0</span></b></div><div class="mem" id="mb" style="grid-template-columns:repeat(4,1fr)"></div>';
-  var mb=$("#mb",c.el);
-  deck.forEach(function(e,i){
-    var b=el('<button class="mc">'+e+'</button>');
+  var EM=["🍎","🚀","⚽","🎸","🐱","🌵","🍕","🔑","🎯","🦊","💎","🧩","🎲","🌙","🐝","🍉"];
+  var pairs=(c.round>=4)?10:8, cols=(pairs===10)?5:4;
+  var pick=shuffle(EM.slice(),c.rand).slice(0,pairs), deck=shuffle(pick.concat(pick),c.rand);
+  var open=[], done=0, miss=0, combo=0, lock=false, fin=false, score=0;
+  c.el.innerHTML='<div class="row" style="justify-content:space-around;margin-bottom:10px">'+
+    '<div class="center"><span class="note">'+L("Juft","Pairs")+'</span><div style="font-size:22px;font-weight:900"><span id="mp">0</span>/'+pairs+'</div></div>'+
+    '<div class="center"><span class="note">'+L("Xato","Mistakes")+'</span><div style="font-size:22px;font-weight:900" id="mm">0</div></div>'+
+    '<div class="center"><span class="note">'+L("Ball","Score")+'</span><div style="font-size:22px;font-weight:900" id="ms">0</div></div></div>'+
+    '<div class="mem" id="mb" style="grid-template-columns:repeat('+cols+',1fr)"></div><p class="note center" id="mf"></p>';
+  var mb=c.el.querySelector("#mb");
+  deck.forEach(function(e){
+    var b=el('<button class="mc"><span>'+e+'</span></button>');
     b.onclick=function(){
       if(lock||fin||b.classList.contains("up")||b.classList.contains("done")) return;
-      b.classList.add("up"); open.push({b:b,e:e});
+      b.classList.add("up"); c.fx.s.tap(); open.push({b:b,e:e});
       if(open.length===2){
         lock=true;
         setTimeout(function(){
-          if(open[0].e===open[1].e){ open.forEach(function(o){ o.b.classList.remove("up"); o.b.classList.add("done"); }); done++; $("#mp",c.el).textContent=done; }
-          else { miss++; $("#mm",c.el).textContent=miss; open.forEach(function(o){ o.b.classList.remove("up"); }); }
+          if(open[0].e===open[1].e){
+            combo++; var gain=100+ (combo>1?combo*25:0);
+            score+=gain; done++;
+            open.forEach(function(o){ o.b.classList.add("done"); });
+            c.fx.s.ok(); c.fx.popAt(open[1].b,"+"+gain);
+            c.el.querySelector("#mf").innerHTML=combo>1?'<span class="streak">🔥 '+L("kombo","combo")+" "+combo+"x</span>":"";
+            c.el.querySelector("#mp").textContent=done;
+          } else {
+            combo=0; miss++; score=Math.max(0,score-15);
+            open.forEach(function(o){ o.b.classList.remove("up"); });
+            c.fx.s.no(); c.el.querySelector("#mm").textContent=miss;
+            c.el.querySelector("#mf").textContent="";
+          }
+          c.el.querySelector("#ms").textContent=nf(score);
+          c.prog(Math.round(done/pairs*100),score);
           open=[]; lock=false;
-          if(done===8&&!fin){ fin=true;
+          if(done===pairs&&!fin){ fin=true;
             var left=Math.max(0,c.endAt-Date.now());
-            c.finish(800-miss*25+Math.round(left/1000)*3); }
+            score+=Math.round(left/1000)*4;
+            c.fx.s.win(); c.fx.confetti(1600); c.finish(score); }
         },520);
       }
     };
     mb.appendChild(b);
   });
-  return {end:function(){ if(!fin){ fin=true; c.finish(done*80-miss*25); } }};
+  c.prog(0,0);
+  return {end:function(){ if(!fin){ fin=true; c.finish(score); } }};
  }});
 
-
-/* --- 6. Tez yozish --- */
+/* --- 6. Tez yozish: jonli WPM, xato titrashi --- */
 var TEXTS=[
- "Tadbirkorlik — bu muammoni ko'ra bilish va uni yechishga jur'at etish san'ati. Har bir yirik kompaniya bir vaqtlar kichik g'oya bo'lgan.",
- "Mijozni bilish iste'dod emas, mehnat. U kabinetda o'ylab topilmaydi, balki odamlar bilan suhbatlashib qo'lga kiritiladi.",
- "Biznes-model pul qanday kirib, qanday chiqishini ko'rsatadi. Agar bu savolga aniq javob bo'lmasa, oldingizda hali faqat g'oya turibdi."
+ "Tadbirkorlik — bu muammoni ko'ra bilish va uni yechishga jur'at etish san'ati.",
+ "Mijozni bilish iste'dod emas, mehnat. U odamlar bilan suhbatlashib qo'lga kiritiladi.",
+ "Biznes-model pul qanday kirib, qanday chiqishini ko'rsatib beradigan oddiy chizma.",
+ "Yaxshi g'oya bozorda sinalmaguncha, u faqat qog'ozdagi chiroyli gap bo'lib qoladi.",
+ "Har bir yirik kompaniya bir vaqtlar kichkina va hech kimga tanish bo'lmagan g'oya edi."
 ];
-addG("typing",{ic:"⌨️",nm:["Tez yozish","Typing Speed"],desc:["Matnni xatosiz va tez ko'chiring","Copy the text quickly and accurately"],
- dur:70,higher:true,unit:["ball","pts"],
+addG("typing",{ic:"⌨️",nm:["Tez yozish","Typing Speed"],desc:["Matnni xatosiz ko'chiring · tezlik va aniqlik ballga aylanadi","Copy the text accurately · speed and accuracy become points"],
+ dur:75,higher:true,unit:["ball","pts"],
  run:function(c){
-  var text=TEXTS[Math.floor(c.rand()*TEXTS.length)], pos=0, wrong=0, t0=null, fin=false;
-  c.el.innerHTML='<div class="typ" id="tt"></div><textarea id="ti" rows="3" style="margin-top:12px" placeholder="'+L("Shu yerga yozing…","Type here…")+'"></textarea>'+
-   '<div class="row" style="margin-top:10px;justify-content:center"><b id="ts">0</b><b id="ta">100%</b></div>'+
-   '<div class="bar" style="margin-top:10px"><i id="tb" style="width:0%"></i></div>';
+  var text=TEXTS[Math.floor(c.rand()*TEXTS.length)], pos=0, wrong=0, t0=null, fin=false, lastWrong=0;
+  c.el.innerHTML='<div class="row" style="justify-content:space-around;margin-bottom:10px">'+
+    '<div class="center"><span class="note">'+L("Tezlik","Speed")+'</span><div style="font-size:22px;font-weight:900" id="ts">0</div></div>'+
+    '<div class="center"><span class="note">'+L("Aniqlik","Accuracy")+'</span><div style="font-size:22px;font-weight:900" id="ta">100%</div></div>'+
+    '<div class="center"><span class="note">'+L("Bajarildi","Done")+'</span><div style="font-size:22px;font-weight:900" id="tp">0%</div></div></div>'+
+    '<div class="typ" id="tt"></div>'+
+    '<textarea id="ti" rows="3" style="margin-top:12px" placeholder="'+L("Shu yerga yozing…","Type here…")+'"></textarea>'+
+    '<div class="bar" style="margin-top:10px"><i id="tb" style="width:0%"></i></div>';
   var tt=c.el.querySelector("#tt"), ti=c.el.querySelector("#ti");
   function draw(){
     var h="";
@@ -575,11 +842,13 @@ addG("typing",{ic:"⌨️",nm:["Tez yozish","Typing Speed"],desc:["Matnni xatosi
     }
     tt.innerHTML=h;
     var acc=(pos+wrong)?Math.max(0,Math.round(pos/(pos+wrong)*100)):100;
-    var mins=t0?(Date.now()-t0)/60000:0;
-    var wpm=mins>0?Math.round((pos/5)/mins):0;
-    c.el.querySelector("#ts").textContent=wpm+" "+L("so'z/daq","wpm");
+    var mins=t0?(Date.now()-t0)/60000:0, wpm=mins>0?Math.round((pos/5)/mins):0;
+    var pct=Math.round(pos/text.length*100);
+    c.el.querySelector("#ts").textContent=wpm;
     c.el.querySelector("#ta").textContent=acc+"%";
-    c.el.querySelector("#tb").style.width=Math.round(pos/text.length*100)+"%";
+    c.el.querySelector("#tp").textContent=pct+"%";
+    c.el.querySelector("#tb").style.width=pct+"%";
+    c.prog(pct,Math.round(wpm*acc/100*10));
     return {wpm:wpm,acc:acc};
   }
   ti.addEventListener("input",function(){
@@ -587,55 +856,102 @@ addG("typing",{ic:"⌨️",nm:["Tez yozish","Typing Speed"],desc:["Matnni xatosi
     if(!t0) t0=Date.now();
     var v=ti.value, ok=0;
     for(var i=0;i<v.length&&i<text.length;i++){ if(v.charAt(i)===text.charAt(i)) ok=i+1; else break; }
-    if(v.length>ok) wrong++;
+    if(v.length>ok){ wrong++;
+      if(Date.now()-lastWrong>250){ lastWrong=Date.now(); c.fx.s.no(); ti.classList.add("shake");
+        setTimeout(function(){ ti.classList.remove("shake"); },380); } }
+    else if(ok>pos) c.fx.s.tap();
     pos=ok;
     var r=draw();
-    if(pos>=text.length&&!fin){ fin=true; c.finish(Math.round(r.wpm*r.acc/100*10)); }
+    if(pos>=text.length&&!fin){ fin=true; var pts=Math.round(r.wpm*r.acc/100*10);
+      c.fx.s.win(); c.fx.confetti(1500); c.finish(pts); }
   });
-  setTimeout(function(){ ti.focus(); },200);
+  setTimeout(function(){ ti.focus(); },250);
   draw();
   return {end:function(){ if(!fin){ fin=true; var r=draw(); c.finish(Math.round(r.wpm*r.acc/100*10)); } }};
  }});
 
-/* --- 7. Reaksiya --- */
-addG("react",{ic:"⚡",nm:["Reaksiya tezligi","Reaction Speed"],desc:["Yashil rang chiqishi bilan bosing — 5 marta","Tap the moment it turns green — five rounds"],
- dur:60,higher:false,unit:["ms","ms"],
+/* --- 7. Reaksiya: svetofor, eng yaxshi/eng yomon --- */
+addG("react",{ic:"⚡",nm:["Reaksiya tezligi","Reaction Speed"],desc:["Chiroq yashil bo'lishi bilan bosing · 5 marta · o'rtacha vaqt hisoblanadi","Tap when the light turns green · five rounds · the average counts"],
+ dur:65,higher:false,unit:["ms","ms"],
  run:function(c){
   var tries=[], n=5, state="wait", t0=0, tmr=null, fin=false;
-  c.el.innerHTML='<div class="rx wait" id="rx">'+L("Tayyorlaning…","Get ready…")+'</div><p class="note center" id="rf"></p>';
+  c.el.innerHTML='<div class="rx wait" id="rx"><div><div style="font-size:40px" id="rl">🔴</div>'+
+    '<div id="rt" style="margin-top:8px">'+L("Tayyorlaning…","Get ready…")+'</div></div></div>'+
+    '<div class="row" style="justify-content:space-around;margin-top:12px">'+
+    '<div class="center"><span class="note">'+L("Urinish","Try")+'</span><div style="font-size:20px;font-weight:900" id="rn">0/5</div></div>'+
+    '<div class="center"><span class="note">'+L("Eng tez","Best")+'</span><div style="font-size:20px;font-weight:900" id="rb">—</div></div>'+
+    '<div class="center"><span class="note">'+L("O\'rtacha","Average")+'</span><div style="font-size:20px;font-weight:900" id="ra">—</div></div></div>'+
+    '<div id="rlist" class="row" style="justify-content:center;margin-top:10px"></div>';
   var rx=c.el.querySelector("#rx");
   function next(){
     if(tries.length>=n){ end(); return; }
-    state="wait"; rx.className="rx wait"; rx.textContent=L("Kuting… yashil bo'lguncha bosmang","Wait… do not tap until it turns green");
-    tmr=setTimeout(function(){ state="go"; t0=Date.now(); rx.className="rx go"; rx.textContent=L("BOSING!","TAP!"); }, 1200+Math.random()*2600);
+    state="wait"; rx.className="rx wait";
+    c.el.querySelector("#rl").textContent="🔴";
+    c.el.querySelector("#rt").textContent=L("Kuting… yashil bo'lguncha bosmang","Wait… do not tap until it is green");
+    tmr=setTimeout(function(){
+      state="go"; t0=Date.now(); rx.className="rx go";
+      c.el.querySelector("#rl").textContent="🟢";
+      c.el.querySelector("#rt").textContent=L("BOSING!","TAP!"); c.fx.s.go();
+    }, 1300+Math.random()*2700);
   }
   function hit(){
     if(fin) return;
-    if(state==="wait"){ clearTimeout(tmr); state="bad"; rx.className="rx bad";
-      rx.textContent=L("Erta bosdingiz! +500 ms jarima","Too early! +500 ms penalty");
-      tries.push(700); upd(); setTimeout(next,900); return; }
-    if(state==="go"){ var dt=Date.now()-t0; tries.push(dt); state="done";
-      rx.className="rx wait"; rx.textContent=dt+" ms"; upd(); setTimeout(next,750); }
+    if(state==="wait"){
+      clearTimeout(tmr); state="bad"; rx.className="rx bad";
+      c.el.querySelector("#rl").textContent="🟠";
+      c.el.querySelector("#rt").textContent=L("Erta bosdingiz! +700 ms","Too early! +700 ms");
+      c.fx.s.no(); tries.push(700); upd(); setTimeout(next,950); return;
+    }
+    if(state==="go"){
+      var dt=Date.now()-t0; tries.push(dt); state="done";
+      rx.className="rx wait"; c.el.querySelector("#rl").textContent="⚡";
+      c.el.querySelector("#rt").textContent=dt+" ms";
+      c.fx.s.ok(); upd(); setTimeout(next,800);
+    }
   }
-  function upd(){ c.el.querySelector("#rf").textContent=L("Urinish","Try")+": "+tries.length+"/"+n+" · "+L("o'rtacha","average")+": "+avg()+" ms"; }
   function avg(){ return tries.length?Math.round(tries.reduce(function(a,b){return a+b},0)/tries.length):0; }
-  function end(){ if(fin) return; fin=true; clearTimeout(tmr); c.finish(tries.length?avg():999); }
+  function upd(){
+    c.el.querySelector("#rn").textContent=tries.length+"/"+n;
+    c.el.querySelector("#rb").textContent=tries.length?Math.min.apply(null,tries)+" ms":"—";
+    c.el.querySelector("#ra").textContent=tries.length?avg()+" ms":"—";
+    c.el.querySelector("#rlist").innerHTML=tries.map(function(t){
+      var col=t<300?"var(--green)":(t<450?"var(--amber)":"var(--red)");
+      return '<span class="tag" style="color:'+col+'">'+t+'</span>';
+    }).join("");
+    c.prog(Math.round(tries.length/n*100),avg());
+  }
+  function end(){ if(fin) return; fin=true; clearTimeout(tmr);
+    if(tries.length&&avg()<320) c.fx.s.win(); c.finish(tries.length?avg():999); }
   rx.onclick=hit;
   rx.addEventListener("touchstart",function(e){ e.preventDefault(); hit(); },{passive:false});
-  next();
+  c.prog(0,0); next();
   return {end:end, off:function(){ clearTimeout(tmr); }};
  }});
 
-/* --- 8. Matematika --- */
-addG("math",{ic:"➗",nm:["Matematika","Math Challenge"],desc:["Vaqt ichida ko'proq misolni to'g'ri yeching","Solve as many problems as you can in time"],
- dur:70,higher:true,unit:["ball","pts"],
+/* --- 8. Matematika: raqam paneli, daraja, ketma-ketlik --- */
+addG("math",{ic:"➗",nm:["Matematika","Math Challenge"],desc:["Daraja oshib boradi · ketma-ket to'g'ri javob ballni ko'paytiradi","The level rises · a streak multiplies your points"],
+ dur:80,higher:true,unit:["ball","pts"],
  run:function(c){
-  var score=0, ok=0, bad=0, lv=1, fin=false, cur=null, t0=0;
-  c.el.innerHTML='<div class="center"><span class="kicker" id="mlv">'+L("Daraja","Level")+' 1</span>'+
-   '<div class="big" id="mq" style="margin:16px 0">…</div></div>'+
-   '<input id="ma" inputmode="numeric" autocomplete="off" style="max-width:220px;margin:0 auto;text-align:center;font-size:24px">'+
-   '<div class="row" style="justify-content:center;margin-top:12px"><button class="btn accent" id="mok">'+L("Javob","Answer")+' →</button></div>'+
-   '<p class="note center" id="mf">'+L("To'g'ri","Correct")+': <b>0</b></p>';
+  var score=0, ok=0, bad=0, lv=1, streak=0, fin=false, cur=null, t0=0, val="";
+  c.el.innerHTML='<div class="row" style="justify-content:space-between;margin-bottom:8px">'+
+    '<span class="kicker" id="mlv">'+L("Daraja","Level")+' 1</span>'+
+    '<span id="mstr"></span><b id="msc">0</b></div>'+
+    '<div class="center"><div class="big" id="mq" style="margin:14px 0">…</div>'+
+    '<div id="mval" style="font-size:30px;font-weight:900;min-height:40px;letter-spacing:2px">_</div></div>'+
+    '<div class="pad" id="mpad"></div>'+
+    '<p class="note center" id="mf">'+L("To'g'ri","Correct")+': <b>0</b></p>';
+  var pad=c.el.querySelector("#mpad");
+  ["1","2","3","4","5","6","7","8","9","⌫","0","✓"].forEach(function(k){
+    var b=el('<button class="'+(k==="✓"?"ok":(k==="⌫"?"del":""))+'">'+k+'</button>');
+    b.onclick=function(){
+      c.fx.s.tap();
+      if(k==="⌫"){ val=val.slice(0,-1); }
+      else if(k==="✓"){ check(); return; }
+      else if(val.length<6){ val+=k; }
+      c.el.querySelector("#mval").textContent=val||"_";
+    };
+    pad.appendChild(b);
+  });
   function gen(){
     var r=c.rand, a,b,op,res;
     lv=1+Math.floor(ok/4);
@@ -647,64 +963,92 @@ addG("math",{ic:"➗",nm:["Matematika","Math Challenge"],desc:["Vaqt ichida ko'p
       if(op==="-"&&b>a){ var t=a;a=b;b=t; }
       if(op==="×"){ a=2+Math.floor(r()*(lv<3?9:13)); b=2+Math.floor(r()*(lv<3?9:13)); }
       res=op==="+"?a+b:(op==="-"?a-b:a*b); }
-    cur={q:a+" "+op+" "+b,r:res}; t0=Date.now();
+    cur={q:a+" "+op+" "+b,r:res}; t0=Date.now(); val="";
     c.el.querySelector("#mq").textContent=cur.q+" = ?";
+    c.el.querySelector("#mval").textContent="_";
     c.el.querySelector("#mlv").textContent=L("Daraja","Level")+" "+lv;
-    c.el.querySelector("#ma").value=""; c.el.querySelector("#ma").focus();
   }
   function check(){
-    if(fin||!cur) return;
-    var v=parseInt(c.el.querySelector("#ma").value,10);
-    if(isNaN(v)) return;
-    if(v===cur.r){ ok++; var sp=Math.max(0,Math.round((7000-(Date.now()-t0))/7000*40)); score+=60+sp+lv*10; }
-    else { bad++; score=Math.max(0,score-20); }
-    c.el.querySelector("#mf").innerHTML=L("To'g'ri","Correct")+": <b>"+ok+"</b> · "+L("xato","wrong")+": "+bad+" · "+L("ball","pts")+": <b>"+score+"</b>";
+    if(fin||!cur||val==="") return;
+    var v=parseInt(val,10);
+    if(v===cur.r){
+      ok++; streak++;
+      var sp=Math.max(0,Math.round((7000-(Date.now()-t0))/7000*40));
+      var mult=streak>=5?3:(streak>=3?2:1), gain=(60+sp+lv*10)*mult;
+      score+=gain; c.fx.s.ok(); c.fx.popAt(c.el.querySelector("#mq"),"+"+gain);
+      c.el.querySelector("#mstr").innerHTML=streak>1?'<span class="streak">🔥 '+streak+"x</span>":"";
+    } else {
+      bad++; streak=0; score=Math.max(0,score-25);
+      c.fx.s.no(); c.fx.shake(c.el.querySelector("#mq"));
+      c.el.querySelector("#mstr").innerHTML="";
+    }
+    c.el.querySelector("#msc").textContent=nf(score);
+    c.el.querySelector("#mf").innerHTML=L("To'g'ri","Correct")+": <b>"+ok+"</b> · "+L("xato","wrong")+": "+bad;
+    c.prog(Math.min(100,Math.round(score/1200*100)),score);
     gen();
   }
-  c.el.querySelector("#mok").onclick=check;
-  c.el.querySelector("#ma").addEventListener("keydown",function(e){ if(e.key==="Enter"){ e.preventDefault(); check(); } });
-  gen();
-  return {end:function(){ if(!fin){ fin=true; c.finish(score); } }};
+  document.addEventListener("keydown",onk);
+  function onk(e){
+    if(fin) return;
+    if(/^[0-9]$/.test(e.key)){ if(val.length<6) val+=e.key; c.el.querySelector("#mval").textContent=val; }
+    else if(e.key==="Backspace"){ val=val.slice(0,-1); c.el.querySelector("#mval").textContent=val||"_"; }
+    else if(e.key==="Enter"){ check(); }
+  }
+  c.prog(0,0); gen();
+  return {end:function(){ if(!fin){ fin=true; c.finish(score); } }, off:function(){ document.removeEventListener("keydown",onk); }};
  }});
 
-/* --- 9. Rasm topish (birgalikda) --- */
-var DWORDS=["quyosh","daraxt","mashina","uy","kitob","baliq","gul","soat","yurak","olma","kalit","stol","koptok","velosiped"];
-addG("doodle",{ic:"🎨",nm:["Rasm topish","Doodle Guessing"],desc:["Biri chizadi, qolganlar topadi","One draws, the others guess"],
- dur:95,higher:true,unit:["ball","pts"],shared:true,
+/* --- 9. Rasm topish: cho'tka, ortga qaytarish, harf ochilishi --- */
+var DWORDS=["quyosh","daraxt","mashina","kitob","baliq","gul","soat","yurak","olma","kalit","stol","koptok","velosiped","samolyot","uy","kapalak","piyola","sherlar"];
+addG("doodle",{ic:"🎨",nm:["Rasm topish","Doodle Guessing"],desc:["Biri chizadi, qolganlar topadi · vaqt o'tgani sari harflar ochiladi","One draws, the others guess · letters open up as time passes"],
+ dur:100,higher:true,unit:["ball","pts"],shared:true,
  run:function(c){
   var ids=c.players.map(function(p){return p.id}), di=(c.round-1)%ids.length, drawer=ids[di];
   var amDrawer=(drawer===c.me.id), word=DWORDS[Math.floor(c.rand()*DWORDS.length)];
-  var path="rooms/"+c.code+"/dd/r"+c.round, score=0, fin=false, guessed={}, lastN=0, seen={};
+  var path="rooms/"+c.code+"/dd/r"+c.round, score=0, fin=false, guessed={}, lastN=0, shown=0;
   var dn=(c.players.filter(function(p){return p.id===drawer})[0]||{}).name||"?";
   c.el.innerHTML='<div class="center" style="margin-bottom:10px">'+
-    (amDrawer?'<span class="kicker">'+L("Siz chizasiz","You draw")+'</span><h2 style="margin:10px 0">'+esc(word.toUpperCase())+'</h2>'
-             :'<span class="kicker">'+esc(dn)+' '+L("chizyapti","is drawing")+'</span><h2 style="margin:10px 0">'+L("Nima chizilyapti?","What is being drawn?")+'</h2>')+'</div>'+
-    '<canvas id="dc" width="640" height="400" style="width:100%;max-width:640px;border:1px solid var(--line)"></canvas>'+
+    (amDrawer?'<span class="kicker">'+L("Siz chizasiz","You draw")+'</span><h2 style="margin:10px 0;letter-spacing:4px">'+esc(word.toUpperCase())+'</h2>'
+             :'<span class="kicker">🖌 '+esc(dn)+' '+L("chizyapti","is drawing")+'</span><div class="hint" id="dh" style="margin:12px auto"></div>')+'</div>'+
+    '<canvas id="dc" width="640" height="400" style="width:100%;max-width:640px;border:1px solid var(--line);background:#fff"></canvas>'+
     (amDrawer?'<div class="ddtools" style="margin-top:10px;justify-content:center" id="dt"></div>'
-             :'<div class="row" style="margin-top:10px"><input id="dg" placeholder="'+L("Taxminingiz…","Your guess…")+'" style="flex:1"><button class="btn accent" id="dgo">'+L("Yuborish","Send")+'</button></div>')+
+             :'<div class="row" style="margin-top:10px"><input id="dg" placeholder="'+L("Taxminingiz…","Your guess…")+'" style="flex:1" autocomplete="off"><button class="btn accent" id="dgo">'+L("Yuborish","Send")+'</button></div>')+
     '<div class="chatbox" id="dch" style="margin-top:10px"></div>';
-  var cv=c.el.querySelector("#dc"), x=cv.getContext("2d"), color="#0d1b2a", size=4, drawing=false, buf=[], sending=false;
+  var cv=c.el.querySelector("#dc"), x=cv.getContext("2d"), color="#0d1b2a", size=4, drawing=false, buf=[], sending=false, strokes=[];
   x.lineCap="round"; x.lineJoin="round";
   function pt(e){ var r=cv.getBoundingClientRect(), t=e.touches?e.touches[0]:e;
     return {x:(t.clientX-r.left)/r.width*640, y:(t.clientY-r.top)/r.height*400}; }
   function seg(s){ x.strokeStyle=s.c; x.lineWidth=s.w; x.beginPath(); x.moveTo(s.a[0],s.a[1]); x.lineTo(s.a[2],s.a[3]); x.stroke(); }
   function clearCv(){ x.fillStyle="#fff"; x.fillRect(0,0,640,400); }
+  function redraw(){ clearCv(); strokes.forEach(seg); }
   clearCv();
   if(amDrawer){
     var last=null, tools=c.el.querySelector("#dt");
     ["#0d1b2a","#e11d48","#2563eb","#12a150","#f59e0b","#7c3aed"].forEach(function(col,i){
       var b=el('<button class="sw'+(i?"":" on")+'" style="background:'+col+'"></button>');
-      b.onclick=function(){ color=col; size=4; [].slice.call(tools.querySelectorAll(".sw")).forEach(function(s){s.classList.remove("on")}); b.classList.add("on"); };
+      b.onclick=function(){ color=col; size=4; c.fx.s.tap();
+        [].slice.call(tools.querySelectorAll(".sw")).forEach(function(s){s.classList.remove("on")}); b.classList.add("on"); };
       tools.appendChild(b);
     });
-    var er=el('<button class="btn sm">🧽 '+L("O'chirish","Eraser")+'</button>');
-    er.onclick=function(){ color="#ffffff"; size=18; }; tools.appendChild(er);
-    var cl=el('<button class="btn sm warn">🗑 '+L("Tozalash","Clear")+'</button>');
-    cl.onclick=function(){ clearCv(); DB.set(path+"/strokes",null); DB.set(path+"/n",0); }; tools.appendChild(cl);
+    [["✏️",3],["🖊",7],["🖌",14]].forEach(function(w){
+      var b=el('<button class="btn sm">'+w[0]+'</button>');
+      b.onclick=function(){ size=w[1]; c.fx.s.tap(); }; tools.appendChild(b);
+    });
+    var er=el('<button class="btn sm">🧽</button>');
+    er.onclick=function(){ color="#ffffff"; size=22; }; tools.appendChild(er);
+    var un=el('<button class="btn sm">↩</button>');
+    un.onclick=function(){
+      if(!strokes.length) return;
+      var cut=Math.max(0,strokes.length-12); strokes=strokes.slice(0,cut); redraw();
+      DB.set(path+"/strokes",null); DB.set(path+"/n",0);
+      buf=strokes.slice(); c.fx.s.pop();
+    }; tools.appendChild(un);
+    var cl=el('<button class="btn sm warn">🗑</button>');
+    cl.onclick=function(){ strokes=[]; buf=[]; clearCv(); DB.set(path+"/strokes",null); DB.set(path+"/n",0); }; tools.appendChild(cl);
     var down=function(e){ e.preventDefault(); drawing=true; last=pt(e); };
     var move=function(e){ if(!drawing) return; e.preventDefault(); var p=pt(e);
       var s={c:color,w:size,a:[Math.round(last.x),Math.round(last.y),Math.round(p.x),Math.round(p.y)]};
-      seg(s); buf.push(s); last=p; };
+      seg(s); strokes.push(s); buf.push(s); last=p; };
     var up=function(){ drawing=false; };
     cv.addEventListener("mousedown",down); cv.addEventListener("mousemove",move);
     document.addEventListener("mouseup",up);
@@ -730,6 +1074,15 @@ addG("doodle",{ic:"🎨",nm:["Rasm topish","Doodle Guessing"],desc:["Biri chizad
     });
     c.el.querySelector("#dgo").onclick=send;
     c.el.querySelector("#dg").addEventListener("keydown",function(e){ if(e.key==="Enter") send(); });
+    var total=c.endAt-Date.now();
+    var hint=setInterval(function(){
+      if(fin) return;
+      var gone=1-Math.max(0,c.endAt-Date.now())/total;
+      var want=Math.floor(gone*Math.ceil(word.length/2));
+      if(want>shown){ shown=want; c.fx.s.pop(); }
+      var h=c.el.querySelector("#dh"); if(!h) return;
+      h.textContent=word.split("").map(function(ch,k){ return k<shown?ch.toUpperCase():"·"; }).join(" ");
+    },1200);
   }
   function send(){
     if(fin) return;
@@ -738,7 +1091,9 @@ addG("doodle",{ic:"🎨",nm:["Rasm topish","Doodle Guessing"],desc:["Biri chizad
     var right=(v===word.toLowerCase());
     DB.set(path+"/g/"+c.me.id+"_"+Date.now(),{n:c.me.name,t:right?"✅ "+L("topdi!","got it!"):v,ok:right?1:0});
     if(right&&!fin){ fin=true; var left=Math.max(0,c.endAt-Date.now());
-      score=200+Math.round(left/1000)*4; c.finish(score); }
+      score=200+Math.round(left/1000)*4 - shown*20;
+      c.fx.s.win(); c.fx.confetti(1500); c.prog(100,score); c.finish(score); }
+    else { c.fx.s.no(); }
   }
   watch(path+"/g",1200,function(v){
     var box=c.el.querySelector("#dch"); if(!box||!v) return;
@@ -748,77 +1103,96 @@ addG("doodle",{ic:"🎨",nm:["Rasm topish","Doodle Guessing"],desc:["Biri chizad
       if(m.ok) guessed[k]=1;
     });
     box.innerHTML=h; box.scrollTop=box.scrollHeight;
-    if(amDrawer&&!fin){ var n=Object.keys(guessed).length; if(n>0) score=120+n*60; }
+    if(amDrawer&&!fin){ var n=Object.keys(guessed).length;
+      if(n>0){ score=120+n*70; c.prog(Math.min(100,n*40),score); } }
   });
+  c.prog(amDrawer?10:0,0);
   return {end:function(){ if(!fin){ fin=true; c.finish(amDrawer?score:0); } }};
  }});
 
-/* --- 10. Uch toshcha --- */
-addG("ttt",{ic:"⭕",nm:["Uch toshcha","Tic-Tac-Toe"],desc:["Juftlikda o'ynaladi: 3 ta belgini qatorga tizing","Played in pairs: line up three marks"],
- dur:90,higher:true,unit:["ball","pts"],shared:true,
+/* --- 10. Uch toshcha: 3 partiya, g'alaba chizig'i --- */
+addG("ttt",{ic:"⭕",nm:["Uch toshcha","Tic-Tac-Toe"],desc:["Juftlikda 3 ta partiya · har g'alaba uchun ball","Three matches in pairs · points for every win"],
+ dur:100,higher:true,unit:["ball","pts"],shared:true,
  run:function(c){
   var ids=c.players.map(function(p){return p.id});
   var off=(c.round-1)%Math.max(1,ids.length);
   var order=ids.slice(off).concat(ids.slice(0,off));
   var pi=order.indexOf(c.me.id), pair=Math.floor(pi/2), mine=pi%2;
   var opp=order[pair*2+(1-mine)];
-  var fin=false, path="rooms/"+c.code+"/ttt/r"+c.round+"/p"+pair, last="";
+  var fin=false, base="rooms/"+c.code+"/ttt/r"+c.round+"/p"+pair, gi=0, W=0,Lo=0,D=0, last="";
+  var WIN=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
   function winner(b){
-    var W=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
-    for(var i=0;i<W.length;i++){ var a=b.charAt(W[i][0]);
-      if(a!=="-"&&a===b.charAt(W[i][1])&&a===b.charAt(W[i][2])) return a; }
-    return b.indexOf("-")<0?"d":null;
+    for(var i=0;i<WIN.length;i++){ var a=b.charAt(WIN[i][0]);
+      if(a!=="-"&&a===b.charAt(WIN[i][1])&&a===b.charAt(WIN[i][2])) return {w:a,l:WIN[i]}; }
+    return b.indexOf("-")<0?{w:"d"}:null;
   }
   if(!opp){
-    c.el.innerHTML='<div class="center"><span class="kicker">'+L("Bu raundda juftingiz yo'q","No opponent this round")+
-      '</span><p style="margin-top:14px">'+L("Sizga o'rtacha ball beriladi.","You receive an average score.")+'</p></div>';
-    setTimeout(function(){ if(!fin){ fin=true; c.finish(50); } },1500);
-    return {end:function(){ if(!fin){fin=true;c.finish(50);} }};
+    c.el.innerHTML='<div class="center"><div style="font-size:44px">🎲</div><h3 style="margin:12px 0">'+
+      L("Bu raundda juftingiz yo'q","No opponent this round")+'</h3><p class="note">'+
+      L("Sizga o'rtacha ball beriladi.","You receive an average score.")+'</p></div>';
+    setTimeout(function(){ if(!fin){ fin=true; c.prog(100,150); c.finish(150); } },1500);
+    return {end:function(){ if(!fin){fin=true;c.finish(150);} }};
   }
   var oppName=(c.players.filter(function(p){return p.id===opp})[0]||{}).name||"?";
-  c.el.innerHTML='<div class="center" style="margin-bottom:12px"><span class="kicker">'+L("Raqib","Opponent")+': '+esc(oppName)+
-    '</span><h3 style="margin:10px 0" id="tst">…</h3></div><div class="ttt" id="tb"></div>';
-  var tb=c.el.querySelector("#tb"), cells=[], st={b:"---------",t:0,w:null};
+  c.el.innerHTML='<div class="center" style="margin-bottom:10px">'+
+    '<span class="kicker">'+L("Raqib","Opponent")+': '+esc(oppName)+'</span>'+
+    '<div class="row" style="justify-content:center;margin:10px 0"><span class="tag ok" id="tw">'+L("G'alaba","Wins")+': 0</span>'+
+    '<span class="tag" id="td">'+L("Durrang","Draws")+': 0</span><span class="tag" id="tl">'+L("Mag'lub","Losses")+': 0</span></div>'+
+    '<h3 style="margin:6px 0" id="tst">…</h3><p class="note" id="tg">'+L("Partiya","Match")+' 1 / 3</p></div>'+
+    '<div class="ttt" id="tb" style="position:relative"></div>';
+  var tb=c.el.querySelector("#tb"), cells=[], st={b:"---------",t:0}, over=false;
   for(var i=0;i<9;i++){ (function(i){
-    var b=el('<button class="tc"></button>');
-    b.onclick=function(){ play(i); }; tb.appendChild(b); cells.push(b);
-  })(i); }
-  if(mine===0) DB.get(path,function(v){ if(!v) DB.set(path,{b:"---------",t:0}); });
+    var b=el('<button class="tc"></button>'); b.onclick=function(){ play(i); };
+    tb.appendChild(b); cells.push(b); })(i); }
+  function path(){ return base+"/g"+gi; }
+  function fresh(){
+    st={b:"---------",t:gi%2}; over=false; last="";
+    c.el.querySelector("#tg").textContent=L("Partiya","Match")+" "+(gi+1)+" / 3";
+    if(mine===0) DB.set(path(),{b:"---------",t:gi%2});
+    paint();
+  }
   function play(i){
-    if(fin||st.w||st.b.charAt(i)!=="-"||st.t!==mine) return;
+    if(fin||over||st.b.charAt(i)!=="-"||st.t!==mine) return;
     var nb=st.b.substring(0,i)+(mine===0?"x":"o")+st.b.substring(i+1);
-    st.b=nb; st.t=1-mine; last=nb; paint();
-    DB.set(path,{b:nb,t:1-mine});
+    st.b=nb; st.t=1-mine; last=nb; c.fx.s.tap(); paint();
+    DB.set(path(),{b:nb,t:1-mine});
   }
   function paint(){
     for(var i=0;i<9;i++){ var ch=st.b.charAt(i);
       cells[i].textContent=ch==="-"?"":(ch==="x"?"✕":"◯");
       cells[i].className="tc"+(ch==="x"?" x":(ch==="o"?" o":""));
-      cells[i].disabled=(ch!=="-"||st.t!==mine||!!st.w);
+      cells[i].disabled=(ch!=="-"||st.t!==mine||over);
     }
     var w=winner(st.b);
-    if(w&&!fin){
-      fin=true; st.w=w;
-      var msg,pts;
-      if(w==="d"){ msg=L("Durrang","Draw"); pts=50; }
-      else if((w==="x"&&mine===0)||(w==="o"&&mine===1)){ msg="🏆 "+L("G'alaba!","You win!"); pts=100; }
-      else { msg=L("Yutqazdingiz","You lost"); pts=10; }
+    if(w&&!over){
+      over=true;
+      var msg;
+      if(w.w==="d"){ D++; msg="🤝 "+L("Durrang","Draw"); c.fx.s.pop(); }
+      else if((w.w==="x"&&mine===0)||(w.w==="o"&&mine===1)){ W++; msg="🏆 "+L("G'alaba!","You win!"); c.fx.s.win(); }
+      else { Lo++; msg="😕 "+L("Yutqazdingiz","You lost"); c.fx.s.lose(); }
       c.el.querySelector("#tst").textContent=msg;
-      c.finish(pts); return;
+      c.el.querySelector("#tw").textContent=L("G'alaba","Wins")+": "+W;
+      c.el.querySelector("#td").textContent=L("Durrang","Draws")+": "+D;
+      c.el.querySelector("#tl").textContent=L("Mag'lub","Losses")+": "+Lo;
+      var pts=W*120+D*45;
+      c.prog(Math.round((gi+1)/3*100),pts);
+      gi++;
+      if(gi>=3){ if(!fin){ fin=true; setTimeout(function(){ c.finish(pts); },900); } }
+      else setTimeout(fresh,1400);
+      return;
     }
     c.el.querySelector("#tst").textContent=(st.t===mine)?L("Sizning yurishingiz","Your move"):L("Raqib o'ylamoqda…","Opponent is thinking…");
   }
-  paint();
-  watch(path,800,function(v){
+  c.prog(0,0); fresh();
+  watch(base,800,function(v){
     if(!v||fin) return;
-    if(v.b===last) return; last=v.b;
-    st.b=v.b; st.t=v.t; paint();
+    var g=v["g"+gi]; if(!g||g.b===last||over) return;
+    last=g.b; st.b=g.b; st.t=g.t; paint();
   });
-  return {end:function(){ if(!fin){ fin=true;
-    var w=winner(st.b); c.finish(w==="d"?50:(w?(((w==="x"&&mine===0)||(w==="o"&&mine===1))?100:10):40)); } }};
+  return {end:function(){ if(!fin){ fin=true; c.finish(W*120+D*45); } }};
  }});
 var GLIST=["quiz","word","g2048","snake","memory","typing","react","math","doodle","ttt"];
-window.ARENA_TEST.GAMES=GAMES; window.ARENA_TEST.GLIST=GLIST;
+window.ARENA_TEST.GAMES=GAMES; window.ARENA_TEST.GLIST=GLIST; window.ARENA_TEST.FX=FX;
 
 /* ================== KO'RINISH VA OQIM ================== */
 var APP=document.getElementById("app"), ROOM=null, RC=null, HB=null, RUN=null, TICK=null;
@@ -1123,37 +1497,68 @@ function finishAll(v){
 }
 function vPlay(v){
   var st=v.state, g=GAMES[st.g], pls=plList(v);
-  APP.innerHTML='<div class="hud"><b>'+g.ic+" "+esc(L(g.nm[0],g.nm[1]))+'</b><span class="note">'+L("Raund","Round")+" "+st.r+" / "+v.meta.games.length+
-    '</span><div class="spacer" style="flex:1"></div><span class="t" id="tmr">--</span></div>'+
-    '<div class="stage" id="stage"></div>';
-  var stage=document.getElementById("stage"), timer=document.getElementById("tmr"), started=false, sent=false, inst=null;
-  stage.innerHTML='<div class="center"><h2>'+esc(L(g.nm[0],g.nm[1]))+'</h2><p class="note">'+esc(L(g.desc[0],g.desc[1]))+'</p></div>';
+  var bg=GBG[st.g]||["#2563eb33","#7c3aed33"];
+  APP.innerHTML='<div class="hud"><b>'+g.ic+" "+esc(L(g.nm[0],g.nm[1]))+'</b>'+
+    '<span class="note">'+L("Raund","Round")+" "+st.r+" / "+v.meta.games.length+'</span>'+
+    '<div class="opps" id="opps" style="flex:1"></div>'+
+    '<svg class="ring" viewBox="0 0 52 52"><circle class="bgc" cx="26" cy="26" r="22"></circle>'+
+    '<circle class="fgc" id="rg" cx="26" cy="26" r="22" stroke-dasharray="138" stroke-dashoffset="0"></circle></svg>'+
+    '<span class="t" id="tmr">--</span></div>'+
+    '<div class="stage gb" id="stage" style="--c1:'+bg[0]+';--c2:'+bg[1]+'"></div>';
+  var stage=document.getElementById("stage"), timer=document.getElementById("tmr"), ring=document.getElementById("rg");
+  var started=false, sent=false, inst=null, total=st.endAt-st.startAt;
+  stage.innerHTML='<div class="center"><div style="font-size:52px">'+g.ic+'</div><h2>'+esc(L(g.nm[0],g.nm[1]))+
+    '</h2><p class="note" style="max-width:440px;margin:8px auto 0">'+esc(L(g.desc[0],g.desc[1]))+'</p></div>';
   var cd=el('<div class="cd"><b id="cdn">3</b></div>'); document.body.appendChild(cd);
+  /* jonli raqiblar paneli */
+  var pv={}, myP=0, myS=0, lastPush=0;
+  function pushProg(p,sc){
+    myP=p; myS=sc;
+    if(Date.now()-lastPush<1800) return;
+    lastPush=Date.now();
+    DB.set("rooms/"+v.code+"/prog/"+ME.id,{p:Math.round(p),s:Math.round(sc||0),at:Date.now()});
+  }
+  watch("rooms/"+v.code+"/prog",1600,function(pr){
+    var box=document.getElementById("opps"); if(!box) return;
+    box.innerHTML=pls.map(function(p){
+      var d=(pr||{})[p.id]||{}, done=d.p>=100;
+      return '<span class="opp'+(done?" done":"")+'" title="'+esc(p.name)+'">'+
+        '<span class="av" style="background:'+colorOf(p.id)+'">'+esc(initials(p.name,p.surname))+'</span>'+
+        (done?"✅":'<span class="pb"><i style="width:'+Math.min(100,d.p||0)+'%"></i></span>')+'</span>';
+    }).join("");
+  });
+  var lastBeep=0;
   clearInterval(TICK);
   TICK=setInterval(function(){
     var now=Date.now();
     if(now<st.startAt){
-      var s=Math.ceil((st.startAt-now)/1000);
-      document.getElementById("cdn").textContent=s>0?s:"GO!";
-      timer.textContent=esec(st.endAt-st.startAt); return;
+      var sec=Math.ceil((st.startAt-now)/1000);
+      var n=document.getElementById("cdn");
+      if(n&&n.textContent!==(sec>0?String(sec):"GO!")){ n.textContent=sec>0?sec:"GO!"; if(sec>0) FX.s.tick(); else FX.s.go(); }
+      timer.textContent=esec(total); return;
     }
-    if(cd.parentNode){ cd.remove(); }
+    if(cd.parentNode) cd.remove();
     if(!started){
       started=true;
       var ctx={el:stage,seed:st.seed,rand:rng(st.seed),endAt:st.endAt,me:ME,players:pls,code:v.code,round:st.r,
-        finish:function(raw){ if(sent) return; sent=true; submit(v,st,raw); }};
-      try{ inst=g.run(ctx); }catch(e){ stage.innerHTML='<p class="note center">'+L("O'yinni yuklashda xato","Error loading the game")+'</p>'; submit(v,st,0); }
+        fx:FX,L:L,prog:pushProg,
+        finish:function(raw){ if(sent) return; sent=true; pushProg(100,raw); lastPush=0; pushProg(100,raw); submit(v,st,raw); }};
+      try{ inst=g.run(ctx); }
+      catch(e){ stage.innerHTML='<p class="note center">'+L("O'yinni yuklashda xato","Error loading the game")+'</p>'; submit(v,st,0); }
       RUN=inst;
     }
     var left=st.endAt-now;
     timer.textContent=esec(left);
     timer.classList.toggle("low",left<10000);
+    if(ring) ring.setAttribute("stroke-dashoffset",String(138*(1-Math.max(0,left)/total)));
+    if(left<10000&&left>0&&now-lastBeep>1000){ lastBeep=now; FX.s.tick(); }
     if(left<=0){
       clearInterval(TICK);
       if(inst&&inst.end) inst.end();
       if(inst&&inst.off) inst.off();
       if(!sent){ sent=true; submit(v,st,g.higher?0:999999); }
-      stage.innerHTML='<div class="center"><h2>⏳ '+L("Vaqt tugadi","Time is up")+'</h2><p class="note">'+L("Natijalar hisoblanmoqda…","Calculating the results…")+'</p></div>';
+      stage.innerHTML='<div class="center"><div style="font-size:44px">⏳</div><h2>'+L("Vaqt tugadi","Time is up")+
+        '</h2><p class="note">'+L("Natijalar hisoblanmoqda…","Calculating the results…")+'</p></div>';
     }
   },200);
 }
@@ -1192,6 +1597,8 @@ function vRes(v){
      return '<div class="rank"><div class="pos">'+(i+1)+'.</div><div class="nm" style="flex:1"><b>'+esc(x.p.name)+'</b></div><div class="pts">'+x.tot+'</div></div>';
    }).join(""))+
    '<p class="note center" style="margin-top:14px">'+(st.r>=v.meta.games.length?L("Yakuniy natijalar tayyorlanmoqda…","Preparing the final results…"):L("Keyingi o'yin boshlanmoqda…","The next game is starting…"))+'</p>';
+  var mine=pls.filter(function(x){return x.p.id===ME.id})[0];
+  if(mine){ if(mine.pt>=75) FX.s.win(); else if(mine.pt<=25) FX.s.lose(); else FX.s.ok(); }
 }
 function vEnd(v){
   var tot=v.tot||{}, pls=plList(v).map(function(p){ return {p:p,tot:tot[p.id]||0}; }).sort(function(a,b){ return b.tot-a.tot; });
@@ -1209,6 +1616,7 @@ function vEnd(v){
       "These points were only for this game — they are not saved and never count toward the lesson rating.")+'</p>'+
    '<div class="row" style="margin-top:16px;justify-content:center"><button class="btn accent" id="eg">🔄 '+L("Yana o'ynash","Play again")+'</button>'+
    '<button class="btn" id="eh">🏠 '+L("Arenaga qaytish","Back to the arena")+'</button></div>';
+  if(w.p.id===ME.id){ FX.confetti(4000); FX.s.win(); } else FX.s.ok();
   document.getElementById("eh").onclick=function(){ unwatchAll(); clearInterval(HB); nav("#/"); };
   var ag=document.getElementById("eg");
   if(ag) ag.onclick=function(){ unwatchAll(); clearInterval(HB); nav("#/create"); };
@@ -1231,6 +1639,7 @@ function route(){
 }
 window.addEventListener("hashchange",route);
 chrome();
+document.getElementById("btnSnd").textContent=FX.isMuted()?"🔇":"🔊";
 loadMe();
 APP.innerHTML=card('<p class="note center">'+L("Serverga ulanmoqda…","Connecting…")+'</p>');
 connect(function(ok,why){ online=ok; route(); if(!ok&&why==="rules") offline(); });
