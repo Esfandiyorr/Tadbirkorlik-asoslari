@@ -116,7 +116,7 @@ function chipUpdate(){
   var c=document.getElementById("rtChip"); if(!c||!S) return;
   c.innerHTML="🏆 "+esc(S.name)+" · <b>"+(P.total||0)+"</b>";
 }
-function T(uz,en){ return (window.lang==="en"&&en)?en:uz; }
+function T(uz,en){ var l=(document.documentElement.getAttribute("lang")||"uz"); return (l==="en"&&en)?en:uz; }
 
 function gate(){
   if(S){ start(); return; }
@@ -277,12 +277,32 @@ function openOv(){
 }
 
 /* ---------- ishga tushirish ---------- */
+function navBuild(){
+  var tools=document.querySelector(".topbar .tools"); if(!tools) return;
+  var old=document.getElementById("rtNav"); if(old) old.remove();
+  var wrap=el('<span id="rtNav" style="display:inline-flex;gap:6px;flex-wrap:wrap;margin-left:6px"></span>');
+  (CFG.topics||[]).forEach(function(x,i){
+    var lab=T((i+1)+"-mavzu","Topic "+(i+1));
+    var cur=(x.id===CFG.topic);
+    var b;
+    if(cur) b=el('<span class="rt-nav cur" title="'+esc(x.title)+'">📖 '+lab+'</span>');
+    else if(x.open) b=el('<a class="rt-nav" href="'+x.file+'" title="'+esc(x.title)+'">📗 '+lab+'</a>');
+    else { b=el('<span class="rt-nav lock" title="'+(i+1)+'-'+T("mavzu yopiq — o\'qituvchi darsda ochadi","topic is locked — the teacher opens it in class")+'">🔒 '+(i+1)+'</span>');
+           b.onclick=function(){ toast(T("Bu mavzu hali yopiq","This topic is still locked")); }; }
+    wrap.appendChild(b);
+  });
+  var sp=document.querySelector('.topbar .spacer');
+  if(sp&&sp.parentNode) sp.parentNode.insertBefore(wrap,sp); else tools.insertBefore(wrap,tools.firstChild);
+}
 function chip(){
   var tools=document.querySelector(".topbar .tools"); if(!tools) return;
   var c=el('<button class="rt-chip" id="rtChip" title="'+T("Reyting va ballaringiz","Rating and your points")+'">🏆</button>');
   tools.insertBefore(c,tools.firstChild);
   c.onclick=openOv;
   chipUpdate();
+  navBuild();
+  var lb=document.getElementById("btnLang");
+  if(lb) lb.addEventListener("click",function(){ setTimeout(function(){ navBuild(); chipUpdate(); },30); });
 }
 function start(){
   chip();
