@@ -71,17 +71,33 @@ function pull(cb){
     msgs=a; keys=k; cb&&cb(true);
   }).catch(function(){ cb&&cb(false); });
 }
+function why(status,txt){          /* Firebase xatosini tushunarli qilib beradi */
+  txt=String(txt||"");
+  if(status===401||status===403||/permission|denied/i.test(txt))
+    return T("Firebase qoidalarida ruxsat yo'q. O'qituvchi: Realtime Database → Rules ga media va meta bo'limlarini qo'shsin.",
+             "The Firebase rules deny access. Teacher: add the media and meta sections in Realtime Database → Rules.");
+  if(status===413||/too large|exceed/i.test(txt))
+    return T("Fayl baza uchun juda katta. Kichikroq video tanlang.","The file is too large for the database. Choose a smaller video.");
+  if(!status) return T("Internet uzildi — qayta urining.","The connection dropped — please try again.");
+  return T("Yuborilmadi","Not sent")+" ("+status+")";
+}
 function putMsg(rec,cb){
-  var b=base(); if(!b){ cb(false); return; }
+  var b=base(); if(!b){ cb(false,T("Baza ulanmagan","No database")); return; }
   fetch(b+"/chat/"+nkey("c")+".json",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(rec)})
-    .then(function(r){ cb(r.ok); }).catch(function(){ cb(false); });
+    .then(function(r){
+      if(r.ok){ cb(true); return; }
+      return r.text().then(function(t){ cb(false,why(r.status,t)); });
+    }).catch(function(){ cb(false,why(0,"")); });
 }
 function putMedia(type,data,cb){
-  var b=base(); if(!b){ cb(null); return; }
+  var b=base(); if(!b){ cb(null,T("Baza ulanmagan","No database")); return; }
   var k=nkey(type==="video"?"v":"m"), S=me();   /* v... = video (1 kun), m... = rasm (1 hafta) */
   fetch(b+"/media/"+k+".json",{method:"PUT",headers:{"Content-Type":"application/json"},
     body:JSON.stringify({t:type,d:data,at:Date.now(),by:S?S.id:""})})
-    .then(function(r){ cb(r.ok?k:null); }).catch(function(){ cb(null); });
+    .then(function(r){
+      if(r.ok){ cb(k); return; }
+      return r.text().then(function(t){ cb(null,why(r.status,t)); });
+    }).catch(function(){ cb(null,why(0,"")); });
 }
 function getMedia(k){
   var b=base(); if(!b||pend[k]) return;
@@ -259,17 +275,18 @@ function send(){
     if(mk){ rec.mk=mk; rec.mt=mt; }
     if(canMedia&&/https?:\/\//.test(v)) rec.lk=1;    /* havola faqat ruxsatlilarda bosiladigan bo'ladi */
     if(yt) rec.yt=yt;
-    putMsg(rec,function(ok){
+    putMsg(rec,function(ok,err){
       busy=false; $("chSend").disabled=false;
-      if(!ok){ warn(T("Yuborilmadi — internetni tekshiring.","Not sent — check your connection.")); return; }
+      if(!ok){ $("chAtt").classList.remove("on"); warn(err||T("Yuborilmadi.","Not sent.")); return; }
       ta.value=""; att=null; $("chAtt").classList.remove("on"); $("chFile").value=""; last=Date.now(); warn("");
       pull(function(){ seen=msgs.length; draw(); });
     });
   }
   if(att){
     $("chAtt").textContent="⏳ "+T("yuborilmoqda…","uploading…");
-    putMedia(att.type,att.data,function(k){
-      if(!k){ busy=false; $("chSend").disabled=false; warn(T("Fayl yuborilmadi.","The file was not uploaded.")); return; }
+    putMedia(att.type,att.data,function(k,err){
+      if(!k){ busy=false; $("chSend").disabled=false; $("chAtt").classList.remove("on");
+              warn((err||"")+" "+T("Fayl yuborilmadi.","The file was not uploaded.")); return; }
       post(k,att.type);
     });
   } else post(null,null);

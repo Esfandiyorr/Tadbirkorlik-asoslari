@@ -104,6 +104,37 @@ function cloudSetStatus(id,st,cb){
     body:JSON.stringify(st)}).then(function(r){ cb&&cb(r.ok); }).catch(function(){ cb&&cb(false); });
 }
 function approved(){ return !cloudOn || (S&&S.status==="ok"); }
+var RULES='{"rules":{"students":{".read":true,".write":true},"chat":{".read":true,".write":true},'+
+  '"media":{".read":true,".write":true},"meta":{".read":true,".write":true}}}';
+function tcTest(){
+  var out=document.getElementById("rtTcDiag"); if(!out) return;
+  if(!cloudOn||!BASE){ out.innerHTML='<p class="rt-note">🟠 '+T("Baza ulanmagan.","No database connected.")+'</p>'; return; }
+  out.innerHTML='<p class="rt-note">'+T("Tekshirilmoqda…","Testing…")+'</p>';
+  var nodes=["students","chat","media","meta"], res=[], i=0;
+  (function next(){
+    if(i>=nodes.length){
+      var bad=res.filter(function(x){ return !x.ok; });
+      out.innerHTML='<div class="rt-diag">'+
+        res.map(function(x){ return '<div>'+(x.ok?"✅ ":"❌ ")+'<i>'+x.n+'</i>'+(x.ok?"":" — "+esc(x.e))+'</div>'; }).join("")+
+        (bad.length?'<p class="rt-note" style="margin-top:8px">'+T("Yechim: Firebase → Realtime Database → Rules ga faqat shuni qo'ying va Publish qiling:",
+          "Fix: put only this into Firebase → Realtime Database → Rules and publish:")+
+          '<br><code style="display:block;margin-top:6px;font-size:11px;word-break:break-all;background:var(--chip);padding:8px;border-radius:9px">'+
+          esc(RULES)+'</code></p>'
+         :'<p class="rt-note" style="margin-top:8px">✅ '+T("Hammasi joyida — rasm va video yuborish ishlaydi.",
+           "Everything is fine — sending images and videos works.")+'</p>')+'</div>';
+      return;
+    }
+    var n=nodes[i++];
+    fetch(BASE+"/"+n+"/_test.json",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(Date.now())})
+    .then(function(r){
+      if(r.ok){ res.push({n:n,ok:true}); fetch(BASE+"/"+n+"/_test.json",{method:"DELETE"}).catch(function(){}); next(); return; }
+      return r.text().then(function(t){
+        res.push({n:n,ok:false,e:(r.status===401||r.status===403)?T("qoidalarda ruxsat yo'q","denied by rules"):(r.status+" "+String(t).slice(0,40))});
+        next();
+      });
+    }).catch(function(){ res.push({n:n,ok:false,e:T("tarmoq xatosi","network error")}); next(); });
+  })();
+}
 function cloudSetMedia(id,v,cb){
   if(!cloudOn||!BASE){ cb&&cb(false); return; }
   fetch(BASE+"/students/"+id+"/media.json",{method:"PUT",headers:{"Content-Type":"application/json"},
@@ -430,7 +461,9 @@ function tcDraw(){
   h+='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px">'+
      (dn?'<button class="btn warn" id="rtDup">🧹 '+T("Takrorlarni tozalash","Clean duplicates")+' ('+dn+')</button>':'')+
      '<button class="btn warn" id="rtCsv">⬇ CSV</button>'+
+     '<button class="btn" id="rtTcDiagGo">🔎 '+T("Chat tekshiruvi","Chat self-test")+'</button>'+
      '<button class="btn" id="rtTcOut2">🚪 '+T("Chiqish","Log out")+'</button></div>'+
+     '<div id="rtTcDiag"></div>'+
      '<p class="rt-note">'+T("Jami talaba","Total students")+": "+tcList.length+(cloudOn?"":" · "+T("(faqat shu qurilma)","(this device only)"))+'</p>'+
      '<p class="rt-note">'+T("Talaba faqat siz tasdiqlagandan keyin taqdimot va chatga kira oladi.",
        "A student can enter the presentation and the chat only after you approve them.")+'</p>';
@@ -454,6 +487,7 @@ function tcDraw(){
     };
   });
   document.getElementById("rtTcRef").onclick=tcLoad;
+  document.getElementById("rtTcDiagGo").onclick=tcTest;
   var db=document.getElementById("rtDup"); if(db) db.onclick=tcDedupe;
   document.getElementById("rtTcOut2").onclick=function(){
     isTc=false; try{ sessionStorage.removeItem("terdu_tc"); }catch(e){}
