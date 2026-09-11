@@ -541,6 +541,8 @@ function chip(){
   var dup=document.getElementById("rtChip"); if(dup) dup.remove();
   var c=el('<button class="rt-chip" id="rtChip" title="'+T("Reyting va ballaringiz","Rating and your points")+'">🏆</button>');
   tools.insertBefore(c,tools.firstChild);
+  var ar=el('<a class="rt-chip" id="rtArena" href="arena.html" title="'+T("O\'yin arenasi — talabalar musobaqasi","Game Arena — student competitions")+'">🎮 <b>'+T("Arena","Arena")+'</b></a>');
+  tools.insertBefore(ar,c.nextSibling);
   c.onclick=openOv;
   chipUpdate();
   navBuild();

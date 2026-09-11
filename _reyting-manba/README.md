@@ -11,11 +11,11 @@
 Realtime Database → **Rules** bo'limiga faqat shuni qo'ying (eskisini butunlay o'chirib):
 
 ```json
-{"rules":{"students":{".read":true,".write":true},"chat":{".read":true,".write":true},"media":{".read":true,".write":true},"meta":{".read":true,".write":true}}}
+{"rules":{"students":{".read":true,".write":true},"chat":{".read":true,".write":true},"media":{".read":true,".write":true},"meta":{".read":true,".write":true},"arena":{".read":true,".write":true}}}
 ```
 
-To'rttala bo'lim ham kerak: `chat` — xabarlar, `media` — rasm va videolar,
-`meta` — tozalash vaqti. `media` bo'lmasa rasm yuborishda "Fayl yuborilmadi" chiqadi.
+Beshala bo'lim ham kerak: `chat` — xabarlar, `media` — rasm va videolar,
+`meta` — tozalash vaqti, `arena` — o'yin musobaqalari. `media` bo'lmasa rasm yuborishda "Fayl yuborilmadi" chiqadi.
 
 **Tekshirish:** 🏆 → 🔑 O'qituvchi → **🔎 Chat tekshiruvi** tugmasi to'rttala bo'limga
 sinov yozuvi yozib ko'radi va qaysi biri yopiqligini ko'rsatadi.
@@ -84,3 +84,26 @@ shablondan o'zgarishsiz o'tadi.
    `inject.py` dagi `DECKS` ga ham qo'shing, so'ng `python3 _reyting-manba/inject.py`.
 5. Yangi mavzu **yopiq** holda `yopiq-mavzular` shoxchasiga, `config.json` va
    qayta o'rnatilgan `index.html` asosiy shoxchaga commit qilinadi.
+
+
+## O'yin arenasi (`arena.html`)
+
+Talabalar o'rtasidagi 2–4 kishilik musobaqa: xona yaratiladi, kod yoki havola
+bilan qo'shiladi, 3–10 ta mini-o'yin ketma-ket o'ynaladi, har raundda o'rin
+bo'yicha ball beriladi (100 / 75 / 50 / 25, teng natijalar o'rtacha oladi).
+
+- Kirish: darsdagi hisob bilan (`terdu_student`), o'qituvchi tasdig'i talab qilinadi.
+- Ma'lumotlar: `arena/rooms/<KOD>` (meta, players, state, scores, pts, tot),
+  `arena/public/<KOD>` — ochiq musobaqalar ro'yxati, `arena/hist/<talaba>` — tarix.
+- Host raundni boshlaydi va ballni hisoblaydi; host 25 soniya ko'rinmasa,
+  ro'yxatdagi birinchi faol o'yinchi uning o'rnini egallaydi.
+- Xonalar 24 soatdan keyin avtomatik o'chiriladi (`arena/meta/cleanAt` qulfi bilan).
+- 10 ta o'yin: viktorina, so'z topish, 2048, ilon, xotira kartalari, tez yozish,
+  reaksiya, matematika, rasm topish (birgalikda chiziladi), uch toshcha.
+
+**Cheklov (halol eslatma):** sayt GitHub Pages'da, ya'ni serversiz ishlaydi.
+Shuning uchun ballni serverda qayta hisoblash imkoni yo'q. Himoya choralari:
+har bir o'yinchi faqat o'z natijasini yozadi, bir raundga bitta natija
+qabul qilinadi, natija raund oynasidan tashqarida hisobga olinmaydi va
+hammasi o'qituvchiga ko'rinadigan bazada saqlanadi. Bu oddiy aldashni
+to'xtatadi, lekin brauzer konsolini biladigan talabani to'xtata olmaydi.
