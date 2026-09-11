@@ -865,7 +865,12 @@ function vHome(){
      '<button class="btn vio" id="bJoin">🔑 '+L("Qo'shilish","Join")+'</button></div></div>'+
    '<div class="grid g2" style="margin-bottom:18px">'+
      card('<h3>📡 '+L("Ochiq musobaqalar","Public competitions")+'</h3><div id="pub" class="note">'+L("Yuklanmoqda…","Loading…")+'</div>')+
-     card('<h3>📊 '+L("Mening natijalarim","My results")+'</h3><div id="st" class="note">'+L("Yuklanmoqda…","Loading…")+'</div>')+
+     card('<h3>🎈 '+L("Bu shunchaki o'yin","Just for fun")+'</h3>'+
+       '<p class="note">'+L("Arena — darsdan charchaganda kichik chalg'ish. Bu yerdagi ballar <b>faqat o'yin davomida</b> ishlaydi: musobaqa tugashi bilan ular yo'q bo'ladi.",
+         "The arena is a short break from studying. The points here live <b>only during the game</b> and disappear the moment it ends.")+'</p>'+
+       '<p class="note">'+L("Ular <b>dars reytingiga qo'shilmaydi</b> — taqdimotlarni o'qish va topshiriqlarni bajarish uchun beriladigan ballar butunlay alohida.",
+         "They <b>never count toward the lesson rating</b> — the points for reading the slides and doing the tasks are entirely separate.")+'</p>'+
+       '<a class="btn ghost" href="index.html" style="margin-top:6px">📚 '+L("Dars reytingiga qaytish","Back to the lesson rating")+'</a>')+
    '</div>'+
    '<h3 style="margin:18px 0 10px">🕹 '+L("10 ta mini-o'yin","Ten mini-games")+'</h3>'+
    '<div class="grid g3" id="gl">'+GLIST.map(function(g){return gameCard(g,false)}).join("")+'</div>';
@@ -882,21 +887,6 @@ function vHome(){
     }).join("");
     [].slice.call(box.querySelectorAll("[data-j]")).forEach(function(b){ b.onclick=function(){ nav("#/room/"+b.dataset.j); }; });
   });
-  DB.get("hist/"+ME.id,function(v){
-    var box=document.getElementById("st"); if(!box) return;
-    var ks=v?Object.keys(v):[];
-    if(!ks.length){ box.innerHTML=L("Hali musobaqada qatnashmagansiz.","You have not taken part in a competition yet."); return; }
-    var n=ks.length, win=0, pts=0;
-    ks.forEach(function(k){ if(v[k].place===1) win++; pts+=v[k].pts||0; });
-    box.innerHTML='<div class="grid g3" style="margin-bottom:10px">'+
-      '<div class="pl"><div class="nm"><span>'+L("Musobaqa","Played")+'</span><b style="font-size:20px">'+n+'</b></div></div>'+
-      '<div class="pl"><div class="nm"><span>'+L("G'alaba","Wins")+'</span><b style="font-size:20px;color:var(--green)">'+win+'</b></div></div>'+
-      '<div class="pl"><div class="nm"><span>'+L("Jami ball","Total pts")+'</span><b style="font-size:20px">'+nf(pts)+'</b></div></div></div>'+
-      '<div class="tw"><table><thead><tr><th>'+L("Musobaqa","Competition")+'</th><th>'+L("O'rin","Place")+'</th><th>'+L("Ball","Points")+'</th></tr></thead><tbody>'+
-      ks.sort(function(a,b){return (v[b].at||0)-(v[a].at||0)}).slice(0,5).map(function(k){
-        return '<tr><td>'+esc(v[k].name||k)+'</td><td>'+["🥇","🥈","🥉"][(v[k].place||4)-1]||v[k].place+'</td><td><b>'+(v[k].pts||0)+'</b></td></tr>';
-      }).join("")+'</tbody></table></div>';
-  });
   cleanup();
 }
 function cleanup(){
@@ -904,11 +894,14 @@ function cleanup(){
     var now=Date.now();
     if(v&&now-v<3600000) return;
     DB.set("meta/cleanAt",now);
+    DB.del("hist");   /* eski natijalar ham saqlanmaydi */
     DB.get("rooms",function(rs){
       if(!rs) return;
       Object.keys(rs).forEach(function(k){
-        var m=rs[k]&&rs[k].meta;
-        if(!m||!m.at||now-m.at>24*3600000){ DB.del("rooms/"+k); DB.del("public/"+k); }
+        var m=rs[k]&&rs[k].meta; if(!m) return;
+        var eski=!m.at||now-m.at>6*3600000;
+        var tugagan=m.doneAt&&now-m.doneAt>600000;
+        if(eski||tugagan){ DB.del("rooms/"+k); DB.del("public/"+k); }
       });
     });
   });
@@ -1062,7 +1055,9 @@ function vLobby(v){
       '<button class="btn" id="lc">🔗 '+L("Havolani nusxalash","Copy invite link")+'</button>'+
       '<button class="btn warn" id="ll">🚪 '+L("Chiqish","Leave")+'</button></div>')+
     card('<h3>🎯 '+L("Tanlangan o'yinlar","Selected games")+' ('+v.meta.games.length+')</h3>'+
-      '<div class="grid g4" style="margin-top:10px">'+v.meta.games.map(function(g){return gameCard(g,true)}).join("")+'</div>')+
+      '<div class="grid g4" style="margin-top:10px">'+v.meta.games.map(function(g){return gameCard(g,true)}).join("")+'</div>'+
+      '<p class="note" style="margin-top:12px">🎈 '+L("Ballar faqat shu musobaqa uchun — dars reytingiga qo'shilmaydi.",
+        "The points are for this competition only — they do not count toward the lesson rating.")+'</p>')+
    '</div>'+
    (isHost(v)?'<div class="card" style="margin-top:16px"><div class="row"><div style="flex:1"><b>'+L("Boshlash","Start")+'</b><p class="note" style="margin:4px 0 0">'+
       L("Kamida 2 ta ishtirokchi kerak.","At least two players are needed.")+'</p></div>'+
@@ -1120,10 +1115,11 @@ function finishAll(v){
     .sort(function(a,b){ return b.pts-a.pts; });
   DB.upd("rooms/"+v.code+"/state",{ph:"end"});
   DB.set("rooms/"+v.code+"/meta/status","done");
+  DB.set("rooms/"+v.code+"/meta/doneAt",Date.now());
   DB.del("public/"+v.code);
-  rank.forEach(function(x,i){
-    DB.set("hist/"+x.id+"/"+v.code,{name:v.meta.name,at:Date.now(),place:i+1,pts:x.pts,games:v.meta.games.length});
-  });
+  /* Natija saqlanmaydi: o'yin tugagach ballar ahamiyatini yo'qotadi.
+     Xona o'yinchilar natijani ko'rib ulgurishi uchun 3 daqiqadan keyin o'chiriladi. */
+  setTimeout(function(){ DB.del("rooms/"+v.code); },180000);
 }
 function vPlay(v){
   var st=v.state, g=GAMES[st.g], pls=plList(v);
@@ -1209,12 +1205,14 @@ function vEnd(v){
        '<div class="nm" style="flex:1"><b>'+esc(x.p.name+" "+(x.p.surname||""))+'</b><span class="note">'+esc(x.p.group||"")+'</span></div>'+
        '<div class="pts">'+x.tot+'</div></div>';
    }).join(""))+
-   '<div class="row" style="margin-top:16px;justify-content:center"><button class="btn accent" id="eh">🏠 '+L("Arenaga qaytish","Back to the arena")+'</button></div>';
+   '<p class="note center" style="margin-top:14px">🎈 '+L("Bu ballar faqat shu o'yin uchun edi — ular saqlanmaydi va dars reytingiga qo'shilmaydi.",
+      "These points were only for this game — they are not saved and never count toward the lesson rating.")+'</p>'+
+   '<div class="row" style="margin-top:16px;justify-content:center"><button class="btn accent" id="eg">🔄 '+L("Yana o'ynash","Play again")+'</button>'+
+   '<button class="btn" id="eh">🏠 '+L("Arenaga qaytish","Back to the arena")+'</button></div>';
   document.getElementById("eh").onclick=function(){ unwatchAll(); clearInterval(HB); nav("#/"); };
-  if(window.RT&&RT.award&&pls.length){
-    var me=pls.filter(function(x){return x.p.id===ME.id})[0];
-    if(me) RT.award("arena_"+v.code,Math.min(20,Math.round(me.tot/25)),L("arena","arena"));
-  }
+  var ag=document.getElementById("eg");
+  if(ag) ag.onclick=function(){ unwatchAll(); clearInterval(HB); nav("#/create"); };
+  /* Diqqat: arena ballari dars reytingiga QO'SHILMAYDI va saqlanmaydi. */
 }
 
 /* ---------- router ---------- */
