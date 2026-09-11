@@ -319,7 +319,7 @@ function connect(done){
     }).catch(function(){ if(!fin){fin=true;clearTimeout(t);next();} });
   })();
 }
-var LASTERR="", LASTURL="", TRIED={}, RECON=false;
+var LASTERR="", TRIED={}, RECON=false;
 function reqRaw(m,path,body,cb){
   var o={method:m};
   if(body!==undefined){ o.headers={"Content-Type":"application/json"}; o.body=JSON.stringify(body); }
@@ -328,11 +328,11 @@ function reqRaw(m,path,body,cb){
     var status=0;
     fetch(url,o).then(function(r){ status=r.status; return r.text(); })
      .then(function(t){
-       if(status<200||status>=300){ if(!RECON){ LASTERR=status+" · "+String(t||"").slice(0,90); LASTURL=url; } cb(null,status,t); return; }
+       if(status<200||status>=300){ if(!RECON) LASTERR=status+" · "+url.replace(/^https:\/\//,"").slice(0,44)+" · "+String(t||"").slice(0,90); cb(null,status,t); return; }
        var v=null; try{ v=t?JSON.parse(t):null; }catch(e){}
        cb(v,status,t);
      })
-     .catch(function(){ if(!RECON){ LASTERR=L("tarmoq xatosi — bazaga ulanib bo'lmadi","network error — cannot reach the database"); LASTURL=url; } cb(null,0,"net"); });
+     .catch(function(){ if(!RECON) LASTERR=L("tarmoq xatosi","network error")+" · "+url.replace(/^https:\/\//,"").slice(0,44); cb(null,0,"net"); });
   }catch(e){ LASTERR=L("tarmoq xatosi","network error"); cb(null,0,"net"); }
 }
 /* boshqa manzilga o'tib qayta urinish (baza regioni noto'g'ri tanlangan bo'lsa) */
@@ -2378,8 +2378,6 @@ function vHome(){
       local.code = code;
       JUST_CREATED[code] = {data: local, at: Date.now()};
       ROOM = local;
-      var solid = JSON.parse(JSON.stringify(local)); delete solid.code;
-      setTimeout(function(){ DB.set("rooms/"+code, solid); }, 1000);
       nav("#/room/"+code);
     });
   };
@@ -2468,7 +2466,6 @@ function vCreate(){
       var btn=document.getElementById("cgo");
       if(btn){ btn.disabled=true; btn.textContent="⏳ "+L("Yaratilmoqda…","Creating…"); }
       DB.set("rooms/"+code,room,function(res,status,txt){
-        // Status 2xx ni muvaffaqiyat deb hisobla (ba'zan body kech keladi)
         var ok = (status>=200 && status<300) || (res && res.meta);
         if(!ok){
           if(btn){ btn.disabled=false; btn.textContent="🚀 "+L("Yaratish va lobbiga o'tish","Create and open the lobby"); }
@@ -2483,15 +2480,10 @@ function vCreate(){
           return;
         }
         if(pub) DB.set("public/"+code,{name:name,host:ME.name,n:1,g:games.length,at:Date.now()});
-        // Optimistik: yozuvdan keyin darhol xonani xotiraga saqlaymiz (keyingi GET kechiksa ham ishlasin)
         var local = res && res.meta ? res : room;
         local.code = code;
         JUST_CREATED[code] = {data: local, at: Date.now()};
         ROOM = local;
-        // Firebase yozuvini mustahkamlash: 1s va 3s dan keyin qayta yozamiz
-        var solid = JSON.parse(JSON.stringify(local)); delete solid.code;
-        setTimeout(function(){ DB.set("rooms/"+code, solid); }, 1000);
-        setTimeout(function(){ DB.set("rooms/"+code, solid); }, 3000);
         nav("#/room/"+code);
       });
     });
@@ -2531,7 +2523,6 @@ function vJoin(){
 function vRoom(code,tryN){
   RC=code;
   tryN=tryN||0;
-  // Yaqinda o'zimiz yaratgan xonani darhol ishlatamiz (Firebase GET kechiksa ham)
   var cached = JUST_CREATED[code];
   if(cached && Date.now()-cached.at < 20000 && cached.data && cached.data.meta){
     ROOM = cached.data; ROOM.code = code;
@@ -2540,7 +2531,6 @@ function vRoom(code,tryN){
       ROOM.players[ME.id] = {id:ME.id,name:ME.name,surname:ME.surname||"",group:ME.group||"",ready:1,seen:Date.now()};
     }
     startRoom(code);
-    // Fon rejimida bazadan qayta o'qiymiz (sinxronlash uchun)
     setTimeout(function(){ DB.get("rooms/"+code,function(v){ if(v&&v.meta){ ROOM=v; ROOM.code=code; } }); }, 1500);
     return;
   }
@@ -2548,7 +2538,6 @@ function vRoom(code,tryN){
   APP.innerHTML=card('<p class="note center">'+L("Xona yuklanmoqda…","Loading the room…")+(tryN?" ("+(tryN+1)+"/5)":"")+'</p>');
   DB.get("rooms/"+code,function(v,status,txt){
     if((!v||!v.meta)&&tryN<4){ setTimeout(function(){ if(location.hash.indexOf(code)>0) vRoom(code,tryN+1); },900); return; }
-    // Yana bir bor cache ni tekshiramiz
     cached = JUST_CREATED[code];
     if((!v||!v.meta) && cached && Date.now()-cached.at < 30000 && cached.data && cached.data.meta){
       v = cached.data;
@@ -2556,12 +2545,6 @@ function vRoom(code,tryN){
     if(!v||!v.meta){ APP.innerHTML=card('<div class="center"><div style="font-size:40px">🚪</div><h2>'+L("Bunday xona yo'q","No such room")+
       '</h2><p class="note">'+L("Kod noto'g'ri yoki musobaqa tugagan.","The code is wrong or the competition has ended.")+'</p>'+
       (LASTERR?'<p class="note">⚠️ '+esc(LASTERR)+'</p>':'')+
-      (LASTURL?'<div class="card flat" style="margin-top:10px;padding:12px;text-align:left">'+
-        '<b style="font-size:13px">🧪 '+L("Bir soniyalik tekshiruv","A one-second check")+'</b>'+
-        '<p class="note">'+L("Quyidagi havolani bosing. Agar yangi oynada <b>null</b> yoki <b>{…}</b> ko'rinsa — internet joyida, muammo boshqa yerda. Agar \"sayt ochilmadi\" desa — internetingiz shu manzilni to'sib qo'yyapti.",
-          "Open the link below. If you see <b>null</b> or <b>{…}</b> the connection is fine. If the page fails to open, your network is blocking this host.")+'</p>'+
-        '<a class="btn sm accent" href="'+esc(LASTURL)+'" target="_blank" rel="noopener" style="word-break:break-all">🔗 '+
-        esc(LASTURL.replace("https://","").slice(0,52))+'…</a></div>':'')+
       '<div class="row" style="justify-content:center;margin-top:12px">'+
       '<button class="btn accent" id="rb">← '+L("Orqaga","Back")+'</button>'+
       '<button class="btn" id="rd">🔎 '+L("Ulanish tekshiruvi","Connection test")+'</button></div>'+
@@ -2588,50 +2571,25 @@ function startRoom(code){
   clearInterval(HB);
   HB=setInterval(function(){ DB.set("rooms/"+code+"/players/"+ME.id+"/seen",Date.now()); },5000);
   DB.set("rooms/"+code+"/players/"+ME.id+"/seen",Date.now());
-  var lastPh="", lastR=-1, lastCnt=-1, miss=0, lastGood=null;
-  // Agar xotirada bor bo'lsa, darhol lobby ni chizamiz
+  var lastPh="", lastR=-1, lastCnt=-1, miss=0;
   if(ROOM && ROOM.code===code && ROOM.meta){
-    lastGood = ROOM;
     try{ render(ROOM); }catch(e){}
   }
-  var jc0 = JUST_CREATED[code];
-  if(jc0 && jc0.data && jc0.data.meta) lastGood = jc0.data;
   watch("rooms/"+code,1400,function(v){
     if(!v||!v.meta){
       miss++;
-      // Cache yoki oxirgi yaxshi holatdan foydalanamiz — lobbida kutayotganda yopilmasin
       var jc = JUST_CREATED[code];
-      if(jc && jc.data && jc.data.meta) v = jc.data;
-      else if(lastGood && lastGood.meta) v = lastGood;
-      else if(ROOM && ROOM.meta && ROOM.code===code) v = ROOM;
-      else {
-        // Hali umuman ma'lumot yo'q — uzoqroq kutamiz (taxminan 2 daqiqa)
-        if(miss < 80) return;
+      if(jc && Date.now()-jc.at < 25000){
+        if(jc.data && jc.data.meta){ v = jc.data; }
+        else return;
+      } else if(miss < 4){
+        return;
+      } else {
         toast(L("Xona yopildi","The room was closed")); nav("#/"); return;
       }
-      // Lobbida bo'lsak — null javoblarda hech qachon yopmaymiz, faqat oxirgi holatni ko'rsatamiz
-      var st0 = (v.state||{}).ph || "lobby";
-      if(st0==="lobby"){
-        // har ~15 soniyada xonani qayta yozib qo'yamiz (Firebase'da yo'qolgan bo'lsa)
-        if(miss===1 || miss%10===0){
-          var copy = JSON.parse(JSON.stringify(v));
-          delete copy.code;
-          DB.set("rooms/"+code, copy);
-        }
-        ROOM=v; v.code=code;
-        try{ render(v); }catch(e){}
-        return;
-      }
-      // O'yin boshlangan bo'lsa — biroz sabr, keyin yopamiz
-      if(miss < 15) return;
-      toast(L("Xona yopildi","The room was closed")); nav("#/"); return;
-    }
-    miss = 0;
-    lastGood = v;
-    if(JUST_CREATED[code]){
-      // 10 daqiqagacha saqlab turamiz (ishtirokchi kutish uchun)
-      JUST_CREATED[code].data = v;
-      JUST_CREATED[code].at = Date.now();
+    } else {
+      miss = 0;
+      if(JUST_CREATED[code]) delete JUST_CREATED[code];
     }
     ROOM=v; v.code=code;
     var st=v.state||{ph:"lobby",r:0}, pls=plList(v), key=st.ph+"|"+st.r;
@@ -2896,4 +2854,4 @@ connect(function(ok,why){ online=ok; route(); if(!ok&&why==="rules") offline(); 
 
 </script>
 </body>
-</html><PLACEHOLDER_FULL_CONTENT>
+</html>
