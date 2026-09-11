@@ -228,6 +228,7 @@ canvas{max-width:100%;border-radius:14px;background:var(--panel2);touch-action:n
 .lvl{display:flex;gap:4px;align-items:center}
 .lvl i{width:9px;height:9px;border-radius:50%;background:var(--chip);display:block}
 .lvl i.on{background:var(--amber)}
+.rt-diag{background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:12px 14px;font-size:13.5px}
 
 @media print{.topbar,.hud{display:none}}
 </style>
@@ -313,15 +314,28 @@ function connect(done){
     }).catch(function(){ if(!fin){fin=true;clearTimeout(t);next();} });
   })();
 }
+var LASTERR="";
 function req(m,path,body,cb){
-  if(!BASE){ cb&&cb(null); return; }
+  if(!BASE){ cb&&cb(null,0,"no-base"); return; }
   var o={method:m};
   if(body!==undefined){ o.headers={"Content-Type":"application/json"}; o.body=JSON.stringify(body); }
   try{
-    fetch(BASE+"/arena/"+path+".json",o).then(function(r){ return r.ok?r.text():null; })
-     .then(function(t){ var v=null; try{ v=t?JSON.parse(t):null; }catch(e){} cb&&cb(v); })
-     .catch(function(){ cb&&cb(null); });
-  }catch(e){ cb&&cb(null); }
+    var status=0;
+    fetch(BASE+"/arena/"+path+".json",o).then(function(r){ status=r.status; return r.text(); })
+     .then(function(t){
+       if(status<200||status>=300){ LASTERR=status+" "+String(t||"").slice(0,120); cb&&cb(null,status,t); return; }
+       var v=null; try{ v=t?JSON.parse(t):null; }catch(e){}
+       cb&&cb(v,status,t);
+     })
+     .catch(function(e){ LASTERR="tarmoq"; cb&&cb(null,0,"net"); });
+  }catch(e){ LASTERR="tarmoq"; cb&&cb(null,0,"net"); }
+}
+function whyFail(status,txt){
+  txt=String(txt||"");
+  if(status===401||status===403||/permission|denied/i.test(txt))
+    return L("Firebase qoidalarida \"arena\" bo'limiga ruxsat yo'q.","The Firebase rules do not allow the \"arena\" section.");
+  if(!status) return L("Internet uzildi yoki bazaga ulanib bo'lmadi.","The connection dropped or the database is unreachable.");
+  return L("Baza xatosi","Database error")+" ("+status+")";
 }
 var DB={
   get:function(p,cb){ req("GET",p,null,cb); },
@@ -2265,7 +2279,9 @@ function vHome(){
      '<p class="note">'+L("2–4 kishi, 3–10 ta mini-o'yin, jonli reyting va g'olib e'loni.","Two to four players, three to ten mini-games, a live scoreboard and a winner.")+'</p></div>'+
      '<div class="row"><button class="btn accent" id="bNew">➕ '+L("Musobaqa yaratish","Create")+'</button>'+
      '<button class="btn vio" id="bJoin">🔑 '+L("Qo'shilish","Join")+'</button>'+
-     '<button class="btn" id="bSolo">🎯 '+L("Yolg'iz mashq","Solo practice")+'</button></div></div>'+
+     '<button class="btn" id="bSolo">🎯 '+L("Yolg'iz mashq","Solo practice")+'</button>'+
+     '<button class="btn ghost" id="bDiag">🔎 '+L("Ulanish tekshiruvi","Connection test")+'</button></div></div>'+
+     '<div id="diag"></div>'+
    '<div class="grid g2" style="margin-bottom:18px">'+
      card('<h3>📡 '+L("Ochiq musobaqalar","Public competitions")+'</h3><div id="pub" class="note">'+L("Yuklanmoqda…","Loading…")+'</div>')+
      card('<h3>🎈 '+L("Bu shunchaki o'yin","Just for fun")+'</h3>'+
@@ -2279,6 +2295,26 @@ function vHome(){
    '<div class="grid g3" id="gl">'+GLIST.map(function(g){return gameCard(g,false)}).join("")+'</div>';
   document.getElementById("bNew").onclick=function(){ nav("#/create"); };
   document.getElementById("bJoin").onclick=function(){ nav("#/join"); };
+  document.getElementById("bDiag").onclick=function(){
+    var box=document.getElementById("diag");
+    box.innerHTML=card('<p class="note">'+L("Tekshirilmoqda…","Testing…")+'</p>');
+    var out=[];
+    out.push((BASE?"🟢 ":"🔴 ")+L("Baza manzili","Database")+": "+esc(BASE||"-"));
+    DB.set("_test/"+ME.id,{at:Date.now()},function(res,st1,t1){
+      out.push((res?"✅ ":"❌ ")+L("Yozish","Write")+": "+(res?"OK":(st1+" "+String(t1||"").slice(0,70))));
+      DB.get("_test/"+ME.id,function(v2,st2){
+        out.push((v2?"✅ ":"❌ ")+L("O'qish","Read")+": "+(v2?"OK":st2));
+        DB.del("_test/"+ME.id);
+        var bad=out.some(function(x){ return x.indexOf("❌")===0; });
+        box.innerHTML=card('<div class="rt-diag" style="line-height:1.9">'+out.map(function(x){return "<div>"+x+"</div>"}).join("")+
+          (bad?'<p class="note" style="margin-top:8px">'+L("Yechim: Firebase → Realtime Database → Rules ga quyidagini qo'shing va Publish qiling:",
+            "Fix: add this to Firebase → Realtime Database → Rules and publish:")+
+            '<code style="display:block;margin-top:6px;font-size:11px;word-break:break-all;background:var(--chip);padding:8px;border-radius:9px">'+
+            '{"rules":{"students":{".read":true,".write":true},"chat":{".read":true,".write":true},"media":{".read":true,".write":true},"meta":{".read":true,".write":true},"arena":{".read":true,".write":true}}}</code></p>'
+           :'<p class="note" style="margin-top:8px">✅ '+L("Hammasi joyida — musobaqa yaratish ishlaydi.","All good — creating a competition works.")+'</p>')+'</div>');
+      });
+    });
+  };
   document.getElementById("bSolo").onclick=function(){
     var code=newCode(), games=shuffle(GLIST.filter(function(g){return !GAMES[g].shared&&!GAMES[g].minp}),rng(Date.now())).slice(0,4);
     var room={meta:{name:L("Yolg'iz mashq","Solo practice"),host:ME.id,hostName:ME.name,games:games,limit:0,pub:false,max:1,at:Date.now(),status:"lobby"},
@@ -2368,13 +2404,29 @@ function vCreate(){
     room.players[ME.id]={id:ME.id,name:ME.name,surname:ME.surname||"",group:ME.group||"",ready:1,seen:Date.now()};
     DB.get("rooms/"+code,function(ex){
       if(ex){ toast(L("Qayta urining","Try again")); return; }
-      DB.set("rooms/"+code,room,function(){
+      var btn=document.getElementById("cgo");
+      if(btn){ btn.disabled=true; btn.textContent="⏳ "+L("Yaratilmoqda…","Creating…"); }
+      DB.set("rooms/"+code,room,function(res,status,txt){
+        if(!res){
+          if(btn){ btn.disabled=false; btn.textContent="🚀 "+L("Yaratish va lobbiga o'tish","Create and open the lobby"); }
+          APP.insertBefore(el('<div class="card" style="--c:var(--red);margin-bottom:14px">'+
+            '<h3 style="color:var(--red)">⚠️ '+L("Xona yaratilmadi","The room was not created")+'</h3>'+
+            '<p class="note">'+esc(whyFail(status,txt))+'</p>'+
+            '<p class="note">'+L("O'qituvchi: Firebase → Realtime Database → Rules ga quyidagini qo'shsin:",
+              "Teacher: add this to Firebase → Realtime Database → Rules:")+
+            '<code style="display:block;margin-top:6px;font-size:11px;word-break:break-all;background:var(--chip);padding:8px;border-radius:9px">'+
+            '"arena": {".read": true, ".write": true}</code></p></div>'),APP.firstChild);
+          c0fx();
+          return;
+        }
         if(pub) DB.set("public/"+code,{name:name,host:ME.name,n:1,g:games.length,at:Date.now()});
         nav("#/room/"+code);
       });
     });
   };
 }
+
+function c0fx(){ try{ FX.s.no(); }catch(e){} }
 
 /* ---------- qo'shilish ---------- */
 function vJoin(){
@@ -2404,13 +2456,16 @@ function vJoin(){
 }
 
 /* ---------- xona ---------- */
-function vRoom(code){
+function vRoom(code,tryN){
   RC=code; ROOM=null;
-  APP.innerHTML=card('<p class="note center">'+L("Xona yuklanmoqda…","Loading the room…")+'</p>');
-  DB.get("rooms/"+code,function(v){
+  tryN=tryN||0;
+  APP.innerHTML=card('<p class="note center">'+L("Xona yuklanmoqda…","Loading the room…")+(tryN?" ("+(tryN+1)+"/3)":"")+'</p>');
+  DB.get("rooms/"+code,function(v,status,txt){
+    if((!v||!v.meta)&&tryN<2){ setTimeout(function(){ if(location.hash.indexOf(code)>0) vRoom(code,tryN+1); },700); return; }
     if(!v||!v.meta){ APP.innerHTML=card('<div class="center"><div style="font-size:40px">🚪</div><h2>'+L("Bunday xona yo'q","No such room")+
-      '</h2><p class="note">'+L("Kod noto'g'ri yoki musobaqa tugagan.","The code is wrong or the competition has ended.")+
-      '</p><button class="btn accent" id="rb" style="margin-top:12px">← '+L("Orqaga","Back")+'</button></div>');
+      '</h2><p class="note">'+L("Kod noto'g'ri yoki musobaqa tugagan.","The code is wrong or the competition has ended.")+'</p>'+
+      (LASTERR?'<p class="note">⚠️ '+esc(LASTERR)+'</p>':'')+
+      '<button class="btn accent" id="rb" style="margin-top:12px">← '+L("Orqaga","Back")+'</button></div>');
       document.getElementById("rb").onclick=function(){ nav("#/"); }; return; }
     var pl=v.players||{}, n=Object.keys(pl).length;
     if(!pl[ME.id]){
