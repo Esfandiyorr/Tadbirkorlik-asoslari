@@ -293,6 +293,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 
 
+
 /* RT:BEGIN */
 /* ================== REYTING TIZIMI ================== */
 .rt-chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel);
@@ -439,9 +440,24 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 .ch-msg.me .n{color:var(--green)}
 .ch-msg .g{font-size:10.5px;color:var(--muted)}
 .ch-msg .tm{margin-left:auto;font-size:10.5px;color:var(--muted)}
+.ch-msg .tx{white-space:pre-wrap}
 .ch-msg .del{position:absolute;right:5px;bottom:4px;border:none;background:none;cursor:pointer;font-size:12px;opacity:.55}
 .ch-msg .del:hover{opacity:1}
 .ch-empty{color:var(--muted);font-size:12.5px;text-align:center;margin:auto}
+.ch-md{display:block;width:100%;max-height:280px;object-fit:contain;border-radius:11px;margin:3px 0 5px;background:#000}
+.ch-yt{position:relative;width:100%;aspect-ratio:16/9;margin:3px 0 5px;border-radius:11px;overflow:hidden;background:#000}
+.ch-yt iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.ch-ph{display:grid;place-items:center;height:78px;border-radius:11px;margin:3px 0 5px;font-size:12px;
+  color:var(--muted);background:var(--chip)}
+.ch-hint{font-size:11.3px;color:var(--muted);padding:0 12px 6px;line-height:1.5}
+.ch-att{display:none;align-items:center;gap:6px;margin:0 12px 6px;padding:6px 10px;border-radius:11px;font-size:11.8px;
+  font-weight:700;background:color-mix(in srgb,var(--violet) 14%,transparent);
+  border:1px solid color-mix(in srgb,var(--violet) 34%,transparent)}
+.ch-att.on{display:flex}
+.ch-att button{border:none;background:none;cursor:pointer;font-size:12px;color:var(--muted);margin-left:auto}
+.ch-clip{border:1px solid var(--line);background:var(--panel2);color:var(--ink);border-radius:12px;width:40px;height:40px;
+  cursor:pointer;font-size:16px;font-family:inherit;flex:none}
+.ch-clip:hover{border-color:var(--violet)}
 .ch-in{border-top:1px solid var(--line);padding:10px 12px;display:flex;gap:7px;align-items:flex-end}
 .ch-in textarea{flex:1;resize:none;height:40px;max-height:96px;padding:9px 11px;border:1.5px solid var(--line);border-radius:12px;
   background:var(--panel2);color:var(--ink);font-size:13.5px;font-family:inherit;outline:none;line-height:1.4}
@@ -1085,6 +1101,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 
 
+
 <!-- RT:BEGIN -->
 <script>var RT_CFG={"topic": "m5", "slides": 18, "pSlide": 2, "pAll": 10, "teacher": "terdu2026", "firebase": {"db": "tadbirkorlik-asoslari-default-rtdb", "regions": ["europe-west1", "us-central1", "asia-southeast1", "europe-west4", "asia-east1", "us-east1", "northamerica-northeast1"]}, "topics": [{"id": "m1", "file": "index.html", "title": "M1 · Tadbirkorlik tafakkuri va biznes imkoniyatlar", "open": true}, {"id": "m2", "file": "mavzu-2.html", "title": "M2 · Mijoz muammosi asosida biznes g'oya", "open": false}, {"id": "m3", "file": "mavzu-3.html", "title": "M3 · Mahsulotni kam xarajat bilan sinash (moliya va kredit)", "open": false}, {"id": "m4", "file": "mavzu-4.html", "title": "M4 · Biznesni qonuniy rasmiylashtirish", "open": false}, {"id": "m5", "file": "mavzu-5.html", "title": "M5 · Soliqlar va hujjatlar", "open": false}], "tracks": [{"file": "Musofir.mp3", "title": "Musofir", "artist": ""}]};</script>
 <script>
@@ -1194,6 +1211,11 @@ function cloudSetStatus(id,st,cb){
     body:JSON.stringify(st)}).then(function(r){ cb&&cb(r.ok); }).catch(function(){ cb&&cb(false); });
 }
 function approved(){ return !cloudOn || (S&&S.status==="ok"); }
+function cloudSetMedia(id,v,cb){
+  if(!cloudOn||!BASE){ cb&&cb(false); return; }
+  fetch(BASE+"/students/"+id+"/media.json",{method:"PUT",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify(!!v)}).then(function(r){ cb&&cb(r.ok); }).catch(function(){ cb&&cb(false); });
+}
 
 /* ---------- ballar ---------- */
 function topicSummary(){
@@ -1498,7 +1520,11 @@ function tcDraw(){
   h+='<h3 style="margin:18px 0 8px">✅ '+T("Tasdiqlangan talabalar","Approved students")+' <span class="rt-badge">'+okl.length+'</span></h3>';
   h+= okl.length ? '<div class="tw"><table class="rt-table"><thead><tr><th>'+T("Talaba","Student")+'</th><th>'+
         T("Guruh","Group")+'</th><th>'+T("Ball","Points")+'</th><th></th></tr></thead><tbody>'+okl.map(function(x){
-        return tcRow(x,'<button class="btn rt-a" data-id="'+esc(x.id)+'" data-st="blocked">🚫 '+T("Bloklash","Block")+'</button>');
+        var on=(x.media===true);
+        return tcRow(x,'<button class="btn rt-m'+(on?" accent":"")+'" data-id="'+esc(x.id)+'" data-v="'+(on?"0":"1")+
+          '" title="'+T("Rasm va video yuborish huquqi","Permission to send images and videos")+'">'+
+          (on?"🖼 "+T("Rasm ochiq","Media on"):"🔒 "+T("Rasm yopiq","Media off"))+'</button> '+
+          '<button class="btn rt-a" data-id="'+esc(x.id)+'" data-st="blocked">🚫 '+T("Bloklash","Block")+'</button>');
       }).join("")+'</tbody></table></div>'
       : '<p class="rt-note">'+T("Hali tasdiqlangan talaba yo\'q.","No approved students yet.")+'</p>';
   if(blk.length){
@@ -1521,6 +1547,18 @@ function tcDraw(){
   });
   out.querySelectorAll(".rt-del").forEach(function(b){
     b.onclick=function(){ tcDel(b.dataset.id,b.dataset.nm); };
+  });
+  out.querySelectorAll(".rt-m").forEach(function(b){
+    b.onclick=function(){
+      var v=b.dataset.v==="1"; b.disabled=true; b.textContent="…";
+      cloudSetMedia(b.dataset.id,v,function(ok){
+        if(!ok){ toast(T("Xatolik","Error")); tcLoad(); return; }
+        for(var i=0;i<tcList.length;i++) if(tcList[i].id===b.dataset.id) tcList[i].media=v;
+        tcDraw();
+        if(S&&S.id===b.dataset.id&&window.CH&&CH.sync) CH.sync();
+        toast(v?T("Rasm/video ochildi","Media enabled"):T("Rasm/video yopildi","Media disabled"));
+      });
+    };
   });
   document.getElementById("rtTcRef").onclick=tcLoad;
   var db=document.getElementById("rtDup"); if(db) db.onclick=tcDedupe;
@@ -1731,13 +1769,24 @@ pick(cur,false); sync();
 var CH=(function(){
 "use strict";
 var CFG=window.RT_CFG||{};
-var open=false, msgs=[], keys=[], last=0, seen=0, timer=null, busy=false;
+var shown=false, msgs=[], keys=[], last=0, seen=0, timer=null, busy=false;
+var MED={}, pend={}, att=null, canMedia=false, WEEK=7*24*3600*1000;
 function T(uz,en){ var l=(document.documentElement.getAttribute("lang")||"uz"); return (l==="en"&&en)?en:uz; }
 function esc(x){ return String(x==null?"":x).replace(/[<>&"]/g,function(c){return {"<":"&lt;",">":"&gt;","&":"&amp;",'"':"&quot;"}[c];}); }
 function el(h){ var d=document.createElement("div"); d.innerHTML=h.trim(); return d.firstChild; }
 function base(){ var c=window.RT&&RT.cloud?RT.cloud():null; return (c&&c.on)?c.base:null; }
 function me(){ return window.RT&&RT.student?RT.student():null; }
 function isTc(){ return !!(window.RT&&RT.teacher&&RT.teacher()); }
+function $(id){ return document.getElementById(id); }
+
+/* ---------- kalitlar (vaqt kalit ichida — haftalik tozalash uchun) ---------- */
+function nkey(p){ var t=String(Date.now()); while(t.length<14) t="0"+t; return p+t+"_"+Math.random().toString(36).slice(2,6); }
+var PC="-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz";
+function keyTime(k){
+  var m=/^[cm](\d{14})_/.exec(k); if(m) return parseInt(m[1],10);
+  if(k.charAt(0)==="-"){ var t=0; for(var i=0;i<8;i++){ var c=PC.indexOf(k.charAt(i)); if(c<0) return 0; t=t*64+c; } return t; }
+  return 0;
+}
 
 /* ---------- qoidalar nazorati ---------- */
 var BAD=("jalab,kot,qoti,qotoq,skay,onangni,onasini,otangni,padar,haromi,harom zoda,ahmoq,jinni,tentak,eshak,"+
@@ -1759,8 +1808,11 @@ function badWord(s){
   return false;
 }
 function hasImage(s){
-  return /data:image/i.test(s) || /https?:\/\/\S+\.(jpg|jpeg|png|gif|webp|bmp|svg|mp4|webm)/i.test(s) ||
-         /<\s*img/i.test(s);
+  return /data:image/i.test(s) || /https?:\/\/\S+\.(jpg|jpeg|png|gif|webp|bmp|svg|mp4|webm)/i.test(s) || /<\s*img/i.test(s);
+}
+function ytId(s){
+  var m=/(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([A-Za-z0-9_-]{6,})/.exec(s);
+  return m?m[1]:"";
 }
 
 /* ---------- bulut ---------- */
@@ -1769,130 +1821,273 @@ function pull(cb){
   fetch(b+'/chat.json?orderBy="$key"&limitToLast=80').then(function(r){ return r.ok?r.json():null; })
   .then(function(v){
     var a=[],k=[];
-    if(v){ Object.keys(v).sort().forEach(function(key){ if(v[key]&&v[key].t){ a.push(v[key]); k.push(key); } }); }
+    if(v){ Object.keys(v).sort().forEach(function(key){ if(v[key]&&(v[key].t||v[key].mk||v[key].yt)){ a.push(v[key]); k.push(key); } }); }
     msgs=a; keys=k; cb&&cb(true);
   }).catch(function(){ cb&&cb(false); });
 }
-function push(rec,cb){
+function putMsg(rec,cb){
   var b=base(); if(!b){ cb(false); return; }
-  fetch(b+"/chat.json",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(rec)})
+  fetch(b+"/chat/"+nkey("c")+".json",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(rec)})
     .then(function(r){ cb(r.ok); }).catch(function(){ cb(false); });
 }
-function del(key){
+function putMedia(type,data,cb){
+  var b=base(); if(!b){ cb(null); return; }
+  var k=nkey("m"), S=me();
+  fetch(b+"/media/"+k+".json",{method:"PUT",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({t:type,d:data,at:Date.now(),by:S?S.id:""})})
+    .then(function(r){ cb(r.ok?k:null); }).catch(function(){ cb(null); });
+}
+function getMedia(k){
+  var b=base(); if(!b||pend[k]) return;
+  pend[k]=1;
+  fetch(b+"/media/"+k+".json").then(function(r){ return r.ok?r.json():null; })
+  .then(function(v){ MED[k]=(v&&v.d)?v.d:null; delete pend[k]; draw(); })
+  .catch(function(){ MED[k]=null; delete pend[k]; draw(); });
+}
+function del(key,mk){
   var b=base(); if(!b) return;
+  if(mk) fetch(b+"/media/"+mk+".json",{method:"DELETE"}).catch(function(){});
   fetch(b+"/chat/"+key+".json",{method:"DELETE"}).then(function(){ pull(draw); }).catch(function(){});
+}
+function mediaRight(cb){
+  var b=base(), S=me();
+  if(isTc()){ cb(true); return; }
+  if(!b||!S){ cb(false); return; }
+  fetch(b+"/students/"+S.id+"/media.json").then(function(r){ return r.ok?r.json():null; })
+    .then(function(v){ cb(v===true||v==="ok"); }).catch(function(){ cb(false); });
+}
+
+/* ---------- haftalik tozalash ---------- */
+function purge(before){
+  var b=base(); if(!b) return;
+  ["chat","media"].forEach(function(node){
+    fetch(b+"/"+node+".json?shallow=true").then(function(r){ return r.ok?r.json():null; })
+    .then(function(v){
+      if(!v) return;
+      Object.keys(v).forEach(function(k){
+        var t=keyTime(k);
+        if(t&&t<before) fetch(b+"/"+node+"/"+k+".json",{method:"DELETE"}).catch(function(){});
+      });
+    }).catch(function(){});
+  });
+}
+function sweep(){
+  var b=base(); if(!b) return;
+  fetch(b+"/meta/cleanAt.json").then(function(r){ return r.ok?r.json():null; })
+  .then(function(v){
+    var now=Date.now();
+    if(v&&now-v<3600000) return;                     /* soatiga bir marta yetadi */
+    fetch(b+"/meta/cleanAt.json",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(now)}).catch(function(){});
+    purge(now-WEEK);
+  }).catch(function(){});
+}
+function wipe(){                                      /* o'qituvchi: hammasini o'chirish */
+  if(!isTc()) return;
+  if(!confirm(T("Chatdagi barcha xabarlar o'chirilsinmi?","Delete every message in the chat?"))) return;
+  purge(Date.now()+1);
+  setTimeout(function(){ pull(draw); },800);
+}
+
+/* ---------- rasm/video tayyorlash ---------- */
+function shrink(file,cb){
+  var url=URL.createObjectURL(file), img=new Image();
+  img.onload=function(){
+    var mx=1000, s=Math.min(1,mx/Math.max(img.width,img.height));
+    var c=document.createElement("canvas");
+    c.width=Math.max(1,Math.round(img.width*s)); c.height=Math.max(1,Math.round(img.height*s));
+    c.getContext("2d").drawImage(img,0,0,c.width,c.height);
+    var q=0.72, d=c.toDataURL("image/jpeg",q);
+    while(d.length>180000&&q>0.32){ q-=0.12; d=c.toDataURL("image/jpeg",q); }
+    URL.revokeObjectURL(url); cb(d);
+  };
+  img.onerror=function(){ URL.revokeObjectURL(url); cb(null); };
+  img.src=url;
+}
+function readVid(file,cb){
+  var fr=new FileReader();
+  fr.onload=function(){ cb(String(fr.result)); };
+  fr.onerror=function(){ cb(null); };
+  fr.readAsDataURL(file);
+}
+function pick(file){
+  if(!file) return;
+  var isImg=/^image\//.test(file.type), isVid=/^video\//.test(file.type);
+  if(!isImg&&!isVid){ warn(T("Faqat rasm yoki video tanlang.","Choose an image or a video only.")); return; }
+  if(isVid&&file.size>1600000){
+    warn(T("Video juda katta (1,5 MB gacha). Qisqaroq video tanlang yoki YouTube havolasini yuboring.",
+           "The video is too large (1.5 MB max). Choose a shorter one or send a YouTube link."));
+    return;
+  }
+  if(isImg&&file.size>12000000){ warn(T("Rasm juda katta.","The image is too large.")); return; }
+  warn("");
+  $("chAtt").textContent="⏳ "+T("tayyorlanmoqda…","preparing…"); $("chAtt").classList.add("on");
+  (isImg?shrink:readVid)(file,function(d){
+    if(!d){ att=null; $("chAtt").classList.remove("on"); warn(T("Fayl o'qilmadi.","The file could not be read.")); return; }
+    att={type:isImg?"image":"video",data:d,name:file.name};
+    $("chAtt").innerHTML=(isImg?"🖼 ":"🎬 ")+esc(file.name.slice(0,26))+' <button id="chAttX">✕</button>';
+    $("chAttX").onclick=function(){ att=null; $("chAtt").classList.remove("on"); $("chFile").value=""; };
+  });
 }
 
 /* ---------- interfeys ---------- */
 function hhmm(t){ var d=new Date(t||0); function z(n){return (n<10?"0":"")+n;} return z(d.getHours())+":"+z(d.getMinutes()); }
+function mediaHtml(m){
+  if(m.yt) return '<div class="ch-yt"><iframe src="https://www.youtube-nocookie.com/embed/'+esc(m.yt)+
+    '" allowfullscreen loading="lazy" referrerpolicy="no-referrer"></iframe></div>';
+  if(!m.mk) return "";
+  var d=MED[m.mk];
+  if(d===undefined){ getMedia(m.mk); return '<div class="ch-ph">⏳ '+T("yuklanmoqda…","loading…")+'</div>'; }
+  if(d===null) return '<div class="ch-ph">🚫 '+T("ochilmadi","could not load")+'</div>';
+  return m.mt==="video" ? '<video class="ch-md" src="'+d+'" controls playsinline preload="metadata"></video>'
+                        : '<img class="ch-md" src="'+d+'" alt="" loading="lazy">';
+}
 function draw(){
-  var list=document.getElementById("chList"); if(!list) return;
-  var S=me();
+  var list=$("chList"); if(!list) return;
+  var S=me(), near=(list.scrollHeight-list.scrollTop-list.clientHeight)<80;
   if(!msgs.length){
     list.innerHTML='<p class="ch-empty">'+T("Hozircha xabar yo\'q. Birinchi bo\'lib yozing 👋","No messages yet. Be the first to write 👋")+'</p>';
   }else{
     list.innerHTML=msgs.map(function(m,i){
       var mine=S&&m.id===S.id;
       return '<div class="ch-msg'+(mine?" me":"")+'"><div class="w"><span class="n">'+esc(m.n)+'</span>'+
-        '<span class="g">'+esc(m.g||"")+'</span><span class="tm">'+hhmm(m.at)+'</span></div>'+esc(m.t)+
-        (isTc()?'<button class="del" data-k="'+esc(keys[i])+'" title="'+T("O\'chirish","Delete")+'">🗑</button>':'')+'</div>';
+        '<span class="g">'+esc(m.g||"")+'</span><span class="tm">'+hhmm(m.at)+'</span></div>'+
+        mediaHtml(m)+(m.t?'<div class="tx">'+esc(m.t)+'</div>':'')+
+        (isTc()?'<button class="del" data-k="'+esc(keys[i])+'" data-m="'+esc(m.mk||"")+'" title="'+T("O\'chirish","Delete")+'">🗑</button>':'')+
+        '</div>';
     }).join("");
-    list.querySelectorAll(".del").forEach(function(b){ b.onclick=function(){ del(b.dataset.k); }; });
-    list.scrollTop=list.scrollHeight;
+    list.querySelectorAll(".del").forEach(function(b){ b.onclick=function(){ del(b.dataset.k,b.dataset.m); }; });
+    if(near) list.scrollTop=list.scrollHeight;
   }
   badge();
 }
 function badge(){
-  var d=document.getElementById("chDot"); if(!d) return;
-  if(open){ seen=msgs.length; try{localStorage.setItem("terdu_chat_seen",seen);}catch(e){} d.classList.remove("on"); return; }
+  var d=$("chDot"); if(!d) return;
+  if(shown){ seen=msgs.length; try{localStorage.setItem("terdu_chat_seen",seen);}catch(e){} d.classList.remove("on"); return; }
   var n=msgs.length-seen;
   if(n>0){ d.textContent=n>99?"99+":n; d.classList.add("on"); } else d.classList.remove("on");
 }
 function warn(txt){
-  var w=document.getElementById("chWarn"); if(!w) return;
+  var w=$("chWarn"); if(!w) return;
   if(!txt){ w.classList.remove("on"); return; }
   w.textContent=txt; w.classList.add("on");
-  clearTimeout(w._h); w._h=setTimeout(function(){ w.classList.remove("on"); },5000);
+  clearTimeout(w._h); w._h=setTimeout(function(){ w.classList.remove("on"); },6000);
 }
 function send(){
-  var ta=document.getElementById("chTa"); if(!ta) return;
+  var ta=$("chTa"); if(!ta) return;
   var v=ta.value.replace(/\s+/g," ").trim();
-  if(!v) return;
+  if(!v&&!att) return;
   if(!(window.RT&&RT.ok&&RT.ok())){ warn(T("Avval o'qituvchi sizni tasdiqlashi kerak.","The teacher must approve you first.")); return; }
   if(v.length>300){ warn(T("Xabar juda uzun (300 belgigacha).","The message is too long (300 characters max).")); return; }
-  if(hasImage(v)){ warn(T("⛔ Rasm va video havolalari taqiqlangan — faqat matn yozing.","⛔ Image and video links are not allowed — text only.")); return; }
-  if(badWord(v)){ warn(T("⛔ Haqoratli so'z aniqlandi. Iltimos, hurmat bilan yozing.","⛔ Offensive language detected. Please write respectfully.")); return; }
+  var yt=canMedia?ytId(v):"";
+  if(yt) v=v.replace(/\S*(?:youtube\.com|youtu\.be)\/\S*/gi,"").replace(/\s+/g," ").trim();
+  if(!canMedia&&hasImage(v)){ warn(T("⛔ Rasm va video havolalari taqiqlangan — faqat matn yozing.","⛔ Image and video links are not allowed — text only.")); return; }
+  if(att&&!canMedia){ att=null; warn(T("⛔ Sizda rasm/video yuborish huquqi yo'q.","⛔ You are not allowed to send images or videos.")); return; }
+  if(v&&badWord(v)){ warn(T("⛔ Haqoratli so'z aniqlandi. Iltimos, hurmat bilan yozing.","⛔ Offensive language detected. Please write respectfully.")); return; }
   if(Date.now()-last<2500){ warn(T("Biroz sekinroq yozing.","Please write a bit more slowly.")); return; }
   var S=me(); if(!S) return;
-  busy=true; document.getElementById("chSend").disabled=true;
-  push({id:S.id,n:S.name+" "+S.surname,g:S.group,t:v,at:Date.now()},function(ok){
-    busy=false; document.getElementById("chSend").disabled=false;
-    if(!ok){ warn(T("Yuborilmadi — internetni tekshiring.","Not sent — check your connection.")); return; }
-    ta.value=""; last=Date.now(); warn("");
-    pull(function(){ seen=msgs.length; draw(); });
-  });
+  busy=true; $("chSend").disabled=true;
+  function post(mk,mt){
+    var rec={id:S.id,n:S.name+" "+S.surname,g:S.group,t:v,at:Date.now()};
+    if(mk){ rec.mk=mk; rec.mt=mt; }
+    if(yt) rec.yt=yt;
+    putMsg(rec,function(ok){
+      busy=false; $("chSend").disabled=false;
+      if(!ok){ warn(T("Yuborilmadi — internetni tekshiring.","Not sent — check your connection.")); return; }
+      ta.value=""; att=null; $("chAtt").classList.remove("on"); $("chFile").value=""; last=Date.now(); warn("");
+      pull(function(){ seen=msgs.length; draw(); });
+    });
+  }
+  if(att){
+    $("chAtt").textContent="⏳ "+T("yuborilmoqda…","uploading…");
+    putMedia(att.type,att.data,function(k){
+      if(!k){ busy=false; $("chSend").disabled=false; warn(T("Fayl yuborilmadi.","The file was not uploaded.")); return; }
+      post(k,att.type);
+    });
+  } else post(null,null);
+}
+function tools(){
+  var ok=canMedia, b=$("chClip"); if(!b) return;
+  b.style.display=ok?"":"none";
+  var h=$("chHint"); if(h) h.style.display=ok?"none":"";
+  var w=$("chWipe"); if(w) w.style.display=isTc()?"":"none";
 }
 function build(){
-  if(document.getElementById("chTab")) return;
+  if($("chTab")) return;
   var t=el('<button class="ch-tab" id="chTab" title="'+T("Talabalar chati","Student chat")+'">💬<i>CHAT</i><span class="ch-dot" id="chDot"></span></button>');
   var p=el('<aside class="ch-panel" id="chPanel">'+
-    '<div class="ch-hd"><b>💬 '+T("Talabalar chati","Student chat")+'</b><button class="ch-x" id="chX">✕</button></div>'+
+    '<div class="ch-hd"><b>💬 '+T("Talabalar chati","Student chat")+'</b>'+
+      '<button class="ch-x" id="chWipe" style="display:none" title="'+T("Chatni tozalash","Clear the chat")+'">🧹</button>'+
+      '<button class="ch-x" id="chX">✕</button></div>'+
     '<div class="ch-rules"><b>📌 '+T("Chat qoidalari","Chat rules")+'</b>'+
       '<u>⛔ '+T("So\'kinish, haqorat va qo\'pol gaplar taqiqlanadi.","No swearing, insults or rude language.")+'</u>'+
-      '<u>⛔ '+T("Yomon rasm, video va havolalar yuborish mumkin emas.","Do not post bad images, videos or links.")+'</u>'+
+      '<u>⛔ '+T("Yomon rasm va videolar yuborish qat\'iyan man etiladi.","Bad images and videos are strictly forbidden.")+'</u>'+
       '<u>✅ '+T("Faqat dars va tadbirkorlik mavzusida muloqot qiling.","Keep the conversation about the lesson and entrepreneurship.")+'</u>'+
+      '<u>🗓 '+T("Xabarlar 1 haftadan keyin avtomatik o\'chiriladi.","Messages are deleted automatically after one week.")+'</u>'+
       '<u>👨‍🏫 '+T("O\'qituvchi chatni ko\'rib boradi: qoidabuzar bloklanadi.","The teacher monitors the chat: rule-breakers are blocked.")+'</u></div>'+
     '<div class="ch-list" id="chList"></div>'+
+    '<p class="ch-hint" id="chHint">🔒 '+T("Rasm va video yuborish faqat o\'qituvchi ruxsat bergan talabalarga ochiq.",
+        "Sending images and videos is open only to students the teacher has allowed.")+'</p>'+
+    '<p class="ch-att" id="chAtt"></p>'+
     '<p class="ch-warn" id="chWarn"></p>'+
-    '<div class="ch-in"><textarea id="chTa" maxlength="300" placeholder="'+T("Xabar yozing…","Write a message…")+'"></textarea>'+
+    '<div class="ch-in">'+
+      '<button class="ch-clip" id="chClip" style="display:none" title="'+T("Rasm yoki video","Image or video")+'">📎</button>'+
+      '<input type="file" id="chFile" accept="image/*,video/*" style="display:none">'+
+      '<textarea id="chTa" maxlength="300" placeholder="'+T("Xabar yozing…","Write a message…")+'"></textarea>'+
       '<button class="ch-send" id="chSend" title="'+T("Yuborish","Send")+'">➤</button></div>'+
   '</aside>');
   document.body.appendChild(t); document.body.appendChild(p);
   try{ seen=parseInt(localStorage.getItem("terdu_chat_seen")||"0",10)||0; }catch(e){}
   t.onclick=toggle;
-  document.getElementById("chX").onclick=toggle;
-  document.getElementById("chSend").onclick=send;
-  document.getElementById("chTa").addEventListener("keydown",function(e){
+  $("chX").onclick=toggle;
+  $("chWipe").onclick=wipe;
+  $("chSend").onclick=send;
+  $("chClip").onclick=function(){ $("chFile").click(); };
+  $("chFile").onchange=function(){ pick(this.files&&this.files[0]); };
+  $("chTa").addEventListener("keydown",function(e){
     if(e.key==="Enter"&&!e.shiftKey){ e.preventDefault(); send(); }
   });
   if(!base()){
-    document.getElementById("chList").innerHTML='<p class="ch-lock">🔌 '+T(
+    $("chList").innerHTML='<p class="ch-lock">🔌 '+T(
       "Chat serverga ulanmagan. O'qituvchi bazani ulagach, chat ishlaydi.",
       "The chat is not connected to the server. It will work once the teacher connects the database.")+'</p>';
-    document.getElementById("chTa").disabled=true; document.getElementById("chSend").disabled=true;
+    $("chTa").disabled=true; $("chSend").disabled=true;
     return;
   }
+  mediaRight(function(v){ canMedia=v; tools(); });
   pull(function(){ if(!seen) seen=msgs.length; draw(); });
-  tick();
+  sweep(); tick();
   document.addEventListener("visibilitychange",function(){ if(!document.hidden) refresh(); });
 }
-function refresh(){ pull(function(ok){ if(ok) draw(); }); }
+function refresh(){
+  pull(function(ok){ if(ok) draw(); });
+  mediaRight(function(v){ if(v!==canMedia){ canMedia=v; tools(); } });
+}
 function tick(){
   clearTimeout(timer);
-  timer=setTimeout(function(){ if(!document.hidden&&!busy) refresh(); tick(); }, open?5000:25000);
+  timer=setTimeout(function(){ if(!document.hidden&&!busy) refresh(); tick(); }, shown?5000:25000);
 }
 function toggle(){
-  var p=document.getElementById("chPanel"); if(!p) return;
-  open=!open; p.classList.toggle("show",open);
-  if(open){ refresh(); seen=msgs.length; badge(); setTimeout(function(){ var l=document.getElementById("chList"); if(l) l.scrollTop=l.scrollHeight; },60); }
+  var p=$("chPanel"); if(!p) return;
+  shown=!shown; p.classList.toggle("show",shown);
+  if(shown){ refresh(); seen=msgs.length; badge(); setTimeout(function(){ var l=$("chList"); if(l) l.scrollTop=l.scrollHeight; },60); }
   tick();
 }
 function langSync(){
-  var tab=document.getElementById("chTab"); if(!tab) return;
-  var was=open; tab.remove(); var p=document.getElementById("chPanel"); if(p) p.remove();
-  build(); if(was){ open=false; toggle(); }
+  var tab=$("chTab"); if(!tab) return;
+  var was=shown; tab.remove(); var p=$("chPanel"); if(p) p.remove();
+  build(); if(was){ shown=false; toggle(); }
 }
 function wait(){
   if(window.RT_ready&&window.RT&&RT.ok&&RT.ok()){
     build();
-    var lb=document.getElementById("btnLang");
+    var lb=$("btnLang");
     if(lb) lb.addEventListener("click",function(){ setTimeout(langSync,40); });
     return;
   }
   setTimeout(wait,900);
 }
 if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",wait); else wait();
-return {open:function(){ if(!open) toggle(); }, refresh:refresh};
+return {open:function(){ if(!shown) toggle(); }, refresh:refresh, sync:function(){ mediaRight(function(v){ canMedia=v; tools(); }); }};
 })();
 </script>
 <!-- RT:END -->
