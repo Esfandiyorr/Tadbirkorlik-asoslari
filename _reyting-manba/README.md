@@ -43,7 +43,11 @@ Tasdiqlanmagan talabaga ball berilmaydi va chat ochilmaydi. Tasdiqlangan talaban
   tugmasi bilan har bir talabaga alohida ruxsat beriladi yoki qaytarib olinadi
   (`students/<id>/media` maydoni). Talabada 5 soniyada o'zi ochiladi.
 - Rasm brauzerda 1000 px gacha kichraytiriladi va JPEG ga siqiladi (~10-150 KB).
-- Video 1,5 MB gacha; kattarog'i uchun YouTube havolasi yuboriladi — u pleyer bo'lib chiqadi.
+- Video **5 MB gacha** — bu Realtime Database cheklovi: video base64 matn bo'lib
+  saqlanadi, bitta matn maydoni esa ~10 MB dan oshmaydi. Kattaroq video uchun
+  YouTube (pleyer bo'lib chiqadi) yoki Google Drive/Telegram havolasi.
+- Ruxsat berilgan talabaning havolalari bosiladigan bo'ladi (`lk` maydoni);
+  ruxsatsizlarda havola oddiy matn bo'lib qoladi.
 - Media asosiy xabardan alohida `media/` bo'limida saqlanadi va faqat ko'rilganda
   yuklanadi — shuning uchun har 5 soniyalik yangilanish trafikni yemaydi.
 

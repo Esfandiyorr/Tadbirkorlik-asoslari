@@ -29,6 +29,7 @@
 .ch-msg .g{font-size:10.5px;color:var(--muted)}
 .ch-msg .tm{margin-left:auto;font-size:10.5px;color:var(--muted)}
 .ch-msg .tx{white-space:pre-wrap}
+.ch-lk{color:var(--blue);font-weight:700;word-break:break-all}
 .ch-msg .del{position:absolute;right:5px;bottom:4px;border:none;background:none;cursor:pointer;font-size:12px;opacity:.55}
 .ch-msg .del:hover{opacity:1}
 .ch-empty{color:var(--muted);font-size:12.5px;text-align:center;margin:auto}

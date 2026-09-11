@@ -290,6 +290,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 
 
+
 /* RT:BEGIN */
 /* ================== REYTING TIZIMI ================== */
 .rt-chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel);
@@ -437,6 +438,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 .ch-msg .g{font-size:10.5px;color:var(--muted)}
 .ch-msg .tm{margin-left:auto;font-size:10.5px;color:var(--muted)}
 .ch-msg .tx{white-space:pre-wrap}
+.ch-lk{color:var(--blue);font-weight:700;word-break:break-all}
 .ch-msg .del{position:absolute;right:5px;bottom:4px;border:none;background:none;cursor:pointer;font-size:12px;opacity:.55}
 .ch-msg .del:hover{opacity:1}
 .ch-empty{color:var(--muted);font-size:12.5px;text-align:center;margin:auto}
@@ -1063,6 +1065,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 </div>
 
 <div class="hint" id="hint" data-ui="hint">⌨️ <kbd>→</kbd> keyingi slayd · <kbd>D</kbd> tun/kun · <kbd>L</kbd> uz/eng · <kbd>O</kbd> ro'yxat · <kbd>F</kbd> to'liq ekran</div>
+
 
 
 
@@ -1762,25 +1765,38 @@ function keyTime(k){
 
 /* ---------- qoidalar nazorati ---------- */
 var BAD=("jalab,kot,qoti,qotoq,skay,onangni,onasini,otangni,padar,haromi,harom zoda,ahmoq,jinni,tentak,eshak,"+
- "bler,blya,blyat,suka,pizd,huy,xuy,ebat,ebal,nahuy,pidr,mudak,gandon,dolbo,zaeb,"+
+ "blya,blyat,blyad,suka,sukin,pizda,pizdec,huy,xuy,huyn,nahuy,ebal,ebat,eban,zaeb,pidor,pidr,mudak,gandon,dolbo,"+
  "fuck,fck,shit,bitch,asshole,bastard,dick,cunt,whore,slut,nigger,retard").split(",");
 function norm(s){
   return s.toLowerCase()
     .replace(/[ʻʼ'`’‘]/g,"")
     .replace(/[4@]/g,"a").replace(/[0]/g,"o").replace(/[1!|]/g,"i").replace(/[3]/g,"e").replace(/[5$]/g,"s")
-    .replace(/(.)\1{2,}/g,"$1$1")
-    .replace(/[^a-zЀ-ӿ ]+/g," ");
+    .replace(/(.)\1{2,}/g,"$1")
+    .replace(/[^a-zЀ-ӿ ]+/g," ")
+    .replace(/ +/g," ").trim();
 }
 function badWord(s){
-  var n=norm(s), flat=n.replace(/ +/g,"");
+  var n=norm(s);
+  /* "s u k a" kabi yozuvlar birlashtiriladi, lekin oddiy so'zlar birlashtirilmaydi */
+  var n2=(" "+n+" ").replace(/ (?:[a-zЀ-ӿ] ){2,}[a-zЀ-ӿ] /g,function(m){ return " "+m.replace(/ /g,"")+" "; }).trim();
+  var ws=(n+" "+n2).split(" ").filter(Boolean);
   for(var i=0;i<BAD.length;i++){
-    var b=BAD[i].trim(); if(b.length<3) continue;
-    if(n.indexOf(b)>=0||flat.indexOf(b.replace(/ /g,""))>=0) return true;
+    var b=BAD[i].trim(); if(!b) continue;
+    if(b.indexOf(" ")>=0){ if(n.indexOf(b)>=0||n2.indexOf(b)>=0) return true; continue; }
+    for(var j=0;j<ws.length;j++){
+      var w=ws[j];
+      if(b.length<=4 ? w===b : w.indexOf(b)>=0) return true;   /* qisqa ildiz faqat alohida so'z bo'lsa */
+    }
   }
   return false;
 }
 function hasImage(s){
   return /data:image/i.test(s) || /https?:\/\/\S+\.(jpg|jpeg|png|gif|webp|bmp|svg|mp4|webm)/i.test(s) || /<\s*img/i.test(s);
+}
+function linkify(t){
+  return esc(t).replace(/(https?:\/\/[^\s<]+)/g,function(u){
+    return '<a class="ch-lk" href="'+u+'" target="_blank" rel="noopener noreferrer">'+(u.length>46?u.slice(0,46)+"…":u)+'</a>';
+  });
 }
 function ytId(s){
   var m=/(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([A-Za-z0-9_-]{6,})/.exec(s);
@@ -1885,9 +1901,9 @@ function pick(file){
   if(!file) return;
   var isImg=/^image\//.test(file.type), isVid=/^video\//.test(file.type);
   if(!isImg&&!isVid){ warn(T("Faqat rasm yoki video tanlang.","Choose an image or a video only.")); return; }
-  if(isVid&&file.size>1600000){
-    warn(T("Video juda katta (1,5 MB gacha). Qisqaroq video tanlang yoki YouTube havolasini yuboring.",
-           "The video is too large (1.5 MB max). Choose a shorter one or send a YouTube link."));
+  if(isVid&&file.size>5000000){
+    warn(T("Video juda katta (5 MB gacha). Kattaroq video uchun YouTube yoki Google Drive havolasini yuboring — u chatda havola bo'lib chiqadi.",
+           "The video is too large (5 MB max). For a bigger one send a YouTube or Google Drive link — it appears in the chat as a link."));
     return;
   }
   if(isImg&&file.size>12000000){ warn(T("Rasm juda katta.","The image is too large.")); return; }
@@ -1923,7 +1939,7 @@ function draw(){
       var mine=S&&m.id===S.id;
       return '<div class="ch-msg'+(mine?" me":"")+'"><div class="w"><span class="n">'+esc(m.n)+'</span>'+
         '<span class="g">'+esc(m.g||"")+'</span><span class="tm">'+hhmm(m.at)+'</span></div>'+
-        mediaHtml(m)+(m.t?'<div class="tx">'+esc(m.t)+'</div>':'')+
+        mediaHtml(m)+(m.t?'<div class="tx">'+(m.lk?linkify(m.t):esc(m.t))+'</div>':'')+
         (isTc()?'<button class="del" data-k="'+esc(keys[i])+'" data-m="'+esc(m.mk||"")+'" title="'+T("O\'chirish","Delete")+'">🗑</button>':'')+
         '</div>';
     }).join("");
@@ -1961,6 +1977,7 @@ function send(){
   function post(mk,mt){
     var rec={id:S.id,n:S.name+" "+S.surname,g:S.group,t:v,at:Date.now()};
     if(mk){ rec.mk=mk; rec.mt=mt; }
+    if(canMedia&&/https?:\/\//.test(v)) rec.lk=1;    /* havola faqat ruxsatlilarda bosiladigan bo'ladi */
     if(yt) rec.yt=yt;
     putMsg(rec,function(ok){
       busy=false; $("chSend").disabled=false;
@@ -1997,12 +2014,12 @@ function build(){
       '<u>🗓 '+T("Xabarlar 1 haftadan keyin avtomatik o\'chiriladi.","Messages are deleted automatically after one week.")+'</u>'+
       '<u>👨‍🏫 '+T("O\'qituvchi chatni ko\'rib boradi: qoidabuzar bloklanadi.","The teacher monitors the chat: rule-breakers are blocked.")+'</u></div>'+
     '<div class="ch-list" id="chList"></div>'+
-    '<p class="ch-hint" id="chHint">🔒 '+T("Rasm va video yuborish faqat o\'qituvchi ruxsat bergan talabalarga ochiq.",
-        "Sending images and videos is open only to students the teacher has allowed.")+'</p>'+
+    '<p class="ch-hint" id="chHint">🔒 '+T("Rasm, video va havola yuborish faqat o\'qituvchi ruxsat bergan talabalarga ochiq.",
+        "Sending images, videos and links is open only to students the teacher has allowed.")+'</p>'+
     '<p class="ch-att" id="chAtt"></p>'+
     '<p class="ch-warn" id="chWarn"></p>'+
     '<div class="ch-in">'+
-      '<button class="ch-clip" id="chClip" style="display:none" title="'+T("Rasm yoki video","Image or video")+'">📎</button>'+
+      '<button class="ch-clip" id="chClip" style="display:none" title="'+T("Rasm (10 MB) yoki video (5 MB)","Image (10 MB) or video (5 MB)")+'">📎</button>'+
       '<input type="file" id="chFile" accept="image/*,video/*" style="display:none">'+
       '<textarea id="chTa" maxlength="300" placeholder="'+T("Xabar yozing…","Write a message…")+'"></textarea>'+
       '<button class="ch-send" id="chSend" title="'+T("Yuborish","Send")+'">➤</button></div>'+
