@@ -177,6 +177,25 @@ function toast(txt){
   t.textContent=txt; t.classList.add("show");
   clearTimeout(t._h); t._h=setTimeout(function(){ t.classList.remove("show"); },1800);
 }
+function arenaShut(){
+  var old=document.getElementById("rtShut"); if(old) old.remove();
+  var o=el('<div id="rtShut" style="position:fixed;inset:0;z-index:200;background:rgba(8,15,29,.62);'+
+    'display:grid;place-items:center;padding:18px;backdrop-filter:blur(3px)"></div>');
+  o.innerHTML='<div style="background:var(--panel,#fff);color:var(--ink,#0d1b2a);border-radius:22px;max-width:420px;'+
+    'padding:26px 22px;text-align:center;box-shadow:0 24px 60px -20px rgba(0,0,0,.55);font-family:inherit">'+
+    '<div style="font-size:56px;line-height:1">📚</div>'+
+    '<h2 style="margin:14px 0 8px;font-size:22px">'+T("O'yin emas — dars vaqti!","Lessons now, games later!")+'</h2>'+
+    '<p style="margin:0;font-size:15px;line-height:1.6;opacity:.85">'+
+      T("Arena vaqtincha yopiq. Avval mavzuni o'qing va testlarni ishlang — o'yin keyin bo'ladi.",
+        "The arena is closed for now. Read the topic and finish the quizzes first — the games can wait.")+'</p>'+
+    '<button id="rtShutOk" style="margin-top:18px;border:0;border-radius:14px;padding:12px 26px;font-size:14.5px;'+
+      'font-weight:800;cursor:pointer;font-family:inherit;color:#fff;'+
+      'background:linear-gradient(135deg,var(--green,#12a150),var(--teal,#0d9488))">'+T("Tushunarli","Got it")+'</button></div>';
+  document.body.appendChild(o);
+  function bye(){ o.remove(); }
+  o.querySelector("#rtShutOk").onclick=bye;
+  o.onclick=function(e){ if(e.target===o) bye(); };
+}
 function chipUpdate(){
   var c=document.getElementById("rtChip"); if(!c||!S) return;
   c.innerHTML="🏆 "+esc(S.name)+" · <b>"+(P.total||0)+"</b>";
@@ -543,10 +562,11 @@ function chip(){
   var dup=document.getElementById("rtChip"); if(dup) dup.remove();
   var c=el('<button class="rt-chip" id="rtChip" title="'+T("Reyting va ballaringiz","Rating and your points")+'">🏆</button>');
   tools.insertBefore(c,tools.firstChild);
-  if(ARENA_OPEN){
-  var ar=el('<a class="rt-chip" id="rtArena" href="arena.html" title="'+T("O\'yin arenasi — talabalar musobaqasi","Game Arena — student competitions")+'">🎮 <b>'+T("Arena","Arena")+'</b></a>');
+  var ar=el(ARENA_OPEN
+    ? '<a class="rt-chip" id="rtArena" href="arena.html" title="'+T("O\'yin arenasi — talabalar musobaqasi","Game Arena — student competitions")+'">🎮 <b>'+T("Arena","Arena")+'</b></a>'
+    : '<button class="rt-chip" id="rtArena" title="'+T("Arena vaqtincha yopiq","The arena is closed for now")+'">🎮 <b>'+T("Arena","Arena")+'</b> 🔒</button>');
   tools.insertBefore(ar,c.nextSibling);
-  }
+  if(!ARENA_OPEN) ar.onclick=arenaShut;
   c.onclick=openOv;
   chipUpdate();
   navBuild();

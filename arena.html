@@ -2597,11 +2597,11 @@ function offline(msg){
 }
 
 function closed(){
-  APP.innerHTML=card('<div class="center"><div style="font-size:52px">🔒</div>'+
-   '<h2 style="margin:12px 0">'+L("O'yin arenasi vaqtincha yopiq","The game arena is closed for now")+'</h2>'+
-   '<p class="note">'+L("O'qituvchi arenani yopib qo'ydi. Ochilganda bu sahifa yana ishlaydi — hozircha darsga qayting.",
-     "Your teacher has closed the arena. It will work again once they reopen it — head back to the lesson for now.")+'</p>'+
-   '<a class="btn accent" href="index.html" style="margin-top:16px">📚 '+L("Darslarga qaytish","Back to the lessons")+'</a></div>');
+  APP.innerHTML=card('<div class="center"><div style="font-size:58px">📚</div>'+
+   '<h2 style="margin:14px 0 8px">'+L("O'yin emas — dars vaqti!","Lessons now, games later!")+'</h2>'+
+   '<p class="note" style="font-size:15px;line-height:1.65">'+L("Arena vaqtincha yopiq. Avval mavzuni o'qing va testlarni ishlang \u2014 o'yin keyin bo'ladi.",
+     "The arena is closed for now. Read the topic and finish the quizzes first \u2014 the games can wait.")+'</p>'+
+   '<a class="btn accent" href="index.html" style="margin-top:18px">📖 '+L("Darsni ochish","Open the lesson")+'</a></div>');
 }
 
 /* ---------- boshqaruv paneli ---------- */
