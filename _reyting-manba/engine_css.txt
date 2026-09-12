@@ -74,25 +74,45 @@
   font-size:13.5px;line-height:1.85}
 .rt-diag i{font-style:normal;font-weight:800;font-family:ui-monospace,Menlo,Consolas,monospace}
 .rt-diag .rt-note{margin-top:8px}
-/* --- CV va pochta --- */
-.rt-drop{border:2px dashed var(--line);border-radius:16px;padding:22px 16px;text-align:center;cursor:pointer;
-  background:var(--panel2);transition:.18s}
-.rt-drop:hover,.rt-drop.over{border-color:var(--violet);background:color-mix(in srgb,var(--violet) 8%,transparent)}
-.rt-drop .ic{font-size:40px;line-height:1}
-.rt-drop b{display:block;margin-top:8px;font-size:15px}
-.rt-drop span{display:block;font-size:12.5px;color:var(--muted);margin-top:4px}
-.rt-file{display:flex;align-items:center;gap:12px;background:var(--panel2);border:1px solid var(--line);
-  border-radius:14px;padding:12px 14px;margin-top:12px}
-.rt-file .ic{font-size:30px}
-.rt-file .t{flex:1;min-width:0}
-.rt-file .t b{display:block;font-size:14.5px;word-break:break-all}
-.rt-file .t span{font-size:12px;color:var(--muted)}
-.rt-prog{height:8px;border-radius:99px;background:var(--chip);overflow:hidden;margin-top:10px}
-.rt-prog i{display:block;height:100%;background:linear-gradient(90deg,var(--green),var(--teal));width:0;transition:.3s}
+/* --- pochta, guruhlar va jurnal --- */
 .rt-sec{background:var(--panel2);border:1px solid var(--line);border-radius:16px;padding:14px 16px;margin-top:14px}
 .rt-sec h4{margin:0 0 8px;font-size:14.5px}
-.rt-lock{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:800;border-radius:99px;
-  padding:3px 10px;background:var(--chip);color:var(--muted)}
-.rt-lock.on{background:color-mix(in srgb,var(--green) 18%,transparent);color:var(--green)}
 .rt-mail textarea{width:100%;min-height:120px;border:1px solid var(--line);border-radius:12px;padding:10px 12px;
   font-family:inherit;font-size:14px;background:var(--panel);color:var(--ink);resize:vertical}
+.rt-subtabs{display:flex;gap:7px;margin:0 0 12px;flex-wrap:wrap}
+.rt-sub{border:1.5px solid var(--line);background:var(--panel2);color:var(--ink);border-radius:12px;
+  padding:9px 15px;font-size:13.5px;font-weight:800;cursor:pointer;font-family:inherit;transition:.16s}
+.rt-sub:hover{border-color:var(--violet)}
+.rt-sub.on{background:linear-gradient(135deg,var(--violet),var(--blue));color:#fff;border-color:transparent}
+.rt-gsec{margin-top:14px}
+.rt-gsec h4{margin:0 0 7px;font-size:14px;color:var(--muted)}
+.rt-gchips{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px}
+.rt-gchip{border:1.5px solid var(--line);background:var(--panel2);color:var(--ink);border-radius:999px;
+  padding:7px 14px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;transition:.16s}
+.rt-gchip:hover{border-color:var(--green)}
+.rt-gchip.on{background:linear-gradient(135deg,var(--green),var(--teal));color:#fff;border-color:transparent}
+.rt-gchip.on .rt-badge{background:rgba(255,255,255,.28)}
+.rt-daynav{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+.rt-daynav input[type="date"]{border:1px solid var(--line);background:var(--panel);color:var(--ink);
+  border-radius:11px;padding:8px 10px;font-family:inherit;font-size:13.5px;font-weight:700}
+.rt-jtab td{vertical-align:middle}
+.rt-jtab tr.nbrow{opacity:.6}
+.rt-marks{white-space:nowrap}
+.rt-mb{width:34px;height:34px;margin-right:3px;border:1.5px solid var(--line);background:var(--panel);
+  color:var(--ink);border-radius:10px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;transition:.14s}
+.rt-mb:hover{transform:translateY(-2px);border-color:var(--violet)}
+.rt-mb.on{color:#fff;border-color:transparent;transform:none}
+.rt-mb.b1,.rt-mk.b1{background:#e11d48}
+.rt-mb.b2,.rt-mk.b2{background:#f97316}
+.rt-mb.b3,.rt-mk.b3{background:#f59e0b}
+.rt-mb.b4,.rt-mk.b4{background:#0891b2}
+.rt-mb.b5,.rt-mk.b5{background:#12a150}
+.rt-nb{border:1.5px solid var(--line);background:var(--panel);color:var(--ink);border-radius:10px;
+  padding:7px 11px;font-size:12.5px;font-weight:800;cursor:pointer;font-family:inherit;white-space:nowrap;transition:.14s}
+.rt-nb:hover{border-color:var(--red)}
+.rt-nb.on{background:var(--red);color:#fff;border-color:transparent}
+.rt-note-in{width:100%;min-width:120px;border:1px solid var(--line);background:var(--panel);color:var(--ink);
+  border-radius:10px;padding:7px 10px;font-family:inherit;font-size:13px}
+.rt-mk{display:inline-block;min-width:30px;text-align:center;border-radius:9px;padding:3px 9px;
+  font-weight:800;color:#fff;font-size:13.5px}
+.rt-mk.nb{background:var(--muted)}
