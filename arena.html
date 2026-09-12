@@ -745,87 +745,179 @@ addG("g2048",{ic:"🔢",nm:["2048","2048"],desc:["Bir xil raqamlarni qo'shing ·
   return {end:function(){ if(!over){over=true;c.finish(score);} }, off:function(){ document.removeEventListener("keydown",onkey); }};
  }});
 
-/* --- 4. Ilon: tezlashuv, oltin yem, pauza --- */
-addG("snake",{ic:"🐍",nm:["Ilon","Snake"],desc:["Yem yeb o'sing · oltin yem 30 ball · tezlik oshib boradi","Eat and grow · golden food is worth 30 · the speed rises"],
- dur:85,higher:true,unit:["ball","pts"],
+/* --- 4. Ilon dueli: ikki kishi bitta maydonda, sekin harakat --- */
+addG("snake",{ic:"🐍",nm:["Ilon dueli","Snake Duel"],desc:["Ikki kishi bitta maydonda: yem yig'ing, raqibning tanasiga urilmang","Two players on one field: eat the food and avoid your rival's body"],
+ dur:120,higher:true,unit:["ball","pts"],shared:true,pair:true,
  run:function(c){
-  var N=17, sz=Math.min(360,Math.floor(Math.min(window.innerWidth-50,420)/N)*N), cell=sz/N;
+  var P=pairSetup(c);
+  if(!P.opp){ return byeScreen(c,160); }
+  var N=15, TICK=450, DELAY=1;
+  var path="rooms/"+c.code+"/snk/r"+c.round+"/p"+P.pair;
+  var me=P.mine, opp=1-me, fin=false, lastSent=-1;
+  var t0=c.startAt||(c.endAt-120000);
+  var IN=[{},{}];                       /* IN[side][tick] = yo'nalish */
+  var DIRS=[[0,-1],[1,0],[0,1],[-1,0]]; /* 0 yuqori, 1 o'ng, 2 past, 3 chap */
+  /* umumiy yem ketma-ketligi — ikkala brauzerda bir xil */
+  var FOODS=[]; (function(){ var r=rng(c.seed^0x5eed);
+    for(var i=0;i<400;i++) FOODS.push([Math.floor(r()*N),Math.floor(r()*N)]); })();
+
+  /* ---- sof funksiya: (urug' + kiritmalar) -> holat ---- */
+  function simulate(upto){
+    /* qarama-qarshi burchaklardan: darrov peshma-pesh urilib qolmasin */
+    var S=[[{x:2,y:3}],[{x:N-3,y:N-4}]];
+    var D=[1,3], alive=[true,true], sc=[0,0], grow=[0,0], fi=0, over=-1;
+    function foodAt(){
+      while(fi<FOODS.length){
+        var f=FOODS[fi], hit=false;
+        for(var s=0;s<2;s++) for(var k=0;k<S[s].length;k++) if(S[s][k].x===f[0]&&S[s][k].y===f[1]) hit=true;
+        if(!hit) return {x:f[0],y:f[1]};
+        fi++;
+      }
+      return {x:0,y:0};
+    }
+    var food=foodAt();
+    for(var t=1;t<=upto;t++){
+      if(!alive[0]&&!alive[1]) break;
+      var nd=[D[0],D[1]], nh=[null,null];
+      for(var s2=0;s2<2;s2++){
+        var inp=IN[s2][t];
+        if(inp!==undefined&&Math.abs(inp-D[s2])!==2) nd[s2]=inp;
+      }
+      D=nd;
+      for(var s3=0;s3<2;s3++){
+        if(!alive[s3]) continue;
+        var h=S[s3][0], d=DIRS[D[s3]];
+        nh[s3]={x:h.x+d[0],y:h.y+d[1]};
+      }
+      var ate=[false,false];
+      for(var s4=0;s4<2;s4++) if(alive[s4]&&nh[s4].x===food.x&&nh[s4].y===food.y) ate[s4]=true;
+      /* tanalar: o'smasa dum tushadi */
+      var B=[[],[]];
+      for(var s5=0;s5<2;s5++){
+        B[s5]=S[s5].slice(0, ate[s5]?S[s5].length:S[s5].length-1);
+      }
+      var die=[false,false];
+      for(var s6=0;s6<2;s6++){
+        if(!alive[s6]) continue;
+        var p=nh[s6];
+        if(p.x<0||p.y<0||p.x>=N||p.y>=N){ die[s6]=true; continue; }
+        for(var q=0;q<2;q++) for(var k2=0;k2<B[q].length;k2++)
+          if(B[q][k2].x===p.x&&B[q][k2].y===p.y) die[s6]=true;
+      }
+      if(alive[0]&&alive[1]&&nh[0].x===nh[1].x&&nh[0].y===nh[1].y){ die[0]=true; die[1]=true; }
+      for(var s7=0;s7<2;s7++){
+        if(!alive[s7]) continue;
+        if(die[s7]){ alive[s7]=false; continue; }
+        S[s7].unshift(nh[s7]);
+        if(ate[s7]){ sc[s7]+=10; } else S[s7].pop();
+      }
+      if(ate[0]||ate[1]){ fi++; food=foodAt(); }
+      if((!alive[0]||!alive[1])&&over<0) over=t;
+    }
+    return {S:S,D:D,alive:alive,sc:sc,food:food,over:over};
+  }
+  function curTick(){ return Math.max(0,Math.floor((Date.now()-t0)/TICK)); }
+
+  /* ---- ko'rinish ---- */
+  var meName=c.me.name, opName=P.oppName;
+  var CLR=[["#12a150","#0b7a3c"],["#2563eb","#1e40af"]];
+  var sz=Math.min(380,Math.floor(Math.min(window.innerWidth-44,420)/N)*N), cell=sz/N;
   c.el.innerHTML='<div class="row" style="justify-content:space-around;margin-bottom:8px">'+
-    '<div class="center"><span class="note">'+L("Ball","Score")+'</span><div style="font-size:22px;font-weight:900" id="sc3">0</div></div>'+
-    '<div class="center"><span class="note">'+L("Uzunlik","Length")+'</span><div style="font-size:22px;font-weight:900" id="ln3">1</div></div>'+
-    '<div class="center"><span class="note">'+L("Tezlik","Speed")+'</span><div class="lvl" id="sp3"></div></div></div>'+
+    '<div class="center"><span class="opp" style="border-color:'+CLR[me][0]+'"><span class="av" style="background:'+CLR[me][0]+'">'+
+      esc(initials(c.me.name,c.me.surname))+'</span>'+esc(meName)+'</span>'+
+      '<div style="font-size:22px;font-weight:900" id="sm">0</div></div>'+
+    '<div class="center" style="align-self:center;font-size:20px;font-weight:900;opacity:.5">VS</div>'+
+    '<div class="center"><span class="opp" style="border-color:'+CLR[opp][0]+'"><span class="av" style="background:'+CLR[opp][0]+'">'+
+      esc(initials(opName,"")) +'</span>'+esc(opName)+'</span>'+
+      '<div style="font-size:22px;font-weight:900" id="so">0</div></div></div>'+
     '<canvas id="cv" width="'+sz+'" height="'+sz+'"></canvas>'+
-    '<p class="note center">'+L("Strelkalar yoki barmoq · bo'shliq — pauza","Arrows or swipe · space to pause")+'</p>';
+    '<p class="note center" id="sn3">'+L("Strelkalar yoki barmoq bilan boshqaring · harakat sekin, oldindan o'ylang",
+      "Arrow keys or swipe · the pace is slow, plan ahead")+'</p>';
   var cv=c.el.querySelector("#cv"), x=cv.getContext("2d");
-  var sn=[{x:8,y:8}], dir={x:1,y:0}, nd=dir, food={x:12,y:8,g:0}, score=0, dead=false, tm=null, sp=145, paused=false, eaten=0;
-  function lvlDots(){
-    var n=Math.min(5,1+Math.floor(eaten/4));
-    c.el.querySelector("#sp3").innerHTML=Array.apply(null,Array(5)).map(function(_,i){ return '<i class="'+(i<n?"on":"")+'"></i>'; }).join("");
-  }
-  function place(){
-    do{ food={x:Math.floor(c.rand()*N),y:Math.floor(c.rand()*N),g:(c.rand()<0.18)?1:0}; }
-    while(sn.some(function(s){return s.x===food.x&&s.y===food.y}));
-  }
-  function step(){
-    if(dead||paused) return;
-    dir=nd;
-    var h={x:sn[0].x+dir.x,y:sn[0].y+dir.y};
-    if(h.x<0||h.y<0||h.x>=N||h.y>=N||sn.some(function(s){return s.x===h.x&&s.y===h.y})){
-      dead=true; c.fx.s.lose(); c.fx.shake(cv); c.finish(score); return; }
-    sn.unshift(h);
-    if(h.x===food.x&&h.y===food.y){
-      eaten++; var g=food.g?30:10; score+=g;
-      c.fx.s[food.g?"win":"ok"](); c.fx.popAt(cv,"+"+g,food.g?"#f59e0b":"#12a150");
-      place(); lvlDots();
-      if(eaten%4===0&&sp>70){ sp-=12; clearInterval(tm); tm=setInterval(step,sp); }
-    } else sn.pop();
-    c.el.querySelector("#sc3").textContent=score;
-    c.el.querySelector("#ln3").textContent=sn.length;
-    c.prog(Math.min(100,Math.round(score/300*100)),score);
-    paint();
-  }
-  function paint(){
+  function paint(st){
     var dk=document.documentElement.getAttribute("data-theme")==="dark";
     x.fillStyle=dk?"#0b1424":"#f4f8ff"; x.fillRect(0,0,sz,sz);
     x.strokeStyle=dk?"#16233a":"#e6eefc"; x.lineWidth=1;
     for(var i=1;i<N;i++){ x.beginPath(); x.moveTo(i*cell,0); x.lineTo(i*cell,sz); x.stroke();
       x.beginPath(); x.moveTo(0,i*cell); x.lineTo(sz,i*cell); x.stroke(); }
-    x.shadowBlur=food.g?18:8; x.shadowColor=food.g?"#f59e0b":"#e11d48";
-    x.fillStyle=food.g?"#f59e0b":"#e11d48";
-    x.beginPath(); x.arc((food.x+.5)*cell,(food.y+.5)*cell,cell*(food.g?.42:.36),0,7); x.fill();
+    x.shadowBlur=10; x.shadowColor="#e11d48"; x.fillStyle="#e11d48";
+    x.beginPath(); x.arc((st.food.x+.5)*cell,(st.food.y+.5)*cell,cell*.34,0,7); x.fill();
     x.shadowBlur=0;
-    sn.forEach(function(s,i){
-      var t=i/Math.max(1,sn.length);
-      x.fillStyle=i===0?"#0b7a3c":("rgba(18,161,80,"+(1-t*.55)+")");
-      var pad=i===0?1:2, r=i===0?7:5;
-      x.beginPath();
-      if(x.roundRect) x.roundRect(s.x*cell+pad,s.y*cell+pad,cell-pad*2,cell-pad*2,r);
-      else x.rect(s.x*cell+pad,s.y*cell+pad,cell-pad*2,cell-pad*2);
-      x.fill();
-    });
-    if(paused){ x.fillStyle="rgba(0,0,0,.45)"; x.fillRect(0,0,sz,sz);
-      x.fillStyle="#fff"; x.font="bold 22px sans-serif"; x.textAlign="center";
-      x.fillText(L("PAUZA","PAUSED"),sz/2,sz/2); }
+    for(var s=0;s<2;s++){
+      st.S[s].forEach(function(p,i){
+        var t=i/Math.max(1,st.S[s].length);
+        x.fillStyle=(i===0)?CLR[s][1]:CLR[s][0];
+        x.globalAlpha=st.alive[s]?(1-t*.5):.3;
+        var pad=i===0?1:2, r=i===0?7:5;
+        x.beginPath();
+        if(x.roundRect) x.roundRect(p.x*cell+pad,p.y*cell+pad,cell-pad*2,cell-pad*2,r);
+        else x.rect(p.x*cell+pad,p.y*cell+pad,cell-pad*2,cell-pad*2);
+        x.fill();
+        if(i===0){ x.globalAlpha=1; x.fillStyle="#fff";
+          x.beginPath(); x.arc(p.x*cell+cell*.35,p.y*cell+cell*.35,cell*.09,0,7); x.fill();
+          x.beginPath(); x.arc(p.x*cell+cell*.65,p.y*cell+cell*.35,cell*.09,0,7); x.fill(); }
+      });
+      x.globalAlpha=1;
+    }
   }
-  function set(d){ if(d.x===-dir.x&&d.y===-dir.y) return; nd=d; }
+  /* ---- kiritma ---- */
+  function send(d){
+    if(fin) return;
+    var t=curTick()+DELAY;
+    if(t===lastSent&&IN[me][t]===d) return;
+    var cur=IN[me][t]!==undefined?IN[me][t]:lastDir();
+    if(Math.abs(d-cur)===2) return;
+    IN[me][t]=d; lastSent=t;
+    DB.set(path+"/i"+me+"/"+t,d);
+    c.fx.s.tap();
+  }
+  function lastDir(){ var st=simulate(curTick()); return st.D[me]; }
   function onkey(e){
-    if(e.key===" "){ e.preventDefault(); paused=!paused; paint(); return; }
-    var m={ArrowLeft:{x:-1,y:0},ArrowRight:{x:1,y:0},ArrowUp:{x:0,y:-1},ArrowDown:{x:0,y:1}}[e.key];
-    if(m){ e.preventDefault(); set(m); }
+    var m={ArrowUp:0,ArrowRight:1,ArrowDown:2,ArrowLeft:3}[e.key];
+    if(m!==undefined){ e.preventDefault(); send(m); }
   }
   document.addEventListener("keydown",onkey);
   var sx=0,sy=0;
   cv.addEventListener("touchstart",function(e){ sx=e.touches[0].clientX; sy=e.touches[0].clientY; },{passive:true});
   cv.addEventListener("touchend",function(e){
     var dx=e.changedTouches[0].clientX-sx, dy=e.changedTouches[0].clientY-sy;
-    if(Math.abs(dx)<20&&Math.abs(dy)<20) return;
-    set(Math.abs(dx)>Math.abs(dy)?{x:dx>0?1:-1,y:0}:{x:0,y:dy>0?1:-1});
+    if(Math.abs(dx)<18&&Math.abs(dy)<18) return;
+    send(Math.abs(dx)>Math.abs(dy)?(dx>0?1:3):(dy>0?2:0));
   });
-  lvlDots(); paint(); c.prog(0,0); tm=setInterval(step,sp);
-  return {end:function(){ if(!dead){dead=true;c.finish(score);} }, off:function(){ clearInterval(tm); document.removeEventListener("keydown",onkey); }};
+  /* ---- raqibning kiritmalari ---- */
+  watch(path+"/i"+opp,600,function(v){
+    if(!v) return;
+    Object.keys(v).forEach(function(k){ IN[opp][parseInt(k,10)]=v[k]; });
+  });
+  /* ---- asosiy sikl ---- */
+  var last=-1;
+  var tm=setInterval(function(){
+    var t=curTick(), st=simulate(t);
+    paint(st);
+    c.el.querySelector("#sm").textContent=st.sc[me]+" · "+st.S[me].length;
+    c.el.querySelector("#so").textContent=st.sc[opp]+" · "+st.S[opp].length;
+    if(t!==last){ last=t;
+      c.prog(Math.min(99,Math.round(t/(120000/TICK)*100)),st.sc[me]);
+    }
+    if(!st.alive[me]||!st.alive[opp]){
+      if(fin) return; fin=true; clearInterval(tm);
+      var win=st.alive[me]&&!st.alive[opp], draw=(!st.alive[me]&&!st.alive[opp]);
+      var pts=st.sc[me]+(win?300:(draw?150:60));
+      var msg=win?("🏆 "+L("G'alaba!","You win!")):(draw?("🤝 "+L("Durrang","Draw")):("😕 "+L("Yutqazdingiz","You lost")));
+      c.el.querySelector("#sn3").innerHTML='<b style="font-size:17px">'+msg+'</b> · +'+pts+' '+L("ball","pts");
+      if(win){ c.fx.s.win(); c.fx.confetti(2000); } else if(draw) c.fx.s.pop(); else { c.fx.s.lose(); c.fx.shake(cv); }
+      c.prog(100,pts); c.finish(pts);
+    }
+  },110);
+  c.prog(0,0);
+  return {end:function(){ if(!fin){ fin=true; clearInterval(tm);
+      var st=simulate(curTick());
+      var d=st.S[me].length-st.S[opp].length;
+      c.finish(st.sc[me]+(d>0?220:(d<0?90:150))); } },
+    off:function(){ clearInterval(tm); document.removeEventListener("keydown",onkey); }};
  }});
 
-/* --- 5. Xotira: 3D aylanish, kombo, raundga qarab kattalashadi --- */
+/* --- 5. Xotira --- */
 addG("memory",{ic:"🃏",nm:["Xotira kartalari","Memory Cards"],desc:["Juftlarni toping · ketma-ket topsangiz kombo bonusi beriladi","Find the pairs · consecutive matches earn a combo bonus"],
  dur:100,higher:true,unit:["ball","pts"],
  run:function(c){
@@ -2752,7 +2844,7 @@ function vPlay(v){
     if(!started){
       started=true;
       var ctx={el:stage,seed:st.seed,rand:rng(st.seed),endAt:st.endAt,me:ME,players:pls,code:v.code,round:st.r,
-        fx:FX,L:L,prog:pushProg,teams:(v.meta.teams===1),
+        fx:FX,L:L,prog:pushProg,teams:(v.meta.teams===1),startAt:st.startAt,
         finish:function(raw){ if(sent) return; sent=true; pushProg(100,raw); lastPush=0; pushProg(100,raw); submit(v,st,raw); }};
       try{ inst=g.run(ctx); }
       catch(e){ stage.innerHTML='<p class="note center">'+L("O'yinni yuklashda xato","Error loading the game")+'</p>'; submit(v,st,0); }

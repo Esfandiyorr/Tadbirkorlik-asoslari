@@ -102,12 +102,19 @@ bo'yicha ball beriladi (100 / 75 / 50 / 25, teng natijalar o'rtacha oladi).
   yo'qotadi. O'yin — talabalar uchun kichik chalg'ish, baho vositasi emas.
 - Tugagan xona 3 daqiqadan keyin o'chiriladi, tashlab ketilgani 6 soatdan keyin
   (`arena/meta/cleanAt` qulfi bilan).
-- **14 ta o'yin:** viktorina, so'z topish, 2048, ilon, xotira kartalari, tez yozish,
+- **14 ta o'yin:** viktorina, so'z topish, 2048, **ilon dueli** (2 kishilik), xotira kartalari, tez yozish,
   reaksiya, matematika, rasm topish, **josus (3–12 kishi)**, uch toshcha,
   **shashka**, **shaxmat**, **jang maydoni** (Risk uslubidagi strategiya).
 - **Josus:** 25 ta joy, har birida 8 ta rol (qorovul, shifokor, farrosh…);
   3–7 kishida 1 ta josus, 8–13 da 2 ta, 14+ da 3 ta josus bo'ladi va ular
   bir-birini biladi.
+- **Ilon dueli:** ikki o'yinchi bitta maydonda. Harakat sekin (450 ms),
+  shuning uchun o'ylab yurish kerak. Sinxronlash determinatsiyalangan:
+  ikkala brauzer bir xil urug'dan bir xil o'yinni hisoblaydi, faqat
+  yo'nalish o'zgarishlari (tik raqami bilan) bazaga yoziladi va butun
+  o'yin har kadrda qaytadan hisoblanadi — kechikkan buyruq ham o'z
+  joyiga tushadi. Raqibning tanasiga, devorga yoki o'ziga urilsa — mag'lub;
+  peshma-pesh urilsa — durrang.
 - **Jang maydoni:** 30 ta olti burchakli hudud, 5 ta mintaqa bonusi, 14 ta
   karta, energiya (10 + 5×egallangan hudud, maks 25), qo'shin = hudud/2 +
   bonuslar. Raund: rejalashtirish (62 s) → bir vaqtda simulyatsiya → natija.
