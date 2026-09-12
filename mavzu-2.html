@@ -271,6 +271,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 
 
+
 /* RT:BEGIN */
 /* ================== REYTING TIZIMI ================== */
 .rt-chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel);
@@ -348,28 +349,48 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
   font-size:13.5px;line-height:1.85}
 .rt-diag i{font-style:normal;font-weight:800;font-family:ui-monospace,Menlo,Consolas,monospace}
 .rt-diag .rt-note{margin-top:8px}
-/* --- CV va pochta --- */
-.rt-drop{border:2px dashed var(--line);border-radius:16px;padding:22px 16px;text-align:center;cursor:pointer;
-  background:var(--panel2);transition:.18s}
-.rt-drop:hover,.rt-drop.over{border-color:var(--violet);background:color-mix(in srgb,var(--violet) 8%,transparent)}
-.rt-drop .ic{font-size:40px;line-height:1}
-.rt-drop b{display:block;margin-top:8px;font-size:15px}
-.rt-drop span{display:block;font-size:12.5px;color:var(--muted);margin-top:4px}
-.rt-file{display:flex;align-items:center;gap:12px;background:var(--panel2);border:1px solid var(--line);
-  border-radius:14px;padding:12px 14px;margin-top:12px}
-.rt-file .ic{font-size:30px}
-.rt-file .t{flex:1;min-width:0}
-.rt-file .t b{display:block;font-size:14.5px;word-break:break-all}
-.rt-file .t span{font-size:12px;color:var(--muted)}
-.rt-prog{height:8px;border-radius:99px;background:var(--chip);overflow:hidden;margin-top:10px}
-.rt-prog i{display:block;height:100%;background:linear-gradient(90deg,var(--green),var(--teal));width:0;transition:.3s}
+/* --- pochta, guruhlar va jurnal --- */
 .rt-sec{background:var(--panel2);border:1px solid var(--line);border-radius:16px;padding:14px 16px;margin-top:14px}
 .rt-sec h4{margin:0 0 8px;font-size:14.5px}
-.rt-lock{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:800;border-radius:99px;
-  padding:3px 10px;background:var(--chip);color:var(--muted)}
-.rt-lock.on{background:color-mix(in srgb,var(--green) 18%,transparent);color:var(--green)}
 .rt-mail textarea{width:100%;min-height:120px;border:1px solid var(--line);border-radius:12px;padding:10px 12px;
   font-family:inherit;font-size:14px;background:var(--panel);color:var(--ink);resize:vertical}
+.rt-subtabs{display:flex;gap:7px;margin:0 0 12px;flex-wrap:wrap}
+.rt-sub{border:1.5px solid var(--line);background:var(--panel2);color:var(--ink);border-radius:12px;
+  padding:9px 15px;font-size:13.5px;font-weight:800;cursor:pointer;font-family:inherit;transition:.16s}
+.rt-sub:hover{border-color:var(--violet)}
+.rt-sub.on{background:linear-gradient(135deg,var(--violet),var(--blue));color:#fff;border-color:transparent}
+.rt-gsec{margin-top:14px}
+.rt-gsec h4{margin:0 0 7px;font-size:14px;color:var(--muted)}
+.rt-gchips{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px}
+.rt-gchip{border:1.5px solid var(--line);background:var(--panel2);color:var(--ink);border-radius:999px;
+  padding:7px 14px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;transition:.16s}
+.rt-gchip:hover{border-color:var(--green)}
+.rt-gchip.on{background:linear-gradient(135deg,var(--green),var(--teal));color:#fff;border-color:transparent}
+.rt-gchip.on .rt-badge{background:rgba(255,255,255,.28)}
+.rt-daynav{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+.rt-daynav input[type="date"]{border:1px solid var(--line);background:var(--panel);color:var(--ink);
+  border-radius:11px;padding:8px 10px;font-family:inherit;font-size:13.5px;font-weight:700}
+.rt-jtab td{vertical-align:middle}
+.rt-jtab tr.nbrow{opacity:.6}
+.rt-marks{white-space:nowrap}
+.rt-mb{width:34px;height:34px;margin-right:3px;border:1.5px solid var(--line);background:var(--panel);
+  color:var(--ink);border-radius:10px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;transition:.14s}
+.rt-mb:hover{transform:translateY(-2px);border-color:var(--violet)}
+.rt-mb.on{color:#fff;border-color:transparent;transform:none}
+.rt-mb.b1,.rt-mk.b1{background:#e11d48}
+.rt-mb.b2,.rt-mk.b2{background:#f97316}
+.rt-mb.b3,.rt-mk.b3{background:#f59e0b}
+.rt-mb.b4,.rt-mk.b4{background:#0891b2}
+.rt-mb.b5,.rt-mk.b5{background:#12a150}
+.rt-nb{border:1.5px solid var(--line);background:var(--panel);color:var(--ink);border-radius:10px;
+  padding:7px 11px;font-size:12.5px;font-weight:800;cursor:pointer;font-family:inherit;white-space:nowrap;transition:.14s}
+.rt-nb:hover{border-color:var(--red)}
+.rt-nb.on{background:var(--red);color:#fff;border-color:transparent}
+.rt-note-in{width:100%;min-width:120px;border:1px solid var(--line);background:var(--panel);color:var(--ink);
+  border-radius:10px;padding:7px 10px;font-family:inherit;font-size:13px}
+.rt-mk{display:inline-block;min-width:30px;text-align:center;border-radius:9px;padding:3px 9px;
+  font-weight:800;color:#fff;font-size:13.5px}
+.rt-mk.nb{background:var(--muted)}
 /* ================== MUSIQA PLEYERI ================== */
 #mzTab{position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:70;
   background:linear-gradient(135deg,var(--violet),var(--pink));color:#fff;border:none;
@@ -1122,6 +1143,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 
 
+
 <!-- RT:BEGIN -->
 <script>var RT_CFG={"topic": "m2", "slides": 18, "pSlide": 2, "pAll": 10, "teacher": "terdu2026", "firebase": {"db": "tadbirkorlik-asoslari-default-rtdb", "regions": ["asia-southeast1", "europe-west1", "us-central1", "europe-west4", "asia-east1", "us-east1", "northamerica-northeast1"], "url": "https://tadbirkorlik-asoslari-default-rtdb.asia-southeast1.firebasedatabase.app"}, "topics": [{"id": "m1", "file": "index.html", "title": "M1 · Tadbirkorlik tafakkuri va biznes imkoniyatlar", "open": true}, {"id": "m2", "file": "mavzu-2.html", "title": "M2 · Mijoz muammosi asosida biznes g'oya", "open": false}, {"id": "m3", "file": "mavzu-3.html", "title": "M3 · Mahsulotni kam xarajat bilan sinash (moliya va kredit)", "open": false}, {"id": "m4", "file": "mavzu-4.html", "title": "M4 · Biznesni qonuniy rasmiylashtirish", "open": false}, {"id": "m5", "file": "mavzu-5.html", "title": "M5 · Soliqlar va hujjatlar", "open": false}, {"id": "m6", "file": "mavzu-6.html", "title": "M6 · Biznes-model qanday ishlaydi", "open": false}, {"id": "m7", "file": "mavzu-7.html", "title": "M7 · Mijoz kim va unga nima kerak", "open": false}], "tracks": [{"file": "Musofir.mp3", "title": "Musofir", "artist": ""}]};</script>
 <script>
@@ -1233,19 +1255,17 @@ function cloudSetStatus(id,st,cb){
     body:JSON.stringify(st)}).then(function(r){ cb&&cb(r.ok); }).catch(function(){ cb&&cb(false); });
 }
 function approved(){ return !cloudOn || (S&&S.status==="ok"); }
-function rulesTxt(uid){
-  var cv = uid ? '{".read":"auth != null && auth.uid === \''+uid+'\'",".write":true}'
-               : '{".read":false,".write":true}';
+function rulesTxt(){
   return '{"rules":{"students":{".read":true,".write":true},"chat":{".read":true,".write":true},'+
     '"media":{".read":true,".write":true},"meta":{".read":true,".write":true},'+
-    '"arena":{".read":true,".write":true},"cv":'+cv+'}}';
+    '"arena":{".read":true,".write":true},"jurnal":{".read":true,".write":true}}}';
 }
-var RULES=rulesTxt(null);
+var RULES=rulesTxt();
 function tcTest(){
   var out=document.getElementById("rtTcDiag"); if(!out) return;
   if(!cloudOn||!BASE){ out.innerHTML='<p class="rt-note">🟠 '+T("Baza ulanmagan.","No database connected.")+'</p>'; return; }
   out.innerHTML='<p class="rt-note">'+T("Tekshirilmoqda…","Testing…")+'</p>';
-  var nodes=["students","chat","media","meta","cv"], res=[], i=0;
+  var nodes=["students","chat","media","meta","jurnal"], res=[], i=0;
   (function next(){
     if(i>=nodes.length){
       var bad=res.filter(function(x){ return !x.ok; });
@@ -1254,7 +1274,7 @@ function tcTest(){
         (bad.length?'<p class="rt-note" style="margin-top:8px">'+T("Yechim: Firebase → Realtime Database → Rules ga faqat shuni qo'ying va Publish qiling:",
           "Fix: put only this into Firebase → Realtime Database → Rules and publish:")+
           '<br><code style="display:block;margin-top:6px;font-size:11px;word-break:break-all;background:var(--chip);padding:8px;border-radius:9px">'+
-          esc(rulesTxt(TA&&TA.uid))+'</code></p>'
+          esc(rulesTxt())+'</code></p>'
          :'<p class="rt-note" style="margin-top:8px">✅ '+T("Hammasi joyida — rasm va video yuborish ishlaydi.",
            "Everything is fine — sending images and videos works.")+'</p>')+'</div>';
       return;
@@ -1280,80 +1300,6 @@ function cloudSetMedia(id,v,cb){
 /* ---------- email, CV va o'qituvchi maxfiy kirishi ---------- */
 function okMail(x){ return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(String(x||"").trim()); }
 function kb(n){ return n>=1048576 ? (n/1048576).toFixed(1)+" MB" : Math.max(1,Math.round(n/1024))+" KB"; }
-var CVMAX=3*1024*1024;                       /* 3 MB — RTDB uchun xavfsiz chegara */
-var CVOK=["pdf","doc","docx","jpg","jpeg","png","webp"];
-
-/* -- o'qituvchi Firebase Auth orqali kiradi; shundagina CV o'qiy oladi -- */
-var TA=lget("terdu_ta",null);
-function taSave(){ lset("terdu_ta",TA); }
-function taOut(){ TA=null; lset("terdu_ta",null); }
-function taOn(){ return !!(TA&&TA.key&&TA.rt); }
-function taFresh(cb){
-  if(!taOn()){ cb(false); return; }
-  if(TA.tok&&Date.now()<(TA.exp||0)-60000){ cb(true); return; }
-  fetch("https://securetoken.googleapis.com/v1/token?key="+encodeURIComponent(TA.key),{
-    method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},
-    body:"grant_type=refresh_token&refresh_token="+encodeURIComponent(TA.rt)})
-   .then(function(r){ return r.ok?r.json():null; })
-   .then(function(j){
-     if(!j||!j.id_token){ cb(false); return; }
-     TA.tok=j.id_token; TA.rt=j.refresh_token||TA.rt;
-     TA.exp=Date.now()+(parseInt(j.expires_in||3600,10)*1000); taSave(); cb(true);
-   }).catch(function(){ cb(false); });
-}
-function taLogin(key,em,pw,cb){
-  fetch("https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key="+encodeURIComponent(key),{
-    method:"POST",headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({email:em,password:pw,returnSecureToken:true})})
-   .then(function(r){ return r.json().then(function(j){ return {ok:r.ok,j:j}; }); })
-   .then(function(x){
-     if(!x.ok||!x.j.idToken){ cb(false,(x.j&&x.j.error&&x.j.error.message)||"XATO"); return; }
-     TA={key:key,email:em,uid:x.j.localId,tok:x.j.idToken,rt:x.j.refreshToken,
-         exp:Date.now()+(parseInt(x.j.expiresIn||3600,10)*1000)};
-     taSave(); cb(true,x.j.localId);
-   }).catch(function(){ cb(false,"tarmoq"); });
-}
-/* CV o'qish uchun manzil (o'qituvchi tokeni bilan) */
-function cvUrl(path,cb){
-  if(!taOn()){ cb(BASE+path+".json"); return; }
-  taFresh(function(ok){ cb(BASE+path+".json"+(ok?("?auth="+encodeURIComponent(TA.tok)):"")); });
-}
-
-/* -- talaba CV yuklaydi -- */
-function cvSend(f,onProg,cb){
-  if(!cloudOn||!BASE||!S){ cb(false,T("Baza ulanmagan.","No database connection.")); return; }
-  var ext=(f.name.split(".").pop()||"").toLowerCase();
-  if(CVOK.indexOf(ext)<0){ cb(false,T("Faqat PDF, DOC, DOCX yoki rasm bo'lishi mumkin.","Only PDF, DOC, DOCX or an image is allowed.")); return; }
-  if(f.size>CVMAX){ cb(false,T("Fayl juda katta: ","File too large: ")+kb(f.size)+" ("+T("chegara","limit")+" "+kb(CVMAX)+")"); return; }
-  var fr=new FileReader();
-  fr.onerror=function(){ cb(false,T("Faylni o'qib bo'lmadi.","Could not read the file.")); };
-  fr.onload=function(){
-    onProg&&onProg(35);
-    var meta={n:f.name,t:f.type||ext,s:f.size,at:Date.now(),
-              who:S.name+" "+S.surname,gr:S.group,em:S.email||""};
-    var full={}; for(var k in meta) full[k]=meta[k]; full.d=fr.result;
-    fetch(BASE+"/cv/"+S.id+".json",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(full)})
-     .then(function(r){
-       if(!r.ok){ cb(false,(r.status===401||r.status===403)
-         ?T("Qoidalar ruxsat bermadi. O'qituvchiga ayting.","The rules denied the upload. Tell your teacher."):("HTTP "+r.status)); return; }
-       onProg&&onProg(85);
-       /* ommaviy belgi: fayl emas, faqat "yuklangan" ma'lumoti */
-       return fetch(BASE+"/students/"+S.id+"/cv.json",{method:"PUT",headers:{"Content-Type":"application/json"},
-         body:JSON.stringify({n:meta.n,s:meta.s,at:meta.at})}).then(function(){
-           onProg&&onProg(100);
-           S.cv={n:meta.n,s:meta.s,at:meta.at}; lset(LS.stu,S);
-           cb(true,"");
-         });
-     }).catch(function(){ cb(false,T("Tarmoq xatosi.","Network error.")); });
-  };
-  fr.readAsDataURL(f);
-}
-function cvDrop(cb){
-  if(!cloudOn||!BASE||!S){ cb&&cb(false); return; }
-  fetch(BASE+"/cv/"+S.id+".json",{method:"DELETE"}).then(function(){
-    return fetch(BASE+"/students/"+S.id+"/cv.json",{method:"DELETE"});
-  }).then(function(){ S.cv=null; lset(LS.stu,S); cb&&cb(true); }).catch(function(){ cb&&cb(false); });
-}
 
 /* ---------- ballar ---------- */
 function topicSummary(){
@@ -1618,7 +1564,6 @@ function emailAsk(){
 function renderCv(){
   var box=document.getElementById("rtCv"); if(!box) return;
   if(!S){ box.innerHTML='<p class="rt-note">'+T("Avval ro'yxatdan o'ting.","Register first.")+'</p>'; return; }
-  var cv=S.cv||null;
   box.innerHTML=
     '<div class="rt-sec" style="margin-top:0"><h4>👤 '+T("Shaxsiy ma'lumotlarim","My details")+'</h4>'+
       '<div class="rt-form" style="max-width:420px;margin:0">'+
@@ -1628,20 +1573,8 @@ function renderCv(){
         '<label>'+T("Email","Email")+'<input id="cvE" type="email" inputmode="email" value="'+esc(S.email||"")+'" placeholder="ism@gmail.com"></label>'+
         '<button class="btn accent" id="cvSaveB" style="justify-content:center">💾 '+T("Saqlash","Save")+'</button>'+
       '</div></div>'+
-    '<div class="rt-sec"><h4>📄 '+T("CV / rezyume","CV / resume")+' <span class="rt-lock'+(cv?" on":"")+'">🔒 '+
-      T("faqat o'qituvchi ko'radi","teacher only")+'</span></h4>'+
-      '<p class="rt-note" style="margin:0 0 10px">'+T(
-        "CV ingizni yuklang — uni faqat o'qituvchi ko'ra oladi, boshqa talabalarga ko'rinmaydi. PDF, DOC, DOCX yoki rasm, "+kb(CVMAX)+" gacha.",
-        "Upload your CV — only the teacher can open it, other students cannot. PDF, DOC, DOCX or an image, up to "+kb(CVMAX)+".")+'</p>'+
-      '<div class="rt-drop" id="cvDrop"><div class="ic">📎</div>'+
-        '<b>'+T("Fayl tanlash","Choose a file")+'</b>'+
-        '<span>'+T("yoki faylni shu yerga tashlang","or drop the file here")+'</span></div>'+
-      '<input type="file" id="cvFile" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.webp" style="display:none">'+
-      '<div class="rt-prog" id="cvProg" style="display:none"><i></i></div>'+
-      '<div id="cvNow">'+(cv?cvCard(cv):'')+'</div>'+
-      '<p id="cvMsg" class="rt-note" style="margin-top:8px"></p></div>';
-
-  function msg(t,bad){ var m=document.getElementById("cvMsg"); m.textContent=t; m.style.color=bad?"var(--red)":"var(--muted)"; }
+    '<div class="rt-sec"><h4>📋 '+T("Mening baholarim","My marks")+'</h4>'+
+      '<div id="myJur"><p class="rt-note" style="margin:0">'+T("Yuklanmoqda…","Loading…")+'</p></div></div>';
   document.getElementById("cvSaveB").onclick=function(){
     var n=document.getElementById("cvN").value.trim(), sn=document.getElementById("cvS").value.trim(),
         g=document.getElementById("cvG").value.trim(), em=document.getElementById("cvE").value.trim();
@@ -1650,41 +1583,232 @@ function renderCv(){
     S.name=n; S.surname=sn; S.group=g; S.email=em; lset(LS.stu,S); cloudSave();
     chipUpdate(); toast(T("Saqlandi ✅","Saved ✅"));
   };
-  var fi=document.getElementById("cvFile"), dp=document.getElementById("cvDrop");
-  dp.onclick=function(){ fi.click(); };
-  dp.ondragover=function(e){ e.preventDefault(); dp.classList.add("over"); };
-  dp.ondragleave=function(){ dp.classList.remove("over"); };
-  dp.ondrop=function(e){ e.preventDefault(); dp.classList.remove("over");
-    if(e.dataTransfer.files&&e.dataTransfer.files[0]) go(e.dataTransfer.files[0]); };
-  fi.onchange=function(){ if(fi.files&&fi.files[0]) go(fi.files[0]); };
-  function go(f){
-    var pr=document.getElementById("cvProg"), bar=pr.querySelector("i");
-    pr.style.display=""; bar.style.width="10%"; msg(T("Yuklanmoqda…","Uploading…"));
-    cvSend(f,function(p){ bar.style.width=p+"%"; },function(ok,err){
-      if(!ok){ pr.style.display="none"; msg(err,true); return; }
-      setTimeout(function(){ pr.style.display="none"; },600);
-      msg(T("CV yuklandi. Endi uni faqat o'qituvchi ko'radi.","Your CV is uploaded. Only the teacher can see it."));
-      document.getElementById("cvNow").innerHTML=cvCard(S.cv); bindDel(); toast(T("CV yuklandi ✅","CV uploaded ✅"));
+  myMarks();
+}
+function myMarks(){
+  var box=document.getElementById("myJur"); if(!box||!S) return;
+  jurAll(gkey(S.group),function(all){
+    var rows=[], sum=0, cnt=0, nb=0;
+    Object.keys(all||{}).sort().reverse().forEach(function(d){
+      var r=(all[d]||{})[S.id]; if(!r) return;
+      if(r.y){ nb++; rows.push('<tr><td>'+dfmt(d)+'</td><td><span class="rt-mk nb">'+T("kelmadi","absent")+'</span></td><td>'+esc(r.n||"")+'</td></tr>'); return; }
+      if(!r.b) return;
+      sum+=r.b; cnt++;
+      rows.push('<tr><td>'+dfmt(d)+'</td><td><span class="rt-mk b'+r.b+'">'+r.b+'</span></td><td>'+esc(r.n||"")+'</td></tr>');
+    });
+    if(!rows.length){ box.innerHTML='<p class="rt-note" style="margin:0">'+T("Hali baho qo'yilmagan.","No marks yet.")+'</p>'; return; }
+    box.innerHTML='<div class="rt-grid" style="margin-bottom:10px">'+
+      '<div class="rt-card"><span>'+T("O'rtacha baho","Average")+'</span><b>'+(cnt?(sum/cnt).toFixed(1):"—")+'</b></div>'+
+      '<div class="rt-card"><span>'+T("Baholar soni","Marks")+'</span><b>'+cnt+'</b></div>'+
+      '<div class="rt-card"><span>'+T("Kelmagan kun","Absences")+'</span><b>'+nb+'</b></div></div>'+
+      '<div class="tw"><table class="rt-table"><thead><tr><th>'+T("Sana","Date")+'</th><th>'+T("Baho","Mark")+
+      '</th><th>'+T("Izoh","Note")+'</th></tr></thead><tbody>'+rows.join("")+'</tbody></table></div>';
+  });
+}
+
+/* ---------- kunlik jurnal (guruhlar bo'yicha) ---------- */
+function gkey(g){ return String(g||"—").trim().replace(/[.#$\[\]\/]/g,"-").replace(/\s+/g," ").slice(0,60)||"—"; }
+function today(){ var d=new Date(); return d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2)+"-"+("0"+d.getDate()).slice(-2); }
+function dfmt(d){ var p=String(d).split("-"); return p.length===3?(p[2]+"."+p[1]+"."+p[0]):d; }
+function dshift(d,n){ var p=String(d).split("-"); var x=new Date(+p[0],+p[1]-1,+p[2]); x.setDate(x.getDate()+n);
+  return x.getFullYear()+"-"+("0"+(x.getMonth()+1)).slice(-2)+"-"+("0"+x.getDate()).slice(-2); }
+function jurDay(gk,d,cb){
+  if(!cloudOn||!BASE){ cb(lget("terdu_jur_"+gk+"_"+d,{})); return; }
+  fetch(BASE+"/jurnal/"+encodeURIComponent(gk)+"/"+d+".json").then(function(r){ return r.ok?r.json():null; })
+   .then(function(v){ cb(v||{}); }).catch(function(){ cb({}); });
+}
+function jurAll(gk,cb){
+  if(!cloudOn||!BASE){ cb({}); return; }
+  fetch(BASE+"/jurnal/"+encodeURIComponent(gk)+".json").then(function(r){ return r.ok?r.json():null; })
+   .then(function(v){ cb(v||{}); }).catch(function(){ cb({}); });
+}
+function jurSet(gk,d,id,val,cb){
+  if(!cloudOn||!BASE){
+    var k="terdu_jur_"+gk+"_"+d, o=lget(k,{}); if(val===null) delete o[id]; else o[id]=val; lset(k,o); cb&&cb(true); return;
+  }
+  var u=BASE+"/jurnal/"+encodeURIComponent(gk)+"/"+d+"/"+id+".json";
+  fetch(u,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(val)})
+   .then(function(r){ cb&&cb(r.ok); }).catch(function(){ cb&&cb(false); });
+}
+var JUR={g:null,d:null,day:{},view:"day"};
+function groupsOf(list){
+  var by={}, out=[];
+  list.forEach(function(x){ var g=gkey(x.group); (by[g]=by[g]||[]).push(x); });
+  Object.keys(by).sort().forEach(function(g){
+    by[g].sort(function(a,b){ return (a.surname+a.name).localeCompare(b.surname+b.name); });
+    out.push({g:g,list:by[g]});
+  });
+  return out;
+}
+function tcJur(){
+  var out=document.getElementById("rtTcOut"); if(!out) return;
+  var okl=tcList.filter(function(x){ return (x.status||"pending")==="ok"; });
+  var gs=groupsOf(okl);
+  if(!gs.length){ out.innerHTML=tcTabs()+'<p class="rt-note">'+T("Avval talabalarni tasdiqlang.","Approve some students first.")+'</p>';
+    tcTabsBind(); return; }
+  if(!JUR.g||!gs.filter(function(x){return x.g===JUR.g}).length) JUR.g=gs[0].g;
+  if(!JUR.d) JUR.d=today();
+  var cur=gs.filter(function(x){return x.g===JUR.g})[0];
+  var h=tcTabs()+
+    '<div class="rt-gchips">'+gs.map(function(x){
+      return '<button class="rt-gchip'+(x.g===JUR.g?" on":"")+'" data-g="'+esc(x.g)+'">'+esc(x.g)+
+        ' <span class="rt-badge">'+x.list.length+'</span></button>';
+    }).join("")+'</div>'+
+    '<div class="rt-daynav">'+
+      '<button class="btn" id="jPrev">◀</button>'+
+      '<input type="date" id="jDate" value="'+JUR.d+'">'+
+      '<button class="btn" id="jNext">▶</button>'+
+      '<button class="btn accent" id="jToday">📅 '+T("Bugun","Today")+'</button>'+
+      '<span class="spacer" style="flex:1"></span>'+
+      '<button class="btn" id="jRep">📊 '+T("Hisobot","Report")+'</button>'+
+    '</div>'+
+    '<div id="jBody"><p class="rt-note">'+T("Yuklanmoqda…","Loading…")+'</p></div>';
+  out.innerHTML=h;
+  tcTabsBind();
+  out.querySelectorAll(".rt-gchip").forEach(function(b){
+    b.onclick=function(){ JUR.g=b.dataset.g; tcJur(); };
+  });
+  document.getElementById("jPrev").onclick=function(){ JUR.d=dshift(JUR.d,-1); tcJur(); };
+  document.getElementById("jNext").onclick=function(){ JUR.d=dshift(JUR.d,1); tcJur(); };
+  document.getElementById("jToday").onclick=function(){ JUR.d=today(); tcJur(); };
+  document.getElementById("jDate").onchange=function(e){ if(e.target.value){ JUR.d=e.target.value; tcJur(); } };
+  document.getElementById("jRep").onclick=function(){ jurReport(cur); };
+  jurDay(JUR.g,JUR.d,function(day){ JUR.day=day||{}; jurTable(cur); });
+}
+function jurTable(cur){
+  var b=document.getElementById("jBody"); if(!b) return;
+  var done=0, sum=0, cnt=0;
+  var rows=cur.list.map(function(x){
+    var r=JUR.day[x.id]||{};
+    if(r.y||r.b) done++;
+    if(r.b){ sum+=r.b; cnt++; }
+    var marks=[1,2,3,4,5].map(function(n){
+      return '<button class="rt-mb'+(r.b===n?" on b"+n:"")+'" data-id="'+esc(x.id)+'" data-b="'+n+'">'+n+'</button>';
+    }).join("");
+    return '<tr'+(r.y?' class="nbrow"':'')+'><td><b>'+esc(x.surname)+" "+esc(x.name)+'</b></td>'+
+      '<td><button class="rt-nb'+(r.y?" on":"")+'" data-id="'+esc(x.id)+'">'+(r.y?"❌ "+T("kelmadi","absent"):"✅ "+T("keldi","present"))+'</button></td>'+
+      '<td class="rt-marks">'+marks+'</td>'+
+      '<td><input class="rt-note-in" data-id="'+esc(x.id)+'" value="'+esc(r.n||"")+'" placeholder="'+T("izoh","note")+'"></td></tr>';
+  }).join("");
+  b.innerHTML='<p class="rt-note" style="margin:6px 0 8px">'+dfmt(JUR.d)+' · '+T("belgilangan","filled")+': <b>'+done+'</b> / '+cur.list.length+
+      (cnt?' · '+T("o'rtacha","average")+': <b>'+(sum/cnt).toFixed(1)+'</b>':'')+'</p>'+
+    '<div class="tw"><table class="rt-table rt-jtab"><thead><tr><th>'+T("Talaba","Student")+'</th><th>'+T("Davomat","Attendance")+
+    '</th><th>'+T("Baho","Mark")+'</th><th>'+T("Izoh","Note")+'</th></tr></thead><tbody>'+rows+'</tbody></table></div>'+
+    '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">'+
+      '<button class="btn" id="jAllOk">✅ '+T("Hammasi keldi","All present")+'</button>'+
+      '<button class="btn warn" id="jClr">🧹 '+T("Shu kunni tozalash","Clear this day")+'</button>'+
+      '<button class="btn" id="jCsv">⬇ CSV</button></div>'+
+    '<p class="rt-note">'+T("Har bir belgi darhol saqlanadi.","Every mark is saved instantly.")+'</p>';
+
+  function put(id,val){
+    jurSet(JUR.g,JUR.d,id,val,function(ok){
+      if(!ok){ toast(T("Saqlanmadi","Not saved")); return; }
+      if(val===null) delete JUR.day[id]; else JUR.day[id]=val;
+      jurTable(cur);
     });
   }
-  function bindDel(){
-    var d=document.getElementById("cvDel"); if(!d) return;
-    d.onclick=function(){
-      if(!confirm(T("CV ni o'chirasizmi?","Delete your CV?"))) return;
-      d.disabled=true; cvDrop(function(ok){
-        if(!ok){ msg(T("O'chirib bo'lmadi.","Could not delete."),true); d.disabled=false; return; }
-        document.getElementById("cvNow").innerHTML=""; msg(T("CV o'chirildi.","CV deleted."));
-      });
+  b.querySelectorAll(".rt-mb").forEach(function(btn){
+    btn.onclick=function(){
+      var id=btn.dataset.id, n=parseInt(btn.dataset.b,10), r=JUR.day[id]||{};
+      if(r.b===n){ r.b=null; } else { r.b=n; r.y=0; }
+      if(!r.b&&!r.y&&!r.n) put(id,null); else put(id,{b:r.b||null,y:r.y||0,n:r.n||"",at:Date.now()});
     };
-  }
-  bindDel();
+  });
+  b.querySelectorAll(".rt-nb").forEach(function(btn){
+    btn.onclick=function(){
+      var id=btn.dataset.id, r=JUR.day[id]||{};
+      var y=r.y?0:1;
+      if(!y&&!r.b&&!r.n) put(id,null); else put(id,{b:y?null:(r.b||null),y:y,n:r.n||"",at:Date.now()});
+    };
+  });
+  b.querySelectorAll(".rt-note-in").forEach(function(inp){
+    inp.onchange=function(){
+      var id=inp.dataset.id, r=JUR.day[id]||{}, v=inp.value.trim();
+      if(!v&&!r.b&&!r.y) put(id,null); else put(id,{b:r.b||null,y:r.y||0,n:v,at:Date.now()});
+    };
+  });
+  document.getElementById("jAllOk").onclick=function(){
+    var left=cur.list.filter(function(x){ var r=JUR.day[x.id]||{}; return !r.b&&!r.y; });
+    if(!left.length){ toast(T("Hammasi belgilangan","All filled")); return; }
+    var i=0;
+    (function nx(){
+      if(i>=left.length){ jurDay(JUR.g,JUR.d,function(d){ JUR.day=d||{}; jurTable(cur); }); return; }
+      var x=left[i++]; jurSet(JUR.g,JUR.d,x.id,{b:null,y:0,n:"",at:Date.now()},nx);
+    })();
+  };
+  document.getElementById("jClr").onclick=function(){
+    if(!confirm(T("Shu kundagi barcha belgilarni o'chirasizmi?","Delete every mark for this day?"))) return;
+    if(!cloudOn||!BASE){ lset("terdu_jur_"+JUR.g+"_"+JUR.d,{}); JUR.day={}; jurTable(cur); return; }
+    fetch(BASE+"/jurnal/"+encodeURIComponent(JUR.g)+"/"+JUR.d+".json",{method:"DELETE"})
+      .then(function(){ JUR.day={}; jurTable(cur); toast(T("Tozalandi","Cleared")); });
+  };
+  document.getElementById("jCsv").onclick=function(){
+    var rows2=cur.list.map(function(x,i){
+      var r=JUR.day[x.id]||{};
+      return (i+1)+";"+x.surname+";"+x.name+";"+(r.y?"NB":(r.b||""))+";"+String(r.n||"").replace(/;/g,",");
+    }).join("\n");
+    dl("terdu-"+JUR.g+"-"+JUR.d+".csv","﻿#;Familiya;Ism;Baho;Izoh\n"+rows2);
+  };
 }
-function cvCard(cv){
-  return '<div class="rt-file"><div class="ic">'+(/\.pdf$/i.test(cv.n)?"📕":"📄")+'</div>'+
-    '<div class="t"><b>'+esc(cv.n)+'</b><span>'+kb(cv.s||0)+' · '+new Date(cv.at||Date.now()).toLocaleDateString()+
-    ' · ✅ '+T("yuklangan","uploaded")+'</span></div>'+
-    '<button class="btn warn" id="cvDel">🗑 '+T("O'chirish","Delete")+'</button></div>';
+function jurReport(cur){
+  var b=document.getElementById("jBody"); if(!b) return;
+  b.innerHTML='<p class="rt-note">'+T("Yuklanmoqda…","Loading…")+'</p>';
+  jurAll(JUR.g,function(all){
+    var days=Object.keys(all||{}).sort();
+    var st={};
+    cur.list.forEach(function(x){ st[x.id]={s:0,c:0,nb:0}; });
+    days.forEach(function(d){
+      var o=all[d]||{};
+      Object.keys(o).forEach(function(id){
+        if(!st[id]) return;
+        var r=o[id]||{};
+        if(r.y) st[id].nb++;
+        else if(r.b){ st[id].s+=r.b; st[id].c++; }
+      });
+    });
+    var rows=cur.list.map(function(x,i){
+      var v=st[x.id], av=v.c?(v.s/v.c):0;
+      return '<tr><td>'+(i+1)+'</td><td><b>'+esc(x.surname)+" "+esc(x.name)+'</b></td>'+
+        '<td>'+(v.c?'<span class="rt-mk b'+Math.round(av)+'">'+av.toFixed(1)+'</span>':'—')+'</td>'+
+        '<td>'+v.c+'</td><td>'+(v.nb?'<b style="color:var(--red)">'+v.nb+'</b>':'0')+'</td></tr>';
+    }).join("");
+    b.innerHTML='<p class="rt-note" style="margin:6px 0 8px">'+JUR.g+' · '+T("darslar soni","lessons")+': <b>'+days.length+'</b>'+
+        (days.length?' · '+dfmt(days[0])+' — '+dfmt(days[days.length-1]):'')+'</p>'+
+      '<div class="tw"><table class="rt-table"><thead><tr><th>#</th><th>'+T("Talaba","Student")+'</th><th>'+
+      T("O'rtacha","Average")+'</th><th>'+T("Baho","Marks")+'</th><th>NB</th></tr></thead><tbody>'+
+      (rows||'<tr><td colspan="5">'+T("Ma'lumot yo'q","No data")+'</td></tr>')+'</tbody></table></div>'+
+      '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">'+
+        '<button class="btn accent" id="jBack">◀ '+T("Kunlik jurnal","Daily journal")+'</button>'+
+        '<button class="btn" id="jRepCsv">⬇ CSV</button></div>';
+    document.getElementById("jBack").onclick=function(){ tcJur(); };
+    document.getElementById("jRepCsv").onclick=function(){
+      var head="#;Familiya;Ism;"+days.map(dfmt).join(";")+";O'rtacha;NB";
+      var lines=cur.list.map(function(x,i){
+        var v=st[x.id], cells=days.map(function(d){ var r=(all[d]||{})[x.id]||{}; return r.y?"NB":(r.b||""); });
+        return (i+1)+";"+x.surname+";"+x.name+";"+cells.join(";")+";"+(v.c?(v.s/v.c).toFixed(1):"")+";"+v.nb;
+      }).join("\n");
+      dl("terdu-"+JUR.g+"-hisobot.csv","﻿"+head+"\n"+lines);
+    };
+  });
 }
+function dl(name,txt){
+  var a=document.createElement("a");
+  a.href="data:text/csv;charset=utf-8,"+encodeURIComponent(txt); a.download=name;
+  document.body.appendChild(a); a.click(); a.remove();
+}
+function tcTabs(){
+  return '<div class="rt-subtabs">'+
+    '<button class="rt-sub'+(TCV==="list"?" on":"")+'" data-v="list">👥 '+T("Talabalar","Students")+'</button>'+
+    '<button class="rt-sub'+(TCV==="jur"?" on":"")+'" data-v="jur">📋 '+T("Kunlik baholash","Daily marks")+'</button>'+
+    '</div>';
+}
+function tcTabsBind(){
+  var out=document.getElementById("rtTcOut"); if(!out) return;
+  out.querySelectorAll(".rt-sub").forEach(function(b){
+    b.onclick=function(){ TCV=b.dataset.v; if(TCV==="jur") tcJur(); else tcDraw(); };
+  });
+}
+var TCV="list";
 function renderTc(){
   var box=document.getElementById("rtTc");
   if(box.dataset.on==="1"){ tcLoad(); return; }
@@ -1709,8 +1833,8 @@ function tcLoad(){
   var out=document.getElementById("rtTcOut"); if(!out) return;
   if(!out.innerHTML) out.innerHTML='<p style="color:var(--muted)">'+T("Yuklanmoqda…","Loading…")+'</p>';
   cloudList(function(a){
-    tcList=a&&a.length?a:(S?[{id:S.id,name:S.name,surname:S.surname,group:S.group,total:P.total,status:S.status||"ok",topics:topicSummary()}]:[]);
-    tcDraw();
+    tcList=a&&a.length?a:(S?[{id:S.id,name:S.name,surname:S.surname,group:S.group,email:S.email,total:P.total,status:S.status||"ok",topics:topicSummary()}]:[]);
+    if(TCV==="jur") tcJur(); else tcDraw();
   });
 }
 function tcAct(id,st,btn){
@@ -1727,8 +1851,7 @@ function tcRow(x,btns){
     (x.email?'<br><span style="font-size:11.5px;color:var(--muted)">'+esc(x.email)+'</span>':'')+
     '</td><td>'+esc(x.group)+
     '</td><td><b>'+(x.total||0)+'</b></td><td style="white-space:nowrap">'+
-    (x.cv?'<button class="btn vio rt-cv" data-id="'+esc(x.id)+'" data-nm="'+esc(x.cv.n||"cv")+
-      '" title="'+T("CV ni yuklab olish","Download the CV")+'">📄 CV</button> ':'')+btns
+btns
     ' <button class="btn rt-del" data-id="'+esc(x.id)+'" data-nm="'+esc(x.name+" "+x.surname)+
     '" title="'+T("Ro\'yxatdan butunlay o\'chirish","Delete from the list")+'">🗑</button></td></tr>';
 }
@@ -1774,7 +1897,7 @@ function tcDraw(){
   var blk=tcList.filter(function(x){return st(x)==="blocked";});
   okl.sort(function(x,y){return (y.total||0)-(x.total||0);});
   var cs=cloudStatus();
-  var h='<p class="rt-note" style="margin-top:0">'+(cs.ok?"🟢 ":"🟠 ")+esc(cs.txt)+'</p>'+
+  var h=tcTabs()+'<p class="rt-note" style="margin-top:0">'+(cs.ok?"🟢 ":"🟠 ")+esc(cs.txt)+'</p>'+
     '<div class="rt-head" style="margin:4px 0 10px"><h3 style="margin:0">⏳ '+T("Tasdiq kutmoqda","Waiting for approval")+
     ' <span class="rt-badge">'+pend.length+'</span></h3><button class="btn" id="rtTcRef">🔄 '+T("Yangilash","Refresh")+'</button></div>';
   h+= pend.length ? '<div class="tw"><table class="rt-table"><tbody>'+pend.map(function(x){
@@ -1783,14 +1906,19 @@ function tcDraw(){
       }).join("")+'</tbody></table></div>'
       : '<p class="rt-note">'+T("Yangi so\'rov yo\'q.","No new requests.")+'</p>';
   h+='<h3 style="margin:18px 0 8px">✅ '+T("Tasdiqlangan talabalar","Approved students")+' <span class="rt-badge">'+okl.length+'</span></h3>';
-  h+= okl.length ? '<div class="tw"><table class="rt-table"><thead><tr><th>'+T("Talaba","Student")+'</th><th>'+
-        T("Guruh","Group")+'</th><th>'+T("Ball","Points")+'</th><th></th></tr></thead><tbody>'+okl.map(function(x){
-        var on=(x.media===true);
-        return tcRow(x,'<button class="btn rt-m'+(on?" accent":"")+'" data-id="'+esc(x.id)+'" data-v="'+(on?"0":"1")+
-          '" title="'+T("Rasm va video yuborish huquqi","Permission to send images and videos")+'">'+
-          (on?"🖼 "+T("Rasm ochiq","Media on"):"🔒 "+T("Rasm yopiq","Media off"))+'</button> '+
-          '<button class="btn rt-a" data-id="'+esc(x.id)+'" data-st="blocked">🚫 '+T("Bloklash","Block")+'</button>');
-      }).join("")+'</tbody></table></div>'
+  h+= okl.length ? groupsOf(okl).map(function(G){
+        return '<div class="rt-gsec"><h4>👥 '+esc(G.g)+' <span class="rt-badge">'+G.list.length+'</span></h4>'+
+          '<div class="tw"><table class="rt-table"><thead><tr><th>'+T("Talaba","Student")+'</th><th>'+
+          T("Guruh","Group")+'</th><th>'+T("Ball","Points")+'</th><th></th></tr></thead><tbody>'+G.list.map(function(x){
+          var on=(x.media===true);
+          return tcRow(x,'<button class="btn rt-g2" data-id="'+esc(x.id)+'" data-g="'+esc(x.group||"")+
+            '" title="'+T("Guruhini o\'zgartirish","Change the group")+'">🔀 '+T("Guruh","Group")+'</button> '+
+            '<button class="btn rt-m'+(on?" accent":"")+'" data-id="'+esc(x.id)+'" data-v="'+(on?"0":"1")+
+            '" title="'+T("Rasm va video yuborish huquqi","Permission to send images and videos")+'">'+
+            (on?"🖼":"🔒")+'</button> '+
+            '<button class="btn rt-a" data-id="'+esc(x.id)+'" data-st="blocked">🚫</button>');
+        }).join("")+'</tbody></table></div></div>';
+      }).join("")
       : '<p class="rt-note">'+T("Hali tasdiqlangan talaba yo\'q.","No approved students yet.")+'</p>';
   if(blk.length){
     h+='<h3 style="margin:18px 0 8px">🚫 '+T("Bloklanganlar","Blocked")+' <span class="rt-badge">'+blk.length+'</span></h3>'+
@@ -1798,7 +1926,7 @@ function tcDraw(){
         return tcRow(x,'<button class="btn accent rt-a" data-id="'+esc(x.id)+'" data-st="ok">♻️ '+T("Tiklash","Restore")+'</button>');
       }).join("")+'</tbody></table></div>';
   }
-  h+=tcMailBox(okl)+tcKeyBox();
+  h+=tcMailBox(okl);
   var dn=dupGroups().reduce(function(a,g){ return a+g.length-1; },0);
   h+='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px">'+
      (dn?'<button class="btn warn" id="rtDup">🧹 '+T("Takrorlarni tozalash","Clean duplicates")+' ('+dn+')</button>':'')+
@@ -1806,7 +1934,7 @@ function tcDraw(){
      '<button class="btn" id="rtTcDiagGo">🔎 '+T("Chat tekshiruvi","Chat self-test")+'</button>'+
      '<button class="btn" id="rtTcOut2">🚪 '+T("Chiqish","Log out")+'</button></div>'+
      '<div id="rtTcDiag"></div>'+
-     '<p class="rt-note">'+T("Jami talaba","Total students")+": "+tcList.length+(cloudOn?"":" · "+T("(faqat shu qurilma)","(this device only)"))+'</p>'+
+     '<p class="rt-note">'+T("Jami talaba","Total students")+": "+tcList.length+" · "+T("guruhlar","groups")+": "+groupsOf(okl).length+(cloudOn?"":" · "+T("(faqat shu qurilma)","(this device only)"))+'</p>'+
      '<p class="rt-note">'+T("Talaba faqat siz tasdiqlagandan keyin taqdimot va chatga kira oladi.",
        "A student can enter the presentation and the chat only after you approve them.")+'</p>';
   out.innerHTML=h;
@@ -1828,10 +1956,24 @@ function tcDraw(){
       });
     };
   });
-  out.querySelectorAll(".rt-cv").forEach(function(b){
-    b.onclick=function(){ tcCvGet(b.dataset.id,b.dataset.nm,b); };
+  tcTabsBind();
+  out.querySelectorAll(".rt-g2").forEach(function(b){
+    b.onclick=function(){
+      var v=prompt(T("Yangi guruh nomi:","New group name:"),b.dataset.g||"");
+      if(v===null) return; v=v.trim(); if(v.length<2){ toast(T("Juda qisqa","Too short")); return; }
+      b.disabled=true;
+      var done=function(ok){
+        if(!ok){ toast(T("Saqlanmadi","Not saved")); b.disabled=false; return; }
+        for(var i=0;i<tcList.length;i++) if(tcList[i].id===b.dataset.id) tcList[i].group=v;
+        if(S&&S.id===b.dataset.id){ S.group=v; lset(LS.stu,S); }
+        toast(T("Guruh o'zgardi","Group changed")); tcDraw();
+      };
+      if(!cloudOn||!BASE){ done(true); return; }
+      fetch(BASE+"/students/"+b.dataset.id+"/group.json",{method:"PUT",headers:{"Content-Type":"application/json"},
+        body:JSON.stringify(v)}).then(function(r){ done(r.ok); }).catch(function(){ done(false); });
+    };
   });
-  tcMailBind(okl); tcKeyBind();
+  tcMailBind(okl);
   document.getElementById("rtTcRef").onclick=tcLoad;
   document.getElementById("rtTcDiagGo").onclick=tcTest;
   var db=document.getElementById("rtDup"); if(db) db.onclick=tcDedupe;
@@ -1841,37 +1983,15 @@ function tcDraw(){
   };
   document.getElementById("rtCsv").onclick=function(){
     var rows=tcList.map(function(x,i){ return (i+1)+";"+x.name+";"+x.surname+";"+x.group+";"+(x.email||"")+";"+
-      (x.total||0)+";"+(x.status||"pending")+";"+(x.cv?T("bor","yes"):"-"); }).join("\n");
+      (x.total||0)+";"+(x.status||"pending"); }).join("\n");
     var a2=document.createElement("a");
-    a2.href="data:text/csv;charset=utf-8,"+encodeURIComponent("﻿#;Ism;Familiya;Guruh;Email;Ball;Holat;CV\n"+rows);
+    a2.href="data:text/csv;charset=utf-8,"+encodeURIComponent("﻿#;Ism;Familiya;Guruh;Email;Ball;Holat\n"+rows);
     a2.download="terdu-reyting.csv"; a2.click();
   };
 }
 
 /* ---------- o'qituvchi: CV, pochta, maxfiy kalit ---------- */
-function tcCvGet(id,nm,btn){
-  if(!cloudOn||!BASE){ toast(T("Baza ulanmagan","Not connected")); return; }
-  var t0=btn.innerHTML; btn.disabled=true; btn.innerHTML="⏳";
-  cvUrl("/cv/"+id,function(u){
-    fetch(u).then(function(r){
-      if(!r.ok){
-        btn.disabled=false; btn.innerHTML=t0;
-        toast((r.status===401||r.status===403)
-          ? T("Ruxsat yo'q — pastdagi \"Maxfiy kirish\" bo'limidan kiring.","No access — sign in under \"Private access\" below.")
-          : ("HTTP "+r.status));
-        return null;
-      }
-      return r.json();
-    }).then(function(v){
-      btn.disabled=false; btn.innerHTML=t0;
-      if(!v) return;
-      if(!v.d){ toast(T("Fayl topilmadi","File not found")); return; }
-      var a=document.createElement("a"); a.href=v.d; a.download=(v.n||nm||"cv");
-      document.body.appendChild(a); a.click(); a.remove();
-      toast(T("CV yuklab olindi","CV downloaded"));
-    }).catch(function(){ btn.disabled=false; btn.innerHTML=t0; toast(T("Tarmoq xatosi","Network error")); });
-  });
-}
+
 function mails(list){
   var seen={}, out=[];
   list.forEach(function(x){
@@ -1939,56 +2059,6 @@ function tcMailBind(okl){
     if(navigator.clipboard&&navigator.clipboard.writeText){
       navigator.clipboard.writeText(str).then(done,function(){ note(str); });
     } else { note(str); }
-  };
-}
-function tcKeyBox(){
-  var on=taOn();
-  return '<div class="rt-sec"><h4>🔐 '+T("Maxfiy kirish (CV ni ko'rish uchun)","Private access (to open CVs)")+
-    ' <span class="rt-lock'+(on?" on":"")+'">'+(on?"✅ "+T("kirgansiz","signed in"):"🔒 "+T("kirilmagan","signed out"))+'</span></h4>'+
-    (on
-      ? '<p class="rt-note" style="margin:0">'+esc(TA.email)+'<br>UID: <code style="font-size:11px">'+esc(TA.uid||"")+'</code></p>'+
-        '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">'+
-          '<button class="btn" id="tkRules">📋 '+T("Qoidalar matnini ko\'rish","Show the rules")+'</button>'+
-          '<button class="btn warn" id="tkOut">🚪 '+T("Chiqish","Sign out")+'</button></div>'+
-        '<div id="tkOut2"></div>'
-      : '<p class="rt-note" style="margin:0 0 10px">'+T(
-          "Talabalarning CV si maxfiy tugunda saqlanadi. Uni ochish uchun Firebase hisobingiz bilan bir marta kiring — kalit shu brauzerda saqlanadi.",
-          "Student CVs are kept in a private node. Sign in once with your Firebase account to open them — the key stays in this browser.")+'</p>'+
-        '<div class="rt-form" style="max-width:420px;margin:0">'+
-          '<label>Web API key<input id="tkKey" placeholder="AIza…"></label>'+
-          '<label>Email<input id="tkEm" type="email" placeholder="siz@gmail.com"></label>'+
-          '<label>'+T("Parol","Password")+'<input id="tkPw" type="password" placeholder="••••••••"></label>'+
-          '<button class="btn accent" id="tkGo" style="justify-content:center">🔓 '+T("Kirish","Sign in")+'</button>'+
-        '</div><p class="rt-note" id="tkMsg"></p>')+
-    '</div>';
-}
-function tcKeyBind(){
-  var go=document.getElementById("tkGo");
-  if(go){
-    go.onclick=function(){
-      var k=document.getElementById("tkKey").value.trim(),
-          e=document.getElementById("tkEm").value.trim(),
-          w=document.getElementById("tkPw").value;
-      var m=document.getElementById("tkMsg");
-      if(!k||!okMail(e)||!w){ m.textContent=T("Uchala maydonni to'ldiring.","Fill in all three fields."); return; }
-      go.disabled=true; m.textContent=T("Tekshirilmoqda…","Checking…");
-      taLogin(k,e,w,function(ok,info){
-        go.disabled=false;
-        if(!ok){ m.textContent=T("Kirib bo'lmadi: ","Sign-in failed: ")+info; return; }
-        toast(T("Kirdingiz ✅","Signed in ✅")); tcDraw();
-      });
-    };
-    return;
-  }
-  var ob=document.getElementById("tkOut");
-  if(ob) ob.onclick=function(){ taOut(); toast(T("Chiqdingiz","Signed out")); tcDraw(); };
-  var rb=document.getElementById("tkRules");
-  if(rb) rb.onclick=function(){
-    document.getElementById("tkOut2").innerHTML='<p class="rt-note" style="margin-top:10px">'+T(
-      "Firebase → Realtime Database → Rules ga shuni qo'ying va Publish qiling. Shundan keyin CV ni faqat shu hisob o'qiy oladi:",
-      "Put this into Firebase → Realtime Database → Rules and publish. After that only this account can read the CVs:")+
-      '</p><code style="display:block;margin-top:6px;font-size:11px;word-break:break-all;background:var(--chip);padding:10px;border-radius:10px">'+
-      esc(rulesTxt(TA&&TA.uid))+'</code>';
   };
 }
 
