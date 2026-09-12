@@ -361,6 +361,10 @@ function chrome(){
 var CFG={db:"tadbirkorlik-asoslari-default-rtdb",
   url:"https://tadbirkorlik-asoslari-default-rtdb.asia-southeast1.firebasedatabase.app",
   regions:["asia-southeast1","europe-west1","us-central1","europe-west4","asia-east1","us-east1","northamerica-northeast1"]};
+/* ===== ARENA OCHIQ/YOPIQ =====
+   false — arena yopiq, talabalar "yopiq" ekranini ko'radi.
+   Ochish uchun: true qiling (engine_js.txt dagi ARENA_OPEN ham). */
+var ARENA_OPEN=false;
 var BASE=null, online=false;
 function bases(){
   var o=[];
@@ -2592,6 +2596,14 @@ function offline(msg){
    '<code style="display:block;margin-top:10px;font-size:11px;word-break:break-all;background:var(--chip);padding:10px;border-radius:10px">"arena": {".read": true, ".write": true}</code></div>');
 }
 
+function closed(){
+  APP.innerHTML=card('<div class="center"><div style="font-size:52px">🔒</div>'+
+   '<h2 style="margin:12px 0">'+L("O'yin arenasi vaqtincha yopiq","The game arena is closed for now")+'</h2>'+
+   '<p class="note">'+L("O'qituvchi arenani yopib qo'ydi. Ochilganda bu sahifa yana ishlaydi — hozircha darsga qayting.",
+     "Your teacher has closed the arena. It will work again once they reopen it — head back to the lesson for now.")+'</p>'+
+   '<a class="btn accent" href="index.html" style="margin-top:16px">📚 '+L("Darslarga qaytish","Back to the lessons")+'</a></div>');
+}
+
 /* ---------- boshqaruv paneli ---------- */
 function vHome(){
   APP.innerHTML=
@@ -3120,6 +3132,7 @@ function route(){
   unwatchAll(); clearInterval(TICK); clearInterval(HB);
   if(RUN&&RUN.off){ try{RUN.off()}catch(e){} RUN=null; }
   var cd=document.querySelector(".cd"); if(cd) cd.remove();
+  if(!ARENA_OPEN) return closed();
   if(!ME) return need();
   if(ME.status&&ME.status!=="ok") return pending();
   if(!online) return offline();
@@ -3133,8 +3146,11 @@ window.addEventListener("hashchange",route);
 chrome();
 document.getElementById("btnSnd").textContent=FX.isMuted()?"🔇":"🔊";
 loadMe();
-APP.innerHTML=card('<p class="note center">'+L("Serverga ulanmoqda…","Connecting…")+'</p>');
-connect(function(ok,why){ online=ok; route(); if(!ok&&why==="rules") offline(); });
+if(!ARENA_OPEN){ closed(); }
+else {
+  APP.innerHTML=card('<p class="note center">'+L("Serverga ulanmoqda…","Connecting…")+'</p>');
+  connect(function(ok,why){ online=ok; route(); if(!ok&&why==="rules") offline(); });
+}
 })();
 
 </script>
