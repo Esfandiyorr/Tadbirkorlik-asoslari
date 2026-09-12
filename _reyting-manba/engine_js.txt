@@ -106,10 +106,12 @@ function cloudSetStatus(id,st,cb){
     body:JSON.stringify(st)}).then(function(r){ cb&&cb(r.ok); }).catch(function(){ cb&&cb(false); });
 }
 function approved(){ return !cloudOn || (S&&S.status==="ok"); }
-function rulesTxt(){
+function rulesTxt(uid){
   return '{"rules":{"students":{".read":true,".write":true},"chat":{".read":true,".write":true},'+
     '"media":{".read":true,".write":true},"meta":{".read":true,".write":true},'+
-    '"arena":{".read":true,".write":true},"jurnal":{".read":true,".write":true}}}';
+    '"arena":{".read":true,".write":true},"jurnal":'+
+    (uid ? '{".read":true,".write":"auth != null && auth.uid === \''+uid+'\'"}'
+         : '{".read":true,".write":true}')+'}}';
 }
 var RULES=rulesTxt();
 function tcTest(){
@@ -125,7 +127,7 @@ function tcTest(){
         (bad.length?'<p class="rt-note" style="margin-top:8px">'+T("Yechim: Firebase → Realtime Database → Rules ga faqat shuni qo'ying va Publish qiling:",
           "Fix: put only this into Firebase → Realtime Database → Rules and publish:")+
           '<br><code style="display:block;margin-top:6px;font-size:11px;word-break:break-all;background:var(--chip);padding:8px;border-radius:9px">'+
-          esc(rulesTxt())+'</code></p>'
+          esc(rulesTxt(TA&&TA.uid))+'</code></p>'
          :'<p class="rt-note" style="margin-top:8px">✅ '+T("Hammasi joyida — rasm va video yuborish ishlaydi.",
            "Everything is fine — sending images and videos works.")+'</p>')+'</div>';
       return;
@@ -457,6 +459,41 @@ function myMarks(){
   });
 }
 
+/* ---------- o'qituvchi kirishi: baho FAQAT shu hisob bilan qo'yiladi ---------- */
+var TA=lget("terdu_ta",null);
+function taSave(){ lset("terdu_ta",TA); }
+function taOut(){ TA=null; lset("terdu_ta",null); }
+function taOn(){ return !!(TA&&TA.key&&TA.rt); }
+function taFresh(cb){
+  if(!taOn()){ cb(false); return; }
+  if(TA.tok&&Date.now()<(TA.exp||0)-60000){ cb(true); return; }
+  fetch("https://securetoken.googleapis.com/v1/token?key="+encodeURIComponent(TA.key),{
+    method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},
+    body:"grant_type=refresh_token&refresh_token="+encodeURIComponent(TA.rt)})
+   .then(function(r){ return r.ok?r.json():null; })
+   .then(function(j){
+     if(!j||!j.id_token){ cb(false); return; }
+     TA.tok=j.id_token; TA.rt=j.refresh_token||TA.rt;
+     TA.exp=Date.now()+(parseInt(j.expires_in||3600,10)*1000); taSave(); cb(true);
+   }).catch(function(){ cb(false); });
+}
+/* yozish uchun so'rov qo'shimchasi (?auth=...) */
+function taQ(cb){ taFresh(function(ok){ cb(ok?("?auth="+encodeURIComponent(TA.tok)):""); }); }
+function taLogin(key,em,pw,cb){
+  fetch("https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key="+encodeURIComponent(key),{
+    method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({email:em,password:pw,returnSecureToken:true})})
+   .then(function(r){ return r.json().then(function(j){ return {ok:r.ok,j:j}; }); })
+   .then(function(x){
+     if(!x.ok||!x.j.idToken){ cb(false,(x.j&&x.j.error&&x.j.error.message)||"XATO"); return; }
+     TA={key:key,email:em,uid:x.j.localId,tok:x.j.idToken,rt:x.j.refreshToken,
+         exp:Date.now()+(parseInt(x.j.expiresIn||3600,10)*1000)};
+     taSave(); cb(true,x.j.localId);
+   }).catch(function(){ cb(false,"tarmoq"); });
+}
+function denied(st){ return st===401||st===403; }
+function needLogin(){ toast(T("Avval 🔐 \"O'qituvchi kirishi\" dan kiring","Sign in under \"Teacher sign-in\" first")); }
+
 /* ---------- kunlik jurnal (guruhlar bo'yicha) ---------- */
 function gkey(g){ return String(g||"—").trim().replace(/[.#$\[\]\/]/g,"-").replace(/\s+/g," ").slice(0,60)||"—"; }
 function today(){ var d=new Date(); return d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2)+"-"+("0"+d.getDate()).slice(-2); }
@@ -478,8 +515,13 @@ function jurSet(gk,d,id,val,cb){
     var k="terdu_jur_"+gk+"_"+d, o=lget(k,{}); if(val===null) delete o[id]; else o[id]=val; lset(k,o); cb&&cb(true); return;
   }
   var u=BASE+"/jurnal/"+encodeURIComponent(gk)+"/"+d+"/"+id+".json";
-  fetch(u,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(val)})
-   .then(function(r){ cb&&cb(r.ok); }).catch(function(){ cb&&cb(false); });
+  taQ(function(q){
+    fetch(u+q,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(val)})
+     .then(function(r){
+       var dn=denied(r.status); if(dn) needLogin();
+       cb&&cb(r.ok,dn);
+     }).catch(function(){ cb&&cb(false,false); });
+  });
 }
 var JUR={g:null,d:null,day:{},view:"day"};
 function groupsOf(list){
@@ -552,8 +594,8 @@ function jurTable(cur){
     '<p class="rt-note">'+T("Har bir belgi darhol saqlanadi.","Every mark is saved instantly.")+'</p>';
 
   function put(id,val){
-    jurSet(JUR.g,JUR.d,id,val,function(ok){
-      if(!ok){ toast(T("Saqlanmadi","Not saved")); return; }
+    jurSet(JUR.g,JUR.d,id,val,function(ok,dn){
+      if(!ok){ if(!dn) toast(T("Saqlanmadi","Not saved")); return; }
       if(val===null) delete JUR.day[id]; else JUR.day[id]=val;
       jurTable(cur);
     });
@@ -590,8 +632,13 @@ function jurTable(cur){
   document.getElementById("jClr").onclick=function(){
     if(!confirm(T("Shu kundagi barcha belgilarni o'chirasizmi?","Delete every mark for this day?"))) return;
     if(!cloudOn||!BASE){ lset("terdu_jur_"+JUR.g+"_"+JUR.d,{}); JUR.day={}; jurTable(cur); return; }
-    fetch(BASE+"/jurnal/"+encodeURIComponent(JUR.g)+"/"+JUR.d+".json",{method:"DELETE"})
-      .then(function(){ JUR.day={}; jurTable(cur); toast(T("Tozalandi","Cleared")); });
+    taQ(function(q){
+      fetch(BASE+"/jurnal/"+encodeURIComponent(JUR.g)+"/"+JUR.d+".json"+q,{method:"DELETE"})
+        .then(function(r){
+          if(denied(r.status)){ needLogin(); return; }
+          JUR.day={}; jurTable(cur); toast(T("Tozalandi","Cleared"));
+        });
+    });
   };
   document.getElementById("jCsv").onclick=function(){
     var rows2=cur.list.map(function(x,i){
@@ -647,14 +694,76 @@ function dl(name,txt){
   a.href="data:text/csv;charset=utf-8,"+encodeURIComponent(txt); a.download=name;
   document.body.appendChild(a); a.click(); a.remove();
 }
+function tcAuth(){
+  var on=taOn();
+  return '<div class="rt-authbar'+(on?" on":"")+'" id="rtAuth">'+
+    '<span class="ic">'+(on?"🔓":"🔒")+'</span>'+
+    '<div class="t"><b>'+(on?T("O'qituvchi sifatida kirgansiz","Signed in as the teacher"):T("O'qituvchi kirishi","Teacher sign-in"))+'</b>'+
+      '<span>'+(on?esc(TA.email):T("Baho qo'yish uchun bir marta kiring — kalit shu brauzerda qoladi.",
+        "Sign in once to give marks — the key stays in this browser."))+'</span></div>'+
+    '<button class="btn'+(on?"":" accent")+'" id="rtAuthGo">'+(on?"🚪 "+T("Chiqish","Sign out"):"🔓 "+T("Kirish","Sign in"))+'</button>'+
+    '</div><div id="rtAuthBox"></div>';
+}
+function tcAuthBind(){
+  var b=document.getElementById("rtAuthGo"); if(!b) return;
+  b.onclick=function(){
+    if(taOn()){ taOut(); toast(T("Chiqdingiz","Signed out")); (TCV==="jur"?tcJur:tcDraw)(); return; }
+    var box=document.getElementById("rtAuthBox");
+    if(box.dataset.on==="1"){ box.dataset.on=""; box.innerHTML=""; return; }
+    box.dataset.on="1";
+    box.innerHTML='<div class="rt-sec"><div class="rt-form" style="max-width:420px;margin:0">'+
+      '<label>Web API key<input id="tkKey" placeholder="AIza…" value="'+esc((TA&&TA.key)||CFG.apiKey||"")+'"></label>'+
+      '<label>Email<input id="tkEm" type="email" placeholder="siz@gmail.com"></label>'+
+      '<label>'+T("Parol","Password")+'<input id="tkPw" type="password" placeholder="••••••••"></label>'+
+      '<button class="btn accent" id="tkGo" style="justify-content:center">🔓 '+T("Kirish","Sign in")+'</button>'+
+      '</div><p class="rt-note" id="tkMsg">'+T(
+        "Firebase Console → Authentication da ochilgan hisobingiz. Kalitni faqat o'z kompyuteringizda kiriting.",
+        "The account you created in Firebase Console → Authentication. Only sign in on your own computer.")+'</p>'+
+      '<button class="rt-tclink" id="tkHelp">❓ '+T("Qanday sozlanadi?","How do I set this up?")+'</button>'+
+      '<div id="tkHelpBox"></div></div>';
+    document.getElementById("tkGo").onclick=function(){
+      var k=document.getElementById("tkKey").value.trim(),
+          e=document.getElementById("tkEm").value.trim(),
+          w=document.getElementById("tkPw").value, m=document.getElementById("tkMsg");
+      if(!k||!okMail(e)||!w){ m.textContent=T("Uchala maydonni to'ldiring.","Fill in all three fields."); return; }
+      this.disabled=true; m.textContent=T("Tekshirilmoqda…","Checking…");
+      var btn=this;
+      taLogin(k,e,w,function(ok,info){
+        btn.disabled=false;
+        if(!ok){ m.textContent=T("Kirib bo'lmadi: ","Sign-in failed: ")+info; return; }
+        toast(T("Kirdingiz ✅","Signed in ✅")); (TCV==="jur"?tcJur:tcDraw)();
+      });
+    };
+    document.getElementById("tkHelp").onclick=function(){ tkSteps(); };
+  };
+}
+function tkSteps(){
+  var box=document.getElementById("tkHelpBox"); if(!box) return;
+  if(box.dataset.on==="1"){ box.dataset.on=""; box.innerHTML=""; return; }
+  box.dataset.on="1";
+  box.innerHTML='<ol class="rt-steps">'+
+    '<li>'+T("Firebase Console → <b>Authentication</b> → Sign-in method → <b>Email/Password</b> ni yoqing.",
+      "Firebase Console → <b>Authentication</b> → Sign-in method → enable <b>Email/Password</b>.")+'</li>'+
+    '<li>'+T("<b>Users</b> → <b>Add user</b> → o'z emailingiz va parolingizni kiriting.",
+      "<b>Users</b> → <b>Add user</b> → enter your email and a password.")+'</li>'+
+    '<li>'+T("⚙️ <b>Project settings</b> → General → <b>Web API Key</b> ni nusxalang.",
+      "⚙️ <b>Project settings</b> → General → copy the <b>Web API Key</b>.")+'</li>'+
+    '<li>'+T("Shu yerga kiriting va <b>Kirish</b> ni bosing.","Enter them here and press <b>Sign in</b>.")+'</li>'+
+    '<li>'+T("Kirgach pastdagi <b>🔎 Tekshiruv</b> tugmasidagi qoidalar matnini Firebase → Realtime Database → <b>Rules</b> ga qo'ying va <b>Publish</b> qiling.",
+      "Then copy the rules text from <b>🔎 Self-test</b> below into Firebase → Realtime Database → <b>Rules</b> and publish.")+'</li>'+
+    '</ol><p class="rt-note">'+T(
+      "Shundan keyin baholarni hamma ko'radi, lekin qo'yishni faqat shu hisob uddalaydi.",
+      "After that everyone can read the marks, but only this account can write them.")+'</p>';
+}
 function tcTabs(){
-  return '<div class="rt-subtabs">'+
+  return tcAuth()+'<div class="rt-subtabs">'+
     '<button class="rt-sub'+(TCV==="list"?" on":"")+'" data-v="list">👥 '+T("Talabalar","Students")+'</button>'+
     '<button class="rt-sub'+(TCV==="jur"?" on":"")+'" data-v="jur">📋 '+T("Kunlik baholash","Daily marks")+'</button>'+
     '</div>';
 }
 function tcTabsBind(){
   var out=document.getElementById("rtTcOut"); if(!out) return;
+  tcAuthBind();
   out.querySelectorAll(".rt-sub").forEach(function(b){
     b.onclick=function(){ TCV=b.dataset.v; if(TCV==="jur") tcJur(); else tcDraw(); };
   });
