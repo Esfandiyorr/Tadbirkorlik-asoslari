@@ -230,6 +230,73 @@ canvas{max-width:100%;border-radius:14px;background:var(--panel2);touch-action:n
 .lvl i.on{background:var(--amber)}
 .rt-diag{background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:12px 14px;font-size:13.5px}
 
+/* ===== JOSUS ===== */
+.sp-wrap{max-width:620px;margin:0 auto}
+.sp-card{perspective:1200px;height:300px;margin:0 auto;max-width:380px;cursor:pointer}
+.sp-inner{position:relative;width:100%;height:100%;transition:transform .7s cubic-bezier(.4,.2,.2,1);transform-style:preserve-3d}
+.sp-card.open .sp-inner{transform:rotateY(180deg)}
+.sp-face{position:absolute;inset:0;backface-visibility:hidden;border-radius:22px;display:grid;place-items:center;
+  text-align:center;padding:20px;box-shadow:0 18px 40px -14px rgba(0,0,0,.5);color:#fff}
+.sp-back{background:linear-gradient(150deg,#1e293b,#0f172a);border:2px solid rgba(255,255,255,.12)}
+.sp-back .q{font-size:70px;opacity:.9}
+.sp-back b{display:block;font-size:19px;margin-top:10px}
+.sp-back span{display:block;font-size:13px;opacity:.75;margin-top:6px}
+.sp-front{transform:rotateY(180deg)}
+.sp-front.civ{background:linear-gradient(150deg,#12a150,#0891b2)}
+.sp-front.spy{background:linear-gradient(150deg,#e11d48,#7c3aed)}
+.sp-front .ic{font-size:62px;line-height:1}
+.sp-front h2{color:#fff;margin:8px 0 4px;font-size:clamp(20px,5vw,28px)}
+.sp-front .role{display:inline-block;background:rgba(255,255,255,.22);border-radius:999px;padding:6px 16px;
+  font-size:16px;font-weight:800;margin-top:6px}
+.sp-front p{margin:10px 0 0;font-size:13.5px;opacity:.92;line-height:1.5}
+.sp-mates{background:rgba(0,0,0,.25);border-radius:14px;padding:8px 12px;margin-top:10px;font-size:13.5px}
+.sp-locs{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:7px;margin-top:10px}
+.sp-loc{border:1.5px solid var(--line);background:var(--panel2);border-radius:12px;padding:8px 6px;font-size:11.5px;
+  font-weight:700;cursor:pointer;font-family:inherit;color:var(--ink);text-align:center;transition:.15s;line-height:1.3}
+.sp-loc .e{display:block;font-size:19px;margin-bottom:2px}
+.sp-loc.off{opacity:.35;text-decoration:line-through;background:var(--chip)}
+.sp-loc.pick{border-color:var(--violet);background:color-mix(in srgb,var(--violet) 16%,transparent);transform:scale(1.04)}
+.sp-turn{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}
+.sp-p{display:flex;align-items:center;gap:6px;border:1.5px solid var(--line);background:var(--panel2);
+  border-radius:999px;padding:4px 12px 4px 4px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;
+  color:var(--ink);transition:.16s}
+.sp-p .av{width:26px;height:26px;min-width:26px;border-radius:50%;display:grid;place-items:center;font-size:11px;color:#fff;font-weight:800}
+.sp-p.now{border-color:var(--violet);box-shadow:0 0 0 3px color-mix(in srgb,var(--violet) 24%,transparent);transform:translateY(-2px)}
+.sp-p.sus{border-color:var(--red)}
+.sp-p.ok2{border-color:var(--green)}
+.sp-p .mk{font-size:14px}
+.sp-q{background:linear-gradient(135deg,var(--violet),var(--blue));color:#fff;border-radius:18px;padding:18px 16px;
+  text-align:center;font-size:clamp(16px,3.6vw,20px);font-weight:700;min-height:74px;display:grid;place-items:center;
+  animation:qin .35s}
+@keyframes qin{from{opacity:0;transform:translateY(8px) scale(.97)}to{opacity:1}}
+.sp-vote{display:grid;gap:9px;margin-top:10px}
+.sp-v{display:flex;align-items:center;gap:11px;border:1.5px solid var(--line);background:var(--panel2);
+  border-radius:16px;padding:10px 13px;cursor:pointer;font-family:inherit;color:var(--ink);width:100%;text-align:left;
+  transition:.16s;position:relative;overflow:hidden}
+.sp-v:hover{border-color:var(--violet)}
+.sp-v.me2{border-color:var(--violet);background:color-mix(in srgb,var(--violet) 12%,transparent)}
+.sp-v .bar2{position:absolute;left:0;top:0;bottom:0;background:color-mix(in srgb,var(--violet) 16%,transparent);transition:width .5s;z-index:0}
+.sp-v>*{position:relative;z-index:1}
+.sp-v .av{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:800;font-size:14px}
+.sp-v .n2{flex:1;min-width:0}
+.sp-v .n2 b{display:block;font-size:15px}
+.sp-v .n2 span{display:block;font-size:11.5px;color:var(--muted)}
+.sp-v .cnt{font-weight:900;font-size:18px;color:var(--violet)}
+.sp-rev{text-align:center;padding:26px 16px;border-radius:22px;color:#fff;animation:rev .6s}
+@keyframes rev{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:scale(1)}}
+.sp-rev.win{background:linear-gradient(150deg,#12a150,#0891b2)}
+.sp-rev.lose{background:linear-gradient(150deg,#e11d48,#7c3aed)}
+.sp-rev .big2{font-size:clamp(24px,6vw,38px);font-weight:900;margin:8px 0}
+.sp-bar{height:26px;border-radius:8px;background:var(--chip);overflow:hidden;position:relative}
+.sp-bar i{display:block;height:100%;background:linear-gradient(90deg,var(--violet),var(--pink));transition:width .8s}
+.sp-bar b{position:absolute;left:9px;top:3px;font-size:13px}
+.sp-tip{background:color-mix(in srgb,var(--amber) 15%,transparent);border:1px solid color-mix(in srgb,var(--amber) 35%,transparent);
+  border-radius:14px;padding:10px 13px;font-size:12.5px;line-height:1.6;margin-top:10px}
+.sp-timer{display:flex;align-items:center;gap:8px;justify-content:center;margin:10px 0}
+.sp-timer b{font-family:ui-monospace,Menlo,monospace;font-size:22px;font-weight:800}
+.sp-timer.low b{color:var(--red);animation:pulse .6s infinite alternate}
+@keyframes pulse{to{opacity:.45}}
+
 @media print{.topbar,.hud{display:none}}
 </style>
 </head>
@@ -1385,170 +1452,292 @@ var SPYQ=[
  ["Kechasi bu yerda nima bo'ladi?","What happens here at night?"],
  ["Bu yerda kim boshliq?","Who is in charge here?"]
 ];
-addG("spy",{ic:"🕵️",nm:["Josus","Spy"],desc:["Hammaga joy aytiladi, bittasiga — yo'q. Savol berib josusni toping!","Everyone learns the location except one. Ask questions and find the spy!"],
- dur:330,higher:true,minp:3,shared:true,
+addG("spy",{ic:"🕵️",nm:["Josus","Spy"],desc:["Hammaga joy aytiladi, bir-ikkitasiga — yo'q. Savol berib josusni toping!","Everyone learns the location except one or two. Ask questions and unmask the spy!"],
+ dur:360,higher:true,minp:3,shared:true,
  run:function(c){
   var n=c.players.length;
   if(n<3){
-    c.el.innerHTML='<div class="center"><div style="font-size:46px">🕵️</div><h3 style="margin:12px 0">'+
+    c.el.innerHTML='<div class="center" style="padding:20px"><div style="font-size:50px">🕵️</div><h3 style="margin:12px 0">'+
       L("Josus uchun kamida 3 kishi kerak","The spy game needs at least three players")+'</h3></div>';
     setTimeout(function(){ c.finish(100); },1500);
     return {end:function(){ c.finish(100); }};
   }
-  /* joy va josus xona urug'idan aniqlanadi — hamma bir xil natijani hisoblaydi */
+  /* ---------- rollar (umumiy urug'dan) ---------- */
   var spot=SPOTS[Math.floor(c.rand()*SPOTS.length)];
   var nSpy=(n>=14)?3:((n>=8)?2:1);
   var idxs=[]; for(var q=0;q<n;q++) idxs.push(q);
   shuffle(idxs,c.rand);
-  var spyIdxs=idxs.slice(0,nSpy);
-  var spyIds=spyIdxs.map(function(k){ return c.players[k].id; });
+  var spyIds=idxs.slice(0,nSpy).map(function(k){ return c.players[k].id; });
   var amSpy=spyIds.indexOf(c.me.id)>=0;
   var roles=shuffle(spot[3].slice(),c.rand);
   var myRole=roles[c.players.map(function(p){return p.id}).indexOf(c.me.id)%roles.length];
   var mates=spyIds.filter(function(x){return x!==c.me.id}).map(function(x){
     return (c.players.filter(function(p){return p.id===x})[0]||{}).name||"?"; });
   var path="rooms/"+c.code+"/spy/r"+c.round;
-  var fin=false, phase="role", voted=null, score=0;
-  var T_ROLE=12000, T_TALK=Math.max(60000,(c.endAt-Date.now())-70000), T_VOTE=45000;
-  var t0=Date.now();
-  function head(t,sub){
-    return '<div class="center" style="margin-bottom:12px"><span class="kicker">'+t+'</span>'+
-      (sub?'<p class="note" style="margin-top:8px">'+sub+'</p>':'')+'</div>';
+
+  /* ---------- bosqichlar (hamma uchun bir xil vaqt) ---------- */
+  var T0=c.startAt||Date.now(), TE=c.endAt;
+  var P_ROLE=T0+22000, P_VOTE=Math.max(P_ROLE+30000,TE-55000), P_DONE=TE-7000;
+  var phase="", fin=false, score=0, voted=null, turn=0, crossed={}, marks={}, opened=false;
+
+  /* ---------- yordamchilar ---------- */
+  function av(p,sz){ return '<span class="av" style="background:'+colorOf(p.id)+(sz?';width:'+sz+'px;height:'+sz+'px':'')+'">'+
+    esc(initials(p.name,p.surname))+'</span>'; }
+  function timer(){ return '<div class="sp-timer" id="sptm"><span>⏳</span><b>--</b></div>'; }
+  function locGrid(mode){
+    return '<div class="sp-locs" id="splocs">'+SPOTS.map(function(x,i){
+      return '<button class="sp-loc'+(crossed[i]?" off":"")+'" data-l="'+i+'">'+
+        '<span class="e">'+x[0]+'</span>'+esc(L(x[1],x[2]))+'</button>';
+    }).join("")+'</div>';
   }
-  /* --- 1-bosqich: rolni ko'rsatish --- */
+  function bindLocs(onPick){
+    [].slice.call(c.el.querySelectorAll("[data-l]")).forEach(function(b){
+      b.onclick=function(){
+        var i=parseInt(b.dataset.l,10);
+        if(onPick){ [].slice.call(c.el.querySelectorAll("[data-l]")).forEach(function(x){x.classList.remove("pick")});
+          b.classList.add("pick"); onPick(i); c.fx.s.tap(); return; }
+        crossed[i]=!crossed[i]; b.classList.toggle("off",!!crossed[i]); c.fx.s.tap();
+      };
+    });
+  }
+
+  /* ---------- 1-bosqich: rol kartasi ---------- */
   function vRole(){
     phase="role";
-    c.el.innerHTML=head(L("Rolingiz","Your role"),L("Bu ekranni hech kimga ko'rsatmang!","Do not show this screen to anyone!"))+
-      (amSpy
-        ? '<div class="card" style="--c:var(--red);text-align:center;background:linear-gradient(135deg,#e11d48,#7c3aed);color:#fff">'+
-          '<div style="font-size:58px">🕵️</div><h2 style="color:#fff;margin:8px 0">'+L("SIZ JOSUSSIZ","YOU ARE THE SPY")+'</h2>'+
-          '<p style="margin:0">'+L("Joy qayerligini bilmaysiz. Savollarga shunday javob beringki, sizni fosh qilmasin — va joyni toping.",
-            "You do not know the location. Answer so that nobody unmasks you — and try to work out where you are.")+'</p>'+
-          (mates.length?'<p style="margin:10px 0 0;font-size:15px;background:rgba(0,0,0,.22);border-radius:12px;padding:8px">🤝 '+
-            L("Sherik josus(lar)","Fellow spies")+': <b>'+esc(mates.join(", "))+'</b></p>':'')+'</div>'
-        : '<div class="card" style="text-align:center;background:linear-gradient(135deg,#12a150,#0891b2);color:#fff">'+
-          '<div style="font-size:58px">'+spot[0]+'</div><h2 style="color:#fff;margin:8px 0">'+esc(L(spot[1],spot[2]))+'</h2>'+
-          '<p style="margin:0;font-size:17px">'+L("Sizning rolingiz","Your role")+': <b>'+esc(myRole)+'</b></p>'+
-          '<p style="margin:8px 0 0;font-size:13.5px;opacity:.9">'+L("Orangizda bitta josus bor. Uni savollar bilan toping!",
-            "One of you is the spy. Find them with your questions!")+'</p></div>')+
-      '<p class="note center" style="margin-top:14px" id="sptm"></p>';
-    c.fx.s[amSpy?"no":"ok"]();
+    c.el.innerHTML='<div class="sp-wrap"><div class="center" style="margin-bottom:12px">'+
+      '<span class="kicker">🕵️ '+L("Rolingiz","Your role")+'</span>'+
+      '<p class="note" style="margin-top:8px">'+L("Kartani ochish uchun bosing. Yoningizdagilar ko'rmasin!",
+        "Tap the card to reveal it. Do not let your neighbours see!")+'</p></div>'+
+      '<div class="sp-card" id="spc"><div class="sp-inner">'+
+        '<div class="sp-face sp-back"><div><div class="q">❓</div><b>'+L("Bosing","Tap")+'</b>'+
+          '<span>'+L("rolingizni ko'rish uchun","to see your role")+'</span></div></div>'+
+        '<div class="sp-face sp-front '+(amSpy?"spy":"civ")+'"><div>'+
+          (amSpy
+            ? '<div class="ic">🕵️</div><h2>'+L("SIZ JOSUSSIZ","YOU ARE THE SPY")+'</h2>'+
+              '<p>'+L("Joyni bilmaysiz. Fosh bo'lmang va javoblardan joyni toping.",
+                "You do not know the location. Blend in and work out where you are.")+'</p>'+
+              (mates.length?'<div class="sp-mates">🤝 '+L("Sherigingiz","Your partner")+': <b>'+esc(mates.join(", "))+'</b></div>':'')
+            : '<div class="ic">'+spot[0]+'</div><h2>'+esc(L(spot[1],spot[2]))+'</h2>'+
+              '<span class="role">'+esc(myRole)+'</span>'+
+              '<p>'+(nSpy===1?L("Orangizda 1 ta josus bor.","There is one spy among you.")
+                            :L("Orangizda "+nSpy+" ta josus bor.","There are "+nSpy+" spies among you."))+'</p>')+
+        '</div></div>'+
+      '</div></div>'+
+      '<div class="row" style="justify-content:center;margin-top:12px"><button class="btn" id="sphide" style="display:none">🙈 '+L("Yashirish","Hide")+'</button></div>'+
+      timer()+
+      '<div class="sp-tip">💡 '+L("Maslahat: javobingiz juda aniq bo'lmasin — josus joyni bilib qolishi mumkin. Lekin juda umumiy javob ham shubha uyg'otadi.",
+        "Tip: do not be too specific — the spy may work out the location. But a vague answer looks suspicious too.")+'</div></div>';
+    var card=c.el.querySelector("#spc"), hide=c.el.querySelector("#sphide");
+    card.onclick=function(){
+      card.classList.toggle("open");
+      var on=card.classList.contains("open");
+      hide.style.display=on?"":"none";
+      if(on&&!opened){ opened=true; c.fx.s[amSpy?"no":"ok"](); c.fx.vib(30); }
+      else c.fx.s.tap();
+    };
+    hide.onclick=function(e){ e.stopPropagation(); card.classList.remove("open"); hide.style.display="none"; c.fx.s.tap(); };
   }
-  /* --- 2-bosqich: savol-javob --- */
+
+  /* ---------- 2-bosqich: savol-javob ---------- */
   function vTalk(){
     phase="talk";
-    var order=c.players.map(function(p){ return p.name+" "+(p.surname||""); });
-    c.el.innerHTML=head("💬 "+L("Savol-javob","Questions"),
-        L("Navbat bilan bir-biringizga savol bering. Josus ushlanmaslikka, qolganlar esa uni fosh qilishga harakat qiladi.",
-          "Take turns asking each other questions. The spy tries to blend in, the others try to expose them."))+
-      '<div class="grid g2">'+
-      '<div class="card"><h3>👥 '+L("Navbat tartibi","Turn order")+'</h3><ol style="margin:8px 0 0;padding-left:20px;line-height:1.9">'+
-        order.map(function(x){ return "<li>"+esc(x)+"</li>"; }).join("")+'</ol></div>'+
-      '<div class="card"><h3>❓ '+L("Savol namunalari","Sample questions")+'</h3>'+
-        '<div id="spq" style="font-size:17px;font-weight:700;min-height:56px;display:grid;place-items:center;text-align:center"></div>'+
-        '<button class="btn accent" id="spnew" style="width:100%;justify-content:center;margin-top:8px">🎲 '+L("Boshqa savol","Another question")+'</button></div>'+
-      '</div>'+
-      (amSpy?'<div class="card" style="--c:var(--red);margin-top:14px"><h3>🕵️ '+L("Sizning vazifangiz","Your mission")+'</h3>'+
-        '<p class="note">'+L("Javoblardan joyni aniqlang. Ovoz berishdan oldin joyni to'g'ri aytsangiz — g'alaba sizniki.",
-          "Work out the location from the answers. If you name it correctly before the vote, you win.")+'</p>'+
-        '<div class="row" style="margin-top:8px"><select id="spguess" style="flex:1">'+
-        SPOTS.map(function(x,i){ return '<option value="'+i+'">'+x[0]+" "+esc(L(x[1],x[2]))+'</option>'; }).join("")+
-        '</select><button class="btn warn" id="spgo">'+L("Joyni aytish","Name it")+'</button></div></div>'
-       :'<div class="card" style="--c:var(--green);margin-top:14px"><h3>'+spot[0]+' '+esc(L(spot[1],spot[2]))+'</h3>'+
-        '<p class="note">'+L("Sizning rolingiz","Your role")+': <b>'+esc(myRole)+'</b> · '+
-        L("Javoblaringiz juda aniq bo'lmasin — josus joyni bilib qolishi mumkin.",
-          "Do not be too specific — the spy may work out the location.")+'</p></div>')+
-      '<p class="note center" style="margin-top:14px" id="sptm"></p>';
-    function newQ(){ var q=SPYQ[Math.floor(Math.random()*SPYQ.length)];
-      c.el.querySelector("#spq").textContent=L(q[0],q[1]); }
-    c.el.querySelector("#spnew").onclick=function(){ newQ(); c.fx.s.tap(); };
+    c.el.innerHTML='<div class="sp-wrap">'+
+      '<div class="row" style="justify-content:space-between;align-items:center">'+
+        '<span class="kicker">💬 '+L("Savol-javob","Questions")+'</span>'+
+        '<button class="btn sm" id="spmy">'+(amSpy?"🕵️ ":(spot[0]+" "))+L("Rolim","My role")+'</button></div>'+
+      '<div class="sp-q" id="spq">…</div>'+
+      '<div class="row" style="margin-top:8px">'+
+        '<button class="btn accent" id="spnew" style="flex:1;justify-content:center">🎲 '+L("Yangi savol","New question")+'</button>'+
+        '<button class="btn vio" id="spwho" style="flex:1;justify-content:center">🎯 '+L("Kimga?","To whom?")+'</button></div>'+
+      timer()+
+      '<h3 style="margin:14px 0 6px;font-size:15px">👥 '+L("Navbat va shubhalar","Turn order and suspicions")+'</h3>'+
+      '<p class="note" style="margin:0 0 6px">'+L("O'yinchini bosib belgi qo'ying: ❓ shubhali · ✅ ishonaman","Tap a player to mark them: ❓ suspicious · ✅ trusted")+'</p>'+
+      '<div class="sp-turn" id="spturn"></div>'+
+      '<h3 style="margin:16px 0 6px;font-size:15px">📍 '+L("Joylar ro'yxati","Locations")+'</h3>'+
+      '<p class="note" style="margin:0 0 6px">'+(amSpy?L("Joyni taxmin qilsangiz — bosing va tasdiqlang. To'g'ri topsangiz darhol yutasiz!",
+          "Think you know the location? Tap it and confirm. A correct guess wins instantly!")
+        :L("Bo'lmaydigan joylarni bosib o'chirib boring.","Cross off the locations you have ruled out."))+'</p>'+
+      locGrid()+
+      (amSpy?'<div class="row" style="margin-top:10px"><button class="btn warn" id="spgo" style="flex:1;justify-content:center" disabled>🎯 '+
+        L("Shu joyni aytaman","Name this location")+'</button></div>':'')+
+      '</div>';
+    var pick=-1;
+    bindLocs(amSpy?function(i){ pick=i; var b=c.el.querySelector("#spgo"); if(b) b.disabled=false; }:null);
+    drawTurn();
     newQ();
+    c.el.querySelector("#spnew").onclick=function(){ newQ(); c.fx.s.pop(); };
+    c.el.querySelector("#spwho").onclick=function(){
+      var o=c.players.filter(function(p){ return p.id!==c.me.id; });
+      var t=o[Math.floor(Math.random()*o.length)];
+      c.el.querySelector("#spq").innerHTML='🎯 <b>'+esc(t.name)+'</b> '+L("ga savol bering","— ask them");
+      c.fx.s.go();
+    };
+    c.el.querySelector("#spmy").onclick=function(){
+      var box=c.el.querySelector("#spq");
+      box.innerHTML=amSpy?('🕵️ '+L("Siz josussiz","You are the spy")):(spot[0]+" <b>"+esc(L(spot[1],spot[2]))+"</b> · "+esc(myRole));
+      c.fx.s.tap();
+    };
     var g=c.el.querySelector("#spgo");
     if(g) g.onclick=function(){
-      var pick=parseInt(c.el.querySelector("#spguess").value,10);
+      if(pick<0) return;
       var ok=(SPOTS[pick]===spot);
-      DB.set(path+"/guess/"+c.me.id,{ok:ok?1:0,at:Date.now()});
-      if(ok){ c.fx.s.win(); c.fx.confetti(2500); score=400; }
-      else { c.fx.s.no(); score=0; }
+      DB.set(path+"/guess/"+c.me.id,{ok:ok?1:0,loc:pick,at:Date.now(),n:c.me.name});
+      if(ok){ score=420; c.fx.s.win(); c.fx.confetti(3000); }
+      else { score=0; c.fx.s.no(); }
       fin=true; c.prog(100,score);
-      c.el.innerHTML=head(ok?"🎉 "+L("Joyni topdingiz!","You guessed it!"):"❌ "+L("Noto'g'ri joy","Wrong location"),
-        L("To'g'ri javob","The answer")+": "+spot[0]+" "+esc(L(spot[1],spot[2])));
+      c.el.innerHTML='<div class="sp-wrap"><div class="sp-rev '+(ok?"win":"lose")+'">'+
+        '<div style="font-size:52px">'+(ok?"🎉":"❌")+'</div>'+
+        '<div class="big2">'+(ok?L("Joyni topdingiz!","You guessed it!"):L("Noto'g'ri joy","Wrong location"))+'</div>'+
+        '<p style="font-size:17px;margin:0">'+L("To'g'ri javob","The answer")+": "+spot[0]+" "+esc(L(spot[1],spot[2]))+'</p></div>'+
+        '<p class="note center" style="margin-top:12px">'+L("Ballingiz","Your points")+': <b>'+score+'</b></p></div>';
       c.finish(score);
     };
   }
-  /* --- 3-bosqich: ovoz berish --- */
-  function vVote(){
-    phase="vote";
-    c.el.innerHTML=head("🗳 "+L("Ovoz berish","Voting"),
-      L("Sizningcha kim josus? Bitta odamni tanlang.","Who do you think is the spy? Pick one person."))+
-      '<div class="plist" id="spv"></div><p class="note center" style="margin-top:12px" id="sptm"></p>';
-    var box=c.el.querySelector("#spv");
-    c.players.forEach(function(p){
-      if(p.id===c.me.id) return;
-      var b=el('<button class="pl" style="cursor:pointer;text-align:left;font-family:inherit;width:100%">'+
-        '<div class="av" style="background:'+colorOf(p.id)+'">'+esc(initials(p.name,p.surname))+'</div>'+
-        '<div class="nm"><b>'+esc(p.name+" "+(p.surname||""))+'</b><span>'+esc(p.group||"")+'</span></div>'+
-        '<span class="tag" data-v="'+esc(p.id)+'">'+L("Ovoz berish","Vote")+'</span></button>');
+  function newQ(){
+    var q=SPYQ[Math.floor(Math.random()*SPYQ.length)];
+    var box=c.el.querySelector("#spq"); if(!box) return;
+    box.style.animation="none"; box.offsetHeight; box.style.animation="";
+    box.textContent=L(q[0],q[1]);
+  }
+  function drawTurn(){
+    var box=c.el.querySelector("#spturn"); if(!box) return;
+    box.innerHTML=c.players.map(function(p,i){
+      var m=marks[p.id]||"";
+      return '<button class="sp-p'+(i===turn?" now":"")+(m==="?"?" sus":(m==="+"?" ok2":""))+'" data-p="'+esc(p.id)+'">'+
+        av(p)+esc(p.name)+(m?'<span class="mk">'+(m==="?"?"❓":"✅")+'</span>':'')+'</button>';
+    }).join("");
+    [].slice.call(box.querySelectorAll("[data-p]")).forEach(function(b){
       b.onclick=function(){
-        if(voted) return;
-        voted=p.id; c.fx.s.tap();
-        DB.set(path+"/votes/"+c.me.id,p.id);
-        [].slice.call(box.querySelectorAll(".tag")).forEach(function(t){
-          t.textContent=(t.dataset.v===p.id)?("✅ "+L("Ovozingiz","Your vote")):"";
-        });
+        var id=b.dataset.p;
+        marks[id]=(marks[id]==="?")?"+":((marks[id]==="+")?"":"?");
+        c.fx.s.tap(); drawTurn();
       };
-      box.appendChild(b);
-    });
-    watch(path+"/votes",1500,function(v){
-      var el2=c.el.querySelector("#sptm"); if(!el2) return;
-      var k=v?Object.keys(v).length:0;
-      el2.textContent=L("Ovoz berdi","Voted")+": "+k+" / "+n;
     });
   }
-  /* --- 4-bosqich: natija --- */
+
+  /* ---------- 3-bosqich: ovoz berish ---------- */
+  function vVote(){
+    phase="vote";
+    c.fx.s.go();
+    c.el.innerHTML='<div class="sp-wrap"><div class="center">'+
+      '<span class="kicker">🗳 '+L("Ovoz berish","Voting")+'</span>'+
+      '<h3 style="margin:12px 0 4px">'+(nSpy>1?L("Josuslardan birini tanlang","Pick one of the spies"):L("Sizningcha kim josus?","Who do you think is the spy?"))+'</h3>'+
+      '<p class="note">'+L("Vaqt tugaguncha fikringizni o'zgartirishingiz mumkin.","You can change your mind until the time runs out.")+'</p></div>'+
+      timer()+'<div class="sp-vote" id="spv"></div>'+
+      '<p class="note center" style="margin-top:10px" id="spcnt"></p></div>';
+    drawVote({});
+    watch(path+"/votes",1500,function(v){ drawVote(v||{}); });
+  }
+  function drawVote(votes){
+    var box=c.el.querySelector("#spv"); if(!box) return;
+    var cnt={}, tot=0;
+    Object.keys(votes).forEach(function(k){ cnt[votes[k]]=(cnt[votes[k]]||0)+1; tot++; });
+    box.innerHTML=c.players.map(function(p){
+      if(p.id===c.me.id) return "";
+      var n2=cnt[p.id]||0, w=tot?Math.round(n2/tot*100):0;
+      return '<button class="sp-v'+(voted===p.id?" me2":"")+'" data-v="'+esc(p.id)+'">'+
+        '<span class="bar2" style="width:'+w+'%"></span>'+av(p)+
+        '<span class="n2"><b>'+esc(p.name+" "+(p.surname||""))+'</b><span>'+esc(p.group||"")+'</span></span>'+
+        (n2?'<span class="cnt">'+n2+'</span>':'')+
+        (voted===p.id?'<span class="tag ok">✓</span>':'')+'</button>';
+    }).join("");
+    [].slice.call(box.querySelectorAll("[data-v]")).forEach(function(b){
+      b.onclick=function(){
+        voted=b.dataset.v; c.fx.s.ok(); c.fx.vib(20);
+        DB.set(path+"/votes/"+c.me.id,voted);
+        drawVote(votes);
+      };
+    });
+    var cc=c.el.querySelector("#spcnt");
+    if(cc) cc.innerHTML=L("Ovoz berdi","Voted")+": <b>"+tot+"</b> / "+c.players.length+(voted?"":" · "+L("siz hali ovoz bermadingiz","you have not voted yet"));
+  }
+
+  /* ---------- 4-bosqich: fosh qilish ---------- */
   function vDone(){
+    if(fin) return;
     phase="done";
+    c.el.innerHTML='<div class="sp-wrap"><div class="center" style="padding:30px 10px">'+
+      '<div style="font-size:54px;animation:pulse .5s infinite alternate">🕵️</div>'+
+      '<h2 style="margin:14px 0">'+L("Ovozlar sanalmoqda…","Counting the votes…")+'</h2></div></div>';
+    c.fx.s.tick();
     DB.get(path,function(d){
       d=d||{};
-      var votes=d.votes||{}, cnt={}, top=null, tn=0;
-      Object.keys(votes).forEach(function(k){ var t=votes[k]; cnt[t]=(cnt[t]||0)+1; });
+      var votes=d.votes||{}, cnt={}, top=null, tn=0, tot=0;
+      Object.keys(votes).forEach(function(k){ var t=votes[k]; cnt[t]=(cnt[t]||0)+1; tot++; });
       Object.keys(cnt).forEach(function(k){ if(cnt[k]>tn){ tn=cnt[k]; top=k; } });
       var caught=(spyIds.indexOf(top)>=0&&tn>=Math.max(2,Math.ceil(n/3)));
       var spyNames=spyIds.map(function(x){ return (c.players.filter(function(p){return p.id===x})[0]||{}).name||"?"; });
-      if(amSpy) score=caught?60:380;
-      else { score=caught?260:70; if(spyIds.indexOf(votes[c.me.id])>=0) score+=90; }
-      var msg=caught?("🎉 "+(nSpy>1?L("Josus fosh qilindi!","A spy was caught!"):L("Josus fosh qilindi!","The spy was caught!")))
-                    :("🕵️ "+L("Josuslar qutulib qoldi!","The spies escaped!"));
-      c.el.innerHTML=head(msg,"")+
-        '<div class="card" style="text-align:center;background:linear-gradient(135deg,'+(caught?"#12a150,#0891b2":"#e11d48,#7c3aed")+');color:#fff">'+
-        '<div style="font-size:52px">🕵️</div><h2 style="color:#fff;margin:8px 0">'+esc(spyNames.join(", "))+'</h2>'+
-        '<p style="margin:0">'+(nSpy>1?L("josuslar edi","were the spies"):L("josus edi","was the spy"))+' · '+L("Joy","Location")+': '+spot[0]+" "+esc(L(spot[1],spot[2]))+'</p></div>'+
-        '<div class="card" style="margin-top:14px"><h3>🗳 '+L("Ovozlar","Votes")+'</h3>'+
-        c.players.map(function(p){
-          return '<div class="rank"><div class="nm" style="flex:1"><b>'+esc(p.name)+'</b></div><div class="pts">'+(cnt[p.id]||0)+'</div></div>';
-        }).join("")+'</div>'+
-        '<p class="note center" style="margin-top:12px">'+L("Sizning ballingiz","Your points")+': <b>'+score+'</b></p>';
-      if((caught&&!amSpy)||(!caught&&amSpy)){ c.fx.s.win(); c.fx.confetti(2200); } else c.fx.s.lose();
-      fin=true; c.prog(100,score); c.finish(score);
+      if(amSpy) score=caught?70:390;
+      else { score=caught?270:80; if(spyIds.indexOf(votes[c.me.id])>=0) score+=90; }
+      var iWin=(amSpy&&!caught)||(!amSpy&&caught);
+      setTimeout(function(){
+        c.el.innerHTML='<div class="sp-wrap">'+
+          '<div class="sp-rev '+(iWin?"win":"lose")+'">'+
+            '<div style="font-size:50px">'+(caught?"🎉":"🕵️")+'</div>'+
+            '<div class="big2">'+esc(spyNames.join(", "))+'</div>'+
+            '<p style="font-size:17px;margin:4px 0 0">'+(nSpy>1?L("josuslar edi","were the spies"):L("josus edi","was the spy"))+'</p>'+
+            '<p style="margin:10px 0 0;font-size:15px;opacity:.95">'+
+              (caught?L("Fosh qilindi! Tinch aholi yutdi.","Unmasked! The civilians win."):L("Qutulib qoldi! Josus yutdi.","They escaped! The spy wins."))+'</p>'+
+            '<div style="background:rgba(0,0,0,.22);border-radius:14px;padding:10px;margin-top:12px;font-size:15px">'+
+              L("Joy","Location")+': '+spot[0]+' <b>'+esc(L(spot[1],spot[2]))+'</b></div></div>'+
+          '<h3 style="margin:16px 0 8px;font-size:15px">🗳 '+L("Ovozlar","Votes")+'</h3>'+
+          c.players.map(function(p){
+            var n2=cnt[p.id]||0, w=tot?Math.round(n2/tot*100):0, isSpy=spyIds.indexOf(p.id)>=0;
+            return '<div style="margin-bottom:7px"><div class="row" style="justify-content:space-between;font-size:13px;margin-bottom:2px">'+
+              '<span>'+(isSpy?"🕵️ ":"")+esc(p.name)+'</span><b>'+n2+'</b></div>'+
+              '<div class="sp-bar"><i style="width:'+w+'%"></i></div></div>';
+          }).join("")+
+          '<div class="card" style="margin-top:14px;text-align:center"><b style="font-size:18px">+'+score+' '+L("ball","points")+'</b>'+
+          '<p class="note" style="margin:6px 0 0">'+(amSpy?L("Josus sifatida","As the spy"):L("Tinch aholi sifatida","As a civilian"))+
+          (!amSpy&&spyIds.indexOf(votes[c.me.id])>=0?' · ✅ '+L("to'g'ri ovoz berdingiz (+90)","you voted correctly (+90)"):'')+'</p></div></div>';
+        if(iWin){ c.fx.s.win(); c.fx.confetti(3000); } else c.fx.s.lose();
+        fin=true; c.prog(100,score); c.finish(score);
+      },1600);
     });
   }
+
+  /* ---------- boshqaruv ---------- */
   var tm=setInterval(function(){
     if(fin){ clearInterval(tm); return; }
-    var el2=c.el.querySelector("#sptm"), dt=Date.now()-t0;
-    if(phase==="role"){
-      if(el2) el2.textContent=L("Muhokama boshlanishiga","Discussion starts in")+": "+Math.ceil((T_ROLE-dt)/1000)+" s";
-      if(dt>T_ROLE){ t0=Date.now(); vTalk(); }
-    } else if(phase==="talk"){
-      var left=T_TALK-dt;
-      if(el2) el2.textContent="⏳ "+L("Ovoz berishgacha","Until the vote")+": "+esec(left);
-      if(left<=0){ t0=Date.now(); c.fx.s.go(); vVote(); }
-    } else if(phase==="vote"){
-      var lv=T_VOTE-dt;
-      if(lv<=0){ vDone(); }
+    var now=Date.now(), want=(now<P_ROLE)?"role":((now<P_VOTE)?"talk":((now<P_DONE)?"vote":"done"));
+    if(want!==phase){
+      if(want==="role") vRole();
+      else if(want==="talk"){ vTalk(); c.fx.s.go(); }
+      else if(want==="vote") vVote();
+      else vDone();
+      return;
     }
-  },500);
+    var el2=c.el.querySelector("#sptm"); if(!el2) return;
+    var end=(phase==="role")?P_ROLE:((phase==="talk")?P_VOTE:P_DONE);
+    var left=end-now;
+    el2.querySelector("b").textContent=esec(left);
+    el2.classList.toggle("low",left<10000);
+    if(left<10000&&Math.floor(left/1000)!==el2._ls){ el2._ls=Math.floor(left/1000); c.fx.s.tick(); }
+    if(phase==="talk"){
+      var t=Math.floor((now-P_ROLE)/Math.max(8000,(P_VOTE-P_ROLE)/(n*2)))%n;
+      if(t!==turn){ turn=t; drawTurn(); }
+    }
+  },400);
+  /* josus joyni topsa — hammaga darhol ko'rinadi */
+  watch(path+"/guess",2000,function(v){
+    if(!v||fin) return;
+    var hit=null;
+    Object.keys(v).forEach(function(k){ if(v[k]&&v[k].ok) hit=v[k]; });
+    if(!hit) return;
+    fin=true; clearInterval(tm);
+    score=amSpy?420:60;
+    c.el.innerHTML='<div class="sp-wrap"><div class="sp-rev '+(amSpy?"win":"lose")+'">'+
+      '<div style="font-size:50px">🕵️</div><div class="big2">'+esc(hit.n||"?")+'</div>'+
+      '<p style="font-size:17px;margin:4px 0 0">'+L("joyni topdi va g'alaba qozondi!","guessed the location and wins!")+'</p>'+
+      '<div style="background:rgba(0,0,0,.22);border-radius:14px;padding:10px;margin-top:12px">'+
+      L("Joy","Location")+': '+spot[0]+' <b>'+esc(L(spot[1],spot[2]))+'</b></div></div>'+
+      '<p class="note center" style="margin-top:12px">'+L("Ballingiz","Your points")+': <b>'+score+'</b></p></div>';
+    if(amSpy){ c.fx.s.win(); c.fx.confetti(2500); } else c.fx.s.lose();
+    c.prog(100,score); c.finish(score);
+  });
   c.prog(5,0); vRole();
-  return {end:function(){ if(!fin){ fin=true; c.finish(score||60); } }, off:function(){ clearInterval(tm); }};
+  return {end:function(){ if(!fin){ fin=true; clearInterval(tm); c.finish(score||90); } },
+    off:function(){ clearInterval(tm); }};
  }});
 
 /* ============ juftlik o'yinlari uchun umumiy yordamchi ============ */
