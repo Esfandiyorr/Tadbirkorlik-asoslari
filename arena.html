@@ -322,7 +322,11 @@ function connect(done){
 var LASTERR="", LASTURL="", TRIED={}, RECON=false;
 function reqRaw(m,path,body,cb){
   var o={method:m};
-  if(body!==undefined){ o.headers={"Content-Type":"application/json"}; o.body=JSON.stringify(body); }
+  /* DIQQAT: GET va DELETE so'roviga tana (body) qo'shib bo'lmaydi —
+     fetch darhol TypeError beradi va so'rov umuman yuborilmaydi. */
+  if(body!==undefined&&(m==="PUT"||m==="PATCH"||m==="POST")){
+    o.headers={"Content-Type":"application/json"}; o.body=JSON.stringify(body);
+  }
   var url=BASE+"/arena/"+path+".json";
   try{
     var status=0;
@@ -374,10 +378,10 @@ function whyFail(status,txt){
   return L("Baza xatosi","Database error")+" ("+status+")";
 }
 var DB={
-  get:function(p,cb){ req("GET",p,null,cb); },
-  set:function(p,v,cb){ req("PUT",p,v,cb); },
+  get:function(p,cb){ req("GET",p,undefined,cb); },
+  set:function(p,v,cb){ req("PUT",p,(v===undefined?null:v),cb); },
   upd:function(p,v,cb){ req("PATCH",p,v,cb); },
-  del:function(p,cb){ req("DELETE",p,null,cb); }
+  del:function(p,cb){ req("DELETE",p,undefined,cb); }
 };
 var WATCH=[];
 function watch(path,ms,cb){
