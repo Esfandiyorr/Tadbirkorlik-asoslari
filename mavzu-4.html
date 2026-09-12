@@ -300,6 +300,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 
 
+
 /* RT:BEGIN */
 /* ================== REYTING TIZIMI ================== */
 .rt-chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel);
@@ -377,6 +378,28 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
   font-size:13.5px;line-height:1.85}
 .rt-diag i{font-style:normal;font-weight:800;font-family:ui-monospace,Menlo,Consolas,monospace}
 .rt-diag .rt-note{margin-top:8px}
+/* --- CV va pochta --- */
+.rt-drop{border:2px dashed var(--line);border-radius:16px;padding:22px 16px;text-align:center;cursor:pointer;
+  background:var(--panel2);transition:.18s}
+.rt-drop:hover,.rt-drop.over{border-color:var(--violet);background:color-mix(in srgb,var(--violet) 8%,transparent)}
+.rt-drop .ic{font-size:40px;line-height:1}
+.rt-drop b{display:block;margin-top:8px;font-size:15px}
+.rt-drop span{display:block;font-size:12.5px;color:var(--muted);margin-top:4px}
+.rt-file{display:flex;align-items:center;gap:12px;background:var(--panel2);border:1px solid var(--line);
+  border-radius:14px;padding:12px 14px;margin-top:12px}
+.rt-file .ic{font-size:30px}
+.rt-file .t{flex:1;min-width:0}
+.rt-file .t b{display:block;font-size:14.5px;word-break:break-all}
+.rt-file .t span{font-size:12px;color:var(--muted)}
+.rt-prog{height:8px;border-radius:99px;background:var(--chip);overflow:hidden;margin-top:10px}
+.rt-prog i{display:block;height:100%;background:linear-gradient(90deg,var(--green),var(--teal));width:0;transition:.3s}
+.rt-sec{background:var(--panel2);border:1px solid var(--line);border-radius:16px;padding:14px 16px;margin-top:14px}
+.rt-sec h4{margin:0 0 8px;font-size:14.5px}
+.rt-lock{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:800;border-radius:99px;
+  padding:3px 10px;background:var(--chip);color:var(--muted)}
+.rt-lock.on{background:color-mix(in srgb,var(--green) 18%,transparent);color:var(--green)}
+.rt-mail textarea{width:100%;min-height:120px;border:1px solid var(--line);border-radius:12px;padding:10px 12px;
+  font-family:inherit;font-size:14px;background:var(--panel);color:var(--ink);resize:vertical}
 /* ================== MUSIQA PLEYERI ================== */
 #mzTab{position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:70;
   background:linear-gradient(135deg,var(--violet),var(--pink));color:#fff;border:none;
@@ -1099,6 +1122,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 
 
+
 <!-- RT:BEGIN -->
 <script>var RT_CFG={"topic": "m4", "slides": 18, "pSlide": 2, "pAll": 10, "teacher": "terdu2026", "firebase": {"db": "tadbirkorlik-asoslari-default-rtdb", "regions": ["asia-southeast1", "europe-west1", "us-central1", "europe-west4", "asia-east1", "us-east1", "northamerica-northeast1"], "url": "https://tadbirkorlik-asoslari-default-rtdb.asia-southeast1.firebasedatabase.app"}, "topics": [{"id": "m1", "file": "index.html", "title": "M1 · Tadbirkorlik tafakkuri va biznes imkoniyatlar", "open": true}, {"id": "m2", "file": "mavzu-2.html", "title": "M2 · Mijoz muammosi asosida biznes g'oya", "open": false}, {"id": "m3", "file": "mavzu-3.html", "title": "M3 · Mahsulotni kam xarajat bilan sinash (moliya va kredit)", "open": false}, {"id": "m4", "file": "mavzu-4.html", "title": "M4 · Biznesni qonuniy rasmiylashtirish", "open": false}, {"id": "m5", "file": "mavzu-5.html", "title": "M5 · Soliqlar va hujjatlar", "open": false}, {"id": "m6", "file": "mavzu-6.html", "title": "M6 · Biznes-model qanday ishlaydi", "open": false}, {"id": "m7", "file": "mavzu-7.html", "title": "M7 · Mijoz kim va unga nima kerak", "open": false}], "tracks": [{"file": "Musofir.mp3", "title": "Musofir", "artist": ""}]};</script>
 <script>
@@ -1162,7 +1186,7 @@ function cloudInit(done){
   })();
 }
 function rec(){
-  return {id:S.id,name:S.name,surname:S.surname,group:S.group,
+  return {id:S.id,name:S.name,surname:S.surname,group:S.group,email:S.email||"",
           total:P.total||0,topics:topicSummary(),at:S.at||Date.now(),updated:Date.now()};
 }
 function cloudSave(){            /* status maydoniga tegmaydi — uni faqat o'qituvchi o'zgartiradi */
@@ -1210,13 +1234,19 @@ function cloudSetStatus(id,st,cb){
     body:JSON.stringify(st)}).then(function(r){ cb&&cb(r.ok); }).catch(function(){ cb&&cb(false); });
 }
 function approved(){ return !cloudOn || (S&&S.status==="ok"); }
-var RULES='{"rules":{"students":{".read":true,".write":true},"chat":{".read":true,".write":true},'+
-  '"media":{".read":true,".write":true},"meta":{".read":true,".write":true}}}';
+function rulesTxt(uid){
+  var cv = uid ? '{".read":"auth != null && auth.uid === \''+uid+'\'",".write":true}'
+               : '{".read":false,".write":true}';
+  return '{"rules":{"students":{".read":true,".write":true},"chat":{".read":true,".write":true},'+
+    '"media":{".read":true,".write":true},"meta":{".read":true,".write":true},'+
+    '"arena":{".read":true,".write":true},"cv":'+cv+'}}';
+}
+var RULES=rulesTxt(null);
 function tcTest(){
   var out=document.getElementById("rtTcDiag"); if(!out) return;
   if(!cloudOn||!BASE){ out.innerHTML='<p class="rt-note">🟠 '+T("Baza ulanmagan.","No database connected.")+'</p>'; return; }
   out.innerHTML='<p class="rt-note">'+T("Tekshirilmoqda…","Testing…")+'</p>';
-  var nodes=["students","chat","media","meta"], res=[], i=0;
+  var nodes=["students","chat","media","meta","cv"], res=[], i=0;
   (function next(){
     if(i>=nodes.length){
       var bad=res.filter(function(x){ return !x.ok; });
@@ -1225,7 +1255,7 @@ function tcTest(){
         (bad.length?'<p class="rt-note" style="margin-top:8px">'+T("Yechim: Firebase → Realtime Database → Rules ga faqat shuni qo'ying va Publish qiling:",
           "Fix: put only this into Firebase → Realtime Database → Rules and publish:")+
           '<br><code style="display:block;margin-top:6px;font-size:11px;word-break:break-all;background:var(--chip);padding:8px;border-radius:9px">'+
-          esc(RULES)+'</code></p>'
+          esc(rulesTxt(TA&&TA.uid))+'</code></p>'
          :'<p class="rt-note" style="margin-top:8px">✅ '+T("Hammasi joyida — rasm va video yuborish ishlaydi.",
            "Everything is fine — sending images and videos works.")+'</p>')+'</div>';
       return;
@@ -1245,6 +1275,85 @@ function cloudSetMedia(id,v,cb){
   if(!cloudOn||!BASE){ cb&&cb(false); return; }
   fetch(BASE+"/students/"+id+"/media.json",{method:"PUT",headers:{"Content-Type":"application/json"},
     body:JSON.stringify(!!v)}).then(function(r){ cb&&cb(r.ok); }).catch(function(){ cb&&cb(false); });
+}
+
+
+/* ---------- email, CV va o'qituvchi maxfiy kirishi ---------- */
+function okMail(x){ return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(String(x||"").trim()); }
+function kb(n){ return n>=1048576 ? (n/1048576).toFixed(1)+" MB" : Math.max(1,Math.round(n/1024))+" KB"; }
+var CVMAX=3*1024*1024;                       /* 3 MB — RTDB uchun xavfsiz chegara */
+var CVOK=["pdf","doc","docx","jpg","jpeg","png","webp"];
+
+/* -- o'qituvchi Firebase Auth orqali kiradi; shundagina CV o'qiy oladi -- */
+var TA=lget("terdu_ta",null);
+function taSave(){ lset("terdu_ta",TA); }
+function taOut(){ TA=null; lset("terdu_ta",null); }
+function taOn(){ return !!(TA&&TA.key&&TA.rt); }
+function taFresh(cb){
+  if(!taOn()){ cb(false); return; }
+  if(TA.tok&&Date.now()<(TA.exp||0)-60000){ cb(true); return; }
+  fetch("https://securetoken.googleapis.com/v1/token?key="+encodeURIComponent(TA.key),{
+    method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},
+    body:"grant_type=refresh_token&refresh_token="+encodeURIComponent(TA.rt)})
+   .then(function(r){ return r.ok?r.json():null; })
+   .then(function(j){
+     if(!j||!j.id_token){ cb(false); return; }
+     TA.tok=j.id_token; TA.rt=j.refresh_token||TA.rt;
+     TA.exp=Date.now()+(parseInt(j.expires_in||3600,10)*1000); taSave(); cb(true);
+   }).catch(function(){ cb(false); });
+}
+function taLogin(key,em,pw,cb){
+  fetch("https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key="+encodeURIComponent(key),{
+    method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({email:em,password:pw,returnSecureToken:true})})
+   .then(function(r){ return r.json().then(function(j){ return {ok:r.ok,j:j}; }); })
+   .then(function(x){
+     if(!x.ok||!x.j.idToken){ cb(false,(x.j&&x.j.error&&x.j.error.message)||"XATO"); return; }
+     TA={key:key,email:em,uid:x.j.localId,tok:x.j.idToken,rt:x.j.refreshToken,
+         exp:Date.now()+(parseInt(x.j.expiresIn||3600,10)*1000)};
+     taSave(); cb(true,x.j.localId);
+   }).catch(function(){ cb(false,"tarmoq"); });
+}
+/* CV o'qish uchun manzil (o'qituvchi tokeni bilan) */
+function cvUrl(path,cb){
+  if(!taOn()){ cb(BASE+path+".json"); return; }
+  taFresh(function(ok){ cb(BASE+path+".json"+(ok?("?auth="+encodeURIComponent(TA.tok)):"")); });
+}
+
+/* -- talaba CV yuklaydi -- */
+function cvSend(f,onProg,cb){
+  if(!cloudOn||!BASE||!S){ cb(false,T("Baza ulanmagan.","No database connection.")); return; }
+  var ext=(f.name.split(".").pop()||"").toLowerCase();
+  if(CVOK.indexOf(ext)<0){ cb(false,T("Faqat PDF, DOC, DOCX yoki rasm bo'lishi mumkin.","Only PDF, DOC, DOCX or an image is allowed.")); return; }
+  if(f.size>CVMAX){ cb(false,T("Fayl juda katta: ","File too large: ")+kb(f.size)+" ("+T("chegara","limit")+" "+kb(CVMAX)+")"); return; }
+  var fr=new FileReader();
+  fr.onerror=function(){ cb(false,T("Faylni o'qib bo'lmadi.","Could not read the file.")); };
+  fr.onload=function(){
+    onProg&&onProg(35);
+    var meta={n:f.name,t:f.type||ext,s:f.size,at:Date.now(),
+              who:S.name+" "+S.surname,gr:S.group,em:S.email||""};
+    var full={}; for(var k in meta) full[k]=meta[k]; full.d=fr.result;
+    fetch(BASE+"/cv/"+S.id+".json",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(full)})
+     .then(function(r){
+       if(!r.ok){ cb(false,(r.status===401||r.status===403)
+         ?T("Qoidalar ruxsat bermadi. O'qituvchiga ayting.","The rules denied the upload. Tell your teacher."):("HTTP "+r.status)); return; }
+       onProg&&onProg(85);
+       /* ommaviy belgi: fayl emas, faqat "yuklangan" ma'lumoti */
+       return fetch(BASE+"/students/"+S.id+"/cv.json",{method:"PUT",headers:{"Content-Type":"application/json"},
+         body:JSON.stringify({n:meta.n,s:meta.s,at:meta.at})}).then(function(){
+           onProg&&onProg(100);
+           S.cv={n:meta.n,s:meta.s,at:meta.at}; lset(LS.stu,S);
+           cb(true,"");
+         });
+     }).catch(function(){ cb(false,T("Tarmoq xatosi.","Network error.")); });
+  };
+  fr.readAsDataURL(f);
+}
+function cvDrop(cb){
+  if(!cloudOn||!BASE||!S){ cb&&cb(false); return; }
+  fetch(BASE+"/cv/"+S.id+".json",{method:"DELETE"}).then(function(){
+    return fetch(BASE+"/students/"+S.id+"/cv.json",{method:"DELETE"});
+  }).then(function(){ S.cv=null; lset(LS.stu,S); cb&&cb(true); }).catch(function(){ cb&&cb(false); });
 }
 
 /* ---------- ballar ---------- */
@@ -1318,12 +1427,13 @@ function gate(){
   var g=el('<div class="rt-gate" id="rtGate"><div class="rt-box">'+
     '<h2 style="margin-top:0">🎓 '+T("Ro\'yxatdan o\'ting","Register")+'</h2>'+
     '<p style="color:var(--muted);margin-top:-4px">'+T(
-      "Taqdimotni ochish uchun ism, familiya va guruhingizni kiriting. Ballaringiz shu ism bilan reytingda ko\'rinadi.",
-      "Enter your name, surname and group to open the presentation. Your points will appear in the rating under this name.")+'</p>'+
+      "Taqdimotni ochish uchun ism, familiya, guruh va email manzilingizni kiriting. Email faqat o\'qituvchiga ko\'rinadi \u2014 dars e\'lonlari shu manzilga yuboriladi.",
+      "Enter your name, surname, group and email to open the presentation. Only the teacher sees your email \u2014 class announcements are sent there.")+'</p>'+
     '<div class="rt-form">'+
       '<label>'+T("Ism","First name")+'<input id="rtN" autocomplete="given-name" placeholder="'+T("Ismingiz","Your first name")+'"></label>'+
       '<label>'+T("Familiya","Surname")+'<input id="rtS" autocomplete="family-name" placeholder="'+T("Familiyangiz","Your surname")+'"></label>'+
       '<label>'+T("Guruh","Group")+'<input id="rtG" placeholder="'+T("Masalan: 101-22 IQT","For example: 101-22")+'"></label>'+
+      '<label>'+T("Email","Email")+'<input id="rtE" type="email" inputmode="email" autocomplete="email" placeholder="ism@gmail.com"></label>'+
       '<p id="rtErr" style="color:var(--red);font-weight:700;display:none;margin:0"></p>'+
       '<button class="btn accent" id="rtGo" style="justify-content:center;padding:12px">'+T("Boshlash →","Start →")+'</button>'+
     '</div>'+
@@ -1336,19 +1446,26 @@ function gate(){
   function submit(){
     var n=document.getElementById("rtN").value.trim(),
         s=document.getElementById("rtS").value.trim(),
-        gr=document.getElementById("rtG").value.trim();
+        gr=document.getElementById("rtG").value.trim(),
+        em=document.getElementById("rtE").value.trim();
+    var e=document.getElementById("rtErr");
     if(n.length<2||s.length<2||gr.length<2){
-      var e=document.getElementById("rtErr"); e.style.display="block";
+      e.style.display="block";
       e.textContent=T("Ism, familiya va guruhni to'liq kiriting.","Please fill in your name, surname and group.");
       return;
     }
-    S={id:uid(),name:n,surname:s,group:gr,at:Date.now(),status:cloudOn?"pending":"ok"};
+    if(!okMail(em)){
+      e.style.display="block";
+      e.textContent=T("Email manzilni to'g'ri kiriting (masalan: ism@gmail.com).","Please enter a valid email address.");
+      return;
+    }
+    S={id:uid(),name:n,surname:s,group:gr,email:em,at:Date.now(),status:cloudOn?"pending":"ok"};
     lset(LS.stu,S); lset(LS.prog,P); cloudCreate();
     g.remove(); if(approved()) start(); else waitScreen();
   }
   document.getElementById("rtGo").onclick=submit;
   document.getElementById("rtGateTc").onclick=function(){ openOv("tc"); };
-  ["rtN","rtS","rtG"].forEach(function(id){
+  ["rtN","rtS","rtG","rtE"].forEach(function(id){
     document.getElementById(id).addEventListener("keydown",function(e){ if(e.key==="Enter") submit(); });
   });
 }
@@ -1363,7 +1480,8 @@ function waitScreen(){
       "Your request has been sent. Once the teacher approves you, the presentation and the chat will open.")+'</p>'+
     '<div class="rt-card" style="text-align:left;margin:14px 0"><span>'+T("Yuborilgan ma\'lumot","Submitted data")+'</span>'+
       '<b style="font-size:17px">'+esc(S.name)+" "+esc(S.surname)+'</b>'+
-      '<p class="rt-note" style="margin:2px 0 0">'+T("Guruh","Group")+": "+esc(S.group)+'</p></div>'+
+      '<p class="rt-note" style="margin:2px 0 0">'+T("Guruh","Group")+": "+esc(S.group)+
+        (S.email?" \u00b7 "+esc(S.email):"")+'</p></div>'+
     '<div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">'+
       '<button class="btn accent" id="rtChk">🔄 '+T("Tekshirish","Check")+'</button>'+
       '<button class="btn" id="rtEdit">✏️ '+T("Ma\'lumotni o\'zgartirish","Edit my data")+'</button>'+
@@ -1398,11 +1516,13 @@ function overlay(){
       '<button class="rt-tab on" data-p="top">🥇 '+T("Reyting","Rating")+'</button>'+
       '<button class="rt-tab" data-p="me">📊 '+T("Mening natijam","My result")+'</button>'+
       '<button class="rt-tab" data-p="tp">📚 '+T("Mavzular","Topics")+'</button>'+
+      '<button class="rt-tab" data-p="cv">📄 '+T("Mening ma\'lumotim","My profile")+'</button>'+
       '<button class="rt-tab" data-p="tc">🔑 '+T("O\'qituvchi","Teacher")+'</button>'+
     '</div>'+
     '<div class="rt-pane on" id="rtTop"></div>'+
     '<div class="rt-pane" id="rtMe"></div>'+
     '<div class="rt-pane" id="rtTp"></div>'+
+    '<div class="rt-pane" id="rtCv"></div>'+
     '<div class="rt-pane" id="rtTc"></div>'+
   '</div></div>');
   document.body.appendChild(o);
@@ -1413,7 +1533,7 @@ function overlay(){
       o.querySelectorAll(".rt-tab").forEach(function(x){x.classList.remove("on");});
       o.querySelectorAll(".rt-pane").forEach(function(x){x.classList.remove("on");});
       b.classList.add("on");
-      document.getElementById({top:"rtTop",me:"rtMe",tp:"rtTp",tc:"rtTc"}[b.dataset.p]).classList.add("on");
+      document.getElementById({top:"rtTop",me:"rtMe",tp:"rtTp",cv:"rtCv",tc:"rtTc"}[b.dataset.p]).classList.add("on");
     };
   });
   return o;
@@ -1473,6 +1593,99 @@ function renderTp(){
     "Yopiq mavzular saytga umuman yuklanmagan — ular o'qituvchi darsni o'tgach ochiladi.",
     "Locked topics are not published on the site at all — they open once the teacher has given the lesson.")+'</p>';
 }
+function emailAsk(){
+  if(!S||S.email||document.getElementById("rtEm")) return;
+  var g=el('<div class="rt-gate" id="rtEm"><div class="rt-box">'+
+    '<div style="font-size:42px;text-align:center">📧</div>'+
+    '<h2 style="margin:8px 0 4px;text-align:center">'+T("Email manzilingizni qo'shing","Add your email")+'</h2>'+
+    '<p style="color:var(--muted);margin-top:0;text-align:center">'+T(
+      "Dars e'lonlari va topshiriqlar shu manzilga yuboriladi. Uni faqat o'qituvchi ko'radi.",
+      "Class announcements and tasks are sent there. Only the teacher can see it.")+'</p>'+
+    '<div class="rt-form"><label>Email<input id="emIn" type="email" inputmode="email" autocomplete="email" placeholder="ism@gmail.com"></label>'+
+      '<p id="emErr" style="color:var(--red);font-weight:700;display:none;margin:0"></p>'+
+      '<button class="btn accent" id="emGo" style="justify-content:center;padding:12px">'+T("Saqlash","Save")+'</button></div>'+
+    '</div></div>');
+  document.body.appendChild(g);
+  function ok(){
+    var v=document.getElementById("emIn").value.trim();
+    if(!okMail(v)){ var e=document.getElementById("emErr"); e.style.display="block";
+      e.textContent=T("Email manzilni to'g'ri kiriting.","Please enter a valid email address."); return; }
+    S.email=v; lset(LS.stu,S); cloudSave(); g.remove(); toast(T("Rahmat! ✅","Thank you! ✅"));
+  }
+  document.getElementById("emGo").onclick=ok;
+  document.getElementById("emIn").addEventListener("keydown",function(e){ if(e.key==="Enter") ok(); });
+  document.getElementById("emIn").focus();
+}
+function renderCv(){
+  var box=document.getElementById("rtCv"); if(!box) return;
+  if(!S){ box.innerHTML='<p class="rt-note">'+T("Avval ro'yxatdan o'ting.","Register first.")+'</p>'; return; }
+  var cv=S.cv||null;
+  box.innerHTML=
+    '<div class="rt-sec" style="margin-top:0"><h4>👤 '+T("Shaxsiy ma'lumotlarim","My details")+'</h4>'+
+      '<div class="rt-form" style="max-width:420px;margin:0">'+
+        '<label>'+T("Ism","First name")+'<input id="cvN" value="'+esc(S.name)+'"></label>'+
+        '<label>'+T("Familiya","Surname")+'<input id="cvS" value="'+esc(S.surname)+'"></label>'+
+        '<label>'+T("Guruh","Group")+'<input id="cvG" value="'+esc(S.group)+'"></label>'+
+        '<label>'+T("Email","Email")+'<input id="cvE" type="email" inputmode="email" value="'+esc(S.email||"")+'" placeholder="ism@gmail.com"></label>'+
+        '<button class="btn accent" id="cvSaveB" style="justify-content:center">💾 '+T("Saqlash","Save")+'</button>'+
+      '</div></div>'+
+    '<div class="rt-sec"><h4>📄 '+T("CV / rezyume","CV / resume")+' <span class="rt-lock'+(cv?" on":"")+'">🔒 '+
+      T("faqat o'qituvchi ko'radi","teacher only")+'</span></h4>'+
+      '<p class="rt-note" style="margin:0 0 10px">'+T(
+        "CV ingizni yuklang — uni faqat o'qituvchi ko'ra oladi, boshqa talabalarga ko'rinmaydi. PDF, DOC, DOCX yoki rasm, "+kb(CVMAX)+" gacha.",
+        "Upload your CV — only the teacher can open it, other students cannot. PDF, DOC, DOCX or an image, up to "+kb(CVMAX)+".")+'</p>'+
+      '<div class="rt-drop" id="cvDrop"><div class="ic">📎</div>'+
+        '<b>'+T("Fayl tanlash","Choose a file")+'</b>'+
+        '<span>'+T("yoki faylni shu yerga tashlang","or drop the file here")+'</span></div>'+
+      '<input type="file" id="cvFile" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.webp" style="display:none">'+
+      '<div class="rt-prog" id="cvProg" style="display:none"><i></i></div>'+
+      '<div id="cvNow">'+(cv?cvCard(cv):'')+'</div>'+
+      '<p id="cvMsg" class="rt-note" style="margin-top:8px"></p></div>';
+
+  function msg(t,bad){ var m=document.getElementById("cvMsg"); m.textContent=t; m.style.color=bad?"var(--red)":"var(--muted)"; }
+  document.getElementById("cvSaveB").onclick=function(){
+    var n=document.getElementById("cvN").value.trim(), sn=document.getElementById("cvS").value.trim(),
+        g=document.getElementById("cvG").value.trim(), em=document.getElementById("cvE").value.trim();
+    if(n.length<2||sn.length<2||g.length<2){ toast(T("Maydonlarni to'ldiring","Fill in the fields")); return; }
+    if(!okMail(em)){ toast(T("Email noto'g'ri","Invalid email")); return; }
+    S.name=n; S.surname=sn; S.group=g; S.email=em; lset(LS.stu,S); cloudSave();
+    chipUpdate(); toast(T("Saqlandi ✅","Saved ✅"));
+  };
+  var fi=document.getElementById("cvFile"), dp=document.getElementById("cvDrop");
+  dp.onclick=function(){ fi.click(); };
+  dp.ondragover=function(e){ e.preventDefault(); dp.classList.add("over"); };
+  dp.ondragleave=function(){ dp.classList.remove("over"); };
+  dp.ondrop=function(e){ e.preventDefault(); dp.classList.remove("over");
+    if(e.dataTransfer.files&&e.dataTransfer.files[0]) go(e.dataTransfer.files[0]); };
+  fi.onchange=function(){ if(fi.files&&fi.files[0]) go(fi.files[0]); };
+  function go(f){
+    var pr=document.getElementById("cvProg"), bar=pr.querySelector("i");
+    pr.style.display=""; bar.style.width="10%"; msg(T("Yuklanmoqda…","Uploading…"));
+    cvSend(f,function(p){ bar.style.width=p+"%"; },function(ok,err){
+      if(!ok){ pr.style.display="none"; msg(err,true); return; }
+      setTimeout(function(){ pr.style.display="none"; },600);
+      msg(T("CV yuklandi. Endi uni faqat o'qituvchi ko'radi.","Your CV is uploaded. Only the teacher can see it."));
+      document.getElementById("cvNow").innerHTML=cvCard(S.cv); bindDel(); toast(T("CV yuklandi ✅","CV uploaded ✅"));
+    });
+  }
+  function bindDel(){
+    var d=document.getElementById("cvDel"); if(!d) return;
+    d.onclick=function(){
+      if(!confirm(T("CV ni o'chirasizmi?","Delete your CV?"))) return;
+      d.disabled=true; cvDrop(function(ok){
+        if(!ok){ msg(T("O'chirib bo'lmadi.","Could not delete."),true); d.disabled=false; return; }
+        document.getElementById("cvNow").innerHTML=""; msg(T("CV o'chirildi.","CV deleted."));
+      });
+    };
+  }
+  bindDel();
+}
+function cvCard(cv){
+  return '<div class="rt-file"><div class="ic">'+(/\.pdf$/i.test(cv.n)?"📕":"📄")+'</div>'+
+    '<div class="t"><b>'+esc(cv.n)+'</b><span>'+kb(cv.s||0)+' · '+new Date(cv.at||Date.now()).toLocaleDateString()+
+    ' · ✅ '+T("yuklangan","uploaded")+'</span></div>'+
+    '<button class="btn warn" id="cvDel">🗑 '+T("O'chirish","Delete")+'</button></div>';
+}
 function renderTc(){
   var box=document.getElementById("rtTc");
   if(box.dataset.on==="1"){ tcLoad(); return; }
@@ -1511,8 +1724,12 @@ function tcAct(id,st,btn){
   });
 }
 function tcRow(x,btns){
-  return '<tr><td><b>'+esc(x.name)+" "+esc(x.surname)+'</b></td><td>'+esc(x.group)+
-    '</td><td><b>'+(x.total||0)+'</b></td><td style="white-space:nowrap">'+btns+
+  return '<tr><td><b>'+esc(x.name)+" "+esc(x.surname)+'</b>'+
+    (x.email?'<br><span style="font-size:11.5px;color:var(--muted)">'+esc(x.email)+'</span>':'')+
+    '</td><td>'+esc(x.group)+
+    '</td><td><b>'+(x.total||0)+'</b></td><td style="white-space:nowrap">'+
+    (x.cv?'<button class="btn vio rt-cv" data-id="'+esc(x.id)+'" data-nm="'+esc(x.cv.n||"cv")+
+      '" title="'+T("CV ni yuklab olish","Download the CV")+'">📄 CV</button> ':'')+btns
     ' <button class="btn rt-del" data-id="'+esc(x.id)+'" data-nm="'+esc(x.name+" "+x.surname)+
     '" title="'+T("Ro\'yxatdan butunlay o\'chirish","Delete from the list")+'">🗑</button></td></tr>';
 }
@@ -1582,6 +1799,7 @@ function tcDraw(){
         return tcRow(x,'<button class="btn accent rt-a" data-id="'+esc(x.id)+'" data-st="ok">♻️ '+T("Tiklash","Restore")+'</button>');
       }).join("")+'</tbody></table></div>';
   }
+  h+=tcMailBox(okl)+tcKeyBox();
   var dn=dupGroups().reduce(function(a,g){ return a+g.length-1; },0);
   h+='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px">'+
      (dn?'<button class="btn warn" id="rtDup">🧹 '+T("Takrorlarni tozalash","Clean duplicates")+' ('+dn+')</button>':'')+
@@ -1611,6 +1829,10 @@ function tcDraw(){
       });
     };
   });
+  out.querySelectorAll(".rt-cv").forEach(function(b){
+    b.onclick=function(){ tcCvGet(b.dataset.id,b.dataset.nm,b); };
+  });
+  tcMailBind(okl); tcKeyBind();
   document.getElementById("rtTcRef").onclick=tcLoad;
   document.getElementById("rtTcDiagGo").onclick=tcTest;
   var db=document.getElementById("rtDup"); if(db) db.onclick=tcDedupe;
@@ -1619,12 +1841,158 @@ function tcDraw(){
     var box=document.getElementById("rtTc"); box.dataset.on=""; renderTc();
   };
   document.getElementById("rtCsv").onclick=function(){
-    var rows=tcList.map(function(x,i){ return (i+1)+";"+x.name+";"+x.surname+";"+x.group+";"+(x.total||0)+";"+(x.status||"pending"); }).join("\n");
+    var rows=tcList.map(function(x,i){ return (i+1)+";"+x.name+";"+x.surname+";"+x.group+";"+(x.email||"")+";"+
+      (x.total||0)+";"+(x.status||"pending")+";"+(x.cv?T("bor","yes"):"-"); }).join("\n");
     var a2=document.createElement("a");
-    a2.href="data:text/csv;charset=utf-8,"+encodeURIComponent("﻿#;Ism;Familiya;Guruh;Ball;Holat\n"+rows);
+    a2.href="data:text/csv;charset=utf-8,"+encodeURIComponent("﻿#;Ism;Familiya;Guruh;Email;Ball;Holat;CV\n"+rows);
     a2.download="terdu-reyting.csv"; a2.click();
   };
 }
+
+/* ---------- o'qituvchi: CV, pochta, maxfiy kalit ---------- */
+function tcCvGet(id,nm,btn){
+  if(!cloudOn||!BASE){ toast(T("Baza ulanmagan","Not connected")); return; }
+  var t0=btn.innerHTML; btn.disabled=true; btn.innerHTML="⏳";
+  cvUrl("/cv/"+id,function(u){
+    fetch(u).then(function(r){
+      if(!r.ok){
+        btn.disabled=false; btn.innerHTML=t0;
+        toast((r.status===401||r.status===403)
+          ? T("Ruxsat yo'q — pastdagi \"Maxfiy kirish\" bo'limidan kiring.","No access — sign in under \"Private access\" below.")
+          : ("HTTP "+r.status));
+        return null;
+      }
+      return r.json();
+    }).then(function(v){
+      btn.disabled=false; btn.innerHTML=t0;
+      if(!v) return;
+      if(!v.d){ toast(T("Fayl topilmadi","File not found")); return; }
+      var a=document.createElement("a"); a.href=v.d; a.download=(v.n||nm||"cv");
+      document.body.appendChild(a); a.click(); a.remove();
+      toast(T("CV yuklab olindi","CV downloaded"));
+    }).catch(function(){ btn.disabled=false; btn.innerHTML=t0; toast(T("Tarmoq xatosi","Network error")); });
+  });
+}
+function mails(list){
+  var seen={}, out=[];
+  list.forEach(function(x){
+    var e=String(x.email||"").trim().toLowerCase();
+    if(okMail(e)&&!seen[e]){ seen[e]=1; out.push(e); }
+  });
+  return out;
+}
+function tcMailBox(okl){
+  var m=mails(okl), no=okl.length-m.length;
+  return '<div class="rt-sec rt-mail"><h4>📧 '+T("Hammaga bitta xabar yuborish","Send one message to everyone")+
+    ' <span class="rt-badge">'+m.length+'</span></h4>'+
+    '<p class="rt-note" style="margin:0 0 10px">'+T(
+      "Matnni yozing va pochtangizda oching — barcha talabalar BCC (yashirin nusxa) da bo'ladi, ya'ni bir-birining manzilini ko'rmaydi.",
+      "Write the text and open it in your mail app — every student goes into BCC, so they cannot see each other's addresses.")+
+      (no>0?' <b>'+no+'</b> '+T("talabada email yo'q.","students have no email yet."):'')+'</p>'+
+    '<div class="rt-form" style="max-width:none;margin:0 0 10px">'+
+      '<label>'+T("Mavzu","Subject")+'<input id="mlSub" placeholder="'+T("Masalan: Ertangi dars haqida","For example: About tomorrow\'s class")+'"></label></div>'+
+    '<textarea id="mlBody" placeholder="'+T("Xabar matni…","Message text…")+'"></textarea>'+
+    '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">'+
+      '<button class="btn accent" id="mlGm">✉️ Gmail</button>'+
+      '<button class="btn vio" id="mlMt">📮 '+T("Pochta ilovasi","Mail app")+'</button>'+
+      '<button class="btn" id="mlCp">📋 '+T("Emaillarni nusxalash","Copy addresses")+'</button>'+
+    '</div><p class="rt-note" id="mlMsg"></p></div>';
+}
+function tcMailBind(okl){
+  var gm=document.getElementById("mlGm"); if(!gm) return;
+  var m=mails(okl);
+  function txt(){
+    return {s:(document.getElementById("mlSub")||{}).value||"",
+            b:(document.getElementById("mlBody")||{}).value||""};
+  }
+  function note(t){ var n=document.getElementById("mlMsg"); if(n) n.textContent=t; }
+  function guard(){
+    if(!m.length){ note(T("Hech kimda email yo'q.","Nobody has an email yet.")); return false; }
+    return true;
+  }
+  /* uzun ro'yxatni bo'laklarga bo'lamiz — havola uzunligi cheklangan */
+  function parts(){
+    var out=[], step=45;
+    for(var i=0;i<m.length;i+=step) out.push(m.slice(i,i+step));
+    return out;
+  }
+  function open1(mk){
+    if(!guard()) return;
+    var t=txt(), ps=parts();
+    ps.forEach(function(chunk,i){
+      setTimeout(function(){ window.open(mk(chunk,t),"_blank"); },i*700);
+    });
+    note(ps.length>1
+      ? T("Ro'yxat uzun — "+ps.length+" ta oyna ochiladi (har birida 45 tagacha manzil).",
+          ps.length+" windows will open (up to 45 addresses each).")
+      : T("Pochta oynasi ochildi. Yuborishni o'zingiz tasdiqlaysiz.","The mail window is open. You send it yourself."));
+  }
+  gm.onclick=function(){ open1(function(c,t){
+    return "https://mail.google.com/mail/?view=cm&fs=1&to=&bcc="+encodeURIComponent(c.join(","))+
+      "&su="+encodeURIComponent(t.s)+"&body="+encodeURIComponent(t.b); }); };
+  document.getElementById("mlMt").onclick=function(){ open1(function(c,t){
+    return "mailto:?bcc="+encodeURIComponent(c.join(","))+
+      "&subject="+encodeURIComponent(t.s)+"&body="+encodeURIComponent(t.b); }); };
+  document.getElementById("mlCp").onclick=function(){
+    if(!guard()) return;
+    var str=m.join(", ");
+    function done(){ note(T("Nusxalandi: ","Copied: ")+m.length+" "+T("ta manzil","addresses")); toast(T("Nusxalandi ✅","Copied ✅")); }
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(str).then(done,function(){ note(str); });
+    } else { note(str); }
+  };
+}
+function tcKeyBox(){
+  var on=taOn();
+  return '<div class="rt-sec"><h4>🔐 '+T("Maxfiy kirish (CV ni ko'rish uchun)","Private access (to open CVs)")+
+    ' <span class="rt-lock'+(on?" on":"")+'">'+(on?"✅ "+T("kirgansiz","signed in"):"🔒 "+T("kirilmagan","signed out"))+'</span></h4>'+
+    (on
+      ? '<p class="rt-note" style="margin:0">'+esc(TA.email)+'<br>UID: <code style="font-size:11px">'+esc(TA.uid||"")+'</code></p>'+
+        '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">'+
+          '<button class="btn" id="tkRules">📋 '+T("Qoidalar matnini ko\'rish","Show the rules")+'</button>'+
+          '<button class="btn warn" id="tkOut">🚪 '+T("Chiqish","Sign out")+'</button></div>'+
+        '<div id="tkOut2"></div>'
+      : '<p class="rt-note" style="margin:0 0 10px">'+T(
+          "Talabalarning CV si maxfiy tugunda saqlanadi. Uni ochish uchun Firebase hisobingiz bilan bir marta kiring — kalit shu brauzerda saqlanadi.",
+          "Student CVs are kept in a private node. Sign in once with your Firebase account to open them — the key stays in this browser.")+'</p>'+
+        '<div class="rt-form" style="max-width:420px;margin:0">'+
+          '<label>Web API key<input id="tkKey" placeholder="AIza…"></label>'+
+          '<label>Email<input id="tkEm" type="email" placeholder="siz@gmail.com"></label>'+
+          '<label>'+T("Parol","Password")+'<input id="tkPw" type="password" placeholder="••••••••"></label>'+
+          '<button class="btn accent" id="tkGo" style="justify-content:center">🔓 '+T("Kirish","Sign in")+'</button>'+
+        '</div><p class="rt-note" id="tkMsg"></p>')+
+    '</div>';
+}
+function tcKeyBind(){
+  var go=document.getElementById("tkGo");
+  if(go){
+    go.onclick=function(){
+      var k=document.getElementById("tkKey").value.trim(),
+          e=document.getElementById("tkEm").value.trim(),
+          w=document.getElementById("tkPw").value;
+      var m=document.getElementById("tkMsg");
+      if(!k||!okMail(e)||!w){ m.textContent=T("Uchala maydonni to'ldiring.","Fill in all three fields."); return; }
+      go.disabled=true; m.textContent=T("Tekshirilmoqda…","Checking…");
+      taLogin(k,e,w,function(ok,info){
+        go.disabled=false;
+        if(!ok){ m.textContent=T("Kirib bo'lmadi: ","Sign-in failed: ")+info; return; }
+        toast(T("Kirdingiz ✅","Signed in ✅")); tcDraw();
+      });
+    };
+    return;
+  }
+  var ob=document.getElementById("tkOut");
+  if(ob) ob.onclick=function(){ taOut(); toast(T("Chiqdingiz","Signed out")); tcDraw(); };
+  var rb=document.getElementById("tkRules");
+  if(rb) rb.onclick=function(){
+    document.getElementById("tkOut2").innerHTML='<p class="rt-note" style="margin-top:10px">'+T(
+      "Firebase → Realtime Database → Rules ga shuni qo'ying va Publish qiling. Shundan keyin CV ni faqat shu hisob o'qiy oladi:",
+      "Put this into Firebase → Realtime Database → Rules and publish. After that only this account can read the CVs:")+
+      '</p><code style="display:block;margin-top:6px;font-size:11px;word-break:break-all;background:var(--chip);padding:10px;border-radius:10px">'+
+      esc(rulesTxt(TA&&TA.uid))+'</code>';
+  };
+}
+
 function under(hide){            /* ro'yxat/kutish ekrani ustidan ochilganda uni yashiradi */
   ["rtGate","rtWait","rtSplash"].forEach(function(id){
     var d=document.getElementById(id); if(d) d.style.visibility=hide?"hidden":"";
@@ -1636,7 +2004,7 @@ function closeOv(){
 }
 function openOv(tab){
   var o=overlay(); o.classList.add("show"); under(true);
-  renderTop(); renderMe(); renderTp(); renderTc();
+  renderTop(); renderMe(); renderTp(); renderCv(); renderTc();
   if(tab){
     var t=o.querySelector('.rt-tab[data-p="'+tab+'"]');
     if(t) t.click();
@@ -1690,7 +2058,7 @@ function watchStatus(){
 var started=false;
 function start(){
   if(started) return; started=true;
-  chip(); watchStatus();
+  chip(); watchStatus(); if(S&&!S.email) setTimeout(emailAsk,900);
   if(typeof idx!=="undefined") slideSeen(idx);
   window.RT_ready=true;
   if(window.RT_pending){ window.RT_pending.forEach(function(a){ award(a[0],a[1],a[2]); }); window.RT_pending=null; }
