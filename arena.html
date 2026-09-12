@@ -319,7 +319,7 @@ function connect(done){
     }).catch(function(){ if(!fin){fin=true;clearTimeout(t);next();} });
   })();
 }
-var LASTERR="", TRIED={}, RECON=false;
+var LASTERR="", LASTURL="", TRIED={}, RECON=false;
 function reqRaw(m,path,body,cb){
   var o={method:m};
   if(body!==undefined){ o.headers={"Content-Type":"application/json"}; o.body=JSON.stringify(body); }
@@ -328,11 +328,11 @@ function reqRaw(m,path,body,cb){
     var status=0;
     fetch(url,o).then(function(r){ status=r.status; return r.text(); })
      .then(function(t){
-       if(status<200||status>=300){ if(!RECON) LASTERR=status+" · "+url.replace(/^https:\/\//,"").slice(0,44)+" · "+String(t||"").slice(0,90); cb(null,status,t); return; }
+       if(status<200||status>=300){ if(!RECON){ LASTERR=status+" · "+String(t||"").slice(0,90); LASTURL=url; } cb(null,status,t); return; }
        var v=null; try{ v=t?JSON.parse(t):null; }catch(e){}
        cb(v,status,t);
      })
-     .catch(function(){ if(!RECON) LASTERR=L("tarmoq xatosi","network error")+" · "+url.replace(/^https:\/\//,"").slice(0,44); cb(null,0,"net"); });
+     .catch(function(){ if(!RECON){ LASTERR=L("tarmoq xatosi — bazaga ulanib bo'lmadi","network error — cannot reach the database"); LASTURL=url; } cb(null,0,"net"); });
   }catch(e){ LASTERR=L("tarmoq xatosi","network error"); cb(null,0,"net"); }
 }
 /* boshqa manzilga o'tib qayta urinish (baza regioni noto'g'ri tanlangan bo'lsa) */
@@ -2518,6 +2518,12 @@ function vRoom(code,tryN){
     if(!v||!v.meta){ APP.innerHTML=card('<div class="center"><div style="font-size:40px">🚪</div><h2>'+L("Bunday xona yo'q","No such room")+
       '</h2><p class="note">'+L("Kod noto'g'ri yoki musobaqa tugagan.","The code is wrong or the competition has ended.")+'</p>'+
       (LASTERR?'<p class="note">⚠️ '+esc(LASTERR)+'</p>':'')+
+      (LASTURL?'<div class="card flat" style="margin-top:10px;padding:12px;text-align:left">'+
+        '<b style="font-size:13px">🧪 '+L("Bir soniyalik tekshiruv","A one-second check")+'</b>'+
+        '<p class="note">'+L("Quyidagi havolani bosing. Agar yangi oynada <b>null</b> yoki <b>{…}</b> ko'rinsa — internet joyida, muammo boshqa yerda. Agar \"sayt ochilmadi\" desa — internetingiz shu manzilni to'sib qo'yyapti.",
+          "Open the link below. If you see <b>null</b> or <b>{…}</b> the connection is fine. If the page fails to open, your network is blocking this host.")+'</p>'+
+        '<a class="btn sm accent" href="'+esc(LASTURL)+'" target="_blank" rel="noopener" style="word-break:break-all">🔗 '+
+        esc(LASTURL.replace("https://","").slice(0,52))+'…</a></div>':'')+
       '<div class="row" style="justify-content:center;margin-top:12px">'+
       '<button class="btn accent" id="rb">← '+L("Orqaga","Back")+'</button>'+
       '<button class="btn" id="rd">🔎 '+L("Ulanish tekshiruvi","Connection test")+'</button></div>'+
