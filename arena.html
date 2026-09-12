@@ -319,11 +319,11 @@ function connect(done){
     }).catch(function(){ if(!fin){fin=true;clearTimeout(t);next();} });
   })();
 }
-var LASTERR="", LASTURL="", TRIED={}, RECON=false;
+var LASTERR="", TRIED={}, RECON=false;
 function reqRaw(m,path,body,cb){
   var o={method:m};
   /* DIQQAT: GET va DELETE so'roviga tana (body) qo'shib bo'lmaydi —
-     fetch darhol TypeError beradi va so'rov umuman yuborilmaydi. */
+     brauzer 'Request with GET method cannot have body' deb so'rovni rad etadi. */
   if(body!==undefined&&(m==="PUT"||m==="PATCH"||m==="POST")){
     o.headers={"Content-Type":"application/json"}; o.body=JSON.stringify(body);
   }
@@ -332,11 +332,11 @@ function reqRaw(m,path,body,cb){
     var status=0;
     fetch(url,o).then(function(r){ status=r.status; return r.text(); })
      .then(function(t){
-       if(status<200||status>=300){ if(!RECON){ LASTERR=status+" · "+String(t||"").slice(0,90); LASTURL=url; } cb(null,status,t); return; }
+       if(status<200||status>=300){ if(!RECON) LASTERR=status+" · "+url.replace(/^https:\/\//,"").slice(0,44)+" · "+String(t||"").slice(0,90); cb(null,status,t); return; }
        var v=null; try{ v=t?JSON.parse(t):null; }catch(e){}
        cb(v,status,t);
      })
-     .catch(function(){ if(!RECON){ LASTERR=L("tarmoq xatosi — bazaga ulanib bo'lmadi","network error — cannot reach the database"); LASTURL=url; } cb(null,0,"net"); });
+     .catch(function(){ if(!RECON) LASTERR=L("tarmoq xatosi","network error")+" · "+url.replace(/^https:\/\//,"").slice(0,44); cb(null,0,"net"); });
   }catch(e){ LASTERR=L("tarmoq xatosi","network error"); cb(null,0,"net"); }
 }
 /* boshqa manzilga o'tib qayta urinish (baza regioni noto'g'ri tanlangan bo'lsa) */
@@ -2273,7 +2273,7 @@ var GLIST=["quiz","word","g2048","snake","memory","typing","react","math","doodl
 window.ARENA_TEST.GAMES=GAMES; window.ARENA_TEST.GLIST=GLIST; window.ARENA_TEST.FX=FX;
 
 /* ================== KO'RINISH VA OQIM ================== */
-var APP=document.getElementById("app"), ROOM=null, RC=null, HB=null, RUN=null, TICK=null;
+var APP=document.getElementById("app"), ROOM=null, RC=null, HB=null, RUN=null, TICK=null, JUST_CREATED={};
 function nav(h){ location.hash=h; }
 function card(inner,cls){ return '<div class="card '+(cls||"")+'">'+inner+'</div>'; }
 function gameCard(id,on,click){
@@ -2377,7 +2377,13 @@ function vHome(){
     var room={meta:{name:L("Yolg'iz mashq","Solo practice"),host:ME.id,hostName:ME.name,games:games,limit:0,pub:false,max:1,at:Date.now(),status:"lobby"},
       players:{}, state:{ph:"lobby",r:0}};
     room.players[ME.id]={id:ME.id,name:ME.name,surname:ME.surname||"",group:ME.group||"",ready:1,seen:Date.now()};
-    DB.set("rooms/"+code,room,function(){ nav("#/room/"+code); });
+    DB.set("rooms/"+code,room,function(res,status){
+      var local = (res && res.meta) ? res : room;
+      local.code = code;
+      JUST_CREATED[code] = {data: local, at: Date.now()};
+      ROOM = local;
+      nav("#/room/"+code);
+    });
   };
   DB.get("public",function(v){
     var box=document.getElementById("pub"); if(!box) return;
@@ -2464,7 +2470,8 @@ function vCreate(){
       var btn=document.getElementById("cgo");
       if(btn){ btn.disabled=true; btn.textContent="⏳ "+L("Yaratilmoqda…","Creating…"); }
       DB.set("rooms/"+code,room,function(res,status,txt){
-        if(!res){
+        var ok = (status>=200 && status<300) || (res && res.meta);
+        if(!ok){
           if(btn){ btn.disabled=false; btn.textContent="🚀 "+L("Yaratish va lobbiga o'tish","Create and open the lobby"); }
           APP.insertBefore(el('<div class="card" style="--c:var(--red);margin-bottom:14px">'+
             '<h3 style="color:var(--red)">⚠️ '+L("Xona yaratilmadi","The room was not created")+'</h3>'+
@@ -2477,6 +2484,10 @@ function vCreate(){
           return;
         }
         if(pub) DB.set("public/"+code,{name:name,host:ME.name,n:1,g:games.length,at:Date.now()});
+        var local = res && res.meta ? res : room;
+        local.code = code;
+        JUST_CREATED[code] = {data: local, at: Date.now()};
+        ROOM = local;
         nav("#/room/"+code);
       });
     });
@@ -2514,20 +2525,30 @@ function vJoin(){
 
 /* ---------- xona ---------- */
 function vRoom(code,tryN){
-  RC=code; ROOM=null;
+  RC=code;
   tryN=tryN||0;
-  APP.innerHTML=card('<p class="note center">'+L("Xona yuklanmoqda…","Loading the room…")+(tryN?" ("+(tryN+1)+"/3)":"")+'</p>');
+  var cached = JUST_CREATED[code];
+  if(cached && Date.now()-cached.at < 20000 && cached.data && cached.data.meta){
+    ROOM = cached.data; ROOM.code = code;
+    if(!ROOM.players) ROOM.players = {};
+    if(!ROOM.players[ME.id]){
+      ROOM.players[ME.id] = {id:ME.id,name:ME.name,surname:ME.surname||"",group:ME.group||"",ready:1,seen:Date.now()};
+    }
+    startRoom(code);
+    setTimeout(function(){ DB.get("rooms/"+code,function(v){ if(v&&v.meta){ ROOM=v; ROOM.code=code; } }); }, 1500);
+    return;
+  }
+  ROOM=null;
+  APP.innerHTML=card('<p class="note center">'+L("Xona yuklanmoqda…","Loading the room…")+(tryN?" ("+(tryN+1)+"/5)":"")+'</p>');
   DB.get("rooms/"+code,function(v,status,txt){
-    if((!v||!v.meta)&&tryN<2){ setTimeout(function(){ if(location.hash.indexOf(code)>0) vRoom(code,tryN+1); },700); return; }
+    if((!v||!v.meta)&&tryN<4){ setTimeout(function(){ if(location.hash.indexOf(code)>0) vRoom(code,tryN+1); },900); return; }
+    cached = JUST_CREATED[code];
+    if((!v||!v.meta) && cached && Date.now()-cached.at < 30000 && cached.data && cached.data.meta){
+      v = cached.data;
+    }
     if(!v||!v.meta){ APP.innerHTML=card('<div class="center"><div style="font-size:40px">🚪</div><h2>'+L("Bunday xona yo'q","No such room")+
       '</h2><p class="note">'+L("Kod noto'g'ri yoki musobaqa tugagan.","The code is wrong or the competition has ended.")+'</p>'+
       (LASTERR?'<p class="note">⚠️ '+esc(LASTERR)+'</p>':'')+
-      (LASTURL?'<div class="card flat" style="margin-top:10px;padding:12px;text-align:left">'+
-        '<b style="font-size:13px">🧪 '+L("Bir soniyalik tekshiruv","A one-second check")+'</b>'+
-        '<p class="note">'+L("Quyidagi havolani bosing. Agar yangi oynada <b>null</b> yoki <b>{…}</b> ko'rinsa — internet joyida, muammo boshqa yerda. Agar \"sayt ochilmadi\" desa — internetingiz shu manzilni to'sib qo'yyapti.",
-          "Open the link below. If you see <b>null</b> or <b>{…}</b> the connection is fine. If the page fails to open, your network is blocking this host.")+'</p>'+
-        '<a class="btn sm accent" href="'+esc(LASTURL)+'" target="_blank" rel="noopener" style="word-break:break-all">🔗 '+
-        esc(LASTURL.replace("https://","").slice(0,52))+'…</a></div>':'')+
       '<div class="row" style="justify-content:center;margin-top:12px">'+
       '<button class="btn accent" id="rb">← '+L("Orqaga","Back")+'</button>'+
       '<button class="btn" id="rd">🔎 '+L("Ulanish tekshiruvi","Connection test")+'</button></div>'+
@@ -2554,9 +2575,26 @@ function startRoom(code){
   clearInterval(HB);
   HB=setInterval(function(){ DB.set("rooms/"+code+"/players/"+ME.id+"/seen",Date.now()); },5000);
   DB.set("rooms/"+code+"/players/"+ME.id+"/seen",Date.now());
-  var lastPh="", lastR=-1, lastCnt=-1;
+  var lastPh="", lastR=-1, lastCnt=-1, miss=0;
+  if(ROOM && ROOM.code===code && ROOM.meta){
+    try{ render(ROOM); }catch(e){}
+  }
   watch("rooms/"+code,1400,function(v){
-    if(!v||!v.meta){ toast(L("Xona yopildi","The room was closed")); nav("#/"); return; }
+    if(!v||!v.meta){
+      miss++;
+      var jc = JUST_CREATED[code];
+      if(jc && Date.now()-jc.at < 25000){
+        if(jc.data && jc.data.meta){ v = jc.data; }
+        else return;
+      } else if(miss < 4){
+        return;
+      } else {
+        toast(L("Xona yopildi","The room was closed")); nav("#/"); return;
+      }
+    } else {
+      miss = 0;
+      if(JUST_CREATED[code]) delete JUST_CREATED[code];
+    }
     ROOM=v; v.code=code;
     var st=v.state||{ph:"lobby",r:0}, pls=plList(v), key=st.ph+"|"+st.r;
     if(isHost(v)) hostTick(v);
