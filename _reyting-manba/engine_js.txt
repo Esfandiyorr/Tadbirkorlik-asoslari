@@ -313,6 +313,83 @@ function tbWatch(){
   }
   setTimeout(tbHeight,600); setTimeout(tbHeight,1800);
 }
+/* ---------- telefonda yon tugmalarni barmoq bilan siljitish ---------- */
+var DRAGK="terdu_tabpos_v1";
+function isPhone(){ return window.matchMedia("(max-width:640px)").matches; }
+function dragPos(){ return lget(DRAGK,{}) || {}; }
+function dragSave(k,x,y){ var o=dragPos(); o[k]={x:x,y:y}; lset(DRAGK,o); }
+function clampTab(el,x,y){
+  var w=el.offsetWidth||42, h=el.offsetHeight||42;
+  var mx=Math.max(0,window.innerWidth-w), my=Math.max(0,window.innerHeight-h);
+  return {x:Math.min(Math.max(0,x),mx), y:Math.min(Math.max(0,y),my)};
+}
+function placeTab(el,x,y){
+  var p=clampTab(el,x,y);
+  /* tugmada 0.2s animatsiya bor — siljitishda u kechikish beradi, shuning uchun o'chiramiz */
+  el.style.transition="none";
+  el.style.left=p.x+"px"; el.style.top=p.y+"px";
+  el.style.right="auto"; el.style.bottom="auto"; el.style.transform="none";
+  return p;
+}
+function makeDrag(el,key){
+  if(!el||el._drag) return; el._drag=true;
+  var sx=0, sy=0, ox=0, oy=0, moved=false, on=false;
+  /* saqlangan joyini tiklaymiz */
+  var sv=dragPos()[key];
+  if(sv&&isPhone()) placeTab(el,sv.x,sv.y);
+  el.addEventListener("pointerdown",function(e){
+    if(!isPhone()||e.button===2) return;
+    var r=el.getBoundingClientRect();
+    ox=r.left; oy=r.top; sx=e.clientX; sy=e.clientY; moved=false; on=true;
+    el.setPointerCapture&&el.setPointerCapture(e.pointerId);
+  });
+  el.addEventListener("pointermove",function(e){
+    if(!on) return;
+    var dx=e.clientX-sx, dy=e.clientY-sy;
+    if(!moved && (Math.abs(dx)+Math.abs(dy))<7) return;     /* kichik tebranish — bosish deb hisoblanadi */
+    if(!moved){ moved=true; el.classList.add("rt-dragging"); }
+    e.preventDefault();
+    placeTab(el,ox+dx,oy+dy);
+  });
+  function done(e){
+    if(!on) return; on=false;
+    el.classList.remove("rt-dragging");
+    if(!moved) return;
+    var r=el.getBoundingClientRect();
+    var p=clampTab(el,r.left,r.top); placeTab(el,p.x,p.y);
+    dragSave(key,p.x,p.y);
+    /* siljitishdan keyingi "bosish" hodisasini bekor qilamiz */
+    el.addEventListener("click",function stop(ev){ ev.stopPropagation(); ev.preventDefault();
+      el.removeEventListener("click",stop,true); },true);
+  }
+  el.addEventListener("pointerup",done);
+  el.addEventListener("pointercancel",done);
+  el.addEventListener("dragstart",function(e){ e.preventDefault(); });
+}
+function dragTabs(){
+  if(!isPhone()) return;
+  makeDrag(document.querySelector(".ch-tab"),"chat");
+  makeDrag(document.getElementById("mzTab"),"music");
+}
+function dragWatch(){
+  dragTabs();
+  var n=0, iv=setInterval(function(){ dragTabs(); if(++n>25) clearInterval(iv); },900);
+  window.addEventListener("resize",function(){
+    if(!isPhone()){
+      [".ch-tab","#mzTab"].forEach(function(q){
+        var e=document.querySelector(q);
+        if(e){ e.style.left=e.style.top=e.style.right=e.style.bottom=e.style.transform=""; }
+      });
+      return;
+    }
+    var o=dragPos();
+    [[".ch-tab","chat"],["#mzTab","music"]].forEach(function(x){
+      var e=document.querySelector(x[0]), v=o[x[1]];
+      if(e&&v) placeTab(e,v.x,v.y);
+    });
+    dragTabs();
+  });
+}
 function chipUpdate(){
   var c=document.getElementById("rtChip"); if(!c||!S) return;
   c.innerHTML="🏆 "+esc(S.name)+" · <b>"+(P.total||0)+"</b>";
@@ -1124,7 +1201,7 @@ function watchStatus(){
 var started=false;
 function start(){
   if(started) return; started=true;
-  chip(); tbWatch(); watchStatus(); timeStart(); if(cloudOn&&S) cloudSave(); if(S&&!S.email) setTimeout(emailAsk,900);
+  chip(); tbWatch(); dragWatch(); watchStatus(); timeStart(); if(cloudOn&&S) cloudSave(); if(S&&!S.email) setTimeout(emailAsk,900);
   if(typeof idx!=="undefined") slideSeen(idx);
   window.RT_ready=true;
   if(window.RT_pending){ window.RT_pending.forEach(function(a){ award(a[0],a[1],a[2]); }); window.RT_pending=null; }
