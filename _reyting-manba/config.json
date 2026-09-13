@@ -71,6 +71,70 @@
       "open": false,
       "quiz": 15,
       "slides": 18
+    },
+    {
+      "id": "m8",
+      "title": "M8 · 8-mavzu (nomi keyin qo'yiladi)",
+      "file": "mavzu-8.html",
+      "open": false,
+      "slides": 18,
+      "quiz": 15
+    },
+    {
+      "id": "m9",
+      "title": "M9 · 9-mavzu (nomi keyin qo'yiladi)",
+      "file": "mavzu-9.html",
+      "open": false,
+      "slides": 18,
+      "quiz": 15
+    },
+    {
+      "id": "m10",
+      "title": "M10 · 10-mavzu (nomi keyin qo'yiladi)",
+      "file": "mavzu-10.html",
+      "open": false,
+      "slides": 18,
+      "quiz": 15
+    },
+    {
+      "id": "m11",
+      "title": "M11 · 11-mavzu (nomi keyin qo'yiladi)",
+      "file": "mavzu-11.html",
+      "open": false,
+      "slides": 18,
+      "quiz": 15
+    },
+    {
+      "id": "m12",
+      "title": "M12 · 12-mavzu (nomi keyin qo'yiladi)",
+      "file": "mavzu-12.html",
+      "open": false,
+      "slides": 18,
+      "quiz": 15
+    },
+    {
+      "id": "m13",
+      "title": "M13 · 13-mavzu (nomi keyin qo'yiladi)",
+      "file": "mavzu-13.html",
+      "open": false,
+      "slides": 18,
+      "quiz": 15
+    },
+    {
+      "id": "m14",
+      "title": "M14 · 14-mavzu (nomi keyin qo'yiladi)",
+      "file": "mavzu-14.html",
+      "open": false,
+      "slides": 18,
+      "quiz": 15
+    },
+    {
+      "id": "m15",
+      "title": "M15 · 15-mavzu (nomi keyin qo'yiladi)",
+      "file": "mavzu-15.html",
+      "open": false,
+      "slides": 18,
+      "quiz": 15
     }
   ],
   "tracks": [
