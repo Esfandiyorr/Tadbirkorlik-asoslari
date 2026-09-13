@@ -126,3 +126,27 @@
 .rt-authbar .t span{display:block;font-size:12px;color:var(--muted);line-height:1.45}
 .rt-steps{margin:10px 0 0;padding-left:20px;font-size:13.5px;line-height:1.75;color:var(--ink2)}
 .rt-steps li{margin-bottom:5px}
+/* --- dars bahosi --- */
+.rt-gtabs{display:flex;gap:7px;margin-bottom:14px}
+.rt-gt{flex:1;border:1.5px solid var(--line);background:var(--panel2);color:var(--ink);border-radius:12px;
+  padding:10px;font-size:13.5px;font-weight:800;cursor:pointer;font-family:inherit;transition:.16s}
+.rt-gt:hover{border-color:var(--violet)}
+.rt-gt.on{background:linear-gradient(135deg,var(--green),var(--teal));color:#fff;border-color:transparent}
+.rt-mark{display:flex;align-items:center;gap:14px;border-radius:18px;padding:14px 18px;color:#fff;
+  background:linear-gradient(135deg,var(--muted),#64748b)}
+.rt-mark.b1{background:linear-gradient(135deg,#e11d48,#be123c)}
+.rt-mark.b2{background:linear-gradient(135deg,#f97316,#ea580c)}
+.rt-mark.b3{background:linear-gradient(135deg,#f59e0b,#d97706)}
+.rt-mark.b4{background:linear-gradient(135deg,#0891b2,#0e7490)}
+.rt-mark.b5{background:linear-gradient(135deg,#12a150,#0b7a3c)}
+.rt-mark .n{font-size:44px;font-weight:900;line-height:1;min-width:52px;text-align:center}
+.rt-mark .t b{display:block;font-size:16px}
+.rt-mark .t span{display:block;font-size:13px;opacity:.9;margin-top:2px}
+.rt-part{margin-bottom:9px}
+.rt-part .row2{display:flex;justify-content:space-between;font-size:13px;margin-bottom:3px}
+.rt-part .row2 i{font-style:normal;color:var(--muted)}
+.rt-scale{font-size:13px;color:var(--muted);line-height:2}
+.rt-mk{display:inline-block;min-width:26px;text-align:center;border-radius:8px;padding:2px 8px;
+  font-weight:800;color:#fff;font-size:13px}
+.rt-mk.b1{background:#e11d48}.rt-mk.b2{background:#f97316}.rt-mk.b3{background:#f59e0b}
+.rt-mk.b4{background:#0891b2}.rt-mk.b5{background:#12a150}
