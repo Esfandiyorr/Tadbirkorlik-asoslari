@@ -58,4 +58,10 @@
 .ch-warn.on{display:block}
 .ch-lock{margin:auto;text-align:center;padding:18px;color:var(--muted);font-size:13px;line-height:1.6}
 @media print{.ch-tab,.ch-panel{display:none!important}}
-@media(max-width:520px){.ch-tab{padding:9px 7px;font-size:16px}}
+/* Telefonda yon tugmalar matn ustiga tushmasin — yuqoriroqqa olinadi */
+@media(max-width:640px){
+  .ch-tab{top:21vh;transform:none;padding:8px 6px;font-size:15px;border-radius:0 12px 12px 0;opacity:.72}
+  .ch-tab i{font-size:9.5px}
+  .ch-tab:active{opacity:1}
+  .ch-tab:has(.ch-dot){opacity:1}   /* yangi xabar bo'lsa to'liq ko'rinadi */
+}
