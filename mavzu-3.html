@@ -277,6 +277,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 
 
+
 /* RT:BEGIN */
 /* ================== REYTING TIZIMI ================== */
 .rt-chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel);
@@ -1073,6 +1074,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 
 
+
 <!-- RT:BEGIN -->
 <script>var RT_CFG={"topic": "m3", "slides": 15, "quiz": 15, "pSlide": 2, "pAll": 10, "teacher": "terdu2026", "firebase": {"db": "tadbirkorlik-asoslari-default-rtdb", "regions": ["asia-southeast1", "europe-west1", "us-central1", "europe-west4", "asia-east1", "us-east1", "northamerica-northeast1"], "url": "https://tadbirkorlik-asoslari-default-rtdb.asia-southeast1.firebasedatabase.app"}, "topics": [{"id": "m1", "file": "index.html", "title": "M1 · Tadbirkorlik tafakkuri va biznes imkoniyatlar", "open": true, "quiz": 15, "slides": 18}, {"id": "m2", "file": "mavzu-2.html", "title": "M2 · Mijoz muammosi asosida biznes g'oya", "open": false, "quiz": 15, "slides": 18}, {"id": "m3", "file": "mavzu-3.html", "title": "M3 · Mahsulotni kam xarajat bilan sinash (moliya va kredit)", "open": false, "quiz": 15, "slides": 15}, {"id": "m4", "file": "mavzu-4.html", "title": "M4 · Biznesni qonuniy rasmiylashtirish", "open": false, "quiz": 15, "slides": 18}, {"id": "m5", "file": "mavzu-5.html", "title": "M5 · Soliqlar va hujjatlar", "open": false, "quiz": 15, "slides": 18}, {"id": "m6", "file": "mavzu-6.html", "title": "M6 · Biznes-model qanday ishlaydi", "open": false, "quiz": 15, "slides": 18}, {"id": "m7", "file": "mavzu-7.html", "title": "M7 · Mijoz kim va unga nima kerak", "open": false, "quiz": 15, "slides": 18}], "tracks": [{"file": "Musofir.mp3", "title": "Musofir", "artist": ""}]};</script>
 <script>
@@ -1099,7 +1101,7 @@ function load(){
 function save(){ lset(LS.stu,S); lset(LS.prog,P); cloudSave(); }
 
 /* ---------- bulut (Firebase RTDB, REST) ---------- */
-var BASE=null, cloudErr="";
+var BASE=null, cloudErr="", DEAD=false, RESET=0;
 function bases(){
   var f=CFG.firebase||{}, out=[];
   if(f.url) out.push(f.url.replace(/\/+$/,""));
@@ -1140,7 +1142,7 @@ function rec(){
           total:P.total||0,topics:topicSummary(),at:S.at||Date.now(),updated:Date.now()};
 }
 function cloudSave(){            /* status maydoniga tegmaydi — uni faqat o'qituvchi o'zgartiradi */
-  if(!cloudOn||!BASE||!S) return;
+  if(!cloudOn||!BASE||!S||DEAD) return;   /* o'chirilgan hisob qayta tiklanmasin */
   try{
     fetch(BASE+"/students/"+S.id+".json",{method:"PATCH",headers:{"Content-Type":"application/json"},
       body:JSON.stringify(rec())}).catch(function(){});
@@ -1163,7 +1165,8 @@ function cloudList(cb){
   fetch(BASE+"/students.json").then(function(r){ return r.ok?r.json():null; })
     .then(function(v){
       if(!v){ cb(null); return; }
-      var a=[]; for(var k in v){ if(v[k]&&v[k].name) a.push(v[k]); } cb(a);
+      var a=[]; for(var k in v){ var x=v[k];
+        if(x&&x.name&&x.status&&(x.at||0)>=RESET) a.push(x); } cb(a);
     }).catch(function(){ cb(null); });
 }
 function cloudStatus(){
@@ -1182,6 +1185,29 @@ function cloudSetStatus(id,st,cb){
   if(!cloudOn||!BASE){ cb&&cb(false); return; }
   fetch(BASE+"/students/"+id+"/status.json",{method:"PUT",headers:{"Content-Type":"application/json"},
     body:JSON.stringify(st)}).then(function(r){ cb&&cb(r.ok); }).catch(function(){ cb&&cb(false); });
+}
+/* ---------- hisobni tozalash va tekshirish ---------- */
+function wipeLocal(msg){
+  try{ localStorage.removeItem(LS.stu); localStorage.removeItem(LS.prog); }catch(e){}
+  try{ localStorage.removeItem("terdu_tc"); sessionStorage.removeItem("terdu_tc"); }catch(e){}
+  try{ sessionStorage.setItem("terdu_wiped",msg||"1"); }catch(e){}
+  location.reload();
+}
+/* cb(true)=bazada bor, cb(false)=aniq o'chirilgan, cb(null)=bilib bo'lmadi (tarmoq) */
+function cloudHas(id,cb){
+  if(!cloudOn||!BASE){ cb(null); return; }
+  fetch(BASE+"/students/"+id+".json").then(function(r){
+    if(!r.ok){ cb(null); return; }
+    /* haqiqiy yozuvda doim status bo'ladi (cloudCreate qo'yadi).
+       Statussiz yozuv — yopilayotgan sahifa PATCH bilan tiklab qo'ygani, uni yo'q deb hisoblaymiz. */
+    return r.json().then(function(v){ cb(v&&v.name&&v.status?true:false); });
+  }).catch(function(){ cb(null); });
+}
+/* o'qituvchi "hammasini o'chirish" bosganda qo'yiladigan belgi */
+function resetAt(cb){
+  if(!cloudOn||!BASE){ cb(0); return; }
+  fetch(BASE+"/meta/reset.json").then(function(r){ return r.ok?r.json():null; })
+   .then(function(v){ cb(+v||0); }).catch(function(){ cb(0); });
 }
 function approved(){ return !cloudOn || (S&&S.status==="ok"); }
 function rulesTxt(){
@@ -1705,6 +1731,7 @@ function renderCv(){
 
 
 /* ---------- guruh va sana yordamchilari ---------- */
+function today(){ var d=new Date(); return d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2)+"-"+("0"+d.getDate()).slice(-2); }
 function dfmt(d){ var p=String(d||"").split("-"); return p.length===3?(p[2]+"."+p[1]+"."+p[0]):String(d||""); }
 function gkey(g){ return String(g||"\u2014").trim().replace(/\s+/g," ").slice(0,60)||"\u2014"; }
 function groupsOf(list){
@@ -1854,6 +1881,8 @@ function tcDraw(){
   h+='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px">'+
      (dn?'<button class="btn warn" id="rtDup">🧹 '+T("Takrorlarni tozalash","Clean duplicates")+' ('+dn+')</button>':'')+
      '<button class="btn warn" id="rtCsv">⬇ CSV</button>'+
+     '<button class="btn warn" id="rtWipe" style="background:linear-gradient(135deg,var(--red),#9f1239)">🧹 '+
+       T("Hammasini o\'chirish","Delete everyone")+'</button>'+
      '<button class="btn" id="rtTcDiagGo">🔎 '+T("Chat tekshiruvi","Chat self-test")+'</button>'+
      '<button class="btn" id="rtTcOut2">🚪 '+T("Chiqish","Log out")+'</button></div>'+
      '<div id="rtTcDiag"></div>'+
@@ -1915,6 +1944,7 @@ function tcDraw(){
     };
   });
   tcMailBind(okl);
+  document.getElementById("rtWipe").onclick=wipeAll;
   document.getElementById("rtTcRef").onclick=tcLoad;
   document.getElementById("rtTcDiagGo").onclick=tcTest;
   var db=document.getElementById("rtDup"); if(db) db.onclick=tcDedupe;
@@ -2007,6 +2037,33 @@ function tcMailBind(okl){
   };
 }
 
+function wipeAll(){
+  var n=tcList.length;
+  if(!confirm(T("DIQQAT! Barcha talabalar ro'yxati butunlay o'chiriladi ("+n+" ta). Ballar, natijalar va emaillar qaytarib bo'lmaydi.\n\nDavom etasizmi?",
+    "WARNING! The whole student list will be deleted ("+n+" records). Points, results and emails cannot be restored.\n\nContinue?"))) return;
+  var word=T("O'CHIR","DELETE");
+  var v=prompt(T("Tasdiqlash uchun shu so'zni yozing: ","Type this word to confirm: ")+word,"");
+  if(String(v||"").trim().toUpperCase()!==word) { toast(T("Bekor qilindi","Cancelled")); return; }
+  var b=document.getElementById("rtWipe"); if(b){ b.disabled=true; b.textContent=T("O'chirilmoqda…","Deleting…"); }
+  if(!cloudOn||!BASE){ tcList=[]; wipeLocal("reset"); return; }
+  /* avval zaxira: CSV faylini yuklab beramiz */
+  var back=tcList.map(function(x,i){
+    return (i+1)+";"+x.name+";"+x.surname+";"+x.group+";"+(x.email||"")+";"+(x.total||0)+";"+(x.status||"");
+  }).join("\n");
+  if(tcList.length) dl("terdu-zaxira-"+today()+".csv","\ufeff#;Ism;Familiya;Guruh;Email;Ball;Holat\n"+back);
+  fetch(BASE+"/students.json",{method:"DELETE"}).then(function(r){
+    if(!r.ok) throw 0;
+    /* belgi qo'yamiz: shu vaqtdan oldin ro'yxatdan o'tganlar mahalliy nusxasi ham tozalanadi */
+    return fetch(BASE+"/meta/reset.json",{method:"PUT",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify(Date.now())});
+  }).then(function(){
+    tcList=[]; RESET=Date.now(); DEAD=true; toast(T("Ro'yxat tozalandi","The list is cleared"));
+    setTimeout(function(){ wipeLocal("reset"); },900);
+  }).catch(function(){
+    if(b){ b.disabled=false; b.textContent="\ud83e\uddf9 "+T("Hammasini o'chirish","Delete everyone"); }
+    toast(T("O'chirib bo'lmadi — qoidalarni tekshiring","Could not delete — check the rules"));
+  });
+}
 function under(hide){            /* ro'yxat/kutish ekrani ustidan ochilganda uni yashiradi */
   ["rtGate","rtWait","rtSplash"].forEach(function(id){
     var d=document.getElementById(id); if(d) d.style.visibility=hide?"hidden":"";
@@ -2064,22 +2121,39 @@ function watchStatus(){
   if(!cloudOn||!S||wIv) return;
   wIv=setInterval(function(){
     if(document.hidden) return;
-    cloudStatusOf(S.id,function(st){
-      if(st&&st!=="ok"){ S.status=st; lset(LS.stu,S); location.reload(); }
+    cloudHas(S.id,function(has){
+      if(has===false){ DEAD=true; wipeLocal("gone"); return; }
+      if(has!==true) return;
+      cloudStatusOf(S.id,function(st){
+        if(st&&st!=="ok"){ S.status=st; lset(LS.stu,S); location.reload(); }
+      });
     });
   },60000);
 }
 var started=false;
 function start(){
   if(started) return; started=true;
-  chip(); watchStatus(); timeStart(); if(S&&!S.email) setTimeout(emailAsk,900);
+  chip(); watchStatus(); timeStart(); if(cloudOn&&S) cloudSave(); if(S&&!S.email) setTimeout(emailAsk,900);
   if(typeof idx!=="undefined") slideSeen(idx);
   window.RT_ready=true;
   if(window.RT_pending){ window.RT_pending.forEach(function(a){ award(a[0],a[1],a[2]); }); window.RT_pending=null; }
 }
 load();
 var booted=false;
-function boot(){ if(booted) return; booted=true; gate(); }
+function boot(){
+  if(booted) return; booted=true;
+  var w=null; try{ w=sessionStorage.getItem("terdu_wiped"); sessionStorage.removeItem("terdu_wiped"); }catch(e){}
+  if(w) toast(w==="reset"
+    ? T("Ro'yxat o'qituvchi tomonidan yangilandi — qaytadan ro'yxatdan o'ting.","The list was reset by the teacher — please register again.")
+    : T("Hisobingiz ro'yxatdan o'chirilgan — qaytadan ro'yxatdan o'ting.","Your account was removed — please register again."));
+  if(!S||!cloudOn){ gate(); return; }
+  /* hisob bazadan o'chirilgan bo'lsa, mahalliy nusxa ham tozalanadi */
+  if(RESET && (S.at||0) < RESET){ DEAD=true; cloudDrop(S.id); wipeLocal("reset"); return; }
+  cloudHas(S.id,function(has){
+    if(has===false){ DEAD=true; cloudDrop(S.id); wipeLocal("gone"); return; }
+    gate();
+  });
+}
 function splash(on){
   var d=document.getElementById("rtSplash");
   if(on){ if(!d){ d=el('<div class="rt-gate" id="rtSplash"><div class="rt-box" style="text-align:center">'+
@@ -2090,7 +2164,10 @@ function splash(on){
 function connect(){
   splash(true);
   setTimeout(function(){ splash(false); boot(); },9000);
-  cloudInit(function(ok){ if(ok&&S) cloudSave(); splash(false); boot(); });
+  cloudInit(function(ok){
+    if(!ok){ splash(false); boot(); return; }
+    resetAt(function(rt){ RESET=rt||0; splash(false); boot(); });
+  });
 }
 if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",connect); else connect();
 
