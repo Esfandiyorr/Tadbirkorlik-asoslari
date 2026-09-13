@@ -12,13 +12,13 @@ CJS=open(SC+'chat_js.txt',encoding='utf-8').read()
 CONF=json.load(open(SC+'config.json',encoding='utf-8'))
 
 DECKS={
- 'index.html':   dict(id='m1',slides=18),
- 'mavzu-2.html': dict(id='m2',slides=18),
- 'mavzu-3.html': dict(id='m3',slides=15),
- 'mavzu-4.html': dict(id='m4',slides=18),
- 'mavzu-5.html': dict(id='m5',slides=18),
- 'mavzu-6.html': dict(id='m6',slides=18),
- 'mavzu-7.html': dict(id='m7',slides=18),
+ 'index.html':   dict(id='m1',slides=18,quiz=15),
+ 'mavzu-2.html': dict(id='m2',slides=18,quiz=15),
+ 'mavzu-3.html': dict(id='m3',slides=15,quiz=15),
+ 'mavzu-4.html': dict(id='m4',slides=18,quiz=15),
+ 'mavzu-5.html': dict(id='m5',slides=18,quiz=15),
+ 'mavzu-6.html': dict(id='m6',slides=18,quiz=15),
+ 'mavzu-7.html': dict(id='m7',slides=18,quiz=15),
 }
 B,E='/* RT:BEGIN */','/* RT:END */'
 HB,HE='<!-- RT:BEGIN -->','<!-- RT:END -->'
@@ -42,7 +42,7 @@ def inject(fn,meta):
     s=re.sub(r'      <a class="btn ghost" href="[^"]+" title="[^"]+">📑 M\d</a>\n','',s)
 
     # --- konfiguratsiya + dvigatel ---
-    cfg=dict(topic=meta['id'],slides=meta['slides'],pSlide=CONF['pSlide'],pAll=CONF['pAll'],
+    cfg=dict(topic=meta['id'],slides=meta['slides'],quiz=meta.get('quiz',15),pSlide=CONF['pSlide'],pAll=CONF['pAll'],
              teacher=CONF['teacher'],firebase=CONF.get('firebase'),topics=CONF['topics'],
              tracks=CONF.get('tracks',[]))
     block=(HB+'\n<script>var RT_CFG='+json.dumps(cfg,ensure_ascii=False)+';</script>\n'

@@ -291,6 +291,14 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 
 
+
+
+
+
+
+
+
+
 /* RT:BEGIN */
 /* ================== REYTING TIZIMI ================== */
 .rt-chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel);
@@ -420,6 +428,30 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 .rt-authbar .t span{display:block;font-size:12px;color:var(--muted);line-height:1.45}
 .rt-steps{margin:10px 0 0;padding-left:20px;font-size:13.5px;line-height:1.75;color:var(--ink2)}
 .rt-steps li{margin-bottom:5px}
+/* --- dars bahosi --- */
+.rt-gtabs{display:flex;gap:7px;margin-bottom:14px}
+.rt-gt{flex:1;border:1.5px solid var(--line);background:var(--panel2);color:var(--ink);border-radius:12px;
+  padding:10px;font-size:13.5px;font-weight:800;cursor:pointer;font-family:inherit;transition:.16s}
+.rt-gt:hover{border-color:var(--violet)}
+.rt-gt.on{background:linear-gradient(135deg,var(--green),var(--teal));color:#fff;border-color:transparent}
+.rt-mark{display:flex;align-items:center;gap:14px;border-radius:18px;padding:14px 18px;color:#fff;
+  background:linear-gradient(135deg,var(--muted),#64748b)}
+.rt-mark.b1{background:linear-gradient(135deg,#e11d48,#be123c)}
+.rt-mark.b2{background:linear-gradient(135deg,#f97316,#ea580c)}
+.rt-mark.b3{background:linear-gradient(135deg,#f59e0b,#d97706)}
+.rt-mark.b4{background:linear-gradient(135deg,#0891b2,#0e7490)}
+.rt-mark.b5{background:linear-gradient(135deg,#12a150,#0b7a3c)}
+.rt-mark .n{font-size:44px;font-weight:900;line-height:1;min-width:52px;text-align:center}
+.rt-mark .t b{display:block;font-size:16px}
+.rt-mark .t span{display:block;font-size:13px;opacity:.9;margin-top:2px}
+.rt-part{margin-bottom:9px}
+.rt-part .row2{display:flex;justify-content:space-between;font-size:13px;margin-bottom:3px}
+.rt-part .row2 i{font-style:normal;color:var(--muted)}
+.rt-scale{font-size:13px;color:var(--muted);line-height:2}
+.rt-mk{display:inline-block;min-width:26px;text-align:center;border-radius:8px;padding:2px 8px;
+  font-weight:800;color:#fff;font-size:13px}
+.rt-mk.b1{background:#e11d48}.rt-mk.b2{background:#f97316}.rt-mk.b3{background:#f59e0b}
+.rt-mk.b4{background:#0891b2}.rt-mk.b5{background:#12a150}
 /* ================== MUSIQA PLEYERI ================== */
 #mzTab{position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:70;
   background:linear-gradient(135deg,var(--violet),var(--pink));color:#fff;border:none;
@@ -1123,8 +1155,16 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 
 
+
+
+
+
+
+
+
+
 <!-- RT:BEGIN -->
-<script>var RT_CFG={"topic": "m1", "slides": 18, "pSlide": 2, "pAll": 10, "teacher": "terdu2026", "firebase": {"db": "tadbirkorlik-asoslari-default-rtdb", "regions": ["asia-southeast1", "europe-west1", "us-central1", "europe-west4", "asia-east1", "us-east1", "northamerica-northeast1"], "url": "https://tadbirkorlik-asoslari-default-rtdb.asia-southeast1.firebasedatabase.app"}, "topics": [{"id": "m1", "file": "index.html", "title": "M1 · Tadbirkorlik tafakkuri va biznes imkoniyatlar", "open": true}, {"id": "m2", "file": "mavzu-2.html", "title": "M2 · Mijoz muammosi asosida biznes g'oya", "open": false}, {"id": "m3", "file": "mavzu-3.html", "title": "M3 · Mahsulotni kam xarajat bilan sinash (moliya va kredit)", "open": false}, {"id": "m4", "file": "mavzu-4.html", "title": "M4 · Biznesni qonuniy rasmiylashtirish", "open": false}, {"id": "m5", "file": "mavzu-5.html", "title": "M5 · Soliqlar va hujjatlar", "open": false}, {"id": "m6", "file": "mavzu-6.html", "title": "M6 · Biznes-model qanday ishlaydi", "open": false}, {"id": "m7", "file": "mavzu-7.html", "title": "M7 · Mijoz kim va unga nima kerak", "open": false}], "tracks": [{"file": "Musofir.mp3", "title": "Musofir", "artist": ""}]};</script>
+<script>var RT_CFG={"topic": "m1", "slides": 18, "quiz": 15, "pSlide": 2, "pAll": 10, "teacher": "terdu2026", "firebase": {"db": "tadbirkorlik-asoslari-default-rtdb", "regions": ["asia-southeast1", "europe-west1", "us-central1", "europe-west4", "asia-east1", "us-east1", "northamerica-northeast1"], "url": "https://tadbirkorlik-asoslari-default-rtdb.asia-southeast1.firebasedatabase.app"}, "topics": [{"id": "m1", "file": "index.html", "title": "M1 · Tadbirkorlik tafakkuri va biznes imkoniyatlar", "open": true, "quiz": 15, "slides": 18}, {"id": "m2", "file": "mavzu-2.html", "title": "M2 · Mijoz muammosi asosida biznes g'oya", "open": false, "quiz": 15, "slides": 18}, {"id": "m3", "file": "mavzu-3.html", "title": "M3 · Mahsulotni kam xarajat bilan sinash (moliya va kredit)", "open": false, "quiz": 15, "slides": 15}, {"id": "m4", "file": "mavzu-4.html", "title": "M4 · Biznesni qonuniy rasmiylashtirish", "open": false, "quiz": 15, "slides": 18}, {"id": "m5", "file": "mavzu-5.html", "title": "M5 · Soliqlar va hujjatlar", "open": false, "quiz": 15, "slides": 18}, {"id": "m6", "file": "mavzu-6.html", "title": "M6 · Biznes-model qanday ishlaydi", "open": false, "quiz": 15, "slides": 18}, {"id": "m7", "file": "mavzu-7.html", "title": "M7 · Mijoz kim va unga nima kerak", "open": false, "quiz": 15, "slides": 18}], "tracks": [{"file": "Musofir.mp3", "title": "Musofir", "artist": ""}]};</script>
 <script>
 /* ================== TerDU REYTING TIZIMI ================== */
 var RT=(function(){
@@ -1186,7 +1226,7 @@ function cloudInit(done){
   })();
 }
 function rec(){
-  return {id:S.id,name:S.name,surname:S.surname,group:S.group,email:S.email||"",
+  return {id:S.id,name:S.name,surname:S.surname,group:S.group,email:S.email||"",bd:S.bd||"",
           total:P.total||0,topics:topicSummary(),at:S.at||Date.now(),updated:Date.now()};
 }
 function cloudSave(){            /* status maydoniga tegmaydi — uni faqat o'qituvchi o'zgartiradi */
@@ -1234,19 +1274,17 @@ function cloudSetStatus(id,st,cb){
     body:JSON.stringify(st)}).then(function(r){ cb&&cb(r.ok); }).catch(function(){ cb&&cb(false); });
 }
 function approved(){ return !cloudOn || (S&&S.status==="ok"); }
-function rulesTxt(uid){
+function rulesTxt(){
   return '{"rules":{"students":{".read":true,".write":true},"chat":{".read":true,".write":true},'+
     '"media":{".read":true,".write":true},"meta":{".read":true,".write":true},'+
-    '"arena":{".read":true,".write":true},"jurnal":'+
-    (uid ? '{".read":true,".write":"auth != null && auth.uid === \''+uid+'\'"}'
-         : '{".read":true,".write":true}')+'}}';
+    '"arena":{".read":true,".write":true}}}';
 }
 var RULES=rulesTxt();
 function tcTest(){
   var out=document.getElementById("rtTcDiag"); if(!out) return;
   if(!cloudOn||!BASE){ out.innerHTML='<p class="rt-note">🟠 '+T("Baza ulanmagan.","No database connected.")+'</p>'; return; }
   out.innerHTML='<p class="rt-note">'+T("Tekshirilmoqda…","Testing…")+'</p>';
-  var nodes=["students","chat","media","meta","jurnal"], res=[], i=0;
+  var nodes=["students","chat","media","meta"], res=[], i=0;
   (function next(){
     if(i>=nodes.length){
       var bad=res.filter(function(x){ return !x.ok; });
@@ -1255,7 +1293,7 @@ function tcTest(){
         (bad.length?'<p class="rt-note" style="margin-top:8px">'+T("Yechim: Firebase → Realtime Database → Rules ga faqat shuni qo'ying va Publish qiling:",
           "Fix: put only this into Firebase → Realtime Database → Rules and publish:")+
           '<br><code style="display:block;margin-top:6px;font-size:11px;word-break:break-all;background:var(--chip);padding:8px;border-radius:9px">'+
-          esc(rulesTxt(TA&&TA.uid))+'</code></p>'
+          esc(rulesTxt())+'</code></p>'
          :'<p class="rt-note" style="margin-top:8px">✅ '+T("Hammasi joyida — rasm va video yuborish ishlaydi.",
            "Everything is fine — sending images and videos works.")+'</p>')+'</div>';
       return;
@@ -1285,8 +1323,49 @@ function kb(n){ return n>=1048576 ? (n/1048576).toFixed(1)+" MB" : Math.max(1,Ma
 /* ---------- ballar ---------- */
 function topicSummary(){
   var o={};
-  for(var t in P.topics){ o[t]={p:P.topics[t].p||0,s:Object.keys(P.topics[t].slides||{}).length}; }
+  for(var t in P.topics){
+    var x=P.topics[t], m=markOf(t,x);
+    o[t]={p:x.p||0,s:Object.keys(x.slides||{}).length,t:Math.round(x.t||0),
+          q:testCount(x),b:(m.b||0),z:Math.round(m.z*100)};
+  }
   return o;
+}
+/* --- dars bahosi: slayd + vaqt + test --- */
+function metaOf(id){
+  var a=(CFG.topics||[]).filter(function(x){ return x.id===id; })[0]||{};
+  return {slides:a.slides||CFG.slides||18, quiz:a.quiz||CFG.quiz||15};
+}
+function testCount(x){
+  var n=0, ac=(x&&x.acts)||{};
+  for(var k in ac){ if(k.indexOf("test")===0) n++; }
+  return n;
+}
+/* o'rtacha 1 slaydga 30 soniya */
+var SEC_PER_SLIDE=30;
+function markOf(id,x){
+  x=x||P.topics[id]||{};
+  var M=metaOf(id);
+  var seen=Object.keys(x.slides||{}).length;
+  var rd=Math.min(1,seen/Math.max(1,M.slides));                      /* o'qilgan slayd ulushi */
+  var tm=Math.min(1,(x.t||0)/Math.max(1,M.slides*SEC_PER_SLIDE));    /* sarflangan vaqt ulushi */
+  var ts=Math.min(1,testCount(x)/Math.max(1,M.quiz));                /* to'g'ri javob ulushi */
+  var z=0.20*rd+0.20*tm+0.60*ts;
+  var pc=Math.round(z*100);            /* baho ko'rsatilgan foizdan chiqadi */
+  var b=0;
+  if(seen||x.t||testCount(x)){
+    b=(pc>=90)?5:((pc>=75)?4:((pc>=60)?3:((pc>=40)?2:1)));
+  }
+  return {z:z,b:b,rd:rd,tm:tm,ts:ts,seen:seen,sec:Math.round(x.t||0),
+          q:testCount(x),qn:M.quiz,sn:M.slides};
+}
+function markName(b){
+  return [T("baholanmagan","not marked"),T("qoniqarsiz","poor"),T("qoniqarli","fair"),
+          T("o'rta","average"),T("yaxshi","good"),T("a'lo","excellent")][b]||"";
+}
+function hms(sec){
+  sec=Math.max(0,Math.round(sec));
+  var m=Math.floor(sec/60), h=Math.floor(m/60);
+  return h? (h+" soat "+(m%60)+" daq") : (m? (m+" daq "+(sec%60)+" son") : (sec+" son"));
 }
 function topicObj(){
   var t=CFG.topic||"m0";
@@ -1300,6 +1379,26 @@ function award(key,pts,label){
   P.log[full]=pts; t.p=(t.p||0)+pts; P.total=(P.total||0)+pts;
   if(key.indexOf("slide")===0) t.slides[key]=1; else t.acts[key]=pts;
   save(); chipUpdate(); toast("+"+pts+" ball"+(label?" · "+label:""));
+}
+/* ---------- o'qishga sarflangan vaqt ---------- */
+var TMR=null, tmrAt=0, tmrSave=0;
+function timeStart(){
+  if(TMR) return;
+  tmrAt=Date.now();
+  TMR=setInterval(function(){
+    if(!S||!approved()) return;
+    if(document.hidden){ tmrAt=Date.now(); return; }
+    var now=Date.now(), d=(now-tmrAt)/1000; tmrAt=now;
+    if(d<=0||d>30) return;                 /* uzilishlarni hisobga olmaymiz */
+    var t=topicObj(); t.t=(t.t||0)+d;
+    var M=metaOf(CFG.topic||"m0");
+    var cap=M.slides*SEC_PER_SLIDE*4;      /* ochiq qoldirilgan sahifa ball bermasin */
+    if(t.t>cap) t.t=cap;
+    tmrSave+=d;
+    if(tmrSave>=30){ tmrSave=0; lset(LS.prog,P); cloudSave(); }
+  },5000);
+  document.addEventListener("visibilitychange",function(){ tmrAt=Date.now(); });
+  window.addEventListener("beforeunload",function(){ lset(LS.prog,P); cloudSave(); });
 }
 function slideSeen(n){
   award("slide"+n,CFG.pSlide||2,"slayd");
@@ -1341,6 +1440,17 @@ function chipUpdate(){
 }
 function T(uz,en){ var l=(document.documentElement.getAttribute("lang")||"uz"); return (l==="en"&&en)?en:uz; }
 
+function bdOk(x){ return /^\d{4}-\d{2}-\d{2}$/.test(String(x||"")) && +String(x).slice(0,4)>=1940 && +String(x).slice(0,4)<=2020; }
+function nkey(n,sn,bd){ return (String(n)+"|"+String(sn)).toLowerCase().replace(/[^a-zЀ-ӿ']/g,"")+"|"+bd; }
+function findMe(n,sn,bd,cb){
+  if(!cloudOn||!BASE){ cb(null); return; }
+  var k=nkey(n,sn,bd);
+  cloudList(function(a){
+    if(!a){ cb(null); return; }
+    var hit=a.filter(function(x){ return x.bd && nkey(x.name,x.surname,x.bd)===k; })[0];
+    cb(hit||null);
+  });
+}
 function gate(){
   if(S){
     if(!cloudOn||S.status==="ok"){ start(); return; }
@@ -1350,50 +1460,114 @@ function gate(){
     });
     return;
   }
+  var mode="reg";
   var g=el('<div class="rt-gate" id="rtGate"><div class="rt-box">'+
-    '<h2 style="margin-top:0">🎓 '+T("Ro\'yxatdan o\'ting","Register")+'</h2>'+
-    '<p style="color:var(--muted);margin-top:-4px">'+T(
-      "Taqdimotni ochish uchun ism, familiya, guruh va email manzilingizni kiriting. Email faqat o\'qituvchiga ko\'rinadi \u2014 dars e\'lonlari shu manzilga yuboriladi.",
-      "Enter your name, surname, group and email to open the presentation. Only the teacher sees your email \u2014 class announcements are sent there.")+'</p>'+
-    '<div class="rt-form">'+
-      '<label>'+T("Ism","First name")+'<input id="rtN" autocomplete="given-name" placeholder="'+T("Ismingiz","Your first name")+'"></label>'+
-      '<label>'+T("Familiya","Surname")+'<input id="rtS" autocomplete="family-name" placeholder="'+T("Familiyangiz","Your surname")+'"></label>'+
-      '<label>'+T("Guruh","Group")+'<input id="rtG" placeholder="'+T("Masalan: 101-22 IQT","For example: 101-22")+'"></label>'+
-      '<label>'+T("Email","Email")+'<input id="rtE" type="email" inputmode="email" autocomplete="email" placeholder="ism@gmail.com"></label>'+
-      '<p id="rtErr" style="color:var(--red);font-weight:700;display:none;margin:0"></p>'+
-      '<button class="btn accent" id="rtGo" style="justify-content:center;padding:12px">'+T("Boshlash →","Start →")+'</button>'+
-    '</div>'+
-    '<p class="rt-note">'+T(
-      "Ma\'lumot faqat o\'qituvchi reytingi uchun ishlatiladi. Ballar slaydlarni o\'qish va topshiriqlarni bajarish orqali to\'planadi.",
-      "The data is used only for the teacher\'s rating. Points are earned by reading slides and completing tasks.")+'</p>'+
+    '<div class="rt-gtabs"><button class="rt-gt on" data-m="reg">🎓 '+T("Ro\'yxatdan o\'tish","Register")+'</button>'+
+      '<button class="rt-gt" data-m="log">🔑 '+T("Kirish","Log in")+'</button></div>'+
+    '<div id="rtGateBody"></div>'+
     '<button class="rt-tclink" id="rtGateTc">🔑 '+T("O\'qituvchi bo\'limiga kirish","Teacher panel")+'</button>'+
     '</div></div>');
   document.body.appendChild(g);
-  function submit(){
+  function fields(pre,withExtra){
+    return '<label>'+T("Ism","First name")+'<input id="'+pre+'N" autocomplete="given-name" placeholder="'+T("Ismingiz","Your first name")+'"></label>'+
+      '<label>'+T("Familiya","Surname")+'<input id="'+pre+'S" autocomplete="family-name" placeholder="'+T("Familiyangiz","Your surname")+'"></label>'+
+      '<label>'+T("Tug\'ilgan sana","Date of birth")+'<input id="'+pre+'B" type="date" min="1940-01-01" max="2020-12-31"></label>'+
+      (withExtra
+        ? '<label>'+T("Guruh","Group")+'<input id="'+pre+'G" placeholder="'+T("Masalan: 101-22 IQT","For example: 101-22")+'"></label>'+
+          '<label>'+T("Email","Email")+'<input id="'+pre+'E" type="email" inputmode="email" autocomplete="email" placeholder="ism@gmail.com"></label>'
+        : '');
+  }
+  function draw(){
+    var b=document.getElementById("rtGateBody");
+    if(mode==="reg"){
+      b.innerHTML='<h2 style="margin:4px 0 2px">🎓 '+T("Ro\'yxatdan o\'ting","Register")+'</h2>'+
+        '<p style="color:var(--muted);margin-top:4px">'+T(
+          "Ism, familiya va tug\'ilgan sanangizni eslab qoling — boshqa kompyuterdan aynan shu uchtasi bilan o\'z hisobingizga kirasiz.",
+          "Remember your name, surname and date of birth — those three let you back into your account from any other computer.")+'</p>'+
+        '<div class="rt-form">'+fields("rt",true)+
+        '<p id="rtErr" style="color:var(--red);font-weight:700;display:none;margin:0"></p>'+
+        '<button class="btn accent" id="rtGo" style="justify-content:center;padding:12px">'+T("Boshlash →","Start →")+'</button></div>'+
+        '<p class="rt-note">'+T("Ma\'lumot faqat o\'qituvchi reytingi uchun ishlatiladi.",
+          "The data is used only for the teacher\'s rating.")+'</p>';
+      document.getElementById("rtGo").onclick=doReg;
+      ["rtN","rtS","rtB","rtG","rtE"].forEach(bindEnter(doReg));
+    } else {
+      b.innerHTML='<h2 style="margin:4px 0 2px">🔑 '+T("Hisobingizga kiring","Log in")+'</h2>'+
+        '<p style="color:var(--muted);margin-top:4px">'+T(
+          "Avval ro\'yxatdan o\'tgan bo\'lsangiz — ism, familiya va tug\'ilgan sanangizni kiriting. Ballaringiz saqlanib qoladi.",
+          "If you have registered before, enter your name, surname and date of birth. Your points are kept.")+'</p>'+
+        '<div class="rt-form">'+fields("lg",false)+
+        '<p id="lgErr" style="color:var(--red);font-weight:700;display:none;margin:0"></p>'+
+        '<button class="btn accent" id="lgGo" style="justify-content:center;padding:12px">'+T("Kirish →","Log in →")+'</button></div>'+
+        '<p class="rt-note">'+T("Masalan: Ali · Valiyev · 21.09.1998","For example: Ali · Valiyev · 21.09.1998")+'</p>';
+      document.getElementById("lgGo").onclick=doLog;
+      ["lgN","lgS","lgB"].forEach(bindEnter(doLog));
+    }
+  }
+  function bindEnter(fn){
+    return function(id){
+      var e=document.getElementById(id);
+      if(e) e.addEventListener("keydown",function(ev){ if(ev.key==="Enter") fn(); });
+    };
+  }
+  function err(id,txt){ var e=document.getElementById(id); e.style.display="block"; e.textContent=txt; }
+  function doReg(){
     var n=document.getElementById("rtN").value.trim(),
-        s=document.getElementById("rtS").value.trim(),
+        sn=document.getElementById("rtS").value.trim(),
+        bd=document.getElementById("rtB").value,
         gr=document.getElementById("rtG").value.trim(),
         em=document.getElementById("rtE").value.trim();
-    var e=document.getElementById("rtErr");
-    if(n.length<2||s.length<2||gr.length<2){
-      e.style.display="block";
-      e.textContent=T("Ism, familiya va guruhni to'liq kiriting.","Please fill in your name, surname and group.");
-      return;
-    }
-    if(!okMail(em)){
-      e.style.display="block";
-      e.textContent=T("Email manzilni to'g'ri kiriting (masalan: ism@gmail.com).","Please enter a valid email address.");
-      return;
-    }
-    S={id:uid(),name:n,surname:s,group:gr,email:em,at:Date.now(),status:cloudOn?"pending":"ok"};
-    lset(LS.stu,S); lset(LS.prog,P); cloudCreate();
-    g.remove(); if(approved()) start(); else waitScreen();
+    if(n.length<2||sn.length<2||gr.length<2) return err("rtErr",T("Ism, familiya va guruhni to'liq kiriting.","Fill in your name, surname and group."));
+    if(!bdOk(bd)) return err("rtErr",T("Tug'ilgan sanani tanlang.","Choose your date of birth."));
+    if(!okMail(em)) return err("rtErr",T("Email manzilni to'g'ri kiriting.","Enter a valid email address."));
+    var btn=document.getElementById("rtGo"); btn.disabled=true;
+    findMe(n,sn,bd,function(hit){
+      if(hit){
+        btn.disabled=false;
+        return err("rtErr",T("Bu ma'lumot bilan hisob allaqachon bor. \"Kirish\" bo'limidan foydalaning.",
+          "An account with these details already exists. Use the \"Log in\" tab."));
+      }
+      S={id:uid(),name:n,surname:sn,group:gr,email:em,bd:bd,at:Date.now(),status:cloudOn?"pending":"ok"};
+      lset(LS.stu,S); lset(LS.prog,P); cloudCreate();
+      g.remove(); if(approved()) start(); else waitScreen();
+    });
   }
-  document.getElementById("rtGo").onclick=submit;
-  document.getElementById("rtGateTc").onclick=function(){ openOv("tc"); };
-  ["rtN","rtS","rtG","rtE"].forEach(function(id){
-    document.getElementById(id).addEventListener("keydown",function(e){ if(e.key==="Enter") submit(); });
+  function doLog(){
+    var n=document.getElementById("lgN").value.trim(),
+        sn=document.getElementById("lgS").value.trim(),
+        bd=document.getElementById("lgB").value;
+    if(n.length<2||sn.length<2) return err("lgErr",T("Ism va familiyani kiriting.","Enter your name and surname."));
+    if(!bdOk(bd)) return err("lgErr",T("Tug'ilgan sanani tanlang.","Choose your date of birth."));
+    if(!cloudOn) return err("lgErr",T("Server ulanmagan — kirish imkonsiz.","No server connection — cannot log in."));
+    var btn=document.getElementById("lgGo"); btn.disabled=true; btn.textContent=T("Qidirilmoqda…","Searching…");
+    findMe(n,sn,bd,function(hit){
+      btn.disabled=false; btn.textContent=T("Kirish →","Log in →");
+      if(!hit) return err("lgErr",T("Bunday hisob topilmadi. Ma'lumotlarni tekshiring yoki ro'yxatdan o'ting.",
+        "No such account. Check the details or register instead."));
+      if(hit.status==="blocked") return err("lgErr",T("Hisobingiz bloklangan. O'qituvchiga murojaat qiling.","Your account is blocked. Contact the teacher."));
+      S={id:hit.id,name:hit.name,surname:hit.surname,group:hit.group,email:hit.email||"",
+         bd:hit.bd,at:hit.at||Date.now(),status:hit.status||"pending"};
+      P={total:hit.total||0,topics:{},log:{}};
+      var ts=hit.topics||{};
+      for(var k in ts){
+        var v=ts[k]||{};
+        P.topics[k]={p:v.p||0,t:v.t||0,slides:{},acts:{}};
+        for(var i2=0;i2<(v.s||0);i2++) P.topics[k].slides["slide"+i2]=1;
+        for(var j2=0;j2<(v.q||0);j2++) P.topics[k].acts["test"+j2]=5;
+      }
+      lset(LS.stu,S); lset(LS.prog,P);
+      g.remove(); toast(T("Xush kelibsiz, ","Welcome back, ")+hit.name+"!");
+      if(approved()) start(); else waitScreen();
+    });
+  }
+  g.querySelectorAll(".rt-gt").forEach(function(b){
+    b.onclick=function(){
+      g.querySelectorAll(".rt-gt").forEach(function(x){ x.classList.remove("on"); });
+      b.classList.add("on"); mode=b.dataset.m; draw();
+    };
   });
+  draw();
+  document.getElementById("rtGateTc").onclick=function(){ openOv("tc"); };
 }
 
 function waitScreen(){
@@ -1469,41 +1643,82 @@ function renderTop(){
   box.innerHTML='<p style="color:var(--muted)">'+T("Yuklanmoqda…","Loading…")+'</p>';
   function draw(list){
     list.sort(function(a,b){ return (b.total||0)-(a.total||0); });
+    var cur=CFG.topic||"m0";
     var rows=list.map(function(x,i){
       var m=["🥇","🥈","🥉"][i]||(i+1)+".";
+      var tp=(x.topics||{})[cur]||{}, b=tp.b||0;
       return '<tr class="'+(S&&x.id===S.id?"me":"")+'"><td class="rt-medal">'+m+'</td><td>'+esc(x.name)+" "+esc(x.surname)+
-        '</td><td>'+esc(x.group)+'</td><td><b>'+(x.total||0)+'</b></td><td>'+Object.keys(x.topics||{}).length+'</td></tr>';
+        '</td><td>'+esc(x.group)+'</td><td><b>'+(x.total||0)+'</b></td>'+
+        '<td>'+(b?'<span class="rt-mk b'+b+'">'+b+'</span>':'—')+'</td>'+
+        '<td>'+Object.keys(x.topics||{}).length+'</td>'+
+        (isTc?'<td><button class="btn rt-del" data-id="'+esc(x.id)+'" data-nm="'+esc(x.name+" "+x.surname)+
+          '" title="'+T("Reytingdan o\'chirish","Remove from the rating")+'">🗑</button></td>':'')+'</tr>';
     }).join("");
     box.innerHTML='<div class="tw"><table class="rt-table"><thead><tr><th>#</th><th>'+T("Talaba","Student")+'</th><th>'+
-      T("Guruh","Group")+'</th><th>'+T("Ball","Points")+'</th><th>'+T("Mavzu","Topics")+'</th></tr></thead><tbody>'+
-      (rows||'<tr><td colspan="5">'+T("Hozircha ro'yxat bo'sh.","The list is empty for now.")+'</td></tr>')+'</tbody></table></div>'+
+      T("Guruh","Group")+'</th><th>'+T("Ball","Points")+'</th><th>'+T("Baho","Mark")+'</th><th>'+
+      T("Mavzu","Topics")+'</th>'+(isTc?'<th></th>':'')+'</tr></thead><tbody>'+
+      (rows||'<tr><td colspan="7">'+T("Hozircha ro\'yxat bo\'sh.","The list is empty for now.")+'</td></tr>')+'</tbody></table></div>'+
+      (isTc?'<p class="rt-note">🗑 '+T("O\'qituvchi sifatida talabani reytingdan butunlay o\'chira olasiz.",
+        "As the teacher you can delete a student from the rating completely.")+'</p>':'')+
       (cloudOn?'':'<p class="rt-note">⚠️ '+T(
-        "Umumiy reyting hali ulanmagan — hozir faqat sizning natijangiz ko'rinadi. O'qituvchi bazani ulagach, barcha talabalar ro'yxati shu yerda chiqadi.",
-        "The shared rating is not connected yet — only your own result is shown. Once the teacher connects the database, every student will appear here.")+'</p>');
+        "Umumiy reyting hali ulanmagan — hozir faqat sizning natijangiz ko\'rinadi.",
+        "The shared rating is not connected yet — only your own result is shown.")+'</p>');
+    box.querySelectorAll(".rt-del").forEach(function(b2){
+      b2.onclick=function(){ tcDel(b2.dataset.id,b2.dataset.nm,renderTop); };
+    });
   }
   cloudList(function(a){
     if(a&&a.length) draw(a);
     else draw(S?[{id:S.id,name:S.name,surname:S.surname,group:S.group,total:P.total,topics:topicSummary()}]:[]);
   });
 }
+
 function renderMe(){
   var box=document.getElementById("rtMe"); if(!S) return;
-  var t=topicObj(), seen=Object.keys(t.slides).length, tot=CFG.slides||1;
-  var pct=Math.min(100,Math.round(seen/tot*100));
-  box.innerHTML='<div class="rt-grid">'+
+  var id=CFG.topic||"m0", t=topicObj(), m=markOf(id,t);
+  var pct=Math.round(m.z*100);
+  box.innerHTML='<div class="rt-mark b'+m.b+'"><div class="n">'+(m.b||"—")+'</div>'+
+      '<div class="t"><b>'+T("Shu dars uchun baho","Mark for this lesson")+'</b>'+
+      '<span>'+(m.b?markName(m.b):T("hali yetarli ish bajarilmadi","not enough work yet"))+' · '+pct+'%</span></div></div>'+
+    '<div class="rt-grid" style="margin-top:12px">'+
+    '<div class="rt-card"><span>'+T("Ko\'rilgan slayd","Slides viewed")+'</span><b>'+m.seen+" / "+m.sn+'</b></div>'+
+    '<div class="rt-card"><span>'+T("O\'qishga sarflangan vaqt","Time spent reading")+'</span><b style="font-size:19px">'+hms(m.sec)+'</b></div>'+
+    '<div class="rt-card"><span>'+T("To\'g\'ri javoblar","Correct answers")+'</span><b>'+m.q+" / "+m.qn+'</b></div>'+
     '<div class="rt-card"><span>'+T("Umumiy ball","Total points")+'</span><b>'+(P.total||0)+'</b></div>'+
-    '<div class="rt-card"><span>'+T("Shu mavzudagi ball","Points in this topic")+'</span><b>'+(t.p||0)+'</b></div>'+
-    '<div class="rt-card"><span>'+T("Ko'rilgan slayd","Slides viewed")+'</span><b>'+seen+" / "+tot+'</b></div>'+
-    '<div class="rt-card"><span>'+T("Bajarilgan topshiriq","Tasks completed")+'</span><b>'+Object.keys(t.acts||{}).length+'</b></div>'+
-    '</div><div class="rt-bar" style="margin-top:14px"><i style="width:'+pct+'%"></i></div>'+
-    '<p class="rt-note">'+esc(S.name)+" "+esc(S.surname)+" · "+esc(S.group)+'</p>'+
-    '<h3 style="margin-top:16px">'+T("Ball qanday to'planadi?","How are points earned?")+'</h3>'+
-    '<ul class="clean"><li>'+T("Har bir yangi slayd","Each new slide")+' — <b>+'+(CFG.pSlide||2)+'</b></li>'+
-    '<li>'+T("Mavzuni to'liq ko'rish","Viewing the whole topic")+' — <b>+'+(CFG.pAll||10)+'</b></li>'+
-    '<li>'+T("Testdagi har bir to'g'ri javob","Each correct test answer")+' — <b>+5</b></li>'+
-    '<li>'+T("Krossvorddagi har bir so'z","Each crossword word")+' — <b>+4</b> ('+T("to'liq","full")+' +15)</li>'+
-    '<li>'+T("To'g'ri yechilgan masala","Each problem solved correctly")+' — <b>+15</b></li></ul>';
+    '</div>'+
+    '<h3 style="margin:18px 0 8px;font-size:15px">'+T("Baho nimalardan chiqadi?","How is the mark made up?")+'</h3>'+
+    part(T("Slaydlarni ko\'rish","Slides viewed"),m.rd,20)+
+    part(T("O\'qishga sarflangan vaqt","Time spent reading"),m.tm,20)+
+    part(T("Test natijasi","Test result"),m.ts,60)+
+    '<p class="rt-note">'+T("O\'rtacha bir slaydni o\'qishga 30 soniya hisoblanadi. Sahifani ochiq qoldirish ball qo\'shmaydi \u2014 vaqt faqat siz sahifaga qarab turganingizda sanaladi.",
+      "One slide is counted as 30 seconds of reading. Leaving the page open adds nothing \u2014 time is counted only while the page is actually in view.")+'</p>'+
+    '<h3 style="margin:18px 0 8px;font-size:15px">'+T("Baholash shkalasi","Marking scale")+'</h3>'+
+    '<div class="rt-scale">'+[[5,"90–100%"],[4,"75–89%"],[3,"60–74%"],[2,"40–59%"],[1,"0–39%"]].map(function(x){
+      return '<span class="rt-mk b'+x[0]+'">'+x[0]+'</span> '+x[1];
+    }).join(' &nbsp;·&nbsp; ')+'</div>'+
+    '<h3 style="margin:18px 0 8px;font-size:15px">'+T("Barcha mavzular","All topics")+'</h3>'+
+    myTopics()+
+    '<p class="rt-note">'+esc(S.name)+" "+esc(S.surname)+" · "+esc(S.group)+(S.bd?" · "+dfmt(S.bd):"")+'</p>';
 }
+function part(name,v,w){
+  var pc=Math.round(v*100);
+  return '<div class="rt-part"><div class="row2"><span>'+esc(name)+' <i>('+w+'%)</i></span><b>'+pc+'%</b></div>'+
+    '<div class="rt-bar"><i style="width:'+pc+'%"></i></div></div>';
+}
+function myTopics(){
+  var list=(CFG.topics||[]).filter(function(x){ return x.open; });
+  if(!list.length) return '<p class="rt-note">'+T("Hozircha ochiq mavzu yo\'q.","No open topics yet.")+'</p>';
+  var rows=list.map(function(x){
+    var d=P.topics[x.id]||{}, m=markOf(x.id,d);
+    return '<tr><td><b>'+esc(x.title)+'</b></td>'+
+      '<td>'+m.seen+"/"+m.sn+'</td><td>'+m.q+"/"+m.qn+'</td><td>'+hms(m.sec)+'</td>'+
+      '<td>'+(m.b?'<span class="rt-mk b'+m.b+'">'+m.b+'</span>':'—')+'</td></tr>';
+  }).join("");
+  return '<div class="tw"><table class="rt-table"><thead><tr><th>'+T("Mavzu","Topic")+'</th><th>'+
+    T("Slayd","Slides")+'</th><th>'+T("Test","Test")+'</th><th>'+T("Vaqt","Time")+'</th><th>'+
+    T("Baho","Mark")+'</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+}
+
 function renderTp(){
   var box=document.getElementById("rtTp");
   var list=(CFG.topics||[]).map(function(x){
@@ -1564,339 +1779,28 @@ function renderCv(){
     S.name=n; S.surname=sn; S.group=g; S.email=em; lset(LS.stu,S); cloudSave();
     chipUpdate(); toast(T("Saqlandi ✅","Saved ✅"));
   };
-  myMarks();
-}
-function myMarks(){
-  var box=document.getElementById("myJur"); if(!box||!S) return;
-  jurAll(gkey(S.group),function(all){
-    var rows=[], sum=0, cnt=0, nb=0;
-    Object.keys(all||{}).sort().reverse().forEach(function(d){
-      var r=(all[d]||{})[S.id]; if(!r) return;
-      if(r.y){ nb++; rows.push('<tr><td>'+dfmt(d)+'</td><td><span class="rt-mk nb">'+T("kelmadi","absent")+'</span></td><td>'+esc(r.n||"")+'</td></tr>'); return; }
-      if(!r.b) return;
-      sum+=r.b; cnt++;
-      rows.push('<tr><td>'+dfmt(d)+'</td><td><span class="rt-mk b'+r.b+'">'+r.b+'</span></td><td>'+esc(r.n||"")+'</td></tr>');
-    });
-    if(!rows.length){ box.innerHTML='<p class="rt-note" style="margin:0">'+T("Hali baho qo'yilmagan.","No marks yet.")+'</p>'; return; }
-    box.innerHTML='<div class="rt-grid" style="margin-bottom:10px">'+
-      '<div class="rt-card"><span>'+T("O'rtacha baho","Average")+'</span><b>'+(cnt?(sum/cnt).toFixed(1):"—")+'</b></div>'+
-      '<div class="rt-card"><span>'+T("Baholar soni","Marks")+'</span><b>'+cnt+'</b></div>'+
-      '<div class="rt-card"><span>'+T("Kelmagan kun","Absences")+'</span><b>'+nb+'</b></div></div>'+
-      '<div class="tw"><table class="rt-table"><thead><tr><th>'+T("Sana","Date")+'</th><th>'+T("Baho","Mark")+
-      '</th><th>'+T("Izoh","Note")+'</th></tr></thead><tbody>'+rows.join("")+'</tbody></table></div>';
-  });
 }
 
-/* ---------- o'qituvchi kirishi: baho FAQAT shu hisob bilan qo'yiladi ---------- */
-var TA=lget("terdu_ta",null);
-function taSave(){ lset("terdu_ta",TA); }
-function taOut(){ TA=null; lset("terdu_ta",null); }
-function taOn(){ return !!(TA&&TA.key&&TA.rt); }
-function taFresh(cb){
-  if(!taOn()){ cb(false); return; }
-  if(TA.tok&&Date.now()<(TA.exp||0)-60000){ cb(true); return; }
-  fetch("https://securetoken.googleapis.com/v1/token?key="+encodeURIComponent(TA.key),{
-    method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},
-    body:"grant_type=refresh_token&refresh_token="+encodeURIComponent(TA.rt)})
-   .then(function(r){ return r.ok?r.json():null; })
-   .then(function(j){
-     if(!j||!j.id_token){ cb(false); return; }
-     TA.tok=j.id_token; TA.rt=j.refresh_token||TA.rt;
-     TA.exp=Date.now()+(parseInt(j.expires_in||3600,10)*1000); taSave(); cb(true);
-   }).catch(function(){ cb(false); });
-}
-/* yozish uchun so'rov qo'shimchasi (?auth=...) */
-function taQ(cb){ taFresh(function(ok){ cb(ok?("?auth="+encodeURIComponent(TA.tok)):""); }); }
-function taLogin(key,em,pw,cb){
-  fetch("https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key="+encodeURIComponent(key),{
-    method:"POST",headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({email:em,password:pw,returnSecureToken:true})})
-   .then(function(r){ return r.json().then(function(j){ return {ok:r.ok,j:j}; }); })
-   .then(function(x){
-     if(!x.ok||!x.j.idToken){ cb(false,(x.j&&x.j.error&&x.j.error.message)||"XATO"); return; }
-     TA={key:key,email:em,uid:x.j.localId,tok:x.j.idToken,rt:x.j.refreshToken,
-         exp:Date.now()+(parseInt(x.j.expiresIn||3600,10)*1000)};
-     taSave(); cb(true,x.j.localId);
-   }).catch(function(){ cb(false,"tarmoq"); });
-}
-function denied(st){ return st===401||st===403; }
-function needLogin(){ toast(T("Avval 🔐 \"O'qituvchi kirishi\" dan kiring","Sign in under \"Teacher sign-in\" first")); }
 
-/* ---------- kunlik jurnal (guruhlar bo'yicha) ---------- */
-function gkey(g){ return String(g||"—").trim().replace(/[.#$\[\]\/]/g,"-").replace(/\s+/g," ").slice(0,60)||"—"; }
-function today(){ var d=new Date(); return d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2)+"-"+("0"+d.getDate()).slice(-2); }
-function dfmt(d){ var p=String(d).split("-"); return p.length===3?(p[2]+"."+p[1]+"."+p[0]):d; }
-function dshift(d,n){ var p=String(d).split("-"); var x=new Date(+p[0],+p[1]-1,+p[2]); x.setDate(x.getDate()+n);
-  return x.getFullYear()+"-"+("0"+(x.getMonth()+1)).slice(-2)+"-"+("0"+x.getDate()).slice(-2); }
-function jurDay(gk,d,cb){
-  if(!cloudOn||!BASE){ cb(lget("terdu_jur_"+gk+"_"+d,{})); return; }
-  fetch(BASE+"/jurnal/"+encodeURIComponent(gk)+"/"+d+".json").then(function(r){ return r.ok?r.json():null; })
-   .then(function(v){ cb(v||{}); }).catch(function(){ cb({}); });
-}
-function jurAll(gk,cb){
-  if(!cloudOn||!BASE){ cb({}); return; }
-  fetch(BASE+"/jurnal/"+encodeURIComponent(gk)+".json").then(function(r){ return r.ok?r.json():null; })
-   .then(function(v){ cb(v||{}); }).catch(function(){ cb({}); });
-}
-function jurSet(gk,d,id,val,cb){
-  if(!cloudOn||!BASE){
-    var k="terdu_jur_"+gk+"_"+d, o=lget(k,{}); if(val===null) delete o[id]; else o[id]=val; lset(k,o); cb&&cb(true); return;
-  }
-  var u=BASE+"/jurnal/"+encodeURIComponent(gk)+"/"+d+"/"+id+".json";
-  taQ(function(q){
-    fetch(u+q,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(val)})
-     .then(function(r){
-       var dn=denied(r.status); if(dn) needLogin();
-       cb&&cb(r.ok,dn);
-     }).catch(function(){ cb&&cb(false,false); });
-  });
-}
-var JUR={g:null,d:null,day:{},view:"day"};
+/* ---------- guruh va sana yordamchilari ---------- */
+function dfmt(d){ var p=String(d||"").split("-"); return p.length===3?(p[2]+"."+p[1]+"."+p[0]):String(d||""); }
+function gkey(g){ return String(g||"\u2014").trim().replace(/\s+/g," ").slice(0,60)||"\u2014"; }
 function groupsOf(list){
   var by={}, out=[];
   list.forEach(function(x){ var g=gkey(x.group); (by[g]=by[g]||[]).push(x); });
   Object.keys(by).sort().forEach(function(g){
-    by[g].sort(function(a,b){ return (a.surname+a.name).localeCompare(b.surname+b.name); });
+    by[g].sort(function(a,b){ return (b.total||0)-(a.total||0); });
     out.push({g:g,list:by[g]});
   });
   return out;
-}
-function tcJur(){
-  var out=document.getElementById("rtTcOut"); if(!out) return;
-  var okl=tcList.filter(function(x){ return (x.status||"pending")==="ok"; });
-  var gs=groupsOf(okl);
-  if(!gs.length){ out.innerHTML=tcTabs()+'<p class="rt-note">'+T("Avval talabalarni tasdiqlang.","Approve some students first.")+'</p>';
-    tcTabsBind(); return; }
-  if(!JUR.g||!gs.filter(function(x){return x.g===JUR.g}).length) JUR.g=gs[0].g;
-  if(!JUR.d) JUR.d=today();
-  var cur=gs.filter(function(x){return x.g===JUR.g})[0];
-  var h=tcTabs()+
-    '<div class="rt-gchips">'+gs.map(function(x){
-      return '<button class="rt-gchip'+(x.g===JUR.g?" on":"")+'" data-g="'+esc(x.g)+'">'+esc(x.g)+
-        ' <span class="rt-badge">'+x.list.length+'</span></button>';
-    }).join("")+'</div>'+
-    '<div class="rt-daynav">'+
-      '<button class="btn" id="jPrev">◀</button>'+
-      '<input type="date" id="jDate" value="'+JUR.d+'">'+
-      '<button class="btn" id="jNext">▶</button>'+
-      '<button class="btn accent" id="jToday">📅 '+T("Bugun","Today")+'</button>'+
-      '<span class="spacer" style="flex:1"></span>'+
-      '<button class="btn" id="jRep">📊 '+T("Hisobot","Report")+'</button>'+
-    '</div>'+
-    '<div id="jBody"><p class="rt-note">'+T("Yuklanmoqda…","Loading…")+'</p></div>';
-  out.innerHTML=h;
-  tcTabsBind();
-  out.querySelectorAll(".rt-gchip").forEach(function(b){
-    b.onclick=function(){ JUR.g=b.dataset.g; tcJur(); };
-  });
-  document.getElementById("jPrev").onclick=function(){ JUR.d=dshift(JUR.d,-1); tcJur(); };
-  document.getElementById("jNext").onclick=function(){ JUR.d=dshift(JUR.d,1); tcJur(); };
-  document.getElementById("jToday").onclick=function(){ JUR.d=today(); tcJur(); };
-  document.getElementById("jDate").onchange=function(e){ if(e.target.value){ JUR.d=e.target.value; tcJur(); } };
-  document.getElementById("jRep").onclick=function(){ jurReport(cur); };
-  jurDay(JUR.g,JUR.d,function(day){ JUR.day=day||{}; jurTable(cur); });
-}
-function jurTable(cur){
-  var b=document.getElementById("jBody"); if(!b) return;
-  var done=0, sum=0, cnt=0;
-  var rows=cur.list.map(function(x){
-    var r=JUR.day[x.id]||{};
-    if(r.y||r.b) done++;
-    if(r.b){ sum+=r.b; cnt++; }
-    var marks=[1,2,3,4,5].map(function(n){
-      return '<button class="rt-mb'+(r.b===n?" on b"+n:"")+'" data-id="'+esc(x.id)+'" data-b="'+n+'">'+n+'</button>';
-    }).join("");
-    return '<tr'+(r.y?' class="nbrow"':'')+'><td><b>'+esc(x.surname)+" "+esc(x.name)+'</b></td>'+
-      '<td><button class="rt-nb'+(r.y?" on":"")+'" data-id="'+esc(x.id)+'">'+(r.y?"❌ "+T("kelmadi","absent"):"✅ "+T("keldi","present"))+'</button></td>'+
-      '<td class="rt-marks">'+marks+'</td>'+
-      '<td><input class="rt-note-in" data-id="'+esc(x.id)+'" value="'+esc(r.n||"")+'" placeholder="'+T("izoh","note")+'"></td></tr>';
-  }).join("");
-  b.innerHTML='<p class="rt-note" style="margin:6px 0 8px">'+dfmt(JUR.d)+' · '+T("belgilangan","filled")+': <b>'+done+'</b> / '+cur.list.length+
-      (cnt?' · '+T("o'rtacha","average")+': <b>'+(sum/cnt).toFixed(1)+'</b>':'')+'</p>'+
-    '<div class="tw"><table class="rt-table rt-jtab"><thead><tr><th>'+T("Talaba","Student")+'</th><th>'+T("Davomat","Attendance")+
-    '</th><th>'+T("Baho","Mark")+'</th><th>'+T("Izoh","Note")+'</th></tr></thead><tbody>'+rows+'</tbody></table></div>'+
-    '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">'+
-      '<button class="btn" id="jAllOk">✅ '+T("Hammasi keldi","All present")+'</button>'+
-      '<button class="btn warn" id="jClr">🧹 '+T("Shu kunni tozalash","Clear this day")+'</button>'+
-      '<button class="btn" id="jCsv">⬇ CSV</button></div>'+
-    '<p class="rt-note">'+T("Har bir belgi darhol saqlanadi.","Every mark is saved instantly.")+'</p>';
-
-  function put(id,val){
-    jurSet(JUR.g,JUR.d,id,val,function(ok,dn){
-      if(!ok){ if(!dn) toast(T("Saqlanmadi","Not saved")); return; }
-      if(val===null) delete JUR.day[id]; else JUR.day[id]=val;
-      jurTable(cur);
-    });
-  }
-  b.querySelectorAll(".rt-mb").forEach(function(btn){
-    btn.onclick=function(){
-      var id=btn.dataset.id, n=parseInt(btn.dataset.b,10), r=JUR.day[id]||{};
-      if(r.b===n){ r.b=null; } else { r.b=n; r.y=0; }
-      if(!r.b&&!r.y&&!r.n) put(id,null); else put(id,{b:r.b||null,y:r.y||0,n:r.n||"",at:Date.now()});
-    };
-  });
-  b.querySelectorAll(".rt-nb").forEach(function(btn){
-    btn.onclick=function(){
-      var id=btn.dataset.id, r=JUR.day[id]||{};
-      var y=r.y?0:1;
-      if(!y&&!r.b&&!r.n) put(id,null); else put(id,{b:y?null:(r.b||null),y:y,n:r.n||"",at:Date.now()});
-    };
-  });
-  b.querySelectorAll(".rt-note-in").forEach(function(inp){
-    inp.onchange=function(){
-      var id=inp.dataset.id, r=JUR.day[id]||{}, v=inp.value.trim();
-      if(!v&&!r.b&&!r.y) put(id,null); else put(id,{b:r.b||null,y:r.y||0,n:v,at:Date.now()});
-    };
-  });
-  document.getElementById("jAllOk").onclick=function(){
-    var left=cur.list.filter(function(x){ var r=JUR.day[x.id]||{}; return !r.b&&!r.y; });
-    if(!left.length){ toast(T("Hammasi belgilangan","All filled")); return; }
-    var i=0;
-    (function nx(){
-      if(i>=left.length){ jurDay(JUR.g,JUR.d,function(d){ JUR.day=d||{}; jurTable(cur); }); return; }
-      var x=left[i++]; jurSet(JUR.g,JUR.d,x.id,{b:null,y:0,n:"",at:Date.now()},nx);
-    })();
-  };
-  document.getElementById("jClr").onclick=function(){
-    if(!confirm(T("Shu kundagi barcha belgilarni o'chirasizmi?","Delete every mark for this day?"))) return;
-    if(!cloudOn||!BASE){ lset("terdu_jur_"+JUR.g+"_"+JUR.d,{}); JUR.day={}; jurTable(cur); return; }
-    taQ(function(q){
-      fetch(BASE+"/jurnal/"+encodeURIComponent(JUR.g)+"/"+JUR.d+".json"+q,{method:"DELETE"})
-        .then(function(r){
-          if(denied(r.status)){ needLogin(); return; }
-          JUR.day={}; jurTable(cur); toast(T("Tozalandi","Cleared"));
-        });
-    });
-  };
-  document.getElementById("jCsv").onclick=function(){
-    var rows2=cur.list.map(function(x,i){
-      var r=JUR.day[x.id]||{};
-      return (i+1)+";"+x.surname+";"+x.name+";"+(r.y?"NB":(r.b||""))+";"+String(r.n||"").replace(/;/g,",");
-    }).join("\n");
-    dl("terdu-"+JUR.g+"-"+JUR.d+".csv","﻿#;Familiya;Ism;Baho;Izoh\n"+rows2);
-  };
-}
-function jurReport(cur){
-  var b=document.getElementById("jBody"); if(!b) return;
-  b.innerHTML='<p class="rt-note">'+T("Yuklanmoqda…","Loading…")+'</p>';
-  jurAll(JUR.g,function(all){
-    var days=Object.keys(all||{}).sort();
-    var st={};
-    cur.list.forEach(function(x){ st[x.id]={s:0,c:0,nb:0}; });
-    days.forEach(function(d){
-      var o=all[d]||{};
-      Object.keys(o).forEach(function(id){
-        if(!st[id]) return;
-        var r=o[id]||{};
-        if(r.y) st[id].nb++;
-        else if(r.b){ st[id].s+=r.b; st[id].c++; }
-      });
-    });
-    var rows=cur.list.map(function(x,i){
-      var v=st[x.id], av=v.c?(v.s/v.c):0;
-      return '<tr><td>'+(i+1)+'</td><td><b>'+esc(x.surname)+" "+esc(x.name)+'</b></td>'+
-        '<td>'+(v.c?'<span class="rt-mk b'+Math.round(av)+'">'+av.toFixed(1)+'</span>':'—')+'</td>'+
-        '<td>'+v.c+'</td><td>'+(v.nb?'<b style="color:var(--red)">'+v.nb+'</b>':'0')+'</td></tr>';
-    }).join("");
-    b.innerHTML='<p class="rt-note" style="margin:6px 0 8px">'+JUR.g+' · '+T("darslar soni","lessons")+': <b>'+days.length+'</b>'+
-        (days.length?' · '+dfmt(days[0])+' — '+dfmt(days[days.length-1]):'')+'</p>'+
-      '<div class="tw"><table class="rt-table"><thead><tr><th>#</th><th>'+T("Talaba","Student")+'</th><th>'+
-      T("O'rtacha","Average")+'</th><th>'+T("Baho","Marks")+'</th><th>NB</th></tr></thead><tbody>'+
-      (rows||'<tr><td colspan="5">'+T("Ma'lumot yo'q","No data")+'</td></tr>')+'</tbody></table></div>'+
-      '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">'+
-        '<button class="btn accent" id="jBack">◀ '+T("Kunlik jurnal","Daily journal")+'</button>'+
-        '<button class="btn" id="jRepCsv">⬇ CSV</button></div>';
-    document.getElementById("jBack").onclick=function(){ tcJur(); };
-    document.getElementById("jRepCsv").onclick=function(){
-      var head="#;Familiya;Ism;"+days.map(dfmt).join(";")+";O'rtacha;NB";
-      var lines=cur.list.map(function(x,i){
-        var v=st[x.id], cells=days.map(function(d){ var r=(all[d]||{})[x.id]||{}; return r.y?"NB":(r.b||""); });
-        return (i+1)+";"+x.surname+";"+x.name+";"+cells.join(";")+";"+(v.c?(v.s/v.c).toFixed(1):"")+";"+v.nb;
-      }).join("\n");
-      dl("terdu-"+JUR.g+"-hisobot.csv","﻿"+head+"\n"+lines);
-    };
-  });
 }
 function dl(name,txt){
   var a=document.createElement("a");
   a.href="data:text/csv;charset=utf-8,"+encodeURIComponent(txt); a.download=name;
   document.body.appendChild(a); a.click(); a.remove();
 }
-function tcAuth(){
-  var on=taOn();
-  return '<div class="rt-authbar'+(on?" on":"")+'" id="rtAuth">'+
-    '<span class="ic">'+(on?"🔓":"🔒")+'</span>'+
-    '<div class="t"><b>'+(on?T("O'qituvchi sifatida kirgansiz","Signed in as the teacher"):T("O'qituvchi kirishi","Teacher sign-in"))+'</b>'+
-      '<span>'+(on?esc(TA.email):T("Baho qo'yish uchun bir marta kiring — kalit shu brauzerda qoladi.",
-        "Sign in once to give marks — the key stays in this browser."))+'</span></div>'+
-    '<button class="btn'+(on?"":" accent")+'" id="rtAuthGo">'+(on?"🚪 "+T("Chiqish","Sign out"):"🔓 "+T("Kirish","Sign in"))+'</button>'+
-    '</div><div id="rtAuthBox"></div>';
-}
-function tcAuthBind(){
-  var b=document.getElementById("rtAuthGo"); if(!b) return;
-  b.onclick=function(){
-    if(taOn()){ taOut(); toast(T("Chiqdingiz","Signed out")); (TCV==="jur"?tcJur:tcDraw)(); return; }
-    var box=document.getElementById("rtAuthBox");
-    if(box.dataset.on==="1"){ box.dataset.on=""; box.innerHTML=""; return; }
-    box.dataset.on="1";
-    box.innerHTML='<div class="rt-sec"><div class="rt-form" style="max-width:420px;margin:0">'+
-      '<label>Web API key<input id="tkKey" placeholder="AIza…" value="'+esc((TA&&TA.key)||CFG.apiKey||"")+'"></label>'+
-      '<label>Email<input id="tkEm" type="email" placeholder="siz@gmail.com"></label>'+
-      '<label>'+T("Parol","Password")+'<input id="tkPw" type="password" placeholder="••••••••"></label>'+
-      '<button class="btn accent" id="tkGo" style="justify-content:center">🔓 '+T("Kirish","Sign in")+'</button>'+
-      '</div><p class="rt-note" id="tkMsg">'+T(
-        "Firebase Console → Authentication da ochilgan hisobingiz. Kalitni faqat o'z kompyuteringizda kiriting.",
-        "The account you created in Firebase Console → Authentication. Only sign in on your own computer.")+'</p>'+
-      '<button class="rt-tclink" id="tkHelp">❓ '+T("Qanday sozlanadi?","How do I set this up?")+'</button>'+
-      '<div id="tkHelpBox"></div></div>';
-    document.getElementById("tkGo").onclick=function(){
-      var k=document.getElementById("tkKey").value.trim(),
-          e=document.getElementById("tkEm").value.trim(),
-          w=document.getElementById("tkPw").value, m=document.getElementById("tkMsg");
-      if(!k||!okMail(e)||!w){ m.textContent=T("Uchala maydonni to'ldiring.","Fill in all three fields."); return; }
-      this.disabled=true; m.textContent=T("Tekshirilmoqda…","Checking…");
-      var btn=this;
-      taLogin(k,e,w,function(ok,info){
-        btn.disabled=false;
-        if(!ok){ m.textContent=T("Kirib bo'lmadi: ","Sign-in failed: ")+info; return; }
-        toast(T("Kirdingiz ✅","Signed in ✅")); (TCV==="jur"?tcJur:tcDraw)();
-      });
-    };
-    document.getElementById("tkHelp").onclick=function(){ tkSteps(); };
-  };
-}
-function tkSteps(){
-  var box=document.getElementById("tkHelpBox"); if(!box) return;
-  if(box.dataset.on==="1"){ box.dataset.on=""; box.innerHTML=""; return; }
-  box.dataset.on="1";
-  box.innerHTML='<ol class="rt-steps">'+
-    '<li>'+T("Firebase Console → <b>Authentication</b> → Sign-in method → <b>Email/Password</b> ni yoqing.",
-      "Firebase Console → <b>Authentication</b> → Sign-in method → enable <b>Email/Password</b>.")+'</li>'+
-    '<li>'+T("<b>Users</b> → <b>Add user</b> → o'z emailingiz va parolingizni kiriting.",
-      "<b>Users</b> → <b>Add user</b> → enter your email and a password.")+'</li>'+
-    '<li>'+T("⚙️ <b>Project settings</b> → General → <b>Web API Key</b> ni nusxalang.",
-      "⚙️ <b>Project settings</b> → General → copy the <b>Web API Key</b>.")+'</li>'+
-    '<li>'+T("Shu yerga kiriting va <b>Kirish</b> ni bosing.","Enter them here and press <b>Sign in</b>.")+'</li>'+
-    '<li>'+T("Kirgach pastdagi <b>🔎 Tekshiruv</b> tugmasidagi qoidalar matnini Firebase → Realtime Database → <b>Rules</b> ga qo'ying va <b>Publish</b> qiling.",
-      "Then copy the rules text from <b>🔎 Self-test</b> below into Firebase → Realtime Database → <b>Rules</b> and publish.")+'</li>'+
-    '</ol><p class="rt-note">'+T(
-      "Shundan keyin baholarni hamma ko'radi, lekin qo'yishni faqat shu hisob uddalaydi.",
-      "After that everyone can read the marks, but only this account can write them.")+'</p>';
-}
-function tcTabs(){
-  return tcAuth()+'<div class="rt-subtabs">'+
-    '<button class="rt-sub'+(TCV==="list"?" on":"")+'" data-v="list">👥 '+T("Talabalar","Students")+'</button>'+
-    '<button class="rt-sub'+(TCV==="jur"?" on":"")+'" data-v="jur">📋 '+T("Kunlik baholash","Daily marks")+'</button>'+
-    '</div>';
-}
-function tcTabsBind(){
-  var out=document.getElementById("rtTcOut"); if(!out) return;
-  tcAuthBind();
-  out.querySelectorAll(".rt-sub").forEach(function(b){
-    b.onclick=function(){ TCV=b.dataset.v; if(TCV==="jur") tcJur(); else tcDraw(); };
-  });
-}
-var TCV="list";
+
+
 function renderTc(){
   var box=document.getElementById("rtTc");
   if(box.dataset.on==="1"){ tcLoad(); return; }
@@ -1922,7 +1826,7 @@ function tcLoad(){
   if(!out.innerHTML) out.innerHTML='<p style="color:var(--muted)">'+T("Yuklanmoqda…","Loading…")+'</p>';
   cloudList(function(a){
     tcList=a&&a.length?a:(S?[{id:S.id,name:S.name,surname:S.surname,group:S.group,email:S.email,total:P.total,status:S.status||"ok",topics:topicSummary()}]:[]);
-    if(TCV==="jur") tcJur(); else tcDraw();
+    tcDraw();
   });
 }
 function tcAct(id,st,btn){
@@ -1935,14 +1839,20 @@ function tcAct(id,st,btn){
   });
 }
 function tcRow(x,btns){
+  var cur=CFG.topic||"m0", tp=(x.topics||{})[cur]||{}, b=tp.b||0;
   return '<tr><td><b>'+esc(x.name)+" "+esc(x.surname)+'</b>'+
-    (x.email?'<br><span style="font-size:11.5px;color:var(--muted)">'+esc(x.email)+'</span>':'')+
-    '</td><td>'+esc(x.group)+
-    '</td><td><b>'+(x.total||0)+'</b></td><td style="white-space:nowrap">'+
-btns
-    ' <button class="btn rt-del" data-id="'+esc(x.id)+'" data-nm="'+esc(x.name+" "+x.surname)+
-    '" title="'+T("Ro\'yxatdan butunlay o\'chirish","Delete from the list")+'">🗑</button></td></tr>';
+      '<div style="font-size:11.5px;color:var(--muted)">'+esc(x.email||"")+
+        (x.bd?" \u00b7 "+dfmt(x.bd):"")+'</div></td>'+
+    '<td>'+esc(x.group)+'</td>'+
+    '<td><b>'+(x.total||0)+'</b></td>'+
+    '<td>'+(b?'<span class="rt-mk b'+b+'">'+b+'</span>':'\u2014')+
+      '<div style="font-size:11px;color:var(--muted)">'+(tp.q||0)+'/'+metaOf(cur).quiz+
+      ' \u00b7 '+hms(tp.t||0)+'</div></td>'+
+    '<td style="white-space:nowrap">'+btns+
+      ' <button class="btn rt-del" data-id="'+esc(x.id)+'" data-nm="'+esc(x.name+" "+x.surname)+
+      '" title="'+T("Ro\'yxatdan butunlay o\'chirish","Delete from the list")+'">\ud83d\uddd1</button></td></tr>';
 }
+
 function dupGroups(){
   var by={}, out=[];
   tcList.forEach(function(x){
@@ -1970,11 +1880,11 @@ function tcDedupe(){
   tcDraw(); toast(T("Tozalandi","Cleaned")+": "+kill.length);
   if(S&&ids.indexOf(S.id)>=0){ lset(LS.stu,null); setTimeout(function(){ location.reload(); },700); }
 }
-function tcDel(id,nm){
+function tcDel(id,nm,after){
   if(!confirm(T("Ro\'yxatdan o\'chirilsinmi","Delete from the list")+": "+nm+"?")) return;
   cloudDrop(id);
   tcList=tcList.filter(function(x){ return x.id!==id; });
-  tcDraw(); toast(T("O\'chirildi","Deleted"));
+  (after||tcDraw)(); toast(T("O\'chirildi","Deleted"));
   if(S&&S.id===id){ lset(LS.stu,null); lset(LS.prog,{total:0,topics:{},log:{}}); setTimeout(function(){ location.reload(); },700); }
 }
 function tcDraw(){
@@ -1985,7 +1895,7 @@ function tcDraw(){
   var blk=tcList.filter(function(x){return st(x)==="blocked";});
   okl.sort(function(x,y){return (y.total||0)-(x.total||0);});
   var cs=cloudStatus();
-  var h=tcTabs()+'<p class="rt-note" style="margin-top:0">'+(cs.ok?"🟢 ":"🟠 ")+esc(cs.txt)+'</p>'+
+  var h='<p class="rt-note" style="margin-top:0">'+(cs.ok?"🟢 ":"🟠 ")+esc(cs.txt)+'</p>'+
     '<div class="rt-head" style="margin:4px 0 10px"><h3 style="margin:0">⏳ '+T("Tasdiq kutmoqda","Waiting for approval")+
     ' <span class="rt-badge">'+pend.length+'</span></h3><button class="btn" id="rtTcRef">🔄 '+T("Yangilash","Refresh")+'</button></div>';
   h+= pend.length ? '<div class="tw"><table class="rt-table"><tbody>'+pend.map(function(x){
@@ -1997,7 +1907,8 @@ function tcDraw(){
   h+= okl.length ? groupsOf(okl).map(function(G){
         return '<div class="rt-gsec"><h4>👥 '+esc(G.g)+' <span class="rt-badge">'+G.list.length+'</span></h4>'+
           '<div class="tw"><table class="rt-table"><thead><tr><th>'+T("Talaba","Student")+'</th><th>'+
-          T("Guruh","Group")+'</th><th>'+T("Ball","Points")+'</th><th></th></tr></thead><tbody>'+G.list.map(function(x){
+          T("Guruh","Group")+'</th><th>'+T("Ball","Points")+'</th><th>'+T("Dars bahosi","Lesson mark")+
+          '</th><th></th></tr></thead><tbody>'+G.list.map(function(x){
           var on=(x.media===true);
           return tcRow(x,'<button class="btn rt-g2" data-id="'+esc(x.id)+'" data-g="'+esc(x.group||"")+
             '" title="'+T("Guruhini o\'zgartirish","Change the group")+'">🔀 '+T("Guruh","Group")+'</button> '+
@@ -2044,7 +1955,6 @@ function tcDraw(){
       });
     };
   });
-  tcTabsBind();
   out.querySelectorAll(".rt-g2").forEach(function(b){
     b.onclick=function(){
       var v=prompt(T("Yangi guruh nomi:","New group name:"),b.dataset.g||"");
@@ -2070,10 +1980,14 @@ function tcDraw(){
     var box=document.getElementById("rtTc"); box.dataset.on=""; renderTc();
   };
   document.getElementById("rtCsv").onclick=function(){
-    var rows=tcList.map(function(x,i){ return (i+1)+";"+x.name+";"+x.surname+";"+x.group+";"+(x.email||"")+";"+
-      (x.total||0)+";"+(x.status||"pending"); }).join("\n");
+    var cur=CFG.topic||"m0";
+    var rows=tcList.map(function(x,i){
+      var tp=(x.topics||{})[cur]||{};
+      return (i+1)+";"+x.name+";"+x.surname+";"+x.group+";"+(x.email||"")+";"+(x.bd?dfmt(x.bd):"")+";"+
+        (x.total||0)+";"+(tp.b||"")+";"+(tp.q||0)+";"+Math.round((tp.t||0)/60)+";"+(x.status||"pending");
+    }).join("\n");
     var a2=document.createElement("a");
-    a2.href="data:text/csv;charset=utf-8,"+encodeURIComponent("﻿#;Ism;Familiya;Guruh;Email;Ball;Holat\n"+rows);
+    a2.href="data:text/csv;charset=utf-8,"+encodeURIComponent("﻿#;Ism;Familiya;Guruh;Email;Tug'ilgan;Ball;Baho;Test;Daqiqa;Holat\n"+rows);
     a2.download="terdu-reyting.csv"; a2.click();
   };
 }
@@ -2215,7 +2129,7 @@ function watchStatus(){
 var started=false;
 function start(){
   if(started) return; started=true;
-  chip(); watchStatus(); if(S&&!S.email) setTimeout(emailAsk,900);
+  chip(); watchStatus(); timeStart(); if(S&&!S.email) setTimeout(emailAsk,900);
   if(typeof idx!=="undefined") slideSeen(idx);
   window.RT_ready=true;
   if(window.RT_pending){ window.RT_pending.forEach(function(a){ award(a[0],a[1],a[2]); }); window.RT_pending=null; }
@@ -2910,65 +2824,96 @@ document.getElementById("deck").addEventListener("touchend",function(e){
 
 /* ================= TEST ================= */
 var Q=[
- {q:"Tadbirkorlik faoliyatining eng muhim ajratuvchi belgisi qaysi?",
-  a:["Katta boshlang'ich kapitalning mavjudligi",
-     "Tavakkalchilik va shaxsiy mas'uliyat asosida daromad olishga qaratilganlik",
-     "Davlat buyurtmasi asosida ishlash",
-     "Doimiy oylik maosh olish"],c:1,
-  e:"Tadbirkorlik — tashabbus, tavakkalchilik, qiymat yaratish va daromad ustunlariga tayanadi."},
- {q:"Quyidagilardan qaysi biri startapning asosiy belgisi hisoblanadi?",
-  a:["Oilaviy mehnatga tayanishi","Faqat mahalliy bozorga xizmat qilishi",
-     "Tez va katta miqyosda o'sish (masshtablanish) imkoniyati","Foyda olishni maqsad qilmasligi"],c:2,
-  e:"Startapning asosiy belgisi — masshtablanish: milliy yoki global miqyosda tez o'sish."},
- {q:"Mahalladagi bitta kichik oshxona qaysi shaklga kiradi?",
-  a:["Startap","Mikrobiznes / kichik biznes","Ijtimoiy tadbirkorlik","Venchur loyiha"],c:1,
-  e:"Bitta oshxona — sinalgan model, mahalliy miqyos. Yuzlab oshxonani bitta ilovaga ulash esa — startap."},
- {q:"Ijtimoiy tadbirkorlikning xayriyadan asosiy farqi nimada?",
-  a:["Ijtimoiy tadbirkorlik daromad topib, o'zini o'zi moliyalashtiradi",
-     "Ijtimoiy tadbirkorlik soliq to'lamaydi","Xayriya har doim samaraliroq","Ijtimoiy tadbirkorlikda mijoz bo'lmaydi"],c:0,
-  e:"Xayriya mablag' tugagach to'xtaydi, ijtimoiy tadbirkorlik esa daromad hisobiga barqaror davom etadi."},
- {q:"\"Muammo – Yechim – Mijoz – Daromad manbai\" zanjirida oxirgi bo'g'in nimani anglatadi?",
-  a:["Mahsulot dizaynini","Xodimlar sonini",
-     "Pul biznesga qanday, kimdan va qaysi model orqali kelib tushishini","Ofis manzilini"],c:2,
-  e:"Monetizatsiya modellari: sotuv, obuna, komissiya, reklama, xizmat haqi, franshiza."},
- {q:"Quyidagi mijoz ta'riflaridan qaysi biri to'g'ri shakllantirilgan?",
-  a:["Hamma odamlar","Yoshlar","Butun O'zbekiston aholisi",
-     "TTJda yashovchi, kir yuvish mashinasiga navbat kutayotgan 1–2-kurs talabalari"],c:3,
-  e:"\"Hamma\" — mijoz emas. Mijoz aniq, o'lchanadigan guruh bo'lishi shart."},
- {q:"Muammoni baholashda \"to'lov qobiliyati\" filtri nimani tekshiradi?",
-  a:["Muammoning qanchalik tez-tez uchrashini","Mijozda bu muammoni hal qilish uchun pul bor-yo'qligini",
-     "Raqobatchilar sonini","Mahsulot rangini"],c:1,
-  e:"Muammo bor, ammo mijozda pul yo'q bo'lsa — biznes ham yo'q."},
- {q:"Tadbirkorlik tafakkuriga xos yondashuv qaysi?",
-  a:["\"Bu mening vazifam emas\"","\"Xatoga kim aybdor?\"",
-     "\"Bu muammoni kim yechsa, qiymat yaratadi\"","\"Ish vaqti tugadi, ertaga ko'ramiz\""],c:2,
-  e:"Tadbirkor muammoni ayb izlash emas, qiymat yaratish imkoniyati sifatida ko'radi."},
- {q:"2026-yil birinchi yarim yilligida O'zbekistonda kichik tadbirkorlikning YaIMdagi ulushi qanchani tashkil etdi?",
-  a:["20,5 %","35,0 %","50,5 %","78,0 %"],c:2,
-  e:"518,7 trln so'm — ya'ni yaratilgan har ikki so'mning bittasi kichik biznes hissasiga to'g'ri keladi."},
- {q:"Yosh tadbirkorning eng keng tarqalgan xatosi qaysi?",
-  a:["Mijoz bilan suhbatlashish","Mahsulotni bozorda sinamasdan, katta xarajat qilib ishlab chiqarish",
-     "Tannarxni hisoblash","Kichik miqyosdan boshlash"],c:1,
-  e:"\"Mahsulotga oshiq bo'lish\" — oylab yasab, keyin mijoz yo'qligini bilish."},
- {q:"Oilaviy tadbirkorlikning zaif tomoni qaysi?",
-  a:["Ishonch darajasining pastligi","Mehnat resursining qimmatligi",
-     "Oilaviy va ishchi munosabatlarning aralashib ketishi","Bilimning avloddan-avlodga o'tmasligi"],c:2,
+ {q:"Qonundagi ta'rifga ko'ra tadbirkorlikning to'rt ustuni qaysi qatorda to'g'ri berilgan?",
+  a:["Litsenziya, soliq imtiyozi, omborxona va yetkazib berish tarmog'i",
+     "Oliy ma'lumot, ish tajribasi, tanishlar va davlat buyurtmasi",
+     "Kapital, ijara shartnomasi, reklama va buxgalteriya hisoboti",
+     "Tashabbus, tavakkalchilik, qiymat yaratish va muntazam daromad"],c:3,
+  e:"Ta'rifning to'rt ustuni: tashabbus, tavakkalchilik, qiymat yaratish, daromad."},
+ {q:"\"Pulim yo'q, shuning uchun biznes ocholmayman\" degan fikr matnda nega xato deb baholanadi?",
+  a:["Pul ketma-ketlikda birinchi emas, uchinchi qadam bo'lgani uchun",
+     "Hech bir biznes umuman mablag' talab qilmaydigan ish bo'lgani uchun",
+     "Bank krediti hech qanday shartsiz hammaga ochiq bo'lgani uchun",
+     "Davlat har bir yoshga tekin boshlang'ich kapital ajratgani uchun"],c:0,
+  e:"To'g'ri ketma-ketlik: muammoni topish → yechimni sinash → o'sish uchun pul jalb qilish."},
+ {q:"Mahalladagi bitta oshxonani startapga aylantiradigan o'zgarish qaysi javobda ko'rsatilgan?",
+  a:["Ijara shartnomasini uzaytirib, zalni zamonaviy uslubda bezatish",
+     "Yangi jihoz sotib olib, taomlar assortimentini biroz ko'paytirish",
+     "Xodimlar sonini oshirib, ish vaqtini yarim tungacha uzaytirish",
+     "Yuzlab oshxonani bitta ilovaga ulab, miqyosni keskin kengaytirish"],c:3,
+  e:"Bitta oshxona — sinalgan model. Yuzlab oshxonani bitta platformaga ulash — masshtablanish."},
+ {q:"Startap bilan kichik biznesni ajratishda qaysi mezon hal qiluvchi ahamiyatga ega?",
+  a:["Ofis maydoni va undagi xodimlar uchun ajratilgan joylar soni",
+     "Mahsulot narxi va sotuvda qo'llaniladigan chegirmalar miqdori",
+     "Ta'sischining yoshi va uning egallagan oliy ma'lumot darajasi",
+     "O'sish sur'ati va miqyos — milliy yoki global darajaga chiqishi"],c:3,
+  e:"Startapning asosiy belgisi — masshtablanish, ya'ni tez va katta o'sishga mo'ljallanganlik."},
+ {q:"Ijtimoiy tadbirkorlik xayriyadan qaysi jihati bilan tubdan farq qiladi?",
+  a:["O'zi daromad topib, muammoni barqaror hal qilishda davom etadi",
+     "Mijozi bo'lmagani sababli bozorni umuman o'rganib o'tirmaydi",
+     "Faqat homiylardan yig'ilgan mablag' hisobiga ishlab turadi",
+     "Soliq to'lamaydi va hech qanday hisobot topshirmasdan ishlaydi"],c:0,
+  e:"Xayriya mablag' tugaganda to'xtaydi, ijtimoiy tadbirkorlik esa o'z daromadi bilan davom etadi."},
+ {q:"Oilaviy tadbirkorlikning kuchli tomoni emas, aynan zaif tomoni qaysi javobda berilgan?",
+  a:["Qiyin paytda oila jamg'armasi zaxira bo'lib xizmat qilishi",
+     "Ishonch yuqoriligi sababli nazorat xarajatining juda pastligi",
+     "Hunarning avloddan avlodga o'tib, saqlanib qolish imkoniyati",
+     "Oilaviy va ishchi munosabatlarning bir-biriga aralashib ketishi"],c:3,
   e:"Rollar aralashganda nizolar ham biznesga, ham oilaga zarar yetkazadi."},
- {q:"Biznesni boshlashdagi to'g'ri ketma-ketlik qaysi?",
-  a:["Pul topish → ofis ijaraga olish → g'oya o'ylash",
-     "Muammoni topish → yechimni sinash → kengaytirish uchun mablag' jalb qilish",
-     "Katta kredit olish → mahsulot yasash → mijoz izlash",
-     "Reklama berish → do'kon ochish → muammo qidirish"],c:1,
-  e:"Pul — birinchi emas, uchinchi qadam."},
- {q:"BONUS: Nike kompaniyasining mashhur \"swoosh\" logotipi dastlab qanchaga chizib berilgan?",
-  a:["35 dollarga","3 500 dollarga","35 000 dollarga","Bepul, asoschining o'zi chizgan"],c:0,
-  e:"1971-yilda talaba qiz Kerolin Devidson uni 35 dollarga chizib bergan."},
- {q:"BONUS: Dyson changyutgichi bozorga chiqquniga qadar nechta prototip yasalgan?",
-  a:["27 ta","512 ta","5 127 ta","51 ta"],c:2,
-  e:"5 127 ta urinish — muvaffaqiyatsizlik mag'lubiyat emas, ma'lumot ekanining eng yaxshi isboti."},
- {q:"BONUS: Amazon 1994-yilda dastlab nima sotish bilan boshlangan?",
-  a:["Elektronika","Kitob","Kiyim","Oziq-ovqat"],c:1,
-  e:"Jeff Bezos garajda onlayn kitob do'konini ochgan — keyin \"hamma narsa do'koni\"ga aylangan."}
+ {q:"Bekat misolidagi ikki kishi bir xil holatni ko'rdi. Ikkinchisining farqi nimada edi?",
+  a:["U o'sha joydan butunlay boshqa yo'l bilan o'tishni tanladi",
+     "U hokimiyatga shikoyat xatini birinchi bo'lib yozib topshirdi",
+     "U bekat qurilishi uchun kerakli mablag'ni tezda to'play oldi",
+     "U aynan shu manzarada to'lovga tayyor ehtiyojni ko'ra oldi"],c:3,
+  e:"Tadbirkorlik tafakkuri — bir xil holatdan imkoniyat ko'ra bilish qobiliyati."},
+ {q:"Muammoni baholash filtrlaridan qaysi biri aynan \"to'lov qobiliyati\"ni tekshiradi?",
+  a:["Mahsulot qadog'i va rangi mijozga yoqish-yoqmasligini",
+     "Mijozda shu muammoni hal qilish uchun puli bor-yo'qligini",
+     "Muammoning bir yil ichida necha marta takrorlanishini",
+     "Bozorda nechta raqobatchi firma faoliyat yuritayotganini"],c:1,
+  e:"Muammo bor, lekin mijozda pul yo'q bo'lsa — biznes bo'lmaydi."},
+ {q:"\"Mijoz\" bo'g'ini qaysi javobda to'g'ri, ya'ni aniq va o'lchanadigan qilib ta'riflangan?",
+  a:["Internetdan muntazam foydalanadigan butun aholi qatlamlari",
+     "Mamlakatimizdagi barcha yoshlar hamda ularning ota-onalari",
+     "Yotoqxonada yashab, kir yuvish navbatini kutayotgan talabalar",
+     "Bu yangi xizmatga qiziqishi mumkin bo'lgan har qanday odamlar"],c:2,
+  e:"\"Hamma\" — mijoz emas. Mijoz aniq, o'lchanadigan guruh bo'lishi shart."},
+ {q:"\"Talaba tushligi\" misolida daromad manbai sifatida aynan nima ko'rsatilgan?",
+  a:["Oshxona egasidan olinadigan bir martalik ijara to'lovi",
+     "Talabalardan yig'ib olinadigan yillik a'zolik badali puli",
+     "Har bir buyurtmadan olinadigan 10 foizlik komissiya to'lovi",
+     "Universitet byudjetidan ajratiladigan doimiy subsidiya puli"],c:2,
+  e:"Monetizatsiya modeli: har bir buyurtmadan 10% komissiya."},
+ {q:"Yosh tadbirkorlarning eng ko'p uchraydigan xatosi matnda qanday izohlanadi?",
+  a:["Mahsulotga oshiq bo'lib, bozorda sinamasdan uzoq ishlab chiqish",
+     "Kichik hajmda boshlab, avval arzon sinovdan o'tkazib ko'rish",
+     "Mijoz bilan suhbatlashib, uning fikrini ortiqcha hisobga olish",
+     "Tannarxni hisoblab chiqib, keyin narx belgilashga o'tib olish"],c:0,
+  e:"\"Mahsulotga oshiq bo'lish\" — oylab yaratib, keyin mijoz yo'qligini bilish."},
+ {q:"Biznesni boshlashning to'g'ri ketma-ketligi qaysi javobda keltirilgan?",
+  a:["Katta kredit olish → mahsulot yaratish → mijoz qidirib ko'rish",
+     "Muammoni topish → yechimni sinash → o'sish uchun pul jalb qilish",
+     "Ofis ijaraga olish → jihoz sotib olish → g'oya o'ylab topish",
+     "Reklama berish → do'kon ochish → muammoni keyin izlab ko'rish"],c:1,
+  e:"Pul — birinchi emas, uchinchi qadam. Avval muammo, keyin sinov."},
+ {q:"Statistikaga ko'ra kichik biznesning yalpi ichki mahsulotdagi ulushi qanday?",
+  a:["Barcha ishlab chiqarishning to'rtdan uch qismi — 78,0 foizni tashkil etadi",
+     "Yalpi ichki mahsulotning uchdan bir qismi — 33,5 foizni tashkil etadi",
+     "Yaratilgan har ikki so'mdan bittasi — ya'ni 50,5 foizni tashkil etadi",
+     "Mamlakat iqtisodiyotining beshdan bir qismi — 20,5 foizni tashkil etadi"],c:2,
+  e:"518,7 trln so'm — mamlakatda yaratilgan har ikki so'mdan bittasi kichik biznesniki."},
+ {q:"Dayson changyutgichi haqidagi fakt talabani qanday xulosaga olib keladi?",
+  a:["Sifatli mahsulotni birinchi urinishdayoq yaratish mumkinligiga",
+     "Yangi mahsulotni faqat yirik zavodda ishlab chiqarsa bo'lishiga",
+     "Ixtiro qilish uchun avvalo katta investor topish shartligiga",
+     "5127 marta urinish — mag'lubiyat emas, foydali axborot ekaniga"],c:3,
+  e:"5127 prototip — muvaffaqiyatsizlik mag'lubiyat emas, axborot ekanining isboti."},
+ {q:"Nike belgisi, Airbnb va Spanx tarixidan chiqadigan umumiy xulosa nima?",
+  a:["Har qanday biznesni faqat chet elda boshlash maqsadga muvofiqligi",
+     "Muvaffaqiyat faqat mashhur universitet diplomiga bog'liq ekanligi",
+     "Yirik kapitalsiz ham hal qilinmagan muammodan boshlash mumkinligi",
+     "Logotip va reklamaga eng katta mablag' sarflash zarur ekanligi"],c:2,
+  e:"Ularning hech biri katta pul bilan boshlamagan — hammasi hal qilinmagan muammodan boshlangan."}
 ];
 var picked=new Array(Q.length).fill(null), KEYS=["A","B","C","D"];
 $("#scoreMax").textContent=Q.length;
@@ -3034,7 +2979,7 @@ renderTest();
 
 /* ================= UZ / ENG mexanizmi ================= */
 var EN={"0": "Topic 1 · Lecture · 2 hours", "1": "ENTREPRENEURIAL MINDSET AND IDENTIFYING BUSINESS OPPORTUNITIES", "2": "Entrepreneurship is not a building or big capital. It is the art of <b>seeing a problem</b> and having the <b>courage to solve it</b>.", "3": "📚 Course: <b>Fundamentals of Entrepreneurship</b>", "4": "🎓 <b>Termez State University</b>", "5": "🗂 <b>18</b> slides · <b>15</b> test questions", "6": "⌨️ Press <b>→</b> to continue", "7": "Aim of the topic", "8": "What will the student <span class=\"grad\">know by the end?</span>", "9": "Aim: to build a solid understanding of entrepreneurship, to distinguish its forms and — most importantly — to awaken the skill of <b>seeing everyday problems around you as business opportunities</b>.", "10": "Can explain", "11": "Explains in their own words what entrepreneurship is and who an entrepreneur is.", "12": "Can distinguish", "13": "Tells apart micro business, small business, a startup, family and social entrepreneurship.", "14": "Understands", "15": "Grasps the difference between the \"employee mindset\" and the \"entrepreneur mindset\".", "16": "Can find", "17": "Finds at least 3 problems in everyday life and turns them into business ideas.", "18": "Can build", "19": "Builds the \"Problem – Solution – Customer – Revenue source\" chain independently.", "20": "Can evaluate", "21": "Tests an idea through 4 filters and separates the strong ones from the weak.", "22": "Lecture plan", "23": "Today we will go through <span class=\"grad\">5 stages</span>", "24": "Concept", "25": "What entrepreneurship is and its essence.", "26": "Forms", "27": "Micro, small, startup, family, social.", "28": "Mindset", "29": "The mindset and its traits.", "30": "Opportunity", "31": "Turning a problem into a business.", "32": "Chain", "33": "Problem–Solution–Customer–Revenue.", "34": "🔑 Key concepts", "35": "<span class=\"pill g\">entrepreneurship</span><span class=\"pill\">entrepreneur</span><span class=\"pill\">risk</span>\n        <span class=\"pill\">resource</span><span class=\"pill\">added value</span><span class=\"pill g\">micro business</span>\n        <span class=\"pill\">small business</span><span class=\"pill g\">startup</span><span class=\"pill\">scalability</span>\n        <span class=\"pill\">family entrepreneurship</span><span class=\"pill\">social entrepreneurship</span><span class=\"pill g\">entrepreneurial mindset</span>\n        <span class=\"pill\">business opportunity</span><span class=\"pill\">customer</span><span class=\"pill\">monetisation</span><span class=\"pill\">value chain</span>", "36": "Question 1", "37": "Entrepreneurship is <span class=\"grad\">not a place, but a way of thinking</span>", "38": "Most people picture a shop, a market stall or a factory when they hear the word \"entrepreneurship\". In reality it is not a building — it is a <b>type of activity</b> and a <b>way of thinking</b>.", "39": "Entrepreneurship is a <b>lawful</b> activity carried out on a person's <b>own initiative</b>, at their <b>own responsibility and risk</b>, creating a product or service that <b>solves other people's problems</b> and thereby earning a <b>regular income</b>.", "40": "The Law of the Republic of Uzbekistan \"On guarantees of freedom of entrepreneurial activity\" also defines it as an initiative activity carried out <b>at one's own risk</b> and <b>aimed at earning income</b>.", "41": "The 4 pillars of the definition", "42": "Pillar", "43": "Meaning", "44": "Simple example", "45": "🚀 Initiative", "46": "Nobody orders you — you start it yourself", "47": "Seeing that the neighbourhood has no dry-cleaning service and opening one", "48": "🎲 Risk", "49": "The result is not guaranteed, loss is possible", "50": "You invested 10 million so'm — customers may never come", "51": "💎 Value creation", "52": "You create something useful for people", "53": "It saves time, is cheaper, better or more convenient", "54": "💰 Income", "55": "This is not charity — the goal is profit", "56": "Cost 30 thousand, price 50 thousand → profit 20 thousand so'm", "57": "The entrepreneur's capital", "58": "An entrepreneur's first tool is <span class=\"grad-w\">not money</span>", "59": "An entrepreneur is a person who <b>combines existing resources in a new way</b> (money, time, knowledge, equipment, people), <b>creates value</b> that did not exist before and is <b>personally answerable</b> for the result.", "60": "\"I have no money, so I cannot start a business\" — this is the most common false excuse. Money is <b>not the first but the third</b> step in the sequence.", "61": "The entrepreneur's first capital", "62": "The ability to <b>see a problem</b>", "63": "The skill of <b>talking to people</b>", "64": "<b>The courage to start small and test</b>", "65": "The right sequence", "66": "<b>1.</b> Find the problem → <b>2.</b> Test the solution → <b>3.</b> Raise money to scale", "67": "✕ Wrong: take a loan → build the product → look for customers", "68": "The case of Uzbekistan", "69": "Small business is the <span class=\"grad\">main engine</span> of the economy", "70": "thousand small business entities (as of 1 July 2026)", "71": "share of small business in GDP (518.7 trillion so'm)", "72": "target: SME share in GDP (Decree PF-50, 2025)", "73": "target: share in employment", "74": "375.1 thousand", "75": "Individual entrepreneurs (IE)", "76": "526.7 thousand", "77": "Small enterprises and micro firms", "78": "23.2 thousand", "79": "Craftsmen", "80": "5.1 thousand", "81": "Family entrepreneurs", "82": "<b>One out of every two so'm</b> created in the country comes from small business. So entrepreneurship is not a \"side activity\" — it is a <b>wide field of opportunity</b> for a young specialist.", "83": "Source: National Statistics Committee (stat.uz); Decree PF-50 of the President of Uzbekistan, 19 March 2025.", "84": "Question 2", "85": "The <span class=\"grad\">5 modern forms</span> of entrepreneurship", "86": "Entrepreneurship does not come in a single mould. None is \"better\" than another — each has its own purpose and scale.", "87": "Micro business", "88": "1–5 people, minimal capital, local market.", "89": "Baking cakes, phone repair, tutoring", "90": "Small business", "91": "Structure, bookkeeping, a fixed location and a customer base.", "92": "Café, sewing workshop, car service", "93": "Startup", "94": "Uncertainty + innovation + fast scaling.", "95": "A delivery platform", "96": "Family", "97": "Owners and workforce are members of one family.", "98": "A family bakery", "99": "Social", "100": "The goal is to solve a social problem; profit is the tool.", "101": "Waste recycling", "102": "📈 The growth chain encouraged by law: <b>self-employed person → individual entrepreneur → small business → medium business → large enterprise</b>.", "103": "Micro business and <span class=\"grad\">small business</span>", "104": "Micro business — the smallest scale", "105": "Starts with low cost (sometimes 1–2 million so'm)", "106": "Serves the local market (neighbourhood, district)", "107": "Starts quickly, stops quickly", "108": "Income is steady, but growth is slow", "109": "<b>Examples:</b> baking cakes at home, phone repair, social media design, tutoring, flowers, house cleaning, photo/video services.", "110": "Usually registered as a \"self-employed person\" or an <b>individual entrepreneur</b>.", "111": "Small business — an organised system", "112": "There is a clear structure (seller, producer, accountant)", "113": "Works with bank loans, rent and tax reporting", "114": "A stable customer base has formed", "115": "Profit is reinvested into the business", "116": "<b>Examples:</b> a small bakery, sewing workshop, café, car service, training centre, building materials shop.", "117": "A permanent location: a shop, workshop or office.", "118": "2.3 · The most confusing concept", "119": "Not every new business is <span class=\"grad-w\">a startup!</span>", "120": "A startup is a young organisation working <b>under uncertainty</b>, designed for <b>fast and large-scale growth (scaling)</b>, usually based on an <b>innovative or technological</b> solution.", "121": "Criterion", "122": "🏪 Small business", "123": "🚀 Startup", "124": "<b>Goal</b>", "125": "Stable, steady income", "126": "Fast and sharp growth", "127": "<b>Model</b>", "128": "A proven model (shop, café)", "129": "A new, untested model", "130": "<b>Scale</b>", "131": "Local (neighbourhood, city)", "132": "National or global", "133": "<b>Number of customers</b>", "134": "Hundreds – thousands", "135": "Hundreds of thousands – millions", "136": "<b>Source of money</b>", "137": "Own funds, a loan", "138": "Investor, venture capital", "139": "<b>Level of risk</b>", "140": "Moderate", "141": "Very high", "142": "<b>Example</b>", "143": "A canteen in the neighbourhood", "144": "A food delivery platform", "145": "⭐ <b>Key rule:</b> opening one canteen is a <b>small business</b>. Connecting hundreds of canteens to one app is a <b>startup</b>.", "146": "Family and <span class=\"grad\">social</span> entrepreneurship", "147": "👨‍👩‍👧 Family entrepreneurship", "148": "Strengths", "149": "Weaknesses", "150": "High trust, low cost of control", "151": "Family and work relations get mixed up", "152": "Labour is cheap and loyal", "153": "Roles may not be clearly divided", "154": "The craft passes from generation to generation", "155": "Hiring professional staff is difficult", "156": "In hard times family savings act as a reserve", "157": "Conflicts harm both the business and the family", "158": "<b>Examples:</b> a family bakery, a pottery and embroidery workshop, a family greenhouse. In Uzbekistan a <b>family enterprise</b> is a separate legal status.", "159": "🤝 Social entrepreneurship", "160": "The main goal is <b>solving a social problem</b>, while profit is the <b>tool</b> that serves that goal. This is not charity: social entrepreneurship <b>funds itself</b>.", "161": "Collects and hands out money → <b>stops</b> when the funds run out.", "162": "Earns income and <b>keeps solving</b> the problem → sustainable.", "163": "A sewing workshop that employs people with disabilities", "164": "A company that recycles waste into products", "165": "A cheap education platform for rural schools", "166": "An audiobook service for blind people", "167": "Question 3 · Mindset", "168": "The same situation — <span class=\"grad\">two different eyes</span>", "169": "The first person", "170": "\"Oh, how inconvenient. Why isn't a bus stop being built?\"", "171": "The second person", "172": "\"So at least 200 people wait for transport here every day. They are looking for shelter from the rain and a hot cup of tea. What if I opened a small kiosk right here?\"", "173": "Both saw the same thing, but only one saw an <b>opportunity</b>. That difference is the <b>entrepreneurial mindset</b>.", "174": "Situation", "175": "👔 Employee mindset", "176": "🚀 Entrepreneur mindset", "177": "<b>Income</b>", "178": "\"How much is my salary?\"", "179": "\"The more value I create, the more I earn\"", "180": "<b>Problem</b>", "181": "\"That is not my job\"", "182": "\"Whoever solves this problem will earn money\"", "183": "<b>Mistake</b>", "184": "\"Who is to blame?\"", "185": "\"What did I learn from this?\"", "186": "<b>Time</b>", "187": "\"Work ends at 18:00\"", "188": "\"It ends when the result is there\"", "189": "<b>Risk</b>", "190": "\"Better to stay safe\"", "191": "\"I accept calculated risk\"", "192": "<b>Knowledge</b>", "193": "\"I got my diploma, that's it\"", "194": "\"I learn something new every month\"", "195": "Note: this does not mean the \"employee mindset\" is bad — it is simply a different approach.", "196": "The <span class=\"grad\">7 traits</span> of the mindset and the <span class=\"grad-w\">5 mistakes</span> of young entrepreneurs", "197": "1. Sensitivity to problems", "198": "Every complaint is free market research.", "199": "2. Customer focus", "200": "Not \"I like it\" but \"does the customer need it?\"", "201": "3. Bias to action", "202": "Not a one-year plan — a small test within a week.", "203": "4. Calculated risk", "204": "\"What is the most I can lose?\"", "205": "5. Learning from failure", "206": "An unsold product is the market's answer.", "207": "6. Resourcefulness", "208": "Not \"I don't have it\" but \"who does?\"", "209": "7. Persistence", "210": "Keeps going even after a hundred \"no\"s.", "211": "The 5 mistakes of young entrepreneurs", "212": "<b>Falling in love with the product.</b> Building it for months and only then finding out there are no customers.", "213": "<b>Starting big.</b> Taking expensive rent and large stock without testing.", "214": "<b>Not asking the market.</b> \"I like it, so everyone will like it\".", "215": "<b>Pricing without maths.</b> Undercutting competitors without knowing your own cost.", "216": "<b>Working alone.</b> Refusing advice, a mentor and a team.", "217": "The fix: <b>a small test → a customer interview → calculating cost → finding a mentor</b>.", "218": "Question 4", "219": "An idea is <span class=\"grad\">not invented</span> — it is found", "220": "Every business is <b>a paid solution to someone's problem</b>. Ideas are not created: they are already hidden inside people's <b>dissatisfaction</b>.", "221": "🔍 Where should you look for problems?", "222": "Source", "223": "Example", "263": "Example", "224": "<b>Your own daily life</b><br><span style=\"color:var(--muted);font-size:13px\">Write down everything that annoyed you in one day</span>", "225": "\"The queue was long\", \"the delivery was late\"", "226": "<b>Other people's complaints</b><br><span style=\"color:var(--muted);font-size:13px\">What are family, classmates and neighbours complaining about?</span>", "227": "Telegram groups, 1–2 star reviews on marketplaces", "228": "<b>Professional experience</b><br><span style=\"color:var(--muted);font-size:13px\">Inefficient processes seen during practice</span>", "229": "\"Why is this still done by hand?\"", "230": "<b>Market gaps</b><br><span style=\"color:var(--muted);font-size:13px\">A service that exists elsewhere but not here</span>", "231": "A service popular abroad that we do not have", "232": "<b>Changes</b><br><span style=\"color:var(--muted);font-size:13px\">A new law, technology or habit</span>", "233": "New tax rules → demand for accounting services", "234": "🧪 Does every problem become a business? <span style=\"color:var(--red)\">No!</span>", "235": "1. Frequency", "236": "Does this problem occur often?", "237": "Once a year → little income", "238": "2. Pain", "239": "How much does it bother people?", "240": "Nobody pays for a minor inconvenience", "241": "3. Ability to pay", "242": "Does the customer have money?", "243": "Problem yes, money no → no business", "244": "4. Sufficient number", "245": "Do many people face it?", "246": "You cannot build a business for 10 people", "247": "✍️ <b>Practical exercise:</b> write 10 problems in 5 minutes → run them through the 4 filters → only 1–2 will remain.", "248": "Question 5 · The most powerful tool", "249": "The \"Problem – Solution – Customer – Revenue source\" <span class=\"grad\">chain</span>", "250": "1. Problem", "251": "What is wrong?", "252": "❌ \"People are struggling\"<br>✅ \"Students spend 40 minutes a day queueing for lunch\"", "253": "2. Solution", "254": "How do I fix it?", "255": "❌ \"I will build an app\"<br>✅ \"A Telegram bot for pre-ordering and skipping the queue\"", "256": "3. Customer", "257": "Who pays for it?", "258": "❌ \"All students\"<br>✅ \"1st–2nd year students with 2+ classes a day and little time\"", "259": "4. Revenue", "260": "How does the money come in?", "261": "Sales · subscription · commission · advertising · service fee · franchise", "262": "⛓ If any link of the chain is empty — the business will not work.", "264": "Problem", "265": "Solution", "266": "Customer", "267": "Revenue", "268": "<b>🍽 Student lunch</b>", "269": "Break is 45 min, the queue takes 25–40 min", "270": "Pre-ordering through a Telegram bot", "271": "200–300 students short on time", "272": "10% commission on every order", "273": "<b>🧺 Laundry</b>", "274": "Not enough machines in the dormitory, a 3–4 day wait", "275": "Collect, wash and iron, return within 24 hours", "276": "Students living in the dormitory", "277": "Price per kg + a monthly \"unlimited\" subscription", "278": "<b>🧵 Social project</b>", "279": "Rural women have the craft but no market", "280": "Branding it and selling on an online platform", "281": "City dwellers and tourists interested in national crafts", "282": "20–25% intermediary share of sales", "283": "✅ 5 questions to test the chain", "284": "1) How many people experienced this problem in the last 7 days? · 2) How do they solve it now (who is the competitor)? · 3) How exactly is my solution better than the existing way? · 4) How much is the customer ready to pay? · 5) How much profit remains from one sale?", "285": "If you can answer them — you no longer have an idea, you have a <b>business hypothesis</b>!", "286": "Summary", "287": "<span class=\"grad\">6 ideas</span> to remember", "288": "Entrepreneurship is not a building or capital — it is <b>seeing a problem and daring to solve it</b>.", "289": "The forms are diverse: micro, small, startup, family, social. <b>None is superior</b> to another.", "290": "<b>A startup ≠ any new business.</b> Its key trait is fast scaling.", "291": "The entrepreneurial mindset is <b>a learnable skill</b>: complaint → opportunity, mistake → information.", "292": "The foundation is the <b>Problem–Solution–Customer–Revenue</b> chain. Break one link and the business collapses.", "293": "In Uzbekistan small business creates <b>half of GDP</b> — a historically favourable time.", "294": "Independent work: \"10 problems – 1 opportunity\"", "295": "Write at least <b>10 problems</b> in a notebook over 3 days.", "296": "Run each through the 4 filters and score it from <b>1 to 5</b>.", "297": "Choose the <b>one problem</b> with the highest score.", "298": "Fill in the <b>Problem–Solution–Customer–Revenue</b> table for it.", "299": "Talk to at least <b>3 potential customers</b>.", "300": "Length: 1–2 pages. Marking: clarity of the problem 30% · logic of the chain 40% · customer interviews 30%.", "301": "Literature and useful resources", "302": "Eric Ries — <b>The Lean Startup</b>", "303": "Osterwalder &amp; Pigneur — <b>Business Model Generation</b>", "304": "Steve Blank — <b>The Four Steps to the Epiphany</b>", "305": "Muhammad Yunus — <b>Building Social Business</b>", "306": "<span class=\"pill g\">birdarcha.uz</span><span class=\"pill g\">my.soliq.uz</span><span class=\"pill g\">stat.uz</span><span class=\"pill g\">lex.uz</span>", "307": "Legislation: the Law \"On guarantees of freedom of entrepreneurial activity\"; Decree PF-50 (19.03.2025).", "308": "🎁 Bonus · Interesting facts", "309": "The world's <span class=\"grad-w\">richest entrepreneurs</span> and largest companies", "310": "💰 The richest people (approximate, recent rankings)", "311": "<b>Elon Musk</b><span>Tesla, SpaceX, X · electric cars and space · ~$400+ bn</span>", "312": "<b>Larry Ellison</b><span>Oracle · corporate software · ~$200+ bn</span>", "313": "<b>Jeff Bezos</b><span>Amazon · online retail · started selling books in a garage</span>", "314": "<b>Mark Zuckerberg</b><span>Meta (Facebook, Instagram, WhatsApp) · started in a student dorm</span>", "315": "<b>Bernard Arnault</b><span>LVMH · 75+ luxury brands (Louis Vuitton, Dior)</span>", "316": "<b>Bill Gates &amp; Warren Buffett</b><span>Microsoft · Berkshire Hathaway — an investing legend</span>", "317": "The figures change daily with share prices — these are approximate values (based on Forbes/Bloomberg rankings).", "318": "🏢 The most valuable companies", "319": "Born in a garage in 1976. Today its market value exceeds <b>3 trillion dollars</b> — more than the economies of many countries.", "320": "Starting from video game cards, it became one of the world's most valuable companies in the age of artificial intelligence.", "321": "Founded by two friends, Gates and Allen, in 1975. Today it leads the cloud and AI market.", "322": "In 1994 it sold <b>only books</b> from a garage. Today it is the \"everything store\" plus the world's largest cloud service.", "323": "Its name came from a typo in the word \"googol\" (10¹⁰⁰). Two PhD students started it in a garage.", "324": "It stood on the edge of bankruptcy several times; today it is the symbol of the electric car industry.", "325": "🎁 Bonus · For inspiration", "326": "<span class=\"grad\">10 interesting facts</span> about entrepreneurship", "327": "Nike's famous \"swoosh\" was drawn by a student for just <b>35 dollars</b> (1971). Today it is one of the most recognised marks in the world.", "328": "KFC founder Colonel Sanders was rejected <b>more than 1000 times</b> when trying to sell his recipe. He built the business at retirement age.", "329": "The founders of Airbnb could not afford the rent, so they rented out an <b>air mattress</b> in their own room to guests. Today it is a global platform.", "330": "When Alibaba founder Jack Ma applied to KFC, 23 out of 24 candidates were hired — <b>only he was rejected</b>. Then he built his own empire.", "331": "The Dyson vacuum cleaner succeeded after <b>5,127 prototypes</b>. Failure is not defeat — it is information.", "332": "Angry Birds was Rovio's <b>52nd game</b>. The 51 before it went unnoticed.", "333": "Spanx founder Sara Blakely started with <b>5,000 dollars</b> of her savings and became one of the first self-made female billionaires.", "334": "When Instagram was sold to Facebook for <b>1 billion dollars</b>, the team had only 13 employees. Scale does not depend on headcount.", "335": "IKEA was founded by Ingvar Kamprad at the age of <b>17</b>. The name comes from the initials of his name, his farm and his village.", "336": "In its first year Coca-Cola sold an average of just <b>9 glasses a day</b>. Today it is tens of thousands per second. Patience is a strategy.", "337": "About <b>90 percent</b> of startups fail, and the most common reason is building <b>a product the market does not need</b>.", "338": "There are <b>more than 1.2 million</b> small business entities in the country and they create <b>half</b> of GDP.", "339": "💡 The common lesson: none of these people started <b>with big money</b>. They all started with one thing — <b>an unsolved problem</b>.", "340": "Final assessment", "341": "🧪 Test questions — <span class=\"grad\">check yourself</span>", "342": "↻ Restart the test", "343": "Result", "344": "🎓 Thank you for your attention!", "345": "In the next topic we will <b>test the business hypothesis in practice</b>. Get your notebook ready — the \"10 problems – 1 opportunity\" assignment is waiting for you.", "346": "Termez State University · Fundamentals of Entrepreneurship"};
-var QEN=[{"q": "What is the most important distinguishing feature of entrepreneurial activity?", "a": ["The availability of large starting capital", "Being aimed at earning income at one's own risk and responsibility", "Working on the basis of a state order", "Receiving a permanent monthly salary"], "c": 1, "e": "Entrepreneurship rests on four pillars: initiative, risk, value creation and income."}, {"q": "Which of the following is the key feature of a startup?", "a": ["Relying on family labour", "Serving only the local market", "The ability to grow fast and at large scale (scalability)", "Not aiming to make a profit"], "c": 2, "e": "The main sign of a startup is scaling: fast growth at national or global level."}, {"q": "Which form does a single small canteen in a neighbourhood belong to?", "a": ["A startup", "Micro business / small business", "Social entrepreneurship", "A venture project"], "c": 1, "e": "One canteen is a proven model at local scale. Connecting hundreds of canteens to one app would be a startup."}, {"q": "What is the main difference between social entrepreneurship and charity?", "a": ["Social entrepreneurship earns income and funds itself", "Social entrepreneurship pays no taxes", "Charity is always more effective", "Social entrepreneurship has no customers"], "c": 0, "e": "Charity stops when the funds run out, while social entrepreneurship continues sustainably from its own income."}, {"q": "In the \"Problem – Solution – Customer – Revenue source\" chain, what does the last link mean?", "a": ["The design of the product", "The number of employees", "How, from whom and through which model money comes into the business", "The office address"], "c": 2, "e": "Monetisation models: sales, subscription, commission, advertising, service fee, franchise."}, {"q": "Which of these customer definitions is formulated correctly?", "a": ["All people", "Young people", "The whole population of Uzbekistan", "1st–2nd year students living in the dormitory who are waiting for a washing machine"], "c": 3, "e": "\"Everyone\" is not a customer. A customer must be a specific, measurable group."}, {"q": "What does the \"ability to pay\" filter check when assessing a problem?", "a": ["How often the problem occurs", "Whether the customer has money to solve this problem", "The number of competitors", "The colour of the product"], "c": 1, "e": "If the problem exists but the customer has no money, there is no business."}, {"q": "Which approach belongs to the entrepreneurial mindset?", "a": ["\"That is not my task\"", "\"Who is to blame for the mistake?\"", "\"Whoever solves this problem creates value\"", "\"The working day is over, see you tomorrow\""], "c": 2, "e": "An entrepreneur sees a problem as a chance to create value, not as a reason to look for someone to blame."}, {"q": "What was the share of small business in the GDP of Uzbekistan in the first half of 2026?", "a": ["20.5 %", "35.0 %", "50.5 %", "78.0 %"], "c": 2, "e": "518.7 trillion so'm — that is, one out of every two so'm created comes from small business."}, {"q": "What is the most common mistake of a young entrepreneur?", "a": ["Talking to customers", "Producing at high cost without testing the product on the market", "Calculating the cost price", "Starting at a small scale"], "c": 1, "e": "\"Falling in love with the product\" — building it for months and only then discovering there are no customers."}, {"q": "Which of these is a weakness of family entrepreneurship?", "a": ["A low level of trust", "Expensive labour resources", "Family and work relationships getting mixed up", "Knowledge not passing between generations"], "c": 2, "e": "When roles get mixed, conflicts damage both the business and the family."}, {"q": "Which is the correct sequence for starting a business?", "a": ["Find money → rent an office → think of an idea", "Find the problem → test the solution → raise money to scale", "Take a big loan → build the product → look for customers", "Advertise → open a shop → look for a problem"], "c": 1, "e": "Money is not the first but the third step."}, {"q": "BONUS: How much was Nike's famous \"swoosh\" logo originally drawn for?", "a": ["35 dollars", "3,500 dollars", "35,000 dollars", "Free of charge, drawn by the founder"], "c": 0, "e": "In 1971 the student Carolyn Davidson drew it for 35 dollars."}, {"q": "BONUS: How many prototypes were made before the Dyson vacuum cleaner reached the market?", "a": ["27", "512", "5,127", "51"], "c": 2, "e": "5,127 attempts — the best proof that failure is not defeat but information."}, {"q": "BONUS: What did Amazon start by selling in 1994?", "a": ["Electronics", "Books", "Clothes", "Food"], "c": 1, "e": "Jeff Bezos opened an online bookshop in a garage — later it became the \"everything store\"."}];
+var QEN=[{"q": "According to the legal definition, which row lists the four pillars of entrepreneurship correctly?", "a": ["A licence, tax relief, a warehouse and a distribution network", "A diploma, work experience, connections and a state contract", "Capital, a lease contract, advertising and bookkeeping records", "Initiative, risk, value creation and a regular stream of income"], "c": 3, "e": "The four pillars are initiative, risk, value creation and income."}, {"q": "Why does the topic call \"I have no money, so I cannot start a business\" a false excuse?", "a": ["Because money is not the first but the third step in the sequence", "Because no business in the world ever requires any funding at all", "Because a bank loan is open to everyone with no conditions at all", "Because the state gives every young person free starting capital"], "c": 0, "e": "Find the problem, test the solution, and only then raise money to scale."}, {"q": "Which change would turn a single neighbourhood canteen into a startup?", "a": ["Extending the lease and redecorating the hall in a modern style", "Buying new equipment and slightly widening the range of dishes", "Hiring more staff and keeping the place open until after midnight", "Connecting hundreds of canteens to one app and scaling up sharply"], "c": 3, "e": "One canteen is a proven local model; one app for hundreds of them is scaling."}, {"q": "Which criterion is decisive when telling a startup apart from a small business?", "a": ["The size of the office and the number of desks set aside for workers", "The price of the product and the size of the discount being offered", "The age of the founder and the level of education they have gained", "The speed of growth and scale — reaching national or global level"], "c": 3, "e": "Scalability — being designed for fast, large growth — is the defining trait."}, {"q": "In which respect does social entrepreneurship differ fundamentally from charity?", "a": ["It earns its own income and keeps solving the problem sustainably", "It has no customers, so it never studies the market in any way", "It runs purely on the money collected from sponsors and donors", "It pays no taxes at all and files no reports with the authorities"], "c": 0, "e": "Charity stops when the funds run out; social entrepreneurship funds itself."}, {"q": "Which of these is a weakness rather than a strength of family entrepreneurship?", "a": ["Family savings acting as a reserve fund in the difficult periods", "The low cost of control that comes from a high level of trust", "The chance for the craft to pass down from one generation to next", "Family relations and working relations getting mixed up together"], "c": 3, "e": "When roles get mixed, conflicts damage both the business and the family."}, {"q": "Two people saw the same scene at the bus stop. What set the second one apart?", "a": ["They chose to take a completely different route past that place", "They were first to write a complaint letter to the city office", "They managed to collect the money needed to build the bus stop", "They saw a need that people were ready to pay to have it solved"], "c": 3, "e": "The entrepreneurial mindset is the ability to see an opportunity in the same scene."}, {"q": "Which of the four filters checks exactly the customer's ability to pay?", "a": ["Whether the packaging and colour appeal to the customer or not", "Whether the customer has the money to get this problem solved", "How many times the problem comes back over the course of a year", "How many competing firms are already operating in this market"], "c": 1, "e": "If the problem is real but the customer has no money, there is no business."}, {"q": "In which answer is the \"customer\" link defined correctly — precisely and measurably?", "a": ["The whole population that uses the internet on a regular basis", "All the young people of our country together with their parents", "Students in the dorm who are waiting for a free washing machine", "Any people at all who might take an interest in this new service"], "c": 2, "e": "\"Everyone\" is not a customer: it must be a specific, measurable group."}, {"q": "In the \"student lunch\" example, what exactly is named as the revenue source?", "a": ["A one-off rental payment collected from the canteen's owner", "An annual membership fee collected from all of the students", "A ten per cent commission taken from every single order placed", "A permanent subsidy allocated out of the university's budget"], "c": 2, "e": "The monetisation model is a 10% commission on each order."}, {"q": "How does the topic describe the most common mistake of young entrepreneurs?", "a": ["Falling in love with the product and building it without testing", "Starting on a small scale and running a cheap test beforehand", "Talking to customers and giving their opinion far too much weight", "Working out the cost price first and only then setting the price"], "c": 0, "e": "\"Falling in love with the product\": months of building, then no customers."}, {"q": "Which answer gives the correct sequence for starting a business?", "a": ["Take a large loan, then build the product, then look for customers", "Find the problem, then test the solution, then raise money to grow", "Rent an office, then buy the equipment, then think up a good idea", "Run adverts, then open the shop, then look around for a problem"], "c": 1, "e": "Money is the third step, not the first: problem, then test, then funding."}, {"q": "According to the statistics, what is small business's share of GDP?", "a": ["Three quarters of all production output — that is, 78.0 per cent", "One third of the gross domestic product — that is, 33.5 per cent", "One out of every two so'm created — that is, 50.5 per cent of GDP", "One fifth of the whole national economy — that is, 20.5 per cent"], "c": 2, "e": "518.7 trillion so'm: one out of every two so'm created comes from small business."}, {"q": "What conclusion does the fact about the Dyson vacuum cleaner lead to?", "a": ["That a high-quality product can be created on the very first attempt", "That a new product can only be manufactured in a very large factory", "That you must first find a big investor before inventing anything", "That 5,127 attempts mean failure is not defeat but useful information"], "c": 3, "e": "5,127 prototypes prove that failure is information rather than defeat."}, {"q": "What common lesson follows from the Nike logo, Airbnb and Spanx stories?", "a": ["That it is always wiser to start any business in a foreign country", "That success depends only on a diploma from a famous university", "That you can start from an unsolved problem without large capital", "That the largest budget must be spent on the logo and advertising"], "c": 2, "e": "None of them started with big money — each started with an unsolved problem."}];
 
 (function(){
   i18nNodes=[].slice.call(document.querySelectorAll("[data-i]"));
