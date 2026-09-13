@@ -281,6 +281,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 
 
+
 /* RT:BEGIN */
 /* ================== REYTING TIZIMI ================== */
 .rt-chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel);
@@ -479,9 +480,11 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 .mz-note{font-size:11.5px;color:var(--muted);margin:8px 0 0;line-height:1.45}
 @media(max-width:640px){
   #mzPanel{width:88vw;top:auto;bottom:60px;transform:none;border-radius:18px 0 0 18px}
-  /* o'qishga xalaqit bermasligi uchun yuqoriroqda turadi */
-  #mzTab{top:21vh;bottom:auto;transform:none;padding:8px 6px;font-size:15px;
-    border-radius:12px 0 0 12px;opacity:.72}
+  /* chat bilan bir ustunda, uning tepasida */
+  #mzTab{top:calc(var(--tbh,104px) + 18px);bottom:auto;transform:none;
+    width:42px;height:42px;padding:0;display:flex;align-items:center;justify-content:center;
+    border-radius:12px 0 0 12px;font-size:19px;opacity:.8}
+  #mzTab:hover{padding-right:0}
   #mzTab:active{opacity:1}
 }
 @media print{#mzTab,#mzPanel{display:none!important}}
@@ -545,12 +548,20 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 .ch-warn.on{display:block}
 .ch-lock{margin:auto;text-align:center;padding:18px;color:var(--muted);font-size:13px;line-height:1.6}
 @media print{.ch-tab,.ch-panel{display:none!important}}
-/* Telefonda yon tugmalar matn ustiga tushmasin — yuqoriroqqa olinadi */
+/* Telefonda: chat va musiqa o'ng tomonda, ustma-ust; topbar ostida */
 @media(max-width:640px){
-  .ch-tab{top:21vh;transform:none;padding:8px 6px;font-size:15px;border-radius:0 12px 12px 0;opacity:.72}
-  .ch-tab i{font-size:9.5px}
+  .ch-tab{left:auto;right:0;top:calc(var(--tbh,104px) + 68px);transform:none;
+    border-radius:12px 0 0 12px;border-left:1px solid var(--line);border-right:none;
+    width:42px;height:42px;padding:0;display:flex;align-items:center;justify-content:center;
+    font-size:19px;opacity:.8}
+  .ch-tab i{display:none}                 /* "CHAT" yozuvi telefonda ko'rsatilmaydi */
+  .ch-tab:hover{padding-left:0}
   .ch-tab:active{opacity:1}
-  .ch-tab:has(.ch-dot){opacity:1}   /* yangi xabar bo'lsa to'liq ko'rinadi */
+  .ch-tab:has(.ch-dot.on){opacity:1}
+  .ch-dot{top:-3px;right:-3px}
+  .ch-panel{left:auto;right:0;border-right:none;border-left:1px solid var(--line);
+    transform:translateX(104%)}
+  .ch-panel.show{transform:none}
 }
 /* RT:END */
 @media print{
@@ -1144,6 +1155,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 
 
+
 <!-- RT:BEGIN -->
 <script>var RT_CFG={"topic": "m6", "slides": 18, "quiz": 15, "pSlide": 2, "pAll": 10, "teacher": "terdu2026", "firebase": {"db": "tadbirkorlik-asoslari-default-rtdb", "regions": ["asia-southeast1", "europe-west1", "us-central1", "europe-west4", "asia-east1", "us-east1", "northamerica-northeast1"], "url": "https://tadbirkorlik-asoslari-default-rtdb.asia-southeast1.firebasedatabase.app"}, "topics": [{"id": "m1", "file": "index.html", "title": "M1 · Tadbirkorlik tafakkuri va biznes imkoniyatlar", "open": true, "quiz": 15, "slides": 18}, {"id": "m2", "file": "mavzu-2.html", "title": "M2 · Mijoz muammosi asosida biznes g'oya", "open": false, "quiz": 15, "slides": 18}, {"id": "m3", "file": "mavzu-3.html", "title": "M3 · Mahsulotni kam xarajat bilan sinash (moliya va kredit)", "open": false, "quiz": 15, "slides": 15}, {"id": "m4", "file": "mavzu-4.html", "title": "M4 · Biznesni qonuniy rasmiylashtirish", "open": false, "quiz": 15, "slides": 18}, {"id": "m5", "file": "mavzu-5.html", "title": "M5 · Soliqlar va hujjatlar", "open": false, "quiz": 15, "slides": 18}, {"id": "m6", "file": "mavzu-6.html", "title": "M6 · Biznes-model qanday ishlaydi", "open": false, "quiz": 15, "slides": 18}, {"id": "m7", "file": "mavzu-7.html", "title": "M7 · Mijoz kim va unga nima kerak", "open": false, "quiz": 15, "slides": 18}, {"id": "m8", "title": "M8 · 8-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-8.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m9", "title": "M9 · 9-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-9.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m10", "title": "M10 · 10-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-10.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m11", "title": "M11 · 11-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-11.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m12", "title": "M12 · 12-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-12.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m13", "title": "M13 · 13-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-13.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m14", "title": "M14 · 14-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-14.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m15", "title": "M15 · 15-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-15.html", "open": false, "slides": 18, "quiz": 15}], "tracks": [{"file": "Musofir.mp3", "title": "Musofir", "artist": ""}]};</script>
 <script>
@@ -1446,6 +1458,22 @@ function arenaShut(){
   o.querySelector("#rtShutOk").onclick=bye;
   o.onclick=function(e){ if(e.target===o) bye(); };
 }
+/* topbar balandligini o'lchab beradi — yon tugmalar aynan uning ostida tursin */
+function tbHeight(){
+  var tb=document.querySelector(".topbar");
+  var h=tb?Math.ceil(tb.getBoundingClientRect().height):64;
+  document.documentElement.style.setProperty("--tbh",h+"px");
+}
+function tbWatch(){
+  tbHeight();
+  window.addEventListener("resize",tbHeight);
+  window.addEventListener("orientationchange",function(){ setTimeout(tbHeight,250); });
+  if(window.ResizeObserver){
+    var tb=document.querySelector(".topbar");
+    if(tb) new ResizeObserver(tbHeight).observe(tb);
+  }
+  setTimeout(tbHeight,600); setTimeout(tbHeight,1800);
+}
 function chipUpdate(){
   var c=document.getElementById("rtChip"); if(!c||!S) return;
   c.innerHTML="🏆 "+esc(S.name)+" · <b>"+(P.total||0)+"</b>";
@@ -1692,8 +1720,11 @@ function renderTop(){
     });
   }
   cloudList(function(a){
+    /* tasdiq kutayotgan va bloklanganlar reytingda ko'rinmaydi */
+    if(a) a=a.filter(function(x){ return (x.status||"pending")==="ok"; });
     if(a&&a.length) draw(a);
-    else draw(S?[{id:S.id,name:S.name,surname:S.surname,group:S.group,total:P.total,topics:topicSummary()}]:[]);
+    else draw((S&&approved())?[{id:S.id,name:S.name,surname:S.surname,group:S.group,
+      total:P.total,status:"ok",topics:topicSummary()}]:[]);
   });
 }
 
@@ -2254,7 +2285,7 @@ function watchStatus(){
 var started=false;
 function start(){
   if(started) return; started=true;
-  chip(); watchStatus(); timeStart(); if(cloudOn&&S) cloudSave(); if(S&&!S.email) setTimeout(emailAsk,900);
+  chip(); tbWatch(); watchStatus(); timeStart(); if(cloudOn&&S) cloudSave(); if(S&&!S.email) setTimeout(emailAsk,900);
   if(typeof idx!=="undefined") slideSeen(idx);
   window.RT_ready=true;
   if(window.RT_pending){ window.RT_pending.forEach(function(a){ award(a[0],a[1],a[2]); }); window.RT_pending=null; }
