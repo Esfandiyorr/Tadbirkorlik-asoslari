@@ -279,6 +279,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 
 
+
 /* RT:BEGIN */
 /* ================== REYTING TIZIMI ================== */
 .rt-chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel);
@@ -480,9 +481,11 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
   /* chat bilan bir ustunda, uning tepasida */
   #mzTab{top:calc(var(--tbh,104px) + 18px);bottom:auto;transform:none;
     width:42px;height:42px;padding:0;display:flex;align-items:center;justify-content:center;
-    border-radius:12px 0 0 12px;font-size:19px;opacity:.8}
+    border-radius:12px 0 0 12px;font-size:19px;opacity:.8;touch-action:none;user-select:none;-webkit-user-select:none}
   #mzTab:hover{padding-right:0}
   #mzTab:active{opacity:1}
+  #mzTab.rt-dragging{transition:none;opacity:1;box-shadow:0 10px 26px -8px rgba(0,0,0,.5);
+    outline:2px solid #fff;outline-offset:2px}
 }
 @media print{#mzTab,#mzPanel{display:none!important}}
 /* ================== CHAT ================== */
@@ -550,12 +553,14 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
   .ch-tab{left:auto;right:0;top:calc(var(--tbh,104px) + 68px);transform:none;
     border-radius:12px 0 0 12px;border-left:1px solid var(--line);border-right:none;
     width:42px;height:42px;padding:0;display:flex;align-items:center;justify-content:center;
-    font-size:19px;opacity:.8}
+    font-size:19px;opacity:.8;touch-action:none;user-select:none;-webkit-user-select:none}
   .ch-tab i{display:none}                 /* "CHAT" yozuvi telefonda ko'rsatilmaydi */
   .ch-tab:hover{padding-left:0}
   .ch-tab:active{opacity:1}
   .ch-tab:has(.ch-dot.on){opacity:1}
   .ch-dot{top:-3px;right:-3px}
+  .ch-tab.rt-dragging{transition:none;opacity:1;box-shadow:0 10px 26px -8px rgba(0,0,0,.5);
+    outline:2px solid var(--violet);outline-offset:2px}
   .ch-panel{left:auto;right:0;border-right:none;border-left:1px solid var(--line);
     transform:translateX(104%)}
   .ch-panel.show{transform:none}
@@ -1216,6 +1221,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 
 
+
 <!-- RT:BEGIN -->
 <script>var RT_CFG={"topic": "m2", "slides": 18, "quiz": 15, "pSlide": 2, "pAll": 10, "teacher": "terdu2026", "firebase": {"db": "tadbirkorlik-asoslari-default-rtdb", "regions": ["asia-southeast1", "europe-west1", "us-central1", "europe-west4", "asia-east1", "us-east1", "northamerica-northeast1"], "url": "https://tadbirkorlik-asoslari-default-rtdb.asia-southeast1.firebasedatabase.app"}, "topics": [{"id": "m1", "file": "index.html", "title": "M1 · Tadbirkorlik tafakkuri va biznes imkoniyatlar", "open": true, "quiz": 15, "slides": 18}, {"id": "m2", "file": "mavzu-2.html", "title": "M2 · Mijoz muammosi asosida biznes g'oya", "open": false, "quiz": 15, "slides": 18}, {"id": "m3", "file": "mavzu-3.html", "title": "M3 · Mahsulotni kam xarajat bilan sinash (moliya va kredit)", "open": false, "quiz": 15, "slides": 15}, {"id": "m4", "file": "mavzu-4.html", "title": "M4 · Biznesni qonuniy rasmiylashtirish", "open": false, "quiz": 15, "slides": 18}, {"id": "m5", "file": "mavzu-5.html", "title": "M5 · Soliqlar va hujjatlar", "open": false, "quiz": 15, "slides": 18}, {"id": "m6", "file": "mavzu-6.html", "title": "M6 · Biznes-model qanday ishlaydi", "open": false, "quiz": 15, "slides": 18}, {"id": "m7", "file": "mavzu-7.html", "title": "M7 · Mijoz kim va unga nima kerak", "open": false, "quiz": 15, "slides": 18}, {"id": "m8", "title": "M8 · 8-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-8.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m9", "title": "M9 · 9-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-9.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m10", "title": "M10 · 10-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-10.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m11", "title": "M11 · 11-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-11.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m12", "title": "M12 · 12-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-12.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m13", "title": "M13 · 13-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-13.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m14", "title": "M14 · 14-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-14.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m15", "title": "M15 · 15-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-15.html", "open": false, "slides": 18, "quiz": 15}], "tracks": [{"file": "Musofir.mp3", "title": "Musofir", "artist": ""}]};</script>
 <script>
@@ -1533,6 +1539,83 @@ function tbWatch(){
     if(tb) new ResizeObserver(tbHeight).observe(tb);
   }
   setTimeout(tbHeight,600); setTimeout(tbHeight,1800);
+}
+/* ---------- telefonda yon tugmalarni barmoq bilan siljitish ---------- */
+var DRAGK="terdu_tabpos_v1";
+function isPhone(){ return window.matchMedia("(max-width:640px)").matches; }
+function dragPos(){ return lget(DRAGK,{}) || {}; }
+function dragSave(k,x,y){ var o=dragPos(); o[k]={x:x,y:y}; lset(DRAGK,o); }
+function clampTab(el,x,y){
+  var w=el.offsetWidth||42, h=el.offsetHeight||42;
+  var mx=Math.max(0,window.innerWidth-w), my=Math.max(0,window.innerHeight-h);
+  return {x:Math.min(Math.max(0,x),mx), y:Math.min(Math.max(0,y),my)};
+}
+function placeTab(el,x,y){
+  var p=clampTab(el,x,y);
+  /* tugmada 0.2s animatsiya bor — siljitishda u kechikish beradi, shuning uchun o'chiramiz */
+  el.style.transition="none";
+  el.style.left=p.x+"px"; el.style.top=p.y+"px";
+  el.style.right="auto"; el.style.bottom="auto"; el.style.transform="none";
+  return p;
+}
+function makeDrag(el,key){
+  if(!el||el._drag) return; el._drag=true;
+  var sx=0, sy=0, ox=0, oy=0, moved=false, on=false;
+  /* saqlangan joyini tiklaymiz */
+  var sv=dragPos()[key];
+  if(sv&&isPhone()) placeTab(el,sv.x,sv.y);
+  el.addEventListener("pointerdown",function(e){
+    if(!isPhone()||e.button===2) return;
+    var r=el.getBoundingClientRect();
+    ox=r.left; oy=r.top; sx=e.clientX; sy=e.clientY; moved=false; on=true;
+    el.setPointerCapture&&el.setPointerCapture(e.pointerId);
+  });
+  el.addEventListener("pointermove",function(e){
+    if(!on) return;
+    var dx=e.clientX-sx, dy=e.clientY-sy;
+    if(!moved && (Math.abs(dx)+Math.abs(dy))<7) return;     /* kichik tebranish — bosish deb hisoblanadi */
+    if(!moved){ moved=true; el.classList.add("rt-dragging"); }
+    e.preventDefault();
+    placeTab(el,ox+dx,oy+dy);
+  });
+  function done(e){
+    if(!on) return; on=false;
+    el.classList.remove("rt-dragging");
+    if(!moved) return;
+    var r=el.getBoundingClientRect();
+    var p=clampTab(el,r.left,r.top); placeTab(el,p.x,p.y);
+    dragSave(key,p.x,p.y);
+    /* siljitishdan keyingi "bosish" hodisasini bekor qilamiz */
+    el.addEventListener("click",function stop(ev){ ev.stopPropagation(); ev.preventDefault();
+      el.removeEventListener("click",stop,true); },true);
+  }
+  el.addEventListener("pointerup",done);
+  el.addEventListener("pointercancel",done);
+  el.addEventListener("dragstart",function(e){ e.preventDefault(); });
+}
+function dragTabs(){
+  if(!isPhone()) return;
+  makeDrag(document.querySelector(".ch-tab"),"chat");
+  makeDrag(document.getElementById("mzTab"),"music");
+}
+function dragWatch(){
+  dragTabs();
+  var n=0, iv=setInterval(function(){ dragTabs(); if(++n>25) clearInterval(iv); },900);
+  window.addEventListener("resize",function(){
+    if(!isPhone()){
+      [".ch-tab","#mzTab"].forEach(function(q){
+        var e=document.querySelector(q);
+        if(e){ e.style.left=e.style.top=e.style.right=e.style.bottom=e.style.transform=""; }
+      });
+      return;
+    }
+    var o=dragPos();
+    [[".ch-tab","chat"],["#mzTab","music"]].forEach(function(x){
+      var e=document.querySelector(x[0]), v=o[x[1]];
+      if(e&&v) placeTab(e,v.x,v.y);
+    });
+    dragTabs();
+  });
 }
 function chipUpdate(){
   var c=document.getElementById("rtChip"); if(!c||!S) return;
@@ -2345,7 +2428,7 @@ function watchStatus(){
 var started=false;
 function start(){
   if(started) return; started=true;
-  chip(); tbWatch(); watchStatus(); timeStart(); if(cloudOn&&S) cloudSave(); if(S&&!S.email) setTimeout(emailAsk,900);
+  chip(); tbWatch(); dragWatch(); watchStatus(); timeStart(); if(cloudOn&&S) cloudSave(); if(S&&!S.email) setTimeout(emailAsk,900);
   if(typeof idx!=="undefined") slideSeen(idx);
   window.RT_ready=true;
   if(window.RT_pending){ window.RT_pending.forEach(function(a){ award(a[0],a[1],a[2]); }); window.RT_pending=null; }
