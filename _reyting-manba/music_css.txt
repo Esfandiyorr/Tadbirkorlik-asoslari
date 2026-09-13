@@ -38,6 +38,9 @@
 .mz-note{font-size:11.5px;color:var(--muted);margin:8px 0 0;line-height:1.45}
 @media(max-width:640px){
   #mzPanel{width:88vw;top:auto;bottom:60px;transform:none;border-radius:18px 0 0 18px}
-  #mzTab{top:auto;bottom:120px;transform:none}
+  /* o'qishga xalaqit bermasligi uchun yuqoriroqda turadi */
+  #mzTab{top:21vh;bottom:auto;transform:none;padding:8px 6px;font-size:15px;
+    border-radius:12px 0 0 12px;opacity:.72}
+  #mzTab:active{opacity:1}
 }
 @media print{#mzTab,#mzPanel{display:none!important}}
