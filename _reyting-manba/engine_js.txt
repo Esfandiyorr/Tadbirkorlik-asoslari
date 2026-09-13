@@ -297,6 +297,22 @@ function arenaShut(){
   o.querySelector("#rtShutOk").onclick=bye;
   o.onclick=function(e){ if(e.target===o) bye(); };
 }
+/* topbar balandligini o'lchab beradi — yon tugmalar aynan uning ostida tursin */
+function tbHeight(){
+  var tb=document.querySelector(".topbar");
+  var h=tb?Math.ceil(tb.getBoundingClientRect().height):64;
+  document.documentElement.style.setProperty("--tbh",h+"px");
+}
+function tbWatch(){
+  tbHeight();
+  window.addEventListener("resize",tbHeight);
+  window.addEventListener("orientationchange",function(){ setTimeout(tbHeight,250); });
+  if(window.ResizeObserver){
+    var tb=document.querySelector(".topbar");
+    if(tb) new ResizeObserver(tbHeight).observe(tb);
+  }
+  setTimeout(tbHeight,600); setTimeout(tbHeight,1800);
+}
 function chipUpdate(){
   var c=document.getElementById("rtChip"); if(!c||!S) return;
   c.innerHTML="🏆 "+esc(S.name)+" · <b>"+(P.total||0)+"</b>";
@@ -543,8 +559,11 @@ function renderTop(){
     });
   }
   cloudList(function(a){
+    /* tasdiq kutayotgan va bloklanganlar reytingda ko'rinmaydi */
+    if(a) a=a.filter(function(x){ return (x.status||"pending")==="ok"; });
     if(a&&a.length) draw(a);
-    else draw(S?[{id:S.id,name:S.name,surname:S.surname,group:S.group,total:P.total,topics:topicSummary()}]:[]);
+    else draw((S&&approved())?[{id:S.id,name:S.name,surname:S.surname,group:S.group,
+      total:P.total,status:"ok",topics:topicSummary()}]:[]);
   });
 }
 
@@ -1105,7 +1124,7 @@ function watchStatus(){
 var started=false;
 function start(){
   if(started) return; started=true;
-  chip(); watchStatus(); timeStart(); if(cloudOn&&S) cloudSave(); if(S&&!S.email) setTimeout(emailAsk,900);
+  chip(); tbWatch(); watchStatus(); timeStart(); if(cloudOn&&S) cloudSave(); if(S&&!S.email) setTimeout(emailAsk,900);
   if(typeof idx!=="undefined") slideSeen(idx);
   window.RT_ready=true;
   if(window.RT_pending){ window.RT_pending.forEach(function(a){ award(a[0],a[1],a[2]); }); window.RT_pending=null; }
