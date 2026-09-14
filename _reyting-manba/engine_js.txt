@@ -1067,14 +1067,22 @@ function okMailText(x){
       "Best regards,\nTermez State University")
   };
 }
+var FROMK="terdu_from";
+function fromMail(){ try{ return localStorage.getItem(FROMK)||""; }catch(e){ return ""; } }
+function setFrom(v){ try{ if(v) localStorage.setItem(FROMK,v); else localStorage.removeItem(FROMK); }catch(e){} }
+/* Gmail havolasiga authuser qo'shamiz — xat aynan shu hisobdan yoziladi */
+function gmailUrl(to,su,body){
+  var f=fromMail();
+  return "https://mail.google.com/mail/"+(f?"?authuser="+encodeURIComponent(f)+"&":"?")+
+    "view=cm&fs=1&to="+encodeURIComponent(to)+"&su="+encodeURIComponent(su)+"&body="+encodeURIComponent(body);
+}
 function openMail(x,how){
   var e=String(x.email||"").trim();
   if(!okMail(e)){ toast(T("Bu talabada email yo'q","This student has no email")); return; }
   var t=okMailText(x);
   var u=(how==="mailto")
     ? "mailto:"+e+"?subject="+encodeURIComponent(t.s)+"&body="+encodeURIComponent(t.b)
-    : "https://mail.google.com/mail/?view=cm&fs=1&to="+encodeURIComponent(e)+
-      "&su="+encodeURIComponent(t.s)+"&body="+encodeURIComponent(t.b);
+    : gmailUrl(e,t.s,t.b);
   window.open(u,"_blank");
 }
 /* tasdiqlangandan keyin panel tepasida chiqadigan eslatma */
@@ -1110,6 +1118,10 @@ function tcMailBox(okl){
       "Matnni yozing va pochtangizda oching — barcha talabalar BCC (yashirin nusxa) da bo'ladi, ya'ni bir-birining manzilini ko'rmaydi.",
       "Write the text and open it in your mail app — every student goes into BCC, so they cannot see each other's addresses.")+
       (no>0?' <b>'+no+'</b> '+T("talabada email yo'q.","students have no email yet."):'')+'</p>'+
+    '<div class="rt-from"><label>'+T("Xat yuboriladigan pochtangiz","Your sending address")+
+      '<input id="mlFrom" type="email" placeholder="siz@gmail.com" value="'+esc(fromMail())+'"></label>'+
+      '<span class="rt-note">'+T("Gmail aynan shu hisobda ochiladi. Bo'sh qoldirsangiz — brauzerda ochiq turgan hisob ishlatiladi.",
+        "Gmail will open in this account. If left empty, whichever account is signed in will be used.")+'</span></div>'+
     '<div class="rt-form" style="max-width:none;margin:0 0 10px">'+
       '<label>'+T("Mavzu","Subject")+'<input id="mlSub" placeholder="'+T("Masalan: Ertangi dars haqida","For example: About tomorrow\'s class")+'"></label></div>'+
     '<textarea id="mlBody" placeholder="'+T("Xabar matni…","Message text…")+'"></textarea>'+
@@ -1120,6 +1132,12 @@ function tcMailBox(okl){
     '</div><p class="rt-note" id="mlMsg"></p></div>';
 }
 function tcMailBind(okl){
+  var ff=document.getElementById("mlFrom");
+  if(ff) ff.onchange=function(){
+    var v=ff.value.trim();
+    if(v&&!okMail(v)){ toast(T("Email noto'g'ri","Invalid email")); return; }
+    setFrom(v); toast(v?T("Saqlandi: ","Saved: ")+v:T("Bekor qilindi","Cleared"));
+  };
   var gm=document.getElementById("mlGm"); if(!gm) return;
   var m=mails(okl);
   function txt(){
@@ -1149,7 +1167,9 @@ function tcMailBind(okl){
       : T("Pochta oynasi ochildi. Yuborishni o'zingiz tasdiqlaysiz.","The mail window is open. You send it yourself."));
   }
   gm.onclick=function(){ open1(function(c,t){
-    return "https://mail.google.com/mail/?view=cm&fs=1&to=&bcc="+encodeURIComponent(c.join(","))+
+    var f=fromMail();
+    return "https://mail.google.com/mail/"+(f?"?authuser="+encodeURIComponent(f)+"&":"?")+
+      "view=cm&fs=1&to=&bcc="+encodeURIComponent(c.join(","))+
       "&su="+encodeURIComponent(t.s)+"&body="+encodeURIComponent(t.b); }); };
   document.getElementById("mlMt").onclick=function(){ open1(function(c,t){
     return "mailto:?bcc="+encodeURIComponent(c.join(","))+
