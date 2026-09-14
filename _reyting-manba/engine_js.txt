@@ -805,9 +805,11 @@ function tcAct(id,st,btn){
   if(btn){ btn.disabled=true; btn.textContent="…"; }
   cloudSetStatus(id,st,function(ok){
     if(!ok){ toast(T("Xatolik — qayta urining","Error — please try again")); tcLoad(); return; }
-    for(var i=0;i<tcList.length;i++) if(tcList[i].id===id) tcList[i].status=st;
+    var who=null;
+    for(var i=0;i<tcList.length;i++) if(tcList[i].id===id){ tcList[i].status=st; who=tcList[i]; }
     tcDraw();
     toast(st==="ok"?T("Tasdiqlandi","Approved"):T("Bloklandi","Blocked"));
+    if(st==="ok"&&who) okBanner(who);
   });
 }
 function tcRow(x,btns){
@@ -888,6 +890,8 @@ function tcDraw(){
             '<button class="btn rt-m'+(on?" accent":"")+'" data-id="'+esc(x.id)+'" data-v="'+(on?"0":"1")+
             '" title="'+T("Rasm va video yuborish huquqi","Permission to send images and videos")+'">'+
             (on?"🖼":"🔒")+'</button> '+
+            (okMail(x.email)?'<button class="btn rt-ml" data-id="'+esc(x.id)+
+              '" title="'+T("Tasdiq haqida xabar yuborish","Send the approval message")+'">✉️</button> ':'')+
             '<button class="btn rt-a" data-id="'+esc(x.id)+'" data-st="blocked">🚫</button>');
         }).join("")+'</tbody></table></div></div>';
       }).join("")
@@ -965,6 +969,12 @@ function tcDraw(){
         body:JSON.stringify(pk)}).then(function(r){ done(r.ok); }).catch(function(){ done(false); });
     };
   });
+  out.querySelectorAll(".rt-ml").forEach(function(b){
+    b.onclick=function(){
+      var x=tcList.filter(function(y){ return y.id===b.dataset.id; })[0];
+      if(x) openMail(x,"gmail");
+    };
+  });
   var mc=document.getElementById("rtMcsv");
   if(mc) mc.onclick=function(){ marksCsv(okl); };
   tcMailBind(okl);
@@ -1034,6 +1044,55 @@ function marksCsv(okl){
     });
   });
   dl("terdu-baholar-"+today()+".csv","﻿"+head+"\n"+rows.join("\n"));
+}
+/* ---------- tasdiqlangan talabaga tayyor xat ---------- */
+function siteUrl(){
+  try{ return location.href.replace(/[^\/]*$/,"").replace(/#.*$/,""); }catch(e){ return ""; }
+}
+function okMailText(x){
+  var nm=(x.name||"")+" "+(x.surname||"");
+  return {
+    s:T("Tadbirkorlik asoslari — hisobingiz tasdiqlandi","Fundamentals of Entrepreneurship — your account is approved"),
+    b:T(
+      "Assalomu alaykum, "+nm+"!\n\n"+
+      "\"Tadbirkorlik asoslari\" fani platformasida hisobingiz tasdiqlandi. Endi taqdimotlar, testlar va talabalar chati siz uchun ochiq.\n\n"+
+      "Kirish havolasi: "+siteUrl()+"\n"+
+      "Kirish uchun: ism, familiya va o'zingiz tanlagan 4 raqamli PIN-kod.\n\n"+
+      "Har bir mavzu uchun baho avtomatik qo'yiladi: slaydlarni o'qish, sarflangan vaqt va test natijasi hisobga olinadi.\n\n"+
+      "Omad tilayman,\nTermiz davlat universiteti · Tadbirkorlik asoslari",
+      "Hello "+nm+"!\n\n"+
+      "Your account on the \"Fundamentals of Entrepreneurship\" platform has been approved. The slides, the tests and the student chat are now open to you.\n\n"+
+      "Link: "+siteUrl()+"\n"+
+      "Log in with your first name, surname and the 4-digit PIN you chose.\n\n"+
+      "Best regards,\nTermez State University")
+  };
+}
+function openMail(x,how){
+  var e=String(x.email||"").trim();
+  if(!okMail(e)){ toast(T("Bu talabada email yo'q","This student has no email")); return; }
+  var t=okMailText(x);
+  var u=(how==="mailto")
+    ? "mailto:"+e+"?subject="+encodeURIComponent(t.s)+"&body="+encodeURIComponent(t.b)
+    : "https://mail.google.com/mail/?view=cm&fs=1&to="+encodeURIComponent(e)+
+      "&su="+encodeURIComponent(t.s)+"&body="+encodeURIComponent(t.b);
+  window.open(u,"_blank");
+}
+/* tasdiqlangandan keyin panel tepasida chiqadigan eslatma */
+function okBanner(x){
+  var out=document.getElementById("rtTcOut"); if(!out||!x) return;
+  var old=document.getElementById("rtOkBan"); if(old) old.remove();
+  var has=okMail(x.email);
+  var b=el('<div class="rt-okban" id="rtOkBan"><span class="ic">✅</span>'+
+    '<div class="t"><b>'+esc(x.name+" "+x.surname)+' — '+T("tasdiqlandi","approved")+'</b>'+
+    '<span>'+(has?esc(x.email)+' · '+T("xabar berasizmi?","let them know?")
+                 :T("bu talabada email yo'q","this student has no email"))+'</span></div>'+
+    (has?'<button class="btn accent" id="rtOkGm">✉️ Gmail</button>'+
+         '<button class="btn" id="rtOkMt">📮 '+T("Pochta","Mail")+'</button>':'')+
+    '<button class="btn ghost" id="rtOkX">✕</button></div>');
+  out.insertBefore(b,out.firstChild);
+  var g=document.getElementById("rtOkGm"); if(g) g.onclick=function(){ openMail(x,"gmail"); };
+  var m=document.getElementById("rtOkMt"); if(m) m.onclick=function(){ openMail(x,"mailto"); };
+  document.getElementById("rtOkX").onclick=function(){ b.remove(); };
 }
 function mails(list){
   var seen={}, out=[];
