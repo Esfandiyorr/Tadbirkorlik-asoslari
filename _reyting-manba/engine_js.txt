@@ -5,7 +5,7 @@ var CFG=window.RT_CFG||{};
 var LS={stu:"terdu_student", prog:"terdu_progress_v1"};
 var S=null, P=null, cloudOn=false, fb=null, listCache=[], listAt=0;
 /* Arena ochiq/yopiq: false bo'lsa 🎮 Arena tugmasi ko'rinmaydi */
-var ARENA_OPEN=false;
+var ARENA_OPEN=true;
 var tcList=[], isTc=false; try{ isTc=sessionStorage.getItem("terdu_tc")==="1"; }catch(e){}
 
 /* ---------- saqlash ---------- */
