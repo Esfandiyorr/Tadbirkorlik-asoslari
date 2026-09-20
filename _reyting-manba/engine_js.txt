@@ -1233,16 +1233,15 @@ function openOv(tab){
 /* ---------- ustozga xabar (Telegram) ---------- */
 function askBar(){
   if(!CFG.teacherTg) return;
-  var tb=document.querySelector(".topbar"); if(!tb) return;
+  var tools=document.querySelector(".topbar .tools"); if(!tools) return;
   var old=document.getElementById("rtAsk"); if(old) old.remove();
-  var b=el('<div class="rt-askbar" id="rtAsk">'+
-    '<a class="rt-ask" href="'+esc(CFG.teacherTg)+'" target="_blank" rel="noopener">'+
-      '<span class="ic">✈️</span>'+
-      '<span class="t"><b>'+T("Ustozga xabar yuborish","Message the teacher")+'</b>'+
-      '<span>'+T("Savolingiz bormi? Telegram orqali to\'g\'ridan-to\'g\'ri yozing",
-                 "Got a question? Write directly on Telegram")+'</span></span>'+
-      '<span class="ar">→</span></a></div>');
-  if(tb.nextSibling) tb.parentNode.insertBefore(b,tb.nextSibling); else tb.parentNode.appendChild(b);
+  var b=el('<a class="rt-ask" id="rtAsk" href="'+esc(CFG.teacherTg)+'" target="_blank" rel="noopener" '+
+    'title="'+T("Telegram orqali to\'g\'ridan-to\'g\'ri yozing","Write directly on Telegram")+'">'+
+    '✈️ <b>'+T("Ustozga xabar","Ask the teacher")+'</b></a>');
+  var ar=document.getElementById("rtArena"), ch=document.getElementById("rtChip");
+  var after=ar||ch;
+  if(after&&after.parentNode===tools) tools.insertBefore(b,after.nextSibling);
+  else tools.insertBefore(b,tools.firstChild);
 }
 function navBuild(){
   var tools=document.querySelector(".topbar .tools"); if(!tools) return;
