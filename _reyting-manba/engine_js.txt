@@ -1230,6 +1230,20 @@ function openOv(tab){
 }
 
 /* ---------- ishga tushirish ---------- */
+/* ---------- ustozga xabar (Telegram) ---------- */
+function askBar(){
+  if(!CFG.teacherTg) return;
+  var tb=document.querySelector(".topbar"); if(!tb) return;
+  var old=document.getElementById("rtAsk"); if(old) old.remove();
+  var b=el('<div class="rt-askbar" id="rtAsk">'+
+    '<a class="rt-ask" href="'+esc(CFG.teacherTg)+'" target="_blank" rel="noopener">'+
+      '<span class="ic">✈️</span>'+
+      '<span class="t"><b>'+T("Ustozga xabar yuborish","Message the teacher")+'</b>'+
+      '<span>'+T("Savolingiz bormi? Telegram orqali to\'g\'ridan-to\'g\'ri yozing",
+                 "Got a question? Write directly on Telegram")+'</span></span>'+
+      '<span class="ar">→</span></a></div>');
+  if(tb.nextSibling) tb.parentNode.insertBefore(b,tb.nextSibling); else tb.parentNode.appendChild(b);
+}
 function navBuild(){
   var tools=document.querySelector(".topbar .tools"); if(!tools) return;
   var old=document.getElementById("rtNav"); if(old) old.remove();
@@ -1261,7 +1275,7 @@ function chip(){
   chipUpdate();
   navBuild();
   var lb=document.getElementById("btnLang");
-  if(lb) lb.addEventListener("click",function(){ setTimeout(function(){ navBuild(); chipUpdate(); },30); });
+  if(lb) lb.addEventListener("click",function(){ setTimeout(function(){ navBuild(); chipUpdate(); askBar(); },30); });
 }
 var wIv=null;
 function watchStatus(){
@@ -1280,7 +1294,7 @@ function watchStatus(){
 var started=false;
 function start(){
   if(started) return; started=true;
-  chip(); tbWatch(); dragWatch(); watchStatus(); timeStart(); if(cloudOn&&S) cloudSave(); if(S&&!S.email) setTimeout(emailAsk,900);
+  chip(); askBar(); tbWatch(); dragWatch(); watchStatus(); timeStart(); if(cloudOn&&S) cloudSave(); if(S&&!S.email) setTimeout(emailAsk,900);
   if(typeof idx!=="undefined") slideSeen(idx);
   window.RT_ready=true;
   if(window.RT_pending){ window.RT_pending.forEach(function(a){ award(a[0],a[1],a[2]); }); window.RT_pending=null; }
