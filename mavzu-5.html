@@ -320,6 +320,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 
 
+
 /* RT:BEGIN */
 /* ================== REYTING TIZIMI ================== */
 .rt-chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel);
@@ -1249,6 +1250,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 </div>
 
 <div class="hint" id="hint" data-ui="hint">⌨️ <kbd>→</kbd> keyingi slayd · <kbd>D</kbd> tun/kun · <kbd>L</kbd> uz/eng · <kbd>O</kbd> ro'yxat · <kbd>F</kbd> to'liq ekran</div>
+
 
 
 
@@ -2528,10 +2530,7 @@ function askBar(){
   var b=el('<a class="rt-ask" id="rtAsk" href="'+esc(CFG.teacherTg)+'" target="_blank" rel="noopener" '+
     'title="'+T("Telegram orqali to\'g\'ridan-to\'g\'ri yozing","Write directly on Telegram")+'">'+
     '✈️ <b>'+T("Ustozga xabar","Ask the teacher")+'</b></a>');
-  var ar=document.getElementById("rtArena"), ch=document.getElementById("rtChip");
-  var after=ar||ch;
-  if(after&&after.parentNode===tools) tools.insertBefore(b,after.nextSibling);
-  else tools.insertBefore(b,tools.firstChild);
+  tools.insertBefore(b,tools.firstChild);   /* eng birinchi o'rinda tursin */
 }
 function navBuild(){
   var tools=document.querySelector(".topbar .tools"); if(!tools) return;
@@ -2561,6 +2560,7 @@ function chip(){
   tools.insertBefore(ar,c.nextSibling);
   if(!ARENA_OPEN) ar.onclick=arenaShut;
   c.onclick=openOv;
+  askBar();                                 /* "Ustozga xabar" doim chapdan birinchi */
   chipUpdate();
   navBuild();
   var lb=document.getElementById("btnLang");
