@@ -417,6 +417,32 @@ function findMe(n,sn,pin,cb){
     cb(hit||null);
   });
 }
+/* ---------- fanlar ro'yxati (ro'yxatdan o'tgach / kirgach ko'rsatiladi) ---------- */
+function courseGate(next){
+  var list=CFG.courses||[];
+  if(!list.length){ next(); return; }
+  var here=(location.pathname.split("/").pop()||"index.html");
+  var g=el('<div class="rt-gate" id="rtCourseGate"><div class="rt-box">'+
+    '<h2 style="margin:4px 0 2px">📚 '+T("Fanlar ro\'yxati","Course list")+'</h2>'+
+    '<p style="color:var(--muted);margin-top:4px">'+T("Davom etish uchun fanni tanlang.","Choose a course to continue.")+'</p>'+
+    '<div class="rt-courses">'+list.map(function(c,i){
+      return '<button class="rt-course" data-i="'+i+'">'+
+        '<span class="ic">'+esc(c.icon||"📘")+'</span>'+
+        '<span class="t"><b>'+esc(c.title||"")+'</b><span>'+esc(c.desc||"")+'</span></span>'+
+        '<span class="ar">→</span></button>';
+    }).join("")+'</div>'+
+    '</div></div>');
+  document.body.appendChild(g);
+  g.querySelectorAll(".rt-course").forEach(function(b){
+    b.onclick=function(){
+      var c=list[+b.dataset.i]||{};
+      g.remove();
+      var first=c.first||"index.html";
+      if(!first||first===here){ next(); }
+      else { location.href=first; }     /* boshqa sahifa — ro'yxatga olingan ma'lumot saqlanib qoladi */
+    };
+  });
+}
 function gate(){
   if(S){
     if(!cloudOn||S.status==="ok"){ start(); return; }
@@ -497,7 +523,8 @@ function gate(){
       }
       S={id:uid(),name:n,surname:sn,group:gr,email:em,pk:pkey(n,sn,pin),at:Date.now(),status:cloudOn?"pending":"ok"};
       lset(LS.stu,S); lset(LS.prog,P); cloudCreate();
-      g.remove(); if(approved()) start(); else waitScreen();
+      g.remove();
+      courseGate(function(){ if(approved()) start(); else waitScreen(); });
     });
   }
   function doLog(){
@@ -525,7 +552,7 @@ function gate(){
       }
       lset(LS.stu,S); lset(LS.prog,P);
       g.remove(); toast(T("Xush kelibsiz, ","Welcome back, ")+hit.name+"!");
-      if(approved()) start(); else waitScreen();
+      courseGate(function(){ if(approved()) start(); else waitScreen(); });
     });
   }
   g.querySelectorAll(".rt-gt").forEach(function(b){

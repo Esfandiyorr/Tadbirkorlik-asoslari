@@ -144,5 +144,14 @@
       "artist": ""
     }
   ],
-  "teacherTg": "https://t.me/esfandiyorr?direct"
+  "teacherTg": "https://t.me/esfandiyorr?direct",
+  "courses": [
+    {
+      "id": "tad-asoslari",
+      "icon": "🚀",
+      "title": "Tadbirkorlik asoslari",
+      "desc": "15 ta mavzu · nazariya, testlar va amaliy topshiriqlar",
+      "first": "index.html"
+    }
+  ]
 }
