@@ -1075,16 +1075,22 @@ function marksTable(okl){
         return '<tr><td style="white-space:nowrap"><b>'+esc(x.surname)+" "+esc(x.name)+'</b></td>'+
           tops.map(function(t){
             var tp=(x.topics||{})[t.id]||{}, b=tp.b||0;
-            var tip=b?(T("test","test")+": "+(tp.q||0)+"/"+metaOf(t.id).quiz+" · "+T("vaqt","time")+": "+hms(tp.t||0)):T("hali ishlanmagan","not started");
-            return '<td class="rt-mc" title="'+esc(t.title+" — "+tip)+'">'+mkTag(b)+'</td>';
+            var M=metaOf(t.id);
+            var started=!!(b||tp.q||tp.t||tp.s);
+            var sub=started
+              ? ('📝'+(tp.q||0)+'/'+M.quiz+' · ⏱'+hms(tp.t||0))
+              : T("hali yo'q","not yet");
+            return '<td class="rt-mc" title="'+esc(t.title)+'">'+
+              '<div class="rt-mkcell">'+mkTag(b)+'<span class="rt-mksub">'+esc(sub)+'</span></div>'+
+              '</td>';
           }).join("")+
           '<td class="rt-mc">'+mkTag(av.a?+av.a.toFixed(1):0)+'</td></tr>';
       }).join("");
   }).join("");
   return '<h3 style="margin:20px 0 4px">📊 '+T("Mavzular bo'yicha baholar","Marks by topic")+'</h3>'+
     '<p class="rt-note" style="margin:0 0 8px">'+T(
-      "Har bir mavzu uchun alohida baho: slaydlar 20% + o'qish vaqti 20% + test 60%. Ustun ustiga bossangiz mavzu nomi va tafsilot ko'rinadi.",
-      "A separate mark for each topic: slides 20% + reading time 20% + test 60%. Hover a cell for the topic name and details.")+'</p>'+
+      "Har bir mavzu uchun alohida baho: slaydlar 20% + o'qish vaqti 20% + test 60%. Har katakchada nechta test ishlagani va qancha vaqt sarflagani ham ko'rinadi.",
+      "A separate mark for each topic: slides 20% + reading time 20% + test 60%. Each cell also shows the test count and time spent.")+'</p>'+
     '<div class="tw"><table class="rt-table rt-mtab"><thead>'+head+'</thead><tbody>'+body+'</tbody></table></div>'+
     '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">'+
       '<button class="btn" id="rtMcsv">⬇ '+T("Baholar CSV","Marks CSV")+'</button></div>';
