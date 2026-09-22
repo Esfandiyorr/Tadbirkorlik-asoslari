@@ -334,6 +334,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 
 
+
 /* RT:BEGIN */
 /* ================== REYTING TIZIMI ================== */
 .rt-chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel);
@@ -439,6 +440,17 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 .rt-gtile b{font-size:12.5px;text-align:center;word-break:break-word;line-height:1.25}
 .rt-gtile.on{background:linear-gradient(135deg,var(--violet),var(--blue));color:#fff;border-color:transparent}
 .rt-gtile.on .rt-badge{background:rgba(255,255,255,.28)}
+/* --- Talaba qidiruvi --- */
+.rt-gsearch{margin-bottom:12px}
+.rt-gsearch input{width:100%;padding:11px 13px;border:1.5px solid var(--line);border-radius:12px;
+  background:var(--panel2);color:var(--ink);font-size:14.5px;font-weight:600;font-family:inherit;outline:none}
+.rt-gsearch input:focus{border-color:var(--blue)}
+#tcSearchRes{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.rt-gsearch-item{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;
+  text-align:left;border:1px solid var(--line);background:var(--panel);color:var(--ink);
+  border-radius:12px;padding:10px 13px;font-family:inherit;font-size:13.5px;cursor:pointer;transition:.14s}
+.rt-gsearch-item:hover{border-color:var(--violet)}
+.rt-gsearch-item span{color:var(--muted);font-weight:700;white-space:nowrap}
 .rt-daynav{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
 .rt-daynav input[type="date"]{border:1px solid var(--line);background:var(--panel);color:var(--ink);
   border-radius:11px;padding:8px 10px;font-family:inherit;font-size:13.5px;font-weight:700}
@@ -1379,6 +1391,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 
 
+
 <!-- RT:BEGIN -->
 <script>var RT_CFG={"topic": "m1", "slides": 18, "quiz": 15, "pSlide": 2, "pAll": 10, "teacher": "terdu2026", "firebase": {"db": "tadbirkorlik-asoslari-default-rtdb", "regions": ["asia-southeast1", "europe-west1", "us-central1", "europe-west4", "asia-east1", "us-east1", "northamerica-northeast1"], "url": "https://tadbirkorlik-asoslari-default-rtdb.asia-southeast1.firebasedatabase.app"}, "topics": [{"id": "m1", "file": "index.html", "title": "M1 · Tadbirkorlik tafakkuri va biznes imkoniyatlar", "open": true, "quiz": 15, "slides": 18}, {"id": "m2", "file": "mavzu-2.html", "title": "M2 · Mijoz muammosi asosida biznes g'oya", "open": false, "quiz": 15, "slides": 18}, {"id": "m3", "file": "mavzu-3.html", "title": "M3 · Mahsulotni kam xarajat bilan sinash (moliya va kredit)", "open": false, "quiz": 15, "slides": 15}, {"id": "m4", "file": "mavzu-4.html", "title": "M4 · Biznesni qonuniy rasmiylashtirish", "open": false, "quiz": 15, "slides": 18}, {"id": "m5", "file": "mavzu-5.html", "title": "M5 · Soliqlar va hujjatlar", "open": false, "quiz": 15, "slides": 18}, {"id": "m6", "file": "mavzu-6.html", "title": "M6 · Biznes-model qanday ishlaydi", "open": false, "quiz": 15, "slides": 18}, {"id": "m7", "file": "mavzu-7.html", "title": "M7 · Mijoz kim va unga nima kerak", "open": false, "quiz": 15, "slides": 18}, {"id": "m8", "title": "M8 · 8-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-8.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m9", "title": "M9 · 9-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-9.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m10", "title": "M10 · 10-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-10.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m11", "title": "M11 · 11-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-11.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m12", "title": "M12 · 12-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-12.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m13", "title": "M13 · 13-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-13.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m14", "title": "M14 · 14-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-14.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m15", "title": "M15 · 15-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-15.html", "open": false, "slides": 18, "quiz": 15}], "teacherTg": "https://t.me/esfandiyorr?direct", "courses": [{"id": "tad-asoslari", "icon": "🚀", "title": "Tadbirkorlik asoslari", "desc": "15 ta mavzu · nazariya, testlar va amaliy topshiriqlar", "first": "index.html"}], "groups": ["FIZ-123", "FIZ-223", "FIZ-323", "AP-123", "AP-223", "AP-323", "D-123", "DKG-BF-123", "YES-123", "T-232", "T-423"], "tracks": [{"file": "Musofir.mp3", "title": "Musofir", "artist": ""}]};</script>
 <script>
@@ -1392,6 +1405,7 @@ var S=null, P=null, cloudOn=false, fb=null, listCache=[], listAt=0;
 var ARENA_OPEN=true;
 var tcList=[], isTc=false; try{ isTc=sessionStorage.getItem("terdu_tc")==="1"; }catch(e){}
 var TC_OPEN_APPROVED={}, TC_OPEN_MARKS={};   /* qaysi guruh kvadratchasi ochilgan — o'qituvchi panelida */
+var TC_SEARCH_Q="";                           /* talaba qidiruv matni */
 
 /* ---------- saqlash ---------- */
 function lget(k,d){ try{var v=localStorage.getItem(k); return v?JSON.parse(v):d;}catch(e){return d;} }
@@ -2325,7 +2339,10 @@ function tcDraw(){
       }).join("")+'</tbody></table></div>'
       : '<p class="rt-note">'+T("Yangi so\'rov yo\'q.","No new requests.")+'</p>';
   h+='<h3 style="margin:18px 0 8px">✅ '+T("Tasdiqlangan talabalar","Approved students")+' <span class="rt-badge">'+okl.length+'</span></h3>';
-  h+= okl.length ? (groupTiles(groupsOf(okl),TC_OPEN_APPROVED,"appr")+
+  h+= okl.length ? ('<div class="rt-gsearch"><input type="text" id="tcSearch" autocomplete="off" placeholder="🔎 '+
+      T("Talaba qidirish (ism yoki familiya)…","Search a student (first or last name)…")+'" value="'+esc(TC_SEARCH_Q)+'">'+
+      '<div id="tcSearchRes"></div></div>'+
+      groupTiles(groupsOf(okl),TC_OPEN_APPROVED,"appr")+
       '<p class="rt-note" style="margin:0 0 10px">'+T("Guruh ustiga bosing — o'sha guruh talabalari ochiladi.","Click a group — that group's students will open.")+'</p>'+
       groupsOf(okl).filter(function(G){ return TC_OPEN_APPROVED[G.g]; }).map(function(G){
         return '<div class="rt-gsec"><h4>👥 '+esc(G.g)+' <span class="rt-badge">'+G.list.length+'</span></h4>'+
@@ -2373,6 +2390,32 @@ function tcDraw(){
       tcDraw();
     };
   });
+  function tcSearchRender(){
+    var box=document.getElementById("tcSearchRes"); if(!box) return;
+    var q=TC_SEARCH_Q.trim().toLowerCase();
+    if(!q){ box.innerHTML=""; return; }
+    var matches=okl.filter(function(x){ return ((x.name||"")+" "+(x.surname||"")).toLowerCase().indexOf(q)>=0; });
+    box.innerHTML=matches.length
+      ? matches.map(function(x){
+          return '<button type="button" class="rt-gsearch-item" data-g="'+esc(gkey(x.group))+'">'+
+            '<b>'+esc(x.name+" "+x.surname)+'</b><span>👥 '+esc(x.group||"—")+'</span></button>';
+        }).join("")
+      : '<p class="rt-note" style="margin:6px 0 0">'+T("Hech kim topilmadi.","No one found.")+'</p>';
+    box.querySelectorAll(".rt-gsearch-item").forEach(function(b){
+      b.onclick=function(){
+        var g=b.dataset.g;
+        TC_OPEN_APPROVED[g]=true;
+        tcDraw();
+        setTimeout(function(){
+          var t=out.querySelector('.rt-gtile[data-p="appr"][data-g="'+g.replace(/"/g,'\\"')+'"]');
+          if(t) t.scrollIntoView({behavior:"smooth",block:"center"});
+        },60);
+      };
+    });
+  }
+  var si=document.getElementById("tcSearch");
+  if(si) si.oninput=function(){ TC_SEARCH_Q=si.value; tcSearchRender(); };
+  tcSearchRender();
   out.querySelectorAll(".rt-a").forEach(function(b){
     b.onclick=function(){ tcAct(b.dataset.id,b.dataset.st,b); };
   });
