@@ -44,7 +44,7 @@ def inject(fn,meta):
     # --- konfiguratsiya + dvigatel ---
     cfg=dict(topic=meta['id'],slides=meta['slides'],quiz=meta.get('quiz',15),pSlide=CONF['pSlide'],pAll=CONF['pAll'],
              teacher=CONF['teacher'],firebase=CONF.get('firebase'),topics=CONF['topics'],
-             teacherTg=CONF.get('teacherTg',''),courses=CONF.get('courses',[]),
+             teacherTg=CONF.get('teacherTg',''),courses=CONF.get('courses',[]),groups=CONF.get('groups',[]),
              tracks=CONF.get('tracks',[]))
     block=(HB+'\n<script>var RT_CFG='+json.dumps(cfg,ensure_ascii=False)+';</script>\n'
            '<script>\n'+JS.strip()+'\n</script>\n'

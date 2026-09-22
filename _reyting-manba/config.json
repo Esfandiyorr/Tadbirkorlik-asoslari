@@ -153,5 +153,18 @@
       "desc": "15 ta mavzu · nazariya, testlar va amaliy topshiriqlar",
       "first": "index.html"
     }
+  ],
+  "groups": [
+    "FIZ-123",
+    "FIZ-223",
+    "FIZ-323",
+    "AP-123",
+    "AP-223",
+    "AP-323",
+    "D-123",
+    "DKG-BF-123",
+    "YES-123",
+    "T-232",
+    "T-423"
   ]
 }

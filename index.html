@@ -320,6 +320,8 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 
 
+
+
 /* RT:BEGIN */
 /* ================== REYTING TIZIMI ================== */
 .rt-chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel);
@@ -511,6 +513,16 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 .rt-course .t b{display:block;font-size:15.5px}
 .rt-course .t span{display:block;font-size:12.5px;color:var(--muted);margin-top:2px;line-height:1.4}
 .rt-course .ar{font-size:20px;font-weight:900;color:var(--violet)}
+/* --- Ustoz e'loni: talaba tomonida katta modal --- */
+.rt-annwrap{z-index:200;background:rgba(8,15,29,.68);backdrop-filter:blur(3px)}
+.rt-annbox{max-width:520px;text-align:center;border:2px solid var(--violet)}
+.rt-annic{font-size:52px;line-height:1}
+.rt-anntxt{background:var(--panel2);border-radius:16px;padding:16px 18px;margin-top:6px;
+  font-size:15.5px;line-height:1.7;text-align:left;white-space:pre-wrap;word-break:break-word;
+  max-height:50vh;overflow:auto}
+/* --- Ustoz e'loni: o'qituvchi paneli --- */
+.rt-ann textarea{width:100%;min-height:100px;border:1px solid var(--line);border-radius:12px;padding:10px 12px;
+  font-family:inherit;font-size:14px;background:var(--panel);color:var(--ink);resize:vertical}
 /* ================== MUSIQA PLEYERI ================== */
 #mzTab{position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:70;
   background:linear-gradient(135deg,var(--violet),var(--pink));color:#fff;border:none;
@@ -1266,8 +1278,10 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 
 
+
+
 <!-- RT:BEGIN -->
-<script>var RT_CFG={"topic": "m1", "slides": 18, "quiz": 15, "pSlide": 2, "pAll": 10, "teacher": "terdu2026", "firebase": {"db": "tadbirkorlik-asoslari-default-rtdb", "regions": ["asia-southeast1", "europe-west1", "us-central1", "europe-west4", "asia-east1", "us-east1", "northamerica-northeast1"], "url": "https://tadbirkorlik-asoslari-default-rtdb.asia-southeast1.firebasedatabase.app"}, "topics": [{"id": "m1", "file": "index.html", "title": "M1 · Tadbirkorlik tafakkuri va biznes imkoniyatlar", "open": true, "quiz": 15, "slides": 18}, {"id": "m2", "file": "mavzu-2.html", "title": "M2 · Mijoz muammosi asosida biznes g'oya", "open": false, "quiz": 15, "slides": 18}, {"id": "m3", "file": "mavzu-3.html", "title": "M3 · Mahsulotni kam xarajat bilan sinash (moliya va kredit)", "open": false, "quiz": 15, "slides": 15}, {"id": "m4", "file": "mavzu-4.html", "title": "M4 · Biznesni qonuniy rasmiylashtirish", "open": false, "quiz": 15, "slides": 18}, {"id": "m5", "file": "mavzu-5.html", "title": "M5 · Soliqlar va hujjatlar", "open": false, "quiz": 15, "slides": 18}, {"id": "m6", "file": "mavzu-6.html", "title": "M6 · Biznes-model qanday ishlaydi", "open": false, "quiz": 15, "slides": 18}, {"id": "m7", "file": "mavzu-7.html", "title": "M7 · Mijoz kim va unga nima kerak", "open": false, "quiz": 15, "slides": 18}, {"id": "m8", "title": "M8 · 8-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-8.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m9", "title": "M9 · 9-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-9.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m10", "title": "M10 · 10-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-10.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m11", "title": "M11 · 11-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-11.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m12", "title": "M12 · 12-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-12.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m13", "title": "M13 · 13-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-13.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m14", "title": "M14 · 14-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-14.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m15", "title": "M15 · 15-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-15.html", "open": false, "slides": 18, "quiz": 15}], "teacherTg": "https://t.me/esfandiyorr?direct", "courses": [{"id": "tad-asoslari", "icon": "🚀", "title": "Tadbirkorlik asoslari", "desc": "15 ta mavzu · nazariya, testlar va amaliy topshiriqlar", "first": "index.html"}], "tracks": [{"file": "Musofir.mp3", "title": "Musofir", "artist": ""}]};</script>
+<script>var RT_CFG={"topic": "m1", "slides": 18, "quiz": 15, "pSlide": 2, "pAll": 10, "teacher": "terdu2026", "firebase": {"db": "tadbirkorlik-asoslari-default-rtdb", "regions": ["asia-southeast1", "europe-west1", "us-central1", "europe-west4", "asia-east1", "us-east1", "northamerica-northeast1"], "url": "https://tadbirkorlik-asoslari-default-rtdb.asia-southeast1.firebasedatabase.app"}, "topics": [{"id": "m1", "file": "index.html", "title": "M1 · Tadbirkorlik tafakkuri va biznes imkoniyatlar", "open": true, "quiz": 15, "slides": 18}, {"id": "m2", "file": "mavzu-2.html", "title": "M2 · Mijoz muammosi asosida biznes g'oya", "open": false, "quiz": 15, "slides": 18}, {"id": "m3", "file": "mavzu-3.html", "title": "M3 · Mahsulotni kam xarajat bilan sinash (moliya va kredit)", "open": false, "quiz": 15, "slides": 15}, {"id": "m4", "file": "mavzu-4.html", "title": "M4 · Biznesni qonuniy rasmiylashtirish", "open": false, "quiz": 15, "slides": 18}, {"id": "m5", "file": "mavzu-5.html", "title": "M5 · Soliqlar va hujjatlar", "open": false, "quiz": 15, "slides": 18}, {"id": "m6", "file": "mavzu-6.html", "title": "M6 · Biznes-model qanday ishlaydi", "open": false, "quiz": 15, "slides": 18}, {"id": "m7", "file": "mavzu-7.html", "title": "M7 · Mijoz kim va unga nima kerak", "open": false, "quiz": 15, "slides": 18}, {"id": "m8", "title": "M8 · 8-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-8.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m9", "title": "M9 · 9-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-9.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m10", "title": "M10 · 10-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-10.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m11", "title": "M11 · 11-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-11.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m12", "title": "M12 · 12-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-12.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m13", "title": "M13 · 13-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-13.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m14", "title": "M14 · 14-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-14.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m15", "title": "M15 · 15-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-15.html", "open": false, "slides": 18, "quiz": 15}], "teacherTg": "https://t.me/esfandiyorr?direct", "courses": [{"id": "tad-asoslari", "icon": "🚀", "title": "Tadbirkorlik asoslari", "desc": "15 ta mavzu · nazariya, testlar va amaliy topshiriqlar", "first": "index.html"}], "groups": ["FIZ-123", "FIZ-223", "FIZ-323", "AP-123", "AP-223", "AP-323", "D-123", "DKG-BF-123", "YES-123", "T-232", "T-423"], "tracks": [{"file": "Musofir.mp3", "title": "Musofir", "artist": ""}]};</script>
 <script>
 /* ================== TerDU REYTING TIZIMI ================== */
 var RT=(function(){
@@ -1689,6 +1703,12 @@ function findMe(n,sn,pin,cb){
   });
 }
 /* ---------- fanlar ro'yxati (ro'yxatdan o'tgach / kirgach ko'rsatiladi) ---------- */
+function groupField(id,cur){
+  var opts=(CFG.groups||[]).map(function(g){
+    return '<option value="'+esc(g)+'"'+(g===cur?" selected":"")+'>'+esc(g)+'</option>';
+  }).join("");
+  return '<select id="'+id+'" class="rt-gsel"><option value="">'+T("— tanlang —","— choose —")+'</option>'+opts+'</select>';
+}
 function courseGate(next){
   var list=CFG.courses||[];
   if(!list.length){ next(); return; }
@@ -1731,14 +1751,14 @@ function gate(){
     '<button class="rt-tclink" id="rtGateTc">🔑 '+T("O\'qituvchi bo\'limiga kirish","Teacher panel")+'</button>'+
     '</div></div>');
   document.body.appendChild(g);
-  function fields(pre,withExtra){
+function fields(pre,withExtra){
     return '<label>'+T("Ism","First name")+'<input id="'+pre+'N" autocomplete="given-name" placeholder="'+T("Ismingiz","Your first name")+'"></label>'+
       '<label>'+T("Familiya","Surname")+'<input id="'+pre+'S" autocomplete="family-name" placeholder="'+T("Familiyangiz","Your surname")+'"></label>'+
       '<label>'+T("PIN-kod (4 raqam)","PIN code (4 digits)")+
         '<input id="'+pre+'B" class="rt-pin" type="password" inputmode="numeric" autocomplete="off" '+
         'maxlength="4" pattern="[0-9]*" placeholder="••••"></label>'+
       (withExtra
-        ? '<label>'+T("Guruh","Group")+'<input id="'+pre+'G" placeholder="'+T("Masalan: 101-22 IQT","For example: 101-22")+'"></label>'+
+        ? '<label>'+T("Guruh","Group")+groupField(pre+"G","")+'</label>'+
           '<label>'+T("Email","Email")+'<input id="'+pre+'E" type="email" inputmode="email" autocomplete="email" placeholder="ism@gmail.com"></label>'
         : '');
   }
@@ -1782,7 +1802,8 @@ function gate(){
         pin=document.getElementById("rtB").value,
         gr=document.getElementById("rtG").value.trim(),
         em=document.getElementById("rtE").value.trim();
-    if(n.length<2||sn.length<2||gr.length<2) return err("rtErr",T("Ism, familiya va guruhni to'liq kiriting.","Fill in your name, surname and group."));
+    if(n.length<2||sn.length<2) return err("rtErr",T("Ism va familiyani to'liq kiriting.","Fill in your name and surname."));
+    if(!gr) return err("rtErr",T("Guruhingizni tanlang.","Choose your group."));
     if(!pinOk(pin)) return err("rtErr",T("PIN-kod 4 ta raqamdan iborat bo'lsin (masalan: 2468).","The PIN must be 4 digits (for example: 2468)."));
     if(!okMail(em)) return err("rtErr",T("Email manzilni to'g'ri kiriting.","Enter a valid email address."));
     var btn=document.getElementById("rtGo"); btn.disabled=true;
@@ -2034,7 +2055,7 @@ function renderCv(){
       '<div class="rt-form" style="max-width:420px;margin:0">'+
         '<label>'+T("Ism","First name")+'<input id="cvN" value="'+esc(S.name)+'"></label>'+
         '<label>'+T("Familiya","Surname")+'<input id="cvS" value="'+esc(S.surname)+'"></label>'+
-        '<label>'+T("Guruh","Group")+'<input id="cvG" value="'+esc(S.group)+'"></label>'+
+        '<label>'+T("Guruh","Group")+groupField("cvG",S.group)+'</label>'+
         '<label>'+T("Email","Email")+'<input id="cvE" type="email" inputmode="email" value="'+esc(S.email||"")+'" placeholder="ism@gmail.com"></label>'+
         '<button class="btn accent" id="cvSaveB" style="justify-content:center">💾 '+T("Saqlash","Save")+'</button>'+
       '</div></div>'+
@@ -2043,7 +2064,7 @@ function renderCv(){
   document.getElementById("cvSaveB").onclick=function(){
     var n=document.getElementById("cvN").value.trim(), sn=document.getElementById("cvS").value.trim(),
         g=document.getElementById("cvG").value.trim(), em=document.getElementById("cvE").value.trim();
-    if(n.length<2||sn.length<2||g.length<2){ toast(T("Maydonlarni to'ldiring","Fill in the fields")); return; }
+    if(n.length<2||sn.length<2||!g){ toast(T("Maydonlarni to'ldiring","Fill in the fields")); return; }
     if(!okMail(em)){ toast(T("Email noto'g'ri","Invalid email")); return; }
     S.name=n; S.surname=sn; S.group=g; S.email=em; lset(LS.stu,S); cloudSave();
     chipUpdate(); toast(T("Saqlandi ✅","Saved ✅"));
@@ -2200,7 +2221,7 @@ function tcDraw(){
         return tcRow(x,'<button class="btn accent rt-a" data-id="'+esc(x.id)+'" data-st="ok">♻️ '+T("Tiklash","Restore")+'</button>');
       }).join("")+'</tbody></table></div>';
   }
-  h+=marksTable(okl)+tcMailBox(okl);
+  h+='<div class="rt-ann-holder">'+(ANN_LOADED?annBox():'<p class="rt-note">'+T("Yuklanmoqda…","Loading…")+'</p>')+'</div>'+marksTable(okl)+tcMailBox(okl);
   var dn=dupGroups().reduce(function(a,g){ return a+g.length-1; },0);
   h+='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px">'+
      (dn?'<button class="btn warn" id="rtDup">🧹 '+T("Takrorlarni tozalash","Clean duplicates")+' ('+dn+')</button>':'')+
@@ -2277,6 +2298,10 @@ function tcDraw(){
   if(mc) mc.onclick=function(){ marksCsv(okl); };
   tcMailBind(okl);
   document.getElementById("rtWipe").onclick=wipeAll;
+  annBind();
+  if(!ANN_LOADED){
+    annGet(function(a){ ANN_CUR=a; ANN_LOADED=true; refreshAnn(out); });
+  }
   document.getElementById("rtTcRef").onclick=tcLoad;
   document.getElementById("rtTcDiagGo").onclick=tcTest;
   var db=document.getElementById("rtDup"); if(db) db.onclick=tcDedupe;
@@ -2400,6 +2425,54 @@ function okBanner(x){
   var m=document.getElementById("rtOkMt"); if(m) m.onclick=function(){ openMail(x,"mailto"); };
   document.getElementById("rtOkX").onclick=function(){ b.remove(); };
 }
+/* ---------- o'qituvchi paneli: e'lon yuborish ---------- */
+var ANN_CUR=null, ANN_LOADED=false;
+function annBox(){
+  var body=(ANN_CUR&&ANN_CUR.text)?esc(ANN_CUR.text):"";
+  var live=(ANN_CUR&&ANN_CUR.at)?'<p class="rt-note" style="margin:0 0 8px">'+
+      T("Hozir faol: ","Currently live: ")+dfmt2(ANN_CUR.at)+'</p>':"";
+  return '<div class="rt-sec rt-ann"><h4>📢 '+T("Taqdimotga e\'lon yuborish","Send an announcement")+'</h4>'+
+    '<p class="rt-note" style="margin:0 0 10px">'+T(
+      "Talaba taqdimotni ochganda birinchi navbatda shu xabarni ko\'radi — \"O\'qidim\" deb bosgach taqdimotga o\'tadi. Har bir talaba bir marta ko\'radi.",
+      "The moment a student opens the presentation they see this message first — pressing \"I've read it\" lets them through. Each student sees it once.")+'</p>'+
+    live+
+    '<textarea id="annTxt" placeholder="'+T("Masalan: Ertaga dars 09:00 da boshlanadi, prezentatsiyani oldindan ko\'rib keling.","For example: Tomorrow\'s class starts at 9:00, please look through the slides beforehand.")+'">'+body+'</textarea>'+
+    '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">'+
+      '<button class="btn accent" id="annGo">📢 '+T("Yuborish","Send")+'</button>'+
+      (ANN_CUR?'<button class="btn warn" id="annOff">🗑 '+T("E\'lonni bekor qilish","Cancel the announcement")+'</button>':'')+
+    '</div></div>';
+}
+function annBind(){
+  var go=document.getElementById("annGo"); if(!go) return;
+  go.onclick=function(){
+    var t=document.getElementById("annTxt").value.trim();
+    if(!t){ toast(T("Matn kiriting","Enter a message")); return; }
+    go.disabled=true;
+    annSet(t,function(ok){
+      go.disabled=false;
+      if(!ok){ toast(T("Yuborilmadi — bazani tekshiring","Not sent — check the database")); return; }
+      ANN_CUR={text:t,at:Date.now()};
+      toast(T("E'lon yuborildi ✅","Announcement sent ✅"));
+      var box=document.getElementById("rtTcOut"); if(box) refreshAnn(box);
+    });
+  };
+  var off=document.getElementById("annOff");
+  if(off) off.onclick=function(){
+    if(!confirm(T("E'lonni bekor qilasizmi?","Cancel the announcement?"))) return;
+    off.disabled=true;
+    annSet(null,function(ok){
+      if(!ok){ off.disabled=false; toast(T("Bajarilmadi","Failed")); return; }
+      ANN_CUR=null; toast(T("Bekor qilindi","Cancelled"));
+      var box=document.getElementById("rtTcOut"); if(box) refreshAnn(box);
+    });
+  };
+}
+function refreshAnn(out){
+  var holder=out.querySelector(".rt-ann-holder"); if(!holder) return;
+  holder.innerHTML=annBox(); annBind();
+}
+function dfmt2(ts){ var d=new Date(ts); return dfmt(d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2)+"-"+("0"+d.getDate()).slice(-2))+" "+
+  ("0"+d.getHours()).slice(-2)+":"+("0"+d.getMinutes()).slice(-2); }
 function mails(list){
   var seen={}, out=[];
   list.forEach(function(x){
@@ -2587,12 +2660,47 @@ function watchStatus(){
   },60000);
 }
 var started=false;
+/* ---------- ustoz e'loni: taqdimot ochilganda birinchi bo'lib ko'rinadi ---------- */
+var ANNK="terdu_ann_seen";
+function annGet(cb){
+  if(!cloudOn||!BASE){ cb(null); return; }
+  fetch(BASE+"/meta/announce.json").then(function(r){ return r.ok?r.json():null; })
+    .then(function(v){ cb(v&&v.text?v:null); }).catch(function(){ cb(null); });
+}
+function annSet(text,cb){
+  if(!cloudOn||!BASE){ cb&&cb(false); return; }
+  var v=text?{text:text,at:Date.now()}:null;
+  fetch(BASE+"/meta/announce.json",{method:"PUT",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify(v)}).then(function(r){ cb&&cb(r.ok); }).catch(function(){ cb&&cb(false); });
+}
+function annSeenAt(){ try{ return +localStorage.getItem(ANNK)||0; }catch(e){ return 0; } }
+function annMarkSeen(at){ try{ localStorage.setItem(ANNK,String(at)); }catch(e){} }
+function announceGate(next){
+  annGet(function(a){
+    if(!a||!a.at||a.at<=annSeenAt()){ next(); return; }
+    var g=el('<div class="rt-gate rt-annwrap" id="rtAnnGate"><div class="rt-box rt-annbox">'+
+      '<div class="rt-annic">📢</div>'+
+      '<h2 style="margin:6px 0 4px;text-align:center">'+T("Ustozdan e\'lon","Announcement from the teacher")+'</h2>'+
+      '<div class="rt-anntxt">'+esc(a.text).replace(/\n/g,"<br>")+'</div>'+
+      '<button class="btn accent" id="rtAnnGo" style="justify-content:center;padding:14px;font-size:15.5px;margin-top:16px">'+
+        '✅ '+T("O\'qidim, davom etish","I\'ve read it, continue")+'</button>'+
+      '</div></div>');
+    document.body.appendChild(g);
+    document.getElementById("rtAnnGo").onclick=function(){
+      annMarkSeen(a.at); g.remove(); next();
+    };
+  });
+}
 function start(){
+  if(started) return; started=true;
+  announceGate(function(){
+
   if(started) return; started=true;
   chip(); askBar(); tbWatch(); dragWatch(); watchStatus(); timeStart(); if(cloudOn&&S) cloudSave(); if(S&&!S.email) setTimeout(emailAsk,900);
   if(typeof idx!=="undefined") slideSeen(idx);
   window.RT_ready=true;
   if(window.RT_pending){ window.RT_pending.forEach(function(a){ award(a[0],a[1],a[2]); }); window.RT_pending=null; }
+  });
 }
 load();
 var booted=false;
