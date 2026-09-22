@@ -7,6 +7,7 @@ var S=null, P=null, cloudOn=false, fb=null, listCache=[], listAt=0;
 /* Arena ochiq/yopiq: false bo'lsa 🎮 Arena tugmasi ko'rinmaydi */
 var ARENA_OPEN=true;
 var tcList=[], isTc=false; try{ isTc=sessionStorage.getItem("terdu_tc")==="1"; }catch(e){}
+var TC_OPEN_APPROVED={}, TC_OPEN_MARKS={};   /* qaysi guruh kvadratchasi ochilgan — o'qituvchi panelida */
 
 /* ---------- saqlash ---------- */
 function lget(k,d){ try{var v=localStorage.getItem(k); return v?JSON.parse(v):d;}catch(e){return d;} }
@@ -820,6 +821,15 @@ function groupsOf(list){
   });
   return out;
 }
+/* guruhlarni alohida bosiladigan kvadratchalar qilib ko'rsatadi — bosilganda o'sha guruh ochiladi/yopiladi */
+function groupTiles(groups,openMap,prefix){
+  if(!groups.length) return "";
+  return '<div class="rt-gtiles">'+groups.map(function(G){
+    var on=!!openMap[G.g];
+    return '<button type="button" class="rt-gtile'+(on?" on":"")+'" data-p="'+esc(prefix)+'" data-g="'+esc(G.g)+'">'+
+      '<span class="ic">👥</span><b>'+esc(G.g)+'</b><span class="rt-badge">'+G.list.length+'</span></button>';
+  }).join("")+'</div>';
+}
 function dl(name,txt){
   var a=document.createElement("a");
   a.href="data:text/csv;charset=utf-8,"+encodeURIComponent(txt); a.download=name;
@@ -931,7 +941,9 @@ function tcDraw(){
       }).join("")+'</tbody></table></div>'
       : '<p class="rt-note">'+T("Yangi so\'rov yo\'q.","No new requests.")+'</p>';
   h+='<h3 style="margin:18px 0 8px">✅ '+T("Tasdiqlangan talabalar","Approved students")+' <span class="rt-badge">'+okl.length+'</span></h3>';
-  h+= okl.length ? groupsOf(okl).map(function(G){
+  h+= okl.length ? (groupTiles(groupsOf(okl),TC_OPEN_APPROVED,"appr")+
+      '<p class="rt-note" style="margin:0 0 10px">'+T("Guruh ustiga bosing — o'sha guruh talabalari ochiladi.","Click a group — that group's students will open.")+'</p>'+
+      groupsOf(okl).filter(function(G){ return TC_OPEN_APPROVED[G.g]; }).map(function(G){
         return '<div class="rt-gsec"><h4>👥 '+esc(G.g)+' <span class="rt-badge">'+G.list.length+'</span></h4>'+
           '<div class="tw"><table class="rt-table"><thead><tr><th>'+T("Talaba","Student")+'</th><th>'+
           T("Guruh","Group")+'</th><th>'+T("Ball","Points")+'</th><th>'+T("O\'rtacha","Average")+
@@ -948,7 +960,7 @@ function tcDraw(){
               '" title="'+T("Tasdiq haqida xabar yuborish","Send the approval message")+'">✉️</button> ':'')+
             '<button class="btn rt-a" data-id="'+esc(x.id)+'" data-st="blocked">🚫</button>');
         }).join("")+'</tbody></table></div></div>';
-      }).join("")
+      }).join(""))
       : '<p class="rt-note">'+T("Hali tasdiqlangan talaba yo\'q.","No approved students yet.")+'</p>';
   if(blk.length){
     h+='<h3 style="margin:18px 0 8px">🚫 '+T("Bloklanganlar","Blocked")+' <span class="rt-badge">'+blk.length+'</span></h3>'+
@@ -970,6 +982,13 @@ function tcDraw(){
      '<p class="rt-note">'+T("Talaba faqat siz tasdiqlagandan keyin taqdimot va chatga kira oladi.",
        "A student can enter the presentation and the chat only after you approve them.")+'</p>';
   out.innerHTML=h;
+  out.querySelectorAll(".rt-gtile").forEach(function(b){
+    b.onclick=function(){
+      var map=b.dataset.p==="marks"?TC_OPEN_MARKS:TC_OPEN_APPROVED;
+      map[b.dataset.g]=!map[b.dataset.g];
+      tcDraw();
+    };
+  });
   out.querySelectorAll(".rt-a").forEach(function(b){
     b.onclick=function(){ tcAct(b.dataset.id,b.dataset.st,b); };
   });
@@ -1063,11 +1082,12 @@ function marksTable(okl){
   var tops=(CFG.topics||[]);
   if(!tops.length||!okl.length) return "";
   var gs=groupsOf(okl);
+  var openGs=gs.filter(function(G){ return TC_OPEN_MARKS[G.g]; });
   var head='<tr><th>'+T("Talaba","Student")+'</th>'+tops.map(function(t,i){
       return '<th class="rt-mc" title="'+esc(t.title)+'">'+esc(t.id.toUpperCase())+
         (t.open?'':' <span style="opacity:.5">🔒</span>')+'</th>';
     }).join("")+'<th>'+T("O'rtacha","Avg")+'</th></tr>';
-  var body=gs.map(function(G){
+  var body=openGs.map(function(G){
     return '<tr class="rt-grow"><td colspan="'+(tops.length+2)+'">👥 '+esc(G.g)+
         ' <span class="rt-badge">'+G.list.length+'</span></td></tr>'+
       G.list.map(function(x){
@@ -1089,9 +1109,10 @@ function marksTable(okl){
   }).join("");
   return '<h3 style="margin:20px 0 4px">📊 '+T("Mavzular bo'yicha baholar","Marks by topic")+'</h3>'+
     '<p class="rt-note" style="margin:0 0 8px">'+T(
-      "Har bir mavzu uchun alohida baho: slaydlar 20% + o'qish vaqti 20% + test 60%. Har katakchada nechta test ishlagani va qancha vaqt sarflagani ham ko'rinadi.",
-      "A separate mark for each topic: slides 20% + reading time 20% + test 60%. Each cell also shows the test count and time spent.")+'</p>'+
-    '<div class="tw"><table class="rt-table rt-mtab"><thead>'+head+'</thead><tbody>'+body+'</tbody></table></div>'+
+      "Har bir mavzu uchun alohida baho: slaydlar 20% + o'qish vaqti 20% + test 60%. Guruh ustiga bosing — o'sha guruh baholari ochiladi.",
+      "A separate mark for each topic: slides 20% + reading time 20% + test 60%. Click a group — that group's marks will open.")+'</p>'+
+    groupTiles(gs,TC_OPEN_MARKS,"marks")+
+    (openGs.length?'<div class="tw"><table class="rt-table rt-mtab"><thead>'+head+'</thead><tbody>'+body+'</tbody></table></div>':'')+
     '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">'+
       '<button class="btn" id="rtMcsv">⬇ '+T("Baholar CSV","Marks CSV")+'</button></div>';
 }
