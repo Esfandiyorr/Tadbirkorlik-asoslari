@@ -303,7 +303,27 @@ function tbHeight(){
   var h=tb?Math.ceil(tb.getBoundingClientRect().height):64;
   document.documentElement.style.setProperty("--tbh",h+"px");
 }
+/* ---------- telefonda topbarni yig'ib-yozish ---------- */
+var TBK="terdu_tb_collapsed";
+function tbCollapsed(){ try{ return localStorage.getItem(TBK)==="1"; }catch(e){ return false; } }
+function tbSetCollapsed(v){
+  document.body.classList.toggle("tb-collapsed",v);
+  try{ localStorage.setItem(TBK,v?"1":"0"); }catch(e){}
+  var b=document.getElementById("tbToggle");
+  if(b){ b.textContent=v?"⌄":"⌃";
+    b.title=v?T("Panelni ochish","Show the toolbar"):T("Panelni yig'ish","Hide the toolbar"); }
+  setTimeout(tbHeight,350);         /* animatsiya tugagach --tbh ni qayta o'lchaymiz */
+}
+function tbToggleInit(){
+  if(document.getElementById("tbToggle")) return;
+  var b=el('<button class="tb-toggle" id="tbToggle" type="button"></button>');
+  b.onclick=function(){ tbSetCollapsed(!document.body.classList.contains("tb-collapsed")); };
+  document.body.appendChild(b);
+  tbSetCollapsed(tbCollapsed());
+}
 function tbWatch(){
+  tbToggleInit();
+
   tbHeight();
   window.addEventListener("resize",tbHeight);
   window.addEventListener("orientationchange",function(){ setTimeout(tbHeight,250); });
@@ -1409,8 +1429,6 @@ function announceGate(next){
 function start(){
   if(started) return; started=true;
   announceGate(function(){
-
-  if(started) return; started=true;
   chip(); askBar(); tbWatch(); dragWatch(); watchStatus(); timeStart(); if(cloudOn&&S) cloudSave(); if(S&&!S.email) setTimeout(emailAsk,900);
   if(typeof idx!=="undefined") slideSeen(idx);
   window.RT_ready=true;

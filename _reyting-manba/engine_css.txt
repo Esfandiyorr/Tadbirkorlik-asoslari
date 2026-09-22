@@ -198,3 +198,18 @@
 /* --- Ustoz e'loni: o'qituvchi paneli --- */
 .rt-ann textarea{width:100%;min-height:100px;border:1px solid var(--line);border-radius:12px;padding:10px 12px;
   font-family:inherit;font-size:14px;background:var(--panel);color:var(--ink);resize:vertical}
+/* --- Telefonda topbarni yig'ib-yozish --- */
+.tb-toggle{display:none}
+@media(max-width:860px){
+  .topbar{transition:max-height .32s cubic-bezier(.4,0,.2,1),padding .32s ease,opacity .22s ease,
+    border-color .32s ease;max-height:600px;overflow:hidden}
+  body.tb-collapsed .topbar{max-height:0!important;padding-top:0!important;padding-bottom:0!important;
+    opacity:0;pointer-events:none;border-bottom-color:transparent}
+  .tb-toggle{display:flex;align-items:center;justify-content:center;position:fixed;top:4px;left:50%;
+    transform:translateX(-50%);z-index:55;width:34px;height:20px;border:1px solid var(--line);
+    border-top:none;border-radius:0 0 12px 12px;background:var(--panel);color:var(--muted);
+    font-size:13px;line-height:1;cursor:pointer;box-shadow:0 6px 14px -8px rgba(0,0,0,.35);
+    font-family:inherit;transition:top .32s ease}
+  body.tb-collapsed .tb-toggle{top:0}
+}
+@media print{.tb-toggle{display:none!important}}
