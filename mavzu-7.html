@@ -293,6 +293,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 
 
+
 /* RT:BEGIN */
 /* ================== REYTING TIZIMI ================== */
 .rt-chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel);
@@ -518,6 +519,27 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 .rt-annprev #annImgX{position:absolute;top:-8px;right:-8px;width:26px;height:26px;border-radius:50%;
   border:none;background:var(--red,#e11d48);color:#fff;font-weight:900;font-size:13px;cursor:pointer;
   box-shadow:0 4px 10px -4px rgba(0,0,0,.5);line-height:1}
+/* --- So'rovnoma: talaba tomonida --- */
+.rt-poll{background:var(--panel2);border-radius:16px;padding:16px 18px;margin-top:12px;text-align:left}
+.rt-poll b{display:block;font-size:15px;margin-bottom:10px}
+.rt-poll-opt{display:block;width:100%;text-align:left;padding:11px 14px;margin-bottom:8px;
+  border:1px solid var(--line);border-radius:12px;background:var(--panel);color:var(--ink);
+  font-family:inherit;font-size:14px;cursor:pointer;transition:border-color .15s ease,background .15s ease}
+.rt-poll-opt:hover{border-color:var(--violet)}
+.rt-poll-opt.sel{border-color:var(--violet);background:rgba(139,92,246,.12);font-weight:700}
+/* --- So'rovnoma: o'qituvchi qurish paneli --- */
+.rt-pollbuild{margin-top:14px;padding-top:12px;border-top:1px dashed var(--line)}
+.rt-poll-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.rt-poll-in{flex:1;border:1px solid var(--line);border-radius:10px;padding:9px 11px;
+  font-family:inherit;font-size:14px;background:var(--panel);color:var(--ink)}
+#pollQ.rt-poll-in{width:100%}
+.rt-poll-del{flex:0 0 auto;width:30px;height:30px;border-radius:50%;border:none;
+  background:var(--red,#e11d48);color:#fff;font-weight:900;font-size:13px;cursor:pointer;line-height:1}
+/* --- So'rovnoma: natijalar --- */
+.rt-pollres{margin-top:14px;padding-top:12px;border-top:1px dashed var(--line)}
+.rt-pollres .row{display:flex;justify-content:space-between;gap:10px;font-size:13.5px;margin:6px 0 3px}
+.rt-pollres .bar{height:8px;border-radius:5px;background:var(--panel2);overflow:hidden;margin-bottom:8px}
+.rt-pollres .bar i{display:block;height:100%;background:var(--violet);border-radius:5px}
 /* ================== MUSIQA PLEYERI ================== */
 #mzTab{position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:70;
   background:linear-gradient(135deg,var(--violet),var(--pink));color:#fff;border:none;
@@ -1208,6 +1230,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 </div>
 
 <div class="hint" id="hint" data-ui="hint">⌨️ <kbd>→</kbd> keyingi slayd · <kbd>D</kbd> tun/kun · <kbd>L</kbd> uz/eng · <kbd>O</kbd> ro'yxat · <kbd>F</kbd> to'liq ekran</div>
+
 
 
 
@@ -2417,10 +2440,14 @@ function okBanner(x){
 }
 /* ---------- o'qituvchi paneli: e'lon yuborish ---------- */
 var ANN_CUR=null, ANN_LOADED=false;
+var ANN_POLL_ON=false, ANN_POLL_Q="", ANN_POLL_OPTS=["",""], ANN_POLL_TOUCHED=false, ANN_RES=null;
 var ANN_PICK=null, ANN_PICK_TOUCHED=false;   /* tanlangan rasm (data URL) — hali yuborilmagan */
 function annBox(){
   var body=(ANN_CUR&&ANN_CUR.text)?esc(ANN_CUR.text):"";
   if(!ANN_PICK_TOUCHED && ANN_CUR&&ANN_CUR.img) ANN_PICK=ANN_CUR.img;   /* birinchi ochilganda joriy rasm ko'rinib tursin */
+  if(!ANN_POLL_TOUCHED && ANN_CUR&&ANN_CUR.poll){
+    ANN_POLL_ON=true; ANN_POLL_Q=ANN_CUR.poll.q; ANN_POLL_OPTS=ANN_CUR.poll.opts.slice();
+  }
   var live=(ANN_CUR&&ANN_CUR.at)?'<p class="rt-note" style="margin:0 0 8px">'+
       T("Hozir faol: ","Currently live: ")+dfmt2(ANN_CUR.at)+'</p>':"";
   return '<div class="rt-sec rt-ann"><h4>📢 '+T("Taqdimotga e'lon yuborish","Send an announcement")+'</h4>'+
@@ -2435,19 +2462,63 @@ function annBox(){
     '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">'+
       '<button class="btn accent" id="annGo">📢 '+T("Yuborish","Send")+'</button>'+
       '<button class="btn" id="annImgGo">📷 '+(ANN_PICK?T("Rasmni almashtirish","Change the image"):T("Rasm biriktirish","Attach an image"))+'</button>'+
+      '<button class="btn'+(ANN_POLL_ON?" accent":"")+'" id="annPollTgl">📊 '+
+        (ANN_POLL_ON?T("So'rovnomani olib tashlash","Remove the poll"):T("So'rovnoma qo'shish","Add a poll"))+'</button>'+
       (ANN_CUR?'<button class="btn warn" id="annOff">🗑 '+T("E'lonni bekor qilish","Cancel the announcement")+'</button>':'')+
+    '</div>'+
+    (ANN_POLL_ON?pollBuildBox():'')+
+    (ANN_CUR&&ANN_CUR.poll?'<div id="annResHolder">'+(ANN_RES?pollResBox(ANN_CUR.poll,ANN_RES):
+      '<p class="rt-note" style="margin-top:10px">'+T("Natijalar yuklanmoqda…","Loading results…")+'</p>')+'</div>':'')+
+    '</div>';
+}
+function pollBuildBox(){
+  return '<div class="rt-pollbuild">'+
+    '<label class="rt-note" style="display:block;margin-bottom:4px;font-weight:800">'+T("Savol","Question")+'</label>'+
+    '<input type="text" class="rt-poll-in" id="pollQ" value="'+esc(ANN_POLL_Q)+'" placeholder="'+
+      T("Masalan: Hammani jamlaydigan Telegram guruh kerakmi?","For example: Do we need a Telegram group for everyone?")+'">'+
+    '<label class="rt-note" style="display:block;margin:8px 0 4px;font-weight:800">'+T("Variantlar","Options")+'</label>'+
+    ANN_POLL_OPTS.map(function(o,i){
+      return '<div class="rt-poll-row"><input type="text" class="rt-poll-in" data-oi="'+i+'" value="'+esc(o)+
+        '" placeholder="'+T("Variant","Option")+' '+(i+1)+'">'+
+        (ANN_POLL_OPTS.length>2?'<button type="button" class="rt-poll-del" data-oi="'+i+'" title="'+T("O\\'chirish","Remove")+'">✕</button>':'')+
+        '</div>';
+    }).join("")+
+    '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px">'+
+      (ANN_POLL_OPTS.length<6?'<button type="button" class="btn sm" id="pollAddOpt">➕ '+T("Variant qo'shish","Add option")+'</button>':'')+
+      '<button type="button" class="btn sm" id="pollYesNo">⚡ '+T("Tez shablon: Ha / Yo'q","Quick: Yes / No")+'</button>'+
     '</div></div>';
+}
+function pollResBox(poll,res){
+  var max=Math.max(1,res.total);
+  return '<div class="rt-pollres"><h4 style="margin:14px 0 8px;font-size:14px">📊 '+T("Natijalar","Results")+
+    ' <span class="rt-badge">'+res.total+'</span></h4>'+
+    poll.opts.map(function(o,i){
+      var c=res.counts[i]||0, pc=Math.round(c/max*100);
+      return '<div class="row"><span>'+esc(o)+'</span><b>'+c+' ('+pc+'%)</b></div>'+
+        '<div class="bar"><i style="width:'+pc+'%"></i></div>';
+    }).join("")+
+    '<button class="btn sm" id="pollResRef" style="margin-top:6px">🔄 '+T("Yangilash","Refresh")+'</button></div>';
+}
+function pollFromState(){
+  if(!ANN_POLL_ON) return null;
+  var q=(ANN_POLL_Q||"").trim();
+  var opts=ANN_POLL_OPTS.map(function(o){ return (o||"").trim(); }).filter(function(o){ return o; });
+  if(!q||opts.length<2) return null;
+  return {q:q,opts:opts};
 }
 function annBind(){
   var go=document.getElementById("annGo"); if(!go) return;
   go.onclick=function(){
     var t=document.getElementById("annTxt").value.trim();
-    if(!t&&!ANN_PICK){ toast(T("Matn yozing yoki rasm biriktiring","Write a message or attach an image")); return; }
+    var poll=pollFromState();
+    if(ANN_POLL_ON&&!poll){ toast(T("So'rovnoma uchun savol va kamida 2 ta variant kiriting","For the poll, enter a question and at least 2 options")); return; }
+    if(!t&&!ANN_PICK&&!poll){ toast(T("Matn yozing, rasm biriktiring yoki so'rovnoma qo'shing","Write a message, attach an image, or add a poll")); return; }
     go.disabled=true;
-    annSet(t,ANN_PICK,function(ok){
+    annSet(t,ANN_PICK,poll,function(ok,at){
       go.disabled=false;
       if(!ok){ toast(T("Yuborilmadi — bazani tekshiring","Not sent — check the database")); return; }
-      ANN_CUR={text:t,img:ANN_PICK,at:Date.now()}; ANN_PICK_TOUCHED=false;
+      ANN_CUR={text:t,img:ANN_PICK,poll:poll,at:at||Date.now()};
+      ANN_PICK_TOUCHED=false; ANN_POLL_TOUCHED=false; ANN_RES=null;
       toast(T("E'lon yuborildi ✅","Announcement sent ✅"));
       var box=document.getElementById("rtTcOut"); if(box) refreshAnn(box);
     });
@@ -2456,9 +2527,11 @@ function annBind(){
   if(off) off.onclick=function(){
     if(!confirm(T("E'lonni bekor qilasizmi?","Cancel the announcement?"))) return;
     off.disabled=true;
-    annSet(null,null,function(ok){
+    annSet(null,null,null,function(ok){
       if(!ok){ off.disabled=false; toast(T("Bajarilmadi","Failed")); return; }
-      ANN_CUR=null; ANN_PICK=null; ANN_PICK_TOUCHED=false; toast(T("Bekor qilindi","Cancelled"));
+      ANN_CUR=null; ANN_PICK=null; ANN_PICK_TOUCHED=false;
+      ANN_POLL_ON=false; ANN_POLL_Q=""; ANN_POLL_OPTS=["",""]; ANN_POLL_TOUCHED=false; ANN_RES=null;
+      toast(T("Bekor qilindi","Cancelled"));
       var box=document.getElementById("rtTcOut"); if(box) refreshAnn(box);
     });
   };
@@ -2482,6 +2555,50 @@ function annBind(){
     ANN_PICK=null; ANN_PICK_TOUCHED=true;
     var box=document.getElementById("rtTcOut"); if(box) refreshAnn(box);
   };
+  var pt=document.getElementById("annPollTgl");
+  if(pt) pt.onclick=function(){
+    ANN_POLL_ON=!ANN_POLL_ON; ANN_POLL_TOUCHED=true;
+    if(ANN_POLL_ON&&ANN_POLL_OPTS.length<2) ANN_POLL_OPTS=["",""];
+    var box=document.getElementById("rtTcOut"); if(box) refreshAnn(box);
+  };
+  var pq=document.getElementById("pollQ");
+  if(pq) pq.oninput=function(){ ANN_POLL_Q=pq.value; };
+  document.querySelectorAll(".rt-poll-in[data-oi]").forEach(function(oi){
+    oi.oninput=function(){ ANN_POLL_OPTS[+oi.dataset.oi]=oi.value; };
+  });
+  document.querySelectorAll(".rt-poll-del[data-oi]").forEach(function(b){
+    b.onclick=function(){
+      if(ANN_POLL_OPTS.length<=2) return;
+      ANN_POLL_OPTS.splice(+b.dataset.oi,1);
+      var box=document.getElementById("rtTcOut"); if(box) refreshAnn(box);
+    };
+  });
+  var pa=document.getElementById("pollAddOpt");
+  if(pa) pa.onclick=function(){
+    if(ANN_POLL_OPTS.length>=6) return;
+    ANN_POLL_OPTS.push("");
+    var box=document.getElementById("rtTcOut"); if(box) refreshAnn(box);
+  };
+  var py=document.getElementById("pollYesNo");
+  if(py) py.onclick=function(){
+    ANN_POLL_OPTS=[T("Ha","Yes"),T("Yo'q","No")];
+    var box=document.getElementById("rtTcOut"); if(box) refreshAnn(box);
+  };
+  var pr=document.getElementById("pollResRef");
+  if(pr) pr.onclick=function(){
+    if(!ANN_CUR||!ANN_CUR.poll) return;
+    pr.disabled=true;
+    pollResults(ANN_CUR.at,ANN_CUR.poll.opts.length,function(res){
+      pr.disabled=false; ANN_RES=res;
+      var box=document.getElementById("rtTcOut"); if(box) refreshAnn(box);
+    });
+  };
+  if(ANN_CUR&&ANN_CUR.poll&&!ANN_RES){
+    pollResults(ANN_CUR.at,ANN_CUR.poll.opts.length,function(res){
+      ANN_RES=res;
+      var box=document.getElementById("rtTcOut"); if(box) refreshAnn(box);
+    });
+  }
 }
 function refreshAnn(out){
   var holder=out.querySelector(".rt-ann-holder"); if(!holder) return;
@@ -2683,11 +2800,27 @@ function annGet(cb){
   fetch(BASE+"/meta/announce.json").then(function(r){ return r.ok?r.json():null; })
     .then(function(v){ cb((v&&(v.text||v.img))?v:null); }).catch(function(){ cb(null); });
 }
-function annSet(text,img,cb){
+function annSet(text,img,poll,cb){
   if(!cloudOn||!BASE){ cb&&cb(false); return; }
-  var v=(text||img)?{text:text||"",img:img||null,at:Date.now()}:null;
+  var at=Date.now();
+  var v=(text||img||poll)?{text:text||"",img:img||null,poll:poll||null,at:at}:null;
   fetch(BASE+"/meta/announce.json",{method:"PUT",headers:{"Content-Type":"application/json"},
-    body:JSON.stringify(v)}).then(function(r){ cb&&cb(r.ok); }).catch(function(){ cb&&cb(false); });
+    body:JSON.stringify(v)}).then(function(r){ cb&&cb(r.ok,at); }).catch(function(){ cb&&cb(false); });
+}
+/* ---------- so'rovnoma: ovoz berish va natijalar ---------- */
+function pollVote(at,idx,cb){
+  if(!cloudOn||!BASE||!S){ cb&&cb(false); return; }
+  fetch(BASE+"/meta/pollvotes/"+at+"/"+S.id+".json",{method:"PUT",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify(idx)}).then(function(r){ cb&&cb(r.ok); }).catch(function(){ cb&&cb(false); });
+}
+function pollResults(at,nOpts,cb){
+  if(!cloudOn||!BASE){ cb({counts:new Array(nOpts).fill(0),total:0}); return; }
+  fetch(BASE+"/meta/pollvotes/"+at+".json").then(function(r){ return r.ok?r.json():null; })
+    .then(function(v){
+      var counts=new Array(nOpts).fill(0), total=0;
+      if(v) for(var k in v){ var idx=v[k]; if(idx>=0&&idx<nOpts){ counts[idx]++; total++; } }
+      cb({counts:counts,total:total});
+    }).catch(function(){ cb({counts:new Array(nOpts).fill(0),total:0}); });
 }
 /* rasmni kichraytirib, JPEG sifatida qaytaradi (Firebase yozuvi uchun yengil) */
 function annShrink(file,cb){
@@ -2710,15 +2843,34 @@ function annMarkSeen(at){ try{ localStorage.setItem(ANNK,String(at)); }catch(e){
 function announceGate(next){
   annGet(function(a){
     if(!a||!a.at||a.at<=annSeenAt()){ next(); return; }
+    var voted=null;
     var g=el('<div class="rt-gate rt-annwrap" id="rtAnnGate"><div class="rt-box rt-annbox">'+
       '<div class="rt-annic">📢</div>'+
-      '<h2 style="margin:6px 0 4px;text-align:center">'+T("Ustozdan e\'lon","Announcement from the teacher")+'</h2>'+
+      '<h2 style="margin:6px 0 4px;text-align:center">'+T("Ustozdan e'lon","Announcement from the teacher")+'</h2>'+
       (a.img?'<img class="rt-annimg" src="'+esc(a.img)+'" alt="">':'')+
       (a.text?'<div class="rt-anntxt">'+esc(a.text).replace(/\n/g,"<br>")+'</div>':'')+
+      (a.poll?'<div class="rt-poll"><b>'+esc(a.poll.q)+'</b>'+
+        a.poll.opts.map(function(o,i){
+          return '<button type="button" class="rt-poll-opt" data-i="'+i+'">'+esc(o)+'</button>';
+        }).join("")+
+        '<p class="rt-note" id="rtPollNote" style="margin:2px 0 0">'+T("Ovoz berish ixtiyoriy.","Voting is optional.")+'</p></div>':'')+
       '<button class="btn accent" id="rtAnnGo" style="justify-content:center;padding:14px;font-size:15.5px;margin-top:16px">'+
-        '✅ '+T("O\'qidim, davom etish","I\'ve read it, continue")+'</button>'+
+        '✅ '+T("O'qidim, davom etish","I've read it, continue")+'</button>'+
       '</div></div>');
     document.body.appendChild(g);
+    if(a.poll){
+      g.querySelectorAll(".rt-poll-opt").forEach(function(b){
+        b.onclick=function(){
+          var i=+b.dataset.i;
+          g.querySelectorAll(".rt-poll-opt").forEach(function(x){ x.classList.remove("sel"); });
+          b.classList.add("sel"); voted=i;
+          var note=document.getElementById("rtPollNote");
+          if(note) note.textContent=T("Ovozingiz qabul qilindi ✅ (fikringizni o'zgartirishingiz mumkin)",
+            "Your vote is recorded ✅ (you can still change it)");
+          pollVote(a.at,i,function(){});
+        };
+      });
+    }
     document.getElementById("rtAnnGo").onclick=function(){
       annMarkSeen(a.at); g.remove(); next();
     };
