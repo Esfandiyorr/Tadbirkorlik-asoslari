@@ -222,3 +222,24 @@
 .rt-annprev #annImgX{position:absolute;top:-8px;right:-8px;width:26px;height:26px;border-radius:50%;
   border:none;background:var(--red,#e11d48);color:#fff;font-weight:900;font-size:13px;cursor:pointer;
   box-shadow:0 4px 10px -4px rgba(0,0,0,.5);line-height:1}
+/* --- So'rovnoma: talaba tomonida --- */
+.rt-poll{background:var(--panel2);border-radius:16px;padding:16px 18px;margin-top:12px;text-align:left}
+.rt-poll b{display:block;font-size:15px;margin-bottom:10px}
+.rt-poll-opt{display:block;width:100%;text-align:left;padding:11px 14px;margin-bottom:8px;
+  border:1px solid var(--line);border-radius:12px;background:var(--panel);color:var(--ink);
+  font-family:inherit;font-size:14px;cursor:pointer;transition:border-color .15s ease,background .15s ease}
+.rt-poll-opt:hover{border-color:var(--violet)}
+.rt-poll-opt.sel{border-color:var(--violet);background:rgba(139,92,246,.12);font-weight:700}
+/* --- So'rovnoma: o'qituvchi qurish paneli --- */
+.rt-pollbuild{margin-top:14px;padding-top:12px;border-top:1px dashed var(--line)}
+.rt-poll-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.rt-poll-in{flex:1;border:1px solid var(--line);border-radius:10px;padding:9px 11px;
+  font-family:inherit;font-size:14px;background:var(--panel);color:var(--ink)}
+#pollQ.rt-poll-in{width:100%}
+.rt-poll-del{flex:0 0 auto;width:30px;height:30px;border-radius:50%;border:none;
+  background:var(--red,#e11d48);color:#fff;font-weight:900;font-size:13px;cursor:pointer;line-height:1}
+/* --- So'rovnoma: natijalar --- */
+.rt-pollres{margin-top:14px;padding-top:12px;border-top:1px dashed var(--line)}
+.rt-pollres .row{display:flex;justify-content:space-between;gap:10px;font-size:13.5px;margin:6px 0 3px}
+.rt-pollres .bar{height:8px;border-radius:5px;background:var(--panel2);overflow:hidden;margin-bottom:8px}
+.rt-pollres .bar i{display:block;height:100%;background:var(--violet);border-radius:5px}
