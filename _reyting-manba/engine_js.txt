@@ -8,6 +8,7 @@ var S=null, P=null, cloudOn=false, fb=null, listCache=[], listAt=0;
 var ARENA_OPEN=true;
 var tcList=[], isTc=false; try{ isTc=sessionStorage.getItem("terdu_tc")==="1"; }catch(e){}
 var TC_OPEN_APPROVED={}, TC_OPEN_MARKS={};   /* qaysi guruh kvadratchasi ochilgan — o'qituvchi panelida */
+var TC_SEARCH_Q="";                           /* talaba qidiruv matni */
 
 /* ---------- saqlash ---------- */
 function lget(k,d){ try{var v=localStorage.getItem(k); return v?JSON.parse(v):d;}catch(e){return d;} }
@@ -941,7 +942,10 @@ function tcDraw(){
       }).join("")+'</tbody></table></div>'
       : '<p class="rt-note">'+T("Yangi so\'rov yo\'q.","No new requests.")+'</p>';
   h+='<h3 style="margin:18px 0 8px">✅ '+T("Tasdiqlangan talabalar","Approved students")+' <span class="rt-badge">'+okl.length+'</span></h3>';
-  h+= okl.length ? (groupTiles(groupsOf(okl),TC_OPEN_APPROVED,"appr")+
+  h+= okl.length ? ('<div class="rt-gsearch"><input type="text" id="tcSearch" autocomplete="off" placeholder="🔎 '+
+      T("Talaba qidirish (ism yoki familiya)…","Search a student (first or last name)…")+'" value="'+esc(TC_SEARCH_Q)+'">'+
+      '<div id="tcSearchRes"></div></div>'+
+      groupTiles(groupsOf(okl),TC_OPEN_APPROVED,"appr")+
       '<p class="rt-note" style="margin:0 0 10px">'+T("Guruh ustiga bosing — o'sha guruh talabalari ochiladi.","Click a group — that group's students will open.")+'</p>'+
       groupsOf(okl).filter(function(G){ return TC_OPEN_APPROVED[G.g]; }).map(function(G){
         return '<div class="rt-gsec"><h4>👥 '+esc(G.g)+' <span class="rt-badge">'+G.list.length+'</span></h4>'+
@@ -989,6 +993,32 @@ function tcDraw(){
       tcDraw();
     };
   });
+  function tcSearchRender(){
+    var box=document.getElementById("tcSearchRes"); if(!box) return;
+    var q=TC_SEARCH_Q.trim().toLowerCase();
+    if(!q){ box.innerHTML=""; return; }
+    var matches=okl.filter(function(x){ return ((x.name||"")+" "+(x.surname||"")).toLowerCase().indexOf(q)>=0; });
+    box.innerHTML=matches.length
+      ? matches.map(function(x){
+          return '<button type="button" class="rt-gsearch-item" data-g="'+esc(gkey(x.group))+'">'+
+            '<b>'+esc(x.name+" "+x.surname)+'</b><span>👥 '+esc(x.group||"—")+'</span></button>';
+        }).join("")
+      : '<p class="rt-note" style="margin:6px 0 0">'+T("Hech kim topilmadi.","No one found.")+'</p>';
+    box.querySelectorAll(".rt-gsearch-item").forEach(function(b){
+      b.onclick=function(){
+        var g=b.dataset.g;
+        TC_OPEN_APPROVED[g]=true;
+        tcDraw();
+        setTimeout(function(){
+          var t=out.querySelector('.rt-gtile[data-p="appr"][data-g="'+g.replace(/"/g,'\\"')+'"]');
+          if(t) t.scrollIntoView({behavior:"smooth",block:"center"});
+        },60);
+      };
+    });
+  }
+  var si=document.getElementById("tcSearch");
+  if(si) si.oninput=function(){ TC_SEARCH_Q=si.value; tcSearchRender(); };
+  tcSearchRender();
   out.querySelectorAll(".rt-a").forEach(function(b){
     b.onclick=function(){ tcAct(b.dataset.id,b.dataset.st,b); };
   });
