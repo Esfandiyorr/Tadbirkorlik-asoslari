@@ -1162,31 +1162,37 @@ function okBanner(x){
 }
 /* ---------- o'qituvchi paneli: e'lon yuborish ---------- */
 var ANN_CUR=null, ANN_LOADED=false;
+var ANN_PICK=null, ANN_PICK_TOUCHED=false;   /* tanlangan rasm (data URL) — hali yuborilmagan */
 function annBox(){
   var body=(ANN_CUR&&ANN_CUR.text)?esc(ANN_CUR.text):"";
+  if(!ANN_PICK_TOUCHED && ANN_CUR&&ANN_CUR.img) ANN_PICK=ANN_CUR.img;   /* birinchi ochilganda joriy rasm ko'rinib tursin */
   var live=(ANN_CUR&&ANN_CUR.at)?'<p class="rt-note" style="margin:0 0 8px">'+
       T("Hozir faol: ","Currently live: ")+dfmt2(ANN_CUR.at)+'</p>':"";
-  return '<div class="rt-sec rt-ann"><h4>📢 '+T("Taqdimotga e\'lon yuborish","Send an announcement")+'</h4>'+
+  return '<div class="rt-sec rt-ann"><h4>📢 '+T("Taqdimotga e'lon yuborish","Send an announcement")+'</h4>'+
     '<p class="rt-note" style="margin:0 0 10px">'+T(
-      "Talaba taqdimotni ochganda birinchi navbatda shu xabarni ko\'radi — \"O\'qidim\" deb bosgach taqdimotga o\'tadi. Har bir talaba bir marta ko\'radi.",
+      "Talaba taqdimotni ochganda birinchi navbatda shu xabarni ko'radi — \"O'qidim\" deb bosgach taqdimotga o'tadi. Har bir talaba bir marta ko'radi.",
       "The moment a student opens the presentation they see this message first — pressing \"I've read it\" lets them through. Each student sees it once.")+'</p>'+
     live+
-    '<textarea id="annTxt" placeholder="'+T("Masalan: Ertaga dars 09:00 da boshlanadi, prezentatsiyani oldindan ko\'rib keling.","For example: Tomorrow\'s class starts at 9:00, please look through the slides beforehand.")+'">'+body+'</textarea>'+
+    (ANN_PICK?'<div class="rt-annprev"><img src="'+esc(ANN_PICK)+'" alt=""><button type="button" id="annImgX" title="'+
+      T("Rasmni olib tashlash","Remove the image")+'">✕</button></div>':'')+
+    '<textarea id="annTxt" placeholder="'+T("Masalan: Ertaga dars 09:00 da boshlanadi, prezentatsiyani oldindan ko'rib keling.","For example: Tomorrow's class starts at 9:00, please look through the slides beforehand.")+'">'+body+'</textarea>'+
+    '<input type="file" id="annImgIn" accept="image/*" style="display:none">'+
     '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">'+
       '<button class="btn accent" id="annGo">📢 '+T("Yuborish","Send")+'</button>'+
-      (ANN_CUR?'<button class="btn warn" id="annOff">🗑 '+T("E\'lonni bekor qilish","Cancel the announcement")+'</button>':'')+
+      '<button class="btn" id="annImgGo">📷 '+(ANN_PICK?T("Rasmni almashtirish","Change the image"):T("Rasm biriktirish","Attach an image"))+'</button>'+
+      (ANN_CUR?'<button class="btn warn" id="annOff">🗑 '+T("E'lonni bekor qilish","Cancel the announcement")+'</button>':'')+
     '</div></div>';
 }
 function annBind(){
   var go=document.getElementById("annGo"); if(!go) return;
   go.onclick=function(){
     var t=document.getElementById("annTxt").value.trim();
-    if(!t){ toast(T("Matn kiriting","Enter a message")); return; }
+    if(!t&&!ANN_PICK){ toast(T("Matn yozing yoki rasm biriktiring","Write a message or attach an image")); return; }
     go.disabled=true;
-    annSet(t,function(ok){
+    annSet(t,ANN_PICK,function(ok){
       go.disabled=false;
       if(!ok){ toast(T("Yuborilmadi — bazani tekshiring","Not sent — check the database")); return; }
-      ANN_CUR={text:t,at:Date.now()};
+      ANN_CUR={text:t,img:ANN_PICK,at:Date.now()}; ANN_PICK_TOUCHED=false;
       toast(T("E'lon yuborildi ✅","Announcement sent ✅"));
       var box=document.getElementById("rtTcOut"); if(box) refreshAnn(box);
     });
@@ -1195,11 +1201,31 @@ function annBind(){
   if(off) off.onclick=function(){
     if(!confirm(T("E'lonni bekor qilasizmi?","Cancel the announcement?"))) return;
     off.disabled=true;
-    annSet(null,function(ok){
+    annSet(null,null,function(ok){
       if(!ok){ off.disabled=false; toast(T("Bajarilmadi","Failed")); return; }
-      ANN_CUR=null; toast(T("Bekor qilindi","Cancelled"));
+      ANN_CUR=null; ANN_PICK=null; ANN_PICK_TOUCHED=false; toast(T("Bekor qilindi","Cancelled"));
       var box=document.getElementById("rtTcOut"); if(box) refreshAnn(box);
     });
+  };
+  var ig=document.getElementById("annImgGo"), inp=document.getElementById("annImgIn");
+  if(ig&&inp){
+    ig.onclick=function(){ inp.click(); };
+    inp.onchange=function(){
+      var f=inp.files&&inp.files[0]; if(!f) return;
+      if(!/^image\//.test(f.type)){ toast(T("Faqat rasm tanlang","Choose an image only")); return; }
+      ig.disabled=true; ig.textContent=T("Tayyorlanmoqda…","Preparing…");
+      annShrink(f,function(d){
+        ig.disabled=false; ig.textContent="📷 "+T("Rasm biriktirish","Attach an image");
+        if(!d){ toast(T("Rasmni o'qib bo'lmadi","Could not read the image")); return; }
+        ANN_PICK=d; ANN_PICK_TOUCHED=true;
+        var box=document.getElementById("rtTcOut"); if(box) refreshAnn(box);
+      });
+    };
+  }
+  var ix=document.getElementById("annImgX");
+  if(ix) ix.onclick=function(){
+    ANN_PICK=null; ANN_PICK_TOUCHED=true;
+    var box=document.getElementById("rtTcOut"); if(box) refreshAnn(box);
   };
 }
 function refreshAnn(out){
@@ -1400,13 +1426,29 @@ var ANNK="terdu_ann_seen";
 function annGet(cb){
   if(!cloudOn||!BASE){ cb(null); return; }
   fetch(BASE+"/meta/announce.json").then(function(r){ return r.ok?r.json():null; })
-    .then(function(v){ cb(v&&v.text?v:null); }).catch(function(){ cb(null); });
+    .then(function(v){ cb((v&&(v.text||v.img))?v:null); }).catch(function(){ cb(null); });
 }
-function annSet(text,cb){
+function annSet(text,img,cb){
   if(!cloudOn||!BASE){ cb&&cb(false); return; }
-  var v=text?{text:text,at:Date.now()}:null;
+  var v=(text||img)?{text:text||"",img:img||null,at:Date.now()}:null;
   fetch(BASE+"/meta/announce.json",{method:"PUT",headers:{"Content-Type":"application/json"},
     body:JSON.stringify(v)}).then(function(r){ cb&&cb(r.ok); }).catch(function(){ cb&&cb(false); });
+}
+/* rasmni kichraytirib, JPEG sifatida qaytaradi (Firebase yozuvi uchun yengil) */
+function annShrink(file,cb){
+  if(!/^image\//.test(file.type)){ cb(null); return; }
+  var url=URL.createObjectURL(file), img=new Image();
+  img.onload=function(){
+    var mx=1000, s=Math.min(1,mx/Math.max(img.width,img.height));
+    var c=document.createElement("canvas");
+    c.width=Math.max(1,Math.round(img.width*s)); c.height=Math.max(1,Math.round(img.height*s));
+    c.getContext("2d").drawImage(img,0,0,c.width,c.height);
+    var q=0.75, d=c.toDataURL("image/jpeg",q);
+    while(d.length>220000&&q>0.3){ q-=0.12; d=c.toDataURL("image/jpeg",q); }
+    URL.revokeObjectURL(url); cb(d);
+  };
+  img.onerror=function(){ URL.revokeObjectURL(url); cb(null); };
+  img.src=url;
 }
 function annSeenAt(){ try{ return +localStorage.getItem(ANNK)||0; }catch(e){ return 0; } }
 function annMarkSeen(at){ try{ localStorage.setItem(ANNK,String(at)); }catch(e){} }
@@ -1416,7 +1458,8 @@ function announceGate(next){
     var g=el('<div class="rt-gate rt-annwrap" id="rtAnnGate"><div class="rt-box rt-annbox">'+
       '<div class="rt-annic">📢</div>'+
       '<h2 style="margin:6px 0 4px;text-align:center">'+T("Ustozdan e\'lon","Announcement from the teacher")+'</h2>'+
-      '<div class="rt-anntxt">'+esc(a.text).replace(/\n/g,"<br>")+'</div>'+
+      (a.img?'<img class="rt-annimg" src="'+esc(a.img)+'" alt="">':'')+
+      (a.text?'<div class="rt-anntxt">'+esc(a.text).replace(/\n/g,"<br>")+'</div>':'')+
       '<button class="btn accent" id="rtAnnGo" style="justify-content:center;padding:14px;font-size:15.5px;margin-top:16px">'+
         '✅ '+T("O\'qidim, davom etish","I\'ve read it, continue")+'</button>'+
       '</div></div>');
