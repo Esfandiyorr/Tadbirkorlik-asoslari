@@ -296,6 +296,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 
 
+
 /* RT:BEGIN */
 /* ================== REYTING TIZIMI ================== */
 .rt-chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel);
@@ -391,6 +392,16 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 .rt-gchip:hover{border-color:var(--green)}
 .rt-gchip.on{background:linear-gradient(135deg,var(--green),var(--teal));color:#fff;border-color:transparent}
 .rt-gchip.on .rt-badge{background:rgba(255,255,255,.28)}
+/* --- Guruh kvadratchalari: bosilganda o'sha guruh ochiladi --- */
+.rt-gtiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:10px;margin-bottom:10px}
+.rt-gtile{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;
+  aspect-ratio:1;border:1.5px solid var(--line);background:var(--panel2);color:var(--ink);
+  border-radius:16px;cursor:pointer;font-family:inherit;padding:10px;transition:.16s}
+.rt-gtile:hover{border-color:var(--violet);transform:translateY(-2px);box-shadow:0 10px 20px -14px rgba(0,0,0,.4)}
+.rt-gtile .ic{font-size:22px;line-height:1}
+.rt-gtile b{font-size:12.5px;text-align:center;word-break:break-word;line-height:1.25}
+.rt-gtile.on{background:linear-gradient(135deg,var(--violet),var(--blue));color:#fff;border-color:transparent}
+.rt-gtile.on .rt-badge{background:rgba(255,255,255,.28)}
 .rt-daynav{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
 .rt-daynav input[type="date"]{border:1px solid var(--line);background:var(--panel);color:var(--ink);
   border-radius:11px;padding:8px 10px;font-family:inherit;font-size:13.5px;font-weight:700}
@@ -1296,6 +1307,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 
 
+
 <!-- RT:BEGIN -->
 <script>var RT_CFG={"topic": "m6", "slides": 18, "quiz": 15, "pSlide": 2, "pAll": 10, "teacher": "terdu2026", "firebase": {"db": "tadbirkorlik-asoslari-default-rtdb", "regions": ["asia-southeast1", "europe-west1", "us-central1", "europe-west4", "asia-east1", "us-east1", "northamerica-northeast1"], "url": "https://tadbirkorlik-asoslari-default-rtdb.asia-southeast1.firebasedatabase.app"}, "topics": [{"id": "m1", "file": "index.html", "title": "M1 · Tadbirkorlik tafakkuri va biznes imkoniyatlar", "open": true, "quiz": 15, "slides": 18}, {"id": "m2", "file": "mavzu-2.html", "title": "M2 · Mijoz muammosi asosida biznes g'oya", "open": false, "quiz": 15, "slides": 18}, {"id": "m3", "file": "mavzu-3.html", "title": "M3 · Mahsulotni kam xarajat bilan sinash (moliya va kredit)", "open": false, "quiz": 15, "slides": 15}, {"id": "m4", "file": "mavzu-4.html", "title": "M4 · Biznesni qonuniy rasmiylashtirish", "open": false, "quiz": 15, "slides": 18}, {"id": "m5", "file": "mavzu-5.html", "title": "M5 · Soliqlar va hujjatlar", "open": false, "quiz": 15, "slides": 18}, {"id": "m6", "file": "mavzu-6.html", "title": "M6 · Biznes-model qanday ishlaydi", "open": false, "quiz": 15, "slides": 18}, {"id": "m7", "file": "mavzu-7.html", "title": "M7 · Mijoz kim va unga nima kerak", "open": false, "quiz": 15, "slides": 18}, {"id": "m8", "title": "M8 · 8-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-8.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m9", "title": "M9 · 9-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-9.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m10", "title": "M10 · 10-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-10.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m11", "title": "M11 · 11-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-11.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m12", "title": "M12 · 12-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-12.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m13", "title": "M13 · 13-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-13.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m14", "title": "M14 · 14-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-14.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m15", "title": "M15 · 15-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-15.html", "open": false, "slides": 18, "quiz": 15}], "teacherTg": "https://t.me/esfandiyorr?direct", "courses": [{"id": "tad-asoslari", "icon": "🚀", "title": "Tadbirkorlik asoslari", "desc": "15 ta mavzu · nazariya, testlar va amaliy topshiriqlar", "first": "index.html"}], "groups": ["FIZ-123", "FIZ-223", "FIZ-323", "AP-123", "AP-223", "AP-323", "D-123", "DKG-BF-123", "YES-123", "T-232", "T-423"], "tracks": [{"file": "Musofir.mp3", "title": "Musofir", "artist": ""}]};</script>
 <script>
@@ -1308,6 +1320,7 @@ var S=null, P=null, cloudOn=false, fb=null, listCache=[], listAt=0;
 /* Arena ochiq/yopiq: false bo'lsa 🎮 Arena tugmasi ko'rinmaydi */
 var ARENA_OPEN=true;
 var tcList=[], isTc=false; try{ isTc=sessionStorage.getItem("terdu_tc")==="1"; }catch(e){}
+var TC_OPEN_APPROVED={}, TC_OPEN_MARKS={};   /* qaysi guruh kvadratchasi ochilgan — o'qituvchi panelida */
 
 /* ---------- saqlash ---------- */
 function lget(k,d){ try{var v=localStorage.getItem(k); return v?JSON.parse(v):d;}catch(e){return d;} }
@@ -2121,6 +2134,15 @@ function groupsOf(list){
   });
   return out;
 }
+/* guruhlarni alohida bosiladigan kvadratchalar qilib ko'rsatadi — bosilganda o'sha guruh ochiladi/yopiladi */
+function groupTiles(groups,openMap,prefix){
+  if(!groups.length) return "";
+  return '<div class="rt-gtiles">'+groups.map(function(G){
+    var on=!!openMap[G.g];
+    return '<button type="button" class="rt-gtile'+(on?" on":"")+'" data-p="'+esc(prefix)+'" data-g="'+esc(G.g)+'">'+
+      '<span class="ic">👥</span><b>'+esc(G.g)+'</b><span class="rt-badge">'+G.list.length+'</span></button>';
+  }).join("")+'</div>';
+}
 function dl(name,txt){
   var a=document.createElement("a");
   a.href="data:text/csv;charset=utf-8,"+encodeURIComponent(txt); a.download=name;
@@ -2232,7 +2254,9 @@ function tcDraw(){
       }).join("")+'</tbody></table></div>'
       : '<p class="rt-note">'+T("Yangi so\'rov yo\'q.","No new requests.")+'</p>';
   h+='<h3 style="margin:18px 0 8px">✅ '+T("Tasdiqlangan talabalar","Approved students")+' <span class="rt-badge">'+okl.length+'</span></h3>';
-  h+= okl.length ? groupsOf(okl).map(function(G){
+  h+= okl.length ? (groupTiles(groupsOf(okl),TC_OPEN_APPROVED,"appr")+
+      '<p class="rt-note" style="margin:0 0 10px">'+T("Guruh ustiga bosing — o'sha guruh talabalari ochiladi.","Click a group — that group's students will open.")+'</p>'+
+      groupsOf(okl).filter(function(G){ return TC_OPEN_APPROVED[G.g]; }).map(function(G){
         return '<div class="rt-gsec"><h4>👥 '+esc(G.g)+' <span class="rt-badge">'+G.list.length+'</span></h4>'+
           '<div class="tw"><table class="rt-table"><thead><tr><th>'+T("Talaba","Student")+'</th><th>'+
           T("Guruh","Group")+'</th><th>'+T("Ball","Points")+'</th><th>'+T("O\'rtacha","Average")+
@@ -2249,7 +2273,7 @@ function tcDraw(){
               '" title="'+T("Tasdiq haqida xabar yuborish","Send the approval message")+'">✉️</button> ':'')+
             '<button class="btn rt-a" data-id="'+esc(x.id)+'" data-st="blocked">🚫</button>');
         }).join("")+'</tbody></table></div></div>';
-      }).join("")
+      }).join(""))
       : '<p class="rt-note">'+T("Hali tasdiqlangan talaba yo\'q.","No approved students yet.")+'</p>';
   if(blk.length){
     h+='<h3 style="margin:18px 0 8px">🚫 '+T("Bloklanganlar","Blocked")+' <span class="rt-badge">'+blk.length+'</span></h3>'+
@@ -2271,6 +2295,13 @@ function tcDraw(){
      '<p class="rt-note">'+T("Talaba faqat siz tasdiqlagandan keyin taqdimot va chatga kira oladi.",
        "A student can enter the presentation and the chat only after you approve them.")+'</p>';
   out.innerHTML=h;
+  out.querySelectorAll(".rt-gtile").forEach(function(b){
+    b.onclick=function(){
+      var map=b.dataset.p==="marks"?TC_OPEN_MARKS:TC_OPEN_APPROVED;
+      map[b.dataset.g]=!map[b.dataset.g];
+      tcDraw();
+    };
+  });
   out.querySelectorAll(".rt-a").forEach(function(b){
     b.onclick=function(){ tcAct(b.dataset.id,b.dataset.st,b); };
   });
@@ -2364,11 +2395,12 @@ function marksTable(okl){
   var tops=(CFG.topics||[]);
   if(!tops.length||!okl.length) return "";
   var gs=groupsOf(okl);
+  var openGs=gs.filter(function(G){ return TC_OPEN_MARKS[G.g]; });
   var head='<tr><th>'+T("Talaba","Student")+'</th>'+tops.map(function(t,i){
       return '<th class="rt-mc" title="'+esc(t.title)+'">'+esc(t.id.toUpperCase())+
         (t.open?'':' <span style="opacity:.5">🔒</span>')+'</th>';
     }).join("")+'<th>'+T("O'rtacha","Avg")+'</th></tr>';
-  var body=gs.map(function(G){
+  var body=openGs.map(function(G){
     return '<tr class="rt-grow"><td colspan="'+(tops.length+2)+'">👥 '+esc(G.g)+
         ' <span class="rt-badge">'+G.list.length+'</span></td></tr>'+
       G.list.map(function(x){
@@ -2390,9 +2422,10 @@ function marksTable(okl){
   }).join("");
   return '<h3 style="margin:20px 0 4px">📊 '+T("Mavzular bo'yicha baholar","Marks by topic")+'</h3>'+
     '<p class="rt-note" style="margin:0 0 8px">'+T(
-      "Har bir mavzu uchun alohida baho: slaydlar 20% + o'qish vaqti 20% + test 60%. Har katakchada nechta test ishlagani va qancha vaqt sarflagani ham ko'rinadi.",
-      "A separate mark for each topic: slides 20% + reading time 20% + test 60%. Each cell also shows the test count and time spent.")+'</p>'+
-    '<div class="tw"><table class="rt-table rt-mtab"><thead>'+head+'</thead><tbody>'+body+'</tbody></table></div>'+
+      "Har bir mavzu uchun alohida baho: slaydlar 20% + o'qish vaqti 20% + test 60%. Guruh ustiga bosing — o'sha guruh baholari ochiladi.",
+      "A separate mark for each topic: slides 20% + reading time 20% + test 60%. Click a group — that group's marks will open.")+'</p>'+
+    groupTiles(gs,TC_OPEN_MARKS,"marks")+
+    (openGs.length?'<div class="tw"><table class="rt-table rt-mtab"><thead>'+head+'</thead><tbody>'+body+'</tbody></table></div>':'')+
     '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">'+
       '<button class="btn" id="rtMcsv">⬇ '+T("Baholar CSV","Marks CSV")+'</button></div>';
 }

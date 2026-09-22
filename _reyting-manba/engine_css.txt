@@ -92,6 +92,16 @@
 .rt-gchip:hover{border-color:var(--green)}
 .rt-gchip.on{background:linear-gradient(135deg,var(--green),var(--teal));color:#fff;border-color:transparent}
 .rt-gchip.on .rt-badge{background:rgba(255,255,255,.28)}
+/* --- Guruh kvadratchalari: bosilganda o'sha guruh ochiladi --- */
+.rt-gtiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:10px;margin-bottom:10px}
+.rt-gtile{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;
+  aspect-ratio:1;border:1.5px solid var(--line);background:var(--panel2);color:var(--ink);
+  border-radius:16px;cursor:pointer;font-family:inherit;padding:10px;transition:.16s}
+.rt-gtile:hover{border-color:var(--violet);transform:translateY(-2px);box-shadow:0 10px 20px -14px rgba(0,0,0,.4)}
+.rt-gtile .ic{font-size:22px;line-height:1}
+.rt-gtile b{font-size:12.5px;text-align:center;word-break:break-word;line-height:1.25}
+.rt-gtile.on{background:linear-gradient(135deg,var(--violet),var(--blue));color:#fff;border-color:transparent}
+.rt-gtile.on .rt-badge{background:rgba(255,255,255,.28)}
 .rt-daynav{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
 .rt-daynav input[type="date"]{border:1px solid var(--line);background:var(--panel);color:var(--ink);
   border-radius:11px;padding:8px 10px;font-family:inherit;font-size:13.5px;font-weight:700}
