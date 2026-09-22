@@ -291,6 +291,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 
 
+
 /* RT:BEGIN */
 /* ================== REYTING TIZIMI ================== */
 .rt-chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel);
@@ -492,6 +493,21 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 /* --- Ustoz e'loni: o'qituvchi paneli --- */
 .rt-ann textarea{width:100%;min-height:100px;border:1px solid var(--line);border-radius:12px;padding:10px 12px;
   font-family:inherit;font-size:14px;background:var(--panel);color:var(--ink);resize:vertical}
+/* --- Telefonda topbarni yig'ib-yozish --- */
+.tb-toggle{display:none}
+@media(max-width:860px){
+  .topbar{transition:max-height .32s cubic-bezier(.4,0,.2,1),padding .32s ease,opacity .22s ease,
+    border-color .32s ease;max-height:600px;overflow:hidden}
+  body.tb-collapsed .topbar{max-height:0!important;padding-top:0!important;padding-bottom:0!important;
+    opacity:0;pointer-events:none;border-bottom-color:transparent}
+  .tb-toggle{display:flex;align-items:center;justify-content:center;position:fixed;top:4px;left:50%;
+    transform:translateX(-50%);z-index:55;width:34px;height:20px;border:1px solid var(--line);
+    border-top:none;border-radius:0 0 12px 12px;background:var(--panel);color:var(--muted);
+    font-size:13px;line-height:1;cursor:pointer;box-shadow:0 6px 14px -8px rgba(0,0,0,.35);
+    font-family:inherit;transition:top .32s ease}
+  body.tb-collapsed .tb-toggle{top:0}
+}
+@media print{.tb-toggle{display:none!important}}
 /* ================== MUSIQA PLEYERI ================== */
 #mzTab{position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:70;
   background:linear-gradient(135deg,var(--violet),var(--pink));color:#fff;border:none;
@@ -1221,6 +1237,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 
 
+
 <!-- RT:BEGIN -->
 <script>var RT_CFG={"topic": "m6", "slides": 18, "quiz": 15, "pSlide": 2, "pAll": 10, "teacher": "terdu2026", "firebase": {"db": "tadbirkorlik-asoslari-default-rtdb", "regions": ["asia-southeast1", "europe-west1", "us-central1", "europe-west4", "asia-east1", "us-east1", "northamerica-northeast1"], "url": "https://tadbirkorlik-asoslari-default-rtdb.asia-southeast1.firebasedatabase.app"}, "topics": [{"id": "m1", "file": "index.html", "title": "M1 · Tadbirkorlik tafakkuri va biznes imkoniyatlar", "open": true, "quiz": 15, "slides": 18}, {"id": "m2", "file": "mavzu-2.html", "title": "M2 · Mijoz muammosi asosida biznes g'oya", "open": false, "quiz": 15, "slides": 18}, {"id": "m3", "file": "mavzu-3.html", "title": "M3 · Mahsulotni kam xarajat bilan sinash (moliya va kredit)", "open": false, "quiz": 15, "slides": 15}, {"id": "m4", "file": "mavzu-4.html", "title": "M4 · Biznesni qonuniy rasmiylashtirish", "open": false, "quiz": 15, "slides": 18}, {"id": "m5", "file": "mavzu-5.html", "title": "M5 · Soliqlar va hujjatlar", "open": false, "quiz": 15, "slides": 18}, {"id": "m6", "file": "mavzu-6.html", "title": "M6 · Biznes-model qanday ishlaydi", "open": false, "quiz": 15, "slides": 18}, {"id": "m7", "file": "mavzu-7.html", "title": "M7 · Mijoz kim va unga nima kerak", "open": false, "quiz": 15, "slides": 18}, {"id": "m8", "title": "M8 · 8-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-8.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m9", "title": "M9 · 9-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-9.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m10", "title": "M10 · 10-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-10.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m11", "title": "M11 · 11-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-11.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m12", "title": "M12 · 12-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-12.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m13", "title": "M13 · 13-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-13.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m14", "title": "M14 · 14-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-14.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m15", "title": "M15 · 15-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-15.html", "open": false, "slides": 18, "quiz": 15}], "teacherTg": "https://t.me/esfandiyorr?direct", "courses": [{"id": "tad-asoslari", "icon": "🚀", "title": "Tadbirkorlik asoslari", "desc": "15 ta mavzu · nazariya, testlar va amaliy topshiriqlar", "first": "index.html"}], "groups": ["FIZ-123", "FIZ-223", "FIZ-323", "AP-123", "AP-223", "AP-323", "D-123", "DKG-BF-123", "YES-123", "T-232", "T-423"], "tracks": [{"file": "Musofir.mp3", "title": "Musofir", "artist": ""}]};</script>
 <script>
@@ -1529,7 +1546,27 @@ function tbHeight(){
   var h=tb?Math.ceil(tb.getBoundingClientRect().height):64;
   document.documentElement.style.setProperty("--tbh",h+"px");
 }
+/* ---------- telefonda topbarni yig'ib-yozish ---------- */
+var TBK="terdu_tb_collapsed";
+function tbCollapsed(){ try{ return localStorage.getItem(TBK)==="1"; }catch(e){ return false; } }
+function tbSetCollapsed(v){
+  document.body.classList.toggle("tb-collapsed",v);
+  try{ localStorage.setItem(TBK,v?"1":"0"); }catch(e){}
+  var b=document.getElementById("tbToggle");
+  if(b){ b.textContent=v?"⌄":"⌃";
+    b.title=v?T("Panelni ochish","Show the toolbar"):T("Panelni yig'ish","Hide the toolbar"); }
+  setTimeout(tbHeight,350);         /* animatsiya tugagach --tbh ni qayta o'lchaymiz */
+}
+function tbToggleInit(){
+  if(document.getElementById("tbToggle")) return;
+  var b=el('<button class="tb-toggle" id="tbToggle" type="button"></button>');
+  b.onclick=function(){ tbSetCollapsed(!document.body.classList.contains("tb-collapsed")); };
+  document.body.appendChild(b);
+  tbSetCollapsed(tbCollapsed());
+}
 function tbWatch(){
+  tbToggleInit();
+
   tbHeight();
   window.addEventListener("resize",tbHeight);
   window.addEventListener("orientationchange",function(){ setTimeout(tbHeight,250); });
@@ -2635,8 +2672,6 @@ function announceGate(next){
 function start(){
   if(started) return; started=true;
   announceGate(function(){
-
-  if(started) return; started=true;
   chip(); askBar(); tbWatch(); dragWatch(); watchStatus(); timeStart(); if(cloudOn&&S) cloudSave(); if(S&&!S.email) setTimeout(emailAsk,900);
   if(typeof idx!=="undefined") slideSeen(idx);
   window.RT_ready=true;
