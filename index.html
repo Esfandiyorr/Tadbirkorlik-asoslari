@@ -332,6 +332,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 
 
+
 /* RT:BEGIN */
 /* ================== REYTING TIZIMI ================== */
 .rt-chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel);
@@ -490,6 +491,8 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 .rt-mtab .rt-mc{text-align:center;white-space:nowrap}
 .rt-mtab tr.rt-grow td{background:var(--chip);font-weight:800;font-size:13px;color:var(--ink2)}
 .rt-mk0{display:inline-block;min-width:26px;text-align:center;color:var(--muted);font-weight:700}
+.rt-mkcell{display:flex;flex-direction:column;align-items:center;gap:3px}
+.rt-mksub{font-size:10.5px;color:var(--muted);font-weight:600;white-space:nowrap}
 .rt-okban{display:flex;align-items:center;gap:11px;border:1.5px solid var(--green);
   background:color-mix(in srgb,var(--green) 10%,transparent);border-radius:14px;
   padding:10px 13px;margin-bottom:12px;flex-wrap:wrap}
@@ -1280,6 +1283,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 </div>
 
 <div class="hint" id="hint" data-ui="hint">⌨️ <kbd>→</kbd> keyingi slayd · <kbd>D</kbd> tun/kun · <kbd>L</kbd> uz/eng · <kbd>O</kbd> ro'yxat · <kbd>F</kbd> to'liq ekran</div>
+
 
 
 
@@ -2443,16 +2447,22 @@ function marksTable(okl){
         return '<tr><td style="white-space:nowrap"><b>'+esc(x.surname)+" "+esc(x.name)+'</b></td>'+
           tops.map(function(t){
             var tp=(x.topics||{})[t.id]||{}, b=tp.b||0;
-            var tip=b?(T("test","test")+": "+(tp.q||0)+"/"+metaOf(t.id).quiz+" · "+T("vaqt","time")+": "+hms(tp.t||0)):T("hali ishlanmagan","not started");
-            return '<td class="rt-mc" title="'+esc(t.title+" — "+tip)+'">'+mkTag(b)+'</td>';
+            var M=metaOf(t.id);
+            var started=!!(b||tp.q||tp.t||tp.s);
+            var sub=started
+              ? ('📝'+(tp.q||0)+'/'+M.quiz+' · ⏱'+hms(tp.t||0))
+              : T("hali yo'q","not yet");
+            return '<td class="rt-mc" title="'+esc(t.title)+'">'+
+              '<div class="rt-mkcell">'+mkTag(b)+'<span class="rt-mksub">'+esc(sub)+'</span></div>'+
+              '</td>';
           }).join("")+
           '<td class="rt-mc">'+mkTag(av.a?+av.a.toFixed(1):0)+'</td></tr>';
       }).join("");
   }).join("");
   return '<h3 style="margin:20px 0 4px">📊 '+T("Mavzular bo'yicha baholar","Marks by topic")+'</h3>'+
     '<p class="rt-note" style="margin:0 0 8px">'+T(
-      "Har bir mavzu uchun alohida baho: slaydlar 20% + o'qish vaqti 20% + test 60%. Ustun ustiga bossangiz mavzu nomi va tafsilot ko'rinadi.",
-      "A separate mark for each topic: slides 20% + reading time 20% + test 60%. Hover a cell for the topic name and details.")+'</p>'+
+      "Har bir mavzu uchun alohida baho: slaydlar 20% + o'qish vaqti 20% + test 60%. Har katakchada nechta test ishlagani va qancha vaqt sarflagani ham ko'rinadi.",
+      "A separate mark for each topic: slides 20% + reading time 20% + test 60%. Each cell also shows the test count and time spent.")+'</p>'+
     '<div class="tw"><table class="rt-table rt-mtab"><thead>'+head+'</thead><tbody>'+body+'</tbody></table></div>'+
     '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">'+
       '<button class="btn" id="rtMcsv">⬇ '+T("Baholar CSV","Marks CSV")+'</button></div>';
