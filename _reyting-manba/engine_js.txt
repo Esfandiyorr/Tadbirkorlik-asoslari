@@ -1807,5 +1807,5 @@ if(document.readyState==="loading") document.addEventListener("DOMContentLoaded"
 
 return {award:award, slideSeen:slideSeen, open:openOv, student:function(){return S;}, points:function(){return P;},
         ok:approved, teacher:function(){return isTc;}, cloud:function(){return {on:cloudOn,base:BASE};},
-        t:T, esc:esc, toast:toast};
+        t:T, esc:esc, toast:toast, save:save};
 })();
