@@ -295,6 +295,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 
 
+
 /* RT:BEGIN */
 /* ================== REYTING TIZIMI ================== */
 .rt-chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel);
@@ -411,6 +412,12 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
   border-radius:12px;padding:10px 13px;font-family:inherit;font-size:13.5px;cursor:pointer;transition:.14s}
 .rt-gsearch-item:hover{border-color:var(--violet)}
 .rt-gsearch-item span{color:var(--muted);font-weight:700;white-space:nowrap}
+/* --- Noto'g'ri yozilgan guruhni bir bosishda tuzatish --- */
+.rt-strayban{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.rt-stray-item{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
+  border:1.5px solid #f59e0b;background:color-mix(in srgb,#f59e0b 12%,transparent);
+  border-radius:14px;padding:10px 14px;font-size:13px}
+.rt-stray-item b{font-weight:800}
 .rt-daynav{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
 .rt-daynav input[type="date"]{border:1px solid var(--line);background:var(--panel);color:var(--ink);
   border-radius:11px;padding:8px 10px;font-family:inherit;font-size:13.5px;font-weight:700}
@@ -1381,6 +1388,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 
 
+
 <!-- RT:BEGIN -->
 <script>var RT_CFG={"topic": "m2", "slides": 18, "quiz": 15, "pSlide": 2, "pAll": 10, "teacher": "terdu2026", "firebase": {"db": "tadbirkorlik-asoslari-default-rtdb", "regions": ["asia-southeast1", "europe-west1", "us-central1", "europe-west4", "asia-east1", "us-east1", "northamerica-northeast1"], "url": "https://tadbirkorlik-asoslari-default-rtdb.asia-southeast1.firebasedatabase.app"}, "topics": [{"id": "m1", "file": "index.html", "title": "M1 · Tadbirkorlik tafakkuri va biznes imkoniyatlar", "open": true, "quiz": 15, "slides": 18}, {"id": "m2", "file": "mavzu-2.html", "title": "M2 · Mijoz muammosi asosida biznes g'oya", "open": false, "quiz": 15, "slides": 18}, {"id": "m3", "file": "mavzu-3.html", "title": "M3 · Mahsulotni kam xarajat bilan sinash (moliya va kredit)", "open": false, "quiz": 15, "slides": 15}, {"id": "m4", "file": "mavzu-4.html", "title": "M4 · Biznesni qonuniy rasmiylashtirish", "open": false, "quiz": 15, "slides": 18}, {"id": "m5", "file": "mavzu-5.html", "title": "M5 · Soliqlar va hujjatlar", "open": false, "quiz": 15, "slides": 18}, {"id": "m6", "file": "mavzu-6.html", "title": "M6 · Biznes-model qanday ishlaydi", "open": false, "quiz": 15, "slides": 18}, {"id": "m7", "file": "mavzu-7.html", "title": "M7 · Mijoz kim va unga nima kerak", "open": false, "quiz": 15, "slides": 18}, {"id": "m8", "title": "M8 · 8-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-8.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m9", "title": "M9 · 9-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-9.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m10", "title": "M10 · 10-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-10.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m11", "title": "M11 · 11-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-11.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m12", "title": "M12 · 12-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-12.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m13", "title": "M13 · 13-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-13.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m14", "title": "M14 · 14-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-14.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m15", "title": "M15 · 15-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-15.html", "open": false, "slides": 18, "quiz": 15}], "teacherTg": "https://t.me/esfandiyorr?direct", "courses": [{"id": "tad-asoslari", "icon": "🚀", "title": "Tadbirkorlik asoslari", "desc": "15 ta mavzu · nazariya, testlar va amaliy topshiriqlar", "first": "index.html"}], "groups": ["FIZ-123", "FIZ-223", "FIZ-323", "AP-123", "AP-223", "AP-323", "D-123", "DKG-BF-123", "YES-123", "T-232", "T-423"], "tracks": [{"file": "Musofir.mp3", "title": "Musofir", "artist": ""}]};</script>
 <script>
@@ -2199,6 +2207,18 @@ function renderCv(){
 function today(){ var d=new Date(); return d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2)+"-"+("0"+d.getDate()).slice(-2); }
 function dfmt(d){ var p=String(d||"").split("-"); return p.length===3?(p[2]+"."+p[1]+"."+p[0]):String(d||""); }
 function gkey(g){ return String(g||"\u2014").trim().replace(/\s+/g," ").slice(0,60)||"\u2014"; }
+/* "ap-123", "Ap_123" kabi yozilishlarni ro'yxatdagi to'g'ri guruh nomiga solishtirish uchun */
+function normG(g){ return String(g||"").toUpperCase().replace(/[^A-Z0-9]/g,""); }
+/* ro'yxatdagi guruhlar (CFG.groups) bilan bir xil, lekin boshqacha yozilgan guruhlarni topadi */
+function strayGroups(okl){
+  var canon={}; (CFG.groups||[]).forEach(function(g){ canon[normG(g)]=g; });
+  var out=[];
+  groupsOf(okl).forEach(function(G){
+    var right=canon[normG(G.g)];
+    if(right&&right!==G.g) out.push({from:G.g,to:right,list:G.list});
+  });
+  return out;
+}
 function groupsOf(list){
   var by={}, out=[];
   list.forEach(function(x){ var g=gkey(x.group); (by[g]=by[g]||[]).push(x); });
@@ -2304,6 +2324,27 @@ function tcDedupe(){
   tcDraw(); toast(T("Tozalandi","Cleaned")+": "+kill.length);
   if(S&&ids.indexOf(S.id)>=0){ lset(LS.stu,null); setTimeout(function(){ location.reload(); },700); }
 }
+/* "ap-123" kabi noto'g'ri yozilgan guruhdagi hamma talabani bir yo'la to'g'ri guruhga ko'chiradi */
+function tcFixGroup(from,to,list,btn){
+  if(!confirm(T('"'+from+'" guruhidagi '+list.length+' ta talaba "'+to+'" guruhiga ko\'chirilsinmi?',
+    'Move '+list.length+' students from "'+from+'" to "'+to+'"?'))) return;
+  if(btn){ btn.disabled=true; btn.textContent="…"; }
+  var left=list.length, failed=0;
+  function done(){
+    left--;
+    if(left>0) return;
+    list.forEach(function(x){ x.group=to; });
+    if(S&&list.some(function(x){ return x.id===S.id; })){ S.group=to; lset(LS.stu,S); }
+    toast(failed?T("Qisman bajarildi — ba'zilarida xato","Partially done — some failed")
+                :T("Ko'chirildi","Moved")+": "+list.length);
+    tcDraw();
+  }
+  list.forEach(function(x){
+    if(!cloudOn||!BASE){ done(); return; }
+    fetch(BASE+"/students/"+x.id+"/group.json",{method:"PUT",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify(to)}).then(function(r){ if(!r.ok) failed++; done(); }).catch(function(){ failed++; done(); });
+  });
+}
 function tcDel(id,nm,after){
   if(!confirm(T("Ro\'yxatdan o\'chirilsinmi","Delete from the list")+": "+nm+"?")) return;
   cloudDrop(id);
@@ -2328,6 +2369,14 @@ function tcDraw(){
       }).join("")+'</tbody></table></div>'
       : '<p class="rt-note">'+T("Yangi so\'rov yo\'q.","No new requests.")+'</p>';
   h+='<h3 style="margin:18px 0 8px">✅ '+T("Tasdiqlangan talabalar","Approved students")+' <span class="rt-badge">'+okl.length+'</span></h3>';
+  var strays=okl.length?strayGroups(okl):[];
+  if(strays.length){
+    h+='<div class="rt-strayban">'+strays.map(function(s,i){
+      return '<div class="rt-stray-item"><span>⚠️ <b>"'+esc(s.from)+'"</b> → <b>"'+esc(s.to)+'"</b> ('+
+        s.list.length+' '+T("talaba","students")+')</span>'+
+        '<button type="button" class="btn accent sm rt-stray-fix" data-i="'+i+'">🔀 '+T("Tuzatish","Fix")+'</button></div>';
+    }).join("")+'</div>';
+  }
   h+= okl.length ? ('<div class="rt-gsearch"><input type="text" id="tcSearch" autocomplete="off" placeholder="🔎 '+
       T("Talaba qidirish (ism yoki familiya)…","Search a student (first or last name)…")+'" value="'+esc(TC_SEARCH_Q)+'">'+
       '<div id="tcSearchRes"></div></div>'+
@@ -2377,6 +2426,12 @@ function tcDraw(){
       var map=b.dataset.p==="marks"?TC_OPEN_MARKS:TC_OPEN_APPROVED;
       map[b.dataset.g]=!map[b.dataset.g];
       tcDraw();
+    };
+  });
+  out.querySelectorAll(".rt-stray-fix").forEach(function(b){
+    b.onclick=function(){
+      var s=strays[+b.dataset.i]; if(!s) return;
+      tcFixGroup(s.from,s.to,s.list,b);
     };
   });
   function tcSearchRender(){
