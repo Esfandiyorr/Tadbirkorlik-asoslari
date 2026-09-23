@@ -172,6 +172,12 @@ function cloudSetMedia(id,v,cb){
   fetch(BASE+"/students/"+id+"/media.json",{method:"PUT",headers:{"Content-Type":"application/json"},
     body:JSON.stringify(!!v)}).then(function(r){ cb&&cb(r.ok); }).catch(function(){ cb&&cb(false); });
 }
+/* o'qituvchi qo'lda qo'ygan baho (masalan darsdagi topshiriq uchun) — talabaning o'z sinxronlanishiga bog'liq emas */
+function cloudSetManual(id,topicId,val,cb){
+  if(!cloudOn||!BASE){ cb&&cb(false); return; }
+  fetch(BASE+"/students/"+id+"/manual/"+topicId+".json",{method:"PUT",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify(val)}).then(function(r){ cb&&cb(r.ok); }).catch(function(){ cb&&cb(false); });
+}
 
 
 /* ---------- email, CV va o'qituvchi maxfiy kirishi ---------- */
@@ -1040,6 +1046,32 @@ function tcDraw(){
       tcFixGroup(s.from,s.to,s.list,b);
     };
   });
+  out.querySelectorAll(".rt-manual").forEach(function(b){
+    b.onclick=function(){
+      var v=prompt(T("Ushbu dars uchun qo'lda baho (1-5). Bo'sh qoldirib OK bossangiz — belgi o'chadi:",
+        "Manual mark for this lesson (1-5). Leave empty and press OK to clear:"), b.dataset.cur||"");
+      if(v===null) return;
+      v=v.trim();
+      var num=null;
+      if(v){
+        num=parseInt(v,10);
+        if(isNaN(num)||num<1||num>5){ toast(T("1 dan 5 gacha son kiriting","Enter a number from 1 to 5")); return; }
+      }
+      b.disabled=true;
+      cloudSetManual(b.dataset.id,b.dataset.t,num,function(ok){
+        b.disabled=false;
+        if(!ok){ toast(T("Saqlanmadi","Not saved")); return; }
+        for(var i=0;i<tcList.length;i++){
+          if(tcList[i].id===b.dataset.id){
+            tcList[i].manual=tcList[i].manual||{};
+            if(num===null) delete tcList[i].manual[b.dataset.t]; else tcList[i].manual[b.dataset.t]=num;
+          }
+        }
+        toast(num===null?T("O'chirildi","Cleared"):T("Saqlandi","Saved"));
+        tcDraw();
+      });
+    };
+  });
   function tcSearchRender(){
     var box=document.getElementById("tcSearchRes"); if(!box) return;
     var q=TC_SEARCH_Q.trim().toLowerCase();
@@ -1177,9 +1209,13 @@ function marksTable(okl){
             var sub=started
               ? ('📝'+(tp.q||0)+'/'+M.quiz+' · ⏱'+hms(tp.t||0))
               : T("hali yo'q","not yet");
+            var man=(x.manual||{})[t.id];
             return '<td class="rt-mc" title="'+esc(t.title)+'">'+
-              '<div class="rt-mkcell">'+mkTag(b)+'<span class="rt-mksub">'+esc(sub)+'</span></div>'+
-              '</td>';
+              '<div class="rt-mkcell">'+mkTag(b)+'<span class="rt-mksub">'+esc(sub)+'</span>'+
+              '<button type="button" class="rt-manual'+(man?' on':'')+'" data-id="'+esc(x.id)+'" data-t="'+esc(t.id)+
+                '" data-cur="'+(man||"")+'" title="'+T("Qo'lda baho / topshiriq belgisi","Manual mark / assignment check")+'">'+
+                (man?('✅ '+man):'➕')+'</button>'+
+              '</div></td>';
           }).join("")+
           '<td class="rt-mc">'+mkTag(av.a?+av.a.toFixed(1):0)+'</td></tr>';
       }).join("");

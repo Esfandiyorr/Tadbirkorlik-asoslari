@@ -338,6 +338,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 
 
+
 /* RT:BEGIN */
 /* ================== REYTING TIZIMI ================== */
 .rt-chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel);
@@ -525,6 +526,13 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 .rt-mk0{display:inline-block;min-width:26px;text-align:center;color:var(--muted);font-weight:700}
 .rt-mkcell{display:flex;flex-direction:column;align-items:center;gap:3px}
 .rt-mksub{font-size:10.5px;color:var(--muted);font-weight:600;white-space:nowrap}
+/* --- Darsdagi topshiriq uchun qo'lda baho --- */
+.rt-manual{margin-top:3px;border:1.5px dashed var(--line);background:none;color:var(--muted);
+  border-radius:8px;padding:2px 8px;font-size:11px;font-weight:800;cursor:pointer;font-family:inherit;
+  transition:.14s;white-space:nowrap}
+.rt-manual:hover{border-color:var(--green);color:var(--green)}
+.rt-manual.on{border-style:solid;border-color:var(--green);
+  background:color-mix(in srgb,var(--green) 18%,transparent);color:var(--green)}
 .rt-okban{display:flex;align-items:center;gap:11px;border:1.5px solid var(--green);
   background:color-mix(in srgb,var(--green) 10%,transparent);border-radius:14px;
   padding:10px 13px;margin-bottom:12px;flex-wrap:wrap}
@@ -1404,6 +1412,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 
 
+
 <!-- RT:BEGIN -->
 <script>var RT_CFG={"topic": "m1", "slides": 18, "quiz": 15, "pSlide": 2, "pAll": 10, "teacher": "terdu2026", "firebase": {"db": "tadbirkorlik-asoslari-default-rtdb", "regions": ["asia-southeast1", "europe-west1", "us-central1", "europe-west4", "asia-east1", "us-east1", "northamerica-northeast1"], "url": "https://tadbirkorlik-asoslari-default-rtdb.asia-southeast1.firebasedatabase.app"}, "topics": [{"id": "m1", "file": "index.html", "title": "M1 · Tadbirkorlik tafakkuri va biznes imkoniyatlar", "open": true, "quiz": 15, "slides": 18}, {"id": "m2", "file": "mavzu-2.html", "title": "M2 · Mijoz muammosi asosida biznes g'oya", "open": false, "quiz": 15, "slides": 18}, {"id": "m3", "file": "mavzu-3.html", "title": "M3 · Mahsulotni kam xarajat bilan sinash (moliya va kredit)", "open": false, "quiz": 15, "slides": 15}, {"id": "m4", "file": "mavzu-4.html", "title": "M4 · Biznesni qonuniy rasmiylashtirish", "open": false, "quiz": 15, "slides": 18}, {"id": "m5", "file": "mavzu-5.html", "title": "M5 · Soliqlar va hujjatlar", "open": false, "quiz": 15, "slides": 18}, {"id": "m6", "file": "mavzu-6.html", "title": "M6 · Biznes-model qanday ishlaydi", "open": false, "quiz": 15, "slides": 18}, {"id": "m7", "file": "mavzu-7.html", "title": "M7 · Mijoz kim va unga nima kerak", "open": false, "quiz": 15, "slides": 18}, {"id": "m8", "title": "M8 · 8-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-8.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m9", "title": "M9 · 9-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-9.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m10", "title": "M10 · 10-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-10.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m11", "title": "M11 · 11-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-11.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m12", "title": "M12 · 12-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-12.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m13", "title": "M13 · 13-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-13.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m14", "title": "M14 · 14-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-14.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m15", "title": "M15 · 15-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-15.html", "open": false, "slides": 18, "quiz": 15}], "teacherTg": "https://t.me/esfandiyorr?direct", "courses": [{"id": "tad-asoslari", "icon": "🚀", "title": "Tadbirkorlik asoslari", "desc": "15 ta mavzu · nazariya, testlar va amaliy topshiriqlar", "first": "index.html"}], "groups": ["FIZ-123", "FIZ-223", "FIZ-323", "AP-123", "AP-223", "AP-323", "D-123", "DKG-BF-123", "YES-123", "T-232", "T-423"], "tracks": [{"file": "Musofir.mp3", "title": "Musofir", "artist": ""}]};</script>
 <script>
@@ -1580,6 +1589,12 @@ function cloudSetMedia(id,v,cb){
   if(!cloudOn||!BASE){ cb&&cb(false); return; }
   fetch(BASE+"/students/"+id+"/media.json",{method:"PUT",headers:{"Content-Type":"application/json"},
     body:JSON.stringify(!!v)}).then(function(r){ cb&&cb(r.ok); }).catch(function(){ cb&&cb(false); });
+}
+/* o'qituvchi qo'lda qo'ygan baho (masalan darsdagi topshiriq uchun) — talabaning o'z sinxronlanishiga bog'liq emas */
+function cloudSetManual(id,topicId,val,cb){
+  if(!cloudOn||!BASE){ cb&&cb(false); return; }
+  fetch(BASE+"/students/"+id+"/manual/"+topicId+".json",{method:"PUT",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify(val)}).then(function(r){ cb&&cb(r.ok); }).catch(function(){ cb&&cb(false); });
 }
 
 
@@ -2449,6 +2464,32 @@ function tcDraw(){
       tcFixGroup(s.from,s.to,s.list,b);
     };
   });
+  out.querySelectorAll(".rt-manual").forEach(function(b){
+    b.onclick=function(){
+      var v=prompt(T("Ushbu dars uchun qo'lda baho (1-5). Bo'sh qoldirib OK bossangiz — belgi o'chadi:",
+        "Manual mark for this lesson (1-5). Leave empty and press OK to clear:"), b.dataset.cur||"");
+      if(v===null) return;
+      v=v.trim();
+      var num=null;
+      if(v){
+        num=parseInt(v,10);
+        if(isNaN(num)||num<1||num>5){ toast(T("1 dan 5 gacha son kiriting","Enter a number from 1 to 5")); return; }
+      }
+      b.disabled=true;
+      cloudSetManual(b.dataset.id,b.dataset.t,num,function(ok){
+        b.disabled=false;
+        if(!ok){ toast(T("Saqlanmadi","Not saved")); return; }
+        for(var i=0;i<tcList.length;i++){
+          if(tcList[i].id===b.dataset.id){
+            tcList[i].manual=tcList[i].manual||{};
+            if(num===null) delete tcList[i].manual[b.dataset.t]; else tcList[i].manual[b.dataset.t]=num;
+          }
+        }
+        toast(num===null?T("O'chirildi","Cleared"):T("Saqlandi","Saved"));
+        tcDraw();
+      });
+    };
+  });
   function tcSearchRender(){
     var box=document.getElementById("tcSearchRes"); if(!box) return;
     var q=TC_SEARCH_Q.trim().toLowerCase();
@@ -2586,9 +2627,13 @@ function marksTable(okl){
             var sub=started
               ? ('📝'+(tp.q||0)+'/'+M.quiz+' · ⏱'+hms(tp.t||0))
               : T("hali yo'q","not yet");
+            var man=(x.manual||{})[t.id];
             return '<td class="rt-mc" title="'+esc(t.title)+'">'+
-              '<div class="rt-mkcell">'+mkTag(b)+'<span class="rt-mksub">'+esc(sub)+'</span></div>'+
-              '</td>';
+              '<div class="rt-mkcell">'+mkTag(b)+'<span class="rt-mksub">'+esc(sub)+'</span>'+
+              '<button type="button" class="rt-manual'+(man?' on':'')+'" data-id="'+esc(x.id)+'" data-t="'+esc(t.id)+
+                '" data-cur="'+(man||"")+'" title="'+T("Qo'lda baho / topshiriq belgisi","Manual mark / assignment check")+'">'+
+                (man?('✅ '+man):'➕')+'</button>'+
+              '</div></td>';
           }).join("")+
           '<td class="rt-mc">'+mkTag(av.a?+av.a.toFixed(1):0)+'</td></tr>';
       }).join("");
