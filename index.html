@@ -336,6 +336,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 
 
+
 /* RT:BEGIN */
 /* ================== REYTING TIZIMI ================== */
 .rt-chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel);
@@ -1313,6 +1314,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 </div>
 
 <div class="hint" id="hint" data-ui="hint">⌨️ <kbd>→</kbd> keyingi slayd · <kbd>D</kbd> tun/kun · <kbd>L</kbd> uz/eng · <kbd>O</kbd> ro'yxat · <kbd>F</kbd> to'liq ekran</div>
+
 
 
 
@@ -3212,7 +3214,7 @@ if(document.readyState==="loading") document.addEventListener("DOMContentLoaded"
 
 return {award:award, slideSeen:slideSeen, open:openOv, student:function(){return S;}, points:function(){return P;},
         ok:approved, teacher:function(){return isTc;}, cloud:function(){return {on:cloudOn,base:BASE};},
-        t:T, esc:esc, toast:toast};
+        t:T, esc:esc, toast:toast, save:save};
 })();
 </script>
 <script>
@@ -3976,6 +3978,20 @@ var Q=[
 ];
 var picked=new Array(Q.length).fill(null), KEYS=["A","B","C","D"];
 $("#scoreMax").textContent=Q.length;
+/* Testni faqat dastlabki 2 marta ishlaganda ball beriladi — keyingi urinishlar bepul mashq bo'lib qoladi */
+var QATT_LIMIT=2;
+function qAttGet(){
+  if(!window.RT) return 0;
+  var P=RT.points(), t=(window.RT_CFG&&RT_CFG.topic)||"m0";
+  return (P.topics[t]&&P.topics[t].qAtt)||0;
+}
+function qAttBump(){
+  if(!window.RT) return;
+  var P=RT.points(), t=(window.RT_CFG&&RT_CFG.topic)||"m0";
+  if(!P.topics[t]) P.topics[t]={p:0,slides:{},acts:{}};
+  P.topics[t].qAtt=(P.topics[t].qAtt||0)+1;
+  if(RT.save) RT.save();
+}
 
 function renderTest(){
   var w=$("#testWrap"); w.innerHTML="";
@@ -4005,7 +4021,7 @@ function answer(qi,ai,box){
     else if(i===ai)o.classList.add("wrong");
   });
   var ok=(ai===QQ[qi].c);
-  if(ok&&window.RT) RT.award("test"+qi,5,"test");
+  if(ok&&window.RT&&qAttGet()<QATT_LIMIT) RT.award("test"+qi,5,"test");
   fb.className="fb show "+(ok?"ok":"no");
   fb.textContent=(ok?"✅ To'g'ri! ":"❌ Noto'g'ri. To'g'ri javob: "+KEYS[Q[qi].c]+") — ")+Q[qi].e;
   updateScore();
@@ -4030,6 +4046,7 @@ function updateScore(){
 $("#btnReset").onclick=function(){
   picked=new Array(Q.length).fill(null);
   $("#result").classList.remove("show");
+  qAttBump();
   renderTest(); updateScore();
   $("#testWrap").scrollIntoView({behavior:"smooth",block:"start"});
 };
