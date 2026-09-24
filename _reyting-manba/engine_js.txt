@@ -865,7 +865,7 @@ function renderTc(){
     '<div id="rtTcOut" style="margin-top:14px"></div>';
   document.getElementById("rtCodeGo").onclick=function(){
     var v=document.getElementById("rtCode").value;
-    if(v!==(CFG.teacher||"terdu2026")){
+    if(v!==(CFG.teacher||"Isfandiyor21")){
       document.getElementById("rtTcOut").innerHTML='<p style="color:var(--red);font-weight:700">'+T("Kod noto\'g\'ri.","Wrong code.")+'</p>';
       return;
     }
