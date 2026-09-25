@@ -2,6 +2,8 @@
   "pSlide": 2,
   "pAll": 10,
   "teacher": "Isfandiyor21",
+  "fbWeb": {},
+  "teacherH": "",
   "firebase": {
     "db": "tadbirkorlik-asoslari-default-rtdb",
     "regions": [
