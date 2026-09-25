@@ -42,10 +42,15 @@ def inject(fn,meta):
     s=re.sub(r'      <a class="btn ghost" href="[^"]+" title="[^"]+">📑 M\d</a>\n','',s)
 
     # --- konfiguratsiya + dvigatel ---
+    fbWeb=CONF.get('fbWeb') or {}
+    teacherH=CONF.get('teacherH','')
+    google=bool(fbWeb.get('apiKey') and fbWeb.get('authDomain') and teacherH)
     cfg=dict(topic=meta['id'],slides=meta['slides'],quiz=meta.get('quiz',15),pSlide=CONF['pSlide'],pAll=CONF['pAll'],
-             teacher=CONF['teacher'],firebase=CONF.get('firebase'),topics=CONF['topics'],
+             # Google orqali kirish yoqilgan bo'lsa, parol sahifaga umuman yozilmaydi
+             teacher='' if google else CONF.get('teacher',''),
+             firebase=CONF.get('firebase'),topics=CONF['topics'],
              teacherTg=CONF.get('teacherTg',''),courses=CONF.get('courses',[]),groups=CONF.get('groups',[]),
-             tracks=CONF.get('tracks',[]))
+             tracks=CONF.get('tracks',[]),fbWeb=fbWeb if google else None,teacherH=teacherH if google else '')
     block=(HB+'\n<script>var RT_CFG='+json.dumps(cfg,ensure_ascii=False)+';</script>\n'
            '<script>\n'+JS.strip()+'\n</script>\n'
            '<script>\n'+MJS.strip()+'\n</script>\n'
