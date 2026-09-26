@@ -1,9 +1,17 @@
 {
   "pSlide": 2,
   "pAll": 10,
-  "teacher": "Isfandiyor21",
-  "fbWeb": {},
-  "teacherH": "",
+  "teacher": "",
+  "fbWeb": {
+    "apiKey": "AIzaSyDPOvO9kqBcD9zIeCy_eR9szezLhoDB4Oo",
+    "authDomain": "tadbirkorlik-asoslari.firebaseapp.com",
+    "databaseURL": "https://tadbirkorlik-asoslari-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "projectId": "tadbirkorlik-asoslari",
+    "storageBucket": "tadbirkorlik-asoslari.firebasestorage.app",
+    "messagingSenderId": "303986754308",
+    "appId": "1:303986754308:web:fca65cded4728199e68651"
+  },
+  "teacherH": "9a5935bc7e3abb2f8da12a8f053d28b942d399f06d3841a799d1616c7bc48ceb",
   "firebase": {
     "db": "tadbirkorlik-asoslari-default-rtdb",
     "regions": [
