@@ -335,6 +335,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 
 
+
 /* RT:BEGIN */
 /* ================== REYTING TIZIMI ================== */
 .rt-chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel);
@@ -635,6 +636,9 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 .rt-anntxt-sm{font-size:13.5px;line-height:1.6;white-space:pre-wrap;word-break:break-word}
 .rt-pollq{margin-top:8px}
 .rt-pollq b{font-size:13.5px}
+/* --- Guruhni ro'yxatdan tanlash (o'qituvchi) --- */
+.rt-gmove{padding:6px 8px;border:1.5px solid var(--blue);border-radius:10px;background:var(--panel2);
+  color:var(--ink);font-size:13px;font-weight:700;font-family:inherit;max-width:150px}
 /* ================== MUSIQA PLEYERI ================== */
 #mzTab{position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:70;
   background:linear-gradient(135deg,var(--violet),var(--pink));color:#fff;border:none;
@@ -1415,6 +1419,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 
 
+
 <!-- RT:BEGIN -->
 <script>var RT_CFG={"topic": "m4", "slides": 18, "quiz": 15, "pSlide": 2, "pAll": 10, "teacher": "", "firebase": {"db": "tadbirkorlik-asoslari-default-rtdb", "regions": ["asia-southeast1", "europe-west1", "us-central1", "europe-west4", "asia-east1", "us-east1", "northamerica-northeast1"], "url": "https://tadbirkorlik-asoslari-default-rtdb.asia-southeast1.firebasedatabase.app"}, "topics": [{"id": "m1", "file": "index.html", "title": "M1 · Tadbirkorlik tafakkuri va biznes imkoniyatlar", "open": true, "quiz": 15, "slides": 18}, {"id": "m2", "file": "mavzu-2.html", "title": "M2 · Mijoz muammosi asosida biznes g'oya", "open": true, "quiz": 15, "slides": 19}, {"id": "m3", "file": "mavzu-3.html", "title": "M3 · Mahsulotni kam xarajat bilan sinash (moliya va kredit)", "open": false, "quiz": 15, "slides": 15}, {"id": "m4", "file": "mavzu-4.html", "title": "M4 · Biznesni qonuniy rasmiylashtirish", "open": false, "quiz": 15, "slides": 18}, {"id": "m5", "file": "mavzu-5.html", "title": "M5 · Soliqlar va hujjatlar", "open": false, "quiz": 15, "slides": 18}, {"id": "m6", "file": "mavzu-6.html", "title": "M6 · Biznes-model qanday ishlaydi", "open": false, "quiz": 15, "slides": 18}, {"id": "m7", "file": "mavzu-7.html", "title": "M7 · Mijoz kim va unga nima kerak", "open": false, "quiz": 15, "slides": 18}, {"id": "m8", "title": "M8 · 8-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-8.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m9", "title": "M9 · 9-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-9.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m10", "title": "M10 · 10-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-10.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m11", "title": "M11 · 11-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-11.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m12", "title": "M12 · 12-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-12.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m13", "title": "M13 · 13-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-13.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m14", "title": "M14 · 14-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-14.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m15", "title": "M15 · 15-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-15.html", "open": false, "slides": 18, "quiz": 15}], "teacherTg": "https://t.me/esfandiyorr?direct", "courses": [{"id": "tad-asoslari", "icon": "🚀", "title": "Tadbirkorlik asoslari", "desc": "15 ta mavzu · nazariya, testlar va amaliy topshiriqlar", "first": "index.html"}], "groups": ["FIZ-123", "FIZ-223", "FIZ-323", "AP-123", "AP-223", "AP-323", "D-123", "DKG-BF-123", "YES-123", "T-232", "T-423", "KI-123"], "tracks": [{"file": "Musofir.mp3", "title": "Musofir", "artist": ""}], "fbWeb": {"apiKey": "AIzaSyDPOvO9kqBcD9zIeCy_eR9szezLhoDB4Oo", "authDomain": "tadbirkorlik-asoslari.firebaseapp.com", "databaseURL": "https://tadbirkorlik-asoslari-default-rtdb.asia-southeast1.firebasedatabase.app", "projectId": "tadbirkorlik-asoslari", "storageBucket": "tadbirkorlik-asoslari.firebasestorage.app", "messagingSenderId": "303986754308", "appId": "1:303986754308:web:fca65cded4728199e68651"}, "teacherH": "9a5935bc7e3abb2f8da12a8f053d28b942d399f06d3841a799d1616c7bc48ceb"};</script>
 <script>
@@ -1554,19 +1559,21 @@ function cloudInit(done){
   })();
 }
 function rec(){
-  return {id:S.id,name:S.name,surname:S.surname,group:S.group,email:S.email||"",pk:S.pk||"",
+  /* guruh bu yerda yo'q: uni o'qituvchi o'zgartiradi, talabaning eski nusxasi ustidan yozib yubormasin */
+  return {id:S.id,name:S.name,surname:S.surname,email:S.email||"",pk:S.pk||"",
           total:P.total||0,topics:topicSummary(),at:S.at||Date.now(),updated:Date.now()};
 }
-function cloudSave(){            /* status maydoniga tegmaydi — uni faqat o'qituvchi o'zgartiradi */
+function cloudSave(withGroup){   /* status maydoniga tegmaydi — uni faqat o'qituvchi o'zgartiradi */
   if(!cloudOn||!BASE||!S||DEAD) return;   /* o'chirilgan hisob qayta tiklanmasin */
+  var r=rec(); if(withGroup) r.group=S.group;   /* guruh faqat talaba o'zi profilini tahrirlaganda yuboriladi */
   try{
     fetch(BASE+"/students/"+S.id+".json",{method:"PATCH",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify(rec())}).catch(function(){});
+      body:JSON.stringify(r)}).catch(function(){});
   }catch(e){}
 }
 function cloudCreate(){          /* faqat ro'yxatdan o'tishda: status="pending" */
   if(!cloudOn||!BASE||!S) return;
-  var r=rec(); r.status="pending";
+  var r=rec(); r.status="pending"; r.group=S.group;
   try{
     fetch(BASE+"/students/"+S.id+".json",{method:"PUT",headers:{"Content-Type":"application/json"},
       body:JSON.stringify(r)}).catch(function(){});
@@ -1616,7 +1623,10 @@ function cloudHas(id,cb){
     if(!r.ok){ cb(null); return; }
     /* haqiqiy yozuvda doim status bo'ladi (cloudCreate qo'yadi).
        Statussiz yozuv — yopilayotgan sahifa PATCH bilan tiklab qo'ygani, uni yo'q deb hisoblaymiz. */
-    return r.json().then(function(v){ cb(v&&v.name&&v.status?true:false); });
+    return r.json().then(function(v){
+      if(v&&v.group&&S&&S.id===id&&v.group!==S.group){ S.group=v.group; lset(LS.stu,S); }   /* o'qituvchi o'zgartirgan guruh */
+      cb(v&&v.name&&v.status?true:false);
+    });
   }).catch(function(){ cb(null); });
 }
 /* o'qituvchi "hammasini o'chirish" bosganda qo'yiladigan belgi */
@@ -2319,7 +2329,7 @@ function renderCv(){
         g=document.getElementById("cvG").value.trim(), em=document.getElementById("cvE").value.trim();
     if(n.length<2||sn.length<2||!g){ toast(T("Maydonlarni to'ldiring","Fill in the fields")); return; }
     if(!okMail(em)){ toast(T("Email noto'g'ri","Invalid email")); return; }
-    S.name=n; S.surname=sn; S.group=g; S.email=em; lset(LS.stu,S); cloudSave();
+    S.name=n; S.surname=sn; S.group=g; S.email=em; lset(LS.stu,S); cloudSave(true);
     chipUpdate(); toast(T("Saqlandi ✅","Saved ✅"));
   };
 }
@@ -2662,11 +2672,18 @@ function tcDraw(){
   });
   out.querySelectorAll(".rt-g2").forEach(function(b){
     b.onclick=function(){
-      var v=prompt(T("Yangi guruh nomi:","New group name:"),b.dataset.g||"");
-      if(v===null) return; v=v.trim(); if(v.length<2){ toast(T("Juda qisqa","Too short")); return; }
-      b.disabled=true;
+      if(b.dataset.busy) return;
+      var gs=(CFG.groups||[]).slice(); if(b.dataset.g&&gs.indexOf(b.dataset.g)<0) gs.unshift(b.dataset.g);
+      var sel=el('<select class="rt-gmove"><option value="">'+T("— guruhni tanlang —","— choose a group —")+'</option>'+
+        gs.map(function(g){ return '<option value="'+esc(g)+'"'+(g===b.dataset.g?' selected':'')+'>'+esc(g)+'</option>'; }).join("")+'</select>');
+      b.style.display="none"; b.parentNode.insertBefore(sel,b); sel.focus();
+      sel.onblur=function(){ if(!b.dataset.busy){ sel.remove(); b.style.display=""; } };
+      sel.onchange=function(){
+      var v=sel.value;
+      if(!v||v===b.dataset.g){ sel.remove(); b.style.display=""; return; }
+      b.dataset.busy="1"; sel.disabled=true;
       var done=function(ok){
-        if(!ok){ toast(T("Saqlanmadi","Not saved")); b.disabled=false; return; }
+        if(!ok){ toast(T("Saqlanmadi","Not saved")); delete b.dataset.busy; sel.remove(); b.style.display=""; return; }
         for(var i=0;i<tcList.length;i++) if(tcList[i].id===b.dataset.id) tcList[i].group=v;
         if(S&&S.id===b.dataset.id){ S.group=v; lset(LS.stu,S); }
         toast(T("Guruh o'zgardi","Group changed")); tcDraw();
@@ -2674,6 +2691,7 @@ function tcDraw(){
       if(!cloudOn||!BASE){ done(true); return; }
       fetch(BASE+"/students/"+b.dataset.id+"/group.json",{method:"PUT",headers:{"Content-Type":"application/json"},
         body:JSON.stringify(v)}).then(function(r){ done(r.ok); }).catch(function(){ done(false); });
+      };
     };
   });
   out.querySelectorAll(".rt-pin2").forEach(function(b){

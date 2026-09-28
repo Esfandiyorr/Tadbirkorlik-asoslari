@@ -134,19 +134,21 @@ function cloudInit(done){
   })();
 }
 function rec(){
-  return {id:S.id,name:S.name,surname:S.surname,group:S.group,email:S.email||"",pk:S.pk||"",
+  /* guruh bu yerda yo'q: uni o'qituvchi o'zgartiradi, talabaning eski nusxasi ustidan yozib yubormasin */
+  return {id:S.id,name:S.name,surname:S.surname,email:S.email||"",pk:S.pk||"",
           total:P.total||0,topics:topicSummary(),at:S.at||Date.now(),updated:Date.now()};
 }
-function cloudSave(){            /* status maydoniga tegmaydi — uni faqat o'qituvchi o'zgartiradi */
+function cloudSave(withGroup){   /* status maydoniga tegmaydi — uni faqat o'qituvchi o'zgartiradi */
   if(!cloudOn||!BASE||!S||DEAD) return;   /* o'chirilgan hisob qayta tiklanmasin */
+  var r=rec(); if(withGroup) r.group=S.group;   /* guruh faqat talaba o'zi profilini tahrirlaganda yuboriladi */
   try{
     fetch(BASE+"/students/"+S.id+".json",{method:"PATCH",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify(rec())}).catch(function(){});
+      body:JSON.stringify(r)}).catch(function(){});
   }catch(e){}
 }
 function cloudCreate(){          /* faqat ro'yxatdan o'tishda: status="pending" */
   if(!cloudOn||!BASE||!S) return;
-  var r=rec(); r.status="pending";
+  var r=rec(); r.status="pending"; r.group=S.group;
   try{
     fetch(BASE+"/students/"+S.id+".json",{method:"PUT",headers:{"Content-Type":"application/json"},
       body:JSON.stringify(r)}).catch(function(){});
@@ -196,7 +198,10 @@ function cloudHas(id,cb){
     if(!r.ok){ cb(null); return; }
     /* haqiqiy yozuvda doim status bo'ladi (cloudCreate qo'yadi).
        Statussiz yozuv — yopilayotgan sahifa PATCH bilan tiklab qo'ygani, uni yo'q deb hisoblaymiz. */
-    return r.json().then(function(v){ cb(v&&v.name&&v.status?true:false); });
+    return r.json().then(function(v){
+      if(v&&v.group&&S&&S.id===id&&v.group!==S.group){ S.group=v.group; lset(LS.stu,S); }   /* o'qituvchi o'zgartirgan guruh */
+      cb(v&&v.name&&v.status?true:false);
+    });
   }).catch(function(){ cb(null); });
 }
 /* o'qituvchi "hammasini o'chirish" bosganda qo'yiladigan belgi */
@@ -899,7 +904,7 @@ function renderCv(){
         g=document.getElementById("cvG").value.trim(), em=document.getElementById("cvE").value.trim();
     if(n.length<2||sn.length<2||!g){ toast(T("Maydonlarni to'ldiring","Fill in the fields")); return; }
     if(!okMail(em)){ toast(T("Email noto'g'ri","Invalid email")); return; }
-    S.name=n; S.surname=sn; S.group=g; S.email=em; lset(LS.stu,S); cloudSave();
+    S.name=n; S.surname=sn; S.group=g; S.email=em; lset(LS.stu,S); cloudSave(true);
     chipUpdate(); toast(T("Saqlandi ✅","Saved ✅"));
   };
 }
@@ -1242,11 +1247,18 @@ function tcDraw(){
   });
   out.querySelectorAll(".rt-g2").forEach(function(b){
     b.onclick=function(){
-      var v=prompt(T("Yangi guruh nomi:","New group name:"),b.dataset.g||"");
-      if(v===null) return; v=v.trim(); if(v.length<2){ toast(T("Juda qisqa","Too short")); return; }
-      b.disabled=true;
+      if(b.dataset.busy) return;
+      var gs=(CFG.groups||[]).slice(); if(b.dataset.g&&gs.indexOf(b.dataset.g)<0) gs.unshift(b.dataset.g);
+      var sel=el('<select class="rt-gmove"><option value="">'+T("— guruhni tanlang —","— choose a group —")+'</option>'+
+        gs.map(function(g){ return '<option value="'+esc(g)+'"'+(g===b.dataset.g?' selected':'')+'>'+esc(g)+'</option>'; }).join("")+'</select>');
+      b.style.display="none"; b.parentNode.insertBefore(sel,b); sel.focus();
+      sel.onblur=function(){ if(!b.dataset.busy){ sel.remove(); b.style.display=""; } };
+      sel.onchange=function(){
+      var v=sel.value;
+      if(!v||v===b.dataset.g){ sel.remove(); b.style.display=""; return; }
+      b.dataset.busy="1"; sel.disabled=true;
       var done=function(ok){
-        if(!ok){ toast(T("Saqlanmadi","Not saved")); b.disabled=false; return; }
+        if(!ok){ toast(T("Saqlanmadi","Not saved")); delete b.dataset.busy; sel.remove(); b.style.display=""; return; }
         for(var i=0;i<tcList.length;i++) if(tcList[i].id===b.dataset.id) tcList[i].group=v;
         if(S&&S.id===b.dataset.id){ S.group=v; lset(LS.stu,S); }
         toast(T("Guruh o'zgardi","Group changed")); tcDraw();
@@ -1254,6 +1266,7 @@ function tcDraw(){
       if(!cloudOn||!BASE){ done(true); return; }
       fetch(BASE+"/students/"+b.dataset.id+"/group.json",{method:"PUT",headers:{"Content-Type":"application/json"},
         body:JSON.stringify(v)}).then(function(r){ done(r.ok); }).catch(function(){ done(false); });
+      };
     };
   });
   out.querySelectorAll(".rt-pin2").forEach(function(b){
