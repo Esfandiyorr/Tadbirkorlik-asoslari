@@ -826,7 +826,10 @@ function renderMe(){
     }).join(' &nbsp;·&nbsp; ')+'</div>'+
     '<h3 style="margin:18px 0 8px;font-size:15px">'+T("Barcha mavzular","All topics")+'</h3>'+
     myTopics()+
-    '<p class="rt-note">'+esc(S.name)+" "+esc(S.surname)+" · "+esc(S.group)+'</p>';
+    '<p class="rt-note">'+esc(S.name)+" "+esc(S.surname)+" · "+esc(S.group)+
+      ' <button class="btn" style="padding:4px 10px;font-size:12px;margin-left:6px" '+
+      'onclick="var t=document.querySelector(\'.rt-tab[data-p=cv]\'); if(t) t.click();">✏️ '+
+      T("Guruhni o'zgartirish","Change group")+'</button></p>';
 }
 function part(name,v,w){
   var pc=Math.round(v*100);
@@ -921,7 +924,7 @@ function strayGroups(okl){
   var canon={}; (CFG.groups||[]).forEach(function(g){ canon[normG(g)]=g; });
   var out=[];
   groupsOf(okl).forEach(function(G){
-    var right=canon[normG(G.g)];
+    var right=canon[normG(G.g)]||(CFG.groupRenames||{})[G.g];   /* adashib yozilgan nom (masalan T-232 → T-223) */
     if(right&&right!==G.g) out.push({from:G.g,to:right,list:G.list});
   });
   return out;
