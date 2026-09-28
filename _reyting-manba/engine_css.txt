@@ -297,3 +297,6 @@
 .rt-anntxt-sm{font-size:13.5px;line-height:1.6;white-space:pre-wrap;word-break:break-word}
 .rt-pollq{margin-top:8px}
 .rt-pollq b{font-size:13.5px}
+/* --- Guruhni ro'yxatdan tanlash (o'qituvchi) --- */
+.rt-gmove{padding:6px 8px;border:1.5px solid var(--blue);border-radius:10px;background:var(--panel2);
+  color:var(--ink);font-size:13px;font-weight:700;font-family:inherit;max-width:150px}
