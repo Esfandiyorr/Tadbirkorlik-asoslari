@@ -13,7 +13,7 @@ CONF=json.load(open(SC+'config.json',encoding='utf-8'))
 
 DECKS={
  'index.html':   dict(id='m1',slides=18,quiz=15),
- 'mavzu-2.html': dict(id='m2',slides=19,quiz=15),
+ 'mavzu-2.html': dict(id='m2',slides=24,quiz=15),
  'mavzu-3.html': dict(id='m3',slides=15,quiz=15),
  'mavzu-4.html': dict(id='m4',slides=18,quiz=18),
  'mavzu-5.html': dict(id='m5',slides=18,quiz=3),
