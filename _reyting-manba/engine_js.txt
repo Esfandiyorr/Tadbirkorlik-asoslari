@@ -311,8 +311,8 @@ function testCount(x){
 }
 /* ===== BALL QOIDALARI (har mavzu = 100 ball) =====
    20 ball — faol o'qish vaqti: 1 soat va undan ko'p = to'liq 20, kamroq bo'lsa ulushiga qarab
-   20 ball — ko'rilgan slaydlar ulushi
-   60 ball — to'g'ri javoblar ulushi
+   30 ball — ko'rilgan slaydlar ulushi
+   50 ball — to'g'ri javoblar ulushi
    Har bir slayd va savol faqat bir marta sanaladi — nechta brauzerdan kirilmasin (bazada bitta ro'yxat) */
 var ACTIVE_SEC=3600;
 function seenOf(x){ return Math.max(Object.keys((x&&x.slides)||{}).length,(x&&x.sF)||0); }
@@ -324,7 +324,7 @@ function markOf(id,x){
   var rd=Math.min(1,seen/Math.max(1,M.slides));                      /* o'qilgan slayd ulushi */
   var tm=Math.min(1,(x.t||0)/ACTIVE_SEC);                            /* faol vaqt ulushi (1 soat = 100%) */
   var ts=Math.min(1,qn/Math.max(1,M.quiz));                          /* to'g'ri javob ulushi */
-  var z=0.20*rd+0.20*tm+0.60*ts;
+  var z=0.30*rd+0.20*tm+0.50*ts;
   var pc=Math.round(z*100);            /* baho ko'rsatilgan foizdan chiqadi */
   var b=0;
   if(seen||x.t||qn){
@@ -898,8 +898,8 @@ function renderMe(){
     '<div class="rt-sec" style="margin-top:10px"><h4>📏 '+T("Ball qoidalari (har mavzu — 100 ball)","Scoring rules (each topic — 100 points)")+'</h4>'+
     '<p class="rt-note" style="margin:0;line-height:1.7">'+T(
       "🕐 <b>20 ball</b> — taqdimotni faol o\'qish vaqti: <b>1 soat</b> va undan ko\'p = to\'liq 20 ball, kamroq bo\'lsa ulushiga qarab (30 daqiqa = 10 ball). Vaqt faqat sahifa ekranda ochiq turganda va siz so\'nggi 5 daqiqada biror harakat qilgan bo\'lsangiz sanaladi.<br>"+
-      "📑 <b>20 ball</b> — ko\'rilgan slaydlar ulushi (hammasi ko\'rilsa — 20 ball).<br>"+
-      "📝 <b>60 ball</b> — testdagi to\'g\'ri javoblar ulushi. Test faqat dastlabki 2 urinishda ball beradi.<br>"+
+      "📑 <b>30 ball</b> — ko\'rilgan slaydlar ulushi (hammasi ko\'rilsa — 30 ball).<br>"+
+      "📝 <b>50 ball</b> — testdagi to\'g\'ri javoblar ulushi. Test faqat dastlabki 2 urinishda ball beradi.<br>"+
       "🔒 Har bir slayd va savol <b>faqat bir marta</b> hisoblanadi: nechta brauzer yoki telefondan kirsangiz ham ballaringiz bitta hisobda jamlanadi, qayta berilmaydi va yo\'qolmaydi.",
       "🕐 <b>20 points</b> — active reading time: <b>1 hour</b> or more = the full 20, less gives a proportional share (30 minutes = 10). Time counts only while the page is on screen and you have done something in the last 5 minutes.<br>"+
       "📑 <b>20 points</b> — the share of slides viewed (all slides = 20).<br>"+
@@ -1449,8 +1449,8 @@ function marksTable(okl){
   }).join("");
   return '<h3 style="margin:20px 0 4px">📊 '+T("Mavzular bo'yicha baholar","Marks by topic")+'</h3>'+
     '<p class="rt-note" style="margin:0 0 8px">'+T(
-      "Har bir mavzu uchun alohida baho: slaydlar 20% + o'qish vaqti 20% + test 60%. Guruh ustiga bosing — o'sha guruh baholari ochiladi.",
-      "A separate mark for each topic: slides 20% + reading time 20% + test 60%. Click a group — that group's marks will open.")+'</p>'+
+      "Har bir mavzu uchun alohida baho: slaydlar 30% + o'qish vaqti 20% + test 50%. Guruh ustiga bosing — o'sha guruh baholari ochiladi.",
+      "A separate mark for each topic: slides 30% + reading time 20% + test 50%. Click a group — that group's marks will open.")+'</p>'+
     groupTiles(gs,TC_OPEN_MARKS,"marks")+
     (openGs.length?'<div class="tw"><table class="rt-table rt-mtab"><thead>'+head+'</thead><tbody>'+body+'</tbody></table></div>':'')+
     '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">'+
