@@ -4300,7 +4300,7 @@ var Q=[
 var picked=new Array(Q.length).fill(null), KEYS=["A","B","C","D"];
 $("#scoreMax").textContent=Q.length;
 /* Testni faqat dastlabki 2 marta ishlaganda ball beriladi — keyingi urinishlar bepul mashq bo'lib qoladi */
-var QATT_LIMIT=999; /* VAQTINCHA: urinish cheklovi o'chirilgan — keyin 2 ga qaytariladi */
+var QATT_LIMIT=2;
 function qAttGet(){
   if(!window.RT) return 0;
   var P=RT.points(), t=(window.RT_CFG&&RT_CFG.topic)||"m0";
