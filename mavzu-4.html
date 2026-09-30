@@ -341,6 +341,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 
 
+
 /* RT:BEGIN */
 /* ================== REYTING TIZIMI ================== */
 .rt-chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel);
@@ -1430,6 +1431,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 
 
+
 <!-- RT:BEGIN -->
 <script>var RT_CFG={"topic": "m4", "slides": 18, "quiz": 18, "pSlide": 2, "pAll": 10, "teacher": "", "firebase": {"db": "tadbirkorlik-asoslari-default-rtdb", "regions": ["asia-southeast1", "europe-west1", "us-central1", "europe-west4", "asia-east1", "us-east1", "northamerica-northeast1"], "url": "https://tadbirkorlik-asoslari-default-rtdb.asia-southeast1.firebasedatabase.app"}, "topics": [{"id": "m1", "file": "index.html", "title": "M1 · Tadbirkorlik tafakkuri va biznes imkoniyatlar", "open": true, "quiz": 15, "slides": 18}, {"id": "m2", "file": "mavzu-2.html", "title": "M2 · Mijoz muammosi asosida biznes g'oya", "open": true, "quiz": 15, "slides": 24}, {"id": "m3", "file": "mavzu-3.html", "title": "M3 · Mahsulotni kam xarajat bilan sinash (moliya va kredit)", "open": false, "quiz": 15, "slides": 15}, {"id": "m4", "file": "mavzu-4.html", "title": "M4 · Biznesni qonuniy rasmiylashtirish", "open": false, "quiz": 18, "slides": 18}, {"id": "m5", "file": "mavzu-5.html", "title": "M5 · Soliqlar va hujjatlar", "open": false, "quiz": 3, "slides": 18}, {"id": "m6", "file": "mavzu-6.html", "title": "M6 · Biznes-model qanday ishlaydi", "open": false, "quiz": 15, "slides": 18}, {"id": "m7", "file": "mavzu-7.html", "title": "M7 · Mijoz kim va unga nima kerak", "open": false, "quiz": 15, "slides": 18}, {"id": "m8", "title": "M8 · 8-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-8.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m9", "title": "M9 · 9-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-9.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m10", "title": "M10 · 10-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-10.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m11", "title": "M11 · 11-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-11.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m12", "title": "M12 · 12-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-12.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m13", "title": "M13 · 13-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-13.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m14", "title": "M14 · 14-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-14.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m15", "title": "M15 · 15-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-15.html", "open": false, "slides": 18, "quiz": 15}], "teacherTg": "https://t.me/esfandiyorr?direct", "courses": [{"id": "tad-asoslari", "icon": "🚀", "title": "Tadbirkorlik asoslari", "desc": "15 ta mavzu · nazariya, testlar va amaliy topshiriqlar", "first": "index.html"}], "groups": ["FIZ-123", "FIZ-223", "FIZ-323", "AP-123", "AP-223", "AP-323", "D-123", "DKG-BF-123", "YES-123", "T-123", "T-223", "T-323", "T-423", "KI-123", "DI-123", "DI-223"], "groupRenames": {"T-232": "T-223"}, "tracks": [{"file": "Musofir.mp3", "title": "Musofir", "artist": ""}], "fbWeb": {"apiKey": "AIzaSyDPOvO9kqBcD9zIeCy_eR9szezLhoDB4Oo", "authDomain": "tadbirkorlik-asoslari.firebaseapp.com", "databaseURL": "https://tadbirkorlik-asoslari-default-rtdb.asia-southeast1.firebasedatabase.app", "projectId": "tadbirkorlik-asoslari", "storageBucket": "tadbirkorlik-asoslari.firebasestorage.app", "messagingSenderId": "303986754308", "appId": "1:303986754308:web:fca65cded4728199e68651"}, "teacherH": "9a5935bc7e3abb2f8da12a8f053d28b942d399f06d3841a799d1616c7bc48ceb"};</script>
 <script>
@@ -1592,6 +1594,7 @@ function cloudSave(withGroup){   /* status maydoniga tegmaydi — uni faqat o'qi
 function cloudCreate(){          /* faqat ro'yxatdan o'tishda: status="pending" */
   if(!cloudOn||!BASE||!S) return;
   var r=rec(); r.status="pending"; r.group=S.group;
+  FSYNC=true;                    /* yangi yozuv — bulutda boshqa "birinchi kirish" sanasi yo'q */
   try{
     fetch(BASE+"/students/"+S.id+".json",{method:"PUT",headers:{"Content-Type":"application/json"},
       body:JSON.stringify(r)}).catch(function(){});
@@ -1750,6 +1753,11 @@ function testCount(x){
    50 ball — to'g'ri javoblar ulushi
    Har bir slayd va savol faqat bir marta sanaladi — nechta brauzerdan kirilmasin (bazada bitta ro'yxat) */
 var ACTIVE_SEC=3600;
+/* har bir mavzu: taqdimot birinchi marta ochilgan paytdan (f) 7 kun o'tgach ball berilmaydi */
+var BALL_WINDOW=7*86400000, FSYNC=false, expShown=false;
+function expiredT(t){ return !!(t&&t.f&&Date.now()-t.f>BALL_WINDOW); }
+function expToast(){ if(expShown) return; expShown=true;
+  toast(T("⏳ Bu mavzu bo'yicha ball olish muddati (birinchi kirgandan 7 kun) tugagan — endi ball berilmaydi.","⏳ The 7-day scoring window for this topic has ended — no more points are given.")); }
 /* sF/qF — eski tizimdan qolgan (kalitlari noma'lum) slayd/test soni. nw — shundan keyin qo'shilgan yangi kalitlar:
    yangi javob eski son ichida "yo'qolib" ketmasligi uchun eski son ustiga qo'shiladi */
 function nwCount(x,isSl){
@@ -1789,6 +1797,7 @@ function topicFromCloud(c,s){
   for(k in (c.sl||{})) y.slides[k]=1;
   for(k in (c.ac||{})) y.acts[k]=c.ac[k];
   for(k in (c.nw||{})) y.nw[k]=1;
+  y.f=+c.f||0;
   for(k in tm) sum+=(+tm[k]||0);
   /* umumiy s/q faqat yangi tizimga hali o'tmagan (prog yo'q) yozuvlar uchun eski son hisoblanadi */
   y.sF=Math.max(+c.sF||0,has?0:(+s.s||0)); y.qF=Math.max(+c.qF||0,has?0:(+s.q||0));
@@ -1826,9 +1835,11 @@ function mergeCloud(v){
     if(!("legacy" in tm)&&(+s.t||0)>L.tOwn+other){ L.tLeg=(+s.t)-(L.tOwn+other); other+=L.tLeg; }
     L.tOther=other; L.t=L.tOwn+other;
     L.qAtt=Math.max(L.qAtt||0,+c.qa||0);
+    if(+c.f) L.f=L.f?Math.min(L.f,+c.f):+c.f;     /* birinchi kirish — eng erta sana */
     L.sF=Math.max(L.sF||0,+c.sF||0,has?0:(+s.s||0));
     L.qF=Math.max(L.qF||0,+c.qF||0,has?0:(+s.q||0));
   }
+  FSYNC=true;
   recalc();
 }
 /* bazaga yozish uchun: faqat o'z kalitlarimiz (boshqa brauzer yozganlari o'chmaydi) */
@@ -1841,6 +1852,7 @@ function progPaths(){
     o[b+"tm/"+DEV]=Math.round(x.tOwn||0);
     if(x.tLeg) o[b+"tm/legacy"]=Math.round(x.tLeg);
     if(x.qAtt) o[b+"qa"]=x.qAtt;
+    if(x.f&&FSYNC) o[b+"f"]=x.f;          /* faqat bulut bilan solishtirilgandan keyin yoziladi */
     if(x.sF) o[b+"sF"]=x.sF; if(x.qF) o[b+"qF"]=x.qF;
   }
   return o;
@@ -1868,7 +1880,10 @@ function topicObj(){
 }
 function award(key,pts,label){
   if(!S||!approved()) return;
+  /* bulutdagi ma'lumot (birinchi kirish sanasi) birlashtirilmaguncha ball navbatda turadi */
+  if(!started){ (window.RT_pending=window.RT_pending||[]).push([key,pts,label]); return; }
   var t=topicObj(), isSl=key.indexOf("slide")===0, bag=isSl?t.slides:t.acts;
+  if(expiredT(t)){ expToast(); return; }
   if(bag[key]) return;                  /* shu slayd/savol allaqachon hisoblangan — qaysi brauzerda bo'lmasin */
   var before=t.p||0;
   bag[key]=isSl?1:(pts||1);
@@ -1891,6 +1906,7 @@ function timeStart(){
     var now=Date.now(), d=(now-tmrAt)/1000; tmrAt=now;
     if(d<=0||d>30) return;                 /* uzilishlarni hisobga olmaymiz */
     var t=topicObj();
+    if(expiredT(t)) return;                /* 7 kunlik muddat tugagan — vaqt ham sanalmaydi */
     if((t.t||0)>=ACTIVE_SEC*3) return;     /* 3 soatdan keyin sanash to'xtaydi (ball 1 soatda to'ladi) */
     t.tOwn=(t.tOwn||0)+d; t.t=t.tOwn+(t.tOther||0);
     tmrSave+=d;
@@ -2340,18 +2356,20 @@ function renderMe(){
     '<div class="rt-card"><span>'+T("Umumiy ball","Total points")+'</span><b>'+fmtP(P.total)+'</b></div>'+
     '</div>'+
     '<h3 style="margin:18px 0 8px;font-size:15px">'+T("Baho nimalardan chiqadi?","How is the mark made up?")+'</h3>'+
-    part(T("Slaydlarni ko\'rish","Slides viewed"),m.rd,20)+
+    part(T("Slaydlarni ko\'rish","Slides viewed"),m.rd,30)+
     part(T("O\'qishga sarflangan vaqt","Time spent reading"),m.tm,20)+
-    part(T("Test natijasi","Test result"),m.ts,60)+
+    part(T("Test natijasi","Test result"),m.ts,50)+
     '<div class="rt-sec" style="margin-top:10px"><h4>📏 '+T("Ball qoidalari (har mavzu — 100 ball)","Scoring rules (each topic — 100 points)")+'</h4>'+
     '<p class="rt-note" style="margin:0;line-height:1.7">'+T(
       "🕐 <b>20 ball</b> — taqdimotni faol o\'qish vaqti: <b>1 soat</b> va undan ko\'p = to\'liq 20 ball, kamroq bo\'lsa ulushiga qarab (30 daqiqa = 10 ball). Vaqt faqat sahifa ekranda ochiq turganda va siz so\'nggi 5 daqiqada biror harakat qilgan bo\'lsangiz sanaladi.<br>"+
       "📑 <b>30 ball</b> — ko\'rilgan slaydlar ulushi (hammasi ko\'rilsa — 30 ball).<br>"+
       "📝 <b>50 ball</b> — testdagi to\'g\'ri javoblar ulushi. Test faqat dastlabki 2 urinishda ball beradi.<br>"+
+      "⏳ Ball faqat taqdimot <b>birinchi marta ochilgan kundan boshlab 7 kun</b> davomida beriladi. 7 kun o\'tgach bu mavzu bo\'yicha yangi ball qo\'shilmaydi (olingan ballar saqlanib qoladi).<br>"+
       "🔒 Har bir slayd va savol <b>faqat bir marta</b> hisoblanadi: nechta brauzer yoki telefondan kirsangiz ham ballaringiz bitta hisobda jamlanadi, qayta berilmaydi va yo\'qolmaydi.",
       "🕐 <b>20 points</b> — active reading time: <b>1 hour</b> or more = the full 20, less gives a proportional share (30 minutes = 10). Time counts only while the page is on screen and you have done something in the last 5 minutes.<br>"+
-      "📑 <b>20 points</b> — the share of slides viewed (all slides = 20).<br>"+
-      "📝 <b>60 points</b> — the share of correct test answers. The test gives points only in the first 2 attempts.<br>"+
+      "📑 <b>30 points</b> — the share of slides viewed (all slides = 30).<br>"+
+      "📝 <b>50 points</b> — the share of correct test answers. The test gives points only in the first 2 attempts.<br>"+
+      "⏳ Points are given only for <b>7 days from the first time you open</b> the presentation. After that no new points are added for this topic (points already earned are kept).<br>"+
       "🔒 Every slide and question counts <b>only once</b>: whichever browsers or phones you use, your points are combined in one account — never given twice and never lost.")+'</p></div>'+
     '<h3 style="margin:18px 0 8px;font-size:15px">'+T("Baholash shkalasi","Marking scale")+'</h3>'+
     '<div class="rt-scale">'+[[5,"90–100%"],[4,"75–89%"],[3,"60–74%"],[2,"40–59%"],[1,"0–39%"]].map(function(x){
@@ -3477,6 +3495,7 @@ function announceGate(next){
 function start(){
   if(started) return; started=true;
   announceGate(function(){
+  var tf=topicObj(); if(!tf.f){ tf.f=Date.now(); lset(LS.prog,P); } else if(expiredT(tf)) setTimeout(expToast,1500);
   chip(); askBar(); tbWatch(); dragWatch(); watchStatus(); timeStart(); if(cloudOn&&S) cloudSave(); if(S&&!S.email) setTimeout(emailAsk,900);
   if(typeof idx!=="undefined") slideSeen(idx);
   window.RT_ready=true;
