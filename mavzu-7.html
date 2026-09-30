@@ -315,6 +315,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 
 
+
 /* RT:BEGIN */
 /* ================== REYTING TIZIMI ================== */
 .rt-chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel);
@@ -1372,6 +1373,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 
 
+
 <!-- RT:BEGIN -->
 <script>var RT_CFG={"topic": "m7", "slides": 18, "quiz": 15, "pSlide": 2, "pAll": 10, "teacher": "", "firebase": {"db": "tadbirkorlik-asoslari-default-rtdb", "regions": ["asia-southeast1", "europe-west1", "us-central1", "europe-west4", "asia-east1", "us-east1", "northamerica-northeast1"], "url": "https://tadbirkorlik-asoslari-default-rtdb.asia-southeast1.firebasedatabase.app"}, "topics": [{"id": "m1", "file": "index.html", "title": "M1 · Tadbirkorlik tafakkuri va biznes imkoniyatlar", "open": true, "quiz": 15, "slides": 18}, {"id": "m2", "file": "mavzu-2.html", "title": "M2 · Mijoz muammosi asosida biznes g'oya", "open": true, "quiz": 15, "slides": 24}, {"id": "m3", "file": "mavzu-3.html", "title": "M3 · Mahsulotni kam xarajat bilan sinash (moliya va kredit)", "open": false, "quiz": 15, "slides": 15}, {"id": "m4", "file": "mavzu-4.html", "title": "M4 · Biznesni qonuniy rasmiylashtirish", "open": false, "quiz": 18, "slides": 18}, {"id": "m5", "file": "mavzu-5.html", "title": "M5 · Soliqlar va hujjatlar", "open": false, "quiz": 3, "slides": 18}, {"id": "m6", "file": "mavzu-6.html", "title": "M6 · Biznes-model qanday ishlaydi", "open": false, "quiz": 15, "slides": 18}, {"id": "m7", "file": "mavzu-7.html", "title": "M7 · Mijoz kim va unga nima kerak", "open": false, "quiz": 15, "slides": 18}, {"id": "m8", "title": "M8 · 8-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-8.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m9", "title": "M9 · 9-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-9.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m10", "title": "M10 · 10-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-10.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m11", "title": "M11 · 11-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-11.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m12", "title": "M12 · 12-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-12.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m13", "title": "M13 · 13-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-13.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m14", "title": "M14 · 14-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-14.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m15", "title": "M15 · 15-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-15.html", "open": false, "slides": 18, "quiz": 15}], "teacherTg": "https://t.me/esfandiyorr?direct", "courses": [{"id": "tad-asoslari", "icon": "🚀", "title": "Tadbirkorlik asoslari", "desc": "15 ta mavzu · nazariya, testlar va amaliy topshiriqlar", "first": "index.html"}], "groups": ["FIZ-123", "FIZ-223", "FIZ-323", "AP-123", "AP-223", "AP-323", "D-123", "DKG-BF-123", "YES-123", "T-123", "T-223", "T-323", "T-423", "KI-123", "DI-123", "DI-223"], "groupRenames": {"T-232": "T-223"}, "tracks": [{"file": "Musofir.mp3", "title": "Musofir", "artist": ""}], "fbWeb": {"apiKey": "AIzaSyDPOvO9kqBcD9zIeCy_eR9szezLhoDB4Oo", "authDomain": "tadbirkorlik-asoslari.firebaseapp.com", "databaseURL": "https://tadbirkorlik-asoslari-default-rtdb.asia-southeast1.firebasedatabase.app", "projectId": "tadbirkorlik-asoslari", "storageBucket": "tadbirkorlik-asoslari.firebasestorage.app", "messagingSenderId": "303986754308", "appId": "1:303986754308:web:fca65cded4728199e68651"}, "teacherH": "9a5935bc7e3abb2f8da12a8f053d28b942d399f06d3841a799d1616c7bc48ceb"};</script>
 <script>
@@ -1655,6 +1657,15 @@ function cloudSetMedia(id,v,cb){
     body:JSON.stringify(!!v)}).then(function(r){ cb&&cb(r.ok); }).catch(function(){ cb&&cb(false); });
 }
 /* o'qituvchi qo'lda qo'ygan baho (masalan darsdagi topshiriq uchun) — talabaning o'z sinxronlanishiga bog'liq emas */
+/* o'qituvchi: talabaga shu mavzu testini qayta ochish — 2 ta yangi urinish va 3 kunlik ball muddati */
+function cloudUnlockTest(id,topicId,cb){
+  if(!cloudOn||!BASE){ cb&&cb(false); return; }
+  var u=BASE+"/students/"+id+"/prog/"+topicId;
+  fetch(u+"/qa.json").then(function(r){ return r.ok?r.json():null; }).then(function(qa){
+    return fetch(u+".json",{method:"PATCH",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({qx:+qa||0,fx:Date.now()+3*86400000})});
+  }).then(function(r){ cb&&cb(!!(r&&r.ok)); }).catch(function(){ cb&&cb(false); });
+}
 function cloudSetManual(id,topicId,val,cb){
   if(!cloudOn||!BASE){ cb&&cb(false); return; }
   fetch(BASE+"/students/"+id+"/manual/"+topicId+".json",{method:"PUT",headers:{"Content-Type":"application/json"},
@@ -1695,7 +1706,8 @@ function testCount(x){
 var ACTIVE_SEC=3600;
 /* har bir mavzu: taqdimot birinchi marta ochilgan paytdan (f) 7 kun o'tgach ball berilmaydi */
 var BALL_WINDOW=7*86400000, FSYNC=false, expShown=false;
-function expiredT(t){ return !!(t&&t.f&&Date.now()-t.f>BALL_WINDOW); }
+function expiredT(t){ if(t&&t.fx&&Date.now()<t.fx) return false;   /* o'qituvchi vaqtincha ochgan */
+  return !!(t&&t.f&&Date.now()-t.f>BALL_WINDOW); }
 function expToast(){ if(expShown) return; expShown=true;
   toast(T("⏳ Bu mavzu bo'yicha ball olish muddati (birinchi kirgandan 7 kun) tugagan — endi ball berilmaydi.","⏳ The 7-day scoring window for this topic has ended — no more points are given.")); }
 /* sF/qF — eski tizimdan qolgan (kalitlari noma'lum) slayd/test soni. nw — shundan keyin qo'shilgan yangi kalitlar:
@@ -1775,7 +1787,8 @@ function mergeCloud(v){
     if(!("legacy" in tm)&&(+s.t||0)>L.tOwn+other){ L.tLeg=(+s.t)-(L.tOwn+other); other+=L.tLeg; }
     L.tOther=other; L.t=L.tOwn+other;
     L.qAtt=Math.max(L.qAtt||0,+c.qa||0);
-    if(+c.f) L.f=L.f?Math.min(L.f,+c.f):+c.f;     /* birinchi kirish — eng erta sana */
+    if(+c.f) L.f=L.f?Math.min(L.f,+c.f):+c.f;
+    L.qx=Math.max(L.qx||0,+c.qx||0); L.fx=Math.max(L.fx||0,+c.fx||0);   /* o'qituvchi bergan qo'shimcha urinish / muddat */     /* birinchi kirish — eng erta sana */
     L.sF=Math.max(L.sF||0,+c.sF||0,has?0:(+s.s||0));
     L.qF=Math.max(L.qF||0,+c.qF||0,has?0:(+s.q||0));
   }
@@ -1792,7 +1805,8 @@ function progPaths(){
     o[b+"tm/"+DEV]=Math.round(x.tOwn||0);
     if(x.tLeg) o[b+"tm/legacy"]=Math.round(x.tLeg);
     if(x.qAtt) o[b+"qa"]=x.qAtt;
-    if(x.f&&FSYNC) o[b+"f"]=x.f;          /* faqat bulut bilan solishtirilgandan keyin yoziladi */
+    if(x.f&&FSYNC) o[b+"f"]=x.f;
+    if(x.qx) o[b+"qx"]=x.qx; if(x.fx) o[b+"fx"]=x.fx;          /* faqat bulut bilan solishtirilgandan keyin yoziladi */
     if(x.sF) o[b+"sF"]=x.sF; if(x.qF) o[b+"qF"]=x.qF;
   }
   return o;
@@ -2669,7 +2683,18 @@ function tcDraw(){
       tcFixGroup(s.from,s.to,s.list,b);
     };
   });
-  out.querySelectorAll(".rt-manual").forEach(function(b){
+  out.querySelectorAll(".rt-unlock").forEach(function(b){
+    b.onclick=function(){
+      if(!confirm(T(b.dataset.n+" uchun "+b.dataset.t.toUpperCase()+" testini qayta ochaymi?\n(2 ta yangi urinish, 3 kun davomida ball beriladi)",
+        "Reopen the "+b.dataset.t.toUpperCase()+" test for "+b.dataset.n+"?\n(2 new attempts, points for 3 days)"))) return;
+      b.disabled=true;
+      cloudUnlockTest(b.dataset.id,b.dataset.t,function(ok){
+        b.disabled=false;
+        toast(ok?T("Ochildi ✅ — talaba sahifani yangilasin","Reopened ✅ — the student should reload the page"):T("Saqlanmadi","Not saved"));
+      });
+    };
+  });
+  out.querySelectorAll(".rt-manual:not(.rt-unlock)").forEach(function(b){
     b.onclick=function(){
       var v=prompt(T("Ushbu dars uchun qo'lda baho (1-5). Bo'sh qoldirib OK bossangiz — belgi o'chadi:",
         "Manual mark for this lesson (1-5). Leave empty and press OK to clear:"), b.dataset.cur||"");
@@ -2848,6 +2873,8 @@ function marksTable(okl){
               '<button type="button" class="rt-manual'+(man?' on':'')+'" data-id="'+esc(x.id)+'" data-t="'+esc(t.id)+
                 '" data-cur="'+(man||"")+'" title="'+T("Qo'lda baho / topshiriq belgisi","Manual mark / assignment check")+'">'+
                 (man?('✅ '+man):'➕')+'</button>'+
+              '<button type="button" class="rt-manual rt-unlock" data-id="'+esc(x.id)+'" data-t="'+esc(t.id)+'" data-n="'+esc(x.surname+" "+x.name)+
+                '" title="'+T("Testni qayta ochish: 2 ta yangi urinish va 3 kun ball muddati","Reopen the test: 2 new attempts and a 3-day scoring window")+'">🔓</button>'+
               '</div></td>';
           }).join("")+
           '<td class="rt-mc">'+mkTag(av.a?+av.a.toFixed(1):0)+'</td></tr>';
@@ -4247,7 +4274,8 @@ var QATT_LIMIT=2;
 function qAttGet(){
   if(!window.RT) return 0;
   var P=RT.points(), t=(window.RT_CFG&&RT_CFG.topic)||"m0";
-  return (P.topics[t]&&P.topics[t].qAtt)||0;
+  var x=P.topics[t]||{};
+  return Math.max(0,(x.qAtt||0)-(x.qx||0));   /* qx — o'qituvchi qayta ochgan urinishlar */
 }
 function qAttBump(){
   if(!window.RT) return;
