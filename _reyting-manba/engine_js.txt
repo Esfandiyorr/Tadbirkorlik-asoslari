@@ -315,8 +315,15 @@ function testCount(x){
    50 ball — to'g'ri javoblar ulushi
    Har bir slayd va savol faqat bir marta sanaladi — nechta brauzerdan kirilmasin (bazada bitta ro'yxat) */
 var ACTIVE_SEC=3600;
-function seenOf(x){ return Math.max(Object.keys((x&&x.slides)||{}).length,(x&&x.sF)||0); }
-function testsOf(x){ return Math.max(testCount(x),(x&&x.qF)||0); }
+/* sF/qF — eski tizimdan qolgan (kalitlari noma'lum) slayd/test soni. nw — shundan keyin qo'shilgan yangi kalitlar:
+   yangi javob eski son ichida "yo'qolib" ketmasligi uchun eski son ustiga qo'shiladi */
+function nwCount(x,isSl){
+  var n=0, w=(x&&x.nw)||{};
+  for(var k in w){ if((k.indexOf("slide")===0)===isSl) n++; }
+  return n;
+}
+function seenOf(x){ return Math.max(Object.keys((x&&x.slides)||{}).length,((x&&x.sF)||0)+nwCount(x,true)); }
+function testsOf(x){ return Math.max(testCount(x),((x&&x.qF)||0)+nwCount(x,false)); }
 function markOf(id,x){
   x=x||P.topics[id]||{};
   var M=metaOf(id);
@@ -343,11 +350,13 @@ function recalc(){
 /* bazadagi bitta mavzu yozuvidan (prog + eski qisqa yozuv) hisoblash uchun ob'ekt */
 function topicFromCloud(c,s){
   c=c||{}; s=s||{};
-  var y={slides:{},acts:{},t:0,qAtt:+c.qa||0}, k, tm=c.tm||{}, sum=0;
+  var y={slides:{},acts:{},nw:{},t:0,qAtt:+c.qa||0}, k, tm=c.tm||{}, sum=0, has=!!(c.sl||c.ac||c.tm);
   for(k in (c.sl||{})) y.slides[k]=1;
   for(k in (c.ac||{})) y.acts[k]=c.ac[k];
+  for(k in (c.nw||{})) y.nw[k]=1;
   for(k in tm) sum+=(+tm[k]||0);
-  y.sF=Math.max(+c.sF||0,+s.s||0); y.qF=Math.max(+c.qF||0,+s.q||0);
+  /* umumiy s/q faqat yangi tizimga hali o'tmagan (prog yo'q) yozuvlar uchun eski son hisoblanadi */
+  y.sF=Math.max(+c.sF||0,has?0:(+s.s||0)); y.qF=Math.max(+c.qF||0,has?0:(+s.q||0));
   y.t=Math.max(sum,+s.t||0);
   return y;
 }
@@ -370,7 +379,9 @@ function mergeCloud(v){
   for(k in ids){
     var c=pr[k]||{}, s=sm[k]||{};
     var L=P.topics[k]||(P.topics[k]={p:0,slides:{},acts:{},t:0,tOwn:0});
-    if(!L.slides) L.slides={}; if(!L.acts) L.acts={};
+    if(!L.slides) L.slides={}; if(!L.acts) L.acts={}; if(!L.nw) L.nw={};
+    var has=!!(c.sl||c.ac||c.tm);
+    for(x in (c.nw||{})) L.nw[x]=1;
     for(x in (c.sl||{})) L.slides[x]=1;
     for(x in (c.ac||{})) if(!(x in L.acts)) L.acts[x]=c.ac[x];
     var tm=c.tm||{}, other=0;
@@ -380,8 +391,8 @@ function mergeCloud(v){
     if(!("legacy" in tm)&&(+s.t||0)>L.tOwn+other){ L.tLeg=(+s.t)-(L.tOwn+other); other+=L.tLeg; }
     L.tOther=other; L.t=L.tOwn+other;
     L.qAtt=Math.max(L.qAtt||0,+c.qa||0);
-    L.sF=Math.max(L.sF||0,+c.sF||0,+s.s||0);
-    L.qF=Math.max(L.qF||0,+c.qF||0,+s.q||0);
+    L.sF=Math.max(L.sF||0,+c.sF||0,has?0:(+s.s||0));
+    L.qF=Math.max(L.qF||0,+c.qF||0,has?0:(+s.q||0));
   }
   recalc();
 }
@@ -391,6 +402,7 @@ function progPaths(){
   for(k in P.topics){ x=P.topics[k]; b="prog/"+k+"/";
     for(n in (x.slides||{})) o[b+"sl/"+n]=1;
     for(n in (x.acts||{})) o[b+"ac/"+n]=x.acts[n];
+    for(n in (x.nw||{})) o[b+"nw/"+n]=1;
     o[b+"tm/"+DEV]=Math.round(x.tOwn||0);
     if(x.tLeg) o[b+"tm/legacy"]=Math.round(x.tLeg);
     if(x.qAtt) o[b+"qa"]=x.qAtt;
@@ -425,6 +437,7 @@ function award(key,pts,label){
   if(bag[key]) return;                  /* shu slayd/savol allaqachon hisoblangan — qaysi brauzerda bo'lmasin */
   var before=t.p||0;
   bag[key]=isSl?1:(pts||1);
+  if(!t.nw) t.nw={}; t.nw[key]=1;
   save(); chipUpdate();
   var d=Math.round(((t.p||0)-before)*10)/10;
   if(d>0) toast("+"+d+" ball"+(label?" · "+label:""));
