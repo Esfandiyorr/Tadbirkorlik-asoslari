@@ -144,7 +144,7 @@ canvas{max-width:100%;border-radius:14px;background:var(--panel2);touch-action:n
 .mem{display:grid;gap:12px;max-width:620px;margin:0 auto}
 .mc{aspect-ratio:1;border:none;background:none;padding:0;cursor:pointer;font-family:inherit;
   perspective:800px;-webkit-tap-highlight-color:transparent}
-.mc .f{position:relative;width:100%;height:100%;transition:transform .45s cubic-bezier(.4,.2,.2,1);
+.mc .f{display:block;position:relative;width:100%;height:100%;transition:transform .45s cubic-bezier(.4,.2,.2,1);
   transform-style:preserve-3d}
 .mc.up .f,.mc.done .f{transform:rotateY(180deg)}
 .mc .a,.mc .b2{position:absolute;inset:0;border-radius:18px;display:grid;place-items:center;
@@ -224,9 +224,6 @@ canvas{max-width:100%;border-radius:14px;background:var(--panel2);touch-action:n
 .streak{display:inline-block;background:linear-gradient(135deg,var(--orange),var(--red));color:#fff;
   border-radius:999px;padding:3px 11px;font-size:12px;font-weight:800;animation:pop2 .3s}
 @keyframes pop2{from{transform:scale(.5)}to{transform:scale(1)}}
-.mc{transition:transform .3s;transform-style:preserve-3d}
-.mc.up,.mc.done{transform:rotateY(180deg)}
-.mc span{display:block;transform:rotateY(180deg)}
 .t2{animation:tin .18s}
 @keyframes tin{from{transform:scale(.6);opacity:.4}to{transform:scale(1);opacity:1}}
 .t2.mg{animation:tmg .22s}
