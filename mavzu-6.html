@@ -317,6 +317,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 
 
+
 /* RT:BEGIN */
 /* ================== REYTING TIZIMI ================== */
 .rt-chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel);
@@ -1375,6 +1376,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 
 
+
 <!-- RT:BEGIN -->
 <script>var RT_CFG={"topic": "m6", "slides": 18, "quiz": 15, "pSlide": 2, "pAll": 10, "teacher": "", "firebase": {"db": "tadbirkorlik-asoslari-default-rtdb", "regions": ["asia-southeast1", "europe-west1", "us-central1", "europe-west4", "asia-east1", "us-east1", "northamerica-northeast1"], "url": "https://tadbirkorlik-asoslari-default-rtdb.asia-southeast1.firebasedatabase.app"}, "topics": [{"id": "m1", "file": "index.html", "title": "M1 · Tadbirkorlik tafakkuri va biznes imkoniyatlar", "open": true, "quiz": 15, "slides": 18}, {"id": "m2", "file": "mavzu-2.html", "title": "M2 · Mijoz muammosi asosida biznes g'oya", "open": true, "quiz": 15, "slides": 24}, {"id": "m3", "file": "mavzu-3.html", "title": "M3 · Mahsulotni kam xarajat bilan sinash (moliya va kredit)", "open": false, "quiz": 15, "slides": 15}, {"id": "m4", "file": "mavzu-4.html", "title": "M4 · Biznesni qonuniy rasmiylashtirish", "open": false, "quiz": 18, "slides": 18}, {"id": "m5", "file": "mavzu-5.html", "title": "M5 · Soliqlar va hujjatlar", "open": false, "quiz": 3, "slides": 18}, {"id": "m6", "file": "mavzu-6.html", "title": "M6 · Biznes-model qanday ishlaydi", "open": false, "quiz": 15, "slides": 18}, {"id": "m7", "file": "mavzu-7.html", "title": "M7 · Mijoz kim va unga nima kerak", "open": false, "quiz": 15, "slides": 18}, {"id": "m8", "title": "M8 · 8-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-8.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m9", "title": "M9 · 9-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-9.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m10", "title": "M10 · 10-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-10.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m11", "title": "M11 · 11-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-11.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m12", "title": "M12 · 12-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-12.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m13", "title": "M13 · 13-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-13.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m14", "title": "M14 · 14-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-14.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m15", "title": "M15 · 15-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-15.html", "open": false, "slides": 18, "quiz": 15}], "teacherTg": "https://t.me/esfandiyorr?direct", "courses": [{"id": "tad-asoslari", "icon": "🚀", "title": "Tadbirkorlik asoslari", "desc": "15 ta mavzu · nazariya, testlar va amaliy topshiriqlar", "first": "index.html"}], "groups": ["FIZ-123", "FIZ-223", "FIZ-323", "AP-123", "AP-223", "AP-323", "D-123", "DKG-BF-123", "YES-123", "T-123", "T-223", "T-323", "T-423", "KI-123", "KI-223", "DI-123", "DI-223"], "groupRenames": {"T-232": "T-223"}, "tracks": [{"file": "Musofir.mp3", "title": "Musofir", "artist": ""}], "fbWeb": {"apiKey": "AIzaSyDPOvO9kqBcD9zIeCy_eR9szezLhoDB4Oo", "authDomain": "tadbirkorlik-asoslari.firebaseapp.com", "databaseURL": "https://tadbirkorlik-asoslari-default-rtdb.asia-southeast1.firebasedatabase.app", "projectId": "tadbirkorlik-asoslari", "storageBucket": "tadbirkorlik-asoslari.firebasestorage.app", "messagingSenderId": "303986754308", "appId": "1:303986754308:web:fca65cded4728199e68651"}, "teacherH": "9a5935bc7e3abb2f8da12a8f053d28b942d399f06d3841a799d1616c7bc48ceb"};</script>
 <script>
@@ -1421,12 +1423,61 @@ function fbOn(){ var w=CFG.fbWeb; return !!(w&&w.apiKey&&w.authDomain&&CFG.teach
 /* o'qituvchi kirgan bo'lsa, bazaga har bir so'rovga uning tokeni qo'shiladi —
    Firebase qoidalari o'qituvchi amallarini faqat shu token bilan qabul qiladi */
 function fetch(u,o){
-  if(TC_USER&&BASE&&typeof u==="string"&&u.indexOf(BASE+"/")===0){
-    return TC_USER.getIdToken().then(function(t){
-      return window.fetch(u+(u.indexOf("?")<0?"?":"&")+"auth="+encodeURIComponent(t),o);
-    },function(){ return window.fetch(u,o); });
+  function withTok(t){ return t?window.fetch(u+(u.indexOf("?")<0?"?":"&")+"auth="+encodeURIComponent(t),o):window.fetch(u,o); }
+  if(BASE&&typeof u==="string"&&u.indexOf(BASE+"/")===0){
+    if(TC_USER) return TC_USER.getIdToken().then(withTok,function(){ return window.fetch(u,o); });
+    if(SA) return new Promise(function(res){ saToken(false,res); }).then(withTok);   /* talabaning yashirin kaliti */
   }
   return window.fetch(u,o);
+}
+/* ---------- talabaning yashirin kaliti: Firebase anonim kirish (REST, SDK'siz) ----------
+   Har bir brauzer o'z anonim hisobini oladi. Talaba yozuviga faqat "owners/<id>/<uid>" da
+   tasdiqlangan brauzer yoza oladi — tasdiq uchun ism+familiya+PIN izini bilish kerak, u esa
+   yopiq "keys/<id>" da turadi. Shu bilan boshqa talabaning ballari va hisobiga tegib bo'lmaydi. */
+var SA=null, SEC=false, saWait=null;
+try{ SA=JSON.parse(localStorage.getItem("terdu_sa")||"null"); }catch(e){ SA=null; }
+function tmo(pr,ms){ return Promise.race([pr,new Promise(function(_,rej){ setTimeout(function(){ rej(0); },ms); })]); }
+function saToken(make,cb){
+  var k=(CFG.fbWeb||{}).apiKey;
+  if(!k){ cb(null); return; }
+  if(SA&&SA.tok&&SA.exp>Date.now()+120000){ cb(SA.tok); return; }
+  if(!SA&&!make){ cb(null); return; }
+  if(saWait){ saWait.push(cb); return; }
+  saWait=[cb];
+  function fin(t){ var w=saWait; saWait=null; w.forEach(function(f){ f(t); }); }
+  function keep(a){ SA=a; try{ localStorage.setItem("terdu_sa",JSON.stringify(a)); }catch(e){} fin(a.tok); }
+  function fresh(){
+    tmo(window.fetch("https://identitytoolkit.googleapis.com/v1/accounts:signUp?key="+k,{method:"POST",
+        headers:{"Content-Type":"application/json"},body:'{"returnSecureToken":true}'}),9000)
+      .then(function(r){ return r.json(); })
+      .then(function(j){ if(!j||!j.idToken) throw 0;
+        keep({uid:j.localId,tok:j.idToken,ref:j.refreshToken,exp:Date.now()+(+j.expiresIn||3600)*1000}); })
+      .catch(function(){ fin(null); });
+  }
+  if(SA&&SA.ref){
+    tmo(window.fetch("https://securetoken.googleapis.com/v1/token?key="+k,{method:"POST",
+        headers:{"Content-Type":"application/x-www-form-urlencoded"},
+        body:"grant_type=refresh_token&refresh_token="+encodeURIComponent(SA.ref)}),9000)
+      .then(function(r){ return r.json().then(function(j){ return {ok:r.ok,j:j}; }); })
+      .then(function(x){ var j=x.j;
+        if(!x.ok||!j||!j.id_token){            /* kalit bekor qilingan — yangisini olamiz */
+          SA=null; try{ localStorage.removeItem("terdu_sa"); }catch(e){}
+          if(make) fresh(); else fin(null); return; }
+        keep({uid:j.user_id,tok:j.id_token,ref:j.refresh_token,exp:Date.now()+(+j.expires_in||3600)*1000}); })
+      .catch(function(){ fin(null); });           /* tarmoq xatosi — kalitni saqlab qolamiz */
+    return;
+  }
+  fresh();
+}
+/* shu brauzerni talaba yozuvining egasi sifatida tasdiqlash. cb(true) — tasdiqlandi */
+function claimOwn(id,pk,cb){
+  if(!cloudOn||!BASE||!id||!pk){ cb(false); return; }
+  saToken(true,function(t){
+    if(!t){ cb(false); return; }
+    tmo(window.fetch(BASE+"/owners/"+id+"/"+SA.uid+".json?auth="+encodeURIComponent(t),{method:"PUT",
+        headers:{"Content-Type":"application/json"},body:JSON.stringify(pk)}),9000)
+      .then(function(r){ if(r.ok) SEC=true; cb(r.ok); }).catch(function(){ cb(false); });
+  });
 }
 function loadJs(src,cb){
   var s=document.createElement("script"); s.src=src; s.async=true;
@@ -1522,7 +1573,8 @@ function cloudInit(done){
 }
 function rec(){
   /* guruh bu yerda yo'q: uni o'qituvchi o'zgartiradi, talabaning eski nusxasi ustidan yozib yubormasin */
-  return {id:S.id,name:S.name,surname:S.surname,email:S.email||"",pk:S.pk||"",
+  /* PIN izi va email bu yerda yo'q: ular faqat ro'yxatdan o'tishda (yoki alohida) yoziladi */
+  return {id:S.id,name:S.name,surname:S.surname,
           total:P.total||0,topics:topicSummary(),at:S.at||Date.now(),updated:Date.now()};
 }
 function cloudSave(withGroup){   /* status maydoniga tegmaydi — uni faqat o'qituvchi o'zgartiradi */
@@ -1531,17 +1583,60 @@ function cloudSave(withGroup){   /* status maydoniga tegmaydi — uni faqat o'qi
   var pp=progPaths(); for(var k in pp) r[k]=pp[k];
   try{
     fetch(BASE+"/students/"+S.id+".json",{method:"PATCH",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify(r)}).catch(function(){});
+      body:JSON.stringify(r)}).then(function(x){ if(x.status===401||x.status===403) ownLost(); }).catch(function(){});
   }catch(e){}
+}
+/* yozish rad etildi: brauzerni qayta tasdiqlaymiz; bo'lmasa (PIN o'zgargan) — qayta kirish so'raladi */
+var olAt=0;
+function ownLost(){
+  if(!S||DEAD||Date.now()-olAt<60000) return; olAt=Date.now();
+  claimOwn(S.id,S.pk,function(ok){
+    if(ok){ cloudSave(); return; }
+    if(document.getElementById("rtRelog")) return;
+    var g=el('<div class="rt-gate" id="rtRelog"><div class="rt-box" style="text-align:center">'+
+      '<div style="font-size:44px">🔐</div>'+
+      '<h2 style="margin:6px 0 4px">'+T("Hisobingizga qayta kiring","Please log in again")+'</h2>'+
+      '<p class="rt-note">'+T("Xavfsizlik uchun bu brauzerni qayta tasdiqlash kerak (masalan, PIN-kod o\'zgartirilgan). Ism, familiya va PIN-kod bilan kiring — ballaringiz saqlanib qolgan.",
+        "For security this browser must be confirmed again (for example, the PIN was changed). Log in with your name, surname and PIN — your points are kept.")+'</p>'+
+      '<button class="btn accent" id="rtRelogGo" style="justify-content:center;margin-top:10px">🔑 '+T("Qayta kirish","Log in again")+'</button>'+
+      '</div></div>');
+    document.body.appendChild(g);
+    document.getElementById("rtRelogGo").onclick=function(){
+      DEAD=true; try{ localStorage.removeItem(LS.stu); localStorage.removeItem(LS.prog); }catch(e){} location.reload(); };
+  });
+}
+/* email ochiq ro'yxatda emas, yopiq "priv" bo'limida saqlanadi (eski qoidalarda — avvalgidek) */
+function cloudSetEmail(){
+  if(!cloudOn||!BASE||!S) return;
+  var v=JSON.stringify(S.email||""), H={"Content-Type":"application/json"};
+  fetch(BASE+"/priv/"+S.id+"/email.json",{method:"PUT",headers:H,body:v}).then(function(r){
+    if(!r.ok) return fetch(BASE+"/students/"+S.id+"/email.json",{method:"PUT",headers:H,body:v});
+  }).catch(function(){});
 }
 function cloudCreate(){          /* faqat ro'yxatdan o'tishda: status="pending" */
   if(!cloudOn||!BASE||!S) return;
-  var r=rec(); r.status="pending"; r.group=S.group;
   FSYNC=true;                    /* yangi yozuv — bulutda boshqa "birinchi kirish" sanasi yo'q */
-  try{
+  var me=S;
+  function put(sec){
+    if(S!==me) return;
+    var r=rec(); r.status="pending"; r.group=S.group;
+    if(!sec){ r.pk=S.pk||""; r.email=S.email||""; }      /* eski qoidalar: avvalgidek ochiq */
     fetch(BASE+"/students/"+S.id+".json",{method:"PUT",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify(r)}).catch(function(){});
-  }catch(e){}
+      body:JSON.stringify(r)}).then(function(){ if(sec&&S===me&&S.email) cloudSetEmail(); }).catch(function(){});
+  }
+  /* avval yopiq kalit va shu brauzerning egaligi, keyin yozuvning o'zi */
+  saToken(true,function(t){
+    if(!t){ put(false); return; }
+    var b={}; b["keys/"+S.id]=S.pk; b["owners/"+S.id+"/"+SA.uid]=S.pk;
+    tmo(window.fetch(BASE+"/.json?auth="+encodeURIComponent(t),{method:"PATCH",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify(b)}),9000).then(function(x){ SEC=x.ok; put(x.ok); },function(){ put(false); });
+  });
+}
+/* o'qituvchi talabani o'chirganda: yopiq kalit, egalar va email ham o'chiriladi */
+function cloudDropPriv(id){
+  if(!cloudOn||!BASE) return;
+  var b={}; b["owners/"+id]=null; b["keys/"+id]=null; b["priv/"+id]=null;
+  fetch(BASE+"/.json",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify(b)}).catch(function(){});
 }
 function cloudDrop(id){
   if(!cloudOn||!BASE) return;
@@ -1553,7 +1648,13 @@ function cloudList(cb){
     .then(function(v){
       if(!v){ cb(null); return; }
       var a=[]; for(var k in v){ var x=v[k];
-        if(x&&x.name&&x.status&&(x.at||0)>=RESET) a.push(normRec(x)); } cb(a);
+        if(x&&x.name&&x.status&&(x.at||0)>=RESET) a.push(normRec(x)); }
+      if(!isTc){ cb(a); return; }
+      /* o'qituvchi: yopiq bo'limdagi emaillarni qo'shamiz */
+      fetch(BASE+"/priv.json").then(function(r){ return r.ok?r.json():null; }).then(function(pv){
+        if(pv) a.forEach(function(x){ var q=pv[x.id]; if(q&&q.email) x.email=q.email; });
+        cb(a);
+      }).catch(function(){ cb(a); });
     }).catch(function(){ cb(null); });
 }
 function cloudStatus(){
@@ -1610,13 +1711,29 @@ function rulesTxt(){
    media ruxsati) faqat o'qituvchi hisobidan qabul qilinadi; chat, arena va ovoz berish talabalar uchun ochiq qoladi */
 function rulesSecureTxt(){
   var t="auth != null && auth.token.email === 'SIZNING_GMAIL@gmail.com' && auth.token.email_verified === true";
+  var own="auth != null && root.child('owners').child($sid).child(auth.uid).exists()";
+  var live="root.child('students').child($sid).child('status').exists()";
+  var claim="auth != null && auth.uid === $uid && newData.isString() && ("+
+    "newData.val() === root.child('keys').child($sid).val() || (!root.child('keys').child($sid).exists() && ("+
+    "(!root.child('students').child($sid).exists() && newData.val() === newData.parent().parent().parent().child('keys').child($sid).val()) || "+
+    "(root.child('students').child($sid).child('pk').exists() && newData.val() === root.child('students').child($sid).child('pk').val()))))";
+  var keyNew="auth != null && !data.exists() && !root.child('students').child($sid).exists() && newData.isString() && "+
+    "newData.val() === newData.parent().parent().child('owners').child($sid).child(auth.uid).val()";
+  var T_=function(x){ return "("+t+")"+(x?" || ("+x+")":""); };
   return JSON.stringify({rules:{
     students:{".read":true,".write":t,
-      "$sid":{".write":"!data.exists() || !data.child('status').exists() || data.child('status').val() === 'pending'",
-        status:{".write":t,".validate":"newData.val() === 'pending' || ("+t+")"},
+      "$sid":{".write":own+" && (!data.exists() || (!newData.exists() && data.child('status').val() === 'pending'))",
+        status:{".write":t,".validate":T_("newData.val() === 'pending' && !data.exists()")},
         media:{".write":t,".validate":t},
         manual:{".write":t,".validate":t},
-        "$other":{".write":true}}},
+        pk:{".validate":t},
+        email:{".validate":t},
+        prog:{"$t":{qx:{".write":t,".validate":t},fx:{".write":t,".validate":t},
+          "$f":{".write":own+" && "+live}}},
+        "$other":{".write":own+" && "+live}}},
+    owners:{".write":t,"$sid":{"$uid":{".write":claim}}},
+    keys:{".write":t,"$sid":{".write":keyNew}},
+    priv:{".read":t,".write":t,"$sid":{".read":own,".write":own}},
     meta:{".read":true,".write":t,pollvotes:{".write":true},cleanAt:{".write":true}},
     chat:{".read":true,".write":true},
     media:{".read":true,".write":true},
@@ -1651,6 +1768,30 @@ function tcTest(){
       });
     }).catch(function(){ res.push({n:n,ok:false,e:T("tarmoq xatosi","network error")}); next(); });
   })();
+}
+/* PIN izlari va emaillarni ochiq ro'yxatdan yopiq bo'limlarga ko'chirish (yangi qoidalar joylangandan keyin bir marta) */
+function tcSecure(){
+  var out=document.getElementById("rtTcDiag"); if(!out||!cloudOn||!BASE) return;
+  if(!confirm(T("PIN izlari va emaillar yopiq bo'limga ko'chirilsinmi?\nAvval Firebase'da Anonymous kirishni yoqib, yangi qoidalarni joylagan bo'lishingiz kerak.",
+    "Move PIN hashes and emails to the private section?\nYou must first enable Anonymous sign-in and publish the new rules in Firebase."))) return;
+  out.innerHTML='<p class="rt-note">'+T("Ko\'chirilmoqda…","Moving…")+'</p>';
+  fetch(BASE+"/students.json").then(function(r){ return r.ok?r.json():null; }).then(function(v){
+    if(!v) throw 0;
+    var b={owners:null}, n=0, nopk=[];
+    for(var id in v){ var x=v[id]; if(!x||typeof x!=="object") continue;
+      if(x.pk){ b["keys/"+id]=x.pk; b["students/"+id+"/pk"]=null; n++; }
+      else if(x.name&&x.status) nopk.push(x.surname+" "+x.name);
+      if(x.email){ b["priv/"+id+"/email"]=x.email; b["students/"+id+"/email"]=null; } }
+    return fetch(BASE+"/.json",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify(b)})
+      .then(function(r){
+        if(!r.ok){ out.innerHTML='<p class="rt-note">❌ '+T("Bo\'lmadi — yangi qoidalar joylanmagan bo\'lishi mumkin. Quyidagilarni Firebase → Realtime Database → Rules ga qo\'ying (gmailingizni yozib) va Publish qiling:",
+            "Failed — the new rules may not be published yet. Put this into Firebase → Realtime Database → Rules (with your Gmail) and publish:")+
+            '<code style="display:block;margin-top:6px;font-size:11px;white-space:pre-wrap;word-break:break-all;background:var(--chip);padding:8px;border-radius:9px">'+esc(rulesSecureTxt())+'</code></p>'; return; }
+        out.innerHTML='<p class="rt-note">✅ '+T("Tayyor: ","Done: ")+n+T(" ta talabaning PIN izi va emaillari yopiq bo\'limga ko\'chirildi."," students' PIN hashes and emails were moved to the private section.")+
+          (nopk.length?'<br>⚠️ '+T("PIN izi yo\'q talabalar (ularga 🔑 bilan yangi PIN qo\'ying): ","Students without a PIN hash (give them a new PIN with 🔑): ")+esc(nopk.join(", ")):"")+'</p>';
+        tcLoad();
+      });
+  }).catch(function(){ out.innerHTML='<p class="rt-note">❌ '+T("Tarmoq xatosi","Network error")+'</p>'; });
 }
 function cloudSetMedia(id,v,cb){
   if(!cloudOn||!BASE){ cb&&cb(false); return; }
@@ -2038,8 +2179,19 @@ function findMe(n,sn,pin,cb){
   var k=pkey(n,sn,pin);
   cloudList(function(a){
     if(!a){ cb(null); return; }
-    var hit=a.filter(function(x){ return x.pk===k; })[0];
-    cb(hit||null);
+    var hit=a.filter(function(x){ return x.pk===k; })[0];          /* PIN izi hali ochiq turgan eski yozuv */
+    if(hit){ claimOwn(hit.id,k,function(){ cb(hit); }); return; }
+    /* yangi tizim: PIN izi yopiq — shu ism-familiyadagi yozuvlarga egalikni tasdiqlab ko'ramiz */
+    var cand=a.filter(function(x){ return !x.pk&&nrm(x.name)===nrm(n)&&nrm(x.surname)===nrm(sn); });
+    (function next(i){
+      if(i>=cand.length){ cb(null); return; }
+      claimOwn(cand[i].id,k,function(ok){
+        if(!ok){ next(i+1); return; }
+        var h=cand[i];
+        fetch(BASE+"/priv/"+h.id+".json").then(function(r){ return r.ok?r.json():null; })
+          .then(function(pv){ if(pv&&pv.email) h.email=pv.email; cb(h); },function(){ cb(h); });
+      });
+    })(0);
   });
 }
 /* ---------- fanlar ro'yxati (ro'yxatdan o'tgach / kirgach ko'rsatiladi) ---------- */
@@ -2173,7 +2325,7 @@ function fields(pre,withExtra){
         "No such account. Check the name, surname and PIN, or register instead."));
       if(hit.status==="blocked") return err("lgErr",T("Hisobingiz bloklangan. O'qituvchiga murojaat qiling.","Your account is blocked. Contact the teacher."));
       S={id:hit.id,name:hit.name,surname:hit.surname,group:hit.group,email:hit.email||"",
-         pk:hit.pk,at:hit.at||Date.now(),status:hit.status||"pending"};
+         pk:pkey(n,sn,pin),at:hit.at||Date.now(),status:hit.status||"pending"};
       P={total:0,topics:{},log:{}};
       mergeCloud(hit);
       lset(LS.stu,S); lset(LS.prog,P);
@@ -2388,7 +2540,7 @@ function emailAsk(){
     var v=document.getElementById("emIn").value.trim();
     if(!okMail(v)){ var e=document.getElementById("emErr"); e.style.display="block";
       e.textContent=T("Email manzilni to'g'ri kiriting.","Please enter a valid email address."); return; }
-    S.email=v; lset(LS.stu,S); cloudSave(); g.remove(); toast(T("Rahmat! ✅","Thank you! ✅"));
+    S.email=v; lset(LS.stu,S); cloudSave(); cloudSetEmail(); g.remove(); toast(T("Rahmat! ✅","Thank you! ✅"));
   }
   document.getElementById("emGo").onclick=ok;
   document.getElementById("emIn").addEventListener("keydown",function(e){ if(e.key==="Enter") ok(); });
@@ -2400,8 +2552,10 @@ function renderCv(){
   box.innerHTML=
     '<div class="rt-sec" style="margin-top:0"><h4>👤 '+T("Shaxsiy ma'lumotlarim","My details")+'</h4>'+
       '<div class="rt-form" style="max-width:420px;margin:0">'+
-        '<label>'+T("Ism","First name")+'<input id="cvN" value="'+esc(S.name)+'"></label>'+
-        '<label>'+T("Familiya","Surname")+'<input id="cvS" value="'+esc(S.surname)+'"></label>'+
+        '<label>'+T("Ism","First name")+'<input id="cvN" value="'+esc(S.name)+'" disabled></label>'+
+        '<label>'+T("Familiya","Surname")+'<input id="cvS" value="'+esc(S.surname)+'" disabled></label>'+
+        '<p class="rt-note" style="margin:-4px 0 4px">'+T("Ism va familiya bilan hisobga kirasiz, shuning uchun ularni o\'zgartirib bo\'lmaydi.",
+          "You log in with your name and surname, so they cannot be changed.")+'</p>'+
         '<label>'+T("Guruh","Group")+groupField("cvG",S.group)+'</label>'+
         '<label>'+T("Email","Email")+'<input id="cvE" type="email" inputmode="email" value="'+esc(S.email||"")+'" placeholder="ism@gmail.com"></label>'+
         '<button class="btn accent" id="cvSaveB" style="justify-content:center">💾 '+T("Saqlash","Save")+'</button>'+
@@ -2413,7 +2567,8 @@ function renderCv(){
         g=document.getElementById("cvG").value.trim(), em=document.getElementById("cvE").value.trim();
     if(n.length<2||sn.length<2||!g){ toast(T("Maydonlarni to'ldiring","Fill in the fields")); return; }
     if(!okMail(em)){ toast(T("Email noto'g'ri","Invalid email")); return; }
-    S.name=n; S.surname=sn; S.group=g; S.email=em; lset(LS.stu,S); cloudSave(true);
+    var emCh=(em!==(S.email||""));
+    S.group=g; S.email=em; lset(LS.stu,S); cloudSave(true); if(emCh) cloudSetEmail();
     chipUpdate(); toast(T("Saqlandi ✅","Saved ✅"));
   };
 }
@@ -2568,7 +2723,7 @@ function tcDedupe(){
   });
   if(!confirm(T("Takroriy yozuvlar o'chirilsinmi","Delete duplicate records")+"?\n"+names.join("\n")+
      "\n\n"+T("Har biridan eng ko'p ballisi qoldiriladi.","The one with the most points is kept for each."))) return;
-  kill.forEach(function(x){ cloudDrop(x.id); });
+  kill.forEach(function(x){ cloudDrop(x.id); cloudDropPriv(x.id); });
   var ids=kill.map(function(x){return x.id;});
   tcList=tcList.filter(function(x){ return ids.indexOf(x.id)<0; });
   tcDraw(); toast(T("Tozalandi","Cleaned")+": "+kill.length);
@@ -2597,7 +2752,7 @@ function tcFixGroup(from,to,list,btn){
 }
 function tcDel(id,nm,after){
   if(!confirm(T("Ro\'yxatdan o\'chirilsinmi","Delete from the list")+": "+nm+"?")) return;
-  cloudDrop(id);
+  cloudDrop(id); cloudDropPriv(id);
   tcList=tcList.filter(function(x){ return x.id!==id; });
   (after||tcDraw)(); toast(T("O\'chirildi","Deleted"));
   if(S&&S.id===id){ lset(LS.stu,null); lset(LS.prog,{total:0,topics:{},log:{}}); setTimeout(function(){ location.reload(); },700); }
@@ -2665,6 +2820,7 @@ function tcDraw(){
      '<button class="btn warn" id="rtWipe" style="background:linear-gradient(135deg,var(--red),#9f1239)">🧹 '+
        T("Hammasini o\'chirish","Delete everyone")+'</button>'+
      '<button class="btn" id="rtTcDiagGo">🔎 '+T("Chat tekshiruvi","Chat self-test")+'</button>'+
+     '<button class="btn" id="rtSecGo">🔐 '+T("Xavfsiz rejimga o\'tkazish","Switch to secure mode")+'</button>'+
      '<button class="btn" id="rtTcOut2">🚪 '+T("Chiqish","Log out")+'</button></div>'+
      '<div id="rtTcDiag"></div>'+
      '<p class="rt-note">'+T("Jami talaba","Total students")+": "+tcList.length+" · "+T("guruhlar","groups")+": "+groupsOf(okl).length+(cloudOn?"":" · "+T("(faqat shu qurilma)","(this device only)"))+'</p>'+
@@ -2804,8 +2960,14 @@ function tcDraw(){
         toast(T("Yangi PIN: ","New PIN: ")+v);
       };
       if(!cloudOn||!BASE){ done(true); return; }
-      fetch(BASE+"/students/"+b.dataset.id+"/pk.json",{method:"PUT",headers:{"Content-Type":"application/json"},
-        body:JSON.stringify(pk)}).then(function(r){ done(r.ok); }).catch(function(){ done(false); });
+      /* yangi tizim: kalit yopiq bo'limga yoziladi va eski brauzerlarning egaligi bekor qilinadi */
+      var id=b.dataset.id, nb={}; nb["keys/"+id]=pk; nb["owners/"+id]=null; nb["students/"+id+"/pk"]=null;
+      fetch(BASE+"/.json",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify(nb)})
+        .then(function(r){
+          if(r.ok){ done(true); return; }
+          return fetch(BASE+"/students/"+id+"/pk.json",{method:"PUT",headers:{"Content-Type":"application/json"},
+            body:JSON.stringify(pk)}).then(function(r2){ done(r2.ok); });
+        }).catch(function(){ done(false); });
     };
   });
   out.querySelectorAll(".rt-ml").forEach(function(b){
@@ -2824,6 +2986,7 @@ function tcDraw(){
   }
   document.getElementById("rtTcRef").onclick=tcLoad;
   document.getElementById("rtTcDiagGo").onclick=tcTest;
+  document.getElementById("rtSecGo").onclick=tcSecure;
   var db=document.getElementById("rtDup"); if(db) db.onclick=tcDedupe;
   document.getElementById("rtTcOut2").onclick=function(){
     isTc=false; TC_USER=null;
@@ -3253,6 +3416,8 @@ function wipeAll(){
   if(tcList.length) dl("terdu-zaxira-"+today()+".csv","\ufeff#;Ism;Familiya;Guruh;Email;Ball;Holat\n"+back);
   fetch(BASE+"/students.json",{method:"DELETE"}).then(function(r){
     if(!r.ok) throw 0;
+    fetch(BASE+"/.json",{method:"PATCH",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({owners:null,keys:null,priv:null})}).catch(function(){});
     /* belgi qo'yamiz: shu vaqtdan oldin ro'yxatdan o'tganlar mahalliy nusxasi ham tozalanadi */
     return fetch(BASE+"/meta/reset.json",{method:"PUT",headers:{"Content-Type":"application/json"},
       body:JSON.stringify(Date.now())});
@@ -3481,9 +3646,11 @@ function boot(){
   if(!S||!cloudOn){ gate(); return; }
   /* hisob bazadan o'chirilgan bo'lsa, mahalliy nusxa ham tozalanadi */
   if(RESET && (S.at||0) < RESET){ DEAD=true; cloudDrop(S.id); wipeLocal("reset"); return; }
-  cloudHas(S.id,function(has){
-    if(has===false){ DEAD=true; cloudDrop(S.id); wipeLocal("gone"); return; }
-    gate();
+  claimOwn(S.id,S.pk,function(){        /* bu brauzer shu yozuvning egasi ekanini tasdiqlaymiz (yangi qoidalarda kerak) */
+    cloudHas(S.id,function(has){
+      if(has===false){ DEAD=true; cloudDrop(S.id); wipeLocal("gone"); return; }
+      gate();
+    });
   });
 }
 function splash(on){
