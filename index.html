@@ -363,6 +363,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 
 
+
 /* RT:BEGIN */
 /* ================== REYTING TIZIMI ================== */
 .rt-chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel);
@@ -1464,6 +1465,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 
 
+
 <!-- RT:BEGIN -->
 <script>var RT_CFG={"topic": "m1", "slides": 18, "quiz": 15, "pSlide": 2, "pAll": 10, "teacher": "", "firebase": {"db": "tadbirkorlik-asoslari-default-rtdb", "regions": ["asia-southeast1", "europe-west1", "us-central1", "europe-west4", "asia-east1", "us-east1", "northamerica-northeast1"], "url": "https://tadbirkorlik-asoslari-default-rtdb.asia-southeast1.firebasedatabase.app"}, "topics": [{"id": "m1", "file": "index.html", "title": "M1 · Tadbirkorlik tafakkuri va biznes imkoniyatlar", "open": true, "quiz": 15, "slides": 18}, {"id": "m2", "file": "mavzu-2.html", "title": "M2 · Mijoz muammosi asosida biznes g'oya", "open": true, "quiz": 15, "slides": 24}, {"id": "m3", "file": "mavzu-3.html", "title": "M3 · Mahsulotni kam xarajat bilan sinash (moliya va kredit)", "open": false, "quiz": 15, "slides": 15}, {"id": "m4", "file": "mavzu-4.html", "title": "M4 · Biznesni qonuniy rasmiylashtirish", "open": false, "quiz": 18, "slides": 18}, {"id": "m5", "file": "mavzu-5.html", "title": "M5 · Soliqlar va hujjatlar", "open": false, "quiz": 3, "slides": 18}, {"id": "m6", "file": "mavzu-6.html", "title": "M6 · Biznes-model qanday ishlaydi", "open": false, "quiz": 15, "slides": 18}, {"id": "m7", "file": "mavzu-7.html", "title": "M7 · Mijoz kim va unga nima kerak", "open": false, "quiz": 15, "slides": 18}, {"id": "m8", "title": "M8 · 8-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-8.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m9", "title": "M9 · 9-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-9.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m10", "title": "M10 · 10-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-10.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m11", "title": "M11 · 11-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-11.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m12", "title": "M12 · 12-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-12.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m13", "title": "M13 · 13-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-13.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m14", "title": "M14 · 14-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-14.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m15", "title": "M15 · 15-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-15.html", "open": false, "slides": 18, "quiz": 15}], "teacherTg": "https://t.me/esfandiyorr?direct", "courses": [{"id": "tad-asoslari", "icon": "🚀", "title": "Tadbirkorlik asoslari", "desc": "15 ta mavzu · nazariya, testlar va amaliy topshiriqlar", "first": "index.html"}], "groups": ["FIZ-123", "FIZ-223", "FIZ-323", "AP-123", "AP-223", "AP-323", "D-123", "DKG-BF-123", "YES-123", "T-123", "T-223", "T-323", "T-423", "KI-123", "KI-223", "DI-123", "DI-223"], "groupRenames": {"T-232": "T-223"}, "tracks": [{"file": "Musofir.mp3", "title": "Musofir", "artist": ""}], "fbWeb": {"apiKey": "AIzaSyDPOvO9kqBcD9zIeCy_eR9szezLhoDB4Oo", "authDomain": "tadbirkorlik-asoslari.firebaseapp.com", "databaseURL": "https://tadbirkorlik-asoslari-default-rtdb.asia-southeast1.firebasedatabase.app", "projectId": "tadbirkorlik-asoslari", "storageBucket": "tadbirkorlik-asoslari.firebasestorage.app", "messagingSenderId": "303986754308", "appId": "1:303986754308:web:fca65cded4728199e68651"}, "teacherH": "9a5935bc7e3abb2f8da12a8f053d28b942d399f06d3841a799d1616c7bc48ceb"};</script>
 <script>
@@ -2047,12 +2049,10 @@ function progPaths(){
 }
 /* talabaning barcha mavzulardagi o'rtacha bahosi (bulutdagi qisqa yozuvdan) */
 function avgMark(x){
-  var ts=(x&&x.topics)||{}, mn=(x&&x.manual)||{}, sum=0, n=0, k;
-  for(k in ts){ var b=ts[k]&&ts[k].b; if(b>0){ sum+=b; n++; } }
-  var les={}; for(k in ts) if(ts[k]&&ts[k].b>0) les[k]=1;
-  for(k in mn){ var v=+mn[k]; if(v>0){ sum+=v; n++; les[k]=1; } }    /* qo'lda qo'yilgan baholar ham o'rtachaga kiradi */
-  var nl=Object.keys(les).length;                                    /* baholangan darslar soni (mavzu bir marta sanaladi) */
-  return n?{a:sum/n,n:nl}:{a:0,n:0};
+  /* faqat ma'ruza (taqdimot) baholari; qo'lda qo'yilgan amaliy dars bahosi o'rtachaga kirmaydi — u faqat ballga qo'shiladi */
+  var ts=(x&&x.topics)||{}, sum=0, n=0;
+  for(var k in ts){ var b=ts[k]&&ts[k].b; if(b>0){ sum+=b; n++; } }
+  return n?{a:sum/n,n:n}:{a:0,n:0};
 }
 function mkTag(b){ return b>0?'<span class="rt-mk b'+Math.round(b)+'">'+(b%1?b.toFixed(1):b)+'</span>':'<span class="rt-mk0">—</span>'; }
 function markName(b){
@@ -2568,13 +2568,13 @@ function renderMe(){
       "🕐 <b>20 ball</b> — taqdimotni faol o\'qish vaqti: <b>1 soat</b> va undan ko\'p = to\'liq 20 ball, kamroq bo\'lsa ulushiga qarab (30 daqiqa = 10 ball). Vaqt faqat sahifa ekranda ochiq turganda va siz so\'nggi 5 daqiqada biror harakat qilgan bo\'lsangiz sanaladi.<br>"+
       "📑 <b>30 ball</b> — ko\'rilgan slaydlar ulushi (hammasi ko\'rilsa — 30 ball).<br>"+
       "📝 <b>50 ball</b> — testdagi to\'g\'ri javoblar ulushi. Test faqat dastlabki 2 urinishda ball beradi.<br>"+
-      "✍️ O\'qituvchi darsda qo\'lda qo\'ygan baho ham umumiy ballga qo\'shiladi: har bir baho × "+MAN_PTS+" ball (masalan, 5 = +"+(5*MAN_PTS)+" ball).<br>"+
+      "✍️ O\'qituvchi amaliy darsda qo\'ygan baho umumiy reytingga qo\'shimcha ball beradi (o\'rtacha bahoga kirmaydi): har bir baho × "+MAN_PTS+" ball (masalan, 5 = +"+(5*MAN_PTS)+" ball).<br>"+
       "⏳ Ball faqat taqdimot <b>birinchi marta ochilgan kundan boshlab 7 kun</b> davomida beriladi. 7 kun o\'tgach bu mavzu bo\'yicha yangi ball qo\'shilmaydi (olingan ballar saqlanib qoladi).<br>"+
       "🔒 Har bir slayd va savol <b>faqat bir marta</b> hisoblanadi: nechta brauzer yoki telefondan kirsangiz ham ballaringiz bitta hisobda jamlanadi, qayta berilmaydi va yo\'qolmaydi.",
       "🕐 <b>20 points</b> — active reading time: <b>1 hour</b> or more = the full 20, less gives a proportional share (30 minutes = 10). Time counts only while the page is on screen and you have done something in the last 5 minutes.<br>"+
       "📑 <b>30 points</b> — the share of slides viewed (all slides = 30).<br>"+
       "📝 <b>50 points</b> — the share of correct test answers. The test gives points only in the first 2 attempts.<br>"+
-      "✍️ Marks the teacher gives in class are added to your total too: each mark × "+MAN_PTS+" points (e.g. 5 = +"+(5*MAN_PTS)+").<br>"+
+      "✍️ Marks the teacher gives in the practical class add bonus points to the overall rating (they do not count in the average mark): each mark × "+MAN_PTS+" points (e.g. 5 = +"+(5*MAN_PTS)+").<br>"+
       "⏳ Points are given only for <b>7 days from the first time you open</b> the presentation. After that no new points are added for this topic (points already earned are kept).<br>"+
       "🔒 Every slide and question counts <b>only once</b>: whichever browsers or phones you use, your points are combined in one account — never given twice and never lost.")+'</p></div>'+
     '<h3 style="margin:18px 0 8px;font-size:15px">'+T("Baholash shkalasi","Marking scale")+'</h3>'+
@@ -3178,8 +3178,8 @@ function marksTable(okl){
   }).join("");
   return '<h3 style="margin:20px 0 4px">📊 '+T("Mavzular bo'yicha baholar","Marks by topic")+'</h3>'+
     '<p class="rt-note" style="margin:0 0 8px">'+T(
-      "Har bir mavzu uchun alohida baho: slaydlar 30% + o'qish vaqti 20% + test 50%. Qo'lda qo'ygan bahongiz (➕) umumiy ballga qo'shiladi: har bir baho × "+MAN_PTS+" ball (5 = +"+(5*MAN_PTS)+") va o'rtacha bahoga kiradi. Guruh ustiga bosing — o'sha guruh baholari ochiladi.",
-      "A separate mark for each topic: slides 30% + reading time 20% + test 50%. Your manual mark (➕) is added to the total: each mark × "+MAN_PTS+" points (5 = +"+(5*MAN_PTS)+") and counts in the average. Click a group — that group's marks will open.")+'</p>'+
+      "Har bir mavzu uchun alohida baho: slaydlar 30% + o'qish vaqti 20% + test 50%. Qo'lda qo'ygan amaliy dars bahongiz (➕) o'rtacha bahoga kirmaydi — faqat umumiy reytingga qo'shimcha ball beradi: har bir baho × "+MAN_PTS+" ball (5 = +"+(5*MAN_PTS)+"). Guruh ustiga bosing — o'sha guruh baholari ochiladi.",
+      "A separate mark for each topic: slides 30% + reading time 20% + test 50%. Your manual practical-class mark (➕) does not count in the average — it only adds bonus points to the overall rating: each mark × "+MAN_PTS+" points (5 = +"+(5*MAN_PTS)+"). Click a group — that group's marks will open.")+'</p>'+
     groupTiles(gs,TC_OPEN_MARKS,"marks")+
     (openGs.length?'<div class="tw"><table class="rt-table rt-mtab"><thead>'+head+'</thead><tbody>'+body+'</tbody></table></div>':'')+
     '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">'+
