@@ -324,6 +324,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 
 
+
 /* RT:BEGIN */
 /* ================== REYTING TIZIMI ================== */
 .rt-chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel);
@@ -627,6 +628,30 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 /* --- Guruhni ro'yxatdan tanlash (o'qituvchi) --- */
 .rt-gmove{padding:6px 8px;border:1.5px solid var(--blue);border-radius:10px;background:var(--panel2);
   color:var(--ink);font-size:13px;font-weight:700;font-family:inherit;max-width:150px}
+
+/* reyting: top-10 sovrinlari */
+.rt-prize{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:74px}
+.rt-prize i{font-style:normal;font-size:28px;line-height:1;filter:drop-shadow(0 3px 6px color-mix(in srgb,var(--pc) 45%,transparent))}
+.rt-prize small{font-size:10.5px;font-weight:800;color:var(--pc);white-space:nowrap;letter-spacing:.2px}
+.rt-rank{display:inline-grid;place-items:center;min-width:74px;font-weight:800;color:var(--muted)}
+.rt-table tr.rt-ptop td{background:linear-gradient(90deg,color-mix(in srgb,var(--pc) 16%,transparent),color-mix(in srgb,var(--pc) 4%,transparent))}
+.rt-table tr.rt-ptop td:first-child{box-shadow:inset 4px 0 0 var(--pc)}
+.rt-table tr.rt-p1 td{background:linear-gradient(90deg,color-mix(in srgb,var(--pc) 28%,transparent),color-mix(in srgb,var(--pc) 6%,transparent))}
+.rt-table tr.rt-p1 .rt-prize i{font-size:34px;animation:rtCrown 2.4s ease-in-out infinite}
+.rt-table tr.rt-p2 .rt-prize i,.rt-table tr.rt-p3 .rt-prize i{animation:rtGlint 3s ease-in-out infinite}
+.rt-table tr.rt-ptop.me td{font-weight:700}
+@keyframes rtCrown{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-3px) rotate(4deg)}}
+@keyframes rtGlint{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+@media (prefers-reduced-motion:reduce){.rt-prize i{animation:none!important}}
+.rt-table tr.rt-ptop td{vertical-align:middle}
+@media (max-width:560px){
+  .rt-prize,.rt-rank{min-width:44px}
+  .rt-prize i{font-size:22px}
+  .rt-table tr.rt-p1 .rt-prize i{font-size:26px}
+  .rt-prize small{font-size:8.5px;white-space:normal;text-align:center;line-height:1.15;max-width:56px}
+  #rtTop .rt-table{font-size:12.5px}
+  #rtTop .rt-table th,#rtTop .rt-table td{padding:8px 6px}
+}
 /* ================== MUSIQA PLEYERI ================== */
 #mzTab{position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:70;
   background:linear-gradient(135deg,var(--violet),var(--pink));color:#fff;border:none;
@@ -1558,6 +1583,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 </div>
 
 <div class="hint" id="hint" data-ui="hint">⌨️ <kbd>→</kbd> keyingi slayd · <kbd>D</kbd> tun/kun · <kbd>L</kbd> uz/eng · <kbd>O</kbd> ro'yxat · <kbd>F</kbd> to'liq ekran</div>
+
 
 
 
@@ -2649,7 +2675,7 @@ function overlay(){
     '<div class="rt-head"><h2>🏆 '+T("Eng faol talabalar","Most active students")+'</h2>'+
       '<button class="btn" id="rtClose">✕ '+T("Yopish","Close")+'</button></div>'+
     '<div class="rt-tabs">'+
-      '<button class="rt-tab on" data-p="top">🥇 '+T("Reyting","Rating")+'</button>'+
+      '<button class="rt-tab on" data-p="top">👑 '+T("Reyting","Rating")+'</button>'+
       '<button class="rt-tab" data-p="me">📊 '+T("Mening natijam","My result")+'</button>'+
       '<button class="rt-tab" data-p="tp">📚 '+T("Mavzular","Topics")+'</button>'+
       '<button class="rt-tab" data-p="cv">📄 '+T("Mening ma\'lumotim","My profile")+'</button>'+
@@ -2674,6 +2700,25 @@ function overlay(){
   });
   return o;
 }
+/* reytingdagi top-10 sovrinlari: o'rin qanchalik yuqori bo'lsa, buyum shunchalik qimmat va nodir */
+var PRIZES=[
+  {e:"👑",n:["Oltin toj","Golden crown"],c:"#f59e0b"},
+  {e:"💎",n:["Olmos","Diamond"],c:"#0ea5e9"},
+  {e:"💎",n:["Pushti olmos","Pink diamond"],c:"#ec4899",f:"hue-rotate(125deg) saturate(1.6)"},
+  {e:"💎",n:["Zumrad","Emerald"],c:"#10b981",f:"hue-rotate(-80deg) saturate(1.4)"},
+  {e:"💍",n:["Brilliant uzuk","Diamond ring"],c:"#8b5cf6"},
+  {e:"🏆",n:["Oltin kubok","Golden cup"],c:"#eab308"},
+  {e:"🦪",n:["Marvarid","Pearl"],c:"#94a3b8"},
+  {e:"🪙",n:["Oltin tanga","Gold coin"],c:"#d97706"},
+  {e:"🥈",n:["Kumush","Silver"],c:"#64748b"},
+  {e:"🥉",n:["Bronza","Bronze"],c:"#b45309"}
+];
+function prizeCell(i){
+  var z=PRIZES[i];
+  if(!z) return '<span class="rt-rank">'+(i+1)+'</span>';
+  return '<div class="rt-prize" style="--pc:'+z.c+'"><i'+(z.f?' style="filter:'+z.f+'"':'')+'>'+z.e+'</i>'+
+    '<small>'+(i+1)+'. '+T(z.n[0],z.n[1])+'</small></div>';
+}
 function renderTop(){
   var box=document.getElementById("rtTop");
   box.innerHTML='<p style="color:var(--muted)">'+T("Yuklanmoqda…","Loading…")+'</p>';
@@ -2681,9 +2726,9 @@ function renderTop(){
     list.sort(function(a,b){ return (b.total||0)-(a.total||0); });
     var cur=CFG.topic||"m0";
     var rows=list.map(function(x,i){
-      var m=["🥇","🥈","🥉"][i]||(i+1)+".";
+      var m=prizeCell(i), pc=PRIZES[i];
       var av=avgMark(x), nt=(CFG.topics||[]).length||15;
-      return '<tr class="'+(S&&x.id===S.id?"me":"")+'"><td class="rt-medal">'+m+'</td><td>'+esc(x.name)+" "+esc(x.surname)+
+      return '<tr class="'+(S&&x.id===S.id?"me ":"")+(pc?"rt-ptop rt-p"+(i+1):"")+'"'+(pc?' style="--pc:'+pc.c+'"':'')+'><td class="rt-medal">'+m+'</td><td>'+esc(x.name)+" "+esc(x.surname)+
         '</td><td>'+esc(x.group)+'</td><td><b>'+(x.total||0)+'</b></td>'+
         '<td title="'+T("o\'rtacha baho","average mark")+'">'+mkTag(av.a?+av.a.toFixed(1):0)+'</td>'+
         '<td>'+av.n+' / '+nt+'</td>'+

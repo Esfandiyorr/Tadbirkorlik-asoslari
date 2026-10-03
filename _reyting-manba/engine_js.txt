@@ -1011,7 +1011,7 @@ function overlay(){
     '<div class="rt-head"><h2>🏆 '+T("Eng faol talabalar","Most active students")+'</h2>'+
       '<button class="btn" id="rtClose">✕ '+T("Yopish","Close")+'</button></div>'+
     '<div class="rt-tabs">'+
-      '<button class="rt-tab on" data-p="top">🥇 '+T("Reyting","Rating")+'</button>'+
+      '<button class="rt-tab on" data-p="top">👑 '+T("Reyting","Rating")+'</button>'+
       '<button class="rt-tab" data-p="me">📊 '+T("Mening natijam","My result")+'</button>'+
       '<button class="rt-tab" data-p="tp">📚 '+T("Mavzular","Topics")+'</button>'+
       '<button class="rt-tab" data-p="cv">📄 '+T("Mening ma\'lumotim","My profile")+'</button>'+
@@ -1036,6 +1036,25 @@ function overlay(){
   });
   return o;
 }
+/* reytingdagi top-10 sovrinlari: o'rin qanchalik yuqori bo'lsa, buyum shunchalik qimmat va nodir */
+var PRIZES=[
+  {e:"👑",n:["Oltin toj","Golden crown"],c:"#f59e0b"},
+  {e:"💎",n:["Olmos","Diamond"],c:"#0ea5e9"},
+  {e:"💎",n:["Pushti olmos","Pink diamond"],c:"#ec4899",f:"hue-rotate(125deg) saturate(1.6)"},
+  {e:"💎",n:["Zumrad","Emerald"],c:"#10b981",f:"hue-rotate(-80deg) saturate(1.4)"},
+  {e:"💍",n:["Brilliant uzuk","Diamond ring"],c:"#8b5cf6"},
+  {e:"🏆",n:["Oltin kubok","Golden cup"],c:"#eab308"},
+  {e:"🦪",n:["Marvarid","Pearl"],c:"#94a3b8"},
+  {e:"🪙",n:["Oltin tanga","Gold coin"],c:"#d97706"},
+  {e:"🥈",n:["Kumush","Silver"],c:"#64748b"},
+  {e:"🥉",n:["Bronza","Bronze"],c:"#b45309"}
+];
+function prizeCell(i){
+  var z=PRIZES[i];
+  if(!z) return '<span class="rt-rank">'+(i+1)+'</span>';
+  return '<div class="rt-prize" style="--pc:'+z.c+'"><i'+(z.f?' style="filter:'+z.f+'"':'')+'>'+z.e+'</i>'+
+    '<small>'+(i+1)+'. '+T(z.n[0],z.n[1])+'</small></div>';
+}
 function renderTop(){
   var box=document.getElementById("rtTop");
   box.innerHTML='<p style="color:var(--muted)">'+T("Yuklanmoqda…","Loading…")+'</p>';
@@ -1043,9 +1062,9 @@ function renderTop(){
     list.sort(function(a,b){ return (b.total||0)-(a.total||0); });
     var cur=CFG.topic||"m0";
     var rows=list.map(function(x,i){
-      var m=["🥇","🥈","🥉"][i]||(i+1)+".";
+      var m=prizeCell(i), pc=PRIZES[i];
       var av=avgMark(x), nt=(CFG.topics||[]).length||15;
-      return '<tr class="'+(S&&x.id===S.id?"me":"")+'"><td class="rt-medal">'+m+'</td><td>'+esc(x.name)+" "+esc(x.surname)+
+      return '<tr class="'+(S&&x.id===S.id?"me ":"")+(pc?"rt-ptop rt-p"+(i+1):"")+'"'+(pc?' style="--pc:'+pc.c+'"':'')+'><td class="rt-medal">'+m+'</td><td>'+esc(x.name)+" "+esc(x.surname)+
         '</td><td>'+esc(x.group)+'</td><td><b>'+(x.total||0)+'</b></td>'+
         '<td title="'+T("o\'rtacha baho","average mark")+'">'+mkTag(av.a?+av.a.toFixed(1):0)+'</td>'+
         '<td>'+av.n+' / '+nt+'</td>'+
