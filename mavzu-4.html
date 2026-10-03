@@ -345,6 +345,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 
 
+
 /* RT:BEGIN */
 /* ================== REYTING TIZIMI ================== */
 .rt-chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel);
@@ -1438,6 +1439,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 
 
+
 <!-- RT:BEGIN -->
 <script>var RT_CFG={"topic": "m4", "slides": 18, "quiz": 18, "pSlide": 2, "pAll": 10, "teacher": "", "firebase": {"db": "tadbirkorlik-asoslari-default-rtdb", "regions": ["asia-southeast1", "europe-west1", "us-central1", "europe-west4", "asia-east1", "us-east1", "northamerica-northeast1"], "url": "https://tadbirkorlik-asoslari-default-rtdb.asia-southeast1.firebasedatabase.app"}, "topics": [{"id": "m1", "file": "index.html", "title": "M1 · Tadbirkorlik tafakkuri va biznes imkoniyatlar", "open": true, "quiz": 15, "slides": 18}, {"id": "m2", "file": "mavzu-2.html", "title": "M2 · Mijoz muammosi asosida biznes g'oya", "open": true, "quiz": 15, "slides": 24}, {"id": "m3", "file": "mavzu-3.html", "title": "M3 · Mahsulotni kam xarajat bilan sinash (moliya va kredit)", "open": false, "quiz": 15, "slides": 15}, {"id": "m4", "file": "mavzu-4.html", "title": "M4 · Biznesni qonuniy rasmiylashtirish", "open": false, "quiz": 18, "slides": 18}, {"id": "m5", "file": "mavzu-5.html", "title": "M5 · Soliqlar va hujjatlar", "open": false, "quiz": 3, "slides": 18}, {"id": "m6", "file": "mavzu-6.html", "title": "M6 · Biznes-model qanday ishlaydi", "open": false, "quiz": 15, "slides": 18}, {"id": "m7", "file": "mavzu-7.html", "title": "M7 · Mijoz kim va unga nima kerak", "open": false, "quiz": 15, "slides": 18}, {"id": "m8", "title": "M8 · 8-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-8.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m9", "title": "M9 · 9-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-9.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m10", "title": "M10 · 10-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-10.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m11", "title": "M11 · 11-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-11.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m12", "title": "M12 · 12-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-12.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m13", "title": "M13 · 13-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-13.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m14", "title": "M14 · 14-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-14.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m15", "title": "M15 · 15-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-15.html", "open": false, "slides": 18, "quiz": 15}], "teacherTg": "https://t.me/esfandiyorr?direct", "courses": [{"id": "tad-asoslari", "icon": "🚀", "title": "Tadbirkorlik asoslari", "desc": "15 ta mavzu · nazariya, testlar va amaliy topshiriqlar", "first": "index.html"}], "groups": ["FIZ-123", "FIZ-223", "FIZ-323", "AP-123", "AP-223", "AP-323", "D-123", "DKG-BF-123", "YES-123", "T-123", "T-223", "T-323", "T-423", "KI-123", "KI-223", "DI-123", "DI-223"], "groupRenames": {"T-232": "T-223"}, "tracks": [{"file": "Musofir.mp3", "title": "Musofir", "artist": ""}], "fbWeb": {"apiKey": "AIzaSyDPOvO9kqBcD9zIeCy_eR9szezLhoDB4Oo", "authDomain": "tadbirkorlik-asoslari.firebaseapp.com", "databaseURL": "https://tadbirkorlik-asoslari-default-rtdb.asia-southeast1.firebasedatabase.app", "projectId": "tadbirkorlik-asoslari", "storageBucket": "tadbirkorlik-asoslari.firebasestorage.app", "messagingSenderId": "303986754308", "appId": "1:303986754308:web:fca65cded4728199e68651"}, "teacherH": "9a5935bc7e3abb2f8da12a8f053d28b942d399f06d3841a799d1616c7bc48ceb"};</script>
 <script>
@@ -2070,7 +2072,7 @@ function timeStart(){
     if(tmrSave>=30){ tmrSave=0; recalc(); chipUpdate(); lset(LS.prog,P); cloudSave(); }
   },5000);
   document.addEventListener("visibilitychange",function(){ tmrAt=Date.now(); });
-  window.addEventListener("beforeunload",function(){ recalc(); lset(LS.prog,P); cloudSave(); });
+  window.addEventListener("beforeunload",function(){ if(!S||DEAD) return; recalc(); lset(LS.prog,P); cloudSave(); });   /* chiqilgan hisob qayta yozilmasin */
 }
 function slideSeen(n){
   award("slide"+n,1,"slayd");
@@ -2367,6 +2369,7 @@ function fields(pre,withExtra){
           "An account with this name, surname and PIN already exists. Use \"Log in\", or pick another PIN."));
       }
       S={id:uid(),name:n,surname:sn,group:gr,email:em,pk:pkey(n,sn,pin),at:Date.now(),status:cloudOn?"pending":"ok"};
+      P={total:0,topics:{},log:{}};             /* yangi talaba — shu brauzerdagi oldingi natijalar o'tib ketmasin */
       lset(LS.stu,S); lset(LS.prog,P); cloudCreate();
       g.remove();
       courseGate(function(){ if(approved()) start(); else waitScreen(); });
@@ -2607,6 +2610,19 @@ function emailAsk(){
   document.getElementById("emIn").addEventListener("keydown",function(e){ if(e.key==="Enter") ok(); });
   document.getElementById("emIn").focus();
 }
+/* hisobdan chiqish: avval natijalar bazaga yuboriladi, keyin shu brauzerdagi hisob va yashirin kalit o'chiriladi
+   (kalit o'chmasa, keyingi talaba shu brauzerda oldingi hisobga yoza olardi) */
+function logout(){
+  if(!S) return;
+  if(!confirm(T("Hisobdan chiqasizmi? Keyin ism, familiya va PIN-kod bilan qayta kirishingiz mumkin.",
+    "Log out? You can log back in later with your name, surname and PIN."))) return;
+  try{ if(cloudOn) cloudSave(); }catch(e){}
+  setTimeout(function(){
+    DEAD=true; S=null;
+    try{ localStorage.removeItem(LS.stu); localStorage.removeItem(LS.prog); localStorage.removeItem("terdu_sa"); }catch(e){}
+    location.reload();
+  },900);
+}
 function renderCv(){
   var box=document.getElementById("rtCv"); if(!box) return;
   if(!S){ box.innerHTML='<p class="rt-note">'+T("Avval ro'yxatdan o'ting.","Register first.")+'</p>'; return; }
@@ -2620,9 +2636,13 @@ function renderCv(){
         '<label>'+T("Guruh","Group")+groupField("cvG",S.group)+'</label>'+
         '<label>'+T("Email","Email")+'<input id="cvE" type="email" inputmode="email" value="'+esc(S.email||"")+'" placeholder="ism@gmail.com"></label>'+
         '<button class="btn accent" id="cvSaveB" style="justify-content:center">💾 '+T("Saqlash","Save")+'</button>'+
+        '<button class="btn" id="cvOutB" style="justify-content:center">🚪 '+T("Hisobdan chiqish","Log out")+'</button>'+
+        '<p class="rt-note" style="margin:0">'+T("Chiqqandan keyin shu brauzerda boshqa hisobga kirish yoki yangi ro\'yxatdan o\'tish mumkin. Ballaringiz saqlanib qoladi — qayta ism, familiya va PIN bilan kirasiz.",
+          "After logging out you can log in to another account or register on this browser. Your points are kept — log back in with your name, surname and PIN.")+'</p>'+
       '</div></div>'+
     '<div class="rt-sec"><h4>📋 '+T("Mening baholarim","My marks")+'</h4>'+
       '<div id="myJur"><p class="rt-note" style="margin:0">'+T("Yuklanmoqda…","Loading…")+'</p></div></div>';
+  document.getElementById("cvOutB").onclick=logout;
   document.getElementById("cvSaveB").onclick=function(){
     var n=document.getElementById("cvN").value.trim(), sn=document.getElementById("cvS").value.trim(),
         g=document.getElementById("cvG").value.trim(), em=document.getElementById("cvE").value.trim();
