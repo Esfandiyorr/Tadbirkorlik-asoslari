@@ -496,8 +496,8 @@ function markOf(id,x){
           q:qn,qn:M.quiz,sn:M.slides};
 }
 function fmtP(v){ return String(Math.round((v||0)*10)/10); }
-/* o'qituvchining qo'lda qo'ygan bahosi umumiy ballga qo'shiladi: har bir birlik — MAN_PTS ball (5 = +20) */
-var MAN_PTS=+CFG.manualPts||4;
+/* o'qituvchining qo'lda qo'ygan bahosi umumiy ballga qo'shiladi: har bir birlik — MAN_PTS ball (5 = +10) */
+var MAN_PTS=+CFG.manualPts||2;
 function manPts(man){ var s=0; for(var k in (man||{})){ var v=+man[k]; if(v>0) s+=v*MAN_PTS; } return s; }
 /* umumiy ball = mavzular ballari yig'indisi; qo'shib borilmaydi, har safar holatdan qayta hisoblanadi */
 function recalc(){
