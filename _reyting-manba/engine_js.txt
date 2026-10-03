@@ -1036,23 +1036,118 @@ function overlay(){
   });
   return o;
 }
-/* reytingdagi top-10 sovrinlari: o'rin qanchalik yuqori bo'lsa, buyum shunchalik qimmat va nodir */
+/* reytingdagi top-10 sovrinlari: o'rin qanchalik yuqori bo'lsa, buyum shunchalik qimmat va nodir.
+   Rasmlar SVG'da chizilgan — har qanday ekranda tiniq, yaltiraydi va jonli harakatlanadi */
+function przSpark(x,y,s,d){
+  return '<g transform="translate('+x+' '+y+') scale('+s+')"><path class="rt-sp" style="animation-delay:'+d+'s" '+
+    'd="M0-7L1.6-1.6 7 0 1.6 1.6 0 7-1.6 1.6-7 0-1.6-1.6Z" fill="#fff"/></g>';
+}
+function przGem(id,a,b,c,d){   /* brilliant kesimli olmos: a — eng och, d — eng to'q */
+  return '<defs><linearGradient id="'+id+'" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="'+a+'"/><stop offset="1" stop-color="'+d+'"/></linearGradient></defs>'+
+    '<path d="M21 13h22l9 11-20 31-20-31z" fill="url(#'+id+')"/>'+
+    '<path d="M21 13l-9 11h40l-9-11z" fill="'+a+'"/>'+
+    '<path d="M21 13l4 11 7-11zM43 13l-4 11-7-11z" fill="'+b+'"/>'+
+    '<path d="M12 24l20 31-7-31z" fill="'+b+'"/>'+
+    '<path d="M25 24l7 31 7-31z" fill="'+c+'"/>'+
+    '<path d="M52 24L32 55l7-31z" fill="'+d+'"/>'+
+    '<path d="M21 13h22l9 11-20 31-20-31z" fill="none" stroke="'+d+'" stroke-width="1.4" stroke-linejoin="round"/>'+
+    '<path d="M16 22l6-7" stroke="#fff" stroke-width="2.2" stroke-linecap="round" opacity=".9"/>';
+}
+var PRZ_SVG=[
+  /* 1. oltin toj */
+  '<defs><linearGradient id="pz1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff7c2"/><stop offset=".45" stop-color="#fbbf24"/><stop offset="1" stop-color="#b45309"/></linearGradient>'+
+   '<radialGradient id="pz1r" cx=".35" cy=".35" r=".7"><stop offset="0" stop-color="#fecaca"/><stop offset="1" stop-color="#b91c1c"/></radialGradient></defs>'+
+  '<path d="M9 45L5 19l14 12 13-19 13 19 14-12-4 26z" fill="url(#pz1)" stroke="#92400e" stroke-width="1.6" stroke-linejoin="round"/>'+
+  '<rect x="8" y="44" width="48" height="10" rx="3.5" fill="url(#pz1)" stroke="#92400e" stroke-width="1.6"/>'+
+  '<circle cx="5" cy="19" r="3.6" fill="#fde68a" stroke="#92400e" stroke-width="1.2"/><circle cx="32" cy="11" r="4" fill="#fde68a" stroke="#92400e" stroke-width="1.2"/><circle cx="59" cy="19" r="3.6" fill="#fde68a" stroke="#92400e" stroke-width="1.2"/>'+
+  '<circle cx="32" cy="35" r="5.2" fill="url(#pz1r)" stroke="#7f1d1d" stroke-width="1"/><circle cx="30.3" cy="33.2" r="1.6" fill="#fff" opacity=".85"/>'+
+  '<circle cx="18" cy="49" r="2.6" fill="#3b82f6"/><circle cx="32" cy="49" r="2.6" fill="#ef4444"/><circle cx="46" cy="49" r="2.6" fill="#10b981"/>'+
+  '<path d="M12 42l-3-17 9 8" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".55"/>'+
+  przSpark(55,8,.75,0)+przSpark(10,7,.55,1.1),
+  /* 2. olmos */
+  przGem("pz2","#e0f7ff","#7dd3fc","#38bdf8","#0369a1")+przSpark(50,10,.8,0)+przSpark(15,40,.5,.9),
+  /* 3. pushti olmos */
+  przGem("pz3","#ffe4f1","#f9a8d4","#f472b6","#be185d")+przSpark(50,10,.8,.4)+przSpark(14,38,.5,1.3),
+  /* 4. zumrad (zumrad kesimi) */
+  '<defs><linearGradient id="pz4" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#a7f3d0"/><stop offset=".5" stop-color="#10b981"/><stop offset="1" stop-color="#065f46"/></linearGradient></defs>'+
+  '<path d="M19 6h26l9 9v34l-9 9H19l-9-9V15z" fill="#047857"/>'+
+  '<path d="M19 6h26l-4 8H23z" fill="#6ee7b7"/><path d="M54 15v34l-8-4V19z" fill="#065f46"/><path d="M19 58h26l-4-8H23z" fill="#064e3b"/><path d="M10 15v34l8-4V19z" fill="#34d399"/>'+
+  '<path d="M45 6l9 9-8 4-5-5zM10 15l9-9 4 8-5 5zM54 49l-9 9-4-8 5-5zM19 58l-9-9 8-4 5 5z" fill="#059669"/>'+
+  '<rect x="18" y="14" width="28" height="36" rx="3" fill="url(#pz4)"/>'+
+  '<path d="M22 18v12" stroke="#fff" stroke-width="2.4" stroke-linecap="round" opacity=".75"/>'+
+  '<path d="M19 6h26l9 9v34l-9 9H19l-9-9V15z" fill="none" stroke="#064e3b" stroke-width="1.4" stroke-linejoin="round"/>'+
+  przSpark(50,9,.75,.7)+przSpark(14,52,.5,1.6),
+  /* 5. brilliant uzuk */
+  '<defs><linearGradient id="pz5" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff3b0"/><stop offset=".5" stop-color="#f59e0b"/><stop offset="1" stop-color="#92400e"/></linearGradient>'+
+   '<linearGradient id="pz5g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f5f3ff"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient></defs>'+
+  '<ellipse cx="32" cy="42" rx="17" ry="15" fill="none" stroke="url(#pz5)" stroke-width="6.5"/>'+
+  '<ellipse cx="32" cy="42" rx="17" ry="15" fill="none" stroke="#fff" stroke-width="1.4" stroke-dasharray="14 80" stroke-dashoffset="-58" opacity=".8"/>'+
+  '<path d="M25 25l3 4M39 25l-3 4" stroke="#b45309" stroke-width="2.4" stroke-linecap="round"/>'+
+  '<path d="M26 12h12l5 6-11 13-11-13z" fill="url(#pz5g)" stroke="#6d28d9" stroke-width="1.2" stroke-linejoin="round"/>'+
+  '<path d="M21 18h22M26 12l3 6 3-6 3 6 3-6M29 18l3 13 3-13" fill="none" stroke="#6d28d9" stroke-width=".9" opacity=".7"/>'+
+  przSpark(46,9,.75,.2)+przSpark(18,10,.5,1.2),
+  /* 6. oltin kubok */
+  '<defs><linearGradient id="pz6" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#b45309"/><stop offset=".35" stop-color="#fde68a"/><stop offset=".6" stop-color="#f59e0b"/><stop offset="1" stop-color="#92400e"/></linearGradient></defs>'+
+  '<path d="M17 12c-9 0-11 14 2 18M47 12c9 0 11 14-2 18" fill="none" stroke="url(#pz6)" stroke-width="4.5" stroke-linecap="round"/>'+
+  '<path d="M16 8h32v10c0 12-7 19-16 19S16 30 16 18z" fill="url(#pz6)" stroke="#92400e" stroke-width="1.4"/>'+
+  '<path d="M28 37h8l2 8H26z" fill="url(#pz6)"/><rect x="19" y="45" width="26" height="6" rx="2" fill="url(#pz6)" stroke="#92400e" stroke-width="1.2"/>'+
+  '<rect x="15" y="51" width="34" height="7" rx="2.5" fill="#7c2d12"/><rect x="25" y="53" width="14" height="3" rx="1" fill="#fbbf24"/>'+
+  '<path d="M32 14l2.1 4.3 4.7.7-3.4 3.3.8 4.7-4.2-2.2-4.2 2.2.8-4.7-3.4-3.3 4.7-.7z" fill="#fff7c2" stroke="#b45309" stroke-width=".8"/>'+
+  '<path d="M21 12v8" stroke="#fff" stroke-width="2.2" stroke-linecap="round" opacity=".7"/>'+
+  przSpark(53,8,.7,.5)+przSpark(10,46,.45,1.4),
+  /* 7. marvarid */
+  '<defs><radialGradient id="pz7" cx=".35" cy=".3" r=".75"><stop offset="0" stop-color="#ffffff"/><stop offset=".45" stop-color="#f1f5f9"/><stop offset=".8" stop-color="#cbd5e1"/><stop offset="1" stop-color="#94a3b8"/></radialGradient>'+
+   '<radialGradient id="pz7b" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#e9d5ff" stop-opacity=".9"/><stop offset="1" stop-color="#e9d5ff" stop-opacity="0"/></radialGradient></defs>'+
+  '<ellipse cx="32" cy="56" rx="16" ry="3.5" fill="#000" opacity=".12"/>'+
+  '<circle cx="32" cy="32" r="21" fill="url(#pz7)"/>'+
+  '<circle cx="38" cy="40" r="12" fill="url(#pz7b)"/>'+
+  '<ellipse cx="24" cy="22" rx="6.5" ry="4" fill="#fff" transform="rotate(-30 24 22)" opacity=".95"/>'+
+  '<circle cx="32" cy="32" r="21" fill="none" stroke="#94a3b8" stroke-width="1"/>'+
+  przSpark(50,12,.7,.3)+przSpark(14,46,.45,1.2),
+  /* 8. oltin tanga */
+  '<defs><linearGradient id="pz8" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff3b0"/><stop offset=".5" stop-color="#f59e0b"/><stop offset="1" stop-color="#92400e"/></linearGradient></defs>'+
+  '<circle cx="32" cy="34" r="23" fill="#b45309"/>'+
+  '<circle cx="32" cy="31" r="23" fill="url(#pz8)" stroke="#92400e" stroke-width="1.4"/>'+
+  '<circle cx="32" cy="31" r="17" fill="none" stroke="#fef3c7" stroke-width="1.6" stroke-dasharray="2.2 2.4" opacity=".9"/>'+
+  '<path d="M32 19l3.5 7.2 7.9 1.1-5.7 5.6 1.4 7.8L32 37l-7.1 3.7 1.4-7.8-5.7-5.6 7.9-1.1z" fill="#fde68a" stroke="#92400e" stroke-width="1.1" stroke-linejoin="round"/>'+
+  '<path d="M17 22a18 18 0 0 1 9-8" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" opacity=".8"/>'+
+  przSpark(52,10,.7,.8),
+  /* 9. chig'anoq */
+  '<defs><linearGradient id="pz9" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe4d6"/><stop offset=".55" stop-color="#fb923c"/><stop offset="1" stop-color="#c2410c"/></linearGradient></defs>'+
+  '<path d="M32 54L8 28c0-12 11-20 24-20s24 8 24 20z" fill="url(#pz9)" stroke="#9a3412" stroke-width="1.5" stroke-linejoin="round"/>'+
+  '<path d="M32 54L14 14M32 54L23 10M32 54V8M32 54l9-44M32 54l18-40" stroke="#9a3412" stroke-width="1.2" opacity=".55"/>'+
+  '<path d="M24 50h16l-3 7h-10z" fill="#ea580c" stroke="#9a3412" stroke-width="1.2" stroke-linejoin="round"/>'+
+  '<path d="M14 24c3-8 9-12 15-13" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" opacity=".75"/>'+
+
+  przSpark(52,10,.65,.6),
+  /* 10. gul */
+  '<defs><radialGradient id="pz10" cx=".5" cy=".85" r=".9"><stop offset="0" stop-color="#9f1239"/><stop offset=".5" stop-color="#f43f5e"/><stop offset="1" stop-color="#fecdd3"/></radialGradient>'+
+   '<radialGradient id="pz10c" cx=".4" cy=".4" r=".6"><stop offset="0" stop-color="#fef9c3"/><stop offset="1" stop-color="#eab308"/></radialGradient></defs>'+
+  '<path d="M32 40c0 8 0 12-1 18" stroke="#15803d" stroke-width="3" stroke-linecap="round" fill="none"/>'+
+  '<path d="M31 52c-8-1-13-6-14-11 7 0 12 4 14 11zM33 49c6-1 11-5 12-10-6 0-10 4-12 10z" fill="#22c55e" stroke="#15803d" stroke-width="1"/>'+
+  '<g transform="translate(32 25)">'+
+    [0,72,144,216,288].map(function(r){ return '<ellipse cx="0" cy="-11" rx="8" ry="12" fill="url(#pz10)" stroke="#be123c" stroke-width="1" transform="rotate('+r+')"/>'; }).join("")+
+    '<circle r="6" fill="url(#pz10c)" stroke="#a16207" stroke-width="1"/>'+
+    '<circle cx="-2" cy="-2" r="1" fill="#a16207"/><circle cx="2" cy="1" r="1" fill="#a16207"/><circle cx="-1" cy="2.5" r="1" fill="#a16207"/>'+
+  '</g>'+
+  przSpark(53,8,.6,.9)
+];
 var PRIZES=[
-  {e:"👑",n:["Oltin toj","Golden crown"],c:"#f59e0b"},
-  {e:"💎",n:["Olmos","Diamond"],c:"#0ea5e9"},
-  {e:"💎",n:["Pushti olmos","Pink diamond"],c:"#ec4899",f:"hue-rotate(125deg) saturate(1.6)"},
-  {e:"💎",n:["Zumrad","Emerald"],c:"#10b981",f:"hue-rotate(-80deg) saturate(1.4)"},
-  {e:"💍",n:["Brilliant uzuk","Diamond ring"],c:"#8b5cf6"},
-  {e:"🏆",n:["Oltin kubok","Golden cup"],c:"#eab308"},
-  {e:"🦪",n:["Marvarid","Pearl"],c:"#94a3b8"},
-  {e:"🪙",n:["Oltin tanga","Gold coin"],c:"#d97706"},
-  {e:"🥈",n:["Kumush","Silver"],c:"#64748b"},
-  {e:"🥉",n:["Bronza","Bronze"],c:"#b45309"}
+  {n:["Oltin toj","Golden crown"],c:"#f59e0b",a:"float"},
+  {n:["Olmos","Diamond"],c:"#0ea5e9",a:"glow"},
+  {n:["Pushti olmos","Pink diamond"],c:"#ec4899",a:"glow"},
+  {n:["Zumrad","Emerald"],c:"#10b981",a:"glow"},
+  {n:["Brilliant uzuk","Diamond ring"],c:"#8b5cf6",a:"tilt"},
+  {n:["Oltin kubok","Golden cup"],c:"#eab308",a:"tilt"},
+  {n:["Marvarid","Pearl"],c:"#94a3b8",a:"glow"},
+  {n:["Oltin tanga","Gold coin"],c:"#d97706",a:"spin"},
+  {n:["Chig'anoq","Seashell"],c:"#f97316",a:"tilt"},
+  {n:["Gul","Flower"],c:"#f43f5e",a:"sway"}
 ];
 function prizeCell(i){
   var z=PRIZES[i];
   if(!z) return '<span class="rt-rank">'+(i+1)+'</span>';
-  return '<div class="rt-prize" style="--pc:'+z.c+'"><i'+(z.f?' style="filter:'+z.f+'"':'')+'>'+z.e+'</i>'+
+  return '<div class="rt-prize" style="--pc:'+z.c+'"><svg class="rt-pz rt-a-'+z.a+'" viewBox="0 0 64 64" aria-hidden="true">'+PRZ_SVG[i]+'</svg>'+
     '<small>'+(i+1)+'. '+T(z.n[0],z.n[1])+'</small></div>';
 }
 function renderTop(){
