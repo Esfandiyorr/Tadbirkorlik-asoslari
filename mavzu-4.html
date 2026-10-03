@@ -346,6 +346,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 
 
+
 /* RT:BEGIN */
 /* ================== REYTING TIZIMI ================== */
 .rt-chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel);
@@ -1440,6 +1441,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 
 
+
 <!-- RT:BEGIN -->
 <script>var RT_CFG={"topic": "m4", "slides": 18, "quiz": 18, "pSlide": 2, "pAll": 10, "teacher": "", "firebase": {"db": "tadbirkorlik-asoslari-default-rtdb", "regions": ["asia-southeast1", "europe-west1", "us-central1", "europe-west4", "asia-east1", "us-east1", "northamerica-northeast1"], "url": "https://tadbirkorlik-asoslari-default-rtdb.asia-southeast1.firebasedatabase.app"}, "topics": [{"id": "m1", "file": "index.html", "title": "M1 · Tadbirkorlik tafakkuri va biznes imkoniyatlar", "open": true, "quiz": 15, "slides": 18}, {"id": "m2", "file": "mavzu-2.html", "title": "M2 · Mijoz muammosi asosida biznes g'oya", "open": true, "quiz": 15, "slides": 24}, {"id": "m3", "file": "mavzu-3.html", "title": "M3 · Mahsulotni kam xarajat bilan sinash (moliya va kredit)", "open": false, "quiz": 15, "slides": 15}, {"id": "m4", "file": "mavzu-4.html", "title": "M4 · Biznesni qonuniy rasmiylashtirish", "open": false, "quiz": 18, "slides": 18}, {"id": "m5", "file": "mavzu-5.html", "title": "M5 · Soliqlar va hujjatlar", "open": false, "quiz": 3, "slides": 18}, {"id": "m6", "file": "mavzu-6.html", "title": "M6 · Biznes-model qanday ishlaydi", "open": false, "quiz": 15, "slides": 18}, {"id": "m7", "file": "mavzu-7.html", "title": "M7 · Mijoz kim va unga nima kerak", "open": false, "quiz": 15, "slides": 18}, {"id": "m8", "title": "M8 · 8-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-8.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m9", "title": "M9 · 9-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-9.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m10", "title": "M10 · 10-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-10.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m11", "title": "M11 · 11-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-11.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m12", "title": "M12 · 12-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-12.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m13", "title": "M13 · 13-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-13.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m14", "title": "M14 · 14-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-14.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m15", "title": "M15 · 15-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-15.html", "open": false, "slides": 18, "quiz": 15}], "teacherTg": "https://t.me/esfandiyorr?direct", "courses": [{"id": "tad-asoslari", "icon": "🚀", "title": "Tadbirkorlik asoslari", "desc": "15 ta mavzu · nazariya, testlar va amaliy topshiriqlar", "first": "index.html"}], "groups": ["FIZ-123", "FIZ-223", "FIZ-323", "AP-123", "AP-223", "AP-323", "D-123", "DKG-BF-123", "YES-123", "T-123", "T-223", "T-323", "T-423", "KI-123", "KI-223", "DI-123", "DI-223"], "groupRenames": {"T-232": "T-223"}, "tracks": [{"file": "Musofir.mp3", "title": "Musofir", "artist": ""}], "fbWeb": {"apiKey": "AIzaSyDPOvO9kqBcD9zIeCy_eR9szezLhoDB4Oo", "authDomain": "tadbirkorlik-asoslari.firebaseapp.com", "databaseURL": "https://tadbirkorlik-asoslari-default-rtdb.asia-southeast1.firebasedatabase.app", "projectId": "tadbirkorlik-asoslari", "storageBucket": "tadbirkorlik-asoslari.firebasestorage.app", "messagingSenderId": "303986754308", "appId": "1:303986754308:web:fca65cded4728199e68651"}, "teacherH": "9a5935bc7e3abb2f8da12a8f053d28b942d399f06d3841a799d1616c7bc48ceb"};</script>
 <script>
@@ -1941,11 +1943,14 @@ function markOf(id,x){
           q:qn,qn:M.quiz,sn:M.slides};
 }
 function fmtP(v){ return String(Math.round((v||0)*10)/10); }
+/* o'qituvchining qo'lda qo'ygan bahosi umumiy ballga qo'shiladi: har bir birlik — MAN_PTS ball (5 = +20) */
+var MAN_PTS=+CFG.manualPts||4;
+function manPts(man){ var s=0; for(var k in (man||{})){ var v=+man[k]; if(v>0) s+=v*MAN_PTS; } return s; }
 /* umumiy ball = mavzular ballari yig'indisi; qo'shib borilmaydi, har safar holatdan qayta hisoblanadi */
 function recalc(){
   var sum=0;
   for(var k in P.topics){ var x=P.topics[k]; x.p=Math.round(markOf(k,x).z*1000)/10; sum+=x.p; }
-  P.total=Math.round(sum*10)/10;
+  P.total=Math.round((sum+manPts(P.man))*10)/10;
 }
 /* bazadagi bitta mavzu yozuvidan (prog + eski qisqa yozuv) hisoblash uchun ob'ekt */
 function topicFromCloud(c,s){
@@ -1969,12 +1974,14 @@ function normRec(x){
     var y=topicFromCloud(pr[k],sm[k]), m=markOf(k,y), pts=Math.round(m.z*1000)/10;
     tops[k]={p:pts,s:m.seen,t:Math.round(y.t),q:m.q,b:m.b,z:Math.round(m.z*100)}; tot+=pts;
   }
-  x.topics=tops; x.total=Math.round(tot*10)/10;
+  x.topics=tops; x.autoTotal=Math.round(tot*10)/10;
+  x.manPts=manPts(x.manual); x.total=Math.round((tot+x.manPts)*10)/10;
   return x;
 }
 /* sahifa ochilganda: bazadagi (boshqa brauzerlardagi) natijalarni shu brauzerdagisi bilan birlashtirish */
 function mergeCloud(v){
   if(!v) return;
+  P.man=v.manual||{};                    /* o'qituvchi qo'ygan baholar — faqat bazadan olinadi */
   var pr=v.prog||{}, sm=v.topics||{}, ids={}, k, x;
   for(k in pr) ids[k]=1; for(k in sm) ids[k]=1;
   for(k in ids){
@@ -2018,9 +2025,12 @@ function progPaths(){
 }
 /* talabaning barcha mavzulardagi o'rtacha bahosi (bulutdagi qisqa yozuvdan) */
 function avgMark(x){
-  var ts=(x&&x.topics)||{}, sum=0, n=0;
-  for(var k in ts){ var b=ts[k]&&ts[k].b; if(b>0){ sum+=b; n++; } }
-  return n?{a:sum/n,n:n}:{a:0,n:0};
+  var ts=(x&&x.topics)||{}, mn=(x&&x.manual)||{}, sum=0, n=0, k;
+  for(k in ts){ var b=ts[k]&&ts[k].b; if(b>0){ sum+=b; n++; } }
+  var les={}; for(k in ts) if(ts[k]&&ts[k].b>0) les[k]=1;
+  for(k in mn){ var v=+mn[k]; if(v>0){ sum+=v; n++; les[k]=1; } }    /* qo'lda qo'yilgan baholar ham o'rtachaga kiradi */
+  var nl=Object.keys(les).length;                                    /* baholangan darslar soni (mavzu bir marta sanaladi) */
+  return n?{a:sum/n,n:nl}:{a:0,n:0};
 }
 function mkTag(b){ return b>0?'<span class="rt-mk b'+Math.round(b)+'">'+(b%1?b.toFixed(1):b)+'</span>':'<span class="rt-mk0">—</span>'; }
 function markName(b){
@@ -2525,6 +2535,7 @@ function renderMe(){
     '<div class="rt-card"><span>'+T("O\'qishga sarflangan vaqt","Time spent reading")+'</span><b style="font-size:19px">'+hms(m.sec)+'</b></div>'+
     '<div class="rt-card"><span>'+T("To\'g\'ri javoblar","Correct answers")+'</span><b>'+m.q+" / "+m.qn+'</b></div>'+
     '<div class="rt-card"><span>'+T("Umumiy ball","Total points")+'</span><b>'+fmtP(P.total)+'</b></div>'+
+    (manPts(P.man)?'<div class="rt-card"><span>✍️ '+T("O\'qituvchi baholari","Teacher\'s marks")+'</span><b>+'+fmtP(manPts(P.man))+'</b></div>':'')+
     '</div>'+
     '<h3 style="margin:18px 0 8px;font-size:15px">'+T("Baho nimalardan chiqadi?","How is the mark made up?")+'</h3>'+
     part(T("Slaydlarni ko\'rish","Slides viewed"),m.rd,30)+
@@ -2535,11 +2546,13 @@ function renderMe(){
       "🕐 <b>20 ball</b> — taqdimotni faol o\'qish vaqti: <b>1 soat</b> va undan ko\'p = to\'liq 20 ball, kamroq bo\'lsa ulushiga qarab (30 daqiqa = 10 ball). Vaqt faqat sahifa ekranda ochiq turganda va siz so\'nggi 5 daqiqada biror harakat qilgan bo\'lsangiz sanaladi.<br>"+
       "📑 <b>30 ball</b> — ko\'rilgan slaydlar ulushi (hammasi ko\'rilsa — 30 ball).<br>"+
       "📝 <b>50 ball</b> — testdagi to\'g\'ri javoblar ulushi. Test faqat dastlabki 2 urinishda ball beradi.<br>"+
+      "✍️ O\'qituvchi darsda qo\'lda qo\'ygan baho ham umumiy ballga qo\'shiladi: har bir baho × "+MAN_PTS+" ball (masalan, 5 = +"+(5*MAN_PTS)+" ball).<br>"+
       "⏳ Ball faqat taqdimot <b>birinchi marta ochilgan kundan boshlab 7 kun</b> davomida beriladi. 7 kun o\'tgach bu mavzu bo\'yicha yangi ball qo\'shilmaydi (olingan ballar saqlanib qoladi).<br>"+
       "🔒 Har bir slayd va savol <b>faqat bir marta</b> hisoblanadi: nechta brauzer yoki telefondan kirsangiz ham ballaringiz bitta hisobda jamlanadi, qayta berilmaydi va yo\'qolmaydi.",
       "🕐 <b>20 points</b> — active reading time: <b>1 hour</b> or more = the full 20, less gives a proportional share (30 minutes = 10). Time counts only while the page is on screen and you have done something in the last 5 minutes.<br>"+
       "📑 <b>30 points</b> — the share of slides viewed (all slides = 30).<br>"+
       "📝 <b>50 points</b> — the share of correct test answers. The test gives points only in the first 2 attempts.<br>"+
+      "✍️ Marks the teacher gives in class are added to your total too: each mark × "+MAN_PTS+" points (e.g. 5 = +"+(5*MAN_PTS)+").<br>"+
       "⏳ Points are given only for <b>7 days from the first time you open</b> the presentation. After that no new points are added for this topic (points already earned are kept).<br>"+
       "🔒 Every slide and question counts <b>only once</b>: whichever browsers or phones you use, your points are combined in one account — never given twice and never lost.")+'</p></div>'+
     '<h3 style="margin:18px 0 8px;font-size:15px">'+T("Baholash shkalasi","Marking scale")+'</h3>'+
@@ -2623,6 +2636,19 @@ function logout(){
     location.reload();
   },900);
 }
+/* "Mening baholarim": har bir mavzu bo'yicha avtomatik baho, ball va o'qituvchi qo'ygan baho */
+function myJur(){
+  var box=document.getElementById("myJur"); if(!box) return;
+  var man=P.man||{}, rows=(CFG.topics||[]).filter(function(t){ return P.topics[t.id]||man[t.id]; }).map(function(t){
+    var x=P.topics[t.id], m=x?markOf(t.id,x):{b:0}, mv=+man[t.id]||0;
+    return '<tr><td>'+esc(t.title)+'</td><td class="rt-mc">'+mkTag(m.b)+'</td><td class="rt-mc">'+fmtP(x?x.p:0)+'</td>'+
+      '<td class="rt-mc">'+(mv?mkTag(mv)+' <span class="rt-note">+'+(mv*MAN_PTS)+'</span>':'—')+'</td></tr>';
+  });
+  box.innerHTML=rows.length
+    ?'<div class="tw"><table class="rt-table"><thead><tr><th>'+T("Mavzu","Topic")+'</th><th>'+T("Baho","Mark")+'</th><th>'+T("Ball","Points")+'</th><th>✍️ '+T("O\'qituvchi","Teacher")+'</th></tr></thead><tbody>'+rows.join("")+'</tbody></table></div>'+
+      '<p class="rt-note">'+T("Umumiy ball","Total points")+': <b>'+fmtP(P.total)+'</b></p>'
+    :'<p class="rt-note" style="margin:0">'+T("Hali baho yo\'q.","No marks yet.")+'</p>';
+}
 function renderCv(){
   var box=document.getElementById("rtCv"); if(!box) return;
   if(!S){ box.innerHTML='<p class="rt-note">'+T("Avval ro'yxatdan o'ting.","Register first.")+'</p>'; return; }
@@ -2643,6 +2669,7 @@ function renderCv(){
     '<div class="rt-sec"><h4>📋 '+T("Mening baholarim","My marks")+'</h4>'+
       '<div id="myJur"><p class="rt-note" style="margin:0">'+T("Yuklanmoqda…","Loading…")+'</p></div></div>';
   document.getElementById("cvOutB").onclick=logout;
+  myJur();
   document.getElementById("cvSaveB").onclick=function(){
     var n=document.getElementById("cvN").value.trim(), sn=document.getElementById("cvS").value.trim(),
         g=document.getElementById("cvG").value.trim(), em=document.getElementById("cvE").value.trim();
@@ -2951,6 +2978,8 @@ function tcDraw(){
           if(tcList[i].id===b.dataset.id){
             tcList[i].manual=tcList[i].manual||{};
             if(num===null) delete tcList[i].manual[b.dataset.t]; else tcList[i].manual[b.dataset.t]=num;
+            tcList[i].manPts=manPts(tcList[i].manual);
+            tcList[i].total=Math.round(((tcList[i].autoTotal||0)+tcList[i].manPts)*10)/10;
           }
         }
         toast(num===null?T("O'chirildi","Cleared"):T("Saqlandi","Saved"));
@@ -3127,8 +3156,8 @@ function marksTable(okl){
   }).join("");
   return '<h3 style="margin:20px 0 4px">📊 '+T("Mavzular bo'yicha baholar","Marks by topic")+'</h3>'+
     '<p class="rt-note" style="margin:0 0 8px">'+T(
-      "Har bir mavzu uchun alohida baho: slaydlar 30% + o'qish vaqti 20% + test 50%. Guruh ustiga bosing — o'sha guruh baholari ochiladi.",
-      "A separate mark for each topic: slides 30% + reading time 20% + test 50%. Click a group — that group's marks will open.")+'</p>'+
+      "Har bir mavzu uchun alohida baho: slaydlar 30% + o'qish vaqti 20% + test 50%. Qo'lda qo'ygan bahongiz (➕) umumiy ballga qo'shiladi: har bir baho × "+MAN_PTS+" ball (5 = +"+(5*MAN_PTS)+") va o'rtacha bahoga kiradi. Guruh ustiga bosing — o'sha guruh baholari ochiladi.",
+      "A separate mark for each topic: slides 30% + reading time 20% + test 50%. Your manual mark (➕) is added to the total: each mark × "+MAN_PTS+" points (5 = +"+(5*MAN_PTS)+") and counts in the average. Click a group — that group's marks will open.")+'</p>'+
     groupTiles(gs,TC_OPEN_MARKS,"marks")+
     (openGs.length?'<div class="tw"><table class="rt-table rt-mtab"><thead>'+head+'</thead><tbody>'+body+'</tbody></table></div>':'')+
     '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">'+
