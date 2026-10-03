@@ -627,7 +627,7 @@ function timeStart(){
     if(tmrSave>=30){ tmrSave=0; recalc(); chipUpdate(); lset(LS.prog,P); cloudSave(); }
   },5000);
   document.addEventListener("visibilitychange",function(){ tmrAt=Date.now(); });
-  window.addEventListener("beforeunload",function(){ recalc(); lset(LS.prog,P); cloudSave(); });
+  window.addEventListener("beforeunload",function(){ if(!S||DEAD) return; recalc(); lset(LS.prog,P); cloudSave(); });   /* chiqilgan hisob qayta yozilmasin */
 }
 function slideSeen(n){
   award("slide"+n,1,"slayd");
@@ -924,6 +924,7 @@ function fields(pre,withExtra){
           "An account with this name, surname and PIN already exists. Use \"Log in\", or pick another PIN."));
       }
       S={id:uid(),name:n,surname:sn,group:gr,email:em,pk:pkey(n,sn,pin),at:Date.now(),status:cloudOn?"pending":"ok"};
+      P={total:0,topics:{},log:{}};             /* yangi talaba — shu brauzerdagi oldingi natijalar o'tib ketmasin */
       lset(LS.stu,S); lset(LS.prog,P); cloudCreate();
       g.remove();
       courseGate(function(){ if(approved()) start(); else waitScreen(); });
@@ -1164,6 +1165,19 @@ function emailAsk(){
   document.getElementById("emIn").addEventListener("keydown",function(e){ if(e.key==="Enter") ok(); });
   document.getElementById("emIn").focus();
 }
+/* hisobdan chiqish: avval natijalar bazaga yuboriladi, keyin shu brauzerdagi hisob va yashirin kalit o'chiriladi
+   (kalit o'chmasa, keyingi talaba shu brauzerda oldingi hisobga yoza olardi) */
+function logout(){
+  if(!S) return;
+  if(!confirm(T("Hisobdan chiqasizmi? Keyin ism, familiya va PIN-kod bilan qayta kirishingiz mumkin.",
+    "Log out? You can log back in later with your name, surname and PIN."))) return;
+  try{ if(cloudOn) cloudSave(); }catch(e){}
+  setTimeout(function(){
+    DEAD=true; S=null;
+    try{ localStorage.removeItem(LS.stu); localStorage.removeItem(LS.prog); localStorage.removeItem("terdu_sa"); }catch(e){}
+    location.reload();
+  },900);
+}
 function renderCv(){
   var box=document.getElementById("rtCv"); if(!box) return;
   if(!S){ box.innerHTML='<p class="rt-note">'+T("Avval ro'yxatdan o'ting.","Register first.")+'</p>'; return; }
@@ -1177,9 +1191,13 @@ function renderCv(){
         '<label>'+T("Guruh","Group")+groupField("cvG",S.group)+'</label>'+
         '<label>'+T("Email","Email")+'<input id="cvE" type="email" inputmode="email" value="'+esc(S.email||"")+'" placeholder="ism@gmail.com"></label>'+
         '<button class="btn accent" id="cvSaveB" style="justify-content:center">💾 '+T("Saqlash","Save")+'</button>'+
+        '<button class="btn" id="cvOutB" style="justify-content:center">🚪 '+T("Hisobdan chiqish","Log out")+'</button>'+
+        '<p class="rt-note" style="margin:0">'+T("Chiqqandan keyin shu brauzerda boshqa hisobga kirish yoki yangi ro\'yxatdan o\'tish mumkin. Ballaringiz saqlanib qoladi — qayta ism, familiya va PIN bilan kirasiz.",
+          "After logging out you can log in to another account or register on this browser. Your points are kept — log back in with your name, surname and PIN.")+'</p>'+
       '</div></div>'+
     '<div class="rt-sec"><h4>📋 '+T("Mening baholarim","My marks")+'</h4>'+
       '<div id="myJur"><p class="rt-note" style="margin:0">'+T("Yuklanmoqda…","Loading…")+'</p></div></div>';
+  document.getElementById("cvOutB").onclick=logout;
   document.getElementById("cvSaveB").onclick=function(){
     var n=document.getElementById("cvN").value.trim(), sn=document.getElementById("cvS").value.trim(),
         g=document.getElementById("cvG").value.trim(), em=document.getElementById("cvE").value.trim();
