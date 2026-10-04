@@ -330,7 +330,7 @@ function rulesTxt(){
    media ruxsati) faqat o'qituvchi hisobidan qabul qilinadi; chat, arena va ovoz berish talabalar uchun ochiq qoladi */
 /* jonli test qoidalari: savol o'z vaqtida, to'g'ri javob esa savol yopilgach o'qiladi;
    javob — faqat qo'shilgan, tasdiqlangan talabadan, bir marta, savol ochiq paytda va server vaqti bilan */
-function khRules(t){
+function khRulesDb(t){
   var kg="root.child('kahoot').child('games').child($d)";
   var own="auth != null && root.child('owners').child($sid).child(auth.uid).exists()";
   return {
@@ -380,7 +380,7 @@ function rulesSecureTxt(){
     keys:{".write":t,"$sid":{".write":keyNew}},
     priv:{".read":t,".write":t,"$sid":{".read":own,".write":own}},
     meta:{".read":true,".write":t,pollvotes:{".write":true},cleanAt:{".write":true}},
-    kahoot:khRules(t),
+    kahoot:khRulesDb(t),
     chat:{".read":true,".write":true},
     media:{".read":true,".write":true},
     arena:{".read":true,".write":true}}},null,2);
@@ -2611,10 +2611,12 @@ function khKpatch(obj){
 function khTcLoad(force){
   if(!cloudOn||!BASE||!isTc) return;
   if(KHT.loaded&&!force){ khTcRender(); return; }
-  Promise.all([jget(BASE+"/kahoot/cfg.json"),jget(BASE+"/kahoot/bank.json"),jget(BASE+"/kahoot/idx.json"),jget(BASE+"/kahoot/res.json")]).then(function(v){
+  var cfgGet=fetch(BASE+"/kahoot/cfg.json").then(function(r){ return (r.status===401||r.status===403)?"deny":(r.ok?r.json():null); }).catch(function(){ return null; });
+  Promise.all([cfgGet,jget(BASE+"/kahoot/bank.json"),jget(BASE+"/kahoot/idx.json"),jget(BASE+"/kahoot/res.json")]).then(function(v){
+    KHT.deny=(v[0]==="deny"); if(KHT.deny) v[0]=null;
     KHT.cfg=v[0]||{on:false,time:"20:00",nq:10,qsec:15,min:7,lobby:10}; KHT.bank=v[1]||{}; KHT.idx=v[2]||{}; KHT.res=v[3]||{};
     KHT.loaded=true; khTcRender();
-    if(!KHT.auto){ KHT.auto=true; khAuto(); }
+    if(!KHT.auto&&!KHT.deny){ KHT.auto=true; khAuto(); }
   });
 }
 function khBankArr(){ var b=KHT.bank||{}; return Object.keys(b).map(function(id){ var x=b[id]; x.id=id; return x; }).filter(function(x){ return x&&x.t&&x.o; }); }
@@ -2696,6 +2698,17 @@ function khRebuild(){
   if(!n){ go(); return; }
   khKpatch(o).then(function(ok){ if(ok) go(); else toast(T("Saqlanmadi","Not saved")); });
 }
+function khRulesNow(){
+  var em=TC_USER&&TC_USER.email, s=rulesSecureTxt();
+  return em?s.split("SIZNING_GMAIL@gmail.com").join(em):s;
+}
+function khDenyHtml(){
+  if(!KHT.deny) return "";
+  return '<div class="rt-khwarn">⚠️ <b>'+T("Firebase qoidalarida jonli test bo'limi yo'q — o'yin ishlamaydi.","The Firebase rules have no live-quiz section — the game will not work.")+'</b> '+
+    T("Quyidagi yangi qoidalarni Firebase → Realtime Database → Rules ga to'liq qo'yib, Publish bosing, keyin sahifani yangilang.",
+      "Paste the new rules below into Firebase → Realtime Database → Rules, press Publish, then reload this page.")+
+    '<details><summary>📋 '+T("Yangi qoidalar","New rules")+'</summary><code>'+esc(khRulesNow())+'</code></details></div>';
+}
 function khTcHtml(){
   if(!KHT.loaded) return '<div class="rt-sec rt-kh"><h4>⚡ '+T("Jonli test (Kahoot)","Live quiz (Kahoot)")+'</h4><p class="rt-note">'+T("Yuklanmoqda…","Loading…")+'</p></div>';
   var c=KHT.cfg||{}, bank=khBankArr(), idx=KHT.idx||{}, res=KHT.res||{}, now=Date.now();
@@ -2705,7 +2718,7 @@ function khTcHtml(){
     var r=res[d]||{}, top=(r.top||[]).slice(0,3).map(function(x,i){ return ["🥇","🥈","🥉"][i]+" "+esc(x.n); }).join(" · ");
     return '<tr><td>'+dfmt(d)+'</td><td>'+(r.n||0)+'</td><td>'+(r.valid?top||"—":'<span class="rt-note">'+T("o'tmadi: kam ishtirokchi","not held: too few players")+'</span>')+'</td></tr>';
   }).join("");
-  return '<div class="rt-sec rt-kh"><h4>⚡ '+T("Jonli test (Kahoot)","Live quiz (Kahoot)")+' <span class="rt-badge">'+(c.on?T("yoqilgan","on"):T("o'chiq","off"))+'</span></h4>'+
+  return '<div class="rt-sec rt-kh"><h4>⚡ '+T("Jonli test (Kahoot)","Live quiz (Kahoot)")+' <span class="rt-badge">'+(c.on?T("yoqilgan","on"):T("o'chiq","off"))+'</span></h4>'+khDenyHtml()+
     '<div class="rt-khrow">'+
       '<label class="rt-khchk"><input type="checkbox" id="khOn"'+(c.on?" checked":"")+'> '+T("Har kuni o'tkazish","Run every day")+'</label>'+
       '<label>'+T("Vaqti","Time")+' <input type="time" id="khTime" value="'+esc(c.time||"20:00")+'"></label>'+
