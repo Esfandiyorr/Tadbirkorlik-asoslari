@@ -393,3 +393,7 @@
 .rt-khwarn{background:rgba(244,63,94,.1);border:1px solid rgba(244,63,94,.4);border-radius:12px;padding:10px 12px;margin:8px 0 10px;font-size:13px;line-height:1.45}
 .rt-khwarn details{margin-top:6px}.rt-khwarn summary{cursor:pointer;font-weight:800}
 .rt-khwarn code{display:block;margin-top:6px;font-size:11px;white-space:pre-wrap;word-break:break-all;background:var(--chip);padding:8px;border-radius:9px;max-height:220px;overflow:auto;user-select:all}
+.rt-acc-tops,.rt-acc-gs{display:flex;gap:7px;flex-wrap:wrap}
+.rt-acc-mode{display:flex;gap:16px;flex-wrap:wrap;margin:4px 0 10px;font-weight:700;font-size:13.5px}
+.rt-acc-mode label{display:flex;gap:6px;align-items:center;cursor:pointer}
+.rt-accg .rt-badge{margin-left:4px}

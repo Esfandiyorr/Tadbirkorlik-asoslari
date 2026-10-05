@@ -628,7 +628,7 @@ function topicObj(){
   return P.topics[t];
 }
 function award(key,pts,label){
-  if(!S||!approved()) return;
+  if(!S||!approved()||LOCKED) return;
   /* bulutdagi ma'lumot (birinchi kirish sanasi) birlashtirilmaguncha ball navbatda turadi */
   if(!started){ (window.RT_pending=window.RT_pending||[]).push([key,pts,label]); return; }
   var t=topicObj(), isSl=key.indexOf("slide")===0, bag=isSl?t.slides:t.acts;
@@ -649,7 +649,7 @@ function timeStart(){
   ["pointerdown","keydown","wheel","touchstart","scroll","mousemove"].forEach(function(e){
     window.addEventListener(e,function(){ lastAct=Date.now(); },{passive:true,capture:true}); });
   TMR=setInterval(function(){
-    if(!S||!approved()) return;
+    if(!S||!approved()||LOCKED) return;
     /* faol seans: sahifa ekranda va so'nggi 5 daqiqada biror harakat bo'lgan */
     if(document.hidden||Date.now()-lastAct>300000){ tmrAt=Date.now(); return; }
     var now=Date.now(), d=(now-tmrAt)/1000; tmrAt=now;
@@ -1269,7 +1269,7 @@ function part(name,v,w){
     '<div class="rt-bar"><i style="width:'+pc+'%"></i></div></div>';
 }
 function myTopics(){
-  var list=(CFG.topics||[]).filter(function(x){ return x.open; });
+  var list=(CFG.topics||[]).filter(function(x){ return topicOpen(x); });
   if(!list.length) return '<p class="rt-note">'+T("Hozircha ochiq mavzu yo\'q.","No open topics yet.")+'</p>';
   var rows=list.map(function(x){
     var d=P.topics[x.id]||{}, m=markOf(x.id,d);
@@ -1286,10 +1286,10 @@ function renderTp(){
   var box=document.getElementById("rtTp");
   var list=(CFG.topics||[]).map(function(x){
     var mine=(P.topics[x.id]||{}), p=mine.p||0;
-    var open=x.open, cur=(x.id===CFG.topic);
+    var open=topicOpen(x), cur=(x.id===CFG.topic);
     return '<div class="rt-topic'+(open?"":" locked")+'"><div style="font-size:22px">'+(open?"📗":"🔒")+'</div>'+
       '<div class="t"><b>'+esc(x.title)+(cur?' · <span style="color:var(--green)">'+T("hozirgi","current")+'</span>':'')+'</b>'+
-      '<span>'+(open?T("Ochiq","Open"):T("Yopiq — o'qituvchi darsda ochadi","Locked — the teacher will open it in class"))+
+      '<span>'+(open?T("Ochiq","Open"):x.open?T("Guruhingiz uchun hali ochilmagan — o'qituvchi darsda ochadi","Not open for your group yet — the teacher opens it in class"):T("Yopiq — o'qituvchi darsda ochadi","Locked — the teacher will open it in class"))+
       ' · '+T("ballingiz","your points")+": "+p+'</span></div>'+
       (open&&!cur?'<a class="btn accent" href="'+x.file+'">'+T("Ochish","Open")+'</a>':'')+'</div>';
   }).join("");
@@ -1579,6 +1579,7 @@ function tcDraw(){
                        '<button class="btn warn rt-a" data-id="'+esc(x.id)+'" data-st="blocked">❌ '+T("Rad etish","Reject")+'</button>');
       }).join("")+'</tbody></table></div>'
       : '<p class="rt-note">'+T("Yangi so\'rov yo\'q.","No new requests.")+'</p>';
+  h+='<div id="accTc"></div>';
   h+='<h3 style="margin:18px 0 8px">✅ '+T("Tasdiqlangan talabalar","Approved students")+' <span class="rt-badge">'+okl.length+'</span></h3>';
   var strays=okl.length?strayGroups(okl):[];
   if(strays.length){
@@ -1634,6 +1635,7 @@ function tcDraw(){
      '<p class="rt-note">'+T("Talaba faqat siz tasdiqlagandan keyin taqdimot va chatga kira oladi.",
        "A student can enter the presentation and the chat only after you approve them.")+'</p>';
   out.innerHTML=h;
+  accTcRender(okl);                          /* mavzularni guruhlarga ochish */
   khTcRender();                              /* jonli test bo'limi (ma'lumot keshdan) */
   out.querySelectorAll(".rt-gtile").forEach(function(b){
     b.onclick=function(){
@@ -2277,9 +2279,9 @@ function navBuild(){
     var cur=(x.id===CFG.topic);
     var b;
     if(cur) b=el('<span class="rt-nav cur" title="'+esc(x.title)+'">📖 '+lab+'</span>');
-    else if(x.open) b=el('<a class="rt-nav" href="'+x.file+'" title="'+esc(x.title)+'">📗 '+lab+'</a>');
+    else if(topicOpen(x)) b=el('<a class="rt-nav" href="'+x.file+'" title="'+esc(x.title)+'">📗 '+lab+'</a>');
     else { b=el('<span class="rt-nav lock" title="'+(i+1)+'-'+T("mavzu yopiq — o\'qituvchi darsda ochadi","topic is locked — the teacher opens it in class")+'">🔒 '+(i+1)+'</span>');
-           b.onclick=function(){ toast(T("Bu mavzu hali yopiq","This topic is still locked")); }; }
+           b.onclick=function(){ toast(x.open?T("Bu mavzu guruhingiz uchun hali ochilmagan","This topic is not open for your group yet"):T("Bu mavzu hali yopiq","This topic is still locked")); }; }
     wrap.appendChild(b);
   });
   var sp=document.querySelector('.topbar .spacer');
@@ -2438,13 +2440,108 @@ function announceGate(next){
 function start(){
   if(started) return; started=true;
   announceGate(function(){
-  var tf=topicObj(); if(!tf.f){ tf.f=Date.now(); lset(LS.prog,P); } else if(expiredT(tf)) setTimeout(expToast,1500);
+  accApply();                                /* guruhi uchun yopiq mavzuda 1 haftalik muddat boshlanmaydi */
+  var tf=topicObj(); if(!tf.f){ if(!LOCKED){ tf.f=Date.now(); lset(LS.prog,P); } } else if(expiredT(tf)) setTimeout(expToast,1500);
   chip(); askBar(); tbWatch(); dragWatch(); watchStatus(); timeStart(); if(cloudOn&&S) cloudSave();
   khBanner(); khMine(); if(S&&!S.email) setTimeout(emailAsk,900);
+  accLoad(accApply);                         /* bazadagi eng so'nggi holat */
   if(typeof idx!=="undefined") slideSeen(idx);
   window.RT_ready=true;
   if(window.RT_pending){ window.RT_pending.forEach(function(a){ award(a[0],a[1],a[2]); }); window.RT_pending=null; }
   });
+}
+/* ================== 📂 MAVZUNI GURUHLARGA OCHISH ==================
+   /meta/access/<mavzu> = {lim:true, g:{<guruh>:true}} — lim bo'lsa mavzu faqat belgilangan guruhlarga ochiq.
+   Yozuv yo'q bo'lsa config'dagi "lim" ishlatiladi (yo'q bo'lsa — hammaga ochiq). O'qituvchi uchun hammasi ochiq. */
+var ACC=null, LOCKED=false, accIv=null, ACC_SEL=null;
+try{ ACC=JSON.parse(localStorage.getItem("terdu_acc")||"null"); }catch(e){}
+function accRec(x){ var a=ACC&&ACC[x.id]; return a?{lim:!!a.lim,g:a.g||{}}:{lim:!!x.lim,g:{}}; }
+function tcHere(){ if(isTc) return true; try{ return localStorage.getItem(TCG)==="1"; }catch(e){ return false; } }
+function topicOpen(x){
+  if(!x||!x.open) return false;
+  if(tcHere()) return true;
+  var a=accRec(x); if(!a.lim) return true;
+  return !!(S&&S.group&&a.g[gkey(S.group)]);
+}
+function accLoad(cb){
+  if(!cloudOn||!BASE){ if(cb) cb(); return; }
+  fetch(BASE+"/meta/access.json").then(function(r){ return r.ok?r.json():undefined; }).catch(function(){ return undefined; }).then(function(v){
+    if(v!==undefined){ ACC=v||{}; try{ localStorage.setItem("terdu_acc",JSON.stringify(ACC)); }catch(e){} }
+    if(cb) cb();
+  });
+}
+function accApply(){
+  var cur=(CFG.topics||[]).filter(function(x){ return x.id===CFG.topic; })[0];
+  var lock=!!(cur&&cur.open&&!topicOpen(cur));
+  navBuild();
+  if(lock){
+    if(!LOCKED){ LOCKED=true; accGate(cur); }
+    if(!accIv) accIv=setInterval(function(){ if(!document.hidden) accLoad(accApply); },30000);
+  } else if(LOCKED){
+    LOCKED=false; clearInterval(accIv); accIv=null;
+    var g=document.getElementById("rtAcc"); if(g) g.remove();
+    toast("🔓 "+T("Mavzu ochildi!","The topic is open!"));
+    var tf=topicObj(); if(!tf.f){ tf.f=Date.now(); lset(LS.prog,P); }
+    var c=document.getElementById("cur"), n=c?(parseInt(c.textContent,10)-1):-1;   /* hozirgi slayd */
+    if(n>=0) slideSeen(n);
+  }
+}
+function accGate(cur){
+  var old=document.getElementById("rtAcc"); if(old) old.remove();
+  var other=(CFG.topics||[]).filter(function(x){ return x.id!==CFG.topic&&topicOpen(x); });
+  var n=(CFG.topics||[]).indexOf(cur)+1;
+  var g=el('<div class="rt-gate" id="rtAcc" style="z-index:125"><div class="rt-box" style="text-align:center">'+
+    '<div style="font-size:48px">🔒</div>'+
+    '<h2 style="margin:8px 0 6px">'+T(n+"-mavzu guruhingiz uchun hali ochilmagan","Topic "+n+" is not open for your group yet")+'</h2>'+
+    '<p style="color:var(--muted);margin:0 0 6px"><b>'+esc(cur.title)+'</b></p>'+
+    '<p style="color:var(--muted);margin:0 0 14px">'+T("O'qituvchi bu mavzuni "+(S&&S.group?"<b>"+esc(S.group)+"</b> guruhi uchun ":"")+"darsda ochadi. Ochilishi bilan bu sahifa o'zi ochiladi.",
+      "The teacher opens this topic "+(S&&S.group?"for group <b>"+esc(S.group)+"</b> ":"")+"in class. This page unlocks by itself once it is open.")+'</p>'+
+    '<div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center">'+
+      other.map(function(x){ var i=(CFG.topics||[]).indexOf(x)+1; return '<a class="btn accent" href="'+x.file+'">📗 '+T(i+"-mavzu","Topic "+i)+'</a>'; }).join("")+
+      (ARENA_OPEN?'<a class="btn" href="arena.html">🎮 '+T("Arena","Arena")+'</a>':'')+
+      '<button class="btn" id="rtAccChk">🔄 '+T("Tekshirish","Check again")+'</button></div></div></div>');
+  document.body.appendChild(g);
+  document.getElementById("rtAccChk").onclick=function(){ accLoad(function(){ accApply(); if(LOCKED) toast(T("Hali ochilmagan","Not open yet")); }); };
+}
+/* talaba qulflangan mavzuda slaydlarni klaviatura bilan varaqlay olmasin */
+window.addEventListener("keydown",function(e){ if(LOCKED&&!(e.target&&/INPUT|TEXTAREA|SELECT/.test(e.target.tagName))) e.stopPropagation(); },true);
+
+/* --- o'qituvchi paneli --- */
+function accTcRender(okl){
+  var box=document.getElementById("accTc"); if(!box) return;
+  var tops=(CFG.topics||[]).filter(function(x){ return x.open; });
+  if(!tops.length){ box.innerHTML=""; return; }
+  if(!ACC_SEL||!tops.some(function(x){ return x.id===ACC_SEL; })) ACC_SEL=tops[tops.length-1].id;
+  var t=tops.filter(function(x){ return x.id===ACC_SEL; })[0], a=accRec(t);
+  var cnt={}; (okl||[]).forEach(function(x){ var k=gkey(x.group); cnt[k]=(cnt[k]||0)+1; });
+  var gl=[]; (CFG.groups||[]).concat(Object.keys(cnt)).forEach(function(g){ g=gkey(g); if(g&&gl.indexOf(g)<0) gl.push(g); });
+  gl.sort();
+  var on=gl.filter(function(g){ return a.g[g]; });
+  box.innerHTML='<div class="rt-sec rt-acc"><h4>📂 '+T("Mavzuni guruhlarga ochish","Open a topic for groups")+'</h4>'+
+    '<div class="rt-acc-tops">'+tops.map(function(x){ var i=(CFG.topics||[]).indexOf(x)+1, r=accRec(x);
+      return '<button type="button" class="rt-gchip'+(x.id===ACC_SEL?" on":"")+'" data-t="'+x.id+'">'+(r.lim?"👥":"🌐")+' '+T(i+"-mavzu","Topic "+i)+'</button>'; }).join("")+'</div>'+
+    '<p class="rt-note" style="margin:8px 0">'+esc(t.title)+'</p>'+
+    '<div class="rt-acc-mode"><label><input type="radio" name="accMode" value="all"'+(a.lim?"":" checked")+'> 🌐 '+T("Hammaga ochiq","Open for everyone")+'</label>'+
+    '<label><input type="radio" name="accMode" value="lim"'+(a.lim?" checked":"")+'> 👥 '+T("Faqat belgilangan guruhlarga","Only for the selected groups")+'</label></div>'+
+    (a.lim?'<div class="rt-acc-gs">'+gl.map(function(g){
+        return '<button type="button" class="rt-gchip rt-accg'+(a.g[g]?" on":"")+'" data-g="'+esc(g)+'">'+(a.g[g]?"🔓 ":"🔒 ")+esc(g)+
+          (cnt[g]?' <span class="rt-badge">'+cnt[g]+'</span>':'')+'</button>'; }).join("")+'</div>'+
+      '<p class="rt-note" style="margin:8px 0 0">'+(on.length?T("Ochiq: ","Open for: ")+'<b>'+on.map(esc).join(", ")+'</b>':T("Hali hech bir guruhga ochilmagan.","Not open for any group yet."))+
+      ' · '+T("Guruh ustiga bosing — ochiladi/yopiladi. Talabalarda sahifa 30 soniya ichida o'zi ochiladi.","Click a group to open/close it. Students' pages unlock by themselves within 30 seconds.")+'</p>'
+     :'<p class="rt-note" style="margin:8px 0 0">'+T("Bu mavzu barcha guruhlarga ochiq.","This topic is open for all groups.")+'</p>')+
+    '</div>';
+  box.querySelectorAll("[data-t]").forEach(function(b){ b.onclick=function(){ ACC_SEL=b.dataset.t; accTcRender(okl); }; });
+  box.querySelectorAll('input[name="accMode"]').forEach(function(r){ r.onchange=function(){
+    accSave(t.id,{lim:r.value==="lim"},okl); }; });
+  box.querySelectorAll(".rt-accg").forEach(function(b){ b.onclick=function(){
+    var o={lim:true}; o["g/"+b.dataset.g]=a.g[b.dataset.g]?null:true; b.disabled=true; accSave(t.id,o,okl); }; });
+}
+function accSave(tid,patch,okl){
+  if(!cloudOn||!BASE){ toast(T("Baza ulanmagan","No database connected")); return; }
+  fetch(BASE+"/meta/access/"+tid+".json",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify(patch)})
+    .then(function(r){ if(!r.ok) throw 0; return r.json(); })
+    .then(function(){ accLoad(function(){ accTcRender(okl); toast("✅ "+T("Saqlandi","Saved")); }); })
+    .catch(function(){ toast(T("Saqlanmadi — qayta kiring","Not saved — sign in again")); accTcRender(okl); });
 }
 /* ================== ⚡ JONLI TEST (Kahoot uslubida, kuniga 1 marta) ==================
    Ma'lumotlar: /kahoot/{cfg, idx/<kun>, games/<kun>/{meta,q,k,p,a}, res/<kun>, bank}

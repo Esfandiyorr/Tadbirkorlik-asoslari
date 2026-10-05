@@ -48,7 +48,8 @@
       "title": "M3 · Mahsulotni kam xarajat bilan sinash (moliya va kredit)",
       "open": true,
       "quiz": 15,
-      "slides": 15
+      "slides": 15,
+      "lim": true
     },
     {
       "id": "m4",
