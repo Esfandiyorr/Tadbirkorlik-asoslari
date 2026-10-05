@@ -32,7 +32,9 @@
       "title": "M1 · Tadbirkorlik tafakkuri va biznes imkoniyatlar",
       "open": true,
       "quiz": 15,
-      "slides": 18
+      "slides": 18,
+      "pdf": "fayllar/M1-mavzu.pdf",
+      "pdfSize": "3,3 MB"
     },
     {
       "id": "m2",
@@ -40,7 +42,9 @@
       "title": "M2 · Mijoz muammosi asosida biznes g'oya",
       "open": true,
       "quiz": 15,
-      "slides": 24
+      "slides": 24,
+      "pdf": "fayllar/M2-mavzu.pdf",
+      "pdfSize": "4,9 MB"
     },
     {
       "id": "m3",

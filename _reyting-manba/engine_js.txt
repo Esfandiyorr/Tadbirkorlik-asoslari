@@ -1291,7 +1291,8 @@ function renderTp(){
       '<div class="t"><b>'+esc(x.title)+(cur?' · <span style="color:var(--green)">'+T("hozirgi","current")+'</span>':'')+'</b>'+
       '<span>'+(open?T("Ochiq","Open"):x.open?T("Guruhingiz uchun hali ochilmagan — o'qituvchi darsda ochadi","Not open for your group yet — the teacher opens it in class"):T("Yopiq — o'qituvchi darsda ochadi","Locked — the teacher will open it in class"))+
       ' · '+T("ballingiz","your points")+": "+p+'</span></div>'+
-      (open&&!cur?'<a class="btn accent" href="'+x.file+'">'+T("Ochish","Open")+'</a>':'')+'</div>';
+      (open&&!cur?'<a class="btn accent" href="'+x.file+'">'+T("Ochish","Open")+'</a>':'')+
+      (!open&&x.open&&x.pdf?'<a class="btn" href="'+esc(x.pdf)+'" download>📥 PDF</a>':'')+'</div>';
   }).join("");
   box.innerHTML=list+'<p class="rt-note">'+T(
     "Yopiq mavzular saytga umuman yuklanmagan — ular o'qituvchi darsni o'tgach ochiladi.",
@@ -2281,7 +2282,7 @@ function navBuild(){
     if(cur) b=el('<span class="rt-nav cur" title="'+esc(x.title)+'">📖 '+lab+'</span>');
     else if(topicOpen(x)) b=el('<a class="rt-nav" href="'+x.file+'" title="'+esc(x.title)+'">📗 '+lab+'</a>');
     else { b=el('<span class="rt-nav lock" title="'+(i+1)+'-'+T("mavzu yopiq — o\'qituvchi darsda ochadi","topic is locked — the teacher opens it in class")+'">🔒 '+(i+1)+'</span>');
-           b.onclick=function(){ toast(x.open?T("Bu mavzu guruhingiz uchun hali ochilmagan","This topic is not open for your group yet"):T("Bu mavzu hali yopiq","This topic is still locked")); }; }
+           b.onclick=function(){ if(x.open) accModal(x); else toast(T("Bu mavzu hali yopiq","This topic is still locked")); }; }
     wrap.appendChild(b);
   });
   var sp=document.querySelector('.topbar .spacer');
@@ -2486,22 +2487,41 @@ function accApply(){
     if(n>=0) slideSeen(n);
   }
 }
+/* yopiq mavzu oynasi: o'rtada PDF yuklab olish havolasi (config: pdf, pdfSize) */
+function accBoxHtml(x,here){
+  var a=accRec(x), n=(CFG.topics||[]).indexOf(x)+1;
+  var none=!!(ACC&&ACC[x.id])&&a.lim&&!Object.keys(a.g||{}).some(function(k){ return a.g[k]; });   /* o'qituvchi hamma guruhga yopgan */
+  var other=(CFG.topics||[]).filter(function(y){ return y.id!==CFG.topic&&y.id!==x.id&&topicOpen(y); });
+  var grp=S&&S.group?esc(S.group):"";
+  return '<div class="rt-box rt-accbox" style="text-align:center">'+
+    (here?'':'<button type="button" class="rt-accx" title="'+T("Yopish","Close")+'">✕</button>')+
+    '<div style="font-size:48px">🔒</div>'+
+    '<h2 style="margin:8px 0 6px">'+(none?T(n+"-mavzu yopiq","Topic "+n+" is closed"):T(n+"-mavzu guruhingiz uchun hali ochilmagan","Topic "+n+" is not open for your group yet"))+'</h2>'+
+    '<p style="color:var(--muted);margin:0 0 6px"><b>'+esc(x.title)+'</b></p>'+
+    '<p style="color:var(--muted);margin:0 0 14px">'+(none
+      ?T("O'qituvchi bu mavzuni yopib qo'ygan.","The teacher has closed this topic.")
+      :T("O'qituvchi bu mavzuni "+(grp?"<b>"+grp+"</b> guruhi uchun ":"")+"darsda ochadi."+(here?" Ochilishi bilan bu sahifa o'zi ochiladi.":""),
+         "The teacher opens this topic "+(grp?"for group <b>"+grp+"</b> ":"")+"in class."+(here?" This page unlocks by itself once it is open.":"")))+'</p>'+
+    (x.pdf?'<div class="rt-accpdf"><a class="btn accent" href="'+esc(x.pdf)+'" download>📥 '+T("PDF versiyasini yuklab olish","Download the PDF version")+'</a>'+
+      '<span>'+T("Mavzuning barcha slaydlari bitta faylda","All the slides of the topic in one file")+(x.pdfSize?' · '+esc(x.pdfSize):'')+'</span></div>':'')+
+    '<div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center">'+
+      other.map(function(y){ var k=(CFG.topics||[]).indexOf(y)+1; return '<a class="btn" href="'+y.file+'">📗 '+T(k+"-mavzu","Topic "+k)+'</a>'; }).join("")+
+      (ARENA_OPEN?'<a class="btn" href="arena.html">🎮 '+T("Arena","Arena")+'</a>':'')+
+      (here?'<button class="btn" id="rtAccChk">🔄 '+T("Tekshirish","Check again")+'</button>':'')+'</div></div>';
+}
 function accGate(cur){
   var old=document.getElementById("rtAcc"); if(old) old.remove();
-  var other=(CFG.topics||[]).filter(function(x){ return x.id!==CFG.topic&&topicOpen(x); });
-  var n=(CFG.topics||[]).indexOf(cur)+1;
-  var g=el('<div class="rt-gate" id="rtAcc" style="z-index:125"><div class="rt-box" style="text-align:center">'+
-    '<div style="font-size:48px">🔒</div>'+
-    '<h2 style="margin:8px 0 6px">'+T(n+"-mavzu guruhingiz uchun hali ochilmagan","Topic "+n+" is not open for your group yet")+'</h2>'+
-    '<p style="color:var(--muted);margin:0 0 6px"><b>'+esc(cur.title)+'</b></p>'+
-    '<p style="color:var(--muted);margin:0 0 14px">'+T("O'qituvchi bu mavzuni "+(S&&S.group?"<b>"+esc(S.group)+"</b> guruhi uchun ":"")+"darsda ochadi. Ochilishi bilan bu sahifa o'zi ochiladi.",
-      "The teacher opens this topic "+(S&&S.group?"for group <b>"+esc(S.group)+"</b> ":"")+"in class. This page unlocks by itself once it is open.")+'</p>'+
-    '<div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center">'+
-      other.map(function(x){ var i=(CFG.topics||[]).indexOf(x)+1; return '<a class="btn accent" href="'+x.file+'">📗 '+T(i+"-mavzu","Topic "+i)+'</a>'; }).join("")+
-      (ARENA_OPEN?'<a class="btn" href="arena.html">🎮 '+T("Arena","Arena")+'</a>':'')+
-      '<button class="btn" id="rtAccChk">🔄 '+T("Tekshirish","Check again")+'</button></div></div></div>');
+  var g=el('<div class="rt-gate" id="rtAcc" style="z-index:125">'+accBoxHtml(cur,true)+'</div>');
   document.body.appendChild(g);
-  document.getElementById("rtAccChk").onclick=function(){ accLoad(function(){ accApply(); if(LOCKED) toast(T("Hali ochilmagan","Not open yet")); }); };
+  var c=document.getElementById("rtAccChk");
+  if(c) c.onclick=function(){ accLoad(function(){ accApply(); if(LOCKED) toast(T("Hali ochilmagan","Not open yet")); }); };
+}
+/* menyuda yopiq mavzu bosilganda */
+function accModal(x){
+  var old=document.getElementById("rtAccM"); if(old) old.remove();
+  var g=el('<div class="rt-gate" id="rtAccM" style="z-index:126;background:rgba(8,15,29,.55);backdrop-filter:blur(4px)">'+accBoxHtml(x,false)+'</div>');
+  document.body.appendChild(g);
+  g.onclick=function(e){ if(e.target===g||(e.target.classList&&e.target.classList.contains("rt-accx"))) g.remove(); };
 }
 /* talaba qulflangan mavzuda slaydlarni klaviatura bilan varaqlay olmasin */
 window.addEventListener("keydown",function(e){ if(LOCKED&&!(e.target&&/INPUT|TEXTAREA|SELECT/.test(e.target.tagName))) e.stopPropagation(); },true);
