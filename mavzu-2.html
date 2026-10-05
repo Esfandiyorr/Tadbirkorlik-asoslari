@@ -344,6 +344,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 
 
+
 /* RT:BEGIN */
 /* ================== REYTING TIZIMI ================== */
 .rt-chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel);
@@ -1681,6 +1682,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 </div>
 
 <div class="hint" id="hint" data-ui="hint">⌨️ <kbd>→</kbd> keyingi slayd · <kbd>D</kbd> tun/kun · <kbd>L</kbd> uz/eng · <kbd>O</kbd> ro'yxat · <kbd>F</kbd> to'liq ekran</div>
+
 
 
 
@@ -4241,7 +4243,7 @@ function accRec(x){ var a=ACC&&ACC[x.id]; return a?{lim:!!a.lim,g:a.g||{}}:{lim:
 function tcHere(){ if(isTc) return true; try{ return localStorage.getItem(TCG)==="1"; }catch(e){ return false; } }
 function topicOpen(x){
   if(!x||!x.open) return false;
-  if(tcHere()) return true;
+  if(tcHere()&&!S) return true;           /* o'qituvchi talaba profilisiz — hammasi ochiq; talaba profilida esa talaba ko'radigandek */
   var a=accRec(x); if(!a.lim) return true;
   return !!(S&&S.group&&a.g[gkey(S.group)]);
 }
