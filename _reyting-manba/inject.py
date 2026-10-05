@@ -10,7 +10,7 @@ MJS=open(SC+'music_js.txt',encoding='utf-8').read()
 CCSS=open(SC+'chat_css.txt',encoding='utf-8').read()
 CJS=open(SC+'chat_js.txt',encoding='utf-8').read()
 CONF=json.load(open(SC+'config.json',encoding='utf-8'))
-AVX=open(SC+'avatar_lib.js',encoding='utf-8').read()   # umumiy avatar kutubxonasi
+AVX=open(SC+'avatar_pic.js',encoding='utf-8').read()   # umumiy avatar moduli (tayyor rasmlar)
 
 DECKS={
  'index.html':   dict(id='m1',slides=18,quiz=15),
