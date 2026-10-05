@@ -341,6 +341,9 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 
 
+
+
+
 /* RT:BEGIN */
 /* ================== REYTING TIZIMI ================== */
 .rt-chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel);
@@ -741,6 +744,12 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 .rt-acc-mode{display:flex;gap:16px;flex-wrap:wrap;margin:4px 0 10px;font-weight:700;font-size:13.5px}
 .rt-acc-mode label{display:flex;gap:6px;align-items:center;cursor:pointer}
 .rt-accg .rt-badge{margin-left:4px}
+.rt-accbox{position:relative;min-width:0;box-sizing:border-box}
+.rt-accx{position:absolute;top:12px;right:12px;width:32px;height:32px;border-radius:50%;border:1px solid var(--line);background:var(--panel2);color:var(--ink);cursor:pointer;font-size:14px;font-family:inherit}
+.rt-accpdf{display:flex;flex-direction:column;align-items:center;gap:6px;margin:0 auto 16px;padding:16px;border:2px dashed var(--green);border-radius:16px;background:rgba(18,161,80,.07);max-width:420px;box-sizing:border-box}
+.rt-accpdf .btn{font-size:16px;padding:12px 20px;white-space:normal;max-width:100%;box-sizing:border-box}
+@media(max-width:480px){.rt-accpdf{padding:12px}.rt-accpdf .btn{font-size:15px;padding:11px 14px}}
+.rt-accpdf span{font-size:12.5px;color:var(--muted)}
 /* ================== MUSIQA PLEYERI ================== */
 #mzTab{position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:70;
   background:linear-gradient(135deg,var(--violet),var(--pink));color:#fff;border:none;
@@ -1764,8 +1773,11 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 
 
+
+
+
 <!-- RT:BEGIN -->
-<script>var RT_CFG={"topic": "m2", "slides": 24, "quiz": 15, "pSlide": 2, "pAll": 10, "teacher": "", "firebase": {"db": "tadbirkorlik-asoslari-default-rtdb", "regions": ["asia-southeast1", "europe-west1", "us-central1", "europe-west4", "asia-east1", "us-east1", "northamerica-northeast1"], "url": "https://tadbirkorlik-asoslari-default-rtdb.asia-southeast1.firebasedatabase.app"}, "topics": [{"id": "m1", "file": "index.html", "title": "M1 · Tadbirkorlik tafakkuri va biznes imkoniyatlar", "open": true, "quiz": 15, "slides": 18}, {"id": "m2", "file": "mavzu-2.html", "title": "M2 · Mijoz muammosi asosida biznes g'oya", "open": true, "quiz": 15, "slides": 24}, {"id": "m3", "file": "mavzu-3.html", "title": "M3 · Mahsulotni kam xarajat bilan sinash (moliya va kredit)", "open": true, "quiz": 15, "slides": 15, "lim": true}, {"id": "m4", "file": "mavzu-4.html", "title": "M4 · Biznesni qonuniy rasmiylashtirish", "open": false, "quiz": 18, "slides": 18}, {"id": "m5", "file": "mavzu-5.html", "title": "M5 · Soliqlar va hujjatlar", "open": false, "quiz": 3, "slides": 18}, {"id": "m6", "file": "mavzu-6.html", "title": "M6 · Biznes-model qanday ishlaydi", "open": false, "quiz": 15, "slides": 18}, {"id": "m7", "file": "mavzu-7.html", "title": "M7 · Mijoz kim va unga nima kerak", "open": false, "quiz": 15, "slides": 18}, {"id": "m8", "title": "M8 · 8-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-8.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m9", "title": "M9 · 9-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-9.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m10", "title": "M10 · 10-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-10.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m11", "title": "M11 · 11-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-11.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m12", "title": "M12 · 12-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-12.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m13", "title": "M13 · 13-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-13.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m14", "title": "M14 · 14-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-14.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m15", "title": "M15 · 15-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-15.html", "open": false, "slides": 18, "quiz": 15}], "teacherTg": "https://t.me/esfandiyorr?direct", "courses": [{"id": "tad-asoslari", "icon": "🚀", "title": "Tadbirkorlik asoslari", "desc": "15 ta mavzu · nazariya, testlar va amaliy topshiriqlar", "first": "index.html"}], "groups": ["FIZ-123", "FIZ-223", "FIZ-323", "AP-123", "AP-223", "AP-323", "D-123", "DKG-BF-123", "YES-123", "T-123", "T-223", "T-323", "T-423", "KI-123", "KI-223", "DI-123", "DI-223"], "groupRenames": {"T-232": "T-223"}, "tracks": [{"file": "Musofir.mp3", "title": "Musofir", "artist": ""}], "fbWeb": {"apiKey": "AIzaSyDPOvO9kqBcD9zIeCy_eR9szezLhoDB4Oo", "authDomain": "tadbirkorlik-asoslari.firebaseapp.com", "databaseURL": "https://tadbirkorlik-asoslari-default-rtdb.asia-southeast1.firebasedatabase.app", "projectId": "tadbirkorlik-asoslari", "storageBucket": "tadbirkorlik-asoslari.firebasestorage.app", "messagingSenderId": "303986754308", "appId": "1:303986754308:web:fca65cded4728199e68651"}, "teacherH": "9a5935bc7e3abb2f8da12a8f053d28b942d399f06d3841a799d1616c7bc48ceb"};</script>
+<script>var RT_CFG={"topic": "m2", "slides": 24, "quiz": 15, "pSlide": 2, "pAll": 10, "teacher": "", "firebase": {"db": "tadbirkorlik-asoslari-default-rtdb", "regions": ["asia-southeast1", "europe-west1", "us-central1", "europe-west4", "asia-east1", "us-east1", "northamerica-northeast1"], "url": "https://tadbirkorlik-asoslari-default-rtdb.asia-southeast1.firebasedatabase.app"}, "topics": [{"id": "m1", "file": "index.html", "title": "M1 · Tadbirkorlik tafakkuri va biznes imkoniyatlar", "open": true, "quiz": 15, "slides": 18, "pdf": "fayllar/M1-mavzu.pdf", "pdfSize": "3,3 MB"}, {"id": "m2", "file": "mavzu-2.html", "title": "M2 · Mijoz muammosi asosida biznes g'oya", "open": true, "quiz": 15, "slides": 24, "pdf": "fayllar/M2-mavzu.pdf", "pdfSize": "4,9 MB"}, {"id": "m3", "file": "mavzu-3.html", "title": "M3 · Mahsulotni kam xarajat bilan sinash (moliya va kredit)", "open": true, "quiz": 15, "slides": 15, "lim": true}, {"id": "m4", "file": "mavzu-4.html", "title": "M4 · Biznesni qonuniy rasmiylashtirish", "open": false, "quiz": 18, "slides": 18}, {"id": "m5", "file": "mavzu-5.html", "title": "M5 · Soliqlar va hujjatlar", "open": false, "quiz": 3, "slides": 18}, {"id": "m6", "file": "mavzu-6.html", "title": "M6 · Biznes-model qanday ishlaydi", "open": false, "quiz": 15, "slides": 18}, {"id": "m7", "file": "mavzu-7.html", "title": "M7 · Mijoz kim va unga nima kerak", "open": false, "quiz": 15, "slides": 18}, {"id": "m8", "title": "M8 · 8-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-8.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m9", "title": "M9 · 9-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-9.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m10", "title": "M10 · 10-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-10.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m11", "title": "M11 · 11-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-11.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m12", "title": "M12 · 12-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-12.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m13", "title": "M13 · 13-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-13.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m14", "title": "M14 · 14-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-14.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m15", "title": "M15 · 15-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-15.html", "open": false, "slides": 18, "quiz": 15}], "teacherTg": "https://t.me/esfandiyorr?direct", "courses": [{"id": "tad-asoslari", "icon": "🚀", "title": "Tadbirkorlik asoslari", "desc": "15 ta mavzu · nazariya, testlar va amaliy topshiriqlar", "first": "index.html"}], "groups": ["FIZ-123", "FIZ-223", "FIZ-323", "AP-123", "AP-223", "AP-323", "D-123", "DKG-BF-123", "YES-123", "T-123", "T-223", "T-323", "T-423", "KI-123", "KI-223", "DI-123", "DI-223"], "groupRenames": {"T-232": "T-223"}, "tracks": [{"file": "Musofir.mp3", "title": "Musofir", "artist": ""}], "fbWeb": {"apiKey": "AIzaSyDPOvO9kqBcD9zIeCy_eR9szezLhoDB4Oo", "authDomain": "tadbirkorlik-asoslari.firebaseapp.com", "databaseURL": "https://tadbirkorlik-asoslari-default-rtdb.asia-southeast1.firebasedatabase.app", "projectId": "tadbirkorlik-asoslari", "storageBucket": "tadbirkorlik-asoslari.firebasestorage.app", "messagingSenderId": "303986754308", "appId": "1:303986754308:web:fca65cded4728199e68651"}, "teacherH": "9a5935bc7e3abb2f8da12a8f053d28b942d399f06d3841a799d1616c7bc48ceb"};</script>
 <script>
 /* ================== TerDU REYTING TIZIMI ================== */
 var RT=(function(){
@@ -3060,7 +3072,8 @@ function renderTp(){
       '<div class="t"><b>'+esc(x.title)+(cur?' · <span style="color:var(--green)">'+T("hozirgi","current")+'</span>':'')+'</b>'+
       '<span>'+(open?T("Ochiq","Open"):x.open?T("Guruhingiz uchun hali ochilmagan — o'qituvchi darsda ochadi","Not open for your group yet — the teacher opens it in class"):T("Yopiq — o'qituvchi darsda ochadi","Locked — the teacher will open it in class"))+
       ' · '+T("ballingiz","your points")+": "+p+'</span></div>'+
-      (open&&!cur?'<a class="btn accent" href="'+x.file+'">'+T("Ochish","Open")+'</a>':'')+'</div>';
+      (open&&!cur?'<a class="btn accent" href="'+x.file+'">'+T("Ochish","Open")+'</a>':'')+
+      (!open&&x.open&&x.pdf?'<a class="btn" href="'+esc(x.pdf)+'" download>📥 PDF</a>':'')+'</div>';
   }).join("");
   box.innerHTML=list+'<p class="rt-note">'+T(
     "Yopiq mavzular saytga umuman yuklanmagan — ular o'qituvchi darsni o'tgach ochiladi.",
@@ -4050,7 +4063,7 @@ function navBuild(){
     if(cur) b=el('<span class="rt-nav cur" title="'+esc(x.title)+'">📖 '+lab+'</span>');
     else if(topicOpen(x)) b=el('<a class="rt-nav" href="'+x.file+'" title="'+esc(x.title)+'">📗 '+lab+'</a>');
     else { b=el('<span class="rt-nav lock" title="'+(i+1)+'-'+T("mavzu yopiq — o\'qituvchi darsda ochadi","topic is locked — the teacher opens it in class")+'">🔒 '+(i+1)+'</span>');
-           b.onclick=function(){ toast(x.open?T("Bu mavzu guruhingiz uchun hali ochilmagan","This topic is not open for your group yet"):T("Bu mavzu hali yopiq","This topic is still locked")); }; }
+           b.onclick=function(){ if(x.open) accModal(x); else toast(T("Bu mavzu hali yopiq","This topic is still locked")); }; }
     wrap.appendChild(b);
   });
   var sp=document.querySelector('.topbar .spacer');
@@ -4255,22 +4268,41 @@ function accApply(){
     if(n>=0) slideSeen(n);
   }
 }
+/* yopiq mavzu oynasi: o'rtada PDF yuklab olish havolasi (config: pdf, pdfSize) */
+function accBoxHtml(x,here){
+  var a=accRec(x), n=(CFG.topics||[]).indexOf(x)+1;
+  var none=!!(ACC&&ACC[x.id])&&a.lim&&!Object.keys(a.g||{}).some(function(k){ return a.g[k]; });   /* o'qituvchi hamma guruhga yopgan */
+  var other=(CFG.topics||[]).filter(function(y){ return y.id!==CFG.topic&&y.id!==x.id&&topicOpen(y); });
+  var grp=S&&S.group?esc(S.group):"";
+  return '<div class="rt-box rt-accbox" style="text-align:center">'+
+    (here?'':'<button type="button" class="rt-accx" title="'+T("Yopish","Close")+'">✕</button>')+
+    '<div style="font-size:48px">🔒</div>'+
+    '<h2 style="margin:8px 0 6px">'+(none?T(n+"-mavzu yopiq","Topic "+n+" is closed"):T(n+"-mavzu guruhingiz uchun hali ochilmagan","Topic "+n+" is not open for your group yet"))+'</h2>'+
+    '<p style="color:var(--muted);margin:0 0 6px"><b>'+esc(x.title)+'</b></p>'+
+    '<p style="color:var(--muted);margin:0 0 14px">'+(none
+      ?T("O'qituvchi bu mavzuni yopib qo'ygan.","The teacher has closed this topic.")
+      :T("O'qituvchi bu mavzuni "+(grp?"<b>"+grp+"</b> guruhi uchun ":"")+"darsda ochadi."+(here?" Ochilishi bilan bu sahifa o'zi ochiladi.":""),
+         "The teacher opens this topic "+(grp?"for group <b>"+grp+"</b> ":"")+"in class."+(here?" This page unlocks by itself once it is open.":"")))+'</p>'+
+    (x.pdf?'<div class="rt-accpdf"><a class="btn accent" href="'+esc(x.pdf)+'" download>📥 '+T("PDF versiyasini yuklab olish","Download the PDF version")+'</a>'+
+      '<span>'+T("Mavzuning barcha slaydlari bitta faylda","All the slides of the topic in one file")+(x.pdfSize?' · '+esc(x.pdfSize):'')+'</span></div>':'')+
+    '<div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center">'+
+      other.map(function(y){ var k=(CFG.topics||[]).indexOf(y)+1; return '<a class="btn" href="'+y.file+'">📗 '+T(k+"-mavzu","Topic "+k)+'</a>'; }).join("")+
+      (ARENA_OPEN?'<a class="btn" href="arena.html">🎮 '+T("Arena","Arena")+'</a>':'')+
+      (here?'<button class="btn" id="rtAccChk">🔄 '+T("Tekshirish","Check again")+'</button>':'')+'</div></div>';
+}
 function accGate(cur){
   var old=document.getElementById("rtAcc"); if(old) old.remove();
-  var other=(CFG.topics||[]).filter(function(x){ return x.id!==CFG.topic&&topicOpen(x); });
-  var n=(CFG.topics||[]).indexOf(cur)+1;
-  var g=el('<div class="rt-gate" id="rtAcc" style="z-index:125"><div class="rt-box" style="text-align:center">'+
-    '<div style="font-size:48px">🔒</div>'+
-    '<h2 style="margin:8px 0 6px">'+T(n+"-mavzu guruhingiz uchun hali ochilmagan","Topic "+n+" is not open for your group yet")+'</h2>'+
-    '<p style="color:var(--muted);margin:0 0 6px"><b>'+esc(cur.title)+'</b></p>'+
-    '<p style="color:var(--muted);margin:0 0 14px">'+T("O'qituvchi bu mavzuni "+(S&&S.group?"<b>"+esc(S.group)+"</b> guruhi uchun ":"")+"darsda ochadi. Ochilishi bilan bu sahifa o'zi ochiladi.",
-      "The teacher opens this topic "+(S&&S.group?"for group <b>"+esc(S.group)+"</b> ":"")+"in class. This page unlocks by itself once it is open.")+'</p>'+
-    '<div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center">'+
-      other.map(function(x){ var i=(CFG.topics||[]).indexOf(x)+1; return '<a class="btn accent" href="'+x.file+'">📗 '+T(i+"-mavzu","Topic "+i)+'</a>'; }).join("")+
-      (ARENA_OPEN?'<a class="btn" href="arena.html">🎮 '+T("Arena","Arena")+'</a>':'')+
-      '<button class="btn" id="rtAccChk">🔄 '+T("Tekshirish","Check again")+'</button></div></div></div>');
+  var g=el('<div class="rt-gate" id="rtAcc" style="z-index:125">'+accBoxHtml(cur,true)+'</div>');
   document.body.appendChild(g);
-  document.getElementById("rtAccChk").onclick=function(){ accLoad(function(){ accApply(); if(LOCKED) toast(T("Hali ochilmagan","Not open yet")); }); };
+  var c=document.getElementById("rtAccChk");
+  if(c) c.onclick=function(){ accLoad(function(){ accApply(); if(LOCKED) toast(T("Hali ochilmagan","Not open yet")); }); };
+}
+/* menyuda yopiq mavzu bosilganda */
+function accModal(x){
+  var old=document.getElementById("rtAccM"); if(old) old.remove();
+  var g=el('<div class="rt-gate" id="rtAccM" style="z-index:126;background:rgba(8,15,29,.55);backdrop-filter:blur(4px)">'+accBoxHtml(x,false)+'</div>');
+  document.body.appendChild(g);
+  g.onclick=function(e){ if(e.target===g||(e.target.classList&&e.target.classList.contains("rt-accx"))) g.remove(); };
 }
 /* talaba qulflangan mavzuda slaydlarni klaviatura bilan varaqlay olmasin */
 window.addEventListener("keydown",function(e){ if(LOCKED&&!(e.target&&/INPUT|TEXTAREA|SELECT/.test(e.target.tagName))) e.stopPropagation(); },true);
