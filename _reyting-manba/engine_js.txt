@@ -1221,7 +1221,7 @@ function renderMe(){
   var box=document.getElementById("rtMe"); if(!S) return;
   var id=CFG.topic||"m0", t=topicObj(), m=markOf(id,t);
   var pct=Math.round(m.z*100);
-  box.innerHTML=(!AV_ON?'':'<div class="rt-mehead"><button type="button" class="rt-meav" title="'+T("Avatarni o'zgartirish","Edit avatar")+'">'+avHtml(S,{size:72,animated:true})+'</button>'+
+  box.innerHTML=(!AV_ON?'':'<div class="rt-mehead"><button type="button" class="rt-meav" title="'+T("Avatarni o'zgartirish","Edit avatar")+'">'+avHtml(S,{size:72})+'</button>'+
       '<div><b>'+esc(S.name+" "+S.surname)+'</b><span>'+esc(S.group||"")+'</span></div></div>')+
     '<div class="rt-mark b'+m.b+'"><div class="n">'+(m.b||"—")+'</div>'+
       '<div class="t"><b>'+T("Shu dars uchun baho","Mark for this lesson")+'</b>'+
@@ -2454,41 +2454,39 @@ function start(){
   if(window.RT_pending){ window.RT_pending.forEach(function(a){ award(a[0],a[1],a[2]); }); window.RT_pending=null; }
   });
 }
-/* ================== 🎨 AVATAR — AVX kutubxonasi (_reyting-manba/avatar_lib.js) ==================
-   Bazada: students/<id>/av = "2…" (18 belgili satr). Avatar yasamagan talabaga ID bo'yicha avatar avtomatik beriladi. */
-var AV_ON=false;   /* avatar funksiyasi vaqtincha o'chirilgan — yoqish uchun true qiling */
+/* ================== 🎭 AVATAR — tayyor rasmlardan tanlanadi (AVP, _reyting-manba/avatar_pic.js) ==================
+   Bazada: students/<id>/av = "p17". Tanlanmagan bo'lsa — ism bosh harflari. */
+var AV_ON=true;    /* o'chirish uchun false qiling */
 var AV_ME=null;
 function avKey(){ return "terdu_av_"+(S?S.id:"x"); }
 function avMine(){
-  if(AV_ME) return AV_ME;
-  try{ var v=localStorage.getItem(avKey()); if(v){ var c=AVX.dec(v.charAt(0)==="{"?JSON.parse(v):v); if(c) AV_ME=AVX.enc(c); } }catch(e){}
-  return AV_ME;
+  if(AV_ME!==null) return AV_ME||null;
+  try{ var v=localStorage.getItem(avKey()); AV_ME=AVP.num(v)?v:""; }catch(e){ AV_ME=""; }
+  return AV_ME||null;
 }
 /* talaba yozuvi (yoki {id,name,surname,av}) uchun avatar HTML */
 function avHtml(x,o){
   if(!AV_ON) return "";
   o=o||{}; x=x||{};
-  var code=(S&&x.id===S.id&&avMine())||x.av||null;
+  var code=(S&&x.id===S.id)?avMine():(AVP.num(x.av)?x.av:null);
   o.seed=x.id||((x.name||"")+(x.surname||"")); if(!o.name) o.name=((x.name||"")+" "+(x.surname||"")).trim();
-  return AVX.html(code,o);
+  return AVP.html(code,o);
 }
 function avLoad(){
   if(!AV_ON){ avChip(); return; }
   if(!S||!cloudOn||!BASE||avMine()){ avChip(); return; }
   fetch(BASE+"/students/"+S.id+"/av.json").then(function(r){ return r.ok?r.json():null; }).catch(function(){ return null; }).then(function(v){
-    var c=v&&AVX.dec(v);
-    if(c){ AV_ME=AVX.enc(c); try{ localStorage.setItem(avKey(),AV_ME); }catch(e){} }
+    if(AVP.num(v)){ AV_ME=v; try{ localStorage.setItem(avKey(),v); }catch(e){} }
     avChip();
   });
 }
 function avSave(code){
-  var c=AVX.dec(code); if(!c) return;
-  AV_ME=AVX.enc(c);
-  try{ localStorage.setItem(avKey(),AV_ME); }catch(e){}
+  AV_ME=AVP.num(code)?code:"";
+  try{ if(AV_ME) localStorage.setItem(avKey(),AV_ME); else localStorage.removeItem(avKey()); }catch(e){}
   avChip();
-  var mb=document.querySelector(".rt-meav"); if(mb) mb.innerHTML=avHtml(S,{size:72,animated:true});
+  var mb=document.querySelector(".rt-meav"); if(mb) mb.innerHTML=avHtml(S,{size:72});
   if(!cloudOn||!BASE||!S) return;
-  fetch(BASE+"/students/"+S.id+"/av.json",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(AV_ME)})
+  fetch(BASE+"/students/"+S.id+"/av.json",AV_ME?{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(AV_ME)}:{method:"DELETE"})
     .then(function(r){ toast(r.ok?"✅ "+T("Avatar saqlandi","Avatar saved"):T("Avatar shu qurilmada saqlandi","Avatar saved on this device")); })
     .catch(function(){ toast(T("Avatar shu qurilmada saqlandi","Avatar saved on this device")); });
 }
@@ -2499,15 +2497,15 @@ function avChip(){
   if(!b){ b=el('<button type="button" class="rt-avbtn" id="rtAv"></button>'); b.onclick=avEditor; }
   var c=document.getElementById("rtChip"); if(b.nextSibling!==c) tools.insertBefore(b,c||tools.firstChild);
   var mine=avMine();
-  b.title=mine?T("Avatarim — o'zgartirish","My avatar — edit"):T("Avataringizni o'zingiz yarating!","Create your own avatar!");
+  b.title=mine?T("Avatarim — o'zgartirish","My avatar — change"):T("Avatar tanlang!","Choose your avatar!");
   b.setAttribute("aria-label",b.title);
   b.classList.toggle("new",!mine);
-  b.innerHTML=avHtml(S,{size:40,animated:true})+(mine?'':'<i aria-hidden="true">+</i>');
+  b.innerHTML=avHtml(S,{size:40})+(mine?'':'<i aria-hidden="true">+</i>');
 }
 document.addEventListener("click",function(e){ var t=e.target&&e.target.closest&&e.target.closest(".rt-meav"); if(t) avEditor(); });
 function avEditor(){
   if(!S||!AV_ON) return;
-  AVX.editor({value:avMine(),seed:S.id,name:S.name+" "+S.surname,t:T,onSave:avSave});
+  AVP.picker({value:avMine(),seed:S.id,name:S.name+" "+S.surname,t:T,onSave:avSave});
 }
 /* ================== 📂 MAVZUNI GURUHLARGA OCHISH ==================
    /meta/access/<mavzu> = {lim:true, g:{<guruh>:true}} — lim bo'lsa mavzu faqat belgilangan guruhlarga ochiq.
