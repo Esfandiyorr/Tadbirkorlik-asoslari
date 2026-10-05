@@ -1299,7 +1299,9 @@ function avNeed(id){
     [].forEach.call(document.querySelectorAll(q),function(el){ el.outerHTML=avA(id,el.getAttribute("data-avnm"),+el.getAttribute("data-avsz"),el.getAttribute("data-avan")==="1"); });
   });
 }
+var AV_ON=false;   /* avatar funksiyasi vaqtincha o'chirilgan — yoqish uchun true qiling */
 function avA(id,name,size,an){
+  if(!AV_ON){ var nm=String(name||"?").split(" "); return '<span class="av" style="background:'+colorOf(id)+'">'+esc(initials(nm[0],nm[1]))+'</span>'; }
   var mine=ME&&id===ME.id, code=(mine&&avMineA())||AVC[id]||null;
   if(!code) avNeed(id);
   return AVX.html(code,{size:size,seed:id,name:name,animated:!!an}).replace('<span class="avx',
