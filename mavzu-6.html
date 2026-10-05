@@ -330,6 +330,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 
 
+
 /* RT:BEGIN */
 /* ================== REYTING TIZIMI ================== */
 .rt-chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel);
@@ -1425,6 +1426,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 </div>
 
 <div class="hint" id="hint" data-ui="hint">⌨️ <kbd>→</kbd> keyingi slayd · <kbd>D</kbd> tun/kun · <kbd>L</kbd> uz/eng · <kbd>O</kbd> ro'yxat · <kbd>F</kbd> to'liq ekran</div>
+
 
 
 
@@ -5261,10 +5263,12 @@ var Q=[
      "Umumiy daromaddan soliq summasi ayirib tashlanadi xolos"],c:0,
   e:"Misol: 3 000 000 doimiy xarajat ÷ 5 000 foyda = 600 ta buyurtma."}
 ];
-var picked=new Array(Q.length).fill(null), KEYS=["A","B","C","D"];
+/* ===== Yakuniy test: "Testni boshlash" tugmasi, 15 daqiqa, har talabaga aralash tartib, nusxa/skrinshotdan himoya =====
+   Urinish faqat "Testni boshlash" bosilganda sanaladi. Boshlangan test shu brauzerda saqlanadi:
+   boshqa slaydga o'tish yoki sahifani yopish javoblarni ham, urinishni ham yo'qotmaydi — vaqt esa to'xtamaydi. */
+var KEYS=["A","B","C","D"], QATT_LIMIT=2, QT_MIN=15, QS=null, QTMR=null;
 $("#scoreMax").textContent=Q.length;
-/* Testni faqat dastlabki 2 marta ishlaganda ball beriladi — keyingi urinishlar bepul mashq bo'lib qoladi */
-var QATT_LIMIT=2;
+function L2(uz,en){ return (typeof lang!=="undefined"&&lang==="en")?en:uz; }
 function qAttGet(){
   if(!window.RT) return 0;
   var P=RT.points(), t=(window.RT_CFG&&RT_CFG.topic)||"m0";
@@ -5278,67 +5282,184 @@ function qAttBump(){
   P.topics[t].qAtt=(P.topics[t].qAtt||0)+1;
   if(RT.save) RT.save();
 }
-
+function qStu(){ return (window.RT&&RT.student&&RT.student())||null; }
+function qKey(){ var s=qStu(); return "terdu_qs_"+((window.RT_CFG&&RT_CFG.topic)||"m0")+"_"+(s?s.id:"anon"); }
+function qsLoad(){ try{ return JSON.parse(localStorage.getItem(qKey())||"null"); }catch(e){ return null; } }
+function qsSave(){ try{ localStorage.setItem(qKey(),JSON.stringify(QS)); }catch(e){} }
+function qShuf(a){ for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)), t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+function qLeft(){ return QS?Math.max(0,QS.at+QT_MIN*60000-Date.now()):0; }
+function qMMSS(ms){ var s=Math.ceil(ms/1000); return Math.floor(s/60)+":"+("0"+(s%60)).slice(-2); }
+function qStat(){
+  var a=0,s=0; for(var k in QS.pk){ a++; if(QS.pk[k]===Q[k].c) s++; }
+  return {a:a,s:s,b:Math.round(s/Q.length*500)/10};
+}
+function qStart(){
+  if(window.RT&&!qStu()){ alert(L2("Testni ishlash uchun avval ro'yxatdan o'ting.","Please register first to take the test.")); return; }
+  var free=window.RT?qAttGet()>=QATT_LIMIT:false;
+  if(!free) qAttBump();
+  var ord=qShuf(Q.map(function(_,i){ return i; })), opt={};
+  ord.forEach(function(i){ opt[i]=qShuf([0,1,2,3]); });
+  QS={at:Date.now(),ord:ord,opt:opt,pk:{},done:false,free:free,n:window.RT?qAttGet():1};
+  qsSave(); renderTest(); qTick();
+  var sl=$("#testWrap").closest(".slide"); if(sl) sl.scrollTop=0;
+}
+function qFinish(){
+  if(!QS||QS.done) return;
+  QS.done=true; QS.end=Math.min(Date.now(),QS.at+QT_MIN*60000); qsSave();
+  clearInterval(QTMR); QTMR=null; document.body.classList.remove("qt-live");
+  renderTest();
+  var r=$("#result"); if(r) setTimeout(function(){ r.scrollIntoView({behavior:"smooth",block:"center"}); },60);
+}
+function qTick(){
+  clearInterval(QTMR); QTMR=null;
+  if(!QS||QS.done) return;
+  document.body.classList.add("qt-live");
+  QTMR=setInterval(function(){
+    var l=qLeft(), e=document.getElementById("qtTime");
+    if(e){ e.textContent=qMMSS(l); e.parentNode.classList.toggle("warn",l<120000); }
+    if(l<=0) qFinish();
+  },500);
+}
+function answer(qi,ai){
+  if(!QS||QS.done||QS.pk[qi]!==undefined) return;
+  if(qLeft()<=0){ qFinish(); return; }
+  QS.pk[qi]=ai; qsSave();
+  if(ai===Q[qi].c&&window.RT&&!QS.free) RT.award("test"+qi,5,"test");
+  renderTest();
+  var st=qStat(); if(st.a===Q.length) qFinish();
+}
+function qBar(){
+  var sb=$("#testWrap").parentNode.querySelector(".scorebar"); if(!sb) return;
+  if(!QS||QS.done){ sb.style.display="none"; return; }
+  var st=qStat();
+  sb.style.display="";
+  sb.innerHTML='<span>❓ '+L2("Savollar","Questions")+': <b>'+Q.length+'</b></span>'+
+    '<span>✍️ '+L2("Javob berildi","Answered")+': <b>'+st.a+'</b></span>'+
+    '<span>✅ '+L2("To'g'ri","Correct")+': <b>'+st.s+'</b></span>'+
+    '<span>⭐ '+L2("Ball","Points")+': <b>'+(QS.free?"—":st.b)+'</b></span>'+
+    '<div class="spacer"></div><span class="qt-time">⏱ <b id="qtTime">'+qMMSS(qLeft())+'</b></span>'+
+    '<button class="btn accent" id="qtEnd" type="button">🏁 '+L2("Yakunlash","Finish")+'</button>';
+  $("#qtEnd").onclick=function(){
+    var n=Q.length-qStat().a;
+    if(n>0&&!confirm(L2(n+" ta savolga javob berilmagan. Testni yakunlaysizmi?",n+" questions are unanswered. Finish the test?"))) return;
+    qFinish();
+  };
+}
+function qWm(){
+  var s=qStu(); if(!s) return "";
+  var t=(s.name+" "+s.surname+" · "+(s.group||"")).replace(/[<>&"]/g,"");
+  var svg="<svg xmlns='http://www.w3.org/2000/svg' width='360' height='170'><text x='10' y='95' transform='rotate(-18 180 85)' font-family='sans-serif' font-size='17' font-weight='700' fill='rgba(120,120,140,0.13)'>"+t+"</text></svg>";
+  return 'background-image:url("data:image/svg+xml;utf8,'+encodeURIComponent(svg)+'")';
+}
 function renderTest(){
-  var w=$("#testWrap"); w.innerHTML="";
-  QSRC().forEach(function(item,qi){
-    var box=document.createElement("div"); box.className="qbox";
+  var w=$("#testWrap"), QQ=QSRC(), r=$("#result");
+  w.innerHTML=""; w.className=""; w.removeAttribute("style"); r.classList.remove("show");
+  if(r.nextElementSibling!==w) w.parentNode.insertBefore(r,w);   /* natija kartasi savollar ustida */
+  if(QS&&!QS.done&&qLeft()<=0){ qFinish(); return; }
+  qBar();
+  var used=window.RT?qAttGet():0;
+  if(!QS||QS.done){
+    if(QS&&QS.done){
+      var st=qStat(), pct=Math.round(st.s/Q.length*100), t,x;
+      if(pct>=90){t=UIT("r90t");x=UIT("r90x");} else if(pct>=75){t=UIT("r75t");x=UIT("r75x");}
+      else if(pct>=50){t=UIT("r50t");x=UIT("r50x");} else{t=UIT("r0t");x=UIT("r0x");}
+      $("#pct").textContent=pct+"%"; $("#resTitle").textContent=t;
+      $("#resTxt").textContent=x+"  ("+st.s+" / "+Q.length+" "+UIT("correct")+" · "+
+        (QS.free?L2("mashq — ball berilmadi","practice — no points"):L2("bu urinishda ","this attempt: ")+st.b+" "+L2("ball","points"))+
+        " · ⏱ "+qMMSS((QS.end||Date.now())-QS.at)+")";
+      r.classList.add("show");
+    }
+    var left=QATT_LIMIT-used;
+    var c=document.createElement("div"); c.className="qt-start";
+    c.innerHTML='<div class="qt-ic">📝</div><h3>'+(QS&&QS.done?L2("Test yakunlandi","The test is finished"):L2("Yakuniy test","Final test"))+'</h3>'+
+      '<div class="qt-facts"><span>❓ <b>'+Q.length+'</b> '+L2("savol","questions")+'</span><span>⏱ <b>'+QT_MIN+'</b> '+L2("daqiqa","minutes")+'</span>'+
+      '<span>🎯 '+L2("Ball beriladigan urinish","Scored attempts")+': <b>'+Math.min(used,QATT_LIMIT)+' / '+QATT_LIMIT+'</b></span></div>'+
+      (QS&&QS.done?'':'<ul class="qt-rules"><li>'+L2("Savollar «Testni boshlash» bosilgandan keyin chiqadi va har bir talabada boshqacha tartibda bo'ladi.","Questions appear after you press «Start the test» and come in a different order for every student.")+'</li>'+
+      '<li>'+L2("Har bir savolga bitta javob — tanlagach o'zgartirib bo'lmaydi.","One answer per question — it cannot be changed.")+'</li>'+
+      '<li>'+L2("Vaqt boshlangach to'xtamaydi. Boshqa slaydga o'tsangiz yoki sahifani yopsangiz ham javoblaringiz saqlanadi — qaytib davom ettirasiz.","Once started, the timer does not stop. Your answers are kept if you switch slides or close the page — just come back and continue.")+'</li>'+
+      '<li>'+L2("15 daqiqa tugasa test o'zi yakunlanadi.","When the 15 minutes are over, the test finishes by itself.")+'</li></ul>')+
+      (left>0?'':'<p class="qt-note">⚠️ '+L2("Ball beriladigan 2 ta urinish tugagan — endi faqat mashq uchun ishlaysiz, ball berilmaydi.","Your 2 scored attempts are used up — you can practise, but no points are given.")+'</p>')+
+      '<button class="btn accent qt-go" type="button" id="qtGo">▶ '+(QS&&QS.done?L2("Qayta boshlash","Start again"):L2("Testni boshlash","Start the test"))+
+      (left>0?' <small>('+L2((used+1)+"-urinish","attempt "+(used+1))+')</small>':' <small>('+L2("mashq","practice")+')</small>')+'</button>';
+    w.appendChild(c);
+    $("#qtGo").onclick=function(){
+      var msg=left>0?L2("Test boshlanadi: "+Q.length+" ta savol, "+QT_MIN+" daqiqa. Bu "+(used+1)+"-urinish (ball beriladigan "+QATT_LIMIT+" tadan). Boshlaysizmi?",
+                        "The test starts: "+Q.length+" questions, "+QT_MIN+" minutes. This is attempt "+(used+1)+" of "+QATT_LIMIT+" scored ones. Start?")
+                    :L2("Mashq rejimi: ball berilmaydi. Boshlaysizmi?","Practice mode: no points. Start?");
+      if(confirm(msg)) qStart();
+    };
+    if(QS&&QS.done){
+      var rv=document.createElement("div"); rv.className="qt-rev";
+      rv.innerHTML='<h4>'+L2("Javoblaringiz","Your answers")+'</h4>'+QS.ord.map(function(qi,n){
+        var p=QS.pk[qi], ok=p===Q[qi].c;
+        return '<div class="qt-rrow '+(p===undefined?"na":ok?"ok":"no")+'"><b>'+(n+1)+'</b><span>'+QQ[qi].q+'</span><i>'+
+          (p===undefined?L2("javobsiz","no answer"):ok?"✅":"❌")+'</i></div>';
+      }).join("");
+      w.appendChild(rv);
+    }
+    return;
+  }
+  w.className="qt-on"; w.setAttribute("style",qWm());
+  QS.ord.forEach(function(qi,n){
+    var item=QQ[qi], box=document.createElement("div"); box.className="qbox";
     var h=document.createElement("p"); h.className="q";
-    h.innerHTML="<i>"+(qi+1)+"</i>"+item.q;
+    h.innerHTML="<i>"+(n+1)+"</i>"+item.q;
     box.appendChild(h);
-    item.a.forEach(function(txt,ai){
+    var p=QS.pk[qi];
+    QS.opt[qi].forEach(function(ai,pos){
       var b=document.createElement("button");
       b.className="opt"; b.type="button";
-      b.innerHTML="<span class='k'>"+KEYS[ai]+")</span>"+txt;
-      b.onclick=function(){answer(qi,ai,box)};
+      b.innerHTML="<span class='k'>"+KEYS[pos]+")</span>"+item.a[ai];
+      if(p!==undefined){ b.disabled=true; if(ai===p) b.classList.add(ai===item.c?"right":"wrong"); }
+      else b.onclick=function(){ answer(qi,ai); };
       box.appendChild(b);
     });
-    var fb=document.createElement("p"); fb.className="fb"; box.appendChild(fb);
+    if(p!==undefined){ var fb=document.createElement("p"); fb.className="fb show "+(p===item.c?"ok":"no");
+      fb.textContent=p===item.c?L2("✅ To'g'ri","✅ Correct"):L2("❌ Noto'g'ri","❌ Wrong"); box.appendChild(fb); }
     w.appendChild(box);
   });
 }
-function answer(qi,ai,box){
-  if(picked[qi]!==null)return;
-  picked[qi]=ai;
-  var opts=[].slice.call(box.querySelectorAll(".opt")), fb=box.querySelector(".fb"), QQ=QSRC();
-  opts.forEach(function(o,i){
-    o.disabled=true;
-    if(i===QQ[qi].c)o.classList.add("right");
-    else if(i===ai)o.classList.add("wrong");
-  });
-  var ok=(ai===QQ[qi].c);
-  if(ok&&window.RT&&qAttGet()<QATT_LIMIT) RT.award("test"+qi,5,"test");
-  fb.className="fb show "+(ok?"ok":"no");
-  fb.textContent=(ok?"✅ To'g'ri! ":"❌ Noto'g'ri. To'g'ri javob: "+KEYS[Q[qi].c]+") — ")+Q[qi].e;
-  if(ok&&window.RT&&qAttGet()>=QATT_LIMIT) fb.textContent+=(document.documentElement.lang==="en"?" (No points: your 2 scored attempts are used up — this is practice.)":" (Ball berilmadi: ball beriladigan 2 ta urinish tugagan — bu mashq.)"); /* QATT_NOTE */
-  updateScore();
-}
-function updateScore(){
-  var s=0,a=0;
-  picked.forEach(function(p,i){ if(p!==null){a++; if(p===Q[i].c)s++;} });
-  $("#scoreNow").textContent=s; $("#answered").textContent=a;
-  if(a===Q.length){
-    var pct=Math.round(s/Q.length*100), r=$("#result");
-    $("#pct").textContent=pct+"%";
-    var t,x;
-    if(pct>=90){t=UIT("r90t");x=UIT("r90x");}
-    else if(pct>=75){t=UIT("r75t");x=UIT("r75x");}
-    else if(pct>=50){t=UIT("r50t");x=UIT("r50x");}
-    else{t=UIT("r0t");x=UIT("r0x");}
-    $("#resTitle").textContent=t; $("#resTxt").textContent=x+"  ("+s+" / "+Q.length+" "+UIT("correct")+")";
-    r.classList.add("show");
-    r.scrollIntoView({behavior:"smooth",block:"center"});
-  }
-}
-$("#btnReset").onclick=function(){
-  picked=new Array(Q.length).fill(null);
-  $("#result").classList.remove("show");
-  qAttBump();
-  if(window.RT&&qAttGet()>=QATT_LIMIT) alert(document.documentElement.lang==="en"?"Note: your 2 scored attempts are used up. You can keep practising, but no more points will be given.":"Diqqat: ball beriladigan 2 ta urinish tugadi. Testni mashq uchun ishlashingiz mumkin, lekin endi ball berilmaydi.");
-  renderTest(); updateScore();
-  $("#testWrap").scrollIntoView({behavior:"smooth",block:"start"});
-};
-renderTest();
+/* --- nusxa olish va skrinshotdan himoya (test ketayotganda) --- */
+(function(){
+  var css=document.createElement("style");
+  css.textContent=".qt-on,.qt-on *{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}"+
+    ".qt-on{border-radius:18px;transition:filter .15s}body.qt-hide .qt-on{filter:blur(14px)}"+
+    ".qt-start{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:22px;text-align:center;box-shadow:var(--shadow);margin-bottom:14px}"+
+    ".qt-start .qt-ic{font-size:44px}.qt-start h3{margin:6px 0 10px}"+
+    ".qt-facts{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:12px}"+
+    ".qt-facts span{background:var(--panel2);border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-size:14px}"+
+    ".qt-rules{text-align:left;max-width:640px;margin:0 auto 14px;padding-left:20px;font-size:14px;line-height:1.55;color:var(--muted)}"+
+    ".qt-note{color:var(--err);font-weight:700;font-size:14px}#result{margin-bottom:14px}"+
+    ".qt-go{font-size:17px;padding:13px 26px}.qt-go small{opacity:.85;font-weight:600}"+
+    ".qt-time.warn b{color:var(--err)}.qt-time b{font-variant-numeric:tabular-nums}"+
+    ".qt-rev{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:14px 16px;margin-top:14px}"+
+    ".qt-rev h4{margin:0 0 8px}.qt-rrow{display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-top:1px solid var(--line);font-size:14px}"+
+    ".qt-rrow b{min-width:22px}.qt-rrow span{flex:1}.qt-rrow i{font-style:normal;white-space:nowrap}.qt-rrow.na i{color:var(--muted)}"+
+    "@media print{#testWrap,#result,.scorebar{display:none!important}}";
+  document.head.appendChild(css);
+  var w=$("#testWrap");
+  ["copy","cut","contextmenu","dragstart","selectstart"].forEach(function(ev){
+    w.addEventListener(ev,function(e){ e.preventDefault(); },true); });
+  function live(){ return QS&&!QS.done; }
+  function wipe(){ try{ if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(""); }catch(e){} }
+  function hide(on){ document.body.classList.toggle("qt-hide",!!on&&live()); }
+  document.addEventListener("keydown",function(e){
+    if(!live()) return;
+    var k=(e.key||"").toLowerCase();
+    if(k==="printscreen"){ hide(true); wipe(); setTimeout(function(){ hide(false); },1200); }
+    if((e.ctrlKey||e.metaKey)&&/^[acpsux]$/.test(k)){ e.preventDefault(); e.stopPropagation(); }
+    if(e.metaKey&&e.shiftKey&&/^[345]$/.test(k)){ hide(true); setTimeout(function(){ hide(false); },1500); }   /* macOS skrinshot */
+  },true);
+  document.addEventListener("keyup",function(e){ if(live()&&(e.key||"").toLowerCase()==="printscreen"){ wipe(); } },true);
+  window.addEventListener("blur",function(){ hide(true); });     /* skrinshot dasturi oynani egallasa — savollar xiralashadi */
+  window.addEventListener("focus",function(){ hide(false); });
+  document.addEventListener("visibilitychange",function(){ hide(document.hidden); });
+  window.addEventListener("beforeprint",function(){ hide(true); });
+  window.addEventListener("afterprint",function(){ hide(false); });
+})();
+QS=qsLoad();
+if(QS&&!QS.done&&qLeft()<=0){ QS.done=true; QS.end=QS.at+QT_MIN*60000; qsSave(); }
+renderTest(); qTick();
 
 
 /* ================= UZ / ENG mexanizmi ================= */
@@ -5373,8 +5494,7 @@ function applyLang(L){
   });
   dotEls.forEach(function(d,i){ d.title=(i+1)+". "+((lang==="en"&&slides[i].dataset.titleEn)?slides[i].dataset.titleEn:slides[i].dataset.title); });
   $("#slideName").textContent=(lang==="en"&&slides[idx].dataset.titleEn)?slides[idx].dataset.titleEn:slides[idx].dataset.title;
-  var keep=picked.slice(); renderTest();
-  keep.forEach(function(p,qi){ if(p!==null){ picked[qi]=null; answer(qi,p,$("#testWrap").children[qi]); } });
+  renderTest();
   try{localStorage.setItem("terdu_lang",lang)}catch(e){}
 }
 $("#btnLang").onclick=function(){ applyLang(lang==="en"?"uz":"en"); };
