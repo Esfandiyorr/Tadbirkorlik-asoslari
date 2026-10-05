@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Avatarlar namunasi</title>
+<style>
+:root{--bg:#eef3fb;--panel:#ffffff;--panel2:#f7f9fe;--ink:#0d1b2a;--muted:#5b6b82;--line:#e1e8f4}
+:root[data-theme="dark"]{--bg:#080f1d;--panel:#111b2e;--panel2:#0e1726;--ink:#eaf1ff;--muted:#9db0cd;--line:#22304c}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{position:sticky;top:0;z-index:5;display:flex;gap:10px;flex-wrap:wrap;align-items:center;padding:12px 16px;background:var(--panel);border-bottom:1px solid var(--line)}
+header h1{font-size:17px;margin:0 12px 0 0}
+header label{font-size:13px;color:var(--muted);display:flex;gap:6px;align-items:center}
+header select,header button{font:inherit;font-size:13px;padding:6px 10px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);cursor:pointer}
+.big{display:flex;gap:18px;flex-wrap:wrap;padding:16px;align-items:flex-end}
+.big figure{margin:0;text-align:center;font-size:12px;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(var(--cell),1fr));gap:12px;padding:16px}
+.cell{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;color:var(--muted);cursor:pointer}
+.cell code{font-size:10px}
+</style>
+</head>
+<body>
+<header>
+  <h1>🎨 Avatarlar — 200 ta tasodifiy namuna</h1>
+  <label>O'lcham <select id="sz"><option>24</option><option>32</option><option>40</option><option selected>64</option><option>96</option><option>128</option></select></label>
+  <label>Shakl <select id="sh"><option value="circle">Doira</option><option value="rounded">Yumaloq kvadrat</option></select></label>
+  <button id="th" type="button">🌙 Tun / Kun</button>
+  <button id="re" type="button">🎲 Yangi 200 ta</button>
+  <button id="ed" type="button">✏️ Muharrirni sinash</button>
+</header>
+<div class="big" id="big"></div>
+<div class="grid" id="grid"></div>
+<script src="_reyting-manba/avatar_lib.js"></script>
+<script>
+(function(){
+  var salt=Date.now()%100000, g=document.getElementById("grid");
+  function draw(){
+    var s=+document.getElementById("sz").value, sh=document.getElementById("sh").value, h="";
+    g.style.setProperty("--cell",Math.max(60,s+20)+"px");
+    for(var i=0;i<200;i++){
+      var seed="talaba-"+salt+"-"+i, code=AVX.enc(AVX.gen(seed));
+      h+='<div class="cell" data-c="'+code+'">'+AVX.html(code,{size:s,shape:sh,name:"Talaba "+(i+1),
+        status:i%9===0?"online":null,badge:i%23===0?"👑":null})+(s>=96?'<code>'+code+'</code>':'')+'</div>';
+    }
+    g.innerHTML=h;
+    var b="", sizes=[24,40,64,128,256];
+    var c=AVX.gen("talaba-"+salt+"-0");
+    sizes.forEach(function(z){ b+='<figure>'+AVX.html(c,{size:z,animated:true,name:"Namuna",status:z>=64?"online":null})+'<figcaption>'+z+'px</figcaption></figure>'; });
+    document.getElementById("big").innerHTML=b;
+  }
+  document.getElementById("sz").onchange=draw;
+  document.getElementById("sh").onchange=draw;
+  document.getElementById("re").onclick=function(){ salt=Date.now()%100000; draw(); };
+  document.getElementById("th").onclick=function(){ var r=document.documentElement; r.dataset.theme=r.dataset.theme==="dark"?"light":"dark"; };
+  document.getElementById("ed").onclick=function(){ AVX.editor({seed:"demo",name:"Namuna Talaba",onSave:function(code){ alert("Saqlandi: "+code); }}); };
+  g.onclick=function(e){ var c=e.target.closest(".cell"); if(c) AVX.editor({value:c.dataset.c,name:"Talaba",onSave:function(code){ alert("Saqlandi: "+code); }}); };
+  draw();
+})();
+</script>
+</body>
+</html>

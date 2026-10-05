@@ -10,6 +10,7 @@ MJS=open(SC+'music_js.txt',encoding='utf-8').read()
 CCSS=open(SC+'chat_css.txt',encoding='utf-8').read()
 CJS=open(SC+'chat_js.txt',encoding='utf-8').read()
 CONF=json.load(open(SC+'config.json',encoding='utf-8'))
+AVX=open(SC+'avatar_lib.js',encoding='utf-8').read()   # umumiy avatar kutubxonasi
 
 DECKS={
  'index.html':   dict(id='m1',slides=18,quiz=15),
@@ -52,6 +53,7 @@ def inject(fn,meta):
              teacherTg=CONF.get('teacherTg',''),courses=CONF.get('courses',[]),groups=CONF.get('groups',[]),groupRenames=CONF.get('groupRenames',{}),
              tracks=CONF.get('tracks',[]),fbWeb=fbWeb if google else None,teacherH=teacherH if google else '')
     block=(HB+'\n<script>var RT_CFG='+json.dumps(cfg,ensure_ascii=False)+';</script>\n'
+           '<script>\n'+AVX.strip()+'\n</script>\n'
            '<script>\n'+JS.strip()+'\n</script>\n'
            '<script>\n'+MJS.strip()+'\n</script>\n'
            '<script>\n'+CJS.strip()+'\n</script>\n'+HE+'\n')
@@ -91,5 +93,20 @@ def inject(fn,meta):
     open(p,'w',encoding='utf-8').write(s)
     return "%s: OK (%s, %d slayd)"%(fn,meta['id'],meta['slides'])
 
+AB,AE='/* AVX:BEGIN */','/* AVX:END */'
+def inject_arena():
+    """arena.html ga ham o'sha avatar kutubxonasi (alohida <script>)"""
+    p=BASE+'arena.html'
+    if not os.path.exists(p): return "arena.html: yo'q"
+    s=open(p,encoding='utf-8').read()
+    blk=AB+'\n'+AVX.strip()+'\n'+AE
+    if AB in s and AE in s:
+        i=s.index(AB); j=s.index(AE)+len(AE); s=s[:i]+blk+s[j:]
+    else:
+        i=s.index('<script>'); s=s[:i]+'<script>'+blk+'</script>\n'+s[i:]
+    open(p,'w',encoding='utf-8').write(s)
+    return "arena.html: OK (avatar)"
+
 if __name__=="__main__":
     for fn,meta in DECKS.items(): print(inject(fn,meta))
+    print(inject_arena())
