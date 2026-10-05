@@ -365,6 +365,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 
 
+
 /* RT:BEGIN */
 /* ================== REYTING TIZIMI ================== */
 .rt-chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel);
@@ -787,6 +788,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 .rt-mehead b{display:block;font-size:17px}.rt-mehead span{color:var(--muted);font-size:13px}
 .rt-meav{border:0;background:none;padding:0;cursor:pointer;border-radius:50%}
 .rt-meav:focus-visible{outline:3px solid #f59e0b;outline-offset:3px}
+.rt-tav:empty{display:none}
 /* ================== MUSIQA PLEYERI ================== */
 #mzTab{position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:70;
   background:linear-gradient(135deg,var(--violet),var(--pink));color:#fff;border:none;
@@ -1536,6 +1538,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 </div>
 
 <div class="hint" id="hint" data-ui="hint">⌨️ <kbd>→</kbd> keyingi slayd · <kbd>D</kbd> tun/kun · <kbd>L</kbd> uz/eng · <kbd>O</kbd> ro'yxat · <kbd>F</kbd> to'liq ekran</div>
+
 
 
 
@@ -3444,8 +3447,8 @@ function renderMe(){
   var box=document.getElementById("rtMe"); if(!S) return;
   var id=CFG.topic||"m0", t=topicObj(), m=markOf(id,t);
   var pct=Math.round(m.z*100);
-  box.innerHTML='<div class="rt-mehead"><button type="button" class="rt-meav" title="'+T("Avatarni o'zgartirish","Edit avatar")+'">'+avHtml(S,{size:72,animated:true})+'</button>'+
-      '<div><b>'+esc(S.name+" "+S.surname)+'</b><span>'+esc(S.group||"")+'</span></div></div>'+
+  box.innerHTML=(!AV_ON?'':'<div class="rt-mehead"><button type="button" class="rt-meav" title="'+T("Avatarni o'zgartirish","Edit avatar")+'">'+avHtml(S,{size:72,animated:true})+'</button>'+
+      '<div><b>'+esc(S.name+" "+S.surname)+'</b><span>'+esc(S.group||"")+'</span></div></div>')+
     '<div class="rt-mark b'+m.b+'"><div class="n">'+(m.b||"—")+'</div>'+
       '<div class="t"><b>'+T("Shu dars uchun baho","Mark for this lesson")+'</b>'+
       '<span>'+(m.b?markName(m.b):T("hali yetarli ish bajarilmadi","not enough work yet"))+' · '+pct+'%</span></div></div>'+
@@ -4679,6 +4682,7 @@ function start(){
 }
 /* ================== 🎨 AVATAR — AVX kutubxonasi (_reyting-manba/avatar_lib.js) ==================
    Bazada: students/<id>/av = "2…" (18 belgili satr). Avatar yasamagan talabaga ID bo'yicha avatar avtomatik beriladi. */
+var AV_ON=false;   /* avatar funksiyasi vaqtincha o'chirilgan — yoqish uchun true qiling */
 var AV_ME=null;
 function avKey(){ return "terdu_av_"+(S?S.id:"x"); }
 function avMine(){
@@ -4688,12 +4692,14 @@ function avMine(){
 }
 /* talaba yozuvi (yoki {id,name,surname,av}) uchun avatar HTML */
 function avHtml(x,o){
+  if(!AV_ON) return "";
   o=o||{}; x=x||{};
   var code=(S&&x.id===S.id&&avMine())||x.av||null;
   o.seed=x.id||((x.name||"")+(x.surname||"")); if(!o.name) o.name=((x.name||"")+" "+(x.surname||"")).trim();
   return AVX.html(code,o);
 }
 function avLoad(){
+  if(!AV_ON){ avChip(); return; }
   if(!S||!cloudOn||!BASE||avMine()){ avChip(); return; }
   fetch(BASE+"/students/"+S.id+"/av.json").then(function(r){ return r.ok?r.json():null; }).catch(function(){ return null; }).then(function(v){
     var c=v&&AVX.dec(v);
@@ -4713,6 +4719,7 @@ function avSave(code){
     .catch(function(){ toast(T("Avatar shu qurilmada saqlandi","Avatar saved on this device")); });
 }
 function avChip(){
+  if(!AV_ON){ var o=document.getElementById("rtAv"); if(o) o.remove(); return; }
   var tools=document.querySelector(".topbar .tools"); if(!tools||!S) return;
   var b=document.getElementById("rtAv");
   if(!b){ b=el('<button type="button" class="rt-avbtn" id="rtAv"></button>'); b.onclick=avEditor; }
@@ -4725,7 +4732,7 @@ function avChip(){
 }
 document.addEventListener("click",function(e){ var t=e.target&&e.target.closest&&e.target.closest(".rt-meav"); if(t) avEditor(); });
 function avEditor(){
-  if(!S) return;
+  if(!S||!AV_ON) return;
   AVX.editor({value:avMine(),seed:S.id,name:S.name+" "+S.surname,t:T,onSave:avSave});
 }
 /* ================== 📂 MAVZUNI GURUHLARGA OCHISH ==================
