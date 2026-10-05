@@ -784,7 +784,7 @@ function loadMe(){
 function initials(n,s){ return ((n||"?").charAt(0)+(s||"").charAt(0)).toUpperCase(); }
 /* ---------- avatarlar (AVP — tayyor rasmlar, taqdimotlar bilan bir xil) ----------
    O'yinchi tanlagan avatar bazadan (students/<id>/av) bir marta olinadi va seans davomida keshlanadi. */
-var AV_ON=true;
+var AV_ON=false;   /* avatar funksiyasi o'chirilgan — yoqish uchun true qiling */
 var AVC={}, AVQ={};
 try{ AVC=JSON.parse(sessionStorage.getItem("terdu_avp")||"{}")||{}; }catch(e){ AVC={}; }
 function avMineA(){ try{ var v=ME&&localStorage.getItem("terdu_av_"+ME.id); return AVP.num(v)?v:null; }catch(e){ return null; } }
