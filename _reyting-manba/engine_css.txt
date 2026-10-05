@@ -403,3 +403,73 @@
 .rt-accpdf .btn{font-size:16px;padding:12px 20px;white-space:normal;max-width:100%;box-sizing:border-box}
 @media(max-width:480px){.rt-accpdf{padding:12px}.rt-accpdf .btn{font-size:15px;padding:11px 14px}}
 .rt-accpdf span{font-size:12.5px;color:var(--muted)}
+/* avatar — jonli harakatlar */
+.rt-ava{display:block;border-radius:50%;overflow:hidden;flex:0 0 auto}
+.rt-ava .av-blink{animation:avBlink 5.2s infinite;transform-box:fill-box;transform-origin:center}
+.rt-ava .av-look{animation:avLook 9s ease-in-out infinite}
+.rt-ava .av-head{animation:avHead 7s ease-in-out infinite;transform-box:view-box;transform-origin:100px 150px}
+.rt-ava .av-body{animation:avBreath 4.2s ease-in-out infinite;transform-box:view-box;transform-origin:100px 200px}
+.rt-ava .av-spin{animation:avSpin 16s linear infinite;transform-box:view-box;transform-origin:100px 100px}
+.rt-ava .av-tw{animation:avTw 2.8s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+.rt-ava .av-tw.t2{animation-delay:.9s}.rt-ava .av-tw.t3{animation-delay:1.7s}
+.rt-ava .av-sway{animation:avSway 3.4s ease-in-out infinite;transform-box:view-box;transform-origin:130px 70px}
+.rt-ava .av-brow{animation:avBrow 9s ease-in-out infinite}
+@keyframes avBlink{0%,93%,100%{transform:scaleY(1)}95.5%{transform:scaleY(.08)}}
+@keyframes avLook{0%,18%,100%{transform:translate(0,0)}24%,40%{transform:translate(1.8px,0)}48%,62%{transform:translate(-1.8px,.4px)}70%,82%{transform:translate(0,-.8px)}}
+@keyframes avHead{0%,100%{transform:rotate(0)}25%{transform:rotate(2.2deg)}55%{transform:rotate(-1.6deg) translateY(.6px)}80%{transform:rotate(.8deg)}}
+@keyframes avBreath{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(1.4px) scale(1.012,.996)}}
+@keyframes avSpin{to{transform:rotate(360deg)}}
+@keyframes avTw{0%,100%{transform:scale(.4);opacity:.2}50%{transform:scale(1.15);opacity:1}}
+@keyframes avSway{0%,100%{transform:rotate(0)}50%{transform:rotate(4deg)}}
+@keyframes avBrow{0%,40%,52%,100%{transform:translateY(0)}45%{transform:translateY(-2px)}}
+.rt-ava.still *{animation:none!important}
+@media(prefers-reduced-motion:reduce){.rt-ava *{animation:none!important}}
+.rt-avbtn{position:relative;width:44px;height:44px;padding:2px;border-radius:50%;border:2px solid transparent;cursor:pointer;flex:0 0 auto;
+  background:linear-gradient(var(--panel),var(--panel)) padding-box,linear-gradient(135deg,#7c3aed,#06b6d4,#12a150) border-box;
+  box-shadow:0 4px 14px -6px rgba(124,58,237,.6);transition:transform .18s}
+.rt-avbtn:hover{transform:scale(1.08) rotate(-3deg)}
+.rt-avbtn .rt-ava{width:36px;height:36px}
+.rt-avbtn i{position:absolute;right:-4px;bottom:-4px;width:18px;height:18px;border-radius:50%;background:#12a150;color:#fff;font-style:normal;
+  font-weight:900;font-size:14px;line-height:18px;text-align:center;box-shadow:0 0 0 2px var(--panel)}
+.rt-avbtn.new{animation:avPulse 1.8s ease-in-out infinite}
+@keyframes avPulse{50%{box-shadow:0 0 0 7px rgba(124,58,237,.18),0 4px 14px -6px rgba(124,58,237,.6)}}
+/* muharrir */
+.rt-avgate .rt-avbox{max-width:880px;padding:0;overflow:hidden}
+.rt-avhead{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;color:#fff;font-size:17px;
+  background:linear-gradient(135deg,#7c3aed,#2563eb 60%,#06b6d4)}
+.rt-avx{width:32px;height:32px;border-radius:50%;border:0;background:rgba(255,255,255,.22);color:#fff;cursor:pointer;font-size:14px;font-family:inherit}
+.rt-avgrid{display:grid;grid-template-columns:260px 1fr;min-height:420px}
+.rt-avprev{display:flex;flex-direction:column;align-items:center;gap:10px;padding:22px 14px;
+  background:radial-gradient(circle at 50% 35%,color-mix(in srgb,var(--violet,#7c3aed) 14%,transparent),transparent 70%)}
+.rt-avbig .rt-ava{width:220px;height:220px;box-shadow:0 18px 40px -16px rgba(30,20,80,.55),0 0 0 6px var(--panel),0 0 0 8px color-mix(in srgb,var(--violet,#7c3aed) 35%,transparent)}
+.rt-avname{font-weight:900;font-size:16px;text-align:center}
+.rt-avrnd{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.rt-avside{display:flex;flex-direction:column;border-left:1px solid var(--line);min-width:0}
+.rt-avtabs{display:flex;gap:6px;flex-wrap:wrap;padding:12px;border-bottom:1px solid var(--line)}
+.rt-avtab{display:flex;align-items:center;gap:5px;border:1.5px solid var(--line);background:var(--panel2);color:var(--ink);border-radius:999px;
+  padding:5px 11px;font-size:12.5px;font-weight:800;cursor:pointer;font-family:inherit}
+.rt-avtab span{font-size:14px}
+.rt-avtab.on{background:linear-gradient(135deg,#7c3aed,#2563eb);color:#fff;border-color:transparent}
+.rt-avopts{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:10px;padding:14px;overflow:auto;max-height:340px;align-content:start}
+.rt-avopts.sw{grid-template-columns:repeat(auto-fill,minmax(48px,1fr))}
+.rt-avop{display:flex;flex-direction:column;align-items:center;gap:4px;border:2px solid var(--line);background:var(--panel2);border-radius:16px;
+  padding:6px;cursor:pointer;font-family:inherit;color:var(--ink);transition:transform .15s,border-color .15s}
+.rt-avop:hover{transform:translateY(-2px);border-color:#7c3aed}
+.rt-avop .rt-ava{border-radius:12px;width:76px;height:76px}
+.rt-avop i{font-style:normal;font-size:11px;font-weight:700;color:var(--muted)}
+.rt-avop.on{border-color:#7c3aed;box-shadow:0 0 0 3px rgba(124,58,237,.25)}
+.rt-avsw{height:48px;border-radius:50%;border:3px solid var(--panel);box-shadow:0 0 0 1.5px var(--line);cursor:pointer;aspect-ratio:1}
+.rt-avsw.on{box-shadow:0 0 0 3px #7c3aed;transform:scale(1.06)}
+.rt-avfoot{display:flex;justify-content:flex-end;gap:8px;padding:12px 16px;border-top:1px solid var(--line)}
+.rt-tav{display:inline-block;vertical-align:middle;margin-right:8px}
+.rt-tav .rt-ava{width:28px;height:28px}
+@media(max-width:700px){
+  .rt-avgrid{grid-template-columns:1fr}
+  .rt-avprev{padding:14px 10px 10px}
+  .rt-avbig .rt-ava{width:150px;height:150px}
+  .rt-avside{border-left:0;border-top:1px solid var(--line)}
+  .rt-avtabs{flex-wrap:nowrap;overflow-x:auto}
+  .rt-avtab{flex:0 0 auto}
+  .rt-avopts{grid-template-columns:repeat(auto-fill,minmax(76px,1fr));max-height:none}
+  .rt-avop .rt-ava{width:64px;height:64px}
+}
