@@ -93,19 +93,21 @@ def inject(fn,meta):
     open(p,'w',encoding='utf-8').write(s)
     return "%s: OK (%s, %d slayd)"%(fn,meta['id'],meta['slides'])
 
-AB,AE='/* AVX:BEGIN */','/* AVX:END */'
+BLOCKS=[('/* AVX:BEGIN */','/* AVX:END */','avatar_pic.js'),('/* KV:BEGIN */','/* KV:END */','krossvord.js')]
 def inject_arena():
-    """arena.html ga ham o'sha avatar kutubxonasi (alohida <script>)"""
+    """arena.html ga umumiy modullar: avatar (AVP) va krossvord (KV) - alohida <script> bloklari"""
     p=BASE+'arena.html'
     if not os.path.exists(p): return "arena.html: yo'q"
     s=open(p,encoding='utf-8').read()
-    blk=AB+'\n'+AVX.strip()+'\n'+AE
-    if AB in s and AE in s:
-        i=s.index(AB); j=s.index(AE)+len(AE); s=s[:i]+blk+s[j:]
-    else:
-        i=s.index('<script>'); s=s[:i]+'<script>'+blk+'</script>\n'+s[i:]
+    for b,e,fn in BLOCKS:
+        src=open(SC+fn,encoding='utf-8').read().strip()
+        blk=b+"\n"+src+"\n"+e
+        if b in s and e in s:
+            i=s.index(b); j=s.index(e)+len(e); s=s[:i]+blk+s[j:]
+        else:
+            i=s.index('<script>'); s=s[:i]+'<script>'+blk+'</script>'+"\n"+s[i:]
     open(p,'w',encoding='utf-8').write(s)
-    return "arena.html: OK (avatar)"
+    return "arena.html: OK (avatar + krossvord)"
 
 if __name__=="__main__":
     for fn,meta in DECKS.items(): print(inject(fn,meta))
