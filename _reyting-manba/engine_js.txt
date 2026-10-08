@@ -2510,15 +2510,15 @@ function avEditor(){
 /* ================== 📂 MAVZUNI GURUHLARGA OCHISH ==================
    /meta/access/<mavzu> = {lim:true, g:{<guruh>:true}} — lim bo'lsa mavzu faqat belgilangan guruhlarga ochiq.
    Yozuv yo'q bo'lsa config'dagi "lim" ishlatiladi (yo'q bo'lsa — hammaga ochiq). O'qituvchi uchun hammasi ochiq. */
-var ACC=null, LOCKED=false, accIv=null, ACC_SEL=null, ACC_FRESH=false;
+var ACC=null, LOCKED=false, accIv=null, ACC_SEL=null, ACC_FRESH=false, ACC_Q="";
 try{ ACC=JSON.parse(localStorage.getItem("terdu_acc")||"null"); }catch(e){}
-function accRec(x){ var a=ACC&&ACC[x.id]; return a?{lim:!!a.lim,g:a.g||{}}:{lim:!!x.lim,g:{}}; }
+function accRec(x){ var a=ACC&&ACC[x.id]; return a?{lim:!!a.lim,g:a.g||{},s:a.s||{}}:{lim:!!x.lim,g:{},s:{}}; }
 function tcHere(){ if(isTc) return true; try{ return localStorage.getItem(TCG)==="1"; }catch(e){ return false; } }
 function topicOpen(x){
   if(!x||!x.open) return false;
   if(tcHere()&&!S) return true;           /* o'qituvchi talaba profilisiz — hammasi ochiq; talaba profilida esa talaba ko'radigandek */
   var a=accRec(x); if(!a.lim) return true;
-  return !!(S&&S.group&&a.g[gkey(S.group)]);
+  return !!(S&&((S.group&&a.g[gkey(S.group)])||(S.id&&a.s[S.id])));   /* guruh yoki alohida talaba */
 }
 function accLoad(cb){
   if(!cloudOn||!BASE){ if(cb) cb(); return; }
@@ -2547,7 +2547,7 @@ function accApply(){
 /* yopiq mavzu oynasi: o'rtada PDF yuklab olish havolasi (config: pdf, pdfSize) */
 function accBoxHtml(x,here){
   var a=accRec(x), n=(CFG.topics||[]).indexOf(x)+1;
-  var none=!!(ACC&&ACC[x.id])&&a.lim&&!Object.keys(a.g||{}).some(function(k){ return a.g[k]; });   /* o'qituvchi hamma guruhga yopgan */
+  var none=!!(ACC&&ACC[x.id])&&a.lim&&!Object.keys(a.g||{}).some(function(k){ return a.g[k]; })&&!Object.keys(a.s||{}).some(function(k){ return a.s[k]; });   /* o'qituvchi hamma guruhga yopgan */
   var other=(CFG.topics||[]).filter(function(y){ return y.id!==CFG.topic&&y.id!==x.id&&topicOpen(y); });
   var grp=S&&S.group?esc(S.group):"";
   return '<div class="rt-box rt-accbox" style="text-align:center">'+
@@ -2618,12 +2618,33 @@ function accTcRender(okl){
       '<p class="rt-note" style="margin:8px 0 0">'+(on.length?T("Ochiq: ","Open for: ")+'<b>'+on.map(esc).join(", ")+'</b>':T("Hali hech bir guruhga ochilmagan.","Not open for any group yet."))+
       ' · '+T("Guruh ustiga bosing — ochiladi/yopiladi. Talabalarda sahifa 30 soniya ichida o'zi ochiladi.","Click a group to open/close it. Students' pages unlock by themselves within 30 seconds.")+'</p>'
      :'<p class="rt-note" style="margin:8px 0 0">'+T("Bu mavzu barcha guruhlarga ochiq.","This topic is open for all groups.")+'</p>')+
+    (a.lim?'<div class="rt-acc-st"><h5>👤 '+T("Alohida talabaga ochish","Open for a single student")+'</h5>'+
+      '<input type="text" id="accSq" autocomplete="off" placeholder="🔎 '+T("Talaba ismi yoki familiyasi…","Student first or last name…")+'" value="'+esc(ACC_Q)+'">'+
+      '<div class="rt-acc-gs" id="accSr"></div>'+
+      '<div class="rt-acc-gs" id="accSon"></div></div>':'')+
     '</div>';
   box.querySelectorAll("[data-t]").forEach(function(b){ b.onclick=function(){ ACC_SEL=b.dataset.t; accTcRender(okl); }; });
   box.querySelectorAll('input[name="accMode"]').forEach(function(r){ r.onchange=function(){
     accSave(t.id,{lim:r.value==="lim"},okl); }; });
   box.querySelectorAll(".rt-accg").forEach(function(b){ b.onclick=function(){
     var o={lim:true}; o["g/"+b.dataset.g]=a.g[b.dataset.g]?null:true; b.disabled=true; accSave(t.id,o,okl); }; });
+  var sq=document.getElementById("accSq");
+  if(sq){
+    var byId={}; (okl||[]).forEach(function(x){ byId[x.id]=x; });
+    var nm=function(x){ return x.name+" "+x.surname; };
+    var drawSt=function(){
+      ACC_Q=sq.value; var q=nrm(ACC_Q), res=document.getElementById("accSr");
+      var hits=q.length<2?[]:(okl||[]).filter(function(x){ return nrm(nm(x)).indexOf(q)>=0||nrm(x.surname+x.name).indexOf(q)>=0; }).slice(0,8);
+      res.innerHTML=hits.map(function(x){ var on=!!a.s[x.id];
+        return '<button type="button" class="rt-gchip rt-acsb'+(on?" on":"")+'" data-id="'+esc(x.id)+'">'+(on?"🔓 ":"🔒 ")+esc(nm(x))+' <span class="rt-note">'+esc(x.group||"")+'</span></button>'; }).join("")||(q.length>=2?'<span class="rt-note">'+T("Topilmadi","Not found")+'</span>':"");
+      var ids=Object.keys(a.s).filter(function(k){ return a.s[k]; });
+      document.getElementById("accSon").innerHTML=ids.length?'<span class="rt-note" style="width:100%">'+T("Alohida ochilganlar:","Opened separately:")+'</span>'+ids.map(function(k){
+        return '<button type="button" class="rt-gchip rt-acsb on" data-id="'+esc(k)+'" title="'+T("Yopish","Close")+'">🔓 '+esc(byId[k]?nm(byId[k]):k)+' ✕</button>'; }).join(""):"";
+      box.querySelectorAll(".rt-acsb").forEach(function(b){ b.onclick=function(){
+        var o={lim:true}; o["s/"+b.dataset.id]=a.s[b.dataset.id]?null:true; b.disabled=true; accSave(t.id,o,okl); }; });
+    };
+    sq.oninput=drawSt; drawSt();
+  }
 }
 function accSave(tid,patch,okl){
   if(!cloudOn||!BASE){ toast(T("Baza ulanmagan","No database connected")); return; }

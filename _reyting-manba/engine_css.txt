@@ -420,3 +420,7 @@
 .rt-meav{border:0;background:none;padding:0;cursor:pointer;border-radius:50%}
 .rt-meav:focus-visible{outline:3px solid #f59e0b;outline-offset:3px}
 .rt-tav:empty{display:none}
+.rt-acc-st{margin-top:14px;padding-top:12px;border-top:1px dashed var(--line)}
+.rt-acc-st h5{margin:0 0 8px;font-size:13.5px}
+.rt-acc-st input{margin-bottom:8px}
+.rt-acc-st .rt-acc-gs{margin-top:6px}
