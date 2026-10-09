@@ -102,11 +102,12 @@
     },
     {
       "id": "m9",
-      "title": "M9 · 9-mavzu (nomi keyin qo'yiladi)",
+      "title": "M9 · Biznes g'oyani taqdim etish va tadbirkorlik yo'lini boshlash",
       "file": "mavzu-9.html",
-      "open": false,
+      "open": true,
       "slides": 18,
-      "quiz": 15
+      "quiz": 15,
+      "lim": true
     },
     {
       "id": "m10",
