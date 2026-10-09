@@ -138,11 +138,12 @@
     },
     {
       "id": "m13",
-      "title": "M13 · 13-mavzu (nomi keyin qo'yiladi)",
+      "title": "M13 · Biznesda foyda va zarar tahlili",
       "file": "mavzu-13.html",
-      "open": false,
+      "open": true,
       "slides": 18,
-      "quiz": 15
+      "quiz": 15,
+      "lim": true
     },
     {
       "id": "m14",
