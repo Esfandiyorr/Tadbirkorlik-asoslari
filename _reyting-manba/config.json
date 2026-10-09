@@ -129,11 +129,12 @@
     },
     {
       "id": "m12",
-      "title": "M12 · 12-mavzu (nomi keyin qo'yiladi)",
+      "title": "M12 · Biznesda pul oqimini rejalashtirish: kirim, chiqim va mablag' jalb qilish",
       "file": "mavzu-12.html",
-      "open": false,
+      "open": true,
       "slides": 18,
-      "quiz": 15
+      "quiz": 15,
+      "lim": true
     },
     {
       "id": "m13",
