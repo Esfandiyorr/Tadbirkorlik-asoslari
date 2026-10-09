@@ -120,11 +120,12 @@
     },
     {
       "id": "m11",
-      "title": "M11 · 11-mavzu (nomi keyin qo'yiladi)",
+      "title": "M11 · Mahsulot narxini shakllantirish",
       "file": "mavzu-11.html",
-      "open": false,
+      "open": true,
       "slides": 18,
-      "quiz": 15
+      "quiz": 15,
+      "lim": true
     },
     {
       "id": "m12",
