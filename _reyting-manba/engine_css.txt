@@ -431,3 +431,31 @@
 
 .kh-note{margin:10px 0 0;padding:10px 14px;border-radius:12px;background:#fef3c7;color:#92400e;font-weight:800;font-size:14.5px;text-align:center;border:1px solid #fcd34d}
 .rt-khsp input#khSpNote{padding:7px 10px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--ink);font:inherit}
+
+/* jonli test oldidan katta oyna */
+html.kh-gated,html.kh-gated body{overflow:hidden!important}
+.kh-gate-full{position:fixed;inset:0;z-index:2147483000;display:grid;place-items:center;padding:18px;overflow:auto;
+  background:radial-gradient(circle at 20% 15%,#7c3aed 0,transparent 45%),radial-gradient(circle at 85% 85%,#0ea5e9 0,transparent 45%),linear-gradient(135deg,#2e1065,#46178f 55%,#1e1b4b);color:#fff}
+.kh-gate-full .kh-gsh{position:absolute;inset:0;pointer-events:none;opacity:.35}
+.kh-gate-full .kh-gsh i{position:absolute;width:90px;height:90px;animation:khFloat 9s ease-in-out infinite}
+.kh-gate-full .kh-gsh .s0{left:8%;top:12%;background:#e21b3c;clip-path:polygon(50% 0,100% 100%,0 100%)}
+.kh-gate-full .kh-gsh .s1{right:10%;top:18%;background:#1368ce;transform:rotate(45deg);animation-delay:-2s}
+.kh-gate-full .kh-gsh .s2{left:12%;bottom:12%;background:#d89e00;border-radius:50%;animation-delay:-4s}
+.kh-gate-full .kh-gsh .s3{right:12%;bottom:14%;background:#26890c;animation-delay:-6s}
+@keyframes khFloat{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-22px) rotate(12deg)}}
+.kh-gbox{position:relative;max-width:640px;width:100%;text-align:center;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);border-radius:28px;padding:30px 24px 26px;backdrop-filter:blur(6px);box-shadow:0 30px 80px rgba(0,0,0,.35)}
+.kh-gic{font-size:64px;line-height:1;animation:khBlink 1.2s steps(2) infinite}
+.kh-gbox h1{margin:12px 0 8px;font-size:clamp(28px,6vw,48px);font-weight:900;letter-spacing:.5px;line-height:1.1;text-shadow:0 4px 18px rgba(0,0,0,.35)}
+.kh-gate-full p,.kh-gate-full span{color:#fff}
+.kh-gate-full .kh-gnote{color:#92400e}
+.kh-gsub{margin:0 0 10px;font-size:clamp(15px,2.6vw,19px);opacity:.95;font-weight:700}
+.kh-gcd{display:flex;flex-direction:column;align-items:center;margin:8px 0 6px}
+.kh-gcd span{font-size:14px;opacity:.85;font-weight:700}
+.kh-gcd b{font-size:clamp(48px,11vw,84px);font-weight:900;font-variant-numeric:tabular-nums;line-height:1.05}
+.kh-gnote{margin:10px auto 6px;max-width:520px;font-size:clamp(15px,2.6vw,18px)}
+.kh-gmeta{margin:6px 0 18px;font-size:14px;opacity:.85}
+.kh-gbtn{display:inline-block;padding:18px 34px;border-radius:18px;background:linear-gradient(180deg,#22c55e,#16a34a);color:#fff!important;text-decoration:none;
+  font-size:clamp(20px,4vw,26px);font-weight:900;box-shadow:0 8px 0 #14532d,0 18px 40px rgba(0,0,0,.35);animation:khPulse 1.6s ease-in-out infinite}
+.kh-gbtn:active{transform:translateY(4px);box-shadow:0 4px 0 #14532d}
+@keyframes khPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+.kh-gx{display:block;margin:18px auto 0;background:transparent;border:1px solid rgba(255,255,255,.4);color:#fff;border-radius:10px;padding:6px 12px;font:inherit;font-size:13px;cursor:pointer;opacity:.8}
