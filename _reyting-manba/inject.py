@@ -24,6 +24,7 @@ DECKS={
  'mavzu-9.html': dict(id='m9',slides=18,quiz=15),
  'mavzu-10.html': dict(id='m10',slides=18,quiz=15),
  'mavzu-11.html': dict(id='m11',slides=18,quiz=15),
+ 'mavzu-12.html': dict(id='m12',slides=18,quiz=15),
 }
 B,E='/* RT:BEGIN */','/* RT:END */'
 HB,HE='<!-- RT:BEGIN -->','<!-- RT:END -->'
