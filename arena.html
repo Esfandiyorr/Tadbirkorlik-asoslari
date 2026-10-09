@@ -413,6 +413,8 @@ details.adv summary{cursor:pointer;font-weight:800;color:var(--muted)}
 .lv-qtop{display:flex;justify-content:center;margin:12px 0 10px}
 .lv-q{background:#fff;color:#1b1b2f;border-radius:18px;padding:18px 20px;font-size:clamp(18px,3.4vw,28px);font-weight:800;text-align:center;line-height:1.3;
   box-shadow:0 10px 30px -12px rgba(0,0,0,.5);animation:lvQ .45s cubic-bezier(.2,1.4,.4,1)}
+.lv-note{display:inline-block;margin:10px auto 4px;padding:10px 18px;border-radius:14px;background:#fef3c7;color:#92400e;font-weight:800;font-size:clamp(15px,2.4vw,19px);border:2px solid #fcd34d;max-width:620px}
+.lv-q.long{font-size:clamp(16px,2.5vw,22px);line-height:1.35}
 .lv-q.sm{font-size:clamp(15px,2.6vw,20px);padding:12px 16px;margin-top:4px}
 @keyframes lvQ{from{transform:translateY(-20px) scale(.95);opacity:0}}
 .lv-mid{display:flex;align-items:center;justify-content:center;gap:16px;margin:14px 0;flex-wrap:wrap}
@@ -2623,12 +2625,13 @@ function kBgShapes(){
   }
   return '<div class="lv-bg" aria-hidden="true">'+h+'</div>';
 }
+function kNote(m){ return (m&&m.note)?'<div class="lv-note">'+esc(m.note)+'</div>':''; }
 function kRulesHtml(m){
   var nq=(m&&m.nq)||10, mn=(m&&m.min)||7;
   return '<ul class="lv-rules">'+
     '<li>📅 '+L("Kuniga bir marta, hamma uchun bir vaqtda boshlanadi","Once a day — it starts for everyone at the same time")+'</li>'+
     '<li>🚪 '+L("Qo'shilish 10 daqiqa oldin ochiladi; boshlangach qo'shilib bo'lmaydi","Joining opens 10 minutes early; no joining after the start")+'</li>'+
-    '<li>⏱ '+nq+' '+L("ta savol, har biriga 15 soniya, faqat bitta javob","questions, 15 seconds each, one answer only")+'</li>'+
+    '<li>⏱ '+nq+' '+L("ta savol, har biriga "+((m&&m.qsec)||15)+" soniya, faqat bitta javob","questions, "+((m&&m.qsec)||15)+" seconds each, one answer only")+'</li>'+
     '<li>⚡ '+L("To'g'ri va tez — 500–1000 ochko, ketma-ketlik bonusi bilan","Correct and fast — 500–1000 points, plus a streak bonus")+'</li>'+
     '<li>👥 '+L("Kamida "+mn+" kishi qo'shilsa boshlanadi","Starts only with at least "+mn+" players")+'</li>'+
     '<li>🏆 '+L("Asosiy reytingga: 1-o'rin +5, 2-o'rin +4, 3-o'rin +3 (20 kishidan ko'p bo'lsa 4-o'rin +2, 5-o'rin +1)",
@@ -2825,7 +2828,7 @@ function lvRender(){
   if(ph==="wait"){
     box.innerHTML='<div class="lv-center"><div class="lv-logo"><i class="s0"></i><i class="s1"></i><i class="s2"></i><i class="s3"></i></div>'+
       '<h1 class="lv-h">'+L("Jonli test","Live quiz")+'</h1><p class="lv-sub">'+esc(kWhen(LV.d,m.start))+' · '+m.nq+' '+L("ta savol","questions")+'</p>'+
-      '<p class="lv-sub" style="margin-top:14px">'+L("Boshlanishiga","Starts in")+'</p><div class="lv-big" id="lvCd">'+kLeft(m.start-t)+'</div>'+
+      kNote(m)+'<p class="lv-sub" style="margin-top:14px">'+L("Boshlanishiga","Starts in")+'</p><div class="lv-big" id="lvCd">'+kLeft(m.start-t)+'</div>'+
       '<p class="lv-sub">'+L("Qo'shilish ","Joining opens at ")+kHM(m.open)+L(" da ochiladi","")+'</p>'+
       '<div class="lv-card" style="max-width:560px;margin:16px auto 0;text-align:left">'+kRulesHtml(m)+'</div></div>';
     return;
@@ -2833,7 +2836,7 @@ function lvRender(){
   if(ph==="lobby"){
     var n=lvN();
     box.innerHTML='<div class="lv-center"><h1 class="lv-h">'+(LV.joined?L("Siz o'yindasiz! 🎉","You're in! 🎉"):L("Lobbi ochiq!","The lobby is open!"))+'</h1>'+
-      '<p class="lv-sub">'+L("O'yin boshlanishiga","The game starts in")+'</p><div class="lv-big" id="lvCd">'+kLeft(m.start-t)+'</div>'+
+      kNote(m)+'<p class="lv-sub">'+L("O'yin boshlanishiga","The game starts in")+'</p><div class="lv-big" id="lvCd">'+kLeft(m.start-t)+'</div>'+
       (LV.joined?'<p class="lv-joined">✅ '+L("Qo'shildingiz. Ekranni yopmang — savollar shu yerda chiqadi.","You've joined. Keep this screen open — the questions will appear here.")+'</p>'
         :'<button type="button" class="lv-btn pulse" id="lvJoin">⚡ '+L("Qo'shilish","Join")+'</button><p class="lv-err" id="lvJoinErr"></p>')+
       '<div class="lv-count"><b id="lvN">'+n+'</b> '+L("ishtirokchi","players")+' · '+L("kamida","at least")+' '+m.min+' · <span id="lvNeed"></span></div>'+
@@ -2854,7 +2857,7 @@ function lvRender(){
     KS.whoosh();
     box.innerHTML='<div class="lv-center"><h1 class="lv-h">'+L("Tayyormisiz?","Ready?")+'</h1>'+
       '<p class="lv-sub">'+lvN()+' '+L("ishtirokchi","players")+' · '+m.nq+' '+L("ta savol","questions")+' · '+m.qsec+' '+L("soniyadan","seconds each")+'</p>'+
-      (LV.joined?'':'<p class="lv-joined">👀 '+L("Siz qo'shilmagansiz — tomosha rejimi","You did not join — watching only")+'</p>')+
+      kNote(m)+(LV.joined?'':'<p class="lv-joined">👀 '+L("Siz qo'shilmagansiz — tomosha rejimi","You did not join — watching only")+'</p>')+
       '<div id="lvIntro"><div class="lv-logo big"><i class="s0"></i><i class="s1"></i><i class="s2"></i><i class="s3"></i></div></div></div>';
     return;
   }
@@ -2867,7 +2870,7 @@ function lvRender(){
       : (mine!==undefined?'<span class="lv-dots sm"><i></i><i></i><i></i></span> '+L("Javob yuborildi — natijani kuting","Answer sent — wait for the result")
       : '⚡ '+L("Tezroq javob — ko'proq ochko!","Faster answer — more points!")));
     box.innerHTML='<div class="lv-qtop"><span class="lv-badge">'+L("Savol","Question")+' '+(i+1)+' / '+m.nq+'</span></div>'+
-      '<div class="lv-q">'+esc(q.t)+'</div>'+
+      '<div class="lv-q'+(String(q.t).length>130?' long':'')+'">'+esc(q.t)+'</div>'+
       '<div class="lv-mid"><div class="lv-timer" id="lvTimer"><svg viewBox="0 0 84 84"><circle cx="42" cy="42" r="36" class="bg"/>'+
         '<circle cx="42" cy="42" r="36" class="fg" id="lvRing" stroke-dasharray="226.2" stroke-dashoffset="'+(226.2*(1-lft/(m.qsec*1000)))+'"/></svg>'+
         '<b id="lvT">'+Math.ceil(lft/1000)+'</b></div><div class="lv-status">'+st+'</div></div>'+
@@ -2959,7 +2962,7 @@ function homeLive(){
     function draw(){
       var b=document.getElementById("lcard"); if(!b){ clearInterval(HOMET); return; }
       var now=Date.now(), ks=Object.keys(idx).sort(), g=null;
-      if(cfg.on!==false) for(var i=0;i<ks.length;i++){ if(+idx[ks[i]].end>now){ g={d:ks[i],e:idx[ks[i]]}; break; } }
+      for(var i=0;i<ks.length;i++){ var e0=idx[ks[i]]; if(e0&&+e0.end>now&&(cfg.on!==false||e0.sp)){ g={d:ks[i],e:e0}; break; } }
       var s1,s2,btn;
       if(!g){ s1=L("Hali rejalashtirilmagan","Not scheduled yet"); s2=L("Shartlar bilan tanishing","Read the rules"); btn=L("Batafsil","Details"); b.className="live-card"; }
       else if(now<g.e.open){ s1=kWhen(g.d,g.e.start); s2=L("Boshlanishiga ","Starts in ")+kLeft(g.e.start-now); btn=L("Shartlar","Rules"); b.className="live-card"; }
@@ -2967,7 +2970,7 @@ function homeLive(){
       else { s1="🎮 "+L("O'yin hozir ketmoqda","The game is on now"); s2=L("Natijalarni ko'ring","See the results"); btn=L("Ochish","Open"); b.className="live-card on"; }
       var h='<div class="lc-shapes"><i class="s0"></i><i class="s1"></i><i class="s2"></i><i class="s3"></i></div>'+
         '<div class="lc-txt"><span class="lc-k">⚡ '+L("JONLI TEST","LIVE QUIZ")+'</span><b>'+esc(s1)+'</b><span>'+esc(s2)+'</span>'+
-        '<small>'+L("Kuniga 1 marta · 15 soniyalik savollar · g'oliblarga reyting balli","Once a day · 15-second questions · rating points for the winners")+'</small></div>'+
+        '<small>'+L("Kuniga 1 marta · tezkor savollar · g'oliblarga reyting balli","Once a day · quick-fire questions · rating points for the winners")+'</small></div>'+
         '<span class="lc-btn">'+esc(btn)+' ›</span>';
       if(b._h!==h){ b.innerHTML=h; b._h=h; }
     }
