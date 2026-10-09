@@ -59,9 +59,10 @@
       "id": "m4",
       "file": "mavzu-4.html",
       "title": "M4 · Biznesni qonuniy rasmiylashtirish",
-      "open": false,
+      "open": true,
       "quiz": 18,
-      "slides": 18
+      "slides": 18,
+      "lim": true
     },
     {
       "id": "m5",
@@ -85,9 +86,10 @@
       "id": "m7",
       "file": "mavzu-7.html",
       "title": "M7 · Mijoz kim va unga nima kerak",
-      "open": false,
+      "open": true,
       "quiz": 15,
-      "slides": 18
+      "slides": 18,
+      "lim": true
     },
     {
       "id": "m8",
