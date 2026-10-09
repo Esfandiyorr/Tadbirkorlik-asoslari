@@ -147,11 +147,12 @@
     },
     {
       "id": "m14",
-      "title": "M14 · 14-mavzu (nomi keyin qo'yiladi)",
+      "title": "M14 · Biznes-reja tuzish va mahsulotni tashqi bozorga olib chiqish",
       "file": "mavzu-14.html",
-      "open": false,
+      "open": true,
       "slides": 18,
-      "quiz": 15
+      "quiz": 15,
+      "lim": true
     },
     {
       "id": "m15",
