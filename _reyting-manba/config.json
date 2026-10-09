@@ -196,5 +196,11 @@
   ],
   "groupRenames": {
     "T-232": "T-223"
-  }
+  },
+  "hideRating": [
+    {
+      "name": "Isfandiyor",
+      "surname": "Sayfiddinov"
+    }
+  ]
 }

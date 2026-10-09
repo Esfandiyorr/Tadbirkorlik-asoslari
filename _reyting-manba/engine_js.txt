@@ -1179,6 +1179,12 @@ function prizeCell(i){
   return '<div class="rt-prize" style="--pc:'+z.c+'"><svg class="rt-pz rt-a-'+z.a+'" viewBox="0 0 64 64" aria-hidden="true">'+PRZ_SVG[i]+'</svg>'+
     '<small>'+(i+1)+'. '+T(z.n[0],z.n[1])+'</small></div>';
 }
+/* umumiy reytingda ko'rsatilmaydigan hisoblar (masalan, o'qituvchining sinov hisobi) — RT_CFG.hideRating: [{name,surname}] */
+function ratingHidden(x){
+  function nk(v){ return String(v||"").toLowerCase().replace(/[^a-z0-9\u0400-\u04ff]/g,""); }
+  var n=nk(x&&x.name), s=nk(x&&x.surname);
+  return (CFG.hideRating||[]).some(function(h){ return nk(h.name)===n&&nk(h.surname)===s; });
+}
 function renderTop(){
   var box=document.getElementById("rtTop");
   box.innerHTML='<p style="color:var(--muted)">'+T("Yuklanmoqda…","Loading…")+'</p>';
@@ -1210,9 +1216,9 @@ function renderTop(){
   }
   cloudList(function(a){
     /* tasdiq kutayotgan va bloklanganlar reytingda ko'rinmaydi */
-    if(a) a=a.filter(function(x){ return (x.status||"pending")==="ok"; });
+    if(a) a=a.filter(function(x){ return (x.status||"pending")==="ok"&&!ratingHidden(x); });
     if(a&&a.length) draw(a);
-    else draw((S&&approved())?[{id:S.id,name:S.name,surname:S.surname,group:S.group,
+    else draw((S&&approved()&&!ratingHidden(S))?[{id:S.id,name:S.name,surname:S.surname,group:S.group,
       total:P.total,status:"ok",topics:topicSummary()}]:[]);
   },true);
 }
