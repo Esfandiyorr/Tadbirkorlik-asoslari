@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Tadbirkor qanday soliqlarni to'laydi va hujjatlarni yuritadi — TerDU</title>
-<meta name="description" content="Tadbirkorlik asoslari. M5-mavzu: soliq rejimlari, soddalashtirilgan va umumiy tizim, soliq imtiyozlari, my.soliq.uz, birlamchi hujjatlar va kredit to'lovini hisoblash. Termiz davlat universiteti.">
+<title>Biznesda foyda va zarar tahlili — TerDU</title>
+<meta name="description" content="Tadbirkorlik asoslari. M3-mavzu: mahsulotni kam xarajat bilan sinash, moliyalashtirish manbalari, biznes va iste'mol krediti farqi, garov, kafillik, imtiyozli davr va pul oqimi tahlili. Termiz davlat universiteti.">
 <style>
 /* ================== TOKENS ================== */
 :root{
@@ -250,41 +250,16 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
   padding:8px 16px;font-size:12.5px;color:var(--muted);box-shadow:var(--shadow);transition:opacity .5s}
 .hint.hide{opacity:0;pointer-events:none}
 
-
-/* ================== KALKULYATOR VA MASALALAR ================== */
-.calc{display:grid;grid-template-columns:minmax(200px,260px) 1fr;gap:14px;align-items:start}
-@media(max-width:900px){.calc{grid-template-columns:1fr}}
-.calc-in{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:var(--shadow)}
-.calc-in label{display:block;margin-bottom:12px;font-size:13.5px;font-weight:700;color:var(--muted)}
-.calc-in input,.calc-in select{width:100%;margin-top:5px;padding:9px 11px;border:1.5px solid var(--line);border-radius:10px;
-  background:var(--panel2);color:var(--ink);font-size:15px;font-weight:700;font-family:inherit;outline:none}
-.calc-in input:focus,.calc-in select:focus{border-color:var(--blue)}
-.calc-out{display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:10px}
-.calc-card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:var(--shadow);border-left:5px solid var(--c,var(--green))}
-.calc-card span{display:block;font-size:11.5px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.3px}
-.calc-card b{display:block;font-size:clamp(15px,1.45vw,21px);margin-top:4px;color:var(--c,var(--green));
-  font-variant-numeric:tabular-nums;white-space:nowrap}
-.calc-note{grid-column:1/-1;font-size:13px;color:var(--muted)}
-.task{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:16px 18px;margin-bottom:14px;box-shadow:var(--shadow);
-  border-left:5px solid var(--c,var(--violet))}
-.task h3{color:var(--c,var(--violet));margin-bottom:6px}
-.task .ans{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px}
-.task .ans input{flex:1;min-width:180px;padding:9px 12px;border:1.5px solid var(--line);border-radius:10px;background:var(--panel2);
-  color:var(--ink);font-size:15px;font-weight:700;font-family:inherit;outline:none}
-.task .ans input:focus{border-color:var(--blue)}
-.task .ans input.ok{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 16%,var(--panel))}
-.task .ans input.bad{border-color:var(--err);background:color-mix(in srgb,var(--err) 16%,var(--panel))}
-.task .fbk{margin:8px 0 0;font-size:14px;font-weight:700;display:none}
-.task .fbk.show{display:block}
-.task .fbk.ok{color:var(--ok)}.task .fbk.no{color:var(--err)}
-.sol{display:none;margin-top:10px;background:var(--panel2);border-radius:12px;padding:12px 14px;font-size:14px;line-height:1.65;border-left:3px solid var(--amber)}
-.sol.show{display:block}
-.sol code{background:var(--chip);padding:1px 6px;border-radius:5px;font-size:13.5px}
-.formula{background:linear-gradient(135deg,var(--violet),var(--blue));color:#fff;border-radius:16px;padding:16px 20px;
-  text-align:center;font-size:clamp(16px,2.4vw,24px);font-weight:800;letter-spacing:.4px;box-shadow:var(--shadow)}
-.formula small{display:block;margin-top:6px;font-size:13px;font-weight:600;opacity:.92;letter-spacing:0}
 .lnk{color:var(--blue);font-weight:600;text-decoration:none;border-bottom:1px dashed currentColor}
 .lnk:hover{color:var(--violet)}
+
+
+
+
+
+
+
+
 
 
 
@@ -956,7 +931,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
       <div class="logo terdu-logo" role="img" aria-label="Termiz davlat universiteti logotipi"></div>
       <div>
         <b data-ui="uni">TERMIZ DAVLAT UNIVERSITETI</b>
-        <span data-ui="subj">Tadbirkorlik asoslari · M5-mavzu</span>
+        <span data-ui="subj">Tadbirkorlik asoslari · M13-mavzu</span>
       </div>
     </div>
     <div class="spacer"></div>
@@ -975,547 +950,110 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
   <main id="deck">
   <!-- ============ 1 ============ -->
   <section class="slide" data-title="Muqova" data-title-en="Cover">
-    <div class="inner title-wrap">
-      <div class="big-logo terdu-logo" role="img" aria-label="Termiz davlat universiteti logotipi"></div>
-      <div>
-        <span class="kicker" data-i="0">M5-mavzu · Ma'ruza · 2 soat</span>
-        <h1 class="grad" data-i="1">TADBIRKOR QANDAY SOLIQLARNI TO'LAYDI VA HUJJATLARNI YURITADI</h1>
-        <p class="lead" data-i="2">Soddalashtirilgan va umumiy soliq tizimi · soliq imtiyozlari · <b>my.soliq.uz</b> shaxsiy kabineti va elektron hisobotlar · hisob-faktura, chek, yuk xati va daromad-xarajat daftari.</p>
-        <div class="meta">
-          <div data-i="3">📚 Fan: <b>Tadbirkorlik asoslari</b></div>
-          <div data-i="4">🎓 <b>Termiz davlat universiteti</b></div>
-          <div data-i="5">🗂 <b>18</b> slayd · 💳 kalkulyator · 🧮 3 masala</div>
-          <div data-i="6">⌨️ <b>→</b> tugmasi bilan davom eting</div>
-        </div>
-      </div>
+    <div class="inner">
+<div class="inner title-wrap"><div class="big-logo terdu-logo" role="img" aria-label="Termiz davlat universiteti logotipi"></div><div><span data-i="0" class="kicker">M13-mavzu · Amaliy mashg'ulot · 2 soat</span><h1 data-i="1" class="grad">BIZNESDA FOYDA VA ZARAR TAHLILI</h1><p data-i="2" class="lead">Foyda va zarar hisoboti qanday tuziladi · <b>yalpi, operatsion va sof foyda</b> · rentabellik · reja va fakt farqi · qaysi mahsulot pul topadi · foydani oshirishning 5 yo'li.</p><div class="meta"><div data-i="3">📚 Fan: <b>Tadbirkorlik asoslari</b></div><div data-i="4">🎓 <b>Termiz davlat universiteti</b></div><div data-i="5">🗂 <b>18</b> slayd · <b>15</b> ta test</div><div data-i="6">⌨️ <b>→</b> tugmasi bilan davom eting</div></div></div></div>
     </div>
   </section>
 
-  <!-- ============ 2 ============ -->
   <section class="slide" data-title="Maqsad va natijalar" data-title-en="Aims and outcomes">
     <div class="inner">
-      <span class="kicker" data-i="7">Mavzuning maqsadi</span>
-      <h2 data-i="8">Mashg'ulot yakunida talaba <span class="grad">nimani uddalaydi?</span></h2>
-      <div class="def" data-i="9">Maqsad: talabani <b>"soliqdan qo'rqish"</b> bosqichidan <b>"soliqni rejalashtirish va hujjatni tartibli yuritish"</b> bosqichiga olib chiqish. Soliq — jarima emas, <b>biznes xarajatining bir qismi</b>: uni oldindan hisoblash mumkin.</div>
-      <div class="grid g3" style="margin-top:16px">
-        <div class="card" style="--c:var(--green)"><span class="icon">🧾</span><h3 data-i="10">Farqlay oladi</h3><p data-i="11">Soddalashtirilgan va umumiy soliq tizimini mezonlar bo'yicha ajratadi.</p></div>
-        <div class="card" style="--c:var(--blue)"><span class="icon">🎯</span><h3 data-i="12">Tanlay oladi</h3><p data-i="13">O'z biznesi hajmiga mos soliq rejimini asoslab tanlaydi.</p></div>
-        <div class="card" style="--c:var(--violet)"><span class="icon">💻</span><h3 data-i="14">Ishlata oladi</h3><p data-i="15">my.soliq.uz kabinetining asosiy bo'limlari va hisobot tartibini biladi.</p></div>
-        <div class="card" style="--c:var(--orange)"><span class="icon">📄</span><h3 data-i="16">Rasmiylashtiradi</h3><p data-i="17">Hisob-faktura, chek va yuk xatining vazifasini va tartibini tushunadi.</p></div>
-        <div class="card" style="--c:var(--pink)"><span class="icon">📒</span><h3 data-i="18">Yuritadi</h3><p data-i="19">Daromad-xarajat daftarini to'g'ri to'ldiradi va foydani hisoblaydi.</p></div>
-        <div class="card" style="--c:var(--cyan)"><span class="icon">💳</span><h3 data-i="20">Hisoblaydi</h3><p data-i="21">Kredit oylik to'lovini annuitet formulasi bilan mustaqil hisoblaydi.</p></div>
-      </div>
+<span data-i="7" class="kicker">Mashg'ulotning maqsadi</span><h2 data-i="8">Mashg'ulot yakunida talaba <span class="grad">nimani qila oladi?</span></h2><div data-i="9" class="def">Maqsad: talaba biznesning oylik <b>foyda va zarar hisobotini</b> tuzishni, uni o'qib, foyda qayerdan kelayotgani va qayerda yo'qolayotganini <b>raqamlar bilan</b> aniqlashni o'rganadi.</div><div class="grid g3" style="margin-top:16px"><div class="card" style="--c:var(--green);"><span class="icon">🧾</span><h3 data-i="10">Hisobot tuzadi</h3><p data-i="11">Tushumdan sof foydagacha bo'lgan zinapoyani to'g'ri tartibda yozadi.</p></div><div class="card" style="--c:var(--blue);"><span class="icon">📐</span><h3 data-i="12">Marjalarni hisoblaydi</h3><p data-i="13">Yalpi, operatsion va sof marjani, investitsiya qaytimini topadi.</p></div><div class="card" style="--c:var(--violet);"><span class="icon">⚖️</span><h3 data-i="14">Reja va faktni solishtiradi</h3><p data-i="15">Farqni hajm, narx va xarajat ta'siriga ajratib tushuntiradi.</p></div><div class="card" style="--c:var(--orange);"><span class="icon">🥇</span><h3 data-i="16">Mahsulotlarni baholaydi</h3><p data-i="17">Qaysi mahsulot eng ko'p hissa qo'shishini va qaysi biri «yeb» qo'yayotganini ko'radi.</p></div><div class="card" style="--c:var(--pink);"><span class="icon">🔧</span><h3 data-i="18">Foydani oshiradi</h3><p data-i="19">Narx, hajm, tannarx va doimiy xarajatning ta'sirini solishtirib, eng kuchli yo'lni tanlaydi.</p></div><div class="card" style="--c:var(--cyan);"><span class="icon">🔗</span><h3 data-i="20">Foyda va pulni bog'laydi</h3><p data-i="21">Sof foyda bilan kassadagi pul nega farq qilishini tushuntiradi.</p></div></div>
     </div>
   </section>
 
-  <!-- ============ 3 ============ -->
   <section class="slide" data-title="Reja va tushunchalar" data-title-en="Plan and concepts">
     <div class="inner">
-      <span class="kicker" data-i="22">Ma'ruza rejasi</span>
-      <h2 data-i="23">Bugungi <span class="grad">3 ta blok</span> va yakuniy amaliyot</h2>
-      <div class="grid g4">
-        <div class="card" style="--c:var(--green)"><span class="icon">1️⃣</span><h3 data-i="24">Soliq rejimlari</h3><p data-i="25">Soddalashtirilgan, umumiy tizim, ish haqi to'lovlari va imtiyozlar.</p></div>
-        <div class="card" style="--c:var(--blue)"><span class="icon">2️⃣</span><h3 data-i="26">my.soliq.uz</h3><p data-i="27">Shaxsiy kabinet va elektron hisobot topshirish tartibi.</p></div>
-        <div class="card" style="--c:var(--violet)"><span class="icon">3️⃣</span><h3 data-i="28">Hujjatlar</h3><p data-i="29">Hisob-faktura, chek, yuk xati va daromad-xarajat daftari.</p></div>
-        <div class="card" style="--c:var(--orange)"><span class="icon">4️⃣</span><h3 data-i="30">Amaliyot</h3><p data-i="31">Kredit to'lovi kalkulyatori va 3 ta masala.</p></div>
-      </div>
-      <h3 style="margin-top:22px" data-i="32">🔑 Tayanch tushunchalar</h3>
-      <div data-i="33">
-        <span class="pill g">soliq rejimi</span><span class="pill g">aylanma solig'i</span><span class="pill">soddalashtirilgan tartib</span>
-        <span class="pill g">QQS</span><span class="pill">foyda solig'i</span><span class="pill">JShDS</span><span class="pill">ijtimoiy soliq</span>
-        <span class="pill">soliq bazasi</span><span class="pill">stavka</span><span class="pill">soliq davri</span><span class="pill g">soliq imtiyozi</span>
-        <span class="pill g">my.soliq.uz</span><span class="pill">elektron hisobot</span><span class="pill">STIR</span>
-        <span class="pill g">hisob-faktura (EHF)</span><span class="pill">kassa cheki</span><span class="pill">yuk xati</span>
-        <span class="pill g">daromad-xarajat daftari</span><span class="pill">tannarx</span><span class="pill">sof foyda</span>
-      </div>
-      <small class="note" data-i="34">⚠️ Soliq stavkalari va chegaralari har yili Soliq kodeksiga kiritiladigan o'zgartishlar bilan yangilanadi. Ma'ruzada <b>mantiq va tartib</b> beriladi — aniq raqamlarni doim <b>soliq.uz</b> va <b>lex.uz</b> dan tekshiring.</small>
+<span data-i="22" class="kicker">Mashg'ulot rejasi</span><h2 data-i="23">Bugungi <span class="grad">4 ta blok</span></h2><div class="grid g4"><div class="card" style="--c:var(--green);"><span class="icon">1️⃣</span><h3 data-i="24">Hisobot</h3><p data-i="25">Foyda va zarar hisoboti, uning zinapoyasi, namunaviy oy.</p></div><div class="card" style="--c:var(--blue);"><span class="icon">2️⃣</span><h3 data-i="26">Ko'rsatkichlar</h3><p data-i="27">Marjalar, xarajat tuzilmasi, zararsiz tushum, xavfsizlik zaxirasi.</p></div><div class="card" style="--c:var(--violet);"><span class="icon">3️⃣</span><h3 data-i="28">Tahlil</h3><p data-i="29">Reja va fakt, mahsulotlar bo'yicha foyda, foyda richaglari.</p></div><div class="card" style="--c:var(--orange);"><span class="icon">4️⃣</span><h3 data-i="30">Qaror</h3><p data-i="31">Zarar tashxisi, foyda va pul farqi, oylik nazorat.</p></div></div><h3 data-i="32" style="margin-top:22px">🔑 Tayanch tushunchalar</h3><div data-i="33"><span class="pill g">foyda va zarar hisoboti</span><span class="pill">tushum</span><span class="pill">sotilgan mahsulot tannarxi</span><span class="pill g">yalpi foyda</span><span class="pill">operatsion xarajatlar</span><span class="pill g">operatsion foyda</span><span class="pill g">sof foyda</span><span class="pill">amortizatsiya</span><span class="pill g">marja</span><span class="pill">rentabellik</span><span class="pill">ROI</span><span class="pill">zararsiz tushum</span><span class="pill">xavfsizlik zaxirasi</span><span class="pill g">reja-fakt tahlili</span><span class="pill">hissa</span><span class="pill">mahsulot aralashmasi</span><span class="pill">foyda richagi</span><span class="pill">qoplanish muddati</span></div>
     </div>
   </section>
 
-  <!-- ============ 4 ============ -->
-  <section class="slide" data-title="Soliq nima va nega?" data-title-en="What is a tax and why?">
+  <section class="slide" data-title="Foyda va zarar hisoboti nima?" data-title-en="What is a P&L statement?">
     <div class="inner">
-      <span class="kicker" data-i="35">1-blok</span>
-      <h2 data-i="36">Soliq — <span class="grad">jarima emas, xarajat</span></h2>
-      <div class="def" data-i="37">Soliq — davlat byudjetiga to'lanadigan <b>majburiy va qaytarilmas to'lov</b>. Tadbirkor uchun u kutilmagan zarba emas: soliq <b>oldindan hisoblanadi</b> va mahsulot narxiga <b>xarajat sifatida</b> kiritiladi.</div>
-      <div class="grid g2" style="margin-top:16px">
-        <div class="card" style="--c:var(--green)">
-          <h3 data-i="38">💡 To'g'ri fikrlash</h3>
-          <p style="font-size:16px" data-i="39">Narxni belgilashda tartib shunday bo'lishi kerak:</p>
-          <p style="font-size:16px" data-i="40"><b>Tannarx + soliq + boshqa xarajat + foyda = narx</b></p>
-          <p style="color:var(--red);font-weight:700" data-i="41">✕ Xato: avval narx qo'yib, keyin "soliq qayerdan chiqadi?" deb o'ylash.</p>
-        </div>
-        <div class="card" style="--c:var(--blue)">
-          <h3 data-i="42">📌 Soliq intizomi nima beradi?</h3>
-          <ul class="tick">
-            <li data-i="43"><b>Jarimasiz ishlash</b> — kechikish uchun penya to'lamaysiz</li>
-            <li data-i="44"><b>Kredit va grant</b> — bank hisobot va aylanmani so'raydi</li>
-            <li data-i="45"><b>Tender va yirik mijoz</b> — soliq qarzi yo'qligi talab qilinadi</li>
-            <li data-i="46"><b>Aniq raqam</b> — biznes foydali yoki foydasizligini ko'rasiz</li>
-            <li data-i="47"><b>Xotirjamlik</b> — tekshiruvdan qo'rqmaysiz</li>
-          </ul>
-        </div>
-      </div>
-      <div class="quote" style="margin-top:14px" data-i="48">🧠 Yodda tuting: soliqni <b>yashirish</b> emas, qonuniy yo'l bilan <b>optimallashtirish</b> kerak — to'g'ri rejimni tanlash, imtiyozlardan foydalanish va xarajatlarni hujjat bilan tasdiqlash orqali.</div>
+<span data-i="34" class="kicker">1-blok · Hisobot</span><h2 data-i="35">Biznes <span class="grad">pul ishladimi yoki yo'qotdimi?</span></h2><div data-i="36" class="def"><b>Foyda va zarar hisoboti</b> — ma'lum davr (oy, chorak, yil) uchun <b>tushum</b>dan barcha <b>xarajat</b>larni ayirib, natija — <b>foyda yoki zarar</b>ni ko'rsatadigan jadval.</div><div class="tw"><table><thead><tr><th data-i="49"></th><th data-i="50">Foyda va zarar hisoboti</th><th data-i="51">Pul oqimi rejasi (12-mavzu)</th></tr></thead><tbody><tr><td data-i="37"><b>Savoli</b></td><td data-i="38">Biznes foydali ishlayaptimi?</td><td data-i="39">To'lovlarga pul yetadimi?</td></tr><tr><td data-i="40"><b>Tushum qachon yoziladi</b></td><td data-i="41">Sotuv bo'lgan davrda (nasiya ham)</td><td data-i="42">Pul haqiqatan tushganda</td></tr><tr><td data-i="43"><b>Uskuna xaridi</b></td><td data-i="44">Bir martada emas — amortizatsiya orqali bo'lib yoziladi</td><td data-i="45">To'langan kuni to'liq chiqim</td></tr><tr><td data-i="46"><b>Kredit</b></td><td data-i="47">Faqat <b>foiz</b> xarajat hisoblanadi</td><td data-i="48">Olinishi kirim, qaytarilishi chiqim</td></tr></tbody></table></div><div class="grid g3" style="margin-top:14px"><div class="card" style="--c:var(--blue);"><span class="icon">🥟</span><h3 data-i="52">Bugungi misol</h3><p data-i="53">«Somsa uyi» — kichik somsaxona: go'shtli, kartoshkali, oshqovoqli somsa va choy. Bir oylik natijani tahlil qilamiz.</p></div><div class="card" style="--c:var(--green);"><span class="icon">📅</span><h3 data-i="54">Davr</h3><p data-i="55">Kichik biznesda hisobotni <b>har oy</b> tuzing — muammo 1 oyda ko'rinadi, yil oxirida emas.</p></div><div class="card" style="--c:var(--orange);"><span class="icon">🧭</span><h3 data-i="56">Maqsad</h3><p data-i="57">Hisobot — o'tmish tarixi emas, <b>keyingi oy qarori</b> uchun asbob.</p></div></div><small data-i="58" class="note">«Somsa uyi» — o'quv uchun to'qib chiqarilgan shartli misol; raqamlar haqiqiy biznesdan olinmagan.</small>
     </div>
   </section>
 
-  <!-- ============ 5 ============ -->
-  <section class="slide" data-title="Soliq rejimlari" data-title-en="Tax regimes">
+  <section class="slide" data-title="Hisobot zinapoyasi" data-title-en="The statement ladder">
     <div class="inner">
-      <span class="kicker">1.2</span>
-      <h2 data-i="49">Kichik biznes uchun <span class="grad">soliq rejimlari</span></h2>
-      <p class="lead" data-i="50">Tadbirkor barcha soliqni to'lamaydi — u <b>o'z rejimiga tegishli</b> soliqlarni to'laydi. Rejim aylanma hajmi, faoliyat turi va tanlovga bog'liq.</p>
-      <div class="grid g3">
-        <div class="card" style="--c:var(--green)"><span class="icon">👤</span><h3 data-i="51">YaTT tartibi</h3><p data-i="52">Yakka tartibdagi tadbirkor uchun soddalashtirilgan tartib: faoliyat turiga qarab <b>qat'iy belgilangan soliq</b> yoki aylanma bo'yicha to'lov + ijtimoiy soliq.</p></div>
-        <div class="card" style="--c:var(--blue)"><span class="icon">📉</span><h3 data-i="53">Soddalashtirilgan tartib</h3><p data-i="54">Yillik aylanmasi belgilangan chegaradan oshmagan subyektlar uchun — <b>aylanma solig'i</b>. QQS to'lanmaydi.</p></div>
-        <div class="card" style="--c:var(--violet)"><span class="icon">📊</span><h3 data-i="55">Umumiy tizim</h3><p data-i="56">Chegaradan oshgan yoki o'zi tanlagan subyektlar uchun — <b>QQS + foyda solig'i</b> va to'liq hisobot.</p></div>
-      </div>
-      <div class="card" style="--c:var(--orange);margin-top:16px">
-        <h3 data-i="57">🔄 Rejim qanday o'zgaradi?</h3>
-        <p data-i="58"><b>1.</b> Aylanma belgilangan chegaradan oshsa → <b>majburiy</b> ravishda umumiy tizimga o'tiladi.<br>
-           <b>2.</b> Chegaradan past bo'lsa ham, tadbirkor <b>ixtiyoriy</b> ravishda QQS to'lovchisi bo'lishi mumkin — bu yirik mijozlar bilan ishlashda foydali.<br>
-           <b>3.</b> Rejim o'zgarishi haqida soliq organiga xabar beriladi va u <b>soliq davri</b> boshidan kuchga kiradi.</p>
-      </div>
-      <small class="note" data-i="59">Chegara miqdori (yillik aylanma) va stavkalar Soliq kodeksida belgilanadi hamda o'zgarib turadi — amaldagi qiymatni <b>soliq.uz</b> dan tekshiring.</small>
+<span data-i="59" class="kicker">1.2 · Tuzilma</span><h2 data-i="60">Tushumdan sof foydagacha: <span class="grad">5 pog'ona</span></h2><div class="chain"><div class="link l1"><h3 data-i="61">1. Tushum</h3><p data-i="62">Davr davomida sotilgan barcha mahsulot va xizmat qiymati.</p></div><div class="link l2"><h3 data-i="63">− Sotilgan mahsulot tannarxi</h3><p data-i="64">Faqat sotilgan mahsulotga ketgan xomashyo va to'g'ridan-to'g'ri xarajat.</p></div><div class="link l3"><h3 data-i="65">= 2. Yalpi foyda</h3><p data-i="66">Mahsulotning o'zi qancha pul topadi.</p></div></div><div class="chain" style="margin-top:10px"><div class="link l4"><h3 data-i="67">− Operatsion xarajatlar</h3><p data-i="68">Ish haqi, ijara, kommunal, reklama, amortizatsiya.</p></div><div class="link l3"><h3 data-i="69">= 3. Operatsion foyda</h3><p data-i="70">Biznes modeli ishlayaptimi — asosiy ko'rsatkich.</p></div><div class="link l2"><h3 data-i="71">− Foiz = 4. Soliqdan oldingi</h3><p data-i="72">Kredit foizi ayriladi.</p></div><div class="link l1"><h3 data-i="73">− Soliq = 5. Sof foyda</h3><p data-i="74">Egasiga va rivojlanishga qoladigan pul.</p></div></div><div class="grid g2" style="margin-top:14px"><div class="card" style="--c:var(--blue);"><span class="icon">🧠</span><h3 data-i="75">Nega pog'onalab?</h3><p data-i="76">Har pog'ona boshqa savolga javob beradi: yalpi foyda — <b>mahsulot va narx</b>, operatsion foyda — <b>boshqaruv</b>, sof foyda — <b>moliyalashtirish va soliq</b>.</p></div><div class="card" style="--c:var(--orange);"><span class="icon">🧾</span><h3 data-i="77">Amortizatsiya</h3><p data-i="78">Uskuna narxi u ishlaydigan yillarga bo'lib xarajatga yoziladi. Masalan, 30 mln so'mlik pech 5 yil ishlasa: 30 ÷ 60 oy = <b>500 000 so'm/oy</b>.</p></div></div>
     </div>
   </section>
 
-  <!-- ============ 6 ============ -->
-  <section class="slide" data-title="Soddalashtirilgan tartib" data-title-en="The simplified regime">
+  <section class="slide" data-title="«Somsa uyi»: bir oylik hisobot" data-title-en="“Somsa uyi”: one month's statement">
     <div class="inner">
-      <span class="kicker">1.3</span>
-      <h2 data-i="60">Soddalashtirilgan tartib — <span class="grad">aylanma solig'i</span></h2>
-      <div class="def" style="background:linear-gradient(135deg,var(--green2),var(--teal))" data-i="61">Aylanma solig'i <b>tushumdan</b> (yalpi aylanmadan) hisoblanadi. Xarajatni hisobga olish, QQS yuritish va murakkab hisob-kitob talab qilinmaydi — shuning uchun u <b>yangi va kichik biznes</b> uchun qulay.</div>
-      <div class="grid g2" style="margin-top:14px">
-        <div class="card" style="--c:var(--green)">
-          <h3 data-i="62">✅ Afzalliklari</h3>
-          <ul class="tick">
-            <li data-i="63">Hisoblash oson: <b>tushum × stavka</b></li>
-            <li data-i="64">QQS hisobi va hisob-fakturalar yuki kamayadi</li>
-            <li data-i="65">Buxgalteriya xarajati past</li>
-            <li data-i="66">Hisobot soddaroq va kamroq</li>
-          </ul>
-        </div>
-        <div class="card" style="--c:var(--red)">
-          <h3 data-i="67">⚠️ Kamchiliklari</h3>
-          <ul class="tick cross">
-            <li data-i="68">Xarajat hisobga olinmaydi — <b>zarar ko'rsangiz ham soliq bor</b></li>
-            <li data-i="69">QQS to'lovchi yirik mijozlar siz bilan ishlashni istamasligi mumkin</li>
-            <li data-i="70">Aylanma o'sganda majburiy ravishda rejim o'zgaradi</li>
-          </ul>
-        </div>
-      </div>
-      <div class="card" style="--c:var(--blue);margin-top:14px">
-        <h3 data-i="71">🧮 Oddiy misol (shartli)</h3>
-        <p data-i="72">Oylik tushum <b>60 000 000 so'm</b>, aylanma solig'i stavkasi <b>4%</b> deb olsak:</p>
-        <p style="font-size:17px" data-i="73"><b>60 000 000 × 4% = 2 400 000 so'm</b> — soliq. Xarajat qancha bo'lishidan qat'i nazar, baza — <b>tushum</b>.</p>
-        <p style="color:var(--muted)" data-i="74">Shuning uchun rentabelligi past (foyda ulushi kichik) biznesda aylanma solig'i og'ir tushishi mumkin — bunday holatda umumiy tizim foydaliroq bo'lishi ehtimoli bor.</p>
-      </div>
-      <small class="note" data-i="75">Aylanma solig'ining asosiy stavkasi va ayrim faoliyat turlari uchun alohida stavkalar qonunda belgilanadi — aniq foizni <b>soliq.uz</b> dan tekshiring.</small>
+<span data-i="79" class="kicker">1.3 · Namuna</span><h2 data-i="80">«Somsa uyi»: <span class="grad">oktyabr oyi hisoboti</span></h2><div class="grid g2"><div style="min-width:0"><div class="tw"><table><thead><tr><th data-i="117">Modda</th><th data-i="118">So'm</th><th data-i="119">Tushumga nisbatan</th></tr></thead><tbody><tr><td data-i="81"><b>Tushum</b> (6 000 somsa + 3 000 choy)</td><td data-i="82"><b>40 000 000</b></td><td data-i="83">100%</td></tr><tr><td data-i="84">− Sotilgan mahsulot tannarxi (go'sht, un, piyoz, choy)</td><td data-i="85">16 000 000</td><td data-i="86">40%</td></tr><tr><td data-i="87"><b>= Yalpi foyda</b></td><td data-i="88" class="g"><b>24 000 000</b></td><td data-i="89" class="g"><b>60%</b></td></tr><tr><td data-i="90">− Ish haqi (5 kishi)</td><td data-i="91">9 000 000</td><td data-i="92">22,5%</td></tr><tr><td data-i="93">− Ijara</td><td data-i="94">4 000 000</td><td data-i="95">10%</td></tr><tr><td data-i="96">− Kommunal (gaz, elektr, suv)</td><td data-i="97">2 500 000</td><td data-i="98">6,25%</td></tr><tr><td data-i="99">− Reklama</td><td data-i="100">1 000 000</td><td data-i="101">2,5%</td></tr><tr><td data-i="102">− Amortizatsiya va boshqa</td><td data-i="103">1 500 000</td><td data-i="104">3,75%</td></tr><tr><td data-i="105"><b>= Operatsion foyda</b></td><td data-i="106" class="g"><b>6 000 000</b></td><td data-i="107"><b>15%</b></td></tr><tr><td data-i="108">− Kredit foizi</td><td data-i="109">500 000</td><td data-i="110">1,25%</td></tr><tr><td data-i="111">− Soliq (shartli)</td><td data-i="112">1 600 000</td><td data-i="113">4%</td></tr><tr><td data-i="114"><b>= Sof foyda</b></td><td data-i="115" class="g"><b>3 900 000</b></td><td data-i="116" class="g"><b>9,75%</b></td></tr></tbody></table></div></div><div style="min-width:0"><div class="card" style="--c:var(--blue);"><span class="icon">🔎</span><h3 data-i="120">Hisobotni qanday o'qish kerak?</h3><ul class="tick"><li data-i="121">Har <b>100 so'm</b> tushumdan: 40 so'm xomashyoga, 45 so'm ish haqi va boshqa operatsion xarajatlarga, 5,25 so'm foiz va soliqqa ketadi, <b>9,75 so'm</b> foyda qoladi.</li><li data-i="122">Eng katta xarajat — <b>xomashyo</b>, keyin <b>ish haqi</b>. Foydani oshirish yo'li ham avvalo shu yerda.</li><li data-i="123">Foiz va soliq oldidan biznes 15% operatsion foyda bilan ishlaydi — model sog'lom.</li></ul></div><small data-i="124" class="note">Soliq turi va stavkasi biznes shakli va soliq rejimiga bog'liq. Misoldagi 4% — faqat shartli raqam; o'z holatingiz uchun soliq xizmati yoki buxgalterdan aniqlang.</small></div></div>
     </div>
   </section>
 
-  <!-- ============ 7 ============ -->
-  <section class="slide" data-title="Umumiy soliq tizimi" data-title-en="The general tax system">
+  <section class="slide" data-title="Rentabellik ko'rsatkichlari" data-title-en="Profitability ratios">
     <div class="inner">
-      <span class="kicker">1.4</span>
-      <h2 data-i="76">Umumiy tizim — <span class="grad">QQS va foyda solig'i</span></h2>
-      <div class="grid g2">
-        <div class="card" style="--c:var(--violet)">
-          <h3 data-i="77">🧾 QQS — qo'shilgan qiymat solig'i</h3>
-          <p data-i="78">QQS <b>xaridor tomonidan</b> to'lanadi, tadbirkor esa uni yig'ib davlatga o'tkazadi. Amaldagi asosiy stavka — <b>12%</b>.</p>
-          <p data-i="79"><b>Asosiy qoida:</b> byudjetga <b>hisoblangan QQS − hisobga olinadigan QQS</b> farqi to'lanadi.</p>
-          <div class="quote" style="margin-top:8px" data-i="80">Misol: mahsulotni QQS bilan 11 200 000 so'mga sotdingiz (QQS = 1 200 000). Xomashyoni QQS bilan sotib olgansiz va undagi QQS = 700 000. Byudjetga: <b>1 200 000 − 700 000 = 500 000 so'm</b>.</div>
-        </div>
-        <div class="card" style="--c:var(--blue)">
-          <h3 data-i="81">📈 Foyda solig'i</h3>
-          <p data-i="82">Baza — <b>sof foyda</b>: daromaddan qonunda ruxsat etilgan xarajatlar chegirilgandan keyin qolgan summa. Asosiy stavka — <b>15%</b> (ayrim toifalar uchun boshqacha).</p>
-          <p data-i="83"><b>Muhim:</b> xarajat faqat <b>hujjat bilan tasdiqlangan</b> bo'lsa chegiriladi. Hujjatsiz xarajat — soliqni kamaytirmaydi.</p>
-          <div class="quote" style="margin-top:8px" data-i="84">Shuning uchun umumiy tizimda <b>birlamchi hujjatlar</b> (hisob-faktura, chek, yuk xati) hal qiluvchi ahamiyatga ega.</div>
-        </div>
-      </div>
-      <div class="card" style="--c:var(--green);margin-top:14px">
-        <h3 data-i="85">🤔 Umumiy tizim qachon foydali?</h3>
-        <p data-i="86">① Mijozlaringiz — QQS to'lovchi yirik korxonalar (ular sizdan hisob-faktura kutadi) · ② Xarajat ulushi katta, foyda ulushi kichik · ③ Import yoki eksport bilan ishlaysiz · ④ Aylanma chegaradan oshgan.</p>
-      </div>
-      <small class="note" data-i="87">Stavkalar 2026-yil holatidagi asosiy ko'rsatkichlar sifatida keltirilgan; ular o'zgarishi mumkin — <b>soliq.uz</b> va <b>lex.uz</b> dan tekshiring.</small>
+<span data-i="125" class="kicker">2-blok · Ko'rsatkichlar</span><h2 data-i="126">Foydani <span class="grad">foizda</span> o'lchang</h2><div data-i="127" class="def">Mutlaq summa (3,9 mln) bir oyni boshqasi bilan yoki boshqa biznes bilan solishtirishga yetmaydi. <b>Marja</b> — tushumning necha foizi foyda bo'lib qolganini ko'rsatadi.</div><div class="grid g4" style="margin-top:14px"><div class="stat "><div class="num">60%</div><p data-i="128">yalpi marja = 24 ÷ 40</p></div><div class="stat o"><div class="num">15%</div><p data-i="129">operatsion marja = 6 ÷ 40</p></div><div class="stat v"><div class="num">9,75%</div><p data-i="130">sof marja = 3,9 ÷ 40</p></div><div class="stat "><div class="num">≈ 20,5 oy</div><p data-i="131">qoplanish = 80 ÷ 3,9</p></div></div><div class="tw"><table><thead><tr><th data-i="144">Ko'rsatkich</th><th data-i="145">Formula</th><th data-i="146">Nimani ko'rsatadi</th></tr></thead><tbody><tr><td data-i="132"><b>Yalpi marja</b></td><td data-i="133">yalpi foyda ÷ tushum × 100</td><td data-i="134">Narx va xomashyo nisbati to'g'rimi</td></tr><tr><td data-i="135"><b>Operatsion marja</b></td><td data-i="136">operatsion foyda ÷ tushum × 100</td><td data-i="137">Biznes qanchalik samarali boshqarilmoqda</td></tr><tr><td data-i="138"><b>Sof marja</b></td><td data-i="139">sof foyda ÷ tushum × 100</td><td data-i="140">Har 100 so'm tushumdan egasiga qancha qoladi</td></tr><tr><td data-i="141"><b>Investitsiya qaytimi (yillik ROI)</b></td><td data-i="142">yillik sof foyda ÷ investitsiya × 100</td><td data-i="143" class="g">3,9 × 12 ÷ 80 ≈ <b>58,5%</b> — kiritilgan pul qanchalik yaxshi ishlaydi</td></tr></tbody></table></div><small data-i="147" class="note">Boshlang'ich investitsiya (pech, muzlatgich, ta'mir, mebel) — 80 mln so'm deb olingan. Marjalarni boshqa soha bilan emas, <b>o'z sohangizdagi</b> o'xshash biznes va o'z oldingi oylaringiz bilan solishtiring.</small>
     </div>
   </section>
 
-  <!-- ============ 8 ============ -->
-  <section class="slide" data-title="Rejimlar taqqoslash" data-title-en="Comparing the regimes">
+  <section class="slide" data-title="Zararsiz tushum va xavfsizlik zaxirasi" data-title-en="Break-even revenue and margin of safety">
     <div class="inner">
-      <span class="kicker" data-i="88">1.5 · Umumlashtirish</span>
-      <h2 data-i="89">Ikki rejimning <span class="grad">qiyosiy jadvali</span></h2>
-      <div class="tw"><table>
-        <thead><tr><th data-i="90">Mezon</th><th data-i="91">📉 Soddalashtirilgan (aylanma solig'i)</th><th data-i="92">📊 Umumiy tizim (QQS + foyda solig'i)</th></tr></thead>
-        <tbody>
-          <tr><td data-i="93"><b>Soliq bazasi</b></td><td data-i="94">Yalpi tushum (aylanma)</td><td class="g" data-i="95">Sof foyda va qo'shilgan qiymat</td></tr>
-          <tr><td data-i="96"><b>Xarajat hisobga olinadimi</b></td><td class="r" data-i="97">Yo'q</td><td class="g" data-i="98">Ha, hujjat bilan tasdiqlansa</td></tr>
-          <tr><td data-i="99"><b>QQS</b></td><td data-i="100">To'lanmaydi</td><td data-i="101">Hisoblanadi va hisobga olinadi</td></tr>
-          <tr><td data-i="102"><b>Hisobot</b></td><td class="g" data-i="103">Sodda, kamroq</td><td data-i="104">To'liq va muntazam</td></tr>
-          <tr><td data-i="105"><b>Buxgalteriya</b></td><td class="g" data-i="106">Minimal</td><td class="r" data-i="107">Malakali buxgalter kerak</td></tr>
-          <tr><td data-i="108"><b>Zarar ko'rilganda</b></td><td class="r" data-i="109">Soliq baribir to'lanadi</td><td class="g" data-i="110">Foyda bo'lmasa, foyda solig'i ham bo'lmaydi</td></tr>
-          <tr><td data-i="111"><b>Yirik mijoz uchun</b></td><td class="r" data-i="112">Ular QQSni hisobga ololmaydi</td><td class="g" data-i="113">Hisob-faktura beradi — qulay</td></tr>
-          <tr><td data-i="114"><b>Kimga mos</b></td><td data-i="115">Yangi, kichik, xizmat ko'rsatuvchi biznes</td><td data-i="116">Ishlab chiqarish, ulgurji savdo, eksport</td></tr>
-        </tbody>
-      </table></div>
-      <div class="quote" style="margin-top:14px" data-i="117">📌 Qaror qabul qilish qoidasi: <b>foyda ulushingiz yuqori</b> bo'lsa — soddalashtirilgan tartib odatda arzon; <b>xarajat ulushi katta</b> bo'lsa yoki mijozlaringiz QQS to'lovchi bo'lsa — umumiy tizim foydaliroq. Har ikkalasini <b>raqam bilan solishtirib ko'ring</b>.</div>
+<span data-i="148" class="kicker">2.2 · Chegara</span><h2 data-i="149">Qancha sotsak, <span class="grad">zarar ko'rmaymiz?</span></h2><div data-i="150" class="def">Mahsulot ko'p bo'lsa, zararsiz nuqtani donada emas, <b>so'mda</b> hisoblash qulay: <b>zararsiz tushum = doimiy xarajatlar ÷ yalpi marja</b>.</div><div class="grid g3" style="margin-top:14px"><div class="card" style="--c:var(--blue)"><h3 data-i="151">1. Doimiy xarajatlar</h3><div class="tw"><table><tbody><tr><td data-i="152">Operatsion xarajatlar</td><td data-i="153">18 000 000</td></tr><tr><td data-i="154">Kredit foizi</td><td data-i="155">500 000</td></tr><tr><td data-i="156"><b>Jami</b></td><td data-i="157"><b>18 500 000</b></td></tr></tbody></table></div></div><div class="card" style="--c:var(--violet)"><h3 data-i="158">2. Zararsiz tushum</h3><p data-i="159" style="font-size:17px">18 500 000 ÷ 0,60 ≈ <b>30 800 000 so'm</b></p><p data-i="160">Oyiga shundan kam sotilsa — zarar.</p></div><div class="card" style="--c:var(--green)"><h3 data-i="161">3. Xavfsizlik zaxirasi</h3><p data-i="162" style="font-size:17px">(40,0 − 30,8) ÷ 40,0 ≈ <b>23%</b></p><p data-i="163">Sotuv 23% gacha tushsa ham zarar yo'q.</p></div></div><div class="grid g2" style="margin-top:14px"><div class="card" style="--c:var(--orange);"><span class="icon">📏</span><h3 data-i="164">Zaxira qancha bo'lishi kerak?</h3><p data-i="165">Taxminiy mo'ljal: <b>20% dan past</b> — xavfli (bir yomon oy zararga olib chiqadi), <b>20–40%</b> — me'yorda, <b>40% dan yuqori</b> — barqaror.</p></div><div class="card" style="--c:var(--red);"><span class="icon">🧾</span><h3 data-i="166">Soliq tushumga bog'liq bo'lsa</h3><p data-i="167">Aylanmadan olinadigan soliq (shartli 4%) har bir sotuvdan ketadi, ya'ni marjani kamaytiradi: 18,5 ÷ (0,60 − 0,04) ≈ <b>33 mln</b>. Zaxira 17% ga tushadi.</p></div></div>
     </div>
   </section>
 
-  <!-- ============ 9 ============ -->
-  <section class="slide" data-title="Boshqa to'lovlar" data-title-en="Other payments">
+  <section class="slide" data-title="Reja va fakt tahlili" data-title-en="Plan vs actual analysis">
     <div class="inner">
-      <span class="kicker">1.6</span>
-      <h2 data-i="118">Xodim va mulk bilan bog'liq <span class="grad">boshqa to'lovlar</span></h2>
-      <p class="lead" data-i="119">Rejimdan qat'i nazar, xodim ishga olsangiz yoki mol-mulkingiz bo'lsa, qo'shimcha majburiyatlar paydo bo'ladi.</p>
-      <div class="grid g4">
-        <div class="card" style="--c:var(--blue)"><span class="icon">👷</span><h3 data-i="120">JShDS</h3><p data-i="121">Jismoniy shaxslardan olinadigan daromad solig'i — <b>xodim ish haqidan ushlab qolinadi</b> va byudjetga o'tkaziladi. Asosiy stavka — 12%.</p></div>
-        <div class="card" style="--c:var(--violet)"><span class="icon">🏥</span><h3 data-i="122">Ijtimoiy soliq</h3><p data-i="123">Ish haqi fondidan <b>ish beruvchi hisobidan</b> to'lanadi. Pensiya va ijtimoiy ta'minot uchun asos bo'ladi.</p></div>
-        <div class="card" style="--c:var(--orange)"><span class="icon">🏢</span><h3 data-i="124">Mol-mulk va yer</h3><p data-i="125">Korxonaga tegishli bino, inshoot va yer uchastkasi bo'lsa — mol-mulk va yer solig'i to'lanadi.</p></div>
-        <div class="card" style="--c:var(--teal)"><span class="icon">💧</span><h3 data-i="126">Resurs to'lovlari</h3><p data-i="127">Suvdan foydalanish, yer qa'ridan foydalanish va aktsiz kabi maxsus soliqlar — faoliyat turiga qarab.</p></div>
-      </div>
-      <div class="card" style="--c:var(--red);margin-top:16px">
-        <h3 data-i="128">⚠️ Eng ko'p yo'l qo'yiladigan xatolar</h3>
-        <div class="grid g2">
-          <ul class="tick cross">
-            <li data-i="129">Xodimni <b>rasmiylashtirmasdan</b> ishlatish (jarima + staj yo'qoladi)</li>
-            <li data-i="130">Ish haqini "konvertda" berish va JShDSni o'tkazmaslik</li>
-          </ul>
-          <ul class="tick cross">
-            <li data-i="131">Soliq to'lovi muddatini nazorat qilmaslik → <b>penya</b></li>
-            <li data-i="132">Shaxsiy va biznes pulini aralashtirib yuborish</li>
-          </ul>
-        </div>
-      </div>
-      <small class="note" data-i="133">Stavkalar toifaga (masalan, byudjet tashkilotlari, alohida hududlar) qarab farq qiladi va yangilanadi — aniq qiymatlarni <b>soliq.uz</b> dan tekshiring.</small>
+<span data-i="168" class="kicker">3-blok · Tahlil</span><h2 data-i="169">Noyabr: foyda <span class="grad">6 mln dan 2 mln ga</span> tushdi. Nega?</h2><div class="tw"><table><thead><tr><th data-i="190">Modda (ming so'm)</th><th data-i="191">Reja</th><th data-i="192">Fakt</th><th data-i="193">Farq</th></tr></thead><tbody><tr><td data-i="170"><b>Tushum</b></td><td data-i="171">40 000</td><td data-i="172">36 000</td><td data-i="173" class="r">−4 000 (−10%)</td></tr><tr><td data-i="174">Sotilgan mahsulot tannarxi</td><td data-i="175">16 000 (40%)</td><td data-i="176" class="r">15 800 (43,9%)</td><td data-i="177">−200</td></tr><tr><td data-i="178"><b>Yalpi foyda</b></td><td data-i="179">24 000 (60%)</td><td data-i="180">20 200 (56,1%)</td><td data-i="181" class="r">−3 800</td></tr><tr><td data-i="182">Operatsion xarajatlar</td><td data-i="183">18 000</td><td data-i="184">18 200</td><td data-i="185" class="r">+200</td></tr><tr><td data-i="186"><b>Operatsion foyda</b></td><td data-i="187"><b>6 000</b></td><td data-i="188" class="r"><b>2 000</b></td><td data-i="189" class="r"><b>−4 000</b></td></tr></tbody></table></div><h3 data-i="194" style="margin-top:14px">4 000 ming so'mlik farqning sabablari</h3><div class="grid g3"><div class="card" style="--c:var(--orange);"><span class="icon">📉</span><h3 data-i="195">Hajm ta'siri: −2 400</h3><p data-i="196">Sotuv 4 000 ga kam. Har bir so'm sotuv 60 tiyin yalpi foyda berardi: 4 000 × 60% = <b>2 400</b>. Sabab: yangi raqobatchi ochildi.</p></div><div class="card" style="--c:var(--red);"><span class="icon">🥩</span><h3 data-i="197">Xomashyo ta'siri: −1 400</h3><p data-i="198">Ulush 40% qolganda tannarx 36 000 × 40% = 14 400 bo'lardi; fakt 15 800. Farq <b>1 400</b> — go'sht narxi oshgan va isrof ko'paygan.</p></div><div class="card" style="--c:var(--violet);"><span class="icon">🏢</span><h3 data-i="199">Xarajat ta'siri: −200</h3><p data-i="200">Gaz hisobi qishda oshgan. Kichik, lekin kuzatib borish kerak.</p></div></div><div data-i="201" class="quote" style="margin-top:12px">🧠 <b>Tekshiruv:</b> 2 400 + 1 400 + 200 = <b>4 000</b>. Endi chora aniq: raqobatchiga javob (sifat, xizmat, yangi taklif) va go'sht xaridi hamda isrofni nazorat qilish.</div>
     </div>
   </section>
 
-  <!-- ============ 10 ============ -->
-  <section class="slide" data-title="Soliq imtiyozlari" data-title-en="Tax incentives">
+  <section class="slide" data-title="Mahsulotlar bo'yicha foyda" data-title-en="Profit by product">
     <div class="inner">
-      <span class="kicker">1.7</span>
-      <h2 data-i="134"><span class="grad">Soliq imtiyozlari</span> — qonuniy yengillik</h2>
-      <div class="def" style="background:linear-gradient(135deg,var(--violet),var(--pink))" data-i="135">Imtiyoz — bu "yashirish" emas, <b>davlat o'zi taklif qilgan qonuniy yengillik</b>. Undan foydalanmaslik — pulni shunchaki ortiqcha to'lash demakdir.</div>
-      <div class="grid g3" style="margin-top:14px">
-        <div class="card" style="--c:var(--green)"><h3 data-i="136">1. To'liq ozod qilish</h3><p data-i="137">Ayrim faoliyat turlari yoki subyektlar muayyan soliqdan <b>butunlay ozod</b> etiladi.</p></div>
-        <div class="card" style="--c:var(--blue)"><h3 data-i="138">2. Kamaytirilgan stavka</h3><p data-i="139">Umumiy stavka o'rniga <b>past stavka</b> qo'llaniladi (masalan, alohida hududlarda).</p></div>
-        <div class="card" style="--c:var(--orange)"><h3 data-i="140">3. Muddatni kechiktirish</h3><p data-i="141">To'lov muddati <b>uzaytiriladi</b> yoki bo'lib-bo'lib to'lash imkoni beriladi.</p></div>
-      </div>
-      <div class="grid g2" style="margin-top:14px">
-        <div class="card" style="--c:var(--cyan)">
-          <h3 data-i="142">🎯 Imtiyoz odatda kimga beriladi?</h3>
-          <ul class="tick">
-            <li data-i="143">Yangi tashkil etilgan va ayrim sohalarda faoliyat yurituvchi subyektlar</li>
-            <li data-i="144"><b>IT-park</b> rezidentlari kabi maxsus maqomga ega tashkilotlar</li>
-            <li data-i="145">Kam ta'minlangan tumanlar va maxsus iqtisodiy zonalarda ishlovchilar</li>
-            <li data-i="146">Nogironligi bo'lgan shaxslar mehnatidan foydalanuvchi korxonalar</li>
-            <li data-i="147">Eksportga yo'naltirilgan va ayrim ijtimoiy yo'naltirilgan faoliyatlar</li>
-          </ul>
-        </div>
-        <div class="card" style="--c:var(--amber)">
-          <h3 data-i="148">📝 Imtiyozdan qanday foydalaniladi?</h3>
-          <p data-i="149"><b>1.</b> Faoliyatingizga tegishli imtiyozni <b>rasmiy ro'yxatdan</b> toping (soliq.uz / lex.uz)<br>
-             <b>2.</b> Shartlarini tekshiring — ular odatda <b>aniq talab</b> bilan keladi<br>
-             <b>3.</b> Kerakli hujjat yoki maqomni rasmiylashtiring<br>
-             <b>4.</b> Hisobotda imtiyozni <b>to'g'ri aks ettiring</b><br>
-             <b>5.</b> Shart buzilsa — imtiyoz bekor qilinib, soliq <b>qayta hisoblanishi</b> mumkin</p>
-        </div>
-      </div>
-      <small class="note" data-i="150">Imtiyozlar ro'yxati va shartlari tez-tez yangilanadi — har safar amaldagi hujjatni tekshiring va shubha bo'lsa soliq maslahatchisiga murojaat qiling.</small>
+<span data-i="202" class="kicker">3.2 · Mahsulot aralashmasi</span><h2 data-i="203">Qaysi mahsulot <span class="grad">haqiqatan pul topadi?</span></h2><div class="tw"><table><thead><tr><th data-i="244">Mahsulot</th><th data-i="245">Narx</th><th data-i="246">Tannarx</th><th data-i="247">Hissa (1 dona)</th><th data-i="248">Marja</th><th data-i="249">Sotuv</th><th data-i="250">Jami hissa</th><th data-i="251">Ulushi</th></tr></thead><tbody><tr><td data-i="204"><b>Go'shtli somsa</b></td><td data-i="205">7 000</td><td data-i="206">3 500</td><td data-i="207">3 500</td><td data-i="208">50%</td><td data-i="209">3 000</td><td data-i="210" class="g"><b>10 500 000</b></td><td data-i="211">44%</td></tr><tr><td data-i="212"><b>Kartoshkali somsa</b></td><td data-i="213">4 000</td><td data-i="214">1 400</td><td data-i="215">2 600</td><td data-i="216">65%</td><td data-i="217">2 000</td><td data-i="218">5 200 000</td><td data-i="219">22%</td></tr><tr><td data-i="220"><b>Oshqovoqli somsa</b></td><td data-i="221">5 000</td><td data-i="222">1 800</td><td data-i="223">3 200</td><td data-i="224">64%</td><td data-i="225">1 000</td><td data-i="226">3 200 000</td><td data-i="227">13%</td></tr><tr><td data-i="228"><b>Choy va ichimlik</b></td><td data-i="229">2 000</td><td data-i="230">300</td><td data-i="231">1 700</td><td data-i="232" class="g"><b>85%</b></td><td data-i="233">3 000</td><td data-i="234">5 100 000</td><td data-i="235">21%</td></tr><tr><td data-i="236"><b>Jami</b></td><td data-i="237"></td><td data-i="238"></td><td data-i="239"></td><td data-i="240">60%</td><td data-i="241"></td><td data-i="242"><b>24 000 000</b></td><td data-i="243">100%</td></tr></tbody></table></div><div class="grid g3" style="margin-top:14px"><div class="card" style="--c:var(--green);"><span class="icon">🥩</span><h3 data-i="252">Asosiy «dvigatel»</h3><p data-i="253">Go'shtli somsa marjasi eng past (50%), lekin <b>jami hissaning 44%</b>ini beradi. Uning sifati va go'sht narxi — eng muhim nazorat nuqtasi.</p></div><div class="card" style="--c:var(--blue);"><span class="icon">🍵</span><h3 data-i="254">Yashirin imkoniyat</h3><p data-i="255">Choy marjasi 85%. Har somsa xaridoriga choy taklif qilinsa va 1 000 ta qo'shimcha sotilsa: <b>+1 700 000 so'm</b> hissa.</p></div><div class="card" style="--c:var(--orange);"><span class="icon">⚠️</span><h3 data-i="256">Marja ≠ hissa</h3><p data-i="257">Yuqori foizli, lekin kam sotiladigan mahsulot kam pul keltiradi. Qarorni <b>foiz × hajm</b> bo'yicha qabul qiling.</p></div></div>
     </div>
   </section>
 
-  <!-- ============ 11 ============ -->
-  <section class="slide" data-title="my.soliq.uz kabineti" data-title-en="The my.soliq.uz cabinet">
+  <section class="slide" data-title="Foydani oshirishning 5 yo'li" data-title-en="5 ways to raise profit">
     <div class="inner">
-      <span class="kicker" data-i="151">2-blok</span>
-      <h2 data-i="152"><span class="grad">my.soliq.uz</span> — soliq to'lovchining shaxsiy kabineti</h2>
-      <div class="def" data-i="153">Shaxsiy kabinet — tadbirkorning <b>soliq bo'yicha ish stoli</b>: hisobot topshirish, qarzni ko'rish, to'lov qilish, hisob-faktura yuborish va soliq organi bilan yozishmalar shu yerda amalga oshiriladi. Idoraga borish shart emas.</div>
-      <div class="grid g2" style="margin-top:16px">
-        <div class="card" style="--c:var(--blue)">
-          <h3 data-i="154">🔐 Kabinetga qanday kiriladi?</h3>
-          <ul class="tick">
-            <li data-i="155"><b>E-IMZO (ERI kaliti)</b> orqali — asosiy va eng ishonchli usul</li>
-            <li data-i="156"><b>OneID</b> yagona identifikatsiya tizimi orqali</li>
-            <li data-i="157">Kirish uchun <b>STIR</b> va faol kalit talab qilinadi</li>
-            <li data-i="158">Kalit muddati tugasa — kabinetga kira olmaysiz, oldindan yangilang</li>
-          </ul>
-          <div class="quote" style="margin-top:10px" data-i="159">🛡 Kalitni buxgalterga bersangiz ham, <b>javobgarlik sizda</b> qoladi. Kim qaysi hujjatni imzolayotganini nazorat qiling.</div>
-        </div>
-        <div class="card" style="--c:var(--violet)">
-          <h3 data-i="160">🧭 Asosiy bo'limlar</h3>
-          <ul class="tick">
-            <li data-i="161"><b>Hisobotlar</b> — topshirish, tarix va qabul qilinganlik holati</li>
-            <li data-i="162"><b>Shaxsiy varaqa</b> — soliq bo'yicha qarz yoki ortiqcha to'lov</li>
-            <li data-i="163"><b>To'lovlar</b> — byudjetga to'lov va uni taqsimlash</li>
-            <li data-i="164"><b>Hisob-fakturalar (EHF)</b> — yuborilgan va qabul qilingan hujjatlar</li>
-            <li data-i="165"><b>Xabarnomalar</b> — soliq organidan kelgan talab va bildirishnomalar</li>
-            <li data-i="166"><b>Murojaatlar</b> — savol yuborish va javob olish</li>
-          </ul>
-        </div>
-      </div>
-      <small class="note" data-i="167">Bo'limlar nomi va interfeys vaqti-vaqti bilan yangilanadi — amaldagi ko'rinishni <b>my.soliq.uz</b> saytidan ko'ring.</small>
+<span data-i="258" class="kicker">3.3 · Richaglar</span><h2 data-i="259">5% o'zgarish — <span class="grad">foydaga qancha ta'sir qiladi?</span></h2><div data-i="260" class="def">Asosiy holat: tushum 40 mln, tannarx 16 mln, operatsion xarajat 18 mln, <b>operatsion foyda 6 mln</b>. Har bir richagni alohida 5% ga o'zgartiramiz (qolganlari o'zgarmaydi).</div><div class="tw"><table><thead><tr><th data-i="281">Richag</th><th data-i="282">Hisob</th><th data-i="283">Operatsion foyda o'zgarishi</th><th data-i="284">Foiz</th></tr></thead><tbody><tr><td data-i="261"><b>1. Narx +5%</b> (sotuv hajmi o'zgarmasa)</td><td data-i="262">40 mln × 5%</td><td data-i="263" class="g"><b>+2 000 000</b></td><td data-i="264" class="g"><b>+33%</b></td></tr><tr><td data-i="265"><b>2. Sotuv hajmi +5%</b></td><td data-i="266">24 mln yalpi foyda × 5%</td><td data-i="267">+1 200 000</td><td data-i="268">+20%</td></tr><tr><td data-i="269"><b>3. Doimiy xarajat −5%</b></td><td data-i="270">18 mln × 5%</td><td data-i="271">+900 000</td><td data-i="272">+15%</td></tr><tr><td data-i="273"><b>4. Xomashyo tannarxi −5%</b></td><td data-i="274">16 mln × 5%</td><td data-i="275">+800 000</td><td data-i="276">+13%</td></tr><tr><td data-i="277"><b>5. Mahsulot aralashmasi</b></td><td data-i="278">+1 000 choy (hissa 1 700)</td><td data-i="279">+1 700 000</td><td data-i="280">+28%</td></tr></tbody></table></div><div class="grid g2" style="margin-top:14px"><div class="card" style="--c:var(--green);"><span class="icon">🧠</span><h3 data-i="285">Xulosa</h3><p data-i="286">Narx — eng kuchli richag, lekin eng xavflisi ham: mijoz ketsa, foyda kamayadi (11-mavzu). Ko'pincha <b>bir nechta kichik o'zgarish</b> birgalikda eng yaxshi natija beradi.</p></div><div class="card" style="--c:var(--blue);"><span class="icon">🛠</span><h3 data-i="287">«Somsa uyi» rejasi</h3><p data-i="288">Choyni har xaridga taklif qilish · go'shtni 2 yetkazib beruvchidan solishtirib olish · isrofni kunlik yozish · kechqurun qolgan somsaga 30% chegirma (isrofdan yaxshi).</p></div></div>
     </div>
   </section>
 
-  <!-- ============ 12 ============ -->
-  <section class="slide" data-title="Elektron hisobot" data-title-en="Electronic reporting">
+  <section class="slide" data-title="Zarar tashxisi" data-title-en="Diagnosing losses">
     <div class="inner">
-      <span class="kicker">2.2</span>
-      <h2 data-i="168">Elektron hisobotni <span class="grad">topshirish tartibi</span></h2>
-      <div class="chain">
-        <div class="link l1"><h3 data-i="169">1–2-qadam</h3><p data-i="170">Tayyorgarlik</p><p style="font-size:12.5px" data-i="171">Davr ma'lumotlarini yig'ing (tushum, xarajat, ish haqi) · kabinetga E-IMZO bilan kiring</p></div>
-        <div class="link l2"><h3 data-i="172">3-qadam</h3><p data-i="173">Shaklni tanlash</p><p style="font-size:12.5px" data-i="174">Rejimingizga mos hisobot shaklini va <b>soliq davrini</b> tanlang</p></div>
-        <div class="link l3"><h3 data-i="175">4-qadam</h3><p data-i="176">To'ldirish va tekshirish</p><p style="font-size:12.5px" data-i="177">Ma'lumotni kiriting · tizim <b>xatolarni avtomatik tekshiradi</b></p></div>
-        <div class="link l4"><h3 data-i="178">5–6-qadam</h3><p data-i="179">Imzolash va to'lov</p><p style="font-size:12.5px" data-i="180">E-IMZO bilan imzolab yuboring · <b>qabul qilingani</b>ni tekshiring · soliqni to'lang</p></div>
-      </div>
-      <div class="grid g2" style="margin-top:16px">
-        <div class="card" style="--c:var(--green)">
-          <h3 data-i="181">🗓 Muddatlar haqida</h3>
-          <ul class="tick">
-            <li data-i="182">Har bir soliqning <b>o'z davri</b> bor: oylik, choraklik yoki yillik</li>
-            <li data-i="183">Hisobot muddati va to'lov muddati <b>bir xil bo'lmasligi</b> mumkin</li>
-            <li data-i="184">Muddat dam olish kuniga to'g'ri kelsa, keyingi ish kuniga o'tadi</li>
-            <li data-i="185">Kalendarni oldindan tuzing va <b>eslatma</b> qo'ying</li>
-          </ul>
-        </div>
-        <div class="card" style="--c:var(--red)">
-          <h3 data-i="186">⏰ Kechiksangiz nima bo'ladi?</h3>
-          <ul class="tick cross">
-            <li data-i="187">Kechiktirilgan har kun uchun <b>penya</b> hisoblanadi</li>
-            <li data-i="188">Hisobotni topshirmaslik uchun <b>jarima</b> qo'llaniladi</li>
-            <li data-i="189">Qarz to'planib borsa — hisobvaraq bo'yicha cheklovlar qo'llanishi mumkin</li>
-            <li data-i="190">Soliq qarzi bo'lsa, tender va imtiyozlarga yo'l yopiladi</li>
-          </ul>
-          <div class="quote" style="margin-top:10px" data-i="191">Amaliy maslahat: hisobotni <b>oxirgi kunga qoldirmang</b> — tizim band bo'lishi yoki kalit muddati tugagan bo'lishi mumkin.</div>
-        </div>
-      </div>
+<span data-i="289" class="kicker">4-blok · Qaror</span><h2 data-i="290">Zarar belgisi qayerda — <span class="grad">sababi o'sha yerda</span></h2><div class="tw"><table><thead><tr><th data-i="303">Belgi</th><th data-i="304">Ehtimoliy sabab</th><th data-i="305">Nimani tekshirish kerak</th></tr></thead><tbody><tr><td data-i="291"><b>Tushum kamaydi</b></td><td data-i="292">Mijoz kamaydi, raqobatchi, mavsum, sifat pasaygan</td><td data-i="293">Kunlik mijozlar soni, o'rtacha chek, mijoz fikri</td></tr><tr><td data-i="294"><b>Yalpi marja tushdi</b></td><td data-i="295">Xomashyo qimmatlashdi, isrof, o'g'irlik, chegirma ko'p</td><td data-i="296">Xarid narxlari, retsept me'yori, isrof daftari</td></tr><tr><td data-i="297"><b>Operatsion xarajat o'sdi</b></td><td data-i="298">Ortiqcha xodim, ijara, kommunal, nazoratsiz xarajat</td><td data-i="299">Har bir modda tushumning necha foizi</td></tr><tr><td data-i="300"><b>Foyda bor, pul yo'q</b></td><td data-i="301">Nasiya, zaxira ko'paygan, kredit qaytarilgan</td><td data-i="302">Pul oqimi rejasi (12-mavzu)</td></tr></tbody></table></div><div class="grid g2" style="margin-top:14px"><div class="card" style="--c:var(--orange)"><h3 data-i="306">🎃 «Zarar ko'rsatayotgan» mahsulotni darhol yopmang</h3><p data-i="307">Faraz qilaylik, oshqovoqli somsaga doimiy xarajatdan 3,5 mln so'm «ulush» yozildi: 3,2 − 3,5 = <b>−0,3 mln</b> — go'yo zarar.</p><p data-i="308" style="margin-top:6px">Lekin uni to'xtatsangiz, ijara va ish haqi kamaymaydi — biznes <b>3,2 mln hissani yo'qotadi</b> va umumiy foyda 3,9 dan 0,7 mln ga tushadi. Hissa musbat bo'lsa, mahsulot doimiy xarajatni qoplashga yordam beryapti.</p></div><div class="card" style="--c:var(--green);"><span class="icon">✅</span><h3 data-i="309">Zarar bo'lsa, harakat tartibi</h3><ul class="tick"><li data-i="310">Hisobotni <b>pog'onama-pog'ona</b> o'qing: qaysi pog'onada farq paydo bo'ldi?</li><li data-i="311">Farqni <b>hajm, narx va xarajat</b> ta'siriga ajrating.</li><li data-i="312">Eng katta ta'sir uchun <b>bitta aniq chora</b> va muddat belgilang.</li><li data-i="313">Keyingi oy natijani tekshiring.</li></ul></div></div>
     </div>
   </section>
 
-  <!-- ============ 13 ============ -->
-  <section class="slide" data-title="Hisob-faktura" data-title-en="The invoice">
+  <section class="slide" data-title="Foyda va pul o'rtasidagi ko'prik" data-title-en="The bridge between profit and cash">
     <div class="inner">
-      <span class="kicker" data-i="192">3-blok</span>
-      <h2 data-i="193">Birlamchi hujjatlar va <span class="grad">hisob-faktura (EHF)</span></h2>
-      <div class="def" style="background:linear-gradient(135deg,var(--blue),var(--violet))" data-i="194">Birlamchi hujjat — <b>xo'jalik operatsiyasining dalili</b>. Hujjat bo'lmasa, xarajat ham, QQS hisobi ham, sudda himoya ham yo'q. Qoida oddiy: <b>hujjatsiz operatsiya — bo'lmagan operatsiya</b>.</div>
-      <div class="grid g2" style="margin-top:14px">
-        <div class="card" style="--c:var(--violet)">
-          <h3 data-i="195">🧾 Hisob-faktura nima?</h3>
-          <p data-i="196">Tovar yoki xizmat yetkazib berilganini va uning <b>qiymati hamda QQS summasini</b> tasdiqlovchi asosiy hujjat. Bugungi kunda u <b>elektron shaklda (EHF)</b> rasmiylashtiriladi va kabinet orqali yuboriladi.</p>
-          <p data-i="197"><b>Nima uchun muhim:</b> xaridor QQSni <b>hisobga olishi</b> uchun, sotuvchi esa daromadni tasdiqlashi uchun.</p>
-          <ul class="tick">
-            <li data-i="198">Yuborilgandan so'ng qarshi tomon uni <b>qabul qiladi</b> yoki rad etadi</li>
-            <li data-i="199">Xato bo'lsa — tuzatuvchi yoki bekor qiluvchi hujjat rasmiylashtiriladi</li>
-            <li data-i="200">Barcha EHFlar kabinetda saqlanadi va soliq organiga ko'rinadi</li>
-          </ul>
-        </div>
-        <div class="card" style="--c:var(--blue)">
-          <h3 data-i="201">📋 Hisob-fakturada nima bo'ladi?</h3>
-          <div class="tw"><table>
-            <tbody>
-              <tr><td data-i="202"><b>Raqami va sanasi</b></td><td data-i="203">Hujjatning identifikatori</td></tr>
-              <tr><td data-i="204"><b>Taraflar</b></td><td data-i="205">Sotuvchi va xaridor nomi, STIRi, manzili</td></tr>
-              <tr><td data-i="206"><b>Tovar/xizmat</b></td><td data-i="207">Nomi, o'lchov birligi, miqdori</td></tr>
-              <tr><td data-i="208"><b>Narx va summa</b></td><td data-i="209">Birlik narxi, jami qiymat</td></tr>
-              <tr><td data-i="210"><b>QQS</b></td><td data-i="211">Stavka va soliq summasi</td></tr>
-              <tr><td data-i="212"><b>Imzo</b></td><td data-i="213">E-IMZO bilan elektron imzo</td></tr>
-            </tbody>
-          </table></div>
-        </div>
-      </div>
+<span data-i="314" class="kicker">4.2 · Ko'prik</span><h2 data-i="315">Sof foyda 3,9 mln, kassa esa <span class="grad">atigi 1,6 mln ga</span> oshdi</h2><div data-i="316" class="def">Foyda — hisob natijasi, pul — haqiqiy harakat. Ularni bog'laydigan «ko'prik» qaysi summalar foydada bor, lekin kassada yo'qligini (yoki aksincha) ko'rsatadi.</div><div class="tw"><table><thead><tr><th data-i="335">Qadam</th><th data-i="336">So'm</th><th data-i="337">Izoh</th></tr></thead><tbody><tr><td data-i="317"><b>Sof foyda</b></td><td data-i="318">3 900 000</td><td data-i="319">Foyda va zarar hisobotidan</td></tr><tr><td data-i="320">+ Amortizatsiya</td><td data-i="321" class="g">+500 000</td><td data-i="322">Xarajat yozilgan, lekin pul chiqmagan</td></tr><tr><td data-i="323">− Debitor qarz o'sdi</td><td data-i="324" class="r">−1 000 000</td><td data-i="325">Kafelarga nasiyaga somsa berildi</td></tr><tr><td data-i="326">− Zaxira ko'paydi</td><td data-i="327" class="r">−800 000</td><td data-i="328">Arzon paytda go'sht ko'proq olinib, muzlatildi</td></tr><tr><td data-i="329">− Kredit asosiy qarzi qaytarildi</td><td data-i="330" class="r">−1 000 000</td><td data-i="331">Xarajat emas, lekin pul chiqadi</td></tr><tr><td data-i="332"><b>= Kassadagi pul o'zgarishi</b></td><td data-i="333"><b>+1 600 000</b></td><td data-i="334">12-mavzudagi pul oqimi bilan mos keladi</td></tr></tbody></table></div><div class="grid g2" style="margin-top:14px"><div class="card" style="--c:var(--blue);"><span class="icon">🔗</span><h3 data-i="338">Ikki hisobot — bir biznes</h3><p data-i="339">Foyda va zarar hisoboti <b>biznes foydalimi</b>, pul oqimi esa <b>to'lovga pul bormi</b> degan savolga javob beradi. Ikkalasini ham har oy ko'ring.</p></div><div class="card" style="--c:var(--orange);"><span class="icon">⚠️</span><h3 data-i="340">Ogohlantirish belgisi</h3><p data-i="341">Foyda bir necha oy ketma-ket kassa o'sishidan ancha katta bo'lsa — nasiya va zaxira nazoratdan chiqmoqda.</p></div></div>
     </div>
   </section>
 
-  <!-- ============ 14 ============ -->
-  <section class="slide" data-title="Chek va yuk xati" data-title-en="Receipt and waybill">
+  <section class="slide" data-title="Oylik nazorat paneli" data-title-en="A monthly control panel">
     <div class="inner">
-      <span class="kicker">3.2</span>
-      <h2 data-i="214"><span class="grad">Kassa cheki</span> va <span class="grad">yuk xati</span></h2>
-      <div class="grid g2">
-        <div class="card" style="--c:var(--green)">
-          <span class="icon">🧾</span><h3 data-i="215">Kassa cheki</h3>
-          <p data-i="216">Aholiga (jismoniy shaxsga) sotuvda <b>chek berish majburiy</b>. Chek — xaridorning huquqi va sotuvchining daromadi dalili.</p>
-          <ul class="tick">
-            <li data-i="217">Onlayn-kassa yoki <b>virtual kassa</b> orqali rasmiylashtiriladi</li>
-            <li data-i="218">Chekdagi <b>QR-kod</b> orqali uning haqiqiyligini tekshirish mumkin</li>
-            <li data-i="219">Chek berilmasa — bu qonunbuzarlik va jarima asosidir</li>
-            <li data-i="220">Qaytarish va kafolat masalasida chek asosiy hujjat bo'ladi</li>
-          </ul>
-          <div class="quote" style="margin-top:10px" data-i="221">🧑‍🎓 Talabaga maslahat: xarid qilganda chekni oling — bu nafaqat sizning huquqingiz, balki xarajatingizni tasdiqlovchi hujjat.</div>
-        </div>
-        <div class="card" style="--c:var(--orange)">
-          <span class="icon">🚚</span><h3 data-i="222">Yuk xati (TTN)</h3>
-          <p data-i="223">Tovarning <b>bir joydan boshqa joyga ko'chirilganini</b> tasdiqlovchi hujjat. U tovarning yo'lda qonuniy ekanini ko'rsatadi.</p>
-          <ul class="tick">
-            <li data-i="224">Kim yubordi, kim qabul qildi, qanday transport bilan</li>
-            <li data-i="225">Tovar nomi, miqdori, o'lchov birligi va qiymati</li>
-            <li data-i="226">Yo'nalish: chiqish va yetkazish manzili</li>
-            <li data-i="227">Bugun ko'p hollarda <b>elektron shaklda</b> rasmiylashtiriladi</li>
-          </ul>
-          <div class="quote" style="margin-top:10px" data-i="228">⚠️ Yuk xatisiz tashilayotgan tovar <b>hujjatsiz tovar</b> deb baholanishi va jarimaga sabab bo'lishi mumkin.</div>
-        </div>
-      </div>
-      <div class="card" style="--c:var(--red);margin-top:14px">
-        <h3 data-i="229">📁 Hujjatlarni saqlash qoidasi</h3>
-        <p data-i="230">Birlamchi hujjatlar qonunda belgilangan muddat davomida <b>saqlanishi shart</b>. Elektron hujjatlar kabinetda saqlansa ham, muhim shartnoma va hisob-fakturalarning <b>nusxasini o'zingizda</b> tartibli papkada saqlang: sana bo'yicha, kontragent bo'yicha.</p>
-      </div>
+<span data-i="342" class="kicker">4.3 · Nazorat</span><h2 data-i="343">Har oy <span class="grad">8 ta raqamni</span> tekshiring</h2><div class="tw"><table><thead><tr><th data-i="384">Ko'rsatkich</th><th data-i="385">«Somsa uyi» maqsadi</th><th data-i="386">Oktyabr</th><th data-i="387">Noyabr</th><th data-i="388">Holat</th></tr></thead><tbody><tr><td data-i="344">Tushum</td><td data-i="345">≥ 40 mln</td><td data-i="346">40,0</td><td data-i="347">36,0</td><td data-i="348">🔴</td></tr><tr><td data-i="349">Yalpi marja</td><td data-i="350">≥ 58%</td><td data-i="351">60%</td><td data-i="352">56,1%</td><td data-i="353">🔴</td></tr><tr><td data-i="354">Ish haqi ulushi</td><td data-i="355">≤ 25%</td><td data-i="356">22,5%</td><td data-i="357">25%</td><td data-i="358">🟡</td></tr><tr><td data-i="359">Operatsion xarajat ulushi</td><td data-i="360">≤ 46%</td><td data-i="361">45%</td><td data-i="362">50,6%</td><td data-i="363">🔴</td></tr><tr><td data-i="364">Operatsion marja</td><td data-i="365">≥ 12%</td><td data-i="366">15%</td><td data-i="367">5,6%</td><td data-i="368">🔴</td></tr><tr><td data-i="369">Xavfsizlik zaxirasi</td><td data-i="370">≥ 20%</td><td data-i="371">23%</td><td data-i="372">7%</td><td data-i="373">🔴</td></tr><tr><td data-i="374">Isrof (tannarxdan)</td><td data-i="375">≤ 3%</td><td data-i="376">2,5%</td><td data-i="377">5%</td><td data-i="378">🔴</td></tr><tr><td data-i="379">O'rtacha chek</td><td data-i="380">≥ 13 000</td><td data-i="381">13 300</td><td data-i="382">13 100</td><td data-i="383">🟢</td></tr></tbody></table></div><div class="grid g2" style="margin-top:14px"><div class="card" style="--c:var(--green);"><span class="icon">📅</span><h3 data-i="389">Oylik tartib (1 soat)</h3><ul class="clean"><li data-i="390">Oyning <b>3-sanasigacha</b>: hisobotni yopish (tushum, xarid, xarajatlar).</li><li data-i="391">Panelni to'ldirish va 🔴 belgilarni topish.</li><li data-i="392">Har 🔴 uchun sabab va <b>bitta chora</b>.</li><li data-i="393">Keyingi oy rejasini yangilash.</li></ul></div><div class="card" style="--c:var(--orange);"><span class="icon">📜</span><h3 data-i="394">Rasmiy hisobot ham bor</h3><p data-i="395">Bu panel — boshqaruv uchun. Soliq va statistika hisobotlari alohida, belgilangan shakl va muddatda topshiriladi. Talablarni soliq xizmati va buxgalter bilan aniqlang.</p></div></div>
     </div>
   </section>
 
-  <!-- ============ 15 ============ -->
-  <section class="slide" data-title="Daromad-xarajat daftari" data-title-en="Income-expense ledger">
+  <section class="slide" data-title="Amaliy keys: qaror qabul qiling" data-title-en="Case: make a decision">
     <div class="inner">
-      <span class="kicker">3.3</span>
-      <h2 data-i="231"><span class="grad">Daromad-xarajat daftari</span> — biznesning kundaligi</h2>
-      <p class="lead" data-i="232">Bu daftar — <b>eng oddiy va eng foydali</b> moliyaviy vosita. U bo'lmasa, tadbirkor foyda ko'ryaptimi yoki zarar ko'ryaptimi — bilmaydi.</p>
-      <div class="tw"><table>
-        <thead><tr><th data-i="233">Sana</th><th data-i="234">Hujjat</th><th data-i="235">Operatsiya mazmuni</th><th data-i="236">Daromad</th><th data-i="237">Xarajat</th><th data-i="238">Qoldiq</th></tr></thead>
-        <tbody>
-          <tr><td>03.09</td><td data-i="239">Chek №112</td><td data-i="240">Mahsulot sotuvi (25 dona)</td><td class="g">3 750 000</td><td>—</td><td>3 750 000</td></tr>
-          <tr><td>05.09</td><td data-i="241">EHF №0041</td><td data-i="242">Xomashyo xaridi</td><td>—</td><td class="r">1 900 000</td><td>1 850 000</td></tr>
-          <tr><td>07.09</td><td data-i="243">Shartnoma</td><td data-i="244">Ijara to'lovi (sentabr)</td><td>—</td><td class="r">1 200 000</td><td>650 000</td></tr>
-          <tr><td>12.09</td><td data-i="245">EHF №0058</td><td data-i="246">Korxonaga ulgurji sotuv</td><td class="g">5 400 000</td><td>—</td><td>6 050 000</td></tr>
-          <tr><td>15.09</td><td data-i="247">Vedomost</td><td data-i="248">Ish haqi (2 xodim)</td><td>—</td><td class="r">2 800 000</td><td>3 250 000</td></tr>
-        </tbody>
-      </table></div>
-      <div class="grid g3" style="margin-top:14px">
-        <div class="card" style="--c:var(--green)"><h3 data-i="249">✅ Yuritish qoidalari</h3><ul class="tick">
-          <li data-i="250">Har bir yozuv <b>hujjatga tayanadi</b> (chek, EHF, shartnoma)</li>
-          <li data-i="251">Yozuv <b>o'sha kuni yoki ertasiga</b> kiritiladi</li>
-          <li data-i="252">Shaxsiy xarajat bu yerga <b>yozilmaydi</b></li>
-          <li data-i="253">Oy oxirida jami hisoblanadi va tekshiriladi</li>
-        </ul></div>
-        <div class="card" style="--c:var(--blue)"><h3 data-i="254">📊 Nima beradi?</h3><ul class="tick">
-          <li data-i="255">Sof foyda: <b>daromad − xarajat</b></li>
-          <li data-i="256">Qaysi xarajat "yeb qo'yayotgani" ko'rinadi</li>
-          <li data-i="257">Soliq va kredit to'lovini rejalashtirish oson bo'ladi</li>
-          <li data-i="258">Hisobot topshirish uchun tayyor ma'lumot</li>
-        </ul></div>
-        <div class="card" style="--c:var(--violet)"><h3 data-i="259">🛠 Nimada yuritiladi?</h3><ul class="tick">
-          <li data-i="260">Oddiy daftar yoki <b>Excel / Google Sheets</b></li>
-          <li data-i="261">Buxgalteriya dasturi yoki mobil ilova</li>
-          <li data-i="262">Muhimi — <b>doimiylik</b>, vositasi emas</li>
-        </ul></div>
-      </div>
+<span data-i="396" class="kicker">4.4 · Keys</span><h2 data-i="397">«Somsa uyi» egasining <span class="grad">3 ta taklifi</span></h2><div data-i="398" class="def">Noyabrda foyda 2 mln ga tushdi. Egasining oldida 3 ta variant bor. Har birini hisob bilan baholang (ming so'mda, bir oy uchun).</div><div class="grid g3" style="margin-top:14px"><div class="card" style="--c:var(--red)"><h3 data-i="399">A. Barcha narxni 15% tushirish</h3><p data-i="400">Maqsad — raqobatchidan mijozlarni qaytarish.</p><p data-i="401" style="margin-top:6px">Tushum 36 000 × 0,85 = 30 600 bo'ladi, tannarx o'zgarmaydi (15 800). Yalpi foyda 14 800, operatsion foyda <b>−3 400</b>. Avvalgi foydaga (2 000) qaytish uchun sotuv taxminan +36% oshishi kerak.</p></div><div class="card" style="--c:var(--orange)"><h3 data-i="402">B. Bitta xodimni qisqartirish</h3><p data-i="403">Ish haqi 1 800 ga kamayadi.</p><p data-i="404" style="margin-top:6px">Operatsion foyda 2 000 + 1 800 = <b>3 800</b>. Lekin navbat uzayadi, xizmat sekinlashadi — mijozlar yana kamayishi mumkin.</p></div><div class="card" style="--c:var(--green)"><h3 data-i="405">C. Marja va xizmatni tiklash</h3><p data-i="406">Isrofni 5% dan 2,5% ga (+400), go'shtni boshqa yetkazib beruvchidan (+1 000), har xaridga choy (+1 000 choy → +1 700).</p><p data-i="407" style="margin-top:6px">Operatsion foyda 2 000 + 3 100 = <b>5 100</b>, mijoz va jamoa saqlanadi.</p></div></div><div data-i="408" class="quote" style="margin-top:12px">🧠 <b>Muhokama savoli:</b> nega katta chegirma (A) eng tez, lekin eng xavfli yo'l? Sizning biznesingizda C variantga o'xshash qanday 3 ta kichik chora bor?</div>
     </div>
   </section>
 
-  <!-- ============ 16 ============ -->
+  <section class="slide" data-title="Amaliy topshiriq" data-title-en="Practical task">
+    <div class="inner">
+<span data-i="409" class="kicker">Amaliy mashg'ulot · 2 soat</span><h2 data-i="410">«Foyda va zarar <span class="grad">tahlili»</span></h2><p data-i="411" class="lead">Har bir talaba (yoki 2 kishilik guruh) o'z biznesi uchun 2 oylik foyda va zarar hisobotini tuzib, reja-fakt tahlili va 3 ta chora taklif qiladi.</p><div class="grid g2"><div class="card" style="--c:var(--blue)"><h3 data-i="412">⏱ 120 daqiqalik reja</h3><div class="tw"><table><thead><tr><th data-i="425">Vaqt</th><th data-i="426">Nima qilinadi</th></tr></thead><tbody><tr><td data-i="413">0–25</td><td data-i="414">1-oy hisoboti: tushum, tannarx, operatsion xarajat, foiz, soliq</td></tr><tr><td data-i="415">25–40</td><td data-i="416">Yalpi, operatsion, sof marja va ROI</td></tr><tr><td data-i="417">40–55</td><td data-i="418">Zararsiz tushum va xavfsizlik zaxirasi</td></tr><tr><td data-i="419">55–80</td><td data-i="420">2-oy (fakt) va farqni hajm, narx, xarajatga ajratish</td></tr><tr><td data-i="421">80–100</td><td data-i="422">Mahsulotlar bo'yicha hissa va 3 ta chora</td></tr><tr><td data-i="423">100–120</td><td data-i="424">Himoya va o'zaro baholash</td></tr></tbody></table></div></div><div><div class="card" style="--c:var(--green)"><h3 data-i="427">📋 Ishda bo'lishi shart</h3><ul class="clean"><li data-i="428">2 oylik foyda va zarar hisoboti (pog'onama-pog'ona)</li><li data-i="429">3 ta marja, ROI va qoplanish muddati</li><li data-i="430">Zararsiz tushum va xavfsizlik zaxirasi</li><li data-i="431">Reja-fakt jadvali va farq sabablari</li><li data-i="432">Mahsulotlar bo'yicha hissa jadvali</li><li data-i="433">Hisob bilan asoslangan 3 ta chora</li></ul></div><div class="card" style="--c:var(--amber);margin-top:12px"><h3 data-i="434">🏅 Baholash</h3><p data-i="435">Hisobot to'g'riligi <b>35%</b> · ko'rsatkichlar <b>20%</b> · tahlil va sabablar <b>25%</b> · choralar va himoya <b>20%</b>.</p></div></div></div>
+    </div>
+  </section>
+
   <section class="slide" data-title="Xulosa va resurslar" data-title-en="Summary and resources">
     <div class="inner">
-      <span class="kicker" data-i="263">Xulosa · Topshiriq · Havolalar</span>
-      <h2 data-i="264">Yakuniy <span class="grad">xulosa</span> va <span class="grad">foydali resurslar</span></h2>
-      <div class="grid g2">
-        <div>
-          <div class="card" style="--c:var(--green)">
-            <h3 data-i="265">📌 Esda qoladigan 6 ta fikr</h3>
-            <ul class="tick">
-              <li data-i="266">Soliq — jarima emas, <b>oldindan hisoblanadigan xarajat</b>: uni narxga kiriting.</li>
-              <li data-i="267"><b>Soddalashtirilgan tartib</b> tushumdan, <b>umumiy tizim</b> foydadan olinadi.</li>
-              <li data-i="268">Xarajatni faqat <b>hujjat</b> tasdiqlaydi — hujjatsiz xarajat soliqni kamaytirmaydi.</li>
-              <li data-i="269"><b>Imtiyoz</b> — qonuniy yengillik; undan foydalanmaslik ortiqcha to'lovdir.</li>
-              <li data-i="270"><b>my.soliq.uz</b> + E-IMZO — hisobot, to'lov va hisob-fakturaning yagona joyi.</li>
-              <li data-i="271"><b>Daromad-xarajat daftari</b> — biznes sog'lig'ining kundalik o'lchovi.</li>
-            </ul>
-          </div>
-          <div class="card" style="--c:var(--amber);margin-top:12px">
-            <h3 data-i="272">📓 Mustaqil ish: "Bir oylik moliyaviy suratim"</h3>
-            <ul class="clean">
-              <li data-i="273">O'z g'oyangiz uchun <b>bir oylik daromad-xarajat daftari</b>ni to'ldiring (kamida 10 ta yozuv).</li>
-              <li data-i="274">Oylik <b>sof foyda</b>ni hisoblang.</li>
-              <li data-i="275">Ikkala rejimda soliqni <b>taqqoslab</b> hisoblang: aylanma solig'i va foyda solig'i variantlari.</li>
-              <li data-i="276">Qaysi rejim sizga arzon tushishini <b>raqam bilan</b> asoslang.</li>
-              <li data-i="277">Agar kredit olsangiz — oylik to'lovni hisoblab, uni daftarga xarajat sifatida qo'shing.</li>
-            </ul>
-            <p style="font-size:13.5px;color:var(--muted);margin-top:6px" data-i="278">Hajmi: 1–2 bet + jadval. Baholash: daftar to'liqligi 30% · soliq hisobi 40% · asoslangan xulosa 30%.</p>
-          </div>
-        </div>
-        <div>
-          <div class="card" style="--c:var(--blue)">
-            <h3 data-i="279">🔗 Foydali resurslar (havolalar)</h3>
-            <ul class="clean">
-              <li data-i="280"><a class="lnk" href="https://my.soliq.uz" target="_blank" rel="noopener">my.soliq.uz</a> — soliq to'lovchining shaxsiy kabineti</li>
-              <li data-i="281"><a class="lnk" href="https://soliq.uz" target="_blank" rel="noopener">soliq.uz</a> — Soliq qo'mitasi: stavkalar, shakllar, yo'riqnomalar</li>
-              <li data-i="282"><a class="lnk" href="https://lex.uz" target="_blank" rel="noopener">lex.uz</a> — Soliq kodeksi va boshqa hujjatlar</li>
-              <li data-i="283"><a class="lnk" href="https://e-imzo.uz" target="_blank" rel="noopener">e-imzo.uz</a> — elektron raqamli imzo</li>
-              <li data-i="284"><a class="lnk" href="https://birdarcha.uz" target="_blank" rel="noopener">birdarcha.uz</a> — ro'yxatdan o'tkazish va davlat xizmatlari</li>
-              <li data-i="285"><a class="lnk" href="https://cbu.uz" target="_blank" rel="noopener">cbu.uz</a> — Markaziy bank: stavkalar va bank ma'lumotlari</li>
-              <li data-i="286"><a class="lnk" href="https://stat.uz" target="_blank" rel="noopener">stat.uz</a> — rasmiy statistika</li>
-              <li data-i="287"><a class="lnk" href="https://ombudsman.uz" target="_blank" rel="noopener">ombudsman.uz</a> — Biznes ombudsmani</li>
-            </ul>
-            <p style="margin-top:8px" data-i="288"><b>Vositalar:</b> <span class="pill g">Excel / Google Sheets</span><span class="pill g">bank kredit kalkulyatori</span><span class="pill g">kalendar eslatmalari</span></p>
-            <small class="note" data-i="289">⚠️ Stavkalar, chegaralar va imtiyozlar har yili yangilanadi. Bu taqdimotdagi raqamlar <b>o'quv misoli</b> sifatida keltirilgan — qaror qabul qilishdan oldin rasmiy manbani tekshiring.</small>
-          </div>
-        </div>
-      </div>
+<span data-i="436" class="kicker">Xulosa · Mustaqil ish · Havolalar</span><h2 data-i="437">Yakuniy <span class="grad">xulosa</span> va <span class="grad">foydali resurslar</span></h2><div class="grid g2"><div><div class="card" style="--c:var(--green);"><span class="icon">📌</span><h3 data-i="438">Esda qoladigan 6 ta fikr</h3><ul class="tick"><li data-i="439">Hisobot zinapoyasi: <b>tushum → yalpi → operatsion → sof foyda</b>; har pog'ona o'z savoliga javob.</li><li data-i="440">Foydani <b>foizda</b> o'lchang: yalpi, operatsion, sof marja va ROI.</li><li data-i="441">Zararsiz tushum = <b>doimiy xarajat ÷ yalpi marja</b>; zaxira 20% dan kam bo'lmasin.</li><li data-i="442">Reja-fakt farqini <b>hajm, narx/xomashyo va xarajat</b> ta'siriga ajrating.</li><li data-i="443">Mahsulotni <b>foiz × hajm</b> bo'yicha baholang; musbat hissali mahsulotni shoshib yopmang.</li><li data-i="444">Foyda ≠ pul: amortizatsiya, nasiya, zaxira va qarz to'lovi ularni farqlantiradi.</li></ul></div><div class="card" style="--c:var(--amber);margin-top:12px"><h3 data-i="445">📓 Mustaqil ish: «Kichik biznes tahlili»</h3><ul class="clean"><li data-i="446">Tanish kichik biznes (do'kon, oshxona, ustaxona) bilan suhbatlashing.</li><li data-i="447">Ruxsat bilan taxminiy oylik tushum va xarajatlarni yozing.</li><li data-i="448">Foyda va zarar hisobotini va 3 ta marjani hisoblang.</li><li data-i="449">Foydani oshirish uchun 3 ta asosli taklif yozing.</li></ul><p data-i="450" style="font-size:13.5px;color:var(--muted)">Hajmi: 1–2 bet + jadval. Maxfiy ma'lumotni nomsiz va umumlashtirib yozing. Baholash: hisobot 40% · tahlil 30% · takliflar 30%.</p></div></div><div><div class="card" style="--c:var(--blue)"><h3 data-i="451">🔗 Foydali resurslar</h3><p data-i="452"><b>Qonun va rasmiy manbalar:</b></p><ul class="clean"><li data-i="453"><a class="lnk" href="https://lex.uz" target="_blank" rel="noopener">lex.uz</a> — buxgalteriya hisobi to'g'risidagi qonun va milliy standartlar</li><li data-i="454"><a class="lnk" href="https://soliq.uz" target="_blank" rel="noopener">soliq.uz</a> — soliq rejimlari va hisobot shakllari</li><li data-i="455"><a class="lnk" href="https://stat.uz" target="_blank" rel="noopener">stat.uz</a> — sohalar bo'yicha statistika</li><li data-i="456"><a class="lnk" href="https://ifrs.org" target="_blank" rel="noopener">ifrs.org</a> — xalqaro moliyaviy hisobot standartlari (MHXS)</li></ul><p data-i="457" style="margin-top:8px"><b>Bepul vositalar:</b></p><p data-i="458"><a class="lnk" href="https://docs.google.com" target="_blank" rel="noopener">docs.google.com</a> — foyda va zarar hisoboti shabloni (Google Sheets)</p><p data-i="459" style="margin-top:8px"><b>O'qish uchun:</b> Karen Berman, Joe Knight — «Financial Intelligence for Entrepreneurs» · Mike Michalowicz — «Profit First» · Eliyahu Goldratt — «The Goal».</p><small data-i="460" class="note">⚠️ Soliq stavkalari va hisobot talablari o'zgaradi. Har doim amaldagi rasmiy ma'lumotga tayaning.</small></div></div></div>
     </div>
   </section>
 
-  <!-- ============ 17 ============ -->
-  <section class="slide" data-title="Kredit to'lovini hisoblash" data-title-en="Calculating loan payments">
+  <section class="slide" data-title="TEST · Bilimni tekshirish" data-title-en="TEST · Check your knowledge">
     <div class="inner">
-      <span class="kicker" data-i="290">💳 Amaliy blok</span>
-      <h2 data-i="291">Kredit to'lovi: <span class="grad">nechi foizga, nechi yilga → oyiga qancha?</span></h2>
-      <div class="grid g2">
-        <div>
-          <div class="formula" data-i="292">A = P × i ÷ (1 − (1 + i)<sup>−n</sup>)
-            <small>P — kredit summasi · i — <b>oylik</b> foiz (yillik ÷ 12 ÷ 100) · n — oylar soni · A — oylik to'lov</small>
-          </div>
-          <div class="card" style="--c:var(--violet);margin-top:12px">
-            <h3 data-i="293">📐 4 qadamda hisoblash</h3>
-            <p data-i="294"><b>1-qadam.</b> Yillik stavkani oylikka aylantiring: <b>i = yillik % ÷ 12 ÷ 100</b><br>
-               <b>2-qadam.</b> Muddatni oyga aylantiring: <b>n = yil × 12</b><br>
-               <b>3-qadam.</b> Formulaga qo'ying va oylik to'lovni (A) toping<br>
-               <b>4-qadam.</b> Jami to'lov = <b>A × n</b>, ortiqcha to'lov = <b>A × n − P</b></p>
-          </div>
-          <div class="card" style="--c:var(--green);margin-top:12px">
-            <h3 data-i="295">🧮 Namuna: 30 mln so'm, yiliga 24%, 3 yil</h3>
-            <p data-i="296"><b>i</b> = 24 ÷ 12 ÷ 100 = <b>0,02</b> · <b>n</b> = 3 × 12 = <b>36</b><br>
-               (1 + 0,02)<sup>−36</sup> = 0,4902 → 1 − 0,4902 = <b>0,5098</b><br>
-               <b>A</b> = 30 000 000 × 0,02 ÷ 0,5098 ≈ <b>1 176 986 so'm</b><br>
-               Jami: 1 176 986 × 36 ≈ <b>42 371 000</b> · Ortiqcha: ≈ <b>12 371 000 so'm</b></p>
-          </div>
-        </div>
-        <div>
-          <h3 data-i="297">🖩 Kalkulyator — o'zingiz sinab ko'ring</h3>
-          <div class="calc">
-            <div class="calc-in">
-              <label><span data-ui="cLabSum" data-i="298">Kredit summasi (so'm)</span><input id="cSum" type="number" value="30000000" step="1000000" min="0"></label>
-              <label><span data-ui="cLabRate" data-i="299">Yillik foiz stavkasi (%)</span><input id="cRate" type="number" value="24" step="0.5" min="0"></label>
-              <label><span data-ui="cLabTerm" data-i="300">Muddat (oy)</span><input id="cTerm" type="number" value="36" step="1" min="1"></label>
-              <label><span data-ui="cLabGrace" data-i="301">Imtiyozli davr (oy)</span><input id="cGrace" type="number" value="0" step="1" min="0"></label>
-            </div>
-            <div class="calc-out" id="cOut"></div>
-          </div>
-          <div class="quote" style="margin-top:12px" data-i="302">💡 Sinab ko'ring: muddatni 36 oydan 60 oyga uzaytiring — <b>oylik to'lov kamayadi</b>, lekin <b>jami to'lov ortadi</b>. Mana shu — "qulaylikning narxi".</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ============ 18 ============ -->
-  <section class="slide" data-title="MASALALAR" data-title-en="PROBLEMS">
-    <div class="inner">
-      <span class="kicker" data-i="303">🧮 Mustaqil yechish</span>
-      <h2 data-i="304">3 ta masala — <span class="grad">javobingizni hisoblab yozing</span></h2>
-      <p class="lead" data-i="305">Har bir masalani daftaringizda formula bilan yeching, so'ng <b>o'z javobingizni</b> maydonga yozing — shundan keyingina <b>Yechim</b> tugmasi ochiladi. <b>Tekshirish</b> tugmasi javobingizni aniq qiymat bilan solishtiradi: to'g'ri bo'lsa yechim darhol ochiladi, xato bo'lsa faqat yo'nalish aytiladi. Javob <b>so'mda</b>, faqat raqam bilan kiritiladi (masalan: 1268906); 1,5% gacha farq to'g'ri hisoblanadi.</p>
-      <div class="scorebar">
-        <span><span data-ui="tSolved">To'g'ri yechilgan:</span> <b><span id="tDone">0</span> / <span id="tTotal">3</span></b></span>
-        <span><span data-ui="tChecked">Tekshirildi:</span> <b id="tTried">0</b></span>
-        <div class="spacer"></div>
-        <button class="btn warn" id="tReset" data-ui="tResetBtn">↻ Qaytadan boshlash</button>
-      </div>
-      <div id="taskWrap"></div>
-      <div class="card" style="--c:var(--green);margin-top:18px;text-align:center">
-        <h3 data-i="306">🎓 Rahmat! E'tiboringiz uchun tashakkur</h3>
-        <p data-i="307">Keyingi mashg'ulotga <b>bir oylik daromad-xarajat daftaringiz</b> va ikki rejimdagi soliq hisobini tayyorlab keling.</p>
-        <p style="color:var(--muted);font-size:13.5px" data-i="308">Termiz davlat universiteti · Tadbirkorlik asoslari</p>
-      </div>
+<span data-i="461" class="kicker">Yakuniy nazorat</span><h2 data-i="462">🧪 Test topshiriqlari — <span class="grad">15 ta savol</span></h2><div class="scorebar"><span><span data-ui="score">Natija:</span> <b><span id="scoreNow">0</span> / <span id="scoreMax">15</span></b></span><span><span data-ui="answered">Javob berildi:</span> <b id="answered">0</b></span><div class="spacer"></div><button data-i="463" class="btn warn" id="btnReset">↻ Testni qayta boshlash</button></div><div id="testWrap"></div><div class="result" id="result"><div class="pct" id="pct">0%</div><h3 data-i="464" id="resTitle" style="color:#fff;margin:10px 0 4px">Natija</h3><p id="resTxt" style="color:#fff;opacity:.95;margin:0"></p></div><div class="card" style="--c:var(--green);margin-top:18px;text-align:center"><h3 data-i="465">🎓 Rahmat! E'tiboringiz uchun tashakkur</h3><p data-i="466">Keyingi mashg'ulotgacha <b>foyda va zarar tahlilini</b> tugallang — keyingi mavzu: biznes-reja tuzish va mahsulotni tashqi bozorga olib chiqish.</p><p data-i="467" style="color:var(--muted);font-size:13.5px">Termiz davlat universiteti · Tadbirkorlik asoslari</p></div>
     </div>
   </section>
 
@@ -1660,8 +1198,16 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 
 
+
+
+
+
+
+
+
+
 <!-- RT:BEGIN -->
-<script>var RT_CFG={"topic": "m5", "slides": 18, "quiz": 3, "pSlide": 2, "pAll": 10, "teacher": "", "firebase": {"db": "tadbirkorlik-asoslari-default-rtdb", "regions": ["asia-southeast1", "europe-west1", "us-central1", "europe-west4", "asia-east1", "us-east1", "northamerica-northeast1"], "url": "https://tadbirkorlik-asoslari-default-rtdb.asia-southeast1.firebasedatabase.app"}, "topics": [{"id": "m1", "file": "index.html", "title": "M1 · Tadbirkorlik tafakkuri va biznes imkoniyatlar", "open": true, "quiz": 15, "slides": 18, "pdf": "fayllar/M1-mavzu.pdf", "pdfSize": "3,3 MB"}, {"id": "m2", "file": "mavzu-2.html", "title": "M2 · Mijoz muammosi asosida biznes g'oya", "open": true, "quiz": 15, "slides": 24, "pdf": "fayllar/M2-mavzu.pdf", "pdfSize": "4,9 MB"}, {"id": "m3", "file": "mavzu-3.html", "title": "M3 · Mahsulotni kam xarajat bilan sinash (moliya va kredit)", "open": true, "quiz": 15, "slides": 15, "lim": true}, {"id": "m4", "file": "mavzu-4.html", "title": "M4 · Biznesni qonuniy rasmiylashtirish", "open": true, "quiz": 18, "slides": 18, "lim": true}, {"id": "m5", "file": "mavzu-5.html", "title": "M5 · Soliqlar va hujjatlar", "open": true, "quiz": 3, "slides": 18, "lim": true}, {"id": "m6", "file": "mavzu-6.html", "title": "M6 · Biznes-model qanday ishlaydi", "open": true, "quiz": 15, "slides": 18, "lim": true}, {"id": "m7", "file": "mavzu-7.html", "title": "M7 · Mijoz kim va unga nima kerak", "open": true, "quiz": 15, "slides": 18, "lim": true}, {"id": "m8", "title": "M8 · Mahsulotni reklama qilish va mijozga yetkazish", "file": "mavzu-8.html", "open": true, "slides": 18, "quiz": 15, "lim": true}, {"id": "m9", "title": "M9 · Biznes g'oyani taqdim etish va tadbirkorlik yo'lini boshlash", "file": "mavzu-9.html", "open": true, "slides": 18, "quiz": 15, "lim": true}, {"id": "m10", "title": "M10 · Savdo jarayonini tashkil etish va mijozlar bilan ishlash", "file": "mavzu-10.html", "open": true, "slides": 18, "quiz": 15, "lim": true}, {"id": "m11", "title": "M11 · Mahsulot narxini shakllantirish", "file": "mavzu-11.html", "open": true, "slides": 18, "quiz": 15, "lim": true}, {"id": "m12", "title": "M12 · Biznesda pul oqimini rejalashtirish: kirim, chiqim va mablag' jalb qilish", "file": "mavzu-12.html", "open": true, "slides": 18, "quiz": 15, "lim": true}, {"id": "m13", "title": "M13 · Biznesda foyda va zarar tahlili", "file": "mavzu-13.html", "open": true, "slides": 18, "quiz": 15, "lim": true}, {"id": "m14", "title": "M14 · 14-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-14.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m15", "title": "M15 · 15-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-15.html", "open": false, "slides": 18, "quiz": 15}], "teacherTg": "https://t.me/esfandiyorr?direct", "courses": [{"id": "tad-asoslari", "icon": "🚀", "title": "Tadbirkorlik asoslari", "desc": "15 ta mavzu · nazariya, testlar va amaliy topshiriqlar", "first": "index.html"}], "groups": ["FIZ-123", "FIZ-223", "FIZ-323", "AP-123", "AP-223", "AP-323", "D-123", "DKG-BF-123", "YES-123", "T-123", "T-223", "T-323", "T-423", "KI-123", "KI-223", "DI-123", "DI-223"], "groupRenames": {"T-232": "T-223"}, "hideRating": [{"name": "Isfandiyor", "surname": "Sayfiddinov"}], "tracks": [{"file": "Musofir.mp3", "title": "Musofir", "artist": ""}], "fbWeb": {"apiKey": "AIzaSyDPOvO9kqBcD9zIeCy_eR9szezLhoDB4Oo", "authDomain": "tadbirkorlik-asoslari.firebaseapp.com", "databaseURL": "https://tadbirkorlik-asoslari-default-rtdb.asia-southeast1.firebasedatabase.app", "projectId": "tadbirkorlik-asoslari", "storageBucket": "tadbirkorlik-asoslari.firebasestorage.app", "messagingSenderId": "303986754308", "appId": "1:303986754308:web:fca65cded4728199e68651"}, "teacherH": "9a5935bc7e3abb2f8da12a8f053d28b942d399f06d3841a799d1616c7bc48ceb"};</script>
+<script>var RT_CFG={"topic": "m13", "slides": 18, "quiz": 15, "pSlide": 2, "pAll": 10, "teacher": "", "firebase": {"db": "tadbirkorlik-asoslari-default-rtdb", "regions": ["asia-southeast1", "europe-west1", "us-central1", "europe-west4", "asia-east1", "us-east1", "northamerica-northeast1"], "url": "https://tadbirkorlik-asoslari-default-rtdb.asia-southeast1.firebasedatabase.app"}, "topics": [{"id": "m1", "file": "index.html", "title": "M1 · Tadbirkorlik tafakkuri va biznes imkoniyatlar", "open": true, "quiz": 15, "slides": 18, "pdf": "fayllar/M1-mavzu.pdf", "pdfSize": "3,3 MB"}, {"id": "m2", "file": "mavzu-2.html", "title": "M2 · Mijoz muammosi asosida biznes g'oya", "open": true, "quiz": 15, "slides": 24, "pdf": "fayllar/M2-mavzu.pdf", "pdfSize": "4,9 MB"}, {"id": "m3", "file": "mavzu-3.html", "title": "M3 · Mahsulotni kam xarajat bilan sinash (moliya va kredit)", "open": true, "quiz": 15, "slides": 15, "lim": true}, {"id": "m4", "file": "mavzu-4.html", "title": "M4 · Biznesni qonuniy rasmiylashtirish", "open": true, "quiz": 18, "slides": 18, "lim": true}, {"id": "m5", "file": "mavzu-5.html", "title": "M5 · Soliqlar va hujjatlar", "open": true, "quiz": 3, "slides": 18, "lim": true}, {"id": "m6", "file": "mavzu-6.html", "title": "M6 · Biznes-model qanday ishlaydi", "open": true, "quiz": 15, "slides": 18, "lim": true}, {"id": "m7", "file": "mavzu-7.html", "title": "M7 · Mijoz kim va unga nima kerak", "open": true, "quiz": 15, "slides": 18, "lim": true}, {"id": "m8", "title": "M8 · Mahsulotni reklama qilish va mijozga yetkazish", "file": "mavzu-8.html", "open": true, "slides": 18, "quiz": 15, "lim": true}, {"id": "m9", "title": "M9 · Biznes g'oyani taqdim etish va tadbirkorlik yo'lini boshlash", "file": "mavzu-9.html", "open": true, "slides": 18, "quiz": 15, "lim": true}, {"id": "m10", "title": "M10 · Savdo jarayonini tashkil etish va mijozlar bilan ishlash", "file": "mavzu-10.html", "open": true, "slides": 18, "quiz": 15, "lim": true}, {"id": "m11", "title": "M11 · Mahsulot narxini shakllantirish", "file": "mavzu-11.html", "open": true, "slides": 18, "quiz": 15, "lim": true}, {"id": "m12", "title": "M12 · Biznesda pul oqimini rejalashtirish: kirim, chiqim va mablag' jalb qilish", "file": "mavzu-12.html", "open": true, "slides": 18, "quiz": 15, "lim": true}, {"id": "m13", "title": "M13 · Biznesda foyda va zarar tahlili", "file": "mavzu-13.html", "open": true, "slides": 18, "quiz": 15, "lim": true}, {"id": "m14", "title": "M14 · 14-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-14.html", "open": false, "slides": 18, "quiz": 15}, {"id": "m15", "title": "M15 · 15-mavzu (nomi keyin qo'yiladi)", "file": "mavzu-15.html", "open": false, "slides": 18, "quiz": 15}], "teacherTg": "https://t.me/esfandiyorr?direct", "courses": [{"id": "tad-asoslari", "icon": "🚀", "title": "Tadbirkorlik asoslari", "desc": "15 ta mavzu · nazariya, testlar va amaliy topshiriqlar", "first": "index.html"}], "groups": ["FIZ-123", "FIZ-223", "FIZ-323", "AP-123", "AP-223", "AP-323", "D-123", "DKG-BF-123", "YES-123", "T-123", "T-223", "T-323", "T-423", "KI-123", "KI-223", "DI-123", "DI-223"], "groupRenames": {"T-232": "T-223"}, "hideRating": [{"name": "Isfandiyor", "surname": "Sayfiddinov"}], "tracks": [{"file": "Musofir.mp3", "title": "Musofir", "artist": ""}], "fbWeb": {"apiKey": "AIzaSyDPOvO9kqBcD9zIeCy_eR9szezLhoDB4Oo", "authDomain": "tadbirkorlik-asoslari.firebaseapp.com", "databaseURL": "https://tadbirkorlik-asoslari-default-rtdb.asia-southeast1.firebasedatabase.app", "projectId": "tadbirkorlik-asoslari", "storageBucket": "tadbirkorlik-asoslari.firebasestorage.app", "messagingSenderId": "303986754308", "appId": "1:303986754308:web:fca65cded4728199e68651"}, "teacherH": "9a5935bc7e3abb2f8da12a8f053d28b942d399f06d3841a799d1616c7bc48ceb"};</script>
 <script>
 /* ================== AVP — tayyor rasm avatarlar (taqdimotlar va Arena uchun umumiy) ==================
    Rasmlar: fayllar/avatarlar/a001.webp … a211.webp (160×160). Bazada: students/<id>/av = "p17".
@@ -5391,48 +4937,11 @@ var UI={
  r0t:["📚 Takrorlash zarur","📚 Revision needed"],
  r0x:["Slaydlarni boshidan ko'rib chiqing va testni qaytadan yeching.",
       "Go through the slides from the beginning and take the test again."],
-
- cLabSum:["Kredit summasi (so'm)","Loan amount (so'm)"],
- cLabRate:["Yillik foiz stavkasi (%)","Annual interest rate (%)"],
- cLabTerm:["Muddat (oy)","Term (months)"],
- cLabGrace:["Imtiyozli davr (oy)","Grace period (months)"],
- cMonthly:["Oylik to'lov","Monthly payment"],
- cTotal:["Jami to'lov","Total paid"],
- cOver:["Ortiqcha to'lov","Overpayment"],
- cOverPct:["Ortiqcha to'lov ulushi","Overpayment share"],
- cGracePay:["Imtiyozli davrda","During the grace period"],
- cMon:["oy","months"],
- cSum2:["so'm","so'm"],
- cFirst:["1-oyda to'lov tarkibi","Structure of the 1st payment"],
- cIntPart:["foiz","interest"],
- cPrinPart:["asosiy qarz","principal"],
- cHint:["Har oyda foiz ulushi kamayib, asosiy qarz ulushi ortib boradi.",
-        "Every month the interest share falls and the principal share grows."],
- tTask:["masala","task"],
- tPlaceholder:["Javobingiz (so'mda)","Your answer (in so'm)"],
- tCheck:["✔ Tekshirish","✔ Check"],
- tShow:["📖 Yechimni ko'rsatish","📖 Show the solution"],
- tLocked:["🔒 Yechim (avval javobingizni yozing)","🔒 Solution (write your answer first)"],
- tHintOpen:["Yechimni ochib, hisobingizni solishtirib ko'ring.","Open the solution and compare it with your calculation."],
- tLockTip:["Yechim javobni yozib \"Tekshirish\" tugmasi bosilgandan keyin ochiladi.","The solution opens after you type an answer and press \"Check\"."],
- tHide:["📕 Yechimni yashirish","📕 Hide the solution"],
- tRight:["✅ To'g'ri ishlagansiz!","✅ You solved it correctly!"],
- tYour:["sizning javobingiz:","your answer:"],
- tExact:["aniq javob:","exact answer:"],
- tDiff:["farq:","difference:"],
- tSeeSol:["Quyidagi yechimni ko'rib chiqing.","Check the solution below."],
- tSolved:["To'g'ri yechilgan:","Solved correctly:"],
- tChecked:["Tekshirildi:","Checked:"],
- tResetBtn:["↻ Qaytadan boshlash","↻ Start over"],
- tWrong:["❌ Javob noto'g'ri.","❌ The answer is incorrect."],
- tTooBig:[" Javobingiz haqiqiy qiymatdan katta — formulani qayta tekshiring."," Your answer is larger than the real value — check the formula again."],
- tTooSmall:[" Javobingiz haqiqiy qiymatdan kichik — oylik stavkani to'g'ri hisobladingizmi?"," Your answer is smaller than the real value — did you compute the monthly rate correctly?"],
- tEmpty:["Avval javobni raqamda kiriting.","Enter your answer as a number first."],
- subj:["", "Fundamentals of Entrepreneurship · Topic 5"]
+ subj:["Tadbirkorlik asoslari · M13-mavzu", "Fundamentals of Entrepreneurship · Topic 13"]
 };
 var lang="uz", i18nNodes=[], i18nOrig=[], uiNodes=[], uiOrig=[];
 function UIT(k){ return (UI[k]||["",""])[lang==="en"?1:0]; }
-
+function QSRC(){ return (lang==="en" && typeof QEN!=="undefined" && QEN && QEN.length===Q.length) ? QEN : Q; }
 
 /* ================= SLAYD BOSHQARUVI ================= */
 var slides=[].slice.call(document.querySelectorAll(".slide"));
@@ -5471,7 +4980,7 @@ function go(n){
   $("#btnNext").disabled=(n===total-1);
   slides[n].scrollTop=0;
   if(window.RT) RT.slideSeen(n);
-  try{localStorage.setItem("terdu_m5_slide",n)}catch(e){}
+  try{localStorage.setItem("terdu_m3_slide",n)}catch(e){}
   try{history.replaceState(null,"","#"+(n+1));}catch(e){} /* RT_HASH */
   var hn=document.getElementById("hint"); if(hn&&n>0)hn.classList.add("hide");
   if(slides[n].querySelector("[data-count]")) countUp(slides[n]);
@@ -5560,10 +5069,300 @@ document.getElementById("deck").addEventListener("touchend",function(e){
   x0=null;
 },{passive:true});
 
-/* (bu mavzuda test o'rniga krossvord ishlatiladi) */
+/* ================= TEST ================= */
+var Q=[
+ {q:"Oylik tushum 50 000 000, sotilgan mahsulot tannarxi 20 000 000 so'm. Yalpi foyda qancha?",
+  a:["20 000 000 so'm",
+     "30 000 000 so'm",
+     "35 000 000 so'm",
+     "70 000 000 so'm"],c:1,
+  e:"Yalpi foyda = tushum − sotilgan mahsulot tannarxi = 50 000 000 − 20 000 000 = 30 000 000 so'm."},
+ {q:"Yalpi foyda 30 000 000, operatsion xarajatlar 22 000 000 so'm. Operatsion foyda qancha?",
+  a:["8 000 000 so'm",
+     "12 000 000 so'm",
+     "22 000 000 so'm",
+     "52 000 000 so'm"],c:0,
+  e:"Operatsion foyda = yalpi foyda − operatsion xarajatlar = 30 000 000 − 22 000 000 = 8 000 000 so'm."},
+ {q:"Sof foyda 4 000 000, tushum 50 000 000 so'm. Sof marja necha foiz?",
+  a:["4%",
+     "8%",
+     "12%",
+     "20%"],c:1,
+  e:"Sof marja = sof foyda ÷ tushum × 100 = 4 000 000 ÷ 50 000 000 × 100 = 8%."},
+ {q:"Quyidagilardan qaysi biri foyda va zarar hisobotida xarajat sifatida yozilmaydi?",
+  a:["Ustaxona va do'kon uchun to'langan oylik ijara haqi",
+     "Xodimlarga shu oy uchun hisoblangan ish haqi summasi",
+     "Bankka shu oy qaytarilgan kreditning asosiy qarzi",
+     "Pech va muzlatgichning shu oy uchun eskirish ulushi"],c:2,
+  e:"Kreditning asosiy qarzini qaytarish — xarajat emas, moliyaviy pul chiqimi. Xarajat sifatida faqat kredit foizi yoziladi. Ijara, ish haqi va amortizatsiya — xarajat."},
+ {q:"Oylik doimiy xarajatlar 12 000 000 so'm, yalpi marja 40%. Zararsiz tushum qancha?",
+  a:["4 800 000 so'm",
+     "16 800 000 so'm",
+     "20 000 000 so'm",
+     "30 000 000 so'm"],c:3,
+  e:"Zararsiz tushum = doimiy xarajatlar ÷ yalpi marja = 12 000 000 ÷ 0,40 = 30 000 000 so'm."},
+ {q:"Haqiqiy tushum 40 mln, zararsiz tushum 30 mln so'm. Xavfsizlik zaxirasi necha foiz?",
+  a:["25%",
+     "33%",
+     "75%",
+     "10%"],c:0,
+  e:"Xavfsizlik zaxirasi = (haqiqiy − zararsiz) ÷ haqiqiy × 100 = (40 − 30) ÷ 40 × 100 = 25%."},
+ {q:"Narxlar o'zgarmagan, lekin yalpi marja 60% dan 55% ga tushdi. Eng ehtimolli sabab qaysi?",
+  a:["Ijara haqi oshgani sababli operatsion xarajatlar ko'paygan",
+     "Kredit foizi oshib, bankka to'lanadigan summa ko'payib qolgan",
+     "Xomashyo qimmatlashgan yoki isrof va yo'qotishlar ko'paygan",
+     "Yangi xodim olingani sababli oylik ish haqi xarajati oshgan"],c:2,
+  e:"Yalpi marja faqat tushum va sotilgan mahsulot tannarxiga bog'liq. Narx o'zgarmagan bo'lsa, sabab — xomashyo narxi yoki isrof. Ijara, ish haqi va foiz yalpi foydadan keyin ayriladi."},
+ {q:"A: hissa 2 000 so'm, 500 dona; B: 1 500 so'm, 900 dona; C: 4 000 so'm, 280 dona; D: 2 500 so'm, 400 dona. Qaysi mahsulot jami eng ko'p hissa beradi?",
+  a:["A mahsulot",
+     "B mahsulot",
+     "C mahsulot",
+     "D mahsulot"],c:1,
+  e:"A = 1 000 000; B = 1 350 000; C = 1 120 000; D = 1 000 000. Bir dona hissasi eng kichik bo'lsa ham, B ko'p sotilgani uchun eng ko'p hissa beradi."},
+ {q:"Oyda sof foyda 3 900 000 so'm, lekin kassadagi pul atigi 1 600 000 ga oshdi. Qaysi izoh to'g'ri bo'lishi mumkin?",
+  a:["Hisobotda xato bor, chunki foyda va pul doim teng bo'lishi shart",
+     "Amortizatsiya kassadan qo'shimcha pul chiqib ketishiga olib kelgan",
+     "Soliq ikki marta to'langan, shuning uchun kassadagi pul kam qolgan",
+     "Nasiya va zaxira ko'paygan, kreditning asosiy qismi qaytarilgan"],c:3,
+  e:"Debitor qarz va zaxira o'sishi hamda kredit asosiy qarzini qaytarish pulni kamaytiradi, lekin foydaga ta'sir qilmaydi. Amortizatsiya esa aksincha — xarajat, lekin pul chiqmaydi."},
+ {q:"Tushum 40 mln, tannarx 16 mln, operatsion xarajat 18 mln so'm. Qaysi 5% o'zgarish operatsion foydani eng ko'p oshiradi (qolganlari o'zgarmasa)?",
+  a:["Mahsulot narxini 5% ga oshirish",
+     "Xomashyo narxini 5% ga tushirish",
+     "Ijara va maoshni 5% ga kamaytirish",
+     "Sotuv hajmini 5% ga ko'paytirish"],c:0,
+  e:"Narx +5% → +2 000 000; hajm +5% → +1 200 000; doimiy xarajat −5% → +900 000; tannarx −5% → +800 000. Narx eng kuchli richag, lekin mijoz ketish xavfini ham hisobga olish kerak."},
+ {q:"Mahsulotning hissasi musbat, lekin unga doimiy xarajat «ulushi» yozilgach, u zarar ko'rsatmoqda. To'g'ri qaror qaysi?",
+  a:["Uni darhol to'xtatish, chunki hisobotda u hozir zarar ko'rsatmoqda",
+     "Shoshilmaslik, chunki u doimiy xarajatlarni qoplashga yordam bermoqda",
+     "Uning narxini ikki baravar oshirib, sotuvni butunlay to'xtatib qo'yish",
+     "Doimiy xarajatlarni faqat shu mahsulotga yozib, qolganlarini oqlash"],c:1,
+  e:"Mahsulotni to'xtatsangiz, ijara va ish haqi kamaymaydi — faqat uning hissasi yo'qoladi va umumiy foyda kamayadi. Musbat hissali mahsulot doimiy xarajatni qoplashga yordam beradi."},
+ {q:"«Amortizatsiya» nimani anglatadi?",
+  a:["Uskunani sotib olish uchun bankdan olingan kreditning foizini",
+     "Uskuna buzilganda uni ta'mirlash uchun ketadigan xarajatni",
+     "Uskuna narxini u ishlaydigan davrga bo'lib, xarajatga yozishni",
+     "Eski uskunani sotishdan biznesga tushadigan qo'shimcha pulni"],c:2,
+  e:"Amortizatsiya — uzoq muddatli aktiv (pech, muzlatgich) narxini foydalanish yillariga bo'lib, har oy xarajat sifatida yozish. Masalan, 30 mln ÷ 60 oy = 500 000 so'm/oy."},
+ {q:"Boshlang'ich investitsiya 60 000 000 so'm, oylik sof foyda 3 000 000 so'm. Qoplanish muddati qancha?",
+  a:["5 oy",
+     "12 oy",
+     "18 oy",
+     "20 oy"],c:3,
+  e:"Qoplanish muddati = investitsiya ÷ oylik sof foyda = 60 000 000 ÷ 3 000 000 = 20 oy."},
+ {q:"Reja va fakt tahlilining asosiy maqsadi nima?",
+  a:["Farqning sababini topib, keyingi oy uchun aniq chora belgilash",
+     "Rejani faktga moslab o'zgartirib, farqni hisobotdan yo'qotish",
+     "Xodimlardan kim aybdor ekanini topib, ularni jazolash uchun",
+     "Soliq idorasiga topshirish uchun majburiy hisobot tayyorlash"],c:0,
+  e:"Reja-fakt tahlili farqni hajm, narx va xarajat ta'siriga ajratib, uning sababini topadi va keyingi oy uchun aniq chora belgilashga yordam beradi."},
+ {q:"Oylik operatsion xarajatlar 18 000 000, tushum 40 000 000 so'm. Operatsion xarajatlar tushumning necha foizini tashkil qiladi?",
+  a:["18%",
+     "40%",
+     "45%",
+     "55%"],c:2,
+  e:"Ulush = operatsion xarajatlar ÷ tushum × 100 = 18 000 000 ÷ 40 000 000 × 100 = 45%."}
+];
+var KEYS=["A","B","C","D"], QATT_LIMIT=2, QT_MIN=15, QS=null, QTMR=null;
+$("#scoreMax").textContent=Q.length;
+function L2(uz,en){ return (typeof lang!=="undefined"&&lang==="en")?en:uz; }
+function qAttGet(){
+  if(!window.RT) return 0;
+  var P=RT.points(), t=(window.RT_CFG&&RT_CFG.topic)||"m0";
+  var x=P.topics[t]||{};
+  return Math.max(0,(x.qAtt||0)-(x.qx||0));   /* qx — o'qituvchi qayta ochgan urinishlar */
+}
+function qAttBump(){
+  if(!window.RT) return;
+  var P=RT.points(), t=(window.RT_CFG&&RT_CFG.topic)||"m0";
+  if(!P.topics[t]) P.topics[t]={p:0,slides:{},acts:{}};
+  P.topics[t].qAtt=(P.topics[t].qAtt||0)+1;
+  if(RT.save) RT.save();
+}
+function qStu(){ return (window.RT&&RT.student&&RT.student())||null; }
+function qKey(){ var s=qStu(); return "terdu_qs_"+((window.RT_CFG&&RT_CFG.topic)||"m0")+"_"+(s?s.id:"anon"); }
+function qsLoad(){ try{ return JSON.parse(localStorage.getItem(qKey())||"null"); }catch(e){ return null; } }
+function qsSave(){ try{ localStorage.setItem(qKey(),JSON.stringify(QS)); }catch(e){} }
+function qShuf(a){ for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)), t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+function qLeft(){ return QS?Math.max(0,QS.at+QT_MIN*60000-Date.now()):0; }
+function qMMSS(ms){ var s=Math.ceil(ms/1000); return Math.floor(s/60)+":"+("0"+(s%60)).slice(-2); }
+function qStat(){
+  var a=0,s=0; for(var k in QS.pk){ a++; if(QS.pk[k]===Q[k].c) s++; }
+  return {a:a,s:s,b:Math.round(s/Q.length*500)/10};
+}
+function qStart(){
+  if(window.RT&&!qStu()){ alert(L2("Testni ishlash uchun avval ro'yxatdan o'ting.","Please register first to take the test.")); return; }
+  var free=window.RT?qAttGet()>=QATT_LIMIT:false;
+  if(!free) qAttBump();
+  var ord=qShuf(Q.map(function(_,i){ return i; })), opt={};
+  ord.forEach(function(i){ opt[i]=qShuf([0,1,2,3]); });
+  QS={at:Date.now(),ord:ord,opt:opt,pk:{},done:false,free:free,n:window.RT?qAttGet():1};
+  qsSave(); renderTest(); qTick();
+  var sl=$("#testWrap").closest(".slide"); if(sl) sl.scrollTop=0;
+}
+function qFinish(){
+  if(!QS||QS.done) return;
+  QS.done=true; QS.end=Math.min(Date.now(),QS.at+QT_MIN*60000); qsSave();
+  clearInterval(QTMR); QTMR=null; document.body.classList.remove("qt-live");
+  renderTest();
+  var r=$("#result"); if(r) setTimeout(function(){ r.scrollIntoView({behavior:"smooth",block:"center"}); },60);
+}
+function qTick(){
+  clearInterval(QTMR); QTMR=null;
+  if(!QS||QS.done) return;
+  document.body.classList.add("qt-live");
+  QTMR=setInterval(function(){
+    var l=qLeft(), e=document.getElementById("qtTime");
+    if(e){ e.textContent=qMMSS(l); e.parentNode.classList.toggle("warn",l<120000); }
+    if(l<=0) qFinish();
+  },500);
+}
+function answer(qi,ai){
+  if(!QS||QS.done||QS.pk[qi]!==undefined) return;
+  if(qLeft()<=0){ qFinish(); return; }
+  QS.pk[qi]=ai; qsSave();
+  if(ai===Q[qi].c&&window.RT&&!QS.free) RT.award("test"+qi,5,"test");
+  renderTest();
+  var st=qStat(); if(st.a===Q.length) qFinish();
+}
+function qBar(){
+  var sb=$("#testWrap").parentNode.querySelector(".scorebar"); if(!sb) return;
+  if(!QS||QS.done){ sb.style.display="none"; return; }
+  var st=qStat();
+  sb.style.display="";
+  sb.innerHTML='<span>❓ '+L2("Savollar","Questions")+': <b>'+Q.length+'</b></span>'+
+    '<span>✍️ '+L2("Javob berildi","Answered")+': <b>'+st.a+'</b></span>'+
+    '<span>✅ '+L2("To'g'ri","Correct")+': <b>'+st.s+'</b></span>'+
+    '<span>⭐ '+L2("Ball","Points")+': <b>'+(QS.free?"—":st.b)+'</b></span>'+
+    '<div class="spacer"></div><span class="qt-time">⏱ <b id="qtTime">'+qMMSS(qLeft())+'</b></span>'+
+    '<button class="btn accent" id="qtEnd" type="button">🏁 '+L2("Yakunlash","Finish")+'</button>';
+  $("#qtEnd").onclick=function(){
+    var n=Q.length-qStat().a;
+    if(n>0&&!confirm(L2(n+" ta savolga javob berilmagan. Testni yakunlaysizmi?",n+" questions are unanswered. Finish the test?"))) return;
+    qFinish();
+  };
+}
+function qWm(){
+  var s=qStu(); if(!s) return "";
+  var t=(s.name+" "+s.surname+" · "+(s.group||"")).replace(/[<>&"]/g,"");
+  var svg="<svg xmlns='http://www.w3.org/2000/svg' width='360' height='170'><text x='10' y='95' transform='rotate(-18 180 85)' font-family='sans-serif' font-size='17' font-weight='700' fill='rgba(120,120,140,0.13)'>"+t+"</text></svg>";
+  return 'background-image:url("data:image/svg+xml;utf8,'+encodeURIComponent(svg)+'")';
+}
+function renderTest(){
+  var w=$("#testWrap"), QQ=QSRC(), r=$("#result");
+  w.innerHTML=""; w.className=""; w.removeAttribute("style"); r.classList.remove("show");
+  if(r.nextElementSibling!==w) w.parentNode.insertBefore(r,w);   /* natija kartasi savollar ustida */
+  if(QS&&!QS.done&&qLeft()<=0){ qFinish(); return; }
+  qBar();
+  var used=window.RT?qAttGet():0;
+  if(!QS||QS.done){
+    if(QS&&QS.done){
+      var st=qStat(), pct=Math.round(st.s/Q.length*100), t,x;
+      if(pct>=90){t=UIT("r90t");x=UIT("r90x");} else if(pct>=75){t=UIT("r75t");x=UIT("r75x");}
+      else if(pct>=50){t=UIT("r50t");x=UIT("r50x");} else{t=UIT("r0t");x=UIT("r0x");}
+      $("#pct").textContent=pct+"%"; $("#resTitle").textContent=t;
+      $("#resTxt").textContent=x+"  ("+st.s+" / "+Q.length+" "+UIT("correct")+" · "+
+        (QS.free?L2("mashq — ball berilmadi","practice — no points"):L2("bu urinishda ","this attempt: ")+st.b+" "+L2("ball","points"))+
+        " · ⏱ "+qMMSS((QS.end||Date.now())-QS.at)+")";
+      r.classList.add("show");
+    }
+    var left=QATT_LIMIT-used;
+    var c=document.createElement("div"); c.className="qt-start";
+    c.innerHTML='<div class="qt-ic">📝</div><h3>'+(QS&&QS.done?L2("Test yakunlandi","The test is finished"):L2("Yakuniy test","Final test"))+'</h3>'+
+      '<div class="qt-facts"><span>❓ <b>'+Q.length+'</b> '+L2("savol","questions")+'</span><span>⏱ <b>'+QT_MIN+'</b> '+L2("daqiqa","minutes")+'</span>'+
+      '<span>🎯 '+L2("Ball beriladigan urinish","Scored attempts")+': <b>'+Math.min(used,QATT_LIMIT)+' / '+QATT_LIMIT+'</b></span></div>'+
+      (QS&&QS.done?'':'<ul class="qt-rules"><li>'+L2("Savollar «Testni boshlash» bosilgandan keyin chiqadi va har bir talabada boshqacha tartibda bo'ladi.","Questions appear after you press «Start the test» and come in a different order for every student.")+'</li>'+
+      '<li>'+L2("Har bir savolga bitta javob — tanlagach o'zgartirib bo'lmaydi.","One answer per question — it cannot be changed.")+'</li>'+
+      '<li>'+L2("Vaqt boshlangach to'xtamaydi. Boshqa slaydga o'tsangiz yoki sahifani yopsangiz ham javoblaringiz saqlanadi — qaytib davom ettirasiz.","Once started, the timer does not stop. Your answers are kept if you switch slides or close the page — just come back and continue.")+'</li>'+
+      '<li>'+L2("15 daqiqa tugasa test o'zi yakunlanadi.","When the 15 minutes are over, the test finishes by itself.")+'</li></ul>')+
+      (left>0?'':'<p class="qt-note">⚠️ '+L2("Ball beriladigan 2 ta urinish tugagan — endi faqat mashq uchun ishlaysiz, ball berilmaydi.","Your 2 scored attempts are used up — you can practise, but no points are given.")+'</p>')+
+      '<button class="btn accent qt-go" type="button" id="qtGo">▶ '+(QS&&QS.done?L2("Qayta boshlash","Start again"):L2("Testni boshlash","Start the test"))+
+      (left>0?' <small>('+L2((used+1)+"-urinish","attempt "+(used+1))+')</small>':' <small>('+L2("mashq","practice")+')</small>')+'</button>';
+    w.appendChild(c);
+    $("#qtGo").onclick=function(){
+      var msg=left>0?L2("Test boshlanadi: "+Q.length+" ta savol, "+QT_MIN+" daqiqa. Bu "+(used+1)+"-urinish (ball beriladigan "+QATT_LIMIT+" tadan). Boshlaysizmi?",
+                        "The test starts: "+Q.length+" questions, "+QT_MIN+" minutes. This is attempt "+(used+1)+" of "+QATT_LIMIT+" scored ones. Start?")
+                    :L2("Mashq rejimi: ball berilmaydi. Boshlaysizmi?","Practice mode: no points. Start?");
+      if(confirm(msg)) qStart();
+    };
+    if(QS&&QS.done){
+      var rv=document.createElement("div"); rv.className="qt-rev";
+      rv.innerHTML='<h4>'+L2("Javoblaringiz","Your answers")+'</h4>'+QS.ord.map(function(qi,n){
+        var p=QS.pk[qi], ok=p===Q[qi].c;
+        return '<div class="qt-rrow '+(p===undefined?"na":ok?"ok":"no")+'"><b>'+(n+1)+'</b><span>'+QQ[qi].q+'</span><i>'+
+          (p===undefined?L2("javobsiz","no answer"):ok?"✅":"❌")+'</i></div>';
+      }).join("");
+      w.appendChild(rv);
+    }
+    return;
+  }
+  w.className="qt-on"; w.setAttribute("style",qWm());
+  QS.ord.forEach(function(qi,n){
+    var item=QQ[qi], box=document.createElement("div"); box.className="qbox";
+    var h=document.createElement("p"); h.className="q";
+    h.innerHTML="<i>"+(n+1)+"</i>"+item.q;
+    box.appendChild(h);
+    var p=QS.pk[qi];
+    QS.opt[qi].forEach(function(ai,pos){
+      var b=document.createElement("button");
+      b.className="opt"; b.type="button";
+      b.innerHTML="<span class='k'>"+KEYS[pos]+")</span>"+item.a[ai];
+      if(p!==undefined){ b.disabled=true; if(ai===p) b.classList.add(ai===item.c?"right":"wrong"); }
+      else b.onclick=function(){ answer(qi,ai); };
+      box.appendChild(b);
+    });
+    if(p!==undefined){ var fb=document.createElement("p"); fb.className="fb show "+(p===item.c?"ok":"no");
+      fb.textContent=p===item.c?L2("✅ To'g'ri","✅ Correct"):L2("❌ Noto'g'ri","❌ Wrong"); box.appendChild(fb); }
+    w.appendChild(box);
+  });
+}
+/* --- nusxa olish va skrinshotdan himoya (test ketayotganda) --- */
+(function(){
+  var css=document.createElement("style");
+  css.textContent=".qt-on,.qt-on *{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}"+
+    ".qt-on{border-radius:18px;transition:filter .15s}body.qt-hide .qt-on{filter:blur(14px)}"+
+    ".qt-start{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:22px;text-align:center;box-shadow:var(--shadow);margin-bottom:14px}"+
+    ".qt-start .qt-ic{font-size:44px}.qt-start h3{margin:6px 0 10px}"+
+    ".qt-facts{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:12px}"+
+    ".qt-facts span{background:var(--panel2);border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-size:14px}"+
+    ".qt-rules{text-align:left;max-width:640px;margin:0 auto 14px;padding-left:20px;font-size:14px;line-height:1.55;color:var(--muted)}"+
+    ".qt-note{color:var(--err);font-weight:700;font-size:14px}#result{margin-bottom:14px}"+
+    ".qt-go{font-size:17px;padding:13px 26px}.qt-go small{opacity:.85;font-weight:600}"+
+    ".qt-time.warn b{color:var(--err)}.qt-time b{font-variant-numeric:tabular-nums}"+
+    ".qt-rev{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:14px 16px;margin-top:14px}"+
+    ".qt-rev h4{margin:0 0 8px}.qt-rrow{display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-top:1px solid var(--line);font-size:14px}"+
+    ".qt-rrow b{min-width:22px}.qt-rrow span{flex:1}.qt-rrow i{font-style:normal;white-space:nowrap}.qt-rrow.na i{color:var(--muted)}"+
+    "@media print{#testWrap,#result,.scorebar{display:none!important}}";
+  document.head.appendChild(css);
+  var w=$("#testWrap");
+  ["copy","cut","contextmenu","dragstart","selectstart"].forEach(function(ev){
+    w.addEventListener(ev,function(e){ e.preventDefault(); },true); });
+  function live(){ return QS&&!QS.done; }
+  function wipe(){ try{ if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(""); }catch(e){} }
+  function hide(on){ document.body.classList.toggle("qt-hide",!!on&&live()); }
+  document.addEventListener("keydown",function(e){
+    if(!live()) return;
+    var k=(e.key||"").toLowerCase();
+    if(k==="printscreen"){ hide(true); wipe(); setTimeout(function(){ hide(false); },1200); }
+    if((e.ctrlKey||e.metaKey)&&/^[acpsux]$/.test(k)){ e.preventDefault(); e.stopPropagation(); }
+    if(e.metaKey&&e.shiftKey&&/^[345]$/.test(k)){ hide(true); setTimeout(function(){ hide(false); },1500); }   /* macOS skrinshot */
+  },true);
+  document.addEventListener("keyup",function(e){ if(live()&&(e.key||"").toLowerCase()==="printscreen"){ wipe(); } },true);
+  window.addEventListener("blur",function(){ hide(true); });     /* skrinshot dasturi oynani egallasa — savollar xiralashadi */
+  window.addEventListener("focus",function(){ hide(false); });
+  document.addEventListener("visibilitychange",function(){ hide(document.hidden); });
+  window.addEventListener("beforeprint",function(){ hide(true); });
+  window.addEventListener("afterprint",function(){ hide(false); });
+})();
+QS=qsLoad();
+if(QS&&!QS.done&&qLeft()<=0){ QS.done=true; QS.end=QS.at+QT_MIN*60000; qsSave(); }
+renderTest(); qTick();
+
+
 /* ================= UZ / ENG mexanizmi ================= */
-var EN={"0": "Topic 5 · Lecture · 2 hours", "1": "WHAT TAXES AN ENTREPRENEUR PAYS AND HOW THEY KEEP RECORDS", "2": "The simplified and the general tax system · tax incentives · the <b>my.soliq.uz</b> personal cabinet and electronic reporting · invoices, receipts, waybills and the income-expense ledger.", "3": "📚 Course: <b>Fundamentals of Entrepreneurship</b>", "4": "🎓 <b>Termez State University</b>", "5": "🗂 <b>18</b> slides · 💳 calculator · 🧮 3 problems", "6": "⌨️ Press <b>→</b> to continue", "7": "Aim of the topic", "8": "What will the student <span class=\"grad\">be able to do?</span>", "9": "Aim: to move the student from <b>\"being afraid of taxes\"</b> to <b>\"planning taxes and keeping orderly records\"</b>. A tax is not a fine — it is <b>part of the cost of doing business</b> and it can be calculated in advance.", "10": "Can distinguish", "11": "Separates the simplified and the general tax system by clear criteria.", "12": "Can choose", "13": "Chooses and justifies the tax regime that fits the size of their business.", "14": "Can use", "15": "Knows the main sections of the my.soliq.uz cabinet and the reporting procedure.", "16": "Can document", "17": "Understands the purpose and the rules of invoices, receipts and waybills.", "18": "Can keep records", "19": "Fills in the income-expense ledger correctly and calculates the profit.", "20": "Can calculate", "21": "Calculates a monthly loan payment independently with the annuity formula.", "22": "Lecture plan", "23": "Today's <span class=\"grad\">3 blocks</span> and the final practice", "24": "Tax regimes", "25": "The simplified system, the general system, payroll taxes and incentives.", "26": "my.soliq.uz", "27": "The personal cabinet and how to file electronic reports.", "28": "Documents", "29": "Invoice, receipt, waybill and the income-expense ledger.", "30": "Practice", "31": "The loan payment calculator and 3 problems.", "32": "🔑 Key concepts", "33": "<span class=\"pill g\">tax regime</span><span class=\"pill g\">turnover tax</span><span class=\"pill\">simplified system</span>\n        <span class=\"pill g\">VAT</span><span class=\"pill\">profit tax</span><span class=\"pill\">personal income tax</span><span class=\"pill\">social tax</span>\n        <span class=\"pill\">tax base</span><span class=\"pill\">rate</span><span class=\"pill\">tax period</span><span class=\"pill g\">tax incentive</span>\n        <span class=\"pill g\">my.soliq.uz</span><span class=\"pill\">electronic report</span><span class=\"pill\">taxpayer ID</span>\n        <span class=\"pill g\">invoice (e-invoice)</span><span class=\"pill\">cash receipt</span><span class=\"pill\">waybill</span>\n        <span class=\"pill g\">income-expense ledger</span><span class=\"pill\">cost price</span><span class=\"pill\">net profit</span>", "34": "⚠️ Tax rates and thresholds are updated every year by amendments to the Tax Code. The lecture gives the <b>logic and the procedure</b> — always check the exact figures on <b>soliq.uz</b> and <b>lex.uz</b>.", "35": "Block 1", "36": "A tax is <span class=\"grad\">not a fine, it is a cost</span>", "37": "A tax is a <b>compulsory, non-refundable payment</b> to the state budget. For an entrepreneur it is not a sudden blow: tax is <b>calculated in advance</b> and built into the price <b>as a cost</b>.", "38": "💡 The right way to think", "39": "When setting a price the order should be:", "40": "<b>Cost price + tax + other expenses + profit = price</b>", "41": "✕ Wrong: setting the price first and only then wondering \"where will the tax come from?\"", "42": "📌 What does tax discipline give you?", "43": "<b>Working without fines</b> — you pay no penalties for being late", "44": "<b>Loans and grants</b> — the bank asks for reports and turnover", "45": "<b>Tenders and large clients</b> — proof of no tax debt is required", "46": "<b>Clear numbers</b> — you can see whether the business is profitable", "47": "<b>Peace of mind</b> — you are not afraid of an inspection", "48": "🧠 Remember: taxes should not be <b>hidden</b> but <b>optimised legally</b> — by choosing the right regime, using incentives and confirming expenses with documents.", "49": "<span class=\"grad\">Tax regimes</span> for small business", "50": "An entrepreneur does not pay every tax — only the taxes <b>that belong to their regime</b>. The regime depends on turnover, the type of activity and your own choice.", "51": "The IE regime", "52": "A simplified regime for a sole entrepreneur: depending on the activity, either a <b>fixed tax</b> or a payment based on turnover, plus social tax.", "53": "Simplified regime", "54": "For businesses whose annual turnover stays below the set threshold — the <b>turnover tax</b>. No VAT is paid.", "55": "General system", "56": "For those above the threshold or who choose it themselves — <b>VAT + profit tax</b> and full reporting.", "57": "🔄 How does the regime change?", "58": "<b>1.</b> If turnover exceeds the threshold → the business moves to the general system <b>compulsorily</b>.<br>\n           <b>2.</b> Even below the threshold an entrepreneur may become a VAT payer <b>voluntarily</b> — this helps when working with large clients.<br>\n           <b>3.</b> The tax authority is notified of the change and it takes effect from the start of the <b>tax period</b>.", "59": "The threshold (annual turnover) and the rates are set by the Tax Code and change over time — check the current values on <b>soliq.uz</b>.", "60": "The simplified regime — <span class=\"grad\">the turnover tax</span>", "61": "The turnover tax is calculated on <b>revenue</b> (gross turnover). There is no need to account for expenses, run VAT or make complex calculations — that is why it suits <b>new and small businesses</b>.", "62": "✅ Advantages", "63": "Easy to calculate: <b>revenue × rate</b>", "64": "Less VAT accounting and fewer invoices", "65": "Low bookkeeping costs", "66": "Simpler and fewer reports", "67": "⚠️ Disadvantages", "68": "Expenses are not taken into account — <b>you pay tax even at a loss</b>", "69": "Large VAT-paying clients may be reluctant to work with you", "70": "When turnover grows, the regime changes compulsorily", "71": "🧮 A simple example (hypothetical)", "72": "If monthly revenue is <b>60,000,000 so'm</b> and the turnover tax rate is <b>4%</b>:", "73": "<b>60,000,000 × 4% = 2,400,000 so'm</b> of tax. Whatever the expenses are, the base is <b>revenue</b>.", "74": "That is why in a low-margin business (a small share of profit) the turnover tax can be heavy — in such a case the general system may well be cheaper.", "75": "The basic turnover tax rate and the special rates for certain activities are set by law — check the exact percentage on <b>soliq.uz</b>.", "76": "The general system — <span class=\"grad\">VAT and profit tax</span>", "77": "🧾 VAT — value added tax", "78": "VAT is paid <b>by the buyer</b>; the entrepreneur collects it and transfers it to the state. The current basic rate is <b>12%</b>.", "79": "<b>The main rule:</b> what goes to the budget is the difference between <b>output VAT and input VAT</b>.", "80": "Example: you sold goods for 11,200,000 so'm including VAT (VAT = 1,200,000). You bought raw materials with VAT of 700,000. To the budget: <b>1,200,000 − 700,000 = 500,000 so'm</b>.", "81": "📈 Profit tax", "82": "The base is <b>net profit</b>: income minus the expenses allowed by law. The basic rate is <b>15%</b> (different for some categories).", "83": "<b>Important:</b> an expense is deducted only if it is <b>confirmed by a document</b>. An undocumented expense does not reduce tax.", "84": "That is why in the general system <b>primary documents</b> (invoice, receipt, waybill) are decisive.", "85": "🤔 When is the general system better?", "86": "① Your clients are large VAT-paying companies (they expect an invoice from you) · ② Your expense share is large and the profit share small · ③ You work with imports or exports · ④ Your turnover exceeds the threshold.", "87": "The rates are given as the main indicators as of 2026; they may change — check <b>soliq.uz</b> and <b>lex.uz</b>.", "88": "1.5 · Summary", "89": "A <span class=\"grad\">comparison table</span> of the two regimes", "90": "Criterion", "91": "📉 Simplified (turnover tax)", "92": "📊 General system (VAT + profit tax)", "93": "<b>Tax base</b>", "94": "Gross revenue (turnover)", "95": "Net profit and added value", "96": "<b>Are expenses counted?</b>", "97": "No", "98": "Yes, if confirmed by documents", "99": "<b>VAT</b>", "210": "<b>VAT</b>", "100": "Not paid", "101": "Charged and offset", "102": "<b>Reporting</b>", "103": "Simple, less of it", "104": "Full and regular", "105": "<b>Bookkeeping</b>", "106": "Minimal", "107": "A qualified accountant is needed", "108": "<b>In case of a loss</b>", "109": "The tax is still payable", "110": "No profit means no profit tax", "111": "<b>For large clients</b>", "112": "They cannot offset the VAT", "113": "You issue an invoice — convenient", "114": "<b>Who it suits</b>", "115": "New, small, service businesses", "116": "Manufacturing, wholesale, export", "117": "📌 The decision rule: if your <b>profit share is high</b>, the simplified regime is usually cheaper; if your <b>expense share is large</b> or your clients pay VAT, the general system is better. <b>Compare both with real numbers</b>.", "118": "Other payments related to <span class=\"grad\">staff and property</span>", "119": "Whatever your regime, hiring staff or owning property creates additional obligations.", "120": "Personal income tax", "121": "Income tax on individuals — it is <b>withheld from the employee's salary</b> and transferred to the budget. The basic rate is 12%.", "122": "Social tax", "123": "Paid on the payroll <b>at the employer's expense</b>. It forms the basis for pensions and social security.", "124": "Property and land", "125": "If the company owns buildings, structures or a land plot — property and land tax is paid.", "126": "Resource payments", "127": "Special taxes such as water use, subsoil use and excise — depending on the type of activity.", "128": "⚠️ The most common mistakes", "129": "Employing staff <b>without formal contracts</b> (a fine, and the work record is lost)", "130": "Paying wages \"in an envelope\" and not transferring income tax", "131": "Not tracking tax payment deadlines → <b>penalties</b>", "132": "Mixing personal and business money", "133": "Rates differ by category (for example, budget organisations, special districts) and are updated — check the exact values on <b>soliq.uz</b>.", "134": "<span class=\"grad\">Tax incentives</span> — a legal relief", "135": "An incentive is not \"hiding\" anything — it is <b>a legal relief offered by the state itself</b>. Not using it simply means overpaying.", "136": "1. Full exemption", "137": "Certain activities or entities are <b>fully exempt</b> from a particular tax.", "138": "2. A reduced rate", "139": "A <b>lower rate</b> is applied instead of the general one (for example, in certain districts).", "140": "3. Deferral", "141": "The payment deadline is <b>extended</b> or payment by instalments is allowed.", "142": "🎯 Who usually gets an incentive?", "143": "Newly created entities and those working in certain sectors", "144": "Organisations with a special status, such as <b>IT Park</b> residents", "145": "Businesses operating in less developed districts and special economic zones", "146": "Companies employing people with disabilities", "147": "Export-oriented and certain socially oriented activities", "148": "📝 How do you use an incentive?", "149": "<b>1.</b> Find the incentive relevant to your activity in the <b>official list</b> (soliq.uz / lex.uz)<br>\n             <b>2.</b> Check its conditions — they usually come with <b>specific requirements</b><br>\n             <b>3.</b> Obtain the necessary document or status<br>\n             <b>4.</b> Reflect the incentive <b>correctly in your report</b><br>\n             <b>5.</b> If a condition is broken, the incentive is cancelled and the tax may be <b>recalculated</b>", "150": "The list of incentives and their conditions are updated frequently — check the current document each time and consult a tax adviser if in doubt.", "151": "Block 2", "152": "<span class=\"grad\">my.soliq.uz</span> — the taxpayer's personal cabinet", "153": "The personal cabinet is the entrepreneur's <b>tax desk</b>: filing reports, seeing debts, making payments, sending invoices and corresponding with the tax authority all happen here. There is no need to visit an office.", "154": "🔐 How do you log in?", "155": "With an <b>E-IMZO (digital signature key)</b> — the main and most secure way", "156": "Through the <b>OneID</b> single identification system", "157": "You need your <b>taxpayer ID</b> and an active key to log in", "158": "If the key expires you cannot log in — renew it in advance", "159": "🛡 Even if you give the key to your accountant, <b>the responsibility stays with you</b>. Control who signs which document.", "160": "🧭 The main sections", "161": "<b>Reports</b> — filing, history and acceptance status", "162": "<b>Personal account</b> — tax debt or overpayment", "163": "<b>Payments</b> — payments to the budget and their allocation", "164": "<b>Invoices (e-invoices)</b> — documents sent and received", "165": "<b>Notices</b> — demands and notifications from the tax authority", "166": "<b>Applications</b> — sending questions and receiving answers", "167": "Section names and the interface are updated from time to time — see the current layout on <b>my.soliq.uz</b>.", "168": "How to <span class=\"grad\">file an electronic report</span>", "169": "Steps 1–2", "170": "Preparation", "171": "Collect the period's data (revenue, expenses, payroll) · log in to the cabinet with your E-IMZO", "172": "Step 3", "173": "Choosing the form", "174": "Choose the report form that matches your regime and the <b>tax period</b>", "175": "Step 4", "176": "Filling in and checking", "177": "Enter the data · the system <b>checks for errors automatically</b>", "178": "Steps 5–6", "179": "Signing and payment", "180": "Sign with your E-IMZO and send · check that it was <b>accepted</b> · pay the tax", "181": "🗓 About deadlines", "182": "Every tax has <b>its own period</b>: monthly, quarterly or annual", "183": "The reporting deadline and the payment deadline <b>may differ</b>", "184": "If a deadline falls on a day off, it moves to the next working day", "185": "Build a calendar in advance and set <b>reminders</b>", "186": "⏰ What happens if you are late?", "187": "A <b>penalty</b> is charged for every day of delay", "188": "A <b>fine</b> is applied for failing to file a report", "189": "If debt accumulates, restrictions may be applied to the bank account", "190": "With a tax debt, the road to tenders and incentives is closed", "191": "Practical advice: do not leave the report <b>until the last day</b> — the system may be busy or your key may have expired.", "192": "Block 3", "193": "Primary documents and the <span class=\"grad\">invoice (e-invoice)</span>", "194": "A primary document is <b>the evidence of a business transaction</b>. Without it there is no expense, no VAT offset and no protection in court. The rule is simple: <b>an undocumented transaction is a transaction that never happened</b>.", "195": "🧾 What is an invoice?", "196": "The main document confirming that goods or services were delivered and stating <b>their value and the VAT amount</b>. Today it is issued <b>electronically</b> and sent through the cabinet.", "197": "<b>Why it matters:</b> so that the buyer can <b>offset the VAT</b> and the seller can confirm the income.", "198": "Once sent, the other party either <b>accepts</b> or rejects it", "199": "If there is an error, a correcting or cancelling document is issued", "200": "All e-invoices are stored in the cabinet and visible to the tax authority", "201": "📋 What does an invoice contain?", "202": "<b>Number and date</b>", "203": "The identifier of the document", "204": "<b>The parties</b>", "205": "Names, taxpayer IDs and addresses of the seller and the buyer", "206": "<b>Goods/services</b>", "207": "Name, unit of measurement, quantity", "208": "<b>Price and amount</b>", "209": "Unit price, total value", "211": "The rate and the amount of tax", "212": "<b>Signature</b>", "213": "An electronic signature with E-IMZO", "214": "<span class=\"grad\">The cash receipt</span> and <span class=\"grad\">the waybill</span>", "215": "Cash receipt", "216": "When selling to the public (a private individual) <b>issuing a receipt is compulsory</b>. A receipt is the buyer's right and proof of the seller's income.", "217": "It is issued through an online cash register or a <b>virtual cash register</b>", "218": "The <b>QR code</b> on the receipt can be used to verify that it is genuine", "219": "Failing to issue a receipt is a violation and grounds for a fine", "220": "In cases of returns and warranty claims the receipt is the main document", "221": "🧑‍🎓 Advice for students: always take the receipt when you buy something — it is both your right and proof of your expense.", "222": "Waybill", "223": "The document confirming that goods have been <b>moved from one place to another</b>. It shows that the goods in transit are legal.", "224": "Who sent them, who received them, by what transport", "225": "The name, quantity, unit of measurement and value of the goods", "226": "The route: the place of departure and the delivery address", "227": "Today it is mostly issued <b>in electronic form</b>", "228": "⚠️ Goods transported without a waybill may be treated as <b>undocumented goods</b> and lead to a fine.", "229": "📁 The rule on keeping documents", "230": "Primary documents <b>must be kept</b> for the period set by law. Even though electronic documents are stored in the cabinet, keep <b>your own copies</b> of important contracts and invoices in an orderly folder: by date and by counterparty.", "231": "<span class=\"grad\">The income-expense ledger</span> — the diary of the business", "232": "This ledger is the <b>simplest and most useful</b> financial tool. Without it an entrepreneur does not know whether they are making a profit or a loss.", "233": "Date", "234": "Document", "235": "Description of the transaction", "236": "Income", "237": "Expense", "238": "Balance", "239": "Receipt no. 112", "240": "Sale of goods (25 units)", "241": "E-invoice no. 0041", "242": "Purchase of raw materials", "243": "Contract", "244": "Rent payment (September)", "245": "E-invoice no. 0058", "246": "Wholesale sale to a company", "247": "Payroll sheet", "248": "Wages (2 employees)", "249": "✅ Rules for keeping it", "250": "Every entry <b>rests on a document</b> (receipt, e-invoice, contract)", "251": "The entry is made <b>the same day or the next</b>", "252": "Personal expenses are <b>not written here</b>", "253": "At the end of the month the totals are calculated and checked", "254": "📊 What does it give you?", "255": "Net profit: <b>income − expenses</b>", "256": "You can see which expense is \"eating\" the money", "257": "Planning tax and loan payments becomes easy", "258": "Ready data for filing reports", "259": "🛠 Where do you keep it?", "260": "A simple notebook or <b>Excel / Google Sheets</b>", "261": "Accounting software or a mobile app", "262": "What matters is <b>consistency</b>, not the tool", "263": "Summary · Assignment · Links", "264": "Final <span class=\"grad\">summary</span> and <span class=\"grad\">useful resources</span>", "265": "📌 6 ideas to remember", "266": "A tax is not a fine but <b>a cost you can calculate in advance</b>: build it into the price.", "267": "The <b>simplified regime</b> is taken from revenue, the <b>general system</b> from profit.", "268": "Only a <b>document</b> confirms an expense — an undocumented expense does not reduce tax.", "269": "An <b>incentive</b> is a legal relief; not using it means overpaying.", "270": "<b>my.soliq.uz</b> + E-IMZO — one place for reports, payments and invoices.", "271": "The <b>income-expense ledger</b> is the daily measure of the health of the business.", "272": "📓 Independent work: \"My financial snapshot for one month\"", "273": "Fill in a <b>one-month income-expense ledger</b> for your own idea (at least 10 entries).", "274": "Calculate the monthly <b>net profit</b>.", "275": "Calculate the tax under both regimes <b>and compare</b>: the turnover tax and the profit tax options.", "276": "Justify <b>with numbers</b> which regime is cheaper for you.", "277": "If you take a loan — calculate the monthly payment and add it to the ledger as an expense.", "278": "Length: 1–2 pages + the table. Marking: completeness of the ledger 30% · tax calculation 40% · reasoned conclusion 30%.", "279": "🔗 Useful resources (links)", "280": "<a class=\"lnk\" href=\"https://my.soliq.uz\" target=\"_blank\" rel=\"noopener\">my.soliq.uz</a> — the taxpayer's personal cabinet", "281": "<a class=\"lnk\" href=\"https://soliq.uz\" target=\"_blank\" rel=\"noopener\">soliq.uz</a> — the Tax Committee: rates, forms, guidance", "282": "<a class=\"lnk\" href=\"https://lex.uz\" target=\"_blank\" rel=\"noopener\">lex.uz</a> — the Tax Code and other legislation", "283": "<a class=\"lnk\" href=\"https://e-imzo.uz\" target=\"_blank\" rel=\"noopener\">e-imzo.uz</a> — the electronic digital signature", "284": "<a class=\"lnk\" href=\"https://birdarcha.uz\" target=\"_blank\" rel=\"noopener\">birdarcha.uz</a> — registration and public services", "285": "<a class=\"lnk\" href=\"https://cbu.uz\" target=\"_blank\" rel=\"noopener\">cbu.uz</a> — the Central Bank: rates and bank data", "286": "<a class=\"lnk\" href=\"https://stat.uz\" target=\"_blank\" rel=\"noopener\">stat.uz</a> — official statistics", "287": "<a class=\"lnk\" href=\"https://ombudsman.uz\" target=\"_blank\" rel=\"noopener\">ombudsman.uz</a> — the Business Ombudsman", "288": "<b>Tools:</b> <span class=\"pill g\">Excel / Google Sheets</span><span class=\"pill g\">a bank loan calculator</span><span class=\"pill g\">calendar reminders</span>", "289": "⚠️ Rates, thresholds and incentives are updated every year. The figures in this presentation are given as <b>teaching examples</b> — check an official source before making a decision.", "290": "💳 Practical block", "291": "Loan payments: <span class=\"grad\">at what rate, for how many years → how much per month?</span>", "292": "A = P × i ÷ (1 − (1 + i)<sup>−n</sup>)\n            <small>P — the loan amount · i — the <b>monthly</b> rate (annual ÷ 12 ÷ 100) · n — the number of months · A — the monthly payment</small>", "293": "📐 Calculating it in 4 steps", "294": "<b>Step 1.</b> Convert the annual rate into a monthly one: <b>i = annual % ÷ 12 ÷ 100</b><br>\n               <b>Step 2.</b> Convert the term into months: <b>n = years × 12</b><br>\n               <b>Step 3.</b> Put them into the formula and find the monthly payment (A)<br>\n               <b>Step 4.</b> Total paid = <b>A × n</b>, overpayment = <b>A × n − P</b>", "295": "🧮 Example: 30 million so'm, 24% a year, 3 years", "296": "<b>i</b> = 24 ÷ 12 ÷ 100 = <b>0.02</b> · <b>n</b> = 3 × 12 = <b>36</b><br>\n               (1 + 0.02)<sup>−36</sup> = 0.4902 → 1 − 0.4902 = <b>0.5098</b><br>\n               <b>A</b> = 30,000,000 × 0.02 ÷ 0.5098 ≈ <b>1,176,986 so'm</b><br>\n               Total: 1,176,986 × 36 ≈ <b>42,371,000</b> · Overpayment: ≈ <b>12,371,000 so'm</b>", "297": "🖩 The calculator — try it yourself", "298": "Loan amount (so'm)", "299": "Annual interest rate (%)", "300": "Term (months)", "301": "Grace period (months)", "302": "💡 Try this: extend the term from 36 to 60 months — the <b>monthly payment falls</b> but the <b>total paid rises</b>. That is the price of convenience.", "303": "🧮 Solve on your own", "304": "3 problems — <span class=\"grad\">calculate and enter your answer</span>", "305": "Solve each problem in your notebook using the formula, then type <b>your own answer</b> into the field — only then does the <b>Solution</b> button unlock. <b>Check</b> compares your answer with the exact value: if it is correct the solution opens immediately, if it is wrong you only get a direction. The answer is <b>in so'm</b>, digits only (for example: 1268906); a difference of up to 1.5% counts as correct.", "306": "🎓 Thank you for your attention!", "307": "For the next class, prepare <b>your one-month income-expense ledger</b> and the tax calculation under both regimes.", "308": "Termez State University · Fundamentals of Entrepreneurship"};
-var TASKS=[{"color": "var(--green)", "ans": 1268906, "tol": 0.015, "q": "Tadbirkor <b>24 000 000 so'm</b> kredit oldi. Yillik stavka — <b>24%</b>, muddat — <b>24 oy</b>, to'lov turi — annuitet (har oy bir xil). <b>Oylik to'lov qancha bo'ladi?</b>", "qEn": "An entrepreneur took a loan of <b>24,000,000 so'm</b>. The annual rate is <b>24%</b>, the term is <b>24 months</b>, with annuity payments (the same every month). <b>What is the monthly payment?</b>", "sol": "<b>Yechim:</b><br>i = 24 ÷ 12 ÷ 100 = <code>0,02</code> · n = <code>24</code><br>(1 + 0,02)<sup>−24</sup> ≈ <code>0,6217</code> → 1 − 0,6217 = <code>0,3783</code><br>A = 24 000 000 × 0,02 ÷ 0,3783 ≈ <b>1 268 906 so'm</b><br>Jami to'lov ≈ 30 453 752 so'm · ortiqcha to'lov ≈ <b>6 453 752 so'm</b>.", "solEn": "<b>Solution:</b><br>i = 24 ÷ 12 ÷ 100 = <code>0.02</code> · n = <code>24</code><br>(1 + 0.02)<sup>−24</sup> ≈ <code>0.6217</code> → 1 − 0.6217 = <code>0.3783</code><br>A = 24,000,000 × 0.02 ÷ 0.3783 ≈ <b>1,268,906 so'm</b><br>Total ≈ 30,453,752 so'm · overpayment ≈ <b>6,453,752 so'm</b>."}, {"color": "var(--blue)", "ans": 15074312, "tol": 0.015, "q": "Korxona <b>50 000 000 so'm</b> kredit oladi: yillik stavka — <b>18%</b>, muddat — <b>3 yil</b>, annuitet to'lov. <b>Kredit bo'yicha jami ortiqcha to'lov (foizlar summasi) qancha bo'ladi?</b>", "qEn": "A company takes a loan of <b>50,000,000 so'm</b>: annual rate <b>18%</b>, term <b>3 years</b>, annuity payments. <b>What is the total overpayment (the sum of interest) on the loan?</b>", "sol": "<b>Yechim:</b><br>i = 18 ÷ 12 ÷ 100 = <code>0,015</code> · n = 3 × 12 = <code>36</code><br>(1 + 0,015)<sup>−36</sup> ≈ <code>0,5851</code> → 1 − 0,5851 = <code>0,4149</code><br>A = 50 000 000 × 0,015 ÷ 0,4149 ≈ <b>1 807 620 so'm</b><br>Jami to'lov = 1 807 620 × 36 ≈ <code>65 074 312</code><br>Ortiqcha to'lov = 65 074 312 − 50 000 000 ≈ <b>15 074 312 so'm</b>.", "solEn": "<b>Solution:</b><br>i = 18 ÷ 12 ÷ 100 = <code>0.015</code> · n = 3 × 12 = <code>36</code><br>(1 + 0.015)<sup>−36</sup> ≈ <code>0.5851</code> → 1 − 0.5851 = <code>0.4149</code><br>A = 50,000,000 × 0.015 ÷ 0.4149 ≈ <b>1,807,620 so'm</b><br>Total = 1,807,620 × 36 ≈ <code>65,074,312</code><br>Overpayment = 65,074,312 − 50,000,000 ≈ <b>15,074,312 so'm</b>."}, {"color": "var(--violet)", "ans": 6882487, "tol": 0.02, "q": "Bir xil <b>40 000 000 so'm</b> kredit yillik <b>30%</b> stavkada ikki xil muddatga taklif qilindi: <b>12 oy</b> va <b>24 oy</b>. Ikkala variantdagi <b>ortiqcha to'lovlar farqi</b> qancha? (Ya'ni 24 oylik variant necha so'm qimmatga tushadi?)", "qEn": "The same loan of <b>40,000,000 so'm</b> at <b>30%</b> a year is offered for two terms: <b>12 months</b> and <b>24 months</b>. What is the <b>difference between the overpayments</b> of the two options? (That is, how much more expensive is the 24-month option?)", "sol": "<b>Yechim:</b> i = 30 ÷ 12 ÷ 100 = <code>0,025</code><br><b>12 oy:</b> (1,025)<sup>−12</sup> ≈ 0,7436 → 1 − 0,7436 = 0,2564 · A ≈ <b>3 899 485</b> · jami ≈ 46 793 821 · ortiqcha ≈ <code>6 793 821</code><br><b>24 oy:</b> (1,025)<sup>−24</sup> ≈ 0,5529 → 1 − 0,5529 = 0,4471 · A ≈ <b>2 236 513</b> · jami ≈ 53 676 308 · ortiqcha ≈ <code>13 676 308</code><br>Farq = 13 676 308 − 6 793 821 ≈ <b>6 882 487 so'm</b>.<br><i>Xulosa: muddatni ikki barobar uzaytirish oylik to'lovni 1,7 barobar yengillatdi, ammo ortiqcha to'lovni 2 barobardan ko'proq oshirdi.</i>", "solEn": "<b>Solution:</b> i = 30 ÷ 12 ÷ 100 = <code>0.025</code><br><b>12 months:</b> (1.025)<sup>−12</sup> ≈ 0.7436 → 1 − 0.7436 = 0.2564 · A ≈ <b>3,899,485</b> · total ≈ 46,793,821 · overpayment ≈ <code>6,793,821</code><br><b>24 months:</b> (1.025)<sup>−24</sup> ≈ 0.5529 → 1 − 0.5529 = 0.4471 · A ≈ <b>2,236,513</b> · total ≈ 53,676,308 · overpayment ≈ <code>13,676,308</code><br>Difference = 13,676,308 − 6,793,821 ≈ <b>6,882,487 so'm</b>.<br><i>Conclusion: doubling the term made the monthly payment 1.7× lighter but more than doubled the overpayment.</i>"}];
+var EN={"0": "Topic 13 · Practical class · 2 hours", "1": "PROFIT AND LOSS ANALYSIS IN A BUSINESS", "2": "How a profit and loss statement is built · <b>gross, operating and net profit</b> · profitability · plan versus actual · which product makes money · 5 ways to raise profit.", "3": "📚 Course: <b>Fundamentals of Entrepreneurship</b>", "4": "🎓 <b>Termez State University</b>", "5": "🗂 <b>18</b> slides · <b>15</b> tests", "6": "⌨️ Press <b>→</b> to continue", "7": "Aim of the class", "8": "By the end of the class the student <span class=\"grad\">can:</span>", "9": "Aim: the student learns to build a business's monthly <b>profit and loss statement</b>, to read it and to find <b>with numbers</b> where profit comes from and where it is lost.", "10": "Builds the statement", "11": "Writes the ladder from revenue down to net profit in the right order.", "12": "Calculates margins", "13": "Finds gross, operating and net margin and return on investment.", "14": "Compares plan and actual", "15": "Splits the difference into volume, price and cost effects.", "16": "Rates the products", "17": "Sees which product contributes most and which one “eats” the profit.", "18": "Raises profit", "19": "Compares the effect of price, volume, cost and overheads and chooses the strongest lever.", "20": "Links profit and cash", "21": "Explains why net profit and cash in the till differ.", "22": "Class plan", "23": "Today's <span class=\"grad\">4 blocks</span>", "24": "The statement", "25": "The P&amp;L statement, its ladder, a sample month.", "26": "Ratios", "27": "Margins, cost structure, break-even revenue, margin of safety.", "28": "Analysis", "29": "Plan vs actual, profit by product, profit levers.", "30": "Decisions", "31": "Diagnosing losses, profit vs cash, monthly control.", "32": "🔑 Key concepts", "33": "<span class=\"pill g\">profit and loss statement</span><span class=\"pill\">revenue</span><span class=\"pill\">cost of goods sold</span><span class=\"pill g\">gross profit</span><span class=\"pill\">operating expenses</span><span class=\"pill g\">operating profit</span><span class=\"pill g\">net profit</span><span class=\"pill\">depreciation</span><span class=\"pill g\">margin</span><span class=\"pill\">profitability</span><span class=\"pill\">ROI</span><span class=\"pill\">break-even revenue</span><span class=\"pill\">margin of safety</span><span class=\"pill g\">plan-vs-actual analysis</span><span class=\"pill\">contribution</span><span class=\"pill\">product mix</span><span class=\"pill\">profit lever</span><span class=\"pill\">payback period</span>", "34": "Block 1 · The statement", "35": "Did the business <span class=\"grad\">make money or lose it?</span>", "36": "A <b>profit and loss statement</b> is a table for a period (a month, a quarter, a year) that subtracts all <b>costs</b> from <b>revenue</b> and shows the result — <b>a profit or a loss</b>.", "37": "<b>Question</b>", "38": "Is the business profitable?", "39": "Is there enough cash for payments?", "40": "<b>When revenue is recorded</b>", "41": "In the period of the sale (credit sales too)", "42": "When cash actually arrives", "43": "<b>Buying equipment</b>", "44": "Not at once — spread out through depreciation", "45": "A full outflow on the day it is paid", "46": "<b>A loan</b>", "47": "Only the <b>interest</b> is an expense", "48": "Receiving it is inflow, repaying it is outflow", "49": "", "50": "P&amp;L statement", "51": "Cash-flow plan (topic 12)", "52": "Today's example", "53": "“Somsa uyi” — a small somsa bakery: meat, potato and pumpkin somsa and tea. We analyse one month.", "54": "Period", "55": "In a small business build the statement <b>every month</b> — problems show up in a month, not at year-end.", "56": "Purpose", "57": "The statement is not history — it is a tool for <b>next month's decisions</b>.", "58": "“Somsa uyi” is a made-up teaching example; the figures are not from a real business.", "59": "1.2 · Structure", "60": "From revenue to net profit: <span class=\"grad\">5 steps</span>", "61": "1. Revenue", "62": "The value of all goods and services sold in the period.", "63": "− Cost of goods sold", "64": "Raw materials and direct costs of the goods actually sold.", "65": "= 2. Gross profit", "66": "How much the product itself earns.", "67": "− Operating expenses", "68": "Wages, rent, utilities, advertising, depreciation.", "69": "= 3. Operating profit", "70": "Is the business model working — the key figure.", "71": "− Interest = 4. Pre-tax", "72": "Loan interest is subtracted.", "73": "− Tax = 5. Net profit", "74": "The money left for the owner and for growth.", "75": "Why step by step?", "76": "Each step answers a different question: gross profit — <b>product and price</b>, operating profit — <b>management</b>, net profit — <b>financing and tax</b>.", "77": "Depreciation", "78": "Equipment cost is spread over the years it works. For example, a 30-million-so'm oven working 5 years: 30 ÷ 60 months = <b>500,000 so'm/month</b>.", "79": "1.3 · Sample", "80": "“Somsa uyi”: <span class=\"grad\">the October statement</span>", "81": "<b>Revenue</b> (6,000 somsa + 3,000 teas)", "82": "<b>40,000,000</b>", "83": "100%", "84": "− Cost of goods sold (meat, flour, onion, tea)", "85": "16,000,000", "86": "40%", "87": "<b>= Gross profit</b>", "88": "<b>24,000,000</b>", "89": "<b>60%</b>", "90": "− Wages (5 people)", "91": "9,000,000", "92": "22.5%", "93": "− Rent", "94": "4,000,000", "95": "10%", "96": "− Utilities (gas, power, water)", "97": "2,500,000", "98": "6.25%", "99": "− Advertising", "100": "1,000,000", "101": "2.5%", "102": "− Depreciation and other", "103": "1,500,000", "104": "3.75%", "105": "<b>= Operating profit</b>", "106": "<b>6,000,000</b>", "107": "<b>15%</b>", "108": "− Loan interest", "109": "500,000", "110": "1.25%", "111": "− Tax (sample)", "112": "1,600,000", "113": "4%", "114": "<b>= Net profit</b>", "115": "<b>3,900,000</b>", "116": "<b>9.75%</b>", "117": "Item", "118": "So'm", "119": "Share of revenue", "120": "How to read the statement", "121": "From every <b>100 so'm</b> of revenue: 40 goes on raw materials, 45 on wages and other operating costs, 5.25 on interest and tax, and <b>9.75</b> remains as profit.", "122": "The largest costs are <b>raw materials</b>, then <b>wages</b>. The way to raise profit starts there too.", "123": "Before interest and tax the business runs at a 15% operating profit — the model is healthy.", "124": "The type and rate of tax depend on the business form and tax regime. The 4% in the example is a sample figure only; confirm yours with the tax service or an accountant.", "125": "Block 2 · Ratios", "126": "Measure profit <span class=\"grad\">in percentages</span>", "127": "An absolute figure (3.9 million) is not enough to compare months or businesses. A <b>margin</b> shows what percentage of revenue remains as profit.", "128": "gross margin = 24 ÷ 40", "129": "operating margin = 6 ÷ 40", "130": "net margin = 3.9 ÷ 40", "131": "payback = 80 ÷ 3.9", "132": "<b>Gross margin</b>", "133": "gross profit ÷ revenue × 100", "134": "Whether price and raw-material cost are in balance", "135": "<b>Operating margin</b>", "136": "operating profit ÷ revenue × 100", "137": "How efficiently the business is run", "138": "<b>Net margin</b>", "139": "net profit ÷ revenue × 100", "140": "How much of every 100 so'm reaches the owner", "141": "<b>Return on investment (annual ROI)</b>", "142": "annual net profit ÷ investment × 100", "143": "3.9 × 12 ÷ 80 ≈ <b>58.5%</b> — how well the invested money works", "144": "Ratio", "145": "Formula", "146": "What it shows", "147": "The starting investment (oven, freezer, repairs, furniture) is assumed to be 80 million so'm. Compare margins not with other industries but with similar businesses <b>in your own field</b> and with your previous months.", "148": "2.2 · The threshold", "149": "How much must we sell <span class=\"grad\">to avoid a loss?</span>", "150": "With many products it is easier to calculate break-even in <b>so'm</b> rather than units: <b>break-even revenue = fixed costs ÷ gross margin</b>.", "151": "1. Fixed costs", "152": "Operating expenses", "153": "18,000,000", "154": "Loan interest", "155": "500,000", "156": "<b>Total</b>", "157": "<b>18,500,000</b>", "158": "2. Break-even revenue", "159": "18,500,000 ÷ 0.60 ≈ <b>30,800,000 so'm</b>", "160": "Selling less than this in a month means a loss.", "161": "3. Margin of safety", "162": "(40.0 − 30.8) ÷ 40.0 ≈ <b>23%</b>", "163": "Sales can fall by up to 23% without a loss.", "164": "How big should the margin be?", "165": "A rough guide: <b>below 20%</b> is risky (one bad month means a loss), <b>20–40%</b> is normal, <b>above 40%</b> is stable.", "166": "If tax depends on revenue", "167": "A tax on turnover (4% in the sample) is taken from every sale, so it lowers the margin: 18.5 ÷ (0.60 − 0.04) ≈ <b>33 million</b>. The margin of safety falls to 17%.", "168": "Block 3 · Analysis", "169": "November: profit <span class=\"grad\">fell from 6 to 2 million</span>. Why?", "170": "<b>Revenue</b>", "171": "40,000", "172": "36,000", "173": "−4,000 (−10%)", "174": "Cost of goods sold", "175": "16,000 (40%)", "176": "15,800 (43.9%)", "177": "−200", "178": "<b>Gross profit</b>", "179": "24,000 (60%)", "180": "20,200 (56.1%)", "181": "−3,800", "182": "Operating expenses", "183": "18,000", "184": "18,200", "185": "+200", "186": "<b>Operating profit</b>", "187": "<b>6,000</b>", "188": "<b>2,000</b>", "189": "<b>−4,000</b>", "190": "Item (thousand so'm)", "191": "Plan", "192": "Actual", "193": "Difference", "194": "The causes of the 4,000-thousand difference", "195": "Volume effect: −2,400", "196": "Sales were 4,000 lower. Every so'm of sales gave 60 tiyin of gross profit: 4,000 × 60% = <b>2,400</b>. Cause: a new competitor opened.", "197": "Raw-material effect: −1,400", "198": "At a 40% share the cost would have been 36,000 × 40% = 14,400; it was 15,800. The <b>1,400</b> gap is from dearer meat and more waste.", "199": "Expense effect: −200", "200": "The gas bill rose in winter. Small, but worth watching.", "201": "🧠 <b>Check:</b> 2,400 + 1,400 + 200 = <b>4,000</b>. Now the action is clear: respond to the competitor (quality, service, a new offer) and control meat purchasing and waste.", "202": "3.2 · Product mix", "203": "Which product <span class=\"grad\">really makes the money?</span>", "204": "<b>Meat somsa</b>", "205": "7,000", "206": "3,500", "207": "3,500", "208": "50%", "209": "3,000", "210": "<b>10,500,000</b>", "211": "44%", "212": "<b>Potato somsa</b>", "213": "4,000", "214": "1,400", "215": "2,600", "216": "65%", "217": "2,000", "218": "5,200,000", "219": "22%", "220": "<b>Pumpkin somsa</b>", "221": "5,000", "222": "1,800", "223": "3,200", "224": "64%", "225": "1,000", "226": "3,200,000", "227": "13%", "228": "<b>Tea and drinks</b>", "229": "2,000", "230": "300", "231": "1,700", "232": "<b>85%</b>", "233": "3,000", "234": "5,100,000", "235": "21%", "236": "<b>Total</b>", "237": "", "238": "", "239": "", "240": "60%", "241": "", "242": "<b>24,000,000</b>", "243": "100%", "244": "Product", "245": "Price", "246": "Cost", "247": "Contribution (1 unit)", "248": "Margin", "249": "Sold", "250": "Total contribution", "251": "Share", "252": "The main “engine”", "253": "Meat somsa has the lowest margin (50%) but gives <b>44% of total contribution</b>. Its quality and the price of meat are the key control point.", "254": "A hidden opportunity", "255": "Tea has an 85% margin. If tea is offered to every somsa buyer and 1,000 more are sold: <b>+1,700,000 so'm</b> contribution.", "256": "Margin ≠ contribution", "257": "A high-percentage product that sells little brings little money. Decide on <b>percentage × volume</b>.", "258": "3.3 · Levers", "259": "A 5% change — <span class=\"grad\">how much does it move profit?</span>", "260": "Base case: revenue 40 million, cost of goods 16 million, operating expenses 18 million, <b>operating profit 6 million</b>. We move each lever by 5% on its own (the rest stays the same).", "261": "<b>1. Price +5%</b> (if volume holds)", "262": "40 million × 5%", "263": "<b>+2,000,000</b>", "264": "<b>+33%</b>", "265": "<b>2. Sales volume +5%</b>", "266": "24 million gross profit × 5%", "267": "+1,200,000", "268": "+20%", "269": "<b>3. Fixed costs −5%</b>", "270": "18 million × 5%", "271": "+900,000", "272": "+15%", "273": "<b>4. Raw-material cost −5%</b>", "274": "16 million × 5%", "275": "+800,000", "276": "+13%", "277": "<b>5. Product mix</b>", "278": "+1,000 teas (1,700 contribution)", "279": "+1,700,000", "280": "+28%", "281": "Lever", "282": "Calculation", "283": "Change in operating profit", "284": "Percent", "285": "Conclusion", "286": "Price is the strongest lever but also the riskiest: if customers leave, profit falls (topic 11). Often <b>several small changes</b> together give the best result.", "287": "“Somsa uyi” plan", "288": "Offer tea with every purchase · compare meat from 2 suppliers · record waste daily · 30% off leftover somsa in the evening (better than waste).", "289": "Block 4 · Decisions", "290": "Where the symptom is, <span class=\"grad\">the cause is there too</span>", "291": "<b>Revenue fell</b>", "292": "Fewer customers, a competitor, the season, lower quality", "293": "Daily customer count, average order, feedback", "294": "<b>Gross margin fell</b>", "295": "Dearer raw materials, waste, theft, too many discounts", "296": "Purchase prices, recipe norms, the waste log", "297": "<b>Operating costs rose</b>", "298": "Too many staff, rent, utilities, uncontrolled spending", "299": "Each item as a percentage of revenue", "300": "<b>Profit but no cash</b>", "301": "Credit sales, more stock, loan repayments", "302": "The cash-flow plan (topic 12)", "303": "Symptom", "304": "Possible cause", "305": "What to check", "306": "🎃 Do not close a “loss-making” product at once", "307": "Suppose 3.5 million so'm of fixed costs is “allocated” to pumpkin somsa: 3.2 − 3.5 = <b>−0.3 million</b> — apparently a loss.", "308": "But if you stop it, rent and wages do not fall — the business <b>loses 3.2 million of contribution</b> and total profit drops from 3.9 to 0.7 million. If contribution is positive, the product is helping to cover fixed costs.", "309": "Order of action when there is a loss", "310": "Read the statement <b>step by step</b>: at which step did the gap appear?", "311": "Split the gap into <b>volume, price and cost</b> effects.", "312": "Set <b>one clear action</b> and a deadline for the biggest effect.", "313": "Check the result next month.", "314": "4.2 · The bridge", "315": "Net profit is 3.9 million, but cash rose <span class=\"grad\">by only 1.6 million</span>", "316": "Profit is an accounting result; cash is real movement. The “bridge” between them shows which sums are in profit but not in the till (or the other way round).", "317": "<b>Net profit</b>", "318": "3,900,000", "319": "From the P&amp;L statement", "320": "+ Depreciation", "321": "+500,000", "322": "Recorded as a cost, but no cash left", "323": "− Receivables grew", "324": "−1,000,000", "325": "Somsa supplied to cafés on credit", "326": "− Stock increased", "327": "−800,000", "328": "Extra meat bought cheaply and frozen", "329": "− Loan principal repaid", "330": "−1,000,000", "331": "Not an expense, but cash goes out", "332": "<b>= Change in cash</b>", "333": "<b>+1,600,000</b>", "334": "Matches the cash flow in topic 12", "335": "Step", "336": "So'm", "337": "Note", "338": "Two reports — one business", "339": "The P&amp;L answers <b>is the business profitable</b>; the cash flow answers <b>is there money to pay</b>. Look at both every month.", "340": "A warning sign", "341": "If profit is much larger than the cash increase for several months in a row, credit sales and stock are getting out of control.", "342": "4.3 · Control", "343": "Check <span class=\"grad\">8 numbers</span> every month", "344": "Revenue", "345": "≥ 40 million", "346": "40.0", "347": "36.0", "348": "🔴", "349": "Gross margin", "350": "≥ 58%", "351": "60%", "352": "56.1%", "353": "🔴", "354": "Wages share", "355": "≤ 25%", "356": "22.5%", "357": "25%", "358": "🟡", "359": "Operating cost share", "360": "≤ 46%", "361": "45%", "362": "50.6%", "363": "🔴", "364": "Operating margin", "365": "≥ 12%", "366": "15%", "367": "5.6%", "368": "🔴", "369": "Margin of safety", "370": "≥ 20%", "371": "23%", "372": "7%", "373": "🔴", "374": "Waste (of cost)", "375": "≤ 3%", "376": "2.5%", "377": "5%", "378": "🔴", "379": "Average order", "380": "≥ 13,000", "381": "13,300", "382": "13,100", "383": "🟢", "384": "Indicator", "385": "“Somsa uyi” target", "386": "October", "387": "November", "388": "Status", "389": "A monthly routine (1 hour)", "390": "By the <b>3rd of the month</b>: close the statement (revenue, purchases, expenses).", "391": "Fill in the panel and find the 🔴 marks.", "392": "For each 🔴, a cause and <b>one action</b>.", "393": "Update next month's plan.", "394": "There is official reporting too", "395": "This panel is for management. Tax and statistical reports are separate, in set forms and by set deadlines. Confirm the requirements with the tax service and an accountant.", "396": "4.4 · Case", "397": "The “Somsa uyi” owner's <span class=\"grad\">3 proposals</span>", "398": "In November profit fell to 2 million. The owner has 3 options. Evaluate each with a calculation (thousand so'm, per month).", "399": "A. Cut all prices by 15%", "400": "Goal: win customers back from the competitor.", "401": "Revenue becomes 36,000 × 0.85 = 30,600 while cost stays 15,800. Gross profit 14,800, operating profit <b>−3,400</b>. Getting back to the old profit (2,000) would need about +36% more sales.", "402": "B. Cut one employee", "403": "Wages fall by 1,800.", "404": "Operating profit 2,000 + 1,800 = <b>3,800</b>. But queues grow and service slows — customers may fall further.", "405": "C. Restore margin and service", "406": "Cut waste from 5% to 2.5% (+400), buy meat from another supplier (+1,000), tea with every purchase (+1,000 teas → +1,700).", "407": "Operating profit 2,000 + 3,100 = <b>5,100</b>; customers and team are kept.", "408": "🧠 <b>Discussion question:</b> why is a big discount (A) the fastest but riskiest route? What 3 small actions similar to option C exist in your business?", "409": "Practical class · 2 hours", "410": "The “profit and loss <span class=\"grad\">analysis”</span>", "411": "Each student (or a pair) builds a 2-month P&amp;L for their own business, does a plan-vs-actual analysis and proposes 3 actions.", "412": "⏱ The 120-minute plan", "413": "0–25", "414": "Month 1 statement: revenue, cost, operating costs, interest, tax", "415": "25–40", "416": "Gross, operating, net margin and ROI", "417": "40–55", "418": "Break-even revenue and margin of safety", "419": "55–80", "420": "Month 2 (actual) and splitting the gap into volume, price, cost", "421": "80–100", "422": "Contribution by product and 3 actions", "423": "100–120", "424": "Defence and peer assessment", "425": "Time", "426": "What to do", "427": "📋 The work must contain", "428": "A 2-month P&amp;L statement (step by step)", "429": "3 margins, ROI and the payback period", "430": "Break-even revenue and margin of safety", "431": "A plan-vs-actual table and the causes of the gap", "432": "A contribution-by-product table", "433": "3 actions justified with numbers", "434": "🏅 Assessment", "435": "Accuracy of the statement <b>35%</b> · ratios <b>20%</b> · analysis and causes <b>25%</b> · actions and defence <b>20%</b>.", "436": "Summary · Independent work · Links", "437": "The final <span class=\"grad\">summary</span> and <span class=\"grad\">useful resources</span>", "438": "6 things to remember", "439": "The ladder: <b>revenue → gross → operating → net profit</b>; each step answers its own question.", "440": "Measure profit <b>in percentages</b>: gross, operating, net margin and ROI.", "441": "Break-even revenue = <b>fixed costs ÷ gross margin</b>; keep the margin of safety above 20%.", "442": "Split plan-vs-actual gaps into <b>volume, price/material and cost</b> effects.", "443": "Judge products by <b>percentage × volume</b>; do not rush to close a product with positive contribution.", "444": "Profit ≠ cash: depreciation, credit sales, stock and loan repayments separate them.", "445": "📓 Independent work: “A small-business analysis”", "446": "Talk to a small business you know (a shop, canteen or workshop).", "447": "With permission, note approximate monthly revenue and costs.", "448": "Build the P&amp;L and calculate the 3 margins.", "449": "Write 3 reasoned proposals to raise profit.", "450": "Size: 1–2 pages + a table. Keep confidential data anonymous and general. Marking: statement 40% · analysis 30% · proposals 30%.", "451": "🔗 Useful resources", "452": "<b>Law and official sources:</b>", "453": "<a class=\"lnk\" href=\"https://lex.uz\" target=\"_blank\" rel=\"noopener\">lex.uz</a> — the accounting law and national standards", "454": "<a class=\"lnk\" href=\"https://soliq.uz\" target=\"_blank\" rel=\"noopener\">soliq.uz</a> — tax regimes and reporting forms", "455": "<a class=\"lnk\" href=\"https://stat.uz\" target=\"_blank\" rel=\"noopener\">stat.uz</a> — statistics by industry", "456": "<a class=\"lnk\" href=\"https://ifrs.org\" target=\"_blank\" rel=\"noopener\">ifrs.org</a> — International Financial Reporting Standards", "457": "<b>Free tools:</b>", "458": "<a class=\"lnk\" href=\"https://docs.google.com\" target=\"_blank\" rel=\"noopener\">docs.google.com</a> — a P&amp;L template (Google Sheets)", "459": "<b>Further reading:</b> Karen Berman, Joe Knight — “Financial Intelligence for Entrepreneurs” · Mike Michalowicz — “Profit First” · Eliyahu Goldratt — “The Goal”.", "460": "⚠️ Tax rates and reporting requirements change. Always rely on current official information.", "461": "Final check", "462": "🧪 Test tasks — <span class=\"grad\">15 questions</span>", "463": "↻ Restart the test", "464": "Result", "465": "🎓 Thank you for your attention!", "466": "Before the next class, finish your <b>profit and loss analysis</b> — the next topic: writing a business plan and taking a product to foreign markets.", "467": "Termez State University · Fundamentals of Entrepreneurship"};
+
+var QEN=[{"q": "Monthly revenue is 50,000,000 and the cost of goods sold is 20,000,000 so'm. What is the gross profit?", "a": ["20,000,000 so'm", "30,000,000 so'm", "35,000,000 so'm", "70,000,000 so'm"], "c": 1, "e": "Gross profit = revenue − cost of goods sold = 50,000,000 − 20,000,000 = 30,000,000 so'm."}, {"q": "Gross profit is 30,000,000 and operating expenses are 22,000,000 so'm. What is the operating profit?", "a": ["8,000,000 so'm", "12,000,000 so'm", "22,000,000 so'm", "52,000,000 so'm"], "c": 0, "e": "Operating profit = gross profit − operating expenses = 30,000,000 − 22,000,000 = 8,000,000 so'm."}, {"q": "Net profit is 4,000,000 and revenue is 50,000,000 so'm. What is the net margin?", "a": ["4%", "8%", "12%", "20%"], "c": 1, "e": "Net margin = net profit ÷ revenue × 100 = 4,000,000 ÷ 50,000,000 × 100 = 8%."}, {"q": "Which of the following is not recorded as an expense in the P&amp;L statement?", "a": ["The monthly rent paid for the workshop and the shop", "The wages calculated for employees for this month", "The principal part of a loan repaid to the bank", "The share of oven and freezer wear for this month"], "c": 2, "e": "Repaying loan principal is not an expense but a financing cash outflow. Only the loan interest is recorded as an expense. Rent, wages and depreciation are expenses."}, {"q": "Monthly fixed costs are 12,000,000 so'm and the gross margin is 40%. What is the break-even revenue?", "a": ["4,800,000 so'm", "16,800,000 so'm", "20,000,000 so'm", "30,000,000 so'm"], "c": 3, "e": "Break-even revenue = fixed costs ÷ gross margin = 12,000,000 ÷ 0.40 = 30,000,000 so'm."}, {"q": "Actual revenue is 40 million and break-even revenue is 30 million so'm. What is the margin of safety?", "a": ["25%", "33%", "75%", "10%"], "c": 0, "e": "Margin of safety = (actual − break-even) ÷ actual × 100 = (40 − 30) ÷ 40 × 100 = 25%."}, {"q": "Prices did not change, but the gross margin fell from 60% to 55%. What is the most likely cause?", "a": ["Operating expenses grew because the rent went up", "The loan interest rose and more is paid to the bank", "Raw materials became dearer or waste and losses grew", "Wage costs rose because a new employee was hired"], "c": 2, "e": "Gross margin depends only on revenue and the cost of goods sold. If prices did not change, the cause is raw-material cost or waste. Rent, wages and interest are subtracted after gross profit."}, {"q": "A: contribution 2,000 so'm, 500 units; B: 1,500 so'm, 900 units; C: 4,000 so'm, 280 units; D: 2,500 so'm, 400 units. Which product gives the most total contribution?", "a": ["Product A", "Product B", "Product C", "Product D"], "c": 1, "e": "A = 1,000,000; B = 1,350,000; C = 1,120,000; D = 1,000,000. Although its unit contribution is the smallest, B gives the most because it sells the most."}, {"q": "Net profit for the month is 3,900,000 so'm, but cash rose by only 1,600,000. Which explanation could be right?", "a": ["The statement is wrong: profit and cash must always be equal", "Depreciation caused extra money to leave the till this month", "Tax was paid twice, which is why so little cash is left now", "Credit sales and stock grew, and loan principal was repaid"], "c": 3, "e": "Growth in receivables and stock and repaying loan principal reduce cash without affecting profit. Depreciation is the opposite — an expense with no cash outflow."}, {"q": "Revenue is 40 million, cost of goods 16 million and operating costs 18 million so'm. Which 5% change raises operating profit the most (others unchanged)?", "a": ["Raising the selling price by 5%", "Cutting raw-material cost by 5%", "Cutting the rent and wages by 5%", "Raising the sales volume by 5%"], "c": 0, "e": "Price +5% → +2,000,000; volume +5% → +1,200,000; fixed costs −5% → +900,000; cost of goods −5% → +800,000. Price is the strongest lever, but the risk of losing customers must be considered."}, {"q": "A product has a positive contribution, but after a “share” of fixed costs is allocated it shows a loss. What is the right decision?", "a": ["Stop it at once, because the statement shows it making a loss", "Do not rush, because it is helping to cover the fixed costs", "Double its price so that its sales stop altogether as well", "Charge all fixed costs to this product to justify the others"], "c": 1, "e": "If you stop the product, rent and wages do not fall — only its contribution disappears and total profit falls. A product with positive contribution helps cover fixed costs."}, {"q": "What does “depreciation” mean?", "a": ["The interest on a bank loan taken to buy the equipment", "The cost of repairing the equipment when it breaks down", "Spreading the cost of equipment over its working life", "Extra money the business gets from selling old equipment"], "c": 2, "e": "Depreciation is spreading the price of a long-term asset (an oven, a freezer) over its years of use and recording it as a monthly expense. For example, 30 million ÷ 60 months = 500,000 so'm/month."}, {"q": "The starting investment is 60,000,000 so'm and monthly net profit is 3,000,000 so'm. What is the payback period?", "a": ["5 months", "12 months", "18 months", "20 months"], "c": 3, "e": "Payback period = investment ÷ monthly net profit = 60,000,000 ÷ 3,000,000 = 20 months."}, {"q": "What is the main purpose of plan-vs-actual analysis?", "a": ["To find the gap's cause and set a clear step for next month", "To change the plan to match the actual and so remove the gap", "To find which employee is to blame and then to punish them", "To prepare a mandatory report to submit to the tax office"], "c": 0, "e": "Plan-vs-actual analysis splits the gap into volume, price and cost effects, finds its cause and helps set a clear action for next month."}, {"q": "Monthly operating expenses are 18,000,000 and revenue is 40,000,000 so'm. What percentage of revenue are operating expenses?", "a": ["18%", "40%", "45%", "55%"], "c": 2, "e": "Share = operating expenses ÷ revenue × 100 = 18,000,000 ÷ 40,000,000 × 100 = 45%."}];
+
 
 (function(){
   i18nNodes=[].slice.call(document.querySelectorAll("[data-i]"));
@@ -5591,148 +5390,17 @@ function applyLang(L){
   });
   dotEls.forEach(function(d,i){ d.title=(i+1)+". "+((lang==="en"&&slides[i].dataset.titleEn)?slides[i].dataset.titleEn:slides[i].dataset.title); });
   $("#slideName").textContent=(lang==="en"&&slides[idx].dataset.titleEn)?slides[idx].dataset.titleEn:slides[idx].dataset.title;
-  if(typeof calcRun==="function"){ calcRun(); renderTasks(); }
+  renderTest();
   try{localStorage.setItem("terdu_lang",lang)}catch(e){}
 }
 $("#btnLang").onclick=function(){ applyLang(lang==="en"?"uz":"en"); };
 
-
-/* ================= KREDIT KALKULYATORI ================= */
-function nfmt(x){ return Math.round(x).toString().replace(/\B(?=(\d{3})+(?!\d))/g," "); }
-function annuity(P,r,n){ var i=r/100/12; if(i<=0) return P/n; return P*i/(1-Math.pow(1+i,-n)); }
-function calcRun(){
-  var P=parseFloat(document.getElementById("cSum").value)||0;
-  var r=parseFloat(document.getElementById("cRate").value)||0;
-  var n=parseInt(document.getElementById("cTerm").value,10)||0;
-  var g=parseInt(document.getElementById("cGrace").value,10)||0;
-  var out=document.getElementById("cOut"); if(!out) return;
-  if(P<=0||n<=0){ out.innerHTML=""; return; }
-  if(g>=n) g=0;
-  var i=r/100/12, gPay=P*i, aPay=annuity(P,r,n-g);
-  var total=gPay*g+aPay*(n-g), over=total-P;
-  var firstInt=P*i, firstPrin=aPay-firstInt;
-  var cur=", "+UIT("cSum2");
-  var rows=[
-    [UIT("cMonthly")+cur,nfmt(aPay),"var(--green)"],
-    [UIT("cTotal")+cur,nfmt(total),"var(--blue)"],
-    [UIT("cOver")+cur,nfmt(over),"var(--red)"],
-    [UIT("cOverPct"),(P>0?(over/P*100).toFixed(1):0)+" %","var(--orange)"]
-  ];
-  if(g>0) rows.splice(1,0,[UIT("cGracePay")+cur+" × "+g+" "+UIT("cMon"),nfmt(gPay),"var(--violet)"]);
-  var html=rows.map(function(x){ return '<div class="calc-card" style="--c:'+x[2]+'"><span>'+x[0]+'</span><b>'+x[1]+'</b></div>'; }).join("");
-  html+='<div class="calc-note">'+UIT("cFirst")+": <b>"+nfmt(firstInt)+"</b> "+UIT("cIntPart")+" + <b>"+nfmt(firstPrin)+"</b> "+UIT("cPrinPart")+
-        ". "+UIT("cHint")+"</div>";
-  out.innerHTML=html;
-}
-/* ================= MASALALAR ================= */
-function taskText(t,k){ return (lang==="en"&&t[k+"En"])?t[k+"En"]:t[k]; }
-function renderTasks(){
-  var w=document.getElementById("taskWrap"); if(!w) return;
-  var keep=[].slice.call(w.querySelectorAll(".ans input")).map(function(i){return i.value;});
-  var st=[].slice.call(w.querySelectorAll(".task")).map(function(d){return d.dataset.state||"";});
-  w.innerHTML="";
-  TASKS.forEach(function(t,k){
-    var d=document.createElement("div");
-    d.className="task"; d.style.setProperty("--c",t.color||"var(--violet)");
-    d.innerHTML='<h3>'+(k+1)+"-"+UIT("tTask")+'</h3><p>'+taskText(t,"q")+'</p>'+
-      '<div class="ans"><input type="text" inputmode="numeric" placeholder="'+UIT("tPlaceholder")+'">'+
-      '<button class="btn accent">'+UIT("tCheck")+'</button>'+
-      '<button class="btn" disabled title="'+UIT("tLockTip")+'">'+UIT("tLocked")+'</button></div>'+
-      '<p class="fbk"></p><div class="sol">'+taskText(t,"sol")+'</div>';
-    var inp=d.querySelector("input"), btns=d.querySelectorAll("button"), fb=d.querySelector(".fbk"), sol=d.querySelector(".sol");
-    if(keep[k]) inp.value=keep[k];
-    function num(){ var r=(inp.value||"").replace(/[^\d.,]/g,"").replace(/\s/g,"").replace(",","."); return parseFloat(r); }
-    function lockBtn(){
-      var has=!isNaN(num());
-      if(has||d.dataset.state==="ok"){
-        btns[1].disabled=false; btns[1].removeAttribute("title");
-        if(!sol.classList.contains("show")) btns[1].textContent=UIT("tShow");
-      } else {
-        btns[1].disabled=true; btns[1].title=UIT("tLockTip"); btns[1].textContent=UIT("tLocked");
-        sol.classList.remove("show");
-      }
-    }
-    inp.addEventListener("input",lockBtn);
-    if(st[k]){
-      d.dataset.state=st[k];
-      d.style.setProperty("--c", st[k]==="ok"?"var(--ok)":"var(--err)");
-      inp.classList.add(st[k]==="ok"?"ok":"bad");
-      var vv=num(), cu=" "+UIT("cSum2");
-      fb.className="fbk show "+(st[k]==="ok"?"ok":"no");
-      if(st[k]==="ok"){
-        fb.textContent=UIT("tRight")+" "+UIT("tYour")+" "+nfmt(vv)+cu+" · "+UIT("tExact")+" "+nfmt(t.ans)+cu;
-        sol.classList.add("show"); btns[1].textContent=UIT("tHide");
-      } else {
-        fb.textContent=UIT("tWrong")+" "+UIT("tYour")+" "+nfmt(vv)+cu+"."+(vv>t.ans?UIT("tTooBig"):UIT("tTooSmall"))+" "+UIT("tHintOpen");
-      }
-    }
-    lockBtn();
-    btns[0].onclick=function(){
-      var v=num();
-      inp.classList.remove("ok","bad"); fb.className="fbk show";
-      if(isNaN(v)){ fb.classList.add("no"); fb.textContent=UIT("tEmpty"); d.dataset.state=""; lockBtn(); taskScore(); return; }
-      var ok=Math.abs(v-t.ans)/t.ans<=(t.tol||0.015);
-      var cur=" "+UIT("cSum2");
-      d.dataset.state=ok?"ok":"no";
-      if(ok&&window.RT) RT.award("task"+k,15,"masala");
-      btns[1].disabled=false; btns[1].removeAttribute("title");
-      if(ok){
-        inp.classList.add("ok"); fb.classList.add("ok");
-        fb.textContent=UIT("tRight")+" "+UIT("tYour")+" "+nfmt(v)+cur+" · "+UIT("tExact")+" "+nfmt(t.ans)+cur;
-        d.style.setProperty("--c","var(--ok)");
-        sol.classList.add("show"); btns[1].textContent=UIT("tHide");
-      } else {
-        inp.classList.add("bad"); fb.classList.add("no");
-        fb.textContent=UIT("tWrong")+" "+UIT("tYour")+" "+nfmt(v)+cur+"."+(v>t.ans?UIT("tTooBig"):UIT("tTooSmall"))+" "+UIT("tHintOpen");
-        d.style.setProperty("--c","var(--err)");
-        if(!sol.classList.contains("show")) btns[1].textContent=UIT("tShow");
-      }
-      taskScore();
-    };
-    btns[1].onclick=function(){
-      if(btns[1].disabled) return;
-      sol.classList.toggle("show");
-      btns[1].textContent=sol.classList.contains("show")?UIT("tHide"):UIT("tShow");
-    };
-    w.appendChild(d);
-  });
-  taskScore();
-}
-function taskScore(){
-  var done=0,tried=0;
-  document.querySelectorAll("#taskWrap .task").forEach(function(d){
-    if(d.dataset.state==="ok"){ done++; tried++; }
-    else if(d.dataset.state==="no"){ tried++; }
-  });
-  var a=document.getElementById("tDone"), b=document.getElementById("tTried"), c=document.getElementById("tTotal");
-  if(a) a.textContent=done;
-  if(b) b.textContent=tried;
-  if(c) c.textContent=TASKS.length;
-}
-(function(){
-  var r=document.getElementById("tReset");
-  if(r) r.onclick=function(){
-    document.querySelectorAll("#taskWrap .task").forEach(function(d){
-      d.dataset.state=""; d.style.removeProperty("--c");
-      var i=d.querySelector("input"); i.value=""; i.classList.remove("ok","bad");
-      d.querySelector(".fbk").className="fbk";
-      d.querySelector(".sol").classList.remove("show");
-      var b2=d.querySelectorAll("button")[1];
-      b2.textContent=UIT("tLocked"); b2.disabled=true; b2.title=UIT("tLockTip");
-    });
-    renderTasks(); taskScore();
-  };
-})();
-["cSum","cRate","cTerm","cGrace"].forEach(function(id){
-  var el=document.getElementById(id); if(el) el.addEventListener("input",calcRun);
-});
-calcRun(); renderTasks();
 /* ================= START ================= */
 try{
   var th=localStorage.getItem("terdu_theme");
   setTheme(th|| (window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"));
   var hv=parseInt((location.hash||"").replace(/[^0-9]/g,""),10);
-  var sv=isNaN(hv)?parseInt(localStorage.getItem("terdu_m5_slide"),10):(hv-1);
+  var sv=isNaN(hv)?parseInt(localStorage.getItem("terdu_m3_slide"),10):(hv-1);
   go(isNaN(sv)?0:sv);
   window.addEventListener("hashchange",function(){
     var h=parseInt((location.hash||"").replace(/[^0-9]/g,""),10);
