@@ -52,7 +52,7 @@ def inject(fn,meta):
              # Google orqali kirish yoqilgan bo'lsa, parol sahifaga umuman yozilmaydi
              teacher='' if google else CONF.get('teacher',''),
              firebase=CONF.get('firebase'),topics=CONF['topics'],
-             teacherTg=CONF.get('teacherTg',''),courses=CONF.get('courses',[]),groups=CONF.get('groups',[]),groupRenames=CONF.get('groupRenames',{}),
+             teacherTg=CONF.get('teacherTg',''),courses=CONF.get('courses',[]),groups=CONF.get('groups',[]),groupRenames=CONF.get('groupRenames',{}),hideRating=CONF.get('hideRating',[]),
              tracks=CONF.get('tracks',[]),fbWeb=fbWeb if google else None,teacherH=teacherH if google else '')
     block=(HB+'\n<script>var RT_CFG='+json.dumps(cfg,ensure_ascii=False)+';</script>\n'
            '<script>\n'+AVX.strip()+'\n</script>\n'
