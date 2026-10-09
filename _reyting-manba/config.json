@@ -156,11 +156,12 @@
     },
     {
       "id": "m15",
-      "title": "M15 · 15-mavzu (nomi keyin qo'yiladi)",
+      "title": "M15 · Jamoani shakllantirish, xodimlarni boshqarish va xavflarni aniqlash",
       "file": "mavzu-15.html",
-      "open": false,
+      "open": true,
       "slides": 18,
-      "quiz": 15
+      "quiz": 15,
+      "lim": true
     }
   ],
   "tracks": [
