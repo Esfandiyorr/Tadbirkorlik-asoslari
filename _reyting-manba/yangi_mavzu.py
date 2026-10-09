@@ -38,7 +38,9 @@ def yig(matn_fayl,chiqish,sarlavha,raqam,tavsif=""):
         json.dumps(it['q'],ensure_ascii=False),
         ",\n     ".join(json.dumps(x,ensure_ascii=False) for x in it['a']),
         it['c'],json.dumps(it['e'],ensure_ascii=False)) for it in Q)+"\n];"
-    i=s.index('var Q=['); j=s.index('var picked=new Array'); s=s[:i]+q+"\n"+s[j:]
+    i=s.index('var Q=[')
+    js=[s.index(m) for m in ('var picked=new Array','var KEYS=') if m in s[i:]]   # eski va yangi (Testni boshlash) shablon
+    j=min(x for x in js if x>i); s=s[:i]+q+"\n"+s[j:]
     s=almash(s,'var EN',json.dumps({str(k):v for k,v in enumerate(EN)},ensure_ascii=False))
     s=almash(s,'var QEN',json.dumps([{"q":x['qe'],"a":x['ae'],"c":x['c'],"e":x['ee']} for x in Q],ensure_ascii=False))
     open(chiqish,'w',encoding='utf-8').write(s)

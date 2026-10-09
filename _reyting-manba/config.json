@@ -93,11 +93,12 @@
     },
     {
       "id": "m8",
-      "title": "M8 · 8-mavzu (nomi keyin qo'yiladi)",
+      "title": "M8 · Mahsulotni reklama qilish va mijozga yetkazish",
       "file": "mavzu-8.html",
-      "open": false,
+      "open": true,
       "slides": 18,
-      "quiz": 15
+      "quiz": 15,
+      "lim": true
     },
     {
       "id": "m9",
