@@ -111,11 +111,12 @@
     },
     {
       "id": "m10",
-      "title": "M10 · 10-mavzu (nomi keyin qo'yiladi)",
+      "title": "M10 · Savdo jarayonini tashkil etish va mijozlar bilan ishlash",
       "file": "mavzu-10.html",
-      "open": false,
+      "open": true,
       "slides": 18,
-      "quiz": 15
+      "quiz": 15,
+      "lim": true
     },
     {
       "id": "m11",
