@@ -2756,11 +2756,44 @@ function khBanner(){
   Promise.all([jget(BASE+"/kahoot/cfg.json"),jget(BASE+"/kahoot/idx.json"+q)]).then(function(v){
     KHB.cfg=v[0]; KHB.idx=v[1]||{}; KHB.at=Date.now(); khBannerDraw();
   });
-  if(!KHB.iv) KHB.iv=setInterval(function(){ if(Date.now()-KHB.at>600000) khBanner(); else khBannerDraw(); },1000);
+  if(!KHB.iv) KHB.iv=setInterval(function(){ if(Date.now()-KHB.at>180000) khBanner(); else khBannerDraw(); },1000);
+}
+/* o'yin boshlanishidan 20 daqiqa oldin — tugaguncha: taqdimot o'rniga katta «Jonli test» oynasi, yagona yo'l — o'yinga */
+var KH_GATE_MS=20*60000;
+function khGateDraw(g){
+  var now=Date.now(), o=document.getElementById("khGate"), hid="";
+  try{ hid=sessionStorage.getItem("terdu_khgate")||""; }catch(x){}
+  var on=!!(g&&now>=+g.e.start-KH_GATE_MS&&now<+g.e.end)&&!(isTc&&hid===g.d);
+  if(!on){ if(o) o.remove(); document.documentElement.classList.remove("kh-gated"); return; }
+  var st=now<+g.e.open?"soon":(now<+g.e.start?"lobby":"live"), key=g.d+st;
+  if(!o||o.dataset.key!==key){
+    if(o) o.remove();
+    var head=st==="live"?T("JONLI TEST HOZIR KETMOQDA!","THE LIVE QUIZ IS ON NOW!"):T("JONLI TEST O'YINI BOR!","THERE IS A LIVE QUIZ!");
+    var sub=st==="soon"?T("Qo'shilish ","Joining opens at ")+khHM(+g.e.open)+T(" da ochiladi · boshlanishi ",", start at ")+khHM(+g.e.start)
+      :st==="lobby"?T("Lobbi ochiq — hozir qo'shiling!","The lobby is open — join now!"):T("O'yin tugagach, taqdimot yana ochiladi.","The slides open again after the game.");
+    o=el('<div class="kh-gate-full" id="khGate" role="dialog" aria-modal="true"><div class="kh-shapes kh-gsh"><i class="s0"></i><i class="s1"></i><i class="s2"></i><i class="s3"></i></div>'+
+      '<div class="kh-gbox">'+
+        '<div class="kh-gic">'+(st==="live"?"🎮":"⚡")+'</div>'+
+        '<h1>'+head+'</h1>'+
+        '<p class="kh-gsub">'+esc(sub)+'</p>'+
+        (st!=="live"?'<div class="kh-gcd"><span>'+T("Boshlanishiga","Starts in")+'</span><b id="khGcd">'+khLeft(+g.e.start-now)+'</b></div>':'')+
+        (g.e.note?'<p class="kh-note kh-gnote">'+esc(g.e.note)+'</p>':'')+
+        '<p class="kh-gmeta">'+(+g.e.nq||10)+' '+T("ta savol","questions")+' · '+(+g.e.qsec||+(KHB.cfg||{}).qsec||15)+' '+T("soniyadan","seconds each")+' · 🏆 '+T("g'oliblarga reyting balli","rating points for the winners")+'</p>'+
+        '<a class="kh-gbtn" href="arena.html#/live">'+(st==="live"?"👀 "+T("O'yinni ochish","Open the game"):"🎮 "+T("O'yinga kirish","Enter the game"))+'</a>'+
+        (isTc?'<button type="button" class="kh-gx">✕ '+T("Yopish (faqat o'qituvchi)","Close (teacher only)")+'</button>':'')+
+      '</div></div>');
+    o.dataset.key=key;
+    document.body.appendChild(o);
+    document.documentElement.classList.add("kh-gated");
+    var x=o.querySelector(".kh-gx");
+    if(x) x.onclick=function(){ try{ sessionStorage.setItem("terdu_khgate",g.d); }catch(e){} o.remove(); document.documentElement.classList.remove("kh-gated"); };
+  }
+  var cd=document.getElementById("khGcd"); if(cd) cd.textContent=khLeft(+g.e.start-now);
 }
 function khBannerDraw(){
   var b=document.getElementById("khBan");
   var g=khNext();
+  khGateDraw(g);
   if(!g){ if(b) b.remove(); return; }
   var now=Date.now(), e=g.e, st=now<e.open?"wait":(now<e.start?"lobby":"live"), key=g.d+st, hid="";
   try{ hid=sessionStorage.getItem("terdu_khhide")||""; }catch(x){}
@@ -3168,6 +3201,7 @@ load();
 var booted=false;
 function boot(){
   if(booted) return; booted=true;
+  khBanner();
   var w=null; try{ w=sessionStorage.getItem("terdu_wiped"); sessionStorage.removeItem("terdu_wiped"); }catch(e){}
   if(w) toast(w==="reset"
     ? T("Ro'yxat o'qituvchi tomonidan yangilandi — qaytadan ro'yxatdan o'ting.","The list was reset by the teacher — please register again.")

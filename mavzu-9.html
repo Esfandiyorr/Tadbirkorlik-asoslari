@@ -365,6 +365,8 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 
 
+
+
 /* RT:BEGIN */
 /* ================== REYTING TIZIMI ================== */
 .rt-chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel);
@@ -799,6 +801,34 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 .kh-note{margin:10px 0 0;padding:10px 14px;border-radius:12px;background:#fef3c7;color:#92400e;font-weight:800;font-size:14.5px;text-align:center;border:1px solid #fcd34d}
 .rt-khsp input#khSpNote{padding:7px 10px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--ink);font:inherit}
+
+/* jonli test oldidan katta oyna */
+html.kh-gated,html.kh-gated body{overflow:hidden!important}
+.kh-gate-full{position:fixed;inset:0;z-index:2147483000;display:grid;place-items:center;padding:18px;overflow:auto;
+  background:radial-gradient(circle at 20% 15%,#7c3aed 0,transparent 45%),radial-gradient(circle at 85% 85%,#0ea5e9 0,transparent 45%),linear-gradient(135deg,#2e1065,#46178f 55%,#1e1b4b);color:#fff}
+.kh-gate-full .kh-gsh{position:absolute;inset:0;pointer-events:none;opacity:.35}
+.kh-gate-full .kh-gsh i{position:absolute;width:90px;height:90px;animation:khFloat 9s ease-in-out infinite}
+.kh-gate-full .kh-gsh .s0{left:8%;top:12%;background:#e21b3c;clip-path:polygon(50% 0,100% 100%,0 100%)}
+.kh-gate-full .kh-gsh .s1{right:10%;top:18%;background:#1368ce;transform:rotate(45deg);animation-delay:-2s}
+.kh-gate-full .kh-gsh .s2{left:12%;bottom:12%;background:#d89e00;border-radius:50%;animation-delay:-4s}
+.kh-gate-full .kh-gsh .s3{right:12%;bottom:14%;background:#26890c;animation-delay:-6s}
+@keyframes khFloat{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-22px) rotate(12deg)}}
+.kh-gbox{position:relative;max-width:640px;width:100%;text-align:center;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);border-radius:28px;padding:30px 24px 26px;backdrop-filter:blur(6px);box-shadow:0 30px 80px rgba(0,0,0,.35)}
+.kh-gic{font-size:64px;line-height:1;animation:khBlink 1.2s steps(2) infinite}
+.kh-gbox h1{margin:12px 0 8px;font-size:clamp(28px,6vw,48px);font-weight:900;letter-spacing:.5px;line-height:1.1;text-shadow:0 4px 18px rgba(0,0,0,.35)}
+.kh-gate-full p,.kh-gate-full span{color:#fff}
+.kh-gate-full .kh-gnote{color:#92400e}
+.kh-gsub{margin:0 0 10px;font-size:clamp(15px,2.6vw,19px);opacity:.95;font-weight:700}
+.kh-gcd{display:flex;flex-direction:column;align-items:center;margin:8px 0 6px}
+.kh-gcd span{font-size:14px;opacity:.85;font-weight:700}
+.kh-gcd b{font-size:clamp(48px,11vw,84px);font-weight:900;font-variant-numeric:tabular-nums;line-height:1.05}
+.kh-gnote{margin:10px auto 6px;max-width:520px;font-size:clamp(15px,2.6vw,18px)}
+.kh-gmeta{margin:6px 0 18px;font-size:14px;opacity:.85}
+.kh-gbtn{display:inline-block;padding:18px 34px;border-radius:18px;background:linear-gradient(180deg,#22c55e,#16a34a);color:#fff!important;text-decoration:none;
+  font-size:clamp(20px,4vw,26px);font-weight:900;box-shadow:0 8px 0 #14532d,0 18px 40px rgba(0,0,0,.35);animation:khPulse 1.6s ease-in-out infinite}
+.kh-gbtn:active{transform:translateY(4px);box-shadow:0 4px 0 #14532d}
+@keyframes khPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+.kh-gx{display:block;margin:18px auto 0;background:transparent;border:1px solid rgba(255,255,255,.4);color:#fff;border-radius:10px;padding:6px 12px;font:inherit;font-size:13px;cursor:pointer;opacity:.8}
 /* ================== MUSIQA PLEYERI ================== */
 #mzTab{position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:70;
   background:linear-gradient(135deg,var(--violet),var(--pink));color:#fff;border:none;
@@ -1111,6 +1141,8 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 </div>
 
 <div class="hint" id="hint" data-ui="hint">⌨️ <kbd>→</kbd> keyingi slayd · <kbd>D</kbd> tun/kun · <kbd>L</kbd> uz/eng · <kbd>O</kbd> ro'yxat · <kbd>F</kbd> to'liq ekran</div>
+
+
 
 
 
@@ -4089,11 +4121,44 @@ function khBanner(){
   Promise.all([jget(BASE+"/kahoot/cfg.json"),jget(BASE+"/kahoot/idx.json"+q)]).then(function(v){
     KHB.cfg=v[0]; KHB.idx=v[1]||{}; KHB.at=Date.now(); khBannerDraw();
   });
-  if(!KHB.iv) KHB.iv=setInterval(function(){ if(Date.now()-KHB.at>600000) khBanner(); else khBannerDraw(); },1000);
+  if(!KHB.iv) KHB.iv=setInterval(function(){ if(Date.now()-KHB.at>180000) khBanner(); else khBannerDraw(); },1000);
+}
+/* o'yin boshlanishidan 20 daqiqa oldin — tugaguncha: taqdimot o'rniga katta «Jonli test» oynasi, yagona yo'l — o'yinga */
+var KH_GATE_MS=20*60000;
+function khGateDraw(g){
+  var now=Date.now(), o=document.getElementById("khGate"), hid="";
+  try{ hid=sessionStorage.getItem("terdu_khgate")||""; }catch(x){}
+  var on=!!(g&&now>=+g.e.start-KH_GATE_MS&&now<+g.e.end)&&!(isTc&&hid===g.d);
+  if(!on){ if(o) o.remove(); document.documentElement.classList.remove("kh-gated"); return; }
+  var st=now<+g.e.open?"soon":(now<+g.e.start?"lobby":"live"), key=g.d+st;
+  if(!o||o.dataset.key!==key){
+    if(o) o.remove();
+    var head=st==="live"?T("JONLI TEST HOZIR KETMOQDA!","THE LIVE QUIZ IS ON NOW!"):T("JONLI TEST O'YINI BOR!","THERE IS A LIVE QUIZ!");
+    var sub=st==="soon"?T("Qo'shilish ","Joining opens at ")+khHM(+g.e.open)+T(" da ochiladi · boshlanishi ",", start at ")+khHM(+g.e.start)
+      :st==="lobby"?T("Lobbi ochiq — hozir qo'shiling!","The lobby is open — join now!"):T("O'yin tugagach, taqdimot yana ochiladi.","The slides open again after the game.");
+    o=el('<div class="kh-gate-full" id="khGate" role="dialog" aria-modal="true"><div class="kh-shapes kh-gsh"><i class="s0"></i><i class="s1"></i><i class="s2"></i><i class="s3"></i></div>'+
+      '<div class="kh-gbox">'+
+        '<div class="kh-gic">'+(st==="live"?"🎮":"⚡")+'</div>'+
+        '<h1>'+head+'</h1>'+
+        '<p class="kh-gsub">'+esc(sub)+'</p>'+
+        (st!=="live"?'<div class="kh-gcd"><span>'+T("Boshlanishiga","Starts in")+'</span><b id="khGcd">'+khLeft(+g.e.start-now)+'</b></div>':'')+
+        (g.e.note?'<p class="kh-note kh-gnote">'+esc(g.e.note)+'</p>':'')+
+        '<p class="kh-gmeta">'+(+g.e.nq||10)+' '+T("ta savol","questions")+' · '+(+g.e.qsec||+(KHB.cfg||{}).qsec||15)+' '+T("soniyadan","seconds each")+' · 🏆 '+T("g'oliblarga reyting balli","rating points for the winners")+'</p>'+
+        '<a class="kh-gbtn" href="arena.html#/live">'+(st==="live"?"👀 "+T("O'yinni ochish","Open the game"):"🎮 "+T("O'yinga kirish","Enter the game"))+'</a>'+
+        (isTc?'<button type="button" class="kh-gx">✕ '+T("Yopish (faqat o'qituvchi)","Close (teacher only)")+'</button>':'')+
+      '</div></div>');
+    o.dataset.key=key;
+    document.body.appendChild(o);
+    document.documentElement.classList.add("kh-gated");
+    var x=o.querySelector(".kh-gx");
+    if(x) x.onclick=function(){ try{ sessionStorage.setItem("terdu_khgate",g.d); }catch(e){} o.remove(); document.documentElement.classList.remove("kh-gated"); };
+  }
+  var cd=document.getElementById("khGcd"); if(cd) cd.textContent=khLeft(+g.e.start-now);
 }
 function khBannerDraw(){
   var b=document.getElementById("khBan");
   var g=khNext();
+  khGateDraw(g);
   if(!g){ if(b) b.remove(); return; }
   var now=Date.now(), e=g.e, st=now<e.open?"wait":(now<e.start?"lobby":"live"), key=g.d+st, hid="";
   try{ hid=sessionStorage.getItem("terdu_khhide")||""; }catch(x){}
@@ -4501,6 +4566,7 @@ load();
 var booted=false;
 function boot(){
   if(booted) return; booted=true;
+  khBanner();
   var w=null; try{ w=sessionStorage.getItem("terdu_wiped"); sessionStorage.removeItem("terdu_wiped"); }catch(e){}
   if(w) toast(w==="reset"
     ? T("Ro'yxat o'qituvchi tomonidan yangilandi — qaytadan ro'yxatdan o'ting.","The list was reset by the teacher — please register again.")
