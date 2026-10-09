@@ -381,6 +381,10 @@
 .rt-kh .rt-khrow{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:8px 0}
 .rt-kh .rt-khrow label{display:flex;align-items:center;gap:6px;font-size:13.5px;font-weight:700}
 .rt-kh input[type=time],.rt-kh .rt-khrow select{padding:6px 8px;border:1px solid var(--line);border-radius:10px;background:var(--panel2);color:var(--ink);font:inherit}
+.rt-kh input[type=date]{padding:6px 8px;border:1px solid var(--line);border-radius:10px;background:var(--panel2);color:var(--ink);font:inherit}
+.rt-khsp .rt-khlist{max-height:360px}
+.rt-khsp label.rt-khq{display:flex;align-items:flex-start;gap:10px;color:var(--ink);font-weight:400}
+.rt-khsp .rt-khq input{width:18px;height:18px;flex:none;margin-top:2px}
 .rt-khlist{display:grid;gap:6px;max-height:420px;overflow:auto;margin-top:8px}
 .rt-khq{display:flex;gap:8px;align-items:center;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:8px 10px}
 .rt-khq>div{flex:1;min-width:0}
@@ -424,3 +428,6 @@
 .rt-acc-st h5{margin:0 0 8px;font-size:13.5px}
 .rt-acc-st input{margin-bottom:8px}
 .rt-acc-st .rt-acc-gs{margin-top:6px}
+
+.kh-note{margin:10px 0 0;padding:10px 14px;border-radius:12px;background:#fef3c7;color:#92400e;font-weight:800;font-size:14.5px;text-align:center;border:1px solid #fcd34d}
+.rt-khsp input#khSpNote{padding:7px 10px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--ink);font:inherit}
