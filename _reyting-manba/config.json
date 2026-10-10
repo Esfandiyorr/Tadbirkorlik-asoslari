@@ -53,7 +53,9 @@
       "open": true,
       "quiz": 15,
       "slides": 15,
-      "lim": true
+      "lim": true,
+      "pdf": "fayllar/M3-mavzu.pdf",
+      "pdfSize": "2,1 MB"
     },
     {
       "id": "m4",

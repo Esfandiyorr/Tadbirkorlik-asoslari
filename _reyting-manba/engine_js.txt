@@ -1300,7 +1300,7 @@ function renderTp(){
       '<span>'+(open?T("Ochiq","Open"):x.open?T("Guruhingiz uchun hali ochilmagan — o'qituvchi darsda ochadi","Not open for your group yet — the teacher opens it in class"):T("Yopiq — o'qituvchi darsda ochadi","Locked — the teacher will open it in class"))+
       ' · '+T("ballingiz","your points")+": "+p+'</span></div>'+
       (open&&!cur?'<a class="btn accent" href="'+x.file+'">'+T("Ochish","Open")+'</a>':'')+
-      (!open&&x.open&&x.pdf?'<a class="btn" href="'+esc(x.pdf)+'" download>📥 PDF</a>':'')+'</div>';
+      (x.pdf&&(open||x.open)?'<a class="btn" href="'+esc(x.pdf)+'" download>📥 PDF</a>':'')+'</div>';
   }).join("");
   box.innerHTML=list+'<p class="rt-note">'+T(
     "Yopiq mavzular saytga umuman yuklanmagan — ular o'qituvchi darsni o'tgach ochiladi.",
@@ -3206,9 +3206,16 @@ function khTcRender(){
 
 load();
 var booted=false;
+/* mavzuning PDF fayli bo'lsa, yuqoridagi «PDF» tugmasi chop etish o'rniga faylni yuklab beradi */
+function pdfBtn(){
+  var me=(CFG.topics||[]).filter(function(t){ return t.id===CFG.topic; })[0], b=document.getElementById("btnPrint");
+  if(!me||!me.pdf||!b) return;
+  b.textContent="📥 PDF"; b.title=T("PDF versiyasini yuklab olish","Download the PDF version")+(me.pdfSize?" · "+me.pdfSize:"");
+  b.onclick=function(e){ if(e) e.preventDefault(); var a=document.createElement("a"); a.href=me.pdf; a.setAttribute("download",""); document.body.appendChild(a); a.click(); a.remove(); };
+}
 function boot(){
   if(booted) return; booted=true;
-  khBanner();
+  khBanner(); pdfBtn();
   var w=null; try{ w=sessionStorage.getItem("terdu_wiped"); sessionStorage.removeItem("terdu_wiped"); }catch(e){}
   if(w) toast(w==="reset"
     ? T("Ro'yxat o'qituvchi tomonidan yangilandi — qaytadan ro'yxatdan o'ting.","The list was reset by the teacher — please register again.")
