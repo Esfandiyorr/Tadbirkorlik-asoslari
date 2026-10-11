@@ -130,3 +130,50 @@ har bir o'yinchi faqat o'z natijasini yozadi, bir raundga bitta natija
 qabul qilinadi, natija raund oynasidan tashqarida hisobga olinmaydi va
 hammasi o'qituvchiga ko'rinadigan bazada saqlanadi. Bu oddiy aldashni
 to'xtatadi, lekin brauzer konsolini biladigan talabani to'xtata olmaydi.
+
+
+## ⌨️ Yozuv Marafoni (`arena.html#/yozuv`)
+
+Tez yozish poygasi: matnni qancha tez va to'g'ri yozsang, yuguruvching shuncha
+tez yuguradi. Yuguruvchining yo'lakdagi o'rni = matnning to'g'ri yozilgan qismi.
+
+**Fayllar** (`inject.py` ularni `arena.html` ga alohida `<script>` bloklari qilib qo'yadi):
+
+| Fayl | Nima |
+|---|---|
+| `yozuv.js` | O'yinning o'zi (`YZ` moduli): stadion grafikasi (Canvas), 48 xil yuguruvchi, yozish mexanikasi, mashq, jonli poyga, natija ekrani, ovozlar |
+| `yozuv_matnlar.json` | Matnlar: 6 til (o'zbek lotin/kirill, rus, ingliz, turk, nemis) × 3 daraja (oson, o'rta, qiyin), har birida 10–12 ta. `fayllar/yozuv-matnlar.json` ga ham nusxa ko'chiriladi (o'qituvchi formasi uchun) |
+| `yozuv_ball.js` | Rasmiy natija hisobi `yzScore()` — arenaga va taqdimot dvigateliga (`/*@YZBALL@*/` o'rniga) **aynan bir xil** qo'yiladi |
+
+**Mashq poygasi** — server shart emas: 0–5 ta bot (tezligi talabaning so'nggi
+natijalariga moslashadi) va shaxsiy rekord "sharpasi". Rekordlar
+`localStorage` da (`yz_pb_v1`, `yz_hist_v1`, `yz_look_v1`, `yz_set_v1`);
+eng yaxshi natija qiziqish uchun `arena/yzrec/<til>/<sid>` ga ham yoziladi
+(reytingga ta'sir qilmaydi).
+
+**Yozish qoidalari:** xato harf qizil, to'g'risi yashil; so'z faqat to'liq
+to'g'ri yozilib bo'shliq bosilganda qabul qilinadi. Tutuq belgisining
+barcha ko'rinishlari (' ‘ ’ ʻ ʼ ` ´) bir xil; kirill matnda `ў қ ғ ҳ` o'rniga
+`у к г х`, rus matnida `ё` o'rniga `е`, turk va nemis matnlarida
+`ç ğ ı ö ş ü ä` o'rniga oddiy harflar ham qabul qilinadi. Qo'yish (paste) va
+bir urinishda 2 tadan ortiq belgi (avtomatik to'ldirish) qabul qilinmaydi.
+
+**Jonli poyga** — o'qituvchi taqdimotdagi panelda («⚡ Jonli test» bo'limi →
+«⌨️ Yozuv marafoni: jonli poyga tuzish») tuzadi: rejim (🏁 marra yoki
+⏱ 1/2/3/5 daqiqa), til, daraja, matn (tasodifiy, ro'yxatdan yoki o'zi
+yozgan), sana-vaqt, lobbi, kamida necha kishi, eslatma. Mavjud
+`kahoot` qoidalari ishlatiladi, yangi qoida kerak emas:
+
+- `kahoot/idx/<sana-yHHMM>` — `{type:"yz", sp:true, start, open, end, mode, dur, lang, lvl, min, note}`;
+  kalit kunlik jonli testniki bilan to'qnashmaydi.
+- `kahoot/games/<kalit>/q/0/t` — matn (startdan 4 soniya oldin ochiladi);
+  `q/i`, `k/i` (i = 1…so'zlar soni) — har bir so'z nazorat nuqtasi.
+- qo'shilish: `p/<sid>` (faqat lobbi vaqtida); talaba i-so'zni tugatganda
+  `a/i/<sid> = {c:0, t: server vaqti}` bir marta yoziladi.
+- `arena/yz/<kalit>/<sid>` — jonli o'rinlar (faqat animatsiya uchun), 2 kundan keyin tozalanadi.
+
+O'rin: eng uzoq yetgan nazorat nuqtasi → unga ertaroq yetgan. Soniyasiga 15
+belgidan tez natija shubhali deb belgilanadi. Kamida `min` kishi qatnashsa,
+**1-o'rin +5, 2-o'rin +4, 3-o'rin +3 ball** umumiy reytingga qo'shiladi
+(`khTotals`/`khAuto` → `gScore()`), poyga taqdimotlarda 20 daqiqa oldin
+katta e'lon bilan ko'rsatiladi.
