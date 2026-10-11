@@ -3008,6 +3008,22 @@ function yzMakeGame(start,o,text){
   for(var i=1;i<=W;i++){ q[i]={at:start}; k[i]={cl:cl,c:0}; }
   return {meta:meta,q:q,k:k};
 }
+/* arenadagi Yozuv Marafoni: o'qituvchi ochmaguncha talabalar mashq qila olmaydi (/kahoot/cfg/yz) */
+function khYzSwitchHtml(){
+  var on=!!(KHT.cfg&&KHT.cfg.yz===true);
+  return '<div class="rt-khrow"><b>⌨️ '+T("Yozuv Marafoni (arena)","Typing Marathon (arena)")+':</b> '+
+    (on?'<span class="rt-badge" style="background:#16a34a;color:#fff">✅ '+T("ochiq","open")+'</span>':'<span class="rt-badge" style="background:#e11d48;color:#fff">🔒 '+T("yopiq","closed")+'</span>')+
+    ' <button type="button" class="btn sm'+(on?'':' accent')+'" id="khYzSw">'+(on?'🔒 '+T("Yopish","Close"):'🔓 '+T("Talabalarga ochish","Open for students"))+'</button></div>'+
+    '<p class="rt-note" style="margin:0">'+T("Yopiq paytda talabalar mashq qila olmaydi; siz tuzgan jonli poygaga esa qo'shila oladi.","While closed students cannot practise, but they can join a live race you set up.")+'</p>';
+}
+function khYzSwitch(){
+  var on=!(KHT.cfg&&KHT.cfg.yz===true);
+  if(!confirm(on?T("Yozuv Marafoni talabalarga ochilsinmi?","Open the Typing Marathon for students?"):T("Yozuv Marafoni yopilsinmi?","Close the Typing Marathon?"))) return;
+  khKpatch({"cfg/yz":on}).then(function(ok){
+    if(!ok){ toast(T("Saqlanmadi — Firebase qoidalarini tekshiring","Not saved — check the Firebase rules")); return; }
+    KHT.cfg=KHT.cfg||{}; KHT.cfg.yz=on; toast(on?T("Ochildi ✅","Opened ✅"):T("Yopildi 🔒","Closed 🔒")); khTcRender();
+  });
+}
 function khYzHtml(){
   var idx=KHT.idx||{}, now=Date.now();
   var cur=Object.keys(idx).filter(function(d){ return idx[d]&&idx[d].type==="yz"&&+idx[d].end>now; }).sort(function(a,b){ return idx[a].start-idx[b].start; }).map(function(d){
@@ -3015,6 +3031,7 @@ function khYzHtml(){
     return '<p class="rt-note">⌨️ <b>'+T("Poyga","Race")+':</b> '+esc(khWhen(d,e.start))+' · '+esc(yzInfo(e))+' · 👥 ≥'+(+e.min||3)+
       (+e.start>now+5000?' <button type="button" class="btn sm kh-yzx" data-d="'+esc(d)+'">✕ '+T("Bekor qilish","Cancel")+'</button>':' <span class="rt-badge">'+T("ketmoqda","running")+'</span>')+'</p>';
   }).join("");
+  cur=khYzSwitchHtml()+cur;
   if(!KHT.yz) return cur+'<div class="rt-khrow"><button type="button" class="btn sm" id="khYzOpen">⌨️ '+T("Yozuv marafoni: jonli poyga tuzish","Typing race: set up a live race")+'</button></div>';
   var f=KHT.yz, J=KHT.yzJ, pool=(J&&J.t&&J.t[f.lang]&&J.t[f.lang][f.lvl])||[];
   function opt(v,t,c){ return '<option value="'+esc(v)+'"'+(String(v)===String(c)?" selected":"")+'>'+esc(t)+'</option>'; }
@@ -3042,6 +3059,7 @@ function khYzHtml(){
 }
 function khYzBind(box){
   var q=function(id){ return document.getElementById(id); };
+  var sw=q("khYzSw"); if(sw) sw.onclick=khYzSwitch;
   var op=q("khYzOpen"); if(op) op.onclick=function(){ op.disabled=true; yzTexts(function(j){ KHT.yzJ=j; KHT.yz=yzDefault(); khTcRender(); if(!j) khYzMsg(T("Matnlar fayli yuklanmadi — faqat o'z matningiz bilan tuzish mumkin.","The texts file did not load — only your own text can be used."),1); }); };
   [].forEach.call(box.querySelectorAll(".kh-yzx"),function(b){ b.onclick=function(){ khYzCancel(b.dataset.d); }; });
   if(!KHT.yz||!q("khYzGo")) return;
@@ -3331,7 +3349,7 @@ function khTcRender(){
   if(!KHT.loaded) return;
   var q=function(id){ return document.getElementById(id); };
   q("khSave").onclick=function(){
-    var c=KHT.cfg||{}, nc={on:q("khOn").checked,time:q("khTime").value||"20:00",nq:+q("khNq").value||10,qsec:+q("khQs").value||15,min:7,lobby:10};
+    var c=KHT.cfg||{}, nc={on:q("khOn").checked,time:q("khTime").value||"20:00",nq:+q("khNq").value||10,qsec:+q("khQs").value||15,min:7,lobby:10,yz:c.yz===true};
     var changed=(nc.time!==c.time||nc.nq!==+c.nq||nc.qsec!==(+c.qsec||15)||nc.on!==!!c.on);
     fetch(BASE+"/kahoot/cfg.json",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(nc)})
       .then(function(r){

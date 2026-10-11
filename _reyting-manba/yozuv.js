@@ -801,6 +801,14 @@ function mkTyper(T,box,inp,h){
 
 /* ================== 8. POYGA (umumiy holat) ================== */
 var RC=null;           /* joriy poyga */
+/* o'qituvchi ochmaguncha mashq yopiq: /kahoot/cfg/yz === true bo'lsagina ochiq.
+   Yopiq paytda ham o'qituvchi tuzgan jonli poygaga qo'shilish mumkin. */
+var OPEN=false;
+function lockCheck(cb){
+  if(!X.online()||!X.base()){ cb(false); return; }
+  X.tmo(fetch(X.base()+"/kahoot/cfg.json"),9000).then(function(r){ return r.ok?r.json():null; }).catch(function(){ return null; })
+    .then(function(c){ cb(!!(c&&c.yz===true)); });
+}
 var BOTN=["Aziz","Madina","Javohir","Sevara","Bekzod","Nilufar","Sherzod","Gulnoza","Otabek","Zarina","Rustam","Kamola","Diyor","Shahnoza","Jahongir","Mohira"];
 /* yo'lakdagi o'rin: progress (belgi) → dunyo koordinatasi */
 function wx(ch){ return -20+ch*PX; }
@@ -893,6 +901,9 @@ function vHome(){
         '<div class="yz-me"><canvas id="yzPrev"></canvas><div class="yz-mei"><span class="yz-lbl">'+L("Poygachi","Racer")+'</span><b>'+esc(myName())+'</b>'+
           '<span class="yz-lnm" id="yzLnm">'+esc(lookOf(lk).nm)+'</span><button type="button" class="yz-chip" id="yzRnd">🎲 '+L("Tasodifiy","Random")+'</button></div></div>'+
         '<div class="yz-looks" id="yzLooks">'+LOOKS.map(function(x,i){ return '<button type="button" class="yz-lk'+(i===lk?' on':'')+'" data-i="'+i+'" title="'+esc(x.nm)+'" aria-label="'+esc(x.nm)+'"><canvas></canvas></button>'; }).join("")+'</div></section>'+
+      (!OPEN?'<section class="yz-panel yz-shut"><h3>🔒 '+L("Hozircha yopiq","Closed for now")+'</h3>'+
+        '<div class="yz-shutic">🔒</div><p>'+L("Yozuv Marafoni o'qituvchi ochguncha yopiq. Bellashuv vaqtida o'qituvchi ochadi — shunda mashq qilish va poygada qatnashish mumkin bo'ladi.","The Typing Marathon is closed until the teacher opens it.")+'</p>'+
+        '<p class="yz-sm">'+L("Ungacha yuguruvchingizni tanlab qo'yishingiz mumkin. Jonli poyga e'lon qilinsa, yuqorida chiqadi.","Meanwhile you can pick your runner. A live race, when announced, appears above.")+'</p></section>':
       '<section class="yz-panel yz-setp"><h3>🎮 '+L("Mashq poygasi","Practice race")+'</h3>'+
         '<span class="yz-lbl">'+L("Til","Language")+'</span><div class="yz-chips">'+langs().map(function(x){ return chip("l",x.id,x.fl+" "+x.nm,s.l); }).join("")+'</div>'+
         '<span class="yz-lbl">'+L("Qiyinlik","Difficulty")+'</span><div class="yz-chips">'+lvls().map(function(x){ return chip("v",x.id,lvIcon(x.id)+" "+x.nm,s.v); }).join("")+'</div>'+
@@ -900,7 +911,7 @@ function vHome(){
         '<span class="yz-lbl">'+L("Raqiblar","Opponents")+'</span><div class="yz-chips">'+[0,1,2,3,4,5].map(function(n){ return chip("b",n,n?("🤖 "+n):L("Yolg'iz","Solo"),s.b); }).join("")+'</div>'+
         '<p class="yz-pbl" id="yzPbl"></p>'+
         '<button type="button" class="yz-go" id="yzGo">▶ '+L("Boshlash","Start")+'</button>'+
-      '</section>'+
+      '</section>')+
     '</div>'+
     '<div class="yz-grid">'+
       '<section class="yz-panel"><h3>🏆 '+L("Shaxsiy rekordlar","Personal bests")+'</h3><div id="yzPbs"></div></section>'+
@@ -920,7 +931,7 @@ function vHome(){
   });
   $("yzRnd").onclick=function(){ var i=Math.floor(Math.random()*LOOKS.length); boxes[i].click(); boxes[i].scrollIntoView({block:"nearest",behavior:"smooth"}); };
   requestAnimationFrame(function(){ [].forEach.call(boxes,function(b){ lookThumb(b.querySelector("canvas"),+b.dataset.i); }); });
-  $("yzGo").onclick=function(){ SND.unlock(); startPractice(); };
+  if($("yzGo")) $("yzGo").onclick=function(){ SND.unlock(); startPractice(); };
   pbLine(); pbTable(); topList();
   heroScene(); prevLoop();
   liveCard();
@@ -981,6 +992,7 @@ function topList(){
 
 /* ---------- 10.2 Mashq poygasi ---------- */
 function startPractice(){
+  if(!OPEN){ toast(L("Yozuv Marafoni hozircha yopiq — o'qituvchi ochadi","Closed for now — the teacher will open it")); vHome(); return; }
   var s=settings(), dur=modeDur(s.m), mode=dur?"time":"fin";
   var text=pickText(s.l,s.v,dur?Math.round(dur*14):0);
   var R=mkRace({kind:"prac",lang:s.l,lvl:s.v,mk:s.m,mode:mode,dur:dur,text:text,bots:s.b,pb:pbGet(s.l,s.v,s.m)});
@@ -1221,16 +1233,16 @@ function vResults(o){
       '<section class="yz-panel"><h3>📈 '+L("Tezlik grafigi","Speed chart")+'</h3><canvas id="yzChart" class="yz-chart"></canvas></section>'+
       '<section class="yz-panel"><h3>🔤 '+L("Ko'p xato qilingan harflar","Most missed letters")+'</h3>'+missH+'</section></div>'+
     '<section class="yz-panel"><h3>🏁 '+L("Natijalar jadvali","Results")+'</h3>'+tb+(o.foot?'<p class="yz-sm" style="margin-top:8px">'+o.foot+'</p>':'')+'</section>'+
-    '<div class="yz-acts"><button type="button" class="yz-go" id="yzAgain">🔄 '+L("Qayta o'ynash","Play again")+'</button>'+
+    '<div class="yz-acts">'+(OPEN?'<button type="button" class="yz-go" id="yzAgain">🔄 '+L("Qayta o'ynash","Play again")+'</button>':'')+
       '<button type="button" class="yz-btn2" id="yzHome">🏠 '+L("Bosh ekran","Home")+'</button>'+
       '<a class="yz-btn2" href="#/">🎮 '+L("Arena","Arena")+'</a></div>'+
-    '<p class="yz-sm yz-center">⌨️ Enter — '+L("qayta o'ynash","play again")+'</p>'+
+    (OPEN?'<p class="yz-sm yz-center">⌨️ Enter — '+L("qayta o'ynash","play again")+'</p>':'')+
   '</div>';
   bindSnd("yzSnd");
   $("yzHome").onclick=function(){ vHome(); };
   function again(){ var s=settings(); s.l=R.lang; s.v=R.lvl; s.m=(R.mk&&/^(fin|t60|t120|t180)$/.test(R.mk))?R.mk:"fin"; saveSet(s); SND.unlock(); startPractice(); }
-  $("yzAgain").onclick=again;
-  on(document,"keydown",function(e){ if(e.key==="Enter"&&VIEW==="res"&&!/INPUT|TEXTAREA|SELECT/.test((document.activeElement||{}).tagName||"")){ e.preventDefault(); again(); } });
+  if($("yzAgain")) $("yzAgain").onclick=again;
+  on(document,"keydown",function(e){ if(e.key==="Enter"&&VIEW==="res"&&OPEN&&!/INPUT|TEXTAREA|SELECT/.test((document.activeElement||{}).tagName||"")){ e.preventDefault(); again(); } });
   /* shohsupa */
   var cv=$("yzPod"), S=mkScene(cv,{mini:false,tags:false,cam0:0});
   S.podium=top3.map(function(r){ return {lk:r.lk||lookOf(0),num:r.num||7}; }); S.rain(150);
@@ -1292,7 +1304,7 @@ function liveChips(m){
 /* bosh ekrandagi jonli poyga kartasi */
 function liveCard(){
   var box=$("yzLive"); if(!box) return;
-  if(!X.online()){ box.innerHTML='<div class="yz-lc none">🔌 '+L("Internet yo'q — jonli poyga ko'rinmaydi, mashq qilish mumkin.","Offline — live races are hidden, practice works.")+'</div>'; return; }
+  if(!X.online()){ box.innerHTML='<div class="yz-lc none">🔌 '+L("Internet yo'q — jonli poyga ko'rinmaydi.","Offline — live races are hidden.")+'</div>'; return; }
   var a=ALIVE, me=ME();
   function load(){
     liveFind(function(g){
@@ -1323,6 +1335,7 @@ function liveCard(){
     if(jn&&VIEW==="home"&&t>=m.start-20000&&t<m.start+5000) liveOpen(g);
   }
   load(); every(draw,1000); every(load,30000);
+  every(function(){ lockCheck(function(o){ if(a===ALIVE&&VIEW==="home"&&o!==OPEN){ OPEN=o; vHome(); } }); },20000);
 }
 function liveJoin(g,btn){
   var me=ME(); if(!me) return;
@@ -1636,6 +1649,7 @@ var STYLE=[
 ".yz-top li.me{outline:2px solid var(--yzA)}",
 ".yz-rk{width:24px;text-align:center;font-weight:900;flex:none}",
 ".yz-dot{width:12px;height:12px;border-radius:50%;flex:none;box-shadow:0 0 0 2px rgba(255,255,255,.7)}",
+".yz-shut{text-align:center;display:grid;align-content:center;gap:6px}.yz-shut p{margin:0;font-weight:600;line-height:1.5}.yz-shutic{font-size:58px}",
 ".yz-rules summary{cursor:pointer;font-weight:900;font-size:16px}",
 ".yz-rules ul{margin:10px 0 0;padding-left:4px;list-style:none;display:grid;gap:7px;line-height:1.5}",
 /* poyga ekrani */
@@ -1741,7 +1755,9 @@ function css(){ if(document.getElementById("yzCss")) return; var st=document.cre
 function mount(root,ctx){
   X=ctx; ROOT=root; TX=window.YZ_TEXTS||TX; css();
   if(!langs().length){ root.innerHTML='<div class="card">⚠️ '+L("Matnlar yuklanmadi.","Texts did not load.")+'</div>'; return; }
-  vHome();
+  root.innerHTML='<div class="card"><p class="note center">'+L("Yuklanmoqda…","Loading…")+'</p></div>';
+  var a=++ALIVE;
+  lockCheck(function(o){ if(a!==ALIVE||ROOT!==root) return; OPEN=o; vHome(); });
 }
 function unmount(){
   if(!ROOT) return;
