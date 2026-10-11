@@ -1310,7 +1310,8 @@ function liveCard(){
     liveFind(function(g){
       if(a!==ALIVE) return;
       LIVE.g=g;
-      if(g&&me&&!LIVE.joined[g.d]) X.kget("games/"+g.d+"/p/"+me.id,function(v){ if(v) LIVE.joined[g.d]=true; draw(); });
+      /* har safar tekshiriladi: o'qituvchi poygani qayta tuzsa, oldingi qo'shilish o'chadi */
+      if(g&&me) X.kget("games/"+g.d+"/p/"+me.id,function(v,st){ if(st===200) LIVE.joined[g.d]=!!v; draw(); });
       draw();
     });
   }

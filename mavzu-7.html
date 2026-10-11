@@ -370,6 +370,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 
 
+
 /* RT:BEGIN */
 /* ================== REYTING TIZIMI ================== */
 .rt-chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel);
@@ -1522,6 +1523,7 @@ html.kh-gated,html.kh-gated body{overflow:hidden!important}
 </div>
 
 <div class="hint" id="hint" data-ui="hint">⌨️ <kbd>→</kbd> keyingi slayd · <kbd>D</kbd> tun/kun · <kbd>L</kbd> uz/eng · <kbd>O</kbd> ro'yxat · <kbd>F</kbd> to'liq ekran</div>
+
 
 
 
@@ -4868,7 +4870,9 @@ function khYzBuild(){
   var tm=f.tm.slice(0,5), start=khStartOf(f.d,tm), now=Date.now();
   if(start<=now+60000){ khYzMsg(T("Bu vaqt o'tib ketgan yoki 1 daqiqadan kam qolgan — kechroq vaqt tanlang.","That time has passed or is less than a minute away — choose a later time."),1); return; }
   var key=f.d+"-y"+tm.replace(":",""), idx=KHT.idx||{};
-  if(idx[key]&&+idx[key].end>now){ khYzMsg(T("Shu vaqtga poyga allaqachon tuzilgan.","A race already exists at that time."),1); return; }
+  /* hali boshlanmagan eski poygalar yangisi bilan almashtiriladi (o'chiriladi); boshlangani tegilmaydi */
+  if(idx[key]&&+idx[key].start<=now+5000&&+idx[key].end>now){ khYzMsg(T("Shu vaqtdagi poyga allaqachon boshlangan — boshqa vaqt tanlang.","The race at that time has already started — choose another time."),1); return; }
+  var old=Object.keys(idx).filter(function(d){ var e=idx[d]; return e&&e.type==="yz"&&+e.start>now+5000; });
   var pool=(J&&J.t&&J.t[f.lang]&&J.t[f.lang][f.lvl])||[], text;
   if(f.ti==="o"){ text=yzClean(f.own); if(text.length<20){ khYzMsg(T("O'z matningiz kamida 20 belgi bo'lsin.","Your text must be at least 20 characters."),1); return; } }
   else if(f.ti!=="r"&&pool[+f.ti]) text=pool[+f.ti];
@@ -4883,14 +4887,19 @@ function khYzBuild(){
   text=yzClean(text);
   var open=start-(+f.lobby||10)*60000; if(open<now+15000) open=now+15000;   /* lobbi vaqti o'tgan bo'lsa — darhol ochiladi */
   var g=yzMakeGame(start,{open:open,mode:f.mode,dur:dur,lang:f.lang,lvl:f.lvl,min:+f.min||3,note:yzClean(f.note).slice(0,140)},text);
-  if(!confirm(T("Yozuv marafoni: ","Typing race: ")+dfmt(f.d)+" "+tm+" · "+yzInfo(g.meta)+" · "+g.meta.nw+" "+T("so'z. Tuzilsinmi?","words. Create it?"))) return;
-  var o={}; o["games/"+key]=g;
+  var oldTxt=old.length?"\n\n"+T("Oldin tuzilgan poyga o'chiriladi: ","The earlier race will be deleted: ")+old.map(function(d){ return dfmt(d); }).join(", ")+
+    T(" (unga qo'shilganlar qaytadan qo'shiladi).",""):"";
+  if(!confirm(T("Yozuv marafoni: ","Typing race: ")+dfmt(f.d)+" "+tm+" · "+yzInfo(g.meta)+" · "+g.meta.nw+" "+T("so'z. Tuzilsinmi?","words. Create it?")+oldTxt)) return;
+  var o={};
+  old.forEach(function(d){ o["games/"+d]=null; o["idx/"+d]=null; });
+  o["games/"+key]=g;
   o["idx/"+key]={start:start,open:g.meta.open,end:g.meta.end,nq:g.meta.nw,type:"yz",sp:true,mode:g.meta.mode,dur:dur,lang:f.lang,lvl:f.lvl,min:g.meta.min,note:g.meta.note||null};
   khYzMsg(T("Saqlanmoqda…","Saving…"));
   khKpatch(o).then(function(ok){
     if(!ok){ khYzMsg(T("Saqlanmadi — o'qituvchi Google hisobi bilan kirganingizni va Firebase qoidalarini tekshiring.","Not saved — check that you are signed in with the teacher's Google account and the Firebase rules."),1); return; }
+    old.forEach(function(d){ delete idx[d]; window.fetch(BASE+"/arena/yz/"+d+".json",{method:"DELETE"}).catch(function(){}); });
     idx[key]=o["idx/"+key]; KHT.idx=idx; KHT.yz=null;
-    toast(T("Poyga tuzildi ✅ ","Race created ✅ ")+dfmt(f.d)+" "+tm);
+    toast((old.length?T("Eski poyga o'chirildi, yangisi tuzildi ✅ ","Old race replaced ✅ "):T("Poyga tuzildi ✅ ","Race created ✅ "))+dfmt(f.d)+" "+tm);
     khTcRender(); KHB.at=0;
   });
 }
