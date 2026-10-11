@@ -72,37 +72,37 @@ function pickText(l,v,minLen){
   return out.join(" ");
 }
 /* matn modeli: so'zlar va ularning boshlanish o'rni */
-function mkText(str,lang){
+function mkText(str){
   str=String(str||"").replace(/\s+/g," ").trim();
   var w=str.split(" "), st=[], o=0;
   w.forEach(function(x){ st.push(o); o+=x.length+1; });
-  return {s:str,ns:nstr(str,lang),w:w,st:st,n:str.length,nw:w.length,lang:lang};
+  return {s:str,w:w,st:st,n:str.length,nw:w.length};
 }
 function segOf(T,i){ return T.w[i]+(i<T.nw-1?" ":""); }
 /* i-so'z tugagandagi belgilar soni (bo'shliqsiz) */
 function charsAt(T,i){ return i<=0?0:(T.st[i-1]+T.w[i-1].length); }
 
 /* ---------- bir xil deb qabul qilinadigan belgilar ----------
-   O'zbekcha o' va g' dagi tutuq belgisining barcha ko'rinishlari bitta;
-   klaviaturada bo'lmasligi mumkin bo'lgan harflar o'rniga oddiy harf ham qabul qilinadi. */
+   O'zbekcha o' va g' dagi tutuq belgisining (va inglizcha apostrofning) barcha ko'rinishlari bitta;
+   qo'shtirnoq, tire va bo'shliqning turli shakllari ham klaviaturadagi oddiy belgiga tenglashtiriladi. */
 var APO="'‘’ʻʼ`´′", QUO='"«»“”„';
-var EQ={uzc:{"ў":"у","Ў":"У","қ":"к","Қ":"К","ғ":"г","Ғ":"Г","ҳ":"х","Ҳ":"Х","ъ":"'"},
-  ru:{"ё":"е","Ё":"Е"},
-  tr:{"ç":"c","Ç":"C","ğ":"g","Ğ":"G","ı":"i","İ":"I","ö":"o","Ö":"O","ş":"s","Ş":"S","ü":"u","Ü":"U","â":"a","Â":"A","î":"i","Î":"I","û":"u","Û":"U"},
-  de:{"ä":"a","Ä":"A","ö":"o","Ö":"O","ü":"u","Ü":"U"}};
-function nch(ch,lang){
+function nch(ch){
   if(APO.indexOf(ch)>=0) return "'";
   if(QUO.indexOf(ch)>=0) return '"';
   if(ch==="—"||ch==="–"||ch==="−") return "-";
-  if(ch===" "||ch===" "||ch===" ") return " ";
-  var m=EQ[lang]; return (m&&m[ch])||ch;
+  if(ch==="\u00a0"||ch==="\u2009"||ch==="\u202f") return " ";
+  return ch;
 }
-function nstr(s,lang){ var o=""; for(var i=0;i<s.length;i++) o+=nch(s.charAt(i),lang); return o; }
-var CYR=/[Ѐ-ӿ]/, LAT=/[A-Za-z]/;
+function nstr(s){ var o=""; for(var i=0;i<s.length;i++) o+=nch(s.charAt(i)); return o; }
+var CYR=/[\u0400-\u04FF]/;           /* matnlar lotin alifbosida — kirill harf klaviatura noto'g'ri tilda ekanini bildiradi */
 
 /* ================== 3. XOTIRA (localStorage) ================== */
 var K_PB="yz_pb_v1", K_HIST="yz_hist_v1", K_LOOK="yz_look_v1", K_SET="yz_set_v1";
-function settings(){ var s=lget(K_SET,{})||{}; return {l:s.l||"uz",v:s.v||"orta",m:s.m||"fin",b:(s.b==null?3:clamp(+s.b,0,5))}; }
+function has(list,id){ return list.some(function(x){ return x.id===id; }); }
+function settings(){
+  var s=lget(K_SET,{})||{};
+  return {l:has(langs(),s.l)?s.l:"uz",v:has(lvls(),s.v)?s.v:"orta",m:/^(fin|t60|t120|t180)$/.test(s.m)?s.m:"fin",b:(s.b==null?3:clamp(+s.b,0,5))};
+}
 function saveSet(s){ lset(K_SET,s); }
 function modeDur(m){ return m==="t60"?60:m==="t120"?120:m==="t180"?180:m==="t300"?300:0; }
 function modeNm(m){ var d=modeDur(m); return d?"⏱ "+(d/60)+" "+L("daqiqa","min"):"🏁 "+L("Marra","Finish line"); }
@@ -713,8 +713,7 @@ function drawPodium(S){
    so'z faqat to'liq to'g'ri yozilib, bo'shliq bosilganda qabul qilinadi (xato tuzatilmaguncha oldinga o'tilmaydi). */
 function mkTyper(T,box,inp,h){
   var Y={T:T,wi:0,v:"",raw:"",m:0,err:false,ok:0,bad:0,miss:{},on:false,done:false,t0:0,tEnd:0,lastWarn:0,lastLay:0};
-  var lang=T.lang;
-  function segN(){ return Y.wi<T.nw?nstr(segOf(T,Y.wi),lang):""; }
+  function segN(){ return Y.wi<T.nw?nstr(segOf(T,Y.wi)):""; }
   function cur(){
     var sg=segOf(T,Y.wi), v=Y.v, o="";
     for(var j=0;j<sg.length;j++){
@@ -755,7 +754,7 @@ function mkTyper(T,box,inp,h){
   Y.stop=function(){ Y.on=false; inp.blur(); };
   function onInput(){
     if(!Y.on||Y.done){ if(inp.value){ inp.value=""; if(h.early) h.early(); } return; }
-    var raw=inp.value, nv=nstr(raw,lang), old=Y.v, sg=segN();
+    var raw=inp.value, nv=nstr(raw), old=Y.v, sg=segN();
     /* bir urinishda 2 tadan ko'p belgi (avtomatik to'ldirish, qo'yish) yoki juda uzun xato — qabul qilinmaydi */
     if((nv.length-old.length>2&&nv.indexOf(old)===0)||nv.length>sg.length+8){
       inp.value=Y.raw;
@@ -771,9 +770,8 @@ function mkTyper(T,box,inp,h){
         else {
           Y.bad++;
           if(j===m0&&!errNew){ var ex=j<sg.length?segOf(T,Y.wi).charAt(j):"⎵"; ex=ex===" "?"⎵":ex; Y.miss[ex]=(Y.miss[ex]||0)+1; errNew=true;
-            var tc=raw.charAt(j), want=segOf(T,Y.wi).charAt(j);
-            if(now()-Y.lastLay>4000&&((CYR.test(tc)&&LAT.test(want))||(LAT.test(tc)&&CYR.test(want)))){ Y.lastLay=now();
-              if(h.hint) h.hint(CYR.test(want)?L("⌨️ Klaviaturani kirill (RU/UZ) tiliga o'tkazing","⌨️ Switch the keyboard to Cyrillic"):L("⌨️ Klaviaturani lotin (EN) tiliga o'tkazing","⌨️ Switch the keyboard to Latin")); } }
+            if(now()-Y.lastLay>4000&&CYR.test(raw.charAt(j))){ Y.lastLay=now();
+              if(h.hint) h.hint(L("⌨️ Klaviaturani lotin (EN) tiliga o'tkazing","⌨️ Switch the keyboard to Latin")); } }
         }
       }
     }
@@ -813,7 +811,7 @@ function markList(T,mode){
   return out;
 }
 function mkRace(o){
-  var T=mkText(o.text,o.lang);
+  var T=mkText(o.text);
   return {kind:o.kind,lang:o.lang,lvl:o.lvl,mk:o.mk,mode:o.mode,dur:o.dur||0,T:T,t0:0,started:false,over:false,
     samples:[],rs:[],me:null,bots:[],ghost:null,scene:null,ty:null,finMs:0,lastPlace:0,key:o.key||null,meta:o.meta||null,
     lastSample:0,botsN:o.bots||0,pb:o.pb||null};
@@ -873,7 +871,7 @@ function rulesHtml(){
     '<li>🏃 '+L("Yuguruvchingiz matnning to'g'ri yozilgan qismiga teng masofani bosib o'tadi.","Your runner covers the share of the text you have typed correctly.")+'</li>'+
     '<li>❌ '+L("Xato harf qizil bo'ladi — uni o'chirib to'g'rilamaguncha keyingi so'zga o'tib bo'lmaydi.","A wrong letter turns red — fix it before you can move on.")+'</li>'+
     '<li>✍️ '+L("O'zbekcha o' va g' dagi tutuq belgisining barcha ko'rinishlari ( ' ‘ ’ ʻ ` ) bir xil qabul qilinadi.","All apostrophe forms ( ' ‘ ’ ʻ ` ) count the same.")+'</li>'+
-    '<li>⌨️ '+L("Kirill matnda ў, қ, ғ, ҳ o'rniga у, к, г, х; turk va nemis matnlarida ç, ğ, ı, ö, ş, ü, ä o'rniga oddiy harflar ham qabul qilinadi.","Plain letters are accepted for ў қ ғ ҳ and for ç ğ ı ö ş ü ä.")+'</li>'+
+    '<li>📚 '+L("Matnlar o'zbek (lotin) va ingliz tillarida, tadbirkorlik va iqtisod mavzusida. Klaviatura lotin (EN) holatida bo'lsin.","Texts are in Uzbek (Latin) and English, on business and economics. Keep the keyboard on Latin (EN).")+'</li>'+
     '<li>⚡ '+L("Tezlik — bir daqiqada yozilgan so'zlar soni; aniqlik — to'g'ri bosilgan harflar ulushi.","Speed is words per minute; accuracy is the share of correct keystrokes.")+'</li>'+
     '<li>🔴 '+L("Jonli poygani o'qituvchi tashkil qiladi — lobbi ochilganda hamma qo'shila oladi. Natija: 1-o'rin +5, 2-o'rin +4, 3-o'rin +3 ball umumiy reytingga.","The teacher sets up live races — everyone can join while the lobby is open. 1st +5, 2nd +4, 3rd +3 rating points.")+'</li>'+
     '<li>🚫 '+L("Matnni nusxalab qo'yish va avtomatik to'ldirish ishlamaydi.","Pasting and autocomplete do not work.")+'</li></ul></details>';
@@ -956,7 +954,8 @@ function pbLine(){
     :('✨ '+L("Bu sozlamada hali rekord yo'q — birinchisini o'rnating!","No record for this setup yet — set the first one!"));
 }
 function pbTable(){
-  var a=lget(K_PB,{})||{}, ks=Object.keys(a).sort(function(x,y){ return (a[y].w||0)-(a[x].w||0); }), e=$("yzPbs"); if(!e) return;
+  var a=lget(K_PB,{})||{}, e=$("yzPbs"); if(!e) return;
+  var ks=Object.keys(a).filter(function(k){ return has(langs(),k.split("|")[0]); }).sort(function(x,y){ return (a[y].w||0)-(a[x].w||0); });
   if(!ks.length){ e.innerHTML='<p class="yz-sm">'+L("Hali rekord yo'q. Birinchi poygangizni boshlang — natijalar shu yerda saqlanadi.","No records yet. Run your first race — results are kept here.")+'</p>'; return; }
   e.innerHTML='<div class="yz-tw"><table class="yz-tb"><thead><tr><th>'+L("Sozlama","Setup")+'</th><th>⚡</th><th>🎯</th><th>📅</th></tr></thead><tbody>'+ks.slice(0,8).map(function(k){
     var p=k.split("|"), r=a[k], d=new Date(r.at||0);
@@ -1027,7 +1026,7 @@ function vRace(R){
     '<div class="yz-play"><div class="yz-main">'+
       '<div class="yz-stats">'+stat("yzWpm","⚡","0",L("so'z/daq","wpm"))+stat("yzAcc","🎯","100%",L("aniqlik","accuracy"))+
         stat("yzTm","⏱","0:00",L("vaqt","time"))+stat("yzPr","📍",R.mode==="time"?"0":"0%",R.mode==="time"?L("so'z","words"):L("masofa","distance"))+stat("yzPl","🏅","—",L("o'rin","place"))+'</div>'+
-      '<div class="yz-text wait" id="yzText" lang="'+(R.lang==="uzc"?"uz-Cyrl":R.lang)+'"></div>'+
+      '<div class="yz-text wait" id="yzText" lang="'+esc(R.lang)+'"></div>'+
       '<div class="yz-inrow"><input id="yzIn" class="yz-in" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="next" aria-label="'+L("Yozish maydoni","Typing field")+'" placeholder="'+L("START dan keyin shu yerga yozing…","Type here after START…")+'"><span class="yz-hint" id="yzHint"></span></div>'+
     '</div><aside class="yz-side" id="yzSide"></aside></div></div>';
   bindSnd("yzSnd");
@@ -1438,7 +1437,7 @@ function liveText(R){
   if(R.tBusy||R.textOk) return; R.tBusy=true;
   X.kget("games/"+R.key+"/q/0",function(v){
     R.tBusy=false; if(RC!==R||!v||!v.t||R.textOk) return;
-    R.textOk=true; R.T=mkText(v.t,R.lang); R.scene.len=R.T.n*PX-15; R.scene.marks=markList(R.T,R.mode);
+    R.textOk=true; R.T=mkText(v.t); R.scene.len=R.T.n*PX-15; R.scene.marks=markList(R.T,R.mode);
     if(R.joined){
       R.ty=mkTyper(R.T,$("yzText"),$("yzIn"),{
         key:function(){ SND.key(); }, err:function(){ SND.err(); if(R.me) R.me.stum=.32; },
@@ -1525,7 +1524,7 @@ function liveOfficial(R){
 function liveResults(R,g){
   var me=ME(), sc=g?yzScore(g):null, T=R.T, time=R.mode==="time", rows;
   if(sc){
-    if(g.q&&g.q[0]&&g.q[0].t&&!R.textOk){ R.T=T=mkText(g.q[0].t,R.lang); }
+    if(g.q&&g.q[0]&&g.q[0].t&&!R.textOk){ R.T=T=mkText(g.q[0].t); }
     rows=sc.rows.map(function(r){ var x=R.pl[r.sid]||{}, mine=me&&r.sid===me.id;
       return {sid:r.sid,n:r.n,me:mine,lk:lookOf(x.av!=null?x.av:hash(r.sid)%LOOKS.length),num:10+hash(r.sid)%89,w:r.w,ch:r.ch,ms:r.t,wpm:r.wpm,
         acc:mine&&R.ty?R.ty.stats(now()).acc:(x.ac!=null?x.ac:null),fin:time?true:r.fin,place:r.rank,pts:sc.prizes[r.sid]||0,sus:r.sus}; });
