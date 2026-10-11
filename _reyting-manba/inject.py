@@ -11,6 +11,8 @@ CCSS=open(SC+'chat_css.txt',encoding='utf-8').read()
 CJS=open(SC+'chat_js.txt',encoding='utf-8').read()
 CONF=json.load(open(SC+'config.json',encoding='utf-8'))
 AVX=open(SC+'avatar_pic.js',encoding='utf-8').read()   # umumiy avatar moduli (tayyor rasmlar)
+YZB=open(SC+'yozuv_ball.js',encoding='utf-8').read()   # Yozuv Marafoni natija hisobi (arena bilan bir xil)
+JS=JS.replace('/*@YZBALL@*/',YZB.strip())
 
 DECKS={
  'index.html':   dict(id='m1',slides=18,quiz=15),
@@ -101,21 +103,29 @@ def inject(fn,meta):
     open(p,'w',encoding='utf-8').write(s)
     return "%s: OK (%s, %d slayd)"%(fn,meta['id'],meta['slides'])
 
-BLOCKS=[('/* AVX:BEGIN */','/* AVX:END */','avatar_pic.js'),('/* KV:BEGIN */','/* KV:END */','krossvord.js')]
+BLOCKS=[('/* AVX:BEGIN */','/* AVX:END */','avatar_pic.js'),('/* KV:BEGIN */','/* KV:END */','krossvord.js'),
+        ('/* YZT:BEGIN */','/* YZT:END */','yozuv_matnlar.json'),('/* YZB:BEGIN */','/* YZB:END */','yozuv_ball.js'),
+        ('/* YZ:BEGIN */','/* YZ:END */','yozuv.js')]
+def yz_texts():
+    """Yozuv Marafoni matnlari: arena uchun JS o'zgaruvchi, o'qituvchi paneli uchun fayllar/yozuv-matnlar.json"""
+    j=json.load(open(SC+'yozuv_matnlar.json',encoding='utf-8'))
+    os.makedirs(BASE+'fayllar',exist_ok=True)
+    open(BASE+'fayllar/yozuv-matnlar.json','w',encoding='utf-8').write(json.dumps(j,ensure_ascii=False,separators=(',',':')))
+    return "var YZ_TEXTS="+json.dumps(j,ensure_ascii=False,separators=(',',':'))+";"
 def inject_arena():
-    """arena.html ga umumiy modullar: avatar (AVP) va krossvord (KV) - alohida <script> bloklari"""
+    """arena.html ga umumiy modullar: avatar (AVP), krossvord (KV), Yozuv Marafoni (YZT, YZB, YZ) - alohida <script> bloklari"""
     p=BASE+'arena.html'
     if not os.path.exists(p): return "arena.html: yo'q"
     s=open(p,encoding='utf-8').read()
     for b,e,fn in BLOCKS:
-        src=open(SC+fn,encoding='utf-8').read().strip()
+        src=yz_texts() if fn.endswith('.json') else open(SC+fn,encoding='utf-8').read().strip()
         blk=b+"\n"+src+"\n"+e
         if b in s and e in s:
             i=s.index(b); j=s.index(e)+len(e); s=s[:i]+blk+s[j:]
         else:
             i=s.index('<script>'); s=s[:i]+'<script>'+blk+'</script>'+"\n"+s[i:]
     open(p,'w',encoding='utf-8').write(s)
-    return "arena.html: OK (avatar + krossvord)"
+    return "arena.html: OK (avatar + krossvord + yozuv marafoni)"
 
 if __name__=="__main__":
     for fn,meta in DECKS.items(): print(inject(fn,meta))
