@@ -176,3 +176,11 @@ belgidan tez natija shubhali deb belgilanadi. Kamida `min` kishi qatnashsa,
 **1-o'rin +5, 2-o'rin +4, 3-o'rin +3 ball** umumiy reytingga qo'shiladi
 (`khTotals`/`khAuto` → `gScore()`), poyga taqdimotlarda 20 daqiqa oldin
 katta e'lon bilan ko'rsatiladi.
+
+**Do'stlar bilan poyga (xona)** — talabalarning o'zi ochadi (Yozuv Marafoni o'qituvchi
+tomonidan ochiq bo'lsagina): «➕ Xona ochish» → 4 belgili kod, 2–6 kishi kod yoki
+«ochiq xonalar» ro'yxati orqali kiradi, xona egasi «▶ Poygani boshlash» ni bosadi
+(5 soniyadan keyin start). Ma'lumot `arena/yzr/<KOD>` da (`meta` + `pl`), natija
+o'yinchilar brauzerida hisoblanadi va **reytingga ta'sir qilmaydi**. «Shu xonada yana»
+— egasi yangi matn bilan yangi raund ochadi; egasi chiqsa, xona keyingi o'yinchiga o'tadi;
+6 soatdan eski xonalar tozalanadi.
