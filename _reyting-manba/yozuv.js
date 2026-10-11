@@ -887,6 +887,7 @@ function rulesHtml(){
 
 /* ---------- 10.1 Bosh ekran ---------- */
 function vHome(){
+  if(RC&&RC.kind==="room") roomLeave(RC);
   leave(); VIEW="home"; ALIVE++; RC=null;
   var s=settings(), lk=myLook();
   ROOT.innerHTML='<div class="yz yz-home">'+
@@ -913,6 +914,13 @@ function vHome(){
         '<button type="button" class="yz-go" id="yzGo">▶ '+L("Boshlash","Start")+'</button>'+
       '</section>')+
     '</div>'+
+    (OPEN?'<section class="yz-panel yz-rooms"><h3>👥 '+L("Do'stlar bilan poyga","Race with friends")+'</h3>'+
+      '<p class="yz-sm">'+L("2–6 kishi bir xonada bir vaqtda poygalashadi. Xona yuqoridagi til, qiyinlik va rejim bilan ochiladi; kodni do'stlaringizga ayting. Bu poyga reytingga ta'sir qilmaydi.",
+        "2–6 people race together. The room uses the language, difficulty and mode chosen above; share the code. It does not affect the rating.")+'</p>'+
+      '<div class="yz-rjoin"><button type="button" class="yz-go" id="yzRNew">➕ '+L("Xona ochish","Open a room")+'</button>'+
+      '<input id="yzRCode" maxlength="4" placeholder="'+L("KOD","CODE")+'" autocomplete="off" autocapitalize="characters">'+
+      '<button type="button" class="yz-btn2" id="yzRJoin">🔑 '+L("Kod bilan kirish","Join with a code")+'</button></div>'+
+      '<div id="yzRList" class="yz-rlist"></div></section>':'')+
     '<div class="yz-grid">'+
       '<section class="yz-panel"><h3>🏆 '+L("Shaxsiy rekordlar","Personal bests")+'</h3><div id="yzPbs"></div></section>'+
       '<section class="yz-panel"><h3>🌍 '+L("Eng tezlar","Fastest typists")+' <small class="yz-sm" id="yzTopL"></small></h3><div id="yzTop"></div></section>'+
@@ -932,6 +940,12 @@ function vHome(){
   $("yzRnd").onclick=function(){ var i=Math.floor(Math.random()*LOOKS.length); boxes[i].click(); boxes[i].scrollIntoView({block:"nearest",behavior:"smooth"}); };
   requestAnimationFrame(function(){ [].forEach.call(boxes,function(b){ lookThumb(b.querySelector("canvas"),+b.dataset.i); }); });
   if($("yzGo")) $("yzGo").onclick=function(){ SND.unlock(); startPractice(); };
+  if($("yzRNew")){
+    $("yzRNew").onclick=function(){ SND.unlock(); roomCreate(this); };
+    var rc=$("yzRCode"); $("yzRJoin").onclick=function(){ SND.unlock(); roomJoin(rc.value); };
+    rc.addEventListener("keydown",function(e){ if(e.key==="Enter") roomJoin(rc.value); });
+    roomList(); every(roomList,5000);
+  }
   pbLine(); pbTable(); topList();
   heroScene(); prevLoop();
   liveCard();
@@ -1028,7 +1042,7 @@ function vRace(R){
   document.documentElement.classList.add("yz-lock");
   ROOT.innerHTML='<div class="yz yz-race" id="yzRace">'+
     '<div class="yz-rbar"><span class="yz-rlogo">⌨️ <b>'+L("Yozuv Marafoni","Typing Marathon")+'</b></span>'+
-      '<span class="yz-pill '+(live?'live':'')+'">'+(live?"🔴 "+L("Jonli poyga","Live race"):"🎯 "+L("Mashq","Practice"))+'</span>'+
+      '<span class="yz-pill '+(live?'live':'')+'">'+(live?"🔴 "+L("Jonli poyga","Live race"):R.kind==="room"?"👥 "+L("Xona","Room")+" "+esc(R.room):"🎯 "+L("Mashq","Practice"))+'</span>'+
       '<span class="yz-pill yz-hs">'+esc(modeNm(R.mk))+' · '+esc(lg.fl+" "+lg.nm)+' · '+esc(lvlNm(R.lvl))+'</span>'+
       '<span class="yz-sp"></span><span class="yz-pill yz-clock" id="yzClock">0:00</span>'+
       '<button type="button" class="yz-ib" id="yzSnd" title="'+L("Ovoz","Sound")+'">'+sndIc()+'</button>'+
@@ -1045,11 +1059,12 @@ function vRace(R){
   $("yzX").onclick=function(){
     if(R.started&&!R.over&&!R.meDone&&!confirm(L("Poygadan chiqasizmi? Natija saqlanmaydi.","Leave the race? The result will not be saved."))) return;
     if(live) liveLeave(R);
+    if(R.kind==="room") roomLeave(R);
     vHome();
   };
-  var S=mkScene($("yzCv"),{len:T.n*PX-15,mode:R.mode,marks:markList(T,R.mode),ready:!live});
+  var S=mkScene($("yzCv"),{len:T.n*PX-15,mode:R.mode,marks:markList(T,R.mode),ready:R.kind==="prac"});
   R.scene=S;
-  if(!live){
+  if(R.kind==="prac"){
     var nl=1+R.bots.length+(R.ghost?1:0); S.nl=Math.max(3,nl);
     var mine=myLook();
     R.me=S.add({id:"me",n:myName(),lk:lookOf(mine),lane:S.nl-1,me:true,num:10+Math.floor(Math.random()*89)});
@@ -1072,6 +1087,7 @@ function vRace(R){
     prog:function(){ if(R.me&&!R.me.fin) R.me.tx=wx(R.ty.chars()); }
   });
   if(live) liveSetup(R);
+  if(R.kind==="room") roomSetup(R);
   vvFit();
   on(window,"resize",vvFit);
   if(window.visualViewport){ on(window.visualViewport,"resize",vvFit); on(window.visualViewport,"scroll",vvFit); }
@@ -1100,7 +1116,7 @@ function raceFrame(R,dt){
     if(R.ghost){ var gp=Math.min(R.T.n,R.ghost.cps*el/1000); if(!R.ghost.r.fin) R.ghost.r.tx=wx(gp); if(gp>=R.T.n&&!R.ghost.r.fin) runnerFin(R,R.ghost.r,true); }
     if(R.mode==="time"&&el>=R.dur*1000&&R.kind==="prac") timeUp(R);
   }
-  if(R.kind==="live") liveFrame(R,dt);
+  if(R.kind!=="prac") liveFrame(R,dt);
   /* marradan keyin sekinlashib yugurib, so'ng quvonadi */
   S.rs.forEach(function(r){ if(r.fin&&r.ro!=null){ r.ro+=r.rov*dt; r.rov*=Math.exp(-dt*1.35); r.tx=r.fx+r.ro; if(r.rov<16&&!r.win&&r.place&&r.place<=3&&!r.ghost) r.win=true; } });
   S.step(dt); S.draw();
@@ -1119,7 +1135,8 @@ function meDone(R){
   pop(r.place===1?"🥇 "+L("Birinchi!","First!"):"🏁 "+L("Marra!","Finish!"),"big");
   R.ty.stop(); SND.amb(.03);
   if(R.kind==="prac") later(function(){ pracResults(R); },2600);
-  else liveMeDone(R);
+  else if(R.kind==="live") liveMeDone(R);
+  else roomMeDone(R);
 }
 function timeUp(R){
   if(R.over) return;
@@ -1133,7 +1150,7 @@ function timeUp(R){
   if(R.kind==="prac") later(function(){ pracResults(R); },2200);
 }
 function placeNow(R){
-  if(R.kind==="live") return livePlace(R);
+  if(R.kind!=="prac") return livePlace(R);
   var c=R.ty.chars(), fin=R.ty.done&&R.mode==="fin", pl=1, n=1;
   R.bots.forEach(function(b){ n++; if(fin){ if(b.done&&b.tDone<R.finMs) pl++; } else if(b.done||b.p>c) pl++; });
   return {pl:pl,n:n};
@@ -1158,6 +1175,7 @@ function raceStats(R){
       R.bots.forEach(function(bb){ var w=bb.p>0?Math.round(wordsAt(R.T,bb.p)*60000/Math.max(1000,bb.done?bb.tDone:el)):0; bb.r.tagTxt=bb.n+(w?" · "+w:""); }); }
   }
   if(R.kind==="live") liveStats(R,st);
+  if(R.kind==="room") roomStats(R);
 }
 
 /* ---------- 10.4 Mashq natijasi ---------- */
@@ -1233,14 +1251,14 @@ function vResults(o){
       '<section class="yz-panel"><h3>📈 '+L("Tezlik grafigi","Speed chart")+'</h3><canvas id="yzChart" class="yz-chart"></canvas></section>'+
       '<section class="yz-panel"><h3>🔤 '+L("Ko'p xato qilingan harflar","Most missed letters")+'</h3>'+missH+'</section></div>'+
     '<section class="yz-panel"><h3>🏁 '+L("Natijalar jadvali","Results")+'</h3>'+tb+(o.foot?'<p class="yz-sm" style="margin-top:8px">'+o.foot+'</p>':'')+'</section>'+
-    '<div class="yz-acts">'+(OPEN?'<button type="button" class="yz-go" id="yzAgain">🔄 '+L("Qayta o'ynash","Play again")+'</button>':'')+
+    '<div class="yz-acts">'+(OPEN?'<button type="button" class="yz-go" id="yzAgain">'+(o.kind==="room"?"🔁 "+L("Shu xonada yana poyga","Race again in this room"):"🔄 "+L("Qayta o'ynash","Play again"))+'</button>':'')+
       '<button type="button" class="yz-btn2" id="yzHome">🏠 '+L("Bosh ekran","Home")+'</button>'+
       '<a class="yz-btn2" href="#/">🎮 '+L("Arena","Arena")+'</a></div>'+
     (OPEN?'<p class="yz-sm yz-center">⌨️ Enter — '+L("qayta o'ynash","play again")+'</p>':'')+
   '</div>';
   bindSnd("yzSnd");
   $("yzHome").onclick=function(){ vHome(); };
-  function again(){ var s=settings(); s.l=R.lang; s.v=R.lvl; s.m=(R.mk&&/^(fin|t60|t120|t180)$/.test(R.mk))?R.mk:"fin"; saveSet(s); SND.unlock(); startPractice(); }
+  function again(){ if(o.kind==="room"){ SND.unlock(); roomAgain(R.room); return; } var s=settings(); s.l=R.lang; s.v=R.lvl; s.m=(R.mk&&/^(fin|t60|t120|t180)$/.test(R.mk))?R.mk:"fin"; saveSet(s); SND.unlock(); startPractice(); }
   if($("yzAgain")) $("yzAgain").onclick=again;
   on(document,"keydown",function(e){ if(e.key==="Enter"&&VIEW==="res"&&OPEN&&!/INPUT|TEXTAREA|SELECT/.test((document.activeElement||{}).tagName||"")){ e.preventDefault(); again(); } });
   /* shohsupa */
@@ -1564,6 +1582,248 @@ function liveResults(R,g){
 }
 function liveLeave(R){ if(R&&R.joined&&R.started&&!R.over&&R.ty) liveFlush(R,true); }
 
+/* ================== 11b. XONA: DO'STLAR BILAN POYGA (2–6 kishi) ==================
+   Talabalarning o'zi ochadi: arena/yzr/<KOD> = {meta:{host,hn,l,v,m,mode,dur,text,st,start,rd,at,max}, pl:{<sid>:{n,av,p,w,s,ac,f,u,at}}}
+   st: "lobby" → "run" (xona egasi startni bosadi, 5 soniyadan keyin boshlanadi) → "done".
+   rd — raund raqami: "Shu xonada yana" bosilsa yangi matn bilan oshadi. Reytingga ta'sir qilmaydi. */
+var ROOMC="ABCDEFGHJKLMNPQRSTUVWXYZ23456789", ROOM_MAX=6;
+function roomCode(){ var c=""; for(var i=0;i<4;i++) c+=ROOMC.charAt(Math.floor(Math.random()*ROOMC.length)); return c; }
+function roomMe(){ return {n:myName().slice(0,60),av:myLook(),p:0,w:0,s:0,ac:100,f:0,u:Date.now(),at:Date.now()}; }
+function finDur(n){ return Math.min(600,Math.max(60,Math.ceil(n/1.6/10)*10)); }
+function roomText(s){ var dur=modeDur(s.m); return {dur:dur||0,text:pickText(s.l,s.v,dur?Math.round(dur*14):0)}; }
+function roomCreate(btn){
+  var me=ME(); if(!OPEN||!me) return;
+  if(!X.online()){ toast(L("Internet kerak","You need to be online")); return; }
+  var s=settings(), tx=roomText(s), code=roomCode();
+  btn.disabled=true;
+  X.DB.get("yzr/"+code+"/meta",function(v){
+    if(v) code=roomCode();
+    var meta={host:me.id,hn:myName().slice(0,60),l:s.l,v:s.v,m:s.m,mode:tx.dur?"time":"fin",dur:tx.dur||finDur(tx.text.length),text:tx.text,st:"lobby",start:0,rd:1,at:Date.now(),max:ROOM_MAX};
+    var pl={}; pl[me.id]=roomMe();
+    X.DB.set("yzr/"+code,{meta:meta,pl:pl},function(r){
+      btn.disabled=false;
+      if(!r){ toast(L("Xona ochilmadi — internetni tekshiring","Could not open the room")); return; }
+      roomOpen(code,{meta:meta,pl:pl});
+    });
+  });
+}
+function roomJoin(code){
+  var me=ME(); if(!OPEN||!me) return;
+  code=String(code||"").toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,4);
+  if(code.length!==4){ toast(L("4 belgili kodni kiriting","Enter the 4-character code")); return; }
+  X.DB.get("yzr/"+code,function(v){
+    if(!v||!v.meta){ toast(L("Bunday xona topilmadi","No such room")); return; }
+    var pl=v.pl||{};
+    if(pl[me.id]){ roomOpen(code,v); return; }
+    if(Object.keys(pl).length>=(+v.meta.max||ROOM_MAX)){ toast(L("Xona to'lgan (6 kishi)","The room is full (6 players)")); return; }
+    if(v.meta.st==="run"&&X.snow()<+v.meta.start+(+v.meta.dur||60)*1000){ toast(L("Poyga ketmoqda — tugagach qo'shiling","A race is on — join when it ends")); return; }
+    var mine=roomMe();
+    X.DB.set("yzr/"+code+"/pl/"+me.id,mine,function(r){
+      if(!r){ toast(L("Qo'shilib bo'lmadi","Could not join")); return; }
+      pl[me.id]=mine; v.pl=pl; SND.tick(); roomOpen(code,v);
+    });
+  });
+}
+/* ochiq xonalar ro'yxati (bosh ekranda) */
+function roomList(){
+  var box=$("yzRList"); if(!box||!X.online()) return;
+  var a=ALIVE;
+  X.DB.get("yzr",function(v){
+    if(a!==ALIVE||!$("yzRList")) return;
+    var t=Date.now(), me=ME();
+    var rows=Object.keys(v||{}).map(function(k){ var r=v[k]||{}; r.k=k; return r; }).filter(function(r){
+      var m=r.meta; if(!m) return false;
+      if(t-(+m.at||0)>6*3600000){ if(!roomList.cleaned) X.DB.del("yzr/"+r.k); return false; }   /* 6 soatdan eski xonalar tozalanadi */
+      return Object.keys(r.pl||{}).length>0;
+    }).sort(function(x,y){ return (+y.meta.at||0)-(+x.meta.at||0); }).slice(0,8);
+    roomList.cleaned=true;
+    if(!rows.length){ box.innerHTML='<p class="yz-sm">'+L("Hozircha ochiq xona yo'q — birinchi bo'lib oching!","No open rooms yet — open the first one!")+'</p>'; return; }
+    box.innerHTML=rows.map(function(r){
+      var m=r.meta, n=Object.keys(r.pl||{}).length, lg=langOf(m.l), mine=me&&r.pl&&r.pl[me.id], full=n>=(+m.max||ROOM_MAX);
+      var st=m.st==="run"&&t<+m.start+(+m.dur||60)*1000+5000?"🏃 "+L("poyga ketmoqda","racing"):(m.st==="lobby"?"🟢 "+L("kutmoqda","waiting"):"🏁 "+L("tugagan","finished"));
+      return '<div class="yz-ritem"><b>'+esc(r.k)+'</b><span>'+esc(firstName(m.hn))+' · '+esc(lg.fl)+' '+esc(lvlNm(m.v))+' · '+esc(modeNm(m.m))+'<br><small>'+st+' · 👥 '+n+'/'+(+m.max||ROOM_MAX)+'</small></span>'+
+        '<button type="button" class="yz-btn2" data-room="'+esc(r.k)+'"'+(full&&!mine?' disabled':'')+'>'+(mine?L("Qaytish","Back"):full?L("To'la","Full"):L("Kirish","Join"))+'</button></div>';
+    }).join("");
+    [].forEach.call(box.querySelectorAll("[data-room]"),function(b){ b.onclick=function(){ SND.unlock(); roomJoin(b.dataset.room); }; });
+  });
+}
+function roomOpen(code,v){
+  var m=v.meta, me=ME();
+  var R=mkRace({kind:"room",lang:m.l,lvl:m.v,mk:m.m,mode:m.mode,dur:+m.dur||60,text:m.text});
+  R.room=code; R.rd=m.rd; R.rm=m; R.pl={}; R.joined=true; R.posAt=0; R.nP=0;
+  Object.keys(v.pl||{}).forEach(function(id){ var d=v.pl[id]; R.pl[id]={n:d.n,av:d.av,p:0,at:+d.at||0,joined:true,seen:now()}; });
+  if(me&&!R.pl[me.id]) R.pl[me.id]={n:myName(),av:myLook(),p:0,at:Date.now(),joined:true,seen:now()};
+  R.nP=Object.keys(R.pl).length;
+  vRace(R);
+  X.saToken(true,function(){ X.clockSync(function(){}); });
+}
+function roomSetup(R){
+  var main=document.querySelector(".yz-main");
+  main.insertBefore(el('<div class="yz-room" id="yzRoom"></div>'),$("yzText"));
+  $("yzIn").placeholder=L("Matn START da ochiladi…","The text opens at START…");
+  liveLanes(R); roomBox(R);
+  every(function(){ roomTick(R); },200);
+  every(function(){ roomPoll(R); },900);
+}
+function el(h){ var d=document.createElement("div"); d.innerHTML=h; return d.firstChild; }
+function roomPoll(R){
+  if(R.pBusy) return; R.pBusy=true;
+  X.DB.get("yzr/"+R.room,function(v){
+    R.pBusy=false; if(RC!==R) return;
+    if(!v||!v.meta){ R.gone=true; roomBox(R); return; }
+    var m=v.meta, me=ME(), t=now(), pl=v.pl||{};
+    if(m.rd!==R.rd){ roomOpen(R.room,v); return; }          /* yangi raund — ekran yangilanadi */
+    R.rm=m;
+    Object.keys(R.pl).forEach(function(id){
+      if(pl[id]||(me&&id===me.id)) return;
+      var x=R.pl[id]; if(x.r){ var i=R.scene.rs.indexOf(x.r); if(i>=0) R.scene.rs.splice(i,1); } delete R.pl[id];
+    });
+    Object.keys(pl).forEach(function(id){
+      var d=pl[id]||{}, x=R.pl[id]||(R.pl[id]={p:0,seen:t});
+      x.n=d.n||x.n||"?"; x.av=d.av; x.ac=d.ac; x.at=+d.at||0; x.joined=true;
+      if(me&&id===me.id) return;
+      if(+d.u!==x.u){ x.u=+d.u; x.seen=t; }
+      if(+d.p>=(+x.p||0)){ x.p=+d.p||0; x.w=+d.w||0; x.s=+d.s||0; x.rcv=t; }
+      x.f=+d.f||0;
+    });
+    R.nP=Object.keys(pl).length;
+    liveLanes(R); roomBox(R);
+  });
+}
+/* lobbi paneli: kod, qatnashchilar va xona egasi uchun «Boshlash» */
+function roomBox(R){
+  var b=$("yzRoom"); if(!b) return;
+  var m=R.rm, me=ME(), host=!!(me&&m.host===me.id), t=X.snow(), ids=Object.keys(R.pl).sort(function(x,y){ return (R.pl[x].at||0)-(R.pl[y].at||0); });
+  var running=m.st==="run"&&+m.start&&t<+m.start+R.dur*1000+3000, n=ids.length, h;
+  if(R.started&&!R.over){ b.style.display="none"; return; }
+  b.style.display="";
+  if(R.gone) h='<p>⚠️ '+L("Xona yopildi.","The room was closed.")+'</p>';
+  else {
+    var who=ids.map(function(id){ var x=R.pl[id]; return '<span class="yz-rp'+(me&&id===me.id?' me':'')+'"><i style="background:'+lookOf(x.av!=null?x.av:hash(id)%LOOKS.length).jer+'"></i>'+esc(firstName(x.n))+(id===m.host?' 👑':'')+'</span>'; }).join("");
+    var act;
+    if(running) act='<p class="yz-rwait">🏁 '+L("Start berildi!","Starting!")+'</p>';
+    else if(m.st!=="lobby") act=host?'<button type="button" class="yz-go" id="yzRAgain">🔁 '+L("Yangi poyga (yangi matn)","New race (new text)")+'</button>':'<p class="yz-rwait">⏳ '+L("Xona egasi yangi poyga boshlashini kuting…","Waiting for the host to start a new race…")+'</p>';
+    else if(host) act='<button type="button" class="yz-go" id="yzRStart"'+(n<2?' disabled':'')+'>▶ '+L("Poygani boshlash","Start the race")+'</button>'+(n<2?'<p class="yz-rwait">'+L("Kamida 2 kishi kerak — kodni do'stlaringizga ayting","At least 2 players needed — share the code")+'</p>':'');
+    else act='<p class="yz-rwait">⏳ '+L("Xona egasi poygani boshlashini kuting…","Waiting for the host to start…")+'</p>';
+    h='<div class="yz-rcode"><span>'+L("Xona kodi","Room code")+'</span><b>'+esc(R.room)+'</b><small>'+L("Arena → Yozuv Marafoni → «Kod bilan kirish»","Arena → Typing Marathon → «Join with a code»")+'</small></div>'+
+      '<div class="yz-rmid"><div class="yz-rps">'+who+'</div><small>👥 '+n+'/'+(+m.max||ROOM_MAX)+' · '+esc(modeNm(R.mk))+'</small></div><div class="yz-ract">'+act+'</div>';
+  }
+  if(b._h===h) return; b._h=h; b.innerHTML=h;
+  var sb=$("yzRStart"); if(sb) sb.onclick=function(){
+    if(Object.keys(R.pl).length<2) return; sb.disabled=true; SND.unlock();
+    var st0=X.snow()+5000; R.rm.st="run"; R.rm.start=st0;
+    X.DB.upd("yzr/"+R.room+"/meta",{st:"run",start:st0});
+  };
+  var ra=$("yzRAgain"); if(ra) ra.onclick=function(){ ra.disabled=true; roomAgain(R.room); };
+}
+function roomTick(R){
+  if(RC!==R) return;
+  var m=R.rm, t=X.snow(), S=R.scene, start=+m.start;
+  if(m.st!=="run"||!start){ return; }
+  var end=start+R.dur*1000;
+  if(!R.started&&t>=end) return;                          /* tugagan raund — yangisini kutamiz */
+  if(t<start){
+    S.ready=true; roomBox(R);
+    var sec=Math.ceil((start-t)/1000);
+    if(sec!==R.cdS&&sec<=3){ R.cdS=sec; var cd=$("yzCd"); if(cd) cd.innerHTML='<b>'+sec+'</b>'; SND.beep(false); if(sec===1) S.set=true; }
+    return;
+  }
+  if(!R.started){
+    R.started=true; R.t0=now()-(t-start); S.go=true; goShow(); SND.pistol(); SND.amb(.016);
+    R.ty.start(R.t0); roomBox(R);
+    var inp=$("yzIn"); if(inp){ inp.placeholder=L("Yozing!","Type!"); try{ inp.focus({preventScroll:true}); }catch(e){ inp.focus(); } }
+    var w=$("yzText"); if(w) w.classList.remove("wait");
+  }
+  /* hamma marraga yetdimi (20 soniya yangilanmagan o'yinchi — chiqib ketgan deb hisoblanadi) */
+  var me=ME(), tn=now(), allDone=Object.keys(R.pl).every(function(id){
+    if(me&&id===me.id) return R.meDone||R.over;
+    var x=R.pl[id]; return x.f>0||tn-(x.seen||0)>20000; });
+  if(!R.resQ&&(t>=end||allDone)){
+    R.resQ=true;
+    if(!R.meDone){ timeUp(R); roomFlush(R); }
+    R.over=true;
+    later(function(){ roomResults(R); },allDone&&R.meDone?1500:2400);
+  }
+}
+function roomStats(R){
+  if(!R.started||R.over||R.meDone) { if(now()-(R.sideAt||0)>900){ R.sideAt=now(); liveSide(R); } return; }
+  var t=now();
+  if(t-R.posAt>700) roomFlush(R);
+  if(t-(R.sideAt||0)>900){ R.sideAt=t; liveSide(R); }
+}
+function roomFlush(R){
+  var me=ME(); if(!me||!R.ty) return;
+  var st=R.ty.stats(now()); R.posAt=now();
+  X.DB.upd("yzr/"+R.room+"/pl/"+me.id,{p:st.chars,w:st.words,s:Math.round(st.wpm),ac:st.acc,f:R.finMs?Math.round(R.finMs):0,u:Date.now()});
+}
+function roomMeDone(R){
+  roomFlush(R); SND.amb(.03);
+  later(function(){
+    if(RC!==R||R.resDone) return;
+    var ir=document.querySelector(".yz-inrow"), p=livePlace(R), st=R.ty.stats(now());
+    if(ir) ir.innerHTML='<div class="yz-donebox">🏁 <b>'+L("Marraga yetdingiz!","You finished!")+'</b> '+L("Hozircha","Now")+' <b>'+p.pl+'-'+L("o'rin","place")+'</b> · ⚡ '+Math.round(st.wpm)+' '+L("so'z/daq","wpm")+' · 🎯 '+st.acc+'%<br>'+
+      L("Boshqalar yugurmoqda — hamma yetib kelgach natija chiqadi.","Others are still running — results appear when everyone finishes.")+'</div>';
+  },2400);
+}
+function roomResults(R){
+  if(R.resDone||RC!==R) return; R.resDone=true;
+  var me=ME(), time=R.mode==="time", T=R.T, endMs=R.dur*1000;
+  var rows=Object.keys(R.pl).map(function(id){
+    var x=R.pl[id], mine=me&&id===me.id, st=mine?R.ty.stats(now()):null;
+    var c=mine?st.chars:(+x.p||0), f=mine?(R.finMs||0):(+x.f||0), done=!time&&f>0;
+    var ms=time?endMs:(done?f:Math.min(endMs,now()-R.t0)), w=done?T.nw:wordsAt(T,c);
+    return {sid:id,n:x.n||"?",me:mine,lk:lookOf(x.av!=null?x.av:hash(id)%LOOKS.length),num:10+hash(id)%89,ch:c,w:w,ms:ms,
+      wpm:Math.round(w*60000/Math.max(1000,ms)),acc:mine?st.acc:(x.ac!=null?x.ac:null),fin:time?true:done};
+  });
+  rows.sort(time?function(a,b){ return b.ch-a.ch; }:function(a,b){ return (b.fin-a.fin)||(a.fin?a.ms-b.ms:b.ch-a.ch); });
+  rows.forEach(function(r,i){ r.place=i+1; });
+  var mine=rows.filter(function(r){ return r.me; })[0], my=null, isPB=false, prev=null;
+  if(mine){
+    var st=R.ty.stats(now()), ms=time?endMs:(R.finMs||st.el), cpm=Math.round(st.chars*60000/Math.max(1000,ms));
+    my={wpm:mine.wpm,acc:st.acc,ms:ms,words:mine.w,chars:st.chars,cpm:cpm,place:mine.place,n:rows.length};
+    prev=pbGet(R.lang,R.lvl,R.mk); if(my.words>0) isPB=pbSave(R.lang,R.lvl,R.mk,{w:my.wpm,a:my.acc,c:cpm,t:ms,at:Date.now()});
+    histAdd({at:Date.now(),l:R.lang,v:R.lvl,m:R.mk,w:my.wpm,a:my.acc,c:cpm,pl:my.place,n:my.n});
+  }
+  if(me&&R.rm.host===me.id) X.DB.upd("yzr/"+R.room+"/meta",{st:"done"});
+  vResults({R:R,rows:rows,my:my,isPB:isPB,prev:prev,kind:"room",banner:"👥 "+L("Xona","Room")+" <b>"+esc(R.room)+"</b> · "+L("do'stlar bilan poyga (reytingga ta'sir qilmaydi)","friends' race (no rating points)")});
+}
+/* "Shu xonada yana": xona egasi yangi matn bilan yangi raund ochadi, qolganlar unga qaytadi */
+function roomAgain(code){
+  var me=ME(); if(!me) return;
+  X.DB.get("yzr/"+code,function(v){
+    if(!v||!v.meta){ toast(L("Xona yopilgan","The room is closed")); vHome(); return; }
+    var m=v.meta, pl=v.pl||{};
+    if(!pl[me.id]){
+      if(Object.keys(pl).length>=(+m.max||ROOM_MAX)){ toast(L("Xona to'lgan","The room is full")); vHome(); return; }
+      pl[me.id]=roomMe(); X.DB.set("yzr/"+code+"/pl/"+me.id,pl[me.id]);
+    }
+    if(m.host===me.id&&m.st!=="lobby"){
+      var tx=roomText({l:m.l,v:m.v,m:m.m}), o={};
+      o["meta/text"]=tx.text; o["meta/dur"]=tx.dur||finDur(tx.text.length); o["meta/st"]="lobby"; o["meta/start"]=0; o["meta/rd"]=(+m.rd||1)+1;
+      Object.keys(pl).forEach(function(id){ o["pl/"+id+"/p"]=0; o["pl/"+id+"/w"]=0; o["pl/"+id+"/s"]=0; o["pl/"+id+"/f"]=0; o["pl/"+id+"/ac"]=100; });
+      X.DB.upd("yzr/"+code,o,function(){
+        m.text=tx.text; m.dur=o["meta/dur"]; m.st="lobby"; m.start=0; m.rd=o["meta/rd"];
+        Object.keys(pl).forEach(function(id){ pl[id].p=0; pl[id].f=0; });
+        roomOpen(code,{meta:m,pl:pl});
+      });
+      return;
+    }
+    roomOpen(code,v);
+  });
+}
+/* xonadan chiqish: lobbida yoki tugagan raundda — ro'yxatdan o'chiriladi; egasi chiqsa, xona boshqasiga o'tadi */
+function roomLeave(R){
+  var me=ME(); if(!me||!R||R.left) return; R.left=true;
+  var racing=R.started&&!R.over&&!R.meDone;
+  if(racing){ roomFlush(R); return; }
+  var others=Object.keys(R.pl).filter(function(id){ return id!==me.id; });
+  X.DB.del("yzr/"+R.room+"/pl/"+me.id);
+  if(R.rm&&R.rm.host===me.id){
+    if(others.length) X.DB.upd("yzr/"+R.room+"/meta",{host:others[0],hn:String(R.pl[others[0]].n||"").slice(0,60)});
+    else X.DB.del("yzr/"+R.room);
+  }
+}
+
 /* ================== 12. USLUBLAR ================== */
 var STYLE=[
 ".yz{--yzA:#ff6a1a;--yzB:#ff2e7e;--yzC:#7c3aed;--yzOk:#16a34a;--yzBad:#e11d48}",
@@ -1650,6 +1910,16 @@ var STYLE=[
 ".yz-top li.me{outline:2px solid var(--yzA)}",
 ".yz-rk{width:24px;text-align:center;font-weight:900;flex:none}",
 ".yz-dot{width:12px;height:12px;border-radius:50%;flex:none;box-shadow:0 0 0 2px rgba(255,255,255,.7)}",
+".yz-rjoin{display:flex;gap:8px;flex-wrap:wrap;align-items:stretch;margin:10px 0}.yz-rjoin .yz-go{width:auto;flex:1 1 200px;margin:0;padding:13px 16px;font-size:16px}",
+".yz-rjoin input{flex:0 1 120px;min-width:90px;text-transform:uppercase;letter-spacing:5px;font-size:20px;font-weight:800;text-align:center;border-radius:14px;border:1.5px solid var(--line);background:var(--panel2);color:var(--ink);padding:8px}",
+".yz-rlist{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:8px}",
+".yz-ritem{display:flex;align-items:center;gap:10px;background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:8px 10px}",
+".yz-ritem>b{font-size:18px;letter-spacing:2px;font-family:ui-monospace,Menlo,Consolas,monospace}.yz-ritem span{flex:1;min-width:0;font-size:13px;font-weight:700}.yz-ritem small{color:var(--muted)}.yz-ritem .yz-btn2{padding:8px 12px;font-size:13px}",
+".yz-room{display:flex;align-items:center;gap:12px;flex-wrap:wrap;flex:none;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);border-radius:16px;padding:10px 14px}",
+".yz-rcode{display:grid;text-align:center;line-height:1.1}.yz-rcode span,.yz-rcode small{font-size:11px;opacity:.8;font-weight:700}.yz-rcode b{font-size:34px;letter-spacing:6px;font-family:ui-monospace,Menlo,Consolas,monospace;color:#fde047}",
+".yz-rmid{flex:1;min-width:180px;display:grid;gap:6px}.yz-rmid small{opacity:.8;font-weight:700}.yz-rps{display:flex;flex-wrap:wrap;gap:6px}",
+".yz-rp{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.12);border-radius:999px;padding:4px 10px;font-weight:800;font-size:13px}.yz-rp.me{outline:1.5px solid #fbbf24}.yz-rp i{width:10px;height:10px;border-radius:50%}",
+".yz-ract{flex:0 1 260px;min-width:200px}.yz-ract .yz-go{margin:0;padding:12px;font-size:16px}.yz-ract .yz-go:disabled{opacity:.5;cursor:not-allowed;transform:none}.yz-rwait{margin:4px 0 0;font-weight:700;font-size:13px;opacity:.9}",
 ".yz-shut{text-align:center;display:grid;align-content:center;gap:6px}.yz-shut p{margin:0;font-weight:600;line-height:1.5}.yz-shutic{font-size:58px}",
 ".yz-rules summary{cursor:pointer;font-weight:900;font-size:16px}",
 ".yz-rules ul{margin:10px 0 0;padding-left:4px;list-style:none;display:grid;gap:7px;line-height:1.5}",
@@ -1763,6 +2033,7 @@ function mount(root,ctx){
 function unmount(){
   if(!ROOT) return;
   if(RC&&RC.kind==="live") liveLeave(RC);
+  if(RC&&RC.kind==="room") roomLeave(RC);
   leave(); ALIVE++; VIEW=""; RC=null; HERO=null; SND.stop();
 }
 return {mount:mount,unmount:unmount,view:function(){ return VIEW; },
