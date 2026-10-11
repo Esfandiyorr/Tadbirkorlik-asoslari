@@ -142,7 +142,7 @@ tez yuguradi. Yuguruvchining yo'lakdagi o'rni = matnning to'g'ri yozilgan qismi.
 | Fayl | Nima |
 |---|---|
 | `yozuv.js` | O'yinning o'zi (`YZ` moduli): stadion grafikasi (Canvas), 48 xil yuguruvchi, yozish mexanikasi, mashq, jonli poyga, natija ekrani, ovozlar |
-| `yozuv_matnlar.json` | Matnlar: 6 til (o'zbek lotin/kirill, rus, ingliz, turk, nemis) × 3 daraja (oson, o'rta, qiyin), har birida 10–12 ta. `fayllar/yozuv-matnlar.json` ga ham nusxa ko'chiriladi (o'qituvchi formasi uchun) |
+| `yozuv_matnlar.json` | Matnlar: faqat tadbirkorlik va iqtisod mavzusida, lotin alifbosida — o'zbekcha va inglizcha × 3 daraja (oson, o'rta, qiyin), har birida 15 ta. `fayllar/yozuv-matnlar.json` ga ham nusxa ko'chiriladi (o'qituvchi formasi uchun) |
 | `yozuv_ball.js` | Rasmiy natija hisobi `yzScore()` — arenaga va taqdimot dvigateliga (`/*@YZBALL@*/` o'rniga) **aynan bir xil** qo'yiladi |
 
 **Mashq poygasi** — server shart emas: 0–5 ta bot (tezligi talabaning so'nggi
@@ -153,9 +153,8 @@ eng yaxshi natija qiziqish uchun `arena/yzrec/<til>/<sid>` ga ham yoziladi
 
 **Yozish qoidalari:** xato harf qizil, to'g'risi yashil; so'z faqat to'liq
 to'g'ri yozilib bo'shliq bosilganda qabul qilinadi. Tutuq belgisining
-barcha ko'rinishlari (' ‘ ’ ʻ ʼ ` ´) bir xil; kirill matnda `ў қ ғ ҳ` o'rniga
-`у к г х`, rus matnida `ё` o'rniga `е`, turk va nemis matnlarida
-`ç ğ ı ö ş ü ä` o'rniga oddiy harflar ham qabul qilinadi. Qo'yish (paste) va
+barcha ko'rinishlari (' ‘ ’ ʻ ʼ ` ´) bir xil qabul qilinadi; kirill harf
+yozilsa, klaviaturani lotin (EN) tiliga o'tkazish eslatiladi. Qo'yish (paste) va
 bir urinishda 2 tadan ortiq belgi (avtomatik to'ldirish) qabul qilinmaydi.
 
 **Jonli poyga** — o'qituvchi taqdimotdagi panelda («⚡ Jonli test» bo'limi →

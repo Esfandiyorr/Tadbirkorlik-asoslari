@@ -375,6 +375,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 
 
+
 /* RT:BEGIN */
 /* ================== REYTING TIZIMI ================== */
 .rt-chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel);
@@ -1149,6 +1150,7 @@ html.kh-gated,html.kh-gated body{overflow:hidden!important}
 </div>
 
 <div class="hint" id="hint" data-ui="hint">⌨️ <kbd>→</kbd> keyingi slayd · <kbd>D</kbd> tun/kun · <kbd>L</kbd> uz/eng · <kbd>O</kbd> ro'yxat · <kbd>F</kbd> to'liq ekran</div>
+
 
 
 
@@ -4173,7 +4175,7 @@ function khNext(){
   return ks.length?{d:ks[0],e:idx[ks[0]]}:null;
 }
 function khIsYz(g){ return !!(g&&g.e&&g.e.type==="yz"); }
-var YZ_LNG={uz:"🇺🇿 O'zbekcha",uzc:"🇺🇿 Ўзбекча",ru:"🇷🇺 Ruscha",en:"🇬🇧 Inglizcha",tr:"🇹🇷 Turkcha",de:"🇩🇪 Nemischa"}, YZ_LVL={oson:"Oson",orta:"O'rta",qiyin:"Qiyin"};
+var YZ_LNG={uz:"🇺🇿 O'zbekcha",en:"🇬🇧 Inglizcha"}, YZ_LVL={oson:"Oson",orta:"O'rta",qiyin:"Qiyin"};   /* matnlar: tadbirkorlik va iqtisod, lotin alifbosida */
 function yzModeTxt(e){ return e.mode==="time"?"⏱ "+Math.round((+e.dur||60)/60)+" "+T("daqiqa","min"):"🏁 "+T("Marra","Finish line"); }
 function yzInfo(e){ return yzModeTxt(e)+" · "+(YZ_LNG[e.lang]||e.lang||"")+" · "+(YZ_LVL[e.lvl]||e.lvl||""); }
 function khBanner(){
