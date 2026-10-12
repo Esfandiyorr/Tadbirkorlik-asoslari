@@ -255,6 +255,17 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 .xw-bar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;background:linear-gradient(135deg,var(--violet),var(--blue));
   color:#fff;border-radius:16px;padding:12px 16px;box-shadow:var(--shadow)}
 .xw-bar b{font-size:18px}
+.xw-timer{font-weight:900;font-size:18px;background:rgba(255,255,255,.18);border-radius:999px;padding:4px 12px;font-variant-numeric:tabular-nums}
+.xw-timer.low{background:#e11d48;animation:xwBlink 1s steps(1) infinite}
+@keyframes xwBlink{50%{background:#9f1239}}
+.xw-start{text-align:center;padding:34px 18px;margin-top:14px;border-radius:20px;border:2px dashed var(--line);background:var(--panel)}
+.xw-start-ic{font-size:64px}.xw-start h3{margin:8px 0 6px;font-size:24px}.xw-start p{max-width:560px;margin:0 auto 18px;color:var(--muted);line-height:1.6}
+.xw-go{font-size:20px;padding:14px 26px}
+.slide.xw-pre .xw-wrap,.slide.xw-pre [data-ui="xwHelp"],.slide.xw-pre #xwCheck,.slide.xw-pre #xwHint,.slide.xw-pre #xwReveal,.slide.xw-pre #xwClear{display:none}
+.slide.xw-run .xw-start,.slide.xw-end .xw-start,.slide.xw-run #xwReveal{display:none}
+.slide.xw-end #xwHint,.slide.xw-end #xwClear{display:none}
+.xw-endmsg{display:none;margin-top:14px;text-align:center;font-weight:900;font-size:20px;color:#fff;background:linear-gradient(135deg,#e11d48,#f97316);border-radius:16px;padding:12px 16px}
+.slide.xw-end .xw-endmsg{display:block}
 .xw-wrap{display:grid;grid-template-columns:auto minmax(280px,1fr);gap:18px;align-items:start}
 @media(max-width:900px){.xw-wrap{grid-template-columns:1fr}}
 .xw-grid{--cell:clamp(17px,2.4vw,31px);display:grid;gap:2px;background:transparent;
@@ -280,6 +291,9 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 .xw-list li b{color:var(--blue);margin-right:5px}
 .lnk{color:var(--blue);font-weight:600;text-decoration:none;border-bottom:1px dashed currentColor}
 .lnk:hover{color:var(--violet)}
+
+
+
 
 
 
@@ -1490,15 +1504,9 @@ html.kh-gated,html.kh-gated body{overflow:hidden!important}
         <div class="fact"><b>🏎 Ford v Ferrari (2019)</b><p data-i="316">Muhandislik va boshqaruv to'qnashuvi. <b>Nimani o'rgatadi:</b> jamoa, byudjet va maqsad ustidagi kelishuv.</p></div>
         <div class="fact"><b>📉 The Big Short (2015)</b><p data-i="317">2008-yilgi moliyaviy inqiroz sabablari. <b>Nimani o'rgatadi:</b> tavakkalni tushunish va tizimli xavflarni ko'ra bilish.</p></div>
       </div>
-      <div class="grid g2" style="margin-top:14px">
-        <div class="card" style="--c:var(--violet)"><h3 data-i="318">📺 Seriallar va hujjatli filmlar</h3>
-          <p data-i="319"><b>Shark Tank / Dragons' Den</b> — g'oyani investorga taqdim etish maktabi · <b>The Playlist</b> (Spotify) · <b>Super Pumped</b> (Uber) · <b>WeCrashed</b> (WeWork) · <b>Becoming Warren Buffett</b> — investitsion tafakkur.</p>
-        </div>
-        <div class="card" style="--c:var(--red)"><h3 data-i="320">⚠️ Diqqat bilan ko'ring</h3>
-          <p data-i="321"><b>The Wolf of Wall Street (2013)</b> va <b>Inventing Anna (2022)</b> — bu asarlar qahramonlari <b>ijobiy namuna emas</b>: ular firibgarlik va qonunbuzarlik oqibatlarini ko'rsatadi. Ularni "qanday qilmaslik kerak" darsi sifatida ko'ring.</p>
-        </div>
+      <div class="card" style="--c:var(--violet);margin-top:14px"><h3 data-i="318">📺 Seriallar va hujjatli filmlar</h3>
+        <p data-i="319"><b>Shark Tank / Dragons' Den</b> — g'oyani investorga taqdim etish maktabi · <b>The Playlist</b> (Spotify) · <b>Super Pumped</b> (Uber) · <b>WeCrashed</b> (WeWork) · <b>Becoming Warren Buffett</b> — investitsion tafakkur.</p>
       </div>
-      <div class="quote" style="margin-top:14px" data-i="322">🎯 <b>Topshiriq:</b> shu ro'yxatdan bitta filmni ko'ring va yarim betlik tahlil yozing: qahramon qanday <b>muammoni</b> hal qildi, qanday <b>huquqiy xato</b>ga yo'l qo'ydi va siz undan nima o'rgandingiz?</div>
     </div>
   </section>
 
@@ -1510,11 +1518,18 @@ html.kh-gated,html.kh-gated body{overflow:hidden!important}
       <div class="xw-bar">
         <span><span data-ui="xwSolved" data-i="325">Topilgan so'zlar:</span> <b><span id="xwDone">0</span> / <span id="xwTotal">18</span></b></span>
         <span><span data-ui="xwLetters" data-i="326">To'ldirilgan katak:</span> <b id="xwCells">0</b></span>
+        <span class="xw-timer" id="xwTimer">⏱ 25:00</span>
         <div class="spacer"></div>
         <button class="btn accent" id="xwCheck" data-ui="xwCheckBtn" data-i="327">✔ Tekshirish</button>
         <button class="btn" id="xwHint" data-ui="xwHintBtn" data-i="328">💡 Bitta harf</button>
         <button class="btn warn" id="xwReveal" data-ui="xwRevealBtn" data-i="329">👁 Javoblar</button>
         <button class="btn" id="xwClear" data-ui="xwClearBtn" data-i="330">🗑 Tozalash</button>
+      </div>
+      <div class="xw-start" id="xwStart">
+        <div class="xw-start-ic">🧩</div>
+        <h3 id="xwStartH" data-ui="xwStartH">Krossvordni boshlashga tayyormisiz?</h3>
+        <p id="xwStartP" data-ui="xwStartP">Tugmani bosgan paytdan boshlab sizga <b>25 daqiqa</b> vaqt beriladi. Vaqt tugagach javoblar avtomatik tekshiriladi va ball faqat shu vaqt ichida topilgan so'zlar uchun beriladi.</p>
+        <button class="btn accent xw-go" id="xwGo" data-ui="xwGoBtn">▶ Krossvordni boshlash</button>
       </div>
       <p class="lead" style="margin:10px 0" data-ui="xwHelp" data-i="331">Kataklarga harflarni yozing. Apostrof (ʻ) va tirelar ishlatilmaydi: <b>o'</b> → <b>O</b>, <b>g'</b> → <b>G</b>, <b>E-IMZO</b> → <b>EIMZO</b>. Katakni bosib, so'z yo'nalishini almashtirish mumkin.</p>
       <div class="xw-wrap">
@@ -1530,6 +1545,7 @@ html.kh-gated,html.kh-gated body{overflow:hidden!important}
           </div>
         </div>
       </div>
+      <div class="xw-endmsg" id="xwEndMsg"></div>
       <div class="result" id="xwResult">
         <div class="pct" id="xwPct">0%</div>
         <h3 id="xwResTitle" style="color:#fff;margin:10px 0 4px" data-i="334">Natija</h3>
@@ -1584,6 +1600,9 @@ html.kh-gated,html.kh-gated body{overflow:hidden!important}
 </div>
 
 <div class="hint" id="hint" data-ui="hint">⌨️ <kbd>→</kbd> keyingi slayd · <kbd>D</kbd> tun/kun · <kbd>L</kbd> uz/eng · <kbd>O</kbd> ro'yxat · <kbd>F</kbd> to'liq ekran</div>
+
+
+
 
 
 
@@ -5816,6 +5835,9 @@ var UI={
  xwSolved:["Topilgan so'zlar:","Words solved:"],
  xwLetters:["To'ldirilgan katak:","Cells filled:"],
  xwCheckBtn:["✔ Tekshirish","✔ Check"],
+ xwStartH:["Krossvordni boshlashga tayyormisiz?","Ready to start the crossword?"],
+ xwStartP:["Tugmani bosgan paytdan boshlab sizga <b>25 daqiqa</b> vaqt beriladi. Vaqt tugagach javoblar avtomatik tekshiriladi va ball faqat shu vaqt ichida topilgan so'zlar uchun beriladi.","From the moment you press the button you have <b>25 minutes</b>. When time is up your answers are checked automatically, and points are given only for words found within the time."],
+ xwGoBtn:["▶ Krossvordni boshlash","▶ Start the crossword"],
  xwHintBtn:["💡 Bitta harf","💡 One letter"],
  xwRevealBtn:["👁 Javoblar","👁 Reveal"],
  xwClearBtn:["🗑 Tozalash","🗑 Clear"],
@@ -6047,6 +6069,7 @@ function renderXW(){
   });
   document.getElementById("xwTotal").textContent=XWords().length;
   xwStatus();
+  if(typeof xwLive==="function") [].forEach.call(g.querySelectorAll("input"),function(i){ i.readOnly=!xwLive(); });   /* til almashganda ham qulf saqlanadi */
 }
 function xwInput(r,c){ return document.querySelector('#xwGrid input[data-r="'+r+'"][data-c="'+c+'"]'); }
 function xwWordAt(r,c,d){
@@ -6107,16 +6130,51 @@ function xwOnKey(e){
   if(e.key==="ArrowDown"){ e.preventDefault(); xwDir="v"; var i2=xwWordAt(r,c,"v"); if(i2!==null){xwActive=i2;xwHighlight();} var n3=xwInput(r+1,c); if(n3)n3.focus(); }
   if(e.key==="ArrowUp"){ e.preventDefault(); xwDir="v"; var n4=xwInput(r-1,c); if(n4)n4.focus(); }
 }
+/* 25 daqiqalik vaqt: boshlash tugmasi bosilgach hisoblanadi; ball faqat vaqt ichida beriladi */
+var XW_MS=25*60000, XWT=(function(){ try{ return JSON.parse(localStorage.getItem("terdu_m4_xwt")||"null")||{}; }catch(e){ return {}; } })(), xwTick=null;
+function xwLive(){ return !!(XWT.s&&!XWT.e&&Date.now()<XWT.s+XW_MS); }
+function xwMode(){
+  var sl=document.getElementById("xwGrid").closest(".slide"), m=!XWT.s?"pre":(xwLive()?"run":"end");
+  sl.classList.remove("xw-pre","xw-run","xw-end"); sl.classList.add("xw-"+m);
+  [].forEach.call(document.querySelectorAll("#xwGrid input"),function(i){ i.readOnly=(m!=="run"); });
+  if(m==="end") xwEndShow();
+  return m;
+}
+function xwTimerDraw(){
+  var el=document.getElementById("xwTimer"), left=XWT.s?Math.max(0,XWT.s+XW_MS-Date.now()):XW_MS;
+  if(XWT.e) left=0;
+  var sec=Math.ceil(left/1000);
+  el.textContent="⏱ "+Math.floor(sec/60)+":"+("0"+sec%60).slice(-2);
+  el.classList.toggle("low",xwLive()&&left<120000);
+  if(XWT.s&&!XWT.e&&left<=0) xwTimeUp();
+}
+function xwTimeUp(){
+  clearInterval(xwTick); xwTick=null;
+  XWT.e=1; try{ localStorage.setItem("terdu_m4_xwt",JSON.stringify(XWT)); }catch(e){}
+  xwMode(); xwTimerDraw();
+}
+/* vaqt tugagan holat: kataklar yopiq, natija avtomatik tekshiriladi */
+function xwEndShow(){
+  var done=xwStatus(), all=XWords().length;
+  document.getElementById("xwEndMsg").textContent=(lang==="en"?"⏱ Time is up! Words found: ":"⏱ Vaqt tugadi! Topilgan so'zlar: ")+done+" / "+all;
+  setTimeout(xwCheck,300);
+}
+function xwStart(){
+  if(XWT.s) return;
+  XWT={s:Date.now(),e:0}; try{ localStorage.setItem("terdu_m4_xwt",JSON.stringify(XWT)); }catch(e){}
+  xwMode(); xwTimerDraw(); xwTick=setInterval(xwTimerDraw,1000);
+  var f=document.querySelector("#xwGrid input"); if(f) f.focus();
+}
 function xwStatus(){
   var done=0, filled=0;
   XWords().forEach(function(w,i){
-    var s=xwSolved(w); if(s){ done++; if(window.RT) RT.award("xw"+i,4,"krossvord"); }
+    var s=xwSolved(w); if(s){ done++; if(window.RT&&xwLive()) RT.award("xw"+i,4,"krossvord"); }
     var li=document.querySelector('.xw-list li[data-i="'+i+'"]');
     if(li) li.classList.toggle("solved",s);
   });
   for(var k in XWuser){ if(XWuser[k]) filled++; }
   document.getElementById("xwDone").textContent=done;
-  if(window.RT && done===XWords().length) RT.award("xwAll",15,"krossvord to'liq");
+  if(window.RT && xwLive() && done===XWords().length) RT.award("xwAll",15,"krossvord to'liq");
   document.getElementById("xwCells").textContent=filled;
   return done;
 }
@@ -6169,7 +6227,9 @@ document.getElementById("xwCheck").onclick=xwCheck;
 document.getElementById("xwHint").onclick=xwHint;
 document.getElementById("xwReveal").onclick=xwReveal;
 document.getElementById("xwClear").onclick=xwClear;
-xwLoad(); renderXW();
+document.getElementById("xwGo").onclick=xwStart;
+xwLoad(); renderXW(); xwMode(); xwTimerDraw();
+if(xwLive()) xwTick=setInterval(xwTimerDraw,1000);
 
 /* ================= START ================= */
 try{
