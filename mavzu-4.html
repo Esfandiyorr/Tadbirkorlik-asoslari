@@ -1526,6 +1526,7 @@ html.kh-gated,html.kh-gated body{overflow:hidden!important}
       </div>
       <div class="xw-start" id="xwStart">
         <div class="xw-start-ic">🧩</div>
+        <p id="xwRetryNote" style="display:none;margin:0 0 6px;font-weight:700;color:var(--green)"></p>
         <h3 id="xwStartH" data-ui="xwStartH">Krossvordni boshlashga tayyormisiz?</h3>
         <p id="xwStartP" data-ui="xwStartP">Tugmani bosgan paytdan boshlab sizga <b>25 daqiqa</b> vaqt beriladi. Vaqt tugagach javoblar avtomatik tekshiriladi va ball faqat shu vaqt ichida topilgan so'zlar uchun beriladi.</p>
         <button class="btn accent xw-go" id="xwGo" data-ui="xwGoBtn">▶ Krossvordni boshlash</button>
@@ -6068,6 +6069,7 @@ function renderXW(){
   document.getElementById("xwTotal").textContent=XWords().length;
   xwStatus();
   if(typeof xwLive==="function") [].forEach.call(g.querySelectorAll("input"),function(i){ i.readOnly=!xwLive(); });   /* til almashganda ham qulf saqlanadi */
+  if(typeof xwRetryNote==="function") xwRetryNote();
 }
 function xwInput(r,c){ return document.querySelector('#xwGrid input[data-r="'+r+'"][data-c="'+c+'"]'); }
 function xwWordAt(r,c,d){
@@ -6131,16 +6133,32 @@ function xwOnKey(e){
 /* 25 daqiqalik vaqt: boshlash tugmasi bosilgach hisoblanadi; ball faqat vaqt ichida beriladi */
 var XW_MS=25*60000, XWT=(function(){ try{ return JSON.parse(localStorage.getItem("terdu_m4_xwt")||"null")||{}; }catch(e){ return {}; } })(), xwTick=null;
 function xwLive(){ return !!(XWT.s&&!XWT.e&&Date.now()<XWT.s+XW_MS); }
+/* o'qituvchi panelidagi 🔓 bazaga fx = (bosilgan vaqt + 3 kun) yozadi. Krossvord shu bosishdan oldin
+   ishlangan bo'lsa, talabaga yana bitta 25 daqiqalik urinish ochiladi (oldin topilgan so'zlar bali saqlanadi) */
+function xwReopenAt(){
+  if(!window.RT||!RT.points) return 0;
+  var x=(RT.points().topics||{})[(window.RT_CFG&&RT_CFG.topic)||"m4"]||{};
+  return +x.fx?(+x.fx-3*86400000):0;
+}
+function xwRetry(){ return !!(XWT.s&&!xwLive()&&xwReopenAt()>XWT.s); }
+function xwRetryNote(){
+  var n=document.getElementById("xwRetryNote"); if(!n||!XWT) return;
+  var on=xwRetry();
+  n.style.display=on?"":"none";
+  n.textContent=on?(lang==="en"?"🔓 The teacher has given you one more attempt":"🔓 O'qituvchi sizga yana bir imkoniyat berdi"):"";
+}
 function xwMode(){
-  var sl=document.getElementById("xwGrid").closest(".slide"), m=!XWT.s?"pre":(xwLive()?"run":"end");
+  var sl=document.getElementById("xwGrid").closest(".slide"), m=(!XWT.s||xwRetry())?"pre":(xwLive()?"run":"end");
   sl.classList.remove("xw-pre","xw-run","xw-end"); sl.classList.add("xw-"+m);
   [].forEach.call(document.querySelectorAll("#xwGrid input"),function(i){ i.readOnly=(m!=="run"); });
+  if(m==="pre") document.getElementById("xwResult").classList.remove("show");
+  xwRetryNote();
   if(m==="end") xwEndShow();
   return m;
 }
 function xwTimerDraw(){
-  var el=document.getElementById("xwTimer"), left=XWT.s?Math.max(0,XWT.s+XW_MS-Date.now()):XW_MS;
-  if(XWT.e) left=0;
+  var again=xwRetry(), el=document.getElementById("xwTimer"), left=(XWT.s&&!again)?Math.max(0,XWT.s+XW_MS-Date.now()):XW_MS;
+  if(XWT.e&&!again) left=0;
   var sec=Math.ceil(left/1000);
   el.textContent="⏱ "+Math.floor(sec/60)+":"+("0"+sec%60).slice(-2);
   el.classList.toggle("low",xwLive()&&left<120000);
@@ -6158,9 +6176,11 @@ function xwEndShow(){
   setTimeout(xwCheck,300);
 }
 function xwStart(){
-  if(XWT.s) return;
+  var again=xwRetry();
+  if(XWT.s&&!again) return;
   XWT={s:Date.now(),e:0}; try{ localStorage.setItem("terdu_m4_xwt",JSON.stringify(XWT)); }catch(e){}
-  xwMode(); xwTimerDraw(); xwTick=setInterval(xwTimerDraw,1000);
+  if(again){ XWuser={}; xwSave(); xwActive=null; renderXW(); }   /* yangi urinish — toza katak bilan */
+  xwMode(); xwTimerDraw(); clearInterval(xwTick); xwTick=setInterval(xwTimerDraw,1000);
   var f=document.querySelector("#xwGrid input"); if(f) f.focus();
 }
 function xwStatus(){
@@ -6209,6 +6229,11 @@ document.getElementById("xwClear").onclick=xwClear;
 document.getElementById("xwGo").onclick=xwStart;
 xwLoad(); renderXW(); xwMode(); xwTimerDraw();
 if(xwLive()) xwTick=setInterval(xwTimerDraw,1000);
+/* bazadagi ma'lumot sahifa ochilgach (va keyin har daqiqada) keladi — o'qituvchi qayta ochgani shu yerda sezilib qoladi */
+setInterval(function(){
+  var sl=document.getElementById("xwGrid").closest(".slide");
+  if(xwRetry()&&!sl.classList.contains("xw-pre")){ xwMode(); xwTimerDraw(); }
+},5000);
 
 /* ================= START ================= */
 try{
