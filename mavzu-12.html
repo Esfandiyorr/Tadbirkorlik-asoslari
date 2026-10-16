@@ -383,6 +383,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 
 
+
 /* RT:BEGIN */
 /* ================== REYTING TIZIMI ================== */
 .rt-chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel);
@@ -1166,6 +1167,7 @@ html.kh-gated,html.kh-gated body{overflow:hidden!important}
 </div>
 
 <div class="hint" id="hint" data-ui="hint">⌨️ <kbd>→</kbd> keyingi slayd · <kbd>D</kbd> tun/kun · <kbd>L</kbd> uz/eng · <kbd>O</kbd> ro'yxat · <kbd>F</kbd> to'liq ekran</div>
+
 
 
 
@@ -4336,45 +4338,103 @@ function khRules(go){
 
 /* ---------- o'qituvchi: sozlama, savollar banki, jadval va natijalar ---------- */
 var KHT={cfg:null,bank:null,idx:null,res:null,loaded:false,busy:false,msg:"",auto:false,list:false,edit:null,sp:null};
-/* Zakovat uslubidagi mantiqiy savollar to'plami — maxsus o'yin uchun (to'g'ri javob — birinchi variant) */
-var KH_ZAK=[
- {t:"Shvetsiyalik tadbirkor kompaniyasiga ismi va familiyasining bosh harflarini, so'ng o'zi o'sgan ferma va qishloq nomlarining bosh harflarini qo'shib nom berdi. Qaysi kompaniya?",o:["IKEA","Volvo","H&M","Spotify"]},
- {t:"Daniyalik duradgor 1932-yilda o'yinchoqlariga «yaxshi o'yna» degan iboradan nom berdi. Bu qaysi brend?",o:["LEGO","Playmobil","Mattel","Hasbro"]},
- {t:"Bu kompaniya 1865-yilda Finlyandiyada qog'oz fabrikasi sifatida ochilgan, bir asrdan keyin esa dunyoga boshqa mahsuloti bilan tanilgan. Qaysi kompaniya?",o:["Nokia","Ericsson","Siemens","Philips"]},
- {t:"1938-yilda Koreyada ochilgan bu kompaniya dastlab quritilgan baliq, sabzavot va lag'mon bilan savdo qilgan. Qaysi kompaniya?",o:["Samsung","LG","Hyundai","Kia"]},
- {t:"Jeff Bezos kompaniyasini avval «Cadabra» deb atamoqchi edi, ammo advokati bu so'zni telefonda boshqa, xunuk so'z deb eshitdi. Bugun kompaniya qanday nomlanadi?",o:["Amazon","eBay","Alibaba","Netflix"]},
- {t:"Bu ilova dastlab «Burbn» deb nomlangan joylashuv ilovasi edi. Foydalanuvchilar faqat rasm ulashishni yaxshi ko'rgach, asoschilar yo'nalishni o'zgartirdi. Qaysi ilova?",o:["Instagram","Snapchat","Pinterest","Flickr"]},
- {t:"Mashhur qahvaxonalar tarmog'i nomini Herman Melvilning «Mobi Dik» romanidagi kema shturmani ismidan olgan. Qaysi tarmoq?",o:["Starbucks","Costa","Tim Hortons","Dunkin'"]},
- {t:"Italiyalik iqtisodchi bog'idagi no'xat qo'zoqlarining 20 foizi hosilning 80 foizini berishini payqagan. Bu qoida kimning nomi bilan ataladi?",o:["Pareto","Keyns","Smit","Rikardo"]},
- {t:"«Bankrot» so'zi italyancha «banca rotta» iborasidan kelib chiqqan. Bu ibora nimani anglatadi?",o:["Singan stol (skameyka)","Yopilgan eshik","Bo'sh hamyon","Yonib ketgan daftar"]},
- {t:"Inglizcha «brand» so'zining asl ma'nosi qadimgi skandinav tilidagi qaysi harakat bilan bog'liq?",o:["Kuydirish (tamg'a bosish)","Sotish","Yozish","Bo'yash"]},
- {t:"Inglizcha «salary» (maosh) so'zi lotin tilidagi qaysi mahsulot nomi bilan bog'liq?",o:["Tuz","Non","Vino","Oltin"]},
- {t:"Talaba Kerolin Devidson 1971-yilda bitta chizma uchun atigi 35 dollar oldi. Bu chizma keyin dunyodagi eng mashhur belgilardan biriga aylandi. Qaysi brendniki?",o:["Nike","Adidas","Puma","Reebok"]},
- {t:"Ustarani arzon sotib, almashtiriladigan tig'larni doimiy sotish modeli qaysi kompaniya nomi bilan bog'lanadi? Bugun bu model printer va kartrijlarda ham ishlatiladi.",o:["Gillette","Philips","Braun","Bic"]},
- {t:"Ruchka va daftar birga 11 000 so'm turadi. Ruchka daftardan 10 000 so'm qimmat. Daftar necha so'm?",o:["500","1 000","1 500","100"]},
- {t:"Savdogar otni 60 dinorga oldi va 70 ga sotdi. Keyin uni 80 ga qaytib sotib oldi va 90 ga sotdi. Jami foydasi qancha?",o:["20","10","0","30"]},
- {t:"Telegram kanal obunachilari har kuni 2 baravar ko'payadi. 30-kunda ular 100 000 ga yetdi. 50 000 ga nechanchi kunda yetgan?",o:["29-kun","15-kun","25-kun","28-kun"]},
- {t:"5 ta tikuvchi 5 ta formani 5 soatda tikadi. 100 ta tikuvchi 100 ta formani necha soatda tikadi?",o:["5 soat","100 soat","20 soat","1 soat"]},
- {t:"Mahsulot narxi 100 000 so'm edi. Uni 20% oshirib, keyin 20% tushirishdi. Hozir narxi qancha?",o:["96 000","100 000","104 000","98 000"]},
- {t:"Uch qutida «Olma», «Nok» va «Aralash» yorliqlari bor — uchalasi ham noto'g'ri. Bitta qutidan bitta meva olib, hammasini to'g'rilash mumkin. Qaysi qutidan olish kerak?",o:["«Aralash»","«Olma»","«Nok»","Bu mumkin emas"]},
- {t:"9 ta tangadan biri soxta va boshqalaridan yengilroq. Pallali tarozida eng kamida necha marta tortib uni topish mumkin?",o:["2","3","4","8"]},
- {t:"Do'kon «2 ta oling, 3-si bepul» aksiyasini e'lon qildi. Bu taxminan necha foiz chegirmaga teng?",o:["33%","50%","25%","66%"]},
- {t:"Ketma-ketlik: 2, 6, 12, 20, 30, … Keyingi son qaysi?",o:["42","40","44","36"]},
- {t:"Soat 3:15 ni ko'rsatmoqda. Soat va minut millari orasidagi burchak necha gradus?",o:["7,5°","0°","15°","30°"]},
- {t:"Quduq 10 metr chuqur. Shilliqqurt kunduzi 3 metr ko'tariladi, kechasi 2 metr sirpanib tushadi. U necha kunda tepaga chiqadi?",o:["8","10","7","9"]},
- {t:"Sotuvchi tovarni tannarxiga 25% ustama qo'yib sotdi. Uning marjasi (narxdagi foyda ulushi) necha foiz?",o:["20%","25%","30%","15%"]},
- {t:"Isfandiyor ustozning tug'ilgan kuni, oyi va yili qachon?",o:["21.09.1998","12.09.1998","21.09.1997","21.08.1998"]}
-];
-var KH_ZAK_SEL=[2,3,8,9,10,11,13,14,15,18,20,21,23,24,25];   /* o'qituvchi tanlagan 15 ta savol (10-oktyabr o'yini) */
+/* ---------- yagona savollar banki: oddiy savollar, Zakovat va mavzu savollari bir joyda ----------
+   Har savolning bo'limi (tp) bor. Kunlik o'yin o'qituvchi yoqib qo'ygan bo'limlardan, maxsus o'yin esa
+   qo'lda tanlangan savollardan tuziladi. Yangi savollar fayldan ham keladi: fayllar/savollar.dat
+   (javoblar ochiq ko'rinmasligi uchun kodlangan) — o'qituvchi paneli ochilganda bankka bir marta qo'shiladi. */
+var KH_TPS=[["","Umumiy","General"],["zakovat","Zakovat","Logic quiz"],["iqt","Iqtisod","Economics"]];
+for(var _m=1;_m<=15;_m++) KH_TPS.push(["m"+_m,"M"+_m+"-mavzu","Topic "+_m]);
+function khTpName(tp){ var r=KH_TPS.filter(function(x){ return x[0]===(tp||""); })[0]; return r?T(r[1],r[2]):String(tp).toUpperCase(); }
+function khTpOpts(cur,all){ return (all?'<option value="*">'+T("Barcha bo'limlar","All sections")+'</option>':'')+
+  KH_TPS.map(function(x){ return '<option value="'+x[0]+'"'+(x[0]===cur?" selected":"")+'>'+T(x[1],x[2])+'</option>'; }).join(""); }
+/* kodlangan fayl: base64 → har bayt (k*37+91)&255 bilan XOR → UTF-8 JSON */
+function khFileDec(b64){
+  try{ var b=atob(String(b64).trim()), u=new Uint8Array(b.length);
+    for(var k=0;k<b.length;k++) u[k]=b.charCodeAt(k)^((k*37+91)&255);
+    return JSON.parse(new TextDecoder().decode(u)); }catch(e){ return null; }
+}
+/* fayldagi o'zgarishlar (ver) bankka faqat bir marta qo'llanadi: bank/_sv da qo'llangan versiya saqlanadi */
+function khFileSync(){
+  window.fetch("fayllar/savollar.dat",{cache:"no-store"}).then(function(r){ return r.ok?r.text():null; }).catch(function(){ return null; }).then(function(txt){
+    var j=txt&&khFileDec(txt), bank=KHT.bank||{}, sv=+((bank._sv||{}).v)||0;
+    if(!j||!(+j.ver>sv)) return;
+    var o={}, n=0, d=0;
+    (j.add||[]).forEach(function(x){
+      if(!x||!x.t||!Array.isArray(x.o)||x.o.length!==4) return;
+      var id=khQid(x.t); if(bank[id]||o["bank/"+id]) return;
+      o["bank/"+id]={t:x.t,o:x.o.slice(),c:+x.c||0,tp:String(x.tp||""),u:0}; n++;
+    });
+    (j.del||[]).forEach(function(t){ var id=khQid(t); if(bank[id]&&bank[id].t){ o["bank/"+id]=null; d++; } });
+    o["bank/_sv"]={v:+j.ver};
+    khKpatch(o).then(function(ok){
+      if(!ok) return;
+      for(var k in o){ var id=k.slice(5); if(o[k]===null) delete bank[id]; else bank[id]=o[k]; }
+      KHT.bank=bank;
+      if(n||d) toast(T("Savollar banki yangilandi: +","Question bank updated: +")+n+(d?" · −"+d:""));
+      khTcRender(); if(n) khAuto();
+    });
+  });
+}
+/* matndan savollar: bo'sh qator bilan ajratiladi; 1-qator savol, keyingi 4 qator javob,
+   to'g'ri javob oldiga yoki oxiriga * qo'yiladi (yoki "+" bilan boshlanadi) */
+function khParse(txt){
+  var out=[], bad=0;
+  String(txt||"").replace(/\r/g,"").split(/\n\s*\n/).forEach(function(blk){
+    var L=blk.split("\n").map(function(x){ return x.trim(); }).filter(Boolean);
+    if(!L.length) return;
+    var q=L[0].replace(/^\d+[.)]\s*/,""), ans=L.slice(1,5), c=-1;
+    ans=ans.map(function(a,i){
+      var on=/^[+*✅]/.test(a)||/\*\s*$/.test(a);
+      if(on) c=i;
+      return a.replace(/^[A-Da-d][).]\s+/,"").replace(/^[-+*✅•]\s*/,"").replace(/\s*\*\s*$/,"").trim();
+    });
+    if(q.length<5||ans.length!==4||c<0||ans.some(function(a){ return !a; })){ bad++; return; }
+    out.push({t:q,o:[ans[c]].concat(ans.filter(function(_,i){ return i!==c; })),c:0});
+  });
+  return {qs:out,bad:bad};
+}
+function khBulkHtml(){
+  return '<div class="rt-khform"><b>📝 '+T("Bir nechta savolni birdan qo'shish","Add several questions at once")+'</b>'+
+    '<p class="rt-note" style="margin:0">'+T("Har savol: 1-qator — savol, keyingi 4 qator — javoblar. To'g'ri javob oxiriga <b>*</b> qo'ying. Savollar orasida bitta bo'sh qator.",
+      "Each question: line 1 — the question, the next 4 lines — answers. Put <b>*</b> after the correct answer. One empty line between questions.")+'</p>'+
+    '<textarea id="khBulkT" rows="9" placeholder="'+esc("Ruchka va daftar 11 000 so'm. Ruchka 10 000 so'm qimmat. Daftar necha so'm?\n500 *\n1 000\n1 500\n100\n\nKeyingi savol…")+'"></textarea>'+
+    '<label>'+T("Bo'lim","Section")+'<select id="khBulkTp">'+khTpOpts("")+'</select></label>'+
+    '<p class="rt-note" id="khBulkMsg" style="margin:0;font-weight:700"></p>'+
+    '<div class="rt-khrow"><button type="button" class="btn accent" id="khBulkGo">➕ '+T("Bankka qo'shish","Add to the bank")+'</button>'+
+    '<button type="button" class="btn" id="khBulkX">'+T("Yopish","Close")+'</button></div></div>';
+}
+function khBulkBind(){
+  var q=function(id){ return document.getElementById(id); }; if(!q("khBulkGo")) return;
+  var msg=function(){ var r=khParse(q("khBulkT").value); q("khBulkMsg").textContent=T("Tayyor: ","Ready: ")+r.qs.length+(r.bad?" · ⚠️ "+T("tushunilmadi: ","not understood: ")+r.bad:""); };
+  q("khBulkT").oninput=msg;
+  q("khBulkX").onclick=function(){ KHT.bulk=false; khTcRender(); };
+  q("khBulkGo").onclick=function(){
+    var r=khParse(q("khBulkT").value), tp=q("khBulkTp").value||"", o={}, n=0, skip=0;
+    if(!r.qs.length){ toast(T("Savol topilmadi — namunadagidek yozing","No questions found — follow the example")); return; }
+    r.qs.forEach(function(x){ var id=khQid(x.t); if((KHT.bank[id]&&KHT.bank[id].t)||o["bank/"+id]){ skip++; return; }
+      o["bank/"+id]={t:x.t,o:x.o,c:0,tp:tp,u:0}; n++; });
+    if(!n){ toast(T("Hammasi bankda bor","All of them are already in the bank")); return; }
+    khKpatch(o).then(function(ok){
+      if(!ok){ toast(T("Saqlanmadi — qoidalarni tekshiring","Not saved — check the rules")); return; }
+      for(var k in o) KHT.bank[k.slice(5)]=o[k];
+      KHT.bulk=false; toast(T("Qo'shildi: ","Added: ")+n+(skip?" · "+T("bor edi: ","already there: ")+skip:"")+(r.bad?" · ⚠️ "+r.bad:""));
+      khTcRender(); khAuto();
+    });
+  };
+}
 var KH_NOTE="📝 Ruchka va daftar olib oling — hisob-kitob savollari bor!";
 function khStartOf(d,tm){ var hm=String(tm||"20:00").split(":"); return Date.UTC(+d.slice(0,4),+d.slice(5,7)-1,+d.slice(8,10),+hm[0]||0,+hm[1]||0)-18000000; }
 function khSpDefault(){
   var now=Date.now(), tm="23:00", d=khDay(now);
   if(khStartOf(d,tm)<=now+120000) d=khDay(now+86400000);
-  var sel={}; KH_ZAK_SEL.forEach(function(i){ sel[i]=true; });
-  return {d:d,tm:tm,qs:30,sel:sel,note:KH_NOTE};
+  return {d:d,tm:tm,qs:30,sel:{},order:[],note:KH_NOTE,f:"zakovat",s:""};
 }
-function khSpCount(){ var s=KHT.sp, n=0; for(var k in s.sel) if(s.sel[k]) n++; return n; }
+function khSpCount(){ return KHT.sp.order.length; }
+function khSpPool(){
+  var s=KHT.sp, f=s.f, q=nrm(s.s||"");
+  return khBankArr().filter(function(x){ return (f==="*"||(x.tp||"")===f)&&(!q||nrm(x.t).indexOf(q)>=0); })
+    .sort(function(a,b){ return String(a.t).localeCompare(String(b.t)); });
+}
 function khSpHtml(){
   var now=Date.now(), idx=KHT.idx||{};
   var cur=Object.keys(idx).filter(function(d){ return idx[d]&&idx[d].sp&&idx[d].type!=="yz"&&+idx[d].end>now; }).sort().map(function(d){
@@ -4382,23 +4442,33 @@ function khSpHtml(){
     return '<p class="rt-note">🎯 <b>'+T("Maxsus o'yin","Special game")+':</b> '+dfmt(d)+' '+khHM(e.start)+' · '+(e.nq||0)+' '+T("ta savol","questions")+' · '+(e.qsec||15)+' '+T("soniyadan","s each")+
       (+e.open>now+60000?' <button type="button" class="btn sm kh-spx" data-d="'+esc(d)+'">✕ '+T("Bekor qilish","Cancel")+'</button>':'')+'</p>';
   }).join("");
-  if(!KHT.sp) return cur+'<div class="rt-khrow"><button type="button" class="btn sm" id="khSpOpen">🎯 '+T("Maxsus o'yin: Zakovat savollari","Special game: logic quiz")+'</button></div>';
+  if(!KHT.sp) return cur+'<div class="rt-khrow"><button type="button" class="btn sm" id="khSpOpen">🎯 '+T("Maxsus o'yin (Zakovat va boshqalar) — savollarni o'zim tanlayman","Special game — I pick the questions")+'</button></div>';
   var s=KHT.sp, qsO=[15,20,25,30,45].map(function(v){ return '<option value="'+v+'"'+(+s.qs===v?" selected":"")+'>'+v+'</option>'; }).join("");
-  return cur+'<div class="rt-khform rt-khsp"><b>🎯 '+T("Maxsus o'yin — savollarni o'zingiz tanlang","Special game — pick the questions yourself")+'</b>'+
+  var pool=khSpPool();
+  return cur+'<div class="rt-khform rt-khsp"><b>🎯 '+T("Maxsus o'yin — savollarni bankdan tanlang","Special game — pick questions from the bank")+'</b>'+
     '<div class="rt-khrow"><label>'+T("Sana","Date")+' <input type="date" id="khSpD" value="'+esc(s.d)+'"></label>'+
     '<label>'+T("Vaqti","Time")+' <input type="time" id="khSpT" value="'+esc(s.tm)+'"></label>'+
     '<label>'+T("Har savolga","Per question")+' <select id="khSpQ">'+qsO+'</select> '+T("soniya","s")+'</label></div>'+
     '<label>'+T("Talabalarga eslatma (lobbi va qoidalarda ko'rinadi)","Note to students (shown in the lobby and rules)")+'<input id="khSpNote" maxlength="140" value="'+esc(s.note||"")+'"></label>'+
-    '<p class="rt-note" style="margin:0">'+T("Tanlangan: ","Selected: ")+'<b id="khSpN">'+khSpCount()+'</b> '+T("ta (tavsiya — 15). O'yinda savollar shu tartibda, variantlar esa aralashtirib chiqadi. Shu kunning oddiy o'yini o'rniga o'tadi.",
-      "(15 recommended). Questions go in this order; options are shuffled. It replaces that day's regular game.")+'</p>'+
-    '<div class="rt-khlist">'+KH_ZAK.map(function(x,i){
-      return '<label class="rt-khq" style="cursor:pointer"><input type="checkbox" class="kh-spc" data-i="'+i+'"'+(s.sel[i]?" checked":"")+'>'+
-        '<div><b>'+(i+1)+'. '+esc(x.t)+'</b><span>✅ '+esc(x.o[0])+' · ✖ '+esc(x.o.slice(1).join(" · "))+'</span></div></label>';
-    }).join("")+'</div>'+
+    '<div class="rt-khrow"><label>'+T("Bo'lim","Section")+' <select id="khSpF">'+khTpOpts(s.f,true)+'</select></label>'+
+      '<label>🔎 <input id="khSpS" value="'+esc(s.s||"")+'" placeholder="'+T("qidirish","search")+'"></label>'+
+      '<button type="button" class="btn sm" id="khSpAll">☑ '+T("Ko'rinayotganlarni belgilash","Tick the shown ones")+'</button>'+
+      '<button type="button" class="btn sm" id="khSpRnd">🎲 '+T("Tasodifiy 15 ta","Random 15")+'</button></div>'+
+    '<p class="rt-note" style="margin:0">'+T("Tanlangan: ","Selected: ")+'<b id="khSpN">'+khSpCount()+'</b> '+T("ta (tavsiya — 15). Savollar belgilangan tartibda, variantlar aralashtirib chiqadi. Shu kunning oddiy o'yini o'rniga o'tadi.",
+      "(15 recommended). Questions go in the order ticked; options are shuffled. It replaces that day's regular game.")+'</p>'+
+    '<div class="rt-khlist">'+(pool.length?pool.map(function(x){
+      var on=!!s.sel[x.id];
+      return '<label class="rt-khq" style="cursor:pointer"><input type="checkbox" class="kh-spc" data-id="'+esc(x.id)+'"'+(on?" checked":"")+'>'+
+        '<div><b>'+esc(x.t)+'</b><span>✅ '+esc(x.o[+x.c||0])+' · '+esc(khTpName(x.tp))+' · '+T("ishlatilgan","used")+': '+(+x.u||0)+'</span></div></label>';
+    }).join(""):'<p class="rt-note">'+T("Bu bo'limda savol yo'q.","No questions in this section.")+'</p>')+'</div>'+
     '<p class="rt-note" id="khSpMsg" style="font-weight:700"></p>'+
     '<div class="rt-khrow"><button type="button" class="btn accent" id="khSpGo">🎯 '+T("O'yinni tuzish","Create the game")+'</button>'+
     '<button type="button" class="btn sm" id="khSpNone">'+T("Belgilarni tozalash","Clear ticks")+'</button>'+
     '<button type="button" class="btn sm" id="khSpX">'+T("Yopish","Close")+'</button></div></div>';
+}
+function khSpTick(id,on){
+  var s=KHT.sp, i=s.order.indexOf(id);
+  s.sel[id]=on; if(on&&i<0) s.order.push(id); if(!on&&i>=0) s.order.splice(i,1);
 }
 function khSpBind(box){
   var q=function(id){ return document.getElementById(id); };
@@ -4410,15 +4480,20 @@ function khSpBind(box){
   q("khSpT").onchange=function(){ s.tm=this.value||s.tm; };
   q("khSpQ").onchange=function(){ s.qs=+this.value||30; };
   q("khSpNote").oninput=function(){ s.note=this.value.slice(0,140); };
-  [].forEach.call(box.querySelectorAll(".kh-spc"),function(c){ c.onchange=function(){ s.sel[c.dataset.i]=c.checked; q("khSpN").textContent=khSpCount(); }; });
-  q("khSpNone").onclick=function(){ s.sel={}; khTcRender(); };
+  q("khSpF").onchange=function(){ s.f=this.value; khTcRender(); };
+  q("khSpS").onchange=function(){ s.s=this.value; khTcRender(); };
+  q("khSpAll").onclick=function(){ khSpPool().forEach(function(x){ khSpTick(x.id,true); }); khTcRender(); };
+  q("khSpRnd").onclick=function(){ var p=khSpPool().sort(function(a,b){ return (+a.u||0)-(+b.u||0)||Math.random()-0.5; });
+    s.sel={}; s.order=[]; p.slice(0,15).forEach(function(x){ khSpTick(x.id,true); }); khTcRender(); };
+  [].forEach.call(box.querySelectorAll(".kh-spc"),function(c){ c.onchange=function(){ khSpTick(c.dataset.id,c.checked); q("khSpN").textContent=khSpCount(); }; });
+  q("khSpNone").onclick=function(){ s.sel={}; s.order=[]; khTcRender(); };
   q("khSpX").onclick=function(){ KHT.sp=null; khTcRender(); };
   q("khSpGo").onclick=khSpBuild;
 }
 function khSpMsg(t,bad){ var m=document.getElementById("khSpMsg"); if(m){ m.textContent=(bad?"⚠️ ":"")+t; m.style.color=bad?"var(--red)":"var(--muted)"; } toast(t); }
 function khSpBuild(){
   var s=KHT.sp; if(!s) return;
-  var picks=[]; KH_ZAK.forEach(function(x,i){ if(s.sel[i]) picks.push({id:"zak"+i,t:x.t,o:x.o.slice(),c:0}); });
+  var bk=KHT.bank||{}, picks=s.order.map(function(id){ var x=bk[id]; return x&&x.t?{id:id,t:x.t,o:x.o.slice(),c:+x.c||0}:null; }).filter(Boolean);
   s.d=(document.getElementById("khSpD")||{}).value||s.d; s.tm=(document.getElementById("khSpT")||{}).value||s.tm;
   s.qs=+((document.getElementById("khSpQ")||{}).value)||s.qs;
   if(picks.length<4){ khSpMsg(T("Kamida 4 ta savol tanlang","Select at least 4 questions"),1); return; }
@@ -4435,6 +4510,7 @@ function khSpBuild(){
   o["games/"+s.d]=g;
   o["idx/"+s.d]={start:g.meta.start,open:g.meta.open,end:g.meta.end,nq:g.meta.nq,qsec:c.qsec,sp:true,note:note||null,qs:picks.map(function(x){ return x.id; })};
   if(old&&!old.sp) (old.qs||[]).forEach(function(id){ var x=bank[id]; if(x){ x.u=Math.max(0,(+x.u||0)-1); o["bank/"+id+"/u"]=x.u; } });
+  picks.forEach(function(p){ var x=bank[p.id]; if(x){ x.u=(+x.u||0)+1; x.l=s.d; o["bank/"+p.id+"/u"]=x.u; o["bank/"+p.id+"/l"]=s.d; } });
   khSpMsg(T("Saqlanmoqda…","Saving…"));
   khKpatch(o).then(function(ok){
     if(!ok){ khSpMsg(T("Saqlanmadi — o'qituvchi Google hisobi bilan kirganingizni va Firebase qoidalarini tekshiring.","Not saved — check that you are signed in with the teacher's Google account and the Firebase rules."),1); return; }
@@ -4626,7 +4702,7 @@ function khTcLoad(force){
     KHT.deny=(v[0]==="deny"); if(KHT.deny) v[0]=null;
     KHT.cfg=v[0]||{on:false,time:"20:00",nq:10,qsec:15,min:7,lobby:10}; KHT.bank=v[1]||{}; KHT.idx=v[2]||{}; KHT.res=v[3]||{};
     KHT.loaded=true; khTcRender();
-    if(!KHT.auto&&!KHT.deny){ KHT.auto=true; khAuto(); }
+    if(!KHT.auto&&!KHT.deny){ KHT.auto=true; khAuto(); khFileSync(); }
   });
 }
 function khBankArr(){ var b=KHT.bank||{}; return Object.keys(b).map(function(id){ var x=b[id]; x.id=id; return x; }).filter(function(x){ return x&&x.t&&x.o; }); }
@@ -4666,9 +4742,9 @@ function khAuto(done){
     }
     var c=KHT.cfg||{};
     if(!c.on){ KHT.busy=false; khTcRender(); done(); return; }
-    var pool=khBankArr(); pool.forEach(function(x){ x._r=Math.random(); });
+    var tpx=c.tpx||{}, pool=khBankArr().filter(function(x){ return !tpx[x.tp||"_"]; }); pool.forEach(function(x){ x._r=Math.random(); });
     var nq=Math.min(+c.nq||10,pool.length);
-    if(nq<4){ KHT.busy=false; KHT.msg=T("Jadval tuzilmadi: bankda kamida 4 ta savol bo'lishi kerak.","No schedule: the bank needs at least 4 questions."); khTcRender(); done(); return; }
+    if(nq<4){ KHT.busy=false; KHT.msg=T("Jadval tuzilmadi: kunlik o'yin bo'limlarida kamida 4 ta savol bo'lishi kerak.","No schedule: the daily-game sections need at least 4 questions."); khTcRender(); done(); return; }
     var days=[], hm=String(c.time||"20:00").split(":");
     for(var k=0;k<15&&days.length<14;k++){
       var d=khDay(now+k*86400000);
@@ -4728,7 +4804,7 @@ function khTcHtml(){
     var r=res[d]||{}, top=(r.top||[]).slice(0,3).map(function(x,i){ return ["🥇","🥈","🥉"][i]+" "+esc(x.n); }).join(" · ");
     return '<tr><td>'+dfmt(d)+'</td><td>'+(r.n||0)+'</td><td>'+(r.valid?top||"—":'<span class="rt-note">'+T("o'tmadi: kam ishtirokchi","not held: too few players")+'</span>')+'</td></tr>';
   }).join("");
-  return '<div class="rt-sec rt-kh"><h4>⚡ '+T("Jonli test (Kahoot)","Live quiz (Kahoot)")+' <span class="rt-badge">'+(c.on?T("yoqilgan","on"):T("o'chiq","off"))+'</span></h4>'+khDenyHtml()+
+  return '<div class="rt-sec rt-kh"><h4>⚡ '+T("Jonli test va Zakovat","Live quiz and logic quiz")+' <span class="rt-badge">'+(c.on?T("yoqilgan","on"):T("o'chiq","off"))+'</span></h4>'+khDenyHtml()+
     '<div class="rt-khrow">'+
       '<label class="rt-khchk"><input type="checkbox" id="khOn"'+(c.on?" checked":"")+'> '+T("Har kuni o'tkazish","Run every day")+'</label>'+
       '<label>'+T("Vaqti","Time")+' <input type="time" id="khTime" value="'+esc(c.time||"20:00")+'"></label>'+
@@ -4740,37 +4816,63 @@ function khTcHtml(){
     (KHT.msg?'<p class="rt-note" style="color:var(--red)">⚠️ '+esc(KHT.msg)+'</p>':'')+
     '<p class="rt-note">📅 '+(fut.length?T("Jadval tayyor: ","Scheduled: ")+fut.length+" "+T("ta o'yin","games")+" ("+dfmt(fut[0])+" "+khHM(idx[fut[0]].start)+" — "+dfmt(fut[fut.length-1])+")":T("Rejalashtirilgan o'yin yo'q.","No games scheduled."))+
       ' <button type="button" class="btn sm" id="khReb">🔄 '+T("Jadvalni qayta tuzish","Rebuild the schedule")+'</button></p>'+
+    khTpxHtml(bank)+
     khSpHtml()+khYzHtml()+
-    '<div class="rt-khrow"><b>📚 '+T("Savollar banki","Question bank")+': '+bank.length+'</b>'+
+    '<div class="rt-khrow"><b>📚 '+T("Savollar banki (jonli test + Zakovat)","Question bank (live quiz + logic quiz)")+': '+bank.length+'</b>'+
       '<label class="btn sm" style="cursor:pointer">📥 '+T("Fayldan yuklash","Import a file")+'<input type="file" id="khFile" accept=".json,application/json" style="display:none"></label>'+
       '<button type="button" class="btn sm" id="khExp">📤 '+T("Yuklab olish","Export")+'</button>'+
       '<button type="button" class="btn sm" id="khAdd">➕ '+T("Savol qo'shish","Add a question")+'</button>'+
+      '<button type="button" class="btn sm" id="khBulk">📝 '+T("Ko'p savol qo'shish","Add many")+'</button>'+
       '<button type="button" class="btn sm" id="khLst">📋 '+(KHT.list?T("Ro'yxatni yopish","Hide the list"):T("Ro'yxat","List"))+'</button></div>'+
+    (KHT.bulk?khBulkHtml():'')+
     '<div id="khForm"></div>'+
     (KHT.list?khListHtml(bank):'')+
     (hist?'<h4 style="margin-top:12px">🏁 '+T("So'nggi o'yinlar","Recent games")+'</h4><div class="tw"><table class="rt-table"><thead><tr><th>'+T("Sana","Date")+'</th><th>👥</th><th>'+T("G'oliblar","Winners")+'</th></tr></thead><tbody>'+hist+'</tbody></table></div>':'')+
   '</div>';
 }
 function khListHtml(bank){
-  if(!bank.length) return '<p class="rt-note">'+T("Bank bo'sh.","The bank is empty.")+'</p>';
-  bank.sort(function(a,b){ return String(a.tp||"").localeCompare(String(b.tp||""))||String(a.t).localeCompare(String(b.t)); });
-  return '<div class="rt-khlist">'+bank.map(function(x){
-    return '<div class="rt-khq"><div><b>'+esc(x.t)+'</b><span>✅ '+esc((x.o||[])[+x.c||0])+' · '+(x.tp?esc(String(x.tp).toUpperCase())+' · ':'')+
-      T("ishlatilgan","used")+': '+(+x.u||0)+'</span></div>'+
-      '<button type="button" class="btn sm kh-ed" data-id="'+esc(x.id)+'">✏️</button>'+
-      '<button type="button" class="btn sm kh-del" data-id="'+esc(x.id)+'">🗑</button></div>';
-  }).join("")+'</div>';
+  var f=KHT.lf||"*", q=nrm(KHT.ls||""), sel=KHT.lsel||(KHT.lsel={});
+  var cnt={}; bank.forEach(function(x){ var k=x.tp||""; cnt[k]=(cnt[k]||0)+1; });
+  var list=bank.filter(function(x){ return (f==="*"||(x.tp||"")===f)&&(!q||nrm(x.t).indexOf(q)>=0); });
+  list.sort(function(a,b){ return String(a.tp||"").localeCompare(String(b.tp||""))||String(a.t).localeCompare(String(b.t)); });
+  var ns=Object.keys(sel).filter(function(k){ return sel[k]&&KHT.bank[k]; }).length;
+  return '<div class="rt-khrow" style="margin-top:8px"><label>'+T("Bo'lim","Section")+' <select id="khLf"><option value="*">'+T("Barchasi","All")+' ('+bank.length+')</option>'+
+      KH_TPS.filter(function(x){ return cnt[x[0]]; }).map(function(x){ return '<option value="'+x[0]+'"'+(x[0]===f?" selected":"")+'>'+T(x[1],x[2])+' ('+cnt[x[0]]+')</option>'; }).join("")+'</select></label>'+
+      '<label>🔎 <input id="khLs" value="'+esc(KHT.ls||"")+'" placeholder="'+T("qidirish","search")+'"></label>'+
+      '<button type="button" class="btn sm" id="khLall">☑ '+T("Ko'rinayotganlarni belgilash","Tick the shown ones")+'</button>'+
+      '<button type="button" class="btn sm warn" id="khLdel"'+(ns?'':' disabled')+'>🗑 '+T("Belgilanganlarni o'chirish","Delete ticked")+' ('+ns+')</button></div>'+
+    (list.length?'<div class="rt-khlist">'+list.map(function(x){
+      return '<div class="rt-khq"><input type="checkbox" class="kh-lsel" data-id="'+esc(x.id)+'"'+(sel[x.id]?" checked":"")+' style="width:18px;height:18px;flex:none">'+
+        '<div><b>'+esc(x.t)+'</b><span>✅ '+esc((x.o||[])[+x.c||0])+' · '+esc(khTpName(x.tp))+' · '+
+        T("ishlatilgan","used")+': '+(+x.u||0)+'</span></div>'+
+        '<button type="button" class="btn sm kh-ed" data-id="'+esc(x.id)+'">✏️</button>'+
+        '<button type="button" class="btn sm kh-del" data-id="'+esc(x.id)+'">🗑</button></div>';
+    }).join("")+'</div>':'<p class="rt-note">'+T("Savol topilmadi.","No questions found.")+'</p>');
+}
+/* kunlik o'yinga qaysi bo'limlar kirishi (belgisi olinganlari kirmaydi) */
+function khTpxHtml(bank){
+  var x=(KHT.cfg||{}).tpx||{}, cnt={}; bank.forEach(function(q){ var k=q.tp||"_"; cnt[k]=(cnt[k]||0)+1; });
+  var tps=KH_TPS.filter(function(t){ return cnt[t[0]||"_"]; });
+  if(!tps.length) return "";
+  return '<div class="rt-khrow" style="font-size:13px"><b>🗂 '+T("Kunlik o'yinga kiradigan bo'limlar:","Sections used in the daily game:")+'</b>'+
+    tps.map(function(t){ var k=t[0]||"_"; return '<label class="rt-khchk"><input type="checkbox" class="kh-tpx" data-k="'+k+'"'+(x[k]?"":" checked")+'> '+T(t[1],t[2])+' ('+cnt[k]+')</label>'; }).join("")+
+    '<span class="rt-note">'+T("— o'zgartirgach «💾 Saqlash» ni bosing","— press «💾 Save» after changing")+'</span></div>';
+}
+function khTpxRead(){
+  var o={}, any=false; [].forEach.call(document.querySelectorAll(".kh-tpx"),function(c){ if(!c.checked){ o[c.dataset.k]=true; any=true; } });
+  if(!document.querySelector(".kh-tpx")) return (KHT.cfg||{}).tpx||null;
+  return any?o:null;
 }
 function khFormShow(x){
   var box=document.getElementById("khForm"); if(!box) return;
   x=x||{t:"",o:["","","",""],c:0,tp:""};
   var o=[0,1,2,3].map(function(i){ return (x.o||[])[i]||""; });
   var ci=+x.c||0, ordered=[o[ci]].concat(o.filter(function(_,i){ return i!==ci; }));
-  var tps=["", "m1","m2","m3","m4","m5","m6","m7","iqt"].map(function(t){ return '<option value="'+t+'"'+(t===(x.tp||"")?" selected":"")+'>'+(t?t.toUpperCase():T("— mavzu —","— topic —"))+'</option>'; }).join("");
+  var tps=khTpOpts(x.tp||"");
   box.innerHTML='<div class="rt-khform"><label>'+T("Savol","Question")+'<textarea id="khQt" rows="2" maxlength="160">'+esc(x.t)+'</textarea></label>'+
     ordered.map(function(v,i){ return '<label>'+(i?T("Noto'g'ri javob","Wrong answer")+" "+i:"✅ "+T("To'g'ri javob","Correct answer"))+
       '<input class="kh-o" data-i="'+i+'" maxlength="75" value="'+esc(v)+'"><small class="kh-len" data-i="'+i+'"></small></label>'; }).join("")+
-    '<label>'+T("Mavzu","Topic")+'<select id="khTp">'+tps+'</select></label>'+
+    '<label>'+T("Bo'lim","Section")+'<select id="khTp">'+tps+'</select></label>'+
     '<p class="rt-note" style="margin:0">'+T("Javoblar uzunligi bir-biriga yaqin va hammasi mantiqan ishonarli bo'lsin. O'yinda variantlar tartibi aralashtiriladi.",
       "Keep the answers about the same length and all of them plausible. The order is shuffled in the game.")+'</p>'+
     '<div class="rt-khrow"><button type="button" class="btn accent" id="khQsave">💾 '+T("Saqlash","Save")+'</button>'+
@@ -4822,8 +4924,8 @@ function khTcRender(){
   if(!KHT.loaded) return;
   var q=function(id){ return document.getElementById(id); };
   q("khSave").onclick=function(){
-    var c=KHT.cfg||{}, nc={on:q("khOn").checked,time:q("khTime").value||"20:00",nq:+q("khNq").value||10,qsec:+q("khQs").value||15,min:7,lobby:10,yz:c.yz===true};
-    var changed=(nc.time!==c.time||nc.nq!==+c.nq||nc.qsec!==(+c.qsec||15)||nc.on!==!!c.on);
+    var c=KHT.cfg||{}, nc={on:q("khOn").checked,time:q("khTime").value||"20:00",nq:+q("khNq").value||10,qsec:+q("khQs").value||15,min:7,lobby:10,yz:c.yz===true,tpx:khTpxRead()};
+    var changed=(nc.time!==c.time||nc.nq!==+c.nq||nc.qsec!==(+c.qsec||15)||nc.on!==!!c.on||JSON.stringify(nc.tpx||{})!==JSON.stringify(c.tpx||{}));
     fetch(BASE+"/kahoot/cfg.json",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(nc)})
       .then(function(r){
         if(!r.ok){ toast(T("Saqlanmadi — Firebase qoidalarini yangilang","Not saved — update the Firebase rules")); return; }
@@ -4839,6 +4941,21 @@ function khTcRender(){
     dl("jonli-test-savollar-"+today()+".json",JSON.stringify({v:1,questions:arr},null,1));
   };
   q("khAdd").onclick=function(){ KHT.edit=null; khFormShow(); };
+  q("khBulk").onclick=function(){ KHT.bulk=!KHT.bulk; khTcRender(); var t=q("khBulkT"); if(t) t.focus(); };
+  khBulkBind();
+  if(q("khLf")){
+    q("khLf").onchange=function(){ KHT.lf=this.value; khTcRender(); };
+    q("khLs").onchange=function(){ KHT.ls=this.value; khTcRender(); };
+    [].forEach.call(box.querySelectorAll(".kh-lsel"),function(c){ c.onchange=function(){ KHT.lsel[c.dataset.id]=c.checked; khTcRender(); }; });
+    q("khLall").onclick=function(){ [].forEach.call(box.querySelectorAll(".kh-lsel"),function(c){ KHT.lsel[c.dataset.id]=true; }); khTcRender(); };
+    q("khLdel").onclick=function(){
+      var ids=Object.keys(KHT.lsel).filter(function(k){ return KHT.lsel[k]&&KHT.bank[k]; });
+      if(!ids.length||!confirm(ids.length+" "+T("ta savol o'chirilsinmi?","questions — delete them?"))) return;
+      var o={}; ids.forEach(function(id){ o["bank/"+id]=null; });
+      khKpatch(o).then(function(ok){ if(!ok){ toast(T("Saqlanmadi","Not saved")); return; }
+        ids.forEach(function(id){ delete KHT.bank[id]; }); KHT.lsel={}; toast(T("O'chirildi: ","Deleted: ")+ids.length); khTcRender(); });
+    };
+  }
   q("khLst").onclick=function(){ KHT.list=!KHT.list; khTcRender(); };
   [].forEach.call(box.querySelectorAll(".kh-ed"),function(b){ b.onclick=function(){ KHT.edit=b.dataset.id; khFormShow(KHT.bank[b.dataset.id]); var f=q("khForm"); if(f) f.scrollIntoView({behavior:"smooth",block:"center"}); }; });
   [].forEach.call(box.querySelectorAll(".kh-del"),function(b){ b.onclick=function(){
