@@ -317,7 +317,7 @@ function build(){
     '<div class="ch-hd"><b>💬 '+T("Talabalar chati","Student chat")+'</b>'+
       '<button class="ch-x" id="chWipe" style="display:none" title="'+T("Chatni tozalash","Clear the chat")+'">🧹</button>'+
       '<button class="ch-x" id="chX">✕</button></div>'+
-    '<div class="ch-rules"><b>📌 '+T("Chat qoidalari","Chat rules")+'</b>'+
+    '<div class="ch-rules" id="chRules"><b id="chRulesH" role="button" tabindex="0" title="'+T("Yig\'ish / ochish","Collapse / expand")+'">📌 '+T("Chat qoidalari","Chat rules")+'<i class="ch-chev">▲</i></b>'+
       '<u>⛔ '+T("So\'kinish, haqorat va qo\'pol gaplar taqiqlanadi.","No swearing, insults or rude language.")+'</u>'+
       '<u>⛔ '+T("Yomon rasm va videolar yuborish qat\'iyan man etiladi.","Bad images and videos are strictly forbidden.")+'</u>'+
       '<u>✅ '+T("Faqat dars va tadbirkorlik mavzusida muloqot qiling.","Keep the conversation about the lesson and entrepreneurship.")+'</u>'+
@@ -339,6 +339,11 @@ function build(){
   try{ seen=parseInt(localStorage.getItem("terdu_chat_seen")||"0",10)||0; }catch(e){}
   t.onclick=toggle;
   $("chX").onclick=toggle;
+  /* qoidalar bloki: sarlavhani bosib tepaga yig'iladi yoki ochiladi, tanlov brauzerda eslab qolinadi */
+  function rulesMin(on){ $("chRules").classList.toggle("min",on); try{ localStorage.setItem("terdu_chat_rules_min",on?"1":"0"); }catch(e){} }
+  try{ if(localStorage.getItem("terdu_chat_rules_min")==="1") $("chRules").classList.add("min"); }catch(e){}
+  $("chRulesH").onclick=function(){ rulesMin(!$("chRules").classList.contains("min")); };
+  $("chRulesH").onkeydown=function(e){ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); this.onclick(); } };
   $("chWipe").onclick=wipe;
   $("chSend").onclick=send;
   $("chClip").onclick=function(){ $("chFile").click(); };

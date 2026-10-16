@@ -417,6 +417,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 
 
+
 /* RT:BEGIN */
 /* ================== REYTING TIZIMI ================== */
 .rt-chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel);
@@ -948,7 +949,12 @@ html.kh-gated,html.kh-gated body{overflow:hidden!important}
   font-size:15px;font-family:inherit}
 .ch-rules{margin:10px 12px 0;padding:10px 12px;border-radius:13px;font-size:11.8px;line-height:1.55;
   background:color-mix(in srgb,var(--amber,#f5a524) 14%,transparent);border:1px solid color-mix(in srgb,var(--amber,#f5a524) 38%,transparent)}
-.ch-rules b{display:block;font-size:12.5px;margin-bottom:3px}
+.ch-rules b{display:flex;align-items:center;font-size:12.5px;margin-bottom:3px;cursor:pointer;user-select:none}
+.ch-rules .ch-chev{margin-left:auto;font-style:normal;font-size:10px;opacity:.7;transition:transform .2s}
+.ch-rules.min{padding:6px 12px}
+.ch-rules.min b{margin-bottom:0}
+.ch-rules.min .ch-chev{transform:rotate(180deg)}
+.ch-rules.min u{display:none}
 .ch-rules u{display:block;text-decoration:none}
 .ch-list{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px}
 .ch-msg{background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:8px 11px;font-size:13.3px;line-height:1.5;
@@ -1608,6 +1614,7 @@ html.kh-gated,html.kh-gated body{overflow:hidden!important}
 </div>
 
 <div class="hint" id="hint" data-ui="hint">⌨️ <kbd>→</kbd> keyingi slayd · <kbd>D</kbd> tun/kun · <kbd>L</kbd> uz/eng · <kbd>O</kbd> ro'yxat · <kbd>F</kbd> to'liq ekran</div>
+
 
 
 
@@ -5758,7 +5765,7 @@ function build(){
     '<div class="ch-hd"><b>💬 '+T("Talabalar chati","Student chat")+'</b>'+
       '<button class="ch-x" id="chWipe" style="display:none" title="'+T("Chatni tozalash","Clear the chat")+'">🧹</button>'+
       '<button class="ch-x" id="chX">✕</button></div>'+
-    '<div class="ch-rules"><b>📌 '+T("Chat qoidalari","Chat rules")+'</b>'+
+    '<div class="ch-rules" id="chRules"><b id="chRulesH" role="button" tabindex="0" title="'+T("Yig\'ish / ochish","Collapse / expand")+'">📌 '+T("Chat qoidalari","Chat rules")+'<i class="ch-chev">▲</i></b>'+
       '<u>⛔ '+T("So\'kinish, haqorat va qo\'pol gaplar taqiqlanadi.","No swearing, insults or rude language.")+'</u>'+
       '<u>⛔ '+T("Yomon rasm va videolar yuborish qat\'iyan man etiladi.","Bad images and videos are strictly forbidden.")+'</u>'+
       '<u>✅ '+T("Faqat dars va tadbirkorlik mavzusida muloqot qiling.","Keep the conversation about the lesson and entrepreneurship.")+'</u>'+
@@ -5780,6 +5787,11 @@ function build(){
   try{ seen=parseInt(localStorage.getItem("terdu_chat_seen")||"0",10)||0; }catch(e){}
   t.onclick=toggle;
   $("chX").onclick=toggle;
+  /* qoidalar bloki: sarlavhani bosib tepaga yig'iladi yoki ochiladi, tanlov brauzerda eslab qolinadi */
+  function rulesMin(on){ $("chRules").classList.toggle("min",on); try{ localStorage.setItem("terdu_chat_rules_min",on?"1":"0"); }catch(e){} }
+  try{ if(localStorage.getItem("terdu_chat_rules_min")==="1") $("chRules").classList.add("min"); }catch(e){}
+  $("chRulesH").onclick=function(){ rulesMin(!$("chRules").classList.contains("min")); };
+  $("chRulesH").onkeydown=function(e){ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); this.onclick(); } };
   $("chWipe").onclick=wipe;
   $("chSend").onclick=send;
   $("chClip").onclick=function(){ $("chFile").click(); };

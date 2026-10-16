@@ -17,7 +17,12 @@
   font-size:15px;font-family:inherit}
 .ch-rules{margin:10px 12px 0;padding:10px 12px;border-radius:13px;font-size:11.8px;line-height:1.55;
   background:color-mix(in srgb,var(--amber,#f5a524) 14%,transparent);border:1px solid color-mix(in srgb,var(--amber,#f5a524) 38%,transparent)}
-.ch-rules b{display:block;font-size:12.5px;margin-bottom:3px}
+.ch-rules b{display:flex;align-items:center;font-size:12.5px;margin-bottom:3px;cursor:pointer;user-select:none}
+.ch-rules .ch-chev{margin-left:auto;font-style:normal;font-size:10px;opacity:.7;transition:transform .2s}
+.ch-rules.min{padding:6px 12px}
+.ch-rules.min b{margin-bottom:0}
+.ch-rules.min .ch-chev{transform:rotate(180deg)}
+.ch-rules.min u{display:none}
 .ch-rules u{display:block;text-decoration:none}
 .ch-list{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px}
 .ch-msg{background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:8px 11px;font-size:13.3px;line-height:1.5;
