@@ -384,6 +384,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 
 
+
 /* RT:BEGIN */
 /* ================== REYTING TIZIMI ================== */
 .rt-chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel);
@@ -1167,6 +1168,7 @@ html.kh-gated,html.kh-gated body{overflow:hidden!important}
 </div>
 
 <div class="hint" id="hint" data-ui="hint">⌨️ <kbd>→</kbd> keyingi slayd · <kbd>D</kbd> tun/kun · <kbd>L</kbd> uz/eng · <kbd>O</kbd> ro'yxat · <kbd>F</kbd> to'liq ekran</div>
+
 
 
 
@@ -4338,11 +4340,11 @@ function khRules(go){
 
 /* ---------- o'qituvchi: sozlama, savollar banki, jadval va natijalar ---------- */
 var KHT={cfg:null,bank:null,idx:null,res:null,loaded:false,busy:false,msg:"",auto:false,list:false,edit:null,sp:null};
-/* ---------- yagona savollar banki: oddiy savollar, Zakovat va mavzu savollari bir joyda ----------
-   Har savolning bo'limi (tp) bor. Kunlik o'yin o'qituvchi yoqib qo'ygan bo'limlardan, maxsus o'yin esa
+/* ---------- yagona savollar banki: umumiy va mavzu savollari bir joyda ----------
+   Har savolning bo'limi (tp) bor. Avtomatik kunlik o'yin o'qituvchi yoqib qo'ygan bo'limlardan, o'qituvchi tuzgan o'yin esa
    qo'lda tanlangan savollardan tuziladi. Yangi savollar fayldan ham keladi: fayllar/savollar.dat
    (javoblar ochiq ko'rinmasligi uchun kodlangan) — o'qituvchi paneli ochilganda bankka bir marta qo'shiladi. */
-var KH_TPS=[["","Umumiy","General"],["zakovat","Zakovat","Logic quiz"],["iqt","Iqtisod","Economics"]];
+var KH_TPS=[["","Umumiy","General"],["iqt","Iqtisod","Economics"]];
 for(var _m=1;_m<=15;_m++) KH_TPS.push(["m"+_m,"M"+_m+"-mavzu","Topic "+_m]);
 function khTpName(tp){ var r=KH_TPS.filter(function(x){ return x[0]===(tp||""); })[0]; return r?T(r[1],r[2]):String(tp).toUpperCase(); }
 function khTpOpts(cur,all){ return (all?'<option value="*">'+T("Barcha bo'limlar","All sections")+'</option>':'')+
@@ -4422,12 +4424,16 @@ function khBulkBind(){
     });
   };
 }
-var KH_NOTE="📝 Ruchka va daftar olib oling — hisob-kitob savollari bor!";
+var KH_NOTE="";
 function khStartOf(d,tm){ var hm=String(tm||"20:00").split(":"); return Date.UTC(+d.slice(0,4),+d.slice(5,7)-1,+d.slice(8,10),+hm[0]||0,+hm[1]||0)-18000000; }
+/* o'yin tuzish oynasi: standart — BUGUN. Sozlamadagi vaqt (lobbisi bilan) hali o'tmagan bo'lsa o'sha vaqt,
+   aks holda 15 daqiqadan keyingi eng yaqin 5 daqiqalik vaqt */
 function khSpDefault(){
-  var now=Date.now(), tm="23:00", d=khDay(now);
-  if(khStartOf(d,tm)<=now+120000) d=khDay(now+86400000);
-  return {d:d,tm:tm,qs:30,sel:{},order:[],note:KH_NOTE,f:"zakovat",s:""};
+  var now=Date.now(), c=KHT.cfg||{}, d=khDay(now), tm=String(c.time||"20:00").slice(0,5);
+  if(khStartOf(d,tm)-(+c.lobby||10)*60000<=now+120000){
+    var r=Math.ceil((now+15*60000+18000000)/300000)*300000-18000000; d=khDay(r); tm=khHM(r);
+  }
+  return {d:d,tm:tm,qs:+c.qsec||15,sel:{},order:[],note:KH_NOTE,f:"*",s:""};
 }
 function khSpCount(){ return KHT.sp.order.length; }
 function khSpPool(){
@@ -4439,13 +4445,13 @@ function khSpHtml(){
   var now=Date.now(), idx=KHT.idx||{};
   var cur=Object.keys(idx).filter(function(d){ return idx[d]&&idx[d].sp&&idx[d].type!=="yz"&&+idx[d].end>now; }).sort().map(function(d){
     var e=idx[d];
-    return '<p class="rt-note">🎯 <b>'+T("Maxsus o'yin","Special game")+':</b> '+dfmt(d)+' '+khHM(e.start)+' · '+(e.nq||0)+' '+T("ta savol","questions")+' · '+(e.qsec||15)+' '+T("soniyadan","s each")+
+    return '<p class="rt-note">🎯 <b>'+T("Siz tuzgan o'yin","Your game")+':</b> '+dfmt(d)+' '+khHM(e.start)+' · '+(e.nq||0)+' '+T("ta savol","questions")+' · '+(e.qsec||15)+' '+T("soniyadan","s each")+
       (+e.open>now+60000?' <button type="button" class="btn sm kh-spx" data-d="'+esc(d)+'">✕ '+T("Bekor qilish","Cancel")+'</button>':'')+'</p>';
   }).join("");
-  if(!KHT.sp) return cur+'<div class="rt-khrow"><button type="button" class="btn sm" id="khSpOpen">🎯 '+T("Maxsus o'yin (Zakovat va boshqalar) — savollarni o'zim tanlayman","Special game — I pick the questions")+'</button></div>';
+  if(!KHT.sp) return cur+'<div class="rt-khrow"><button type="button" class="btn sm" id="khSpOpen">🎯 '+T("O'yin tuzish — kunini, vaqtini va savollarini o'zim tanlayman (masalan, bugun)","Create a game — I choose the day, time and questions (e.g. today)")+'</button></div>';
   var s=KHT.sp, qsO=[15,20,25,30,45].map(function(v){ return '<option value="'+v+'"'+(+s.qs===v?" selected":"")+'>'+v+'</option>'; }).join("");
   var pool=khSpPool();
-  return cur+'<div class="rt-khform rt-khsp"><b>🎯 '+T("Maxsus o'yin — savollarni bankdan tanlang","Special game — pick questions from the bank")+'</b>'+
+  return cur+'<div class="rt-khform rt-khsp"><b>🎯 '+T("O'yin tuzish — kun, vaqt va shu o'yinda beriladigan savollar","Create a game — day, time and the questions to play")+'</b>'+
     '<div class="rt-khrow"><label>'+T("Sana","Date")+' <input type="date" id="khSpD" value="'+esc(s.d)+'"></label>'+
     '<label>'+T("Vaqti","Time")+' <input type="time" id="khSpT" value="'+esc(s.tm)+'"></label>'+
     '<label>'+T("Har savolga","Per question")+' <select id="khSpQ">'+qsO+'</select> '+T("soniya","s")+'</label></div>'+
@@ -4454,7 +4460,7 @@ function khSpHtml(){
       '<label>🔎 <input id="khSpS" value="'+esc(s.s||"")+'" placeholder="'+T("qidirish","search")+'"></label>'+
       '<button type="button" class="btn sm" id="khSpAll">☑ '+T("Ko'rinayotganlarni belgilash","Tick the shown ones")+'</button>'+
       '<button type="button" class="btn sm" id="khSpRnd">🎲 '+T("Tasodifiy 15 ta","Random 15")+'</button></div>'+
-    '<p class="rt-note" style="margin:0">'+T("Tanlangan: ","Selected: ")+'<b id="khSpN">'+khSpCount()+'</b> '+T("ta (tavsiya — 15). Savollar belgilangan tartibda, variantlar aralashtirib chiqadi. Shu kunning oddiy o'yini o'rniga o'tadi.",
+    '<p class="rt-note" style="margin:0">'+T("Tanlangan: ","Selected: ")+'<b id="khSpN">'+khSpCount()+'</b> '+T("ta (tavsiya — 10–15). Faqat belgilangan savollar, belgilangan tartibda chiqadi; variantlar aralashtiriladi. Shu kunning avtomatik o'yini bo'lsa, uning o'rniga o'tadi. Lobbi vaqti o'tib ketgan bo'lsa, lobbi darhol ochiladi.",
       "(15 recommended). Questions go in the order ticked; options are shuffled. It replaces that day's regular game.")+'</p>'+
     '<div class="rt-khlist">'+(pool.length?pool.map(function(x){
       var on=!!s.sel[x.id];
@@ -4505,7 +4511,7 @@ function khSpBuild(){
   if(g.meta.start<=now+60000){ khSpMsg(T("Bu vaqt o'tib ketgan yoki 1 daqiqadan kam qolgan — kechroq vaqt tanlang.","That time has passed or is less than a minute away — choose a later time."),1); return; }
   if(g.meta.open<=now+15000){ g.meta.open=now+15000; }      /* lobbi vaqti o'tib ketgan bo'lsa — darhol ochiladi */
   if(old&&+old.open<=now&&+old.end>now){ khSpMsg(T("Bu kungi o'yin allaqachon boshlangan yoki lobbisi ochiq.","That day's game has already started or its lobby is open."),1); return; }
-  if(!confirm(T("Maxsus o'yin: ","Special game: ")+dfmt(s.d)+" "+s.tm+" · "+picks.length+" "+T("ta savol","questions")+" · "+c.qsec+" "+T("soniyadan. Tuzilsinmi?","s each. Create it?"))) return;
+  if(!confirm(T("O'yin: ","Game: ")+dfmt(s.d)+" "+s.tm+" · "+picks.length+" "+T("ta savol","questions")+" · "+c.qsec+" "+T("soniyadan. Tuzilsinmi?","s each. Create it?"))) return;
   var o={}, bank=KHT.bank||{};
   o["games/"+s.d]=g;
   o["idx/"+s.d]={start:g.meta.start,open:g.meta.open,end:g.meta.end,nq:g.meta.nq,qsec:c.qsec,sp:true,note:note||null,qs:picks.map(function(x){ return x.id; })};
@@ -4515,14 +4521,14 @@ function khSpBuild(){
   khKpatch(o).then(function(ok){
     if(!ok){ khSpMsg(T("Saqlanmadi — o'qituvchi Google hisobi bilan kirganingizni va Firebase qoidalarini tekshiring.","Not saved — check that you are signed in with the teacher's Google account and the Firebase rules."),1); return; }
     idx[s.d]=o["idx/"+s.d]; KHT.idx=idx; KHT.sp=null;
-    toast(T("Maxsus o'yin tuzildi ✅ ","Special game created ✅ ")+dfmt(s.d)+" "+c.time);
+    toast(T("O'yin tuzildi ✅ ","Game created ✅ ")+dfmt(s.d)+" "+c.time);
     khTcRender();
   });
 }
 function khSpCancel(d){
   var idx=KHT.idx||{}, e=idx[d]; if(!e||!e.sp||e.type==="yz") return;
   if(+e.open<=Date.now()+60000){ toast(T("O'yin boshlanib qolgan","The game has already started")); return; }
-  if(!confirm(T("Maxsus o'yin bekor qilinsinmi? Shu kunga oddiy o'yin qayta tuziladi.","Cancel the special game? A regular game will be scheduled for that day."))) return;
+  if(!confirm(T("O'yin bekor qilinsinmi? Avtomatik o'yin yoqilgan bo'lsa, shu kunga u qayta tuziladi.","Cancel the game? If the automatic game is on, it will be scheduled for that day again."))) return;
   var o={}; o["games/"+d]=null; o["idx/"+d]=null;
   khKpatch(o).then(function(ok){
     if(!ok){ toast(T("Saqlanmadi","Not saved")); return; }
@@ -4804,9 +4810,9 @@ function khTcHtml(){
     var r=res[d]||{}, top=(r.top||[]).slice(0,3).map(function(x,i){ return ["🥇","🥈","🥉"][i]+" "+esc(x.n); }).join(" · ");
     return '<tr><td>'+dfmt(d)+'</td><td>'+(r.n||0)+'</td><td>'+(r.valid?top||"—":'<span class="rt-note">'+T("o'tmadi: kam ishtirokchi","not held: too few players")+'</span>')+'</td></tr>';
   }).join("");
-  return '<div class="rt-sec rt-kh"><h4>⚡ '+T("Jonli test va Zakovat","Live quiz and logic quiz")+' <span class="rt-badge">'+(c.on?T("yoqilgan","on"):T("o'chiq","off"))+'</span></h4>'+khDenyHtml()+
+  return '<div class="rt-sec rt-kh"><h4>⚡ '+T("Jonli test","Live quiz")+' <span class="rt-badge">'+(c.on?T("yoqilgan","on"):T("o'chiq","off"))+'</span></h4>'+khDenyHtml()+khSpHtml()+
     '<div class="rt-khrow">'+
-      '<label class="rt-khchk"><input type="checkbox" id="khOn"'+(c.on?" checked":"")+'> '+T("Har kuni o'tkazish","Run every day")+'</label>'+
+      '<label class="rt-khchk"><input type="checkbox" id="khOn"'+(c.on?" checked":"")+'> '+T("Avtomatik: har kuni o'zi tuzilsin","Automatic: schedule every day")+'</label>'+
       '<label>'+T("Vaqti","Time")+' <input type="time" id="khTime" value="'+esc(c.time||"20:00")+'"></label>'+
       '<label>'+T("Savollar","Questions")+' <select id="khNq">'+nqOpts+'</select></label>'+
       '<label>'+T("Har savolga","Per question")+' <select id="khQs">'+[15,20,25,30,45].map(function(v){ return '<option value="'+v+'"'+((+c.qsec||15)===v?" selected":"")+'>'+v+'</option>'; }).join("")+'</select> '+T("soniya","s")+'</label>'+
@@ -4817,8 +4823,8 @@ function khTcHtml(){
     '<p class="rt-note">📅 '+(fut.length?T("Jadval tayyor: ","Scheduled: ")+fut.length+" "+T("ta o'yin","games")+" ("+dfmt(fut[0])+" "+khHM(idx[fut[0]].start)+" — "+dfmt(fut[fut.length-1])+")":T("Rejalashtirilgan o'yin yo'q.","No games scheduled."))+
       ' <button type="button" class="btn sm" id="khReb">🔄 '+T("Jadvalni qayta tuzish","Rebuild the schedule")+'</button></p>'+
     khTpxHtml(bank)+
-    khSpHtml()+khYzHtml()+
-    '<div class="rt-khrow"><b>📚 '+T("Savollar banki (jonli test + Zakovat)","Question bank (live quiz + logic quiz)")+': '+bank.length+'</b>'+
+    khYzHtml()+
+    '<div class="rt-khrow"><b>📚 '+T("Savollar banki","Question bank")+': '+bank.length+'</b>'+
       '<label class="btn sm" style="cursor:pointer">📥 '+T("Fayldan yuklash","Import a file")+'<input type="file" id="khFile" accept=".json,application/json" style="display:none"></label>'+
       '<button type="button" class="btn sm" id="khExp">📤 '+T("Yuklab olish","Export")+'</button>'+
       '<button type="button" class="btn sm" id="khAdd">➕ '+T("Savol qo'shish","Add a question")+'</button>'+
