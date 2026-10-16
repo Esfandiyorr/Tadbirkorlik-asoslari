@@ -416,6 +416,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 
 
+
 /* RT:BEGIN */
 /* ================== REYTING TIZIMI ================== */
 .rt-chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel);
@@ -962,6 +963,10 @@ html.kh-gated,html.kh-gated body{overflow:hidden!important}
 .ch-lk{color:var(--blue);font-weight:700;word-break:break-all}
 .ch-msg .del{position:absolute;right:5px;bottom:4px;border:none;background:none;cursor:pointer;font-size:12px;opacity:.55}
 .ch-msg .del:hover{opacity:1}
+.ch-msg .cp{position:absolute;right:5px;bottom:4px;border:none;background:none;cursor:pointer;font-size:12px;opacity:.45;padding:0}
+.ch-msg .cp.wd{right:26px}
+.ch-msg .cp:hover,.ch-msg .cp.on{opacity:1}
+.ch-msg .tx{padding-right:18px}
 .ch-empty{color:var(--muted);font-size:12.5px;text-align:center;margin:auto}
 .ch-md{display:block;width:100%;max-height:280px;object-fit:contain;border-radius:11px;margin:3px 0 5px;background:#000}
 .ch-yt{position:relative;width:100%;aspect-ratio:16/9;margin:3px 0 5px;border-radius:11px;overflow:hidden;background:#000}
@@ -1603,6 +1608,7 @@ html.kh-gated,html.kh-gated body{overflow:hidden!important}
 </div>
 
 <div class="hint" id="hint" data-ui="hint">⌨️ <kbd>→</kbd> keyingi slayd · <kbd>D</kbd> tun/kun · <kbd>L</kbd> uz/eng · <kbd>O</kbd> ro'yxat · <kbd>F</kbd> to'liq ekran</div>
+
 
 
 
@@ -5671,13 +5677,26 @@ function draw(){
       return '<div class="ch-msg'+(mine?" me":"")+'"><div class="w"><span class="n">'+esc(m.n)+'</span>'+
         '<span class="g">'+esc(m.g||"")+'</span><span class="tm">'+hhmm(m.at)+'</span></div>'+
         mediaHtml(m)+(m.t?'<div class="tx">'+(m.lk?linkify(m.t):esc(m.t))+'</div>':'')+
+        (m.t?'<button class="cp'+(isTc()?' wd':'')+'" data-i="'+i+'" title="'+T("Nusxa olish","Copy")+'">📋</button>':'')+
         (isTc()?'<button class="del" data-k="'+esc(keys[i])+'" data-m="'+esc(m.mk||"")+'" title="'+T("O\'chirish","Delete")+'">🗑</button>':'')+
         '</div>';
     }).join("");
     list.querySelectorAll(".del").forEach(function(b){ b.onclick=function(){ del(b.dataset.k,b.dataset.m); }; });
+    list.querySelectorAll(".cp").forEach(function(b){ b.onclick=function(){ var m=msgs[+b.dataset.i]; if(m&&m.t) copyTxt(m.t,b); }; });
     if(near) list.scrollTop=list.scrollHeight;
   }
   badge();
+}
+/* xabar matnidan nusxa olish: zamonaviy brauzerda clipboard API, eski/HTTP holatda yashirin textarea orqali */
+function copyTxt(t,b){
+  function ok(){ b.textContent="✅"; b.classList.add("on"); setTimeout(function(){ b.textContent="📋"; b.classList.remove("on"); },1500); }
+  function old(){
+    var a=document.createElement("textarea"); a.value=t; a.setAttribute("readonly","");
+    a.style.cssText="position:fixed;top:-1000px;opacity:0"; document.body.appendChild(a); a.select();
+    try{ if(document.execCommand("copy")) ok(); }catch(e){}
+    document.body.removeChild(a);
+  }
+  if(navigator.clipboard&&window.isSecureContext) navigator.clipboard.writeText(t).then(ok,old); else old();
 }
 function badge(){
   var d=$("chDot"); if(!d) return;

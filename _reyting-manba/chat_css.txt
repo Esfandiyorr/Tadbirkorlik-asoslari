@@ -32,6 +32,10 @@
 .ch-lk{color:var(--blue);font-weight:700;word-break:break-all}
 .ch-msg .del{position:absolute;right:5px;bottom:4px;border:none;background:none;cursor:pointer;font-size:12px;opacity:.55}
 .ch-msg .del:hover{opacity:1}
+.ch-msg .cp{position:absolute;right:5px;bottom:4px;border:none;background:none;cursor:pointer;font-size:12px;opacity:.45;padding:0}
+.ch-msg .cp.wd{right:26px}
+.ch-msg .cp:hover,.ch-msg .cp.on{opacity:1}
+.ch-msg .tx{padding-right:18px}
 .ch-empty{color:var(--muted);font-size:12.5px;text-align:center;margin:auto}
 .ch-md{display:block;width:100%;max-height:280px;object-fit:contain;border-radius:11px;margin:3px 0 5px;background:#000}
 .ch-yt{position:relative;width:100%;aspect-ratio:16/9;margin:3px 0 5px;border-radius:11px;overflow:hidden;background:#000}
