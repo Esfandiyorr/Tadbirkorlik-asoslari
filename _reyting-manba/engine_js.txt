@@ -454,6 +454,27 @@ function cloudUnlockTest(id,topicId,cb){
       body:JSON.stringify({qx:+qa||0,fx:Date.now()+3*86400000})});
   }).then(function(r){ cb&&cb(!!(r&&r.ok)); }).catch(function(){ cb&&cb(false); });
 }
+/* 🔓 olgan talabalar: eski sahifa qx/fx ni ham yuborgani uchun ularning saqlashi rad etilgan va ballari
+   🔓 bosilgan paytda qotib qolgan bo'lishi mumkin. Belgi: 🔓 dan keyin yozuv bir marta ham yangilanmagan */
+function stuckList(list){
+  return (list||[]).map(function(x){
+    var pr=x.prog||{}, up=+x.updated||0, w=[];
+    for(var t in pr){ var fx=+((pr[t]||{}).fx)||0; if(fx&&up<fx-3*86400000) w.push(t.replace(/^m/,"M")); }
+    return w.length?{x:x,t:w}:null;
+  }).filter(Boolean);
+}
+function stuckBox(list){
+  var s=stuckList(list); if(!s.length) return "";
+  return '<div class="card" style="--c:var(--orange,#f59e0b);margin:16px 0">'+
+    '<h3 style="margin:0 0 6px">⚠️ '+T("Ballari bazaga yetib bormagan bo'lishi mumkin","Points may not have reached the database")+
+      ' <span class="rt-badge">'+s.length+'</span></h3>'+
+    '<p class="rt-note" style="margin:0 0 8px">'+T("Bu talabalarga 🔓 berilgan, lekin shundan keyin ularning yozuvi bazada bir marta ham yangilanmagan. Ular saytni o\'z telefoni yoki brauzerida qayta ochsin — telefondagi ballari shunda bazaga yoziladi va bu ro\'yxatdan chiqib ketadi.",
+      "These students got 🔓 but their record has not been updated since. Ask them to reopen the site on their own phone or browser — their saved points will then be written to the database and they will leave this list.")+'</p>'+
+    '<ol style="margin:0;padding-left:20px">'+s.map(function(o){
+      return '<li><b>'+esc(o.x.surname+" "+o.x.name)+'</b>'+(o.x.group?' · '+esc(o.x.group):'')+
+        ' · <span style="color:var(--muted)">'+T("Mavzu","Topic")+': '+esc(o.t.join(", "))+'</span></li>';
+    }).join("")+'</ol></div>';
+}
 function cloudSetManual(id,topicId,val,cb){
   if(!cloudOn||!BASE){ cb&&cb(false); return; }
   fetch(BASE+"/students/"+id+"/manual/"+topicId+".json",{method:"PUT",headers:{"Content-Type":"application/json"},
@@ -1632,6 +1653,7 @@ function tcDraw(){
         return tcRow(x,'<button class="btn accent rt-a" data-id="'+esc(x.id)+'" data-st="ok">♻️ '+T("Tiklash","Restore")+'</button>');
       }).join("")+'</tbody></table></div>';
   }
+  h+=stuckBox(okl);
   h+='<div class="rt-ann-holder">'+(ANN_LOADED?annBox():'<p class="rt-note">'+T("Yuklanmoqda…","Loading…")+'</p>')+'</div>'+
      '<div id="khTc"></div>'+marksTable(okl)+tcMailBox(okl);
   var dn=dupGroups().reduce(function(a,g){ return a+g.length-1; },0);
