@@ -600,7 +600,8 @@ function progPaths(){
     if(x.tLeg) o[b+"tm/legacy"]=Math.round(x.tLeg);
     if(x.qAtt) o[b+"qa"]=x.qAtt;
     if(x.f&&FSYNC) o[b+"f"]=x.f;
-    if(x.qx) o[b+"qx"]=x.qx; if(x.fx) o[b+"fx"]=x.fx;          /* faqat bulut bilan solishtirilgandan keyin yoziladi */
+    /* qx/fx (o'qituvchi 🔓) bu yerda YUBORILMAYDI: ularga faqat o'qituvchi yoza oladi. Ular qo'shilsa,
+       qoidalar butun PATCH ni rad etadi va 🔓 olgan talabaning ballari bazaga umuman yetib bormaydi */
     if(x.sF) o[b+"sF"]=x.sF; if(x.qF) o[b+"qF"]=x.qF;
   }
   return o;
