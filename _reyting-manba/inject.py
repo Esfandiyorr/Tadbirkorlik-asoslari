@@ -32,11 +32,30 @@ DECKS={
  'mavzu-15.html': dict(id='m15',slides=18,quiz=15),
 }
 B,E='/* RT:BEGIN */','/* RT:END */'
+PB,PE='<!-- PWA:BEGIN -->','<!-- PWA:END -->'
+PWA=(PB+'\n<link rel="manifest" href="manifest.webmanifest">\n'
+     '<meta name="theme-color" content="#0a3605">\n'
+     '<link rel="apple-touch-icon" href="fayllar/ilova/icon-180.png">\n'
+     '<meta name="mobile-web-app-capable" content="yes">\n'
+     '<meta name="apple-mobile-web-app-capable" content="yes">\n'
+     '<meta name="apple-mobile-web-app-title" content="TerDU Biznes">\n'
+     '<meta name="apple-mobile-web-app-status-bar-style" content="default">\n'
+     '<script src="pwa.js" defer></script>\n'+PE+'\n')
+
+def pwa(s):
+    """telefon ilovasi (PWA): manifest, belgilar va pwa.js — </head> dan oldin, qayta ishlatilsa almashtiriladi"""
+    while PB in s and PE in s:
+        i=s.index(PB); j=s.index(PE)+len(PE)
+        if s[j:j+1]=='\n': j+=1
+        s=s[:i]+s[j:]
+    i=s.index('</head>')
+    return s[:i]+PWA+s[i:]
 HB,HE='<!-- RT:BEGIN -->','<!-- RT:END -->'
 
 def strip(s,b,e):
     while b in s and e in s:
         i=s.index(b); j=s.index(e)+len(e)
+        if s[j:j+1]=='\n': j+=1          # blok bilan qo'shilgan qator oxiri ham olinadi — qayta ishlatganda bo'sh qatorlar ko'paymaydi
         s=s[:i]+s[j:]
     return s
 
@@ -45,6 +64,7 @@ def inject(fn,meta):
     if not os.path.exists(p): return fn+": yo'q"
     s=open(p,encoding='utf-8').read()
     s=strip(s,B,E); s=strip(s,HB,HE)
+    s=pwa(s)
 
     # --- CSS ---
     s=s.replace('@media print{', B+"\n"+CSS.strip()+"\n"+MCSS.strip()+"\n"+CCSS.strip()+"\n"+E+"\n@media print{",1)
@@ -116,7 +136,7 @@ def inject_arena():
     """arena.html ga umumiy modullar: avatar (AVP), krossvord (KV), Yozuv Marafoni (YZT, YZB, YZ) - alohida <script> bloklari"""
     p=BASE+'arena.html'
     if not os.path.exists(p): return "arena.html: yo'q"
-    s=open(p,encoding='utf-8').read()
+    s=pwa(open(p,encoding='utf-8').read())
     for b,e,fn in BLOCKS:
         src=yz_texts() if fn.endswith('.json') else open(SC+fn,encoding='utf-8').read().strip()
         blk=b+"\n"+src+"\n"+e

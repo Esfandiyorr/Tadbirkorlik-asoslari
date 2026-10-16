@@ -17,7 +17,12 @@
   font-size:15px;font-family:inherit}
 .ch-rules{margin:10px 12px 0;padding:10px 12px;border-radius:13px;font-size:11.8px;line-height:1.55;
   background:color-mix(in srgb,var(--amber,#f5a524) 14%,transparent);border:1px solid color-mix(in srgb,var(--amber,#f5a524) 38%,transparent)}
-.ch-rules b{display:block;font-size:12.5px;margin-bottom:3px}
+.ch-rules b{display:flex;align-items:center;font-size:12.5px;margin-bottom:3px;cursor:pointer;user-select:none}
+.ch-rules .ch-chev{margin-left:auto;font-style:normal;font-size:10px;opacity:.7;transition:transform .2s}
+.ch-rules.min{padding:6px 12px}
+.ch-rules.min b{margin-bottom:0}
+.ch-rules.min .ch-chev{transform:rotate(180deg)}
+.ch-rules.min u{display:none}
 .ch-rules u{display:block;text-decoration:none}
 .ch-list{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px}
 .ch-msg{background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:8px 11px;font-size:13.3px;line-height:1.5;
@@ -32,6 +37,10 @@
 .ch-lk{color:var(--blue);font-weight:700;word-break:break-all}
 .ch-msg .del{position:absolute;right:5px;bottom:4px;border:none;background:none;cursor:pointer;font-size:12px;opacity:.55}
 .ch-msg .del:hover{opacity:1}
+.ch-msg .cp{position:absolute;right:5px;bottom:4px;border:none;background:none;cursor:pointer;font-size:12px;opacity:.45;padding:0}
+.ch-msg .cp.wd{right:26px}
+.ch-msg .cp:hover,.ch-msg .cp.on{opacity:1}
+.ch-msg .tx{padding-right:18px}
 .ch-empty{color:var(--muted);font-size:12.5px;text-align:center;margin:auto}
 .ch-md{display:block;width:100%;max-height:280px;object-fit:contain;border-radius:11px;margin:3px 0 5px;background:#000}
 .ch-yt{position:relative;width:100%;aspect-ratio:16/9;margin:3px 0 5px;border-radius:11px;overflow:hidden;background:#000}
