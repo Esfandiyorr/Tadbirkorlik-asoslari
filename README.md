@@ -142,3 +142,23 @@ internetsiz ochsangiz ham logotip joyida turadi.
 Logotip HTML ichiga singdirilgani uchun `logo_tersu.png` faylini almashtirishning o'zi yetarli emas —
 rasm qaytadan HTML fayllarga joylanishi kerak. Yangi logotip kerak bo'lsa, faylni repozitoriyga
 yuklang va shuni aytsangiz, ikkala taqdimotga qayta singdirib beraman.
+
+## 📲 Telefon ilovasi (PWA)
+
+Sayt telefonga ilova sifatida o'rnatiladi — Play Market/App Store shart emas.
+
+- **Android (Chrome):** saytni oching — pastda «📲 TerDU ilovasini o'rnating» taklifi chiqadi, **O'rnatish** ni bosing.
+  Taklif chiqmasa: Chrome menyusi (⋮) → «Ilovani o'rnatish» / «Bosh ekranga qo'shish».
+- **iPhone/iPad (Safari):** ⬆️ **Ulashish** → **«Bosh ekranga qo'shish»** (Add to Home Screen).
+
+Ilova to'liq ekranda, TerDU belgisi bilan ochiladi va sayt bilan bitta kod: saytdagi har bir yangilanish ilovada ham
+darhol ko'rinadi. Internet yo'q paytda oldin ochilgan sahifalar saqlangan nusxadan ochiladi (ball, chat va jonli test
+uchun internet kerak).
+
+Fayllar: `manifest.webmanifest`, `sw.js` (service worker: avval internet, bo'lmasa saqlangan nusxa; Firebase va
+audio/video keshlanmaydi), `pwa.js` (o'rnatish taklifi), `fayllar/ilova/` (belgilar). Sahifalarga ulanishi
+`_reyting-manba/inject.py` orqali (`<!-- PWA:BEGIN -->` bloki).
+
+**Eslatma (iPhone):** iOS'da o'rnatilgan ilova Safari bilan xotirani bo'lishmaydi — talaba ilovada bir marta
+ism, familiya va PIN bilan **🔑 Kirish** qiladi; ballari bazadan tiklanadi.
+
