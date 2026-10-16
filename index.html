@@ -432,6 +432,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 
 
+
 /* RT:BEGIN */
 /* ================== REYTING TIZIMI ================== */
 .rt-chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel);
@@ -1578,6 +1579,7 @@ html.kh-gated,html.kh-gated body{overflow:hidden!important}
 </div>
 
 <div class="hint" id="hint" data-ui="hint">⌨️ <kbd>→</kbd> keyingi slayd · <kbd>D</kbd> tun/kun · <kbd>L</kbd> uz/eng · <kbd>O</kbd> ro'yxat · <kbd>F</kbd> to'liq ekran</div>
+
 
 
 
@@ -3168,11 +3170,12 @@ function part(name,v,w){
     '<div class="rt-bar"><i style="width:'+pc+'%"></i></div></div>';
 }
 function myTopics(){
-  var list=(CFG.topics||[]).filter(function(x){ return topicOpen(x); });
-  if(!list.length) return '<p class="rt-note">'+T("Hozircha ochiq mavzu yo\'q.","No open topics yet.")+'</p>';
+  /* barcha mavzular ko'rsatiladi — hozir yopilgan mavzular ham (natija saqlanib qoladi, 🔒 belgisi bilan) */
+  var list=(CFG.topics||[]).slice();
+  if(!list.length) return '<p class="rt-note">'+T("Hozircha mavzu yo\'q.","No topics yet.")+'</p>';
   var rows=list.map(function(x){
-    var d=P.topics[x.id]||{}, m=markOf(x.id,d);
-    return '<tr><td><b>'+esc(x.title)+'</b></td>'+
+    var d=P.topics[x.id]||{}, m=markOf(x.id,d), lk=!topicOpen(x);
+    return '<tr'+(lk?' style="opacity:.8"':'')+'><td><b>'+(lk?'🔒 ':'')+esc(x.title)+'</b></td>'+
       '<td>'+m.seen+"/"+m.sn+'</td><td>'+m.q+"/"+m.qn+'</td><td>'+hms(m.sec)+'</td>'+
       '<td>'+(m.b?'<span class="rt-mk b'+m.b+'">'+m.b+'</span>':'—')+'</td></tr>';
   }).join("");
