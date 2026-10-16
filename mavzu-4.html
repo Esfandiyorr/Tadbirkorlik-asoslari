@@ -456,6 +456,13 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 .rt-tab:hover{border-color:var(--blue)}
 .rt-tab.on{background:linear-gradient(135deg,var(--violet),var(--blue));color:#fff;border-color:transparent}
 .rt-pane{display:none}.rt-pane.on{display:block}
+.rt-stabs{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 16px;padding:6px;border:1px solid var(--line);border-radius:16px;background:var(--panel2);position:sticky;top:0;z-index:3}
+.rt-stab{flex:1 1 auto;border:0;background:transparent;color:var(--ink);border-radius:11px;padding:10px 14px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;transition:.15s;white-space:nowrap}
+.rt-stab:hover{background:var(--panel)}
+.rt-stab.on{background:linear-gradient(135deg,var(--violet),var(--blue));color:#fff}
+.rt-sbd{display:inline-block;min-width:20px;padding:1px 6px;border-radius:999px;background:var(--red,#e11d48);color:#fff;font-size:12px;margin-left:2px}
+.rt-tcpane{display:none}.rt-tcpane.on{display:block}
+@media(max-width:560px){.rt-stabs{display:grid;grid-template-columns:1fr 1fr}.rt-stab{padding:9px 6px;font-size:13px;white-space:normal;line-height:1.25}}
 .rt-table{width:100%;border-collapse:separate;border-spacing:0;font-size:14.5px}
 .rt-table th{background:linear-gradient(135deg,var(--violet),var(--blue));color:#fff;padding:10px 12px;text-align:left;font-weight:700}
 .rt-table th:first-child{border-radius:12px 0 0 0}.rt-table th:last-child{border-radius:0 12px 0 0}
@@ -3462,6 +3469,27 @@ function tcDel(id,nm,after){
   (after||tcDraw)(); toast(T("O\'chirildi","Deleted"));
   if(S&&S.id===id){ lset(LS.stu,null); lset(LS.prog,{total:0,topics:{},log:{}}); setTimeout(function(){ location.reload(); },700); }
 }
+/* o'qituvchi paneli bo'limlarga bo'lingan: bir vaqtda faqat bittasi ko'rinadi (tanlov shu brauzerda eslab qolinadi).
+   Hamma bo'lim sahifada turadi — faqat yashiriladi, shuning uchun ularning tugmalari va yangilanishlari avvalgidek ishlaydi. */
+var TC_TABS=[["stu","👥","Talabalar","Students"],["mk","📊","Baholash va reyting","Marks and rating"],["ann","📢","E'lon yuborish","Announcements"],["kh","⚡","Jonli test","Live quiz"]];
+function tcTabCur(){ var v=""; try{ v=localStorage.getItem("terdu_tctab")||""; }catch(e){} return TC_TABS.some(function(t){ return t[0]===v; })?v:"stu"; }
+function tcTabsHtml(pend,stk){
+  var cur=tcTabCur(), bd={stu:pend,mk:stk};
+  return '<div class="rt-stabs" role="tablist">'+TC_TABS.map(function(t){
+    return '<button type="button" role="tab" class="rt-stab'+(t[0]===cur?" on":"")+'" data-p="'+t[0]+'">'+t[1]+' '+T(t[2],t[3])+
+      (bd[t[0]]?' <span class="rt-sbd">'+bd[t[0]]+'</span>':'')+'</button>';
+  }).join("")+'</div>';
+}
+function tcTabShow(out,p){
+  [].forEach.call(out.querySelectorAll(".rt-stab"),function(b){ b.classList.toggle("on",b.dataset.p===p); b.setAttribute("aria-selected",b.dataset.p===p?"true":"false"); });
+  [].forEach.call(out.querySelectorAll(".rt-tcpane"),function(x){ x.classList.toggle("on",x.dataset.p===p); });
+}
+function tcTabsBind(out){
+  tcTabShow(out,tcTabCur());
+  [].forEach.call(out.querySelectorAll(".rt-stab"),function(b){
+    b.onclick=function(){ try{ localStorage.setItem("terdu_tctab",b.dataset.p); }catch(e){} tcTabShow(out,b.dataset.p); };
+  });
+}
 function tcDraw(){
   var out=document.getElementById("rtTcOut"); if(!out) return;
   var st=function(x){ return x.status||"pending"; };
@@ -3469,8 +3497,9 @@ function tcDraw(){
   var okl=tcList.filter(function(x){return st(x)==="ok";});
   var blk=tcList.filter(function(x){return st(x)==="blocked";});
   okl.sort(function(x,y){return (y.total||0)-(x.total||0);});
-  var cs=cloudStatus();
-  var h='<p class="rt-note" style="margin-top:0">'+(cs.ok?"🟢 ":"🟠 ")+esc(cs.txt)+'</p>'+
+  var cs=cloudStatus(), stk=stuckList(okl).length;
+  var h=tcTabsHtml(pend.length,stk)+'<div class="rt-tcpane" data-p="stu">'+
+    '<p class="rt-note" style="margin-top:0">'+(cs.ok?"🟢 ":"🟠 ")+esc(cs.txt)+'</p>'+
     '<div class="rt-head" style="margin:4px 0 10px"><h3 style="margin:0">⏳ '+T("Tasdiq kutmoqda","Waiting for approval")+
     ' <span class="rt-badge">'+pend.length+'</span></h3><button class="btn" id="rtTcRef">🔄 '+T("Yangilash","Refresh")+'</button></div>';
   h+= pend.length ? '<div class="tw"><table class="rt-table"><tbody>'+pend.map(function(x){
@@ -3518,9 +3547,10 @@ function tcDraw(){
         return tcRow(x,'<button class="btn accent rt-a" data-id="'+esc(x.id)+'" data-st="ok">♻️ '+T("Tiklash","Restore")+'</button>');
       }).join("")+'</tbody></table></div>';
   }
-  h+=stuckBox(okl);
-  h+='<div class="rt-ann-holder">'+(ANN_LOADED?annBox():'<p class="rt-note">'+T("Yuklanmoqda…","Loading…")+'</p>')+'</div>'+
-     '<div id="khTc"></div>'+marksTable(okl)+tcMailBox(okl);
+  h+='</div><div class="rt-tcpane" data-p="mk">'+stuckBox(okl)+marksTable(okl)+'</div>'+
+     '<div class="rt-tcpane" data-p="ann"><div class="rt-ann-holder">'+(ANN_LOADED?annBox():'<p class="rt-note">'+T("Yuklanmoqda…","Loading…")+'</p>')+'</div>'+
+     tcMailBox(okl)+'</div>'+
+     '<div class="rt-tcpane" data-p="kh"><div id="khTc"></div></div>';
   var dn=dupGroups().reduce(function(a,g){ return a+g.length-1; },0);
   h+='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px">'+
      (dn?'<button class="btn warn" id="rtDup">🧹 '+T("Takrorlarni tozalash","Clean duplicates")+' ('+dn+')</button>':'')+
@@ -3535,6 +3565,7 @@ function tcDraw(){
      '<p class="rt-note">'+T("Talaba faqat siz tasdiqlagandan keyin taqdimot va chatga kira oladi.",
        "A student can enter the presentation and the chat only after you approve them.")+'</p>';
   out.innerHTML=h;
+  tcTabsBind(out);
   accTcRender(okl);                          /* mavzularni guruhlarga ochish */
   khTcRender();                              /* jonli test bo'limi (ma'lumot keshdan) */
   out.querySelectorAll(".rt-gtile").forEach(function(b){
