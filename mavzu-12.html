@@ -4385,7 +4385,7 @@ var KHT={cfg:null,bank:null,idx:null,res:null,loaded:false,busy:false,msg:"",aut
    Har savolning bo'limi (tp) bor. Avtomatik kunlik o'yin o'qituvchi yoqib qo'ygan bo'limlardan, o'qituvchi tuzgan o'yin esa
    qo'lda tanlangan savollardan tuziladi. Yangi savollar fayldan ham keladi: fayllar/savollar.dat
    (javoblar ochiq ko'rinmasligi uchun kodlangan) — o'qituvchi paneli ochilganda bankka bir marta qo'shiladi. */
-var KH_TPS=[["","Umumiy","General"],["iqt","Iqtisod","Economics"]];
+var KH_TPS=[["","Umumiy","General"],["tad","Tadbirkorlik asoslari","Entrepreneurship basics"],["iqt","Iqtisod","Economics"]];
 for(var _m=1;_m<=15;_m++) KH_TPS.push(["m"+_m,"M"+_m+"-mavzu","Topic "+_m]);
 function khTpName(tp){ var r=KH_TPS.filter(function(x){ return x[0]===(tp||""); })[0]; return r?T(r[1],r[2]):String(tp).toUpperCase(); }
 function khTpOpts(cur,all){ return (all?'<option value="*">'+T("Barcha bo'limlar","All sections")+'</option>':'')+
