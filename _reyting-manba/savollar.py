@@ -9,7 +9,7 @@ O'qituvchi paneli ochilganda fayldagi o'zgarishlar bazadagi bankka BIR MARTA qo'
   python3 _reyting-manba/savollar.py del  < matn          — savollarni o'chirish (har qatorda savol matni)
 
 Matn formati (add): 1-qator savol, keyingi 4 qator javob, to'g'ri javob oxirida *,
-savollar orasida bo'sh qator. BO'LIM: zakovat, iqt, m1..m15 yoki "" (umumiy).
+savollar orasida bo'sh qator. BO'LIM: tad, iqt, m1..m15 yoki "" (umumiy).
 """
 import sys, json, base64, re, os
 F = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'fayllar', 'savollar.dat')
