@@ -4922,7 +4922,10 @@ function khBanner(){
   Promise.all([jget(BASE+"/kahoot/cfg.json"),jget(BASE+"/kahoot/idx.json"+q)]).then(function(v){
     KHB.cfg=v[0]; KHB.idx=v[1]||{}; KHB.at=Date.now(); khBannerDraw();
   });
-  if(!KHB.iv) KHB.iv=setInterval(function(){ if(Date.now()-KHB.at>180000) khBanner(); else khBannerDraw(); },1000);
+  if(!KHB.iv) KHB.iv=setInterval(function(){
+    var g=khNext(), hot=!!(g&&Date.now()>=+g.e.start-KH_GATE_MS);      /* o'yin oldidan/paytida tezroq — o'qituvchi to'xtatsa oyna tez yo'qoladi */
+    if(Date.now()-KHB.at>(hot?30000:180000)) khBanner(); else khBannerDraw();
+  },1000);
 }
 /* o'yin boshlanishidan 20 daqiqa oldin — tugaguncha: taqdimot o'rniga katta «Jonli test» oynasi, yagona yo'l — o'yinga */
 var KH_GATE_MS=20*60000;
@@ -5128,13 +5131,22 @@ function khSpPool(){
   return khBankArr().filter(function(x){ return (f==="*"||(x.tp||"")===f)&&(!q||nrm(x.t).indexOf(q)>=0); })
     .sort(function(a,b){ return String(a.t).localeCompare(String(b.t)); });
 }
-function khSpHtml(){
+/* hozirgi va yaqin kelgusidagi jonli test o'yinlari (avtomatik va o'qituvchi tuzgan) — har birini istalgan payt,
+   hatto lobbi ochiq yoki o'yin ketayotganda ham to'xtatish mumkin */
+function khGamesHtml(){
   var now=Date.now(), idx=KHT.idx||{};
-  var cur=Object.keys(idx).filter(function(d){ return idx[d]&&idx[d].sp&&idx[d].type!=="yz"&&+idx[d].end>now; }).sort().map(function(d){
-    var e=idx[d];
-    return '<p class="rt-note">🎯 <b>'+T("Siz tuzgan o'yin","Your game")+':</b> '+dfmt(d)+' '+khHM(e.start)+' · '+(e.nq||0)+' '+T("ta savol","questions")+' · '+(e.qsec||15)+' '+T("soniyadan","s each")+
-      (+e.open>now+60000?' <button type="button" class="btn sm kh-spx" data-d="'+esc(d)+'">✕ '+T("Bekor qilish","Cancel")+'</button>':'')+'</p>';
-  }).join("");
+  var all=Object.keys(idx).filter(function(d){ var e=idx[d]; return e&&!e.x&&e.type!=="yz"&&+e.end>now; }).sort(function(a,b){ return idx[a].start-idx[b].start; });
+  var ks=all.filter(function(d){ var e=idx[d]; return e.sp||+e.start<now+2*86400000; }), rest=all.length-ks.length;
+  if(!ks.length) return "";
+  return '<div class="rt-khlist" style="max-height:none;margin:6px 0 10px">'+ks.map(function(d){
+    var e=idx[d], st=now<+e.open?"⏳ "+T("kutilmoqda","waiting"):(now<+e.start?"🔔 "+T("lobbi ochiq","lobby open"):"🎮 "+T("hozir ketmoqda","on now"));
+    return '<div class="rt-khq"><div><b>'+(e.sp?"🎯 "+T("Siz tuzgan o'yin","Your game"):"🤖 "+T("Avtomatik o'yin","Automatic game"))+' · '+dfmt(d)+' '+khHM(e.start)+'</b>'+
+      '<span>'+st+' · '+(e.nq||0)+' '+T("ta savol","questions")+' · '+(e.qsec||15)+' '+T("soniyadan","s each")+'</span></div>'+
+      '<button type="button" class="btn sm kh-spx" data-d="'+esc(d)+'">⛔ '+T("To'xtatish","Stop")+'</button></div>';
+  }).join("")+(rest?'<p class="rt-note" style="margin:0">+ '+rest+' '+T("ta keyingi avtomatik o'yin (jadvalda)","more automatic games (scheduled)")+'</p>':'')+'</div>';
+}
+function khSpHtml(){
+  var cur=khGamesHtml();
   if(!KHT.sp) return cur+'<div class="rt-khrow"><button type="button" class="btn sm" id="khSpOpen">🎯 '+T("O'yin tuzish — kunini, vaqtini va savollarini o'zim tanlayman (masalan, bugun)","Create a game — I choose the day, time and questions (e.g. today)")+'</button></div>';
   var s=KHT.sp, qsO=[15,20,25,30,45].map(function(v){ return '<option value="'+v+'"'+(+s.qs===v?" selected":"")+'>'+v+'</option>'; }).join("");
   var pool=khSpPool();
@@ -5213,13 +5225,23 @@ function khSpBuild(){
   });
 }
 function khSpCancel(d){
-  var idx=KHT.idx||{}, e=idx[d]; if(!e||!e.sp||e.type==="yz") return;
-  if(+e.open<=Date.now()+60000){ toast(T("O'yin boshlanib qolgan","The game has already started")); return; }
-  if(!confirm(T("O'yin bekor qilinsinmi? Avtomatik o'yin yoqilgan bo'lsa, shu kunga u qayta tuziladi.","Cancel the game? If the automatic game is on, it will be scheduled for that day again."))) return;
-  var o={}; o["games/"+d]=null; o["idx/"+d]=null;
+  var idx=KHT.idx||{}, e=idx[d], now=Date.now(); if(!e||e.x||e.type==="yz") return;
+  var opened=now>=+e.open;
+  var msg=now>=+e.start
+    ? T("O'yin hozir ketmoqda. To'xtatilsinmi? O'yinchilar ekranida «O'yin to'xtatildi» chiqadi, hech kimga ball berilmaydi.","The game is on now. Stop it? Players will see «The game was stopped»; no points are given.")
+    : opened ? T("Lobbi ochiq. O'yin to'xtatilsinmi? Qo'shilganlar ekranida «O'yin to'xtatildi» chiqadi.","The lobby is open. Stop the game? Those who joined will see «The game was stopped».")
+    : T("Bu o'yin bekor qilinsinmi?","Cancel this game?");
+  msg+="\n\n"+T("Shu kunga avtomatik o'yin qayta tuzilmaydi. Xohlasangiz, «🎯 O'yin tuzish» bilan yangisini tuzasiz.","No automatic game will be rescheduled for that day. You can create a new one with «🎯 Create a game».");
+  if(!confirm(msg)) return;
+  var o={}, bank=KHT.bank||{};
+  o["games/"+d]=null;
+  o["idx/"+d]={x:1,start:9e15,at:now};          /* "o'chirildi" belgisi: hamma ro'yxatlarda e'tiborsiz qoladi, avtomatik jadval bu kunni qayta to'ldirmaydi */
+  if(!opened) (e.qs||[]).forEach(function(id){ var x=bank[id]; if(x&&x.t){ x.u=Math.max(0,(+x.u||0)-1); o["bank/"+id+"/u"]=x.u; } });   /* ko'rilmagan savollar qaytariladi */
   khKpatch(o).then(function(ok){
-    if(!ok){ toast(T("Saqlanmadi","Not saved")); return; }
-    delete idx[d]; khAuto(function(){ toast(T("Bekor qilindi","Cancelled")); });
+    if(!ok){ toast(T("Saqlanmadi — o'qituvchi Google hisobi bilan kirganingizni tekshiring","Not saved — check that you are signed in with the teacher's Google account")); return; }
+    idx[d]=o["idx/"+d]; KHB.at=0;
+    toast(opened?T("O'yin to'xtatildi ⛔","The game was stopped ⛔"):T("O'yin bekor qilindi","The game was cancelled"));
+    khTcRender();
   });
 }
 
