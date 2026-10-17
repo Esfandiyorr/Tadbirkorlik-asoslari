@@ -267,6 +267,8 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 .xw-endmsg{display:none;margin-top:14px;text-align:center;font-weight:900;font-size:20px;color:#fff;background:linear-gradient(135deg,#e11d48,#f97316);border-radius:16px;padding:12px 16px}
 .slide.xw-end .xw-endmsg{display:block}
 .xw-try{font-weight:800}
+.slide:not(.xw-fin) .xw-done,.slide:not(.xw-fin) #xwCheck{display:none}
+.xw-endmsg small{display:block;font-size:14px;font-weight:700;opacity:.92;margin-top:4px}
 #xwFin{display:none}.slide.xw-run #xwFin{display:inline-flex}
 .xw-again{display:none;margin-top:12px;text-align:center;padding:16px;border-radius:16px;border:2px dashed var(--line);background:var(--panel)}
 .slide.xw-end .xw-again.on{display:block}
@@ -1562,7 +1564,7 @@ html.kh-gated,html.kh-gated body{overflow:hidden!important}
       <span class="kicker" data-i="323">🧩 Yakuniy mashq</span>
       <h2 data-i="324">Krossvord — <span class="grad">taqdimot bo'yicha 18 ta savol</span></h2>
       <div class="xw-bar">
-        <span><span data-ui="xwSolved" data-i="325">Topilgan so'zlar:</span> <b><span id="xwDone">0</span> / <span id="xwTotal">18</span></b></span>
+        <span class="xw-done"><span data-ui="xwSolved" data-i="325">Topilgan so'zlar:</span> <b><span id="xwDone">0</span> / <span id="xwTotal">18</span></b></span>
         <span><span data-ui="xwLetters" data-i="326">To'ldirilgan katak:</span> <b id="xwCells">0</b></span>
         <span class="xw-timer" id="xwTimer">⏱ 25:00</span>
         <span class="xw-try" id="xwTry"></span>
@@ -5700,7 +5702,16 @@ function connect(){
 tcRestore();
 if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",connect); else connect();
 
-return {award:award, slideSeen:slideSeen, open:openOv, student:function(){return S;}, points:function(){return P;},
+/* sahifa uchun: talabaning o'z yozuvidagi kichik ma'lumotni o'qish (val berilmasa) yoki yozish —
+   masalan, krossvord urinishlari students/<id>/xw/<mavzu> da akkauntga bog'lanib saqlanadi. cb(qiymat, muvaffaqiyat) */
+function myKv(sub,val,cb){
+  cb=cb||function(){};
+  if(!cloudOn||!BASE||!S||!approved()){ cb(null,false); return; }
+  var u=BASE+"/students/"+S.id+"/"+sub+".json";
+  (val===undefined?fetch(u):fetch(u,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(val)}))
+    .then(function(r){ if(!r.ok) throw 0; return r.json(); }).then(function(v){ cb(v,true); },function(){ cb(null,false); });
+}
+return {award:award, slideSeen:slideSeen, open:openOv, student:function(){return S;}, points:function(){return P;}, kv:myKv,
         ok:approved, teacher:function(){return isTc;}, cloud:function(){return {on:cloudOn,base:BASE};},
         t:T, esc:esc, toast:toast, save:save};
 })();
@@ -6456,7 +6467,7 @@ function xwKey(r,c){ return r+"_"+c; }
 var xwLetter=(function(){ var b=atob(XW.g), g=""; for(var k=0;k<b.length;k++) g+=String.fromCharCode(b.charCodeAt(k)^((k*37+91)&255)); delete XW.g; return function(r,c){ var ch=g.charAt(r*XW.w+c); return ch==="."?"":ch; }; })();
 function xwCellsOf(w){ var a=[]; for(var i=0;i<w.l;i++) a.push(w.d==="h"?[w.r,w.c+i]:[w.r+i,w.c]); return a; }
 function xwSolved(w){ return xwCellsOf(w).every(function(p){ return (XWuser[xwKey(p[0],p[1])]||"")===xwLetter(p[0],p[1]); }); }
-function xwSave(){ try{ localStorage.setItem("terdu_m4_xw",JSON.stringify(XWuser)); }catch(e){} }
+function xwSave(){ try{ localStorage.setItem("terdu_m4_xw",JSON.stringify(XWuser)); }catch(e){} if(typeof xwGridTag==="function") xwGridTag(); }
 function xwLoad(){ try{ var v=localStorage.getItem("terdu_m4_xw"); if(v) XWuser=JSON.parse(v)||{}; }catch(e){ XWuser={}; } }
 
 function renderXW(){
@@ -6556,22 +6567,67 @@ function xwOnKey(e){
   if(e.key==="ArrowDown"){ e.preventDefault(); xwDir="v"; var i2=xwWordAt(r,c,"v"); if(i2!==null){xwActive=i2;xwHighlight();} var n3=xwInput(r+1,c); if(n3)n3.focus(); }
   if(e.key==="ArrowUp"){ e.preventDefault(); xwDir="v"; var n4=xwInput(r-1,c); if(n4)n4.focus(); }
 }
-/* krossvord: 2 ta urinish, har biri 25 daqiqa (boshlash tugmasi bosilgach hisoblanadi); ball faqat vaqt ichida beriladi.
-   Har so'z uchun ball bir marta beriladi — 2-urinishda yangi topilgan so'zlar ham qo'shiladi, oldingilari saqlanadi.
-   XWT={s: boshlangan vaqt, e: tugaganmi, n: nechanchi urinish, f: muddatidan oldin yakunlanganmi} — brauzerda saqlanadi */
-var XW_MS=25*60000, XW_TRIES=2, XWT=(function(){ try{ return JSON.parse(localStorage.getItem("terdu_m4_xwt")||"null")||{}; }catch(e){ return {}; } })(), xwTick=null;
+/* krossvord: 2 ta urinish, har biri 25 daqiqa (boshlash tugmasi bosilgach hisoblanadi).
+   Urinish holati talabaning AKKAUNTIDA saqlanadi: students/<id>/xw/m4 = {n: nechanchi urinish, s: boshlangan vaqt,
+   e: tugaganmi, f: oldinroq yakunlanganmi, d: topilgan so'zlar soni} — boshqa brauzer yoki telefondan kirsa ham urinishlar qaytadan boshlanmaydi.
+   Brauzerdagi terdu_m4_xwt — faqat tezkor nusxa; urinish akkauntga yozilmasa boshlanmaydi.
+   Urinish davomida va 1-urinishdan keyin qaysi so'z to'g'riligi ko'rsatilmaydi (faqat soni);
+   to'g'ri/xato kataklar faqat oxirgi urinish tugagach chiqadi. Ball urinish tugaganda topilgan so'zlar uchun beriladi
+   (har so'z uchun bir marta — 2-urinishda yangi topilganlari qo'shiladi). */
+var XW_MS=25*60000, XW_TRIES=2, XW_TOP=(window.RT_CFG&&RT_CFG.topic)||"m4", xwTick=null, XW_SYNC=false;
+var XWT=(function(){ try{ return JSON.parse(localStorage.getItem("terdu_m4_xwt")||"null")||{}; }catch(e){ return {}; } })();
 function xwLive(){ return !!(XWT.s&&!XWT.e&&Date.now()<XWT.s+XW_MS); }
 function xwN(){ return XWT.s?(+XWT.n||1):0; }
 function xwSaveT(){ try{ localStorage.setItem("terdu_m4_xwt",JSON.stringify(XWT)); }catch(e){} }
+function xwMeId(){ var st=window.RT&&RT.student&&RT.student(); return (st&&st.id)||""; }
+function xwCloud(){ return !!(window.RT&&RT.kv&&RT.cloud&&RT.cloud().on&&xwMeId()); }
+/* kataklardagi harflar qaysi urinishga tegishli (boshqa urinishniki bo'lsa tozalanadi) */
+function xwGridS(){ var v=null; try{ v=localStorage.getItem("terdu_m4_xws"); }catch(e){} return v===null?(+XWT.s||0):(+v||0); }
+function xwGridTag(){ try{ localStorage.setItem("terdu_m4_xws",String(+XWT.s||0)); }catch(e){} }
+function xwRank(x){ return x&&x.s?[(+x.n||1),+x.s,x.e?1:0]:[0,0,0]; }
+function xwCmp(a,b){ var A=xwRank(a), B=xwRank(b); for(var i=0;i<3;i++){ if(A[i]!==B[i]) return A[i]-B[i]; } return 0; }
+function xwPut(cb){
+  cb=cb||function(){};
+  if(!xwCloud()){ cb(!(window.RT&&RT.cloud&&RT.cloud().on)); return; }        /* baza ulanmagan sahifa — faqat brauzer */
+  RT.kv("xw/"+XW_TOP,{n:xwN(),s:+XWT.s,e:XWT.e?1:0,f:XWT.f?1:0,d:+XWT.d||0},function(v,ok){ cb(ok); });
+}
+/* akkauntdagi holat bilan birlashtirish: qaysi biri ilgarilab ketgan bo'lsa (urinish raqami, vaqti, tugaganmi) o'sha olinadi */
+function xwSync(){
+  if(XW_SYNC||!window.RT||!RT.cloud) return;
+  if(!xwCloud()){ if(window.RT_ready){ XW_SYNC=true; xwAfterSync(); } return; }   /* baza ulanishi hali kutilmoqda — sahifa tayyor bo'lgach qaror qilamiz */
+  var me=xwMeId();
+  if(XWT.u&&XWT.u!==me){ XWT={}; xwSaveT(); XWuser={}; xwSave(); }     /* bu brauzerda boshqa talaba ishlagan */
+  RT.kv("xw/"+XW_TOP,undefined,function(v,ok){
+    if(!ok||XW_SYNC) return;                                        /* keyinroq qayta urinamiz */
+    XW_SYNC=true;
+    var c=xwCmp(v,XWT);
+    if(c>0){ XWT={s:+v.s,e:v.e?1:0,n:+v.n||1,f:v.f?1:0,d:+v.d||0,u:me}; xwSaveT(); }
+    else{
+      XWT.u=me;
+      if(c<0) xwPut();                                              /* akkauntda yo'q (eski brauzer yozuvi) — akkauntga ko'chiramiz */
+      else if(v){ if((+XWT.d||0)>(+v.d||0)) xwPut(); else XWT.d=+v.d||0; }   /* natija soni — kattasi */
+      xwSaveT();
+    }
+    if(xwGridS()!==(+XWT.s||0)){ XWuser={}; xwSave(); }
+    xwAfterSync();
+  });
+}
+function xwAfterSync(){
+  renderXW(); xwMode(); xwTimerDraw();
+  clearInterval(xwTick); xwTick=null;
+  if(xwLive()) xwTick=setInterval(xwTimerDraw,1000);
+  else if(XWT.s) xwAward();
+}
 /* o'qituvchi panelidagi 🔓 bazaga fx = (bosilgan vaqt + 3 kun) yozadi. Oxirgi urinish shu bosishdan oldin
    boshlangan bo'lsa, talabaga yana bitta 25 daqiqalik urinish ochiladi (oldin topilgan so'zlar bali saqlanadi) */
 function xwReopenAt(){
   if(!window.RT||!RT.points) return 0;
-  var x=(RT.points().topics||{})[(window.RT_CFG&&RT_CFG.topic)||"m4"]||{};
+  var x=(RT.points().topics||{})[XW_TOP]||{};
   return +x.fx?(+x.fx-3*86400000):0;
 }
 function xwRetry(){ return !!(XWT.s&&!xwLive()&&xwN()>=XW_TRIES&&xwReopenAt()>XWT.s); }      /* o'qituvchi bergan qo'shimcha urinish */
 function xwCanAgain(){ return !!(XWT.s&&!xwLive()&&(xwN()<XW_TRIES||xwRetry())); }
+function xwFinal(){ return !!(XWT.s&&!xwLive()&&!xwCanAgain()); }                     /* urinishlar tugagan — natija ochiladi */
 function xwRetryNote(){
   var box=document.getElementById("xwAgainBox"), n=document.getElementById("xwRetryNote"), b=document.getElementById("xwAgain");
   if(!box||!XWT) return;
@@ -6587,12 +6643,18 @@ function xwTryDraw(){
   var n=Math.max(1,xwN()), mx=Math.max(XW_TRIES,n);
   t.textContent=(lang==="en"?"Attempt ":"Urinish: ")+n+" / "+mx;
 }
+function xwPaintOff(){
+  document.querySelectorAll("#xwGrid .ok,#xwGrid .bad").forEach(function(x){ x.classList.remove("ok","bad"); });
+  document.getElementById("xwResult").classList.remove("show");
+}
 function xwMode(){
-  var sl=document.getElementById("xwGrid").closest(".slide"), m=!XWT.s?"pre":(xwLive()?"run":"end");
-  sl.classList.remove("xw-pre","xw-run","xw-end"); sl.classList.add("xw-"+m);
+  var sl=document.getElementById("xwGrid").closest(".slide"), m=!XWT.s?"pre":(xwLive()?"run":"end"), fin=(m==="end"&&xwFinal());
+  sl.classList.remove("xw-pre","xw-run","xw-end"); sl.classList.add("xw-"+m); sl.classList.toggle("xw-fin",fin);
   [].forEach.call(document.querySelectorAll("#xwGrid input"),function(i){ i.readOnly=(m!=="run"); });
-  if(m==="pre") document.getElementById("xwResult").classList.remove("show");
-  xwRetryNote(); xwTryDraw();
+  if(!fin) xwPaintOff();
+  var wait=!XW_SYNC;
+  ["xwGo","xwAgain"].forEach(function(id){ var b=document.getElementById(id); if(b){ b.disabled=wait; b.style.opacity=wait?".6":""; } });
+  xwRetryNote(); xwTryDraw(); xwStatus();
   if(m==="end") xwEndShow();
   return m;
 }
@@ -6606,8 +6668,17 @@ function xwTimerDraw(){
 }
 function xwTimeUp(early){
   clearInterval(xwTick); xwTick=null;
-  XWT.e=1; if(early) XWT.f=1; xwSaveT();
-  xwMode(); xwTimerDraw();
+  XWT.e=1; if(early) XWT.f=1;
+  if(xwGridS()===(+XWT.s||0)) XWT.d=Math.max(+XWT.d||0,xwStatus());   /* harflar shu qurilmada — natijani akkauntga yozamiz */
+  xwSaveT(); xwPut();
+  xwAward(); xwMode(); xwTimerDraw();
+}
+/* urinish tugaganda: shu urinishda topilgan so'zlar uchun ball (bir so'z — bir marta) */
+function xwAward(){
+  if(!window.RT||!RT.award||!XWT.s||xwLive()||xwGridS()!==(+XWT.s||0)) return;
+  var all=true;
+  XWords().forEach(function(w,i){ if(xwSolved(w)) RT.award("xw"+i,4,"krossvord"); else all=false; });
+  if(all) RT.award("xwAll",15,"krossvord to'liq");
 }
 /* urinishni vaqtidan oldin yakunlash */
 function xwFinish(){
@@ -6615,39 +6686,51 @@ function xwFinish(){
   var left=XW_TRIES-xwN();
   if(!confirm(lang==="en"?"Finish this attempt now?"+(left>0?" You will have "+left+" more attempt.":" This is your last attempt.")
     :"Urinish hozir yakunlansinmi?"+(left>0?" Sizda yana "+left+" ta urinish qoladi.":" Bu oxirgi urinishingiz."))) return;
-  xwStatus(); xwTimeUp(true);
+  xwTimeUp(true);
 }
-/* urinish tugagan holat: kataklar yopiq, natija avtomatik tekshiriladi */
+/* urinish tugagan holat: kataklar yopiq. Oxirgi urinishdan keyingina to'g'ri/xato ko'rsatiladi */
 function xwEndShow(){
-  var done=xwStatus(), all=XWords().length, en=lang==="en", n=xwN();
-  document.getElementById("xwEndMsg").textContent=(XWT.f?(en?"⏹ Attempt "+n+" finished. Words found: ":"⏹ "+n+"-urinish yakunlandi. Topilgan so'zlar: ")
+  var g=xwStatus(), done=Math.max(xwGridS()===(+XWT.s||0)?g:0,+XWT.d||0), all=XWords().length, en=lang==="en", n=xwN(), fin=xwFinal(), m=document.getElementById("xwEndMsg");
+  m.textContent=(XWT.f?(en?"⏹ Attempt "+n+" finished. Words found: ":"⏹ "+n+"-urinish yakunlandi. Topilgan so'zlar: ")
     :(en?"⏱ Time is up! Words found: ":"⏱ Vaqt tugadi! Topilgan so'zlar: "))+done+" / "+all;
-  setTimeout(xwCheck,300);
+  if(!fin){
+    var sm=document.createElement("small");
+    sm.textContent=en?"Which words are correct is shown only after your last attempt.":"Qaysi so'zlar to'g'riligi oxirgi urinishdan keyin ko'rsatiladi.";
+    m.appendChild(sm);
+  } else if(xwGridS()===(+XWT.s||0)&&g) setTimeout(xwCheck,300);     /* harflar shu qurilmada bo'lsa — to'g'ri/xato kataklar */
+  else document.getElementById("xwResult").classList.remove("show");
 }
 function xwStart(){
+  if(!XW_SYNC){ xwSync(); toast(lang==="en"?"Loading your attempts… try again in a moment":"Urinishlaringiz yuklanmoqda… bir oz kutib qayta bosing"); return; }
   if(XWT.s&&!xwCanAgain()) return;
   var again=!!XWT.s;
   if(again&&!confirm(lang==="en"?"Start a new attempt? The grid will be cleared; points you already earned are kept."
     :"Yangi urinish boshlansinmi? Kataklar tozalanadi, olgan ballaringiz saqlanadi.")) return;
-  XWT={s:Date.now(),e:0,n:Math.min(XW_TRIES,xwN()+1)}; xwSaveT();
-  if(again){ XWuser={}; xwSave(); xwActive=null; renderXW(); document.getElementById("xwResult").classList.remove("show"); }   /* yangi urinish — toza katak bilan */
-  xwMode(); xwTimerDraw(); clearInterval(xwTick); xwTick=setInterval(xwTimerDraw,1000);
-  var f=document.querySelector("#xwGrid input"); if(f) f.focus();
+  var old=XWT, bs=[document.getElementById("xwGo"),document.getElementById("xwAgain")];
+  XWT={s:Date.now(),e:0,n:Math.min(XW_TRIES,xwN()+1),u:xwMeId()};
+  bs.forEach(function(b){ if(b) b.disabled=true; });
+  xwPut(function(ok){
+    bs.forEach(function(b){ if(b) b.disabled=false; });
+    if(!ok){ XWT=old; toast(lang==="en"?"No connection — the attempt was not started. Try again.":"Internet yo'q — urinish boshlanmadi. Qayta urinib ko'ring."); return; }
+    xwSaveT(); XWuser={}; xwSave(); xwActive=null;                   /* yangi urinish — toza katak bilan */
+    renderXW(); xwPaintOff(); xwMode(); xwTimerDraw(); clearInterval(xwTick); xwTick=setInterval(xwTimerDraw,1000);
+    var f=document.querySelector("#xwGrid input"); if(f) f.focus();
+  });
 }
 function xwStatus(){
-  var done=0, filled=0;
+  var done=0, filled=0, show=(typeof xwFinal==="function")&&xwFinal();
   XWords().forEach(function(w,i){
-    var s=xwSolved(w); if(s){ done++; if(window.RT&&xwLive()) RT.award("xw"+i,4,"krossvord"); }
+    var ok=xwSolved(w); if(ok) done++;
     var li=document.querySelector('.xw-list li[data-i="'+i+'"]');
-    if(li) li.classList.toggle("solved",s);
+    if(li) li.classList.toggle("solved",ok&&show);                   /* qaysi so'z topilgani faqat oxirida ko'rinadi */
   });
   for(var k in XWuser){ if(XWuser[k]) filled++; }
   document.getElementById("xwDone").textContent=done;
-  if(window.RT && xwLive() && done===XWords().length) RT.award("xwAll",15,"krossvord to'liq");
   document.getElementById("xwCells").textContent=filled;
   return done;
 }
 function xwCheck(){
+  if(!xwFinal()) return;                                           /* to'g'ri/xato — faqat urinishlar tugagach */
   var wrong=0, total=0;
   XWords().forEach(function(w){
     xwCellsOf(w).forEach(function(p){
@@ -6682,8 +6765,10 @@ document.getElementById("xwAgain").onclick=xwStart;
 document.getElementById("xwFin").onclick=xwFinish;
 xwLoad(); renderXW(); xwMode(); xwTimerDraw();
 if(xwLive()) xwTick=setInterval(xwTimerDraw,1000);
+xwSync(); setTimeout(xwSync,1500);
 /* bazadagi ma'lumot sahifa ochilgach (va keyin har daqiqada) keladi — o'qituvchi qayta ochgani shu yerda sezilib qoladi */
 setInterval(function(){
+  if(!XW_SYNC) xwSync();
   var sl=document.getElementById("xwGrid").closest(".slide");
   var box=document.getElementById("xwAgainBox");
   if(sl.classList.contains("xw-end")&&xwCanAgain()!==box.classList.contains("on")) xwRetryNote();
