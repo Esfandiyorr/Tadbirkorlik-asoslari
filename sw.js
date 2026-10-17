@@ -48,3 +48,29 @@ self.addEventListener("fetch", function (e) {
     });
   }));
 });
+
+/* 🔔 o'qituvchi e'lon yuborganda keladigan bildirishnoma (Web Push). Ma'lumot: {t: sarlavha, b: matn, u: ochiladigan sahifa, g: belgi} */
+self.addEventListener("push", function (e) {
+  var d = {};
+  try { d = e.data ? e.data.json() : {}; } catch (x) { d = { b: e.data ? e.data.text() : "" }; }
+  var url = new URL(d.u || "./", self.registration.scope).href;
+  e.waitUntil(self.registration.showNotification(d.t || "TerDU", {
+    body: d.b || "", tag: d.g || "terdu", renotify: true,
+    icon: new URL("fayllar/ilova/icon-192.png", self.registration.scope).href,
+    badge: new URL("fayllar/ilova/icon-192.png", self.registration.scope).href,
+    data: { u: url }
+  }));
+});
+
+/* bildirishnoma bosilganda: sayt ochiq bo'lsa o'sha oyna oldinga chiqadi, bo'lmasa e'lon sahifasi ochiladi */
+self.addEventListener("notificationclick", function (e) {
+  e.notification.close();
+  var url = (e.notification.data && e.notification.data.u) || self.registration.scope;
+  e.waitUntil(self.clients.matchAll({ type: "window", includeUncontrolled: true }).then(function (cs) {
+    for (var i = 0; i < cs.length; i++) {
+      var c = cs[i];
+      if (c.url.indexOf(self.registration.scope) === 0 && "focus" in c) return c.focus();   /* ochiq sahifani buzmaymiz — faqat oldinga chiqaramiz */
+    }
+    return self.clients.openWindow ? self.clients.openWindow(url) : null;
+  }));
+});

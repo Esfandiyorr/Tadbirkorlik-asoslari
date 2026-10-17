@@ -43,8 +43,10 @@ xulosa, mustaqil ish va foydali havolalar · 🎬 **tadbirkorlik haqidagi eng ma
 🧩 **interaktiv krossvord** (18 ta so'z, 16×17 panjara).
 
 ### Krossvord haqida
-Kataklarga to'g'ridan-to'g'ri yozish, so'z yo'nalishini bosib almashtirish, `Tekshirish` (to'g'ri/xato kataklarni bo'yaydi),
-`Bitta harf` (maslahat), `Javoblar` va `Tozalash` tugmalari bor. Kiritilgan harflar brauzer xotirasida saqlanadi,
+Kataklarga to'g'ridan-to'g'ri yozish, so'z yo'nalishini bosib almashtirish, `Tekshirish` (to'g'ri/xato kataklarni bo'yaydi)
+va `Tozalash` tugmalari bor. Javoblar sahifa kodida kodlangan holda turadi, ularni ko'rsatadigan tugma yo'q.
+**2 ta urinish**, har biriga 25 daqiqa (`⏹ Yakunlash` bilan oldinroq tugatish mumkin); 2-urinish toza kataklar bilan
+boshlanadi, har so'z uchun ball bir marta beriladi. O'qituvchining 🔓 tugmasi ikkala urinishdan keyin yana bittasini beradi. Kiritilgan harflar brauzer xotirasida saqlanadi,
 til almashtirilganda ham yo'qolmaydi. Savollar ikki tilda.
 
 ## M5 — Soliqlar va hujjatlar (18 slayd)
@@ -161,4 +163,22 @@ audio/video keshlanmaydi), `pwa.js` (o'rnatish taklifi), `fayllar/ilova/` (belgi
 
 **Eslatma (iPhone):** iOS'da o'rnatilgan ilova Safari bilan xotirani bo'lishmaydi — talaba ilovada bir marta
 ism, familiya va PIN bilan **🔑 Kirish** qiladi; ballari bazadan tiklanadi.
+
+### 🔔 E'lon bildirishnomalari (Web Push)
+
+O'qituvchi e'lon yuborganda, bildirishnomani yoqqan talabalar telefoniga xabar keladi (ilova yopiq bo'lsa ham).
+
+- **Talaba:** saytni (ilovani) ochganda pastda «🔔 E'lonlardan darhol xabardor bo'ling» taklifi chiqadi → **Yoqish**.
+  Android'da brauzerda ham, ilovada ham ishlaydi; iPhone'da faqat **bosh ekranga o'rnatilgan ilovada** (iOS 16.4+).
+- **O'qituvchi (bir marta sozlanadi, bepul):** panel → 📢 **E'lon yuborish** → 🔔 **Telefonga bildirishnoma**:
+  1. «🔑 Kalit va kodni yaratish» — kalit juftligi brauzerda yaratiladi, ochiq kalit `meta/push/pub` ga yoziladi,
+     maxfiy kalit faqat tayyor kod ichida chiqadi (bazaga yozilmaydi);
+  2. Cloudflare'da bepul **Worker** ochib, shu kodni qo'yish (`fayllar/push-worker.js` — shablon);
+  3. Worker manzilini panelga qo'yish → tekshiriladi va `meta/push/url` ga yoziladi.
+  Shundan keyin har bir e'lon bilan birga bildirishnoma ketadi («E'lon yuborilganda telefonlarga ham yuborilsin»
+  belgisi bilan o'chirish mumkin), «🧪 Sinov» faqat o'qituvchining o'z qurilmasiga yuboradi.
+- **Qanday ishlaydi:** obuna `students/<id>/push/<k> = {e, p, a, t}` ga yoziladi; Worker o'qituvchi tokenini Google
+  orqali tekshiradi (Gmail izi `teacherH` ga teng bo'lishi kerak), obunalarni o'qiydi va VAPID + aes128gcm
+  (RFC 8291/8292) bilan yuboradi, eskirgan obunalarni (404/410) o'chiradi. Bildirishnomani `sw.js` ko'rsatadi;
+  bosilganda sayt ochiladi (ochiq bo'lsa — o'sha oyna oldinga chiqadi).
 

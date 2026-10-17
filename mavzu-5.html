@@ -879,6 +879,13 @@ html.kh-gated,html.kh-gated body{overflow:hidden!important}
 .kh-gbtn:active{transform:translateY(4px);box-shadow:0 4px 0 #14532d}
 @keyframes khPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
 .kh-gx{display:block;margin:18px auto 0;background:transparent;border:1px solid rgba(255,255,255,.4);color:#fff;border-radius:10px;padding:6px 12px;font:inherit;font-size:13px;cursor:pointer;opacity:.8}
+.rt-pushbar{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);z-index:111;width:calc(100% - 24px);max-width:460px;display:flex;gap:10px;align-items:center;
+  padding:10px 12px;border-radius:16px;background:var(--panel);color:var(--ink);border:1px solid var(--line);box-shadow:0 10px 30px rgba(0,0,0,.2)}
+.rt-pushbar .ic{font-size:26px}.rt-pushbar .t{flex:1;min-width:0}.rt-pushbar b{display:block;font-size:14.5px}.rt-pushbar small{display:block;font-size:12.5px;color:var(--muted)}
+.rt-pushx{border:0;background:none;color:inherit;opacity:.6;font-size:16px;cursor:pointer;padding:6px}
+.rt-pushsteps{margin:0;padding-left:20px;line-height:1.55;font-size:13.5px}.rt-pushsteps li{margin:0 0 10px;font-size:13.5px}.rt-pushsteps li b,.rt-pushsteps li::marker{font-size:13.5px;font-weight:800}
+.rt-pushsteps textarea{width:100%;height:120px;margin:8px 0 6px;font:11px/1.35 ui-monospace,Menlo,Consolas,monospace;border:1px solid var(--line);border-radius:10px;padding:8px;background:var(--panel2);color:var(--ink)}
+.rt-push input[type=url]{flex:1;min-width:220px;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--ink);font:inherit}
 /* ================== MUSIQA PLEYERI ================== */
 #mzTab{position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:70;
   background:linear-gradient(135deg,var(--violet),var(--pink));color:#fff;border:none;
@@ -3559,7 +3566,7 @@ function tcDraw(){
   }
   h+='</div><div class="rt-tcpane" data-p="mk">'+stuckBox(okl)+marksTable(okl)+'</div>'+
      '<div class="rt-tcpane" data-p="ann"><div class="rt-ann-holder">'+(ANN_LOADED?annBox():'<p class="rt-note">'+T("Yuklanmoqda…","Loading…")+'</p>')+'</div>'+
-     tcMailBox(okl)+'</div>'+
+     '<div id="pushTc"></div>'+tcMailBox(okl)+'</div>'+
      '<div class="rt-tcpane" data-p="kh"><div id="khTc"></div></div>';
   var dn=dupGroups().reduce(function(a,g){ return a+g.length-1; },0);
   h+='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px">'+
@@ -3576,6 +3583,7 @@ function tcDraw(){
        "A student can enter the presentation and the chat only after you approve them.")+'</p>';
   out.innerHTML=h;
   tcTabsBind(out);
+  pushTcRender();                            /* telefonga bildirishnoma sozlamasi */
   accTcRender(okl);                          /* mavzularni guruhlarga ochish */
   khTcRender();                              /* jonli test bo'limi (ma'lumot keshdan) */
   out.querySelectorAll(".rt-gtile").forEach(function(b){
@@ -3978,6 +3986,10 @@ function annBind(){
       ANN_LIST.push({text:t,img:ANN_PICK,poll:poll,at:at||Date.now()});
       ANN_PICK=null; ANN_POLL_ON=false; ANN_POLL_Q=""; ANN_POLL_OPTS=["",""];
       toast(T("E'lon yuborildi ✅","Announcement sent ✅"));
+      if(pushOn(PUSH.cfg)&&pushAuto()) pushSend(T("📢 Yangi e'lon","📢 New announcement"),t||(poll?"📊 "+poll.q:T("📷 Rasmli e'lon","📷 Announcement with a picture")),null,function(j){
+        if(j) toast(T("📲 Bildirishnoma yuborildi: ","📲 Notification sent: ")+j.sent+" "+T("qurilma","device(s)"));
+        else toast(T("⚠️ Telefonlarga bildirishnoma yuborilmadi","⚠️ Phone notifications were not sent"));
+      });
       var box=document.getElementById("rtTcOut"); if(box) refreshAnn(box);
     });
   };
@@ -4285,6 +4297,187 @@ function annDelete(at,cb){
   fetch(BASE+"/meta/announcements/"+at+".json",{method:"DELETE"})
     .then(function(r){ cb&&cb(r.ok); }).catch(function(){ cb&&cb(false); });
 }
+/* ---------- 🔔 telefonga bildirishnoma (Web Push) ----------
+   meta/push = {pub: ochiq VAPID kaliti, url: Cloudflare Worker manzili} — ikkalasi bo'lsa yoqilgan hisoblanadi.
+   Talaba «Yoqish» ni bossa, brauzer obunasi students/<id>/push/<k> = {e, p, a, t} ga yoziladi.
+   O'qituvchi e'lon yuborganda panel Worker'ga {tok, title, body, url} jo'natadi, Worker hamma obunaga yuboradi
+   (Worker kodi: fayllar/push-worker.js shabloni; maxfiy kalit faqat Worker'da turadi). */
+var PUSH={cfg:null,at:0,code:"",gen:null,msg:""};
+function pushOk(){ return /^https?:$/.test(location.protocol)&&("serviceWorker" in navigator)&&("PushManager" in window)&&("Notification" in window); }
+function pushB64(buf){ var b=new Uint8Array(buf), s=""; for(var i=0;i<b.length;i++) s+=String.fromCharCode(b[i]); return btoa(s).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,""); }
+function pushUb64(t){ t=String(t).replace(/-/g,"+").replace(/_/g,"/"); while(t.length%4) t+="="; var s=atob(t), b=new Uint8Array(s.length); for(var i=0;i<s.length;i++) b[i]=s.charCodeAt(i); return b; }
+function pushCfg(cb,fresh){
+  if(!cloudOn||!BASE){ cb(null); return; }
+  if(!fresh&&PUSH.cfg&&Date.now()-PUSH.at<300000){ cb(PUSH.cfg); return; }
+  window.fetch(BASE+"/meta/push.json").then(function(r){ return r.ok?r.json():null; }).catch(function(){ return null; })
+    .then(function(v){ PUSH.cfg=v||{}; PUSH.at=Date.now(); cb(PUSH.cfg); });
+}
+function pushOn(c){ return !!(c&&c.pub&&c.url); }
+/* talaba: sahifa ochilganda — ruxsat berilgan bo'lsa obunani yangilab qo'yamiz, hali so'ralmagan bo'lsa taklif chiqaramiz */
+function pushInit(){
+  if(!S||!approved()||!pushOk()) return;
+  pushCfg(function(c){
+    if(!pushOn(c)) return;
+    if(Notification.permission==="granted") pushSub(c,function(){});
+    else if(Notification.permission==="default") setTimeout(function(){ pushAsk(c); },4000);
+  });
+}
+function pushSub(c,cb){
+  navigator.serviceWorker.register("sw.js").then(function(){ return navigator.serviceWorker.ready; }).then(function(reg){
+    return reg.pushManager.getSubscription().then(function(s){
+      var k=s&&s.options&&s.options.applicationServerKey;
+      if(s&&k&&pushB64(k)!==c.pub) return s.unsubscribe().then(function(){ return null; });   /* kalit almashgan — qayta obuna */
+      return s;
+    }).then(function(s){ return s||reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:pushUb64(c.pub)}); });
+  }).then(function(s){ pushSave(s,cb); },function(){ cb(false); });
+}
+/* obuna bazaga yoziladi (o'zgarmagan bo'lsa 3 kunda bir marta — o'chib ketgan bo'lsa tiklanadi) */
+function pushSave(s,cb){
+  var j=s&&s.toJSON?s.toJSON():(s||{}), e=j.endpoint, k=j.keys||{};
+  if(!S||!e||!k.p256dh||!k.auth){ cb(false); return; }
+  var mark=S.id+"|"+e+"|"+k.p256dh, last={};
+  try{ last=JSON.parse(localStorage.getItem("terdu_push")||"{}")||{}; }catch(x){}
+  if(last.m===mark&&Date.now()-(+last.t||0)<3*86400000){ cb(true); return; }
+  sha256hex(e,function(h){
+    var id="d"+String(h||Date.now()).slice(0,20);
+    fetch(BASE+"/students/"+S.id+"/push/"+id+".json",{method:"PUT",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({e:e,p:k.p256dh,a:k.auth,t:Date.now()})}).then(function(r){
+        if(r.ok){ try{ localStorage.setItem("terdu_push",JSON.stringify({m:mark,t:Date.now()})); }catch(x){} }
+        cb(r.ok);
+      }).catch(function(){ cb(false); });
+  });
+}
+function pushAsk(c){
+  var no=0; try{ no=+localStorage.getItem("terdu_push_no")||0; }catch(x){}
+  if(Date.now()<no||document.getElementById("rtPushBar")||Notification.permission!=="default") return;
+  if(document.getElementById("khGate")||document.getElementById("rtAnnGate")){ setTimeout(function(){ pushAsk(c); },60000); return; }
+  var b=el('<div id="rtPushBar" class="rt-pushbar" role="dialog"><span class="ic">🔔</span><div class="t"><b>'+
+    T("E'lonlardan darhol xabardor bo'ling","Get announcements instantly")+'</b><small>'+
+    T("O'qituvchi yangi e'lon yozsa, telefoningizga bildirishnoma keladi.","When the teacher posts an announcement, your phone gets a notification.")+'</small></div>'+
+    '<button type="button" class="btn accent sm" id="rtPushOn">'+T("Yoqish","Turn on")+'</button>'+
+    '<button type="button" class="rt-pushx" id="rtPushX" aria-label="'+T("Yopish","Close")+'">✕</button></div>');
+  if(document.getElementById("pwaBar")) b.style.bottom="96px";
+  document.body.appendChild(b);
+  function hide(days){ try{ localStorage.setItem("terdu_push_no",String(Date.now()+days*86400000)); }catch(x){} b.remove(); }
+  document.getElementById("rtPushX").onclick=function(){ hide(7); };
+  document.getElementById("rtPushOn").onclick=function(){
+    var on=this; on.disabled=true;
+    Promise.resolve(Notification.requestPermission()).then(function(p){
+      if(p!=="granted"){ hide(30); toast(T("Bildirishnomaga ruxsat berilmadi","Notifications were not allowed")); return; }
+      b.remove();
+      pushSub(c,function(ok){ toast(ok?T("🔔 Bildirishnomalar yoqildi ✅","🔔 Notifications are on ✅"):T("Yoqib bo'lmadi — keyinroq urinib ko'ring","Could not turn on — try again later")); });
+    },function(){ on.disabled=false; });
+  };
+}
+/* o'qituvchi: Worker orqali yuborish. only — faqat shu talabalar (sinov uchun) */
+function pushSend(title,body,only,cb){
+  cb=cb||function(){};
+  var c=PUSH.cfg;
+  if(!pushOn(c)||!TC_USER){ cb(null); return; }
+  TC_USER.getIdToken().then(function(tok){
+    return window.fetch(c.url,{method:"POST",headers:{"Content-Type":"text/plain"},
+      body:JSON.stringify({tok:tok,title:title,body:body,url:new URL("index.html",location.href).href,tag:"terdu-"+Date.now(),only:only||null})});
+  }).then(function(r){ return r.json().then(function(j){ return r.ok?j:null; }); }).then(function(j){ cb(j); },function(){ cb(null); });
+}
+function pushAuto(){ try{ return localStorage.getItem("terdu_push_auto")!=="0"; }catch(e){ return true; } }
+function pushDevs(){ var n=0, st=0; (tcList||[]).forEach(function(x){ var k=Object.keys(x.push||{}).length; if(k&&(x.status||"")==="ok"){ n+=k; st++; } }); return {n:n,st:st}; }
+function pushTcHtml(){
+  var c=PUSH.cfg;
+  if(!c) return '<div class="rt-sec rt-push"><h4>🔔 '+T("Telefonga bildirishnoma","Phone notifications")+'</h4><p class="rt-note">'+T("Yuklanmoqda…","Loading…")+'</p></div>';
+  var h='<div class="rt-sec rt-push"><h4>🔔 '+T("Telefonga bildirishnoma","Phone notifications")+' <span class="rt-badge">'+(pushOn(c)?T("ulangan","on"):T("sozlanmagan","not set up"))+'</span></h4>';
+  if(!fbOn()||!TC_USER) return h+'<p class="rt-note">'+T("Buning uchun o'qituvchi Google hisobi bilan kirgan bo'lishi kerak.","You need to be signed in with the teacher's Google account.")+'</p></div>';
+  if(pushOn(c)){
+    var d=pushDevs();
+    return h+'<p class="rt-note" style="margin:0 0 8px">✅ '+T("E'lon yuborganingizda ilovani o'rnatib, bildirishnomani yoqqan talabalar telefoniga xabar boradi.",
+        "When you send an announcement, students who installed the app and turned notifications on get it on their phone.")+
+      '<br>📲 '+T("Obuna bo'lganlar","Subscribed")+': <b>'+d.st+'</b> '+T("talaba","students")+' · <b>'+d.n+'</b> '+T("qurilma","devices")+'</p>'+
+      '<label class="rt-khchk"><input type="checkbox" id="pushAuto"'+(pushAuto()?" checked":"")+'> '+T("E'lon yuborilganda telefonlarga ham yuborilsin","Also notify phones when an announcement is sent")+'</label>'+
+      '<div class="rt-khrow" style="margin-top:8px"><button type="button" class="btn sm" id="pushTest">🧪 '+T("Sinov: o'zimga yuborish","Test: send to myself")+'</button>'+
+      '<button type="button" class="btn sm" id="pushReset">⚙️ '+T("Qayta sozlash","Set up again")+'</button></div>'+
+      '<p class="rt-note" id="pushMsg">'+esc(PUSH.msg||"")+'</p></div>';
+  }
+  h+='<p class="rt-note" style="margin:0 0 10px">'+T("Bir martalik sozlash (taxminan 10 daqiqa, bepul). Bildirishnomani yuboruvchi kichik dastur Cloudflare'da ishlaydi — sayt GitHub'da turgani uchun shu kerak.",
+      "One-time setup (about 10 minutes, free). A small sender program runs on Cloudflare — needed because the site itself is static.")+'</p>'+
+    '<ol class="rt-pushsteps">'+
+    '<li><b>'+T("Kalit va kodni tayyorlang","Prepare the key and the code")+'</b><br>'+
+      '<button type="button" class="btn accent sm" id="pushGen">🔑 '+(PUSH.code?T("Qaytadan yaratish","Generate again"):T("Kalit va kodni yaratish","Generate the key and code"))+'</button>'+
+      (PUSH.code?'<textarea id="pushCode" readonly spellcheck="false">'+esc(PUSH.code)+'</textarea>'+
+        '<button type="button" class="btn sm" id="pushCopy">📋 '+T("Kodni nusxalash","Copy the code")+'</button>'+
+        '<span class="rt-note" style="display:block;color:var(--red);font-weight:700">⚠️ '+T("Kodda maxfiy kalit bor — uni faqat Cloudflare'ga qo'ying, hech kimga yubormang.","The code contains a secret key — paste it only into Cloudflare, never share it.")+'</span>':'')+'</li>'+
+    '<li>'+T('<a href="https://dash.cloudflare.com/sign-up" target="_blank" rel="noopener">dash.cloudflare.com</a> da bepul ro\'yxatdan o\'ting (karta kerak emas).',
+      'Sign up for free at <a href="https://dash.cloudflare.com/sign-up" target="_blank" rel="noopener">dash.cloudflare.com</a> (no card needed).')+'</li>'+
+    '<li>'+T("<b>Workers &amp; Pages → Create → Worker</b> («Hello World») ni tanlang, nomini <b>terdu-push</b> qiling va <b>Deploy</b> bosing.",
+      "Choose <b>Workers &amp; Pages → Create → Worker</b> («Hello World»), name it <b>terdu-push</b> and press <b>Deploy</b>.")+'</li>'+
+    '<li>'+T("<b>Edit code</b> ni bosing, u yerdagi hamma kodni o'chirib, nusxalangan kodni qo'ying va <b>Deploy</b> bosing.",
+      "Press <b>Edit code</b>, delete everything there, paste the copied code and press <b>Deploy</b>.")+'</li>'+
+    '<li>'+T("Worker manzilini (…<b>.workers.dev</b>) nusxalab, shu yerga qo'ying:","Copy the Worker address (…<b>.workers.dev</b>) and paste it here:")+
+      '<div class="rt-khrow" style="margin-top:6px"><input type="url" id="pushUrl" placeholder="https://terdu-push.….workers.dev" value="'+esc(c.url||"")+'">'+
+      '<button type="button" class="btn accent sm" id="pushSave">✅ '+T("Saqlash va tekshirish","Save and check")+'</button></div></li></ol>'+
+    '<p class="rt-note" id="pushMsg" style="font-weight:700">'+esc(PUSH.msg||"")+'</p></div>';
+  return h;
+}
+function pushTcRender(fresh){
+  var box=document.getElementById("pushTc"); if(!box) return;
+  if(!PUSH.cfg||fresh){ pushCfg(function(){ pushTcRender(); },true); }
+  box.innerHTML=pushTcHtml(); pushTcBind(box);
+}
+function pushMsg(t,bad){ PUSH.msg=t; var m=document.getElementById("pushMsg"); if(m){ m.textContent=t; m.style.color=bad?"var(--red)":"var(--green)"; } if(t) toast(t); }
+function pushTcBind(box){
+  var q=function(id){ return document.getElementById(id); };
+  if(q("pushGen")) q("pushGen").onclick=function(){
+    var b=this; b.disabled=true;
+    var kp=null;
+    crypto.subtle.generateKey({name:"ECDSA",namedCurve:"P-256"},true,["sign","verify"]).then(function(k){ kp=k;
+      return Promise.all([crypto.subtle.exportKey("raw",k.publicKey),crypto.subtle.exportKey("jwk",k.privateKey),
+        window.fetch("fayllar/push-worker.js",{cache:"no-store"}).then(function(r){ return r.ok?r.text():null; })]);
+    }).then(function(v){
+      if(!v[2]) throw 0;
+      var pub=pushB64(v[0]), rep={VAPID_PUB:pub,VAPID_PRIV:v[1].d,DB:BASE,API_KEY:(CFG.fbWeb||{}).apiKey||"",TEACHER_H:CFG.teacherH||""}, code=v[2];
+      for(var k in rep) code=code.split("__"+k+"__").join(rep[k]);
+      return fetch(BASE+"/meta/push.json",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({pub:pub,at:Date.now()})})
+        .then(function(r){ if(!r.ok) throw 1; PUSH.cfg={pub:pub,at:Date.now()}; PUSH.code=code; PUSH.msg=""; pushTcRender(); });
+    }).catch(function(e){ b.disabled=false; pushMsg(e===1?T("Bazaga saqlanmadi — Google bilan kirganingizni tekshiring","Not saved — check that you are signed in with Google")
+      :T("Kodni tayyorlab bo'lmadi — sahifani yangilab qayta urining","Could not prepare the code — reload and try again"),1); });
+  };
+  if(q("pushCopy")) q("pushCopy").onclick=function(){
+    var t=q("pushCode"); t.select();
+    (navigator.clipboard?navigator.clipboard.writeText(PUSH.code):Promise.reject()).then(function(){ toast(T("Nusxalandi ✅","Copied ✅")); },
+      function(){ try{ document.execCommand("copy"); toast(T("Nusxalandi ✅","Copied ✅")); }catch(e){} });
+  };
+  if(q("pushSave")) q("pushSave").onclick=function(){
+    var u=String(q("pushUrl").value||"").trim().replace(/\/+$/,""), c=PUSH.cfg||{}, b=this;
+    if(!/^https:\/\/[^\s/]+/.test(u)){ pushMsg(T("Manzil https:// bilan boshlanishi kerak","The address must start with https://"),1); return; }
+    if(!c.pub){ pushMsg(T("Avval 1-qadam: kalit va kodni yarating","First do step 1: generate the key and code"),1); return; }
+    b.disabled=true; pushMsg(T("Tekshirilmoqda…","Checking…"));
+    window.fetch(u,{cache:"no-store"}).then(function(r){ return r.json(); }).then(function(j){
+      if(!j||!j.ok) throw 0;
+      if(j.pub!==c.pub) throw 2;
+      return fetch(BASE+"/meta/push/url.json",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(u)}).then(function(r){
+        if(!r.ok) throw 1;
+        c.url=u; PUSH.cfg=c; PUSH.code=""; PUSH.msg=T("✅ Ulandi! Endi «🧪 Sinov» bilan tekshirib ko'ring.","✅ Connected! Now try «🧪 Test».");
+        pushTcRender();
+      });
+    }).catch(function(e){ b.disabled=false;
+      pushMsg(e===2?T("Worker'dagi kalit bu yerdagisiga mos emas — oxirgi yaratilgan kodni qo'yganingizni tekshiring","The Worker's key does not match — make sure you pasted the latest generated code")
+        :e===1?T("Bazaga saqlanmadi","Not saved to the database")
+        :T("Worker javob bermadi — manzil va «Deploy» qilinganini tekshiring","The Worker did not answer — check the address and that you pressed Deploy"),1); });
+  };
+  if(q("pushAuto")) q("pushAuto").onchange=function(){ try{ localStorage.setItem("terdu_push_auto",this.checked?"1":"0"); }catch(e){} };
+  if(q("pushTest")) q("pushTest").onclick=function(){
+    var b=this; b.disabled=true; pushMsg(T("Yuborilmoqda…","Sending…"));
+    pushSend(T("🧪 Sinov bildirishnomasi","🧪 Test notification"),T("Hammasi ishlayapti! E'lonlar shu tarzda keladi.","Everything works! Announcements will arrive like this."),S?[S.id]:[],function(j){
+      b.disabled=false;
+      if(!j){ pushMsg(T("Yuborilmadi — Worker yoki Google kirishni tekshiring","Not sent — check the Worker or the Google sign-in"),1); return; }
+      pushMsg(j.sent?T("✅ Yuborildi: ","✅ Sent: ")+j.sent+" "+T("qurilma","device(s)")
+        :T("Bu qurilmangiz hali obuna emas — talaba sifatida saytni ilovada ochib «🔔 Yoqish» ni bosing","Your device is not subscribed yet — open the site in the app as a student and press «🔔 Turn on»"),!j.sent);
+    });
+  };
+  if(q("pushReset")) q("pushReset").onclick=function(){
+    if(!confirm(T("Bildirishnoma sozlamasi o'chirilsinmi? Yangi kalit yaratasiz; talabalar saytni keyingi ochganda o'zi qayta obuna bo'ladi.",
+      "Reset the notification setup? You will create a new key; students re-subscribe automatically next time they open the site."))) return;
+    fetch(BASE+"/meta/push/url.json",{method:"DELETE"}).then(function(r){ if(r.ok){ PUSH.cfg.url=null; PUSH.msg=""; pushTcRender(); } else pushMsg(T("Bajarilmadi","Failed"),1); });
+  };
+}
 /* ---------- so'rovnoma: ovoz berish va natijalar ---------- */
 function pollVote(at,idx,cb){
   if(!cloudOn||!BASE||!S){ cb&&cb(false); return; }
@@ -4384,7 +4577,7 @@ function start(){
   accApply();                                /* guruhi uchun yopiq mavzuda 1 haftalik muddat boshlanmaydi */
   var tf=topicObj(); if(!tf.f){ if(!LOCKED){ tf.f=Date.now(); lset(LS.prog,P); } } else if(expiredT(tf)) setTimeout(expToast,1500);
   chip(); askBar(); tbWatch(); dragWatch(); watchStatus(); timeStart(); if(cloudOn&&S) cloudSave();
-  khBanner(); khMine(); if(S&&!S.email) setTimeout(emailAsk,900);
+  khBanner(); khMine(); pushInit(); if(S&&!S.email) setTimeout(emailAsk,900);
   accLoad(accApply);                         /* bazadagi eng so'nggi holat */
   avLoad();                                  /* talabaning avatari */
   if(typeof idx!=="undefined") slideSeen(idx);
