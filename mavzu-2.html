@@ -879,6 +879,10 @@ html.kh-gated,html.kh-gated body{overflow:hidden!important}
 .rt-fixtp{display:flex;flex-wrap:wrap;gap:6px}
 .rt-fixtp label{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid var(--line);border-radius:10px;background:var(--panel);font-size:13px;cursor:pointer}
 .rt-fixtp label.on{border-color:var(--red,#e11d48);background:rgba(225,29,72,.08)}
+.rt-acc-exp{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 0 10px;padding:9px 12px;border-radius:12px;border:1px solid var(--line);background:var(--panel2);font-size:13.5px}
+.rt-acc-exp>span:first-child{flex:1 1 260px}
+.rt-acc-exp.off{border-color:var(--green,#16a34a);background:rgba(22,163,74,.08)}
+.rt-acc-expall{display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-size:12.5px}
 /* ================== MUSIQA PLEYERI ================== */
 #mzTab{position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:70;
   background:linear-gradient(135deg,var(--violet),var(--pink));color:#fff;border:none;
@@ -2618,6 +2622,7 @@ var ACTIVE_SEC=3600;
 /* har bir mavzu: taqdimot birinchi marta ochilgan paytdan (f) 7 kun o'tgach ball berilmaydi */
 var BALL_WINDOW=7*86400000, FSYNC=false, expShown=false;
 function expiredT(t){ if(t&&t.fx&&Date.now()<t.fx) return false;   /* o'qituvchi vaqtincha ochgan */
+  if(noExp(CFG.topic)) return false;                                  /* o'qituvchi bu mavzuda 7 kunlik muddatni o'chirgan */
   return !!(t&&t.f&&Date.now()-t.f>BALL_WINDOW); }
 function expToast(){ if(expShown) return; expShown=true;
   toast(T("⏳ Bu mavzu bo'yicha ball olish muddati (birinchi kirgandan 7 kun) tugagan — endi ball berilmaydi.","⏳ The 7-day scoring window for this topic has ended — no more points are given.")); }
@@ -3377,7 +3382,8 @@ function renderMe(){
       "📝 <b>50 ball</b> — testdagi to\'g\'ri javoblar ulushi. Test faqat dastlabki 2 urinishda ball beradi.<br>"+
       "✍️ O\'qituvchi amaliy darsda qo\'ygan baho umumiy reytingga qo\'shimcha ball beradi (o\'rtacha bahoga kirmaydi): har bir baho × "+MAN_PTS+" ball (masalan, 5 = +"+(5*MAN_PTS)+" ball).<br>"+
       "⚡ Kundalik <b>jonli testda</b> 1–3-o\'rin (20 kishidan ko\'p bo\'lsa 1–5-o\'rin) egallasangiz, umumiy reytingga +5, +4, +3 (+2, +1) ball qo\'shiladi.<br>"+
-      "⏳ Ball faqat taqdimot <b>birinchi marta ochilgan kundan boshlab 7 kun</b> davomida beriladi. 7 kun o\'tgach bu mavzu bo\'yicha yangi ball qo\'shilmaydi (olingan ballar saqlanib qoladi).<br>"+
+      (noExp(CFG.topic)?"♾ Bu mavzuda o\'qituvchi ball muddatini o\'chirgan — ball istalgan vaqt beriladi.<br>"
+        :"⏳ Ball faqat taqdimot <b>birinchi marta ochilgan kundan boshlab 7 kun</b> davomida beriladi. 7 kun o\'tgach bu mavzu bo\'yicha yangi ball qo\'shilmaydi (olingan ballar saqlanib qoladi).<br>")+
       "🔒 Har bir slayd va savol <b>faqat bir marta</b> hisoblanadi: nechta brauzer yoki telefondan kirsangiz ham ballaringiz bitta hisobda jamlanadi, qayta berilmaydi va yo\'qolmaydi.",
       "🕐 <b>20 points</b> — active reading time: <b>1 hour</b> or more = the full 20, less gives a proportional share (30 minutes = 10). Time counts only while the page is on screen and you have done something in the last 5 minutes.<br>"+
       "📑 <b>30 points</b> — the share of slides viewed (all slides = 30).<br>"+
@@ -5021,7 +5027,9 @@ function avEditor(){
    Yozuv yo'q bo'lsa config'dagi "lim" ishlatiladi (yo'q bo'lsa — hammaga ochiq). O'qituvchi uchun hammasi ochiq. */
 var ACC=null, LOCKED=false, accIv=null, ACC_SEL=null, ACC_FRESH=false, ACC_Q="";
 try{ ACC=JSON.parse(localStorage.getItem("terdu_acc")||"null"); }catch(e){}
-function accRec(x){ var a=ACC&&ACC[x.id]; return a?{lim:!!a.lim,g:a.g||{},s:a.s||{}}:{lim:!!x.lim,g:{},s:{}}; }
+function accRec(x){ var a=ACC&&ACC[x.id]; return a?{lim:!!a.lim,g:a.g||{},s:a.s||{},nx:!!a.nx}:{lim:!!x.lim,g:{},s:{},nx:false}; }
+/* meta/access/<mavzu>/nx = true — bu mavzuda 7 kunlik ball muddati o'chirilgan (ball doim beriladi) */
+function noExp(tid){ var a=ACC&&tid&&ACC[tid]; return !!(a&&a.nx); }
 function tcHere(){ if(isTc) return true; try{ return localStorage.getItem(TCG)==="1"; }catch(e){ return false; } }
 function topicOpen(x){
   if(!x||!x.open) return false;
@@ -5117,8 +5125,14 @@ function accTcRender(okl){
   var on=gl.filter(function(g){ return a.g[g]; });
   box.innerHTML='<div class="rt-sec rt-acc"><h4>📂 '+T("Mavzuni guruhlarga ochish","Open a topic for groups")+'</h4>'+
     '<div class="rt-acc-tops">'+tops.map(function(x){ var i=(CFG.topics||[]).indexOf(x)+1, r=accRec(x);
-      return '<button type="button" class="rt-gchip'+(x.id===ACC_SEL?" on":"")+'" data-t="'+x.id+'">'+(r.lim?"👥":"🌐")+' '+T(i+"-mavzu","Topic "+i)+'</button>'; }).join("")+'</div>'+
+      return '<button type="button" class="rt-gchip'+(x.id===ACC_SEL?" on":"")+'" data-t="'+x.id+'">'+(r.lim?"👥":"🌐")+' '+T(i+"-mavzu","Topic "+i)+(r.nx?" ♾":"")+'</button>'; }).join("")+'</div>'+
     '<p class="rt-note" style="margin:8px 0">'+esc(t.title)+'</p>'+
+    '<div class="rt-acc-exp'+(a.nx?" off":"")+'"><span>'+(a.nx
+        ?'♾ <b>'+T("Ball muddati o'chirilgan","Scoring time limit is off")+'</b> — '+T("bu mavzuda ball istalgan vaqt beriladi.","points are given at any time in this topic.")
+        :'⏳ <b>'+T("7 kunlik ball muddati yoqilgan","7-day scoring limit is on")+'</b> — '+T("talaba mavzuni birinchi ochganidan 7 kun o'tgach ball berilmaydi.","no points 7 days after the student first opens the topic."))+'</span>'+
+      '<button type="button" class="btn sm" id="accExp">'+(a.nx?"⏳ "+T("Muddatni yoqish","Turn the limit on"):"♾ "+T("Muddatni o'chirish","Turn the limit off"))+'</button>'+
+      '<span class="rt-acc-expall">'+T("Hamma mavzularda:","All topics:")+' <button type="button" class="btn sm" id="accExpOff">♾ '+T("o'chirish","off")+'</button>'+
+      '<button type="button" class="btn sm" id="accExpOn">⏳ '+T("yoqish","on")+'</button></span></div>'+
     '<div class="rt-acc-mode"><label><input type="radio" name="accMode" value="all"'+(a.lim?"":" checked")+'> 🌐 '+T("Hammaga ochiq","Open for everyone")+'</label>'+
     '<label><input type="radio" name="accMode" value="lim"'+(a.lim?" checked":"")+'> 👥 '+T("Faqat belgilangan guruhlarga","Only for the selected groups")+'</label></div>'+
     (a.lim?'<div class="rt-acc-gs">'+gl.map(function(g){
@@ -5133,6 +5147,18 @@ function accTcRender(okl){
       '<div class="rt-acc-gs" id="accSon"></div></div>':'')+
     '</div>';
   box.querySelectorAll("[data-t]").forEach(function(b){ b.onclick=function(){ ACC_SEL=b.dataset.t; accTcRender(okl); }; });
+  /* 7 kunlik muddat: lim ham birga yoziladi — aks holda yangi yozuv mavzuni hammaga ochib yuborishi mumkin edi */
+  document.getElementById("accExp").onclick=function(){ this.disabled=true; accSave(t.id,{nx:a.nx?null:true,lim:a.lim},okl); };
+  function expAll(on){
+    if(!confirm(on?T("Hamma mavzularda 7 kunlik ball muddati o'chirilsinmi? (ball doim beriladi)","Turn the 7-day limit off in all topics? (points always given)")
+                  :T("Hamma mavzularda 7 kunlik ball muddati yoqilsinmi?","Turn the 7-day limit on in all topics?"))) return;
+    var o={}; tops.forEach(function(x){ var r=accRec(x); o[x.id+"/nx"]=on?true:null; o[x.id+"/lim"]=r.lim; });
+    fetch(BASE+"/meta/access.json",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify(o)})
+      .then(function(r){ if(!r.ok) throw 0; accLoad(function(){ accTcRender(okl); toast("✅ "+T("Saqlandi","Saved")); }); })
+      .catch(function(){ toast(T("Saqlanmadi — qayta kiring","Not saved — sign in again")); });
+  }
+  document.getElementById("accExpOff").onclick=function(){ expAll(true); };
+  document.getElementById("accExpOn").onclick=function(){ expAll(false); };
   box.querySelectorAll('input[name="accMode"]').forEach(function(r){ r.onchange=function(){
     accSave(t.id,{lim:r.value==="lim"},okl); }; });
   box.querySelectorAll(".rt-accg").forEach(function(b){ b.onclick=function(){
