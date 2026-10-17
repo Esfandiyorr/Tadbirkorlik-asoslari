@@ -863,6 +863,7 @@ html.kh-gated,html.kh-gated body{overflow:hidden!important}
 .rt-push input[type=url]{flex:1;min-width:220px;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--ink);font:inherit}
 .rt-fix label{font-size:13.5px;font-weight:700;display:inline-flex;align-items:center;gap:6px;margin-right:6px}
 .rt-fix select{padding:7px 10px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--ink);font:inherit;font-weight:600;max-width:100%}
+.rt-fixlk{margin:10px 0;padding:10px 12px;border-radius:12px;border:1px dashed var(--red,#e11d48);background:var(--panel2)}
 /* ================== MUSIQA PLEYERI ================== */
 #mzTab{position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:70;
   background:linear-gradient(135deg,var(--violet),var(--pink));color:#fff;border:none;
@@ -3385,7 +3386,56 @@ function tcDel(id,nm,after){
    o'tib qolishi mumkin edi. Bu yerda o'qituvchi «kimga» va «kimdan» o'tganini tanlaydi: har mavzu bo'yicha ikkala yozuvda
    bir xil bo'lgan slayd/test belgilari, «kimdan»nikiga teng vaqt yozuvlari va kirish sanasi olib tashlanadi.
    Mavzuga rs (vaqt) qo'yiladi — talabaning o'z qurilmalaridagi eski nusxa ham shu bilan almashadi. */
-var FIX={v:"",s:"",rows:null,busy:false,msg:""};
+var FIX={v:"",s:"",rows:null,busy:false,msg:"",lk:null};
+/* talabaga ochilmagan mavzular (mavzu umuman yopiq yoki faqat boshqa guruh/talabalarga ochilgan) */
+function topicOpenFor(x,st){
+  if(!x||!x.open) return false;
+  var a=accRec(x); if(!a.lim) return true;
+  return !!(st&&((st.group&&a.g[gkey(st.group)])||(st.id&&a.s[st.id])));
+}
+/* tanlangan talabaning ochilmagan mavzulardagi ballari (u ko'ra olmaydigan mavzularda ball bo'lsa — bu boshqa birovniki) */
+function fixLocked(list){
+  FIX.lk=null; if(!FIX.v) return;
+  var vid=FIX.v;
+  accLoad(function(){
+    fetch(BASE+"/students/"+vid+".json").then(function(r){ return r.ok?r.json():null; }).catch(function(){ return null; }).then(function(V){
+      if(!V||FIX.v!==vid) return;
+      V.id=vid;
+      var pr=V.prog||{}, sm=V.topics||{}, ids={}, out=[];
+      for(var k in pr) ids[k]=1; for(k in sm) ids[k]=1;
+      Object.keys(ids).sort(function(a,b){ return (+a.slice(1)||0)-(+b.slice(1)||0); }).forEach(function(k){
+        var t=(CFG.topics||[]).filter(function(x){ return x.id===k; })[0];
+        if(!t||topicOpenFor(t,V)) return;
+        var y=topicFromCloud(pr[k],sm[k]), m=markOf(k,y), pts=Math.round(m.z*1000)/10;
+        if(pts>0||m.b>0) out.push({k:k,p:pts});
+      });
+      FIX.lk=out; fixTcRender(list);
+    });
+  });
+}
+function fixLockedPatch(L){
+  var o={}, now=Date.now();
+  L.forEach(function(x){ o["prog/"+x.k]={rs:now}; o["topics/"+x.k]=null; });     /* rs — talabaning qurilmalaridagi nusxa ham tozalanadi */
+  return fetch(BASE+"/students/"+FIX.v+".json",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify(o)});
+}
+function fixLockedApply(list){
+  var L=FIX.lk||[]; if(!L.length) return;
+  var vn=(list.filter(function(x){ return x.id===FIX.v; })[0]||{}), names=L.map(function(x){ return x.k.toUpperCase(); }).join(", ");
+  if(!confirm(T(vn.name+" "+vn.surname+": "+names+" mavzulardagi barcha ballar o'chirilsinmi? Bu mavzular unga ochilmagan.",
+    "Delete all points of "+vn.name+" "+vn.surname+" in "+names+"? These topics are not open to them."))) return;
+  fixLockedPatch(L).then(function(r){
+    if(!r.ok) throw 0;
+    FIX.msg=T("✅ O'chirildi: ","✅ Deleted: ")+names; toast(FIX.msg);
+    var lk=L.map(function(x){ return x.k; }), vid=FIX.v;
+    fixLocked(list);
+    /* talaba shu payt saytda bo'lsa, ochiq sahifasi eski nusxani yozib yuborishi mumkin — 2 daqiqadan keyin yana tekshiramiz */
+    setTimeout(function(){
+      if(!document.getElementById("fixTc")||FIX.v!==vid) return;
+      fixLocked(list);
+      setTimeout(function(){ var again=(FIX.lk||[]).filter(function(x){ return lk.indexOf(x.k)>=0; }); if(again.length&&FIX.v===vid) fixLockedPatch(again).then(function(){ fixLocked(list); }).catch(function(){}); },5000);
+    },120000);
+  }).catch(function(){ FIX.msg=T("Saqlanmadi — Google bilan kirganingizni tekshiring","Not saved — check that you are signed in with Google"); fixTcRender(list); });
+}
 function fixTopic(k,V,Sx){
   V=V||{}; Sx=Sx||{};
   var r={k:k,sl:[],ac:[],nw:[],tm:[],uq:0,uqAc:0,other:0,f:false,qa:false};
@@ -3411,6 +3461,10 @@ function fixTcHtml(list){
     '<div class="rt-khrow"><label>'+T("Bali buzilgan","Wrong points")+' <select id="fixV">'+opts(FIX.v)+'</select></label>'+
     '<label>'+T("Kimniki o'tgan","Passed from")+' <select id="fixS">'+opts(FIX.s)+'</select></label>'+
     '<button type="button" class="btn sm" id="fixGo">🔎 '+T("Solishtirish","Compare")+'</button></div>';
+  if(FIX.v&&FIX.lk) h+=FIX.lk.length?('<div class="rt-fixlk"><p style="margin:0 0 6px">🔒 <b>'+T("Bu talabaga ochilmagan mavzularda ball bor:","Points in topics not open to this student:")+'</b> '+
+      FIX.lk.map(function(x){ return x.k.toUpperCase()+' ('+x.p+')'; }).join(", ")+'</p>'+
+      '<button type="button" class="btn warn sm" id="fixLk">🗑 '+T("Ochilmagan mavzulardagi ballarni o'chirish","Delete points in topics not open")+'</button></div>')
+    :'<p class="rt-note">✅ '+T("Bu talabaning ochilmagan mavzularda bali yo'q.","No points in topics that are not open to this student.")+'</p>';
   if(FIX.rows){
     var rows=FIX.rows.filter(function(r){ return r.n>0; });
     var vn=(list.filter(function(x){ return x.id===FIX.v; })[0]||{}), sn=(list.filter(function(x){ return x.id===FIX.s; })[0]||{});
@@ -3432,11 +3486,12 @@ function fixTcRender(list){
   list=(list||[]).slice().sort(function(a,b){ return String(a.surname+a.name).localeCompare(String(b.surname+b.name)); });
   box.innerHTML=fixTcHtml(list);
   var q=function(id){ return document.getElementById(id); };
-  q("fixV").onchange=function(){ FIX.v=this.value; FIX.rows=null; FIX.msg=""; fixTcRender(list); };
+  q("fixV").onchange=function(){ FIX.v=this.value; FIX.rows=null; FIX.msg=""; FIX.lk=null; fixTcRender(list); fixLocked(list); };
   q("fixS").onchange=function(){ FIX.s=this.value; FIX.rows=null; FIX.msg=""; fixTcRender(list); };
   q("fixGo").onclick=function(){ fixCompare(list); };
   [].forEach.call(box.querySelectorAll(".fix-on"),function(c){ c.onchange=function(){ FIX.rows[+c.dataset.i].on=c.checked; }; });
   if(q("fixApply")) q("fixApply").onclick=function(){ fixApply(list,false); };
+  if(q("fixLk")) q("fixLk").onclick=function(){ fixLockedApply(list); };
 }
 function fixLoad(cb){
   Promise.all([FIX.v,FIX.s].map(function(id){ return fetch(BASE+"/students/"+id+".json").then(function(r){ return r.ok?r.json():null; }).catch(function(){ return null; }); }))

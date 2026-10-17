@@ -475,3 +475,4 @@ html.kh-gated,html.kh-gated body{overflow:hidden!important}
 .rt-push input[type=url]{flex:1;min-width:220px;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--ink);font:inherit}
 .rt-fix label{font-size:13.5px;font-weight:700;display:inline-flex;align-items:center;gap:6px;margin-right:6px}
 .rt-fix select{padding:7px 10px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--ink);font:inherit;font-weight:600;max-width:100%}
+.rt-fixlk{margin:10px 0;padding:10px 12px;border-radius:12px;border:1px dashed var(--red,#e11d48);background:var(--panel2)}
