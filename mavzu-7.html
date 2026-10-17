@@ -5613,7 +5613,16 @@ function connect(){
 tcRestore();
 if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",connect); else connect();
 
-return {award:award, slideSeen:slideSeen, open:openOv, student:function(){return S;}, points:function(){return P;},
+/* sahifa uchun: talabaning o'z yozuvidagi kichik ma'lumotni o'qish (val berilmasa) yoki yozish —
+   masalan, krossvord urinishlari students/<id>/xw/<mavzu> da akkauntga bog'lanib saqlanadi. cb(qiymat, muvaffaqiyat) */
+function myKv(sub,val,cb){
+  cb=cb||function(){};
+  if(!cloudOn||!BASE||!S||!approved()){ cb(null,false); return; }
+  var u=BASE+"/students/"+S.id+"/"+sub+".json";
+  (val===undefined?fetch(u):fetch(u,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(val)}))
+    .then(function(r){ if(!r.ok) throw 0; return r.json(); }).then(function(v){ cb(v,true); },function(){ cb(null,false); });
+}
+return {award:award, slideSeen:slideSeen, open:openOv, student:function(){return S;}, points:function(){return P;}, kv:myKv,
         ok:approved, teacher:function(){return isTc;}, cloud:function(){return {on:cloudOn,base:BASE};},
         t:T, esc:esc, toast:toast, save:save};
 })();

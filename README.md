@@ -46,7 +46,12 @@ xulosa, mustaqil ish va foydali havolalar · 🎬 **tadbirkorlik haqidagi eng ma
 Kataklarga to'g'ridan-to'g'ri yozish, so'z yo'nalishini bosib almashtirish, `Tekshirish` (to'g'ri/xato kataklarni bo'yaydi)
 va `Tozalash` tugmalari bor. Javoblar sahifa kodida kodlangan holda turadi, ularni ko'rsatadigan tugma yo'q.
 **2 ta urinish**, har biriga 25 daqiqa (`⏹ Yakunlash` bilan oldinroq tugatish mumkin); 2-urinish toza kataklar bilan
-boshlanadi, har so'z uchun ball bir marta beriladi. O'qituvchining 🔓 tugmasi ikkala urinishdan keyin yana bittasini beradi. Kiritilgan harflar brauzer xotirasida saqlanadi,
+boshlanadi, har so'z uchun ball bir marta beriladi. O'qituvchining 🔓 tugmasi ikkala urinishdan keyin yana bittasini beradi.
+Urinishlar **akkauntda** saqlanadi (`students/<id>/xw/m4 = {n, s, e, f, d}`): boshqa brauzer/telefondan kirish yoki
+brauzer xotirasini tozalash urinishlarni qaytadan boshlamaydi; urinish akkauntga yozilmasa (internet yo'q) boshlanmaydi.
+Urinish davomida va 1-urinishdan keyin qaysi so'z to'g'riligi ko'rsatilmaydi — faqat topilganlar soni; ball urinish
+tugaganda beriladi. To'g'ri/xato kataklar va `Tekshirish` faqat oxirgi urinishdan keyin ochiladi. Kataklardagi harflar
+yozilgan qurilmada qoladi. Kiritilgan harflar brauzer xotirasida saqlanadi,
 til almashtirilganda ham yo'qolmaydi. Savollar ikki tilda.
 
 ## M5 — Soliqlar va hujjatlar (18 slayd)
