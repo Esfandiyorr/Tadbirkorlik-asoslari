@@ -479,3 +479,7 @@ html.kh-gated,html.kh-gated body{overflow:hidden!important}
 .rt-fixtp{display:flex;flex-wrap:wrap;gap:6px}
 .rt-fixtp label{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid var(--line);border-radius:10px;background:var(--panel);font-size:13px;cursor:pointer}
 .rt-fixtp label.on{border-color:var(--red,#e11d48);background:rgba(225,29,72,.08)}
+.rt-acc-exp{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 0 10px;padding:9px 12px;border-radius:12px;border:1px solid var(--line);background:var(--panel2);font-size:13.5px}
+.rt-acc-exp>span:first-child{flex:1 1 260px}
+.rt-acc-exp.off{border-color:var(--green,#16a34a);background:rgba(22,163,74,.08)}
+.rt-acc-expall{display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-size:12.5px}
