@@ -298,137 +298,16 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 /* masala matnini belgilab nusxalab bo'lmaydi (javob maydoniga yozish odatdagidek) */
 #taskWrap .task{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 #taskWrap .task input{-webkit-user-select:text;user-select:text}
-.sol code{background:var(--chip);padding:1px 6px;border-radius:5px;font-size:13.5px}
-.formula{background:linear-gradient(135deg,var(--violet),var(--blue));color:#fff;border-radius:16px;padding:16px 20px;
-  text-align:center;font-size:clamp(16px,2.4vw,24px);font-weight:800;letter-spacing:.4px;box-shadow:var(--shadow)}
-.formula small{display:block;margin-top:6px;font-size:13px;font-weight:600;opacity:.92;letter-spacing:0}
-.lnk{color:var(--blue);font-weight:600;text-decoration:none;border-bottom:1px dashed currentColor}
-.lnk:hover{color:var(--violet)}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/* skrinshotga qarshi: talaba ismi yozilgan suv belgisi, oynadan chiqilganda va PrtSc bosilganda masalalar xiralashadi */
+#taskWrap .task{position:relative;overflow:hidden}
+.ms-wm{position:absolute;inset:-40%;pointer-events:none;display:flex;flex-wrap:wrap;align-content:flex-start;gap:26px 54px;
+  transform:rotate(-24deg);opacity:.11;font-weight:800;font-size:15px;color:var(--ink);white-space:nowrap;z-index:2;line-height:1.2}
+#taskWrap .task>*:not(.ms-wm){position:relative;z-index:1}
+#taskWrap .task .ans{z-index:3}
+.ms-shield{display:none;position:sticky;top:30%;z-index:6;margin:0 auto 14px;max-width:560px;text-align:center;padding:16px 18px;border-radius:16px;
+  background:var(--panel);border:2px solid var(--err);box-shadow:var(--shadow);font-weight:800;line-height:1.5}
+.slide.ms-run.ms-hid #taskWrap .task{filter:blur(9px);pointer-events:none}
+.slide.ms-run.ms-hid .ms-shield{display:block}
 /* RT:BEGIN */
 /* ================== REYTING TIZIMI ================== */
 .rt-chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel);
@@ -1052,6 +931,138 @@ html.kh-gated,html.kh-gated body{overflow:hidden!important}
   .ch-panel.show{transform:none}
 }
 /* RT:END */
+@media print{#taskWrap,.ms-shield{display:none!important}}
+.sol code{background:var(--chip);padding:1px 6px;border-radius:5px;font-size:13.5px}
+.formula{background:linear-gradient(135deg,var(--violet),var(--blue));color:#fff;border-radius:16px;padding:16px 20px;
+  text-align:center;font-size:clamp(16px,2.4vw,24px);font-weight:800;letter-spacing:.4px;box-shadow:var(--shadow)}
+.formula small{display:block;margin-top:6px;font-size:13px;font-weight:600;opacity:.92;letter-spacing:0}
+.lnk{color:var(--blue);font-weight:600;text-decoration:none;border-bottom:1px dashed currentColor}
+.lnk:hover{color:var(--violet)}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 @media print{
   body{overflow:visible;background:#fff}
   .topbar,.navbar,.progress-wrap,.overlay,.hint{display:none!important}
@@ -1643,6 +1654,7 @@ html.kh-gated,html.kh-gated body{overflow:hidden!important}
       <div class="ms-note ms-runnote" data-ui="msNote">📓 Masalani qanday ishlaganingizni <b>amaliy daftaringizga</b> yozing — <b>o'qituvchi tekshiradi</b>.</div>
       <div class="ms-endmsg" id="msEndMsg"></div>
       <div class="ms-again" id="msAgainBox"><p id="msAgainNote"></p><button class="btn accent ms-go" id="msAgain" data-ui="msAgainBtn">🔁 Yangi urinish</button></div>
+      <div class="ms-shield" id="msShield"></div>
       <div id="taskWrap"></div>
       <div class="card" style="--c:var(--green);margin-top:18px;text-align:center">
         <h3 data-i="306">🎓 Rahmat! E'tiboringiz uchun tashakkur</h3>
@@ -7021,6 +7033,41 @@ function msCheck(i){
   msRender();
 }
 function renderTasks(){ msRender(); }
+/* suv belgisi: talabaning ismi, guruhi va sana — skrinshot tarqalsa, kimniki ekani ko'rinib turadi */
+function msWmText(){
+  var s=window.RT&&RT.student&&RT.student(), d=new Date(), dd=("0"+d.getDate()).slice(-2)+"."+("0"+(d.getMonth()+1)).slice(-2)+"."+d.getFullYear();
+  return ((s?(s.name+" "+s.surname+(s.group?" · "+s.group:"")):"TerDU")+" · "+dd).replace(/[<>&"]/g,"");
+}
+function msWm(){ var t=msWmText(), h=""; for(var i=0;i<60;i++) h+="<span>"+t+"</span>"; return '<div class="ms-wm" aria-hidden="true">'+h+'</div>'; }
+/* oynadan chiqilganda (boshqa ilova, boshqa oyna) va PrtSc bosilganda masalalar yashiriladi */
+(function(){
+  var sl=document.getElementById("taskWrap"); if(!sl) return; sl=sl.closest(".slide");
+  var hideT=null;
+  function hide(why,ms){
+    if(!msLive()) return;
+    var sh=document.getElementById("msShield");
+    if(sh) sh.textContent=why==="ps"?(lang==="en"?"📵 Screenshots are not allowed. The problems will come back in a moment.":"📵 Skrinshot olish mumkin emas. Masalalar birozdan keyin qaytadi.")
+      :(lang==="en"?"👁 The problems are hidden while you are away from this page. Come back to continue — the timer keeps running.":"👁 Sahifadan chiqqaningizda masalalar yashiriladi. Davom etish uchun sahifaga qayting — vaqt to'xtamaydi.");
+    sl.classList.add("ms-hid"); clearTimeout(hideT);
+    if(ms) hideT=setTimeout(function(){ if(document.hasFocus()&&!document.hidden) sl.classList.remove("ms-hid"); },ms);
+  }
+  function show(){ clearTimeout(hideT); hideT=setTimeout(function(){ sl.classList.remove("ms-hid"); },300); }
+  window.addEventListener("blur",function(){ hide("away"); });
+  window.addEventListener("focus",show);
+  document.addEventListener("visibilitychange",function(){ if(document.hidden) hide("away"); else if(document.hasFocus()) show(); });
+  document.addEventListener("keyup",function(e){
+    if(e.key==="PrintScreen"||e.keyCode===44){
+      hide("ps",2500);
+      try{ if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(" ").catch(function(){}); }catch(x){}
+    }
+  });
+  document.addEventListener("keydown",function(e){
+    if(!msLive()) return;
+    var k=String(e.key||"").toLowerCase();
+    if((e.ctrlKey||e.metaKey)&&(k==="p"||k==="s")){ e.preventDefault(); msToast(lang==="en"?"Printing and saving the page is not allowed during the problems":"Masalalar paytida sahifani chop etish va saqlash mumkin emas"); }
+    if(e.metaKey&&e.shiftKey&&(k==="3"||k==="4"||k==="5")) hide("ps",2500);           /* macOS skrinshot tugmalari */
+  });
+})();
 /* masala matnini nusxalash taqiqlangan: belgilash, Ctrl+C / Ctrl+X, sichqonchaning o'ng tugmasi va sudrab olish ishlamaydi.
    Javob maydoniga yozish va unga joylash (Ctrl+V) odatdagidek ishlaydi */
 (function(){
@@ -7061,7 +7108,7 @@ function msRender(){
       h+='<p class="fbk show no">❌ '+(c?(en?"Not solved. Your answer: ":"Yechilmadi. Javobingiz: ")+msN(+r.a):(en?"No answer was given.":"Javob berilmagan."))+'</p>';
     }
     if(m==="end") h+='<div class="sol show"><b>'+(en?"Correct answer: ":"To'g'ri javob: ")+msN(T.a(it.p))+' '+msSoM()+'</b><br>'+T.s(it.p)+'</div>';
-    d.innerHTML=h;
+    d.innerHTML=(m==="run"?msWm():"")+h;
     w.appendChild(d);
   });
   [].forEach.call(w.querySelectorAll("button[data-k]"),function(b){ b.onclick=function(){ msCheck(+b.dataset.k); }; });
