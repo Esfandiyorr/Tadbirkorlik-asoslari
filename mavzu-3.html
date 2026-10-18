@@ -880,6 +880,45 @@ html.kh-gated,html.kh-gated body{overflow:hidden!important}
 .rt-aud-t td{vertical-align:top;font-size:13px}
 .rt-aud-t tr.bad td{background:rgba(225,29,72,.07)}.rt-aud-t tr.warn td{background:rgba(245,158,11,.07)}
 .rt-aud-r{color:var(--red,#e11d48);font-weight:700;font-size:12.5px}.rt-aud-y{color:#b45309;font-weight:700;font-size:12.5px}
+/* 🏷 reytingdagi nik: ism dizayni (n0–n11) va katak ramkasi (b0–b11) */
+.rt-nn{font-weight:800}
+.rt-nn.n1,.rt-nn.n2,.rt-nn.n5,.rt-nn.n6,.rt-nn.n7,.rt-nn.n8,.rt-nn.n9{-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent}
+.rt-nn.n1{background-image:linear-gradient(90deg,#a16207,#facc15,#fef08a,#facc15,#a16207)}
+.rt-nn.n2{background-image:linear-gradient(90deg,#ef4444,#f59e0b,#eab308,#22c55e,#06b6d4,#6366f1,#ec4899,#ef4444);background-size:200% auto;animation:nnShift 4s linear infinite}
+.rt-nn.n3{color:#22d3ee;text-shadow:0 0 6px rgba(34,211,238,.9),0 0 14px rgba(8,145,178,.8)}
+.rt-nn.n4{color:#f472b6;text-shadow:0 0 6px rgba(244,114,182,.9),0 0 14px rgba(219,39,119,.8)}
+.rt-nn.n5{background-image:linear-gradient(90deg,#dc2626,#f97316,#facc15)}
+.rt-nn.n6{background-image:linear-gradient(90deg,#0369a1,#0ea5e9,#14b8a6)}
+.rt-nn.n7{background-image:linear-gradient(90deg,#047857,#10b981,#6ee7b7)}
+.rt-nn.n8{background-image:linear-gradient(90deg,#6d28d9,#a855f7,#db2777);font-style:italic}
+.rt-nn.n9{background-image:linear-gradient(90deg,#4b5563,#e5e7eb,#9ca3af,#f3f4f6,#6b7280)}
+.rt-nn.n10{color:#2563eb;text-shadow:1px 1px 0 #93c5fd,2px 2px 0 #1e40af,3px 3px 0 rgba(30,64,175,.35)}
+.rt-nn.n11{font-family:"Segoe Script","Brush Script MT","Comic Sans MS",cursive;font-size:1.12em;font-weight:700;color:#be185d}
+@keyframes nnShift{to{background-position:200% center}}
+.rt-nf{display:inline-flex;align-items:center;padding:2px 10px;border-radius:12px;vertical-align:middle;max-width:100%}
+.rt-nf.b0{padding:0}
+.rt-nf.b1{border:2px solid #eab308;box-shadow:0 0 8px rgba(234,179,8,.55);background:rgba(250,204,21,.08)}
+.rt-nf.b2{border:2px solid transparent;background:linear-gradient(var(--panel),var(--panel)) padding-box,linear-gradient(90deg,#ef4444,#f59e0b,#22c55e,#06b6d4,#8b5cf6,#ec4899,#ef4444) border-box;background-size:100% 100%,200% 100%;animation:nfShift 4s linear infinite}
+@keyframes nfShift{to{background-position:0 0,200% 0}}
+.rt-nf.b3{border:1.5px solid #22d3ee;box-shadow:0 0 10px rgba(34,211,238,.7),inset 0 0 6px rgba(34,211,238,.35)}
+.rt-nf.b4{border:2px dashed var(--violet,#7c3aed)}
+.rt-nf.b5{border:1px solid rgba(124,58,237,.45);background:repeating-linear-gradient(45deg,rgba(124,58,237,.14) 0 6px,transparent 6px 12px)}
+.rt-nf.b6{border:3px solid transparent;border-radius:10px;background:linear-gradient(var(--panel),var(--panel)) padding-box,repeating-linear-gradient(135deg,#e11d48 0 6px,#f59e0b 6px 12px,#16a34a 12px 18px,#2563eb 18px 24px,#7c3aed 24px 30px) border-box}
+.rt-nf.b7{border:1px solid #facc15;background:radial-gradient(circle,rgba(250,204,21,.6) 1px,transparent 1.6px) 0 0/10px 10px,var(--panel2)}
+.rt-nf.b8{border:1px solid rgba(125,211,252,.9);background:linear-gradient(135deg,rgba(186,230,253,.45),rgba(255,255,255,.08));box-shadow:inset 0 1px 0 rgba(255,255,255,.6)}
+.rt-nf.b9{border:2px solid transparent;background:linear-gradient(var(--panel),var(--panel)) padding-box,linear-gradient(90deg,#dc2626,#f97316,#facc15) border-box;box-shadow:0 0 10px rgba(249,115,22,.45)}
+.rt-nf.b10{border:4px double var(--blue,#2563eb)}
+.rt-nf.b11{border:1px solid rgba(236,72,153,.55);border-radius:999px;background:radial-gradient(circle at 30% 40%,rgba(236,72,153,.28) 0 3px,transparent 4px) 0 0/16px 16px,radial-gradient(circle at 75% 70%,rgba(34,197,94,.28) 0 2.5px,transparent 3.5px) 0 0/16px 16px}
+.rt-nk-sub{font-size:12px;color:var(--muted);font-weight:600}
+.rt-nkbox{margin:0 0 14px;padding:12px 14px;border:1px solid var(--line);border-radius:16px;background:var(--panel2)}
+.rt-nkhead{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.rt-nkhead .btn{margin-left:auto}
+.rt-nked h5{margin:14px 0 6px;font-size:14px}
+.rt-nked input{flex:1;min-width:180px;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--ink);font:inherit}
+.rt-nsg{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.rt-nso{display:flex;flex-direction:column;align-items:center;gap:5px;padding:10px 6px;border:1.5px solid var(--line);border-radius:12px;background:var(--panel);cursor:pointer;font:inherit;color:var(--ink);overflow:hidden}
+.rt-nso.on{border-color:var(--green,#16a34a);box-shadow:0 0 0 2px rgba(22,163,74,.25)}
+.rt-nso small{font-size:11.5px;color:var(--muted);font-weight:700}
+.rt-nkall{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}.rt-nkall .nk-del{border:0;background:none;color:var(--red,#e11d48);cursor:pointer;font-weight:900}
 /* ================== MUSIQA PLEYERI ================== */
 #mzTab{position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:70;
   background:linear-gradient(135deg,var(--violet),var(--pink));color:#fff;border:none;
@@ -3007,6 +3046,111 @@ function ratingHidden(x){
   var n=nk(x&&x.name), s=nk(x&&x.surname);
   return (CFG.hideRating||[]).some(function(h){ return nk(h.name)===n&&nk(h.surname)===s; });
 }
+/* ---------- 🏷 reytingdagi nik va ko'rinish ----------
+   Nik: talaba students/<id>/nkReq = {n, at} ga so'rov yozadi → o'qituvchi tasdiqlasa meta/nick/<id> = nik
+   (meta ga faqat o'qituvchi yoza oladi). Reytingda o'qituvchidan boshqa hamma faqat nikni ko'radi; niki hali
+   tasdiqlanmaganlar o'rnida avtomatik taxallus ("🦊 Tulki-47") chiqadi. Ko'rinish: students/<id>/ns = {f, b} —
+   faqat tayyor namunalardan (ism dizayni va katak ramkasi). */
+var NICK={}, NICK_AT=0, NS_ED=false;
+var NS_F=[["n0","Oddiy","Plain"],["n1","Oltin","Gold"],["n2","Kamalak","Rainbow"],["n3","Neon ko'k","Neon blue"],["n4","Neon pushti","Neon pink"],["n5","Olov","Fire"],
+  ["n6","Okean","Ocean"],["n7","Zumrad","Emerald"],["n8","Shohona","Royal"],["n9","Kumush","Silver"],["n10","3D","3D"],["n11","Yozma","Script"]];
+var NS_B=[["b0","Ramkasiz","No frame"],["b1","Oltin ramka","Gold frame"],["b2","Kamalak","Rainbow"],["b3","Neon","Neon"],["b4","Nuqtali","Dashed"],["b5","Chiziqli naqsh","Striped"],
+  ["b6","Atlas naqshi","Atlas pattern"],["b7","Yulduzli","Starry"],["b8","Muz","Ice"],["b9","Olovli","Fiery"],["b10","Qo'sh ramka","Double"],["b11","Gulli","Floral"]];
+var NK_ANI=["🦊 Tulki","🦅 Burgut","🦁 Sher","🐯 Yo'lbars","🐺 Bo'ri","🐻 Ayiq","🐬 Delfin","🦉 Boyqush","🐆 Qoplon","🦌 Kiyik","🐼 Panda","🐧 Pingvin","🐢 Toshbaqa","🐝 Ari","🦜 To'tiqush","🐎 Tulpor"];
+function nkAlias(id){ var h=parseInt(hash32(String(id||"x"),2166136261),16)>>>0; return NK_ANI[h%NK_ANI.length]+"-"+(10+(Math.floor(h/97)%90)); }
+function nkClean(v){ return String(v||"").replace(/[<>&"\u0000-\u001f]/g,"").replace(/\s+/g," ").trim().slice(0,20); }
+function nkOf(x){ var v=NICK&&x&&NICK[x.id]; return typeof v==="string"&&v?v:""; }
+function nsOk(v,L){ return L.some(function(z){ return z[0]===v; })?v:""; }
+function nsOf(x){ var n=(x&&x.ns)||{}; return {f:nsOk(n.f,NS_F)||"n0",b:nsOk(n.b,NS_B)||"b0"}; }
+function nkLoad(cb,force){
+  if(!cloudOn||!BASE){ cb(); return; }
+  if(!force&&Date.now()-NICK_AT<60000){ cb(); return; }
+  window.fetch(BASE+"/meta/nick.json").then(function(r){ return r.ok?r.json():null; }).catch(function(){ return null; })
+    .then(function(v){ NICK=v||{}; NICK_AT=Date.now(); cb(); });
+}
+/* reyting katagidagi ism: o'qituvchi — haqiqiy ism (+ nik), boshqalar — nik yoki taxallus */
+function nkName(x,me){
+  var nk=nkOf(x), st=nsOf(x), txt=isTc?(x.name+" "+x.surname):(nk||nkAlias(x.id));
+  return '<span class="rt-nf '+st.b+'"><span class="rt-nn '+st.f+'">'+esc(txt)+'</span></span>'+
+    (isTc&&nk?' <span class="rt-nk-sub">🏷 '+esc(nk)+'</span>':'')+(me&&!isTc?' <span class="rt-nk-sub">('+T("siz","you")+')</span>':'');
+}
+function nkDisp(x){ return isTc?(x.name+" "+x.surname):(nkOf(x)||nkAlias(x.id)); }
+/* talaba: o'z niki va ko'rinishini sozlash (reyting oynasi tepasida) */
+function nkMeHtml(me){
+  if(!S||!approved()||!cloudOn) return "";
+  me=me||{id:S.id,name:S.name,surname:S.surname};
+  var st=nsOf(me), nk=nkOf(me), rq=me.nkReq||{}, pend=rq.n&&!rq.rej&&rq.n!==nk;
+  var shown=nk||nkAlias(S.id);
+  var h='<div class="rt-nkbox"><div class="rt-nkhead"><span class="rt-tav">'+avHtml(me,{size:34,name:shown})+'</span>'+
+    '<span class="rt-nf '+st.b+'"><span class="rt-nn '+st.f+'">'+esc(shown)+'</span></span>'+
+    '<span class="rt-nk-sub">'+T("Reytingda siz shunday ko'rinasiz","This is how you appear in the rating")+'</span>'+
+    '<button type="button" class="btn sm" id="nkEdit">🎨 '+(NS_ED?T("Yopish","Close"):T("Ko'rinishni sozlash","Customize"))+'</button></div>';
+  if(NS_ED){
+    h+='<div class="rt-nked"><h5>🏷 '+T("Nik (taxallus)","Nickname")+'</h5>'+
+      '<p class="rt-note" style="margin:0 0 6px">'+T("Reytingda boshqalar sizning ismingizni emas, nikingizni ko'radi. Nik o'qituvchi tasdiqlagach paydo bo'ladi.","Others see your nickname in the rating, not your name. It appears after the teacher approves it.")+'</p>'+
+      '<div class="rt-khrow"><input type="text" id="nkIn" maxlength="20" placeholder="'+T("Masalan: Biznes_Sher","For example: Business_Lion")+'" value="'+esc(pend?rq.n:(nk||""))+'">'+
+      '<button type="button" class="btn accent sm" id="nkSend">📨 '+T("Tasdiqqa yuborish","Send for approval")+'</button></div>'+
+      '<p class="rt-note" id="nkSt" style="margin:4px 0 0;font-weight:700">'+
+        (pend?"⏳ "+T("Tasdiq kutilmoqda: «","Waiting for approval: «")+esc(rq.n)+"»":(rq.rej&&rq.n?"❌ "+T("«"+esc(rq.n)+"» rad etildi — boshqa nik yozing","«"+esc(rq.n)+"» was rejected — try another"):(nk?"✅ "+T("Tasdiqlangan nik: «","Approved nickname: «")+esc(nk)+"»":"")))+'</p>'+
+      '<h5>✍️ '+T("Ism dizayni","Name style")+'</h5><div class="rt-nsg">'+NS_F.map(function(f){
+        return '<button type="button" class="rt-nso'+(f[0]===st.f?" on":"")+'" data-f="'+f[0]+'"><span class="rt-nn '+f[0]+'">'+esc(shown)+'</span><small>'+T(f[1],f[2])+'</small></button>'; }).join("")+'</div>'+
+      '<h5>🖼 '+T("Katak ramkasi","Frame")+'</h5><div class="rt-nsg">'+NS_B.map(function(b){
+        return '<button type="button" class="rt-nso'+(b[0]===st.b?" on":"")+'" data-b="'+b[0]+'"><span class="rt-nf '+b[0]+'"><span class="rt-nn '+st.f+'">'+esc(shown)+'</span></span><small>'+T(b[1],b[2])+'</small></button>'; }).join("")+'</div></div>';
+  }
+  return h+'</div>';
+}
+function nkMeBind(box,me,redraw){
+  var q=function(id){ return document.getElementById(id); };
+  if(q("nkEdit")) q("nkEdit").onclick=function(){ NS_ED=!NS_ED; redraw(); };
+  if(q("nkSend")) q("nkSend").onclick=function(){
+    var v=nkClean(q("nkIn").value);
+    if(v.length<3){ toast(T("Nik kamida 3 ta belgidan iborat bo'lsin","The nickname must be at least 3 characters")); return; }
+    this.disabled=true;
+    var o={n:v,at:Date.now()};
+    fetch(BASE+"/students/"+S.id+"/nkReq.json",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(o)})
+      .then(function(r){ if(!r.ok) throw 0; me.nkReq=o; toast(T("Yuborildi — o'qituvchi tasdiqlashini kuting ✅","Sent — wait for the teacher's approval ✅")); redraw(); })
+      .catch(function(){ toast(T("Yuborilmadi — internetni tekshiring","Not sent — check the connection")); redraw(); });
+  };
+  [].forEach.call(box.querySelectorAll(".rt-nso"),function(b){ b.onclick=function(){
+    var ns=nsOf(me); if(b.dataset.f) ns.f=b.dataset.f; if(b.dataset.b) ns.b=b.dataset.b;
+    me.ns=ns; redraw();
+    fetch(BASE+"/students/"+S.id+"/ns.json",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(ns)})
+      .then(function(r){ if(!r.ok) throw 0; toast(T("Saqlandi ✅","Saved ✅")); }).catch(function(){ toast(T("Saqlanmadi","Not saved")); });
+  }; });
+}
+/* o'qituvchi: nik so'rovlari (Talabalar bo'limida) */
+function nkPending(list){ return (list||[]).filter(function(x){ var r=x.nkReq||{}; return (x.status||"")==="ok"&&r.n&&!r.rej&&r.n!==nkOf(x); }); }
+function nkTcRender(okl){
+  var box=document.getElementById("nkTc"); if(!box) return;
+  nkLoad(function(){
+    var pend=nkPending(okl), have=(okl||[]).filter(function(x){ return nkOf(x); });
+    var used={}; have.forEach(function(x){ used[nkOf(x).toLowerCase()]=x.id; });
+    box.innerHTML='<div class="rt-sec rt-nktc"><h4>🏷 '+T("Nik so'rovlari","Nickname requests")+' <span class="rt-badge">'+pend.length+'</span></h4>'+
+      (pend.length?'<div class="tw"><table class="rt-table"><tbody>'+pend.map(function(x){
+        var dup=used[nkClean(x.nkReq.n).toLowerCase()];
+        return '<tr><td><b>'+esc(x.surname+" "+x.name)+'</b><br><span class="rt-note">'+esc(x.group||"")+'</span></td><td>→ <b>«'+esc(nkClean(x.nkReq.n))+'»</b>'+
+          (dup&&dup!==x.id?' <span class="rt-note" style="color:var(--red)">⚠️ '+T("bu nik band","already taken")+'</span>':'')+(nkOf(x)?'<br><span class="rt-note">'+T("hozirgi: ","current: ")+esc(nkOf(x))+'</span>':'')+'</td>'+
+          '<td style="white-space:nowrap"><button type="button" class="btn accent sm nk-ok" data-id="'+esc(x.id)+'">✅ '+T("Tasdiqlash","Approve")+'</button> '+
+          '<button type="button" class="btn warn sm nk-no" data-id="'+esc(x.id)+'">❌ '+T("Rad etish","Reject")+'</button></td></tr>'; }).join("")+'</tbody></table></div>'
+        :'<p class="rt-note">'+T("Yangi nik so'rovi yo'q.","No new nickname requests.")+'</p>')+
+      (have.length?'<details style="margin-top:8px"><summary class="rt-note" style="cursor:pointer">'+T("Tasdiqlangan niklar","Approved nicknames")+' ('+have.length+')</summary><div class="rt-nkall">'+
+        have.map(function(x){ return '<span class="rt-gchip">'+esc(x.surname+" "+x.name)+' → <b>'+esc(nkOf(x))+'</b> <button type="button" class="nk-del" data-id="'+esc(x.id)+'" title="'+T("Bekor qilish","Remove")+'">✕</button></span>'; }).join("")+'</div></details>':'')+
+      '<p class="rt-note" style="margin-top:6px">'+T("Reytingda talabalar hammani faqat nik bilan ko'radi (niki yo'qlar — avtomatik taxallus bilan). Siz haqiqiy ism va nikni ko'rasiz.","In the rating students see everyone by nickname only (those without one get an automatic alias). You see real names and nicknames.")+'</p></div>';
+    var byId={}; (okl||[]).forEach(function(x){ byId[x.id]=x; });
+    function act(b,o,msg){ b.disabled=true;
+      fetch(BASE+"/.json",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify(o)})
+        .then(function(r){ if(!r.ok) throw 0; toast(msg); nkLoad(function(){ nkTcRender(okl); tcTabsBadge(); },true); })
+        .catch(function(){ b.disabled=false; toast(T("Saqlanmadi — Google bilan kirganingizni tekshiring","Not saved — check that you are signed in with Google")); }); }
+    [].forEach.call(box.querySelectorAll(".nk-ok"),function(b){ b.onclick=function(){ var x=byId[b.dataset.id], o={}; o["meta/nick/"+x.id]=nkClean(x.nkReq.n); NICK[x.id]=o["meta/nick/"+x.id]; act(b,o,T("Tasdiqlandi ✅","Approved ✅")); }; });
+    [].forEach.call(box.querySelectorAll(".nk-no"),function(b){ b.onclick=function(){ var x=byId[b.dataset.id], o={}; o["students/"+x.id+"/nkReq/rej"]=Date.now(); x.nkReq.rej=o["students/"+x.id+"/nkReq/rej"]; act(b,o,T("Rad etildi","Rejected")); }; });
+    [].forEach.call(box.querySelectorAll(".nk-del"),function(b){ b.onclick=function(){ if(!confirm(T("Bu nik bekor qilinsinmi?","Remove this nickname?"))) return; var o={}; o["meta/nick/"+b.dataset.id]=null; delete NICK[b.dataset.id]; act(b,o,T("Bekor qilindi","Removed")); }; });
+  });
+}
+function tcTabsBadge(){
+  var b=document.querySelector('.rt-stab[data-p="stu"]'); if(!b) return;
+  var n=(tcList||[]).filter(function(x){ return (x.status||"pending")==="pending"; }).length+nkPending(tcList).length, bd=b.querySelector(".rt-sbd");
+  if(n){ if(!bd){ bd=document.createElement("span"); bd.className="rt-sbd"; b.appendChild(bd); } bd.textContent=n; } else if(bd) bd.remove();
+}
 function renderTop(){
   var box=document.getElementById("rtTop");
   box.innerHTML='<p style="color:var(--muted)">'+T("Yuklanmoqda…","Loading…")+'</p>';
@@ -3016,14 +3160,15 @@ function renderTop(){
     var rows=list.map(function(x,i){
       var m=prizeCell(i), pc=PRIZES[i];
       var av=avgMark(x), nt=(CFG.topics||[]).length||15;
-      return '<tr class="'+(S&&x.id===S.id?"me ":"")+(pc?"rt-ptop rt-p"+(i+1):"")+'"'+(pc?' style="--pc:'+pc.c+'"':'')+'><td class="rt-medal">'+m+'</td><td><span class="rt-tav">'+avHtml(x,{size:28})+'</span>'+esc(x.name)+" "+esc(x.surname)+
+      return '<tr class="'+(S&&x.id===S.id?"me ":"")+(pc?"rt-ptop rt-p"+(i+1):"")+'"'+(pc?' style="--pc:'+pc.c+'"':'')+'><td class="rt-medal">'+m+'</td><td><span class="rt-tav">'+avHtml(x,{size:28,name:nkDisp(x)})+'</span>'+nkName(x,S&&x.id===S.id)+
         '</td><td>'+esc(x.group)+'</td><td><b>'+(x.total||0)+'</b></td>'+
         '<td title="'+T("o\'rtacha baho","average mark")+'">'+mkTag(av.a?+av.a.toFixed(1):0)+'</td>'+
         '<td>'+av.n+' / '+nt+'</td>'+
         (isTc?'<td><button class="btn rt-del" data-id="'+esc(x.id)+'" data-nm="'+esc(x.name+" "+x.surname)+
           '" title="'+T("Reytingdan o\'chirish","Remove from the rating")+'">🗑</button></td>':'')+'</tr>';
     }).join("");
-    box.innerHTML='<div class="tw"><table class="rt-table"><thead><tr><th>#</th><th>'+T("Talaba","Student")+'</th><th>'+
+    var meX=S&&list.filter(function(x){ return x.id===S.id; })[0];
+    box.innerHTML=(isTc?'':nkMeHtml(meX))+'<div class="tw"><table class="rt-table"><thead><tr><th>#</th><th>'+T("Talaba","Student")+'</th><th>'+
       T("Guruh","Group")+'</th><th>'+T("Ball","Points")+'</th><th>'+T("O\'rtacha baho","Average")+'</th><th>'+
       T("Baholangan dars","Lessons marked")+'</th>'+(isTc?'<th></th>':'')+'</tr></thead><tbody>'+
       (rows||'<tr><td colspan="7">'+T("Hozircha ro\'yxat bo\'sh.","The list is empty for now.")+'</td></tr>')+'</tbody></table></div>'+
@@ -3035,14 +3180,15 @@ function renderTop(){
     box.querySelectorAll(".rt-del").forEach(function(b2){
       b2.onclick=function(){ tcDel(b2.dataset.id,b2.dataset.nm,renderTop); };
     });
+    if(!isTc&&meX) nkMeBind(box,meX,function(){ draw(list); });
   }
-  cloudList(function(a){
+  cloudList(function(a){ nkLoad(function(){
     /* tasdiq kutayotgan va bloklanganlar reytingda ko'rinmaydi */
     if(a) a=a.filter(function(x){ return (x.status||"pending")==="ok"&&!ratingHidden(x); });
     if(a&&a.length) draw(a);
     else draw((S&&approved()&&!ratingHidden(S))?[{id:S.id,name:S.name,surname:S.surname,group:S.group,
       total:P.total,status:"ok",topics:topicSummary()}]:[]);
-  },true);
+  }); },true);
 }
 
 function renderMe(){
@@ -3685,7 +3831,7 @@ function tcDraw(){
                        '<button class="btn warn rt-a" data-id="'+esc(x.id)+'" data-st="blocked">❌ '+T("Rad etish","Reject")+'</button>');
       }).join("")+'</tbody></table></div>'
       : '<p class="rt-note">'+T("Yangi so\'rov yo\'q.","No new requests.")+'</p>';
-  h+='<div id="accTc"></div>';
+  h+='<div id="nkTc"></div><div id="accTc"></div>';
   h+='<h3 style="margin:18px 0 8px">✅ '+T("Tasdiqlangan talabalar","Approved students")+' <span class="rt-badge">'+okl.length+'</span></h3>';
   var strays=okl.length?strayGroups(okl):[];
   if(strays.length){
@@ -3746,6 +3892,8 @@ function tcDraw(){
   tcTabsBind(out);
   pushTcRender();                            /* telefonga bildirishnoma sozlamasi */
   fixTcRender(okl);                          /* aralashib ketgan ballarni ajratish */
+  nkTcRender(okl);                           /* nik so'rovlari */
+  nkLoad(tcTabsBadge);
   audRender(okl);                            /* talaba ballini tekshirish */
   accTcRender(okl);                          /* mavzularni guruhlarga ochish */
   khTcRender();                              /* jonli test bo'limi (ma'lumot keshdan) */
