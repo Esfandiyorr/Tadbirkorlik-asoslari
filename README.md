@@ -68,12 +68,16 @@ ish haqi va mulk bo'yicha boshqa to'lovlar · **soliq imtiyozlari** · **my.soli
 Annuitet formulasi bosqichma-bosqich tushuntirilgan. Kalkulyatorga summa, yillik stavka, muddat va imtiyozli davrni
 kiritsangiz — oylik to'lov, jami to'lov, ortiqcha to'lov va uning ulushi darhol hisoblanadi.
 
-**Yechim tugmasi talaba o'z javobini yozmaguncha qulflangan** turadi — bo'sh maydonda "Tekshirish" bosilsa ham
-hech qanday javob ko'rsatilmaydi. Javob yozilishi bilan tugma ochiladi (javob o'chirilsa yana qulflanadi).
-"Tekshirish" javobni aniq qiymat bilan solishtiradi (1,5% farqgacha to'g'ri hisoblanadi): **to'g'ri bo'lsa** ✅ tasdiq
-va bosqichma-bosqich yechim darhol ochiladi, **xato bo'lsa** faqat yo'nalish beriladi (javob katta yoki kichikligi) —
-aniq qiymat oshkor qilinmaydi, talaba xohlasa yechimni o'zi ochib solishtiradi. Yuqorida
-"To'g'ri yechilgan: X / 3 · Tekshirildi: Y" ball paneli va "Qaytadan boshlash" tugmasi bor. Masalalar ham ikki tilda.
+**Masalalar — 30 daqiqalik nazorat.** Masalalar avval ko'rinmaydi: «▶ Boshlash» bosilgach 30 daqiqa vaqt boshlanadi;
+boshlash oynasida va ishlash paytida «📓 Masalani qanday ishlaganingizni amaliy daftaringizga yozing — o'qituvchi
+tekshiradi» eslatmasi turadi. 12 xil masala turi 3 toifada (soliq: aylanma solig'i, QQS, foyda solig'i, JShDS ·
+kredit: oylik to'lov, jami to'lov, ortiqcha to'lov, imtiyozli davr · tahlil: rejimlarni taqqoslash, muddatlar farqi,
+maksimal kredit, ustama + QQS). Har talabaga har toifadan bittadan — **jami 3 ta**; tur guruhdoshlari orasida eng kam
+tushganidan tanlanadi (`arena/ms/m5/<guruh>`), raqamlar esa har kimga alohida yaratiladi. Har masalaga 3 ta urinish,
+xato javobga yo'nalish aytilmaydi; yechimlar va to'g'ri javoblar faqat vaqt tugagach (yoki «⏹ Yakunlash»dan keyin)
+ko'rsatiladi. Holat akkauntda (`students/<id>/ms/m5 = {s, e, f, set, r}`) — boshqa qurilmadan kirsa ham o'sha
+masalalar va o'sha vaqt davom etadi. O'qituvchining 🔓 tugmasi yangi masalalar bilan yana bitta urinish beradi.
+Ball: 3 ta masala = testning 50 bali (har biri ≈ 16,7).
 
 
 ## 🏆 Reyting tizimi va mavzularni ochish

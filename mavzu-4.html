@@ -6857,6 +6857,7 @@ function xwOnKey(e){
    (har so'z uchun bir marta — 2-urinishda yangi topilganlari qo'shiladi). */
 var XW_MS=25*60000, XW_TRIES=2, XW_TOP=(window.RT_CFG&&RT_CFG.topic)||"m4", xwTick=null, XW_SYNC=false;
 var XWT=(function(){ try{ return JSON.parse(localStorage.getItem("terdu_m4_xwt")||"null")||{}; }catch(e){ return {}; } })();
+function xwToast(t){ if(window.RT&&RT.toast) RT.toast(t); }
 function xwLive(){ return !!(XWT.s&&!XWT.e&&Date.now()<XWT.s+XW_MS); }
 function xwN(){ return XWT.s?(+XWT.n||1):0; }
 function xwSaveT(){ try{ localStorage.setItem("terdu_m4_xwt",JSON.stringify(XWT)); }catch(e){} }
@@ -6982,7 +6983,7 @@ function xwEndShow(){
   else document.getElementById("xwResult").classList.remove("show");
 }
 function xwStart(){
-  if(!XW_SYNC){ xwSync(); toast(lang==="en"?"Loading your attempts… try again in a moment":"Urinishlaringiz yuklanmoqda… bir oz kutib qayta bosing"); return; }
+  if(!XW_SYNC){ xwSync(); xwToast(lang==="en"?"Loading your attempts… try again in a moment":"Urinishlaringiz yuklanmoqda… bir oz kutib qayta bosing"); return; }
   if(XWT.s&&!xwCanAgain()) return;
   var again=!!XWT.s;
   if(again&&!confirm(lang==="en"?"Start a new attempt? The grid will be cleared; points you already earned are kept."
@@ -6992,7 +6993,7 @@ function xwStart(){
   bs.forEach(function(b){ if(b) b.disabled=true; });
   xwPut(function(ok){
     bs.forEach(function(b){ if(b) b.disabled=false; });
-    if(!ok){ XWT=old; toast(lang==="en"?"No connection — the attempt was not started. Try again.":"Internet yo'q — urinish boshlanmadi. Qayta urinib ko'ring."); return; }
+    if(!ok){ XWT=old; xwToast(lang==="en"?"No connection — the attempt was not started. Try again.":"Internet yo'q — urinish boshlanmadi. Qayta urinib ko'ring."); return; }
     xwSaveT(); XWuser={}; xwSave(); xwActive=null;                   /* yangi urinish — toza katak bilan */
     renderXW(); xwPaintOff(); xwMode(); xwTimerDraw(); clearInterval(xwTick); xwTick=setInterval(xwTimerDraw,1000);
     var f=document.querySelector("#xwGrid input"); if(f) f.focus();
