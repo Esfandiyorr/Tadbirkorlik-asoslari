@@ -1231,30 +1231,32 @@ function ratingHidden(x){
    Nik: talaba students/<id>/nkReq = {n, at} ga so'rov yozadi → o'qituvchi tasdiqlasa meta/nick/<id> = nik
    (meta ga faqat o'qituvchi yoza oladi). Reytingda boshqalar tasdiqlangan nikni, niki yo'qlarning esa
    ism-familiyasini ko'radi; o'qituvchi doim haqiqiy ism (+ nik) ni ko'radi.
-   Ko'rinish: students/<id>/ns = {f, b, c}: f — 100 ta ism dizaynidan biri (n0–n99), b — 100 ta ramkadan biri
-   (b0–b99) yoki "bx" — talabaning o'zi yasagan ramka, sozlamalari c da. c dan CSS faqat tekshirilgan
-   qiymatlardan (#rrggbb ranglar, ro'yxatdagi turlar, 1–6 px) yasaladi. n0–n11 va b0–b11 — engine_css'da,
-   qolganlari pastdagi ro'yxatlardan shu yerda yasaladi (nsCss). */
-var NICK={}, NICK_AT=0, NS_ED=false, NS_TAB="nk", NS_CF="all", NS_CB="all", NB=null, NS_CSS="";
+   Ko'rinish: students/<id>/ns = {f, b, g, c}:
+     f — ism dizayni (n0–n99), b — butun qator ramkasi (b0–b99), g — qator foni (g0–g99);
+     b:"bx" / g:"gx" — talabaning o'zi yasagan ramka/fon, sozlamalari c da. c dan CSS faqat tekshirilgan
+     qiymatlardan (#rrggbb ranglar, ro'yxatdagi turlar, 1–6 px) yasaladi.
+   Reyting jadvalida har bir qator — grid "karta" (.rt-row): fon qatorning o'zida, ramka ::before da,
+   nur/soya ::after da. n0–n11 engine_css'da, qolganlari pastdagi ro'yxatlardan shu yerda yasaladi (nsCss). */
+var NICK={}, NICK_AT=0, NS_ED=false, NS_TAB="nk", NS_CAT={f:"all",b:"all",g:"all"}, NB=null, NS_CSS="";
 var NS_F=[["n0","Oddiy","Plain",""],["n1","Oltin","Gold","me"],["n2","Kamalak","Rainbow","an"],["n3","Neon ko'k","Neon blue","ne"],["n4","Neon pushti","Neon pink","ne"],["n5","Olov","Fire","gr"],
   ["n6","Okean","Ocean","gr"],["n7","Zumrad","Emerald","gr"],["n8","Shohona","Royal","gr"],["n9","Kumush","Silver","me"],["n10","3D","3D","3d"],["n11","Yozma","Script","fo"]];
-var NS_B=[["b0","Ramkasiz","No frame","so"],["b1","Oltin ramka","Gold frame","ne"],["b2","Kamalak","Rainbow","an"],["b3","Neon","Neon","ne"],["b4","Nuqtali","Dashed","sh"],["b5","Chiziqli naqsh","Striped","pt"],
-  ["b6","Atlas naqshi","Atlas pattern","uz"],["b7","Yulduzli","Starry","pt"],["b8","Muz","Ice","gr"],["b9","Olovli","Fiery","gr"],["b10","Qo'sh ramka","Double","sh"],["b11","Gulli","Floral","pt"]];
-var NS_CATF=[["all","Hammasi","All"],["gr","✨ Gradient","✨ Gradient"],["ne","💡 Neon","💡 Neon"],["an","🌈 Jonli","🌈 Animated"],["me","🥇 Metall","🥇 Metal"],
-  ["3d","🧱 3D va soya","🧱 3D & shadow"],["dc","🎀 Bezakli","🎀 Decorated"],["fo","🖋 Shrift","🖋 Font"]];
-var NS_CATB=[["all","Hammasi","All"],["so","🟦 Oddiy","🟦 Plain"],["gr","✨ Gradient","✨ Gradient"],["ne","💡 Neon","💡 Neon"],["pt","🧩 Naqsh","🧩 Pattern"],
-  ["an","🌈 Jonli","🌈 Animated"],["sh","🔷 Shakl","🔷 Shape"],["uz","🇺🇿 Milliy","🇺🇿 National"]];
+var NS_B=[], NS_G=[];
+var NS_CAT_L={
+  f:[["all","Hammasi","All"],["gr","✨ Gradient","✨ Gradient"],["ne","💡 Neon","💡 Neon"],["an","🌈 Jonli","🌈 Animated"],["me","🥇 Metall","🥇 Metal"],
+     ["3d","🧱 3D va soya","🧱 3D & shadow"],["dc","🎀 Bezakli","🎀 Decorated"],["fo","🖋 Shrift","🖋 Font"]],
+  b:[["all","Hammasi","All"],["so","🟦 Oddiy","🟦 Plain"],["gr","✨ Gradient","✨ Gradient"],["ne","💡 Neon","💡 Neon"],["pt","🧩 Naqshli","🧩 Patterned"],
+     ["an","🌈 Jonli","🌈 Animated"],["sh","🔷 Shakl","🔷 Shape"],["uz","🇺🇿 Milliy","🇺🇿 National"]],
+  g:[["all","Hammasi","All"],["ti","🎨 Rangli","🎨 Tinted"],["gr","✨ Gradient","✨ Gradient"],["pt","🧩 Naqsh","🧩 Pattern"],["an","🌈 Jonli","🌈 Animated"],
+     ["uz","🇺🇿 Milliy","🇺🇿 National"],["th","🌍 Tabiat","🌍 Nature"],["bz","💼 Biznes","💼 Business"]]};
 var NS_FONT="https://fonts.googleapis.com/css2?family=Pacifico&family=Lobster&family=Caveat:wght@700&family=Dancing+Script:wght@700&family=Great+Vibes"+
   "&family=Permanent+Marker&family=Press+Start+2P&family=Orbitron:wght@800&family=Bungee&family=Monoton&family=Cinzel:wght@800&family=Righteous&display=swap";
+/* ramka "halqasi": ::before ichi shaffof qoladi (mask), faqat chetdagi w px da rasm ko'rinadi */
+var NS_MASK="-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0)";
 function nsRg(h,a){ var n=parseInt(h.slice(1),16); return "rgba("+(n>>16)+","+(n>>8&255)+","+(n&255)+","+a+")"; }
 (function(){
-  var rg=nsRg, css=[], nf=12, nb=12, GT="-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;";
-  var PF="linear-gradient(var(--panel),var(--panel)) padding-box,";
+  var rg=nsRg, css=[], nf=12, nb=0, ng=0, GT="-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;";
   function F(uz,en,cat,rule,extra){ var id="n"+(nf++); NS_F.push([id,uz,en,cat]); css.push(".rt-nn."+id+"{"+rule+"}"+(extra?extra.replace(/@/g,".rt-nn."+id):"")); }
-  function B(uz,en,cat,rule){ var id="b"+(nb++); NS_B.push([id,uz,en,cat]); css.push(".rt-nf."+id+"{"+rule+"}"); }
-  function gb(w,img,ex){ return "border:"+w+"px solid transparent;background:"+PF+img+" border-box"+(ex?";"+ex:""); }
   function d3(c,l,d){ return "color:"+c+";text-shadow:1px 1px 0 "+l+",2px 2px 0 "+d+",3px 3px 0 "+rg(d,.35); }
-  function pt(c,img,bd){ return "border:"+(bd||"1px solid "+rg(c,.45))+";background:"+img; }
   /* ✍️ ism dizaynlari */
   [["Shaftoli","Peach","#f97316,#fb7185"],["Lola","Tulip","#e11d48,#fb923c"],["Tun","Night","#6366f1,#8b5cf6,#3b82f6"],["Osmon","Sky","#0284c7,#38bdf8,#818cf8"],
    ["Bahor","Spring","#16a34a,#84cc16,#eab308"],["Kuz","Autumn","#b45309,#dc2626,#f59e0b"],["Qish","Winter","#0ea5e9,#818cf8,#64748b"],["Gilos","Cherry","#be123c,#ec4899"],
@@ -1304,76 +1306,173 @@ function nsRg(h,a){ var n=parseInt(h.slice(1),16); return "rgba("+(n>>16)+","+(n
    ["Piksel","Pixel","Press Start 2P",0,"#16a34a",".66em",400],["Kosmik","Space","Orbitron",0,"#0891b2","",800],["Plakat","Poster","Bungee",0,"#ea580c","",400],
    ["Diskoteka","Disco","Monoton",0,"#d946ef","1.05em",400],["Rim","Roman","Cinzel",0,"#b45309","",800],["Zamonaviy","Modern","Righteous",0,"#0d9488","",400]]
     .forEach(function(g){ F(g[0],g[1],"fo",'font-family:"'+g[2]+'",'+(g[3]?"cursive":"sans-serif")+";color:"+g[4]+";font-weight:"+g[6]+(g[5]?";font-size:"+g[5]:"")); });
-  /* 🖼 ramkalar */
+  /* 🖼 butun qator ramkasi: bf — ::before (chiziq), af — ::after (nur, soya), rw — qatorning o'zi (burchak) */
+  function B(uz,en,cat,bf,af,rw){ var id="b"+(nb++); NS_B.push([id,uz,en,cat]);
+    css.push(".rt-row."+id+"::before{"+bf+"}"); if(af) css.push(".rt-row."+id+"::after{content:\"\";"+af+"}"); if(rw) css.push(".rt-row."+id+"{"+rw+"}"); }
+  function ring(w,img,ex){ return "border:0;padding:"+w+"px;background:"+img+";"+NS_MASK+(ex?";"+ex:""); }
+  function gl(c,r,a){ return "box-shadow:0 0 "+r+"px "+rg(c,a)+",inset 0 0 "+Math.round(r*.6)+"px "+rg(c,a*.45); }
+  function zig(c,s){ var h=s/2; return ["135deg","225deg"].map(function(d){ return "linear-gradient("+d+","+c+" 25%,transparent 25%) -"+h+"px 0/"+s+"px "+s+"px"; })
+    .concat(["315deg","45deg"].map(function(d){ return "linear-gradient("+d+","+c+" 25%,transparent 25%) 0 0/"+s+"px "+s+"px"; })).join(","); }
+  function romb(c,s){ return "linear-gradient(45deg,"+c+" 25%,transparent 25% 75%,"+c+" 75%) 0 0/"+s+"px "+s+"px,linear-gradient(-45deg,"+c+" 25%,transparent 25% 75%,"+c+" 75%) 0 0/"+s+"px "+s+"px"; }
+  var RB="#ef4444,#f59e0b,#22c55e,#06b6d4,#8b5cf6,#ec4899,#ef4444";
+  /* b0–b11: avvalgi nomlar saqlangan */
+  B("Standart","Standard","so","border:1px solid var(--line)");
+  B("Oltin ramka","Gold frame","ne","border:2px solid #eab308",gl("#eab308",10,.55));
+  B("Kamalak","Rainbow","an",ring(3,"linear-gradient(90deg,"+RB+") 0 0/200% 100%","animation:rfShift 4s linear infinite"));
+  B("Neon","Neon","ne","border:1.5px solid #22d3ee",gl("#22d3ee",12,.7));
+  B("Nuqtali","Dashed","sh","border:2px dashed #7c3aed");
+  B("Chiziqli naqsh","Striped","pt",ring(6,"repeating-linear-gradient(45deg,#7c3aed 0 4px,"+rg("#7c3aed",.25)+" 4px 8px)"));
+  B("Atlas naqshi","Atlas pattern","uz",ring(6,"repeating-linear-gradient(135deg,#e11d48 0 6px,#f59e0b 6px 12px,#16a34a 12px 18px,#2563eb 18px 24px,#7c3aed 24px 30px)"));
+  B("Yulduzli","Starry","pt",ring(6,"radial-gradient(circle,#facc15 1.2px,transparent 1.9px) 0 0/8px 8px,#1e1b4b"));
+  B("Muz","Ice","gr",ring(3,"linear-gradient(135deg,#7dd3fc,#e0f2fe,#38bdf8,#bae6fd,#0ea5e9)"),"box-shadow:inset 0 0 10px rgba(125,211,252,.35)");
+  B("Olovli","Fiery","gr",ring(3,"linear-gradient(90deg,#dc2626,#f97316,#facc15)"),"box-shadow:0 0 12px rgba(249,115,22,.45)");
+  B("Qo'sh ramka","Double","sh","border:5px double #2563eb");
+  B("Gulli","Floral","pt",ring(7,"radial-gradient(circle,#ec4899 0 2px,#fde047 2.4px 3px,transparent 3.5px) 0 0/12px 12px,#bbf7d0"));
   [["Qizil","Red","#ef4444"],["To'q sariq","Orange","#f97316"],["Sariq","Yellow","#eab308"],["Yashil","Green","#22c55e"],["Zumrad","Emerald","#10b981"],["Feruza","Teal","#14b8a6"],
-   ["Havorang","Sky","#0ea5e9"],["Ko'k","Blue","#3b82f6"],["Indigo","Indigo","#6366f1"],["Binafsha","Violet","#8b5cf6"],["Pushti","Pink","#ec4899"],["Kulrang","Grey","#64748b"],["Jigarrang","Brown","#a16207"]]
-    .forEach(function(g){ B(g[0]+" ramka",g[1]+" frame","so","border:2px solid "+g[2]+";background:"+rg(g[2],.1)); });
+   ["Havorang","Sky","#0ea5e9"],["Ko'k","Blue","#3b82f6"],["Indigo","Indigo","#6366f1"],["Binafsha","Violet","#8b5cf6"],["Pushti","Pink","#ec4899"],["Kulrang","Grey","#64748b"]]
+    .forEach(function(g){ B(g[0]+" ramka",g[1]+" frame","so","border:2px solid "+g[2]); });
   B("Qora-oq","Ink","so","border:2px solid var(--ink)");
   [["Shaftoli","Peach","#f97316,#fb7185"],["Lola","Tulip","#e11d48,#fb923c"],["Osmon","Sky","#0284c7,#38bdf8,#818cf8"],["Bahor","Spring","#16a34a,#84cc16,#eab308"],
    ["Kuz","Autumn","#b45309,#dc2626,#f59e0b"],["Uzum","Grape","#7e22ce,#c026d3"],["Dengiz","Sea","#0f766e,#06b6d4,#3b82f6"],["Shafaq","Sunset","#f59e0b,#ef4444,#a21caf"],
-   ["Galaktika","Galaxy","#6366f1,#a21caf,#db2777"],["Yalpiz","Mint","#059669,#2dd4bf"]].forEach(function(g){ B(g[0],g[1],"gr",gb(2,"linear-gradient(90deg,"+g[2]+")")); });
-  [["Pastel pushti","Pastel pink","#ec4899","#f59e0b"],["Pastel ko'k","Pastel blue","#3b82f6","#06b6d4"],["Pastel yashil","Pastel green","#22c55e","#84cc16"],["Pastel binafsha","Pastel violet","#8b5cf6","#ec4899"]]
-    .forEach(function(g){ B(g[0],g[1],"gr","border:1px solid "+rg(g[2],.35)+";background:linear-gradient(90deg,"+rg(g[2],.2)+","+rg(g[3],.2)+")"); });
+   ["Galaktika","Galaxy","#6366f1,#a21caf,#db2777"],["Yalpiz","Mint","#059669,#2dd4bf"],["Avrora","Aurora","#10b981,#06b6d4,#8b5cf6"],["Shirin","Candy","#ec4899,#8b5cf6,#06b6d4"]]
+    .forEach(function(g){ B(g[0],g[1],"gr",ring(3,"linear-gradient(90deg,"+g[2]+")")); });
   [["Yashil neon","Green neon","#22c55e"],["Sariq neon","Yellow neon","#eab308"],["To'q sariq neon","Orange neon","#f97316"],["Qizil neon","Red neon","#ef4444"],["Pushti neon","Pink neon","#ec4899"],
    ["Binafsha neon","Violet neon","#8b5cf6"],["Moviy neon","Blue neon","#3b82f6"],["Limon neon","Lime neon","#84cc16"],["Feruza neon","Teal neon","#14b8a6"],["Magenta neon","Magenta neon","#d946ef"],
-   ["Kiberpank","Cyberpunk","#ec4899","#06b6d4"]].forEach(function(g){ var c2=g[3]||g[2]; B(g[0],g[1],"ne","border:1.5px solid "+g[2]+";box-shadow:0 0 8px "+rg(c2,.7)+",inset 0 0 6px "+rg(c2,.3)); });
-  B("Ikki qavat neon","Double neon","ne","border:1.5px solid #22d3ee;box-shadow:0 0 0 2px var(--panel),0 0 0 3.5px #ec4899,0 0 12px rgba(236,72,153,.6)");
-  var z=rg("#8b5cf6",.22), r=rg("#0d9488",.18);
-  B("Ko'k chiziqlar","Blue stripes","pt",pt("#3b82f6","repeating-linear-gradient(45deg,"+rg("#3b82f6",.16)+" 0 5px,transparent 5px 10px)"));
-  B("Yashil chiziqlar","Green stripes","pt",pt("#16a34a","repeating-linear-gradient(-45deg,"+rg("#16a34a",.16)+" 0 5px,transparent 5px 10px)"));
-  B("Yotiq chiziqlar","Horizontal stripes","pt",pt("#ec4899","repeating-linear-gradient(180deg,"+rg("#ec4899",.16)+" 0 3px,transparent 3px 6px)"));
-  B("Tik chiziqlar","Vertical stripes","pt",pt("#f97316","repeating-linear-gradient(90deg,"+rg("#f97316",.18)+" 0 3px,transparent 3px 7px)"));
-  B("No'xatli","Polka dots","pt",pt("#e11d48","radial-gradient(circle,"+rg("#e11d48",.35)+" 2px,transparent 2.6px) 0 0/9px 9px"));
-  B("Shaxmat","Chessboard","pt",pt("#475569","repeating-conic-gradient("+rg("#475569",.2)+" 0 25%,transparent 0 50%) 0 0/10px 10px"));
-  B("Katak daftar","Grid paper","pt",pt("#3b82f6","linear-gradient("+rg("#3b82f6",.22)+" 1px,transparent 1px) 0 0/8px 8px,linear-gradient(90deg,"+rg("#3b82f6",.22)+" 1px,transparent 1px) 0 0/8px 8px"));
-  B("Chiziqli daftar","Lined paper","pt",pt("#3b82f6","linear-gradient(90deg,transparent 5px,"+rg("#ef4444",.6)+" 5px 6px,transparent 6px),linear-gradient("+rg("#3b82f6",.25)+" 1px,transparent 1px) 0 2px/100% 7px","1px solid "+rg("#3b82f6",.35))+";padding-left:12px");
-  B("Zigzag","Zigzag","pt",pt("#8b5cf6","linear-gradient(135deg,"+z+" 25%,transparent 25%) -5px 0/10px 10px,linear-gradient(225deg,"+z+" 25%,transparent 25%) -5px 0/10px 10px,linear-gradient(315deg,"+z+" 25%,transparent 25%) 0 0/10px 10px,linear-gradient(45deg,"+z+" 25%,transparent 25%) 0 0/10px 10px"));
-  B("Romb","Diamonds","pt",pt("#0d9488","linear-gradient(45deg,"+r+" 25%,transparent 25% 75%,"+r+" 75%) 0 0/12px 12px,linear-gradient(-45deg,"+r+" 25%,transparent 25% 75%,"+r+" 75%) 0 0/12px 12px"));
-  B("To'lqin","Waves","pt",pt("#0ea5e9","radial-gradient(circle at 50% 0,transparent 4px,"+rg("#0ea5e9",.3)+" 4.5px 5.5px,transparent 6px) 0 0/12px 8px"));
-  B("Konfetti","Confetti","pt",pt("#ec4899",[["20% 30%","#f43f5e"],["70% 60%","#22c55e"],["45% 85%","#3b82f6"],["88% 18%","#eab308"]].map(function(d){ return "radial-gradient(circle at "+d[0]+","+d[1]+" 1.3px,transparent 1.9px) 0 0/18px 14px"; }).join(","),"1px dashed "+rg("#ec4899",.5)));
-  B("Qor","Snow","pt",pt("#0ea5e9","radial-gradient(circle,rgba(255,255,255,.95) 1px,transparent 1.6px) 0 0/8px 8px,radial-gradient(circle,rgba(255,255,255,.75) .8px,transparent 1.4px) 4px 4px/8px 8px,linear-gradient(180deg,"+rg("#0ea5e9",.35)+","+rg("#6366f1",.3)+")","1px solid "+rg("#0ea5e9",.6)));
-  B("Kamuflyaj","Camouflage","pt",pt("#4d7c0f","radial-gradient(circle at 20% 30%,"+rg("#4d7c0f",.38)+" 0 4px,transparent 5px) 0 0/22px 16px,radial-gradient(circle at 70% 70%,"+rg("#3f6212",.32)+" 0 5px,transparent 6px) 0 0/22px 16px,radial-gradient(circle at 50% 10%,"+rg("#84cc16",.28)+" 0 3px,transparent 4px) 0 0/16px 14px","1px solid "+rg("#4d7c0f",.6)));
-  B("Pufakchalar","Bubbles","pt",pt("#0ea5e9","radial-gradient(circle,transparent 2px,"+rg("#0ea5e9",.45)+" 2.5px 3px,transparent 3.5px) 0 0/12px 12px,radial-gradient(circle,transparent 1.2px,"+rg("#6366f1",.4)+" 1.6px 2px,transparent 2.4px) 6px 6px/12px 12px"));
-  B("Shotland katagi","Plaid","pt",pt("#dc2626","repeating-linear-gradient(0deg,"+rg("#dc2626",.14)+" 0 3px,transparent 3px 9px),repeating-linear-gradient(90deg,"+rg("#2563eb",.14)+" 0 3px,transparent 3px 9px)"));
-  B("Yonib-o'chuvchi ko'k","Pulsing blue","an","--c:#06b6d4;border:1.5px solid var(--c);animation:nfPulse 1.8s ease-in-out infinite");
-  B("Yonib-o'chuvchi pushti","Pulsing pink","an","--c:#ec4899;border:1.5px solid var(--c);animation:nfPulse 1.8s ease-in-out infinite");
-  B("Yonib-o'chuvchi yashil","Pulsing green","an","--c:#22c55e;border:1.5px solid var(--c);animation:nfPulse 1.8s ease-in-out infinite");
-  B("Yaltiroq","Shimmer","an","border:1px solid "+rg("#eab308",.65)+";background-color:"+rg("#facc15",.14)+";background-image:linear-gradient(110deg,transparent 35%,rgba(255,255,255,.6) 50%,transparent 65%);background-size:250% 100%;background-repeat:no-repeat;animation:nfSweep 2.6s linear infinite");
+   ["Kiberpank","Cyberpunk","#ec4899","#06b6d4"]].forEach(function(g){ B(g[0],g[1],"ne","border:1.5px solid "+g[2],gl(g[3]||g[2],12,.7)); });
+  B("Ikki qavat neon","Double neon","ne","border:1.5px solid #22d3ee","box-shadow:0 0 0 3px var(--panel),0 0 0 4.5px #ec4899,0 0 14px rgba(236,72,153,.6)");
+  B("Shaxmat","Chessboard","pt",ring(6,"repeating-conic-gradient(#111827 0 25%,#f8fafc 0 50%) 0 0/8px 8px"));
+  B("Zigzag","Zigzag","pt",ring(6,zig("#7c3aed",8)+",#ede9fe"));
+  B("No'xatli","Polka dots","pt",ring(6,"radial-gradient(circle,#fff 1.5px,transparent 2px) 0 0/7px 7px,#e11d48"));
+  B("Yashil chiziqlar","Green stripes","pt",ring(5,"repeating-linear-gradient(-45deg,#16a34a 0 4px,#bbf7d0 4px 8px)"));
+  B("Shotland katagi","Plaid","pt",ring(6,"repeating-linear-gradient(0deg,rgba(220,38,38,.75) 0 2px,transparent 2px 6px),repeating-linear-gradient(90deg,rgba(37,99,235,.7) 0 2px,transparent 2px 6px),#fef3c7"));
+  B("Romb","Diamonds","pt",ring(6,romb("#0d9488",8)+",#ccfbf1"));
+  B("To'lqin","Waves","pt",ring(6,"radial-gradient(circle at 50% 0,transparent 3px,#0ea5e9 3.5px 4.5px,transparent 5px) 0 0/10px 6px,#e0f2fe"));
+  B("Konfetti","Confetti","pt",ring(6,[["20% 30%","#f43f5e"],["70% 60%","#22c55e"],["45% 85%","#3b82f6"],["88% 18%","#eab308"]].map(function(d){ return "radial-gradient(circle at "+d[0]+","+d[1]+" 1.6px,transparent 2.2px) 0 0/16px 12px"; }).join(",")+",#fff7ed"));
+  B("Qor","Snow","pt",ring(6,"radial-gradient(circle,#fff 1.2px,transparent 1.8px) 0 0/7px 7px,radial-gradient(circle,#fff .8px,transparent 1.3px) 3.5px 3.5px/7px 7px,#38bdf8"));
+  B("Kamuflyaj","Camouflage","pt",ring(6,"radial-gradient(circle at 20% 30%,#3f6212 0 3px,transparent 3.5px) 0 0/14px 10px,radial-gradient(circle at 70% 70%,#365314 0 3.5px,transparent 4px) 0 0/14px 10px,#84cc16"));
+  B("Ehtiyot","Caution","pt",ring(6,"repeating-linear-gradient(45deg,#facc15 0 6px,#111827 6px 12px)"));
+  B("Pianino","Piano","pt",ring(6,"repeating-linear-gradient(90deg,#f8fafc 0 6px,#111827 6px 9px)"));
+  B("Arqon","Rope","pt",ring(5,"repeating-linear-gradient(45deg,#92400e 0 3px,#d6a756 3px 6px)"));
+  B("Aylanma kamalak","Spinning rainbow","an",ring(3,"conic-gradient(from var(--nfa),"+RB+")","--nfa:0deg;animation:nfSpin 3s linear infinite"));
+  B("Aylanma oltin","Spinning gold","an",ring(3,"conic-gradient(from var(--nfa),#a16207,#facc15,#fff3b0,#facc15,#a16207)","--nfa:0deg;animation:nfSpin 2.5s linear infinite"));
+  [["ko'k","blue","#06b6d4"],["pushti","pink","#ec4899"],["yashil","green","#22c55e"]].forEach(function(g){
+    B("Yonib-o'chuvchi "+g[0],"Pulsing "+g[1],"an","border:1.5px solid "+g[2],"--c:"+g[2]+";animation:nfPulse 1.8s ease-in-out infinite"); });
+  B("Yaltiroq","Shimmer","an",ring(3,"linear-gradient(90deg,#b45309,#eab308 35%,#fff3b0 50%,#eab308 65%,#b45309) 0 0/200% 100%","animation:rfShift 2.6s linear infinite"));
   B("Chumoli yo'li","Marching ants","an",(function(c){ var h="linear-gradient(90deg,"+c+" 50%,transparent 0)",v="linear-gradient(0deg,"+c+" 50%,transparent 0)";
-    return "border-radius:3px;background:"+h+" 0 0/10px 2px repeat-x,"+h+" 0 100%/10px 2px repeat-x,"+v+" 0 0/2px 10px repeat-y,"+v+" 100% 0/2px 10px repeat-y;animation:nfAnts .8s linear infinite"; })("#7c3aed"));
-  B("Aylanma kamalak","Spinning rainbow","an","--nfa:0deg;"+gb(2,"conic-gradient(from var(--nfa),#ef4444,#f59e0b,#22c55e,#06b6d4,#8b5cf6,#ef4444)","animation:nfSpin 3s linear infinite"));
-  B("Aylanma oltin","Spinning gold","an","--nfa:0deg;"+gb(2,"conic-gradient(from var(--nfa),#a16207,#facc15,#fff3b0,#facc15,#a16207)","animation:nfSpin 2.5s linear infinite"));
-  B("Jonli olov","Live fire","an",gb(2,"linear-gradient(90deg,#dc2626,#f97316,#facc15)","animation:nfFlick 1.3s ease-in-out infinite"));
-  B("Rang almashuvchi","Colour changing","an","border:2px solid #ef4444;background:"+rg("#ef4444",.1)+";animation:nnHue 4s linear infinite");
-  B("Yurak urishi","Heartbeat","an","border:2px solid #e11d48;background:"+rg("#e11d48",.08)+";animation:nnBeat 1.4s ease-in-out infinite");
-  B("Kapsula","Capsule","sh","border:2px solid #6366f1;border-radius:999px;background:"+rg("#6366f1",.1));
+    return "border:0;background:"+h+" 0 0/12px 2px repeat-x,"+h+" 0 100%/12px 2px repeat-x,"+v+" 0 0/2px 12px repeat-y,"+v+" 100% 0/2px 12px repeat-y;animation:rfAnts .8s linear infinite"; })("#7c3aed"),"","--rr:4px");
+  B("Jonli olov","Live fire","an",ring(3,"linear-gradient(90deg,#dc2626,#f97316,#facc15,#f97316,#dc2626) 0 0/200% 100%","animation:rfShift 2s linear infinite"),"animation:nfFlick 1.3s ease-in-out infinite");
+  B("Rang almashuvchi","Colour changing","an","border:2.5px solid #ef4444;animation:nnHue 4s linear infinite");
+  B("Nafas","Breathing","an","border:2px solid #8b5cf6;animation:rfBreath 2.8s ease-in-out infinite");
+  B("Elektr","Electric","an",ring(2,"linear-gradient(90deg,#1d4ed8,#93c5fd,#1d4ed8,#93c5fd,#1d4ed8) 0 0/200% 100%","animation:rfShift .9s linear infinite"),"box-shadow:0 0 10px rgba(59,130,246,.6)");
+  B("Okean to'lqini","Ocean wave","an",ring(3,"linear-gradient(90deg,#0ea5e9,#14b8a6,#6366f1,#0ea5e9) 0 0/200% 100%","animation:rfShift 3.5s linear infinite"));
+  B("Disko","Disco","an",ring(3,"conic-gradient(from var(--nfa),#ec4899,#facc15,#22d3ee,#a3e635,#ec4899)","--nfa:0deg;animation:nfSpin 1.4s linear infinite"),"animation:rfDisco 1.4s linear infinite");
+  B("Kapsula","Capsule","sh","border:2px solid #6366f1","","--rr:999px");
+  B("To'rtburchak","Square","sh","border:2px solid var(--ink)","","--rr:0px");
   B("Burchaklar","Corners","sh",(function(c){ var g="linear-gradient("+c+","+c+")";
-    return "border-radius:0;padding:3px 12px;background:"+["0 0/9px 2px","0 0/2px 9px","100% 0/9px 2px","100% 0/2px 9px","0 100%/9px 2px","0 100%/2px 9px","100% 100%/9px 2px","100% 100%/2px 9px"]
-      .map(function(p){ return g+" "+p+" no-repeat"; }).join(","); })("#0ea5e9"));
-  var tk="radial-gradient(circle at 0 50%,transparent 5px,#000 5.5px) 0 0/51% 100% no-repeat,radial-gradient(circle at 100% 50%,transparent 5px,#000 5.5px) 100% 0/51% 100% no-repeat";
-  B("Bilet","Ticket","sh","border-radius:4px;padding:2px 15px;background:"+rg("#f59e0b",.24)+";-webkit-mask:"+tk+";mask:"+tk);
-  B("Yorliq","Tag","sh","border-radius:4px 0 0 4px;padding:2px 18px 2px 10px;background:"+rg("#22c55e",.24)+";clip-path:polygon(0 0,calc(100% - 11px) 0,100% 50%,calc(100% - 11px) 100%,0 100%)");
-  B("Lenta","Ribbon","sh","border-radius:0;padding:2px 18px;background:"+rg("#e11d48",.2)+";clip-path:polygon(0 0,100% 0,calc(100% - 9px) 50%,100% 100%,0 100%,9px 50%)");
-  B("Olti burchak","Hexagon","sh","border-radius:0;padding:2px 18px;background:"+rg("#8b5cf6",.24)+";clip-path:polygon(11px 0,calc(100% - 11px) 0,100% 50%,calc(100% - 11px) 100%,11px 100%,0 50%)");
-  B("Bo'rtiq","Ridge","sh","border:4px ridge #94a3b8;border-radius:6px");
-  B("Pastki chiziq","Underline","sh","border-radius:0;padding:2px 3px 4px;background:linear-gradient(90deg,#6366f1,#ec4899) 0 100%/100% 3px no-repeat");
-  B("Chap chiziq","Left bar","sh","border-left:4px solid #f59e0b;border-radius:4px;background:"+rg("#f59e0b",.12));
-  B("Soyali karta","Card","sh","border:1px solid var(--line);background:var(--panel);box-shadow:0 3px 10px rgba(0,0,0,.2)");
-  B("Piksel","Pixel","sh","border-radius:0;margin:2px;box-shadow:0 -2px 0 #16a34a,0 2px 0 #16a34a,-2px 0 0 #16a34a,2px 0 0 #16a34a;background:"+rg("#16a34a",.1));
-  B("Uch qavat","Triple","sh","border:2px solid #2563eb;box-shadow:0 0 0 2px var(--panel),0 0 0 4px #f59e0b");
-  B("Adras","Adras","uz",gb(4,"repeating-linear-gradient(90deg,#be123c 0 4px,#facc15 4px 7px,#7c3aed 7px 11px,#16a34a 11px 14px,#0ea5e9 14px 18px)","border-radius:8px"));
-  B("Ikat","Ikat","uz",(function(c){ return gb(4,"linear-gradient(135deg,"+c+" 25%,transparent 25%) -4px 0/8px 8px,linear-gradient(225deg,"+c+" 25%,transparent 25%) -4px 0/8px 8px,"+
-    "linear-gradient(315deg,"+c+" 25%,transparent 25%) 0 0/8px 8px,linear-gradient(45deg,"+c+" 25%,#f59e0b 25%) 0 0/8px 8px","border-radius:6px"); })("#7c2d12"));
-  B("Suzani","Suzani","uz","border:1.5px solid #b91c1c;background:radial-gradient(circle,"+rg("#dc2626",.38)+" 0 2.5px,"+rg("#facc15",.45)+" 3px 4px,transparent 4.5px) 0 0/16px 16px,"+
-    "radial-gradient(circle,"+rg("#16a34a",.4)+" 1.2px,transparent 1.8px) 8px 8px/16px 16px,"+rg("#fde68a",.18));
-  B("Koshin","Tiles","uz",gb(3,"repeating-conic-gradient(#1d4ed8 0 25%,#06b6d4 0 50%) 0 0/8px 8px","border-radius:6px;box-shadow:0 0 0 1px #ca8a04"));
-  B("Zarbof","Gold embroidery","uz","border:2px solid #ca8a04;box-shadow:inset 0 0 0 2px "+rg("#ca8a04",.25)+";background:radial-gradient(circle,"+rg("#ca8a04",.45)+" 1px,transparent 1.6px) 0 0/7px 7px,"+rg("#facc15",.07));
-  B("Bayroq","Flag","uz",gb(4,"linear-gradient(180deg,#0099b5 0 33%,#ce1126 33% 38%,#ffffff 38% 62%,#ce1126 62% 67%,#1eb53a 67%)","border-radius:6px"));
-  B("Registon","Registan","uz",gb(3,"linear-gradient(90deg,#0e7490,#14b8a6,#ca8a04,#14b8a6,#0e7490)","box-shadow:0 0 8px "+rg("#14b8a6",.4)));
-  B("Do'ppi","Doppi","uz",gb(4,"radial-gradient(circle,#ffffff 1px,transparent 1.5px) 0 0/5px 5px,linear-gradient(#111827,#111827)","border-radius:8px"));
-  B("Paxta","Cotton","uz","border:2px solid #15803d;background:radial-gradient(circle,rgba(255,255,255,.95) 2px,transparent 2.6px) 0 0/12px 10px,"+
-    "radial-gradient(circle,rgba(255,255,255,.85) 1.6px,transparent 2.2px) 6px 5px/12px 10px,"+rg("#16a34a",.2));
-  B("Ko'k gumbaz","Blue dome","uz","border:2px solid #0284c7;border-radius:999px 999px 6px 6px;background:linear-gradient(180deg,"+rg("#0284c7",.25)+","+rg("#14b8a6",.1)+")");
+    return "border:0;background:"+["0 0/16px 3px","0 0/3px 16px","100% 0/16px 3px","100% 0/3px 16px","0 100%/16px 3px","0 100%/3px 16px","100% 100%/16px 3px","100% 100%/3px 16px"]
+      .map(function(p){ return g+" "+p+" no-repeat"; }).join(","); })("#0ea5e9"),"","--rr:0px");
+  B("Uzuq qizil","Red dashes","sh","border:2px dashed #ef4444");
+  B("Nuqtali ko'k","Blue dots","sh","border:3px dotted #2563eb");
+  B("Bo'rtiq","Ridge","sh","border:5px ridge #94a3b8");
+  B("Botiq","Groove","sh","border:5px groove #a8a29e");
+  B("Chap chiziq","Left bar","sh","border:0;border-left:6px solid #f59e0b","","--rr:6px");
+  B("Tepa va past chiziq","Top & bottom","sh","border:0;border-top:3px solid #0d9488;border-bottom:3px solid #0d9488","","--rr:0px");
+  B("3D tugma","3D button","sh","border:2px solid #2563eb","box-shadow:0 5px 0 #1e40af");
+  B("Soyali karta","Card","sh","border:1px solid var(--line)","box-shadow:0 6px 16px rgba(0,0,0,.18)");
+  B("Uch qavat","Triple","sh","border:2px solid #2563eb","box-shadow:0 0 0 3px var(--panel),0 0 0 5px #f59e0b");
+  B("Adras","Adras","uz",ring(6,"repeating-linear-gradient(90deg,#be123c 0 5px,#facc15 5px 9px,#7c3aed 9px 14px,#16a34a 14px 18px,#0ea5e9 18px 23px)"));
+  B("Ikat","Ikat","uz",ring(6,zig("#7c2d12",8)+",#f59e0b"));
+  B("Suzani","Suzani","uz",ring(7,"radial-gradient(circle,#dc2626 0 2px,#facc15 2.5px 3.2px,transparent 3.7px) 0 0/11px 11px,radial-gradient(circle,#16a34a 1px,transparent 1.5px) 5.5px 5.5px/11px 11px,#fef3c7"));
+  B("Koshin","Tiles","uz",ring(6,"repeating-conic-gradient(#1d4ed8 0 25%,#06b6d4 0 50%) 0 0/8px 8px"),"box-shadow:0 0 0 1.5px #ca8a04");
+  B("Zarbof","Gold embroidery","uz","border:5px double #ca8a04","box-shadow:0 0 10px rgba(202,138,4,.35)");
+  B("Bayroq","Flag","uz",ring(5,"linear-gradient(180deg,#0099b5 0 33%,#ce1126 33% 37%,#ffffff 37% 63%,#ce1126 63% 67%,#1eb53a 67%)"));
+  B("Registon","Registan","uz",ring(4,"linear-gradient(90deg,#0e7490,#14b8a6,#ca8a04,#14b8a6,#0e7490)"),"box-shadow:0 0 10px rgba(20,184,166,.4)");
+  B("Do'ppi","Doppi","uz",ring(6,"radial-gradient(circle,#fff 1.1px,transparent 1.6px) 0 0/5px 5px,#111827"));
+  B("Paxta","Cotton","uz",ring(6,"radial-gradient(circle,#fff 1.8px,transparent 2.3px) 0 0/9px 9px,#15803d"));
+  B("Gilam","Carpet","uz",ring(7,romb("#7f1d1d",10)+",#dc2626"));
+  B("Xon atlas","Khan atlas","uz",ring(6,"linear-gradient(90deg,#db2777,#f59e0b 20%,#16a34a 40%,#2563eb 60%,#7c3aed 80%,#db2777) 0 0/60px 100%"));
+  B("Navro'z","Navruz","uz",ring(4,"linear-gradient(90deg,#16a34a,#facc15,#dc2626,#facc15,#16a34a)"));
+  B("Ko'k gumbaz","Blue dome","uz",ring(4,"linear-gradient(180deg,#0284c7,#14b8a6)"),"","--rr:22px");
+  /* 🎨 qator foni (matn o'qilishi uchun shaffofligi past) */
+  function G(uz,en,cat,bg,ex){ var id="g"+(ng++); NS_G.push([id,uz,en,cat]); if(bg) css.push(".rt-row."+id+"{background:"+bg+(ex?";"+ex:"")+"}"); }
+  function lin(cols,a,d){ return "linear-gradient("+(d||"90deg")+","+cols.split(",").map(function(c){ return rg(c,a); }).join(",")+")"; }
+  G("Standart","Standard","ti","");
+  [["Qizil","Red","#ef4444"],["To'q sariq","Orange","#f97316"],["Sariq","Yellow","#eab308"],["Limon","Lime","#84cc16"],["Yashil","Green","#22c55e"],["Zumrad","Emerald","#10b981"],
+   ["Feruza","Teal","#14b8a6"],["Havorang","Sky","#0ea5e9"],["Ko'k","Blue","#3b82f6"],["Indigo","Indigo","#6366f1"],["Binafsha","Violet","#8b5cf6"],["Pushti","Pink","#ec4899"],
+   ["Atirgul","Rose","#f43f5e"],["Kulrang","Grey","#64748b"],["Jigarrang","Brown","#a16207"]].forEach(function(g){ G(g[0],g[1],"ti",rg(g[2],.15)); });
+  [["Shaftoli","Peach","#f97316,#fb7185"],["Lola","Tulip","#e11d48,#fb923c"],["Tun","Night","#6366f1,#8b5cf6,#3b82f6"],["Osmon","Sky","#0284c7,#38bdf8,#818cf8"],
+   ["Bahor","Spring","#16a34a,#84cc16,#eab308"],["Kuz","Autumn","#b45309,#dc2626,#f59e0b"],["Gilos","Cherry","#be123c,#ec4899"],["Uzum","Grape","#7e22ce,#c026d3"],
+   ["Dengiz","Sea","#0f766e,#06b6d4,#3b82f6"],["Shafaq","Sunset","#f59e0b,#ef4444,#a21caf"],["Tong","Dawn","#fb7185,#f59e0b,#0ea5e9"],["Lavanda","Lavender","#8b5cf6,#c084fc,#e879f9"],
+   ["Yalpiz","Mint","#059669,#2dd4bf"],["Galaktika","Galaxy","#6366f1,#a21caf,#db2777"],["Avrora","Aurora","#10b981,#06b6d4,#8b5cf6"],["Shirin","Candy","#ec4899,#8b5cf6,#06b6d4"]]
+    .forEach(function(g){ G(g[0],g[1],"gr",lin(g[2],.22)); });
+  var a1=rg("#8b5cf6",.16), a2=rg("#0d9488",.14), a3=rg("#db2777",.12);
+  G("Ko'k chiziqlar","Blue stripes","pt","repeating-linear-gradient(45deg,"+rg("#3b82f6",.13)+" 0 8px,transparent 8px 16px)");
+  G("Yashil chiziqlar","Green stripes","pt","repeating-linear-gradient(-45deg,"+rg("#16a34a",.13)+" 0 8px,transparent 8px 16px)");
+  G("Yotiq chiziqlar","Horizontal stripes","pt","repeating-linear-gradient(180deg,"+rg("#ec4899",.13)+" 0 4px,transparent 4px 10px)");
+  G("Tik chiziqlar","Vertical stripes","pt","repeating-linear-gradient(90deg,"+rg("#f97316",.14)+" 0 6px,transparent 6px 14px)");
+  G("No'xatli","Polka dots","pt","radial-gradient(circle,"+rg("#e11d48",.25)+" 2.5px,transparent 3px) 0 0/14px 14px");
+  G("Katta no'xat","Big dots","pt","radial-gradient(circle,"+rg("#3b82f6",.16)+" 6px,transparent 6.5px) 0 0/26px 26px");
+  G("Shaxmat","Chessboard","pt","repeating-conic-gradient("+rg("#475569",.11)+" 0 25%,transparent 0 50%) 0 0/20px 20px");
+  G("Katak daftar","Grid paper","pt","linear-gradient("+rg("#3b82f6",.2)+" 1px,transparent 1px) 0 0/12px 12px,linear-gradient(90deg,"+rg("#3b82f6",.2)+" 1px,transparent 1px) 0 0/12px 12px");
+  G("Chiziqli daftar","Lined paper","pt","linear-gradient(90deg,transparent 12px,"+rg("#ef4444",.45)+" 12px 13px,transparent 13px),linear-gradient("+rg("#3b82f6",.22)+" 1px,transparent 1px) 0 4px/100% 10px");
+  G("Zigzag","Zigzag","pt",zig(a1,16));
+  G("Romb","Diamonds","pt",romb(a2,18));
+  G("To'lqin","Waves","pt","radial-gradient(circle at 50% 0,transparent 6px,"+rg("#0ea5e9",.22)+" 6.5px 8px,transparent 8.5px) 0 0/24px 12px");
+  G("Konfetti","Confetti","pt",[["15% 25%","#f43f5e"],["60% 70%","#22c55e"],["35% 85%","#3b82f6"],["85% 20%","#eab308"],["70% 40%","#8b5cf6"]].map(function(d){
+    return "radial-gradient(circle at "+d[0]+","+rg(d[1],.55)+" 1.8px,transparent 2.4px) 0 0/30px 22px"; }).join(","));
+  G("Pufakchalar","Bubbles","pt","radial-gradient(circle,transparent 4px,"+rg("#0ea5e9",.3)+" 4.5px 5.5px,transparent 6px) 0 0/22px 22px,radial-gradient(circle,transparent 2px,"+rg("#6366f1",.28)+" 2.5px 3.2px,transparent 3.7px) 11px 11px/22px 22px");
+  G("Shotland katagi","Plaid","pt","repeating-linear-gradient(0deg,"+rg("#dc2626",.1)+" 0 4px,transparent 4px 14px),repeating-linear-gradient(90deg,"+rg("#2563eb",.1)+" 0 4px,transparent 4px 14px)");
+  G("Kamuflyaj","Camouflage","pt","radial-gradient(circle at 20% 30%,"+rg("#4d7c0f",.22)+" 0 7px,transparent 8px) 0 0/40px 26px,radial-gradient(circle at 70% 70%,"+rg("#3f6212",.2)+" 0 8px,transparent 9px) 0 0/40px 26px,radial-gradient(circle at 50% 10%,"+rg("#84cc16",.2)+" 0 5px,transparent 6px) 0 0/30px 22px");
+  G("Nuqtali panjara","Dot grid","pt","radial-gradient(circle,"+rg("#475569",.3)+" 1.2px,transparent 1.7px) 0 0/10px 10px");
+  G("Ehtiyot","Caution","pt","repeating-linear-gradient(45deg,"+rg("#facc15",.22)+" 0 10px,"+rg("#111827",.07)+" 10px 20px)");
+  G("Argyle","Argyle","pt",romb(a3,24));
+  G("Mozaika","Mosaic","pt","repeating-conic-gradient("+rg("#ef4444",.13)+" 0 25%,"+rg("#3b82f6",.13)+" 0 50%,"+rg("#22c55e",.13)+" 0 75%,"+rg("#eab308",.13)+" 0 100%) 0 0/24px 24px");
+  [["Jonli kamalak","Live rainbow","#ef4444,#f59e0b,#22c55e,#06b6d4,#8b5cf6,#ec4899,#ef4444"],["Jonli okean","Live ocean","#0ea5e9,#14b8a6,#6366f1,#0ea5e9"],
+   ["Jonli olov","Live fire","#dc2626,#f97316,#facc15,#dc2626"],["Jonli avrora","Live aurora","#10b981,#06b6d4,#8b5cf6,#10b981"],["Jonli galaktika","Live galaxy","#6366f1,#d946ef,#ec4899,#6366f1"]]
+    .forEach(function(g){ G(g[0],g[1],"an",lin(g[2],.2)+" 0 0/200% 100%","animation:rfShift 6s linear infinite"); });
+  G("Yaltiroq oltin","Shiny gold","an","linear-gradient(110deg,transparent 35%,rgba(255,255,255,.55) 50%,transparent 65%) 0 0/250% 100% no-repeat,"+rg("#facc15",.18),"animation:nfSweep 3s linear infinite");
+  G("Yaltiroq kumush","Shiny silver","an","linear-gradient(110deg,transparent 35%,rgba(255,255,255,.6) 50%,transparent 65%) 0 0/250% 100% no-repeat,"+rg("#94a3b8",.2),"animation:nfSweep 3s linear infinite");
+  G("Yuguruvchi chiziqlar","Running stripes","an","linear-gradient(45deg,"+a1+" 25%,transparent 25% 50%,"+a1+" 50% 75%,transparent 75%) 0 0/24px 24px","animation:rgRun 1.2s linear infinite");
+  G("Suzuvchi no'xat","Floating dots","an","radial-gradient(circle,"+rg("#ec4899",.28)+" 3px,transparent 3.5px) 0 0/24px 24px","animation:rgRun 2s linear infinite");
+  G("Pulsar","Pulsar","an","transparent","--c:"+rg("#06b6d4",.28)+";animation:rgPulse 2.4s ease-in-out infinite");
+  G("Yuguruvchi to'lqin","Moving waves","an","radial-gradient(circle at 50% 0,transparent 6px,"+rg("#0ea5e9",.25)+" 6.5px 8px,transparent 8.5px) 0 0/24px 12px","animation:rgRun 1.6s linear infinite");
+  G("Rang almashuvchi","Colour changing","an","transparent","animation:rgHue 6s linear infinite");
+  G("Atlas","Atlas","uz","repeating-linear-gradient(135deg,"+["#e11d48","#f59e0b","#16a34a","#2563eb","#7c3aed"].map(function(c,i){ return rg(c,.14)+" "+(i*10)+"px "+(i*10+10)+"px"; }).join(",")+")");
+  G("Adras","Adras","uz","repeating-linear-gradient(90deg,"+["#be123c","#facc15","#7c3aed","#16a34a","#0ea5e9"].map(function(c,i){ return rg(c,.15)+" "+(i*7)+"px "+(i*7+7)+"px"; }).join(",")+")");
+  G("Ikat","Ikat","uz",zig(rg("#7c2d12",.16),16)+","+rg("#f59e0b",.12));
+  G("Suzani","Suzani","uz","radial-gradient(circle,"+rg("#dc2626",.25)+" 0 5px,"+rg("#facc15",.32)+" 6px 8px,transparent 9px) 0 0/34px 34px,radial-gradient(circle,"+rg("#16a34a",.3)+" 2px,transparent 2.6px) 17px 17px/34px 34px,"+rg("#fde68a",.14));
+  G("Koshin","Tiles","uz","repeating-conic-gradient("+rg("#1d4ed8",.12)+" 0 25%,"+rg("#06b6d4",.12)+" 0 50%) 0 0/22px 22px");
+  G("Zarbof","Gold embroidery","uz","radial-gradient(circle,"+rg("#ca8a04",.4)+" 1.3px,transparent 1.9px) 0 0/10px 10px,"+rg("#facc15",.1));
+  G("Bayroq","Flag","uz","linear-gradient(180deg,"+rg("#0099b5",.22)+" 0 33%,"+rg("#ce1126",.25)+" 33% 36%,transparent 36% 64%,"+rg("#ce1126",.25)+" 64% 67%,"+rg("#1eb53a",.22)+" 67%)");
+  G("Paxta dalasi","Cotton field","uz","radial-gradient(circle,rgba(255,255,255,.9) 3px,transparent 3.6px) 0 0/22px 18px,"+rg("#16a34a",.18));
+  G("Gilam","Carpet","uz",romb(rg("#991b1b",.14),20)+","+rg("#dc2626",.06));
+  G("Non naqshi","Bread stamp","uz","radial-gradient(circle,"+rg("#b45309",.28)+" 1.2px,transparent 1.8px) 0 0/8px 8px,"+rg("#d97706",.1));
+  G("Lagan","Ceramic","uz","radial-gradient(circle,transparent 5px,"+rg("#1d4ed8",.22)+" 5.5px 7px,transparent 7.5px) 0 0/22px 22px,"+rg("#e0f2fe",.25));
+  G("Registon","Registan","uz",lin("#0e7490,#ca8a04,#14b8a6",.2));
+  G("Bulutli osmon","Cloudy sky","th","radial-gradient(ellipse 34px 11px at 22% 40%,rgba(255,255,255,.85),transparent 70%),radial-gradient(ellipse 44px 13px at 72% 62%,rgba(255,255,255,.8),transparent 70%),"+lin("#38bdf8,#bae6fd",.3,"180deg"));
+  G("Yulduzli tun","Starry night","th","radial-gradient(circle,"+rg("#facc15",.8)+" 1px,transparent 1.6px) 0 0/19px 13px,radial-gradient(circle,rgba(255,255,255,.7) .8px,transparent 1.3px) 9px 6px/23px 17px,"+rg("#312e81",.2));
+  G("Quyosh","Sun","th","radial-gradient(circle at 0 50%,"+rg("#facc15",.45)+","+rg("#fb923c",.15)+" 30%,transparent 60%)");
+  G("Dengiz","Sea","th","radial-gradient(circle at 50% 100%,transparent 6px,"+rg("#0284c7",.2)+" 6.5px 8px,transparent 8.5px) 0 100%/24px 14px repeat-x,"+lin("#bae6fd,#0ea5e9",.22,"180deg"));
+  G("Qum","Sand","th","radial-gradient(circle,"+rg("#a16207",.25)+" .9px,transparent 1.4px) 0 0/6px 6px,"+rg("#fde68a",.25));
+  G("O'rmon","Forest","th","radial-gradient(circle,"+rg("#14532d",.22)+" 3px,transparent 3.5px) 0 0/16px 12px,"+lin("#15803d,#65a30d",.18));
+  G("Gullar","Flowers","th","radial-gradient(circle,"+rg("#ec4899",.4)+" 0 3px,"+rg("#fde047",.45)+" 3.5px 4.5px,transparent 5px) 0 0/30px 24px,radial-gradient(circle,"+rg("#f43f5e",.35)+" 2px,transparent 2.6px) 15px 12px/30px 24px,"+rg("#bbf7d0",.15));
+  G("Kuz barglari","Autumn leaves","th","radial-gradient(ellipse 6px 3px at 30% 40%,"+rg("#ea580c",.45)+",transparent) 0 0/28px 20px,radial-gradient(ellipse 5px 3px at 75% 70%,"+rg("#b91c1c",.4)+",transparent) 0 0/28px 20px,"+rg("#fed7aa",.18));
+  G("Qorli","Snowy","th","radial-gradient(circle,rgba(255,255,255,.95) 1.6px,transparent 2.2px) 0 0/14px 14px,radial-gradient(circle,rgba(255,255,255,.8) 1px,transparent 1.5px) 7px 7px/14px 14px,"+rg("#7dd3fc",.25));
+  G("Kamalakli osmon","Rainbow sky","th",lin("#ef4444,#f59e0b,#eab308,#22c55e,#06b6d4,#8b5cf6",.14));
+  G("Shafaq osmoni","Sunset sky","th",lin("#f97316,#ec4899,#8b5cf6",.24,"180deg"));
+  G("Bahor","Spring","th","radial-gradient(circle,rgba(255,255,255,.8) 2px,transparent 2.6px) 0 0/20px 16px,"+lin("#22c55e,#a3e635,#facc15",.2));
+  G("Pul","Money","bz","repeating-linear-gradient(90deg,"+rg("#16a34a",.16)+" 0 2px,transparent 2px 12px),"+rg("#16a34a",.1));
+  G("Oltin tangalar","Gold coins","bz","radial-gradient(circle,"+rg("#facc15",.45)+" 0 5px,"+rg("#b45309",.35)+" 5.5px 6.5px,transparent 7px) 0 0/30px 22px,"+rg("#fde68a",.15));
+  G("O'sish grafigi","Growth chart","bz","linear-gradient(to top right,transparent 49%,"+rg("#16a34a",.5)+" 49.5% 50.5%,transparent 51%),linear-gradient("+rg("#64748b",.12)+" 1px,transparent 1px) 0 0/14px 14px,linear-gradient(90deg,"+rg("#64748b",.12)+" 1px,transparent 1px) 0 0/14px 14px");
+  G("Ofis","Office","bz","linear-gradient("+rg("#64748b",.1)+" 1px,transparent 1px) 0 0/18px 18px,linear-gradient(90deg,"+rg("#64748b",.1)+" 1px,transparent 1px) 0 0/18px 18px,"+rg("#94a3b8",.08));
+  G("Startap","Startup","bz",lin("#7c3aed,#ec4899,#f97316",.2));
+  G("Bozor","Market","bz","repeating-linear-gradient(90deg,"+rg("#ef4444",.17)+" 0 14px,transparent 14px 28px)");
+  G("Bank","Bank","bz","repeating-linear-gradient(180deg,transparent 0 9px,"+rg("#ca8a04",.25)+" 9px 10px),"+lin("#1e3a8a,#1e3a8a",.14));
+  G("Kripto","Crypto","bz","radial-gradient(circle,"+rg("#f97316",.35)+" 1.6px,transparent 2.2px) 0 0/12px 12px,"+lin("#f97316,#eab308",.12));
+  G("Hisob-kitob","Ledger","bz","repeating-linear-gradient(90deg,transparent 0 22px,"+rg("#16a34a",.22)+" 22px 23px),linear-gradient("+rg("#3b82f6",.16)+" 1px,transparent 1px) 0 3px/100% 10px");
+  G("Kofe","Coffee","bz",lin("#78350f,#d6a756",.2));
+  G("Brend","Brand","bz",lin("#2563eb,#db2777",.24));
+  G("Lider","Leader","bz",lin("#eab308,#dc2626",.22));
   NS_CSS=css.join("\n");
 })();
 function nsCss(){
@@ -1381,12 +1480,12 @@ function nsCss(){
   var s=document.createElement("style"); s.id="rtNsCss"; s.textContent=NS_CSS; document.head.appendChild(s);
   var l=document.createElement("link"); l.id="rtNsFont"; l.rel="stylesheet"; l.href=NS_FONT; document.head.appendChild(l);
 }
-/* 🛠 o'zi yasaydigan ramka: faqat shu ro'yxatlardagi qiymatlar qabul qilinadi */
+/* 🛠 o'zi yasaydigan ramka va fon: faqat shu ro'yxatlardagi qiymatlar qabul qilinadi */
 var NB_S=[["so","Bir rang","Solid"],["gr","Gradient","Gradient"],["da","Uzuq","Dashed"],["do","Nuqtali","Dotted"],["db","Qo'sh","Double"],["no","Chiziqsiz","None"]];
 var NB_R=[["0","To'g'ri","Square"],["1","Biroz yumaloq","Slightly round"],["2","Yumaloq","Round"],["3","Kapsula","Capsule"]];
 var NB_BG=[["no","Yo'q","None"],["ti","Rangli","Tinted"],["gr","Gradient","Gradient"],["st","Chiziqli","Stripes"],["dt","Nuqtali","Dots"],["ck","Shaxmat","Checks"],["gd","Katak","Grid"]];
 var NB_GL=[["0","Yo'q","None"],["1","Kuchsiz","Soft"],["2","Kuchli","Strong"]];
-var NB_AN=[["no","Yo'q","None"],["pu","Yonib-o'chish","Pulse"],["hu","Rang almashish","Colour cycle"],["be","Yurak urishi","Heartbeat"]];
+var NB_AN=[["no","Yo'q","None"],["pu","Yonib-o'chish","Pulse"],["hu","Rang almashish","Colour cycle"],["be","Nafas","Breathing"]];
 function nbV(v,L,d){ v=String(v==null?"":v); return L.some(function(z){ return z[0]===v; })?v:d; }
 function nbHex(v,d){ return /^#[0-9a-f]{6}$/i.test(String(v||""))?String(v).toLowerCase():d; }
 function nsCus(c){
@@ -1395,31 +1494,27 @@ function nsCus(c){
   return {c1:nbHex(c.c1,"#2563eb"),c2:nbHex(c.c2,"#ec4899"),s:nbV(c.s,NB_S,"so"),w:w>=1&&w<=6?w:2,r:nbV(c.r,NB_R,"2"),
     bg:nbV(c.bg,NB_BG,"ti"),gl:nbV(c.gl,NB_GL,"0"),an:nbV(c.an,NB_AN,"no")};
 }
-function nsCusCss(c){
-  var rg=nsRg, a=[], w=c.w, s=c.s;
-  var pat={ti:["linear-gradient("+rg(c.c1,.12)+","+rg(c.c1,.12)+")"],gr:["linear-gradient(90deg,"+rg(c.c1,.22)+","+rg(c.c2,.22)+")"],
-    st:["repeating-linear-gradient(45deg,"+rg(c.c2,.22)+" 0 5px,transparent 5px 10px)"],dt:["radial-gradient(circle,"+rg(c.c2,.5)+" 1.5px,transparent 2px) 0 0/8px 8px"],
-    ck:["repeating-conic-gradient("+rg(c.c2,.22)+" 0 25%,transparent 0 50%) 0 0/10px 10px"],
-    gd:["linear-gradient("+rg(c.c2,.28)+" 1px,transparent 1px) 0 0/8px 8px","linear-gradient(90deg,"+rg(c.c2,.28)+" 1px,transparent 1px) 0 0/8px 8px"]}[c.bg]||[];
-  if(s==="gr"){
-    a.push("border:"+w+"px solid transparent");
-    a.push("background:"+pat.map(function(l){ return l+" padding-box"; }).concat(["linear-gradient(var(--panel),var(--panel)) padding-box","linear-gradient(90deg,"+c.c1+","+c.c2+") border-box"]).join(","));
-  } else {
-    a.push(s==="no"?"border:0":"border:"+(s==="db"?Math.max(w,3):w)+"px "+{so:"solid",da:"dashed",do:"dotted",db:"double"}[s]+" "+c.c1);
-    if(pat.length) a.push("background:"+pat.join(","));
-  }
-  a.push("border-radius:"+["0","6px","12px","999px"][+c.r]);
-  if(c.gl==="1") a.push("box-shadow:0 0 6px "+rg(c.c1,.55));
-  if(c.gl==="2") a.push("box-shadow:0 0 12px "+rg(c.c1,.8)+",inset 0 0 6px "+rg(c.c1,.35));
-  if(c.an==="pu") a.push("--c:"+c.c1+";animation:nfPulse 1.8s ease-in-out infinite");
-  if(c.an==="hu") a.push("animation:nnHue 4s linear infinite");
-  if(c.an==="be") a.push("animation:nnBeat 1.4s ease-in-out infinite");
-  return a.join(";");
+function nsPat(c){
+  var rg=nsRg;
+  return {ti:[rg(c.c1,.14)],gr:["linear-gradient(90deg,"+rg(c.c1,.22)+","+rg(c.c2,.22)+")"],
+    st:["repeating-linear-gradient(45deg,"+rg(c.c2,.18)+" 0 8px,transparent 8px 16px)"],dt:["radial-gradient(circle,"+rg(c.c2,.35)+" 2.5px,transparent 3px) 0 0/14px 14px"],
+    ck:["repeating-conic-gradient("+rg(c.c2,.14)+" 0 25%,transparent 0 50%) 0 0/20px 20px"],
+    gd:["linear-gradient("+rg(c.c2,.22)+" 1px,transparent 1px) 0 0/12px 12px","linear-gradient(90deg,"+rg(c.c2,.22)+" 1px,transparent 1px) 0 0/12px 12px"]}[c.bg]||[];
+}
+/* qatorga qo'yiladigan class va style (o'zi yasaganlar uchun CSS o'zgaruvchilari tekshirilgan qiymatlardan) */
+function nsRow(st){
+  var cls="rt-row "+st.b+" "+st.g, sty="", c=st.c;
+  if(c&&st.b==="bx"){ cls+=" bxs-"+c.s+" bxg-"+c.gl+" bxa-"+c.an; sty+="--c1:"+c.c1+";--c2:"+c.c2+";--bw:"+(c.s==="db"?Math.max(c.w,3):c.w)+"px;--rr:"+["0px","6px","12px","999px"][+c.r]+";"; }
+  if(c&&st.g==="gx"){ var p=nsPat(c); if(p.length) sty+="background:"+p.join(",")+";"; }
+  return {cls:cls,sty:sty};
 }
 function nkClean(v){ return String(v||"").replace(/[<>&"\u0000-\u001f]/g,"").replace(/\s+/g," ").trim().slice(0,20); }
 function nkOf(x){ var v=NICK&&x&&NICK[x.id]; return typeof v==="string"&&v?v:""; }
 function nsOk(v,L){ return L.some(function(z){ return z[0]===v; })?v:""; }
-function nsOf(x){ var n=(x&&x.ns)||{}, c=nsCus(n.c); return {f:nsOk(n.f,NS_F)||"n0",b:n.b==="bx"&&c?"bx":(nsOk(n.b,NS_B)||"b0"),c:c}; }
+function nsOf(x){
+  var n=(x&&x.ns)||{}, c=nsCus(n.c);
+  return {f:nsOk(n.f,NS_F)||"n0",b:n.b==="bx"&&c?"bx":(nsOk(n.b,NS_B)||"b0"),g:n.g==="gx"&&c?"gx":(nsOk(n.g,NS_G)||"g0"),c:c};
+}
 function nkLoad(cb,force){
   if(!cloudOn||!BASE){ cb(); return; }
   if(!force&&Date.now()-NICK_AT<60000){ cb(); return; }
@@ -1429,25 +1524,26 @@ function nkLoad(cb,force){
 function nkReal(x){ return ((x.name||"")+" "+(x.surname||"")).trim(); }
 /* reytingdagi ko'rinadigan ism: o'qituvchi — doim haqiqiy ism, boshqalar — nik, niki yo'q bo'lsa ism-familiya */
 function nkDisp(x){ return isTc?nkReal(x):(nkOf(x)||nkReal(x)); }
-function nkBadge(st,txt){
-  return '<span class="rt-nf '+st.b+'"'+(st.b==="bx"&&st.c?' style="'+esc(nsCusCss(st.c))+'"':'')+'><span class="rt-nn '+st.f+'">'+esc(txt)+'</span></span>';
-}
 function nkName(x,me){
   var nk=nkOf(x);
-  return '<span class="rt-nkw"'+(me?' data-nkme="1"':'')+'>'+nkBadge(nsOf(x),nkDisp(x))+'</span>'+
+  return '<span class="rt-nn '+nsOf(x).f+'">'+esc(nkDisp(x))+'</span>'+
     (isTc&&nk?' <span class="rt-nk-sub">🏷 '+esc(nk)+'</span>':'')+(me&&!isTc?' <span class="rt-nk-sub">('+T("siz","you")+')</span>':'');
 }
+/* tanlash oynasidagi kichik qator namunasi */
+function nkMini(st,me){
+  var R=nsRow(st);
+  return '<div class="'+R.cls+' rt-rmini"'+(R.sty?' style="'+esc(R.sty)+'"':'')+'><b class="rt-rm-r">#</b><span class="rt-nn '+st.f+'">'+esc(nkDisp(me))+'</span>'+
+    '<b class="rt-rm-p">'+(+me.total||0)+'</b></div>';
+}
 /* talaba: o'z niki va ko'rinishini sozlash (reyting oynasi tepasida) */
-var NS_TABS=[["nk","🏷 Nik","🏷 Nickname"],["f","✍️ Ism dizayni","✍️ Name style"],["b","🖼 Ramka","🖼 Frame"],["x","🛠 O'zim yasayman","🛠 Make my own"]];
+var NS_TABS=[["nk","🏷 Nik","🏷 Nickname"],["f","✍️ Ism dizayni","✍️ Name style"],["b","🖼 Ramka","🖼 Frame"],["g","🎨 Ramka foni","🎨 Background"],["x","🛠 O'zim yasayman","🛠 Make my own"]];
 function nkMeHtml(me){
   if(!S||!approved()||!cloudOn) return "";
   me=me||{id:S.id,name:S.name,surname:S.surname};
   nsCss();
-  var shown=nkDisp(me);
-  return '<div class="rt-nkbox"><div class="rt-nkhead"><span class="rt-tav">'+avHtml(me,{size:34,name:shown})+'</span>'+
-    '<span class="rt-nkw" data-nkme="1">'+nkBadge(nsOf(me),shown)+'</span>'+
-    '<span class="rt-nk-sub">'+T("Reytingda siz shunday ko'rinasiz","This is how you appear in the rating")+'</span>'+
+  return '<div class="rt-nkbox"><div class="rt-nkhead"><span class="rt-nk-sub">'+T("Reytingda qatoringiz shunday ko'rinadi:","Your row in the rating looks like this:")+'</span>'+
     '<button type="button" class="btn sm" id="nkEdit">🎨 '+(NS_ED?T("Yopish","Close"):T("Ko'rinishni sozlash","Customize"))+'</button></div>'+
+    '<div id="nkPrev">'+nkMini(nsOf(me),me)+'</div>'+
     (NS_ED?'<div class="rt-nked" id="nkEd">'+nkEdHtml(me)+'</div>':'')+'</div>';
 }
 function nbSeg(k,lb,L,v){
@@ -1455,9 +1551,9 @@ function nbSeg(k,lb,L,v){
     return '<button type="button" data-k="'+k+'" data-v="'+z[0]+'"'+(z[0]===v?' class="on"':'')+'>'+T(z[1],z[2])+'</button>'; }).join("")+'</div>';
 }
 function nkEdHtml(me){
-  var st=nsOf(me), shown=nkDisp(me), nk=nkOf(me), rq=me.nkReq||{}, pend=rq.n&&!rq.rej&&rq.n!==nk;
+  var st=nsOf(me), nk=nkOf(me), rq=me.nkReq||{}, pend=rq.n&&!rq.rej&&rq.n!==nk, LS={f:NS_F,b:NS_B,g:NS_G};
   var h='<div class="rt-nktabs">'+NS_TABS.map(function(t){
-    return '<button type="button" class="rt-nktab'+(t[0]===NS_TAB?" on":"")+'" data-t="'+t[0]+'">'+T(t[1],t[2])+(t[0]==="f"||t[0]==="b"?' <small>'+(t[0]==="f"?NS_F:NS_B).length+'</small>':'')+'</button>'; }).join("")+'</div>';
+    return '<button type="button" class="rt-nktab'+(t[0]===NS_TAB?" on":"")+'" data-t="'+t[0]+'">'+T(t[1],t[2])+(LS[t[0]]?' <small>'+LS[t[0]].length+'</small>':'')+'</button>'; }).join("")+'</div>';
   if(NS_TAB==="nk"){
     h+='<p class="rt-note" style="margin:0 0 6px">'+T("Nik qo'ysangiz, reytingda boshqalar ismingiz o'rniga nikingizni ko'radi. Nik o'qituvchi tasdiqlagach paydo bo'ladi; nik qo'ymasangiz, ism-familiyangiz turadi.",
         "With a nickname, others see it in the rating instead of your name. It appears after the teacher approves it; without one your name is shown.")+'</p>'+
@@ -1465,31 +1561,40 @@ function nkEdHtml(me){
       '<button type="button" class="btn accent sm" id="nkSend">📨 '+T("Tasdiqqa yuborish","Send for approval")+'</button></div>'+
       '<p class="rt-note" id="nkSt" style="margin:4px 0 0;font-weight:700">'+
         (pend?"⏳ "+T("Tasdiq kutilmoqda: «","Waiting for approval: «")+esc(rq.n)+"»":(rq.rej&&rq.n?"❌ "+T("«"+esc(rq.n)+"» rad etildi — boshqa nik yozing","«"+esc(rq.n)+"» was rejected — try another"):(nk?"✅ "+T("Tasdiqlangan nik: «","Approved nickname: «")+esc(nk)+"»":"")))+'</p>';
-  } else if(NS_TAB==="f"||NS_TAB==="b"){
-    var isF=NS_TAB==="f", L=isF?NS_F:NS_B, C=isF?NS_CATF:NS_CATB, cur=isF?NS_CF:NS_CB;
-    h+='<div class="rt-nkcats">'+C.map(function(c){
+  } else if(LS[NS_TAB]){
+    var k=NS_TAB, L=LS[k], cur=NS_CAT[k];
+    h+='<div class="rt-nkcats">'+NS_CAT_L[k].map(function(c){
         var n=c[0]==="all"?L.length:L.filter(function(z){ return z[3]===c[0]; }).length;
         return '<button type="button" class="rt-nkcat'+(c[0]===cur?" on":"")+'" data-c="'+c[0]+'">'+T(c[1],c[2])+' <small>'+n+'</small></button>'; }).join("")+'</div>'+
-      '<div class="rt-nsg">'+L.filter(function(z){ return cur==="all"||z[3]===cur; }).map(function(z){
-        return '<button type="button" class="rt-nso'+(z[0]===(isF?st.f:st.b)?" on":"")+'" data-'+(isF?"f":"b")+'="'+z[0]+'">'+
-          (isF?'<span class="rt-nn '+z[0]+'">'+esc(shown)+'</span>':nkBadge({f:st.f,b:z[0]},shown))+'<small>'+T(z[1],z[2])+'</small></button>'; }).join("")+'</div>';
+      '<div class="rt-nsg'+(k==="f"?"":" rows")+'">'+L.filter(function(z){ return cur==="all"||z[3]===cur; }).map(function(z){
+        var o={f:st.f,b:st.b,g:st.g,c:st.c}; o[k]=z[0];
+        return '<button type="button" class="rt-nso'+(z[0]===st[k]?" on":"")+'" data-'+k+'="'+z[0]+'">'+
+          (k==="f"?'<span class="rt-nn '+z[0]+'">'+esc(nkDisp(me))+'</span>':nkMini(o,me))+'<small>'+T(z[1],z[2])+'</small></button>'; }).join("")+'</div>';
   } else {
     var c=NB||(NB=nsCus(st.c||{}));
-    h+='<p class="rt-note" style="margin:0 0 6px">'+T("Ranglarni, chiziqni, fonni va harakatni tanlang — natija pastda darhol ko'rinadi. Yoqsa «Shu ramkani qo'yish» ni bosing.",
-        "Pick colours, line, background and motion — the result shows below right away. Press «Use this frame» when you like it.")+'</p>'+
-      '<div class="rt-nbpv">'+nkBadge({f:st.f,b:"bx",c:c},shown)+'</div>'+
-      '<div class="rt-nbrow"><label>🎨 '+T("1-rang","Colour 1")+' <input type="color" id="nbC1" value="'+c.c1+'"></label>'+
-      '<label>🎨 '+T("2-rang","Colour 2")+' <input type="color" id="nbC2" value="'+c.c2+'"></label>'+
+    h+='<p class="rt-note" style="margin:0 0 6px">'+T("Qator ramkasi va fonini o'zingiz yasang: ranglar, chiziq, burchak, fon naqshi, nur va harakat — natija pastda darhol ko'rinadi. Yoqsa «Shu ko'rinishni qo'yish» ni bosing.",
+        "Build your own row frame and background — the result shows below right away. Press «Use this look» when you like it.")+'</p>'+
+      '<div class="rt-nbpv">'+nkMini({f:st.f,b:"bx",g:"gx",c:c},me)+'</div>'+
+      '<div class="rt-nbrow"><label>🎨 '+T("1-rang (ramka)","Colour 1 (frame)")+' <input type="color" id="nbC1" value="'+c.c1+'"></label>'+
+      '<label>🎨 '+T("2-rang (naqsh)","Colour 2 (pattern)")+' <input type="color" id="nbC2" value="'+c.c2+'"></label>'+
       '<label>📏 '+T("Qalinlik","Width")+' <input type="range" id="nbW" min="1" max="6" step="1" value="'+c.w+'"></label></div>'+
       nbSeg("s",T("Chiziq","Line"),NB_S,c.s)+nbSeg("r",T("Burchak","Corners"),NB_R,c.r)+nbSeg("bg",T("Fon","Background"),NB_BG,c.bg)+
       nbSeg("gl",T("Nur","Glow"),NB_GL,c.gl)+nbSeg("an",T("Harakat","Motion"),NB_AN,c.an)+
-      '<div class="rt-khrow" style="margin-top:10px"><button type="button" class="btn accent sm" id="nbSave">✅ '+T("Shu ramkani qo'yish","Use this frame")+'</button>'+
+      '<div class="rt-khrow" style="margin-top:10px"><button type="button" class="btn accent sm" id="nbSave">✅ '+T("Shu ko'rinishni qo'yish","Use this look")+'</button>'+
       '<button type="button" class="btn sm" id="nbRnd">🎲 '+T("Tasodifiy","Random")+'</button>'+
-      (st.b==="bx"?'<span class="rt-note">✔ '+T("Hozir o'zingiz yasagan ramka turibdi","Your own frame is in use")+'</span>':'')+'</div>';
+      (st.b==="bx"?'<span class="rt-note">✔ '+T("Hozir o'zingiz yasagan ko'rinish turibdi","Your own look is in use")+'</span>':'')+'</div>';
   }
   return h;
 }
-function nkPaint(me){ var st=nsOf(me), t=nkDisp(me); [].forEach.call(document.querySelectorAll("[data-nkme]"),function(e){ e.innerHTML=nkBadge(st,t); }); }
+/* o'zgarish darhol: tepadagi namuna va jadvaldagi o'z qatori */
+function nkPaint(me){
+  var st=nsOf(me), R=nsRow(st), pv=document.getElementById("nkPrev");
+  if(pv) pv.innerHTML=nkMini(st,me);
+  [].forEach.call(document.querySelectorAll("tr[data-nkme]"),function(tr){
+    tr.className=tr.dataset.bc+" "+R.cls; tr.setAttribute("style",tr.dataset.bs+R.sty);
+    var n=tr.querySelector(".rt-nn"); if(n) n.className="rt-nn "+st.f;
+  });
+}
 function nkEdRe(me){ var e=document.getElementById("nkEd"); if(!e) return; e.innerHTML=nkEdHtml(me); nkEdBind(me); }
 function nsSave(me,ns){
   me.ns=ns; nkPaint(me);
@@ -1505,9 +1610,9 @@ function nkEdBind(me){
   var box=document.getElementById("nkEd"), q=function(id){ return document.getElementById(id); };
   var all=function(sel,fn){ [].forEach.call(box.querySelectorAll(sel),fn); };
   all(".rt-nktab",function(b){ b.onclick=function(){ NS_TAB=b.dataset.t; nkEdRe(me); }; });
-  all(".rt-nkcat",function(b){ b.onclick=function(){ if(NS_TAB==="f") NS_CF=b.dataset.c; else NS_CB=b.dataset.c; nkEdRe(me); }; });
+  all(".rt-nkcat",function(b){ b.onclick=function(){ NS_CAT[NS_TAB]=b.dataset.c; nkEdRe(me); }; });
   all(".rt-nso",function(b){ b.onclick=function(){
-    var st=nsOf(me), ns={f:b.dataset.f||st.f,b:b.dataset.b||st.b};
+    var st=nsOf(me), ns={f:b.dataset.f||st.f,b:b.dataset.b||st.b,g:b.dataset.g||st.g};
     if(st.c) ns.c=st.c;
     all(".rt-nso.on",function(o){ o.classList.remove("on"); }); b.classList.add("on");
     nsSave(me,ns);
@@ -1522,7 +1627,7 @@ function nkEdBind(me){
       .catch(function(){ toast(T("Yuborilmadi — internetni tekshiring","Not sent — check the connection")); nkEdRe(me); });
   };
   if(!q("nbSave")) return;
-  var pv=function(){ box.querySelector(".rt-nbpv").innerHTML=nkBadge({f:nsOf(me).f,b:"bx",c:NB},nkDisp(me)); };
+  var pv=function(){ box.querySelector(".rt-nbpv").innerHTML=nkMini({f:nsOf(me).f,b:"bx",g:"gx",c:NB},me); };
   q("nbC1").oninput=function(){ NB.c1=nbHex(this.value,NB.c1); pv(); };
   q("nbC2").oninput=function(){ NB.c2=nbHex(this.value,NB.c2); pv(); };
   q("nbW").oninput=function(){ NB=nsCus(Object.assign({},NB,{w:this.value})); pv(); };
@@ -1531,7 +1636,7 @@ function nkEdBind(me){
     [].forEach.call(b.parentNode.querySelectorAll("button"),function(o){ o.classList.toggle("on",o===b); });
     pv();
   }; });
-  q("nbSave").onclick=function(){ nsSave(me,{f:nsOf(me).f,b:"bx",c:nsCus(NB)}); nkEdRe(me); };
+  q("nbSave").onclick=function(){ nsSave(me,{f:nsOf(me).f,b:"bx",g:"gx",c:nsCus(NB)}); nkEdRe(me); };
   q("nbRnd").onclick=function(){
     var pick=function(L){ return L[Math.floor(Math.random()*L.length)][0]; }, hex=function(){ return "#"+("00000"+Math.floor(Math.random()*16777216).toString(16)).slice(-6); };
     NB=nsCus({c1:hex(),c2:hex(),s:pick(NB_S.slice(0,5)),w:1+Math.floor(Math.random()*4),r:pick(NB_R),bg:pick(NB_BG),gl:pick(NB_GL),an:Math.random()<.7?"no":pick(NB_AN)});
@@ -1581,7 +1686,8 @@ function renderTop(){
     var rows=list.map(function(x,i){
       var m=prizeCell(i), pc=PRIZES[i];
       var av=avgMark(x), nt=(CFG.topics||[]).length||15;
-      return '<tr class="'+(S&&x.id===S.id?"me ":"")+(pc?"rt-ptop rt-p"+(i+1):"")+'"'+(pc?' style="--pc:'+pc.c+'"':'')+'><td class="rt-medal">'+m+'</td><td><span class="rt-tav">'+avHtml(x,{size:28,name:nkDisp(x)})+'</span>'+nkName(x,S&&x.id===S.id)+
+      var me=S&&x.id===S.id, bc=(me?"me ":"")+(pc?"rt-ptop rt-p"+(i+1):""), bs=pc?"--pc:"+pc.c+";":"", R=nsRow(nsOf(x));
+      return '<tr class="'+bc+' '+R.cls+'" style="'+esc(bs+R.sty)+'"'+(me?' data-nkme="1" data-bc="'+bc+'" data-bs="'+bs+'"':'')+'><td class="rt-medal">'+m+'</td><td><span class="rt-tav">'+avHtml(x,{size:28,name:nkDisp(x)})+'</span>'+nkName(x,me)+
         '</td><td>'+esc(x.group)+'</td><td><b>'+(x.total||0)+'</b></td>'+
         '<td title="'+T("o\'rtacha baho","average mark")+'">'+mkTag(av.a?+av.a.toFixed(1):0)+'</td>'+
         '<td>'+av.n+' / '+nt+'</td>'+
@@ -1589,7 +1695,7 @@ function renderTop(){
           '" title="'+T("Reytingdan o\'chirish","Remove from the rating")+'">🗑</button></td>':'')+'</tr>';
     }).join("");
     var meX=S&&list.filter(function(x){ return x.id===S.id; })[0];
-    box.innerHTML=(isTc?'':nkMeHtml(meX))+'<div class="tw"><table class="rt-table"><thead><tr><th>#</th><th>'+T("Talaba","Student")+'</th><th>'+
+    box.innerHTML=(isTc?'':nkMeHtml(meX))+'<div class="tw"><table class="rt-table rt-topt'+(isTc?' tc':'')+'"><thead><tr><th>#</th><th>'+T("Talaba","Student")+'</th><th>'+
       T("Guruh","Group")+'</th><th>'+T("Ball","Points")+'</th><th>'+T("O\'rtacha baho","Average")+'</th><th>'+
       T("Baholangan dars","Lessons marked")+'</th>'+(isTc?'<th></th>':'')+'</tr></thead><tbody>'+
       (rows||'<tr><td colspan="7">'+T("Hozircha ro\'yxat bo\'sh.","The list is empty for now.")+'</td></tr>')+'</tbody></table></div>'+
