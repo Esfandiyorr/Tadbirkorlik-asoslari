@@ -570,6 +570,10 @@ html.kh-gated,html.kh-gated body{overflow:hidden!important}
 @keyframes rgRun{to{background-position:24px 0}}
 @keyframes rgPulse{0%,100%{background-color:transparent}50%{background-color:var(--c)}}
 @keyframes rgHue{0%,100%{background-color:rgba(239,68,68,.16)}25%{background-color:rgba(234,179,8,.16)}50%{background-color:rgba(34,197,94,.16)}75%{background-color:rgba(59,130,246,.16)}}
+.rt-row[class*=" fl-"]{--flo:color-mix(in srgb,var(--panel) 52%,transparent);background:linear-gradient(var(--flo),var(--flo)),var(--flu,none) center/100% 100% no-repeat}
+.rt-row.rt-lz{--flu:none}
+.rt-nsq{display:block;width:100%;box-sizing:border-box;margin:0 0 8px;padding:8px 12px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--ink);font:inherit;font-size:14px}
+.rt-nso[hidden]{display:none}
 .rt-rmini{display:flex;align-items:center;gap:12px;width:100%;box-sizing:border-box;min-height:46px;padding:8px 16px;font-size:14.5px}
 .rt-rmini .rt-nn{flex:1;text-align:left}
 .rt-rm-r{color:var(--muted)}.rt-rm-p{font-weight:800}
