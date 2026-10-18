@@ -1236,8 +1236,9 @@ function ratingHidden(x){
      b:"bx" / g:"gx" — talabaning o'zi yasagan ramka/fon, sozlamalari c da. c dan CSS faqat tekshirilgan
      qiymatlardan (#rrggbb ranglar, ro'yxatdagi turlar, 1–6 px) yasaladi.
    Reyting jadvalida har bir qator — grid "karta" (.rt-row): fon qatorning o'zida, ramka ::before da,
-   nur/soya ::after da. n0–n11 engine_css'da, qolganlari pastdagi ro'yxatlardan shu yerda yasaladi (nsCss). */
-var NICK={}, NICK_AT=0, NS_ED=false, NS_TAB="nk", NS_CAT={f:"all",b:"all",g:"all"}, NB=null, NS_CSS="";
+   nur/soya ::after da. O'qituvchi jadval ustidagi alohida kartada turadi; uning ko'rinishi meta/tcv/ns da
+   (meta ga faqat o'qituvchi yoza oladi), ismi — RT_CFG.teacherName. n0–n11 engine_css'da, qolganlari pastdagi ro'yxatlardan shu yerda yasaladi (nsCss). */
+var NICK={}, NICK_AT=0, TCV=null, TC_AV=null, TC_ME=null, NS_ED=false, NS_TAB="nk", NS_CAT={f:"all",b:"all",g:"all"}, NB=null, NS_CSS="";
 var NS_F=[["n0","Oddiy","Plain",""],["n1","Oltin","Gold","me"],["n2","Kamalak","Rainbow","an"],["n3","Neon ko'k","Neon blue","ne"],["n4","Neon pushti","Neon pink","ne"],["n5","Olov","Fire","gr"],
   ["n6","Okean","Ocean","gr"],["n7","Zumrad","Emerald","gr"],["n8","Shohona","Royal","gr"],["n9","Kumush","Silver","me"],["n10","3D","3D","3d"],["n11","Yozma","Script","fo"]];
 var NS_B=[], NS_G=[];
@@ -1525,8 +1526,8 @@ function nsOf(x){
 function nkLoad(cb,force){
   if(!cloudOn||!BASE){ cb(); return; }
   if(!force&&Date.now()-NICK_AT<60000){ cb(); return; }
-  window.fetch(BASE+"/meta/nick.json").then(function(r){ return r.ok?r.json():null; }).catch(function(){ return null; })
-    .then(function(v){ NICK=v||{}; NICK_AT=Date.now(); cb(); });
+  var get=function(p){ return window.fetch(BASE+p).then(function(r){ return r.ok?r.json():null; }).catch(function(){ return null; }); };
+  Promise.all([get("/meta/nick.json"),get("/meta/tcv.json")]).then(function(v){ NICK=v[0]||{}; TCV=v[1]||{}; NICK_AT=Date.now(); cb(); });
 }
 function nkReal(x){ return ((x.name||"")+" "+(x.surname||"")).trim(); }
 /* reytingdagi ko'rinadigan ism: o'qituvchi — doim haqiqiy ism, boshqalar — nik, niki yo'q bo'lsa ism-familiya */
@@ -1539,8 +1540,24 @@ function nkName(x,me){
 /* tanlash oynasidagi kichik qator namunasi */
 function nkMini(st,me,lz){
   var R=nsRow(st);
-  return '<div class="'+R.cls+' rt-rmini'+(lz?' rt-lz':'')+'"'+(R.sty?' style="'+esc(R.sty)+'"':'')+'><b class="rt-rm-r">#</b><span class="rt-nn '+st.f+'">'+esc(nkDisp(me))+'</span>'+
-    '<b class="rt-rm-p">'+(+me.total||0)+'</b></div>';
+  return '<div class="'+R.cls+' rt-rmini'+(lz?' rt-lz':'')+'"'+(R.sty?' style="'+esc(R.sty)+'"':'')+'><b class="rt-rm-r">'+(me.tc?'👨‍🏫':'#')+'</b><span class="rt-nn '+st.f+'">'+esc(nkDisp(me))+'</span>'+
+    (me.tc?'':'<b class="rt-rm-p">'+(+me.total||0)+'</b>')+'</div>';
+}
+/* 👨‍🏫 o'qituvchi kartasi (reyting jadvali ustida). Ko'rinishi hali tanlanmagan bo'lsa — oltin ism, oltin ramka */
+var TC_NS0={f:"n1",b:"b1",g:"g0"};
+function tcvMe(){
+  var n=String(CFG.teacherName||"").split(" ");
+  return {id:"tc",tc:1,name:n[0],surname:n.slice(1).join(" "),av:TC_AV,ns:(TCV&&TCV.ns)||TC_NS0};
+}
+function tcCardHtml(){
+  if(!cloudOn||!CFG.teacherName) return "";
+  var me=TC_ME=tcvMe(), st=nsOf(me), R=nsRow(st);
+  return '<div class="rt-tccard"><div class="rt-tchead"><span>👨‍🏫 '+T("Fan o'qituvchisi","Course teacher")+'</span>'+
+    (isTc?'<button type="button" class="btn sm" id="nkEdit">🎨 '+(NS_ED?T("Yopish","Close"):T("Ko'rinishni sozlash","Customize"))+'</button>':'')+'</div>'+
+    '<div class="'+R.cls+' rt-tcrow"'+(R.sty?' style="'+esc(R.sty)+'"':'')+(isTc?' data-nkme="1" data-bc="rt-tcrow" data-bs=""':'')+'>'+
+      '<span class="rt-tav">'+avHtml(me,{size:42,name:nkReal(me)})+'</span><span class="rt-nn '+st.f+'">'+esc(nkReal(me))+'</span>'+
+      '<span class="rt-tcsub">'+T("O'qituvchi","Teacher")+'</span></div>'+
+    (isTc&&NS_ED?'<div class="rt-nked" id="nkEd">'+nkEdHtml(me)+'</div>':'')+'</div>';
 }
 /* talaba: o'z niki va ko'rinishini sozlash (reyting oynasi tepasida) */
 var NS_TABS=[["nk","🏷 Nik","🏷 Nickname"],["f","✍️ Ism dizayni","✍️ Name style"],["b","🖼 Ramka","🖼 Frame"],["g","🎨 Ramka foni","🎨 Background"],["x","🛠 O'zim yasayman","🛠 Make my own"]];
@@ -1559,7 +1576,8 @@ function nbSeg(k,lb,L,v){
 }
 function nkEdHtml(me){
   var st=nsOf(me), nk=nkOf(me), rq=me.nkReq||{}, pend=rq.n&&!rq.rej&&rq.n!==nk, LS={f:NS_F,b:NS_B,g:NS_G};
-  var h='<div class="rt-nktabs">'+NS_TABS.map(function(t){
+  if(me.tc&&NS_TAB==="nk") NS_TAB="f";           /* o'qituvchida nik yo'q — haqiqiy ism */
+  var h='<div class="rt-nktabs">'+NS_TABS.filter(function(t){ return !(me.tc&&t[0]==="nk"); }).map(function(t){
     return '<button type="button" class="rt-nktab'+(t[0]===NS_TAB?" on":"")+'" data-t="'+t[0]+'">'+T(t[1],t[2])+(LS[t[0]]?' <small>'+LS[t[0]].length+'</small>':'')+'</button>'; }).join("")+'</div>';
   if(NS_TAB==="nk"){
     h+='<p class="rt-note" style="margin:0 0 6px">'+T("Nik qo'ysangiz, reytingda boshqalar ismingiz o'rniga nikingizni ko'radi. Nik o'qituvchi tasdiqlagach paydo bo'ladi; nik qo'ymasangiz, ism-familiyangiz turadi.",
@@ -1598,7 +1616,7 @@ function nkEdHtml(me){
 function nkPaint(me){
   var st=nsOf(me), R=nsRow(st), pv=document.getElementById("nkPrev");
   if(pv) pv.innerHTML=nkMini(st,me);
-  [].forEach.call(document.querySelectorAll("tr[data-nkme]"),function(tr){
+  [].forEach.call(document.querySelectorAll("[data-nkme]"),function(tr){
     tr.className=tr.dataset.bc+" "+R.cls; tr.setAttribute("style",tr.dataset.bs+R.sty);
     var n=tr.querySelector(".rt-nn"); if(n) n.className="rt-nn "+st.f;
   });
@@ -1606,7 +1624,8 @@ function nkPaint(me){
 function nkEdRe(me){ var e=document.getElementById("nkEd"); if(!e) return; e.innerHTML=nkEdHtml(me); nkEdBind(me); }
 function nsSave(me,ns){
   me.ns=ns; nkPaint(me);
-  fetch(BASE+"/students/"+S.id+"/ns.json",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(ns)})
+  if(me.tc){ TCV=TCV||{}; TCV.ns=ns; }
+  fetch(BASE+(me.tc?"/meta/tcv/ns.json":"/students/"+S.id+"/ns.json"),{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(ns)})
     .then(function(r){ if(!r.ok) throw 0; toast(T("Saqlandi ✅","Saved ✅")); }).catch(function(){ toast(T("Saqlanmadi","Not saved")); });
 }
 function nkMeBind(box,me,redraw){
@@ -1706,7 +1725,7 @@ function renderTop(){
       var m=prizeCell(i), pc=PRIZES[i];
       var av=avgMark(x), nt=(CFG.topics||[]).length||15;
       var me=S&&x.id===S.id, bc=(me?"me ":"")+(pc?"rt-ptop rt-p"+(i+1):""), bs=pc?"--pc:"+pc.c+";":"", R=nsRow(nsOf(x));
-      return '<tr class="'+bc+' '+R.cls+'" style="'+esc(bs+R.sty)+'"'+(me?' data-nkme="1" data-bc="'+bc+'" data-bs="'+bs+'"':'')+'><td class="rt-medal">'+m+'</td><td><span class="rt-tav">'+avHtml(x,{size:28,name:nkDisp(x)})+'</span>'+nkName(x,me)+
+      return '<tr class="'+bc+' '+R.cls+'" style="'+esc(bs+R.sty)+'"'+(me&&!isTc?' data-nkme="1" data-bc="'+bc+'" data-bs="'+bs+'"':'')+'><td class="rt-medal">'+m+'</td><td><span class="rt-tav">'+avHtml(x,{size:28,name:nkDisp(x)})+'</span>'+nkName(x,me)+
         '</td><td>'+esc(x.group)+'</td><td><b>'+(x.total||0)+'</b></td>'+
         '<td title="'+T("o\'rtacha baho","average mark")+'">'+mkTag(av.a?+av.a.toFixed(1):0)+'</td>'+
         '<td>'+av.n+' / '+nt+'</td>'+
@@ -1714,7 +1733,7 @@ function renderTop(){
           '" title="'+T("Reytingdan o\'chirish","Remove from the rating")+'">🗑</button></td>':'')+'</tr>';
     }).join("");
     var meX=S&&list.filter(function(x){ return x.id===S.id; })[0];
-    box.innerHTML=(isTc?'':nkMeHtml(meX))+'<div class="tw"><table class="rt-table rt-topt'+(isTc?' tc':'')+'"><thead><tr><th>#</th><th>'+T("Talaba","Student")+'</th><th>'+
+    box.innerHTML=(isTc?'':nkMeHtml(meX))+tcCardHtml()+'<div class="tw"><table class="rt-table rt-topt'+(isTc?' tc':'')+'"><thead><tr><th>#</th><th>'+T("Talaba","Student")+'</th><th>'+
       T("Guruh","Group")+'</th><th>'+T("Ball","Points")+'</th><th>'+T("O\'rtacha baho","Average")+'</th><th>'+
       T("Baholangan dars","Lessons marked")+'</th>'+(isTc?'<th></th>':'')+'</tr></thead><tbody>'+
       (rows||'<tr><td colspan="7">'+T("Hozircha ro\'yxat bo\'sh.","The list is empty for now.")+'</td></tr>')+'</tbody></table></div>'+
@@ -1727,8 +1746,12 @@ function renderTop(){
       b2.onclick=function(){ tcDel(b2.dataset.id,b2.dataset.nm,renderTop); };
     });
     if(!isTc&&meX) nkMeBind(box,meX,function(){ draw(list); });
+    if(isTc&&TC_ME) nkMeBind(box,TC_ME,function(){ draw(list); });
   }
   cloudList(function(a){ nkLoad(function(){
+    /* o'qituvchi kartasidagi rasm — o'qituvchining (reytingda yashirilgan) talaba hisobidagi avatar */
+    var tn=String(CFG.teacherName||"").toLowerCase();
+    (a||[]).forEach(function(x){ if(tn&&nkReal(x).toLowerCase()===tn&&x.av!=null) TC_AV=x.av; });
     /* tasdiq kutayotgan va bloklanganlar reytingda ko'rinmaydi */
     if(a) a=a.filter(function(x){ return (x.status||"pending")==="ok"&&!ratingHidden(x); });
     if(a&&a.length) draw(a);
