@@ -881,6 +881,10 @@ html.kh-gated,html.kh-gated body{overflow:hidden!important}
 @keyframes rgRun{to{background-position:24px 0}}
 @keyframes rgPulse{0%,100%{background-color:transparent}50%{background-color:var(--c)}}
 @keyframes rgHue{0%,100%{background-color:rgba(239,68,68,.16)}25%{background-color:rgba(234,179,8,.16)}50%{background-color:rgba(34,197,94,.16)}75%{background-color:rgba(59,130,246,.16)}}
+.rt-row[class*=" fl-"]{--flo:color-mix(in srgb,var(--panel) 52%,transparent);background:linear-gradient(var(--flo),var(--flo)),var(--flu,none) center/100% 100% no-repeat}
+.rt-row.rt-lz{--flu:none}
+.rt-nsq{display:block;width:100%;box-sizing:border-box;margin:0 0 8px;padding:8px 12px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--ink);font:inherit;font-size:14px}
+.rt-nso[hidden]{display:none}
 .rt-rmini{display:flex;align-items:center;gap:12px;width:100%;box-sizing:border-box;min-height:46px;padding:8px 16px;font-size:14.5px}
 .rt-rmini .rt-nn{flex:1;text-align:left}
 .rt-rm-r{color:var(--muted)}.rt-rm-p{font-weight:800}
@@ -3276,7 +3280,7 @@ function ratingHidden(x){
    (meta ga faqat o'qituvchi yoza oladi). Reytingda boshqalar tasdiqlangan nikni, niki yo'qlarning esa
    ism-familiyasini ko'radi; o'qituvchi doim haqiqiy ism (+ nik) ni ko'radi.
    Ko'rinish: students/<id>/ns = {f, b, g, c}:
-     f — ism dizayni (n0–n99), b — butun qator ramkasi (b0–b99), g — qator foni (g0–g99);
+     f — ism dizayni (n0–n99), b — butun qator ramkasi (b0–b99), g — qator foni (g0–g99 yoki fl-<kod> — davlat bayrog'i);
      b:"bx" / g:"gx" — talabaning o'zi yasagan ramka/fon, sozlamalari c da. c dan CSS faqat tekshirilgan
      qiymatlardan (#rrggbb ranglar, ro'yxatdagi turlar, 1–6 px) yasaladi.
    Reyting jadvalida har bir qator — grid "karta" (.rt-row): fon qatorning o'zida, ramka ::before da,
@@ -3291,7 +3295,13 @@ var NS_CAT_L={
   b:[["all","Hammasi","All"],["so","🟦 Oddiy","🟦 Plain"],["gr","✨ Gradient","✨ Gradient"],["ne","💡 Neon","💡 Neon"],["pt","🧩 Naqshli","🧩 Patterned"],
      ["an","🌈 Jonli","🌈 Animated"],["sh","🔷 Shakl","🔷 Shape"],["uz","🇺🇿 Milliy","🇺🇿 National"]],
   g:[["all","Hammasi","All"],["ti","🎨 Rangli","🎨 Tinted"],["gr","✨ Gradient","✨ Gradient"],["pt","🧩 Naqsh","🧩 Pattern"],["an","🌈 Jonli","🌈 Animated"],
-     ["uz","🇺🇿 Milliy","🇺🇿 National"],["th","🌍 Tabiat","🌍 Nature"],["bz","💼 Biznes","💼 Business"]]};
+     ["uz","🇺🇿 Milliy","🇺🇿 National"],["th","🌍 Tabiat","🌍 Nature"],["bz","💼 Biznes","💼 Business"],["fl","🏳️ Barcha bayroqlar","🏳️ All flags"],
+     ["c-as","🌏 Osiyo","🌏 Asia"],["c-eu","🌍 Yevropa","🌍 Europe"],["c-af","🌍 Afrika","🌍 Africa"],["c-na","🌎 Shimoliy Amerika","🌎 North America"],
+     ["c-sa","🌎 Janubiy Amerika","🌎 South America"],["c-oc","🏝 Okeaniya","🏝 Oceania"]]};
+/* 🏳️ davlat bayroqlari: kod:qit'a:o'zbekcha:inglizcha — 193 BMT a'zosi + Vatikan va Falastin.
+   Rasmlar fayllar/bayroqlar/<kod>.svg (flag-icons, MIT); qator fonida bayroq ustiga panel rangi yarim shaffof yotadi */
+var NS_FLAGS="uz:as:O'zbekiston:Uzbekistan;af:as:Afg'oniston:Afghanistan;al:eu:Albaniya:Albania;ad:eu:Andorra:Andorra;ao:af:Angola:Angola;ag:na:Antigua va Barbuda:Antigua and Barbuda;us:na:AQSH:United States;ar:sa:Argentina:Argentina;am:as:Armaniston:Armenia;au:oc:Avstraliya:Australia;at:eu:Avstriya:Austria;bs:na:Bagama orollari:Bahamas;bh:as:Bahrayn:Bahrain;bd:as:Bangladesh:Bangladesh;bb:na:Barbados:Barbados;by:eu:Belarus:Belarus;be:eu:Belgiya:Belgium;bz:na:Beliz:Belize;bj:af:Benin:Benin;ae:as:Birlashgan Arab Amirliklari:United Arab Emirates;bg:eu:Bolgariya:Bulgaria;bo:sa:Boliviya:Bolivia;ba:eu:Bosniya va Gersegovina:Bosnia and Herzegovina;bw:af:Botsvana:Botswana;br:sa:Braziliya:Brazil;bn:as:Bruney:Brunei;bf:af:Burkina-Faso:Burkina Faso;bi:af:Burundi:Burundi;bt:as:Butan:Bhutan;gb:eu:Buyuk Britaniya:United Kingdom;td:af:Chad:Chad;me:eu:Chernogoriya:Montenegro;cz:eu:Chexiya:Czechia;cl:sa:Chili:Chile;dk:eu:Daniya:Denmark;dm:na:Dominika:Dominica;do:na:Dominikan Respublikasi:Dominican Republic;et:af:Efiopiya:Ethiopia;ec:sa:Ekvador:Ecuador;gq:af:Ekvatorial Gvineya:Equatorial Guinea;er:af:Eritreya:Eritrea;ir:as:Eron:Iran;ee:eu:Estoniya:Estonia;sz:af:Esvatini:Eswatini;ps:as:Falastin:Palestine;fj:oc:Fiji:Fiji;ph:as:Filippin:Philippines;fi:eu:Finlandiya:Finland;fr:eu:Fransiya:France;ga:af:Gabon:Gabon;ht:na:Gaiti:Haiti;gm:af:Gambiya:Gambia;gh:af:Gana:Ghana;gy:sa:Gayana:Guyana;de:eu:Germaniya:Germany;hn:na:Gonduras:Honduras;gd:na:Grenada:Grenada;gr:eu:Gretsiya:Greece;ge:as:Gruziya:Georgia;gt:na:Gvatemala:Guatemala;gn:af:Gvineya:Guinea;gw:af:Gvineya-Bisau:Guinea-Bissau;in:as:Hindiston:India;id:as:Indoneziya:Indonesia;jo:as:Iordaniya:Jordan;ie:eu:Irlandiya:Ireland;iq:as:Iroq:Iraq;is:eu:Islandiya:Iceland;es:eu:Ispaniya:Spain;il:as:Isroil:Israel;it:eu:Italiya:Italy;za:af:Janubiy Afrika Respublikasi:South Africa;kr:as:Janubiy Koreya:South Korea;ss:af:Janubiy Sudan:South Sudan;dz:af:Jazoir:Algeria;dj:af:Jibuti:Djibouti;cv:af:Kabo-Verde:Cabo Verde;kh:as:Kambodja:Cambodia;cm:af:Kamerun:Cameroon;ca:na:Kanada:Canada;ke:af:Keniya:Kenya;cy:eu:Kipr:Cyprus;ki:oc:Kiribati:Kiribati;co:sa:Kolumbiya:Colombia;km:af:Komor orollari:Comoros;cg:af:Kongo:Congo;cd:af:Kongo Demokratik Respublikasi:DR Congo;cr:na:Kosta-Rika:Costa Rica;ci:af:Kot-d'Ivuar:Côte d'Ivoire;cu:na:Kuba:Cuba;la:as:Laos:Laos;lv:eu:Latviya:Latvia;ls:af:Lesoto:Lesotho;lr:af:Liberiya:Liberia;lt:eu:Litva:Lithuania;lb:as:Livan:Lebanon;ly:af:Liviya:Libya;li:eu:Lixtenshteyn:Liechtenstein;lu:eu:Lyuksemburg:Luxembourg;mg:af:Madagaskar:Madagascar;mw:af:Malavi:Malawi;my:as:Malayziya:Malaysia;mv:as:Maldiv orollari:Maldives;ml:af:Mali:Mali;mt:eu:Malta:Malta;cf:af:Markaziy Afrika Respublikasi:Central African Republic;ma:af:Marokash:Morocco;mh:oc:Marshall orollari:Marshall Islands;mu:af:Mavrikiy:Mauritius;mr:af:Mavritaniya:Mauritania;mx:na:Meksika:Mexico;fm:oc:Mikroneziya:Micronesia;eg:af:Misr:Egypt;mn:as:Mo'g'uliston:Mongolia;md:eu:Moldova:Moldova;mc:eu:Monako:Monaco;mz:af:Mozambik:Mozambique;mm:as:Myanma:Myanmar;na:af:Namibiya:Namibia;nr:oc:Nauru:Nauru;np:as:Nepal:Nepal;nl:eu:Niderlandiya:Netherlands;ne:af:Niger:Niger;ng:af:Nigeriya:Nigeria;ni:na:Nikaragua:Nicaragua;no:eu:Norvegiya:Norway;az:as:Ozarbayjon:Azerbaijan;pw:oc:Palau:Palau;pa:na:Panama:Panama;pg:oc:Papua – Yangi Gvineya:Papua New Guinea;py:sa:Paragvay:Paraguay;pe:sa:Peru:Peru;pk:as:Pokiston:Pakistan;pl:eu:Polsha:Poland;pt:eu:Portugaliya:Portugal;qa:as:Qatar:Qatar;kg:as:Qirg'iziston:Kyrgyzstan;kz:as:Qozog'iston:Kazakhstan;kw:as:Quvayt:Kuwait;ru:eu:Rossiya:Russia;rw:af:Ruanda:Rwanda;ro:eu:Ruminiya:Romania;sv:na:Salvador:El Salvador;ws:oc:Samoa:Samoa;sm:eu:San-Marino:San Marino;st:af:San-Tome va Prinsipi:São Tomé and Príncipe;sa:as:Saudiya Arabistoni:Saudi Arabia;sn:af:Senegal:Senegal;kn:na:Sent-Kits va Nevis:Saint Kitts and Nevis;lc:na:Sent-Lyusiya:Saint Lucia;vc:na:Sent-Vinsent va Grenadin:Saint Vincent and the Grenadines;rs:eu:Serbiya:Serbia;sc:af:Seyshel orollari:Seychelles;tl:as:Sharqiy Timor:Timor-Leste;kp:as:Shimoliy Koreya:North Korea;mk:eu:Shimoliy Makedoniya:North Macedonia;lk:as:Shri-Lanka:Sri Lanka;se:eu:Shvetsiya:Sweden;ch:eu:Shveytsariya:Switzerland;sg:as:Singapur:Singapore;sk:eu:Slovakiya:Slovakia;si:eu:Sloveniya:Slovenia;sb:oc:Solomon orollari:Solomon Islands;so:af:Somali:Somalia;sd:af:Sudan:Sudan;sr:sa:Surinam:Suriname;sy:as:Suriya:Syria;sl:af:Syerra-Leone:Sierra Leone;th:as:Tailand:Thailand;tz:af:Tanzaniya:Tanzania;tg:af:Togo:Togo;tj:as:Tojikiston:Tajikistan;to:oc:Tonga:Tonga;tt:sa:Trinidad va Tobago:Trinidad and Tobago;tn:af:Tunis:Tunisia;tr:as:Turkiya:Türkiye;tm:as:Turkmaniston:Turkmenistan;tv:oc:Tuvalu:Tuvalu;ug:af:Uganda:Uganda;ua:eu:Ukraina:Ukraine;om:as:Ummon:Oman;uy:sa:Urugvay:Uruguay;vu:oc:Vanuatu:Vanuatu;va:eu:Vatikan:Vatican City;ve:sa:Venesuela:Venezuela;hu:eu:Vengriya:Hungary;vn:as:Vyetnam:Vietnam;cn:as:Xitoy:China;hr:eu:Xorvatiya:Croatia;ye:as:Yaman:Yemen;jm:na:Yamayka:Jamaica;nz:oc:Yangi Zelandiya:New Zealand;jp:as:Yaponiya:Japan;zm:af:Zambiya:Zambia;zw:af:Zimbabve:Zimbabwe";
+function nsCatOk(z,cur){ return cur==="all"||z[3]===cur||(cur==="fl"&&z[3].slice(0,2)==="c-"); }
 var NS_FONT="https://fonts.googleapis.com/css2?family=Pacifico&family=Lobster&family=Caveat:wght@700&family=Dancing+Script:wght@700&family=Great+Vibes"+
   "&family=Permanent+Marker&family=Press+Start+2P&family=Orbitron:wght@800&family=Bungee&family=Monoton&family=Cinzel:wght@800&family=Righteous&display=swap";
 /* ramka "halqasi": ::before ichi shaffof qoladi (mask), faqat chetdagi w px da rasm ko'rinadi */
@@ -3517,6 +3527,7 @@ function nsRg(h,a){ var n=parseInt(h.slice(1),16); return "rgba("+(n>>16)+","+(n
   G("Kofe","Coffee","bz",lin("#78350f,#d6a756",.2));
   G("Brend","Brand","bz",lin("#2563eb,#db2777",.24));
   G("Lider","Leader","bz",lin("#eab308,#dc2626",.22));
+  NS_FLAGS.split(";").forEach(function(r){ var q=r.split(":"); NS_G.push(["fl-"+q[0],q[2],q[3],"c-"+q[1]]); css.push(".fl-"+q[0]+"{--flu:url(fayllar/bayroqlar/"+q[0]+".svg)}"); });
   NS_CSS=css.join("\n");
 })();
 function nsCss(){
@@ -3574,9 +3585,9 @@ function nkName(x,me){
     (isTc&&nk?' <span class="rt-nk-sub">🏷 '+esc(nk)+'</span>':'')+(me&&!isTc?' <span class="rt-nk-sub">('+T("siz","you")+')</span>':'');
 }
 /* tanlash oynasidagi kichik qator namunasi */
-function nkMini(st,me){
+function nkMini(st,me,lz){
   var R=nsRow(st);
-  return '<div class="'+R.cls+' rt-rmini"'+(R.sty?' style="'+esc(R.sty)+'"':'')+'><b class="rt-rm-r">#</b><span class="rt-nn '+st.f+'">'+esc(nkDisp(me))+'</span>'+
+  return '<div class="'+R.cls+' rt-rmini'+(lz?' rt-lz':'')+'"'+(R.sty?' style="'+esc(R.sty)+'"':'')+'><b class="rt-rm-r">#</b><span class="rt-nn '+st.f+'">'+esc(nkDisp(me))+'</span>'+
     '<b class="rt-rm-p">'+(+me.total||0)+'</b></div>';
 }
 /* talaba: o'z niki va ko'rinishini sozlash (reyting oynasi tepasida) */
@@ -3608,12 +3619,13 @@ function nkEdHtml(me){
   } else if(LS[NS_TAB]){
     var k=NS_TAB, L=LS[k], cur=NS_CAT[k];
     h+='<div class="rt-nkcats">'+NS_CAT_L[k].map(function(c){
-        var n=c[0]==="all"?L.length:L.filter(function(z){ return z[3]===c[0]; }).length;
+        var n=L.filter(function(z){ return nsCatOk(z,c[0]); }).length;
         return '<button type="button" class="rt-nkcat'+(c[0]===cur?" on":"")+'" data-c="'+c[0]+'">'+T(c[1],c[2])+' <small>'+n+'</small></button>'; }).join("")+'</div>'+
-      '<div class="rt-nsg'+(k==="f"?"":" rows")+'">'+L.filter(function(z){ return cur==="all"||z[3]===cur; }).map(function(z){
+      '<input type="search" id="nsQ" class="rt-nsq" placeholder="🔎 '+(k==="g"?T("Qidirish: nomi yoki davlat (masalan, Yaponiya)","Search: name or country (e.g. Japan)"):T("Qidirish: nomi bo'yicha","Search by name"))+'">'+
+      '<div class="rt-nsg'+(k==="f"?"":" rows")+'">'+L.filter(function(z){ return nsCatOk(z,cur); }).map(function(z){
         var o={f:st.f,b:st.b,g:st.g,c:st.c}; o[k]=z[0];
-        return '<button type="button" class="rt-nso'+(z[0]===st[k]?" on":"")+'" data-'+k+'="'+z[0]+'">'+
-          (k==="f"?'<span class="rt-nn '+z[0]+'">'+esc(nkDisp(me))+'</span>':nkMini(o,me))+'<small>'+T(z[1],z[2])+'</small></button>'; }).join("")+'</div>';
+        return '<button type="button" class="rt-nso'+(z[0]===st[k]?" on":"")+'" data-'+k+'="'+z[0]+'" data-q="'+esc((z[1]+" "+z[2]).toLowerCase())+'">'+
+          (k==="f"?'<span class="rt-nn '+z[0]+'">'+esc(nkDisp(me))+'</span>':nkMini(o,me,z[0].slice(0,3)==="fl-"))+'<small>'+T(z[1],z[2])+'</small></button>'; }).join("")+'</div>';
   } else {
     var c=NB||(NB=nsCus(st.c||{}));
     h+='<p class="rt-note" style="margin:0 0 6px">'+T("Qator ramkasi va fonini o'zingiz yasang: ranglar, chiziq, burchak, fon naqshi, nur va harakat — natija pastda darhol ko'rinadi. Yoqsa «Shu ko'rinishni qo'yish» ni bosing.",
@@ -3655,6 +3667,17 @@ function nkEdBind(me){
   var all=function(sel,fn){ [].forEach.call(box.querySelectorAll(sel),fn); };
   all(".rt-nktab",function(b){ b.onclick=function(){ NS_TAB=b.dataset.t; nkEdRe(me); }; });
   all(".rt-nkcat",function(b){ b.onclick=function(){ NS_CAT[NS_TAB]=b.dataset.c; nkEdRe(me); }; });
+  if(q("nsQ")) q("nsQ").oninput=function(){
+    var v=this.value.trim().toLowerCase();
+    all(".rt-nso",function(o){ o.hidden=!!v&&o.dataset.q.indexOf(v)<0; });
+  };
+  /* bayroq rasmlari faqat ko'ringanda yuklanadi */
+  var lz=box.querySelectorAll(".rt-lz");
+  if(lz.length){
+    if(!window.IntersectionObserver) [].forEach.call(lz,function(e){ e.classList.remove("rt-lz"); });
+    else { var io=new IntersectionObserver(function(es){ es.forEach(function(x){ if(x.isIntersecting){ x.target.classList.remove("rt-lz"); io.unobserve(x.target); } }); },{root:box.querySelector(".rt-nsg"),rootMargin:"120px"});
+      [].forEach.call(lz,function(e){ io.observe(e); }); }
+  }
   all(".rt-nso",function(b){ b.onclick=function(){
     var st=nsOf(me), ns={f:b.dataset.f||st.f,b:b.dataset.b||st.b,g:b.dataset.g||st.g};
     if(st.c) ns.c=st.c;
