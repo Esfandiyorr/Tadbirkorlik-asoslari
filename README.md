@@ -74,7 +74,10 @@ tekshiradi» eslatmasi turadi. 12 xil masala turi 3 toifada (soliq: aylanma soli
 kredit: oylik to'lov, jami to'lov, ortiqcha to'lov, imtiyozli davr · tahlil: rejimlarni taqqoslash, muddatlar farqi,
 maksimal kredit, ustama + QQS). Har talabaga har toifadan bittadan — **jami 3 ta**; tur guruhdoshlari orasida eng kam
 tushganidan tanlanadi (`arena/ms/m5/<guruh>`), raqamlar esa har kimga alohida yaratiladi. Har masalaga 2 ta urinish,
-xato javobga yo'nalish aytilmaydi; masala matnini nusxalab bo'lmaydi (belgilash, Ctrl+C, o'ng tugma o'chiq); yechimlar va to'g'ri javoblar faqat vaqt tugagach (yoki «⏹ Yakunlash»dan keyin)
+xato javobga yo'nalish aytilmaydi; masala matnini nusxalab bo'lmaydi (belgilash, Ctrl+C, o'ng tugma o'chiq);
+skrinshotga qarshi: kartalarda talabaning ism-familiyasi, guruhi va sanasi yozilgan suv belgisi, sahifadan chiqilganda
+masalalar xiralashadi, PrtSc bosilsa yashiriladi va xotira tozalanadi, chop etish (Ctrl+P) o'chiq — brauzer telefon/OS
+skrinshotini to'liq bloklay olmaydi, shuning uchun asosiy himoya — suv belgisi va har kimga alohida raqamlar; yechimlar va to'g'ri javoblar faqat vaqt tugagach (yoki «⏹ Yakunlash»dan keyin)
 ko'rsatiladi. Holat akkauntda (`students/<id>/ms/m5 = {s, e, f, set, r}`) — boshqa qurilmadan kirsa ham o'sha
 masalalar va o'sha vaqt davom etadi. O'qituvchining 🔓 tugmasi yangi masalalar bilan yana bitta urinish beradi.
 Ball: 3 ta masala = testning 50 bali (har biri ≈ 16,7).
