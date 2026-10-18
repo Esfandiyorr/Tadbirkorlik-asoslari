@@ -574,6 +574,12 @@ html.kh-gated,html.kh-gated body{overflow:hidden!important}
 .rt-row.rt-lz{--flu:none}
 .rt-nsq{display:block;width:100%;box-sizing:border-box;margin:0 0 8px;padding:8px 12px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--ink);font:inherit;font-size:14px}
 .rt-nso[hidden]{display:none}
+.rt-tccard{margin:0 0 14px}
+.rt-tchead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 6px}
+.rt-tchead>span{font-size:12.5px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.rt-tcrow{display:flex;align-items:center;gap:12px;min-height:64px;padding:10px 20px;box-sizing:border-box}
+.rt-tcrow .rt-nn{font-size:19px}
+.rt-tcsub{margin-left:auto;padding:4px 12px;border:1px solid var(--line);border-radius:999px;background:var(--panel);font-size:12.5px;font-weight:800;color:var(--muted)}
 .rt-rmini{display:flex;align-items:center;gap:12px;width:100%;box-sizing:border-box;min-height:46px;padding:8px 16px;font-size:14.5px}
 .rt-rmini .rt-nn{flex:1;text-align:left}
 .rt-rm-r{color:var(--muted)}.rt-rm-p{font-weight:800}
