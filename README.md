@@ -101,6 +101,12 @@ Yuqori panelda 🏆 tugmasi turadi: u yerda **reyting**, **shaxsiy natija**, **m
 
 Har bir ball **bir marta** beriladi — qayta ochish yoki qayta yechish ball qo'shmaydi.
 
+**Yakuniy testni hammaga qayta ochish:** `_reyting-manba/config.json` dagi `reopen` maydoni, masalan
+`"reopen": {"m1": {"id": "2026-10-19", "until": "2026-10-22T23:59:59+05:00"}}`. Shu `id` dan keyin boshlangan
+urinishlar alohida sanaladi (`prog/<mavzu>/qg/<id>`): har bir talabaga 2 ta yangi ball beriladigan urinish va `until`
+gacha ball muddati ochiladi (7 kunlik muddat o'tgan bo'lsa ham). Muddat tugagach odatdagi hisob qaytadi.
+Bitta talabaga alohida — o'qituvchi panelidagi 🔓 tugmasi.
+
 **Mavzularning qulfi:** hozircha faqat **M1 ochiq**. M2–M5 fayllari saytda umuman yo'q — ular
 `yopiq-mavzular` shoxchasida saqlanadi, shuning uchun havolani bilgan talaba ham ularni ocholmaydi (404).
 O'qituvchi darsni o'tgach "M2 ni och" desa, mavzu asosiy shoxchaga qaytariladi va sayt yangilanadi.
