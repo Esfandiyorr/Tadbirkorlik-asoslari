@@ -1,8 +1,12 @@
 /* TerDU ilovasi (PWA) — service worker.
    Strategiya: avval internet (sayt har doim eng yangi holatda), internet bo'lmasa — oxirgi saqlangan nusxa.
+   Sahifalar va kod fayllari (html, js, css, json) har safar serverdan tekshiriladi (cache: no-cache) — brauzerning
+   o'z xotirasidagi eski nusxa ko'rsatilmaydi; o'zgarmagan bo'lsa server qisqa «304» qaytaradi, shuning uchun tez.
    Faqat shu saytning fayllari ushlanadi: Firebase, Google va boshqa saytlarga so'rovlar o'zgarishsiz o'tadi.
    Audio/video, PDF/Word va bo'laklab (Range) yuklanadigan so'rovlar keshlanmaydi. */
 var CACHE = "terdu-v1";
+var FRESH = /(\.(html|js|css|json|webmanifest)|\/)$/i;
+function reval(r) { try { return new Request(r, { cache: "no-cache" }); } catch (x) { return r; } }
 var SKIP = /\.(mp3|mp4|webm|m4a|pdf|docx|zip)$/i;
 
 self.addEventListener("install", function () { self.skipWaiting(); });
@@ -29,7 +33,7 @@ self.addEventListener("fetch", function (e) {
   try { u = new URL(r.url); } catch (x) { return; }
   if (u.origin !== self.location.origin || r.headers.has("range") || SKIP.test(u.pathname)) return;
   var nav = r.mode === "navigate";
-  e.respondWith(fetch(r).then(function (res) {
+  e.respondWith(fetch(nav || FRESH.test(u.pathname) ? reval(r) : r).then(function (res) {
     if (res && res.ok && res.type === "basic") {
       var copy = res.clone();
       caches.open(CACHE).then(function (ch) { return ch.put(r, copy); }).catch(function () {});
