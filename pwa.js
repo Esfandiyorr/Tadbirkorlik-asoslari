@@ -11,6 +11,46 @@
   }
   var standalone = (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) || window.navigator.standalone === true;
 
+  /* 🔄 yangi versiya: ilova fondan qaytganda (yoki sahifa uzoq ochiq turganda) serverdagi nusxa tekshiriladi.
+     Sayt yangilangan bo'lsa — taqdimot o'zi qayta yuklanadi; test ketayotgan, biror narsa yozilayotgan, oyna ochiq
+     yoki arena sahifasi bo'lsa — faqat «🔄 Yangilash» tugmasi chiqadi (hech narsa yo'qolmasin). */
+  var verTag = null, verAt = 0, hidAt = 0;
+  function verGet(cb) {
+    fetch(location.pathname, { method: "HEAD", cache: "no-store" }).then(function (r) {
+      cb(r.ok ? (r.headers.get("etag") || r.headers.get("last-modified") || "") : null);
+    }, function () { cb(null); });
+  }
+  function busy() {
+    var a = document.activeElement, t = a && a.tagName;
+    return !document.getElementById("deck") || document.body.classList.contains("qt-live") ||
+      t === "INPUT" || t === "TEXTAREA" || t === "SELECT" || (a && a.isContentEditable) ||
+      !!document.querySelector(".rt-gate,.rt-ov.show,.kh-gate-full,#pwaHelp");
+  }
+  function verBar() {
+    if (document.getElementById("pwaUpd")) return;
+    css();
+    var b = document.createElement("div"); b.id = "pwaUpd"; b.setAttribute("role", "status");
+    b.innerHTML = '<span>🔄 ' + L("Sayt yangilandi", "The site was updated") + '</span>' +
+      '<button type="button" id="pwaUpdGo">' + L("Yangilash", "Reload") + '</button><button type="button" id="pwaUpdX" aria-label="' + L("Yopish", "Close") + '">✕</button>';
+    document.body.appendChild(b);
+    document.getElementById("pwaUpdGo").onclick = function () { location.reload(); };
+    document.getElementById("pwaUpdX").onclick = function () { b.remove(); };
+  }
+  function verCheck(resumed) {
+    if (verTag === null || Date.now() - verAt < 60000) return;
+    verAt = Date.now();
+    verGet(function (t) {
+      if (!t || t === verTag) return;
+      if (resumed && !busy()) location.reload(); else verBar();
+    });
+  }
+  window.addEventListener("load", function () { verGet(function (t) { verTag = t; }); });
+  document.addEventListener("visibilitychange", function () {
+    if (document.hidden) { hidAt = Date.now(); return; }
+    verCheck(Date.now() - hidAt >= 30000);                         /* 30 soniyadan ko'p fonda turgan — «qayta ochildi» */
+  });
+  setInterval(function () { if (!document.hidden) verCheck(false); }, 15 * 60000);
+
   var KEY = "terdu_pwa_hide", DAY = 86400000;
   var ua = navigator.userAgent || "";
   var ios = /iphone|ipad|ipod/i.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
@@ -38,6 +78,11 @@
       "#pwaGo{background:#0a3605;color:#fff;padding:8px 12px;white-space:nowrap}" +
       "#pwaX{background:none;color:inherit;opacity:.6;padding:6px 8px;font-size:16px}" +
       /* yo'riqnoma oynasi */
+      "#pwaUpd{position:fixed;left:50%;top:10px;transform:translateX(-50%);z-index:2147483001;display:flex;align-items:center;gap:8px;" +
+      "padding:7px 8px 7px 14px;border-radius:999px;background:#0a3605;color:#fff;box-shadow:0 8px 24px rgba(0,0,0,.25);" +
+      "font:600 13.5px/1.3 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}" +
+      "#pwaUpd button{border:none;border-radius:999px;cursor:pointer;font:inherit;font-weight:800}" +
+      "#pwaUpdGo{background:#fff;color:#0a3605;padding:6px 12px}#pwaUpdX{background:none;color:#fff;opacity:.75;padding:4px 6px}" +
       "#pwaHelp{position:fixed;inset:0;z-index:130;display:grid;place-items:center;padding:16px;overflow:auto;background:rgba(10,20,30,.55);" +
       "font:14.5px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}" +
       "#pwaHelp .bx{width:100%;max-width:480px;background:var(--panel,#fff);color:var(--ink,#111827);border:1px solid var(--line,#e5e7eb);" +
