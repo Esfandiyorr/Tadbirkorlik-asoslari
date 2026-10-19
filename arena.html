@@ -586,7 +586,7 @@ details.adv summary{cursor:pointer;font-weight:800;color:var(--muted)}
 <header class="topbar">
   <div class="brand">
     <img src="logo_tersu.png" alt="TerDU">
-    <div><b data-ui="uni">TERMIZ DAVLAT UNIVERSITETI</b><span data-ui="subj">Tadbirkorlik asoslari · O'yin arenasi</span></div>
+    <div><b class="tb-name">TerDU</b><span data-ui="subj">Tadbirkorlik asoslari · O'yin arenasi</span></div>
   </div>
   <div class="spacer"></div>
   <div class="tools">
@@ -3186,7 +3186,6 @@ $("#btnLang").onclick=function(){ lang=(lang==="en")?"uz":"en"; try{localStorage
 function chrome(){
   $("#langTxt").textContent=(lang==="en")?"UZ":"ENG";
   $('[data-ui="subj"]').textContent=L("Tadbirkorlik asoslari · O'yin arenasi","Fundamentals of Entrepreneurship · Game Arena");
-  $('[data-ui="uni"]').textContent=L("TERMIZ DAVLAT UNIVERSITETI","TERMEZ STATE UNIVERSITY");
   $('[data-ui="lessons"]').textContent=L("Darslar","Lessons");
   setTheme(document.documentElement.getAttribute("data-theme")||"light");
 }
@@ -4821,8 +4820,9 @@ function lvPollP(){
   LV.pBusy=true; LV.pAt=Date.now();
   var after=snow()>=LV.meta.start+1200;
   kget("games/"+LV.d+"/p",function(v,st){
+    if(!LV) return;
     LV.pBusy=false;
-    if(st!==200) return;
+    if(st!==200||!LV.meta) return;                /* o'yin to'xtatilgan bo'lsa — hech narsa chizilmaydi */
     var old=lvN(); LV.p=v||{}; LV.joined=!!(ME&&LV.p[ME.id]);
     if(after) LV.pFinal=true;
     if(LV.phase==="lobby"&&lvN()!==old) lvLobbyPlayers(old);
@@ -4847,9 +4847,27 @@ function lvLoadFull(){
   LV.busy.full=Date.now();
   kget("games/"+LV.d,function(v,st){ if(LV&&st===200&&v&&v.meta){ LV.full=v; if(LV.phase==="end") lvRender(); } });
 }
+/* o'qituvchi o'yinni to'xtatsa (games/<kun> o'chiriladi) — o'yinchilar savol kutib qolmasin: 5 soniyada bir tekshiriladi */
+function lvAlive(){
+  if(LV.aliveBusy||Date.now()-(LV.aliveAt||0)<5000) return;
+  LV.aliveBusy=true; LV.aliveAt=Date.now();
+  var d=LV.d;
+  kget("games/"+d+"/meta",function(m,st){
+    if(!LV) return; LV.aliveBusy=false;
+    if(st===200&&!m&&LV.d===d) lvGone();
+  });
+}
+function lvGone(){
+  lvStop(); LV.meta=null;
+  var b=document.getElementById("lvMain"); if(!b) return;
+  b.innerHTML='<div class="lv-center"><div class="lv-emoji">⛔</div><h1 class="lv-h">'+L("O'yin o'qituvchi tomonidan to'xtatildi","The teacher has stopped the game")+'</h1>'+
+    '<p class="lv-sub">'+L("Bu o'yin bekor qilindi — ball berilmaydi. Keyingi o'yin vaqti taqdimot tepasida va shu yerda ko'rinadi.","This game was cancelled — no points are given. The next game time appears above the slides and here.")+'</p></div>';
+}
 function lvTick(){
   if(!LV||!LV.meta) return;
   if(location.hash!=="#/live"){ lvStop(); return; }
+  if(snow()<LV.meta.end) lvAlive();
+  if(!LV.meta) return;
   var t=snow(), m=LV.meta;
   if(t>=m.open&&(t<m.start||!LV.pFinal)) lvPollP();
   var ph=lvPhase(t), c=ph.charAt(0), i=+ph.slice(1);

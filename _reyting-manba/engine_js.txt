@@ -154,7 +154,7 @@ function tcAuthStart(){
     if(!a){ TC_AUTH_STATE="error"; tcAuthRedraw(); return; }
     a.onAuthStateChanged(function(u){
       isTeacherUser(u,function(ok){
-        TC_USER=ok?u:null; isTc=ok;
+        TC_USER=ok?u:null; isTc=ok; tbBgBtn();
         if(ok) TC_NOT_TEACHER=""; else if(u) TC_NOT_TEACHER=u.email||"?";
         try{ if(ok) localStorage.setItem(TCG,"1"); else localStorage.removeItem(TCG); }catch(e){}
         TC_AUTH_STATE="ready";
@@ -880,7 +880,7 @@ function dragWatch(){
 }
 function chipUpdate(){
   var c=document.getElementById("rtChip"); if(!c||!S) return;
-  c.innerHTML="🏆 "+esc(S.name)+" · <b>"+fmtP(P.total)+"</b>";
+  c.innerHTML='<i class="tb-ic a-shine">🏆</i> '+esc(S.name)+" · <b>"+fmtP(P.total)+"</b>";
 }
 function T(uz,en){ var l=(document.documentElement.getAttribute("lang")||"uz"); return (l==="en"&&en)?en:uz; }
 
@@ -2089,6 +2089,7 @@ function renderTc(){
       return;
     }
     isTc=true; try{ sessionStorage.setItem("terdu_tc","1"); }catch(e){}
+    tbBgBtn();
     box.dataset.on="1";
     box.innerHTML='<div id="rtTcOut"></div>';
     tcLoad();
@@ -2758,7 +2759,7 @@ function tcDraw(){
   document.getElementById("rtSecGo").onclick=tcSecure;
   var db=document.getElementById("rtDup"); if(db) db.onclick=tcDedupe;
   document.getElementById("rtTcOut2").onclick=function(){
-    isTc=false; TC_USER=null;
+    isTc=false; TC_USER=null; tbBgBtn();
     try{ sessionStorage.removeItem("terdu_tc"); localStorage.removeItem(TCG); }catch(e){}
     if(fbOn()&&FB_AUTH) FB_AUTH.signOut();
     var box=document.getElementById("rtTc"); box.dataset.on=""; renderTc();
@@ -3228,7 +3229,7 @@ function askBar(){
   var old=document.getElementById("rtAsk"); if(old) old.remove();
   var b=el('<a class="rt-ask" id="rtAsk" href="'+esc(CFG.teacherTg)+'" target="_blank" rel="noopener" '+
     'title="'+T("Telegram orqali to\'g\'ridan-to\'g\'ri yozing","Write directly on Telegram")+'">'+
-    '✈️ <b>'+T("Ustozga xabar","Ask the teacher")+'</b></a>');
+    '<i class="tb-ic a-wave">🙋</i> <b>'+T("Savol va takliflar","Questions & ideas")+'</b></a>');
   tools.insertBefore(b,tools.firstChild);   /* eng birinchi o'rinda tursin */
 }
 /* 📚 topbardagi mavzular: bitta tugma («📖 3-mavzu ▾») — bosilganda hamma mavzular ro'yxati ochiladi, talaba keragini tanlaydi.
@@ -3241,7 +3242,7 @@ function navBuild(){
   tops.forEach(function(x,i){ if(x.id===CFG.topic) ci=i; });
   var wrap=el('<span id="rtNav"></span>');
   var btn=el('<button type="button" class="rt-nav cur rt-navbtn" id="rtNavBtn" aria-haspopup="true" aria-expanded="false" title="'+T("Mavzular ro\'yxati","Topics")+'">'+
-    (ci>=0?'📖 '+T((ci+1)+"-mavzu","Topic "+(ci+1)):'📚 '+T("Mavzular","Topics"))+' <span class="rt-navcar">▾</span></button>');
+    (ci>=0?'<i class="tb-ic a-flip">📖</i> '+T((ci+1)+"-mavzu","Topic "+(ci+1)):'<i class="tb-ic a-flip">📚</i> '+T("Mavzular","Topics"))+' <span class="rt-navcar">▾</span></button>');
   wrap.appendChild(btn);
   btn.onclick=function(e){
     e.stopPropagation();
@@ -3273,11 +3274,11 @@ window.addEventListener("resize",navClose);
 function chip(){
   var tools=document.querySelector(".topbar .tools"); if(!tools) return;
   var dup=document.getElementById("rtChip"); if(dup) dup.remove();
-  var c=el('<button class="rt-chip" id="rtChip" title="'+T("Reyting va ballaringiz","Rating and your points")+'">🏆</button>');
+  var c=el('<button class="rt-chip" id="rtChip" title="'+T("Reyting va ballaringiz","Rating and your points")+'"><i class="tb-ic a-shine">🏆</i></button>');
   tools.insertBefore(c,tools.firstChild);
   var ar=el(ARENA_OPEN
-    ? '<a class="rt-chip" id="rtArena" href="arena.html" title="'+T("O\'yin arenasi — talabalar musobaqasi","Game Arena — student competitions")+'">🎮 <b>'+T("Arena","Arena")+'</b></a>'
-    : '<button class="rt-chip" id="rtArena" title="'+T("Arena vaqtincha yopiq","The arena is closed for now")+'">🎮 <b>'+T("Arena","Arena")+'</b> 🔒</button>');
+    ? '<a class="rt-chip" id="rtArena" href="arena.html" title="'+T("O\'yin arenasi — talabalar musobaqasi","Game Arena — student competitions")+'"><i class="tb-ic a-wiggle">🎮</i> <b>'+T("Arena","Arena")+'</b></a>'
+    : '<button class="rt-chip" id="rtArena" title="'+T("Arena vaqtincha yopiq","The arena is closed for now")+'"><i class="tb-ic a-wiggle">🎮</i> <b>'+T("Arena","Arena")+'</b> 🔒</button>');
   tools.insertBefore(ar,c.nextSibling);
   if(!ARENA_OPEN) ar.onclick=arenaShut;
   c.onclick=openOv;
@@ -3286,8 +3287,87 @@ function chip(){
   chipUpdate(); avChip();
   navBuild();
   var lb=document.getElementById("btnLang");
-  if(lb) lb.addEventListener("click",function(){ setTimeout(function(){ navBuild(); chipUpdate(); askBar(); appBtn(); },30); });
+  if(lb) lb.addEventListener("click",function(){ setTimeout(function(){ navBuild(); chipUpdate(); askBar(); appBtn(); tbDeck(); },30); });
+  tbDeck();
 }
+/* ---------- 🧭 topbar: jonli belgilar, ☀️/🌙 almashtirgich, o'qituvchi tanlaydigan fon ----------
+   «Slaydlar» va «Ekran» tugmalari CSS da yashirilgan (klaviaturadagi O / F ishlayveradi). Taqdimotning o'z #btnTheme
+   tugmasi yashirin qoladi — yangi almashtirgich uni bosadi, holatni <html data-theme> dan oladi */
+function tbIcon(id,cls){
+  var b=document.getElementById(id); if(!b||b.querySelector(".tb-ic")) return;
+  var n=b.firstChild; if(!n||n.nodeType!==3) return;
+  var m=/^\s*([^\sA-Za-z0-9]+)\s*/.exec(n.nodeValue); if(!m) return;
+  n.nodeValue=" "+n.nodeValue.slice(m[0].length);
+  var i=document.createElement("i"); i.className="tb-ic "+cls; i.textContent=m[1]; b.insertBefore(i,n);
+}
+function tbDeck(){
+  var tb=document.querySelector(".topbar"); if(!tb) return;
+  tbIcon("btnLang","a-spin"); tbIcon("btnTimer","a-tick"); tbIcon("btnPrint","a-bob"); tbIcon("btnHelp","a-wobble");
+  if(document.getElementById("btnTheme")&&!document.getElementById("rtTheme")){
+    var t=el('<button type="button" class="rt-theme" id="rtTheme" role="switch"><span class="rt-th-sun">☀️</span><span class="rt-th-moon">🌙</span><i class="rt-th-knob"></i></button>');
+    tb.appendChild(t);
+    var sync=function(){ var d=document.documentElement.getAttribute("data-theme")==="dark";
+      t.classList.toggle("dark",d); t.setAttribute("aria-checked",d?"true":"false");
+      t.title=d?T("Kunduzgi rejimga o'tish (D)","Switch to light mode (D)"):T("Tungi rejimga o'tish (D)","Switch to dark mode (D)"); };
+    t.onclick=function(){ document.getElementById("btnTheme").click(); };
+    sync(); if(window.MutationObserver) new MutationObserver(sync).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme","lang"]});
+  }
+  tbBgBtn();
+}
+/* 🎨 topbar foni: o'qituvchi tanlaydi (meta/tb = {bg, at} — meta ga faqat o'qituvchi yozadi), hamma ko'radi.
+   Ranglar va naqshlar engine_css'da (.topbar.tbg-<id>); dk — to'q fon (TerDU yozuvi oq) */
+var TB_BG=[["t0","Standart","Standard",0],["t1","TerDU yashil","TerDU green",1],["t2","Bo'r doskasi","Chalkboard",1],["t3","Katak daftar","Grid notebook",0],
+  ["t4","Chiziqli daftar","Lined notebook",0],["t5","Formulalar","Formulas",0],["t6","Biznes grafik","Business chart",0],["t7","Kitob javoni","Bookshelf",0],
+  ["t8","Rangli qalamlar","Coloured pencils",0],["t9","Bilim osmoni","Sky of knowledge",1],["t10","G'oyalar","Ideas",0],["t11","Bitiruv","Graduation",1],
+  ["t12","Atom va fan","Atom & science",0],["t13","Atlas naqshi","Atlas pattern",0],["t14","Akvarel","Watercolour",0]];
+var TB_CUR="";
+function tbBgSet(id){
+  var tb=document.querySelector(".topbar"); if(!tb) return;
+  var z=TB_BG.filter(function(x){ return x[0]===id; })[0]||TB_BG[0];
+  TB_CUR=z[0];
+  tb.className=tb.className.replace(/\s*\btbg(-\w+)?\b|\s*\btb-dk\b/g,"");
+  if(z[0]!=="t0") tb.classList.add("tbg","tbg-"+z[0]);
+  if(z[3]) tb.classList.add("tb-dk");
+}
+function tbBgLoad(){
+  try{ tbBgSet(localStorage.getItem("terdu_tbbg")||"t0"); }catch(e){}
+  if(!cloudOn||!BASE) return;
+  window.fetch(BASE+"/meta/tb.json").then(function(r){ if(!r.ok) throw 0; return r.json(); }).then(function(v){
+    var id=(v&&v.bg)||"t0"; tbBgSet(id); try{ localStorage.setItem("terdu_tbbg",id); }catch(e){}
+  }).catch(function(){});                   /* tarmoq xatosi — saqlangani qoladi */
+}
+function tbBgClose(){ var m=document.getElementById("rtTbMenu"); if(m) m.remove(); }
+function tbBgBtn(){
+  var tools=document.querySelector(".topbar .tools"), old=document.getElementById("rtTbBg");
+  if(!isTc){ if(old) old.remove(); return; }
+  if(old||!tools) return;
+  var b=el('<button type="button" class="rt-chip rt-tbbg" id="rtTbBg" title="'+T("Topbar fonini tanlash (faqat o\'qituvchi)","Choose the toolbar background (teacher only)")+'"><i class="tb-ic a-spin">🎨</i></button>');
+  tools.appendChild(b);
+  b.onclick=function(e){
+    e.stopPropagation();
+    if(document.getElementById("rtTbMenu")){ tbBgClose(); return; }
+    var m=el('<div class="rt-tbmenu" id="rtTbMenu"><div class="rt-navhd"><b>🎨 '+T("Topbar foni","Toolbar background")+'</b><span>'+T("hamma talabalarda ko\'rinadi","shown to all students")+'</span></div><div class="rt-tbgrid"></div></div>');
+    var g=m.querySelector(".rt-tbgrid");
+    TB_BG.forEach(function(z){
+      var it=el('<button type="button" class="rt-tbopt'+(z[0]===TB_CUR?" on":"")+'" data-id="'+z[0]+'"><span class="rt-tbprev topbar'+(z[0]==="t0"?"":" tbg tbg-"+z[0])+(z[3]?" tb-dk":"")+'"><b>TerDU</b></span><small>'+T(z[1],z[2])+'</small></button>');
+      it.onclick=function(){
+        var id=z[0], prev=TB_CUR; tbBgSet(id);
+        [].forEach.call(g.querySelectorAll(".rt-tbopt"),function(o){ o.classList.toggle("on",o.dataset.id===id); });
+        fetch(BASE+"/meta/tb.json",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({bg:id,at:Date.now()})})
+          .then(function(r){ if(!r.ok) throw 0; try{ localStorage.setItem("terdu_tbbg",id); }catch(e){} toast(T("✅ Topbar foni saqlandi — talabalarda sahifa ochilganda ko'rinadi","✅ Saved — students see it when they open the page")); })
+          .catch(function(){ tbBgSet(prev); toast(T("Saqlanmadi — Google bilan kirganingizni tekshiring","Not saved — check that you are signed in with Google")); });
+      };
+      g.appendChild(it);
+    });
+    document.body.appendChild(m);
+    var r=b.getBoundingClientRect(), w=Math.min(420,window.innerWidth-16);
+    m.style.width=w+"px"; m.style.top=Math.round(r.bottom+6)+"px";
+    m.style.left=Math.round(Math.max(8,Math.min(r.right-w,window.innerWidth-w-8)))+"px";
+    m.style.maxHeight=Math.max(220,window.innerHeight-r.bottom-20)+"px";
+  };
+}
+document.addEventListener("click",function(e){ var m=document.getElementById("rtTbMenu"); if(m&&!m.contains(e.target)) tbBgClose(); });
+document.addEventListener("keydown",function(e){ if(e.key==="Escape") tbBgClose(); });
 /* ---------- 📲 ilovani yuklash (PWA, pwa.js dagi window.TerduPWA) ----------
    Topbar'dagi tugma: Chrome/Edge da tizimning o'rnatish oynasi, qolganlarida qadamma-qadam yo'riqnoma.
    Ilova ichida (standalone) ochilganda tugma ham, tavsiya xabari ham chiqmaydi. */
@@ -3302,7 +3382,7 @@ function appBtn(){
   var A=window.TerduPWA, old=document.getElementById("rtApp"), tools=document.querySelector(".topbar .tools");
   if(old) old.remove();
   if(!A||A.standalone||!tools) return;
-  var b=el('<button type="button" class="rt-chip rt-app" id="rtApp" title="'+T("Saytni telefon yoki kompyuterga ilova qilib o'rnatish","Install the site as an app on your phone or computer")+'">📲 <b>'+T("Ilovani yuklash","Get the app")+'</b></button>');
+  var b=el('<button type="button" class="rt-chip rt-app" id="rtApp" title="'+T("Saytni telefon yoki kompyuterga ilova qilib o'rnatish","Install the site as an app on your phone or computer")+'"><i class="tb-ic a-buzz">📲</i> <b>'+T("Ilovani yuklash","Get the app")+'</b></button>');
   var ar=document.getElementById("rtArena");
   if(ar&&ar.parentNode===tools) tools.insertBefore(b,ar.nextSibling); else tools.insertBefore(b,tools.firstChild);
   b.onclick=function(){ appInstall(); };
@@ -4784,7 +4864,7 @@ function pdfBtn(){
 }
 function boot(){
   if(booted) return; booted=true;
-  khBanner(); pdfBtn();
+  khBanner(); pdfBtn(); tbBgLoad();
   var w=null; try{ w=sessionStorage.getItem("terdu_wiped"); sessionStorage.removeItem("terdu_wiped"); }catch(e){}
   if(w) toast(w==="reset"
     ? T("Ro'yxat o'qituvchi tomonidan yangilandi — qaytadan ro'yxatdan o'ting.","The list was reset by the teacher — please register again.")
