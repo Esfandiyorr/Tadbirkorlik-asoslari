@@ -600,3 +600,15 @@ html.kh-gated,html.kh-gated body{overflow:hidden!important}
 .rt-nkall{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}.rt-nkall .nk-del{border:0;background:none;color:var(--red,#e11d48);cursor:pointer;font-weight:900}
 /* 🔓 test hammaga qayta ochilgan (taqdimotdagi yakuniy test oynasida) */
 .qt-note.qt-grant{color:var(--green,#16a34a)}
+/* 📲 ilovani yuklash: topbar tugmasi va bir martalik tavsiya oynasi */
+.rt-chip.rt-app{border-color:#0a3605;background:linear-gradient(135deg,#16a34a,#0a3605);color:#fff;font-weight:700}
+.rt-chip.rt-app b{color:#fff}
+.rt-chip.rt-app:hover{filter:brightness(1.15)}
+.rt-pwabox{max-width:480px!important;text-align:center}
+.rt-pwaic img{width:72px;height:72px;border-radius:18px;box-shadow:0 8px 22px rgba(0,0,0,.18);background:#fff}
+.rt-pwabox h2{margin:10px 0 6px}
+.rt-pwalead{margin:0 0 10px;color:var(--muted)}
+.rt-pwalist{margin:0 auto 14px;padding:0;list-style:none;text-align:left;display:grid;gap:8px;font-size:14.5px}
+.rt-pwalist li{padding:9px 12px;border:1px solid var(--line);border-radius:12px;background:var(--panel2)}
+.rt-pwabtns{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.rt-pwabtns .btn{justify-content:center;padding:12px 18px;font-size:15px}
