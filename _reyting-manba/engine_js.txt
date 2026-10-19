@@ -532,7 +532,29 @@ function testCount(x){
 var ACTIVE_SEC=3600;
 /* har bir mavzu: taqdimot birinchi marta ochilgan paytdan (f) 7 kun o'tgach ball berilmaydi */
 var BALL_WINDOW=7*86400000, FSYNC=false, expShown=false;
+/* 🔓 testni hammaga qayta ochish: RT_CFG.reopen = {mavzu: {id, until}} (config.json). Shu id dan keyin boshlangan
+   urinishlar alohida sanaladi (prog/<mavzu>/qg/<id>) — har kimga 2 ta yangi ball beriladigan urinish, "until" gacha
+   ball muddati ham ochiq. Muddat o'tgach odatdagi hisob qaytadi. */
+function rgLive(tid){ var g=(CFG.reopen||{})[tid]; return g&&g.id&&Date.now()<Date.parse(g.until)?g:null; }
+function qUsed(){
+  var x=P.topics[CFG.topic]||{}, u=Math.max(0,(x.qAtt||0)-(x.qx||0)), g=rgLive(CFG.topic);   /* qx — o'qituvchi 🔓 */
+  return g?Math.min(u,+((x.qg||{})[g.id])||0):u;
+}
+/* taqdimotdagi izoh uchun: muddatning oxirgi kuni (Toshkent vaqti) */
+function qGrant(){
+  var g=rgLive(CFG.topic); if(!g) return null;
+  var d=new Date(Date.parse(g.until)+5*3600000), m=d.getUTCMonth();
+  return {id:g.id,until:g.until,uz:d.getUTCDate()+"-"+["yanvar","fevral","mart","aprel","may","iyun","iyul","avgust","sentabr","oktabr","noyabr","dekabr"][m],
+    en:d.getUTCDate()+" "+["January","February","March","April","May","June","July","August","September","October","November","December"][m]};
+}
+function qBump(){
+  var t=CFG.topic, x=P.topics[t]||(P.topics[t]={p:0,slides:{},acts:{}}), g=rgLive(t);
+  x.qAtt=(x.qAtt||0)+1;
+  if(g){ x.qg=x.qg||{}; x.qg[g.id]=(+x.qg[g.id]||0)+1; }
+  save();
+}
 function expiredT(t){ if(t&&t.fx&&Date.now()<t.fx) return false;   /* o'qituvchi vaqtincha ochgan */
+  if(rgLive(CFG.topic)) return false;                                 /* test hammaga qayta ochilgan */
   if(noExp(CFG.topic)) return false;                                  /* o'qituvchi bu mavzuda 7 kunlik muddatni o'chirgan */
   return !!(t&&t.f&&Date.now()-t.f>BALL_WINDOW); }
 function expToast(){ if(expShown) return; expShown=true;
@@ -622,6 +644,7 @@ function mergeCloud(v){
     if(!("legacy" in tm)&&(+s.t||0)>L.tOwn+other){ L.tLeg=(+s.t)-(L.tOwn+other); other+=L.tLeg; }
     L.tOther=other; L.t=L.tOwn+other;
     L.qAtt=Math.max(L.qAtt||0,+c.qa||0);
+    for(x in (c.qg||{})){ L.qg=L.qg||{}; L.qg[x]=Math.max(+L.qg[x]||0,+c.qg[x]||0); }
     if(+c.f) L.f=L.f?Math.min(L.f,+c.f):+c.f;
     L.qx=Math.max(L.qx||0,+c.qx||0); L.fx=Math.max(L.fx||0,+c.fx||0);   /* o'qituvchi bergan qo'shimcha urinish / muddat */     /* birinchi kirish — eng erta sana */
     L.sF=Math.max(L.sF||0,+c.sF||0,has?0:(+s.s||0));
@@ -629,6 +652,7 @@ function mergeCloud(v){
   }
   FSYNC=true;
   recalc();
+  try{ window.dispatchEvent(new Event("rt:sync")); }catch(e){}   /* taqdimot (masalan test urinishlari) yangilansin */
 }
 /* bazaga yozish uchun: faqat o'z kalitlarimiz (boshqa brauzer yozganlari o'chmaydi) */
 function progPaths(){
@@ -640,6 +664,7 @@ function progPaths(){
     o[b+"tm/"+DEV]=Math.round(x.tOwn||0);
     if(x.tLeg) o[b+"tm/legacy"]=Math.round(x.tLeg);
     if(x.qAtt) o[b+"qa"]=x.qAtt;
+    for(n in (x.qg||{})) o[b+"qg/"+n]=x.qg[n];
     if(x.f&&FSYNC) o[b+"f"]=x.f;
     /* qx/fx (o'qituvchi 🔓) bu yerda YUBORILMAYDI: ularga faqat o'qituvchi yoza oladi. Ular qo'shilsa,
        qoidalar butun PATCH ni rad etadi va 🔓 olgan talabaning ballari bazaga umuman yetib bormaydi */
@@ -4646,5 +4671,5 @@ function myKv(sub,val,cb){
 }
 return {award:award, slideSeen:slideSeen, open:openOv, student:function(){return S;}, points:function(){return P;}, kv:myKv,
         ok:approved, teacher:function(){return isTc;}, cloud:function(){return {on:cloudOn,base:BASE};},
-        t:T, esc:esc, toast:toast, save:save};
+        t:T, esc:esc, toast:toast, save:save, qUsed:qUsed, qBump:qBump, qGrant:qGrant};
 })();
