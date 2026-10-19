@@ -17,7 +17,7 @@
   .topbar .tools{flex:1 1 100%;min-width:0;justify-content:flex-start;order:6;gap:6px}
   .topbar .tools .btn,.topbar .rt-chip{padding:6px 9px;font-size:12px}
   #btnTimer,#btnHelp{display:none}
-  #rtNav{order:5;flex:1 1 100%;min-width:0;margin-left:0;justify-content:flex-start}
+  #rtNav{order:5;margin-left:0}
   .rt-nav{font-size:11.5px;padding:5px 8px}
 }
 .rt-ov{position:fixed;inset:0;z-index:140;display:none;padding:20px;overflow:auto;
@@ -686,3 +686,23 @@ html.kh-gated,html.kh-gated body{overflow:hidden!important}
   .navbar .counter{flex:1;text-align:center;font-size:12px}
   .navbar .btn{padding:5px 12px;font-size:12px}
 }
+/* 📚 mavzular tugmasi va ro'yxati */
+#rtNav{display:inline-flex;margin-left:6px}
+.rt-nav.cur.rt-navbtn{cursor:pointer}
+.rt-navbtn{font:inherit;font-size:12.5px;font-weight:800;padding:6px 12px}
+.rt-navbtn:hover{filter:brightness(1.08)}
+.rt-navcar{font-size:10px;opacity:.85}
+.rt-navmenu{position:fixed;z-index:150;overflow:auto;padding:6px;background:var(--panel);color:var(--ink);border:1px solid var(--line);
+  border-radius:16px;box-shadow:0 18px 40px -12px rgba(0,0,0,.35);overscroll-behavior:contain}
+.rt-navhd{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 8px 8px;border-bottom:1px solid var(--line);margin-bottom:4px}
+.rt-navhd span{font-size:12px;font-weight:700;color:var(--muted)}
+.rt-navi{display:flex;align-items:center;gap:10px;width:100%;box-sizing:border-box;padding:8px 10px;border:0;border-radius:11px;background:none;
+  color:inherit;font:inherit;text-align:left;text-decoration:none;cursor:pointer;font-size:16px}
+.rt-navi span{flex:1;min-width:0;display:flex;flex-direction:column}
+.rt-navi b{font-size:13.5px}
+.rt-navi small{font-size:12px;color:var(--muted);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rt-navi em{font-style:normal;font-size:11px;font-weight:800;color:var(--muted)}
+a.rt-navi:hover,a.rt-navi:focus-visible{background:var(--panel2)}
+.rt-navi.cur{background:linear-gradient(135deg,color-mix(in srgb,var(--green) 16%,transparent),color-mix(in srgb,var(--teal) 10%,transparent));cursor:default}
+.rt-navi.cur em{color:var(--green)}
+.rt-navi.lock{opacity:.55}
