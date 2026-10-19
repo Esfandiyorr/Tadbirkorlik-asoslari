@@ -3156,11 +3156,62 @@ function chip(){
   tools.insertBefore(ar,c.nextSibling);
   if(!ARENA_OPEN) ar.onclick=arenaShut;
   c.onclick=openOv;
+  appBtn();
   askBar();                                 /* "Ustozga xabar" doim chapdan birinchi */
   chipUpdate(); avChip();
   navBuild();
   var lb=document.getElementById("btnLang");
-  if(lb) lb.addEventListener("click",function(){ setTimeout(function(){ navBuild(); chipUpdate(); askBar(); },30); });
+  if(lb) lb.addEventListener("click",function(){ setTimeout(function(){ navBuild(); chipUpdate(); askBar(); appBtn(); },30); });
+}
+/* ---------- 📲 ilovani yuklash (PWA, pwa.js dagi window.TerduPWA) ----------
+   Topbar'dagi tugma: Chrome/Edge da tizimning o'rnatish oynasi, qolganlarida qadamma-qadam yo'riqnoma.
+   Ilova ichida (standalone) ochilganda tugma ham, tavsiya xabari ham chiqmaydi. */
+function appInstall(done){
+  var A=window.TerduPWA; if(!A) return;
+  A.install(function(r){
+    if(r==="accepted") toast(T("✅ Ilova o'rnatildi — endi uni bosh ekrandagi «TerDU Biznes» belgisidan oching","✅ The app is installed — open it from the «TerDU Biznes» icon on your home screen"));
+    if(done) done(r);
+  });
+}
+function appBtn(){
+  var A=window.TerduPWA, old=document.getElementById("rtApp"), tools=document.querySelector(".topbar .tools");
+  if(old) old.remove();
+  if(!A||A.standalone||!tools) return;
+  var b=el('<button type="button" class="rt-chip rt-app" id="rtApp" title="'+T("Saytni telefon yoki kompyuterga ilova qilib o'rnatish","Install the site as an app on your phone or computer")+'">📲 <b>'+T("Ilovani yuklash","Get the app")+'</b></button>');
+  var ar=document.getElementById("rtArena");
+  if(ar&&ar.parentNode===tools) tools.insertBefore(b,ar.nextSibling); else tools.insertBefore(b,tools.firstChild);
+  b.onclick=function(){ appInstall(); };
+}
+window.addEventListener("terdu-pwa",function(){ if(document.getElementById("rtChip")) appBtn(); });
+/* hammaga bir marta: tizim to'g'ri ishlashi uchun ilovani o'rnatish tavsiyasi (RT_CFG.pwaMsg — xabar belgisi;
+   uni o'zgartirilsa xabar yana bir marta chiqadi). Har qurilmada bir marta; boshqa oyna yoki test ochiq bo'lsa kutadi. */
+function pwaAsk(n){
+  var A=window.TerduPWA, id=CFG.pwaMsg; n=n||0;
+  if(!id||n>60) return;
+  if(!A){ setTimeout(function(){ pwaAsk(n+1); },1000); return; }
+  if(A.standalone) return;
+  var seen=""; try{ seen=localStorage.getItem("terdu_pwa_msg")||""; }catch(e){}
+  if(seen===id) return;
+  if(document.querySelector(".rt-gate")||document.getElementById("pwaHelp")||document.body.classList.contains("qt-live")){ setTimeout(function(){ pwaAsk(n+1); },4000); return; }
+  try{ localStorage.setItem("terdu_pwa_msg",id); }catch(e){}
+  var g=el('<div class="rt-gate" id="rtPwaMsg"><div class="rt-box rt-pwabox">'+
+    '<div class="rt-pwaic"><img src="fayllar/ilova/icon-192.png" alt=""></div>'+
+    '<h2>📲 '+T("TerDU ilovasini o'rnating","Install the TerDU app")+'</h2>'+
+    '<p class="rt-pwalead">'+T("Tizim to'g'ri ishlashi uchun saytni telefoningizga <b>ilova qilib o'rnatishni</b> tavsiya qilamiz. Bu bir daqiqa ham olmaydi.",
+      "For everything to work properly, we recommend <b>installing the site as an app</b> on your phone. It takes less than a minute.")+'</p>'+
+    '<ul class="rt-pwalist">'+
+      '<li>🔔 '+T("O'qituvchi e'lonlari va jonli test haqidagi <b>bildirishnomalar</b> telefoningizga keladi (iPhone'da faqat ilova orqali)","Teacher announcements and live-test <b>notifications</b> reach your phone (on iPhone only through the app)")+'</li>'+
+      '<li>⚡ '+T("Bosh ekrandagi belgidan <b>bir bosishda</b> ochiladi — havolani qidirib o'tirmaysiz","Opens in <b>one tap</b> from the home-screen icon — no searching for the link")+'</li>'+
+      '<li>🖥 '+T("To'liq ekranda, brauzer panellarisiz — slaydlar va testlar qulayroq","Full screen without browser bars — slides and tests are easier")+'</li>'+
+      '<li>📶 '+T("Ochilgan mavzular keyingi safar tezroq yuklanadi","Topics you have opened load faster next time")+'</li>'+
+    '</ul>'+
+    '<div class="rt-pwabtns"><button class="btn accent" id="rtPwaGo">📲 '+T("Ilovani o'rnatish","Install the app")+'</button>'+
+      '<button class="btn" id="rtPwaLater">'+T("Keyinroq","Later")+'</button></div>'+
+    '<p class="rt-note" style="text-align:center;margin:10px 0 0">'+T("Keyin ham o'rnatish mumkin: taqdimot tepasidagi «📲 Ilovani yuklash» tugmasi.","You can install later too: the «📲 Get the app» button at the top of the presentation.")+'</p>'+
+    '</div></div>');
+  document.body.appendChild(g);
+  document.getElementById("rtPwaLater").onclick=function(){ g.remove(); };
+  document.getElementById("rtPwaGo").onclick=function(){ g.remove(); appInstall(); };
 }
 var wIv=null;
 function watchStatus(){
@@ -3255,7 +3306,7 @@ function pushSave(s,cb){
 function pushAsk(c){
   var no=0; try{ no=+localStorage.getItem("terdu_push_no")||0; }catch(x){}
   if(Date.now()<no||document.getElementById("rtPushBar")||Notification.permission!=="default") return;
-  if(document.getElementById("khGate")||document.getElementById("rtAnnGate")){ setTimeout(function(){ pushAsk(c); },60000); return; }
+  if(document.getElementById("khGate")||document.getElementById("rtAnnGate")||document.getElementById("rtPwaMsg")){ setTimeout(function(){ pushAsk(c); },60000); return; }
   var b=el('<div id="rtPushBar" class="rt-pushbar" role="dialog"><span class="ic">🔔</span><div class="t"><b>'+
     T("E'lonlardan darhol xabardor bo'ling","Get announcements instantly")+'</b><small>'+
     T("O'qituvchi yangi e'lon yozsa, telefoningizga bildirishnoma keladi.","When the teacher posts an announcement, your phone gets a notification.")+'</small></div>'+
@@ -3486,6 +3537,7 @@ function start(){
   accLoad(accApply);                         /* bazadagi eng so'nggi holat */
   avLoad();                                  /* talabaning avatari */
   if(typeof idx!=="undefined") slideSeen(idx);
+  setTimeout(pwaAsk,2500);                   /* bir martalik «ilovani o'rnating» tavsiyasi */
   window.RT_ready=true;
   if(window.RT_pending){ window.RT_pending.forEach(function(a){ award(a[0],a[1],a[2]); }); window.RT_pending=null; }
   });

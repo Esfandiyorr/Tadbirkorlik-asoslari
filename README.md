@@ -170,6 +170,10 @@ Sayt telefonga ilova sifatida o'rnatiladi — Play Market/App Store shart emas.
 - **Android (Chrome):** saytni oching — pastda «📲 TerDU ilovasini o'rnating» taklifi chiqadi, **O'rnatish** ni bosing.
   Taklif chiqmasa: Chrome menyusi (⋮) → «Ilovani o'rnatish» / «Bosh ekranga qo'shish».
 - **iPhone/iPad (Safari):** ⬆️ **Ulashish** → **«Bosh ekranga qo'shish»** (Add to Home Screen).
+- **Har bir taqdimot tepasida «📲 Ilovani yuklash» tugmasi:** Chrome/Edge da tizimning o'rnatish oynasini ochadi,
+  boshqa brauzer va iPhone'da qadamma-qadam yo'riqnoma ko'rsatadi (ilova ichida ochilganda tugma ko'rinmaydi).
+- **Bir martalik tavsiya xabari:** har bir qurilmada bir marta «📲 TerDU ilovasini o'rnating» oynasi chiqadi
+  (`config.json` → `pwaMsg`; qiymat o'zgartirilsa xabar hammaga yana bir marta chiqadi).
 
 Ilova to'liq ekranda, TerDU belgisi bilan ochiladi va sayt bilan bitta kod: saytdagi har bir yangilanish ilovada ham
 darhol ko'rinadi. Internet yo'q paytda oldin ochilgan sahifalar saqlangan nusxadan ochiladi (ball, chat va jonli test
