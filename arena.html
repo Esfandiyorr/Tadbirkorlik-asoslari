@@ -586,7 +586,7 @@ details.adv summary{cursor:pointer;font-weight:800;color:var(--muted)}
 <header class="topbar">
   <div class="brand">
     <img src="logo_tersu.png" alt="TerDU">
-    <div><b data-ui="uni">TERMIZ DAVLAT UNIVERSITETI</b><span data-ui="subj">Tadbirkorlik asoslari · O'yin arenasi</span></div>
+    <div><b class="tb-name">TerDU</b><span data-ui="subj">Tadbirkorlik asoslari · O'yin arenasi</span></div>
   </div>
   <div class="spacer"></div>
   <div class="tools">
@@ -3186,7 +3186,6 @@ $("#btnLang").onclick=function(){ lang=(lang==="en")?"uz":"en"; try{localStorage
 function chrome(){
   $("#langTxt").textContent=(lang==="en")?"UZ":"ENG";
   $('[data-ui="subj"]').textContent=L("Tadbirkorlik asoslari · O'yin arenasi","Fundamentals of Entrepreneurship · Game Arena");
-  $('[data-ui="uni"]').textContent=L("TERMIZ DAVLAT UNIVERSITETI","TERMEZ STATE UNIVERSITY");
   $('[data-ui="lessons"]').textContent=L("Darslar","Lessons");
   setTheme(document.documentElement.getAttribute("data-theme")||"light");
 }
