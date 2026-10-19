@@ -1071,6 +1071,21 @@ html.kh-gated,html.kh-gated body{overflow:hidden!important}
   #rtTop .rt-topt .rt-pts{font-size:15px;padding:2px 4px;margin:-2px -4px}
   #rtTop .rt-topt .rt-del{padding:4px 6px}
 }
+/* ⬅ ➡ pastki slayd paneli ixcham — taqdimotni o'qishga xalaqit bermasin */
+.navbar{gap:8px;padding:4px 14px}
+.navbar .btn{padding:5px 12px;font-size:12.5px;border-radius:10px}
+.navbar .counter{font-size:11.5px}
+.navbar .dots{gap:4px}
+.navbar .dot{width:7px;height:7px}
+.navbar .dot.on{width:18px}
+.hint{bottom:44px;padding:5px 12px;font-size:11.5px}
+/* telefon: faqat ← · 3 / 18 · → (nuqtalar va slayd nomi ko'p joy olardi) */
+@media(max-width:640px){
+  .navbar{gap:6px;padding:3px 8px}
+  .navbar .dots,.navbar #slideName,.hint{display:none}
+  .navbar .counter{flex:1;text-align:center;font-size:12px}
+  .navbar .btn{padding:5px 12px;font-size:12px}
+}
 /* ================== MUSIQA PLEYERI ================== */
 #mzTab{position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:70;
   background:linear-gradient(135deg,var(--violet),var(--pink));color:#fff;border:none;
