@@ -462,7 +462,7 @@ function cloudSetMedia(id,v,cb){
     body:JSON.stringify(!!v)}).then(function(r){ cb&&cb(r.ok); }).catch(function(){ cb&&cb(false); });
 }
 /* o'qituvchi qo'lda qo'ygan baho (masalan darsdagi topshiriq uchun) — talabaning o'z sinxronlanishiga bog'liq emas */
-/* o'qituvchi: talabaga shu mavzu testini qayta ochish — 2 ta yangi urinish va 3 kunlik ball muddati */
+/* o'qituvchi: talabaga shu mavzu testini qayta ochish — 2 ta yangi ball beriladigan urinish (fx — eski muddat belgisi, endi faqat ma'lumot) */
 function cloudUnlockTest(id,topicId,cb){
   if(!cloudOn||!BASE){ cb&&cb(false); return; }
   var u=BASE+"/students/"+id+"/prog/"+topicId;
@@ -504,9 +504,17 @@ function okMail(x){ return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(String(x||"").tr
 function kb(n){ return n>=1048576 ? (n/1048576).toFixed(1)+" MB" : Math.max(1,Math.round(n/1024))+" KB"; }
 
 /* ---------- ballar ---------- */
+/* talabaga hozir yopiq mavzu (masalan, adashib ochilib keyin yopilgan): bu brauzerdagi eski nusxasi bazaga yozilmaydi —
+   o'qituvchi o'chirgan ballar boshqa sahifadan qaytib tushmasin. Bazadagi mavjud yozuvga tegilmaydi */
+function topicShut(k){
+  if(!S||isTc||!ACC) return false;
+  var t=(CFG.topics||[]).filter(function(x){ return x.id===k; })[0];
+  return !!(t&&!topicOpenFor(t,S));
+}
 function topicSummary(){
   var o={};
   for(var t in P.topics){
+    if(topicShut(t)) continue;
     var x=P.topics[t], m=markOf(t,x);
     o[t]={p:x.p||0,s:seenOf(x),t:Math.round(x.t||0),
           q:testsOf(x),b:(m.b||0),z:Math.round(m.z*100)};
@@ -530,11 +538,12 @@ function testCount(x){
    50 ball — to'g'ri javoblar ulushi
    Har bir slayd va savol faqat bir marta sanaladi — nechta brauzerdan kirilmasin (bazada bitta ro'yxat) */
 var ACTIVE_SEC=3600;
-/* har bir mavzu: taqdimot birinchi marta ochilgan paytdan (f) 7 kun o'tgach ball berilmaydi */
-var BALL_WINDOW=7*86400000, FSYNC=false, expShown=false;
+/* ball muddati yo'q: taqdimot talabaga ochiq bo'lsa (LOCKED emas), ko'rilmagan slayd va ishlanmagan savol uchun
+   ball istalgan vaqtda beriladi. f — mavzu birinchi ochilgan sana (faqat ma'lumot uchun saqlanadi) */
+var FSYNC=false;
 /* 🔓 testni hammaga qayta ochish: RT_CFG.reopen = {mavzu: {id, until}} (config.json). Shu id dan keyin boshlangan
-   urinishlar alohida sanaladi (prog/<mavzu>/qg/<id>) — har kimga 2 ta yangi ball beriladigan urinish, "until" gacha
-   ball muddati ham ochiq. Muddat o'tgach odatdagi hisob qaytadi. */
+   urinishlar alohida sanaladi (prog/<mavzu>/qg/<id>) — "until" gacha har kimga 2 ta yangi ball beriladigan urinish.
+   Muddat o'tgach odatdagi hisob qaytadi. */
 function rgLive(tid){ var g=(CFG.reopen||{})[tid]; return g&&g.id&&Date.now()<Date.parse(g.until)?g:null; }
 function qUsed(){
   var x=P.topics[CFG.topic]||{}, u=Math.max(0,(x.qAtt||0)-(x.qx||0)), g=rgLive(CFG.topic);   /* qx — o'qituvchi 🔓 */
@@ -553,12 +562,6 @@ function qBump(){
   if(g){ x.qg=x.qg||{}; x.qg[g.id]=(+x.qg[g.id]||0)+1; }
   save();
 }
-function expiredT(t){ if(t&&t.fx&&Date.now()<t.fx) return false;   /* o'qituvchi vaqtincha ochgan */
-  if(rgLive(CFG.topic)) return false;                                 /* test hammaga qayta ochilgan */
-  if(noExp(CFG.topic)) return false;                                  /* o'qituvchi bu mavzuda 7 kunlik muddatni o'chirgan */
-  return !!(t&&t.f&&Date.now()-t.f>BALL_WINDOW); }
-function expToast(){ if(expShown) return; expShown=true;
-  toast(T("⏳ Bu mavzu bo'yicha ball olish muddati (birinchi kirgandan 7 kun) tugagan — endi ball berilmaydi.","⏳ The 7-day scoring window for this topic has ended — no more points are given.")); }
 /* sF/qF — eski tizimdan qolgan (kalitlari noma'lum) slayd/test soni. nw — shundan keyin qo'shilgan yangi kalitlar:
    yangi javob eski son ichida "yo'qolib" ketmasligi uchun eski son ustiga qo'shiladi */
 function nwCount(x,isSl){
@@ -658,6 +661,7 @@ function mergeCloud(v){
 function progPaths(){
   var o={}, k, x, b, n;
   for(k in P.topics){ x=P.topics[k]; b="prog/"+k+"/";
+    if(topicShut(k)) continue;
     for(n in (x.slides||{})) o[b+"sl/"+n]=1;
     for(n in (x.acts||{})) o[b+"ac/"+n]=x.acts[n];
     for(n in (x.nw||{})) o[b+"nw/"+n]=1;
@@ -699,7 +703,6 @@ function award(key,pts,label){
   /* bulutdagi ma'lumot (birinchi kirish sanasi) birlashtirilmaguncha ball navbatda turadi */
   if(!started){ (window.RT_pending=window.RT_pending||[]).push([key,pts,label]); return; }
   var t=topicObj(), isSl=key.indexOf("slide")===0, bag=isSl?t.slides:t.acts;
-  if(expiredT(t)){ expToast(); return; }
   if(bag[key]) return;                  /* shu slayd/savol allaqachon hisoblangan — qaysi brauzerda bo'lmasin */
   var before=t.p||0;
   bag[key]=isSl?1:(pts||1);
@@ -722,7 +725,6 @@ function timeStart(){
     var now=Date.now(), d=(now-tmrAt)/1000; tmrAt=now;
     if(d<=0||d>30) return;                 /* uzilishlarni hisobga olmaymiz */
     var t=topicObj();
-    if(expiredT(t)) return;                /* 7 kunlik muddat tugagan — vaqt ham sanalmaydi */
     if((t.t||0)>=ACTIVE_SEC*3) return;     /* 3 soatdan keyin sanash to'xtaydi (ball 1 soatda to'ladi) */
     t.tOwn=(t.tOwn||0)+d; t.t=t.tOwn+(t.tOther||0);
     tmrSave+=d;
@@ -1813,15 +1815,14 @@ function renderMe(){
       "📝 <b>50 ball</b> — testdagi to\'g\'ri javoblar ulushi. Test faqat dastlabki 2 urinishda ball beradi.<br>"+
       "✍️ O\'qituvchi amaliy darsda qo\'ygan baho umumiy reytingga qo\'shimcha ball beradi (o\'rtacha bahoga kirmaydi): har bir baho × "+MAN_PTS+" ball (masalan, 5 = +"+(5*MAN_PTS)+" ball).<br>"+
       "⚡ Kundalik <b>jonli testda</b> 1–3-o\'rin (20 kishidan ko\'p bo\'lsa 1–5-o\'rin) egallasangiz, umumiy reytingga +5, +4, +3 (+2, +1) ball qo\'shiladi.<br>"+
-      (noExp(CFG.topic)?"♾ Bu mavzuda o\'qituvchi ball muddatini o\'chirgan — ball istalgan vaqt beriladi.<br>"
-        :"⏳ Ball faqat taqdimot <b>birinchi marta ochilgan kundan boshlab 7 kun</b> davomida beriladi. 7 kun o\'tgach bu mavzu bo\'yicha yangi ball qo\'shilmaydi (olingan ballar saqlanib qoladi).<br>")+
+      "📂 Ball taqdimot sizga <b>ochiq turgan istalgan vaqtda</b> beriladi — hali ko\'rmagan slayd va ishlamagan savollaringiz uchun.<br>"+
       "🔒 Har bir slayd va savol <b>faqat bir marta</b> hisoblanadi: nechta brauzer yoki telefondan kirsangiz ham ballaringiz bitta hisobda jamlanadi, qayta berilmaydi va yo\'qolmaydi.",
       "🕐 <b>20 points</b> — active reading time: <b>1 hour</b> or more = the full 20, less gives a proportional share (30 minutes = 10). Time counts only while the page is on screen and you have done something in the last 5 minutes.<br>"+
       "📑 <b>30 points</b> — the share of slides viewed (all slides = 30).<br>"+
       "📝 <b>50 points</b> — the share of correct test answers. The test gives points only in the first 2 attempts.<br>"+
       "✍️ Marks the teacher gives in the practical class add bonus points to the overall rating (they do not count in the average mark): each mark × "+MAN_PTS+" points (e.g. 5 = +"+(5*MAN_PTS)+").<br>"+
       "⚡ Taking 1st–3rd place in the daily <b>live quiz</b> (1st–5th with more than 20 players) adds +5, +4, +3 (+2, +1) points to your overall rating.<br>"+
-      "⏳ Points are given only for <b>7 days from the first time you open</b> the presentation. After that no new points are added for this topic (points already earned are kept).<br>"+
+      "📂 Points are given <b>at any time while the presentation is open to you</b> — for slides you have not seen and questions you have not answered yet.<br>"+
       "🔒 Every slide and question counts <b>only once</b>: whichever browsers or phones you use, your points are combined in one account — never given twice and never lost.")+'</p></div>'+
     '<h3 style="margin:18px 0 8px;font-size:15px">'+T("Baholash shkalasi","Marking scale")+'</h3>'+
     '<div class="rt-scale">'+[[5,"90–100%"],[4,"75–89%"],[3,"60–74%"],[2,"40–59%"],[1,"0–39%"]].map(function(x){
@@ -2285,6 +2286,63 @@ function fixLockedApply(list){
     },120000);
   }).catch(function(){ FIX.msg=T("Saqlanmadi — Google bilan kirganingizni tekshiring","Not saved — check that you are signed in with Google"); fixTcRender(list); });
 }
+/* 🔒 yopiq mavzuda ball olganlar: mavzu talabaga hozir ochiq emas, lekin unda ball bor (masalan, mavzu guruhga adashib
+   ochilib, keyin yopilgan). Mavzu + guruh bo'yicha bir bosishda o'chiriladi: prog/<mavzu> = {rs} (talabaning qurilmalaridagi
+   nusxa ham tozalanadi), topics/<mavzu> o'chadi; reytingdagi ball va baholangan darslar soni darhol kamayadi */
+var LK={msg:""};
+function lkFind(okl){
+  var rows={};
+  (okl||[]).forEach(function(x){
+    var tp=x.topics||{};
+    for(var k in tp){
+      var t=(CFG.topics||[]).filter(function(z){ return z.id===k; })[0], y=tp[k]||{};
+      if(!t||!((+y.p||0)>0||(+y.b||0)>0)||topicOpenFor(t,x)) continue;
+      var g=gkey(x.group||"")||"—", key=k+"|"+g;
+      (rows[key]=rows[key]||{k:k,i:(CFG.topics||[]).indexOf(t)+1,g:g,list:[],sum:0}).list.push(x);
+      rows[key].sum+=+y.p||0;
+    }
+  });
+  return Object.keys(rows).map(function(k){ return rows[k]; }).sort(function(a,b){ return a.i-b.i||(a.g<b.g?-1:1); });
+}
+function lkRender(okl){
+  var box=document.getElementById("lkTc"); if(!box) return;
+  accLoad(function(){
+    var R=lkFind(okl);
+    box.innerHTML='<div class="rt-sec rt-lk"><h4>🔒 '+T("Yopiq mavzuda ball olganlar","Points in closed topics")+(R.length?' <span class="rt-badge">'+R.reduce(function(n,r){ return n+r.list.length; },0)+'</span>':'')+'</h4>'+
+      '<p class="rt-note" style="margin:0 0 8px">'+T("Mavzu talabaga hozir yopiq, lekin unda ball bor — masalan, mavzu guruhga adashib ochilib, keyin yopilgan. «O'chirish» shu guruhdagi talabalarning shu mavzudagi barcha ballarini (slaydlar, vaqt, test) o'chiradi; reytingdagi ball va baholangan darslar soni darhol kamayadi.",
+        "The topic is closed for these students now, but they have points in it — e.g. it was opened for a group by mistake and closed again. «Delete» clears all their points in that topic (slides, time, test); the rating total and lessons-marked count drop at once.")+'</p>'+
+      (R.length?'<div class="tw"><table class="rt-table"><tbody>'+R.map(function(r,j){
+        return '<tr><td><b>'+T(r.i+"-mavzu","Topic "+r.i)+'</b></td><td><b>'+esc(r.g)+'</b></td>'+
+          '<td>'+r.list.length+' '+T("talaba","students")+' · '+T("jami ","total ")+fmtP(Math.round(r.sum*10)/10)+' '+T("ball","pts")+
+          '<details><summary>'+T("Kimlar","Who")+'</summary><div class="rt-lknames">'+r.list.map(function(x){ return esc(x.surname+" "+x.name)+" — "+fmtP((x.topics[r.k]||{}).p||0); }).join("<br>")+'</div></details></td>'+
+          '<td style="white-space:nowrap"><button type="button" class="btn warn sm lk-go" data-j="'+j+'">🗑 '+T("O'chirish","Delete")+'</button></td></tr>'; }).join("")+'</tbody></table></div>'
+       :'<p class="rt-note">✅ '+T("Yopiq mavzularda ball yo'q.","No points in closed topics.")+'</p>')+
+      (LK.msg?'<p class="rt-note" style="font-weight:700;margin-top:6px">'+esc(LK.msg)+'</p>':'')+'</div>';
+    [].forEach.call(box.querySelectorAll(".lk-go"),function(b){ b.onclick=function(){
+      var r=R[+b.dataset.j]; if(!r) return;
+      if(!confirm(T(r.g+" guruhidagi "+r.list.length+" ta talabaning "+r.i+"-mavzudagi barcha ballari o'chirilsinmi?\n(slaydlar, vaqt, test javoblari — qaytarib bo'lmaydi)",
+        "Delete all "+r.i+"-topic points of "+r.list.length+" students in "+r.g+"?\n(slides, time, test answers — cannot be undone)"))) return;
+      b.disabled=true; lkWipe(r.k,r.list.map(function(x){ return x.id; }),function(ok){
+        LK.msg=ok?T("✅ O'chirildi: ","✅ Deleted: ")+r.i+"-"+T("mavzu","topic")+" · "+r.g+" ("+r.list.length+")":T("Saqlanmadi — Google bilan kirganingizni tekshiring","Not saved — check that you are signed in with Google");
+        toast(LK.msg); if(ok) tcLoad(); else { b.disabled=false; lkRender(okl); }
+      });
+    }; });
+  });
+}
+function lkWipe(k,ids,cb,again){
+  var o={}, now=Date.now();
+  ids.forEach(function(id){ o["students/"+id+"/prog/"+k]={rs:now}; o["students/"+id+"/topics/"+k]=null; });
+  fetch(BASE+"/.json",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify(o)})
+    .then(function(r){ if(!r.ok) throw 0; cb&&cb(true);
+      /* o'sha paytda ochiq turgan eski sahifa nusxani qayta yozgan bo'lsa — 2 daqiqadan keyin yana bir marta tozalaymiz */
+      if(!again) setTimeout(function(){
+        Promise.all(ids.map(function(id){ return fetch(BASE+"/students/"+id+"/prog/"+k+".json").then(function(r){ return r.ok?r.json():null; }).catch(function(){ return null; })
+          .then(function(v){ return v&&Object.keys(v).some(function(f){ return f!=="rs"; })?id:null; }); }))
+          .then(function(a){ a=a.filter(Boolean); if(a.length) lkWipe(k,a,null,true); });
+      },120000);
+    })
+    .catch(function(){ cb&&cb(false); });
+}
 function fixTopic(k,V,Sx){
   V=V||{}; Sx=Sx||{};
   var r={k:k,sl:[],ac:[],nw:[],tm:[],uq:0,uqAc:0,other:0,f:false,qa:false};
@@ -2465,7 +2523,7 @@ function tcDraw(){
         return tcRow(x,'<button class="btn accent rt-a" data-id="'+esc(x.id)+'" data-st="ok">♻️ '+T("Tiklash","Restore")+'</button>');
       }).join("")+'</tbody></table></div>';
   }
-  h+='</div><div class="rt-tcpane" data-p="mk">'+stuckBox(okl)+marksTable(okl)+'<div id="audTc"></div><div id="fixTc"></div></div>'+
+  h+='</div><div class="rt-tcpane" data-p="mk">'+stuckBox(okl)+marksTable(okl)+'<div id="lkTc"></div><div id="audTc"></div><div id="fixTc"></div></div>'+
      '<div class="rt-tcpane" data-p="ann"><div class="rt-ann-holder">'+(ANN_LOADED?annBox():'<p class="rt-note">'+T("Yuklanmoqda…","Loading…")+'</p>')+'</div>'+
      '<div id="pushTc"></div>'+tcMailBox(okl)+'</div>'+
      '<div class="rt-tcpane" data-p="kh"><div id="khTc"></div></div>';
@@ -2485,6 +2543,7 @@ function tcDraw(){
   out.innerHTML=h;
   tcTabsBind(out);
   pushTcRender();                            /* telefonga bildirishnoma sozlamasi */
+  lkRender(okl);                             /* yopiq mavzuda ball olganlar */
   fixTcRender(okl);                          /* aralashib ketgan ballarni ajratish */
   nkTcRender(okl);                           /* nik so'rovlari */
   nkLoad(tcTabsBadge);
@@ -2506,8 +2565,8 @@ function tcDraw(){
   });
   out.querySelectorAll(".rt-unlock").forEach(function(b){
     b.onclick=function(){
-      if(!confirm(T(b.dataset.n+" uchun "+b.dataset.t.toUpperCase()+" testini qayta ochaymi?\n(2 ta yangi urinish, 3 kun davomida ball beriladi)",
-        "Reopen the "+b.dataset.t.toUpperCase()+" test for "+b.dataset.n+"?\n(2 new attempts, points for 3 days)"))) return;
+      if(!confirm(T(b.dataset.n+" uchun "+b.dataset.t.toUpperCase()+" testini qayta ochaymi?\n(2 ta yangi ball beriladigan urinish)",
+        "Reopen the "+b.dataset.t.toUpperCase()+" test for "+b.dataset.n+"?\n(2 new scored attempts)"))) return;
       b.disabled=true;
       cloudUnlockTest(b.dataset.id,b.dataset.t,function(ok){
         b.disabled=false;
@@ -2704,7 +2763,7 @@ function marksTable(okl){
                 '" data-cur="'+(man||"")+'" title="'+T("Qo'lda baho / topshiriq belgisi","Manual mark / assignment check")+'">'+
                 (man?('✅ '+man):'➕')+'</button>'+
               '<button type="button" class="rt-manual rt-unlock" data-id="'+esc(x.id)+'" data-t="'+esc(t.id)+'" data-n="'+esc(x.surname+" "+x.name)+
-                '" title="'+T("Testni qayta ochish: 2 ta yangi urinish va 3 kun ball muddati","Reopen the test: 2 new attempts and a 3-day scoring window")+'">🔓</button>'+
+                '" title="'+T("Testni qayta ochish: 2 ta yangi ball beriladigan urinish","Reopen the test: 2 new scored attempts")+'">🔓</button>'+
               '</div></td>';
           }).join("")+
           '<td class="rt-mc">'+mkTag(av.a?+av.a.toFixed(1):0)+'</td></tr>';
@@ -3530,8 +3589,8 @@ function announceGate(next){
 function start(){
   if(started) return; started=true;
   announceGate(function(){
-  accApply();                                /* guruhi uchun yopiq mavzuda 1 haftalik muddat boshlanmaydi */
-  var tf=topicObj(); if(!tf.f){ if(!LOCKED){ tf.f=Date.now(); lsetP(); } } else if(expiredT(tf)) setTimeout(expToast,1500);
+  accApply();                                /* guruhi uchun yopiq mavzu — LOCKED, ball berilmaydi */
+  var tf=topicObj(); if(!tf.f&&!LOCKED){ tf.f=Date.now(); lsetP(); }
   chip(); askBar(); tbWatch(); dragWatch(); watchStatus(); timeStart(); if(cloudOn&&S) cloudSave();
   khBanner(); khMine(); pushInit(); if(S&&!S.email) setTimeout(emailAsk,900);
   accLoad(accApply);                         /* bazadagi eng so'nggi holat */
@@ -3600,9 +3659,7 @@ function avEditor(){
    Yozuv yo'q bo'lsa config'dagi "lim" ishlatiladi (yo'q bo'lsa — hammaga ochiq). O'qituvchi uchun hammasi ochiq. */
 var ACC=null, LOCKED=false, accIv=null, ACC_SEL=null, ACC_FRESH=false, ACC_Q="";
 try{ ACC=JSON.parse(localStorage.getItem("terdu_acc")||"null"); }catch(e){}
-function accRec(x){ var a=ACC&&ACC[x.id]; return a?{lim:!!a.lim,g:a.g||{},s:a.s||{},nx:!!a.nx}:{lim:!!x.lim,g:{},s:{},nx:false}; }
-/* meta/access/<mavzu>/nx = true — bu mavzuda 7 kunlik ball muddati o'chirilgan (ball doim beriladi) */
-function noExp(tid){ var a=ACC&&tid&&ACC[tid]; return !!(a&&a.nx); }
+function accRec(x){ var a=ACC&&ACC[x.id]; return a?{lim:!!a.lim,g:a.g||{},s:a.s||{}}:{lim:!!x.lim,g:{},s:{}}; }
 function tcHere(){ if(isTc) return true; try{ return localStorage.getItem(TCG)==="1"; }catch(e){ return false; } }
 function topicOpen(x){
   if(!x||!x.open) return false;
@@ -3698,14 +3755,8 @@ function accTcRender(okl){
   var on=gl.filter(function(g){ return a.g[g]; });
   box.innerHTML='<div class="rt-sec rt-acc"><h4>📂 '+T("Mavzuni guruhlarga ochish","Open a topic for groups")+'</h4>'+
     '<div class="rt-acc-tops">'+tops.map(function(x){ var i=(CFG.topics||[]).indexOf(x)+1, r=accRec(x);
-      return '<button type="button" class="rt-gchip'+(x.id===ACC_SEL?" on":"")+'" data-t="'+x.id+'">'+(r.lim?"👥":"🌐")+' '+T(i+"-mavzu","Topic "+i)+(r.nx?" ♾":"")+'</button>'; }).join("")+'</div>'+
+      return '<button type="button" class="rt-gchip'+(x.id===ACC_SEL?" on":"")+'" data-t="'+x.id+'">'+(r.lim?"👥":"🌐")+' '+T(i+"-mavzu","Topic "+i)+'</button>'; }).join("")+'</div>'+
     '<p class="rt-note" style="margin:8px 0">'+esc(t.title)+'</p>'+
-    '<div class="rt-acc-exp'+(a.nx?" off":"")+'"><span>'+(a.nx
-        ?'♾ <b>'+T("Ball muddati o'chirilgan","Scoring time limit is off")+'</b> — '+T("bu mavzuda ball istalgan vaqt beriladi.","points are given at any time in this topic.")
-        :'⏳ <b>'+T("7 kunlik ball muddati yoqilgan","7-day scoring limit is on")+'</b> — '+T("talaba mavzuni birinchi ochganidan 7 kun o'tgach ball berilmaydi.","no points 7 days after the student first opens the topic."))+'</span>'+
-      '<button type="button" class="btn sm" id="accExp">'+(a.nx?"⏳ "+T("Muddatni yoqish","Turn the limit on"):"♾ "+T("Muddatni o'chirish","Turn the limit off"))+'</button>'+
-      '<span class="rt-acc-expall">'+T("Hamma mavzularda:","All topics:")+' <button type="button" class="btn sm" id="accExpOff">♾ '+T("o'chirish","off")+'</button>'+
-      '<button type="button" class="btn sm" id="accExpOn">⏳ '+T("yoqish","on")+'</button></span></div>'+
     '<div class="rt-acc-mode"><label><input type="radio" name="accMode" value="all"'+(a.lim?"":" checked")+'> 🌐 '+T("Hammaga ochiq","Open for everyone")+'</label>'+
     '<label><input type="radio" name="accMode" value="lim"'+(a.lim?" checked":"")+'> 👥 '+T("Faqat belgilangan guruhlarga","Only for the selected groups")+'</label></div>'+
     (a.lim?'<div class="rt-acc-gs">'+gl.map(function(g){
@@ -3720,18 +3771,6 @@ function accTcRender(okl){
       '<div class="rt-acc-gs" id="accSon"></div></div>':'')+
     '</div>';
   box.querySelectorAll("[data-t]").forEach(function(b){ b.onclick=function(){ ACC_SEL=b.dataset.t; accTcRender(okl); }; });
-  /* 7 kunlik muddat: lim ham birga yoziladi — aks holda yangi yozuv mavzuni hammaga ochib yuborishi mumkin edi */
-  document.getElementById("accExp").onclick=function(){ this.disabled=true; accSave(t.id,{nx:a.nx?null:true,lim:a.lim},okl); };
-  function expAll(on){
-    if(!confirm(on?T("Hamma mavzularda 7 kunlik ball muddati o'chirilsinmi? (ball doim beriladi)","Turn the 7-day limit off in all topics? (points always given)")
-                  :T("Hamma mavzularda 7 kunlik ball muddati yoqilsinmi?","Turn the 7-day limit on in all topics?"))) return;
-    var o={}; tops.forEach(function(x){ var r=accRec(x); o[x.id+"/nx"]=on?true:null; o[x.id+"/lim"]=r.lim; });
-    fetch(BASE+"/meta/access.json",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify(o)})
-      .then(function(r){ if(!r.ok) throw 0; accLoad(function(){ accTcRender(okl); toast("✅ "+T("Saqlandi","Saved")); }); })
-      .catch(function(){ toast(T("Saqlanmadi — qayta kiring","Not saved — sign in again")); });
-  }
-  document.getElementById("accExpOff").onclick=function(){ expAll(true); };
-  document.getElementById("accExpOn").onclick=function(){ expAll(false); };
   box.querySelectorAll('input[name="accMode"]').forEach(function(r){ r.onchange=function(){
     accSave(t.id,{lim:r.value==="lim"},okl); }; });
   box.querySelectorAll(".rt-accg").forEach(function(b){ b.onclick=function(){
