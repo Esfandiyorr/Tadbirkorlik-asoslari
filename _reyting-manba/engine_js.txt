@@ -1797,8 +1797,8 @@ function renderTop(){
       var me=S&&x.id===S.id, bc=(me?"me ":"")+(pc?"rt-ptop rt-p"+(i+1):""), bs=pc?"--pc:"+pc.c+";":"", R=nsRow(nsOf(x));
       return '<tr class="'+bc+' '+R.cls+'" style="'+esc(bs+R.sty)+'"'+(me&&!isTc?' data-nkme="1" data-bc="'+bc+'" data-bs="'+bs+'"':'')+'><td class="rt-medal">'+m+'</td><td><span class="rt-tav">'+avHtml(x,{size:28,name:nkDisp(x)})+'</span>'+nkName(x,me)+
         '</td><td>'+esc(x.group)+'</td><td><button type="button" class="rt-pts" data-i="'+i+'" title="'+T("Mavzular bo\'yicha ballari","Points by topic")+'">'+(x.total||0)+' <span>›</span></button></td>'+
-        '<td title="'+T("o\'rtacha baho","average mark")+'">'+mkTag(av.a?+av.a.toFixed(1):0)+'</td>'+
-        '<td>'+av.n+' / '+nt+'</td>'+
+        '<td title="'+T("o\'rtacha baho","average mark")+'" data-l="'+T("baho","mark")+'">'+mkTag(av.a?+av.a.toFixed(1):0)+'</td>'+
+        '<td data-l="'+T("dars","lessons")+'">'+av.n+' / '+nt+'</td>'+
         (isTc?'<td><button class="btn rt-del" data-id="'+esc(x.id)+'" data-nm="'+esc(x.name+" "+x.surname)+
           '" title="'+T("Reytingdan o\'chirish","Remove from the rating")+'">🗑</button></td>':'')+'</tr>';
     }).join("");
