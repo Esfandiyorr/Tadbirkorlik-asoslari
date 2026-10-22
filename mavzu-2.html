@@ -888,33 +888,8 @@ html.kh-gated,html.kh-gated body{overflow:hidden!important}
 .rt-aud-t td{vertical-align:top;font-size:13px}
 .rt-aud-t tr.bad td{background:rgba(225,29,72,.07)}.rt-aud-t tr.warn td{background:rgba(245,158,11,.07)}
 .rt-aud-r{color:var(--red,#e11d48);font-weight:700;font-size:12.5px}.rt-aud-y{color:#b45309;font-weight:700;font-size:12.5px}
-/* 🏷 reytingdagi nik: ism dizayni (n0–n11 shu yerda; n12–n99, qator ramkalari b0–b99 va fonlari g0–g99 engine_js'dagi nsCss yasaydi) */
+/* 🏷 reytingdagi nik va qator foni (fonlar eg1–eg34 ni engine_js'dagi nsCss yasaydi; fon faqat 1–10-o'rinlarda) */
 .rt-nn{font-weight:800}
-.rt-nn.n1,.rt-nn.n2,.rt-nn.n5,.rt-nn.n6,.rt-nn.n7,.rt-nn.n8,.rt-nn.n9{-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent}
-.rt-nn.n1{background-image:linear-gradient(90deg,#a16207,#facc15,#fef08a,#facc15,#a16207)}
-.rt-nn.n2{background-image:linear-gradient(90deg,#ef4444,#f59e0b,#eab308,#22c55e,#06b6d4,#6366f1,#ec4899,#ef4444);background-size:200% auto;animation:nnShift 4s linear infinite}
-.rt-nn.n3{color:#22d3ee;text-shadow:0 0 6px rgba(34,211,238,.9),0 0 14px rgba(8,145,178,.8)}
-.rt-nn.n4{color:#f472b6;text-shadow:0 0 6px rgba(244,114,182,.9),0 0 14px rgba(219,39,119,.8)}
-.rt-nn.n5{background-image:linear-gradient(90deg,#dc2626,#f97316,#facc15)}
-.rt-nn.n6{background-image:linear-gradient(90deg,#0369a1,#0ea5e9,#14b8a6)}
-.rt-nn.n7{background-image:linear-gradient(90deg,#047857,#10b981,#6ee7b7)}
-.rt-nn.n8{background-image:linear-gradient(90deg,#6d28d9,#a855f7,#db2777);font-style:italic}
-.rt-nn.n9{background-image:linear-gradient(90deg,#4b5563,#e5e7eb,#9ca3af,#f3f4f6,#6b7280)}
-.rt-nn.n10{color:#2563eb;text-shadow:1px 1px 0 #93c5fd,2px 2px 0 #1e40af,3px 3px 0 rgba(30,64,175,.35)}
-.rt-nn.n11{font-family:"Segoe Script","Brush Script MT","Comic Sans MS",cursive;font-size:1.12em;font-weight:700;color:#be185d}
-@keyframes nnShift{to{background-position:200% center}}
-.rt-nn::before,.rt-nn::after{-webkit-text-fill-color:initial;color:initial;text-shadow:none;font-style:normal}
-@keyframes nnPulse{0%,100%{text-shadow:0 0 1px var(--c)}50%{text-shadow:0 0 6px var(--c),0 0 16px var(--c)}}
-@keyframes nnBeat{0%,45%,100%{transform:scale(1)}15%{transform:scale(1.12)}30%{transform:scale(1.04)}}
-@keyframes nnFloat{50%{transform:translateY(-3px)}}
-@keyframes nnHue{to{filter:hue-rotate(360deg)}}
-@keyframes nfPulse{0%,100%{box-shadow:0 0 1px var(--c)}50%{box-shadow:0 0 12px var(--c),inset 0 0 6px var(--c)}}
-@keyframes nfSweep{from{background-position:160% 0}to{background-position:-60% 0}}
-@keyframes nfAnts{to{background-position:10px 0,-10px 100%,0 -10px,100% 10px}}
-@keyframes nfFlick{0%,100%{box-shadow:0 0 6px rgba(249,115,22,.5)}40%{box-shadow:0 0 14px rgba(239,68,68,.75)}70%{box-shadow:0 0 9px rgba(250,204,21,.6)}}
-@property --nfa{syntax:"<angle>";inherits:false;initial-value:0deg}
-@keyframes nfSpin{to{--nfa:360deg}}
-@media(prefers-reduced-motion:reduce){.rt-nn,.rt-row,.rt-row::before,.rt-row::after{animation:none!important}}
 .rt-nktabs{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0 10px;padding-bottom:10px;border-bottom:1px solid var(--line)}
 .rt-nktab{border:1.5px solid var(--line);background:var(--panel);color:var(--ink);border-radius:999px;padding:6px 12px;font:inherit;font-size:13.5px;font-weight:700;cursor:pointer}
 .rt-nktab.on{background:var(--ink);color:var(--panel);border-color:var(--ink)}
@@ -923,14 +898,6 @@ html.kh-gated,html.kh-gated body{overflow:hidden!important}
 .rt-nkcat{border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:999px;padding:4px 10px;font:inherit;font-size:12.5px;font-weight:700;cursor:pointer}
 .rt-nkcat.on{border-color:var(--green,#16a34a);background:rgba(22,163,74,.13)}
 .rt-nkcat small{color:var(--muted)}
-.rt-nbpv{display:flex;justify-content:center;align-items:center;min-height:64px;padding:12px 10px;margin:8px 0;border:1px dashed var(--line);border-radius:14px;background:var(--panel);font-size:17px}
-.rt-nbrow{display:flex;gap:16px;flex-wrap:wrap;align-items:center;margin:6px 0 4px}
-.rt-nbrow label{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700}
-.rt-nbrow input[type=color]{width:42px;height:30px;padding:0 2px;border:1px solid var(--line);border-radius:8px;background:var(--panel);cursor:pointer}
-.rt-nbseg{display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin:6px 0}
-.rt-nbseg>span{min-width:78px;font-size:13px;font-weight:800}
-.rt-nbseg button{border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:8px;padding:4px 9px;font:inherit;font-size:12.5px;cursor:pointer}
-.rt-nbseg button.on{border-color:var(--blue,#2563eb);background:rgba(37,99,235,.13);font-weight:800}
 /* reyting jadvali: har bir talaba qatori — alohida karta; fon qatorda, ramka ::before da, nur/soya ::after da */
 #rtTop .tw{padding:4px 8px 12px}
 .rt-topt{display:block;min-width:600px;--tc:92px minmax(160px,2.3fr) minmax(70px,.9fr) minmax(52px,.55fr) minmax(80px,.9fr) minmax(80px,.9fr)}
@@ -949,25 +916,11 @@ html.kh-gated,html.kh-gated body{overflow:hidden!important}
 .rt-row{position:relative;border-radius:var(--rr,12px)}
 .rt-row::before,.rt-row::after{position:absolute;inset:0;border-radius:inherit;pointer-events:none;box-sizing:border-box;z-index:1}
 .rt-row::before{content:"";border:1px solid var(--line)}
-/* o'zi yasagan ramka (qiymatlar qatorning CSS o'zgaruvchilarida) */
-.rt-row.bx::before{border:var(--bw,2px) solid var(--c1,#2563eb)}
-.rt-row.bx.bxs-da::before{border-style:dashed}.rt-row.bx.bxs-do::before{border-style:dotted}.rt-row.bx.bxs-db::before{border-style:double}
-.rt-row.bx.bxs-no::before{border:0}
-.rt-row.bx.bxs-gr::before{border:0;padding:var(--bw,2px);background:linear-gradient(90deg,var(--c1),var(--c2));-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0)}
-.rt-row.bx.bxg-1::after{content:"";box-shadow:0 0 8px color-mix(in srgb,var(--c1) 60%,transparent)}
-.rt-row.bx.bxg-2::after{content:"";box-shadow:0 0 14px color-mix(in srgb,var(--c1) 85%,transparent),inset 0 0 8px color-mix(in srgb,var(--c1) 40%,transparent)}
-.rt-row.bx.bxa-pu::after{content:"";--c:var(--c1);animation:nfPulse 1.8s ease-in-out infinite}
-.rt-row.bx.bxa-hu::before{animation:nnHue 4s linear infinite}
-.rt-row.bx.bxa-be::before{animation:rfBreath 2.8s ease-in-out infinite}
-@keyframes rfShift{to{background-position:200% 0}}
-@keyframes rfAnts{to{background-position:12px 0,-12px 100%,0 -12px,100% 12px}}
-@keyframes rfBreath{50%{opacity:.25}}
-@keyframes rfDisco{0%,100%{box-shadow:0 0 12px rgba(236,72,153,.65)}33%{box-shadow:0 0 12px rgba(250,204,21,.65)}66%{box-shadow:0 0 12px rgba(34,211,238,.65)}}
-@keyframes rgRun{to{background-position:24px 0}}
-@keyframes rgPulse{0%,100%{background-color:transparent}50%{background-color:var(--c)}}
-@keyframes rgHue{0%,100%{background-color:rgba(239,68,68,.16)}25%{background-color:rgba(234,179,8,.16)}50%{background-color:rgba(34,197,94,.16)}75%{background-color:rgba(59,130,246,.16)}}
-.rt-row[class*=" fl-"]{--flo:color-mix(in srgb,var(--panel) 52%,transparent);background:linear-gradient(var(--flo),var(--flo)),var(--flu,none) center/100% 100% no-repeat}
-.rt-row.rt-lz{--flu:none}
+.rt-nslock{display:flex;flex-direction:column;gap:6px;padding:12px 14px;border:1px dashed var(--line);border-radius:12px;background:var(--panel)}
+.rt-nslock>span{font-size:13px;color:var(--muted)}
+.rt-nsdemo{opacity:.55;pointer-events:none;max-height:none;margin-top:4px}
+/* fon naqshi ustidagi yozuv aniq o'qilsin (har ikki rejimda) */
+.rt-row[class*=" eg"]{text-shadow:0 0 3px var(--panel),0 0 6px var(--panel)}
 .rt-nsq{display:block;width:100%;box-sizing:border-box;margin:0 0 8px;padding:8px 12px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--ink);font:inherit;font-size:14px}
 .rt-nso[hidden]{display:none}
 .rt-tccard{margin:0 0 14px}
@@ -3650,7 +3603,7 @@ function profOpen(x,rank){
   var g=el('<div class="rt-gate rt-prof" id="rtProf"><div class="rt-box">'+
     '<button type="button" class="rt-pfx" id="rtProfX" aria-label="'+T("Yopish","Close")+'">✕</button>'+
     '<div class="rt-pfh"><span class="rt-tav">'+avHtml(x,{size:54,name:nkDisp(x)})+'</span><div>'+
-      '<div class="'+nsRow(st).cls+' rt-pfname"'+(nsRow(st).sty?' style="'+esc(nsRow(st).sty)+'"':'')+'><span class="rt-nn '+st.f+'">'+esc(nkDisp(x))+'</span></div>'+
+      '<div class="'+nsRow(st,rank)+' rt-pfname"><span class="rt-nn">'+esc(nkDisp(x))+'</span></div>'+
       '<div class="rt-pfmeta">'+(isTc&&nk?'🏷 '+esc(nk)+' · ':'')+'👥 '+esc(x.group||"—")+' · 🏆 '+rank+T("-o\'rin"," place")+'</div></div></div>'+
     '<div class="rt-pftiles">'+tile("⭐",T("Umumiy ball","Total"),fmtP(x.total||0))+
       tile("📚",T("Taqdimotlardan","From presentations"),fmtP(auto),ids.length+" "+T("ta mavzu","topics"))+
@@ -3693,302 +3646,71 @@ function ratingHidden(x){
   var n=nk(x&&x.name), s=nk(x&&x.surname);
   return (CFG.hideRating||[]).some(function(h){ return nk(h.name)===n&&nk(h.surname)===s; });
 }
-/* ---------- 🏷 reytingdagi nik va ko'rinish ----------
+/* ---------- 🏷 reytingdagi nik va qator foni ----------
    Nik: talaba students/<id>/nkReq = {n, at} ga so'rov yozadi → o'qituvchi tasdiqlasa meta/nick/<id> = nik
    (meta ga faqat o'qituvchi yoza oladi). Reytingda boshqalar tasdiqlangan nikni, niki yo'qlarning esa
    ism-familiyasini ko'radi; o'qituvchi doim haqiqiy ism (+ nik) ni ko'radi.
-   Ko'rinish: students/<id>/ns = {f, b, g, c}:
-     f — ism dizayni (n0–n99), b — butun qator ramkasi (b0–b99), g — qator foni (g0–g99 yoki fl-<kod> — davlat bayrog'i);
-     b:"bx" / g:"gx" — talabaning o'zi yasagan ramka/fon, sozlamalari c da. c dan CSS faqat tekshirilgan
-     qiymatlardan (#rrggbb ranglar, ro'yxatdagi turlar, 1–6 px) yasaladi.
-   Reyting jadvalida har bir qator — grid "karta" (.rt-row): fon qatorning o'zida, ramka ::before da,
-   nur/soya ::after da. O'qituvchi jadval ustidagi alohida kartada turadi; uning ko'rinishi meta/tcv/ns da
-   (meta ga faqat o'qituvchi yoza oladi), ismi — RT_CFG.teacherName. n0–n11 engine_css'da, qolganlari pastdagi ro'yxatlardan shu yerda yasaladi (nsCss). */
-var NICK={}, NICK_AT=0, TCV=null, TC_AV=null, TC_ME=null, NS_ED=false, NS_TAB="nk", NS_CAT={f:"all",b:"all",g:"all"}, NB=null, NS_CSS="";
-var NS_F=[["n0","Oddiy","Plain",""],["n1","Oltin","Gold","me"],["n2","Kamalak","Rainbow","an"],["n3","Neon ko'k","Neon blue","ne"],["n4","Neon pushti","Neon pink","ne"],["n5","Olov","Fire","gr"],
-  ["n6","Okean","Ocean","gr"],["n7","Zumrad","Emerald","gr"],["n8","Shohona","Royal","gr"],["n9","Kumush","Silver","me"],["n10","3D","3D","3d"],["n11","Yozma","Script","fo"]];
-var NS_B=[], NS_G=[];
-var NS_CAT_L={
-  f:[["all","Hammasi","All"],["gr","✨ Gradient","✨ Gradient"],["ne","💡 Neon","💡 Neon"],["an","🌈 Jonli","🌈 Animated"],["me","🥇 Metall","🥇 Metal"],
-     ["3d","🧱 3D va soya","🧱 3D & shadow"],["dc","🎀 Bezakli","🎀 Decorated"],["fo","🖋 Shrift","🖋 Font"]],
-  b:[["all","Hammasi","All"],["so","🟦 Oddiy","🟦 Plain"],["gr","✨ Gradient","✨ Gradient"],["ne","💡 Neon","💡 Neon"],["pt","🧩 Naqshli","🧩 Patterned"],
-     ["an","🌈 Jonli","🌈 Animated"],["sh","🔷 Shakl","🔷 Shape"],["uz","🇺🇿 Milliy","🇺🇿 National"]],
-  g:[["all","Hammasi","All"],["ti","🎨 Rangli","🎨 Tinted"],["gr","✨ Gradient","✨ Gradient"],["pt","🧩 Naqsh","🧩 Pattern"],["an","🌈 Jonli","🌈 Animated"],
-     ["uz","🇺🇿 Milliy","🇺🇿 National"],["th","🌍 Tabiat","🌍 Nature"],["bz","💼 Biznes","💼 Business"],["fl","🏳️ Barcha bayroqlar","🏳️ All flags"],
-     ["c-as","🌏 Osiyo","🌏 Asia"],["c-eu","🌍 Yevropa","🌍 Europe"],["c-af","🌍 Afrika","🌍 Africa"],["c-na","🌎 Shimoliy Amerika","🌎 North America"],
-     ["c-sa","🌎 Janubiy Amerika","🌎 South America"],["c-oc","🏝 Okeaniya","🏝 Oceania"]]};
-/* 🏳️ davlat bayroqlari: kod:qit'a:o'zbekcha:inglizcha — 193 BMT a'zosi + Vatikan va Falastin.
-   Rasmlar fayllar/bayroqlar/<kod>.svg (flag-icons, MIT); qator fonida bayroq ustiga panel rangi yarim shaffof yotadi */
-var NS_FLAGS="uz:as:O'zbekiston:Uzbekistan;af:as:Afg'oniston:Afghanistan;al:eu:Albaniya:Albania;ad:eu:Andorra:Andorra;ao:af:Angola:Angola;ag:na:Antigua va Barbuda:Antigua and Barbuda;us:na:AQSH:United States;ar:sa:Argentina:Argentina;am:as:Armaniston:Armenia;au:oc:Avstraliya:Australia;at:eu:Avstriya:Austria;bs:na:Bagama orollari:Bahamas;bh:as:Bahrayn:Bahrain;bd:as:Bangladesh:Bangladesh;bb:na:Barbados:Barbados;by:eu:Belarus:Belarus;be:eu:Belgiya:Belgium;bz:na:Beliz:Belize;bj:af:Benin:Benin;ae:as:Birlashgan Arab Amirliklari:United Arab Emirates;bg:eu:Bolgariya:Bulgaria;bo:sa:Boliviya:Bolivia;ba:eu:Bosniya va Gersegovina:Bosnia and Herzegovina;bw:af:Botsvana:Botswana;br:sa:Braziliya:Brazil;bn:as:Bruney:Brunei;bf:af:Burkina-Faso:Burkina Faso;bi:af:Burundi:Burundi;bt:as:Butan:Bhutan;gb:eu:Buyuk Britaniya:United Kingdom;td:af:Chad:Chad;me:eu:Chernogoriya:Montenegro;cz:eu:Chexiya:Czechia;cl:sa:Chili:Chile;dk:eu:Daniya:Denmark;dm:na:Dominika:Dominica;do:na:Dominikan Respublikasi:Dominican Republic;et:af:Efiopiya:Ethiopia;ec:sa:Ekvador:Ecuador;gq:af:Ekvatorial Gvineya:Equatorial Guinea;er:af:Eritreya:Eritrea;ir:as:Eron:Iran;ee:eu:Estoniya:Estonia;sz:af:Esvatini:Eswatini;ps:as:Falastin:Palestine;fj:oc:Fiji:Fiji;ph:as:Filippin:Philippines;fi:eu:Finlandiya:Finland;fr:eu:Fransiya:France;ga:af:Gabon:Gabon;ht:na:Gaiti:Haiti;gm:af:Gambiya:Gambia;gh:af:Gana:Ghana;gy:sa:Gayana:Guyana;de:eu:Germaniya:Germany;hn:na:Gonduras:Honduras;gd:na:Grenada:Grenada;gr:eu:Gretsiya:Greece;ge:as:Gruziya:Georgia;gt:na:Gvatemala:Guatemala;gn:af:Gvineya:Guinea;gw:af:Gvineya-Bisau:Guinea-Bissau;in:as:Hindiston:India;id:as:Indoneziya:Indonesia;jo:as:Iordaniya:Jordan;ie:eu:Irlandiya:Ireland;iq:as:Iroq:Iraq;is:eu:Islandiya:Iceland;es:eu:Ispaniya:Spain;il:as:Isroil:Israel;it:eu:Italiya:Italy;za:af:Janubiy Afrika Respublikasi:South Africa;kr:as:Janubiy Koreya:South Korea;ss:af:Janubiy Sudan:South Sudan;dz:af:Jazoir:Algeria;dj:af:Jibuti:Djibouti;cv:af:Kabo-Verde:Cabo Verde;kh:as:Kambodja:Cambodia;cm:af:Kamerun:Cameroon;ca:na:Kanada:Canada;ke:af:Keniya:Kenya;cy:eu:Kipr:Cyprus;ki:oc:Kiribati:Kiribati;co:sa:Kolumbiya:Colombia;km:af:Komor orollari:Comoros;cg:af:Kongo:Congo;cd:af:Kongo Demokratik Respublikasi:DR Congo;cr:na:Kosta-Rika:Costa Rica;ci:af:Kot-d'Ivuar:Côte d'Ivoire;cu:na:Kuba:Cuba;la:as:Laos:Laos;lv:eu:Latviya:Latvia;ls:af:Lesoto:Lesotho;lr:af:Liberiya:Liberia;lt:eu:Litva:Lithuania;lb:as:Livan:Lebanon;ly:af:Liviya:Libya;li:eu:Lixtenshteyn:Liechtenstein;lu:eu:Lyuksemburg:Luxembourg;mg:af:Madagaskar:Madagascar;mw:af:Malavi:Malawi;my:as:Malayziya:Malaysia;mv:as:Maldiv orollari:Maldives;ml:af:Mali:Mali;mt:eu:Malta:Malta;cf:af:Markaziy Afrika Respublikasi:Central African Republic;ma:af:Marokash:Morocco;mh:oc:Marshall orollari:Marshall Islands;mu:af:Mavrikiy:Mauritius;mr:af:Mavritaniya:Mauritania;mx:na:Meksika:Mexico;fm:oc:Mikroneziya:Micronesia;eg:af:Misr:Egypt;mn:as:Mo'g'uliston:Mongolia;md:eu:Moldova:Moldova;mc:eu:Monako:Monaco;mz:af:Mozambik:Mozambique;mm:as:Myanma:Myanmar;na:af:Namibiya:Namibia;nr:oc:Nauru:Nauru;np:as:Nepal:Nepal;nl:eu:Niderlandiya:Netherlands;ne:af:Niger:Niger;ng:af:Nigeriya:Nigeria;ni:na:Nikaragua:Nicaragua;no:eu:Norvegiya:Norway;az:as:Ozarbayjon:Azerbaijan;pw:oc:Palau:Palau;pa:na:Panama:Panama;pg:oc:Papua – Yangi Gvineya:Papua New Guinea;py:sa:Paragvay:Paraguay;pe:sa:Peru:Peru;pk:as:Pokiston:Pakistan;pl:eu:Polsha:Poland;pt:eu:Portugaliya:Portugal;qa:as:Qatar:Qatar;kg:as:Qirg'iziston:Kyrgyzstan;kz:as:Qozog'iston:Kazakhstan;kw:as:Quvayt:Kuwait;ru:eu:Rossiya:Russia;rw:af:Ruanda:Rwanda;ro:eu:Ruminiya:Romania;sv:na:Salvador:El Salvador;ws:oc:Samoa:Samoa;sm:eu:San-Marino:San Marino;st:af:San-Tome va Prinsipi:São Tomé and Príncipe;sa:as:Saudiya Arabistoni:Saudi Arabia;sn:af:Senegal:Senegal;kn:na:Sent-Kits va Nevis:Saint Kitts and Nevis;lc:na:Sent-Lyusiya:Saint Lucia;vc:na:Sent-Vinsent va Grenadin:Saint Vincent and the Grenadines;rs:eu:Serbiya:Serbia;sc:af:Seyshel orollari:Seychelles;tl:as:Sharqiy Timor:Timor-Leste;kp:as:Shimoliy Koreya:North Korea;mk:eu:Shimoliy Makedoniya:North Macedonia;lk:as:Shri-Lanka:Sri Lanka;se:eu:Shvetsiya:Sweden;ch:eu:Shveytsariya:Switzerland;sg:as:Singapur:Singapore;sk:eu:Slovakiya:Slovakia;si:eu:Sloveniya:Slovenia;sb:oc:Solomon orollari:Solomon Islands;so:af:Somali:Somalia;sd:af:Sudan:Sudan;sr:sa:Surinam:Suriname;sy:as:Suriya:Syria;sl:af:Syerra-Leone:Sierra Leone;th:as:Tailand:Thailand;tz:af:Tanzaniya:Tanzania;tg:af:Togo:Togo;tj:as:Tojikiston:Tajikistan;to:oc:Tonga:Tonga;tt:sa:Trinidad va Tobago:Trinidad and Tobago;tn:af:Tunis:Tunisia;tr:as:Turkiya:Türkiye;tm:as:Turkmaniston:Turkmenistan;tv:oc:Tuvalu:Tuvalu;ug:af:Uganda:Uganda;ua:eu:Ukraina:Ukraine;om:as:Ummon:Oman;uy:sa:Urugvay:Uruguay;vu:oc:Vanuatu:Vanuatu;va:eu:Vatikan:Vatican City;ve:sa:Venesuela:Venezuela;hu:eu:Vengriya:Hungary;vn:as:Vyetnam:Vietnam;cn:as:Xitoy:China;hr:eu:Xorvatiya:Croatia;ye:as:Yaman:Yemen;jm:na:Yamayka:Jamaica;nz:oc:Yangi Zelandiya:New Zealand;jp:as:Yaponiya:Japan;zm:af:Zambiya:Zambia;zw:af:Zimbabve:Zimbabwe";
-function nsCatOk(z,cur){ return cur==="all"||z[3]===cur||(cur==="fl"&&z[3].slice(0,2)==="c-"); }
-var NS_FONT="https://fonts.googleapis.com/css2?family=Pacifico&family=Lobster&family=Caveat:wght@700&family=Dancing+Script:wght@700&family=Great+Vibes"+
-  "&family=Permanent+Marker&family=Press+Start+2P&family=Orbitron:wght@800&family=Bungee&family=Monoton&family=Cinzel:wght@800&family=Righteous&display=swap";
-/* ramka "halqasi": ::before ichi shaffof qoladi (mask), faqat chetdagi w px da rasm ko'rinadi */
-var NS_MASK="-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0)";
-function nsRg(h,a){ var n=parseInt(h.slice(1),16); return "rgba("+(n>>16)+","+(n>>8&255)+","+(n&255)+","+a+")"; }
+   Qator foni: faqat reytingda 1–10-o'rinda turgan talaba ta'limga oid fonlardan birini tanlaydi —
+   students/<id>/ns = {g: "eg<n>"}. 10-o'rindan tushsa fon ko'rinmaydi (tanlovi saqlanadi, top-10 ga qaytsa yana chiqadi).
+   O'qituvchi kartasi ham shu fonlardan birini oladi (meta/tcv/ns). Ism dizayni va ramkalar yo'q (olib tashlangan). */
+var NICK={}, NICK_AT=0, TCV=null, TC_AV=null, TC_ME=null, NS_ED=false, NS_TAB="nk", NS_CAT="all", NS_RANK=0, NS_TOP=10, NS_CSS="", NS_G=[];
+var NS_CATS=[["all","Hammasi","All"],["bk","📚 Daftar va kitob","📚 Notebooks & books"],["sc","🔬 Fan","🔬 Science"],["mt","🧮 Matematika","🧮 Maths"],
+  ["bz","💼 Biznes","💼 Business"],["ac","🎓 Yutuqlar","🎓 Achievements"]];
 (function(){
-  var rg=nsRg, css=[], nf=12, nb=0, ng=0, GT="-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;";
-  function F(uz,en,cat,rule,extra){ var id="n"+(nf++); NS_F.push([id,uz,en,cat]); css.push(".rt-nn."+id+"{"+rule+"}"+(extra?extra.replace(/@/g,".rt-nn."+id):"")); }
-  function d3(c,l,d){ return "color:"+c+";text-shadow:1px 1px 0 "+l+",2px 2px 0 "+d+",3px 3px 0 "+rg(d,.35); }
-  /* ✍️ ism dizaynlari */
-  [["Shaftoli","Peach","#f97316,#fb7185"],["Lola","Tulip","#e11d48,#fb923c"],["Tun","Night","#6366f1,#8b5cf6,#3b82f6"],["Osmon","Sky","#0284c7,#38bdf8,#818cf8"],
-   ["Bahor","Spring","#16a34a,#84cc16,#eab308"],["Kuz","Autumn","#b45309,#dc2626,#f59e0b"],["Qish","Winter","#0ea5e9,#818cf8,#64748b"],["Gilos","Cherry","#be123c,#ec4899"],
-   ["Uzum","Grape","#7e22ce,#c026d3"],["Dengiz","Sea","#0f766e,#06b6d4,#3b82f6"],["Shafaq","Sunset","#f59e0b,#ef4444,#a21caf"],["Tong","Dawn","#fb7185,#f59e0b,#0ea5e9"],
-   ["Shokolad","Chocolate","#b45309,#d97706,#92400e"],["Lavanda","Lavender","#8b5cf6,#c084fc,#e879f9"],["Yalpiz","Mint","#059669,#2dd4bf"],["Marjon","Coral","#f43f5e,#fb923c,#eab308"],
-   ["Galaktika","Galaxy","#6366f1,#a21caf,#db2777"],["O'rmon","Forest","#15803d,#65a30d,#16a34a"],["Yoqut","Ruby","#9f1239,#e11d48,#f43f5e"],["Sapfir","Sapphire","#1d4ed8,#2563eb,#0891b2"],
-   ["Feruza","Turquoise","#0d9488,#14b8a6,#0ea5e9"],["Shirin","Candy","#ec4899,#8b5cf6,#06b6d4"]]
-    .forEach(function(g){ F(g[0],g[1],"gr",GT+"background-image:linear-gradient(90deg,"+g[2]+")"); });
-  [["Yashil neon","Green neon","#22c55e"],["Sariq neon","Yellow neon","#eab308"],["To'q sariq neon","Orange neon","#f97316"],["Qizil neon","Red neon","#ef4444"],
-   ["Binafsha neon","Violet neon","#8b5cf6"],["Moviy neon","Blue neon","#3b82f6"],["Limon neon","Lime neon","#84cc16"],["Feruza neon","Teal neon","#14b8a6"],
-   ["Magenta neon","Magenta neon","#d946ef"],["Qahrabo neon","Amber neon","#f59e0b"],["Kiberpank","Cyberpunk","#ec4899","#06b6d4"],
-   ["Matritsa","Matrix","#16a34a","#22c55e",'font-family:ui-monospace,Consolas,"Courier New",monospace;']]
-    .forEach(function(g){ var c2=g[3]||g[2]; F(g[0],g[1],"ne",(g[4]||"")+"color:"+g[2]+";text-shadow:0 0 5px "+rg(c2,.85)+",0 0 12px "+rg(c2,.6)); });
-  [["Jonli okean","Live ocean","#0ea5e9,#14b8a6,#6366f1,#0ea5e9"],["Jonli olov","Live fire","#dc2626,#f97316,#facc15,#dc2626"],["Jonli galaktika","Live galaxy","#6366f1,#d946ef,#ec4899,#6366f1"],
-   ["Jonli avrora","Live aurora","#10b981,#06b6d4,#8b5cf6,#10b981"],["Jonli shirin","Live candy","#ec4899,#f59e0b,#8b5cf6,#ec4899"],
-   ["Yaltiroq oltin","Shiny gold","#b45309 0%,#eab308 40%,#fff3b0 50%,#eab308 60%,#b45309 100%"],["Yaltiroq kumush","Shiny silver","#475569 0%,#94a3b8 40%,#f8fafc 50%,#94a3b8 60%,#475569 100%"]]
-    .forEach(function(g,i){ F(g[0],g[1],"an",GT+"background-image:linear-gradient(90deg,"+g[2]+");background-size:200% auto;animation:nnShift "+(i<5?3.5:2.4)+"s linear infinite"); });
-  F("Yonib-o'chuvchi ko'k","Pulsing blue","an","--c:#06b6d4;color:var(--c);animation:nnPulse 1.8s ease-in-out infinite");
-  F("Yonib-o'chuvchi pushti","Pulsing pink","an","--c:#ec4899;color:var(--c);animation:nnPulse 1.8s ease-in-out infinite");
-  F("Yurak urishi","Heartbeat","an","display:inline-block;color:#e11d48;animation:nnBeat 1.3s ease-in-out infinite");
-  F("Suzuvchi","Floating","an","display:inline-block;color:#2563eb;animation:nnFloat 2.4s ease-in-out infinite");
-  F("Rang almashuvchi","Colour changing","an",GT+"background-image:linear-gradient(90deg,#ef4444,#f59e0b);animation:nnHue 4s linear infinite");
-  [["Bronza","Bronze","#78350f,#d97706,#fcd34d,#b45309,#78350f"],["Platina","Platinum","#475569,#cbd5e1,#64748b,#e2e8f0,#475569"],["Mis","Copper","#9a3412,#ea580c,#fdba74,#c2410c,#9a3412"],
-   ["Pushti oltin","Rose gold","#9f5160,#e8b4a0,#b76e79,#f3d1c4,#9f5160"],["Xrom","Chrome","#1f2937,#9ca3af 45%,#f9fafb 50%,#4b5563 55%,#d1d5db",180],["Qora oltin","Black gold","#422006,#ca8a04,#713f12,#facc15,#422006"]]
-    .forEach(function(g){ F(g[0],g[1],"me",GT+"background-image:linear-gradient("+(g[3]||90)+"deg,"+g[2]+")"); });
-  F("3D qizil","3D red","3d",d3("#dc2626","#fca5a5","#991b1b"));
-  F("3D yashil","3D green","3d",d3("#16a34a","#86efac","#166534"));
-  F("3D binafsha","3D violet","3d",d3("#7c3aed","#c4b5fd","#5b21b6"));
-  F("3D to'q sariq","3D orange","3d",d3("#ea580c","#fdba74","#9a3412"));
-  F("Uzun soya","Long shadow","3d","color:#0f766e;text-shadow:"+[.45,.35,.25,.16,.08].map(function(a,i){ return (i+1)+"px "+(i+1)+"px 0 "+rg("#0f766e",a); }).join(","));
-  F("Kontur","Outline","3d","color:transparent;-webkit-text-fill-color:transparent;-webkit-text-stroke:1px #2563eb;font-weight:900");
-  F("Pushti kontur","Pink outline","3d","color:"+rg("#db2777",.15)+";-webkit-text-stroke:1px #db2777;font-weight:900");
-  F("Retro","Retro","3d","color:#f59e0b;text-shadow:1.5px 1.5px 0 #ec4899,3px 3px 0 #06b6d4");
-  F("Glitch","Glitch","3d","color:var(--ink);text-shadow:-1.5px 0 rgba(239,68,68,.85),1.5px 0 rgba(6,182,212,.85)");
-  F("Komiks","Comic","3d","color:#facc15;-webkit-text-stroke:.6px #1f2937;text-shadow:2px 2px 0 #1f2937;font-weight:900");
-  F("Bo'rtma","Embossed","3d","color:#94a3b8;text-shadow:-1px -1px 0 rgba(255,255,255,.75),1px 1px 0 rgba(0,0,0,.4)");
-  F("Yumshoq soya","Soft shadow","3d","color:#4f46e5;text-shadow:0 2px 6px rgba(79,70,229,.5)");
-  [["Toj","Crown","👑","",GT+"background-image:linear-gradient(90deg,#a16207,#facc15,#a16207)"],["Olovli","Fiery","🔥","",GT+"background-image:linear-gradient(90deg,#dc2626,#f97316,#facc15)"],
-   ["Yulduz","Star","⭐","⭐","color:#ca8a04"],["Chaqmoq","Lightning","⚡","","color:#2563eb;text-shadow:0 0 6px rgba(59,130,246,.6)"],
-   ["Olmos","Diamond","💎","",GT+"background-image:linear-gradient(90deg,#0891b2,#60a5fa,#a78bfa)"],["Raketa","Rocket","🚀","","color:#7c3aed"],
-   ["Yurak","Heart","❤️","","color:#e11d48"],["Sehrli","Magic","✨","✨",GT+"background-image:linear-gradient(90deg,#8b5cf6,#ec4899,#f59e0b)"],
-   ["Chempion","Champion","🏆","",GT+"background-image:linear-gradient(90deg,#b45309,#eab308,#fde047)"],["Tadbirkor","Entrepreneur","💼","","color:#0f766e;font-style:italic"],
-   ["O'sish","Growth","📈","","color:#16a34a"],["Vatan","Homeland","🇺🇿","",GT+"background-image:linear-gradient(180deg,#0099b5 0 42%,#ce1126 42% 47%,#64748b 47% 53%,#ce1126 53% 58%,#1eb53a 58%)"]]
-    .forEach(function(g){ F(g[0],g[1],"dc",g[4],'@::before{content:"'+g[2]+' "}'+(g[3]?'@::after{content:" '+g[3]+'"}':"")); });
-  [["Pacifico","Pacifico","Pacifico",1,"#db2777","",400],["Lobster","Lobster","Lobster",1,"#7c3aed","1.08em",400],["Qo'lyozma","Handwriting","Caveat",1,"#0369a1","1.25em",700],
-   ["Raqs","Dance","Dancing Script",1,"#be123c","1.15em",700],["Nafis","Elegant","Great Vibes",1,"#a16207","1.35em",400],["Marker","Marker","Permanent Marker",1,"#1d4ed8","",400],
-   ["Piksel","Pixel","Press Start 2P",0,"#16a34a",".66em",400],["Kosmik","Space","Orbitron",0,"#0891b2","",800],["Plakat","Poster","Bungee",0,"#ea580c","",400],
-   ["Diskoteka","Disco","Monoton",0,"#d946ef","1.05em",400],["Rim","Roman","Cinzel",0,"#b45309","",800],["Zamonaviy","Modern","Righteous",0,"#0d9488","",400]]
-    .forEach(function(g){ F(g[0],g[1],"fo",'font-family:"'+g[2]+'",'+(g[3]?"cursive":"sans-serif")+";color:"+g[4]+";font-weight:"+g[6]+(g[5]?";font-size:"+g[5]:"")); });
-  /* 🖼 butun qator ramkasi: bf — ::before (chiziq), af — ::after (nur, soya), rw — qatorning o'zi (burchak) */
-  function B(uz,en,cat,bf,af,rw){ var id="b"+(nb++); NS_B.push([id,uz,en,cat]);
-    css.push(".rt-row."+id+"::before{"+bf+"}"); if(af) css.push(".rt-row."+id+"::after{content:\"\";"+af+"}"); if(rw) css.push(".rt-row."+id+"{"+rw+"}"); }
-  function ring(w,img,ex){ return "border:0;padding:"+w+"px;background:"+img+";"+NS_MASK+(ex?";"+ex:""); }
-  function gl(c,r,a){ return "box-shadow:0 0 "+r+"px "+rg(c,a)+",inset 0 0 "+Math.round(r*.6)+"px "+rg(c,a*.45); }
-  function zig(c,s){ var h=s/2; return ["135deg","225deg"].map(function(d){ return "linear-gradient("+d+","+c+" 25%,transparent 25%) -"+h+"px 0/"+s+"px "+s+"px"; })
-    .concat(["315deg","45deg"].map(function(d){ return "linear-gradient("+d+","+c+" 25%,transparent 25%) 0 0/"+s+"px "+s+"px"; })).join(","); }
-  function romb(c,s){ return "linear-gradient(45deg,"+c+" 25%,transparent 25% 75%,"+c+" 75%) 0 0/"+s+"px "+s+"px,linear-gradient(-45deg,"+c+" 25%,transparent 25% 75%,"+c+" 75%) 0 0/"+s+"px "+s+"px"; }
-  var RB="#ef4444,#f59e0b,#22c55e,#06b6d4,#8b5cf6,#ec4899,#ef4444";
-  /* b0–b11: avvalgi nomlar saqlangan */
-  B("Standart","Standard","so","border:1px solid var(--line)");
-  B("Oltin ramka","Gold frame","ne","border:2px solid #eab308",gl("#eab308",10,.55));
-  B("Kamalak","Rainbow","an",ring(3,"linear-gradient(90deg,"+RB+") 0 0/200% 100%","animation:rfShift 4s linear infinite"));
-  B("Neon","Neon","ne","border:1.5px solid #22d3ee",gl("#22d3ee",12,.7));
-  B("Nuqtali","Dashed","sh","border:2px dashed #7c3aed");
-  B("Chiziqli naqsh","Striped","pt",ring(6,"repeating-linear-gradient(45deg,#7c3aed 0 4px,"+rg("#7c3aed",.25)+" 4px 8px)"));
-  B("Atlas naqshi","Atlas pattern","uz",ring(6,"repeating-linear-gradient(135deg,#e11d48 0 6px,#f59e0b 6px 12px,#16a34a 12px 18px,#2563eb 18px 24px,#7c3aed 24px 30px)"));
-  B("Yulduzli","Starry","pt",ring(6,"radial-gradient(circle,#facc15 1.2px,transparent 1.9px) 0 0/8px 8px,#1e1b4b"));
-  B("Muz","Ice","gr",ring(3,"linear-gradient(135deg,#7dd3fc,#e0f2fe,#38bdf8,#bae6fd,#0ea5e9)"),"box-shadow:inset 0 0 10px rgba(125,211,252,.35)");
-  B("Olovli","Fiery","gr",ring(3,"linear-gradient(90deg,#dc2626,#f97316,#facc15)"),"box-shadow:0 0 12px rgba(249,115,22,.45)");
-  B("Qo'sh ramka","Double","sh","border:5px double #2563eb");
-  B("Gulli","Floral","pt",ring(7,"radial-gradient(circle,#ec4899 0 2px,#fde047 2.4px 3px,transparent 3.5px) 0 0/12px 12px,#bbf7d0"));
-  [["Qizil","Red","#ef4444"],["To'q sariq","Orange","#f97316"],["Sariq","Yellow","#eab308"],["Yashil","Green","#22c55e"],["Zumrad","Emerald","#10b981"],["Feruza","Teal","#14b8a6"],
-   ["Havorang","Sky","#0ea5e9"],["Ko'k","Blue","#3b82f6"],["Indigo","Indigo","#6366f1"],["Binafsha","Violet","#8b5cf6"],["Pushti","Pink","#ec4899"],["Kulrang","Grey","#64748b"]]
-    .forEach(function(g){ B(g[0]+" ramka",g[1]+" frame","so","border:2px solid "+g[2]); });
-  B("Qora-oq","Ink","so","border:2px solid var(--ink)");
-  [["Shaftoli","Peach","#f97316,#fb7185"],["Lola","Tulip","#e11d48,#fb923c"],["Osmon","Sky","#0284c7,#38bdf8,#818cf8"],["Bahor","Spring","#16a34a,#84cc16,#eab308"],
-   ["Kuz","Autumn","#b45309,#dc2626,#f59e0b"],["Uzum","Grape","#7e22ce,#c026d3"],["Dengiz","Sea","#0f766e,#06b6d4,#3b82f6"],["Shafaq","Sunset","#f59e0b,#ef4444,#a21caf"],
-   ["Galaktika","Galaxy","#6366f1,#a21caf,#db2777"],["Yalpiz","Mint","#059669,#2dd4bf"],["Avrora","Aurora","#10b981,#06b6d4,#8b5cf6"],["Shirin","Candy","#ec4899,#8b5cf6,#06b6d4"]]
-    .forEach(function(g){ B(g[0],g[1],"gr",ring(3,"linear-gradient(90deg,"+g[2]+")")); });
-  [["Yashil neon","Green neon","#22c55e"],["Sariq neon","Yellow neon","#eab308"],["To'q sariq neon","Orange neon","#f97316"],["Qizil neon","Red neon","#ef4444"],["Pushti neon","Pink neon","#ec4899"],
-   ["Binafsha neon","Violet neon","#8b5cf6"],["Moviy neon","Blue neon","#3b82f6"],["Limon neon","Lime neon","#84cc16"],["Feruza neon","Teal neon","#14b8a6"],["Magenta neon","Magenta neon","#d946ef"],
-   ["Kiberpank","Cyberpunk","#ec4899","#06b6d4"]].forEach(function(g){ B(g[0],g[1],"ne","border:1.5px solid "+g[2],gl(g[3]||g[2],12,.7)); });
-  B("Ikki qavat neon","Double neon","ne","border:1.5px solid #22d3ee","box-shadow:0 0 0 3px var(--panel),0 0 0 4.5px #ec4899,0 0 14px rgba(236,72,153,.6)");
-  B("Shaxmat","Chessboard","pt",ring(6,"repeating-conic-gradient(#111827 0 25%,#f8fafc 0 50%) 0 0/8px 8px"));
-  B("Zigzag","Zigzag","pt",ring(6,zig("#7c3aed",8)+",#ede9fe"));
-  B("No'xatli","Polka dots","pt",ring(6,"radial-gradient(circle,#fff 1.5px,transparent 2px) 0 0/7px 7px,#e11d48"));
-  B("Yashil chiziqlar","Green stripes","pt",ring(5,"repeating-linear-gradient(-45deg,#16a34a 0 4px,#bbf7d0 4px 8px)"));
-  B("Shotland katagi","Plaid","pt",ring(6,"repeating-linear-gradient(0deg,rgba(220,38,38,.75) 0 2px,transparent 2px 6px),repeating-linear-gradient(90deg,rgba(37,99,235,.7) 0 2px,transparent 2px 6px),#fef3c7"));
-  B("Romb","Diamonds","pt",ring(6,romb("#0d9488",8)+",#ccfbf1"));
-  B("To'lqin","Waves","pt",ring(6,"radial-gradient(circle at 50% 0,transparent 3px,#0ea5e9 3.5px 4.5px,transparent 5px) 0 0/10px 6px,#e0f2fe"));
-  B("Konfetti","Confetti","pt",ring(6,[["20% 30%","#f43f5e"],["70% 60%","#22c55e"],["45% 85%","#3b82f6"],["88% 18%","#eab308"]].map(function(d){ return "radial-gradient(circle at "+d[0]+","+d[1]+" 1.6px,transparent 2.2px) 0 0/16px 12px"; }).join(",")+",#fff7ed"));
-  B("Qor","Snow","pt",ring(6,"radial-gradient(circle,#fff 1.2px,transparent 1.8px) 0 0/7px 7px,radial-gradient(circle,#fff .8px,transparent 1.3px) 3.5px 3.5px/7px 7px,#38bdf8"));
-  B("Kamuflyaj","Camouflage","pt",ring(6,"radial-gradient(circle at 20% 30%,#3f6212 0 3px,transparent 3.5px) 0 0/14px 10px,radial-gradient(circle at 70% 70%,#365314 0 3.5px,transparent 4px) 0 0/14px 10px,#84cc16"));
-  B("Ehtiyot","Caution","pt",ring(6,"repeating-linear-gradient(45deg,#facc15 0 6px,#111827 6px 12px)"));
-  B("Pianino","Piano","pt",ring(6,"repeating-linear-gradient(90deg,#f8fafc 0 6px,#111827 6px 9px)"));
-  B("Arqon","Rope","pt",ring(5,"repeating-linear-gradient(45deg,#92400e 0 3px,#d6a756 3px 6px)"));
-  B("Aylanma kamalak","Spinning rainbow","an",ring(3,"conic-gradient(from var(--nfa),"+RB+")","--nfa:0deg;animation:nfSpin 3s linear infinite"));
-  B("Aylanma oltin","Spinning gold","an",ring(3,"conic-gradient(from var(--nfa),#a16207,#facc15,#fff3b0,#facc15,#a16207)","--nfa:0deg;animation:nfSpin 2.5s linear infinite"));
-  [["ko'k","blue","#06b6d4"],["pushti","pink","#ec4899"],["yashil","green","#22c55e"]].forEach(function(g){
-    B("Yonib-o'chuvchi "+g[0],"Pulsing "+g[1],"an","border:1.5px solid "+g[2],"--c:"+g[2]+";animation:nfPulse 1.8s ease-in-out infinite"); });
-  B("Yaltiroq","Shimmer","an",ring(3,"linear-gradient(90deg,#b45309,#eab308 35%,#fff3b0 50%,#eab308 65%,#b45309) 0 0/200% 100%","animation:rfShift 2.6s linear infinite"));
-  B("Chumoli yo'li","Marching ants","an",(function(c){ var h="linear-gradient(90deg,"+c+" 50%,transparent 0)",v="linear-gradient(0deg,"+c+" 50%,transparent 0)";
-    return "border:0;background:"+h+" 0 0/12px 2px repeat-x,"+h+" 0 100%/12px 2px repeat-x,"+v+" 0 0/2px 12px repeat-y,"+v+" 100% 0/2px 12px repeat-y;animation:rfAnts .8s linear infinite"; })("#7c3aed"),"","--rr:4px");
-  B("Jonli olov","Live fire","an",ring(3,"linear-gradient(90deg,#dc2626,#f97316,#facc15,#f97316,#dc2626) 0 0/200% 100%","animation:rfShift 2s linear infinite"),"animation:nfFlick 1.3s ease-in-out infinite");
-  B("Rang almashuvchi","Colour changing","an","border:2.5px solid #ef4444;animation:nnHue 4s linear infinite");
-  B("Nafas","Breathing","an","border:2px solid #8b5cf6;animation:rfBreath 2.8s ease-in-out infinite");
-  B("Elektr","Electric","an",ring(2,"linear-gradient(90deg,#1d4ed8,#93c5fd,#1d4ed8,#93c5fd,#1d4ed8) 0 0/200% 100%","animation:rfShift .9s linear infinite"),"box-shadow:0 0 10px rgba(59,130,246,.6)");
-  B("Okean to'lqini","Ocean wave","an",ring(3,"linear-gradient(90deg,#0ea5e9,#14b8a6,#6366f1,#0ea5e9) 0 0/200% 100%","animation:rfShift 3.5s linear infinite"));
-  B("Disko","Disco","an",ring(3,"conic-gradient(from var(--nfa),#ec4899,#facc15,#22d3ee,#a3e635,#ec4899)","--nfa:0deg;animation:nfSpin 1.4s linear infinite"),"animation:rfDisco 1.4s linear infinite");
-  B("Kapsula","Capsule","sh","border:2px solid #6366f1","","--rr:999px");
-  B("To'rtburchak","Square","sh","border:2px solid var(--ink)","","--rr:0px");
-  B("Burchaklar","Corners","sh",(function(c){ var g="linear-gradient("+c+","+c+")";
-    return "border:0;background:"+["0 0/16px 3px","0 0/3px 16px","100% 0/16px 3px","100% 0/3px 16px","0 100%/16px 3px","0 100%/3px 16px","100% 100%/16px 3px","100% 100%/3px 16px"]
-      .map(function(p){ return g+" "+p+" no-repeat"; }).join(","); })("#0ea5e9"),"","--rr:0px");
-  B("Uzuq qizil","Red dashes","sh","border:2px dashed #ef4444");
-  B("Nuqtali ko'k","Blue dots","sh","border:3px dotted #2563eb");
-  B("Bo'rtiq","Ridge","sh","border:5px ridge #94a3b8");
-  B("Botiq","Groove","sh","border:5px groove #a8a29e");
-  B("Chap chiziq","Left bar","sh","border:0;border-left:6px solid #f59e0b","","--rr:6px");
-  B("Tepa va past chiziq","Top & bottom","sh","border:0;border-top:3px solid #0d9488;border-bottom:3px solid #0d9488","","--rr:0px");
-  B("3D tugma","3D button","sh","border:2px solid #2563eb","box-shadow:0 5px 0 #1e40af");
-  B("Soyali karta","Card","sh","border:1px solid var(--line)","box-shadow:0 6px 16px rgba(0,0,0,.18)");
-  B("Uch qavat","Triple","sh","border:2px solid #2563eb","box-shadow:0 0 0 3px var(--panel),0 0 0 5px #f59e0b");
-  B("Adras","Adras","uz",ring(6,"repeating-linear-gradient(90deg,#be123c 0 5px,#facc15 5px 9px,#7c3aed 9px 14px,#16a34a 14px 18px,#0ea5e9 18px 23px)"));
-  B("Ikat","Ikat","uz",ring(6,zig("#7c2d12",8)+",#f59e0b"));
-  B("Suzani","Suzani","uz",ring(7,"radial-gradient(circle,#dc2626 0 2px,#facc15 2.5px 3.2px,transparent 3.7px) 0 0/11px 11px,radial-gradient(circle,#16a34a 1px,transparent 1.5px) 5.5px 5.5px/11px 11px,#fef3c7"));
-  B("Koshin","Tiles","uz",ring(6,"repeating-conic-gradient(#1d4ed8 0 25%,#06b6d4 0 50%) 0 0/8px 8px"),"box-shadow:0 0 0 1.5px #ca8a04");
-  B("Zarbof","Gold embroidery","uz","border:5px double #ca8a04","box-shadow:0 0 10px rgba(202,138,4,.35)");
-  B("Bayroq","Flag","uz",ring(5,"linear-gradient(180deg,#0099b5 0 33%,#ce1126 33% 37%,#ffffff 37% 63%,#ce1126 63% 67%,#1eb53a 67%)"));
-  B("Registon","Registan","uz",ring(4,"linear-gradient(90deg,#0e7490,#14b8a6,#ca8a04,#14b8a6,#0e7490)"),"box-shadow:0 0 10px rgba(20,184,166,.4)");
-  B("Do'ppi","Doppi","uz",ring(6,"radial-gradient(circle,#fff 1.1px,transparent 1.6px) 0 0/5px 5px,#111827"));
-  B("Paxta","Cotton","uz",ring(6,"radial-gradient(circle,#fff 1.8px,transparent 2.3px) 0 0/9px 9px,#15803d"));
-  B("Gilam","Carpet","uz",ring(7,romb("#7f1d1d",10)+",#dc2626"));
-  B("Xon atlas","Khan atlas","uz",ring(6,"linear-gradient(90deg,#db2777,#f59e0b 20%,#16a34a 40%,#2563eb 60%,#7c3aed 80%,#db2777) 0 0/60px 100%"));
-  B("Navro'z","Navruz","uz",ring(4,"linear-gradient(90deg,#16a34a,#facc15,#dc2626,#facc15,#16a34a)"));
-  B("Ko'k gumbaz","Blue dome","uz",ring(4,"linear-gradient(180deg,#0284c7,#14b8a6)"),"","--rr:22px");
-  /* 🎨 qator foni (matn o'qilishi uchun shaffofligi past) */
-  function G(uz,en,cat,bg,ex){ var id="g"+(ng++); NS_G.push([id,uz,en,cat]); if(bg) css.push(".rt-row."+id+"{background:"+bg+(ex?";"+ex:"")+"}"); }
-  function lin(cols,a,d){ return "linear-gradient("+(d||"90deg")+","+cols.split(",").map(function(c){ return rg(c,a); }).join(",")+")"; }
-  G("Standart","Standard","ti","");
-  [["Qizil","Red","#ef4444"],["To'q sariq","Orange","#f97316"],["Sariq","Yellow","#eab308"],["Limon","Lime","#84cc16"],["Yashil","Green","#22c55e"],["Zumrad","Emerald","#10b981"],
-   ["Feruza","Teal","#14b8a6"],["Havorang","Sky","#0ea5e9"],["Ko'k","Blue","#3b82f6"],["Indigo","Indigo","#6366f1"],["Binafsha","Violet","#8b5cf6"],["Pushti","Pink","#ec4899"],
-   ["Atirgul","Rose","#f43f5e"],["Kulrang","Grey","#64748b"],["Jigarrang","Brown","#a16207"]].forEach(function(g){ G(g[0],g[1],"ti",rg(g[2],.15)); });
-  [["Shaftoli","Peach","#f97316,#fb7185"],["Lola","Tulip","#e11d48,#fb923c"],["Tun","Night","#6366f1,#8b5cf6,#3b82f6"],["Osmon","Sky","#0284c7,#38bdf8,#818cf8"],
-   ["Bahor","Spring","#16a34a,#84cc16,#eab308"],["Kuz","Autumn","#b45309,#dc2626,#f59e0b"],["Gilos","Cherry","#be123c,#ec4899"],["Uzum","Grape","#7e22ce,#c026d3"],
-   ["Dengiz","Sea","#0f766e,#06b6d4,#3b82f6"],["Shafaq","Sunset","#f59e0b,#ef4444,#a21caf"],["Tong","Dawn","#fb7185,#f59e0b,#0ea5e9"],["Lavanda","Lavender","#8b5cf6,#c084fc,#e879f9"],
-   ["Yalpiz","Mint","#059669,#2dd4bf"],["Galaktika","Galaxy","#6366f1,#a21caf,#db2777"],["Avrora","Aurora","#10b981,#06b6d4,#8b5cf6"],["Shirin","Candy","#ec4899,#8b5cf6,#06b6d4"]]
-    .forEach(function(g){ G(g[0],g[1],"gr",lin(g[2],.22)); });
-  var a1=rg("#8b5cf6",.16), a2=rg("#0d9488",.14), a3=rg("#db2777",.12);
-  G("Ko'k chiziqlar","Blue stripes","pt","repeating-linear-gradient(45deg,"+rg("#3b82f6",.13)+" 0 8px,transparent 8px 16px)");
-  G("Yashil chiziqlar","Green stripes","pt","repeating-linear-gradient(-45deg,"+rg("#16a34a",.13)+" 0 8px,transparent 8px 16px)");
-  G("Yotiq chiziqlar","Horizontal stripes","pt","repeating-linear-gradient(180deg,"+rg("#ec4899",.13)+" 0 4px,transparent 4px 10px)");
-  G("Tik chiziqlar","Vertical stripes","pt","repeating-linear-gradient(90deg,"+rg("#f97316",.14)+" 0 6px,transparent 6px 14px)");
-  G("No'xatli","Polka dots","pt","radial-gradient(circle,"+rg("#e11d48",.25)+" 2.5px,transparent 3px) 0 0/14px 14px");
-  G("Katta no'xat","Big dots","pt","radial-gradient(circle,"+rg("#3b82f6",.16)+" 6px,transparent 6.5px) 0 0/26px 26px");
-  G("Shaxmat","Chessboard","pt","repeating-conic-gradient("+rg("#475569",.11)+" 0 25%,transparent 0 50%) 0 0/20px 20px");
-  G("Katak daftar","Grid paper","pt","linear-gradient("+rg("#3b82f6",.2)+" 1px,transparent 1px) 0 0/12px 12px,linear-gradient(90deg,"+rg("#3b82f6",.2)+" 1px,transparent 1px) 0 0/12px 12px");
-  G("Chiziqli daftar","Lined paper","pt","linear-gradient(90deg,transparent 12px,"+rg("#ef4444",.45)+" 12px 13px,transparent 13px),linear-gradient("+rg("#3b82f6",.22)+" 1px,transparent 1px) 0 4px/100% 10px");
-  G("Zigzag","Zigzag","pt",zig(a1,16));
-  G("Romb","Diamonds","pt",romb(a2,18));
-  G("To'lqin","Waves","pt","radial-gradient(circle at 50% 0,transparent 6px,"+rg("#0ea5e9",.22)+" 6.5px 8px,transparent 8.5px) 0 0/24px 12px");
-  G("Konfetti","Confetti","pt",[["15% 25%","#f43f5e"],["60% 70%","#22c55e"],["35% 85%","#3b82f6"],["85% 20%","#eab308"],["70% 40%","#8b5cf6"]].map(function(d){
-    return "radial-gradient(circle at "+d[0]+","+rg(d[1],.55)+" 1.8px,transparent 2.4px) 0 0/30px 22px"; }).join(","));
-  G("Pufakchalar","Bubbles","pt","radial-gradient(circle,transparent 4px,"+rg("#0ea5e9",.3)+" 4.5px 5.5px,transparent 6px) 0 0/22px 22px,radial-gradient(circle,transparent 2px,"+rg("#6366f1",.28)+" 2.5px 3.2px,transparent 3.7px) 11px 11px/22px 22px");
-  G("Shotland katagi","Plaid","pt","repeating-linear-gradient(0deg,"+rg("#dc2626",.1)+" 0 4px,transparent 4px 14px),repeating-linear-gradient(90deg,"+rg("#2563eb",.1)+" 0 4px,transparent 4px 14px)");
-  G("Kamuflyaj","Camouflage","pt","radial-gradient(circle at 20% 30%,"+rg("#4d7c0f",.22)+" 0 7px,transparent 8px) 0 0/40px 26px,radial-gradient(circle at 70% 70%,"+rg("#3f6212",.2)+" 0 8px,transparent 9px) 0 0/40px 26px,radial-gradient(circle at 50% 10%,"+rg("#84cc16",.2)+" 0 5px,transparent 6px) 0 0/30px 22px");
-  G("Nuqtali panjara","Dot grid","pt","radial-gradient(circle,"+rg("#475569",.3)+" 1.2px,transparent 1.7px) 0 0/10px 10px");
-  G("Ehtiyot","Caution","pt","repeating-linear-gradient(45deg,"+rg("#facc15",.22)+" 0 10px,"+rg("#111827",.07)+" 10px 20px)");
-  G("Argyle","Argyle","pt",romb(a3,24));
-  G("Mozaika","Mosaic","pt","repeating-conic-gradient("+rg("#ef4444",.13)+" 0 25%,"+rg("#3b82f6",.13)+" 0 50%,"+rg("#22c55e",.13)+" 0 75%,"+rg("#eab308",.13)+" 0 100%) 0 0/24px 24px");
-  [["Jonli kamalak","Live rainbow","#ef4444,#f59e0b,#22c55e,#06b6d4,#8b5cf6,#ec4899,#ef4444"],["Jonli okean","Live ocean","#0ea5e9,#14b8a6,#6366f1,#0ea5e9"],
-   ["Jonli olov","Live fire","#dc2626,#f97316,#facc15,#dc2626"],["Jonli avrora","Live aurora","#10b981,#06b6d4,#8b5cf6,#10b981"],["Jonli galaktika","Live galaxy","#6366f1,#d946ef,#ec4899,#6366f1"]]
-    .forEach(function(g){ G(g[0],g[1],"an",lin(g[2],.2)+" 0 0/200% 100%","animation:rfShift 6s linear infinite"); });
-  G("Yaltiroq oltin","Shiny gold","an","linear-gradient(110deg,transparent 35%,rgba(255,255,255,.55) 50%,transparent 65%) 0 0/250% 100% no-repeat,"+rg("#facc15",.18),"animation:nfSweep 3s linear infinite");
-  G("Yaltiroq kumush","Shiny silver","an","linear-gradient(110deg,transparent 35%,rgba(255,255,255,.6) 50%,transparent 65%) 0 0/250% 100% no-repeat,"+rg("#94a3b8",.2),"animation:nfSweep 3s linear infinite");
-  G("Yuguruvchi chiziqlar","Running stripes","an","linear-gradient(45deg,"+a1+" 25%,transparent 25% 50%,"+a1+" 50% 75%,transparent 75%) 0 0/24px 24px","animation:rgRun 1.2s linear infinite");
-  G("Suzuvchi no'xat","Floating dots","an","radial-gradient(circle,"+rg("#ec4899",.28)+" 3px,transparent 3.5px) 0 0/24px 24px","animation:rgRun 2s linear infinite");
-  G("Pulsar","Pulsar","an","transparent","--c:"+rg("#06b6d4",.28)+";animation:rgPulse 2.4s ease-in-out infinite");
-  G("Yuguruvchi to'lqin","Moving waves","an","radial-gradient(circle at 50% 0,transparent 6px,"+rg("#0ea5e9",.25)+" 6.5px 8px,transparent 8.5px) 0 0/24px 12px","animation:rgRun 1.6s linear infinite");
-  G("Rang almashuvchi","Colour changing","an","transparent","animation:rgHue 6s linear infinite");
-  G("Atlas","Atlas","uz","repeating-linear-gradient(135deg,"+["#e11d48","#f59e0b","#16a34a","#2563eb","#7c3aed"].map(function(c,i){ return rg(c,.14)+" "+(i*10)+"px "+(i*10+10)+"px"; }).join(",")+")");
-  G("Adras","Adras","uz","repeating-linear-gradient(90deg,"+["#be123c","#facc15","#7c3aed","#16a34a","#0ea5e9"].map(function(c,i){ return rg(c,.15)+" "+(i*7)+"px "+(i*7+7)+"px"; }).join(",")+")");
-  G("Ikat","Ikat","uz",zig(rg("#7c2d12",.16),16)+","+rg("#f59e0b",.12));
-  G("Suzani","Suzani","uz","radial-gradient(circle,"+rg("#dc2626",.25)+" 0 5px,"+rg("#facc15",.32)+" 6px 8px,transparent 9px) 0 0/34px 34px,radial-gradient(circle,"+rg("#16a34a",.3)+" 2px,transparent 2.6px) 17px 17px/34px 34px,"+rg("#fde68a",.14));
-  G("Koshin","Tiles","uz","repeating-conic-gradient("+rg("#1d4ed8",.12)+" 0 25%,"+rg("#06b6d4",.12)+" 0 50%) 0 0/22px 22px");
-  G("Zarbof","Gold embroidery","uz","radial-gradient(circle,"+rg("#ca8a04",.4)+" 1.3px,transparent 1.9px) 0 0/10px 10px,"+rg("#facc15",.1));
-  G("Bayroq","Flag","uz","linear-gradient(180deg,"+rg("#0099b5",.22)+" 0 33%,"+rg("#ce1126",.25)+" 33% 36%,transparent 36% 64%,"+rg("#ce1126",.25)+" 64% 67%,"+rg("#1eb53a",.22)+" 67%)");
-  G("Paxta dalasi","Cotton field","uz","radial-gradient(circle,rgba(255,255,255,.9) 3px,transparent 3.6px) 0 0/22px 18px,"+rg("#16a34a",.18));
-  G("Gilam","Carpet","uz",romb(rg("#991b1b",.14),20)+","+rg("#dc2626",.06));
-  G("Non naqshi","Bread stamp","uz","radial-gradient(circle,"+rg("#b45309",.28)+" 1.2px,transparent 1.8px) 0 0/8px 8px,"+rg("#d97706",.1));
-  G("Lagan","Ceramic","uz","radial-gradient(circle,transparent 5px,"+rg("#1d4ed8",.22)+" 5.5px 7px,transparent 7.5px) 0 0/22px 22px,"+rg("#e0f2fe",.25));
-  G("Registon","Registan","uz",lin("#0e7490,#ca8a04,#14b8a6",.2));
-  G("Bulutli osmon","Cloudy sky","th","radial-gradient(ellipse 34px 11px at 22% 40%,rgba(255,255,255,.85),transparent 70%),radial-gradient(ellipse 44px 13px at 72% 62%,rgba(255,255,255,.8),transparent 70%),"+lin("#38bdf8,#bae6fd",.3,"180deg"));
-  G("Yulduzli tun","Starry night","th","radial-gradient(circle,"+rg("#facc15",.8)+" 1px,transparent 1.6px) 0 0/19px 13px,radial-gradient(circle,rgba(255,255,255,.7) .8px,transparent 1.3px) 9px 6px/23px 17px,"+rg("#312e81",.2));
-  G("Quyosh","Sun","th","radial-gradient(circle at 0 50%,"+rg("#facc15",.45)+","+rg("#fb923c",.15)+" 30%,transparent 60%)");
-  G("Dengiz","Sea","th","radial-gradient(circle at 50% 100%,transparent 6px,"+rg("#0284c7",.2)+" 6.5px 8px,transparent 8.5px) 0 100%/24px 14px repeat-x,"+lin("#bae6fd,#0ea5e9",.22,"180deg"));
-  G("Qum","Sand","th","radial-gradient(circle,"+rg("#a16207",.25)+" .9px,transparent 1.4px) 0 0/6px 6px,"+rg("#fde68a",.25));
-  G("O'rmon","Forest","th","radial-gradient(circle,"+rg("#14532d",.22)+" 3px,transparent 3.5px) 0 0/16px 12px,"+lin("#15803d,#65a30d",.18));
-  G("Gullar","Flowers","th","radial-gradient(circle,"+rg("#ec4899",.4)+" 0 3px,"+rg("#fde047",.45)+" 3.5px 4.5px,transparent 5px) 0 0/30px 24px,radial-gradient(circle,"+rg("#f43f5e",.35)+" 2px,transparent 2.6px) 15px 12px/30px 24px,"+rg("#bbf7d0",.15));
-  G("Kuz barglari","Autumn leaves","th","radial-gradient(ellipse 6px 3px at 30% 40%,"+rg("#ea580c",.45)+",transparent) 0 0/28px 20px,radial-gradient(ellipse 5px 3px at 75% 70%,"+rg("#b91c1c",.4)+",transparent) 0 0/28px 20px,"+rg("#fed7aa",.18));
-  G("Qorli","Snowy","th","radial-gradient(circle,rgba(255,255,255,.95) 1.6px,transparent 2.2px) 0 0/14px 14px,radial-gradient(circle,rgba(255,255,255,.8) 1px,transparent 1.5px) 7px 7px/14px 14px,"+rg("#7dd3fc",.25));
-  G("Kamalakli osmon","Rainbow sky","th",lin("#ef4444,#f59e0b,#eab308,#22c55e,#06b6d4,#8b5cf6",.14));
-  G("Shafaq osmoni","Sunset sky","th",lin("#f97316,#ec4899,#8b5cf6",.24,"180deg"));
-  G("Bahor","Spring","th","radial-gradient(circle,rgba(255,255,255,.8) 2px,transparent 2.6px) 0 0/20px 16px,"+lin("#22c55e,#a3e635,#facc15",.2));
-  G("Pul","Money","bz","repeating-linear-gradient(90deg,"+rg("#16a34a",.16)+" 0 2px,transparent 2px 12px),"+rg("#16a34a",.1));
-  G("Oltin tangalar","Gold coins","bz","radial-gradient(circle,"+rg("#facc15",.45)+" 0 5px,"+rg("#b45309",.35)+" 5.5px 6.5px,transparent 7px) 0 0/30px 22px,"+rg("#fde68a",.15));
-  G("O'sish grafigi","Growth chart","bz","linear-gradient(to top right,transparent 49%,"+rg("#16a34a",.5)+" 49.5% 50.5%,transparent 51%),linear-gradient("+rg("#64748b",.12)+" 1px,transparent 1px) 0 0/14px 14px,linear-gradient(90deg,"+rg("#64748b",.12)+" 1px,transparent 1px) 0 0/14px 14px");
-  G("Ofis","Office","bz","linear-gradient("+rg("#64748b",.1)+" 1px,transparent 1px) 0 0/18px 18px,linear-gradient(90deg,"+rg("#64748b",.1)+" 1px,transparent 1px) 0 0/18px 18px,"+rg("#94a3b8",.08));
-  G("Startap","Startup","bz",lin("#7c3aed,#ec4899,#f97316",.2));
-  G("Bozor","Market","bz","repeating-linear-gradient(90deg,"+rg("#ef4444",.17)+" 0 14px,transparent 14px 28px)");
-  G("Bank","Bank","bz","repeating-linear-gradient(180deg,transparent 0 9px,"+rg("#ca8a04",.25)+" 9px 10px),"+lin("#1e3a8a,#1e3a8a",.14));
-  G("Kripto","Crypto","bz","radial-gradient(circle,"+rg("#f97316",.35)+" 1.6px,transparent 2.2px) 0 0/12px 12px,"+lin("#f97316,#eab308",.12));
-  G("Hisob-kitob","Ledger","bz","repeating-linear-gradient(90deg,transparent 0 22px,"+rg("#16a34a",.22)+" 22px 23px),linear-gradient("+rg("#3b82f6",.16)+" 1px,transparent 1px) 0 3px/100% 10px");
-  G("Kofe","Coffee","bz",lin("#78350f,#d6a756",.2));
-  G("Brend","Brand","bz",lin("#2563eb,#db2777",.24));
-  G("Lider","Leader","bz",lin("#eab308,#dc2626",.22));
-  NS_FLAGS.split(";").forEach(function(r){ var q=r.split(":"); NS_G.push(["fl-"+q[0],q[2],q[3],"c-"+q[1]]); css.push(".fl-"+q[0]+"{--flu:url(fayllar/bayroqlar/"+q[0]+".svg)}"); });
+  var css=[], n=0;
+  function svg(w,h,inner){ return 'url("data:image/svg+xml,'+encodeURIComponent("<svg xmlns='http://www.w3.org/2000/svg' width='"+w+"' height='"+h+"'>"+inner+"</svg>")+'") 0 0/'+w+'px '+h+'px'; }
+  function G(uz,en,cat,bg){ var id="eg"+(++n); NS_G.push([id,uz,en,cat]); css.push(".rt-row."+id+"{background:"+bg+"}"); }
+  var T2=function(f,c,a,items){ return "<g font-family='"+f+"' fill='"+c+"' fill-opacity='"+a+"'>"+items+"</g>"; };
+  /* 📚 daftar va kitob */
+  G("Katak daftar","Grid notebook","bk","linear-gradient(rgba(59,130,246,.2) 1px,transparent 1px) 0 0/14px 14px,linear-gradient(90deg,rgba(59,130,246,.2) 1px,transparent 1px) 0 0/14px 14px,rgba(59,130,246,.04)");
+  G("Chiziqli daftar","Lined notebook","bk","linear-gradient(90deg,transparent 40px,rgba(239,68,68,.5) 40px 42px,transparent 42px),repeating-linear-gradient(180deg,transparent 0 15px,rgba(59,130,246,.25) 15px 16px),rgba(254,243,199,.18)");
+  G("Kitob javoni","Bookshelf","bk",svg(120,22,"<g fill-opacity='.42'><rect x='0' y='6' width='9' height='16' fill='#dc2626'/><rect x='10' y='2' width='8' height='20' fill='#2563eb'/><rect x='19' y='8' width='11' height='14' fill='#16a34a'/><rect x='31' y='4' width='7' height='18' fill='#ca8a04'/><rect x='39' y='9' width='10' height='13' fill='#7c3aed'/><rect x='50' y='3' width='9' height='19' fill='#0d9488'/><rect x='60' y='7' width='12' height='15' fill='#ea580c'/><rect x='73' y='2' width='8' height='20' fill='#db2777'/><rect x='82' y='10' width='10' height='12' fill='#1d4ed8'/><rect x='93' y='5' width='9' height='17' fill='#15803d'/><rect x='103' y='8' width='11' height='14' fill='#b45309'/></g>").replace("0 0/120px 22px","left bottom/96px 18px repeat-x")+",rgba(253,230,138,.16)");
+  G("Ochiq kitob","Open book","bk",svg(120,56,"<g fill='none' stroke='#b45309' stroke-opacity='.35' stroke-width='1.6'><path d='M20 18q14-6 28 0v24q-14-6-28 0z'/><path d='M48 18q14-6 28 0v24q-14-6-28 0z'/><path d='M26 24h14M26 30h14M54 24h14M54 30h14'/></g>")+",rgba(251,191,36,.08)");
+  G("Rangli qalamlar","Coloured pencils","bk",svg(160,56,"<g transform='rotate(-24 80 28)' fill-opacity='.38'><rect x='18' y='12' width='64' height='8' fill='#ef4444'/><polygon points='82,12 93,16 82,20' fill='#fbbf24'/><rect x='56' y='34' width='64' height='8' fill='#2563eb'/><polygon points='120,34 131,38 120,42' fill='#fbbf24'/></g>")+",rgba(255,255,255,.04)");
+  G("Ruchka va siyoh","Pen & ink","bk",svg(140,56,"<g fill='#1d4ed8' fill-opacity='.28'><path d='M30 10l10 22-5 4-10-22z'/><circle cx='70' cy='38' r='5'/><circle cx='82' cy='30' r='3'/><circle cx='92' cy='42' r='2.5'/><circle cx='112' cy='16' r='4'/></g>")+",rgba(59,130,246,.05)");
+  G("Stikerlar","Sticky notes","bk",svg(150,56,"<g fill-opacity='.32'><rect x='12' y='10' width='22' height='22' fill='#facc15' transform='rotate(-8 23 21)'/><rect x='62' y='26' width='22' height='22' fill='#f472b6' transform='rotate(6 73 37)'/><rect x='112' y='8' width='22' height='22' fill='#4ade80' transform='rotate(-4 123 19)'/></g>")+",rgba(253,224,71,.06)");
+  G("Alifbo","Alphabet","bk",svg(180,56,T2("Georgia,serif","#7c3aed",.24,"<text x='8' y='24' font-size='20'>A</text><text x='44' y='46' font-size='18'>b</text><text x='78' y='22' font-size='18'>C</text><text x='112' y='48' font-size='20'>Aa</text><text x='150' y='26' font-size='16'>Z</text>"))+",rgba(139,92,246,.05)");
+  /* 🔬 fan */
+  G("Atom","Atom","sc",svg(150,56,"<g fill='none' stroke='#0d9488' stroke-opacity='.32' stroke-width='1.5'><ellipse cx='34' cy='28' rx='22' ry='8'/><ellipse cx='34' cy='28' rx='22' ry='8' transform='rotate(60 34 28)'/><ellipse cx='34' cy='28' rx='22' ry='8' transform='rotate(120 34 28)'/></g><circle cx='34' cy='28' r='3.5' fill='#0d9488' fill-opacity='.45'/>")+",rgba(20,184,166,.06)");
+  G("Kimyo kolbasi","Flask","sc",svg(130,56,"<g fill='none' stroke='#2563eb' stroke-opacity='.34' stroke-width='1.6'><path d='M26 8h12M29 8v14l-10 22h26l-10-22V8'/></g><g fill='#22c55e' fill-opacity='.3'><circle cx='80' cy='40' r='4'/><circle cx='92' cy='28' r='3'/><circle cx='104' cy='42' r='2.5'/></g>")+",rgba(59,130,246,.05)");
+  G("DNK","DNA","sc",svg(120,56,"<g fill='none' stroke-width='1.6' stroke-opacity='.35'><path d='M0 28q15-20 30 0t30 0 30 0 30 0' stroke='#db2777'/><path d='M0 28q15 20 30 0t30 0 30 0 30 0' stroke='#2563eb'/></g>")+",rgba(236,72,153,.04)");
+  G("Globus","Globe","sc",svg(140,56,"<g fill='none' stroke='#0284c7' stroke-opacity='.32' stroke-width='1.4'><circle cx='34' cy='28' r='18'/><ellipse cx='34' cy='28' rx='8' ry='18'/><path d='M16 28h36M19 19h30M19 37h30'/></g>")+",rgba(14,165,233,.06)");
+  G("Bilim osmoni","Sky of knowledge","sc","radial-gradient(circle,rgba(234,179,8,.6) 1.2px,transparent 1.8px) 0 0/27px 19px,radial-gradient(circle,rgba(99,102,241,.5) 1px,transparent 1.6px) 13px 9px/31px 23px,rgba(99,102,241,.08)");
+  G("Raketa","Rocket","sc",svg(150,56,"<g transform='rotate(40 40 28)' fill='#ef4444' fill-opacity='.3'><path d='M40 8q8 8 8 22h-16q0-14 8-22z'/><path d='M32 30l-6 8h6zM48 30l6 8h-6z'/></g><g fill='#f59e0b' fill-opacity='.35'><circle cx='24' cy='44' r='3'/><circle cx='16' cy='50' r='2'/></g>")+",rgba(239,68,68,.04)");
+  G("G'oyalar","Ideas","sc",svg(140,56,"<g fill='#f59e0b' fill-opacity='.25' stroke='#d97706' stroke-opacity='.35' stroke-width='1.4'><circle cx='26' cy='22' r='10'/><rect x='21' y='32' width='10' height='7' rx='2'/><circle cx='96' cy='36' r='8'/><rect x='92' y='44' width='8' height='6' rx='2'/></g>")+",rgba(253,224,71,.08)");
+  G("Kod","Code","sc",svg(160,56,T2("Consolas,Courier New,monospace","#16a34a",.32,"<text x='6' y='22' font-size='15'>&lt;/&gt;</text><text x='70' y='44' font-size='15'>{ }</text><text x='118' y='24' font-size='14'>01</text>"))+",rgba(22,163,74,.05)");
+  /* 🧮 matematika */
+  G("Formulalar","Formulas","mt",svg(220,56,T2("Georgia,serif","#2563eb",.26,"<text x='6' y='22' font-size='17'>Σ</text><text x='40' y='48' font-size='16'>√x</text><text x='84' y='24' font-size='17'>π</text><text x='112' y='50' font-size='17'>∞</text><text x='146' y='26' font-size='15'>f(x)</text><text x='192' y='48' font-size='17'>∫</text>"))+",rgba(99,102,241,.05)");
+  G("Bo'r doskasi","Chalkboard","mt",svg(260,56,T2("Segoe Print,Comic Sans MS,cursive","#14532d",.34,"<text x='8' y='20' font-size='13'>a²+b²=c²</text><text x='112' y='44' font-size='13'>E=mc²</text><text x='196' y='20' font-size='13'>√16=4</text><text x='56' y='50' font-size='13'>π≈3,14</text>"))+",rgba(21,128,61,.12)");
+  G("Geometriya","Geometry","mt",svg(160,56,"<g fill='none' stroke='#7c3aed' stroke-opacity='.32' stroke-width='1.5'><path d='M14 44l16-28 16 28z'/><circle cx='78' cy='28' r='13'/><rect x='112' y='16' width='24' height='24' transform='rotate(12 124 28)'/></g>")+",rgba(124,58,237,.05)");
+  G("Raqamlar","Numbers","mt",svg(180,56,T2("Arial,sans-serif","#ea580c",.26,"<text x='6' y='24' font-size='18' font-weight='700'>1</text><text x='40' y='48' font-size='16' font-weight='700'>2</text><text x='74' y='22' font-size='18' font-weight='700'>3</text><text x='110' y='46' font-size='17' font-weight='700'>7</text><text x='146' y='26' font-size='18' font-weight='700'>9</text>"))+",rgba(249,115,22,.05)");
+  G("Hisob-kitob","Arithmetic","mt",svg(160,56,T2("Arial,sans-serif","#0d9488",.3,"<text x='8' y='24' font-size='20'>+</text><text x='46' y='48' font-size='20'>−</text><text x='84' y='24' font-size='20'>×</text><text x='120' y='48' font-size='20'>÷</text>"))+",rgba(20,184,166,.05)");
+  G("Chizg'ich","Ruler","mt","repeating-linear-gradient(90deg,rgba(161,98,7,.4) 0 1px,transparent 1px 8px) left bottom/100% 7px no-repeat,repeating-linear-gradient(90deg,rgba(161,98,7,.45) 0 1.5px,transparent 1.5px 40px) left bottom/100% 13px no-repeat,rgba(250,204,21,.1)");
+  G("Shaxmat","Chess","mt","repeating-conic-gradient(rgba(71,85,105,.1) 0 25%,transparent 0 50%) 0 0/22px 22px");
+  /* 💼 biznes */
+  G("O'sish grafigi","Growth chart","bz",svg(200,56,"<g fill='#16a34a' fill-opacity='.14'><rect x='12' y='38' width='12' height='18'/><rect x='32' y='30' width='12' height='26'/><rect x='52' y='34' width='12' height='22'/><rect x='72' y='22' width='12' height='34'/><rect x='92' y='14' width='12' height='42'/></g><polyline points='0,50 30,40 60,44 90,28 120,30 150,16 180,20 200,8' fill='none' stroke='#16a34a' stroke-opacity='.4' stroke-width='2'/>")+",rgba(34,197,94,.05)");
+  G("Tangalar","Coins","bz",svg(120,56,"<g fill='#eab308' fill-opacity='.3' stroke='#a16207' stroke-opacity='.35' stroke-width='1.2'><circle cx='22' cy='20' r='9'/><circle cx='72' cy='38' r='9'/><circle cx='104' cy='16' r='7'/></g>")+",rgba(250,204,21,.07)");
+  G("Diagramma","Pie charts","bz",svg(140,56,"<g fill-opacity='.3'><path d='M30 28V12a16 16 0 0 1 14 24z' fill='#2563eb'/><path d='M30 28l14 8A16 16 0 1 1 30 12z' fill='#f59e0b'/><path d='M100 36V24a12 12 0 0 1 10 18z' fill='#16a34a'/><path d='M100 36l10 6A12 12 0 1 1 100 24z' fill='#db2777'/></g>")+",rgba(37,99,235,.04)");
+  G("Startap","Startup","bz",svg(150,56,"<g fill='none' stroke='#9333ea' stroke-opacity='.32' stroke-width='1.6'><circle cx='30' cy='28' r='9'/><path d='M30 13v5M30 38v5M15 28h5M40 28h5M19 17l4 4M37 35l4 4M19 39l4-4M37 21l4-4'/></g><g fill='#9333ea' fill-opacity='.22'><circle cx='100' cy='34' r='6'/></g>")+",rgba(147,51,234,.05)");
+  G("Kalkulyator","Calculator","bz",svg(120,56,"<g fill='none' stroke='#475569' stroke-opacity='.32' stroke-width='1.4'><rect x='16' y='8' width='26' height='38' rx='4'/><rect x='21' y='13' width='16' height='8'/></g><g fill='#475569' fill-opacity='.3'><circle cx='23' cy='28' r='1.6'/><circle cx='29' cy='28' r='1.6'/><circle cx='35' cy='28' r='1.6'/><circle cx='23' cy='35' r='1.6'/><circle cx='29' cy='35' r='1.6'/><circle cx='35' cy='35' r='1.6'/></g>")+",rgba(100,116,139,.06)");
+  /* 🎓 yutuqlar */
+  G("Bitiruv","Graduation","ac",svg(150,56,"<g fill='#6d28d9' fill-opacity='.28'><polygon points='30,12 50,20 30,28 10,20'/><rect x='21' y='23' width='18' height='8' rx='2'/><polygon points='104,28 124,36 104,44 84,36'/><rect x='95' y='39' width='18' height='8' rx='2'/></g><g stroke='#eab308' stroke-opacity='.5' stroke-width='1.4'><line x1='48' y1='20' x2='48' y2='31'/><line x1='122' y1='36' x2='122' y2='47'/></g>")+",rgba(124,58,237,.06)");
+  G("Diplom","Diploma","ac",svg(140,56,"<g fill='#fde68a' fill-opacity='.45' stroke='#b45309' stroke-opacity='.35' stroke-width='1.3'><rect x='14' y='16' width='40' height='20' rx='6'/></g><g fill='#dc2626' fill-opacity='.4'><circle cx='46' cy='34' r='5'/><path d='M43 38l-2 8 5-3 5 3-2-8z'/></g>")+",rgba(251,191,36,.06)");
+  G("A'lo baho","Excellent mark","ac",svg(160,56,T2("Georgia,serif","#dc2626",.3,"<text x='8' y='28' font-size='22' font-weight='700'>5</text><text x='62' y='48' font-size='18' font-weight='700'>A+</text><text x='122' y='26' font-size='20' font-weight='700'>5</text>"))+",rgba(239,68,68,.04)");
+  G("Kubok","Trophy","ac",svg(130,56,"<g fill='#eab308' fill-opacity='.32' stroke='#a16207' stroke-opacity='.35' stroke-width='1.2'><path d='M22 10h20v8a10 10 0 0 1-20 0z'/><rect x='29' y='28' width='6' height='8'/><rect x='24' y='36' width='16' height='5' rx='2'/></g><g fill='#eab308' fill-opacity='.25'><circle cx='92' cy='34' r='6'/></g>")+",rgba(250,204,21,.08)");
+  G("Yulduzlar","Stars","ac",svg(130,56,"<g fill='#f59e0b' fill-opacity='.32'><path d='M22 10l3.5 7.5 8 1-6 5.5 1.6 8-7.1-4-7.1 4 1.6-8-6-5.5 8-1z'/><path d='M88 26l2.6 5.4 6 .8-4.4 4.1 1.1 5.8-5.3-2.9-5.3 2.9 1.1-5.8-4.4-4.1 6-.8z'/></g>")+",rgba(245,158,11,.06)");
+  G("TerDU","TerDU","ac",svg(160,56,T2("Arial,sans-serif","#15803d",.2,"<text x='8' y='24' font-size='15' font-weight='900'>TerDU</text><text x='86' y='48' font-size='15' font-weight='900'>TerDU</text>"))+",linear-gradient(90deg,rgba(21,128,61,.14),rgba(34,197,94,.05))");
   NS_CSS=css.join("\n");
 })();
 function nsCss(){
   if(document.getElementById("rtNsCss")) return;
   var s=document.createElement("style"); s.id="rtNsCss"; s.textContent=NS_CSS; document.head.appendChild(s);
-  var l=document.createElement("link"); l.id="rtNsFont"; l.rel="stylesheet"; l.href=NS_FONT; document.head.appendChild(l);
-}
-/* 🛠 o'zi yasaydigan ramka va fon: faqat shu ro'yxatlardagi qiymatlar qabul qilinadi */
-var NB_S=[["so","Bir rang","Solid"],["gr","Gradient","Gradient"],["da","Uzuq","Dashed"],["do","Nuqtali","Dotted"],["db","Qo'sh","Double"],["no","Chiziqsiz","None"]];
-var NB_R=[["0","To'g'ri","Square"],["1","Biroz yumaloq","Slightly round"],["2","Yumaloq","Round"],["3","Kapsula","Capsule"]];
-var NB_BG=[["no","Yo'q","None"],["ti","Rangli","Tinted"],["gr","Gradient","Gradient"],["st","Chiziqli","Stripes"],["dt","Nuqtali","Dots"],["ck","Shaxmat","Checks"],["gd","Katak","Grid"]];
-var NB_GL=[["0","Yo'q","None"],["1","Kuchsiz","Soft"],["2","Kuchli","Strong"]];
-var NB_AN=[["no","Yo'q","None"],["pu","Yonib-o'chish","Pulse"],["hu","Rang almashish","Colour cycle"],["be","Nafas","Breathing"]];
-function nbV(v,L,d){ v=String(v==null?"":v); return L.some(function(z){ return z[0]===v; })?v:d; }
-function nbHex(v,d){ return /^#[0-9a-f]{6}$/i.test(String(v||""))?String(v).toLowerCase():d; }
-function nsCus(c){
-  if(!c||typeof c!=="object") return null;
-  var w=Math.round(+c.w);
-  return {c1:nbHex(c.c1,"#2563eb"),c2:nbHex(c.c2,"#ec4899"),s:nbV(c.s,NB_S,"so"),w:w>=1&&w<=6?w:2,r:nbV(c.r,NB_R,"2"),
-    bg:nbV(c.bg,NB_BG,"ti"),gl:nbV(c.gl,NB_GL,"0"),an:nbV(c.an,NB_AN,"no")};
-}
-function nsPat(c){
-  var rg=nsRg;
-  return {ti:[rg(c.c1,.14)],gr:["linear-gradient(90deg,"+rg(c.c1,.22)+","+rg(c.c2,.22)+")"],
-    st:["repeating-linear-gradient(45deg,"+rg(c.c2,.18)+" 0 8px,transparent 8px 16px)"],dt:["radial-gradient(circle,"+rg(c.c2,.35)+" 2.5px,transparent 3px) 0 0/14px 14px"],
-    ck:["repeating-conic-gradient("+rg(c.c2,.14)+" 0 25%,transparent 0 50%) 0 0/20px 20px"],
-    gd:["linear-gradient("+rg(c.c2,.22)+" 1px,transparent 1px) 0 0/12px 12px","linear-gradient(90deg,"+rg(c.c2,.22)+" 1px,transparent 1px) 0 0/12px 12px"]}[c.bg]||[];
-}
-/* qatorga qo'yiladigan class va style (o'zi yasaganlar uchun CSS o'zgaruvchilari tekshirilgan qiymatlardan) */
-function nsRow(st){
-  var cls="rt-row "+st.b+" "+st.g, sty="", c=st.c;
-  if(c&&st.b==="bx"){ cls+=" bxs-"+c.s+" bxg-"+c.gl+" bxa-"+c.an; sty+="--c1:"+c.c1+";--c2:"+c.c2+";--bw:"+(c.s==="db"?Math.max(c.w,3):c.w)+"px;--rr:"+["0px","6px","12px","999px"][+c.r]+";"; }
-  if(c&&st.g==="gx"){ var p=nsPat(c); if(p.length) sty+="background:"+p.join(",")+";"; }
-  return {cls:cls,sty:sty};
 }
 function nkClean(v){ return String(v||"").replace(/[<>&"\u0000-\u001f]/g,"").replace(/\s+/g," ").trim().slice(0,20); }
 function nkOf(x){ var v=NICK&&x&&NICK[x.id]; return typeof v==="string"&&v?v:""; }
-function nsOk(v,L){ return L.some(function(z){ return z[0]===v; })?v:""; }
-function nsOf(x){
-  var n=(x&&x.ns)||{}, c=nsCus(n.c);
-  return {f:nsOk(n.f,NS_F)||"n0",b:n.b==="bx"&&c?"bx":(nsOk(n.b,NS_B)||"b0"),g:n.g==="gx"&&c?"gx":(nsOk(n.g,NS_G)||"g0"),c:c};
-}
+function nsOf(x){ var g=((x&&x.ns)||{}).g; return {g:NS_G.some(function(z){ return z[0]===g; })?g:""}; }
+/* qator klassi: fon faqat 1–10-o'rinda; rank=0 — namuna yoki o'qituvchi kartasi (fon doim), rank<0 — o'rni yo'q (fon yo'q) */
+function nsRow(st,rank){ return "rt-row"+(st.g&&(!rank||(rank>0&&rank<=NS_TOP))?" "+st.g:""); }
 function nkLoad(cb,force){
   if(!cloudOn||!BASE){ cb(); return; }
   if(!force&&Date.now()-NICK_AT<60000){ cb(); return; }
@@ -4000,51 +3722,46 @@ function nkReal(x){ return ((x.name||"")+" "+(x.surname||"")).trim(); }
 function nkDisp(x){ return isTc?nkReal(x):(nkOf(x)||nkReal(x)); }
 function nkName(x,me){
   var nk=nkOf(x);
-  return '<span class="rt-nn '+nsOf(x).f+'">'+esc(nkDisp(x))+'</span>'+
+  return '<span class="rt-nn">'+esc(nkDisp(x))+'</span>'+
     (isTc&&nk?' <span class="rt-nk-sub">🏷 '+esc(nk)+'</span>':'')+(me&&!isTc?' <span class="rt-nk-sub">('+T("siz","you")+')</span>':'');
 }
-/* tanlash oynasidagi kichik qator namunasi */
-function nkMini(st,me,lz){
-  var R=nsRow(st);
-  return '<div class="'+R.cls+' rt-rmini'+(lz?' rt-lz':'')+'"'+(R.sty?' style="'+esc(R.sty)+'"':'')+'><b class="rt-rm-r">'+(me.tc?'👨‍🏫':'#')+'</b><span class="rt-nn '+st.f+'">'+esc(nkDisp(me))+'</span>'+
+/* kichik qator namunasi (tepadagi ko'rinish va tanlash oynasi) */
+function nkMini(st,me,rank){
+  return '<div class="'+nsRow(st,rank)+' rt-rmini"><b class="rt-rm-r">'+(me.tc?'👨‍🏫':(rank>0?rank:'#'))+'</b><span class="rt-nn">'+esc(nkDisp(me))+'</span>'+
     (me.tc?'':'<b class="rt-rm-p">'+(+me.total||0)+'</b>')+'</div>';
 }
-/* 👨‍🏫 o'qituvchi kartasi (reyting jadvali ustida). Ko'rinishi hali tanlanmagan bo'lsa — oltin ism, oltin ramka */
-var TC_NS0={f:"n1",b:"b1",g:"g0"};
+/* 👨‍🏫 o'qituvchi kartasi (reyting jadvali ustida). Fon hali tanlanmagan bo'lsa — «TerDU» */
+var TC_NS0={g:"eg34"};
 function tcvMe(){
   var n=String(CFG.teacherName||"").split(" ");
   return {id:"tc",tc:1,name:n[0],surname:n.slice(1).join(" "),av:TC_AV,ns:(TCV&&TCV.ns)||TC_NS0};
 }
 function tcCardHtml(){
   if(!cloudOn||!CFG.teacherName) return "";
-  var me=TC_ME=tcvMe(), st=nsOf(me), R=nsRow(st);
+  var me=TC_ME=tcvMe(), st=nsOf(me);
   return '<div class="rt-tccard"><div class="rt-tchead"><span>👨‍🏫 '+T("Fan o'qituvchisi","Course teacher")+'</span>'+
-    (isTc?'<button type="button" class="btn sm" id="nkEdit">🎨 '+(NS_ED?T("Yopish","Close"):T("Ko'rinishni sozlash","Customize"))+'</button>':'')+'</div>'+
-    '<div class="'+R.cls+' rt-tcrow"'+(R.sty?' style="'+esc(R.sty)+'"':'')+(isTc?' data-nkme="1" data-bc="rt-tcrow" data-bs=""':'')+'>'+
-      '<span class="rt-tav">'+avHtml(me,{size:42,name:nkReal(me)})+'</span><span class="rt-nn '+st.f+'">'+esc(nkReal(me))+'</span>'+
+    (isTc?'<button type="button" class="btn sm" id="nkEdit">🎨 '+(NS_ED?T("Yopish","Close"):T("Fonni tanlash","Choose background"))+'</button>':'')+'</div>'+
+    '<div class="'+nsRow(st,0)+' rt-tcrow"'+(isTc?' data-nkme="1" data-bc="rt-tcrow" data-rk="0"':'')+'>'+
+      '<span class="rt-tav">'+avHtml(me,{size:42,name:nkReal(me)})+'</span><span class="rt-nn">'+esc(nkReal(me))+'</span>'+
       '<span class="rt-tcsub">'+T("O'qituvchi","Teacher")+'</span></div>'+
     (isTc&&NS_ED?'<div class="rt-nked" id="nkEd">'+nkEdHtml(me)+'</div>':'')+'</div>';
 }
-/* talaba: o'z niki va ko'rinishini sozlash (reyting oynasi tepasida) */
-var NS_TABS=[["nk","🏷 Nik","🏷 Nickname"],["f","✍️ Ism dizayni","✍️ Name style"],["b","🖼 Ramka","🖼 Frame"],["g","🎨 Ramka foni","🎨 Background"],["x","🛠 O'zim yasayman","🛠 Make my own"]];
-function nkMeHtml(me){
+/* talaba: o'z niki va (top-10 bo'lsa) qator foni — reyting oynasi tepasida */
+var NS_TABS=[["nk","🏷 Nik","🏷 Nickname"],["g","🎨 Qator foni","🎨 Row background"]];
+function nkMeHtml(me,rank){
   if(!S||!approved()||!cloudOn) return "";
   me=me||{id:S.id,name:S.name,surname:S.surname};
-  nsCss();
+  NS_RANK=rank||0; nsCss();
   return '<div class="rt-nkbox"><div class="rt-nkhead"><span class="rt-nk-sub">'+T("Reytingda qatoringiz shunday ko'rinadi:","Your row in the rating looks like this:")+'</span>'+
-    '<button type="button" class="btn sm" id="nkEdit">🎨 '+(NS_ED?T("Yopish","Close"):T("Ko'rinishni sozlash","Customize"))+'</button></div>'+
-    '<div id="nkPrev">'+nkMini(nsOf(me),me)+'</div>'+
+    '<button type="button" class="btn sm" id="nkEdit">'+(NS_ED?"✕ "+T("Yopish","Close"):"🏷 "+T("Nik va fon","Nickname & background"))+'</button></div>'+
+    '<div id="nkPrev">'+nkMini(nsOf(me),me,NS_RANK||-1)+'</div>'+
     (NS_ED?'<div class="rt-nked" id="nkEd">'+nkEdHtml(me)+'</div>':'')+'</div>';
 }
-function nbSeg(k,lb,L,v){
-  return '<div class="rt-nbseg"><span>'+lb+':</span>'+L.map(function(z){
-    return '<button type="button" data-k="'+k+'" data-v="'+z[0]+'"'+(z[0]===v?' class="on"':'')+'>'+T(z[1],z[2])+'</button>'; }).join("")+'</div>';
-}
 function nkEdHtml(me){
-  var st=nsOf(me), nk=nkOf(me), rq=me.nkReq||{}, pend=rq.n&&!rq.rej&&rq.n!==nk, LS={f:NS_F,b:NS_B,g:NS_G};
-  if(me.tc&&NS_TAB==="nk") NS_TAB="f";           /* o'qituvchida nik yo'q — haqiqiy ism */
+  var st=nsOf(me), nk=nkOf(me), rq=me.nkReq||{}, pend=rq.n&&!rq.rej&&rq.n!==nk, top=me.tc||(NS_RANK>=1&&NS_RANK<=NS_TOP);
+  if(me.tc) NS_TAB="g";                          /* o'qituvchida nik yo'q — haqiqiy ism */
   var h='<div class="rt-nktabs">'+NS_TABS.filter(function(t){ return !(me.tc&&t[0]==="nk"); }).map(function(t){
-    return '<button type="button" class="rt-nktab'+(t[0]===NS_TAB?" on":"")+'" data-t="'+t[0]+'">'+T(t[1],t[2])+(LS[t[0]]?' <small>'+LS[t[0]].length+'</small>':'')+'</button>'; }).join("")+'</div>';
+    return '<button type="button" class="rt-nktab'+(t[0]===NS_TAB?" on":"")+'" data-t="'+t[0]+'">'+T(t[1],t[2])+(t[0]==="g"&&!top?' 🔒':'')+'</button>'; }).join("")+'</div>';
   if(NS_TAB==="nk"){
     h+='<p class="rt-note" style="margin:0 0 6px">'+T("Nik qo'ysangiz, reytingda boshqalar ismingiz o'rniga nikingizni ko'radi. Nik o'qituvchi tasdiqlagach paydo bo'ladi; nik qo'ymasangiz, ism-familiyangiz turadi.",
         "With a nickname, others see it in the rating instead of your name. It appears after the teacher approves it; without one your name is shown.")+'</p>'+
@@ -4052,40 +3769,26 @@ function nkEdHtml(me){
       '<button type="button" class="btn accent sm" id="nkSend">📨 '+T("Tasdiqqa yuborish","Send for approval")+'</button></div>'+
       '<p class="rt-note" id="nkSt" style="margin:4px 0 0;font-weight:700">'+
         (pend?"⏳ "+T("Tasdiq kutilmoqda: «","Waiting for approval: «")+esc(rq.n)+"»":(rq.rej&&rq.n?"❌ "+T("«"+esc(rq.n)+"» rad etildi — boshqa nik yozing","«"+esc(rq.n)+"» was rejected — try another"):(nk?"✅ "+T("Tasdiqlangan nik: «","Approved nickname: «")+esc(nk)+"»":"")))+'</p>';
-  } else if(LS[NS_TAB]){
-    var k=NS_TAB, L=LS[k], cur=NS_CAT[k];
-    h+='<div class="rt-nkcats">'+NS_CAT_L[k].map(function(c){
-        var n=L.filter(function(z){ return nsCatOk(z,c[0]); }).length;
-        return '<button type="button" class="rt-nkcat'+(c[0]===cur?" on":"")+'" data-c="'+c[0]+'">'+T(c[1],c[2])+' <small>'+n+'</small></button>'; }).join("")+'</div>'+
-      '<input type="search" id="nsQ" class="rt-nsq" placeholder="🔎 '+(k==="g"?T("Qidirish: nomi yoki davlat (masalan, Yaponiya)","Search: name or country (e.g. Japan)"):T("Qidirish: nomi bo'yicha","Search by name"))+'">'+
-      '<div class="rt-nsg'+(k==="f"?"":" rows")+'">'+L.filter(function(z){ return nsCatOk(z,cur); }).map(function(z){
-        var o={f:st.f,b:st.b,g:st.g,c:st.c}; o[k]=z[0];
-        return '<button type="button" class="rt-nso'+(z[0]===st[k]?" on":"")+'" data-'+k+'="'+z[0]+'" data-q="'+esc((z[1]+" "+z[2]).toLowerCase())+'">'+
-          (k==="f"?'<span class="rt-nn '+z[0]+'">'+esc(nkDisp(me))+'</span>':nkMini(o,me,z[0].slice(0,3)==="fl-"))+'<small>'+T(z[1],z[2])+'</small></button>'; }).join("")+'</div>';
+  } else if(!top){
+    h+='<div class="rt-nslock"><b>🔒 '+T("Qator fonini faqat reytingda 1–10-o'rinda turgan talabalar qo'ya oladi.","Only students ranked 1–10 can set a row background.")+'</b>'+
+      '<span>'+(NS_RANK?T("Hozir siz "+NS_RANK+"-o'rindasiz — ball yig'ib, o'ntalikka kiring! ","You are now in place "+NS_RANK+" — earn points and reach the top ten! "):"")+
+      T("10-o'rindan tushsangiz, tanlagan foningiz yashiriladi va qaytsangiz yana chiqadi.","If you drop below 10th place your background is hidden, and it returns when you are back.")+'</span>'+
+      '<div class="rt-nsg rows rt-nsdemo">'+NS_G.slice(0,6).map(function(z){ return '<div class="rt-nso">'+nkMini({g:z[0]},me,0)+'<small>'+T(z[1],z[2])+'</small></div>'; }).join("")+'</div></div>';
   } else {
-    var c=NB||(NB=nsCus(st.c||{}));
-    h+='<p class="rt-note" style="margin:0 0 6px">'+T("Qator ramkasi va fonini o'zingiz yasang: ranglar, chiziq, burchak, fon naqshi, nur va harakat — natija pastda darhol ko'rinadi. Yoqsa «Shu ko'rinishni qo'yish» ni bosing.",
-        "Build your own row frame and background — the result shows below right away. Press «Use this look» when you like it.")+'</p>'+
-      '<div class="rt-nbpv">'+nkMini({f:st.f,b:"bx",g:"gx",c:c},me)+'</div>'+
-      '<div class="rt-nbrow"><label>🎨 '+T("1-rang (ramka)","Colour 1 (frame)")+' <input type="color" id="nbC1" value="'+c.c1+'"></label>'+
-      '<label>🎨 '+T("2-rang (naqsh)","Colour 2 (pattern)")+' <input type="color" id="nbC2" value="'+c.c2+'"></label>'+
-      '<label>📏 '+T("Qalinlik","Width")+' <input type="range" id="nbW" min="1" max="6" step="1" value="'+c.w+'"></label></div>'+
-      nbSeg("s",T("Chiziq","Line"),NB_S,c.s)+nbSeg("r",T("Burchak","Corners"),NB_R,c.r)+nbSeg("bg",T("Fon","Background"),NB_BG,c.bg)+
-      nbSeg("gl",T("Nur","Glow"),NB_GL,c.gl)+nbSeg("an",T("Harakat","Motion"),NB_AN,c.an)+
-      '<div class="rt-khrow" style="margin-top:10px"><button type="button" class="btn accent sm" id="nbSave">✅ '+T("Shu ko'rinishni qo'yish","Use this look")+'</button>'+
-      '<button type="button" class="btn sm" id="nbRnd">🎲 '+T("Tasodifiy","Random")+'</button>'+
-      (st.b==="bx"?'<span class="rt-note">✔ '+T("Hozir o'zingiz yasagan ko'rinish turibdi","Your own look is in use")+'</span>':'')+'</div>';
+    var L=NS_G.filter(function(z){ return NS_CAT==="all"||z[3]===NS_CAT; });
+    h+='<div class="rt-nkcats">'+NS_CATS.map(function(c){
+        var n=c[0]==="all"?NS_G.length:NS_G.filter(function(z){ return z[3]===c[0]; }).length;
+        return '<button type="button" class="rt-nkcat'+(c[0]===NS_CAT?" on":"")+'" data-c="'+c[0]+'">'+T(c[1],c[2])+' <small>'+n+'</small></button>'; }).join("")+'</div>'+
+      '<div class="rt-nsg rows">'+(NS_CAT==="all"?'<button type="button" class="rt-nso'+(st.g?"":" on")+'" data-g="">'+nkMini({g:""},me,0)+'<small>'+T("Fonsiz","No background")+'</small></button>':'')+
+        L.map(function(z){ return '<button type="button" class="rt-nso'+(z[0]===st.g?" on":"")+'" data-g="'+z[0]+'">'+nkMini({g:z[0]},me,0)+'<small>'+T(z[1],z[2])+'</small></button>'; }).join("")+'</div>';
   }
   return h;
 }
-/* o'zgarish darhol: tepadagi namuna va jadvaldagi o'z qatori */
+/* o'zgarish darhol: tepadagi namuna va jadvaldagi o'z qatori (yoki o'qituvchi kartasi) */
 function nkPaint(me){
-  var st=nsOf(me), R=nsRow(st), pv=document.getElementById("nkPrev");
-  if(pv) pv.innerHTML=nkMini(st,me);
-  [].forEach.call(document.querySelectorAll("[data-nkme]"),function(tr){
-    tr.className=tr.dataset.bc+" "+R.cls; tr.setAttribute("style",tr.dataset.bs+R.sty);
-    var n=tr.querySelector(".rt-nn"); if(n) n.className="rt-nn "+st.f;
-  });
+  var st=nsOf(me), pv=document.getElementById("nkPrev");
+  if(pv) pv.innerHTML=nkMini(st,me,NS_RANK||-1);
+  [].forEach.call(document.querySelectorAll("[data-nkme]"),function(e){ e.className=e.dataset.bc+" "+nsRow(st,+e.dataset.rk||0); });
 }
 function nkEdRe(me){ var e=document.getElementById("nkEd"); if(!e) return; e.innerHTML=nkEdHtml(me); nkEdBind(me); }
 function nsSave(me,ns){
@@ -4103,23 +3806,11 @@ function nkEdBind(me){
   var box=document.getElementById("nkEd"), q=function(id){ return document.getElementById(id); };
   var all=function(sel,fn){ [].forEach.call(box.querySelectorAll(sel),fn); };
   all(".rt-nktab",function(b){ b.onclick=function(){ NS_TAB=b.dataset.t; nkEdRe(me); }; });
-  all(".rt-nkcat",function(b){ b.onclick=function(){ NS_CAT[NS_TAB]=b.dataset.c; nkEdRe(me); }; });
-  if(q("nsQ")) q("nsQ").oninput=function(){
-    var v=this.value.trim().toLowerCase();
-    all(".rt-nso",function(o){ o.hidden=!!v&&o.dataset.q.indexOf(v)<0; });
-  };
-  /* bayroq rasmlari faqat ko'ringanda yuklanadi */
-  var lz=box.querySelectorAll(".rt-lz");
-  if(lz.length){
-    if(!window.IntersectionObserver) [].forEach.call(lz,function(e){ e.classList.remove("rt-lz"); });
-    else { var io=new IntersectionObserver(function(es){ es.forEach(function(x){ if(x.isIntersecting){ x.target.classList.remove("rt-lz"); io.unobserve(x.target); } }); },{root:box.querySelector(".rt-nsg"),rootMargin:"120px"});
-      [].forEach.call(lz,function(e){ io.observe(e); }); }
-  }
-  all(".rt-nso",function(b){ b.onclick=function(){
-    var st=nsOf(me), ns={f:b.dataset.f||st.f,b:b.dataset.b||st.b,g:b.dataset.g||st.g};
-    if(st.c) ns.c=st.c;
+  all(".rt-nkcat",function(b){ b.onclick=function(){ NS_CAT=b.dataset.c; nkEdRe(me); }; });
+  all("button.rt-nso[data-g]",function(b){ b.onclick=function(){
+    if(!me.tc&&!(NS_RANK>=1&&NS_RANK<=NS_TOP)) return;
     all(".rt-nso.on",function(o){ o.classList.remove("on"); }); b.classList.add("on");
-    nsSave(me,ns);
+    nsSave(me,{g:b.dataset.g});
   }; });
   if(q("nkSend")) q("nkSend").onclick=function(){
     var v=nkClean(q("nkIn").value);
@@ -4129,22 +3820,6 @@ function nkEdBind(me){
     fetch(BASE+"/students/"+S.id+"/nkReq.json",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(o)})
       .then(function(r){ if(!r.ok) throw 0; me.nkReq=o; toast(T("Yuborildi — o'qituvchi tasdiqlashini kuting ✅","Sent — wait for the teacher's approval ✅")); nkEdRe(me); })
       .catch(function(){ toast(T("Yuborilmadi — internetni tekshiring","Not sent — check the connection")); nkEdRe(me); });
-  };
-  if(!q("nbSave")) return;
-  var pv=function(){ box.querySelector(".rt-nbpv").innerHTML=nkMini({f:nsOf(me).f,b:"bx",g:"gx",c:NB},me); };
-  q("nbC1").oninput=function(){ NB.c1=nbHex(this.value,NB.c1); pv(); };
-  q("nbC2").oninput=function(){ NB.c2=nbHex(this.value,NB.c2); pv(); };
-  q("nbW").oninput=function(){ NB=nsCus(Object.assign({},NB,{w:this.value})); pv(); };
-  all(".rt-nbseg button",function(b){ b.onclick=function(){
-    NB[b.dataset.k]=b.dataset.v;
-    [].forEach.call(b.parentNode.querySelectorAll("button"),function(o){ o.classList.toggle("on",o===b); });
-    pv();
-  }; });
-  q("nbSave").onclick=function(){ nsSave(me,{f:nsOf(me).f,b:"bx",g:"gx",c:nsCus(NB)}); nkEdRe(me); };
-  q("nbRnd").onclick=function(){
-    var pick=function(L){ return L[Math.floor(Math.random()*L.length)][0]; }, hex=function(){ return "#"+("00000"+Math.floor(Math.random()*16777216).toString(16)).slice(-6); };
-    NB=nsCus({c1:hex(),c2:hex(),s:pick(NB_S.slice(0,5)),w:1+Math.floor(Math.random()*4),r:pick(NB_R),bg:pick(NB_BG),gl:pick(NB_GL),an:Math.random()<.7?"no":pick(NB_AN)});
-    nkEdRe(me);
   };
 }
 /* o'qituvchi: nik so'rovlari (Talabalar bo'limida) */
@@ -4190,16 +3865,16 @@ function renderTop(){
     var rows=list.map(function(x,i){
       var m=prizeCell(i), pc=PRIZES[i];
       var av=avgMark(x), nt=(CFG.topics||[]).length||15;
-      var me=S&&x.id===S.id, bc=(me?"me ":"")+(pc?"rt-ptop rt-p"+(i+1):""), bs=pc?"--pc:"+pc.c+";":"", R=nsRow(nsOf(x));
-      return '<tr class="'+bc+' '+R.cls+'" style="'+esc(bs+R.sty)+'"'+(me&&!isTc?' data-nkme="1" data-bc="'+bc+'" data-bs="'+bs+'"':'')+'><td class="rt-medal">'+m+'</td><td><span class="rt-tav">'+avHtml(x,{size:28,name:nkDisp(x)})+'</span>'+nkName(x,me)+
+      var me=S&&x.id===S.id, bc=(me?"me ":"")+(pc?"rt-ptop rt-p"+(i+1):""), bs=pc?"--pc:"+pc.c+";":"";
+      return '<tr class="'+bc+' '+nsRow(nsOf(x),i+1)+'"'+(bs?' style="'+bs+'"':'')+(me&&!isTc?' data-nkme="1" data-bc="'+bc+'" data-rk="'+(i+1)+'"':'')+'><td class="rt-medal">'+m+'</td><td><span class="rt-tav">'+avHtml(x,{size:28,name:nkDisp(x)})+'</span>'+nkName(x,me)+
         '</td><td>'+esc(x.group)+'</td><td><button type="button" class="rt-pts" data-i="'+i+'" title="'+T("Mavzular bo\'yicha ballari","Points by topic")+'">'+(x.total||0)+' <span>›</span></button></td>'+
         '<td title="'+T("o\'rtacha baho","average mark")+'" data-l="'+T("baho","mark")+'">'+mkTag(av.a?+av.a.toFixed(1):0)+'</td>'+
         '<td data-l="'+T("dars","lessons")+'">'+av.n+' / '+nt+'</td>'+
         (isTc?'<td><button class="btn rt-del" data-id="'+esc(x.id)+'" data-nm="'+esc(x.name+" "+x.surname)+
           '" title="'+T("Reytingdan o\'chirish","Remove from the rating")+'">🗑</button></td>':'')+'</tr>';
     }).join("");
-    var meX=S&&list.filter(function(x){ return x.id===S.id; })[0];
-    box.innerHTML=(isTc?'':nkMeHtml(meX))+tcCardHtml()+'<div class="tw"><table class="rt-table rt-topt'+(isTc?' tc':'')+'"><thead><tr><th>#</th><th>'+T("Talaba","Student")+'</th><th>'+
+    var meX=S&&list.filter(function(x){ return x.id===S.id; })[0], meR=meX?list.indexOf(meX)+1:0;
+    box.innerHTML=(isTc?'':nkMeHtml(meX,meR))+tcCardHtml()+'<div class="tw"><table class="rt-table rt-topt'+(isTc?' tc':'')+'"><thead><tr><th>#</th><th>'+T("Talaba","Student")+'</th><th>'+
       T("Guruh","Group")+'</th><th>'+T("Ball","Points")+'</th><th>'+T("O\'rtacha baho","Average")+'</th><th>'+
       T("Baholangan dars","Lessons marked")+'</th>'+(isTc?'<th></th>':'')+'</tr></thead><tbody>'+
       (rows||'<tr><td colspan="7">'+T("Hozircha ro\'yxat bo\'sh.","The list is empty for now.")+'</td></tr>')+'</tbody></table></div>'+
