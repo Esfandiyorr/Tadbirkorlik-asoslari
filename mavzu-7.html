@@ -882,7 +882,8 @@ html.kh-gated,html.kh-gated body{overflow:hidden!important}
 /* reyting jadvali: har bir talaba qatori — alohida karta; fon qatorda, ramka ::before da, nur/soya ::after da */
 #rtTop .tw{padding:4px 8px 12px}
 .rt-topt{display:block;min-width:600px;--tc:92px minmax(160px,2.3fr) minmax(70px,.9fr) minmax(52px,.55fr) minmax(80px,.9fr) minmax(80px,.9fr)}
-.rt-topt.tc{--tc:92px minmax(160px,2.3fr) minmax(70px,.9fr) minmax(52px,.55fr) minmax(80px,.9fr) minmax(80px,.9fr) 48px}
+.rt-topt.tc{--tc:92px minmax(160px,2.3fr) minmax(70px,.9fr) minmax(52px,.55fr) minmax(80px,.9fr) minmax(80px,.9fr) 92px}
+.rt-topt td.rt-tcb{display:flex;gap:6px;justify-content:flex-end;align-items:center}
 .rt-topt thead,.rt-topt tbody{display:block}
 .rt-topt tr{display:grid;grid-template-columns:var(--tc);align-items:center}
 .rt-topt th,.rt-topt td{display:block;min-width:0;border:0}
@@ -900,6 +901,7 @@ html.kh-gated,html.kh-gated body{overflow:hidden!important}
 .rt-nslock{display:flex;flex-direction:column;gap:6px;padding:12px 14px;border:1px dashed var(--line);border-radius:12px;background:var(--panel)}
 .rt-nslock>span{font-size:13px;color:var(--muted)}
 .rt-nsdemo{opacity:.55;pointer-events:none;max-height:none;margin-top:4px}
+.rt-nsgift{max-height:none;margin-top:4px}.rt-nsgift .rt-nso{cursor:default}
 /* fon naqshi ustidagi yozuv aniq o'qilsin (har ikki rejimda) */
 .rt-row[class*=" eg"]{text-shadow:0 0 3px var(--panel),0 0 6px var(--panel)}
 .rt-nsq{display:block;width:100%;box-sizing:border-box;margin:0 0 8px;padding:8px 12px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--ink);font:inherit;font-size:14px}
@@ -987,6 +989,7 @@ html.kh-gated,html.kh-gated body{overflow:hidden!important}
   #rtTop .rt-topt thead{display:none}
   #rtTop .rt-topt tbody tr{grid-template-columns:50px minmax(0,1fr) auto auto;grid-template-rows:auto auto;column-gap:8px;row-gap:1px;padding:6px 10px 6px 4px;margin-top:5px}
   #rtTop .rt-topt.tc tbody tr{grid-template-columns:50px minmax(0,1fr) auto auto 34px}
+  #rtTop .rt-topt td.rt-tcb{flex-direction:column;gap:3px}
   #rtTop .rt-topt td{padding:0!important}
   #rtTop .rt-topt td:nth-child(1){grid-column:1;grid-row:1/3;align-self:center;justify-self:center}
   #rtTop .rt-topt td:nth-child(2){grid-column:2/4;grid-row:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -1003,7 +1006,7 @@ html.kh-gated,html.kh-gated body{overflow:hidden!important}
   #rtTop .rt-topt tr.rt-p2 .rt-pz,#rtTop .rt-topt tr.rt-p3 .rt-pz{width:31px;height:31px}
   #rtTop .rt-topt .rt-prize small{font-size:8px;max-width:50px}
   #rtTop .rt-topt .rt-pts{font-size:15px;padding:2px 4px;margin:-2px -4px}
-  #rtTop .rt-topt .rt-del{padding:4px 6px}
+  #rtTop .rt-topt .rt-del,#rtTop .rt-topt .rt-nsb{padding:3px 6px}
 }
 /* ⬅ ➡ pastki slayd paneli ixcham — taqdimotni o'qishga xalaqit bermasin */
 .navbar{gap:8px;padding:4px 14px}
@@ -3371,8 +3374,10 @@ function ratingHidden(x){
    ism-familiyasini ko'radi; o'qituvchi doim haqiqiy ism (+ nik) ni ko'radi.
    Qator foni: faqat reytingda 1–10-o'rinda turgan talaba ta'limga oid fonlardan birini tanlaydi —
    students/<id>/ns = {g: "eg<n>"}. 10-o'rindan tushsa fon ko'rinmaydi (tanlovi saqlanadi, top-10 ga qaytsa yana chiqadi).
+   O'qituvchi istalgan talabaga fon qo'ya oladi: meta/tcg/<id> = "eg<n>" (meta ga faqat o'qituvchi yozadi) — bu fon
+   o'rindan qat'i nazar doim ko'rinadi va talabaning o'z tanlovidan ustun turadi.
    O'qituvchi kartasi ham shu fonlardan birini oladi (meta/tcv/ns). Ism dizayni va ramkalar yo'q (olib tashlangan). */
-var NICK={}, NICK_AT=0, TCV=null, TC_AV=null, TC_ME=null, NS_ED=false, NS_TAB="nk", NS_CAT="all", NS_RANK=0, NS_TOP=10, NS_CSS="", NS_G=[];
+var NICK={}, NICK_AT=0, TCV=null, TCG={}, TC_AV=null, TC_ME=null, NS_ED=false, NS_TAB="nk", NS_CAT="all", NS_RANK=0, NS_TOP=10, NS_CSS="", NS_G=[];
 var NS_CATS=[["all","Hammasi","All"],["bk","📚 Daftar va kitob","📚 Notebooks & books"],["sc","🔬 Fan","🔬 Science"],["mt","🧮 Matematika","🧮 Maths"],
   ["bz","💼 Biznes","💼 Business"],["ac","🎓 Yutuqlar","🎓 Achievements"]];
 (function(){
@@ -3427,14 +3432,18 @@ function nsCss(){
 }
 function nkClean(v){ return String(v||"").replace(/[<>&"\u0000-\u001f]/g,"").replace(/\s+/g," ").trim().slice(0,20); }
 function nkOf(x){ var v=NICK&&x&&NICK[x.id]; return typeof v==="string"&&v?v:""; }
-function nsOf(x){ var g=((x&&x.ns)||{}).g; return {g:NS_G.some(function(z){ return z[0]===g; })?g:""}; }
-/* qator klassi: fon faqat 1–10-o'rinda; rank=0 — namuna yoki o'qituvchi kartasi (fon doim), rank<0 — o'rni yo'q (fon yo'q) */
-function nsRow(st,rank){ return "rt-row"+(st.g&&(!rank||(rank>0&&rank<=NS_TOP))?" "+st.g:""); }
+function nsOk(g){ return NS_G.some(function(z){ return z[0]===g; }); }
+function nsName(g){ var z=NS_G.filter(function(z){ return z[0]===g; })[0]; return z?T(z[1],z[2]):""; }
+/* g — talabaning o'z tanlovi, t — o'qituvchi qo'ygan fon */
+function nsOf(x){ var g=((x&&x.ns)||{}).g, t=x&&!x.tc&&TCG?TCG[x.id]:""; return {g:nsOk(g)?g:"",t:nsOk(t)?t:""}; }
+/* qator klassi: o'qituvchi qo'ygan fon — doim; o'zi tanlagani — faqat 1–10-o'rinda;
+   rank=0 — namuna yoki o'qituvchi kartasi (fon doim), rank<0 — o'rni yo'q */
+function nsRow(st,rank){ return "rt-row"+(st.t?" "+st.t:(st.g&&(!rank||(rank>0&&rank<=NS_TOP))?" "+st.g:"")); }
 function nkLoad(cb,force){
   if(!cloudOn||!BASE){ cb(); return; }
   if(!force&&Date.now()-NICK_AT<60000){ cb(); return; }
   var get=function(p){ return window.fetch(BASE+p).then(function(r){ return r.ok?r.json():null; }).catch(function(){ return null; }); };
-  Promise.all([get("/meta/nick.json"),get("/meta/tcv.json")]).then(function(v){ NICK=v[0]||{}; TCV=v[1]||{}; NICK_AT=Date.now(); cb(); });
+  Promise.all([get("/meta/nick.json"),get("/meta/tcv.json"),get("/meta/tcg.json")]).then(function(v){ NICK=v[0]||{}; TCV=v[1]||{}; TCG=v[2]||{}; NICK_AT=Date.now(); cb(); });
 }
 function nkReal(x){ return ((x.name||"")+" "+(x.surname||"")).trim(); }
 /* reytingdagi ko'rinadigan ism: o'qituvchi — doim haqiqiy ism, boshqalar — nik, niki yo'q bo'lsa ism-familiya */
@@ -3480,7 +3489,7 @@ function nkEdHtml(me){
   var st=nsOf(me), nk=nkOf(me), rq=me.nkReq||{}, pend=rq.n&&!rq.rej&&rq.n!==nk, top=me.tc||(NS_RANK>=1&&NS_RANK<=NS_TOP);
   if(me.tc) NS_TAB="g";                          /* o'qituvchida nik yo'q — haqiqiy ism */
   var h='<div class="rt-nktabs">'+NS_TABS.filter(function(t){ return !(me.tc&&t[0]==="nk"); }).map(function(t){
-    return '<button type="button" class="rt-nktab'+(t[0]===NS_TAB?" on":"")+'" data-t="'+t[0]+'">'+T(t[1],t[2])+(t[0]==="g"&&!top?' 🔒':'')+'</button>'; }).join("")+'</div>';
+    return '<button type="button" class="rt-nktab'+(t[0]===NS_TAB?" on":"")+'" data-t="'+t[0]+'">'+T(t[1],t[2])+(t[0]==="g"?(st.t?' 🎁':(!top?' 🔒':'')):'')+'</button>'; }).join("")+'</div>';
   if(NS_TAB==="nk"){
     h+='<p class="rt-note" style="margin:0 0 6px">'+T("Nik qo'ysangiz, reytingda boshqalar ismingiz o'rniga nikingizni ko'radi. Nik o'qituvchi tasdiqlagach paydo bo'ladi; nik qo'ymasangiz, ism-familiyangiz turadi.",
         "With a nickname, others see it in the rating instead of your name. It appears after the teacher approves it; without one your name is shown.")+'</p>'+
@@ -3488,6 +3497,11 @@ function nkEdHtml(me){
       '<button type="button" class="btn accent sm" id="nkSend">📨 '+T("Tasdiqqa yuborish","Send for approval")+'</button></div>'+
       '<p class="rt-note" id="nkSt" style="margin:4px 0 0;font-weight:700">'+
         (pend?"⏳ "+T("Tasdiq kutilmoqda: «","Waiting for approval: «")+esc(rq.n)+"»":(rq.rej&&rq.n?"❌ "+T("«"+esc(rq.n)+"» rad etildi — boshqa nik yozing","«"+esc(rq.n)+"» was rejected — try another"):(nk?"✅ "+T("Tasdiqlangan nik: «","Approved nickname: «")+esc(nk)+"»":"")))+'</p>';
+  } else if(st.t){
+    h+='<div class="rt-nslock"><b>🎁 '+T("O'qituvchi qatoringizga «"+nsName(st.t)+"» fonini qo'ygan.","The teacher gave your row the «"+nsName(st.t)+"» background.")+'</b>'+
+      '<span>'+T("Bu fon reytingdagi o'rningizdan qat'i nazar doim ko'rinadi. O'qituvchi uni olib tashlasa, 1–10-o'rinda bo'lsangiz, o'zingiz tanlay olasiz.",
+        "It is always shown, whatever your place. If the teacher removes it, you can choose your own while you are in the top 10.")+'</span>'+
+      '<div class="rt-nsg rows rt-nsgift"><div class="rt-nso on">'+nkMini({t:st.t},me,0)+'<small>'+esc(nsName(st.t))+'</small></div></div></div>';
   } else if(!top){
     h+='<div class="rt-nslock"><b>🔒 '+T("Qator fonini faqat reytingda 1–10-o'rinda turgan talabalar qo'ya oladi.","Only students ranked 1–10 can set a row background.")+'</b>'+
       '<span>'+(NS_RANK?T("Hozir siz "+NS_RANK+"-o'rindasiz — ball yig'ib, o'ntalikka kiring! ","You are now in place "+NS_RANK+" — earn points and reach the top ten! "):"")+
@@ -3527,7 +3541,7 @@ function nkEdBind(me){
   all(".rt-nktab",function(b){ b.onclick=function(){ NS_TAB=b.dataset.t; nkEdRe(me); }; });
   all(".rt-nkcat",function(b){ b.onclick=function(){ NS_CAT=b.dataset.c; nkEdRe(me); }; });
   all("button.rt-nso[data-g]",function(b){ b.onclick=function(){
-    if(!me.tc&&!(NS_RANK>=1&&NS_RANK<=NS_TOP)) return;
+    if(!me.tc&&(nsOf(me).t||!(NS_RANK>=1&&NS_RANK<=NS_TOP))) return;
     all(".rt-nso.on",function(o){ o.classList.remove("on"); }); b.classList.add("on");
     nsSave(me,{g:b.dataset.g});
   }; });
@@ -3540,6 +3554,47 @@ function nkEdBind(me){
       .then(function(r){ if(!r.ok) throw 0; me.nkReq=o; toast(T("Yuborildi — o'qituvchi tasdiqlashini kuting ✅","Sent — wait for the teacher's approval ✅")); nkEdRe(me); })
       .catch(function(){ toast(T("Yuborilmadi — internetni tekshiring","Not sent — check the connection")); nkEdRe(me); });
   };
+}
+/* 👨‍🏫 o'qituvchi: talaba qatoriga fon qo'yish (reyting jadvalidagi 🎨 tugmasi) */
+function nsTcPick(x,rank,done){
+  var old=document.getElementById("rtNsPk"); if(old) old.remove();
+  var cat="all";
+  var g=el('<div class="rt-gate rt-prof rt-nspk" id="rtNsPk"><div class="rt-box">'+
+    '<button type="button" class="rt-pfx" id="rtNsPkX" aria-label="'+T("Yopish","Close")+'">✕</button>'+
+    '<h3 style="margin:0 40px 4px 0">🎨 '+T("Qator foni","Row background")+': '+esc(nkReal(x))+'</h3>'+
+    '<p class="rt-note" style="margin:0 0 10px">'+(rank?'🏆 '+rank+T("-o\'rin · "," place · "):'')+
+      T("Siz qo'ygan fon talabaning o'rnidan qat'i nazar doim ko'rinadi va uning o'z tanlovidan ustun turadi.",
+        "The background you set is always shown, whatever the student's place, and overrides the student's own choice.")+'</p>'+
+    '<div id="rtNsPkB"></div></div></div>');
+  function body(){
+    var st=nsOf(x), L=NS_G.filter(function(z){ return cat==="all"||z[3]===cat; });
+    document.getElementById("rtNsPkB").innerHTML=
+      (st.g?'<p class="rt-note" style="margin:0 0 8px">'+T("Talabaning o'z tanlovi: «","The student's own choice: «")+esc(nsName(st.g))+'»'+
+        (st.t?'':(rank>0&&rank<=NS_TOP?'':T(" (11-o'rindan pastda — ko'rinmaydi)"," (below 10th place — hidden)")))+'</p>':'')+
+      '<div class="rt-nkcats">'+NS_CATS.map(function(c){
+        var n=c[0]==="all"?NS_G.length:NS_G.filter(function(z){ return z[3]===c[0]; }).length;
+        return '<button type="button" class="rt-nkcat'+(c[0]===cat?" on":"")+'" data-c="'+c[0]+'">'+T(c[1],c[2])+' <small>'+n+'</small></button>'; }).join("")+'</div>'+
+      '<div class="rt-nsg rows">'+(cat==="all"?'<button type="button" class="rt-nso'+(st.t?"":" on")+'" data-g="">'+nkMini({g:""},x,0)+'<small>'+
+        T("O'qituvchi foni yo'q","No teacher background")+'</small></button>':'')+
+        L.map(function(z){ return '<button type="button" class="rt-nso'+(z[0]===st.t?" on":"")+'" data-g="'+z[0]+'">'+nkMini({t:z[0]},x,0)+'<small>'+T(z[1],z[2])+'</small></button>'; }).join("")+'</div>';
+    [].forEach.call(g.querySelectorAll(".rt-nkcat"),function(b){ b.onclick=function(){ cat=b.dataset.c; body(); }; });
+    [].forEach.call(g.querySelectorAll("button.rt-nso[data-g]"),function(b){ b.onclick=function(){
+      var v=b.dataset.g||null, o={}, prev=TCG[x.id];
+      o["meta/tcg/"+x.id]=v;
+      if(v) TCG[x.id]=v; else delete TCG[x.id];
+      body(); done();
+      fetch(BASE+"/.json",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify(o)})
+        .then(function(r){ if(!r.ok) throw 0; toast(v?T("Fon qo'yildi ✅","Background set ✅"):T("O'qituvchi foni olib tashlandi","Teacher background removed")); })
+        .catch(function(){ if(prev) TCG[x.id]=prev; else delete TCG[x.id]; body(); done();
+          toast(T("Saqlanmadi — Google bilan kirganingizni tekshiring","Not saved — check that you are signed in with Google")); });
+    }; });
+  }
+  document.body.appendChild(g); nsCss(); body();
+  var close=function(){ g.remove(); document.removeEventListener("keydown",esc1); };
+  var esc1=function(e){ if(e.key==="Escape") close(); };
+  document.addEventListener("keydown",esc1);
+  g.addEventListener("click",function(e){ if(e.target===g) close(); });
+  document.getElementById("rtNsPkX").onclick=close;
 }
 /* o'qituvchi: nik so'rovlari (Talabalar bo'limida) */
 function nkPending(list){ return (list||[]).filter(function(x){ var r=x.nkReq||{}; return (x.status||"")==="ok"&&r.n&&!r.rej&&r.n!==nkOf(x); }); }
@@ -3589,7 +3644,8 @@ function renderTop(){
         '</td><td>'+esc(x.group)+'</td><td><button type="button" class="rt-pts" data-i="'+i+'" title="'+T("Mavzular bo\'yicha ballari","Points by topic")+'">'+(x.total||0)+' <span>›</span></button></td>'+
         '<td title="'+T("o\'rtacha baho","average mark")+'" data-l="'+T("baho","mark")+'">'+mkTag(av.a?+av.a.toFixed(1):0)+'</td>'+
         '<td data-l="'+T("dars","lessons")+'">'+av.n+' / '+nt+'</td>'+
-        (isTc?'<td><button class="btn rt-del" data-id="'+esc(x.id)+'" data-nm="'+esc(x.name+" "+x.surname)+
+        (isTc?'<td class="rt-tcb"><button type="button" class="btn rt-nsb" data-i="'+i+'" title="'+T("Qator fonini tanlash","Choose the row background")+'">🎨</button>'+
+          '<button class="btn rt-del" data-id="'+esc(x.id)+'" data-nm="'+esc(x.name+" "+x.surname)+
           '" title="'+T("Reytingdan o\'chirish","Remove from the rating")+'">🗑</button></td>':'')+'</tr>';
     }).join("");
     var meX=S&&list.filter(function(x){ return x.id===S.id; })[0], meR=meX?list.indexOf(meX)+1:0;
@@ -3597,12 +3653,16 @@ function renderTop(){
       T("Guruh","Group")+'</th><th>'+T("Ball","Points")+'</th><th>'+T("O\'rtacha baho","Average")+'</th><th>'+
       T("Baholangan dars","Lessons marked")+'</th>'+(isTc?'<th></th>':'')+'</tr></thead><tbody>'+
       (rows||'<tr><td colspan="7">'+T("Hozircha ro\'yxat bo\'sh.","The list is empty for now.")+'</td></tr>')+'</tbody></table></div>'+
-      (isTc?'<p class="rt-note">🗑 '+T("O\'qituvchi sifatida talabani reytingdan butunlay o\'chira olasiz.",
-        "As the teacher you can delete a student from the rating completely.")+'</p>':'')+
+      (isTc?'<p class="rt-note">🎨 '+T("— talaba qatoriga fon qo\'yish (o\'rnidan qat\'i nazar ko\'rinadi). ","— set a row background for a student (shown whatever the place). ")+
+        '🗑 '+T("— talabani reytingdan butunlay o\'chirish.","— delete a student from the rating completely.")+'</p>':'')+
       (cloudOn?'':'<p class="rt-note">⚠️ '+T(
         "Umumiy reyting hali ulanmagan — hozir faqat sizning natijangiz ko\'rinadi.",
         "The shared rating is not connected yet — only your own result is shown.")+'</p>');
     box.querySelectorAll(".rt-pts").forEach(function(b2){ b2.onclick=function(){ profOpen(list[+b2.dataset.i],+b2.dataset.i+1); }; });
+    box.querySelectorAll(".rt-nsb").forEach(function(b2){
+      b2.onclick=function(){ var i=+b2.dataset.i, x=list[i];
+        nsTcPick(x,i+1,function(){ var tr=b2.closest("tr"); if(tr) tr.className=tr.className.replace(/\s*\brt-row\b.*$/,"")+" "+nsRow(nsOf(x),i+1); }); };
+    });
     box.querySelectorAll(".rt-del").forEach(function(b2){
       b2.onclick=function(){ tcDel(b2.dataset.id,b2.dataset.nm,renderTop); };
     });
