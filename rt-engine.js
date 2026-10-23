@@ -1924,8 +1924,8 @@ function myJur(){
 function renderCv(){
   var box=document.getElementById("rtCv"); if(!box) return;
   if(!S){ box.innerHTML='<p class="rt-note">'+T("Avval ro'yxatdan o'ting.","Register first.")+'</p>'; return; }
-  box.innerHTML=
-    '<div class="rt-sec" style="margin-top:0"><h4>👤 '+T("Shaxsiy ma'lumotlarim","My details")+'</h4>'+
+  box.innerHTML='<div class="rt-sec" style="margin-top:0"><h4>🔔 '+T("Telefonga bildirishnoma","Phone notifications")+'</h4><div id="cvPush"></div></div>'+
+    '<div class="rt-sec"><h4>👤 '+T("Shaxsiy ma'lumotlarim","My details")+'</h4>'+
       '<div class="rt-form" style="max-width:420px;margin:0">'+
         '<label>'+T("Ism","First name")+'<input id="cvN" value="'+esc(S.name)+'" disabled></label>'+
         '<label>'+T("Familiya","Surname")+'<input id="cvS" value="'+esc(S.surname)+'" disabled></label>'+
@@ -1942,6 +1942,7 @@ function renderCv(){
       '<div id="myJur"><p class="rt-note" style="margin:0">'+T("Yuklanmoqda…","Loading…")+'</p></div></div>';
   document.getElementById("cvOutB").onclick=logout;
   myJur();
+  pushBox(document.getElementById("cvPush"),"cv");      /* 🔔 bildirishnoma holati va yoqish */
   document.getElementById("cvSaveB").onclick=function(){
     var n=document.getElementById("cvN").value.trim(), sn=document.getElementById("cvS").value.trim(),
         g=document.getElementById("cvG").value.trim(), em=document.getElementById("cvE").value.trim();
@@ -3020,10 +3021,8 @@ function annBind(){
       ANN_LIST.push({text:t,img:ANN_PICK,poll:poll,at:at||Date.now()});
       ANN_PICK=null; ANN_POLL_ON=false; ANN_POLL_Q=""; ANN_POLL_OPTS=["",""];
       toast(T("E'lon yuborildi ✅","Announcement sent ✅"));
-      if(pushOn(PUSH.cfg)&&pushAuto()) pushSend(T("📢 Yangi e'lon","📢 New announcement"),t||(poll?"📊 "+poll.q:T("📷 Rasmli e'lon","📷 Announcement with a picture")),null,function(j){
-        if(j) toast(T("📲 Bildirishnoma yuborildi: ","📲 Notification sent: ")+j.sent+" "+T("qurilma","device(s)"));
-        else toast(T("⚠️ Telefonlarga bildirishnoma yuborilmadi","⚠️ Phone notifications were not sent"));
-      });
+      if(!pushOn(PUSH.cfg)) setTimeout(function(){ toast("🔕 "+T("Telefonga bildirishnoma sozlanmagan — 📢 E'lon yuborish → 🔔 Telefonga bildirishnoma bo'limida sozlang","Phone notifications are not set up — set them up in 📢 Announcements → 🔔 Phone notifications")); },1800);
+      else if(pushAuto()) pushSend(T("📢 Yangi e'lon","📢 New announcement"),t||(poll?"📊 "+poll.q:T("📷 Rasmli e'lon","📷 Announcement with a picture")),null,function(j){ pushReport(j); });
       var box=document.getElementById("rtTcOut"); if(box) refreshAnn(box);
     });
   };
@@ -3516,22 +3515,22 @@ function pushInit(){
     else if(Notification.permission==="default") setTimeout(function(){ pushAsk(c); },4000);
   });
 }
-function pushSub(c,cb){
+function pushSub(c,cb,force){
   navigator.serviceWorker.register("sw.js").then(function(){ return navigator.serviceWorker.ready; }).then(function(reg){
     return reg.pushManager.getSubscription().then(function(s){
       var k=s&&s.options&&s.options.applicationServerKey;
       if(s&&k&&pushB64(k)!==c.pub) return s.unsubscribe().then(function(){ return null; });   /* kalit almashgan — qayta obuna */
       return s;
     }).then(function(s){ return s||reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:pushUb64(c.pub)}); });
-  }).then(function(s){ pushSave(s,cb); },function(){ cb(false); });
+  }).then(function(s){ pushSave(s,cb,force); },function(){ cb(false); });
 }
 /* obuna bazaga yoziladi (o'zgarmagan bo'lsa 3 kunda bir marta — o'chib ketgan bo'lsa tiklanadi) */
-function pushSave(s,cb){
+function pushSave(s,cb,force){
   var j=s&&s.toJSON?s.toJSON():(s||{}), e=j.endpoint, k=j.keys||{};
   if(!S||!e||!k.p256dh||!k.auth){ cb(false); return; }
   var mark=S.id+"|"+e+"|"+k.p256dh, last={};
   try{ last=JSON.parse(localStorage.getItem("terdu_push")||"{}")||{}; }catch(x){}
-  if(last.m===mark&&Date.now()-(+last.t||0)<3*86400000){ cb(true); return; }
+  if(!force&&last.m===mark&&Date.now()-(+last.t||0)<3*86400000){ cb(true); return; }
   sha256hex(e,function(h){
     var id="d"+String(h||Date.now()).slice(0,20);
     fetch(BASE+"/students/"+S.id+"/push/"+id+".json",{method:"PUT",headers:{"Content-Type":"application/json"},
@@ -3563,6 +3562,56 @@ function pushAsk(c){
     },function(){ on.disabled=false; });
   };
 }
+/* ---------- 🔔 talaba: bildirishnomani yoqish joyi (fan sahifasi va «Mening ma'lumotim») ----------
+   Holatlar: o'qituvchi sozlamagan · iPhone'da ilova o'rnatilmagan · brauzer qo'llamaydi · o'chiq (🔔 Yoqish) ·
+   brauzerda bloklangan (qanday ochish) · yoqilgan (🧪 sinov xabari — telefon bildirishnomani ko'rsata olishini tekshiradi) */
+function pushEnv(){
+  var ios=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+  var app=(window.matchMedia&&matchMedia("(display-mode: standalone)").matches)||navigator.standalone===true;
+  if(!pushOk()) return ios&&!app?"ios":"nosupport";
+  return Notification.permission;
+}
+function pushBox(box,where){
+  if(!box||!S||!approved()) { if(box) box.innerHTML=""; return; }
+  pushCfg(function(c){
+    var env=pushEnv(), home=where==="home", h="";
+    var wrap=function(cls,ic,title,txt,btns){ return '<div class="rt-pushbox '+cls+(home?' home':'')+'"><span class="ic">'+ic+'</span><div class="t"><b>'+title+'</b>'+(txt?'<small>'+txt+'</small>':'')+'</div>'+(btns||'')+'</div>'; };
+    if(!pushOn(c)) h=home?'':wrap("off","🔕",T("Telefonga bildirishnoma hali sozlanmagan","Phone notifications are not set up yet"),T("O'qituvchi sozlagach, shu yerda «🔔 Yoqish» tugmasi chiqadi.","Once the teacher sets them up, a «🔔 Turn on» button appears here."));
+    else if(env==="ios") h=wrap("warn","📱",T("iPhone: bildirishnoma faqat o'rnatilgan ilovada","iPhone: notifications work only in the installed app"),
+      T("Safari → ⬆️ Ulashish → «Bosh ekranga qo'shish». Keyin TerDU ilovasini ochib, shu yerda «🔔 Yoqish» ni bosing (iOS 16.4 va undan yangi).","Safari → ⬆️ Share → «Add to Home Screen». Then open the TerDU app and press «🔔 Turn on» here (iOS 16.4+)."),
+      window.TerduPWA&&TerduPWA.help?'<button type="button" class="btn sm" data-pb="help">📲 '+T("Qanday?","How?")+'</button>':'');
+    else if(env==="nosupport") h=wrap("warn","⚠️",T("Bu brauzer bildirishnomani qo'llamaydi","This browser does not support notifications"),T("Saytni Chrome'da oching yoki «📲 Ilovani yuklash» bilan ilovani o'rnating.","Open the site in Chrome or install the app with «📲 Install the app»."));
+    else if(env==="denied") h=wrap("bad","🚫",T("Bildirishnoma brauzerda bloklangan","Notifications are blocked in the browser"),
+      T("Android Chrome: manzil satridagi 🔒 (yoki ⓘ) → <b>Ruxsatlar</b> → <b>Bildirishnomalar</b> → Ruxsat berish, so'ng sahifani yangilang. O'rnatilgan ilovada: telefon <b>Sozlamalar → Ilovalar → TerDU → Bildirishnomalar</b> → yoqing.",
+        "Android Chrome: the 🔒 (or ⓘ) in the address bar → <b>Permissions</b> → <b>Notifications</b> → Allow, then reload. In the installed app: phone <b>Settings → Apps → TerDU → Notifications</b> → on."),
+      '<button type="button" class="btn sm" data-pb="reload">🔄 '+T("Yangilash","Reload")+'</button>');
+    else if(env==="granted") h=wrap("on","🔔",T("Bildirishnomalar yoqilgan ✅","Notifications are on ✅"),home?'':T("O'qituvchi e'lon yozsa, telefoningizga xabar keladi.","When the teacher posts an announcement, your phone gets a notice."),
+      '<button type="button" class="btn sm" data-pb="test">🧪 '+T("Sinov","Test")+'</button>');
+    else h=wrap("ask","🔔",T("E'lonlar telefoningizga kelsin","Get announcements on your phone"),T("O'qituvchi yangi e'lon yozsa yoki yangi mavzu ochsa, telefoningizga bildirishnoma keladi.","When the teacher posts an announcement or opens a new topic, your phone gets a notification."),
+      '<button type="button" class="btn accent sm" data-pb="on">🔔 '+T("Yoqish","Turn on")+'</button>');
+    box.innerHTML=h;
+    var b=box.querySelector("[data-pb]"); if(!b) return;
+    if(env==="granted") pushSub(c,function(){});           /* obuna bazada turganini tiklab qo'yamiz */
+    b.onclick=function(){
+      var k=b.dataset.pb;
+      if(k==="help"){ TerduPWA.help(); return; }
+      if(k==="reload"){ location.reload(); return; }
+      if(k==="test"){ b.disabled=true;
+        navigator.serviceWorker.ready.then(function(reg){ return reg.showNotification("🔔 TerDU",{body:T("Bildirishnomalar ishlayapti ✅ E'lonlar shu tarzda keladi.","Notifications work ✅ Announcements arrive like this."),
+          icon:"fayllar/ilova/icon-192.png",badge:"fayllar/ilova/icon-192.png",tag:"terdu-test"}); })
+          .then(function(){ toast(T("Sinov xabari yuborildi — telefon ekranining tepasiga qarang","Test notice shown — look at the top of your screen")); },
+            function(){ toast(T("Ko'rsatib bo'lmadi — telefon sozlamalarida TerDU/Chrome bildirishnomalarini yoqing","Could not show it — allow notifications for TerDU/Chrome in the phone settings")); })
+          .then(function(){ b.disabled=false; });
+        pushSub(c,function(){},true); return; }
+      b.disabled=true;
+      Promise.resolve(Notification.requestPermission()).then(function(p){
+        if(p!=="granted"){ toast(T("Bildirishnomaga ruxsat berilmadi","Notifications were not allowed")); pushBox(box,where); return; }
+        var bar=document.getElementById("rtPushBar"); if(bar) bar.remove();
+        pushSub(c,function(ok){ toast(ok?T("🔔 Bildirishnomalar yoqildi ✅","🔔 Notifications are on ✅"):T("Yoqib bo'lmadi — internetni tekshirib, qayta urining","Could not turn on — check the connection and try again")); pushBox(box,where); },true);
+      },function(){ b.disabled=false; });
+    };
+  });
+}
 /* o'qituvchi: Worker orqali yuborish. only — faqat shu talabalar (sinov uchun) */
 function pushSend(title,body,only,cb,page,extra){
   cb=cb||function(){};
@@ -3573,6 +3622,15 @@ function pushSend(title,body,only,cb,page,extra){
     for(var k in (extra||{})) q[k]=extra[k];
     return window.fetch(c.url,{method:"POST",headers:{"Content-Type":"text/plain"},body:JSON.stringify(q)});
   }).then(function(r){ return r.json().then(function(j){ return r.ok?j:null; }); }).then(function(j){ cb(j); },function(){ cb(null); });
+}
+/* yuborish natijasi — o'qituvchiga tushunarli */
+function pushReport(j){
+  var m;
+  if(!j) m="⚠️ "+T("Worker javob bermadi — 🔔 bo'limidagi «🧪 Sinov» bilan tekshiring (Google bilan kirganmisiz?)","The Worker did not answer — check with «🧪 Test» in the 🔔 section (signed in with Google?)");
+  else if(!j.total) m="⚠️ "+T("Hech bir talaba bildirishnomani yoqmagan — talabalar fan sahifasida «🔔 Yoqish» ni bossin","No student has turned notifications on — students should press «🔔 Turn on» on the course page");
+  else m="📲 "+T("Bildirishnoma: ","Notifications: ")+j.sent+" / "+j.total+" "+T("qurilmaga yetdi","devices reached")+(j.removed?" · "+j.removed+" "+T("eskirgan obuna o'chirildi","stale subscriptions removed"):"");
+  setTimeout(function(){ toast(m); },1500);
+  PUSH.msg=m; var e=document.getElementById("pushMsg"); if(e) e.textContent=m;
 }
 function pushAuto(){ try{ return localStorage.getItem("terdu_push_auto")!=="0"; }catch(e){ return true; } }
 /* 🔔 mavzu ochilganda guruhga (yoki hammaga / bitta talabaga) avtomatik xabar */
@@ -3606,7 +3664,9 @@ function pushTcHtml(){
     var d=pushDevs();
     return h+'<p class="rt-note" style="margin:0 0 8px">✅ '+T("E'lon yuborganingizda ilovani o'rnatib, bildirishnomani yoqqan talabalar telefoniga xabar boradi.",
         "When you send an announcement, students who installed the app and turned notifications on get it on their phone.")+
-      '<br>📲 '+T("Obuna bo'lganlar","Subscribed")+': <b>'+d.st+'</b> '+T("talaba","students")+' · <b>'+d.n+'</b> '+T("qurilma","devices")+'</p>'+
+      '<br>📲 '+T("Obuna bo'lganlar","Subscribed")+': <b>'+d.st+'</b> '+T("talaba","students")+' · <b>'+d.n+'</b> '+T("qurilma","devices")+
+      '<br>👉 '+T("Talabalar bildirishnomani <b>fan sahifasida</b> (bosh sahifa) yoki 🏆 → «Mening ma'lumotim» dagi <b>«🔔 Yoqish»</b> tugmasi bilan yoqadi. iPhone'da — faqat bosh ekranga o'rnatilgan ilovada.",
+        "Students turn notifications on with <b>«🔔 Turn on»</b> on the <b>course page</b> or in 🏆 → «My profile». On iPhone — only in the app added to the home screen.")+'</p>'+
       '<label class="rt-khchk"><input type="checkbox" id="pushAuto"'+(pushAuto()?" checked":"")+'> '+T("E'lon yuborilganda telefonlarga ham yuborilsin","Also notify phones when an announcement is sent")+'</label>'+
       '<div class="rt-khrow" style="margin-top:8px"><button type="button" class="btn sm" id="pushTest">🧪 '+T("Sinov: o'zimga yuborish","Test: send to myself")+'</button>'+
       '<button type="button" class="btn sm" id="pushReset">⚙️ '+T("Qayta sozlash","Set up again")+'</button></div>'+
@@ -4015,10 +4075,11 @@ function homeRender(){
     return s0==="lock"||!s0?'<div class="hm-card lock" data-t="'+x.id+'">'+inner+'</div>'
       :'<a class="hm-card '+s0+'" href="'+esc(x.file)+'" data-t="'+x.id+'">'+inner+'</a>';
   }).join("");
-  box.innerHTML=hi+wk+'<h2 class="hm-h2">📚 '+T("Mavzular","Topics")+' <small>'+tp.length+'</small></h2><div class="hm-grid">'+cards+'</div>'+
+  box.innerHTML=hi+'<div id="hmPush"></div>'+wk+'<h2 class="hm-h2">📚 '+T("Mavzular","Topics")+' <small>'+tp.length+'</small></h2><div class="hm-grid">'+cards+'</div>'+
     '<div class="hm-more"><a class="hm-arena" href="arena.html">🎮 <b>'+T("O'yin arenasi","Game arena")+'</b><small>'+T("Krossvord, jonli test va Yozuv Marafoni — guruhdoshlar bilan musobaqa","Crossword, live quiz and typing marathon — compete with classmates")+'</small></a></div>';
   [].forEach.call(box.querySelectorAll("a[data-t]"),function(a){ a.addEventListener("click",function(){ try{ sessionStorage.setItem("terdu_pick",a.dataset.t); }catch(e){} }); });
   var tb=document.getElementById("hmTop"); if(tb) tb.onclick=function(){ openOv(); };
+  pushBox(document.getElementById("hmPush"),"home");     /* 🔔 bildirishnomani yoqish */
 }
 /* ---------- 📖 o'qish rejimi: topbarda belgi, bir martalik ogohlantirish, test tugmalari yashiriladi ---------- */
 function roApply(on,cur){
