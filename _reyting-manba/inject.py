@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Taqdimotlarga reyting tizimini o'rnatadi (qayta-qayta ishlata olinadi)."""
-import re,sys,json,os
-BASE='/home/user/Tadbirkorlik-asoslari/'
+import re,sys,json,os,hashlib
+BASE=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))+'/'   # repo ildizi (qayerda turmasin)
 SC=BASE+'_reyting-manba/'
 CSS=open(SC+'engine_css.txt',encoding='utf-8').read()
 JS=open(SC+'engine_js.txt',encoding='utf-8').read()
@@ -52,6 +52,20 @@ def pwa(s):
     return s[:i]+PWA+s[i:]
 HB,HE='<!-- RT:BEGIN -->','<!-- RT:END -->'
 
+# ⚡ umumiy kod barcha taqdimotlarda bir xil — har biriga ichiga yozilmaydi, bitta faylda turadi va brauzer/ilova
+# uni bir marta yuklab, keyingi mavzularda xotiradan oladi. ?v=<iz> — fayl o'zgarsa manzil ham o'zgaradi (eski nusxa qolmaydi)
+SHARED_HEAD='/* AVTOMATIK YARATILGAN FAYL — tahrirlamang. Manba: _reyting-manba/ (inject.py) */\n'
+def shared():
+    mods=[AVX,JS,MJS,CJS]          # har bir modul alohida himoyalangan: birida xato bo'lsa, qolganlari ishlayveradi
+    js=SHARED_HEAD+"\n".join('try{\n'+m.strip()+'\n}catch(e){ if(window.console) console.error("rt-engine:",e); }' for m in mods)+"\n"
+    css=SHARED_HEAD+CSS.strip()+"\n"+MCSS.strip()+"\n"+CCSS.strip()+"\n"
+    out={}
+    for fn,txt in (('rt-engine.js',js),('rt-engine.css',css)):
+        open(BASE+fn,'w',encoding='utf-8').write(txt)
+        out[fn]=hashlib.md5(txt.encode('utf-8')).hexdigest()[:10]
+    return out
+VER=None
+
 def strip(s,b,e):
     while b in s and e in s:
         i=s.index(b); j=s.index(e)+len(e)
@@ -66,8 +80,10 @@ def inject(fn,meta):
     s=strip(s,B,E); s=strip(s,HB,HE)
     s=pwa(s)
 
-    # --- CSS ---
-    s=s.replace('@media print{', B+"\n"+CSS.strip()+"\n"+MCSS.strip()+"\n"+CCSS.strip()+"\n"+E+"\n@media print{",1)
+    # --- CSS: umumiy fayl, taqdimotning o'z uslublaridan keyin (avvalgi tartib saqlanadi) ---
+    s=s.replace('@media print{', B+'\n</style>\n<link rel="stylesheet" href="rt-engine.css?v='+VER['rt-engine.css']+'">\n<style>\n'+E+"\n@media print{",1)
+    # --- logo: har sahifaga 71 KB matn bo'lib yozilmasin — umumiy rasm fayli (bir marta yuklanadi) ---
+    s=re.sub(r'(\.terdu-logo\{background-image:url\()"data:image/png;base64,[A-Za-z0-9+/=]+"\)',r'\1"logo_tersu.png")',s,count=1)
 
     # --- topbar havolalarini olib tashlash (yopiq mavzular 404 bermasin) ---
     s=re.sub(r'      <a class="btn ghost" href="[^"]+" title="[^"]+">📑 M\d</a>\n','',s)
@@ -83,10 +99,7 @@ def inject(fn,meta):
              teacherTg=CONF.get('teacherTg',''),teacherName=CONF.get('teacherName',''),reopen=CONF.get('reopen',{}),pwaMsg=CONF.get('pwaMsg',''),courses=CONF.get('courses',[]),groups=CONF.get('groups',[]),groupRenames=CONF.get('groupRenames',{}),hideRating=CONF.get('hideRating',[]),
              tracks=CONF.get('tracks',[]),fbWeb=fbWeb if google else None,teacherH=teacherH if google else '')
     block=(HB+'\n<script>var RT_CFG='+json.dumps(cfg,ensure_ascii=False)+';</script>\n'
-           '<script>\n'+AVX.strip()+'\n</script>\n'
-           '<script>\n'+JS.strip()+'\n</script>\n'
-           '<script>\n'+MJS.strip()+'\n</script>\n'
-           '<script>\n'+CJS.strip()+'\n</script>\n'+HE+'\n')
+           '<script src="rt-engine.js?v='+VER['rt-engine.js']+'"></script>\n'+HE+'\n')
     i=s.rindex('<script>')          # taqdimotning asosiy skripti
     s=s[:i]+block+s[i:]
 
@@ -148,5 +161,6 @@ def inject_arena():
     return "arena.html: OK (avatar + krossvord + yozuv marafoni)"
 
 if __name__=="__main__":
+    VER=shared(); print("rt-engine.js / rt-engine.css:",VER)
     for fn,meta in DECKS.items(): print(inject(fn,meta))
     print(inject_arena())

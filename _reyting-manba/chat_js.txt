@@ -8,6 +8,9 @@ function T(uz,en){ var l=(document.documentElement.getAttribute("lang")||"uz"); 
 function esc(x){ return String(x==null?"":x).replace(/[<>&"]/g,function(c){return {"<":"&lt;",">":"&gt;","&":"&amp;",'"':"&quot;"}[c];}); }
 function el(h){ var d=document.createElement("div"); d.innerHTML=h.trim(); return d.firstChild; }
 function base(){ var c=window.RT&&RT.cloud?RT.cloud():null; return (c&&c.on)?c.base:null; }
+/* bazaga so'rov reyting tizimi orqali — talaba/o'qituvchining kaliti (token) qo'shiladi; Firebase qoidalari
+   xabarni kim yozayotganini shu bilan tekshiradi (birov nomidan yozish yoki o'chirish mumkin emas) */
+function fetch(u,o){ return (window.RT&&RT.fetch)?RT.fetch(u,o):window.fetch(u,o); }
 function me(){ return window.RT&&RT.student?RT.student():null; }
 function isTc(){ return !!(window.RT&&RT.teacher&&RT.teacher()); }
 function $(id){ return document.getElementById(id); }
@@ -93,7 +96,7 @@ function putMedia(type,data,cb){
   var b=base(); if(!b){ cb(null,T("Baza ulanmagan","No database")); return; }
   var k=nkey(type==="video"?"v":"m"), S=me();   /* v... = video (1 kun), m... = rasm (1 hafta) */
   fetch(b+"/media/"+k+".json",{method:"PUT",headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({t:type,d:data,at:Date.now(),by:S?S.id:""})})
+    body:JSON.stringify({t:type,d:data,at:{".sv":"timestamp"},by:S?S.id:""})})
     .then(function(r){
       if(r.ok){ cb(k); return; }
       return r.text().then(function(t){ cb(null,why(r.status,t)); });
@@ -284,7 +287,7 @@ function send(){
   var S=me(); if(!S) return;
   busy=true; $("chSend").disabled=true;
   function post(mk,mt){
-    var rec={id:S.id,n:S.name+" "+S.surname,g:S.group,t:v,at:Date.now()};
+    var rec={id:S.id,n:S.name+" "+S.surname,g:S.group,t:v,at:{".sv":"timestamp"}};   /* vaqt — server soati (qoidalar tekshiradi) */
     if(mk){ rec.mk=mk; rec.mt=mt; }
     if(canMedia&&/https?:\/\//.test(v)) rec.lk=1;    /* havola faqat ruxsatlilarda bosiladigan bo'ladi */
     if(yt) rec.yt=yt;

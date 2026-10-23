@@ -1,0 +1,11 @@
+{
+  "name": "terdu-tests",
+  "private": true,
+  "description": "TerDU saytining brauzer sinovlari (Playwright + soxta Firebase)",
+  "scripts": {
+    "test": "node run.js"
+  },
+  "devDependencies": {
+    "playwright": "1.56.1"
+  }
+}

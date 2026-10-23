@@ -1,0 +1,57 @@
+# Har bir push va pull request'da saytning avtomatik sinovlari (tests/README: README.md → «Avtomatik sinovlar»).
+name: Sinovlar
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  sinovlar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - uses: actions/setup-java@v4          # Firebase qoidalari emulyatori uchun
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Umumiy kod (rt-engine) manbaga mosligini tekshirish
+        run: |
+          python3 _reyting-manba/inject.py
+          git diff --stat --exit-code || { echo "::error::inject.py ishga tushirilmagan: rt-engine.js / taqdimotlar _reyting-manba manbasiga mos emas"; exit 1; }
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            tests/.cache
+            ~/.cache/ms-playwright
+          key: tests-${{ runner.os }}-${{ hashFiles('tests/package.json') }}
+
+      - name: O'rnatish (Playwright + Chromium)
+        working-directory: tests
+        run: |
+          npm install --no-audit --no-fund
+          npx playwright install --with-deps chromium
+
+      - name: Sinovlar
+        working-directory: tests
+        run: npm test
+
+      - name: Skrinshotlar (yiqilganda)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sinov-skrinshotlari
+          path: tests/.out
+          retention-days: 7

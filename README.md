@@ -1,20 +1,40 @@
-# Tadbirkorlik asoslari — interaktiv HTML taqdimotlar
+# Tadbirkorlik asoslari — interaktiv taqdimotlar platformasi (TerDU)
 
 **Muassasa:** Termiz davlat universiteti · Fan: Tadbirkorlik asoslari
 
-| Fayl | Mavzu | Hajmi |
-|---|---|---|
-| [`index.html`](index.html) | **M1** — Tadbirkorlik tafakkuri va biznes imkoniyatlarni aniqlash | 18 slayd · 15 test |
-| 🔒 `mavzu-2.html` | **M2** — Mijoz muammosi asosida biznes g'oyani shakllantirish | 18 slayd · 15 test |
-| 🔒 `mavzu-3.html` | **M3** — Mahsulotni kam xarajat bilan bozorda sinab ko'rish (moliyalashtirish va kredit) | 15 slayd · 15 test |
-| 🔒 `mavzu-4.html` | **M4** — Biznesni qonuniy rasmiylashtirish va davlat ro'yxatidan o'tkazish | 18 slayd · 🎬 kinolar · 🧩 krossvord |
-| 🔒 `mavzu-5.html` | **M5** — Tadbirkor qanday soliqlarni to'laydi va hujjatlarni yuritadi | 18 slayd · 💳 kalkulyator · 🧮 3 masala |
+Sayt — 15 ta interaktiv taqdimot, ball va reyting tizimi, talabalar chati, o'yin arenasi va telefon ilovasi (PWA).
+Talaba ro'yxatdan o'tadi, taqdimotni o'qiydi, testni ishlaydi va ball to'playdi; o'qituvchi hammasini panel orqali
+boshqaradi (mavzuni ochish, baholash, e'lon, jonli test).
 
-Har bir fayl mustaqil ishlaydi: internet, o'rnatish yoki qo'shimcha fayl talab qilinmaydi. Taqdimotlar bir-biriga yuqoridagi **M1 … M5** tugmalari orqali bog'langan.
+| Fayl | Mavzu | Hajmi | Holati |
+|---|---|---|---|
+| [`index.html`](index.html) | **M1** — Tadbirkorlik tafakkuri va biznes imkoniyatlar | 18 slayd · 15 test | 📖 o'qish rejimi |
+| [`mavzu-2.html`](mavzu-2.html) | **M2** — Mijoz muammosi asosida biznes g'oya | 24 slayd · 15 test | 📖 o'qish rejimi |
+| [`mavzu-3.html`](mavzu-3.html) | **M3** — Mahsulotni kam xarajat bilan sinash (moliya va kredit) | 15 slayd · 15 test | 📖 o'qish rejimi |
+| [`mavzu-4.html`](mavzu-4.html) | **M4** — Biznesni qonuniy rasmiylashtirish | 18 slayd · 🧩 krossvord | 📖 o'qish rejimi |
+| [`mavzu-5.html`](mavzu-5.html) | **M5** — Soliqlar va hujjatlar | 18 slayd · 🧮 3 masala | 📖 o'qish rejimi |
+| [`mavzu-6.html`](mavzu-6.html) | **M6** — Biznes-model qanday ishlaydi | 18 slayd · 15 test | 🔒 o'qituvchi ochadi |
+| [`mavzu-7.html`](mavzu-7.html) | **M7** — Mijoz kim va unga nima kerak | 18 slayd · 15 test | 🔒 o'qituvchi ochadi |
+| [`mavzu-8.html`](mavzu-8.html) | **M8** — Mahsulotni reklama qilish va mijozga yetkazish | 18 slayd · 15 test | 🔒 o'qituvchi ochadi |
+| [`mavzu-9.html`](mavzu-9.html) | **M9** — Biznes g'oyani taqdim etish va tadbirkorlik yo'lini boshlash | 18 slayd · 15 test | 🔒 o'qituvchi ochadi |
+| [`mavzu-10.html`](mavzu-10.html) | **M10** — Savdo jarayonini tashkil etish va mijozlar bilan ishlash | 18 slayd · 15 test | 🔒 o'qituvchi ochadi |
+| [`mavzu-11.html`](mavzu-11.html) | **M11** — Mahsulot narxini shakllantirish | 18 slayd · 15 test | 🔒 o'qituvchi ochadi |
+| [`mavzu-12.html`](mavzu-12.html) | **M12** — Biznesda pul oqimini rejalashtirish: kirim, chiqim va mablag' jalb qilish | 18 slayd · 15 test | 🔒 o'qituvchi ochadi |
+| [`mavzu-13.html`](mavzu-13.html) | **M13** — Biznesda foyda va zarar tahlili | 18 slayd · 15 test | 🔒 o'qituvchi ochadi |
+| [`mavzu-14.html`](mavzu-14.html) | **M14** — Biznes-reja tuzish va mahsulotni tashqi bozorga olib chiqish | 18 slayd · 15 test | 🔒 o'qituvchi ochadi |
+| [`mavzu-15.html`](mavzu-15.html) | **M15** — Jamoani shakllantirish, xodimlarni boshqarish va xavflarni aniqlash | 18 slayd · 15 test | 🔒 o'qituvchi ochadi |
+
+«Holati» — `config.json` dagi boshlang'ich holat; har bir guruh uchun haqiqiy holatni o'qituvchi panelda belgilaydi
+(pastda «🏆 Reyting tizimi va mavzularni ochish»).
 
 ## Ishga tushirish
 
-Faylni brauzerda oching (ikki marta bosing). Yoki GitHub Pages orqali havola qilib tarqating.
+Sayt GitHub Pages orqali ishlaydi — talabalarga bosh sahifa havolasi (`index.html`) yuboriladi. Talaba saytga
+kirganda kerakli mavzu (hozir ball beradigan eng so'nggi mavzu) darhol o'zi ochiladi — oraliq oynalarsiz.
+Ball, reyting va chat uchun internet kerak (Firebase Realtime Database).
+
+**Muhim:** taqdimotlardagi umumiy kod (`rt-engine.js`, `rt-engine.css`) avtomatik yaratiladi — ularni qo'lda
+tahrirlamang. Manba `_reyting-manba/` papkasida; o'zgartirgandan keyin `python3 _reyting-manba/inject.py`.
 
 ## M1 — Tadbirkorlik tafakkuri (18 slayd)
 
@@ -85,21 +105,22 @@ Ball: 3 ta masala = testning 50 bali (har biri ≈ 16,7).
 
 ## 🏆 Reyting tizimi va mavzularni ochish
 
-**Talaba uchun:** taqdimotni ochganda ism, familiya va guruhini kiritadi — shundan keyin slaydlar ochiladi.
-Yuqori panelda 🏆 tugmasi turadi: u yerda **reyting**, **shaxsiy natija**, **mavzular ro'yxati** va
-**o'qituvchi bo'limi** bor.
+**Talaba uchun:** saytni ochganda ism, familiya, guruh va 4 raqamli PIN bilan ro'yxatdan o'tadi; o'qituvchi
+tasdiqlagach taqdimotlar ochiladi. Yuqori panelda 🏆 tugmasi: **reyting**, **shaxsiy natija**, **mavzular**
+va **o'qituvchi bo'limi**.
 
-**Ballar:**
+**Ball (har mavzu — 100 ball):**
 
-| Harakat | Ball |
+| Qism | Ball |
 |---|---|
-| Har bir yangi slaydni ochish | +2 |
-| Mavzuni to'liq ko'rish | +10 |
-| Testdagi har bir to'g'ri javob | +5 |
-| Krossvorddagi har bir so'z | +4 (to'liq yechilsa +15) |
-| To'g'ri yechilgan masala | +15 |
+| Ko'rilgan slaydlar ulushi | 30 |
+| Faol o'qish vaqti (1 soat va undan ko'p — to'liq) | 20 |
+| Test / krossvord / masalalardagi to'g'ri javoblar ulushi | 50 |
+| Amaliy dars bahosi (o'qituvchi qo'yadi) | baho × 2 (qo'shimcha) |
+| ⚡ Jonli test va ⌨️ Yozuv Marafoni sovrinlari | qo'shimcha |
 
-Har bir ball **bir marta** beriladi — qayta ochish yoki qayta yechish ball qo'shmaydi.
+Har bir slayd va savol faqat **bir marta** sanaladi (qaysi qurilmadan kirilmasin). Mavzu bahosi (1–5) shu
+100 balldan chiqadi: 90+ → 5, 75+ → 4, 60+ → 3, 40+ → 2.
 
 **Ball muddati — yakshanbagacha:** o'qituvchi mavzuni guruhga (yoki hammaga, yoki alohida talabaga) ochgan paytdan
 o'sha haftaning **yakshanba kuni 23:59** gacha (Toshkent vaqti) ball beriladi. Ochilgan vaqt bazada server soati bilan
@@ -108,27 +129,50 @@ Muddat tugagach mavzu **📖 o'qish rejimiga** o'tadi: slaydlarni barcha guruhla
 test/krossvord/masala ishlanmaydi, PDF yuklab/chop etib bo'lmaydi. Topbarda «📖 O'qish rejimi» belgisi turadi,
 talaba mavzuni ochganda ogohlantirish chiqadi. Avval to'plangan ballar saqlanib qoladi.
 `config.json` da `"read": true` qo'yilgan mavzular (hozir M1–M5) va vaqt o'rniga `true` turgan eski yozuvlar ham
-o'qish rejimida. O'qituvchi panelida 🟢 — ball beriladi (muddati bilan), 📖 — o'qish rejimi, 🔒 — yopiq;
-📖 guruhni bosish unga yana yakshanbagacha ball beradi. Guruhiga yopiq mavzuda ball berilmaydi,
-yopiq mavzuning eski nusxasi bazaga qayta yozilmaydi.
-O'qituvchi panelidagi **🔒 Yopiq mavzuda ball olganlar** (Baholash va reyting) adashib ochilgan mavzudagi ballarni
-mavzu + guruh bo'yicha bir bosishda o'chiradi.
+o'qish rejimida. O'qituvchi panelida (👥 Talabalar → 📂 Mavzuni guruhlarga ochish) 🟢 — ball beriladi (muddati bilan),
+📖 — o'qish rejimi, 🔒 — yopiq; 📖 guruhni bosish unga yana yakshanbagacha ball beradi. Guruhiga yopiq mavzuda ball
+berilmaydi, yopiq mavzuning eski nusxasi bazaga qayta yozilmaydi. **🔒 Yopiq mavzuda ball olganlar** (Baholash va
+reyting) adashib ochilgan mavzudagi ballarni mavzu + guruh bo'yicha bir bosishda o'chiradi.
+
+**📋 «Menga nima qoldi?»** — ball beriladigan mavzuda topbarda ⏳ qolgan vaqt (masalan «2 kun») turadi. Bosilsa:
+muddat, ko'rilmagan slaydlar (bosib o'tiladi), o'qish vaqti, test holati («Testga o'tish») va boshqa ochiq mavzular.
+
+**Reyting:** umumiy ro'yxat ball bo'yicha; **«👥 Mening guruhim»** filtri bilan talaba o'zini guruhdoshlari bilan
+solishtiradi (o'rin guruh ichida, yonida umumiy o'rni). O'qituvchi istalgan guruhni tanlaydi. Nik (o'qituvchi
+tasdig'i bilan) va 1–10-o'rindagilar uchun qator foni bor; o'qituvchi istalgan talabaga fon qo'ya oladi.
+
+**O'qituvchi paneli** (🏆 → 🔑 O'qituvchi, Google hisobi bilan kirish):
+- 👥 **Talabalar** — tasdiqlash, guruhlar, nik so'rovlari, mavzularni ochish; ro'yxatlar alifbo tartibida
+  (ism yoki familiya bo'yicha — tanlov tugmasi);
+- 📊 **Baholash va reyting** — mavzular bo'yicha baholar (ism ustuni qotirilgan, mavzu tanlansa amaliy baho
+  bir bosishda 1–5), ball tekshiruvi, CSV;
+- 📢 **E'lon yuborish** — e'lon, so'rovnoma, telefonga bildirishnoma va avtomatik eslatmalar;
+- ⚡ **Jonli test** — Kahoot uslubidagi test.
 
 **Yakuniy testni hammaga qayta ochish:** `_reyting-manba/config.json` dagi `reopen` maydoni, masalan
 `"reopen": {"m1": {"id": "2026-10-19", "until": "2026-10-22T23:59:59+05:00"}}`. Shu `id` dan keyin boshlangan
 urinishlar alohida sanaladi (`prog/<mavzu>/qg/<id>`): `until` gacha har bir talabaga 2 ta yangi ball beriladigan
-urinish. Muddat tugagach odatdagi hisob qaytadi.
-Bitta talabaga alohida — o'qituvchi panelidagi 🔓 tugmasi.
+urinish. Muddat tugagach odatdagi hisob qaytadi. Bitta talabaga alohida — Baholash jadvalidagi 🔓 tugmasi.
 
-**Mavzularning qulfi:** hozircha faqat **M1 ochiq**. M2–M5 fayllari saytda umuman yo'q — ular
-`yopiq-mavzular` shoxchasida saqlanadi, shuning uchun havolani bilgan talaba ham ularni ocholmaydi (404).
-O'qituvchi darsni o'tgach "M2 ni och" desa, mavzu asosiy shoxchaga qaytariladi va sayt yangilanadi.
+**`yopiq-mavzular` shoxchasi** — saytning faqat M1–M9 bor nusxasi (qolgan mavzular fayl sifatida ham yo'q).
 
-**Umumiy reyting:** barcha talabalarning bali bir ro'yxatda ko'rinishi uchun bepul Firebase bazasi ulanadi
-(`_reyting-manba/config.json` dagi `firebase` maydoni). Baza ulanmaguncha har bir talaba faqat o'z natijasini ko'radi.
+**Baza:** Firebase Realtime Database (`_reyting-manba/config.json` dagi `firebase` va `fbWeb`). O'qituvchi Google
+orqali kiradi (Gmail izi `teacherH`), talabalar anonim kalit bilan — har kim faqat o'z yozuviga yoza oladi.
 
-**O'qituvchi kodi:** `terdu2026` (🏆 → O'qituvchi bo'limi) — barcha natijalar va CSV eksport.
+## 🔐 Firebase qoidalari (xavfsiz rejim)
 
+O'qituvchi paneli → 👥 Talabalar → pastdagi **📋 Firebase qoidalari** tugmasi Gmail manzilingiz qo'yilgan tayyor
+qoidalarni beradi: nusxa olib, *console.firebase.google.com → Realtime Database → Rules* ga qo'yiladi va **Publish**.
+
+- **💬 Chat va 🖼 rasmlar:** talaba faqat **yangi** xabar qo'sha oladi — o'z nomidan, tasdiqlangan hisobdan,
+  server vaqti bilan (400 belgigacha). Xabarni o'zgartirish yoki o'chirish — **faqat o'qituvchi**. Istisno —
+  avtomatik tozalash: 1 haftadan eski xabar va rasm, 1 kundan eski video. Rasm/video faqat o'qituvchi ruxsat
+  bergan talabadan qabul qilinadi.
+- **🎮 Arena:** o'yin xonalari odatdagidek ishlaydi, lekin butun arenani yoki uning bo'limini birdaniga
+  o'chirish — faqat o'qituvchi.
+- Talabalar yozuvi (`students/<id>`) — faqat egasi (anonim kalit) va o'qituvchi; `meta` — faqat o'qituvchi.
+
+Qoidalar Firebase emulyatorida tekshirilgan (chat, rasm, arena — 28 ta holat).
 
 ## 🎵 Qo'shiqlar (fon musiqasi)
 
@@ -162,19 +206,22 @@ menga ayting, qo'shib beraman.
 
 ## Tarjima (UZ / ENG)
 
-Uchala taqdimot ham to'liq ikki tilli: slayd matnlari, jadvallar, tugmalar, yordam oynasi va test savollari
+Barcha taqdimotlar to'liq ikki tilli: slayd matnlari, jadvallar, tugmalar, yordam oynasi va test savollari
 inglizcha variantga ega. Tarjimalar HTML fayl ichida (`EN` lug'ati va `QEN` massivi) saqlanadi —
 tugma bosilganda sahifa qayta yuklanmaydi, test javoblari ham saqlanib qoladi.
 
 ## Logotip
 
-Taqdimotlarda universitetning rasmiy gerbi — `logo_tersu.png` — ishlatiladi. Rasm HTML fayl ichiga
-(base64 ko'rinishida) singdirilgan, shuning uchun taqdimotni yolg'iz o'zini yuklab olsangiz yoki
-internetsiz ochsangiz ham logotip joyida turadi.
+Taqdimotlarda universitetning rasmiy gerbi — `logo_tersu.png` — ishlatiladi. U har bir sahifaga alohida
+singdirilmaydi (ilgari har sahifaga 71 KB qo'shilardi): bitta fayl bir marta yuklanadi va keshdan olinadi.
+Logotipni almashtirish uchun `logo_tersu.png` ni yangisi bilan almashtirish yetarli.
 
-Logotip HTML ichiga singdirilgani uchun `logo_tersu.png` faylini almashtirishning o'zi yetarli emas —
-rasm qaytadan HTML fayllarga joylanishi kerak. Yangi logotip kerak bo'lsa, faylni repozitoriyga
-yuklang va shuni aytsangiz, ikkala taqdimotga qayta singdirib beraman.
+## ⚡ Tezlik
+
+Reyting tizimi, chat, musiqa va avatar kodi barcha taqdimotlarda bir xil — u `rt-engine.js` va `rt-engine.css`
+fayllarida turadi (`inject.py` yaratadi) va sahifalarga `?v=<iz>` bilan ulanadi. Brauzer/ilova uni bir marta
+yuklaydi, keyingi mavzularda xotiradan oladi (`sw.js`: versiyali fayllar keshdan darhol). Natijada har bir
+taqdimot ~670 KB (siqilganda ~236 KB) o'rniga ~130 KB (siqilganda ~42 KB).
 
 ## 📲 Telefon ilovasi (PWA)
 
@@ -217,3 +264,29 @@ O'qituvchi e'lon yuborganda, bildirishnomani yoqqan talabalar telefoniga xabar k
   (RFC 8291/8292) bilan yuboradi, eskirgan obunalarni (404/410) o'chiradi. Bildirishnomani `sw.js` ko'rsatadi;
   bosilganda sayt ochiladi (ochiq bo'lsa — o'sha oyna oldinga chiqadi).
 
+### ⏰ Avtomatik eslatmalar
+
+- **Mavzu ochilganda:** o'qituvchi mavzuni guruhga ochsa, o'sha guruh talabalariga «📗 N-mavzu ochildi — ball
+  … yakshanba 23:59 gacha» xabari boradi (hammaga ochilsa — hammaga, bitta talabaga — o'shanga). Panelda
+  «Mavzu guruhga ochilganda … xabar yuborilsin» belgisi bilan o'chiriladi. Hozirgi Worker bilan ishlaydi.
+- **Shanba kechqurun:** har shanba 20:00 da ball muddati ertaga tugaydigan va mavzuni hali to'liq (100 ball)
+  bajarmagan talabalarga «⏳ Ertaga 23:59 da ball muddati tugaydi — 6-mavzu: 40 / 100 ball» eslatmasi boradi.
+  Buning uchun Worker bir marta yangilanadi (v2): panel → 📢 E'lon yuborish → 🔔 → **🔄 Worker kodini yangilash** —
+  Cloudflare'dagi eski kodni joylaysiz, panel kalitlaringizni saqlab yangi kodni beradi; uni Cloudflare'ga qo'yib
+  **Deploy**, so'ng *Settings → Triggers → Cron Triggers* ga `0 15 * * 6` (shanba 20:00, Toshkent) qo'shiladi.
+  «⏰ Eslatmani hozir yuborish» — qo'lda yuborish.
+
+## 🧪 Avtomatik sinovlar (GitHub Actions)
+
+`tests/` papkasida brauzer sinovlari bor (Playwright, Chromium). Ular haqiqiy sahifalarni soxta (xotiradagi)
+Firebase bilan ochib tekshiradi: kirish va yo'naltirish, o'qish rejimi va ball muddati, «Menga nima qoldi?»,
+reyting (guruh filtri, nik, qator foni), o'qituvchi paneli (baholash, alifbo, mavzu ochish, push), chat;
+shuningdek bildirishnoma Worker'ining eslatma mantiqi (haqiqiy shifrlash bilan).
+
+```bash
+cd tests && npm install && npx playwright install chromium   # bir marta
+npm test                                                      # hammasi
+```
+
+Har bir `push` va pull request'da `.github/workflows/tests.yml` ularni GitHub'da avtomatik ishga tushiradi —
+biror narsa buzilsa, GitHub'da qizil ❌ ko'rinadi.
