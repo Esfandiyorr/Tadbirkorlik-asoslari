@@ -3571,8 +3571,54 @@ function pushEnv(){
   if(!pushOk()) return ios&&!app?"ios":"nosupport";
   return Notification.permission;
 }
+/* saytni nimada ochgan: o'rnatilgan ilova / Chrome / Samsung Internet / Telegram, Instagram ichidagi brauzer / kompyuter */
+function pushWhere(){
+  var u=navigator.userAgent||"", app=(window.matchMedia&&matchMedia("(display-mode: standalone)").matches)||navigator.standalone===true;
+  if(/; wv\)|Instagram|FBAN|FBAV|Telegram/i.test(u)) return "inapp";
+  if(app&&/Android/i.test(u)) return "app";
+  if(/SamsungBrowser/i.test(u)) return "samsung";
+  if(/Android/i.test(u)) return "chrome";
+  return "pc";
+}
+/* 🚫 bloklangan bildirishnomani ochish — qadamma-qadam, saytni ochgan joyga qarab (boshqalari «Boshqa holat» da) */
+function pushFixData(){ return {
+  app:[T("📲 TerDU ilovasida","📲 In the TerDU app"),[
+    T("Telefon <b>Sozlamalar</b> → <b>Ilovalar</b> → <b>TerDU</b> ni oching (yoki TerDU belgisini bosib turing → <b>ⓘ Ilova haqida</b>).","Open phone <b>Settings</b> → <b>Apps</b> → <b>TerDU</b> (or long-press the TerDU icon → <b>ⓘ App info</b>)."),
+    T("<b>Bildirishnomalar</b> → hammasini <b>yoqing</b>.","<b>Notifications</b> → turn them all <b>on</b>."),
+    T("Yana bloklangan desa: <b>Chrome</b> ni oching → <b>⋮</b> → <b>Sozlamalar</b> → <b>Sayt sozlamalari</b> → <b>Bildirishnomalar</b> → «Bloklangan» ro'yxatidan saytimizni tanlang → <b>Ruxsat berish</b>.","Still blocked: open <b>Chrome</b> → <b>⋮</b> → <b>Settings</b> → <b>Site settings</b> → <b>Notifications</b> → pick our site under «Blocked» → <b>Allow</b>."),
+    T("TerDU'ga qaytib, <b>🔄 Tekshirish</b> ni bosing.","Come back to TerDU and press <b>🔄 Check</b>.")]],
+  chrome:[T("🌐 Chrome brauzerida","🌐 In Chrome"),[
+    T("Manzil satrining chap tomonidagi belgini (🔒 yoki ⚙) bosing → <b>Ruxsatlar</b>.","Tap the icon at the left of the address bar (🔒 or ⚙) → <b>Permissions</b>."),
+    T("<b>Bildirishnomalar</b> → <b>Ruxsat berish</b>. «<b>Ruxsatlarni tiklash</b>» tugmasi bo'lsa — uni bosing, keyin shu yerda <b>🔔 Yoqish</b>.","<b>Notifications</b> → <b>Allow</b>. If there is «<b>Reset permissions</b>» — tap it, then <b>🔔 Turn on</b> here."),
+    T("Yoki: <b>⋮</b> → <b>Sozlamalar</b> → <b>Sayt sozlamalari</b> → <b>Bildirishnomalar</b> → «Bloklangan» dan saytimizni tanlang → <b>Ruxsat berish</b>.","Or: <b>⋮</b> → <b>Settings</b> → <b>Site settings</b> → <b>Notifications</b> → pick our site under «Blocked» → <b>Allow</b>."),
+    T("Baribir bo'lmasa: telefon <b>Sozlamalar</b> → <b>Ilovalar</b> → <b>Chrome</b> → <b>Bildirishnomalar</b> yoqilgan bo'lsin.","Still not: phone <b>Settings</b> → <b>Apps</b> → <b>Chrome</b> → <b>Notifications</b> must be on.")]],
+  samsung:[T("🌐 Samsung Internet'da","🌐 In Samsung Internet"),[
+    T("<b>≡</b> (menyu) → <b>Sozlamalar</b> → <b>Saytlar va yuklab olishlar</b> → <b>Bildirishnomalar</b>.","<b>≡</b> (menu) → <b>Settings</b> → <b>Sites and downloads</b> → <b>Notifications</b>."),
+    T("Saytimizni toping → <b>Ruxsat berish</b>; ro'yxatda bo'lmasa — bildirishnomalar umumiy kalitini yoqing.","Find our site → <b>Allow</b>; if it is not there — turn the main switch on."),
+    T("Yoki saytni <b>Chrome</b> da oching — u yerda osonroq.","Or open the site in <b>Chrome</b> — it is easier there.")]],
+  inapp:[T("💬 Telegram / Instagram ichida ochilgan","💬 Opened inside Telegram / Instagram"),[
+    T("Bu ichki oynada bildirishnoma ishlamaydi.","Notifications do not work in this built-in window."),
+    T("Yuqoridagi <b>⋮</b> → <b>Brauzerda ochish</b> (Chrome) ni bosing.","Tap <b>⋮</b> at the top → <b>Open in browser</b> (Chrome)."),
+    T("Chrome'da ochilgan saytda <b>🔔 Yoqish</b> → <b>Ruxsat berish</b>.","In Chrome press <b>🔔 Turn on</b> → <b>Allow</b>.")]],
+  pc:[T("💻 Kompyuterda","💻 On a computer"),[
+    T("Manzil satridagi 🔒 → <b>Sayt sozlamalari</b> (yoki «Ruxsatlar»).","The 🔒 in the address bar → <b>Site settings</b> (or «Permissions»)."),
+    T("<b>Bildirishnomalar</b> → <b>Ruxsat berish</b>, so'ng sahifani yangilang.","<b>Notifications</b> → <b>Allow</b>, then reload the page.")]]
+}; }   /* til almashganda ham to'g'ri bo'lsin — har safar yasaladi */
+function pushFixHtml(){
+  var PUSH_FIX=pushFixData(), w=pushWhere(), main=PUSH_FIX[w]||PUSH_FIX.chrome;
+  var ol=function(x){ return '<ol class="rt-pfix">'+x[1].map(function(li){ return '<li>'+li+'</li>'; }).join("")+'</ol>'; };
+  return '<b class="rt-pfix-h">'+main[0]+':</b>'+ol(main)+
+    '<details class="rt-pfix-o"><summary>'+T("Boshqa holat (ilova, Chrome, Samsung, Telegram, kompyuter)","Other cases (app, Chrome, Samsung, Telegram, computer)")+'</summary>'+
+      ["app","chrome","samsung","inapp","pc"].filter(function(k){ return k!==w; }).map(function(k){ return '<b class="rt-pfix-h">'+PUSH_FIX[k][0]+':</b>'+ol(PUSH_FIX[k]); }).join("")+'</details>';
+}
+var PB_LIVE=null;
 function pushBox(box,where){
   if(!box||!S||!approved()) { if(box) box.innerHTML=""; return; }
+  if(!PB_LIVE){ PB_LIVE=1;          /* sozlamadan qaytganda (ruxsat o'zgargan bo'lsa) — qayta chizish */
+    var redo=function(){ var a=document.getElementById("hmPush"), c=document.getElementById("cvPush"); if(a) pushBox(a,"home"); if(c) pushBox(c,"cv"); };
+    var last=pushEnv();
+    document.addEventListener("visibilitychange",function(){ if(!document.hidden&&pushEnv()!==last){ last=pushEnv(); redo(); } });
+    try{ navigator.permissions.query({name:"notifications"}).then(function(q){ q.onchange=function(){ last=pushEnv(); redo(); }; },function(){}); }catch(e){} }
   pushCfg(function(c){
     var env=pushEnv(), home=where==="home", h="";
     var wrap=function(cls,ic,title,txt,btns){ return '<div class="rt-pushbox '+cls+(home?' home':'')+'"><span class="ic">'+ic+'</span><div class="t"><b>'+title+'</b>'+(txt?'<small>'+txt+'</small>':'')+'</div>'+(btns||'')+'</div>'; };
@@ -3580,11 +3626,12 @@ function pushBox(box,where){
     else if(env==="ios") h=wrap("warn","📱",T("iPhone: bildirishnoma faqat o'rnatilgan ilovada","iPhone: notifications work only in the installed app"),
       T("Safari → ⬆️ Ulashish → «Bosh ekranga qo'shish». Keyin TerDU ilovasini ochib, shu yerda «🔔 Yoqish» ni bosing (iOS 16.4 va undan yangi).","Safari → ⬆️ Share → «Add to Home Screen». Then open the TerDU app and press «🔔 Turn on» here (iOS 16.4+)."),
       window.TerduPWA&&TerduPWA.help?'<button type="button" class="btn sm" data-pb="help">📲 '+T("Qanday?","How?")+'</button>':'');
-    else if(env==="nosupport") h=wrap("warn","⚠️",T("Bu brauzer bildirishnomani qo'llamaydi","This browser does not support notifications"),T("Saytni Chrome'da oching yoki «📲 Ilovani yuklash» bilan ilovani o'rnating.","Open the site in Chrome or install the app with «📲 Install the app»."));
-    else if(env==="denied") h=wrap("bad","🚫",T("Bildirishnoma brauzerda bloklangan","Notifications are blocked in the browser"),
-      T("Android Chrome: manzil satridagi 🔒 (yoki ⓘ) → <b>Ruxsatlar</b> → <b>Bildirishnomalar</b> → Ruxsat berish, so'ng sahifani yangilang. O'rnatilgan ilovada: telefon <b>Sozlamalar → Ilovalar → TerDU → Bildirishnomalar</b> → yoqing.",
-        "Android Chrome: the 🔒 (or ⓘ) in the address bar → <b>Permissions</b> → <b>Notifications</b> → Allow, then reload. In the installed app: phone <b>Settings → Apps → TerDU → Notifications</b> → on."),
-      '<button type="button" class="btn sm" data-pb="reload">🔄 '+T("Yangilash","Reload")+'</button>');
+    else if(env==="nosupport") h=wrap("warn","⚠️",T("Bu oynada bildirishnoma ishlamaydi","Notifications do not work in this window"),
+      pushWhere()==="inapp"?T("Sayt Telegram/Instagram ichida ochilgan: yuqoridagi <b>⋮</b> → <b>Brauzerda ochish</b> (Chrome), so'ng <b>🔔 Yoqish</b>.","The site is open inside Telegram/Instagram: <b>⋮</b> at the top → <b>Open in browser</b> (Chrome), then <b>🔔 Turn on</b>.")
+        :T("Saytni Chrome'da oching yoki «📲 Ilovani yuklash» bilan ilovani o'rnating.","Open the site in Chrome or install the app with «📲 Install the app»."));
+    else if(env==="denied") h=wrap("bad","🚫",T("Bildirishnoma telefoningizda bloklangan","Notifications are blocked on your phone"),
+      T("Sayt o'zi ochib bera olmaydi — telefon sozlamasida bir marta ruxsat bering:","The site cannot unblock itself — allow it once in the phone settings:")+'<span class="rt-pfix-w">'+pushFixHtml()+'</span>',
+      '<button type="button" class="btn sm" data-pb="recheck">🔄 '+T("Tekshirish","Check")+'</button>');
     else if(env==="granted") h=wrap("on","🔔",T("Bildirishnomalar yoqilgan ✅","Notifications are on ✅"),home?'':T("O'qituvchi e'lon yozsa, telefoningizga xabar keladi.","When the teacher posts an announcement, your phone gets a notice."),
       '<button type="button" class="btn sm" data-pb="test">🧪 '+T("Sinov","Test")+'</button>');
     else h=wrap("ask","🔔",T("E'lonlar telefoningizga kelsin","Get announcements on your phone"),T("O'qituvchi yangi e'lon yozsa yoki yangi mavzu ochsa, telefoningizga bildirishnoma keladi.","When the teacher posts an announcement or opens a new topic, your phone gets a notification."),
@@ -3595,7 +3642,7 @@ function pushBox(box,where){
     b.onclick=function(){
       var k=b.dataset.pb;
       if(k==="help"){ TerduPWA.help(); return; }
-      if(k==="reload"){ location.reload(); return; }
+      if(k==="recheck"){ if(pushEnv()==="denied") toast(T("Hali bloklangan — yuqoridagi qadamlarni bajaring","Still blocked — follow the steps above")); else pushBox(box,where); return; }
       if(k==="test"){ b.disabled=true;
         navigator.serviceWorker.ready.then(function(reg){ return reg.showNotification("🔔 TerDU",{body:T("Bildirishnomalar ishlayapti ✅ E'lonlar shu tarzda keladi.","Notifications work ✅ Announcements arrive like this."),
           icon:"fayllar/ilova/icon-192.png",badge:"fayllar/ilova/icon-192.png",tag:"terdu-test"}); })

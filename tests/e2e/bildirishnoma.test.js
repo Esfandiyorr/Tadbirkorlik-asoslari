@@ -42,8 +42,17 @@ const FAKE=()=>{ /* PushManager taqlidi: subscribe/getSubscription — soxta, le
   await D.context().addInitScript(()=>{ window.__perm="denied"; Object.defineProperty(Notification,"permission",{configurable:true,get:()=>"denied"}); });
   await D.goto(H.SITE+"/index.html"); await ready(D);
   const ds=await D.evaluate(()=>document.querySelector("#hmPush").innerText.replace(/\s+/g," "));
-  ck("bloklangan: qanday ochish (Ruxsatlar → Bildirishnomalar)",/bloklangan/.test(ds)&&/Ruxsatlar/.test(ds)&&/Bildirishnomalar/.test(ds),ds.slice(0,160));
+  ck("bloklangan: qadamma-qadam yo'riqnoma (Ruxsatlar → Bildirishnomalar), «Boshqa holat»",/bloklangan/.test(ds)&&/Ruxsatlar/.test(ds)&&/Bildirishnomalar/.test(ds)&&/Boshqa holat/.test(ds)&&!!(await D.$('#hmPush [data-pb="recheck"]')),ds.slice(0,200));
   await D.screenshot({path:"push_denied.png"});
+  /* telefon (Android Chrome) va o'rnatilgan ilova uchun mos yo'riqnoma */
+  const DM=await H.mk(b,H.stu("sB","Bobur","Karimov","AP-223"),{mobile:true,vp:{width:390,height:844},ua:"Mozilla/5.0 (Linux; Android 14; SM-A546E) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Mobile Safari/537.36"});
+  await DM.context().addInitScript(()=>{ window.__perm="denied"; Object.defineProperty(Notification,"permission",{configurable:true,get:()=>"denied"}); });
+  await DM.goto(H.SITE+"/index.html"); await ready(DM);
+  const dm=await DM.evaluate(()=>document.querySelector("#hmPush").innerText.replace(/\s+/g," "));
+  ck("Android Chrome: «🌐 Chrome brauzerida» qadamlari birinchi",/Chrome brauzerida:/.test(dm.split("Boshqa holat")[0])&&/Ruxsatlarni tiklash/.test(dm),dm.slice(0,220));
+  await DM.screenshot({path:"push_denied_m.png",fullPage:false});
+  await DM.evaluate(()=>{ Object.defineProperty(Notification,"permission",{configurable:true,get:()=>"default"}); document.dispatchEvent(new Event("visibilitychange")); }); await sleep(800);
+  ck("sozlamadan qaytganda (ruxsat ochilgan) — blok o'zi «🔔 Yoqish» ga o'tadi",await DM.evaluate(()=>!!document.querySelector('#hmPush [data-pb="on"]')));
   /* 4) o'qituvchi: e'lon → natija */
   const pushes=[]; let resp={ok:true,total:3,sent:2,failed:1,removed:1};
   const T=await H.mk(b,H.stu("sI","Isfandiyor","Sayfiddinov","T-123"),{tc:true}); T.on("dialog",x=>x.accept());
