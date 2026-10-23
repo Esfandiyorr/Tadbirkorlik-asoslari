@@ -10,7 +10,8 @@ let fails=0; const ck=(n,c,x)=>{ if(!c) fails++; console.log((c?"OK  ":"FAIL")+"
 const vk=await subtle.generateKey({name:"ECDSA",namedCurve:"P-256"},true,["sign","verify"]);
 const vpub=b64u(new Uint8Array(await subtle.exportKey("raw",vk.publicKey))), vpriv=(await subtle.exportKey("jwk",vk.privateKey)).d;
 let code=fs.readFileSync(process.argv[2]||path.join(HERE,"..","fayllar","push-worker.js"),"utf8");
-const rep={VAPID_PUB:vpub,VAPID_PRIV:vpriv,DB:"https://db.test",API_KEY:"AK",TEACHER_H:"HH",SITE:"https://site.test/kurs/"};
+const TH=[...new Uint8Array(await subtle.digest("SHA-256",new TextEncoder().encode("teacher@gmail.com")))].map(x=>x.toString(16).padStart(2,"0")).join("");
+const rep={VAPID_PUB:vpub,VAPID_PRIV:vpriv,DB:"https://db.test",API_KEY:"AK",TEACHER_H:TH,SITE:"https://site.test/kurs/"};
 for(const k in rep) code=code.split("__"+k+"__").join(rep[k]);
 /* obunalar: har biri haqiqiy P-256 kalit juftligi bilan */
 async function sub(){ const k=await subtle.generateKey({name:"ECDH",namedCurve:"P-256"},true,["deriveBits"]); const a=crypto.getRandomValues(new Uint8Array(16));
@@ -28,9 +29,12 @@ const students={
   sD:{status:"pending",group:"AP-223",push:{k1:subs.D1.s}},                           /* tasdiqlanmagan */
   sE:{status:"ok",group:"T-123",topics:{m7:{p:10}},push:{k1:subs.E1.s}}               /* alohida ochilgan 7-mavzu */
 };
-const posts=[];
+const posts=[], dels=[]; let GONE="";
 globalThis.fetch=async(u,o)=>{
   u=String(u);
+  if(u.startsWith("https://identitytoolkit.googleapis.com/")){ const b=JSON.parse(o.body); return new Response(JSON.stringify(b.idToken==="TOK"?{users:[{email:"Teacher@gmail.com",emailVerified:true}]}:{users:[{email:"boshqa@gmail.com",emailVerified:true}]})); }
+  if(u.startsWith("https://db.test/students/")&&o&&o.method==="DELETE"){ dels.push(u); return new Response("null"); }
+  if(GONE&&u===GONE){ posts.push({u,o}); return new Response("",{status:410}); }
   if(u==="https://db.test/meta/access.json") return new Response(JSON.stringify(access));
   if(u==="https://db.test/students.json") return new Response(JSON.stringify(students));
   if(u.startsWith("https://push.test/")){ posts.push({u,o}); return new Response("",{status:201}); }
@@ -65,4 +69,19 @@ ck("natija: 2 talaba, 3 qurilma",r.students===2&&r.sent===3,JSON.stringify(r));
 /* muddatga 36 soatdan ko'p qolgan bo'lsa (masalan juma) — eslatma yo'q */
 posts.length=0; Date.now=()=>satEve-2*24*H; await mod.default.scheduled({}, {}, {waitUntil:p=>{P=p;}}); await P;
 ck("juma kuni ishga tushsa — hech kimga ketmaydi",posts.length===0,posts.length);
-Date.now=realNow; console.log("FAILS:",fails);
+Date.now=realNow;
+/* 📢 e'lon (o'qituvchi tokeni bilan) — hamma tasdiqlangan obunachilarga, eskirgan obuna (410) bazadan o'chiriladi */
+posts.length=0; GONE=subs.C1.s.e;
+const post=b=>mod.default.fetch(new Request("https://w.test/",{method:"POST",body:JSON.stringify(b)}));
+let rr=await post({tok:"BOSHQA",title:"x",body:"y"});
+ck("begona token — rad etiladi (403)",rr.status===403&&posts.length===0,rr.status);
+rr=await (await post({tok:"TOK",title:"📢 Yangi e'lon",body:"Ertaga dars 09:00 da",url:"https://site.test/kurs/index.html",tag:"t1"})).json();
+const to2=posts.map(p=>Object.keys(subs).find(k=>subs[k].s.e===p.u)).sort();
+ck("e'lon: barcha tasdiqlangan obunachilarga (A1, A2, B1, C1, E1), tasdiqlanmagan D1 ga yo'q",JSON.stringify(to2)==='["A1","A2","B1","C1","E1"]',JSON.stringify(to2));
+const mb=await dec(subs.B1,posts.find(p=>p.u===subs.B1.s.e).o.body);
+ck("e'lon matni shifrdan to'g'ri ochildi",mb.t==="📢 Yangi e'lon"&&mb.b==="Ertaga dars 09:00 da"&&mb.u==="https://site.test/kurs/index.html",JSON.stringify(mb));
+ck("natija: 5 tadan 4 tasi yetdi, 1 eskirgan obuna o'chirildi",rr.total===5&&rr.sent===4&&rr.removed===1&&dels.length===1&&/students\/sC\/push\/k1\.json\?auth=TOK/.test(dels[0]),JSON.stringify(rr)+" "+dels[0]);
+posts.length=0; GONE="";
+rr=await (await post({tok:"TOK",title:"🧪 Sinov",body:"z",only:["sB"]})).json();
+ck("«🧪 Sinov» (only) — faqat shu talabaga",rr.total===1&&posts.length===1&&posts[0].u===subs.B1.s.e,JSON.stringify(rr));
+console.log("FAILS:",fails);

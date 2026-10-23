@@ -256,8 +256,14 @@ ism, familiya va PIN bilan **🔑 Kirish** qiladi; ballari bazadan tiklanadi.
 
 O'qituvchi e'lon yuborganda, bildirishnomani yoqqan talabalar telefoniga xabar keladi (ilova yopiq bo'lsa ham).
 
-- **Talaba:** saytni (ilovani) ochganda pastda «🔔 E'lonlardan darhol xabardor bo'ling» taklifi chiqadi → **Yoqish**.
+- **Talaba qayerdan yoqadi:** **fan sahifasida** (bosh sahifa) «🔔 E'lonlar telefoningizga kelsin → **Yoqish**» bloki,
+  yoki 🏆 → **«Mening ma'lumotim» → 🔔 Telefonga bildirishnoma** (doim turadi). Blok holatni ko'rsatadi: o'chiq / yoqilgan
+  («🧪 Sinov» — telefon bildirishnomani ko'rsata olishini tekshiradi) / brauzerda bloklangan (qanday ochish:
+  manzil satridagi 🔒 → Ruxsatlar → Bildirishnomalar; ilovada — telefon Sozlamalar → Ilovalar → TerDU → Bildirishnomalar) /
+  iPhone'da ilova o'rnatilmagan. Sahifa ochilganda pastda bir martalik taklif ham chiqadi.
   Android'da brauzerda ham, ilovada ham ishlaydi; iPhone'da faqat **bosh ekranga o'rnatilgan ilovada** (iOS 16.4+).
+- **O'qituvchi e'lon yuborganda** natija ko'rinadi: «📲 Bildirishnoma: 12 / 15 qurilmaga yetdi», hech kim obuna bo'lmagan
+  bo'lsa — «Hech bir talaba bildirishnomani yoqmagan», sozlanmagan bo'lsa — «🔕 … sozlanmagan», Worker javob bermasa — ogohlantirish.
 - **O'qituvchi (bir marta sozlanadi, bepul):** panel → 📢 **E'lon yuborish** → 🔔 **Telefonga bildirishnoma**:
   1. «🔑 Kalit va kodni yaratish» — kalit juftligi brauzerda yaratiladi, ochiq kalit `meta/push/pub` ga yoziladi,
      maxfiy kalit faqat tayyor kod ichida chiqadi (bazaga yozilmaydi);
