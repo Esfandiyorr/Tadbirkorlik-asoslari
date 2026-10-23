@@ -768,3 +768,30 @@ body.rt-ro .qt-start::after,body.rt-ro .xw-start::after,body.rt-ro .ms-start::af
 .rt-acc-ro{margin:0 0 8px;padding:8px 12px;border:1px dashed #d97706;border-radius:10px;background:rgba(245,158,11,.1);font-size:13.5px}
 body.rt-ro #btnPrint{display:none!important}
 @media print{body.rt-ro{display:none!important}}
+/* 📊 baholash: ism ustuni va sarlavha qotirilgan, mavzu tanlash, bir bosishda baho */
+.rt-nmsort,.rt-mktops{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:8px 0}
+.rt-nmsort>span,.rt-mktops>span{font-size:13px;font-weight:800;color:var(--muted);margin-right:2px}
+.rt-nmsort .rt-gchip,.rt-mktops .rt-gchip{padding:5px 11px;font-size:12.5px}
+.rt-mkone{margin:0 0 8px;font-weight:600}
+.rt-mwrap{position:relative;z-index:0;max-height:72vh;overflow:auto;border:1px solid var(--line);border-radius:12px;overscroll-behavior:contain}
+.rt-mwrap .rt-mtab{overflow:visible!important}   /* aks holda qotirilgan ustun/sarlavha ishlamaydi */
+.rt-mtab td{background:var(--panel);vertical-align:middle}
+.rt-mtab thead th{position:sticky;top:0;z-index:3}
+.rt-mtab th:first-child,.rt-mtab th:last-child{border-radius:0}
+.rt-mtab .rt-mstk{position:sticky;left:0;z-index:2;min-width:190px;max-width:260px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:inset -1px 0 0 var(--line),4px 0 8px -6px rgba(15,23,42,.25)}
+.rt-mtab thead th.rt-mstk{z-index:4}
+.rt-mtab td.rt-mstk b{font-weight:800}
+.rt-mno{display:inline-block;min-width:22px;margin-right:6px;color:var(--muted);font-size:12px;font-weight:700;text-align:right}
+.rt-mtab tr.rt-grow td{position:static}
+.rt-mtab .rt-gl{position:sticky;left:12px}
+.rt-mtab tbody tr:not(.rt-grow):hover td{background:color-mix(in srgb,var(--blue) 7%,var(--panel))}
+.rt-mtab.one td{padding:9px 10px}
+.rt-mkpick{display:inline-flex;gap:4px;align-items:center}
+.rt-mkb{width:30px;height:30px;border:1.5px solid var(--line);border-radius:8px;background:var(--panel2);color:var(--ink);font:inherit;font-weight:800;font-size:14px;cursor:pointer;padding:0}
+.rt-mkb:hover{border-color:var(--green)}
+.rt-mkb.on{color:#fff;border-color:transparent}
+.rt-mkb.on.b5{background:#16a34a}.rt-mkb.on.b4{background:#2563eb}.rt-mkb.on.b3{background:#d97706}.rt-mkb.on.b2,.rt-mkb.on.b1{background:#dc2626}
+.rt-mkb.x{color:var(--muted);font-size:12px}
+.rt-mkpop{position:fixed;z-index:170;display:flex;flex-direction:column;gap:6px;padding:8px 10px;border:1px solid var(--line);border-radius:12px;background:var(--panel);box-shadow:0 10px 30px rgba(15,23,42,.25)}
+.rt-mkpop>b{font-size:12px;color:var(--muted);max-width:240px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media(max-width:560px){.rt-mtab .rt-mstk{min-width:118px;max-width:140px;white-space:normal;overflow-wrap:anywhere;line-height:1.25}.rt-mkb{width:27px;height:27px;font-size:13px}.rt-mwrap{max-height:68vh}}

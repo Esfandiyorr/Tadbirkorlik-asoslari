@@ -1149,6 +1149,33 @@ body.rt-ro .qt-start::after,body.rt-ro .xw-start::after,body.rt-ro .ms-start::af
 .rt-acc-ro{margin:0 0 8px;padding:8px 12px;border:1px dashed #d97706;border-radius:10px;background:rgba(245,158,11,.1);font-size:13.5px}
 body.rt-ro #btnPrint{display:none!important}
 @media print{body.rt-ro{display:none!important}}
+/* 📊 baholash: ism ustuni va sarlavha qotirilgan, mavzu tanlash, bir bosishda baho */
+.rt-nmsort,.rt-mktops{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:8px 0}
+.rt-nmsort>span,.rt-mktops>span{font-size:13px;font-weight:800;color:var(--muted);margin-right:2px}
+.rt-nmsort .rt-gchip,.rt-mktops .rt-gchip{padding:5px 11px;font-size:12.5px}
+.rt-mkone{margin:0 0 8px;font-weight:600}
+.rt-mwrap{position:relative;z-index:0;max-height:72vh;overflow:auto;border:1px solid var(--line);border-radius:12px;overscroll-behavior:contain}
+.rt-mwrap .rt-mtab{overflow:visible!important}   /* aks holda qotirilgan ustun/sarlavha ishlamaydi */
+.rt-mtab td{background:var(--panel);vertical-align:middle}
+.rt-mtab thead th{position:sticky;top:0;z-index:3}
+.rt-mtab th:first-child,.rt-mtab th:last-child{border-radius:0}
+.rt-mtab .rt-mstk{position:sticky;left:0;z-index:2;min-width:190px;max-width:260px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:inset -1px 0 0 var(--line),4px 0 8px -6px rgba(15,23,42,.25)}
+.rt-mtab thead th.rt-mstk{z-index:4}
+.rt-mtab td.rt-mstk b{font-weight:800}
+.rt-mno{display:inline-block;min-width:22px;margin-right:6px;color:var(--muted);font-size:12px;font-weight:700;text-align:right}
+.rt-mtab tr.rt-grow td{position:static}
+.rt-mtab .rt-gl{position:sticky;left:12px}
+.rt-mtab tbody tr:not(.rt-grow):hover td{background:color-mix(in srgb,var(--blue) 7%,var(--panel))}
+.rt-mtab.one td{padding:9px 10px}
+.rt-mkpick{display:inline-flex;gap:4px;align-items:center}
+.rt-mkb{width:30px;height:30px;border:1.5px solid var(--line);border-radius:8px;background:var(--panel2);color:var(--ink);font:inherit;font-weight:800;font-size:14px;cursor:pointer;padding:0}
+.rt-mkb:hover{border-color:var(--green)}
+.rt-mkb.on{color:#fff;border-color:transparent}
+.rt-mkb.on.b5{background:#16a34a}.rt-mkb.on.b4{background:#2563eb}.rt-mkb.on.b3{background:#d97706}.rt-mkb.on.b2,.rt-mkb.on.b1{background:#dc2626}
+.rt-mkb.x{color:var(--muted);font-size:12px}
+.rt-mkpop{position:fixed;z-index:170;display:flex;flex-direction:column;gap:6px;padding:8px 10px;border:1px solid var(--line);border-radius:12px;background:var(--panel);box-shadow:0 10px 30px rgba(15,23,42,.25)}
+.rt-mkpop>b{font-size:12px;color:var(--muted);max-width:240px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media(max-width:560px){.rt-mtab .rt-mstk{min-width:118px;max-width:140px;white-space:normal;overflow-wrap:anywhere;line-height:1.25}.rt-mkb{width:27px;height:27px;font-size:13px}.rt-mwrap{max-height:68vh}}
 /* ================== MUSIQA PLEYERI ================== */
 #mzTab{position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:70;
   background:linear-gradient(135deg,var(--violet),var(--pink));color:#fff;border:none;
@@ -3890,11 +3917,26 @@ function strayGroups(okl){
   });
   return out;
 }
+/* 🔤 o'qituvchi ro'yxatlari alifbo tartibida: ism (yoki familiya) bo'yicha — o'qituvchi tanlaydi, brauzerda eslab qolinadi.
+   Ism-familiya ham shu tartibda yoziladi (familiya bo'yicha bo'lsa — «Familiya Ism») */
+var NM_SORT="n"; try{ NM_SORT=localStorage.getItem("terdu_nmsort")==="s"?"s":"n"; }catch(e){}
+function nmKey(v){ return String(v||"").toLowerCase().replace(/[ʻʼ'‘’`]/g,"").trim(); }
+function nmFull(x){ return NM_SORT==="s"?((x.surname||"")+" "+(x.name||"")).trim():((x.name||"")+" "+(x.surname||"")).trim(); }
+function nmCmp(a,b){
+  var f=NM_SORT==="s"?["surname","name"]:["name","surname"];
+  for(var i=0;i<2;i++){ var c=nmKey(a[f[i]]).localeCompare(nmKey(b[f[i]]),"uz"); if(c) return c; }
+  return 0;
+}
+function nmSortHtml(){
+  return '<div class="rt-nmsort"><span>🔤 '+T("Alifbo tartibi:","Alphabetical by:")+'</span>'+
+    '<button type="button" class="rt-gchip rt-nms'+(NM_SORT==="n"?" on":"")+'" data-v="n">'+T("Ism bo'yicha","First name")+'</button>'+
+    '<button type="button" class="rt-gchip rt-nms'+(NM_SORT==="s"?" on":"")+'" data-v="s">'+T("Familiya bo'yicha","Surname")+'</button></div>';
+}
 function groupsOf(list){
   var by={}, out=[];
   list.forEach(function(x){ var g=gkey(x.group); (by[g]=by[g]||[]).push(x); });
   Object.keys(by).sort().forEach(function(g){
-    by[g].sort(function(a,b){ return (b.total||0)-(a.total||0); });
+    by[g].sort(nmCmp);
     out.push({g:g,list:by[g]});
   });
   return out;
@@ -3992,7 +4034,7 @@ function tcAct(id,st,btn){
 }
 function tcRow(x,btns){
   var av=avgMark(x);
-  return '<tr><td><span class="rt-tav">'+avHtml(x,{size:28})+'</span><b>'+esc(x.name)+" "+esc(x.surname)+'</b>'+
+  return '<tr><td><span class="rt-tav">'+avHtml(x,{size:28})+'</span><b>'+esc(nmFull(x))+'</b>'+
       '<div style="font-size:11.5px;color:var(--muted)">'+esc(x.email||"")+
         '</div></td>'+
     '<td>'+esc(x.group)+'</td>'+
@@ -4097,8 +4139,8 @@ function audTopic(t,c,sm,st){
   return {id:t.id,pts:pts,seen:m.seen,sn:M.slides,q:m.q,qn:M.quiz,t:y.t||0,qa:+c.qa||0,f:+c.f||0,dev:ndev,open:op,red:red,yel:yel};
 }
 function audHtml(list){
-  var opts='<option value="">—</option>'+list.slice().sort(function(a,b){ return (b.total||0)-(a.total||0); }).map(function(x){
-    return '<option value="'+esc(x.id)+'"'+(x.id===AUD.id?" selected":"")+'>'+esc(x.surname+" "+x.name)+' · '+esc(x.group||"")+' · '+fmtP(x.total||0)+' '+T("ball","pts")+'</option>'; }).join("");
+  var opts='<option value="">—</option>'+list.slice().sort(nmCmp).map(function(x){
+    return '<option value="'+esc(x.id)+'"'+(x.id===AUD.id?" selected":"")+'>'+esc(nmFull(x))+' · '+esc(x.group||"")+' · '+fmtP(x.total||0)+' '+T("ball","pts")+'</option>'; }).join("");
   var h='<div class="rt-sec rt-aud"><h4>🔍 '+T("Talaba ballini tekshirish","Check a student's points")+'</h4>'+
     '<p class="rt-note" style="margin:0 0 8px">'+T("Ball nimadan yig'ilganini va sayt o'zi hech qachon yozmaydigan (qo'lda qo'shilgan) yozuvlarni ko'rsatadi.","Shows what the points are made of and any records the site itself never writes (added by hand).")+'</p>'+
     '<div class="rt-khrow"><label>'+T("Talaba","Student")+' <select id="audSel">'+opts+'</select></label></div>';
@@ -4277,7 +4319,7 @@ function fixTopic(k,V,Sx){
 }
 function fixTcHtml(list){
   var opts=function(cur){ return '<option value="">—</option>'+list.map(function(x){
-    return '<option value="'+esc(x.id)+'"'+(x.id===cur?" selected":"")+'>'+esc(x.surname+" "+x.name)+(x.group?" · "+esc(x.group):"")+'</option>'; }).join(""); };
+    return '<option value="'+esc(x.id)+'"'+(x.id===cur?" selected":"")+'>'+esc(nmFull(x))+(x.group?" · "+esc(x.group):"")+'</option>'; }).join(""); };
   var h='<div class="rt-sec rt-fix"><h4>🩹 '+T("Aralashib ketgan ballarni ajratish","Separate mixed-up points")+'</h4>'+
     '<p class="rt-note" style="margin:0 0 8px">'+T("Bitta brauzerda ikki talaba ketma-ket kirsa, birinchisining natijalari ikkinchisiga o'tib qolishi mumkin edi (endi bunday bo'lmaydi). Kimning bali buzilganini va kimniki o'tib qolganini tanlang.",
       "When two students logged in one after another in the same browser, the first one's results could pass to the second (this no longer happens). Choose whose points are wrong and whose passed to them.")+'</p>'+
@@ -4309,7 +4351,7 @@ function fixTcHtml(list){
 }
 function fixTcRender(list){
   var box=document.getElementById("fixTc"); if(!box) return;
-  list=(list||[]).slice().sort(function(a,b){ return String(a.surname+a.name).localeCompare(String(b.surname+b.name)); });
+  list=(list||[]).slice().sort(nmCmp);
   box.innerHTML=fixTcHtml(list);
   var q=function(id){ return document.getElementById(id); };
   q("fixV").onchange=function(){ FIX.v=this.value; FIX.rows=null; FIX.msg=""; FIX.lk=null; fixTcRender(list); fixLocked(list); };
@@ -4388,7 +4430,7 @@ function tcDraw(){
   var pend=tcList.filter(function(x){return st(x)==="pending";});
   var okl=tcList.filter(function(x){return st(x)==="ok";});
   var blk=tcList.filter(function(x){return st(x)==="blocked";});
-  okl.sort(function(x,y){return (y.total||0)-(x.total||0);});
+  okl.sort(nmCmp); blk.sort(nmCmp);                /* alifbo tartibida */
   var cs=cloudStatus(), stk=stuckList(okl).length;
   var h=tcTabsHtml(pend.length,stk)+'<div class="rt-tcpane" data-p="stu">'+
     '<p class="rt-note" style="margin-top:0">'+(cs.ok?"🟢 ":"🟠 ")+esc(cs.txt)+'</p>'+
@@ -4400,7 +4442,7 @@ function tcDraw(){
       }).join("")+'</tbody></table></div>'
       : '<p class="rt-note">'+T("Yangi so\'rov yo\'q.","No new requests.")+'</p>';
   h+='<div id="nkTc"></div><div id="accTc"></div>';
-  h+='<h3 style="margin:18px 0 8px">✅ '+T("Tasdiqlangan talabalar","Approved students")+' <span class="rt-badge">'+okl.length+'</span></h3>';
+  h+='<h3 style="margin:18px 0 8px">✅ '+T("Tasdiqlangan talabalar","Approved students")+' <span class="rt-badge">'+okl.length+'</span></h3>'+(okl.length?nmSortHtml():'');
   var strays=okl.length?strayGroups(okl):[];
   if(strays.length){
     h+='<div class="rt-strayban">'+strays.map(function(s,i){
@@ -4456,7 +4498,9 @@ function tcDraw(){
      '<p class="rt-note">'+T("Jami talaba","Total students")+": "+tcList.length+" · "+T("guruhlar","groups")+": "+groupsOf(okl).length+(cloudOn?"":" · "+T("(faqat shu qurilma)","(this device only)"))+'</p>'+
      '<p class="rt-note">'+T("Talaba faqat siz tasdiqlagandan keyin taqdimot va chatga kira oladi.",
        "A student can enter the presentation and the chat only after you approve them.")+'</p>';
+  var mw=document.getElementById("mkWrap"), msc=mw?[mw.scrollTop,mw.scrollLeft]:null;
   out.innerHTML=h;
+  mw=document.getElementById("mkWrap"); if(mw&&msc){ mw.scrollTop=msc[0]; mw.scrollLeft=msc[1]; }
   tcTabsBind(out);
   pushTcRender();                            /* telefonga bildirishnoma sozlamasi */
   lkRender(okl);                             /* yopiq mavzuda ball olganlar */
@@ -4490,43 +4534,22 @@ function tcDraw(){
       });
     };
   });
-  out.querySelectorAll(".rt-manual:not(.rt-unlock)").forEach(function(b){
-    b.onclick=function(){
-      var v=prompt(T("Ushbu dars uchun qo'lda baho (1-5). Bo'sh qoldirib OK bossangiz — belgi o'chadi:",
-        "Manual mark for this lesson (1-5). Leave empty and press OK to clear:"), b.dataset.cur||"");
-      if(v===null) return;
-      v=v.trim();
-      var num=null;
-      if(v){
-        num=parseInt(v,10);
-        if(isNaN(num)||num<1||num>5){ toast(T("1 dan 5 gacha son kiriting","Enter a number from 1 to 5")); return; }
-      }
-      b.disabled=true;
-      cloudSetManual(b.dataset.id,b.dataset.t,num,function(ok){
-        b.disabled=false;
-        if(!ok){ toast(T("Saqlanmadi","Not saved")); return; }
-        for(var i=0;i<tcList.length;i++){
-          if(tcList[i].id===b.dataset.id){
-            tcList[i].manual=tcList[i].manual||{};
-            if(num===null) delete tcList[i].manual[b.dataset.t]; else tcList[i].manual[b.dataset.t]=num;
-            tcList[i].manPts=manPts(tcList[i].manual);
-            tcList[i].total=Math.round(((tcList[i].autoTotal||0)+tcList[i].manPts)*10)/10;
-          }
-        }
-        toast(num===null?T("O'chirildi","Cleared"):T("Saqlandi","Saved"));
-        tcDraw();
-      });
-    };
+  out.querySelectorAll(".rt-manual:not(.rt-unlock)").forEach(function(b){ b.onclick=function(){ mkPop(b); }; });
+  out.querySelectorAll(".rt-mkpick .rt-mkb").forEach(function(x){
+    x.onclick=function(){ var w=x.parentNode; mkSave(w.dataset.id,w.dataset.t,x.dataset.v?+x.dataset.v:null,x); };
   });
+  out.querySelectorAll(".rt-mkt").forEach(function(b){ b.onclick=function(){ MK_T=b.dataset.mt; tcDraw(); }; });
+  out.querySelectorAll(".rt-nms").forEach(function(b){ b.onclick=function(){
+    NM_SORT=b.dataset.v; try{ localStorage.setItem("terdu_nmsort",NM_SORT); }catch(e){} tcDraw(); }; });
   function tcSearchRender(){
     var box=document.getElementById("tcSearchRes"); if(!box) return;
     var q=TC_SEARCH_Q.trim().toLowerCase();
     if(!q){ box.innerHTML=""; return; }
-    var matches=okl.filter(function(x){ return ((x.name||"")+" "+(x.surname||"")).toLowerCase().indexOf(q)>=0; });
+    var matches=okl.filter(function(x){ return ((x.name||"")+" "+(x.surname||"")).toLowerCase().indexOf(q)>=0||((x.surname||"")+" "+(x.name||"")).toLowerCase().indexOf(q)>=0; });
     box.innerHTML=matches.length
       ? matches.map(function(x){
           return '<button type="button" class="rt-gsearch-item" data-g="'+esc(gkey(x.group))+'">'+
-            '<b>'+esc(x.name+" "+x.surname)+'</b><span>👥 '+esc(x.group||"—")+'</span></button>';
+            '<b>'+esc(nmFull(x))+'</b><span>👥 '+esc(x.group||"—")+'</span></button>';
         }).join("")
       : '<p class="rt-note" style="margin:6px 0 0">'+T("Hech kim topilmadi.","No one found.")+'</p>';
     box.querySelectorAll(".rt-gsearch-item").forEach(function(b){
@@ -4650,50 +4673,123 @@ function tcDraw(){
 
 /* ---------- o'qituvchi: CV, pochta, maxfiy kalit ---------- */
 
+/* 📊 baholash jadvali: ism ustuni va sarlavha qotirilgan (mavzular o'ngga surilganda ham ism-familiya ko'rinib turadi).
+   Faqat ochilgan guruhlarga tegishli mavzular ko'rsatiladi. Mavzu tanlansa — o'sha mavzu bo'yicha keng jadval va
+   amaliy dars bahosi bir bosishda (1–5) qo'yiladi */
+var MK_T="all";
+function mkTopics(openGs){
+  return (CFG.topics||[]).filter(function(t){
+    return openGs.some(function(G){
+      return !!accState(t,{group:G.g})||G.list.some(function(x){ var tp=(x.topics||{})[t.id]||{}; return tp.b||tp.q||tp.t||tp.s||(x.manual||{})[t.id]; });
+    });
+  });
+}
+function mkIc(t,openGs){
+  var st=openGs.map(function(G){ return accState(t,{group:G.g}); });
+  return st.indexOf("score")>=0?"🟢":st.indexOf("read")>=0?"📖":"🔒";
+}
+function mkPick(x,t){
+  var man=+((x.manual||{})[t.id])||0;
+  return '<div class="rt-mkpick" data-id="'+esc(x.id)+'" data-t="'+esc(t.id)+'">'+[1,2,3,4,5].map(function(v){
+      return '<button type="button" class="rt-mkb b'+v+(man===v?" on":"")+'" data-v="'+v+'" title="'+esc(markName(v)||String(v))+'">'+v+'</button>'; }).join("")+
+    (man?'<button type="button" class="rt-mkb x" data-v="" title="'+T("Bahoni o'chirish","Clear the mark")+'">✕</button>':'')+'</div>';
+}
 function marksTable(okl){
-  var tops=(CFG.topics||[]);
-  if(!tops.length||!okl.length) return "";
+  var all=(CFG.topics||[]);
+  if(!all.length||!okl.length) return "";
   var gs=groupsOf(okl);
   var openGs=gs.filter(function(G){ return TC_OPEN_MARKS[G.g]; });
-  var head='<tr><th>'+T("Talaba","Student")+'</th>'+tops.map(function(t,i){
-      return '<th class="rt-mc" title="'+esc(t.title)+'">'+esc(t.id.toUpperCase())+
-        (t.open?'':' <span style="opacity:.5">🔒</span>')+'</th>';
-    }).join("")+'<th>'+T("O'rtacha","Avg")+'</th></tr>';
-  var body=openGs.map(function(G){
-    return '<tr class="rt-grow"><td colspan="'+(tops.length+2)+'">👥 '+esc(G.g)+
-        ' <span class="rt-badge">'+G.list.length+'</span></td></tr>'+
-      G.list.map(function(x){
-        var av=avgMark(x);
-        return '<tr><td style="white-space:nowrap"><b>'+esc(x.surname)+" "+esc(x.name)+'</b></td>'+
-          tops.map(function(t){
-            var tp=(x.topics||{})[t.id]||{}, b=tp.b||0;
-            var M=metaOf(t.id);
-            var started=!!(b||tp.q||tp.t||tp.s);
-            var sub=started
-              ? ('📝'+(tp.q||0)+'/'+M.quiz+' · ⏱'+hms(tp.t||0))
-              : T("hali yo'q","not yet");
-            var man=(x.manual||{})[t.id];
-            return '<td class="rt-mc" title="'+esc(t.title)+'">'+
-              '<div class="rt-mkcell">'+mkTag(b)+'<span class="rt-mksub">'+esc(sub)+'</span>'+
-              '<button type="button" class="rt-manual'+(man?' on':'')+'" data-id="'+esc(x.id)+'" data-t="'+esc(t.id)+
-                '" data-cur="'+(man||"")+'" title="'+T("Qo'lda baho / topshiriq belgisi","Manual mark / assignment check")+'">'+
-                (man?('✅ '+man):'➕')+'</button>'+
-              '<button type="button" class="rt-manual rt-unlock" data-id="'+esc(x.id)+'" data-t="'+esc(t.id)+'" data-n="'+esc(x.surname+" "+x.name)+
-                '" title="'+T("Testni qayta ochish: 2 ta yangi ball beriladigan urinish","Reopen the test: 2 new scored attempts")+'">🔓</button>'+
-              '</div></td>';
-          }).join("")+
-          '<td class="rt-mc">'+mkTag(av.a?+av.a.toFixed(1):0)+'</td></tr>';
-      }).join("");
-  }).join("");
+  var tops=openGs.length?mkTopics(openGs):[];
+  if(MK_T!=="all"&&!tops.some(function(t){ return t.id===MK_T; })) MK_T="all";
+  var one=MK_T==="all"?null:tops.filter(function(t){ return t.id===MK_T; })[0];
+  var n=0, tbl="";
+  if(openGs.length&&one){
+    var M=metaOf(one.id);
+    tbl='<tr><th class="rt-mstk">№ · '+T("Talaba","Student")+'</th><th class="rt-mc">'+T("Baho","Mark")+'</th><th class="rt-mc">'+T("Slaydlar","Slides")+'</th><th class="rt-mc">'+T("Test","Test")+
+      '</th><th class="rt-mc">'+T("Vaqt","Time")+'</th><th class="rt-mc">'+T("Amaliy dars bahosi","Practical-class mark")+'</th><th class="rt-mc">🔓</th></tr>';
+    tbl='<thead>'+tbl+'</thead><tbody>'+openGs.map(function(G){
+      return '<tr class="rt-grow"><td colspan="7"><span class="rt-gl">👥 '+esc(G.g)+' <span class="rt-badge">'+G.list.length+'</span></span></td></tr>'+
+        G.list.map(function(x){
+          var tp=(x.topics||{})[one.id]||{};
+          return '<tr><td class="rt-mstk"><span class="rt-mno">'+(++n)+'</span><b>'+esc(nmFull(x))+'</b></td>'+
+            '<td class="rt-mc">'+mkTag(tp.b||0)+'</td><td class="rt-mc">'+(+tp.s||0)+' / '+M.slides+'</td><td class="rt-mc">'+(+tp.q||0)+' / '+M.quiz+'</td>'+
+            '<td class="rt-mc">'+(tp.t?hms(+tp.t):'—')+'</td><td class="rt-mc">'+mkPick(x,one)+'</td>'+
+            '<td class="rt-mc"><button type="button" class="rt-manual rt-unlock" data-id="'+esc(x.id)+'" data-t="'+esc(one.id)+'" data-n="'+esc(nmFull(x))+
+              '" title="'+T("Testni qayta ochish: 2 ta yangi ball beriladigan urinish","Reopen the test: 2 new scored attempts")+'">🔓</button></td></tr>';
+        }).join("");
+    }).join("")+'</tbody>';
+  } else if(openGs.length){
+    var head='<tr><th class="rt-mstk">№ · '+T("Talaba","Student")+'</th>'+tops.map(function(t){
+        return '<th class="rt-mc" title="'+esc(t.title)+'">'+mkIc(t,openGs)+' '+esc(t.id.toUpperCase())+'</th>';
+      }).join("")+'<th class="rt-mc">'+T("O'rtacha","Avg")+'</th></tr>';
+    tbl='<thead>'+head+'</thead><tbody>'+openGs.map(function(G){
+      return '<tr class="rt-grow"><td colspan="'+(tops.length+2)+'"><span class="rt-gl">👥 '+esc(G.g)+' <span class="rt-badge">'+G.list.length+'</span></span></td></tr>'+
+        G.list.map(function(x){
+          var av=avgMark(x);
+          return '<tr><td class="rt-mstk"><span class="rt-mno">'+(++n)+'</span><b>'+esc(nmFull(x))+'</b></td>'+
+            tops.map(function(t){
+              var tp=(x.topics||{})[t.id]||{}, b=tp.b||0, M=metaOf(t.id);
+              var sub=(b||tp.q||tp.t||tp.s)?('📝'+(tp.q||0)+'/'+M.quiz+' · ⏱'+hms(tp.t||0)):T("hali yo'q","not yet");
+              var man=(x.manual||{})[t.id];
+              return '<td class="rt-mc" title="'+esc(nmFull(x)+" · "+t.title)+'">'+
+                '<div class="rt-mkcell">'+mkTag(b)+'<span class="rt-mksub">'+esc(sub)+'</span>'+
+                '<button type="button" class="rt-manual'+(man?' on':'')+'" data-id="'+esc(x.id)+'" data-t="'+esc(t.id)+'" data-n="'+esc(nmFull(x))+
+                  '" title="'+T("Amaliy dars bahosi (1–5)","Practical-class mark (1–5)")+'">'+(man?('✅ '+man):'➕')+'</button>'+
+                '<button type="button" class="rt-manual rt-unlock" data-id="'+esc(x.id)+'" data-t="'+esc(t.id)+'" data-n="'+esc(nmFull(x))+
+                  '" title="'+T("Testni qayta ochish: 2 ta yangi ball beriladigan urinish","Reopen the test: 2 new scored attempts")+'">🔓</button>'+
+                '</div></td>';
+            }).join("")+
+            '<td class="rt-mc">'+mkTag(av.a?+av.a.toFixed(1):0)+'</td></tr>';
+        }).join("");
+    }).join("")+'</tbody>';
+  }
   return '<h3 style="margin:20px 0 4px">📊 '+T("Mavzular bo'yicha baholar","Marks by topic")+'</h3>'+
     '<p class="rt-note" style="margin:0 0 8px">'+T(
       "Har bir mavzu uchun alohida baho: slaydlar 30% + o'qish vaqti 20% + test 50%. Qo'lda qo'ygan amaliy dars bahongiz (➕) o'rtacha bahoga kirmaydi — faqat umumiy reytingga qo'shimcha ball beradi: har bir baho × "+MAN_PTS+" ball (5 = +"+(5*MAN_PTS)+"). Guruh ustiga bosing — o'sha guruh baholari ochiladi.",
       "A separate mark for each topic: slides 30% + reading time 20% + test 50%. Your manual practical-class mark (➕) does not count in the average — it only adds bonus points to the overall rating: each mark × "+MAN_PTS+" points (5 = +"+(5*MAN_PTS)+"). Click a group — that group's marks will open.")+'</p>'+
     groupTiles(gs,TC_OPEN_MARKS,"marks")+
-    (openGs.length?'<div class="tw"><table class="rt-table rt-mtab"><thead>'+head+'</thead><tbody>'+body+'</tbody></table></div>':'')+
+    (openGs.length?nmSortHtml()+
+      '<div class="rt-mktops"><span>📚 '+T("Mavzu:","Topic:")+'</span><button type="button" class="rt-gchip rt-mkt'+(one?"":" on")+'" data-mt="all">'+T("Hammasi","All")+'</button>'+
+        tops.map(function(t){ return '<button type="button" class="rt-gchip rt-mkt'+(one&&one.id===t.id?" on":"")+'" data-mt="'+t.id+'" title="'+esc(t.title)+'">'+mkIc(t,openGs)+' '+esc(t.id.toUpperCase())+'</button>'; }).join("")+'</div>'+
+      (one?'<p class="rt-note rt-mkone">'+esc(one.title)+' · '+T("Amaliy dars bahosini raqamni bosib qo'ying (yana bosilsa — o'zgaradi, ✕ — o'chadi).","Click a number to set the practical-class mark (click another to change it, ✕ clears it).")+'</p>':'')+
+      '<div class="tw rt-mwrap" id="mkWrap"><table class="rt-table rt-mtab'+(one?" one":"")+'">'+tbl+'</table></div>':'')+
     '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">'+
       '<button class="btn" id="rtMcsv">⬇ '+T("Baholar CSV","Marks CSV")+'</button></div>';
 }
+/* amaliy dars bahosini saqlash (bazaga) — jadval o'rni (surilgan joyi) saqlanib qayta chiziladi */
+function mkSave(id,tid,num,b){
+  if(b) b.disabled=true;
+  cloudSetManual(id,tid,num,function(ok){
+    if(b) b.disabled=false;
+    if(!ok){ toast(T("Saqlanmadi","Not saved")); return; }
+    for(var i=0;i<tcList.length;i++){
+      if(tcList[i].id===id){
+        tcList[i].manual=tcList[i].manual||{};
+        if(num===null) delete tcList[i].manual[tid]; else tcList[i].manual[tid]=num;
+        tcList[i].manPts=manPts(tcList[i].manual);
+        tcList[i].total=Math.round(((tcList[i].autoTotal||0)+tcList[i].manPts+(tcList[i].khPts||0))*10)/10;
+      }
+    }
+    toast(num===null?T("O'chirildi","Cleared"):T("Saqlandi: ","Saved: ")+num);
+    tcDraw();
+  });
+}
+/* «Hammasi» ko'rinishida ➕ bosilganda: kichik tanlov (1–5, ✕) */
+function mkPop(b){
+  var old=document.getElementById("rtMkPop"); if(old){ old.remove(); if(old.dataset.k===b.dataset.id+b.dataset.t) return; }
+  var cur=+b.textContent.replace(/\D/g,"")||0;
+  var p=el('<div class="rt-mkpop" id="rtMkPop" data-k="'+esc(b.dataset.id+b.dataset.t)+'"><b>'+esc(b.dataset.n||"")+' · '+esc(b.dataset.t.toUpperCase())+'</b><div class="rt-mkpick">'+
+    [1,2,3,4,5].map(function(v){ return '<button type="button" class="rt-mkb b'+v+(cur===v?" on":"")+'" data-v="'+v+'">'+v+'</button>'; }).join("")+
+    (cur?'<button type="button" class="rt-mkb x" data-v="">✕</button>':'')+'</div></div>');
+  document.body.appendChild(p);
+  var r=b.getBoundingClientRect(), w=p.offsetWidth;
+  p.style.top=Math.round(r.bottom+p.offsetHeight+14>window.innerHeight?r.top-p.offsetHeight-6:r.bottom+6)+"px";
+  p.style.left=Math.round(Math.max(8,Math.min(r.left+r.width/2-w/2,window.innerWidth-w-8)))+"px";
+  [].forEach.call(p.querySelectorAll(".rt-mkb"),function(x){ x.onclick=function(){ p.remove(); mkSave(b.dataset.id,b.dataset.t,x.dataset.v?+x.dataset.v:null,b); }; });
+}
+document.addEventListener("click",function(e){ var p=document.getElementById("rtMkPop"); if(p&&!p.contains(e.target)&&!(e.target.closest&&e.target.closest(".rt-manual"))) p.remove(); },true);
+document.addEventListener("keydown",function(e){ if(e.key==="Escape"){ var p=document.getElementById("rtMkPop"); if(p) p.remove(); } });
+document.addEventListener("scroll",function(e){ var p=document.getElementById("rtMkPop"); if(p&&!p.contains(e.target)) p.remove(); },true);
 function marksCsv(okl){
   var tops=(CFG.topics||[]);
   var head="#;Familiya;Ism;Guruh;"+tops.map(function(t){ return t.id.toUpperCase(); }).join(";")+";O'rtacha";
