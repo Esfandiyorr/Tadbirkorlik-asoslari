@@ -107,6 +107,7 @@ try{
 var RT=(function(){
 "use strict";
 var CFG=window.RT_CFG||{};
+var HOME=!!CFG.home;          /* 🏠 fan bosh sahifasi (index.html): mavzu yo'q — ball, vaqt va qulf ishlamaydi */
 var LS={stu:"terdu_student", prog:"terdu_progress_v1"};
 var S=null, P=null, cloudOn=false, fb=null, listCache=[], listAt=0;
 /* Arena ochiq/yopiq: false bo'lsa 🎮 Arena tugmasi ko'rinmaydi */
@@ -849,12 +850,13 @@ function hms(sec){
   return h? (h+" soat "+(m%60)+" daq") : (m? (m+" daq "+(sec%60)+" son") : (sec+" son"));
 }
 function topicObj(){
+  if(HOME) return {p:0,slides:{},acts:{},t:0,tOwn:0};      /* bosh sahifada mavzu yo'q — hech narsa saqlanmaydi */
   var t=CFG.topic||"m0";
   if(!P.topics[t]) P.topics[t]={p:0,slides:{},acts:{},t:0,tOwn:0};
   return P.topics[t];
 }
 function award(key,pts,label){
-  if(!S||!approved()||LOCKED||RO) return;              /* RO — 📖 o'qish rejimi: ball berilmaydi */
+  if(!S||!approved()||LOCKED||RO||HOME) return;              /* RO — 📖 o'qish rejimi: ball berilmaydi */
   /* bulutdagi ma'lumot (birinchi kirish sanasi) birlashtirilmaguncha ball navbatda turadi */
   if(!started){ (window.RT_pending=window.RT_pending||[]).push([key,pts,label]); return; }
   var t=topicObj(), isSl=key.indexOf("slide")===0, bag=isSl?t.slides:t.acts;
@@ -869,7 +871,7 @@ function award(key,pts,label){
 /* ---------- o'qishga sarflangan vaqt ---------- */
 var TMR=null, tmrAt=0, tmrSave=0, lastAct=Date.now();
 function timeStart(){
-  if(TMR) return;
+  if(TMR||HOME) return;
   tmrAt=Date.now();
   ["pointerdown","keydown","wheel","touchstart","scroll","mousemove"].forEach(function(e){
     window.addEventListener(e,function(){ lastAct=Date.now(); },{passive:true,capture:true}); });
@@ -1782,6 +1784,11 @@ function renderTop(){
 
 function renderMe(){
   var box=document.getElementById("rtMe"); if(!S) return;
+  if(HOME){ var av0=avgMark({topics:topicSummary()});
+    box.innerHTML='<div class="rt-grid"><div class="rt-card"><span>'+T("Umumiy ball","Total points")+'</span><b>'+fmtP(P.total)+'</b></div>'+
+      '<div class="rt-card"><span>'+T("O\'rtacha baho","Average mark")+'</span><b>'+(av0.a?(Math.round(av0.a*10)/10):"—")+'</b></div>'+
+      '<div class="rt-card"><span>⚡ '+T("Jonli test ballari","Live quiz points")+'</span><b>+'+fmtP(+P.kh||0)+'</b></div></div>'+
+      '<h3 style="margin:18px 0 8px;font-size:15px">'+T("Barcha mavzular","All topics")+'</h3>'+myTopics(); return; }
   var id=CFG.topic||"m0", t=topicObj(), m=markOf(id,t);
   var pct=Math.round(m.z*100);
   box.innerHTML=(!AV_ON?'':'<div class="rt-mehead"><button type="button" class="rt-meav" title="'+T("Avatarni o'zgartirish","Edit avatar")+'">'+avHtml(S,{size:72})+'</button>'+
@@ -1808,14 +1815,14 @@ function renderMe(){
       "📝 <b>50 ball</b> — testdagi to\'g\'ri javoblar ulushi. Test faqat dastlabki 2 urinishda ball beradi.<br>"+
       "✍️ O\'qituvchi amaliy darsda qo\'ygan baho umumiy reytingga qo\'shimcha ball beradi (o\'rtacha bahoga kirmaydi): har bir baho × "+MAN_PTS+" ball (masalan, 5 = +"+(5*MAN_PTS)+" ball).<br>"+
       "⚡ Kundalik <b>jonli testda</b> 1–3-o\'rin (20 kishidan ko\'p bo\'lsa 1–5-o\'rin) egallasangiz, umumiy reytingga +5, +4, +3 (+2, +1) ball qo\'shiladi.<br>"+
-      "📂 Ball taqdimot sizga <b>ochiq turgan istalgan vaqtda</b> beriladi — hali ko\'rmagan slayd va ishlamagan savollaringiz uchun.<br>"+
+      "📂 Ball o\'qituvchi mavzuni ochgan haftaning <b>yakshanba kuni 23:59</b> gacha beriladi; keyin mavzu 📖 o\'qish rejimida (o\'qish mumkin, ball berilmaydi).<br>"+
       "🔒 Har bir slayd va savol <b>faqat bir marta</b> hisoblanadi: nechta brauzer yoki telefondan kirsangiz ham ballaringiz bitta hisobda jamlanadi, qayta berilmaydi va yo\'qolmaydi.",
       "🕐 <b>20 points</b> — active reading time: <b>1 hour</b> or more = the full 20, less gives a proportional share (30 minutes = 10). Time counts only while the page is on screen and you have done something in the last 5 minutes.<br>"+
       "📑 <b>30 points</b> — the share of slides viewed (all slides = 30).<br>"+
       "📝 <b>50 points</b> — the share of correct test answers. The test gives points only in the first 2 attempts.<br>"+
       "✍️ Marks the teacher gives in the practical class add bonus points to the overall rating (they do not count in the average mark): each mark × "+MAN_PTS+" points (e.g. 5 = +"+(5*MAN_PTS)+").<br>"+
       "⚡ Taking 1st–3rd place in the daily <b>live quiz</b> (1st–5th with more than 20 players) adds +5, +4, +3 (+2, +1) points to your overall rating.<br>"+
-      "📂 Points are given <b>at any time while the presentation is open to you</b> — for slides you have not seen and questions you have not answered yet.<br>"+
+      "📂 Points are given until <b>23:59 on Sunday</b> of the week the teacher opens the topic; after that the topic is in 📖 reading mode (you can read, no points).<br>"+
       "🔒 Every slide and question counts <b>only once</b>: whichever browsers or phones you use, your points are combined in one account — never given twice and never lost.")+'</p></div>'+
     '<h3 style="margin:18px 0 8px;font-size:15px">'+T("Baholash shkalasi","Marking scale")+'</h3>'+
     '<div class="rt-scale">'+[[5,"90–100%"],[4,"75–89%"],[3,"60–74%"],[2,"40–59%"],[1,"0–39%"]].map(function(x){
@@ -3266,7 +3273,8 @@ function navBuild(){
     e.stopPropagation();
     if(document.getElementById("rtNavMenu")){ navClose(); return; }
     var nOpen=tops.filter(function(x){ return x.id===CFG.topic||topicOpen(x); }).length;
-    var m=el('<div class="rt-navmenu" id="rtNavMenu" role="menu"><div class="rt-navhd"><b>📚 '+T("Mavzular","Topics")+'</b><span>'+nOpen+' / '+tops.length+' '+T("ochiq","open")+'</span></div></div>');
+    var m=el('<div class="rt-navmenu" id="rtNavMenu" role="menu"><div class="rt-navhd"><b>📚 '+T("Mavzular","Topics")+'</b><span>'+nOpen+' / '+tops.length+' '+T("ochiq","open")+'</span></div>'+
+      (HOME?'':'<a class="rt-navi rt-navhome" role="menuitem" href="index.html">🏠<span><b>'+T("Fan sahifasi","Course page")+'</b><small>'+T("Tadbirkorlik asoslari — barcha mavzular","Fundamentals of Entrepreneurship — all topics")+'</small></span></a>')+'</div>');
     tops.forEach(function(x,i){
       var lab=T((i+1)+"-mavzu","Topic "+(i+1)), ttl=esc(String(x.title||"").replace(/^M\d+\s*·\s*/,"")), it;
       if(i===ci) it=el('<div class="rt-navi cur" role="menuitem">📖<span><b>'+lab+'</b><small>'+ttl+'</small></span><em>'+T("hozir","now")+'</em></div>');
@@ -3287,6 +3295,9 @@ function navBuild(){
   var sp=document.querySelector('.topbar .spacer');
   if(sp&&sp.parentNode) sp.parentNode.insertBefore(wrap,sp); else tools.insertBefore(wrap,tools.firstChild);
   if(RO){ roMsg(); roChip(); }             /* 📖 belgisi mavzular tugmasi yonida (til almashganda ham) */
+  var br=document.querySelector(".topbar .brand");      /* logo va «TerDU» — fan sahifasiga */
+  if(br&&!HOME&&!br.dataset.home){ br.dataset.home="1"; br.style.cursor="pointer"; br.title=T("Fan sahifasi — barcha mavzular","Course page — all topics");
+    br.addEventListener("click",function(){ location.href="index.html"; }); }
   var td=document.getElementById("rtTodo"); if(td) td.remove();
   todoChip();                               /* 📋 «Menga nima qoldi?» */
 }
@@ -3309,7 +3320,7 @@ function chip(){
   chipUpdate(); avChip();
   navBuild();
   var lb=document.getElementById("btnLang");
-  if(lb) lb.addEventListener("click",function(){ setTimeout(function(){ navBuild(); chipUpdate(); askBar(); appBtn(); tbDeck(); },30); });
+  if(lb) lb.addEventListener("click",function(){ setTimeout(function(){ navBuild(); chipUpdate(); askBar(); appBtn(); tbDeck(); if(HOME) homeRender(); },30); });
   tbDeck();
 }
 /* ---------- 🧭 topbar: jonli belgilar, ☀️/🌙 almashtirgich, o'qituvchi tanlaydigan fon ----------
@@ -3815,7 +3826,7 @@ function start(){
   if(started) return; started=true;
   announceGate(function(){
   accApply();                                /* guruhi uchun yopiq mavzu — LOCKED, ball berilmaydi */
-  var tf=topicObj(); if(!tf.f&&!LOCKED){ tf.f=Date.now(); lsetP(); }
+  if(!HOME){ var tf=topicObj(); if(!tf.f&&!LOCKED){ tf.f=Date.now(); lsetP(); } }
   chip(); askBar(); tbWatch(); dragWatch(); watchStatus(); timeStart(); if(cloudOn&&S) cloudSave();
   khBanner(); khMine(); pushInit(); if(S&&!S.email) setTimeout(emailAsk,900);
   accLoad(accApply);                         /* bazadagi eng so'nggi holat */
@@ -3940,8 +3951,9 @@ function accLoad(cb){
 }
 function accApply(){
   var cur=(CFG.topics||[]).filter(function(x){ return x.id===CFG.topic; })[0];
+  if(HOME){ navBuild(); homeRender();     /* bosh sahifa: mavzular holati yangilanadi (o'qituvchi ochsa — 60 soniyada) */
+    if(!accIv) accIv=setInterval(function(){ if(!document.hidden) accLoad(accApply); },60000); return; }
   var lock=!!(cur&&cur.open&&!topicOpen(cur));
-  if(accLanding(cur,lock)) return;
   roApply(!!cur&&!lock&&topicRead(cur),cur);
   navBuild();
   /* ball muddati tugashi bilan sahifa o'zi o'qish rejimiga o'tadi */
@@ -3969,6 +3981,45 @@ function accApply(){
   }
   todoChip();                                /* 📋 qulf/o'qish holati aniqlangandan keyin */
 }
+/* ---------- 🏠 fan sahifasi (index.html): «Tadbirkorlik asoslari» — barcha mavzular kartochkalarda ----------
+   🟢 ball beriladi (shu haftaning yakshanbasi 23:59 gacha) — «Ishlash», 📖 o'qish rejimi — «O'qish», 🔒 yopiq.
+   Tepada eslatma: bu hafta qaysi mavzu ball beradi va qancha vaqt qoldi. Talaba o'zi tanlaydi — avtomatik o'tish yo'q */
+function homeRender(){
+  var box=document.getElementById("hmBody"); if(!box||!HOME) return;
+  var tp=CFG.topics||[], tcv=tcHere()&&!S, now=Date.now();
+  var st=function(x){ return tcv?(x.open?"tc":"lock"):(S?accState(x,S):""); };
+  var sc=tcv?[]:scoreTopics();
+  var hi=S?'<div class="hm-me"><span class="hm-hi">👋 '+T("Salom, <b>"+esc(S.name)+"</b>!","Hello, <b>"+esc(S.name)+"</b>!")+'</span>'+
+      '<span class="hm-pill">🏆 '+T("Jami ball","Total")+': <b>'+fmtP(P.total)+'</b></span>'+(S.group?'<span class="hm-pill">👥 '+esc(S.group)+'</span>':'')+
+      '<button type="button" class="btn hm-top" id="hmTop">🏆 '+T("Reyting","Rating")+'</button></div>':'';
+  var wk=tcv?'<div class="hm-week tc">👨‍🏫 '+T("O'qituvchi ko'rinishi: barcha mavzular ochiq. Talabalar uchun holatni «🔑 O'qituvchi → Talabalar → 📂 Mavzuni guruhlarga ochish» da belgilaysiz.",
+        "Teacher view: all topics are open. Set the state for students in «🔑 Teacher → Students → 📂 Open a topic for groups».")+'</div>'
+    :!S?'':sc.length?'<div class="hm-week"><b class="hm-wk-h">⏳ '+T("Bu hafta ball beradigan mavzu","This week's topic with points")+'</b>'+sc.map(function(x){
+        var k=tp.indexOf(x)+1, at=accLiveAt(x,S), pts=Math.round(markOf(x.id,P.topics[x.id]||{}).z*1000)/10;
+        return '<a class="hm-wk-i" href="'+esc(x.file)+'" data-t="'+x.id+'"><span class="hm-wk-n">'+k+'</span><span class="hm-wk-t"><b>'+esc(String(x.title||"").replace(/^M\d+\s*·\s*/,""))+'</b>'+
+          '<small>'+T("Ball <b>"+esc(accDue(at))+"</b> gacha beriladi · qoldi "+todoLeft(accEnd(at)-now)+" · sizda "+fmtP(pts)+" / 100",
+            "Points until <b>"+esc(accDue(at))+"</b> · "+todoLeft(accEnd(at)-now)+" left · you have "+fmtP(pts)+" / 100")+'</small></span><span class="hm-wk-go">▶ '+T("Ishlash","Work")+'</span></a>'; }).join("")+'</div>'
+      :'<div class="hm-week none">📖 '+T("Hozir ball beradigan mavzu yo'q. O'qish rejimidagi mavzularni o'qishingiz mumkin — o'qituvchi yangi mavzuni ochganda u shu yerda chiqadi.",
+        "No topic gives points right now. You can read the topics in reading mode — when the teacher opens a new topic, it appears here.")+'</div>';
+  var cards=tp.map(function(x,i){
+    var s0=st(x), k=i+1, ttl=esc(String(x.title||"").replace(/^M\d+\s*·\s*/,"")), d=P.topics[x.id]||{}, m=markOf(x.id,d), pts=Math.round(m.z*1000)/10;
+    var lab=s0==="score"?'🟢 '+T("Ball beriladi","Points on")+' · ⏳ '+todoShort(accEnd(accLiveAt(x,S))-now)
+      :s0==="read"?'📖 '+T("O'qish rejimi","Reading mode"):s0==="tc"?'👨‍🏫 '+T("Ochiq","Open"):'🔒 '+T("Yopiq","Locked");
+    var btn=s0==="score"?'▶ '+T("Ishlash","Work"):s0==="read"?'📖 '+T("O'qish","Read"):s0==="tc"?'👁 '+T("Ko'rish","View"):'';
+    var sub=s0==="score"?T("Kirib slaydlarni o'qing va testni ishlang — ball shu hafta beriladi.","Read the slides and take the test — points are given this week.")
+      :s0==="read"?T("O'qish mumkin, ball berilmaydi.","You can read it, no points.")
+      :s0==="tc"?'':T("O'qituvchi darsda ochadi.","The teacher opens it in class.");
+    var inner='<span class="hm-n">'+k+'</span><span class="hm-st">'+lab+'</span><b class="hm-t">'+ttl+'</b><small class="hm-sub">'+sub+'</small>'+
+      (S&&(pts>0||m.b)?'<span class="hm-pr"><i style="width:'+Math.min(100,pts)+'%"></i></span><small class="hm-pts">'+T("Ballingiz","Your points")+': <b>'+fmtP(pts)+'</b> / 100'+(m.b?' · '+T("baho","mark")+' '+m.b:'')+'</small>':'')+
+      (btn?'<span class="hm-go">'+btn+'</span>':'');
+    return s0==="lock"||!s0?'<div class="hm-card lock" data-t="'+x.id+'">'+inner+'</div>'
+      :'<a class="hm-card '+s0+'" href="'+esc(x.file)+'" data-t="'+x.id+'">'+inner+'</a>';
+  }).join("");
+  box.innerHTML=hi+wk+'<h2 class="hm-h2">📚 '+T("Mavzular","Topics")+' <small>'+tp.length+'</small></h2><div class="hm-grid">'+cards+'</div>'+
+    '<div class="hm-more"><a class="hm-arena" href="arena.html">🎮 <b>'+T("O'yin arenasi","Game arena")+'</b><small>'+T("Krossvord, jonli test va Yozuv Marafoni — guruhdoshlar bilan musobaqa","Crossword, live quiz and typing marathon — compete with classmates")+'</small></a></div>';
+  [].forEach.call(box.querySelectorAll("a[data-t]"),function(a){ a.addEventListener("click",function(){ try{ sessionStorage.setItem("terdu_pick",a.dataset.t); }catch(e){} }); });
+  var tb=document.getElementById("hmTop"); if(tb) tb.onclick=function(){ openOv(); };
+}
 /* ---------- 📖 o'qish rejimi: topbarda belgi, bir martalik ogohlantirish, test tugmalari yashiriladi ---------- */
 function roApply(on,cur){
   if(RO===on) return;
@@ -3976,9 +4027,11 @@ function roApply(on,cur){
   document.body.classList.toggle("rt-ro",on);
   roMsg(); roChip();
   if(on){
-    var k="terdu_ro_"+CFG.topic, seen=false;
-    try{ seen=!!sessionStorage.getItem(k); sessionStorage.setItem(k,"1"); }catch(e){}
-    if(!seen) roNotice(cur);
+    var k="terdu_ro_"+CFG.topic, seen=false, fromHome=false;
+    try{ seen=!!sessionStorage.getItem(k); sessionStorage.setItem(k,"1");
+      fromHome=sessionStorage.getItem("terdu_pick")===CFG.topic; sessionStorage.removeItem("terdu_pick"); }catch(e){}
+    if(fromHome) setTimeout(function(){ toast("📖 "+T("O'qish rejimi — bu mavzu bo'yicha ball berilmaydi","Reading mode — no points for this topic")); },700);
+    else if(!seen) roNotice(cur);
   } else {
     if(was){
       toast("🟢 "+T("Mavzu ochildi — endi ball beriladi!","The topic is open — points are counted now!"));
@@ -4012,6 +4065,9 @@ function roNotice(cur){
       "you can read the slides freely, but <b>no points</b> are given for this topic and the test is closed.")+'</p>'+
     '<p class="rt-note">'+T("Ball mavzu ochilgan haftaning yakshanba kuni 23:59 gacha beriladi. Avval to'plagan ballaringiz saqlanib qoladi.",
       "Points are counted until 23:59 on the Sunday of the week the topic was opened. The points you have already earned are kept.")+'</p>'+
+    (function(){ var sc=scoreTopics(); if(!sc.length) return '';
+      return '<p class="rt-ro-wk">⏳ '+T("Bu hafta ball beradigan mavzu:","This week's topic with points:")+' '+sc.map(function(x){ var k=(CFG.topics||[]).indexOf(x)+1;
+        return '<a href="'+esc(x.file)+'">'+T(k+"-mavzu","Topic "+k)+'</a>'; }).join(", ")+'</p>'; })()+
     '<button type="button" class="btn accent" id="rtRoOk">👍 '+T("Tushunarli","Got it")+'</button></div></div>');
   document.body.appendChild(g);
   var close=function(){ g.remove(); };
@@ -4114,21 +4170,10 @@ function accBoxHtml(x,here){
     (x.pdf?'<div class="rt-accpdf"><a class="btn accent" href="'+esc(x.pdf)+'" download>📥 '+T("PDF versiyasini yuklab olish","Download the PDF version")+'</a>'+
       '<span>'+T("Mavzuning barcha slaydlari bitta faylda","All the slides of the topic in one file")+(x.pdfSize?' · '+esc(x.pdfSize):'')+'</span></div>':'')+
     '<div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center">'+
+      '<a class="btn accent" href="index.html">🏠 '+T("Fan sahifasi","Course page")+'</a>'+
       other.map(function(y){ var k=(CFG.topics||[]).indexOf(y)+1; return '<a class="btn" href="'+y.file+'">📗 '+T(k+"-mavzu","Topic "+k)+'</a>'; }).join("")+
       (ARENA_OPEN?'<a class="btn" href="arena.html">🎮 '+T("Arena","Arena")+'</a>':'')+
       (here?'<button class="btn" id="rtAccChk">🔄 '+T("Tekshirish","Check again")+'</button>':'')+'</div></div>';
-}
-/* saytga kirish sahifasi (1-mavzu) — talaba eng oxirgi ochilgan mavzuga o'tkaziladi:
-   1-mavzu yopiq bo'lsa doim, ochiq bo'lsa faqat tashqaridan kirganda (seansda bir marta) */
-function accLanding(cur,lock){
-  var tp=CFG.topics||[]; if(!S||!ACC_FRESH||!cur||!tp.length||cur.id!==tp[0].id) return false;   /* faqat bazadagi yangi holat bilan */
-  var last=landTarget();
-  if(!last||last.id===cur.id||!last.file) return false;
-  var fresh=false;
-  try{ fresh=!sessionStorage.getItem("terdu_landed"); sessionStorage.setItem("terdu_landed","1"); }catch(e){}
-  var ref=""; try{ ref=document.referrer||""; }catch(e){}
-  if(lock||(fresh&&!(ref&&ref.indexOf(location.host)>=0))){ location.replace(last.file); return true; }
-  return false;
 }
 function accGate(cur){
   var old=document.getElementById("rtAcc"); if(old) old.remove();
@@ -5207,38 +5252,11 @@ function connect(){
   setTimeout(bootOnce,9000);
   cloudInit(function(ok){
     if(!ok){ bootOnce(); return; }
-    resetAt(function(rt){ RESET=rt||0; landEarly(bootOnce); });
+    resetAt(function(rt){ RESET=rt||0; bootOnce(); });
   });
 }
-/* 🚪 saytga kirish: talaba bosh sahifani (1-mavzu) ochganda kerakli mavzu shu yerning o'zida aniqlanadi va darhol
-   o'sha sahifaga o'tiladi — 1-mavzuning oynalari (e'lon, o'qish rejimi ogohlantirishi …) umuman ko'rsatilmaydi.
-   Kerakli mavzu — talabaga hozir ball beradigan eng so'nggi mavzu, bunday bo'lmasa ochiq turganlarning oxirgisi */
-function landTarget(){
-  var tp=CFG.topics||[];
-  var sc=tp.filter(function(x){ return accState(x,S)==="score"; }), op=tp.filter(function(x){ return topicOpen(x); });
-  return sc[sc.length-1]||op[op.length-1]||null;
-}
-function landEarly(cb){
-  var tp=CFG.topics||[];
-  if(!S||S.status!=="ok"||!tp.length||CFG.topic!==tp[0].id||tcHere()){ cb(); return; }
-  var fresh=false; try{ fresh=!sessionStorage.getItem("terdu_landed"); }catch(e){}
-  var ref=""; try{ ref=document.referrer||""; }catch(e){}
-  var inside=!!(ref&&ref.indexOf(location.host)>=0);
-  var done=false, fin=function(){ if(!done){ done=true; cb(); } };
-  setTimeout(fin,5000);                          /* baza sekin bo'lsa — odatdagidek ochiladi */
-  window.fetch(BASE+"/meta/access.json").then(function(r){ return r.ok?r.json():undefined; }).catch(function(){ return undefined; }).then(function(v){
-    if(done) return;
-    if(v!==undefined){ ACC=v||{}; ACC_FRESH=true; try{ localStorage.setItem("terdu_acc",JSON.stringify(ACC)); }catch(e){} }
-    var lock=!topicOpen(tp[0]);
-    if(!lock&&(!fresh||inside)){ fin(); return; }     /* sayt ichidan qaytgan — 1-mavzuda qoladi */
-    var to=landTarget();
-    if(!to||to.id===tp[0].id||!to.file){ fin(); return; }
-    done=true;
-    try{ sessionStorage.setItem("terdu_landed","1"); }catch(e){}
-    splash(true,T((tp.indexOf(to)+1)+"-mavzu ochilmoqda…","Opening topic "+(tp.indexOf(to)+1)+"…"));
-    location.replace(to.file);
-  });
-}
+/* bu hafta ball beradigan (o'qituvchi ochgan, muddati tugamagan) mavzular — eng so'nggisi birinchi */
+function scoreTopics(){ return (CFG.topics||[]).filter(function(x){ return S&&accState(x,S)==="score"; }).reverse(); }
 tcRestore();
 if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",connect); else connect();
 

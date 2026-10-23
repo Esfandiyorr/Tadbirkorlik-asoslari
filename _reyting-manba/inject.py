@@ -15,7 +15,8 @@ YZB=open(SC+'yozuv_ball.js',encoding='utf-8').read()   # Yozuv Marafoni natija h
 JS=JS.replace('/*@YZBALL@*/',YZB.strip())
 
 DECKS={
- 'index.html':   dict(id='m1',slides=18,quiz=15),
+ 'index.html':   dict(id='',home=True,slides=0,quiz=0),      # 🏠 fan sahifasi (mavzular ro'yxati)
+ 'mavzu-1.html': dict(id='m1',slides=18,quiz=15),
  'mavzu-2.html': dict(id='m2',slides=24,quiz=15),
  'mavzu-3.html': dict(id='m3',slides=15,quiz=15),
  'mavzu-4.html': dict(id='m4',slides=18,quiz=18),
@@ -92,7 +93,7 @@ def inject(fn,meta):
     fbWeb=CONF.get('fbWeb') or {}
     teacherH=CONF.get('teacherH','')
     google=bool(fbWeb.get('apiKey') and fbWeb.get('authDomain') and teacherH)
-    cfg=dict(topic=meta['id'],slides=meta['slides'],quiz=meta.get('quiz',15),pSlide=CONF['pSlide'],pAll=CONF['pAll'],
+    cfg=dict(topic=meta['id'],home=bool(meta.get('home')),slides=meta['slides'],quiz=meta.get('quiz',15),pSlide=CONF['pSlide'],pAll=CONF['pAll'],
              # Google orqali kirish yoqilgan bo'lsa, parol sahifaga umuman yozilmaydi
              teacher='' if google else CONF.get('teacher',''),
              firebase=CONF.get('firebase'),topics=CONF['topics'],
@@ -134,7 +135,7 @@ def inject(fn,meta):
         s=s.replace('      d.dataset.state=ok?"ok":"no";',
                     '      d.dataset.state=ok?"ok":"no";\n      if(ok&&window.RT) RT.award("task"+k,15,"masala");',1)
     open(p,'w',encoding='utf-8').write(s)
-    return "%s: OK (%s, %d slayd)"%(fn,meta['id'],meta['slides'])
+    return "%s: OK (%s)"%(fn,"fan sahifasi") if meta.get('home') else "%s: OK (%s, %d slayd)"%(fn,meta['id'],meta['slides'])
 
 BLOCKS=[('/* AVX:BEGIN */','/* AVX:END */','avatar_pic.js'),('/* KV:BEGIN */','/* KV:END */','krossvord.js'),
         ('/* YZT:BEGIN */','/* YZT:END */','yozuv_matnlar.json'),('/* YZB:BEGIN */','/* YZB:END */','yozuv_ball.js'),

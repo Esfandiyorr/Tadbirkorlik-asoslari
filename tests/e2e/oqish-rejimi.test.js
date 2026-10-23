@@ -17,7 +17,7 @@ const next=async(p,n)=>{ for(let i=0;i<n;i++){ await p.keyboard.press("ArrowRigh
   H.dbSet("students/sA/prog/m1",{sl:{slide0:1,slide1:1,slide2:1},tm:{legacy:600}});
   H.dbSet("meta/access/m3",{lim:true,g:{"AP-223":true}});           /* eski yozuv (true) */
   /* 1) 1-mavzu: o'qish rejimi */
-  const A=await H.mk(b,H.stu("sA","Ali","Valiyev","AP-223"),{ro:true}); await go(A,"index.html");
+  const A=await H.mk(b,H.stu("sA","Ali","Valiyev","AP-223"),{ro:true}); await go(A,"mavzu-1.html");
   const g=await A.evaluate(()=>{ const e=document.getElementById("rtRoG"); return e?e.innerText.replace(/\s+/g," "):""; });
   ck("1-mavzu: «Bu taqdimot o'qish rejimida» ogohlantirishi chiqdi",/o'qish rejimida/.test(g)&&/ball berilmaydi/.test(g),g.slice(0,200));
   await A.screenshot({path:"ro_notice.png"});
@@ -38,7 +38,7 @@ const next=async(p,n)=>{ for(let i=0;i<n;i++){ await p.keyboard.press("ArrowRigh
   await sleep(600); await A.screenshot({path:"ro_test.png"});
   /* ro'yxat */
   await A.click("#rtNavBtn"); await sleep(300);
-  const nav=await A.evaluate(()=>[...document.querySelectorAll("#rtNavMenu .rt-navi")].slice(0,7).map(x=>x.textContent.replace(/\s+/g," ").trim()));
+  const nav=await A.evaluate(()=>[...document.querySelectorAll("#rtNavMenu .rt-navi:not(.rt-navhome)")].slice(0,7).map(x=>x.textContent.replace(/\s+/g," ").trim()));
   ck("menyuda 1–5 📖 «o'qish», 6-mavzu 🔒",nav.slice(1,5).every(t=>/^📖/.test(t)&&/o'qish/.test(t))&&/^🔒/.test(nav[5]),JSON.stringify(nav));
   await A.screenshot({path:"ro_nav.png"}); await A.keyboard.press("Escape");
   await sleep(4000);

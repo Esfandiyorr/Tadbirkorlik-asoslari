@@ -1,4 +1,4 @@
-/* Kirish (darhol kerakli mavzu), «Menga nima qoldi?», reytingda guruh filtri, chat (token, server vaqti), mavzu ochilganda push va Worker yangilash */
+/* Kirish (fan sahifasi: mavzular, «bu hafta» eslatmasi), «Menga nima qoldi?», reytingda guruh filtri, chat (token, server vaqti), mavzu ochilganda push va Worker yangilash */
 const H=require('../lib/h.js'); const {sleep,ck}=H;
 async function ready(p){ for(let t=0;t<30;t++){ await sleep(500); if(await p.$("#rtAnnGo")) await p.click("#rtAnnGo").catch(()=>{}); if(await p.evaluate(()=>!!window.RT_ready).catch(()=>false)) break; } await sleep(1500); }
 const rowCls=(p,re)=>p.evaluate(re=>{ const r=[...document.querySelectorAll("#rtTop tbody tr")].find(r=>new RegExp(re).test(r.innerText)); return r?r.className:null; },re);
@@ -9,16 +9,32 @@ const rowCls=(p,re)=>p.evaluate(re=>{ const r=[...document.querySelectorAll("#rt
   H.dbSet("meta/access/m6",{lim:true,g:{"AP-223":Date.now()-60000}});   /* 1 daqiqa oldin (dushanba 00:00 dan keyin ham ishlasin) */
   /* e'lon (bir martalik oynalar ham bo'lsin) */
   H.dbSet("meta/ann",{a1:{at:Date.now()-60000,t:"Salom talabalar"}});
-  /* 1) kirish: index.html → darhol 6-mavzu, oraliq oynalarsiz */
+  /* 1) kirish: index.html — «Tadbirkorlik asoslari» fan sahifasi; avtomatik o'tish yo'q, talaba o'zi tanlaydi */
   const A=await H.mk(b,H.stu("sA","Ali","Valiyev","AP-223"),{land:true,ro:true});
-  const seen=new Set(), urls=[];
-  A.on("framenavigated",f=>{ if(f===A.mainFrame()) urls.push(f.url().replace(H.SITE,"")); });
-  const watch=setInterval(async()=>{ try{ const v=await A.evaluate(()=>[location.pathname.split("/").pop(), ...[...document.querySelectorAll(".rt-gate")].filter(g=>g.offsetParent!==null||getComputedStyle(g).display!=="none").map(g=>g.id)].join("|")); seen.add(v); }catch(e){} },80);
-  await A.goto(H.SITE+"/index.html"); await sleep(6000); clearInterval(watch);
-  const onIdx=[...seen].filter(v=>/^index\.html/.test(v));
-  console.log("   ko'rilgan holatlar:",JSON.stringify([...seen]));
-  ck("index.html dan darhol mavzu-6.html ga o'tdi",/mavzu-6\.html/.test(A.url()),A.url()+" "+JSON.stringify(urls));
-  ck("1-mavzuda faqat yuklanish ekrani ko'rindi (e'lon / o'qish rejimi oynasi yo'q)",onIdx.every(v=>!/rtRoG|rtAnn|rtGate|rtAcc/.test(v)),JSON.stringify(onIdx));
+  const urls=[]; A.on("framenavigated",f=>{ if(f===A.mainFrame()) urls.push(f.url().replace(H.SITE,"")); });
+  await A.goto(H.SITE+"/index.html"); await ready(A); await sleep(2500);
+  ck("index.html — fan sahifasi, boshqa sahifaga o'tib ketmadi",/\/index\.html$/.test(A.url())&&urls.every(u=>/^\/index\.html/.test(u))&&await A.evaluate(()=>/Tadbirkorlik asoslari/.test(document.querySelector(".hm-hero").innerText)),A.url()+" "+JSON.stringify(urls));
+  ck("o'qish rejimi oynasi chiqmadi",!(await A.$("#rtRoG"))&&!(await A.$("#rtRO")));
+  const wk=await A.evaluate(()=>{ const w=document.querySelector(".hm-week"); return w?w.innerText.replace(/\s+/g," "):""; });
+  ck("eslatma: «Bu hafta ball beradigan mavzu» — 6-mavzu, yakshanba 23:59 gacha",/Bu hafta ball beradigan mavzu/.test(wk)&&/Biznes-model/.test(wk)&&/yakshanba 23:59 gacha/.test(wk)&&/Ishlash/.test(wk),wk.slice(0,200));
+  const cards=await A.evaluate(()=>[...document.querySelectorAll(".hm-card")].map(c=>c.dataset.t+":"+(c.classList.contains("score")?"score":c.classList.contains("read")?"read":"lock")+":"+(c.tagName==="A"?c.getAttribute("href"):"-")));
+  ck("kartochkalar: 1–5 📖 o'qish, 6 🟢 ball, 7–15 🔒 (havolasiz)",cards.length===15&&cards.slice(0,5).every((c,i)=>c==="m"+(i+1)+":read:mavzu-"+(i+1)+".html")&&cards[5]==="m6:score:mavzu-6.html"&&cards.slice(6).every(c=>/:lock:-$/.test(c)),JSON.stringify(cards));
+  await A.screenshot({path:"home.png",fullPage:true});
+  /* 📖 o'qish: kartochka → 1-mavzu, oyna emas — qisqa xabar */
+  await A.click('.hm-card[data-t="m1"]'); await A.waitForURL(/mavzu-1\.html/); await ready(A);
+  ck("1-mavzu kartochkasi → mavzu-1.html, o'qish rejimi (oyna emas, 📖 belgi)",/mavzu-1\.html/.test(A.url())&&!(await A.$("#rtRoG"))&&!!(await A.$("#rtRO")));
+  await A.click("#rtNavBtn"); await sleep(300);
+  ck("mavzular ro'yxatida «🏠 Fan sahifasi»",await A.evaluate(()=>{ const h=document.querySelector("#rtNavMenu .rt-navhome"); return !!h&&h.getAttribute("href")==="index.html"; }));
+  await A.keyboard.press("Escape");
+  /* 🟢 ishlash: eslatmadagi 6-mavzu */
+  await A.goto(H.SITE+"/index.html"); await ready(A);
+  await A.click(".hm-wk-i"); await A.waitForURL(/mavzu-6\.html/); await ready(A);
+  ck("eslatmadagi «Ishlash» → mavzu-6.html, ball beriladi",/mavzu-6\.html/.test(A.url())&&!(await A.$("#rtRO"))&&!!(await A.$("#rtTodo")));
+  /* eski havola: index.html#5 → 1-mavzuning 5-slaydi */
+  const O=await H.mk(b,H.stu("sB","Bobur","Karimov","AP-223"));
+  await O.goto(H.SITE+"/index.html#5"); await O.waitForURL(/mavzu-1\.html#5/,{timeout:10000}).catch(()=>{});
+  ck("eski havola index.html#5 → mavzu-1.html#5",/mavzu-1\.html#5$/.test(O.url()),O.url());
+  await O.context().close();
   /* 2) «Menga nima qoldi?» */
   await ready(A); if(await A.$("#rtAnnGo")) { await A.click("#rtAnnGo"); await sleep(300); }
   const chip=await A.evaluate(()=>{ const c=document.getElementById("rtTodo"); return c?c.textContent.replace(/\s+/g," ").trim():""; });

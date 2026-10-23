@@ -6,9 +6,13 @@ Sayt — 15 ta interaktiv taqdimot, ball va reyting tizimi, talabalar chati, o'y
 Talaba ro'yxatdan o'tadi, taqdimotni o'qiydi, testni ishlaydi va ball to'playdi; o'qituvchi hammasini panel orqali
 boshqaradi (mavzuni ochish, baholash, e'lon, jonli test).
 
+**[`index.html`](index.html) — fan sahifasi «Tadbirkorlik asoslari»:** saytga kirgan talaba avval shu sahifani
+ko'radi — barcha mavzular kartochkalarda (🟢 ball beriladi · 📖 o'qish rejimi · 🔒 yopiq), tepada
+«⏳ Bu hafta ball beradigan mavzu …, yakshanba 23:59 gacha» eslatmasi, ballari va reyting. Talaba mavzuni o'zi tanlaydi.
+
 | Fayl | Mavzu | Hajmi | Holati |
 |---|---|---|---|
-| [`index.html`](index.html) | **M1** — Tadbirkorlik tafakkuri va biznes imkoniyatlar | 18 slayd · 15 test | 📖 o'qish rejimi |
+| [`mavzu-1.html`](mavzu-1.html) | **M1** — Tadbirkorlik tafakkuri va biznes imkoniyatlar | 18 slayd · 15 test | 📖 o'qish rejimi |
 | [`mavzu-2.html`](mavzu-2.html) | **M2** — Mijoz muammosi asosida biznes g'oya | 24 slayd · 15 test | 📖 o'qish rejimi |
 | [`mavzu-3.html`](mavzu-3.html) | **M3** — Mahsulotni kam xarajat bilan sinash (moliya va kredit) | 15 slayd · 15 test | 📖 o'qish rejimi |
 | [`mavzu-4.html`](mavzu-4.html) | **M4** — Biznesni qonuniy rasmiylashtirish | 18 slayd · 🧩 krossvord | 📖 o'qish rejimi |
@@ -29,8 +33,10 @@ boshqaradi (mavzuni ochish, baholash, e'lon, jonli test).
 
 ## Ishga tushirish
 
-Sayt GitHub Pages orqali ishlaydi — talabalarga bosh sahifa havolasi (`index.html`) yuboriladi. Talaba saytga
-kirganda kerakli mavzu (hozir ball beradigan eng so'nggi mavzu) darhol o'zi ochiladi — oraliq oynalarsiz.
+Sayt GitHub Pages orqali ishlaydi — talabalarga bosh sahifa havolasi yuboriladi. U **fan sahifasini** (`index.html`)
+ochadi: mavzular ro'yxati va holati; talaba 🟢 mavzuga kirib ishlaydi (ball), 📖 mavzuni o'qiydi. Avtomatik boshqa
+sahifaga o'tish yo'q. Har bir taqdimotda mavzular ro'yxatida va logotipda «🏠 Fan sahifasi» havolasi bor.
+Eski «index.html#5» havolalari 1-mavzuning shu slaydini ochadi (`mavzu-1.html#5`).
 Ball, reyting va chat uchun internet kerak (Firebase Realtime Database).
 
 **Muhim:** taqdimotlardagi umumiy kod (`rt-engine.js`, `rt-engine.css`) avtomatik yaratiladi — ularni qo'lda

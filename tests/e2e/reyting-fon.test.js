@@ -3,7 +3,7 @@ const H=require('../lib/h.js'); const {sleep,ck}=H;
 async function ready(p){ for(let t=0;t<30;t++){ await sleep(500); if(await p.$("#rtAnnGo")) await p.click("#rtAnnGo").catch(()=>{}); if(await p.evaluate(()=>!!window.RT_ready).catch(()=>false)) break; } await sleep(1500); }
 const tab=async(p,t)=>{ await p.click('.rt-nktab[data-t="'+t+'"]'); await sleep(350); };
 const rowCls=(p,re)=>p.evaluate(re=>{ const r=[...document.querySelectorAll("#rtTop tbody tr")].find(r=>new RegExp(re).test(r.innerText)); return r?r.className:null; },re);
-const openTop=async p=>{ await p.goto(H.SITE+"/index.html"); await ready(p); await p.evaluate(()=>RT.open("top")); await sleep(2500); };
+const openTop=async p=>{ await p.goto(H.SITE+"/mavzu-1.html"); await ready(p); await p.evaluate(()=>RT.open("top")); await sleep(2500); };
 (async()=>{
   const b=await H.chromium.launch(); H.addStu("sI","Isfandiyor","Sayfiddinov","T-123");
   const N=[["sA","Ali","Valiyev"],["sB","Bobur","Karimov"],["sC","Charos","Usmonova"],["sD","Dilnoza","Rahimova"],["sE","Eldor","Tursunov"],["sF","Feruza","Nazarova"],

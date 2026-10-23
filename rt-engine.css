@@ -844,6 +844,10 @@ body.rt-ro #btnPrint{display:none!important}
 .rt-pushauto>b{display:block;margin-bottom:4px}
 .rt-pushup{margin-top:8px}.rt-pushup summary{cursor:pointer;font-weight:700;font-size:13.5px}
 .rt-pushup ol{margin-top:8px}
+/* 🏠 mavzular ro'yxatida fan sahifasi; o'qish rejimi ogohlantirishida bu haftaning mavzusi */
+.rt-navi.rt-navhome{border-bottom:1px solid var(--line);margin-bottom:4px}
+.rt-ro-wk{margin:0 0 12px;padding:9px 12px;border-radius:12px;background:color-mix(in srgb,var(--green,#16a34a) 12%,transparent);font-weight:700;font-size:14px}
+.rt-ro-wk a{color:var(--green2,#0b7a3c);font-weight:900}
 /* ================== MUSIQA PLEYERI ================== */
 #mzTab{position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:70;
   background:linear-gradient(135deg,var(--violet),var(--pink));color:#fff;border:none;

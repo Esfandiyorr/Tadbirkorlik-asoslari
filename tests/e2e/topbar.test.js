@@ -6,7 +6,7 @@ async function ready(p){ for(let t=0;t<30;t++){ await sleep(500); if(await p.$("
   ["sA","sI"].forEach(id=>H.dbSet("students/"+id+"/email","x@y.uz"));
   for(const [nm,o] of [["d",{}],["m",{mobile:true,vp:{width:390,height:844}}]]){
     const A=await H.mk(b,H.stu("sA","Ali","Valiyev","AP-223"),o);
-    await A.goto(H.SITE+"/index.html#2"); await ready(A); await sleep(600);
+    await A.goto(H.SITE+"/mavzu-1.html#2"); await ready(A); await sleep(600);
     const r=await A.evaluate(()=>{ const tb=document.querySelector(".topbar"), q=id=>document.getElementById(id), vis=e=>!!e&&getComputedStyle(e).display!=="none"&&e.getBoundingClientRect().width>0;
       return {h:Math.round(tb.getBoundingClientRect().height),brand:tb.querySelector(".brand").innerText.trim(),grid:vis(q("btnGrid")),full:vis(q("btnFull")),oldTheme:vis(q("btnTheme")),
         sw:vis(q("rtTheme")),swRight:q("rtTheme").getBoundingClientRect().right>innerWidth-80,swTop:q("rtTheme").getBoundingClientRect().top<60,
@@ -31,7 +31,7 @@ async function ready(p){ for(let t=0;t<30;t++){ await sleep(500); if(await p.$("
   }
   /* o'qituvchi fon tanlaydi */
   const T=await H.mk(b,H.stu("sI","Isfandiyor","Sayfiddinov","T-123"),{tc:true});
-  await T.goto(H.SITE+"/index.html"); await ready(T); await sleep(600);
+  await T.goto(H.SITE+"/mavzu-1.html"); await ready(T); await sleep(600);
   ck("o'qituvchida 🎨 tugmasi",!!(await T.$("#rtTbBg")));
   await T.click("#rtTbBg"); await sleep(400);
   ck("fonlar ro'yxati: 15 ta (standart + 14)",await T.evaluate(()=>document.querySelectorAll("#rtTbMenu .rt-tbopt").length)===15);
@@ -39,7 +39,7 @@ async function ready(p){ for(let t=0;t<30;t++){ await sleep(500); if(await p.$("
   await T.evaluate(()=>[...document.querySelectorAll("#rtTbMenu .rt-tbopt")].find(x=>x.dataset.id==="t2").click()); await sleep(800);
   ck("tanlandi: meta/tb = t2, topbarda darhol",(H.dbGet("meta/tb")||{}).bg==="t2"&&await T.evaluate(()=>document.querySelector(".topbar").classList.contains("tbg-t2")));
   const S2=await H.mk(b,H.stu("sA","Ali","Valiyev","AP-223"));
-  await S2.goto(H.SITE+"/index.html"); await ready(S2); await sleep(600);
+  await S2.goto(H.SITE+"/mavzu-1.html"); await ready(S2); await sleep(600);
   ck("talabada ham bo'r doskasi foni, TerDU oq",await S2.evaluate(()=>{ const tb=document.querySelector(".topbar"); return tb.classList.contains("tbg-t2")&&tb.classList.contains("tb-dk")&&getComputedStyle(tb.querySelector(".tb-name")).webkitTextFillColor==="rgb(255, 255, 255)"; }));
   await S2.screenshot({path:"tb_t2.png",clip:{x:0,y:0,width:1280,height:90}});
   for(const id of ["t1","t3","t5","t6","t7","t9","t11","t13","t14"]){ await S2.evaluate(id=>tbBgSet?0:0,id).catch(()=>{}); }

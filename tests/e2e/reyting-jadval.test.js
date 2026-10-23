@@ -9,7 +9,7 @@ const N=["Ali Valiyev","Bobur Karimov","Charos Usmonova","Dilnoza Rahimova","Eld
   H.dbSet("students/s1/ns",{f:"n2",b:"b6",g:"fl-uz"}); H.dbSet("meta/nick",{s1:"Biznes_Sher"});
   for(const [nm,o] of [["d",{}],["m",{mobile:true,vp:{width:390,height:844}}]]){
     const A=await H.mk(b,H.stu("s0","Ali","Valiyev","AP-223"),o);
-    await A.goto(H.SITE+"/index.html"); await ready(A); await A.evaluate(()=>RT.open("top")); await sleep(2500);
+    await A.goto(H.SITE+"/mavzu-1.html"); await ready(A); await A.evaluate(()=>RT.open("top")); await sleep(2500);
     const r=await A.evaluate(()=>{ const rows=[...document.querySelectorAll("#rtTop tbody tr")]; const hs=rows.map(x=>x.getBoundingClientRect().height);
       const W=innerWidth, over=rows.some(x=>{ const q=x.getBoundingClientRect(); return q.right>W+1||[...x.children].some(c=>c.getBoundingClientRect().right>W+1); });
       return {n:rows.length,hmax:Math.max(...hs),hmin:Math.min(...hs),over,page:document.documentElement.scrollWidth<=W+1}; });
@@ -25,7 +25,7 @@ const N=["Ali Valiyev","Bobur Karimov","Charos Usmonova","Dilnoza Rahimova","Eld
     ck(nm+": JS xatolari yo'q",!A._errs.filter(e=>!/Failed to load resource|net::ERR/.test(e)).length,JSON.stringify(A._errs));
   }
   const T=await H.mk(b,H.stu("sI","Isfandiyor","Sayfiddinov","T-123"),{tc:true,mobile:true,vp:{width:390,height:844}});
-  await T.goto(H.SITE+"/index.html"); await ready(T); await T.evaluate(()=>RT.open("top")); await sleep(2500);
+  await T.goto(H.SITE+"/mavzu-1.html"); await ready(T); await T.evaluate(()=>RT.open("top")); await sleep(2500);
   ck("o'qituvchi telefonda: 🗑 tugmasi ekranda",await T.evaluate(()=>{ const b=document.querySelector("#rtTop .rt-del").getBoundingClientRect(); return b.right<=innerWidth+1&&b.width>0; }));
   await T.evaluate(()=>document.querySelector("#rtTop table").scrollIntoView()); await T.screenshot({path:"cmp_tc.png"});
   await b.close(); console.log("FAILS:",H.fails());
