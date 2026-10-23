@@ -557,6 +557,7 @@ function qGrant(){
     en:d.getUTCDate()+" "+["January","February","March","April","May","June","July","August","September","October","November","December"][m]};
 }
 function qBump(){
+  if(RO) return;                        /* o'qish rejimida urinish sanalmaydi */
   var t=CFG.topic, x=P.topics[t]||(P.topics[t]={p:0,slides:{},acts:{}}), g=rgLive(t);
   x.qAtt=(x.qAtt||0)+1;
   if(g){ x.qg=x.qg||{}; x.qg[g.id]=(+x.qg[g.id]||0)+1; }
@@ -699,7 +700,7 @@ function topicObj(){
   return P.topics[t];
 }
 function award(key,pts,label){
-  if(!S||!approved()||LOCKED) return;
+  if(!S||!approved()||LOCKED||RO) return;              /* RO — 📖 o'qish rejimi: ball berilmaydi */
   /* bulutdagi ma'lumot (birinchi kirish sanasi) birlashtirilmaguncha ball navbatda turadi */
   if(!started){ (window.RT_pending=window.RT_pending||[]).push([key,pts,label]); return; }
   var t=topicObj(), isSl=key.indexOf("slide")===0, bag=isSl?t.slides:t.acts;
@@ -719,7 +720,7 @@ function timeStart(){
   ["pointerdown","keydown","wheel","touchstart","scroll","mousemove"].forEach(function(e){
     window.addEventListener(e,function(){ lastAct=Date.now(); },{passive:true,capture:true}); });
   TMR=setInterval(function(){
-    if(!S||!approved()||LOCKED) return;
+    if(!S||!approved()||LOCKED||RO) return;
     /* faol seans: sahifa ekranda va so'nggi 5 daqiqada biror harakat bo'lgan */
     if(document.hidden||Date.now()-lastAct>300000){ tmrAt=Date.now(); return; }
     var now=Date.now(), d=(now-tmrAt)/1000; tmrAt=now;
@@ -1668,8 +1669,8 @@ function myTopics(){
   var list=(CFG.topics||[]).slice();
   if(!list.length) return '<p class="rt-note">'+T("Hozircha mavzu yo\'q.","No topics yet.")+'</p>';
   var rows=list.map(function(x){
-    var d=P.topics[x.id]||{}, m=markOf(x.id,d), lk=!topicOpen(x);
-    return '<tr'+(lk?' style="opacity:.8"':'')+'><td><b>'+(lk?'🔒 ':'')+esc(x.title)+'</b></td>'+
+    var d=P.topics[x.id]||{}, m=markOf(x.id,d), lk=!topicOpen(x), ro=!lk&&topicRead(x);
+    return '<tr'+(lk?' style="opacity:.8"':'')+'><td><b>'+(lk?'🔒 ':ro?'📖 ':'')+esc(x.title)+'</b></td>'+
       '<td>'+m.seen+"/"+m.sn+'</td><td>'+m.q+"/"+m.qn+'</td><td>'+hms(m.sec)+'</td>'+
       '<td>'+(m.b?'<span class="rt-mk b'+m.b+'">'+m.b+'</span>':'—')+'</td></tr>';
   }).join("");
@@ -1682,13 +1683,14 @@ function renderTp(){
   var box=document.getElementById("rtTp");
   var list=(CFG.topics||[]).map(function(x){
     var mine=(P.topics[x.id]||{}), p=mine.p||0;
-    var open=topicOpen(x), cur=(x.id===CFG.topic);
-    return '<div class="rt-topic'+(open?"":" locked")+'"><div style="font-size:22px">'+(open?"📗":"🔒")+'</div>'+
+    var open=topicOpen(x), cur=(x.id===CFG.topic), ro=open&&topicRead(x), at=open&&!ro&&S?accLiveAt(x,S):0;
+    return '<div class="rt-topic'+(open?"":" locked")+(ro?" ro":"")+'"><div style="font-size:22px">'+(ro?"📖":open?"📗":"🔒")+'</div>'+
       '<div class="t"><b>'+esc(x.title)+(cur?' · <span style="color:var(--green)">'+T("hozirgi","current")+'</span>':'')+'</b>'+
-      '<span>'+(open?T("Ochiq","Open"):x.open?T("Guruhingiz uchun hali ochilmagan — o'qituvchi darsda ochadi","Not open for your group yet — the teacher opens it in class"):T("Yopiq — o'qituvchi darsda ochadi","Locked — the teacher will open it in class"))+
+      '<span>'+(ro?T("📖 O'qish rejimi — o'qish mumkin, ball berilmaydi","📖 Reading mode — you can read it, no points"):
+        open?T("Ochiq","Open")+(at?" · ⏳ "+T("ball "+accDue(at)+" gacha","points until "+accDue(at)):""):x.open?T("Guruhingiz uchun hali ochilmagan — o'qituvchi darsda ochadi","Not open for your group yet — the teacher opens it in class"):T("Yopiq — o'qituvchi darsda ochadi","Locked — the teacher will open it in class"))+
       ' · '+T("ballingiz","your points")+": "+p+'</span></div>'+
       (open&&!cur?'<a class="btn accent" href="'+x.file+'">'+T("Ochish","Open")+'</a>':'')+
-      (x.pdf&&(open||x.open)?'<a class="btn" href="'+esc(x.pdf)+'" download>📥 PDF</a>':'')+'</div>';
+      (x.pdf&&!ro&&(open||x.open)?'<a class="btn" href="'+esc(x.pdf)+'" download>📥 PDF</a>':'')+'</div>';
   }).join("");
   box.innerHTML=list+'<p class="rt-note">'+T(
     "Yopiq mavzular saytga umuman yuklanmagan — ular o'qituvchi darsni o'tgach ochiladi.",
@@ -2058,11 +2060,8 @@ function audLoad(list){
    Mavzuga rs (vaqt) qo'yiladi — talabaning o'z qurilmalaridagi eski nusxa ham shu bilan almashadi. */
 var FIX={v:"",s:"",rows:null,busy:false,msg:"",lk:null};
 /* talabaga ochilmagan mavzular (mavzu umuman yopiq yoki faqat boshqa guruh/talabalarga ochilgan) */
-function topicOpenFor(x,st){
-  if(!x||!x.open) return false;
-  var a=accRec(x); if(!a.lim) return true;
-  return !!(st&&((st.group&&a.g[gkey(st.group)])||(st.id&&a.s[st.id])));
-}
+/* mavzu talabaga ko'rinadimi (ball beriladigan yoki 📖 o'qish rejimida) */
+function topicOpenFor(x,st){ return !!accState(x,st); }
 /* tanlangan talabaning ball olgan mavzulari — o'qituvchi o'tilmagan (yoki ochilmagan) mavzulardagi ballarni belgilab o'chiradi.
    Talabaga ochilmagan mavzular oldindan belgilanadi (u yerdagi ball boshqa birovniki bo'lishi aniq) */
 function fixLocked(list){
@@ -3031,6 +3030,7 @@ function navBuild(){
     tops.forEach(function(x,i){
       var lab=T((i+1)+"-mavzu","Topic "+(i+1)), ttl=esc(String(x.title||"").replace(/^M\d+\s*·\s*/,"")), it;
       if(i===ci) it=el('<div class="rt-navi cur" role="menuitem">📖<span><b>'+lab+'</b><small>'+ttl+'</small></span><em>'+T("hozir","now")+'</em></div>');
+      else if(topicRead(x)) it=el('<a class="rt-navi ro" role="menuitem" href="'+esc(x.file)+'">📖<span><b>'+lab+'</b><small>'+ttl+'</small></span><em>'+T("o\'qish","reading")+'</em></a>');
       else if(topicOpen(x)) it=el('<a class="rt-navi" role="menuitem" href="'+esc(x.file)+'">📗<span><b>'+lab+'</b><small>'+ttl+'</small></span></a>');
       else { it=el('<button type="button" class="rt-navi lock" role="menuitem">🔒<span><b>'+lab+'</b><small>'+ttl+'</small></span><em>'+T("yopiq","locked")+'</em></button>');
              it.onclick=function(){ navClose(); if(x.open) accModal(x); else toast(T("Bu mavzu hali yopiq — o\'qituvchi darsda ochadi","This topic is still locked — the teacher opens it in class")); }; }
@@ -3046,6 +3046,7 @@ function navBuild(){
   };
   var sp=document.querySelector('.topbar .spacer');
   if(sp&&sp.parentNode) sp.parentNode.insertBefore(wrap,sp); else tools.insertBefore(wrap,tools.firstChild);
+  if(RO){ roMsg(); roChip(); }             /* 📖 belgisi mavzular tugmasi yonida (til almashganda ham) */
 }
 document.addEventListener("click",function(e){ var m=document.getElementById("rtNavMenu"); if(m&&!m.contains(e.target)) navClose(); });
 document.addEventListener("keydown",function(e){ if(e.key==="Escape") navClose(); });
@@ -3580,18 +3581,56 @@ function avEditor(){
   AVP.picker({value:avMine(),seed:S.id,name:S.name+" "+S.surname,t:T,onSave:avSave});
 }
 /* ================== 📂 MAVZUNI GURUHLARGA OCHISH ==================
-   /meta/access/<mavzu> = {lim:true, g:{<guruh>:true}} — lim bo'lsa mavzu faqat belgilangan guruhlarga ochiq.
-   Yozuv yo'q bo'lsa config'dagi "lim" ishlatiladi (yo'q bo'lsa — hammaga ochiq). O'qituvchi uchun hammasi ochiq. */
-var ACC=null, LOCKED=false, accIv=null, ACC_SEL=null, ACC_FRESH=false, ACC_Q="";
+   /meta/access/<mavzu> = {lim:true, g:{<guruh>:<ochilgan vaqt>}, s:{<talaba id>:<vaqt>}, at:<«hammaga» qilingan vaqt>}
+   lim bo'lsa mavzu faqat belgilangan guruh/talabalarga, aks holda hammaga ochiq.
+   ⏳ Ochilgan paytdan o'sha haftaning yakshanba kuni 23:59 gacha (Toshkent vaqti) ball beriladi. Keyin mavzu
+   📖 O'QISH REJIMIGA o'tadi: slaydlarni hamma guruhlar o'qiy oladi, lekin ball berilmaydi va test ishlanmaydi.
+   Vaqt o'rniga true turgan eski yozuvlar va config'dagi "read": true mavzular ham o'qish rejimida.
+   Yozuv yo'q bo'lsa config'dagi "lim" ishlatiladi. O'qituvchi uchun hammasi ochiq. */
+var ACC=null, LOCKED=false, RO=null, accIv=null, accTo=null, ACC_SEL=null, ACC_FRESH=false, ACC_Q="";
 try{ ACC=JSON.parse(localStorage.getItem("terdu_acc")||"null"); }catch(e){}
-function accRec(x){ var a=ACC&&ACC[x.id]; return a?{lim:!!a.lim,g:a.g||{},s:a.s||{}}:{lim:!!x.lim,g:{},s:{}}; }
+function accRec(x){ var a=ACC&&ACC[x.id]; return a?{lim:!!a.lim,g:a.g||{},s:a.s||{},at:+a.at||0}:{lim:!!x.lim,g:{},s:{},at:0}; }
+/* ochilgan payt → ball muddati tugaydigan payt: o'sha haftaning yakshanbasidan keyingi dushanba 00:00 (UTC+5) */
+function accEnd(ts){
+  var d=new Date(+ts+18000000), day0=Date.UTC(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate());
+  return day0+((7-d.getUTCDay())%7+1)*86400000-18000000;
+}
+function accLive(v){ return typeof v==="number"&&v>0&&Date.now()<accEnd(v); }
+function accGone(v){ return typeof v==="number"&&v>0&&!accLive(v); }
+/* muddatning oxiri, matn bilan: «26-oktabr, yakshanba 23:59» */
+function accDue(ts){
+  var d=new Date(accEnd(ts)-60000+18000000), m=d.getUTCMonth();
+  return T(d.getUTCDate()+"-"+["yanvar","fevral","mart","aprel","may","iyun","iyul","avgust","sentabr","oktabr","noyabr","dekabr"][m]+", yakshanba 23:59",
+    "Sunday, "+d.getUTCDate()+" "+["January","February","March","April","May","June","July","August","September","October","November","December"][m]+", 23:59");
+}
+/* talaba uchun hozir ball beradigan ochilish vaqti (bo'lmasa 0) */
+function accLiveAt(x,st){
+  var a=accRec(x);
+  if(!a.lim) return accLive(a.at)?a.at:0;
+  var v=[st&&st.id&&a.s[st.id],st&&st.group&&a.g[gkey(st.group)]].filter(accLive);
+  return v.length?Math.max.apply(null,v):0;
+}
+/* hamma uchun o'qish rejimi: config "read", muddati o'tgan «hammaga» yoki biror guruh/talaba ochilishi */
+function accAllRead(x,a){
+  if(x.read) return true;
+  if(!a.lim) return !accLive(a.at);
+  var ended=function(o){ return Object.keys(o).some(function(k){ return accGone(o[k]); }); };
+  return accGone(a.at)||ended(a.g)||ended(a.s);
+}
+/* "score" — ochiq, ball beriladi; "read" — 📖 o'qish rejimi; "" — yopiq */
+function accState(x,st){
+  if(!x||!x.open) return "";
+  if(accLiveAt(x,st)) return "score";
+  var a=accRec(x), own=!a.lim||!!(st&&((st.id&&a.s[st.id])||(st.group&&a.g[gkey(st.group)])));
+  return (own||accAllRead(x,a))?"read":"";
+}
 function tcHere(){ if(isTc) return true; try{ return localStorage.getItem(TCG)==="1"; }catch(e){ return false; } }
 function topicOpen(x){
   if(!x||!x.open) return false;
   if(tcHere()&&!S) return true;           /* o'qituvchi talaba profilisiz — hammasi ochiq; talaba profilida esa talaba ko'radigandek */
-  var a=accRec(x); if(!a.lim) return true;
-  return !!(S&&((S.group&&a.g[gkey(S.group)])||(S.id&&a.s[S.id])));   /* guruh yoki alohida talaba */
+  return !!accState(x,S);                 /* guruh yoki alohida talaba; o'qish rejimi ham ochiq hisoblanadi */
 }
+function topicRead(x){ return !!x&&!(tcHere()&&!S)&&accState(x,S)==="read"; }
 function accLoad(cb){
   if(!cloudOn||!BASE){ if(cb) cb(); return; }
   fetch(BASE+"/meta/access.json").then(function(r){ return r.ok?r.json():undefined; }).catch(function(){ return undefined; }).then(function(v){
@@ -3603,12 +3642,19 @@ function accApply(){
   var cur=(CFG.topics||[]).filter(function(x){ return x.id===CFG.topic; })[0];
   var lock=!!(cur&&cur.open&&!topicOpen(cur));
   if(accLanding(cur,lock)) return;
+  roApply(!!cur&&!lock&&topicRead(cur),cur);
   navBuild();
+  /* ball muddati tugashi bilan sahifa o'zi o'qish rejimiga o'tadi */
+  clearTimeout(accTo); accTo=null;
+  var at=cur&&S&&!lock?accLiveAt(cur,S):0;
+  if(at&&accEnd(at)-Date.now()<2e9) accTo=setTimeout(accApply,accEnd(at)-Date.now()+1500);
+  /* yopiq yoki o'qish rejimida — o'qituvchi ochishini kutamiz (30 soniyada bir tekshiriladi) */
+  if((lock||RO)&&!accIv) accIv=setInterval(function(){ if(!document.hidden) accLoad(accApply); },30000);
+  else if(!lock&&!RO&&accIv){ clearInterval(accIv); accIv=null; }
   if(lock){
     if(!LOCKED){ LOCKED=true; accGate(cur); }
-    if(!accIv) accIv=setInterval(function(){ if(!document.hidden) accLoad(accApply); },30000);
   } else if(LOCKED){
-    LOCKED=false; clearInterval(accIv); accIv=null;
+    LOCKED=false;
     var g=document.getElementById("rtAcc"); if(g) g.remove();
     toast("🔓 "+T("Mavzu ochildi!","The topic is open!"));
     var tf=topicObj(); if(!tf.f){ tf.f=Date.now(); lsetP(); }
@@ -3616,6 +3662,63 @@ function accApply(){
     if(n>=0) slideSeen(n);
   }
 }
+/* ---------- 📖 o'qish rejimi: topbarda belgi, bir martalik ogohlantirish, test tugmalari yashiriladi ---------- */
+function roApply(on,cur){
+  if(RO===on) return;
+  var was=RO; RO=on;
+  document.body.classList.toggle("rt-ro",on);
+  roMsg(); roChip();
+  if(on){
+    var k="terdu_ro_"+CFG.topic, seen=false;
+    try{ seen=!!sessionStorage.getItem(k); sessionStorage.setItem(k,"1"); }catch(e){}
+    if(!seen) roNotice(cur);
+  } else {
+    if(was){
+      toast("🟢 "+T("Mavzu ochildi — endi ball beriladi!","The topic is open — points are counted now!"));
+      var c=document.getElementById("cur"), n=c?(parseInt(c.textContent,10)-1):-1;   /* hozirgi slayd */
+      if(n>=0) slideSeen(n);
+    }
+    var at=cur&&S?accLiveAt(cur,S):0, dk="terdu_due_"+CFG.topic+"_"+at, shown=false;
+    try{ shown=!!sessionStorage.getItem(dk); sessionStorage.setItem(dk,"1"); }catch(e){}
+    if(at&&!shown) setTimeout(function(){ toast("⏳ "+T("Bu mavzu bo'yicha ball "+accDue(at)+" gacha beriladi","Points for this topic are counted until "+accDue(at))); },1200);
+  }
+}
+/* test / krossvord / masala tugmasi o'rnida chiqadigan yozuv (CSS ::after, tilga qarab) */
+function roMsg(){
+  document.body.style.setProperty("--rt-ro-msg",JSON.stringify("📖 "+T("Bu taqdimot o'qish rejimida — test ishlanmaydi va ball berilmaydi","This presentation is in reading mode — no test and no points")));
+}
+function roChip(){
+  var old=document.getElementById("rtRO"); if(old) old.remove();
+  if(!RO) return;
+  var nav=document.getElementById("rtNav"), tools=document.querySelector(".topbar .tools"); if(!tools) return;
+  var b=el('<button type="button" class="rt-chip rt-rochip" id="rtRO" title="'+T("Bu taqdimot o'qish rejimida: ball berilmaydi","This presentation is in reading mode: no points")+'"><i class="tb-ic a-flip">📖</i> <b>'+T("O'qish rejimi","Reading mode")+'</b></button>');
+  if(nav&&nav.parentNode) nav.parentNode.insertBefore(b,nav.nextSibling); else tools.insertBefore(b,tools.firstChild);
+  b.onclick=function(){ roNotice((CFG.topics||[]).filter(function(x){ return x.id===CFG.topic; })[0]); };
+}
+function roNotice(cur){
+  var old=document.getElementById("rtRoG"); if(old) old.remove();
+  var n=(CFG.topics||[]).indexOf(cur)+1;
+  var g=el('<div class="rt-gate rt-rogate" id="rtRoG"><div class="rt-box">'+
+    '<div class="rt-ro-ic">📖</div>'+
+    '<h2>'+T("Bu taqdimot o'qish rejimida","This presentation is in reading mode")+'</h2>'+
+    '<p>'+(n?'<b>'+T(n+"-mavzu","Topic "+n)+'</b> — ':'')+T("slaydlarni bemalol o'qishingiz mumkin, lekin bu mavzu bo'yicha <b>ball berilmaydi</b>, test ham ishlanmaydi.",
+      "you can read the slides freely, but <b>no points</b> are given for this topic and the test is closed.")+'</p>'+
+    '<p class="rt-note">'+T("Ball mavzu ochilgan haftaning yakshanba kuni 23:59 gacha beriladi. Avval to'plagan ballaringiz saqlanib qoladi.",
+      "Points are counted until 23:59 on the Sunday of the week the topic was opened. The points you have already earned are kept.")+'</p>'+
+    '<button type="button" class="btn accent" id="rtRoOk">👍 '+T("Tushunarli","Got it")+'</button></div></div>');
+  document.body.appendChild(g);
+  var close=function(){ g.remove(); };
+  document.getElementById("rtRoOk").onclick=close;
+  g.addEventListener("click",function(e){ if(e.target===g) close(); });
+}
+/* o'qish rejimida PDF yuklab/chop etib bo'lmaydi: «PDF» tugmasi CSS da yashirin, «P» klavishi ishlamaydi */
+window.addEventListener("keydown",function(e){
+  if(RO&&(e.key==="p"||e.key==="P")&&!e.ctrlKey&&!e.metaKey&&!(e.target&&/INPUT|TEXTAREA|SELECT/.test(e.target.tagName))){ e.stopPropagation(); e.preventDefault(); }
+},true);
+/* o'qish rejimida test/krossvord/masala boshlanmaydi (tugmalar CSS da yashirin; bu — qo'shimcha himoya) */
+document.addEventListener("click",function(e){
+  if(RO&&e.target&&e.target.closest&&e.target.closest(".qt-go,.xw-go,.ms-go")){ e.stopPropagation(); e.preventDefault(); toast("📖 "+T("O'qish rejimi: test ishlanmaydi","Reading mode: the test is closed")); }
+},true);
 /* yopiq mavzu oynasi: o'rtada PDF yuklab olish havolasi (config: pdf, pdfSize) */
 function accBoxHtml(x,here){
   var a=accRec(x), n=(CFG.topics||[]).indexOf(x)+1;
@@ -3673,33 +3776,46 @@ function accTcRender(okl){
   var tops=(CFG.topics||[]).filter(function(x){ return x.open; });
   if(!tops.length){ box.innerHTML=""; return; }
   if(!ACC_SEL||!tops.some(function(x){ return x.id===ACC_SEL; })) ACC_SEL=tops[tops.length-1].id;
-  var t=tops.filter(function(x){ return x.id===ACC_SEL; })[0], a=accRec(t);
+  var t=tops.filter(function(x){ return x.id===ACC_SEL; })[0], a=accRec(t), read=accAllRead(t,a);
   var cnt={}; (okl||[]).forEach(function(x){ var k=gkey(x.group); cnt[k]=(cnt[k]||0)+1; });
   var gl=[]; (CFG.groups||[]).concat(Object.keys(cnt)).forEach(function(g){ g=gkey(g); if(g&&gl.indexOf(g)<0) gl.push(g); });
   gl.sort();
-  var on=gl.filter(function(g){ return a.g[g]; });
+  var anyLive=function(r){ return !r.lim?accLive(r.at):Object.keys(r.g).some(function(k){ return accLive(r.g[k]); })||Object.keys(r.s).some(function(k){ return accLive(r.s[k]); }); };
+  /* chip: 🟢 ball beriladi (muddati bilan) · 📖 o'qish rejimi · 🔒 yopiq */
+  var st=function(v){ return accLive(v)?"live":(v?"ro":""); };
+  var ic={live:"🟢 ",ro:"📖 ","":"🔒 "};
+  var due=function(v){ return accLive(v)?' <small>⏳ '+esc(accDue(v))+'</small>':''; };
+  var on=gl.filter(function(g){ return accLive(a.g[g]); });
   box.innerHTML='<div class="rt-sec rt-acc"><h4>📂 '+T("Mavzuni guruhlarga ochish","Open a topic for groups")+'</h4>'+
+    '<p class="rt-note" style="margin:0 0 8px">⏳ '+T("Ochilgan mavzu o'sha haftaning <b>yakshanba kuni 23:59</b> gacha ball beradi, keyin <b>📖 o'qish rejimiga</b> o'tadi: slaydlarni hamma guruhlar o'qiy oladi, lekin ball berilmaydi va test ishlanmaydi.",
+      "An opened topic gives points until <b>23:59 on Sunday</b> of that week, then switches to <b>📖 reading mode</b>: every group can read the slides, but no points are given and the test is closed.")+'</p>'+
     '<div class="rt-acc-tops">'+tops.map(function(x){ var i=(CFG.topics||[]).indexOf(x)+1, r=accRec(x);
-      return '<button type="button" class="rt-gchip'+(x.id===ACC_SEL?" on":"")+'" data-t="'+x.id+'">'+(r.lim?"👥":"🌐")+' '+T(i+"-mavzu","Topic "+i)+'</button>'; }).join("")+'</div>'+
+      return '<button type="button" class="rt-gchip'+(x.id===ACC_SEL?" on":"")+'" data-t="'+x.id+'">'+(anyLive(r)?"🟢":accAllRead(x,r)?"📖":r.lim?"👥":"🌐")+' '+T(i+"-mavzu","Topic "+i)+'</button>'; }).join("")+'</div>'+
     '<p class="rt-note" style="margin:8px 0">'+esc(t.title)+'</p>'+
+    (read&&!anyLive(a)?'<p class="rt-acc-ro">📖 '+T("Bu mavzu hozir hammaga <b>o'qish rejimida</b> ochiq — ball berilmaydi.","This topic is open to everyone in <b>reading mode</b> — no points.")+'</p>':'')+
     '<div class="rt-acc-mode"><label><input type="radio" name="accMode" value="all"'+(a.lim?"":" checked")+'> 🌐 '+T("Hammaga ochiq","Open for everyone")+'</label>'+
     '<label><input type="radio" name="accMode" value="lim"'+(a.lim?" checked":"")+'> 👥 '+T("Faqat belgilangan guruhlarga","Only for the selected groups")+'</label></div>'+
-    (a.lim?'<div class="rt-acc-gs">'+gl.map(function(g){
-        return '<button type="button" class="rt-gchip rt-accg'+(a.g[g]?" on":"")+'" data-g="'+esc(g)+'">'+(a.g[g]?"🔓 ":"🔒 ")+esc(g)+
+    (a.lim?'<div class="rt-acc-gs">'+gl.map(function(g){ var v=a.g[g], k=st(v);
+        return '<button type="button" class="rt-gchip rt-accg'+(k?" on":"")+(k==="ro"?" ro":"")+'" data-g="'+esc(g)+'">'+ic[k]+esc(g)+due(v)+
           (cnt[g]?' <span class="rt-badge">'+cnt[g]+'</span>':'')+'</button>'; }).join("")+'</div>'+
-      '<p class="rt-note" style="margin:8px 0 0">'+(on.length?T("Ochiq: ","Open for: ")+'<b>'+on.map(esc).join(", ")+'</b>':T("Hali hech bir guruhga ochilmagan.","Not open for any group yet."))+
-      ' · '+T("Guruh ustiga bosing — ochiladi/yopiladi. Talabalarda sahifa 30 soniya ichida o'zi ochiladi.","Click a group to open/close it. Students' pages unlock by themselves within 30 seconds.")+'</p>'
-     :'<p class="rt-note" style="margin:8px 0 0">'+T("Bu mavzu barcha guruhlarga ochiq.","This topic is open for all groups.")+'</p>')+
+      '<p class="rt-note" style="margin:8px 0 0">'+(on.length?T("Ball beriladi: ","Points for: ")+'<b>'+on.map(esc).join(", ")+'</b>':T("Hozir hech bir guruhga ball berilmayapti.","No group is getting points right now."))+
+      ' · '+T("Guruhni bossangiz — yakshanbagacha ball bilan ochiladi; 🟢 ni bossangiz — yopiladi; 📖 ni bossangiz — yana yakshanbagacha ball beriladi. Talabalarda sahifa 30 soniya ichida o'zi yangilanadi.",
+        "Click a group to open it with points until Sunday; click 🟢 to close it; click 📖 to give points again until Sunday. Students' pages update by themselves within 30 seconds.")+'</p>'
+     :'<p class="rt-note" style="margin:8px 0 0">'+(accLive(a.at)?'🟢 '+T("Barcha guruhlarga ochiq — ball ","Open for all groups — points until ")+'<b>'+esc(accDue(a.at))+'</b>'+T(" gacha beriladi.","."):
+        '📖 '+T("Barcha guruhlarga o'qish rejimida ochiq — ball berilmaydi.","Open for all groups in reading mode — no points."))+'</p>'+
+      (accLive(a.at)?'':'<button type="button" class="btn accent sm" id="accAllGo" style="margin-top:8px">▶ '+T("Hammaga yakshanbagacha ball berish","Give everyone points until Sunday")+'</button>'))+
     (a.lim?'<div class="rt-acc-st"><h5>👤 '+T("Alohida talabaga ochish","Open for a single student")+'</h5>'+
       '<input type="text" id="accSq" autocomplete="off" placeholder="🔎 '+T("Talaba ismi yoki familiyasi…","Student first or last name…")+'" value="'+esc(ACC_Q)+'">'+
       '<div class="rt-acc-gs" id="accSr"></div>'+
       '<div class="rt-acc-gs" id="accSon"></div></div>':'')+
     '</div>';
+  var NOW={".sv":"timestamp"};               /* ochilgan vaqt — server soati bilan */
   box.querySelectorAll("[data-t]").forEach(function(b){ b.onclick=function(){ ACC_SEL=b.dataset.t; accTcRender(okl); }; });
   box.querySelectorAll('input[name="accMode"]').forEach(function(r){ r.onchange=function(){
-    accSave(t.id,{lim:r.value==="lim"},okl); }; });
+    accSave(t.id,r.value==="lim"?{lim:true}:{lim:false,at:NOW},okl); }; });
+  var ag=document.getElementById("accAllGo"); if(ag) ag.onclick=function(){ ag.disabled=true; accSave(t.id,{lim:false,at:NOW},okl); };
   box.querySelectorAll(".rt-accg").forEach(function(b){ b.onclick=function(){
-    var o={lim:true}; o["g/"+b.dataset.g]=a.g[b.dataset.g]?null:true; b.disabled=true; accSave(t.id,o,okl); }; });
+    var o={lim:true}; o["g/"+b.dataset.g]=accLive(a.g[b.dataset.g])?null:NOW; b.disabled=true; accSave(t.id,o,okl); }; });
   var sq=document.getElementById("accSq");
   if(sq){
     var byId={}; (okl||[]).forEach(function(x){ byId[x.id]=x; });
@@ -3707,13 +3823,13 @@ function accTcRender(okl){
     var drawSt=function(){
       ACC_Q=sq.value; var q=nrm(ACC_Q), res=document.getElementById("accSr");
       var hits=q.length<2?[]:(okl||[]).filter(function(x){ return nrm(nm(x)).indexOf(q)>=0||nrm(x.surname+x.name).indexOf(q)>=0; }).slice(0,8);
-      res.innerHTML=hits.map(function(x){ var on=!!a.s[x.id];
-        return '<button type="button" class="rt-gchip rt-acsb'+(on?" on":"")+'" data-id="'+esc(x.id)+'">'+(on?"🔓 ":"🔒 ")+esc(nm(x))+' <span class="rt-note">'+esc(x.group||"")+'</span></button>'; }).join("")||(q.length>=2?'<span class="rt-note">'+T("Topilmadi","Not found")+'</span>':"");
+      res.innerHTML=hits.map(function(x){ var v=a.s[x.id], k=st(v);
+        return '<button type="button" class="rt-gchip rt-acsb'+(k?" on":"")+(k==="ro"?" ro":"")+'" data-id="'+esc(x.id)+'">'+ic[k]+esc(nm(x))+' <span class="rt-note">'+esc(x.group||"")+'</span>'+due(v)+'</button>'; }).join("")||(q.length>=2?'<span class="rt-note">'+T("Topilmadi","Not found")+'</span>':"");
       var ids=Object.keys(a.s).filter(function(k){ return a.s[k]; });
-      document.getElementById("accSon").innerHTML=ids.length?'<span class="rt-note" style="width:100%">'+T("Alohida ochilganlar:","Opened separately:")+'</span>'+ids.map(function(k){
-        return '<button type="button" class="rt-gchip rt-acsb on" data-id="'+esc(k)+'" title="'+T("Yopish","Close")+'">🔓 '+esc(byId[k]?nm(byId[k]):k)+' ✕</button>'; }).join(""):"";
+      document.getElementById("accSon").innerHTML=ids.length?'<span class="rt-note" style="width:100%">'+T("Alohida ochilganlar:","Opened separately:")+'</span>'+ids.map(function(k){ var v=a.s[k], live=accLive(v);
+        return '<button type="button" class="rt-gchip rt-acsb on'+(live?"":" ro")+'" data-id="'+esc(k)+'" title="'+(live?T("Yopish","Close"):T("Yana yakshanbagacha ball berish","Give points again until Sunday"))+'">'+(live?"🟢 ":"📖 ")+esc(byId[k]?nm(byId[k]):k)+due(v)+(live?' ✕':'')+'</button>'; }).join(""):"";
       box.querySelectorAll(".rt-acsb").forEach(function(b){ b.onclick=function(){
-        var o={lim:true}; o["s/"+b.dataset.id]=a.s[b.dataset.id]?null:true; b.disabled=true; accSave(t.id,o,okl); }; });
+        var o={lim:true}; o["s/"+b.dataset.id]=accLive(a.s[b.dataset.id])?null:NOW; b.disabled=true; accSave(t.id,o,okl); }; });
     };
     sq.oninput=drawSt; drawSt();
   }

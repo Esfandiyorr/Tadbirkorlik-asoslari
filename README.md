@@ -101,8 +101,16 @@ Yuqori panelda 🏆 tugmasi turadi: u yerda **reyting**, **shaxsiy natija**, **m
 
 Har bir ball **bir marta** beriladi — qayta ochish yoki qayta yechish ball qo'shmaydi.
 
-**Ball muddati yo'q:** taqdimot talabaga ochiq bo'lsa, hali ko'rmagan slayd va ishlamagan savollari uchun ball
-istalgan vaqtda beriladi. Guruhiga yopiq mavzuda ball berilmaydi, yopiq mavzuning eski nusxasi bazaga qayta yozilmaydi.
+**Ball muddati — yakshanbagacha:** o'qituvchi mavzuni guruhga (yoki hammaga, yoki alohida talabaga) ochgan paytdan
+o'sha haftaning **yakshanba kuni 23:59** gacha (Toshkent vaqti) ball beriladi. Ochilgan vaqt bazada server soati bilan
+saqlanadi: `meta/access/<mavzu>/g/<guruh>` = vaqt (`s/<talaba>` — alohida talaba, `at` — «hammaga»).
+Muddat tugagach mavzu **📖 o'qish rejimiga** o'tadi: slaydlarni barcha guruhlar o'qiy oladi, lekin ball berilmaydi,
+test/krossvord/masala ishlanmaydi, PDF yuklab/chop etib bo'lmaydi. Topbarda «📖 O'qish rejimi» belgisi turadi,
+talaba mavzuni ochganda ogohlantirish chiqadi. Avval to'plangan ballar saqlanib qoladi.
+`config.json` da `"read": true` qo'yilgan mavzular (hozir M1–M5) va vaqt o'rniga `true` turgan eski yozuvlar ham
+o'qish rejimida. O'qituvchi panelida 🟢 — ball beriladi (muddati bilan), 📖 — o'qish rejimi, 🔒 — yopiq;
+📖 guruhni bosish unga yana yakshanbagacha ball beradi. Guruhiga yopiq mavzuda ball berilmaydi,
+yopiq mavzuning eski nusxasi bazaga qayta yozilmaydi.
 O'qituvchi panelidagi **🔒 Yopiq mavzuda ball olganlar** (Baholash va reyting) adashib ochilgan mavzudagi ballarni
 mavzu + guruh bo'yicha bir bosishda o'chiradi.
 
