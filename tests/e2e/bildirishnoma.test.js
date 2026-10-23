@@ -50,6 +50,10 @@ const FAKE=()=>{ /* PushManager taqlidi: subscribe/getSubscription — soxta, le
   await DM.goto(H.SITE+"/index.html"); await ready(DM);
   const dm=await DM.evaluate(()=>document.querySelector("#hmPush").innerText.replace(/\s+/g," "));
   ck("Android Chrome: «🌐 Chrome brauzerida» qadamlari birinchi",/Chrome brauzerida:/.test(dm.split("Boshqa holat")[0])&&/Ruxsatlarni tiklash/.test(dm),dm.slice(0,220));
+  const dmm=dm.split("Boshqa holat")[0];
+  ck("Chrome qadamlari to'liq: 🔕 belgisi, umumiy sozlama, Telegram, boshqa brauzer",/🔕/.test(dmm)&&/Saytlar bildirishnoma yuborishi mumkin/.test(dmm)&&/Telegram/.test(dmm)&&/boshqa brauzerda/.test(dmm),dmm.slice(0,120));
+  const dg=await DM.evaluate(()=>{ const e=document.querySelector("#hmPush .rt-pfix-d"); return e?e.innerText:""; });
+  ck("texnik ma'lumot qatori: brauzer · tizim · ruxsat: denied",/Chrome 141/.test(dg)&&/Android 14/.test(dg)&&/SM-A546E/.test(dg)&&/ruxsat: denied/.test(dg)&&/brauzer oynasi/.test(dg),dg);
   await DM.screenshot({path:"push_denied_m.png",fullPage:false});
   await DM.evaluate(()=>{ Object.defineProperty(Notification,"permission",{configurable:true,get:()=>"default"}); document.dispatchEvent(new Event("visibilitychange")); }); await sleep(800);
   ck("sozlamadan qaytganda (ruxsat ochilgan) — blok o'zi «🔔 Yoqish» ga o'tadi",await DM.evaluate(()=>!!document.querySelector('#hmPush [data-pb="on"]')));
