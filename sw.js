@@ -8,6 +8,8 @@ var CACHE = "terdu-v1";
 var FRESH = /(\.(html|js|css|json|webmanifest)|\/)$/i;
 function reval(r) { try { return new Request(r, { cache: "no-cache" }); } catch (x) { return r; } }
 var SKIP = /\.(mp3|mp4|webm|m4a|pdf|docx|zip)$/i;
+/* rt-engine.js?v=<iz> kabi versiyali fayl hech qachon o'zgarmaydi (o'zgarsa manzili ham o'zgaradi) — xotiradan darhol beriladi */
+var VER = /[?&]v=[0-9a-f]{6,}/i;
 
 self.addEventListener("install", function () { self.skipWaiting(); });
 
@@ -33,6 +35,23 @@ self.addEventListener("fetch", function (e) {
   try { u = new URL(r.url); } catch (x) { return; }
   if (u.origin !== self.location.origin || r.headers.has("range") || SKIP.test(u.pathname)) return;
   var nav = r.mode === "navigate";
+  if (!nav && VER.test(u.search)) {
+    e.respondWith(caches.open(CACHE).then(function (ch) {
+      return ch.match(r).then(function (m) {
+        return m || fetch(r).then(function (res) {
+          if (res && res.ok && res.type === "basic") {
+            ch.put(r, res.clone()).then(function () {      /* shu faylning eski versiyalari o'chiriladi */
+              return ch.keys().then(function (ks) {
+                ks.forEach(function (k) { var ku = new URL(k.url); if (ku.pathname === u.pathname && ku.search !== u.search) ch.delete(k); });
+              });
+            }).catch(function () {});
+          }
+          return res;
+        });
+      });
+    }));
+    return;
+  }
   e.respondWith(fetch(nav || FRESH.test(u.pathname) ? reval(r) : r).then(function (res) {
     if (res && res.ok && res.type === "basic") {
       var copy = res.clone();

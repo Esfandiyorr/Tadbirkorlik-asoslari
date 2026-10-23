@@ -795,3 +795,51 @@ body.rt-ro #btnPrint{display:none!important}
 .rt-mkpop{position:fixed;z-index:170;display:flex;flex-direction:column;gap:6px;padding:8px 10px;border:1px solid var(--line);border-radius:12px;background:var(--panel);box-shadow:0 10px 30px rgba(15,23,42,.25)}
 .rt-mkpop>b{font-size:12px;color:var(--muted);max-width:240px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 @media(max-width:560px){.rt-mtab .rt-mstk{min-width:118px;max-width:140px;white-space:normal;overflow-wrap:anywhere;line-height:1.25}.rt-mkb{width:27px;height:27px;font-size:13px}.rt-mwrap{max-height:68vh}}
+/* yuklanish ekrani (kirishda va kerakli mavzuga o'tishda bir xil) */
+.rt-splash{z-index:200}
+.rt-spl{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center}
+.rt-spl-logo{width:84px;height:84px;border-radius:50%;background:#fff url("logo_tersu.png") center/contain no-repeat;box-shadow:0 8px 26px rgba(10,54,5,.22);animation:rtSplPulse 1.6s ease-in-out infinite}
+.rt-spl b{font-size:24px;font-weight:900;color:#15803d;letter-spacing:.5px}
+.rt-spl p{margin:0;color:var(--muted);font-size:14px;font-weight:600}
+.rt-spl-bar{position:relative;display:block;width:150px;height:4px;border-radius:4px;background:color-mix(in srgb,var(--green,#16a34a) 18%,transparent);overflow:hidden}
+.rt-spl-bar u{position:absolute;top:0;left:-40%;width:40%;height:100%;border-radius:4px;background:var(--green,#16a34a);animation:rtSplBar 1.1s ease-in-out infinite}
+@keyframes rtSplPulse{50%{transform:scale(1.06)}}
+@keyframes rtSplBar{to{left:100%}}
+@media(prefers-reduced-motion:reduce){.rt-spl-logo,.rt-spl-bar u{animation:none}}
+/* 📋 «Menga nima qoldi?» */
+.rt-chip.rt-todo{white-space:nowrap;border-color:#0f766e;background:linear-gradient(135deg,#14b8a6,#0f766e);color:#fff;font-weight:800;position:relative}
+.rt-chip.rt-todo b{color:#fff}
+.rt-todo-n{display:inline-grid;place-items:center;min-width:18px;height:18px;padding:0 4px;border-radius:9px;background:#ef4444;color:#fff;font-size:11px;font-weight:900}
+.rt-todo-ok{font-weight:900}
+@media(max-width:860px){#rtTodo{order:5}}
+.rt-todop{position:fixed;z-index:150;overflow:auto;padding:12px 14px;border:1px solid var(--line);border-radius:16px;background:var(--panel);color:var(--ink);box-shadow:0 18px 44px rgba(15,23,42,.28);overscroll-behavior:contain}
+.rt-todo-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:8px}
+.rt-todo-h b{font-size:15px}.rt-todo-h span{font-size:12.5px;color:var(--muted);font-weight:700}
+.rt-todo-dl{display:flex;flex-direction:column;gap:2px;margin:0 0 10px;padding:9px 12px;border-radius:12px;background:color-mix(in srgb,#14b8a6 13%,transparent);font-size:14px}
+.rt-todo-dl small{color:var(--muted);font-size:12px}
+.rt-todo-all{margin:0 0 8px;font-weight:800;color:var(--green,#16a34a)}
+.rt-todo-r{display:flex;gap:10px;padding:9px 0;border-top:1px solid var(--line)}
+.rt-todo-r>div{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+.rt-todo-r b{font-size:14px}.rt-todo-r small{font-size:12px;color:var(--muted)}
+.rt-todo-r.ok{opacity:.75}
+.rt-todo-ic{font-size:18px;line-height:1.2}
+.rt-todo-bar{display:block;height:6px;border-radius:6px;background:var(--line);overflow:hidden}
+.rt-todo-bar i{display:block;height:100%;border-radius:6px;background:linear-gradient(90deg,#14b8a6,var(--green,#16a34a))}
+.rt-todo-sl{display:flex;flex-wrap:wrap;gap:4px;margin-top:2px}
+.rt-todo-sl button{min-width:30px;height:28px;border:1.5px solid var(--line);border-radius:8px;background:var(--panel2);color:var(--ink);font:inherit;font-size:12.5px;font-weight:800;cursor:pointer}
+.rt-todo-sl button:hover{border-color:#14b8a6}
+.rt-todo-sl span{align-self:center;font-size:12px;color:var(--muted)}
+.rt-todo-go{align-self:flex-start;margin-top:2px}
+.rt-todo-o{display:flex;flex-direction:column;gap:4px;padding-top:9px;border-top:1px solid var(--line);font-size:13px}
+.rt-todo-o a{color:var(--ink);text-decoration:none;padding:6px 8px;border-radius:9px;background:var(--panel2)}
+.rt-todo-o a:hover{background:var(--chip)}
+/* 👥 reytingda guruh filtri */
+.rt-topf{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px}
+.rt-topf .rt-gchip{padding:6px 12px;font-size:13px}
+.rt-topgn{margin:-2px 0 8px}
+.rt-rk-all{display:block;margin-top:2px;font-size:10px;font-weight:700;color:var(--muted);white-space:nowrap}
+/* ⏰ avtomatik eslatmalar (push) */
+.rt-pushauto{margin-top:12px;padding:10px 12px;border:1px dashed var(--line);border-radius:12px;background:var(--panel)}
+.rt-pushauto>b{display:block;margin-bottom:4px}
+.rt-pushup{margin-top:8px}.rt-pushup summary{cursor:pointer;font-weight:700;font-size:13.5px}
+.rt-pushup ol{margin-top:8px}
