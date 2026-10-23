@@ -3483,10 +3483,12 @@ function pushFixData(){ return {
     T("Yana bloklangan desa: <b>Chrome</b> ni oching → <b>⋮</b> → <b>Sozlamalar</b> → <b>Sayt sozlamalari</b> → <b>Bildirishnomalar</b> → «Bloklangan» ro'yxatidan saytimizni tanlang → <b>Ruxsat berish</b>.","Still blocked: open <b>Chrome</b> → <b>⋮</b> → <b>Settings</b> → <b>Site settings</b> → <b>Notifications</b> → pick our site under «Blocked» → <b>Allow</b>."),
     T("TerDU'ga qaytib, <b>🔄 Tekshirish</b> ni bosing.","Come back to TerDU and press <b>🔄 Check</b>.")]],
   chrome:[T("🌐 Chrome brauzerida","🌐 In Chrome"),[
-    T("Manzil satrining chap tomonidagi belgini (🔒 yoki ⚙) bosing → <b>Ruxsatlar</b>.","Tap the icon at the left of the address bar (🔒 or ⚙) → <b>Permissions</b>."),
-    T("<b>Bildirishnomalar</b> → <b>Ruxsat berish</b>. «<b>Ruxsatlarni tiklash</b>» tugmasi bo'lsa — uni bosing, keyin shu yerda <b>🔔 Yoqish</b>.","<b>Notifications</b> → <b>Allow</b>. If there is «<b>Reset permissions</b>» — tap it, then <b>🔔 Turn on</b> here."),
-    T("Yoki: <b>⋮</b> → <b>Sozlamalar</b> → <b>Sayt sozlamalari</b> → <b>Bildirishnomalar</b> → «Bloklangan» dan saytimizni tanlang → <b>Ruxsat berish</b>.","Or: <b>⋮</b> → <b>Settings</b> → <b>Site settings</b> → <b>Notifications</b> → pick our site under «Blocked» → <b>Allow</b>."),
-    T("Baribir bo'lmasa: telefon <b>Sozlamalar</b> → <b>Ilovalar</b> → <b>Chrome</b> → <b>Bildirishnomalar</b> yoqilgan bo'lsin.","Still not: phone <b>Settings</b> → <b>Apps</b> → <b>Chrome</b> → <b>Notifications</b> must be on.")]],
+    T("Manzil satrining o'ng tomonida <b>🔕</b> (chiziqli qo'ng'iroq) belgisi bo'lsa — uni bosing → <b>Ruxsat berish</b>. Chrome ba'zan bildirishnomani o'zi bloklab qo'yadi.","If there is a <b>🔕</b> (crossed bell) at the right of the address bar — tap it → <b>Allow</b>. Chrome sometimes blocks notifications by itself."),
+    T("Manzil satrining chap tomonidagi belgini (🔒 yoki ⚙) bosing → <b>Ruxsatlar</b> → <b>Bildirishnomalar</b> → <b>Ruxsat berish</b>. «<b>Ruxsatlarni tiklash</b>» tugmasi bo'lsa — uni bosing, keyin shu yerda <b>🔔 Yoqish</b>.","Tap the icon at the left of the address bar (🔒 or ⚙) → <b>Permissions</b> → <b>Notifications</b> → <b>Allow</b>. If there is «<b>Reset permissions</b>» — tap it, then <b>🔔 Turn on</b> here."),
+    T("Chrome umumiy sozlamasi: <b>⋮</b> → <b>Sozlamalar</b> → <b>Bildirishnomalar</b> (yoki <b>Sayt sozlamalari → Bildirishnomalar</b>) → «<b>Saytlar bildirishnoma yuborishi mumkin</b>» <b>yoqilgan</b> bo'lsin; «Bloklangan» ro'yxatida saytimiz bo'lsa — uni tanlab <b>Ruxsat berish</b>.","Chrome general setting: <b>⋮</b> → <b>Settings</b> → <b>Notifications</b> (or <b>Site settings → Notifications</b>) → «<b>Sites can ask to send notifications</b>» must be <b>on</b>; if our site is under «Blocked» — pick it and <b>Allow</b>."),
+    T("Telefon <b>Sozlamalar</b> → <b>Ilovalar</b> → <b>Chrome</b> → <b>Bildirishnomalar</b> yoqilgan bo'lsin.","Phone <b>Settings</b> → <b>Apps</b> → <b>Chrome</b> → <b>Notifications</b> must be on."),
+    T("Havolani <b>Telegram</b> yoki boshqa ilovadan bosgan bo'lsangiz — ichki oynada bildirishnoma ishlamaydi: <b>⋮</b> → <b>Chrome'da ochish</b>.","If you tapped the link in <b>Telegram</b> or another app — notifications do not work in the built-in window: <b>⋮</b> → <b>Open in Chrome</b>."),
+    T("Hech biri yordam bermasa: saytni <b>boshqa brauzerda</b> (Firefox, Edge, Samsung Internet) oching va u yerda <b>🔔 Yoqish</b> ni bosing; yoki Chrome'da belgi → <b>Ruxsatlar</b> → <b>Ma'lumotlarni tozalash</b> (keyin ism, familiya va PIN bilan qayta kirasiz).","If nothing helps: open the site in <b>another browser</b> (Firefox, Edge, Samsung Internet) and press <b>🔔 Turn on</b> there; or in Chrome the icon → <b>Permissions</b> → <b>Clear data</b> (then log in again with name, surname and PIN).")]],
   samsung:[T("🌐 Samsung Internet'da","🌐 In Samsung Internet"),[
     T("<b>≡</b> (menyu) → <b>Sozlamalar</b> → <b>Saytlar va yuklab olishlar</b> → <b>Bildirishnomalar</b>.","<b>≡</b> (menu) → <b>Settings</b> → <b>Sites and downloads</b> → <b>Notifications</b>."),
     T("Saytimizni toping → <b>Ruxsat berish</b>; ro'yxatda bo'lmasa — bildirishnomalar umumiy kalitini yoqing.","Find our site → <b>Allow</b>; if it is not there — turn the main switch on."),
@@ -3499,12 +3501,22 @@ function pushFixData(){ return {
     T("Manzil satridagi 🔒 → <b>Sayt sozlamalari</b> (yoki «Ruxsatlar»).","The 🔒 in the address bar → <b>Site settings</b> (or «Permissions»)."),
     T("<b>Bildirishnomalar</b> → <b>Ruxsat berish</b>, so'ng sahifani yangilang.","<b>Notifications</b> → <b>Allow</b>, then reload the page.")]]
 }; }   /* til almashganda ham to'g'ri bo'lsin — har safar yasaladi */
+/* 🔍 texnik holat: yordam so'ralganda shu qatorni ko'rsatish yetarli */
+function pushDiag(){
+  var u=navigator.userAgent||"", br=/SamsungBrowser\/([\d.]+)/.exec(u), m=br?["Samsung Internet",br[1]]:/Edg\/([\d.]+)/.exec(u)?["Edge",/Edg\/([\d.]+)/.exec(u)[1]]:/Firefox\/([\d.]+)/.exec(u)?["Firefox",/Firefox\/([\d.]+)/.exec(u)[1]]:/Chrome\/([\d.]+)/.exec(u)?["Chrome",/Chrome\/([\d.]+)/.exec(u)[1]]:/Version\/([\d.]+).*Safari/.exec(u)?["Safari",/Version\/([\d.]+)/.exec(u)[1]]:["?",""];
+  var os=/Android ([\d.]+)/.exec(u)?"Android "+/Android ([\d.]+)/.exec(u)[1]:/iPhone OS ([\d_]+)/.exec(u)?"iOS "+/iPhone OS ([\d_]+)/.exec(u)[1].replace(/_/g,"."):/Windows/.test(u)?"Windows":/Mac/.test(u)?"Mac":"?";
+  var app=(window.matchMedia&&matchMedia("(display-mode: standalone)").matches)||navigator.standalone===true;
+  var mo=(u.match(/Android[^;]*; ([^)]+)\)/)||[])[1]||"";
+  return m[0]+" "+String(m[1]).split(".")[0]+" · "+os+(mo?" · "+mo.replace(/ Build.*$/,""):"")+" · "+(app?T("ilova (bosh ekran)","installed app"):T("brauzer oynasi","browser window"))+
+    " · "+T("ruxsat","permission")+": "+(window.Notification?Notification.permission:"yo'q")+" · push: "+(("PushManager" in window)?"ha":"yo'q")+" · "+(window.isSecureContext?"https":"http");
+}
 function pushFixHtml(){
   var PUSH_FIX=pushFixData(), w=pushWhere(), main=PUSH_FIX[w]||PUSH_FIX.chrome;
   var ol=function(x){ return '<ol class="rt-pfix">'+x[1].map(function(li){ return '<li>'+li+'</li>'; }).join("")+'</ol>'; };
   return '<b class="rt-pfix-h">'+main[0]+':</b>'+ol(main)+
     '<details class="rt-pfix-o"><summary>'+T("Boshqa holat (ilova, Chrome, Samsung, Telegram, kompyuter)","Other cases (app, Chrome, Samsung, Telegram, computer)")+'</summary>'+
-      ["app","chrome","samsung","inapp","pc"].filter(function(k){ return k!==w; }).map(function(k){ return '<b class="rt-pfix-h">'+PUSH_FIX[k][0]+':</b>'+ol(PUSH_FIX[k]); }).join("")+'</details>';
+      ["app","chrome","samsung","inapp","pc"].filter(function(k){ return k!==w; }).map(function(k){ return '<b class="rt-pfix-h">'+PUSH_FIX[k][0]+':</b>'+ol(PUSH_FIX[k]); }).join("")+'</details>'+
+    '<small class="rt-pfix-d">🔍 '+T("Texnik ma'lumot (yordam so'rasangiz, shuni yuboring): ","Technical info (send this if you ask for help): ")+esc(pushDiag())+'</small>';
 }
 var PB_LIVE=null;
 function pushBox(box,where){
