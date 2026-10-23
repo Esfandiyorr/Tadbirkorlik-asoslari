@@ -139,7 +139,7 @@ function liveAt(a, sid, group, now) {
   const v = (!a.lim ? [a.at] : [(a.s || {})[sid], (a.g || {})[gkey(group)]]).filter(x => typeof x === "number" && x > 0 && now < accEnd(x));
   return v.length ? Math.max(...v) : 0;
 }
-function fileOf(n) { return n === 1 ? "index.html" : "mavzu-" + n + ".html"; }
+function fileOf(n) { return "mavzu-" + n + ".html"; }
 async function remind(tok) {
   const now = Date.now();
   const [acc, st] = await Promise.all([fetch(DB + "/meta/access.json").then(r => r.json()), fetch(DB + "/students.json").then(r => r.json())]);

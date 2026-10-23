@@ -1,0 +1,1732 @@
+<!DOCTYPE html>
+<html lang="uz" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tadbirkorlik tafakkuri va biznes imkoniyatlarni aniqlash — TerDU</title>
+<meta name="description" content="Tadbirkorlik asoslari. M1-mavzu: Tadbirkorlik tafakkuri va biznes imkoniyatlarni aniqlash. Termiz davlat universiteti.">
+<style>
+/* ================== TOKENS ================== */
+:root{
+  --bg:#eef3fb; --bg2:#e6ecf9;
+  --panel:#ffffff; --panel2:#f7f9fe;
+  --ink:#0d1b2a; --ink2:#1f2d3d; --muted:#5b6b82;
+  --line:#e1e8f4; --shadow:0 18px 40px -18px rgba(13,27,42,.35);
+  --green:#12a150; --green2:#0b7a3c;
+  --orange:#f97316; --amber:#f59e0b;
+  --violet:#7c3aed; --pink:#ec4899;
+  --blue:#2563eb; --cyan:#0891b2;
+  --red:#e11d48; --teal:#0d9488;
+  --chip:#f1f5fd;
+  --ok:#12a150; --err:#e11d48;
+}
+:root[data-theme="dark"]{
+  --bg:#080f1d; --bg2:#0d1728;
+  --panel:#111b2e; --panel2:#0e1726;
+  --ink:#eaf1ff; --ink2:#dbe6fb; --muted:#9db0cd;
+  --line:#22304c; --shadow:0 18px 44px -18px rgba(0,0,0,.75);
+  --green:#2ee07f; --green2:#12a150;
+  --orange:#ff9d4d; --amber:#fbbf24;
+  --violet:#a78bfa; --pink:#f472b6;
+  --blue:#60a5fa; --cyan:#22d3ee;
+  --red:#fb7185; --teal:#2dd4bf;
+  --chip:#17243c;
+  --ok:#2ee07f; --err:#fb7185;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; color:var(--ink);
+  font-family:"Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
+  background:
+    radial-gradient(1100px 600px at 8% -10%, rgba(18,161,80,.20), transparent 60%),
+    radial-gradient(900px 520px at 100% 0%, rgba(124,58,237,.20), transparent 55%),
+    radial-gradient(900px 600px at 50% 115%, rgba(249,115,22,.18), transparent 60%),
+    linear-gradient(160deg,var(--bg),var(--bg2));
+  background-attachment:fixed;
+  overflow:hidden;
+  transition:background .4s ease,color .3s ease;
+}
+.terdu-logo{background-image:url("logo_tersu.png");background-size:contain;background-position:center;background-repeat:no-repeat}
+:root[data-theme="dark"] .terdu-logo{background-color:#fff;border-radius:50%}
+/* ================== LAYOUT ================== */
+#app{display:flex;flex-direction:column;height:100vh;height:100dvh}
+.topbar{
+  display:flex;align-items:center;gap:14px;padding:10px 18px;
+  background:color-mix(in srgb,var(--panel) 82%,transparent);
+  backdrop-filter:blur(14px);border-bottom:1px solid var(--line);z-index:30;flex:0 0 auto;
+}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}
+.brand .logo{width:44px;height:44px;flex:0 0 auto;filter:drop-shadow(0 4px 8px rgba(0,0,0,.15))}
+.brand b{display:block;font-size:14px;line-height:1.15;letter-spacing:.2px}
+.brand span{display:block;font-size:11.5px;color:var(--muted)}
+.spacer{flex:1}
+.tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.btn{
+  border:1px solid var(--line);background:var(--panel);color:var(--ink);
+  padding:8px 12px;border-radius:12px;font-size:13px;font-weight:600;cursor:pointer;
+  display:inline-flex;align-items:center;gap:7px;transition:.18s;white-space:nowrap;
+}
+.btn:hover{transform:translateY(-2px);border-color:transparent;box-shadow:0 10px 22px -12px rgba(0,0,0,.5)}
+.btn.accent{background:linear-gradient(135deg,var(--green),var(--teal));color:#fff;border-color:transparent}
+.btn.warn{background:linear-gradient(135deg,var(--orange),var(--amber));color:#231000;border-color:transparent}
+.btn.ghost{background:transparent}
+a.btn{text-decoration:none;color:var(--ink)}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+#timer{font-variant-numeric:tabular-nums;font-weight:800;letter-spacing:.5px;color:var(--violet)}
+
+.progress-wrap{height:5px;background:color-mix(in srgb,var(--line) 70%,transparent);flex:0 0 auto}
+#progress{height:100%;width:0;border-radius:0 6px 6px 0;
+  background:linear-gradient(90deg,var(--green),var(--cyan),var(--violet),var(--orange));
+  transition:width .35s cubic-bezier(.4,0,.2,1)}
+
+#deck{position:relative;flex:1 1 auto;overflow:hidden}
+.slide{
+  position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;
+  padding:26px clamp(16px,4vw,54px) 34px;
+  opacity:0;visibility:hidden;transform:translateX(40px) scale(.985);
+  transition:opacity .4s ease,transform .45s cubic-bezier(.22,1,.36,1),visibility .45s;
+}
+.slide.active{opacity:1;visibility:visible;transform:none}
+.slide.prev{transform:translateX(-40px) scale(.985)}
+.inner{max-width:1240px;margin:0 auto}
+
+.navbar{
+  display:flex;align-items:center;gap:12px;padding:9px 18px;flex:0 0 auto;
+  background:color-mix(in srgb,var(--panel) 82%,transparent);
+  backdrop-filter:blur(14px);border-top:1px solid var(--line);z-index:30;
+}
+.counter{font-size:13px;font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums}
+.dots{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;flex:1}
+.dot{width:9px;height:9px;border-radius:50%;border:none;padding:0;cursor:pointer;
+  background:color-mix(in srgb,var(--muted) 45%,transparent);transition:.2s}
+.dot:hover{transform:scale(1.4)}
+.dot.on{width:26px;border-radius:6px;background:linear-gradient(90deg,var(--green),var(--cyan))}
+
+/* ================== TYPO ================== */
+.kicker{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:800;
+  letter-spacing:1.6px;text-transform:uppercase;color:#fff;padding:6px 14px;border-radius:999px;
+  background:linear-gradient(135deg,var(--violet),var(--pink));box-shadow:0 8px 18px -10px var(--violet)}
+h1{font-size:clamp(26px,4.4vw,50px);line-height:1.1;margin:14px 0 10px;letter-spacing:-.5px}
+h2{font-size:clamp(21px,3.1vw,35px);line-height:1.16;margin:8px 0 16px;letter-spacing:-.3px}
+h3{font-size:clamp(16px,2vw,21px);margin:0 0 8px}
+p,li{font-size:clamp(14px,1.35vw,17.5px);line-height:1.6;color:var(--ink2)}
+.lead{font-size:clamp(15px,1.6vw,19px);color:var(--muted)}
+.grad{background:linear-gradient(120deg,var(--green),var(--cyan) 45%,var(--violet));
+  -webkit-background-clip:text;background-clip:text;color:transparent}
+.grad-w{background:linear-gradient(120deg,var(--orange),var(--pink) 55%,var(--violet));
+  -webkit-background-clip:text;background-clip:text;color:transparent}
+small.note{display:block;margin-top:12px;color:var(--muted);font-size:12.5px}
+
+/* ================== BLOCKS ================== */
+.card{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:18px 20px;
+  box-shadow:var(--shadow);position:relative;overflow:hidden}
+.card::before{content:"";position:absolute;inset:0 auto 0 0;width:5px;background:var(--c,var(--green))}
+.card h3{color:var(--c,var(--green))}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.g5{grid-template-columns:repeat(5,minmax(0,1fr))}
+@media(max-width:980px){.g3,.g4,.g5{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:640px){.g2,.g3,.g4,.g5{grid-template-columns:1fr}}
+
+.def{border-radius:20px;padding:20px 24px;color:#fff;box-shadow:var(--shadow);
+  background:linear-gradient(135deg,var(--green2),var(--teal) 55%,var(--cyan));font-size:clamp(15px,1.7vw,20px);line-height:1.5}
+.def b{color:#fffbe8}
+.quote{border-left:6px solid var(--amber);background:var(--panel2);border-radius:0 16px 16px 0;
+  padding:14px 18px;font-style:italic;color:var(--ink2)}
+.pill{display:inline-block;margin:4px 6px 0 0;padding:6px 12px;border-radius:999px;background:var(--chip);
+  border:1px solid var(--line);font-size:13px;font-weight:600;color:var(--ink2)}
+.pill.g{background:color-mix(in srgb,var(--green) 16%,transparent);border-color:transparent;color:var(--green2)}
+:root[data-theme="dark"] .pill.g{color:var(--green)}
+.icon{font-size:26px;line-height:1;display:block;margin-bottom:6px}
+ul.clean{margin:6px 0 0;padding-left:20px}
+ul.clean li{margin-bottom:6px}
+ul.tick{list-style:none;margin:6px 0 0;padding:0}
+ul.tick li{position:relative;padding-left:28px;margin-bottom:8px}
+ul.tick li::before{content:"✔";position:absolute;left:0;top:0;color:var(--green);font-weight:900}
+ul.cross li::before{content:"✕";color:var(--red)}
+
+table{width:100%;border-collapse:separate;border-spacing:0;background:var(--panel);
+  border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:var(--shadow);font-size:clamp(13px,1.25vw,16px)}
+th,td{padding:10px 13px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+thead th{background:linear-gradient(135deg,var(--violet),var(--blue));color:#fff;font-weight:700;letter-spacing:.2px}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:nth-child(even){background:var(--panel2)}
+tbody tr:hover{background:color-mix(in srgb,var(--cyan) 10%,transparent)}
+.tw{overflow-x:auto;border-radius:16px}
+td.g{color:var(--green);font-weight:700}
+td.r{color:var(--red);font-weight:700}
+
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:18px;text-align:center;box-shadow:var(--shadow)}
+.stat .num{font-size:clamp(26px,4.2vw,46px);font-weight:900;line-height:1;
+  background:linear-gradient(135deg,var(--green),var(--cyan));-webkit-background-clip:text;background-clip:text;color:transparent}
+.stat.o .num{background:linear-gradient(135deg,var(--orange),var(--pink));-webkit-background-clip:text;background-clip:text}
+.stat.v .num{background:linear-gradient(135deg,var(--violet),var(--blue));-webkit-background-clip:text;background-clip:text}
+.stat p{margin:8px 0 0;font-size:13.5px;color:var(--muted)}
+
+.chain{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;align-items:stretch}
+@media(max-width:860px){.chain{grid-template-columns:1fr}}
+.link{border-radius:18px;padding:16px;color:#fff;box-shadow:var(--shadow);position:relative}
+.link h3{color:#fff;font-size:15px;letter-spacing:1px;text-transform:uppercase;opacity:.95}
+.link p{color:#fff;opacity:.95;font-size:14px;margin:6px 0 0}
+.l1{background:linear-gradient(135deg,#e11d48,#f97316)}
+.l2{background:linear-gradient(135deg,#f59e0b,#12a150)}
+.l3{background:linear-gradient(135deg,#0891b2,#2563eb)}
+.l4{background:linear-gradient(135deg,#7c3aed,#ec4899)}
+.link::after{content:"➜";position:absolute;right:-16px;top:50%;transform:translateY(-50%);
+  font-size:20px;color:var(--muted);z-index:2}
+.link:last-child::after{content:""}
+@media(max-width:860px){.link::after{right:50%;top:auto;bottom:-15px;transform:translateX(50%) rotate(90deg)}}
+
+.fact{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:var(--shadow);
+  transition:.2s;cursor:default}
+.fact:hover{transform:translateY(-5px)}
+.fact b{display:block;color:var(--violet);margin-bottom:4px;font-size:15px}
+.fact p{margin:0;font-size:14px;color:var(--muted)}
+.rich{display:flex;align-items:center;gap:12px;background:var(--panel);border:1px solid var(--line);
+  border-radius:16px;padding:12px 14px;box-shadow:var(--shadow)}
+.rich .rk{width:34px;height:34px;flex:0 0 auto;border-radius:50%;display:grid;place-items:center;font-weight:900;color:#fff;
+  background:linear-gradient(135deg,var(--amber),var(--orange))}
+.rich b{display:block;font-size:15px}
+.rich span{font-size:12.5px;color:var(--muted)}
+
+/* ================== TITLE SLIDE ================== */
+.title-wrap{display:grid;grid-template-columns:auto 1fr;gap:clamp(18px,3vw,42px);align-items:center;min-height:100%}
+@media(max-width:820px){.title-wrap{grid-template-columns:1fr;text-align:center;justify-items:center}}
+.big-logo{width:clamp(150px,20vw,240px);height:auto;aspect-ratio:1;animation:float 5s ease-in-out infinite;
+  filter:drop-shadow(0 16px 26px rgba(0,0,0,.25))}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+.meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.meta div{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:10px 14px;font-size:13.5px;box-shadow:var(--shadow)}
+.meta b{color:var(--green)}
+
+/* ================== TEST ================== */
+.qbox{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:16px 18px;margin-bottom:14px;box-shadow:var(--shadow)}
+.qbox .q{font-weight:800;margin:0 0 10px;font-size:16px}
+.qbox .q i{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:8px;margin-right:8px;
+  background:linear-gradient(135deg,var(--violet),var(--blue));color:#fff;font-style:normal;font-size:13px;font-weight:900;vertical-align:-4px}
+.opt{display:block;width:100%;text-align:left;border:1.5px solid var(--line);background:var(--panel2);color:var(--ink);
+  border-radius:12px;padding:10px 14px;margin-bottom:8px;font-size:14.5px;cursor:pointer;transition:.15s;font-family:inherit}
+.opt:hover:not(:disabled){border-color:var(--blue);transform:translateX(5px)}
+.opt .k{font-weight:900;margin-right:8px;color:var(--blue)}
+.opt.right{background:color-mix(in srgb,var(--ok) 18%,var(--panel));border-color:var(--ok);color:var(--ink)}
+.opt.wrong{background:color-mix(in srgb,var(--err) 18%,var(--panel));border-color:var(--err)}
+.opt:disabled{cursor:default}
+.fb{margin:6px 0 0;font-size:13.5px;font-weight:700;display:none}
+.fb.show{display:block}
+.fb.ok{color:var(--ok)}.fb.no{color:var(--err)}
+.scorebar{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  background:linear-gradient(135deg,var(--violet),var(--blue));color:#fff;border-radius:16px;padding:12px 16px;margin-bottom:16px;box-shadow:var(--shadow)}
+.scorebar b{font-size:19px}
+.result{display:none;border-radius:20px;padding:22px;text-align:center;color:#fff;box-shadow:var(--shadow);
+  background:linear-gradient(135deg,var(--green2),var(--teal),var(--cyan))}
+.result.show{display:block;animation:pop .45s cubic-bezier(.2,1.3,.4,1)}
+.result .pct{font-size:clamp(38px,7vw,68px);font-weight:900;line-height:1}
+@keyframes pop{from{transform:scale(.9);opacity:0}to{transform:none;opacity:1}}
+
+/* ================== OVERLAYS ================== */
+.overlay{position:fixed;inset:0;z-index:60;display:none;padding:22px;overflow:auto;
+  background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px)}
+.overlay.show{display:block;animation:fade .25s ease}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.ov-head{display:flex;align-items:center;gap:12px;max-width:1200px;margin:0 auto 16px}
+.thumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px;max-width:1200px;margin:0 auto}
+.thumb{border:1.5px solid var(--line);background:var(--panel);border-radius:14px;padding:12px;cursor:pointer;text-align:left;
+  transition:.18s;box-shadow:var(--shadow);color:var(--ink);font-family:inherit}
+.thumb:hover{transform:translateY(-4px);border-color:var(--green)}
+.thumb.on{border-color:var(--green);background:color-mix(in srgb,var(--green) 12%,var(--panel))}
+.thumb i{font-style:normal;font-size:11px;font-weight:900;color:var(--muted);letter-spacing:1px}
+.thumb b{display:block;margin-top:5px;font-size:14px;line-height:1.25}
+kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;border-radius:7px;
+  padding:2px 8px;font-family:inherit;font-size:12.5px;font-weight:700}
+.helpbox{max-width:560px;margin:8vh auto;background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:22px;box-shadow:var(--shadow)}
+.helpbox div{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px dashed var(--line);font-size:14px}
+.helpbox div:last-child{border:none}
+
+.hint{position:fixed;left:50%;bottom:64px;transform:translateX(-50%);z-index:40;
+  background:color-mix(in srgb,var(--panel) 92%,transparent);border:1px solid var(--line);border-radius:999px;
+  padding:8px 16px;font-size:12.5px;color:var(--muted);box-shadow:var(--shadow);transition:opacity .5s}
+.hint.hide{opacity:0;pointer-events:none}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* RT:BEGIN */
+</style>
+<link rel="stylesheet" href="rt-engine.css?v=5616044b8f">
+<style>
+/* RT:END */
+@media print{
+  body{overflow:visible;background:#fff}
+  .topbar,.navbar,.progress-wrap,.overlay,.hint{display:none!important}
+  #deck{overflow:visible;height:auto}
+  .slide{position:static;opacity:1;visibility:visible;transform:none;page-break-after:always;min-height:auto}
+}
+</style>
+<!-- PWA:BEGIN -->
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0a3605">
+<link rel="apple-touch-icon" href="fayllar/ilova/icon-180.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="TerDU Biznes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<script src="pwa.js" defer></script>
+<!-- PWA:END -->
+</head>
+<body>
+
+<div id="app">
+  <!-- ====== TOPBAR ====== -->
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo terdu-logo" role="img" aria-label="Termiz davlat universiteti logotipi"></div>
+      <div>
+        <b class="tb-name">TerDU</b>
+        <span data-ui="subj">Tadbirkorlik asoslari · M1-mavzu</span>
+      </div>
+    </div>
+    <div class="spacer"></div>
+    <div class="tools">
+      <button class="btn ghost" id="btnLang" title="O'zbekcha / English (L)">🌐 <span id="langTxt">ENG</span></button>
+      <button class="btn ghost" id="btnTimer" title="Vaqt hisoblagich (T)">⏱ <span id="timer">00:00</span></button>
+      <button class="btn ghost" id="btnGrid" title="Slaydlar ro'yxati (O)" data-ui="grid">▦ Slaydlar</button>
+      <button class="btn ghost" id="btnTheme" title="Tun / Kun rejimi (D)">🌙 <span id="themeTxt">Tun</span></button>
+      <button class="btn ghost" id="btnFull" title="To'liq ekran (F)" data-ui="full">⛶ Ekran</button>
+      <button class="btn ghost" id="btnPrint" title="Chop etish / PDF (P)">🖨 PDF</button>
+      <button class="btn ghost" id="btnHelp" title="Yordam (?)">❔</button>
+    </div>
+  </header>
+  <div class="progress-wrap"><div id="progress"></div></div>
+
+  <main id="deck">
+
+  <!-- ============ 1 ============ -->
+  <section class="slide" data-title="Muqova" data-title-en="Cover">
+    <div class="inner title-wrap">
+      <div class="big-logo terdu-logo" role="img" aria-label="Termiz davlat universiteti logotipi"></div>
+      <div>
+        <span class="kicker" data-i="0">M1-mavzu · Ma'ruza · 2 soat</span>
+        <h1 class="grad" data-i="1">TADBIRKORLIK TAFAKKURI VA BIZNES IMKONIYATLARNI ANIQLASH</h1>
+        <p class="lead" data-i="2">Tadbirkorlik — bino yoki katta kapital emas. Bu — <b>muammoni ko'ra bilish</b> va uni yechishga <b>jur'at etish</b> san'ati.</p>
+        <div class="meta">
+          <div data-i="3">📚 Fan: <b>Tadbirkorlik asoslari</b></div>
+          <div data-i="4">🎓 <b>Termiz davlat universiteti</b></div>
+          <div data-i="5">🗂 <b>18</b> slayd · <b>15</b> ta test</div>
+          <div data-i="6">⌨️ <b>→</b> tugmasi bilan davom eting</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 2 ============ -->
+  <section class="slide" data-title="Maqsad va natijalar" data-title-en="Aims and outcomes">
+    <div class="inner">
+      <span class="kicker" data-i="7">Mavzuning maqsadi</span>
+      <h2 data-i="8">Mashg'ulot yakunida talaba <span class="grad">nimani biladi?</span></h2>
+      <div class="def" data-i="9">Maqsad: talabalarda tadbirkorlik haqidagi mustahkam tasavvurni shakllantirish, uning shakllarini farqlash va — eng muhimi — <b>atrofdagi oddiy muammolarni biznes imkoniyati sifatida ko'rish</b> ko'nikmasini uyg'otish.</div>
+      <div class="grid g3" style="margin-top:16px">
+        <div class="card" style="--c:var(--green)"><span class="icon">🗣</span><h3 data-i="10">Izohlay oladi</h3><p data-i="11">Tadbirkorlik nima va tadbirkor kim ekanini o'z so'zlari bilan tushuntiradi.</p></div>
+        <div class="card" style="--c:var(--blue)"><span class="icon">🧩</span><h3 data-i="12">Farqlay oladi</h3><p data-i="13">Mikrobiznes, kichik biznes, startap, oilaviy va ijtimoiy tadbirkorlikni ajratadi.</p></div>
+        <div class="card" style="--c:var(--violet)"><span class="icon">🧠</span><h3 data-i="14">Tushunadi</h3><p data-i="15">"Xodim tafakkuri" bilan "tadbirkor tafakkuri" o'rtasidagi farqni anglaydi.</p></div>
+        <div class="card" style="--c:var(--orange)"><span class="icon">🔎</span><h3 data-i="16">Topa oladi</h3><p data-i="17">Kundalik hayotdan kamida 3 ta muammoni topib, biznes g'oyaga aylantiradi.</p></div>
+        <div class="card" style="--c:var(--pink)"><span class="icon">🔗</span><h3 data-i="18">Tuza oladi</h3><p data-i="19">"Muammo – Yechim – Mijoz – Daromad manbai" zanjirini mustaqil quradi.</p></div>
+        <div class="card" style="--c:var(--cyan)"><span class="icon">✅</span><h3 data-i="20">Baholay oladi</h3><p data-i="21">G'oyani 4 ta filtr orqali tekshirib, kuchli va kuchsizini ajratadi.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 3 ============ -->
+  <section class="slide" data-title="Reja va tushunchalar" data-title-en="Plan and concepts">
+    <div class="inner">
+      <span class="kicker" data-i="22">Ma'ruza rejasi</span>
+      <h2 data-i="23">Bugun <span class="grad">5 ta bosqich</span>ni bosib o'tamiz</h2>
+      <div class="grid g5">
+        <div class="card" style="--c:var(--green)"><span class="icon">1️⃣</span><h3 data-i="24">Tushuncha</h3><p data-i="25">Tadbirkorlik nima va uning mohiyati.</p></div>
+        <div class="card" style="--c:var(--blue)"><span class="icon">2️⃣</span><h3 data-i="26">Shakllari</h3><p data-i="27">Mikro, kichik, startap, oilaviy, ijtimoiy.</p></div>
+        <div class="card" style="--c:var(--violet)"><span class="icon">3️⃣</span><h3 data-i="28">Tafakkur</h3><p data-i="29">Mindset va uning belgilari.</p></div>
+        <div class="card" style="--c:var(--orange)"><span class="icon">4️⃣</span><h3 data-i="30">Imkoniyat</h3><p data-i="31">Muammoni biznesga aylantirish.</p></div>
+        <div class="card" style="--c:var(--pink)"><span class="icon">5️⃣</span><h3 data-i="32">Zanjir</h3><p data-i="33">Muammo–Yechim–Mijoz–Daromad.</p></div>
+      </div>
+      <h3 style="margin-top:22px" data-i="34">🔑 Tayanch tushunchalar</h3>
+      <div data-i="35">
+        <span class="pill g">tadbirkorlik</span><span class="pill">tadbirkor</span><span class="pill">tavakkalchilik (risk)</span>
+        <span class="pill">resurs</span><span class="pill">qo'shilgan qiymat</span><span class="pill g">mikrobiznes</span>
+        <span class="pill">kichik biznes</span><span class="pill g">startap</span><span class="pill">masshtablanish</span>
+        <span class="pill">oilaviy tadbirkorlik</span><span class="pill">ijtimoiy tadbirkorlik</span><span class="pill g">tadbirkorlik tafakkuri</span>
+        <span class="pill">biznes imkoniyat</span><span class="pill">mijoz</span><span class="pill">monetizatsiya</span><span class="pill">qiymat zanjiri</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 4 ============ -->
+  <section class="slide" data-title="Tadbirkorlik nima?" data-title-en="What is entrepreneurship?">
+    <div class="inner">
+      <span class="kicker" data-i="36">1-savol</span>
+      <h2 data-i="37">Tadbirkorlik — bu <span class="grad">joy emas, fikrlash usuli</span></h2>
+      <p class="lead" data-i="38">Ko'pchilik "tadbirkorlik" so'zini eshitganda do'kon, rasta yoki zavodni tasavvur qiladi. Aslida tadbirkorlik — bino emas, <b>faoliyat turi</b> va <b>fikrlash usuli</b>.</p>
+      <div class="def" data-i="39">Tadbirkorlik — insonning <b>o'z tashabbusi</b> bilan, <b>o'z mas'uliyati va tavakkalchiligi</b> asosida, boshqa odamlarning <b>muammosini hal qiladigan</b> mahsulot yoki xizmat yaratib, shu orqali <b>muntazam daromad</b> olishga qaratilgan <b>qonuniy</b> faoliyatidir.</div>
+      <p style="margin-top:14px" data-i="40">O'zbekiston Respublikasining "Tadbirkorlik faoliyati erkinligining kafolatlari to'g'risida"gi Qonunida ham u <b>tavakkalchilik asosida</b> amalga oshiriladigan, <b>daromad olishga qaratilgan tashabbuskor faoliyat</b> sifatida belgilangan.</p>
+      <h3 style="margin-top:14px" data-i="41">Ta'rifning 4 ta ustuni</h3>
+      <div class="tw"><table>
+        <thead><tr><th data-i="42">Ustun</th><th data-i="43">Ma'nosi</th><th data-i="44">Oddiy misol</th></tr></thead>
+        <tbody>
+          <tr><td class="g" data-i="45">🚀 Tashabbus</td><td data-i="46">Hech kim buyurmaydi — o'zing boshlaysan</td><td data-i="47">Mahallada quruq tozalash xizmati yo'qligini ko'rib, shu xizmatni ochish</td></tr>
+          <tr><td class="g" data-i="48">🎲 Tavakkalchilik</td><td data-i="49">Natija kafolatlanmagan, yo'qotish ehtimoli bor</td><td data-i="50">10 mln so'm kiritding — mijoz kelmasligi ham mumkin</td></tr>
+          <tr><td class="g" data-i="51">💎 Qiymat yaratish</td><td data-i="52">Odamlarga foydali biror narsa yaratasan</td><td data-i="53">Vaqtni tejaydi, arzonroq, sifatliroq, qulayroq bo'ladi</td></tr>
+          <tr><td class="g" data-i="54">💰 Daromad</td><td data-i="55">Bu xayriya emas — foyda olish maqsadi bor</td><td data-i="56">Xarajat 30 ming, narx 50 ming → foyda 20 ming so'm</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <!-- ============ 5 ============ -->
+  <section class="slide" data-title="Tadbirkor kim?" data-title-en="Who is an entrepreneur?">
+    <div class="inner">
+      <span class="kicker" data-i="57">Tadbirkorning kapitali</span>
+      <h2 data-i="58">Tadbirkorning birinchi quroli — <span class="grad-w">pul emas</span></h2>
+      <div class="grid g2">
+        <div>
+          <div class="def" style="background:linear-gradient(135deg,var(--violet),var(--blue))" data-i="59">Tadbirkor — mavjud resurslarni (pul, vaqt, bilim, texnika, odamlar) <b>yangicha birlashtirib</b>, ilgari bo'lmagan <b>qiymat yaratadigan</b> va natija uchun <b>shaxsan javob beradigan</b> inson.</div>
+          <div class="quote" style="margin-top:14px" data-i="60">"Menda pul yo'q, shuning uchun biznes boshlay olmayman" — bu eng keng tarqalgan yolg'on bahona. Pul — ketma-ketlikda <b>birinchi emas, uchinchi</b> qadam.</div>
+        </div>
+        <div>
+          <div class="card" style="--c:var(--green)">
+            <h3 data-i="61">Tadbirkorning birinchi kapitali</h3>
+            <ul class="tick">
+              <li data-i="62"><b>Muammoni ko'ra bilish</b> qobiliyati</li>
+              <li data-i="63"><b>Odamlar bilan gaplasha olish</b> ko'nikmasi</li>
+              <li data-i="64"><b>Kichikdan boshlab sinab ko'rishga jur'at</b></li>
+            </ul>
+          </div>
+          <div class="card" style="--c:var(--orange);margin-top:14px">
+            <h3 data-i="65">To'g'ri ketma-ketlik</h3>
+            <p style="font-size:16px" data-i="66"><b>1.</b> Muammoni top → <b>2.</b> Yechimni sina → <b>3.</b> Kengaytirish uchun mablag' jalb qil</p>
+            <p style="color:var(--red);font-weight:700;margin-top:6px" data-i="67">✕ Noto'g'ri: kredit ol → mahsulot yasa → mijoz qidir</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 6 ============ -->
+  <section class="slide" data-title="O'zbekiston statistikasi" data-title-en="Statistics of Uzbekistan">
+    <div class="inner">
+      <span class="kicker" data-i="68">O'zbekiston misolida</span>
+      <h2 data-i="69">Kichik biznes — iqtisodiyotning <span class="grad">asosiy dvigateli</span></h2>
+      <div class="grid g4">
+        <div class="stat"><div class="num" data-count="1236.1" data-dec="1">0</div><p data-i="70">ming kichik tadbirkorlik subyekti (2026-yil 1-iyul)</p></div>
+        <div class="stat o"><div class="num" data-count="50.5" data-dec="1" data-suf="%">0</div><p data-i="71">kichik biznesning YaIMdagi ulushi (518,7 trln so'm)</p></div>
+        <div class="stat v"><div class="num" data-count="55" data-suf="%">0</div><p data-i="72">maqsad: KO'Bning YaIMdagi ulushi (PF-50, 2025)</p></div>
+        <div class="stat"><div class="num" data-count="75" data-suf="%">0</div><p data-i="73">maqsad: bandlikdagi ulush</p></div>
+      </div>
+      <div class="grid g4" style="margin-top:14px">
+        <div class="card" style="--c:var(--blue)"><h3 data-i="74">375,1 ming</h3><p data-i="75">Yakka tartibdagi tadbirkorlar (YaTT)</p></div>
+        <div class="card" style="--c:var(--green)"><h3 data-i="76">526,7 ming</h3><p data-i="77">Kichik korxona va mikrofirmalar</p></div>
+        <div class="card" style="--c:var(--orange)"><h3 data-i="78">23,2 ming</h3><p data-i="79">Hunarmandlar</p></div>
+        <div class="card" style="--c:var(--pink)"><h3 data-i="80">5,1 ming</h3><p data-i="81">Oilaviy tadbirkorlar</p></div>
+      </div>
+      <div class="quote" style="margin-top:16px" data-i="82">Mamlakatda yaratilgan <b>har ikki so'mning bittasi</b> kichik biznes hissasiga to'g'ri keladi. Demak, tadbirkorlik — "qo'shimcha shug'ullanish" emas, balki yosh mutaxassis uchun <b>keng imkoniyat maydoni</b>.</div>
+      <small class="note" data-i="83">Manba: Milliy statistika qo'mitasi (stat.uz); O'zR Prezidentining 2025-yil 19-martdagi PF-50-son Farmoni.</small>
+    </div>
+  </section>
+
+  <!-- ============ 7 ============ -->
+  <section class="slide" data-title="Tadbirkorlik shakllari" data-title-en="Forms of entrepreneurship">
+    <div class="inner">
+      <span class="kicker" data-i="84">2-savol</span>
+      <h2 data-i="85">Tadbirkorlikning <span class="grad">5 ta zamonaviy shakli</span></h2>
+      <p class="lead" data-i="86">Tadbirkorlik yagona qolipda bo'lmaydi. Birini ikkinchisidan "yaxshiroq" deb bo'lmaydi — har birining o'z maqsadi va miqyosi bor.</p>
+      <div class="grid g5">
+        <div class="card" style="--c:var(--green)"><span class="icon">🌱</span><h3 data-i="87">Mikrobiznes</h3><p data-i="88">1–5 kishi, minimal kapital, mahalliy bozor.</p><p style="color:var(--muted);font-size:13px" data-i="89">Tort pishirish, telefon ta'miri, repetitorlik</p></div>
+        <div class="card" style="--c:var(--blue)"><span class="icon">🏪</span><h3 data-i="90">Kichik biznes</h3><p data-i="91">Tuzilma, buxgalteriya, doimiy joy va mijoz bazasi.</p><p style="color:var(--muted);font-size:13px" data-i="92">Kafe, tikuv sexi, avtoservis</p></div>
+        <div class="card" style="--c:var(--violet)"><span class="icon">🚀</span><h3 data-i="93">Startap</h3><p data-i="94">Noaniqlik + innovatsiya + tez masshtablanish.</p><p style="color:var(--muted);font-size:13px" data-i="95">Yetkazib berish platformasi</p></div>
+        <div class="card" style="--c:var(--orange)"><span class="icon">👨‍👩‍👧</span><h3 data-i="96">Oilaviy</h3><p data-i="97">Egalari va ishchi kuchi — bir oila a'zolari.</p><p style="color:var(--muted);font-size:13px" data-i="98">Oilaviy non yopish korxonasi</p></div>
+        <div class="card" style="--c:var(--pink)"><span class="icon">🤝</span><h3 data-i="99">Ijtimoiy</h3><p data-i="100">Maqsad — ijtimoiy muammoni hal qilish, foyda — vosita.</p><p style="color:var(--muted);font-size:13px" data-i="101">Chiqindini qayta ishlash</p></div>
+      </div>
+      <div class="quote" style="margin-top:18px" data-i="102">📈 Qonunchilikda rag'batlantiriladigan yiriklashuv zanjiri: <b>o'zini o'zi band qilgan shaxs → YaTT → kichik biznes → o'rta biznes → yirik korxona</b>.</div>
+    </div>
+  </section>
+
+  <!-- ============ 8 ============ -->
+  <section class="slide" data-title="Mikro va kichik biznes" data-title-en="Micro and small business">
+    <div class="inner">
+      <span class="kicker">2.1 – 2.2</span>
+      <h2 data-i="103">Mikrobiznes va <span class="grad">kichik biznes</span></h2>
+      <div class="grid g2">
+        <div class="card" style="--c:var(--green)">
+          <span class="icon">🌱</span><h3 data-i="104">Mikrobiznes — eng kichik miqyos</h3>
+          <ul class="tick">
+            <li data-i="105">Kam xarajat bilan boshlanadi (ba'zan 1–2 mln so'm)</li>
+            <li data-i="106">Mahalliy bozorga xizmat qiladi (mahalla, tuman)</li>
+            <li data-i="107">Tez ishga tushadi, tez to'xtatiladi</li>
+            <li data-i="108">Daromad barqaror, ammo o'sish sekin</li>
+          </ul>
+          <p style="margin-top:10px" data-i="109"><b>Misollar:</b> uyda tort pishirish, telefon ta'mirlash, SMM-dizayn, repetitorlik, gulchilik, uy tozalash, foto/video xizmat.</p>
+          <p style="color:var(--muted);font-size:13.5px" data-i="110">Ko'pincha "o'zini o'zi band qilgan shaxs" yoki <b>YaTT</b> maqomida rasmiylashtiriladi.</p>
+        </div>
+        <div class="card" style="--c:var(--blue)">
+          <span class="icon">🏪</span><h3 data-i="111">Kichik biznes — tartibga solingan tizim</h3>
+          <ul class="tick">
+            <li data-i="112">Aniq tashkiliy tuzilma bor (sotuvchi, ishlab chiqaruvchi, hisobchi)</li>
+            <li data-i="113">Bank krediti, ijara, soliq hisoboti bilan ishlaydi</li>
+            <li data-i="114">Barqaror mijozlar bazasi shakllangan</li>
+            <li data-i="115">Foyda qayta biznesga investitsiya qilinadi</li>
+          </ul>
+          <p style="margin-top:10px" data-i="116"><b>Misollar:</b> non zavodchasi, tikuv sexi, kafe, avtoservis, o'quv markazi, qurilish materiallari do'koni.</p>
+          <p style="color:var(--muted);font-size:13.5px" data-i="117">Doimiy joy: do'kon, ustaxona yoki ofis mavjud.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 9 ============ -->
+  <section class="slide" data-title="Startap ≠ yangi biznes" data-title-en="Startup ≠ new business">
+    <div class="inner">
+      <span class="kicker" data-i="118">2.3 · Eng ko'p adashtiradigan tushuncha</span>
+      <h2 data-i="119">Har qanday yangi biznes <span class="grad-w">startap emas!</span></h2>
+      <div class="def" style="background:linear-gradient(135deg,var(--violet),var(--pink))" data-i="120">Startap — <b>noaniqlik sharoitida</b> ishlaydigan, <b>tez va katta miqyosda o'sish (masshtablanish)</b> uchun mo'ljallangan, odatda <b>innovatsion yoki texnologik</b> yechimga asoslangan yosh tashkilot.</div>
+      <div class="tw" style="margin-top:14px"><table>
+        <thead><tr><th data-i="121">Mezon</th><th data-i="122">🏪 Kichik biznes</th><th data-i="123">🚀 Startap</th></tr></thead>
+        <tbody>
+          <tr><td data-i="124"><b>Maqsad</b></td><td data-i="125">Barqaror, doimiy daromad</td><td data-i="126">Tez va keskin o'sish</td></tr>
+          <tr><td data-i="127"><b>Model</b></td><td data-i="128">Sinalgan model (do'kon, kafe)</td><td data-i="129">Yangi, sinalmagan model</td></tr>
+          <tr><td data-i="130"><b>Miqyos</b></td><td data-i="131">Mahalliy (mahalla, shahar)</td><td data-i="132">Milliy yoki global</td></tr>
+          <tr><td data-i="133"><b>Mijoz soni</b></td><td data-i="134">Yuzlab – minglab</td><td data-i="135">Yuz minglab – millionlab</td></tr>
+          <tr><td data-i="136"><b>Pul manbai</b></td><td data-i="137">O'z mablag'i, kredit</td><td data-i="138">Investor, venchur kapital</td></tr>
+          <tr><td data-i="139"><b>Xavf darajasi</b></td><td data-i="140">O'rtacha</td><td data-i="141">Juda yuqori</td></tr>
+          <tr><td data-i="142"><b>Misol</b></td><td data-i="143">Mahalladagi oshxona</td><td data-i="144">Ovqat yetkazib berish platformasi</td></tr>
+        </tbody>
+      </table></div>
+      <div class="quote" style="margin-top:14px" data-i="145">⭐ <b>Muhim qoida:</b> bitta oshxona ochish — <b>kichik biznes</b>. Yuzlab oshxonani bitta ilovaga ulash — <b>startap</b>.</div>
+    </div>
+  </section>
+
+  <!-- ============ 10 ============ -->
+  <section class="slide" data-title="Oilaviy va ijtimoiy" data-title-en="Family and social">
+    <div class="inner">
+      <span class="kicker">2.4 – 2.5</span>
+      <h2 data-i="146">Oilaviy va <span class="grad">ijtimoiy</span> tadbirkorlik</h2>
+      <div class="grid g2">
+        <div>
+          <h3 style="color:var(--orange)" data-i="147">👨‍👩‍👧 Oilaviy tadbirkorlik</h3>
+          <div class="tw"><table>
+            <thead><tr><th data-i="148">Kuchli tomonlari</th><th data-i="149">Zaif tomonlari</th></tr></thead>
+            <tbody>
+              <tr><td class="g" data-i="150">Ishonch yuqori, nazorat xarajati past</td><td class="r" data-i="151">Oilaviy va ishchi munosabatlar aralashadi</td></tr>
+              <tr><td class="g" data-i="152">Mehnat resursi arzon va sodiq</td><td class="r" data-i="153">Vazifalar aniq taqsimlanmasligi mumkin</td></tr>
+              <tr><td class="g" data-i="154">Hunar avloddan-avlodga o'tadi</td><td class="r" data-i="155">Professional kadr jalb qilish qiyin</td></tr>
+              <tr><td class="g" data-i="156">Qiyin paytda oila jamg'armasi zaxira</td><td class="r" data-i="157">Nizolar biznesga ham, oilaga ham zarar</td></tr>
+            </tbody>
+          </table></div>
+          <p style="margin-top:8px;font-size:14px" data-i="158"><b>Misollar:</b> oilaviy non yopish korxonasi, kulolchilik va kashtachilik ustaxonasi, oilaviy issiqxona xo'jaligi. O'zbekistonda <b>oilaviy korxona</b> — alohida huquqiy maqom.</p>
+        </div>
+        <div>
+          <h3 style="color:var(--pink)" data-i="159">🤝 Ijtimoiy tadbirkorlik</h3>
+          <div class="card" style="--c:var(--pink)">
+            <p data-i="160">Asosiy maqsad — <b>ijtimoiy muammoni hal qilish</b>, foyda esa shu maqsadga xizmat qiluvchi <b>vosita</b>. Bu xayriya emas: ijtimoiy tadbirkorlik <b>o'zini o'zi moliyalashtiradi</b>.</p>
+            <div class="grid g2" style="margin-top:10px">
+              <div style="background:var(--chip);border-radius:14px;padding:10px 12px"><b style="color:var(--red)">🎁 Xayriya</b><p style="font-size:13.5px;margin:4px 0 0" data-i="161">Pul yig'adi va tarqatadi → mablag' tugagach <b>to'xtaydi</b>.</p></div>
+              <div style="background:var(--chip);border-radius:14px;padding:10px 12px"><b style="color:var(--green)">♻️ Ijtimoiy tadbirkorlik</b><p style="font-size:13.5px;margin:4px 0 0" data-i="162">Daromad topadi va muammoni hal qilishni <b>davom ettiradi</b> → barqaror.</p></div>
+            </div>
+            <ul class="tick" style="margin-top:12px">
+              <li data-i="163">Nogironligi bo'lgan shaxslarni ishga joylashtiradigan tikuv sexi</li>
+              <li data-i="164">Chiqindini qayta ishlab, mahsulot yasaydigan korxona</li>
+              <li data-i="165">Qishloq maktablari uchun arzon ta'lim platformasi</li>
+              <li data-i="166">Ko'zi ojiz odamlar uchun audiokitob xizmati</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 11 ============ -->
+  <section class="slide" data-title="Tadbirkorlik tafakkuri" data-title-en="Entrepreneurial mindset">
+    <div class="inner">
+      <span class="kicker" data-i="167">3-savol · Mindset</span>
+      <h2 data-i="168">Bir xil vaziyat — <span class="grad">ikki xil ko'z</span></h2>
+      <div class="grid g2">
+        <div class="card" style="--c:var(--red)"><span class="icon">😤</span><h3 data-i="169">Birinchi odam</h3><p style="font-size:17px" data-i="170">"Eh, qanday noqulay. Nega bekat qurilmayapti?"</p></div>
+        <div class="card" style="--c:var(--green)"><span class="icon">💡</span><h3 data-i="171">Ikkinchi odam</h3><p style="font-size:17px" data-i="172">"Demak, bu yerda har kuni kamida 200 kishi transport kutadi. Ular yomg'irdan panoh va issiq choy izlaydi. Shu yerda kichik kioska ochsam-chi?"</p></div>
+      </div>
+      <p class="lead" style="margin-top:10px" data-i="173">Ikkalasi ham bir xil narsani ko'rdi, ammo faqat bittasi <b>imkoniyat</b> ko'rdi. Ana shu farq — <b>tadbirkorlik tafakkuri</b>.</p>
+      <div class="tw" style="margin-top:12px"><table>
+        <thead><tr><th data-i="174">Vaziyat</th><th data-i="175">👔 Xodim tafakkuri</th><th data-i="176">🚀 Tadbirkor tafakkuri</th></tr></thead>
+        <tbody>
+          <tr><td data-i="177"><b>Daromad</b></td><td data-i="178">"Oyligim qancha?"</td><td class="g" data-i="179">"Qancha qiymat yaratsam, shuncha olaman"</td></tr>
+          <tr><td data-i="180"><b>Muammo</b></td><td data-i="181">"Bu mening ishim emas"</td><td class="g" data-i="182">"Bu muammoni kim hal qilsa, pul topadi"</td></tr>
+          <tr><td data-i="183"><b>Xatolik</b></td><td data-i="184">"Aybdor kim?"</td><td class="g" data-i="185">"Bundan nima o'rgandim?"</td></tr>
+          <tr><td data-i="186"><b>Vaqt</b></td><td data-i="187">"Ish 18:00 da tugaydi"</td><td class="g" data-i="188">"Natija chiqmaguncha tugamaydi"</td></tr>
+          <tr><td data-i="189"><b>Xavf</b></td><td data-i="190">"Xavfsiz bo'lgani ma'qul"</td><td class="g" data-i="191">"Hisoblangan xavfni qabul qilaman"</td></tr>
+          <tr><td data-i="192"><b>Bilim</b></td><td data-i="193">"Diplom oldim, tamom"</td><td class="g" data-i="194">"Har oy yangi narsa o'rganaman"</td></tr>
+        </tbody>
+      </table></div>
+      <small class="note" data-i="195">Diqqat: "xodim tafakkuri yomon" degani emas — bu shunchaki turli xil yondashuv.</small>
+    </div>
+  </section>
+
+  <!-- ============ 12 ============ -->
+  <section class="slide" data-title="7 belgi va 5 xato" data-title-en="7 traits and 5 mistakes">
+    <div class="inner">
+      <span class="kicker">3.3 – 3.4</span>
+      <h2 data-i="196">Tafakkurning <span class="grad">7 ta belgisi</span> va yoshlarning <span class="grad-w">5 ta xatosi</span></h2>
+      <div class="grid g2">
+        <div>
+          <div class="grid g2">
+            <div class="card" style="--c:var(--green)"><h3 data-i="197">1. Muammoga sezgirlik</h3><p data-i="198">Har bir shikoyat — bepul bozor tadqiqoti.</p></div>
+            <div class="card" style="--c:var(--teal)"><h3 data-i="199">2. Mijozga yo'naltirilganlik</h3><p data-i="200">"Menga yoqdi" emas — "mijozga kerakmi?"</p></div>
+            <div class="card" style="--c:var(--cyan)"><h3 data-i="201">3. Harakatga tezlik</h3><p data-i="202">1 yil reja emas — 1 hafta ichida kichik sinov.</p></div>
+            <div class="card" style="--c:var(--blue)"><h3 data-i="203">4. Hisoblangan tavakkal</h3><p data-i="204">"Eng ko'pi bilan qancha yo'qotaman?"</p></div>
+            <div class="card" style="--c:var(--violet)"><h3 data-i="205">5. Xatodan ma'lumot olish</h3><p data-i="206">Sotilmagan mahsulot — bozorning javobi.</p></div>
+            <div class="card" style="--c:var(--pink)"><h3 data-i="207">6. Topqirlik</h3><p data-i="208">"Menda yo'q" emas — "kimda bor?"</p></div>
+            <div class="card" style="--c:var(--orange)"><h3 data-i="209">7. Qat'iylik</h3><p data-i="210">100 ta "yo'q"dan keyin ham davom etadi.</p></div>
+          </div>
+        </div>
+        <div class="card" style="--c:var(--red)">
+          <span class="icon">⚠️</span><h3 data-i="211">Yosh tadbirkorlarning 5 ta xatosi</h3>
+          <ul class="tick cross">
+            <li data-i="212"><b>Mahsulotga oshiq bo'lish.</b> Oylab mahsulot yasab, keyin "mijoz yo'q" ekanini bilish.</li>
+            <li data-i="213"><b>Katta boshlash.</b> Sinovsiz katta ijara va katta zaxira olish.</li>
+            <li data-i="214"><b>Bozorni so'ramaslik.</b> "Menga yoqdi, demak hammaga yoqadi".</li>
+            <li data-i="215"><b>Hisob-kitobsiz narx.</b> Tannarxni bilmay, raqobatchidan arzon qo'yish.</li>
+            <li data-i="216"><b>Yolg'iz ishlash.</b> Maslahat, mentor va jamoadan voz kechish.</li>
+          </ul>
+          <div class="quote" style="margin-top:12px" data-i="217">Yechim: <b>kichik sinov → mijoz bilan suhbat → tannarxni hisoblash → mentor topish</b>.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 13 ============ -->
+  <section class="slide" data-title="Muammo = imkoniyat" data-title-en="Problem = opportunity">
+    <div class="inner">
+      <span class="kicker" data-i="218">4-savol</span>
+      <h2 data-i="219">G'oya <span class="grad">o'ylab topilmaydi</span> — u topiladi</h2>
+      <div class="def" style="background:linear-gradient(135deg,var(--orange),var(--pink))" data-i="220">Har bir biznes — <b>kimningdir muammosining pullik yechimi</b>. G'oyalar yaratilmaydi: ular allaqachon odamlarning <b>noroziligi ichida</b> yashiringan.</div>
+      <div class="grid g2" style="margin-top:14px">
+        <div>
+          <h3 data-i="221">🔍 Muammolarni qayerdan izlash kerak?</h3>
+          <div class="tw"><table>
+            <thead><tr><th data-i="222">Manba</th><th data-i="223">Misol</th></tr></thead>
+            <tbody>
+              <tr><td data-i="224"><b>O'z kundalik hayotingiz</b><br><span style="color:var(--muted);font-size:13px">Bir kun sizni bezovta qilgan narsalarni yozing</span></td><td data-i="225">"Navbat uzun edi", "yetkazib berish kechikdi"</td></tr>
+              <tr><td data-i="226"><b>Boshqalarning shikoyati</b><br><span style="color:var(--muted);font-size:13px">Oila, kursdosh, qo'shni nimadan nolimoqda?</span></td><td data-i="227">Telegram guruhlari, marketpleysdagi 1–2 yulduzli sharhlar</td></tr>
+              <tr><td data-i="228"><b>Kasbiy tajriba</b><br><span style="color:var(--muted);font-size:13px">Amaliyotdagi samarasiz jarayonlar</span></td><td data-i="229">"Nega buni hali ham qo'lda qilishadi?"</td></tr>
+              <tr><td data-i="230"><b>Bozor bo'shliqlari</b><br><span style="color:var(--muted);font-size:13px">Boshqa joyda bor, sizda yo'q xizmat</span></td><td data-i="231">Xorijda ommalashgan, bizda yo'q servis</td></tr>
+              <tr><td data-i="232"><b>O'zgarishlar</b><br><span style="color:var(--muted);font-size:13px">Yangi qonun, texnologiya, odat</span></td><td data-i="233">Yangi soliq tartibi → buxgalteriya xizmatiga talab</td></tr>
+            </tbody>
+          </table></div>
+        </div>
+        <div>
+          <h3 data-i="234">🧪 Har qanday muammo biznesga aylanadimi? <span style="color:var(--red)">Yo'q!</span></h3>
+          <div class="grid g2">
+            <div class="card" style="--c:var(--green)"><h3 data-i="235">1. Chastota</h3><p data-i="236">Bu muammo tez-tez uchraydimi?</p><p style="color:var(--red);font-size:13.5px" data-i="237">Yiliga bir marta → daromad kam</p></div>
+            <div class="card" style="--c:var(--orange)"><h3 data-i="238">2. Og'riq</h3><p data-i="239">Qanchalik bezovta qiladi?</p><p style="color:var(--red);font-size:13.5px" data-i="240">Kichik noqulaylikka pul to'lanmaydi</p></div>
+            <div class="card" style="--c:var(--blue)"><h3 data-i="241">3. To'lov qobiliyati</h3><p data-i="242">Mijozda pul bormi?</p><p style="color:var(--red);font-size:13.5px" data-i="243">Muammo bor, pul yo'q → biznes yo'q</p></div>
+            <div class="card" style="--c:var(--violet)"><h3 data-i="244">4. Yetarli miqdor</h3><p data-i="245">Duch keladiganlar ko'pmi?</p><p style="color:var(--red);font-size:13.5px" data-i="246">10 kishi uchun biznes qurilmaydi</p></div>
+          </div>
+          <div class="quote" style="margin-top:12px" data-i="247">✍️ <b>Amaliy mashq:</b> 5 daqiqada 10 ta muammo yozing → 4 ta filtrdan o'tkazing → faqat 1–2 tasi qoladi.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 14 ============ -->
+  <section class="slide" data-title="Biznes zanjiri" data-title-en="The business chain">
+    <div class="inner">
+      <span class="kicker" data-i="248">5-savol · Eng kuchli vosita</span>
+      <h2 data-i="249">"Muammo – Yechim – Mijoz – Daromad manbai" <span class="grad">zanjiri</span></h2>
+      <div class="chain">
+        <div class="link l1"><h3 data-i="250">1. Muammo</h3><p data-i="251">Nima noto'g'ri?</p><p style="font-size:12.5px" data-i="252">❌ "Odamlar qiynalyapti"<br>✅ "Talabalar tushlik uchun kuniga 40 daqiqa navbatda turadi"</p></div>
+        <div class="link l2"><h3 data-i="253">2. Yechim</h3><p data-i="254">Buni qanday tuzataman?</p><p style="font-size:12.5px" data-i="255">❌ "Ilova yasayman"<br>✅ "Oldindan buyurtma + navbatsiz olib ketish uchun Telegram-bot"</p></div>
+        <div class="link l3"><h3 data-i="256">3. Mijoz</h3><p data-i="257">Buning uchun kim to'laydi?</p><p style="font-size:12.5px" data-i="258">❌ "Hamma talabalar"<br>✅ "Kuniga 2+ juftlikda o'qiydigan, vaqti kam 1–2-kurs talabalari"</p></div>
+        <div class="link l4"><h3 data-i="259">4. Daromad</h3><p data-i="260">Pul qanday kelib tushadi?</p><p style="font-size:12.5px" data-i="261">Sotuv · obuna · komissiya · reklama · xizmat haqi · franshiza</p></div>
+      </div>
+      <p style="margin-top:12px;font-weight:700;color:var(--red)" data-i="262">⛓ Zanjirning bironta bo'g'ini bo'sh qolsa — biznes ishlamaydi.</p>
+      <div class="tw" style="margin-top:10px"><table>
+        <thead><tr><th data-i="263">Misol</th><th data-i="264">Muammo</th><th data-i="265">Yechim</th><th data-i="266">Mijoz</th><th data-i="267">Daromad</th></tr></thead>
+        <tbody>
+          <tr><td data-i="268"><b>🍽 Talabalar tushligi</b></td><td data-i="269">Tanaffus 45 daq., navbat 25–40 daq.</td><td data-i="270">Telegram-bot orqali oldindan buyurtma</td><td data-i="271">Vaqti tig'iz 200–300 talaba</td><td class="g" data-i="272">Har buyurtmadan 10% komissiya</td></tr>
+          <tr><td data-i="273"><b>🧺 Kir yuvish</b></td><td data-i="274">TTJda mashina yetishmaydi, navbat 3–4 kun</td><td data-i="275">Olib ketib, 24 soatda yuvib-dazmollab qaytarish</td><td data-i="276">TTJda yashovchi talabalar</td><td class="g" data-i="277">1 kg narxi + oylik "cheksiz" obuna</td></tr>
+          <tr><td data-i="278"><b>🧵 Ijtimoiy loyiha</b></td><td data-i="279">Qishloq ayollarining hunari bor, bozori yo'q</td><td data-i="280">Brend qilib, onlayn platformada sotish</td><td data-i="281">Milliy hunarga qiziquvchilar va turistlar</td><td class="g" data-i="282">Sotuvdan 20–25% vositachilik</td></tr>
+        </tbody>
+      </table></div>
+      <div class="card" style="--c:var(--violet);margin-top:12px">
+        <h3 data-i="283">✅ Zanjirni tekshirish uchun 5 ta savol</h3>
+        <p style="margin:0" data-i="284">1) Bu muammoni oxirgi 7 kunda nechta odam boshdan kechirdi? · 2) Ular hozir uni qanday hal qilmoqda (raqobatchi kim)? · 3) Mening yechimim mavjud usuldan nimasi bilan yaxshi? · 4) Mijoz qancha to'lashga tayyor? · 5) Bitta sotuvdan qancha foyda qoladi?</p>
+        <p style="margin:8px 0 0;color:var(--green);font-weight:700" data-i="285">Javob bera olsangiz — sizda g'oya emas, <b>biznes gipotezasi</b> bor!</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 15 ============ -->
+  <section class="slide" data-title="Xulosa va topshiriq" data-title-en="Summary and assignment">
+    <div class="inner">
+      <span class="kicker" data-i="286">Xulosa</span>
+      <h2 data-i="287">Esda qoladigan <span class="grad">6 ta fikr</span></h2>
+      <div class="grid g3">
+        <div class="card" style="--c:var(--green)"><h3>1</h3><p data-i="288">Tadbirkorlik — bino yoki kapital emas, <b>muammoni ko'rish va yechishga jur'at</b>.</p></div>
+        <div class="card" style="--c:var(--blue)"><h3>2</h3><p data-i="289">Shakllar xilma-xil: mikro, kichik, startap, oilaviy, ijtimoiy. Birini boshqasidan <b>ustun deb bo'lmaydi</b>.</p></div>
+        <div class="card" style="--c:var(--violet)"><h3>3</h3><p data-i="290"><b>Startap ≠ har qanday yangi biznes.</b> Uning asosiy belgisi — tez masshtablanish.</p></div>
+        <div class="card" style="--c:var(--orange)"><h3>4</h3><p data-i="291">Tadbirkorlik tafakkuri — <b>o'rganiladigan ko'nikma</b>: shikoyat → imkoniyat, xato → ma'lumot.</p></div>
+        <div class="card" style="--c:var(--pink)"><h3>5</h3><p data-i="292">Poydevor — <b>Muammo–Yechim–Mijoz–Daromad</b> zanjiri. Bir bo'g'in uzilsa, biznes quladi.</p></div>
+        <div class="card" style="--c:var(--cyan)"><h3>6</h3><p data-i="293">O'zbekistonda kichik biznes <b>YaIMning yarmini</b> yaratmoqda — tarixiy qulay davr.</p></div>
+      </div>
+      <div class="grid g2" style="margin-top:16px">
+        <div class="card" style="--c:var(--amber)">
+          <span class="icon">📓</span><h3 data-i="294">Mustaqil ish: "10 muammo – 1 imkoniyat"</h3>
+          <ul class="clean">
+            <li data-i="295">3 kun davomida kamida <b>10 ta muammo</b>ni daftarga yozing.</li>
+            <li data-i="296">Har birini 4 ta filtrdan o'tkazing va <b>1–5 ball</b> bilan baholang.</li>
+            <li data-i="297">Eng yuqori ball to'plagan <b>1 ta muammo</b>ni tanlang.</li>
+            <li data-i="298">Uning uchun <b>Muammo–Yechim–Mijoz–Daromad</b> jadvalini to'ldiring.</li>
+            <li data-i="299">Kamida <b>3 nafar potensial mijoz</b> bilan suhbatlashing.</li>
+          </ul>
+          <p style="margin-top:8px;font-size:13.5px;color:var(--muted)" data-i="300">Hajmi: 1–2 bet. Baholash: muammoning aniqligi 30% · zanjir mantiqiyligi 40% · mijoz suhbati 30%.</p>
+        </div>
+        <div class="card" style="--c:var(--teal)">
+          <span class="icon">📚</span><h3 data-i="301">Adabiyotlar va foydali resurslar</h3>
+          <ul class="clean">
+            <li data-i="302">Eric Ries — <b>The Lean Startup</b></li>
+            <li data-i="303">Osterwalder &amp; Pigneur — <b>Business Model Generation</b></li>
+            <li data-i="304">Steve Blank — <b>The Four Steps to the Epiphany</b></li>
+            <li data-i="305">Muhammad Yunus — <b>Building Social Business</b></li>
+          </ul>
+          <p style="margin-top:8px" data-i="306"><span class="pill g">birdarcha.uz</span><span class="pill g">my.soliq.uz</span><span class="pill g">stat.uz</span><span class="pill g">lex.uz</span></p>
+          <p style="font-size:13px;color:var(--muted)" data-i="307">Normativ: "Tadbirkorlik faoliyati erkinligining kafolatlari to'g'risida"gi Qonun; PF-50-son Farmon (19.03.2025).</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 16 ============ -->
+  <section class="slide" data-title="Eng boy tadbirkorlar" data-title-en="The richest entrepreneurs">
+    <div class="inner">
+      <span class="kicker" data-i="308">🎁 Bonus · Qiziqarli ma'lumotlar</span>
+      <h2 data-i="309">Dunyoning <span class="grad-w">eng boy tadbirkorlari</span> va yirik kompaniyalar</h2>
+      <div class="grid g2">
+        <div>
+          <h3 data-i="310">💰 Eng boy odamlar (taxminiy, oxirgi yillar reytingi)</h3>
+          <div class="grid" style="gap:9px">
+            <div class="rich"><div class="rk">1</div><div data-i="311"><b>Elon Musk</b><span>Tesla, SpaceX, X · elektromobil va kosmos · ~400+ mlrd $</span></div></div>
+            <div class="rich"><div class="rk">2</div><div data-i="312"><b>Larry Ellison</b><span>Oracle · korporativ dasturiy ta'minot · ~200+ mlrd $</span></div></div>
+            <div class="rich"><div class="rk">3</div><div data-i="313"><b>Jeff Bezos</b><span>Amazon · onlayn savdo · garajda kitob sotishdan boshlagan</span></div></div>
+            <div class="rich"><div class="rk">4</div><div data-i="314"><b>Mark Zuckerberg</b><span>Meta (Facebook, Instagram, WhatsApp) · talabalik yotoqxonasida boshlagan</span></div></div>
+            <div class="rich"><div class="rk">5</div><div data-i="315"><b>Bernard Arnault</b><span>LVMH · 75+ hashamat brendi (Louis Vuitton, Dior)</span></div></div>
+            <div class="rich"><div class="rk">6</div><div data-i="316"><b>Bill Gates &amp; Warren Buffett</b><span>Microsoft · Berkshire Hathaway — investitsiya afsonasi</span></div></div>
+          </div>
+          <small class="note" data-i="317">Raqamlar aksiya narxiga qarab har kuni o'zgaradi — bu taxminiy ko'rsatkichlar (Forbes/Bloomberg reytinglari asosida).</small>
+        </div>
+        <div>
+          <h3 data-i="318">🏢 Eng qimmat kompaniyalar</h3>
+          <div class="grid g2">
+            <div class="fact"><b>🍏 Apple</b><p data-i="319">1976-yilda garajda tug'ilgan. Bugun bozor qiymati <b>3 trillion dollardan</b> oshadi — bu ko'plab davlatlar iqtisodiyotidan katta.</p></div>
+            <div class="fact"><b>🎮 NVIDIA</b><p data-i="320">Video o'yin kartalaridan boshlab, sun'iy intellekt davrida dunyodagi eng qimmat kompaniyalardan biriga aylandi.</p></div>
+            <div class="fact"><b>🪟 Microsoft</b><p data-i="321">Ikki do'st — Gates va Allen 1975-yilda asos solgan. Bugun bulut va AI bozorining yetakchisi.</p></div>
+            <div class="fact"><b>📦 Amazon</b><p data-i="322">1994-yilda garajda <b>faqat kitob</b> sotgan. Bugun "hamma narsa do'koni" + dunyodagi eng yirik bulut xizmati.</p></div>
+            <div class="fact"><b>🔍 Google</b><p data-i="323">Nomi "googol" (10¹⁰⁰) so'zidagi xatodan kelib chiqqan. Ikki aspirant garajda boshlagan.</p></div>
+            <div class="fact"><b>🚗 Tesla</b><p data-i="324">Bir necha bor bankrotlik yoqasida turgan; bugun elektromobil sanoatining ramzi.</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 17 ============ -->
+  <section class="slide" data-title="Qiziqarli faktlar" data-title-en="Interesting facts">
+    <div class="inner">
+      <span class="kicker" data-i="325">🎁 Bonus · Ilhom uchun</span>
+      <h2 data-i="326">Tadbirkorlik haqida <span class="grad">10 ta qiziqarli fakt</span></h2>
+      <div class="grid g3">
+        <div class="fact"><b>👟 35 dollarlik logotip</b><p data-i="327">Nike'ning mashhur "swoosh" belgisini talaba qiz atigi <b>35 dollarga</b> chizib bergan (1971). Bugun u dunyodagi eng tanilgan belgilardan biri.</p></div>
+        <div class="fact"><b>🍗 65 yoshda boshlagan</b><p data-i="328">KFC asoschisi polkovnik Sanders retseptini sotmoqchi bo'lganda <b>1000 dan ortiq marta rad javobi</b> olgan. U biznesni nafaqa yoshida qurgan.</p></div>
+        <div class="fact"><b>🛏 Havo matrasidan boshlangan</b><p data-i="329">Airbnb asoschilari ijara puliga yetmagani uchun mehmonlarga o'z xonasidagi <b>havo matrasini</b> ijaraga bergan. Bugun — global platforma.</p></div>
+        <div class="fact"><b>🍜 KFC ishga olmagan</b><p data-i="330">Alibaba asoschisi Jek Ma KFC'ga ishga kirmoqchi bo'lganda 24 nomzoddan 23 tasi olingan — <b>faqat u rad etilgan</b>. Keyin o'zi imperiya qurdi.</p></div>
+        <div class="fact"><b>🧹 5127 ta urinish</b><p data-i="331">Dyson changyutgichi <b>5127 ta prototip</b>dan keyin muvaffaqiyat qozongan. Muvaffaqiyatsizlik — mag'lubiyat emas, ma'lumot.</p></div>
+        <div class="fact"><b>🐦 52-o'yin</b><p data-i="332">Angry Birds — Rovio kompaniyasining <b>52-o'yini</b> edi. Undan oldingi 51 tasi tanilmagan.</p></div>
+        <div class="fact"><b>🧦 5000 dollarlik g'oya</b><p data-i="333">Spanx asoschisi Sara Bleykli jamg'armasidagi <b>5000 dollar</b> bilan boshlab, o'z kuchi bilan milliarderga aylangan birinchi ayollardan biri bo'ldi.</p></div>
+        <div class="fact"><b>📸 13 kishilik jamoa</b><p data-i="334">Instagram Facebook'ga <b>1 mlrd dollarga</b> sotilganda jamoada atigi 13 nafar xodim bor edi. Miqyos — odam soniga bog'liq emas.</p></div>
+        <div class="fact"><b>🪑 17 yoshli asoschi</b><p data-i="335">IKEA'ni Ingvar Kamprad <b>17 yoshida</b> tashkil etgan. Nomi — uning ismi, fermasi va qishlog'i bosh harflaridan.</p></div>
+        <div class="fact"><b>🥤 Kuniga 9 stakan</b><p data-i="336">Coca-Cola birinchi yili kuniga o'rtacha atigi <b>9 stakan</b> sotgan. Bugun sekundiga o'n minglab. Sabr — strategiya.</p></div>
+        <div class="fact"><b>📉 Statistika</b><p data-i="337">Startaplarning taxminan <b>90 foizi</b> muvaffaqiyatsizlikka uchraydi, eng ko'p sabab — <b>bozorga kerak bo'lmagan mahsulot</b> yaratish.</p></div>
+        <div class="fact"><b>🇺🇿 O'zbekiston</b><p data-i="338">Mamlakatda <b>1,2 milliondan ortiq</b> kichik tadbirkorlik subyekti bor va ular YaIMning <b>yarmini</b> yaratmoqda.</p></div>
+      </div>
+      <div class="quote" style="margin-top:16px" data-i="339">💡 Umumiy xulosa: bu odamlarning hech biri <b>katta pul bilan</b> boshlamagan. Ularning barchasi bitta narsadan boshlagan — <b>hal qilinmagan muammodan</b>.</div>
+    </div>
+  </section>
+
+  <!-- ============ 18 ============ -->
+  <section class="slide" data-title="TEST · Bilimni tekshirish" data-title-en="TEST · Check your knowledge">
+    <div class="inner">
+      <span class="kicker" data-i="340">Yakuniy nazorat</span>
+      <h2 data-i="341">🧪 Test topshiriqlari — <span class="grad">o'zingizni sinang</span></h2>
+      <div class="scorebar">
+        <span><span data-ui="score">Natija:</span> <b><span id="scoreNow">0</span> / <span id="scoreMax">15</span></b></span>
+        <span><span data-ui="answered">Javob berildi:</span> <b id="answered">0</b></span>
+        <div class="spacer"></div>
+        <button class="btn warn" id="btnReset" data-i="342">↻ Testni qayta boshlash</button>
+      </div>
+      <div id="testWrap"></div>
+      <div class="result" id="result">
+        <div class="pct" id="pct">0%</div>
+        <h3 id="resTitle" style="color:#fff;margin:10px 0 4px" data-i="343">Natija</h3>
+        <p id="resTxt" style="color:#fff;opacity:.95;margin:0"></p>
+      </div>
+      <div class="card" style="--c:var(--green);margin-top:18px;text-align:center">
+        <h3 data-i="344">🎓 Rahmat! E'tiboringiz uchun tashakkur</h3>
+        <p data-i="345">Keyingi mavzuda biznes gipotezasini <b>amalda sinab ko'ramiz</b>. Daftaringizni tayyorlang — "10 muammo – 1 imkoniyat" topshirig'i sizni kutmoqda.</p>
+        <p style="color:var(--muted);font-size:13.5px" data-i="346">Termiz davlat universiteti · Tadbirkorlik asoslari</p>
+      </div>
+    </div>
+  </section>
+
+  </main>
+
+  <!-- ====== NAVBAR ====== -->
+  <footer class="navbar">
+    <button class="btn" id="btnPrev" data-ui="prev">← Orqaga</button>
+    <span class="counter"><b id="cur">1</b> / <span id="total">18</span></span>
+    <div class="dots" id="dots"></div>
+    <span class="counter" id="slideName"></span>
+    <button class="btn accent" id="btnNext" data-ui="next">Keyingi →</button>
+  </footer>
+</div>
+
+<!-- ====== OVERLAYS ====== -->
+<div class="overlay" id="overview">
+  <div class="ov-head">
+    <h3 style="margin:0;flex:1" data-ui="allslides">▦ Barcha slaydlar</h3>
+    <button class="btn" id="ovClose" data-ui="close">✕ Yopish</button>
+  </div>
+  <div class="thumbs" id="thumbs"></div>
+</div>
+
+<div class="overlay" id="help">
+  <div class="helpbox">
+    <h3 style="margin-top:0" data-ui="helpTitle">⌨️ Klaviatura va imkoniyatlar</h3>
+    <div><span data-ui="hNext">Keyingi slayd</span><span><kbd>→</kbd> <kbd>Space</kbd> <kbd>PgDn</kbd></span></div>
+    <div><span data-ui="hPrev">Oldingi slayd</span><span><kbd>←</kbd> <kbd>PgUp</kbd></span></div>
+    <div><span data-ui="hHome">Birinchi / oxirgi slayd</span><span><kbd>Home</kbd> <kbd>End</kbd></span></div>
+    <div><span data-ui="hList">Slaydlar ro'yxati</span><span><kbd>O</kbd></span></div>
+    <div><span data-ui="hTheme">Tun / Kun rejimi</span><span><kbd>D</kbd></span></div>
+    <div><span data-ui="hLang">O'zbekcha / English</span><span><kbd>L</kbd></span></div>
+    <div><span data-ui="hFull">To'liq ekran</span><span><kbd>F</kbd></span></div>
+    <div><span data-ui="hTimer">Vaqt hisoblagich (start/stop)</span><span><kbd>T</kbd></span></div>
+    <div><span data-ui="hPrint">Chop etish / PDF</span><span><kbd>P</kbd></span></div>
+    <div><span data-ui="hGoto">Slayd raqamiga o'tish</span><span><kbd>1</kbd>…<kbd>9</kbd></span></div>
+    <div><span data-ui="hEsc">Yopish</span><span><kbd>Esc</kbd></span></div>
+    <p style="color:var(--muted);font-size:13px;margin:14px 0 0" data-ui="helpNote">📱 Telefonda chapga/o'ngga surib (swipe) slaydlarni almashtirish mumkin. Ochilgan slayd brauzer xotirasida saqlanadi.</p>
+    <button class="btn accent" id="helpClose" data-ui="gotit" style="margin-top:14px;width:100%;justify-content:center">Tushunarli</button>
+  </div>
+</div>
+
+<div class="hint" id="hint" data-ui="hint">⌨️ <kbd>→</kbd> keyingi slayd · <kbd>D</kbd> tun/kun · <kbd>L</kbd> uz/eng · <kbd>O</kbd> ro'yxat · <kbd>F</kbd> to'liq ekran</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- RT:BEGIN -->
+<script>var RT_CFG={"topic": "m1", "home": false, "slides": 18, "quiz": 15, "pSlide": 2, "pAll": 10, "teacher": "", "firebase": {"db": "tadbirkorlik-asoslari-default-rtdb", "regions": ["asia-southeast1", "europe-west1", "us-central1", "europe-west4", "asia-east1", "us-east1", "northamerica-northeast1"], "url": "https://tadbirkorlik-asoslari-default-rtdb.asia-southeast1.firebasedatabase.app"}, "topics": [{"id": "m1", "file": "mavzu-1.html", "title": "M1 · Tadbirkorlik tafakkuri va biznes imkoniyatlar", "open": true, "read": true, "quiz": 15, "slides": 18, "pdf": "fayllar/M1-mavzu.pdf", "pdfSize": "3,3 MB"}, {"id": "m2", "file": "mavzu-2.html", "title": "M2 · Mijoz muammosi asosida biznes g'oya", "open": true, "read": true, "quiz": 15, "slides": 24, "pdf": "fayllar/M2-mavzu.pdf", "pdfSize": "4,9 MB"}, {"id": "m3", "file": "mavzu-3.html", "title": "M3 · Mahsulotni kam xarajat bilan sinash (moliya va kredit)", "open": true, "read": true, "quiz": 15, "slides": 15, "lim": true, "pdf": "fayllar/M3-mavzu.pdf", "pdfSize": "2,1 MB"}, {"id": "m4", "file": "mavzu-4.html", "title": "M4 · Biznesni qonuniy rasmiylashtirish", "open": true, "read": true, "quiz": 18, "slides": 18, "lim": true}, {"id": "m5", "file": "mavzu-5.html", "title": "M5 · Soliqlar va hujjatlar", "open": true, "read": true, "quiz": 3, "slides": 18, "lim": true}, {"id": "m6", "file": "mavzu-6.html", "title": "M6 · Biznes-model qanday ishlaydi", "open": true, "quiz": 15, "slides": 18, "lim": true}, {"id": "m7", "file": "mavzu-7.html", "title": "M7 · Mijoz kim va unga nima kerak", "open": true, "quiz": 15, "slides": 18, "lim": true}, {"id": "m8", "title": "M8 · Mahsulotni reklama qilish va mijozga yetkazish", "file": "mavzu-8.html", "open": true, "slides": 18, "quiz": 15, "lim": true}, {"id": "m9", "title": "M9 · Biznes g'oyani taqdim etish va tadbirkorlik yo'lini boshlash", "file": "mavzu-9.html", "open": true, "slides": 18, "quiz": 15, "lim": true}, {"id": "m10", "title": "M10 · Savdo jarayonini tashkil etish va mijozlar bilan ishlash", "file": "mavzu-10.html", "open": true, "slides": 18, "quiz": 15, "lim": true}, {"id": "m11", "title": "M11 · Mahsulot narxini shakllantirish", "file": "mavzu-11.html", "open": true, "slides": 18, "quiz": 15, "lim": true}, {"id": "m12", "title": "M12 · Biznesda pul oqimini rejalashtirish: kirim, chiqim va mablag' jalb qilish", "file": "mavzu-12.html", "open": true, "slides": 18, "quiz": 15, "lim": true}, {"id": "m13", "title": "M13 · Biznesda foyda va zarar tahlili", "file": "mavzu-13.html", "open": true, "slides": 18, "quiz": 15, "lim": true}, {"id": "m14", "title": "M14 · Biznes-reja tuzish va mahsulotni tashqi bozorga olib chiqish", "file": "mavzu-14.html", "open": true, "slides": 18, "quiz": 15, "lim": true}, {"id": "m15", "title": "M15 · Jamoani shakllantirish, xodimlarni boshqarish va xavflarni aniqlash", "file": "mavzu-15.html", "open": true, "slides": 18, "quiz": 15, "lim": true}], "teacherTg": "https://t.me/esfandiyorr?direct", "teacherName": "Isfandiyor Sayfiddinov", "reopen": {"m1": {"id": "2026-10-19", "until": "2026-10-22T23:59:59+05:00"}}, "pwaMsg": "2026-10-19", "courses": [{"id": "tad-asoslari", "icon": "🚀", "title": "Tadbirkorlik asoslari", "desc": "15 ta mavzu · nazariya, testlar va amaliy topshiriqlar", "first": "index.html"}], "groups": ["FIZ-123", "FIZ-223", "FIZ-323", "AP-123", "AP-223", "AP-323", "D-123", "DKG-BF-123", "YES-123", "T-123", "T-223", "T-323", "T-423", "KI-123", "KI-223", "DI-123", "DI-223"], "groupRenames": {"T-232": "T-223"}, "hideRating": [{"name": "Isfandiyor", "surname": "Sayfiddinov"}], "tracks": [{"file": "Musofir.mp3", "title": "Musofir", "artist": ""}], "fbWeb": {"apiKey": "AIzaSyDPOvO9kqBcD9zIeCy_eR9szezLhoDB4Oo", "authDomain": "tadbirkorlik-asoslari.firebaseapp.com", "databaseURL": "https://tadbirkorlik-asoslari-default-rtdb.asia-southeast1.firebasedatabase.app", "projectId": "tadbirkorlik-asoslari", "storageBucket": "tadbirkorlik-asoslari.firebasestorage.app", "messagingSenderId": "303986754308", "appId": "1:303986754308:web:fca65cded4728199e68651"}, "teacherH": "9a5935bc7e3abb2f8da12a8f053d28b942d399f06d3841a799d1616c7bc48ceb"};</script>
+<script src="rt-engine.js?v=33c36b05db"></script>
+<!-- RT:END -->
+<script>
+(function(){
+"use strict";
+/* ============ UZ / ENG lug'ati ============ */
+
+var UI={
+ uni:["TERMIZ DAVLAT UNIVERSITETI","TERMEZ STATE UNIVERSITY"],
+ grid:["▦ Slaydlar","▦ Slides"],
+ full:["⛶ Ekran","⛶ Fullscreen"],
+ prev:["← Orqaga","← Back"],
+ next:["Keyingi →","Next →"],
+ reset:["↻ Testni qayta boshlash","↻ Restart the test"],
+ allslides:["▦ Barcha slaydlar","▦ All slides"],
+ close:["✕ Yopish","✕ Close"],
+ score:["Natija:","Score:"],
+ answered:["Javob berildi:","Answered:"],
+ helpTitle:["⌨️ Klaviatura va imkoniyatlar","⌨️ Keyboard and features"],
+ hNext:["Keyingi slayd","Next slide"],
+ hPrev:["Oldingi slayd","Previous slide"],
+ hHome:["Birinchi / oxirgi slayd","First / last slide"],
+ hList:["Slaydlar ro'yxati","Slide overview"],
+ hTheme:["Tun / Kun rejimi","Night / Day mode"],
+ hLang:["O'zbekcha / English","Uzbek / English"],
+ hFull:["To'liq ekran","Fullscreen"],
+ hTimer:["Vaqt hisoblagich (start/stop)","Timer (start/stop)"],
+ hPrint:["Chop etish / PDF","Print / PDF"],
+ hGoto:["Slayd raqamiga o'tish","Go to slide number"],
+ hEsc:["Yopish","Close"],
+ helpNote:["📱 Telefonda chapga/o'ngga surib (swipe) slaydlarni almashtirish mumkin. Ochilgan slayd brauzer xotirasida saqlanadi.",
+           "📱 On a phone you can swipe left/right to change slides. The current slide is remembered in the browser."],
+ gotit:["Tushunarli","Got it"],
+ hint:["⌨️ <kbd>→</kbd> keyingi slayd · <kbd>D</kbd> tun/kun · <kbd>L</kbd> uz/eng · <kbd>O</kbd> ro'yxat · <kbd>F</kbd> to'liq ekran",
+       "⌨️ <kbd>→</kbd> next slide · <kbd>D</kbd> night/day · <kbd>L</kbd> uz/eng · <kbd>O</kbd> overview · <kbd>F</kbd> fullscreen"],
+ night:["Tun","Night"], day:["Kun","Day"], slide:["SLAYD","SLIDE"],
+ right:["✅ To'g'ri! ","✅ Correct! "],
+ wrong:["❌ Noto'g'ri. To'g'ri javob: ","❌ Incorrect. Correct answer: "],
+ correct:["to'g'ri javob","correct"],
+ r90t:["🏆 A'lo natija!","🏆 Excellent!"],
+ r90x:["Siz mavzuni mukammal o'zlashtirgansiz. Endi g'oyangizni amalda sinash vaqti keldi!",
+       "You have mastered the topic. Now it is time to test your idea in practice!"],
+ r75t:["🎉 Juda yaxshi!","🎉 Very good!"],
+ r75x:["Asosiy tushunchalar mustahkam. Yana bir bor takrorlab chiqing.",
+       "The key concepts are solid. Review the material once more."],
+ r50t:["👍 Yaxshi, lekin yetarli emas","👍 Good, but not enough"],
+ r50x:["Ma'ruzaning asosiy qismlarini qayta o'qing va testni takrorlang.",
+       "Re-read the main sections of the lecture and take the test again."],
+ r0t:["📚 Takrorlash zarur","📚 Revision needed"],
+ r0x:["Slaydlarni boshidan ko'rib chiqing va testni qaytadan yeching.",
+      "Go through the slides from the beginning and take the test again."],
+ subj:["", "Fundamentals of Entrepreneurship · Topic 1"]
+};
+var lang="uz", i18nNodes=[], i18nOrig=[], uiNodes=[], uiOrig=[];
+function UIT(k){ return (UI[k]||["",""])[lang==="en"?1:0]; }
+function QSRC(){ return (lang==="en" && typeof QEN!=="undefined" && QEN && QEN.length===Q.length) ? QEN : Q; }
+
+/* ================= SLAYD BOSHQARUVI ================= */
+var slides=[].slice.call(document.querySelectorAll(".slide"));
+var total=slides.length, idx=0;
+var $=function(s){return document.querySelector(s)};
+$("#total").textContent=total;
+$("#scoreMax");
+
+var dots=$("#dots"), thumbs=$("#thumbs");
+slides.forEach(function(s,i){
+  var d=document.createElement("button");
+  d.className="dot"; d.title=(i+1)+". "+s.dataset.title;
+  d.onclick=function(){go(i)};
+  dots.appendChild(d);
+  var t=document.createElement("button");
+  t.className="thumb";
+  t.innerHTML="<i>"+UIT("slide")+" "+(i+1)+"</i><b>"+(lang==="en"&&s.dataset.titleEn?s.dataset.titleEn:s.dataset.title)+"</b>";
+  t.onclick=function(){go(i);closeAll()};
+  thumbs.appendChild(t);
+});
+var dotEls=[].slice.call(dots.children), thEls=[].slice.call(thumbs.children);
+
+function go(n){
+  n=Math.max(0,Math.min(total-1,n));
+  slides.forEach(function(s,i){
+    s.classList.toggle("active",i===n);
+    s.classList.toggle("prev",i<n);
+  });
+  dotEls.forEach(function(d,i){d.classList.toggle("on",i===n)});
+  thEls.forEach(function(d,i){d.classList.toggle("on",i===n)});
+  idx=n;
+  $("#cur").textContent=n+1;
+  $("#slideName").textContent=(typeof lang!=="undefined"&&lang==="en"&&slides[n].dataset.titleEn)?slides[n].dataset.titleEn:slides[n].dataset.title;
+  $("#progress").style.width=((n+1)/total*100)+"%";
+  $("#btnPrev").disabled=(n===0);
+  $("#btnNext").disabled=(n===total-1);
+  slides[n].scrollTop=0;
+  if(window.RT) RT.slideSeen(n);
+  try{localStorage.setItem("terdu_slide",n)}catch(e){}
+  try{history.replaceState(null,"","#"+(n+1));}catch(e){} /* RT_HASH */
+  var hn=document.getElementById("hint"); if(hn&&n>0)hn.classList.add("hide");
+  if(slides[n].querySelector("[data-count]")) countUp(slides[n]);
+}
+$("#btnPrev").onclick=function(){go(idx-1)};
+$("#btnNext").onclick=function(){go(idx+1)};
+
+/* ================= RAQAMLAR ANIMATSIYASI ================= */
+function countUp(slide){
+  slide.querySelectorAll("[data-count]").forEach(function(el){
+    var end=parseFloat(el.dataset.count), dec=parseInt(el.dataset.dec||"0",10), suf=el.dataset.suf||"";
+    var t0=null, dur=1100;
+    function step(ts){
+      if(!t0)t0=ts;
+      var p=Math.min(1,(ts-t0)/dur), e=1-Math.pow(1-p,3);
+      var v=(end*e).toFixed(dec).replace(".",",");
+      el.textContent=v+suf;
+      if(p<1)requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  });
+}
+
+/* ================= TUN / KUN REJIMI ================= */
+function setTheme(t){
+  document.documentElement.setAttribute("data-theme",t);
+  $("#btnTheme").innerHTML=(t==="dark"?"☀️ ":"🌙 ")+"<span id='themeTxt'>"+UIT(t==="dark"?"day":"night")+"</span>";
+  try{localStorage.setItem("terdu_theme",t)}catch(e){}
+}
+$("#btnTheme").onclick=function(){
+  setTheme(document.documentElement.getAttribute("data-theme")==="dark"?"light":"dark");
+};
+
+/* ================= TO'LIQ EKRAN / CHOP ETISH ================= */
+$("#btnFull").onclick=function(){
+  if(!document.fullscreenElement){ (document.documentElement.requestFullscreen||function(){})().catch(function(){}); }
+  else{ document.exitFullscreen(); }
+};
+$("#btnPrint").onclick=function(){window.print()};
+
+/* ================= VAQT HISOBLAGICH ================= */
+var sec=0, tick=null;
+function fmt(s){var m=Math.floor(s/60),r=s%60;return (m<10?"0":"")+m+":"+(r<10?"0":"")+r}
+$("#btnTimer").onclick=function(){
+  if(tick){clearInterval(tick);tick=null;}
+  else{ tick=setInterval(function(){sec++;document.getElementById("timer").textContent=fmt(sec);},1000); }
+};
+
+/* ================= OVERLAYLAR ================= */
+function closeAll(){$("#overview").classList.remove("show");$("#help").classList.remove("show")}
+$("#btnGrid").onclick=function(){$("#overview").classList.toggle("show")};
+$("#ovClose").onclick=closeAll;
+$("#btnHelp").onclick=function(){$("#help").classList.toggle("show")};
+$("#helpClose").onclick=closeAll;
+$("#overview").addEventListener("click",function(e){if(e.target===this)closeAll()});
+$("#help").addEventListener("click",function(e){if(e.target===this)closeAll()});
+
+/* ================= KLAVIATURA ================= */
+document.addEventListener("keydown",function(e){
+  var k=e.key;
+  if(k==="Escape"){closeAll();return}
+  if(/^(INPUT|TEXTAREA)$/.test(e.target.tagName))return;
+  if(k==="ArrowRight"||k===" "||k==="PageDown"){e.preventDefault();go(idx+1)}
+  else if(k==="ArrowLeft"||k==="PageUp"){e.preventDefault();go(idx-1)}
+  else if(k==="Home"){go(0)}
+  else if(k==="End"){go(total-1)}
+  else if(k==="o"||k==="O"||k==="Ў"){$("#btnGrid").click()}
+  else if(k==="d"||k==="D"){$("#btnTheme").click()}
+  else if(k==="l"||k==="L"){$("#btnLang").click()}
+  else if(k==="f"||k==="F"){$("#btnFull").click()}
+  else if(k==="t"||k==="T"){$("#btnTimer").click()}
+  else if(k==="p"||k==="P"){e.preventDefault();window.print()}
+  else if(k==="?"){$("#btnHelp").click()}
+  else if(/^[1-9]$/.test(k)){go(parseInt(k,10)-1)}
+});
+
+/* ================= SWIPE (telefon uchun) ================= */
+var x0=null,y0=null;
+document.getElementById("deck").addEventListener("touchstart",function(e){
+  x0=e.changedTouches[0].clientX; y0=e.changedTouches[0].clientY;
+},{passive:true});
+document.getElementById("deck").addEventListener("touchend",function(e){
+  if(x0===null)return;
+  var dx=e.changedTouches[0].clientX-x0, dy=e.changedTouches[0].clientY-y0;
+  if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)*1.6){ dx<0?go(idx+1):go(idx-1); }
+  x0=null;
+},{passive:true});
+
+/* ================= TEST ================= */
+var Q=[
+ {q:"Qonundagi ta'rifga ko'ra tadbirkorlikning to'rt ustuni qaysi qatorda to'g'ri berilgan?",
+  a:["Litsenziya, soliq imtiyozi, omborxona va yetkazib berish tarmog'i",
+     "Oliy ma'lumot, ish tajribasi, tanishlar va davlat buyurtmasi",
+     "Kapital, ijara shartnomasi, reklama va buxgalteriya hisoboti",
+     "Tashabbus, tavakkalchilik, qiymat yaratish va muntazam daromad"],c:3,
+  e:"Ta'rifning to'rt ustuni: tashabbus, tavakkalchilik, qiymat yaratish, daromad."},
+ {q:"\"Pulim yo'q, shuning uchun biznes ocholmayman\" degan fikr matnda nega xato deb baholanadi?",
+  a:["Pul ketma-ketlikda birinchi emas, uchinchi qadam bo'lgani uchun",
+     "Hech bir biznes umuman mablag' talab qilmaydigan ish bo'lgani uchun",
+     "Bank krediti hech qanday shartsiz hammaga ochiq bo'lgani uchun",
+     "Davlat har bir yoshga tekin boshlang'ich kapital ajratgani uchun"],c:0,
+  e:"To'g'ri ketma-ketlik: muammoni topish → yechimni sinash → o'sish uchun pul jalb qilish."},
+ {q:"Mahalladagi bitta oshxonani startapga aylantiradigan o'zgarish qaysi javobda ko'rsatilgan?",
+  a:["Ijara shartnomasini uzaytirib, zalni zamonaviy uslubda bezatish",
+     "Yangi jihoz sotib olib, taomlar assortimentini biroz ko'paytirish",
+     "Xodimlar sonini oshirib, ish vaqtini yarim tungacha uzaytirish",
+     "Yuzlab oshxonani bitta ilovaga ulab, miqyosni keskin kengaytirish"],c:3,
+  e:"Bitta oshxona — sinalgan model. Yuzlab oshxonani bitta platformaga ulash — masshtablanish."},
+ {q:"Startap bilan kichik biznesni ajratishda qaysi mezon hal qiluvchi ahamiyatga ega?",
+  a:["Ofis maydoni va undagi xodimlar uchun ajratilgan joylar soni",
+     "Mahsulot narxi va sotuvda qo'llaniladigan chegirmalar miqdori",
+     "Ta'sischining yoshi va uning egallagan oliy ma'lumot darajasi",
+     "O'sish sur'ati va miqyos — milliy yoki global darajaga chiqishi"],c:3,
+  e:"Startapning asosiy belgisi — masshtablanish, ya'ni tez va katta o'sishga mo'ljallanganlik."},
+ {q:"Ijtimoiy tadbirkorlik xayriyadan qaysi jihati bilan tubdan farq qiladi?",
+  a:["O'zi daromad topib, muammoni barqaror hal qilishda davom etadi",
+     "Mijozi bo'lmagani sababli bozorni umuman o'rganib o'tirmaydi",
+     "Faqat homiylardan yig'ilgan mablag' hisobiga ishlab turadi",
+     "Soliq to'lamaydi va hech qanday hisobot topshirmasdan ishlaydi"],c:0,
+  e:"Xayriya mablag' tugaganda to'xtaydi, ijtimoiy tadbirkorlik esa o'z daromadi bilan davom etadi."},
+ {q:"Oilaviy tadbirkorlikning kuchli tomoni emas, aynan zaif tomoni qaysi javobda berilgan?",
+  a:["Qiyin paytda oila jamg'armasi zaxira bo'lib xizmat qilishi",
+     "Ishonch yuqoriligi sababli nazorat xarajatining juda pastligi",
+     "Hunarning avloddan avlodga o'tib, saqlanib qolish imkoniyati",
+     "Oilaviy va ishchi munosabatlarning bir-biriga aralashib ketishi"],c:3,
+  e:"Rollar aralashganda nizolar ham biznesga, ham oilaga zarar yetkazadi."},
+ {q:"Bekat misolidagi ikki kishi bir xil holatni ko'rdi. Ikkinchisining farqi nimada edi?",
+  a:["U o'sha joydan butunlay boshqa yo'l bilan o'tishni tanladi",
+     "U hokimiyatga shikoyat xatini birinchi bo'lib yozib topshirdi",
+     "U bekat qurilishi uchun kerakli mablag'ni tezda to'play oldi",
+     "U aynan shu manzarada to'lovga tayyor ehtiyojni ko'ra oldi"],c:3,
+  e:"Tadbirkorlik tafakkuri — bir xil holatdan imkoniyat ko'ra bilish qobiliyati."},
+ {q:"Muammoni baholash filtrlaridan qaysi biri aynan \"to'lov qobiliyati\"ni tekshiradi?",
+  a:["Mahsulot qadog'i va rangi mijozga yoqish-yoqmasligini",
+     "Mijozda shu muammoni hal qilish uchun puli bor-yo'qligini",
+     "Muammoning bir yil ichida necha marta takrorlanishini",
+     "Bozorda nechta raqobatchi firma faoliyat yuritayotganini"],c:1,
+  e:"Muammo bor, lekin mijozda pul yo'q bo'lsa — biznes bo'lmaydi."},
+ {q:"\"Mijoz\" bo'g'ini qaysi javobda to'g'ri, ya'ni aniq va o'lchanadigan qilib ta'riflangan?",
+  a:["Internetdan muntazam foydalanadigan butun aholi qatlamlari",
+     "Mamlakatimizdagi barcha yoshlar hamda ularning ota-onalari",
+     "Yotoqxonada yashab, kir yuvish navbatini kutayotgan talabalar",
+     "Bu yangi xizmatga qiziqishi mumkin bo'lgan har qanday odamlar"],c:2,
+  e:"\"Hamma\" — mijoz emas. Mijoz aniq, o'lchanadigan guruh bo'lishi shart."},
+ {q:"\"Talaba tushligi\" misolida daromad manbai sifatida aynan nima ko'rsatilgan?",
+  a:["Oshxona egasidan olinadigan bir martalik ijara to'lovi",
+     "Talabalardan yig'ib olinadigan yillik a'zolik badali puli",
+     "Har bir buyurtmadan olinadigan 10 foizlik komissiya to'lovi",
+     "Universitet byudjetidan ajratiladigan doimiy subsidiya puli"],c:2,
+  e:"Monetizatsiya modeli: har bir buyurtmadan 10% komissiya."},
+ {q:"Yosh tadbirkorlarning eng ko'p uchraydigan xatosi matnda qanday izohlanadi?",
+  a:["Mahsulotga oshiq bo'lib, bozorda sinamasdan uzoq ishlab chiqish",
+     "Kichik hajmda boshlab, avval arzon sinovdan o'tkazib ko'rish",
+     "Mijoz bilan suhbatlashib, uning fikrini ortiqcha hisobga olish",
+     "Tannarxni hisoblab chiqib, keyin narx belgilashga o'tib olish"],c:0,
+  e:"\"Mahsulotga oshiq bo'lish\" — oylab yaratib, keyin mijoz yo'qligini bilish."},
+ {q:"Biznesni boshlashning to'g'ri ketma-ketligi qaysi javobda keltirilgan?",
+  a:["Katta kredit olish → mahsulot yaratish → mijoz qidirib ko'rish",
+     "Muammoni topish → yechimni sinash → o'sish uchun pul jalb qilish",
+     "Ofis ijaraga olish → jihoz sotib olish → g'oya o'ylab topish",
+     "Reklama berish → do'kon ochish → muammoni keyin izlab ko'rish"],c:1,
+  e:"Pul — birinchi emas, uchinchi qadam. Avval muammo, keyin sinov."},
+ {q:"Statistikaga ko'ra kichik biznesning yalpi ichki mahsulotdagi ulushi qanday?",
+  a:["Barcha ishlab chiqarishning to'rtdan uch qismi — 78,0 foizni tashkil etadi",
+     "Yalpi ichki mahsulotning uchdan bir qismi — 33,5 foizni tashkil etadi",
+     "Yaratilgan har ikki so'mdan bittasi — ya'ni 50,5 foizni tashkil etadi",
+     "Mamlakat iqtisodiyotining beshdan bir qismi — 20,5 foizni tashkil etadi"],c:2,
+  e:"518,7 trln so'm — mamlakatda yaratilgan har ikki so'mdan bittasi kichik biznesniki."},
+ {q:"Dayson changyutgichi haqidagi fakt talabani qanday xulosaga olib keladi?",
+  a:["Sifatli mahsulotni birinchi urinishdayoq yaratish mumkinligiga",
+     "Yangi mahsulotni faqat yirik zavodda ishlab chiqarsa bo'lishiga",
+     "Ixtiro qilish uchun avvalo katta investor topish shartligiga",
+     "5127 marta urinish — mag'lubiyat emas, foydali axborot ekaniga"],c:3,
+  e:"5127 prototip — muvaffaqiyatsizlik mag'lubiyat emas, axborot ekanining isboti."},
+ {q:"Nike belgisi, Airbnb va Spanx tarixidan chiqadigan umumiy xulosa nima?",
+  a:["Har qanday biznesni faqat chet elda boshlash maqsadga muvofiqligi",
+     "Muvaffaqiyat faqat mashhur universitet diplomiga bog'liq ekanligi",
+     "Yirik kapitalsiz ham hal qilinmagan muammodan boshlash mumkinligi",
+     "Logotip va reklamaga eng katta mablag' sarflash zarur ekanligi"],c:2,
+  e:"Ularning hech biri katta pul bilan boshlamagan — hammasi hal qilinmagan muammodan boshlangan."}
+];
+/* ===== Yakuniy test: "Testni boshlash" tugmasi, 15 daqiqa, har talabaga aralash tartib, nusxa/skrinshotdan himoya =====
+   Urinish faqat "Testni boshlash" bosilganda sanaladi. Boshlangan test shu brauzerda saqlanadi:
+   boshqa slaydga o'tish yoki sahifani yopish javoblarni ham, urinishni ham yo'qotmaydi — vaqt esa to'xtamaydi. */
+var KEYS=["A","B","C","D"], QATT_LIMIT=2, QT_MIN=15, QS=null, QTMR=null;
+$("#scoreMax").textContent=Q.length;
+function L2(uz,en){ return (typeof lang!=="undefined"&&lang==="en")?en:uz; }
+function qAttGet(){
+  if(!window.RT) return 0;
+  if(RT.qUsed) return RT.qUsed();               /* hisob engine'da (o'qituvchi testni hammaga qayta ochgan bo'lsa ham) */
+  var P=RT.points(), t=(window.RT_CFG&&RT_CFG.topic)||"m0";
+  var x=P.topics[t]||{};
+  return Math.max(0,(x.qAtt||0)-(x.qx||0));   /* qx — o'qituvchi qayta ochgan urinishlar */
+}
+function qAttBump(){
+  if(!window.RT) return;
+  if(RT.qBump){ RT.qBump(); return; }
+  var P=RT.points(), t=(window.RT_CFG&&RT_CFG.topic)||"m0";
+  if(!P.topics[t]) P.topics[t]={p:0,slides:{},acts:{}};
+  P.topics[t].qAtt=(P.topics[t].qAtt||0)+1;
+  if(RT.save) RT.save();
+}
+function qStu(){ return (window.RT&&RT.student&&RT.student())||null; }
+function qKey(){ var s=qStu(); return "terdu_qs_"+((window.RT_CFG&&RT_CFG.topic)||"m0")+"_"+(s?s.id:"anon"); }
+function qsLoad(){ try{ return JSON.parse(localStorage.getItem(qKey())||"null"); }catch(e){ return null; } }
+function qsSave(){ try{ localStorage.setItem(qKey(),JSON.stringify(QS)); }catch(e){} }
+function qShuf(a){ for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)), t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+function qLeft(){ return QS?Math.max(0,QS.at+QT_MIN*60000-Date.now()):0; }
+function qMMSS(ms){ var s=Math.ceil(ms/1000); return Math.floor(s/60)+":"+("0"+(s%60)).slice(-2); }
+function qStat(){
+  var a=0,s=0; for(var k in QS.pk){ a++; if(QS.pk[k]===Q[k].c) s++; }
+  return {a:a,s:s,b:Math.round(s/Q.length*500)/10};
+}
+function qStart(){
+  if(window.RT&&!qStu()){ alert(L2("Testni ishlash uchun avval ro'yxatdan o'ting.","Please register first to take the test.")); return; }
+  var free=window.RT?qAttGet()>=QATT_LIMIT:false;
+  if(!free) qAttBump();
+  var ord=qShuf(Q.map(function(_,i){ return i; })), opt={};
+  ord.forEach(function(i){ opt[i]=qShuf([0,1,2,3]); });
+  QS={at:Date.now(),ord:ord,opt:opt,pk:{},done:false,free:free,n:window.RT?qAttGet():1};
+  qsSave(); renderTest(); qTick();
+  var sl=$("#testWrap").closest(".slide"); if(sl) sl.scrollTop=0;
+}
+function qFinish(){
+  if(!QS||QS.done) return;
+  QS.done=true; QS.end=Math.min(Date.now(),QS.at+QT_MIN*60000); qsSave();
+  clearInterval(QTMR); QTMR=null; document.body.classList.remove("qt-live");
+  renderTest();
+  var r=$("#result"); if(r) setTimeout(function(){ r.scrollIntoView({behavior:"smooth",block:"center"}); },60);
+}
+function qTick(){
+  clearInterval(QTMR); QTMR=null;
+  if(!QS||QS.done) return;
+  document.body.classList.add("qt-live");
+  QTMR=setInterval(function(){
+    var l=qLeft(), e=document.getElementById("qtTime");
+    if(e){ e.textContent=qMMSS(l); e.parentNode.classList.toggle("warn",l<120000); }
+    if(l<=0) qFinish();
+  },500);
+}
+function answer(qi,ai){
+  if(!QS||QS.done||QS.pk[qi]!==undefined) return;
+  if(qLeft()<=0){ qFinish(); return; }
+  QS.pk[qi]=ai; qsSave();
+  if(ai===Q[qi].c&&window.RT&&!QS.free) RT.award("test"+qi,5,"test");
+  renderTest();
+  var st=qStat(); if(st.a===Q.length) qFinish();
+}
+function qBar(){
+  var sb=$("#testWrap").parentNode.querySelector(".scorebar"); if(!sb) return;
+  if(!QS||QS.done){ sb.style.display="none"; return; }
+  var st=qStat();
+  sb.style.display="";
+  sb.innerHTML='<span>❓ '+L2("Savollar","Questions")+': <b>'+Q.length+'</b></span>'+
+    '<span>✍️ '+L2("Javob berildi","Answered")+': <b>'+st.a+'</b></span>'+
+    '<span>✅ '+L2("To'g'ri","Correct")+': <b>'+st.s+'</b></span>'+
+    '<span>⭐ '+L2("Ball","Points")+': <b>'+(QS.free?"—":st.b)+'</b></span>'+
+    '<div class="spacer"></div><span class="qt-time">⏱ <b id="qtTime">'+qMMSS(qLeft())+'</b></span>'+
+    '<button class="btn accent" id="qtEnd" type="button">🏁 '+L2("Yakunlash","Finish")+'</button>';
+  $("#qtEnd").onclick=function(){
+    var n=Q.length-qStat().a;
+    if(n>0&&!confirm(L2(n+" ta savolga javob berilmagan. Testni yakunlaysizmi?",n+" questions are unanswered. Finish the test?"))) return;
+    qFinish();
+  };
+}
+function qWm(){
+  var s=qStu(); if(!s) return "";
+  var t=(s.name+" "+s.surname+" · "+(s.group||"")).replace(/[<>&"]/g,"");
+  var svg="<svg xmlns='http://www.w3.org/2000/svg' width='360' height='170'><text x='10' y='95' transform='rotate(-18 180 85)' font-family='sans-serif' font-size='17' font-weight='700' fill='rgba(120,120,140,0.13)'>"+t+"</text></svg>";
+  return 'background-image:url("data:image/svg+xml;utf8,'+encodeURIComponent(svg)+'")';
+}
+function renderTest(){
+  var w=$("#testWrap"), QQ=QSRC(), r=$("#result");
+  w.innerHTML=""; w.className=""; w.removeAttribute("style"); r.classList.remove("show");
+  if(r.nextElementSibling!==w) w.parentNode.insertBefore(r,w);   /* natija kartasi savollar ustida */
+  if(QS&&!QS.done&&qLeft()<=0){ qFinish(); return; }
+  qBar();
+  var used=window.RT?qAttGet():0;
+  if(!QS||QS.done){
+    if(QS&&QS.done){
+      var st=qStat(), pct=Math.round(st.s/Q.length*100), t,x;
+      if(pct>=90){t=UIT("r90t");x=UIT("r90x");} else if(pct>=75){t=UIT("r75t");x=UIT("r75x");}
+      else if(pct>=50){t=UIT("r50t");x=UIT("r50x");} else{t=UIT("r0t");x=UIT("r0x");}
+      $("#pct").textContent=pct+"%"; $("#resTitle").textContent=t;
+      $("#resTxt").textContent=x+"  ("+st.s+" / "+Q.length+" "+UIT("correct")+" · "+
+        (QS.free?L2("mashq — ball berilmadi","practice — no points"):L2("bu urinishda ","this attempt: ")+st.b+" "+L2("ball","points"))+
+        " · ⏱ "+qMMSS((QS.end||Date.now())-QS.at)+")";
+      r.classList.add("show");
+    }
+    var left=QATT_LIMIT-used;
+    var c=document.createElement("div"); c.className="qt-start";
+    c.innerHTML='<div class="qt-ic">📝</div><h3>'+(QS&&QS.done?L2("Test yakunlandi","The test is finished"):L2("Yakuniy test","Final test"))+'</h3>'+
+      '<div class="qt-facts"><span>❓ <b>'+Q.length+'</b> '+L2("savol","questions")+'</span><span>⏱ <b>'+QT_MIN+'</b> '+L2("daqiqa","minutes")+'</span>'+
+      '<span>🎯 '+L2("Ball beriladigan urinish","Scored attempts")+': <b>'+Math.min(used,QATT_LIMIT)+' / '+QATT_LIMIT+'</b></span></div>'+
+      (QS&&QS.done?'':'<ul class="qt-rules"><li>'+L2("Savollar «Testni boshlash» bosilgandan keyin chiqadi va har bir talabada boshqacha tartibda bo'ladi.","Questions appear after you press «Start the test» and come in a different order for every student.")+'</li>'+
+      '<li>'+L2("Har bir savolga bitta javob — tanlagach o'zgartirib bo'lmaydi.","One answer per question — it cannot be changed.")+'</li>'+
+      '<li>'+L2("Vaqt boshlangach to'xtamaydi. Boshqa slaydga o'tsangiz yoki sahifani yopsangiz ham javoblaringiz saqlanadi — qaytib davom ettirasiz.","Once started, the timer does not stop. Your answers are kept if you switch slides or close the page — just come back and continue.")+'</li>'+
+      '<li>'+L2("15 daqiqa tugasa test o'zi yakunlanadi.","When the 15 minutes are over, the test finishes by itself.")+'</li></ul>')+
+      (window.RT&&RT.qGrant&&RT.qGrant()?'<p class="qt-note qt-grant">🔓 '+L2("O'qituvchi testni qayta ochdi: hammaga 2 ta yangi ball beriladigan urinish ("+RT.qGrant().uz+" kuni oxirigacha).","The teacher has reopened the test: 2 new scored attempts for everyone (until the end of "+RT.qGrant().en+").")+'</p>':'')+
+      (left>0?'':'<p class="qt-note">⚠️ '+L2("Ball beriladigan 2 ta urinish tugagan — endi faqat mashq uchun ishlaysiz, ball berilmaydi.","Your 2 scored attempts are used up — you can practise, but no points are given.")+'</p>')+
+      '<button class="btn accent qt-go" type="button" id="qtGo">▶ '+(QS&&QS.done?L2("Qayta boshlash","Start again"):L2("Testni boshlash","Start the test"))+
+      (left>0?' <small>('+L2((used+1)+"-urinish","attempt "+(used+1))+')</small>':' <small>('+L2("mashq","practice")+')</small>')+'</button>';
+    w.appendChild(c);
+    $("#qtGo").onclick=function(){
+      var msg=left>0?L2("Test boshlanadi: "+Q.length+" ta savol, "+QT_MIN+" daqiqa. Bu "+(used+1)+"-urinish (ball beriladigan "+QATT_LIMIT+" tadan). Boshlaysizmi?",
+                        "The test starts: "+Q.length+" questions, "+QT_MIN+" minutes. This is attempt "+(used+1)+" of "+QATT_LIMIT+" scored ones. Start?")
+                    :L2("Mashq rejimi: ball berilmaydi. Boshlaysizmi?","Practice mode: no points. Start?");
+      if(confirm(msg)) qStart();
+    };
+    if(QS&&QS.done){
+      var rv=document.createElement("div"); rv.className="qt-rev";
+      rv.innerHTML='<h4>'+L2("Javoblaringiz","Your answers")+'</h4>'+QS.ord.map(function(qi,n){
+        var p=QS.pk[qi], ok=p===Q[qi].c;
+        return '<div class="qt-rrow '+(p===undefined?"na":ok?"ok":"no")+'"><b>'+(n+1)+'</b><span>'+QQ[qi].q+'</span><i>'+
+          (p===undefined?L2("javobsiz","no answer"):ok?"✅":"❌")+'</i></div>';
+      }).join("");
+      w.appendChild(rv);
+    }
+    return;
+  }
+  w.className="qt-on"; w.setAttribute("style",qWm());
+  QS.ord.forEach(function(qi,n){
+    var item=QQ[qi], box=document.createElement("div"); box.className="qbox";
+    var h=document.createElement("p"); h.className="q";
+    h.innerHTML="<i>"+(n+1)+"</i>"+item.q;
+    box.appendChild(h);
+    var p=QS.pk[qi];
+    QS.opt[qi].forEach(function(ai,pos){
+      var b=document.createElement("button");
+      b.className="opt"; b.type="button";
+      b.innerHTML="<span class='k'>"+KEYS[pos]+")</span>"+item.a[ai];
+      if(p!==undefined){ b.disabled=true; if(ai===p) b.classList.add(ai===item.c?"right":"wrong"); }
+      else b.onclick=function(){ answer(qi,ai); };
+      box.appendChild(b);
+    });
+    if(p!==undefined){ var fb=document.createElement("p"); fb.className="fb show "+(p===item.c?"ok":"no");
+      fb.textContent=p===item.c?L2("✅ To'g'ri","✅ Correct"):L2("❌ Noto'g'ri","❌ Wrong"); box.appendChild(fb); }
+    w.appendChild(box);
+  });
+}
+/* --- nusxa olish va skrinshotdan himoya (test ketayotganda) --- */
+(function(){
+  var css=document.createElement("style");
+  css.textContent=".qt-on,.qt-on *{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}"+
+    ".qt-on{border-radius:18px;transition:filter .15s}body.qt-hide .qt-on{filter:blur(14px)}"+
+    ".qt-start{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:22px;text-align:center;box-shadow:var(--shadow);margin-bottom:14px}"+
+    ".qt-start .qt-ic{font-size:44px}.qt-start h3{margin:6px 0 10px}"+
+    ".qt-facts{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:12px}"+
+    ".qt-facts span{background:var(--panel2);border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-size:14px}"+
+    ".qt-rules{text-align:left;max-width:640px;margin:0 auto 14px;padding-left:20px;font-size:14px;line-height:1.55;color:var(--muted)}"+
+    ".qt-note{color:var(--err);font-weight:700;font-size:14px}#result{margin-bottom:14px}"+
+    ".qt-go{font-size:17px;padding:13px 26px}.qt-go small{opacity:.85;font-weight:600}"+
+    ".qt-time.warn b{color:var(--err)}.qt-time b{font-variant-numeric:tabular-nums}"+
+    ".qt-rev{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:14px 16px;margin-top:14px}"+
+    ".qt-rev h4{margin:0 0 8px}.qt-rrow{display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-top:1px solid var(--line);font-size:14px}"+
+    ".qt-rrow b{min-width:22px}.qt-rrow span{flex:1}.qt-rrow i{font-style:normal;white-space:nowrap}.qt-rrow.na i{color:var(--muted)}"+
+    "@media print{#testWrap,#result,.scorebar{display:none!important}}";
+  document.head.appendChild(css);
+  var w=$("#testWrap");
+  ["copy","cut","contextmenu","dragstart","selectstart"].forEach(function(ev){
+    w.addEventListener(ev,function(e){ e.preventDefault(); },true); });
+  function live(){ return QS&&!QS.done; }
+  function wipe(){ try{ if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(""); }catch(e){} }
+  function hide(on){ document.body.classList.toggle("qt-hide",!!on&&live()); }
+  document.addEventListener("keydown",function(e){
+    if(!live()) return;
+    var k=(e.key||"").toLowerCase();
+    if(k==="printscreen"){ hide(true); wipe(); setTimeout(function(){ hide(false); },1200); }
+    if((e.ctrlKey||e.metaKey)&&/^[acpsux]$/.test(k)){ e.preventDefault(); e.stopPropagation(); }
+    if(e.metaKey&&e.shiftKey&&/^[345]$/.test(k)){ hide(true); setTimeout(function(){ hide(false); },1500); }   /* macOS skrinshot */
+  },true);
+  document.addEventListener("keyup",function(e){ if(live()&&(e.key||"").toLowerCase()==="printscreen"){ wipe(); } },true);
+  window.addEventListener("blur",function(){ hide(true); });     /* skrinshot dasturi oynani egallasa — savollar xiralashadi */
+  window.addEventListener("focus",function(){ hide(false); });
+  document.addEventListener("visibilitychange",function(){ hide(document.hidden); });
+  window.addEventListener("beforeprint",function(){ hide(true); });
+  window.addEventListener("afterprint",function(){ hide(false); });
+})();
+QS=qsLoad();
+if(QS&&!QS.done&&qLeft()<=0){ QS.done=true; QS.end=QS.at+QT_MIN*60000; qsSave(); }
+renderTest(); qTick();
+window.addEventListener("rt:sync",function(){ if(!QS||QS.done) renderTest(); });   /* boshqa qurilmadagi urinishlar bazadan kelganda */
+
+
+/* ================= UZ / ENG mexanizmi ================= */
+var EN={"0": "Topic 1 · Lecture · 2 hours", "1": "ENTREPRENEURIAL MINDSET AND IDENTIFYING BUSINESS OPPORTUNITIES", "2": "Entrepreneurship is not a building or big capital. It is the art of <b>seeing a problem</b> and having the <b>courage to solve it</b>.", "3": "📚 Course: <b>Fundamentals of Entrepreneurship</b>", "4": "🎓 <b>Termez State University</b>", "5": "🗂 <b>18</b> slides · <b>15</b> test questions", "6": "⌨️ Press <b>→</b> to continue", "7": "Aim of the topic", "8": "What will the student <span class=\"grad\">know by the end?</span>", "9": "Aim: to build a solid understanding of entrepreneurship, to distinguish its forms and — most importantly — to awaken the skill of <b>seeing everyday problems around you as business opportunities</b>.", "10": "Can explain", "11": "Explains in their own words what entrepreneurship is and who an entrepreneur is.", "12": "Can distinguish", "13": "Tells apart micro business, small business, a startup, family and social entrepreneurship.", "14": "Understands", "15": "Grasps the difference between the \"employee mindset\" and the \"entrepreneur mindset\".", "16": "Can find", "17": "Finds at least 3 problems in everyday life and turns them into business ideas.", "18": "Can build", "19": "Builds the \"Problem – Solution – Customer – Revenue source\" chain independently.", "20": "Can evaluate", "21": "Tests an idea through 4 filters and separates the strong ones from the weak.", "22": "Lecture plan", "23": "Today we will go through <span class=\"grad\">5 stages</span>", "24": "Concept", "25": "What entrepreneurship is and its essence.", "26": "Forms", "27": "Micro, small, startup, family, social.", "28": "Mindset", "29": "The mindset and its traits.", "30": "Opportunity", "31": "Turning a problem into a business.", "32": "Chain", "33": "Problem–Solution–Customer–Revenue.", "34": "🔑 Key concepts", "35": "<span class=\"pill g\">entrepreneurship</span><span class=\"pill\">entrepreneur</span><span class=\"pill\">risk</span>\n        <span class=\"pill\">resource</span><span class=\"pill\">added value</span><span class=\"pill g\">micro business</span>\n        <span class=\"pill\">small business</span><span class=\"pill g\">startup</span><span class=\"pill\">scalability</span>\n        <span class=\"pill\">family entrepreneurship</span><span class=\"pill\">social entrepreneurship</span><span class=\"pill g\">entrepreneurial mindset</span>\n        <span class=\"pill\">business opportunity</span><span class=\"pill\">customer</span><span class=\"pill\">monetisation</span><span class=\"pill\">value chain</span>", "36": "Question 1", "37": "Entrepreneurship is <span class=\"grad\">not a place, but a way of thinking</span>", "38": "Most people picture a shop, a market stall or a factory when they hear the word \"entrepreneurship\". In reality it is not a building — it is a <b>type of activity</b> and a <b>way of thinking</b>.", "39": "Entrepreneurship is a <b>lawful</b> activity carried out on a person's <b>own initiative</b>, at their <b>own responsibility and risk</b>, creating a product or service that <b>solves other people's problems</b> and thereby earning a <b>regular income</b>.", "40": "The Law of the Republic of Uzbekistan \"On guarantees of freedom of entrepreneurial activity\" also defines it as an initiative activity carried out <b>at one's own risk</b> and <b>aimed at earning income</b>.", "41": "The 4 pillars of the definition", "42": "Pillar", "43": "Meaning", "44": "Simple example", "45": "🚀 Initiative", "46": "Nobody orders you — you start it yourself", "47": "Seeing that the neighbourhood has no dry-cleaning service and opening one", "48": "🎲 Risk", "49": "The result is not guaranteed, loss is possible", "50": "You invested 10 million so'm — customers may never come", "51": "💎 Value creation", "52": "You create something useful for people", "53": "It saves time, is cheaper, better or more convenient", "54": "💰 Income", "55": "This is not charity — the goal is profit", "56": "Cost 30 thousand, price 50 thousand → profit 20 thousand so'm", "57": "The entrepreneur's capital", "58": "An entrepreneur's first tool is <span class=\"grad-w\">not money</span>", "59": "An entrepreneur is a person who <b>combines existing resources in a new way</b> (money, time, knowledge, equipment, people), <b>creates value</b> that did not exist before and is <b>personally answerable</b> for the result.", "60": "\"I have no money, so I cannot start a business\" — this is the most common false excuse. Money is <b>not the first but the third</b> step in the sequence.", "61": "The entrepreneur's first capital", "62": "The ability to <b>see a problem</b>", "63": "The skill of <b>talking to people</b>", "64": "<b>The courage to start small and test</b>", "65": "The right sequence", "66": "<b>1.</b> Find the problem → <b>2.</b> Test the solution → <b>3.</b> Raise money to scale", "67": "✕ Wrong: take a loan → build the product → look for customers", "68": "The case of Uzbekistan", "69": "Small business is the <span class=\"grad\">main engine</span> of the economy", "70": "thousand small business entities (as of 1 July 2026)", "71": "share of small business in GDP (518.7 trillion so'm)", "72": "target: SME share in GDP (Decree PF-50, 2025)", "73": "target: share in employment", "74": "375.1 thousand", "75": "Individual entrepreneurs (IE)", "76": "526.7 thousand", "77": "Small enterprises and micro firms", "78": "23.2 thousand", "79": "Craftsmen", "80": "5.1 thousand", "81": "Family entrepreneurs", "82": "<b>One out of every two so'm</b> created in the country comes from small business. So entrepreneurship is not a \"side activity\" — it is a <b>wide field of opportunity</b> for a young specialist.", "83": "Source: National Statistics Committee (stat.uz); Decree PF-50 of the President of Uzbekistan, 19 March 2025.", "84": "Question 2", "85": "The <span class=\"grad\">5 modern forms</span> of entrepreneurship", "86": "Entrepreneurship does not come in a single mould. None is \"better\" than another — each has its own purpose and scale.", "87": "Micro business", "88": "1–5 people, minimal capital, local market.", "89": "Baking cakes, phone repair, tutoring", "90": "Small business", "91": "Structure, bookkeeping, a fixed location and a customer base.", "92": "Café, sewing workshop, car service", "93": "Startup", "94": "Uncertainty + innovation + fast scaling.", "95": "A delivery platform", "96": "Family", "97": "Owners and workforce are members of one family.", "98": "A family bakery", "99": "Social", "100": "The goal is to solve a social problem; profit is the tool.", "101": "Waste recycling", "102": "📈 The growth chain encouraged by law: <b>self-employed person → individual entrepreneur → small business → medium business → large enterprise</b>.", "103": "Micro business and <span class=\"grad\">small business</span>", "104": "Micro business — the smallest scale", "105": "Starts with low cost (sometimes 1–2 million so'm)", "106": "Serves the local market (neighbourhood, district)", "107": "Starts quickly, stops quickly", "108": "Income is steady, but growth is slow", "109": "<b>Examples:</b> baking cakes at home, phone repair, social media design, tutoring, flowers, house cleaning, photo/video services.", "110": "Usually registered as a \"self-employed person\" or an <b>individual entrepreneur</b>.", "111": "Small business — an organised system", "112": "There is a clear structure (seller, producer, accountant)", "113": "Works with bank loans, rent and tax reporting", "114": "A stable customer base has formed", "115": "Profit is reinvested into the business", "116": "<b>Examples:</b> a small bakery, sewing workshop, café, car service, training centre, building materials shop.", "117": "A permanent location: a shop, workshop or office.", "118": "2.3 · The most confusing concept", "119": "Not every new business is <span class=\"grad-w\">a startup!</span>", "120": "A startup is a young organisation working <b>under uncertainty</b>, designed for <b>fast and large-scale growth (scaling)</b>, usually based on an <b>innovative or technological</b> solution.", "121": "Criterion", "122": "🏪 Small business", "123": "🚀 Startup", "124": "<b>Goal</b>", "125": "Stable, steady income", "126": "Fast and sharp growth", "127": "<b>Model</b>", "128": "A proven model (shop, café)", "129": "A new, untested model", "130": "<b>Scale</b>", "131": "Local (neighbourhood, city)", "132": "National or global", "133": "<b>Number of customers</b>", "134": "Hundreds – thousands", "135": "Hundreds of thousands – millions", "136": "<b>Source of money</b>", "137": "Own funds, a loan", "138": "Investor, venture capital", "139": "<b>Level of risk</b>", "140": "Moderate", "141": "Very high", "142": "<b>Example</b>", "143": "A canteen in the neighbourhood", "144": "A food delivery platform", "145": "⭐ <b>Key rule:</b> opening one canteen is a <b>small business</b>. Connecting hundreds of canteens to one app is a <b>startup</b>.", "146": "Family and <span class=\"grad\">social</span> entrepreneurship", "147": "👨‍👩‍👧 Family entrepreneurship", "148": "Strengths", "149": "Weaknesses", "150": "High trust, low cost of control", "151": "Family and work relations get mixed up", "152": "Labour is cheap and loyal", "153": "Roles may not be clearly divided", "154": "The craft passes from generation to generation", "155": "Hiring professional staff is difficult", "156": "In hard times family savings act as a reserve", "157": "Conflicts harm both the business and the family", "158": "<b>Examples:</b> a family bakery, a pottery and embroidery workshop, a family greenhouse. In Uzbekistan a <b>family enterprise</b> is a separate legal status.", "159": "🤝 Social entrepreneurship", "160": "The main goal is <b>solving a social problem</b>, while profit is the <b>tool</b> that serves that goal. This is not charity: social entrepreneurship <b>funds itself</b>.", "161": "Collects and hands out money → <b>stops</b> when the funds run out.", "162": "Earns income and <b>keeps solving</b> the problem → sustainable.", "163": "A sewing workshop that employs people with disabilities", "164": "A company that recycles waste into products", "165": "A cheap education platform for rural schools", "166": "An audiobook service for blind people", "167": "Question 3 · Mindset", "168": "The same situation — <span class=\"grad\">two different eyes</span>", "169": "The first person", "170": "\"Oh, how inconvenient. Why isn't a bus stop being built?\"", "171": "The second person", "172": "\"So at least 200 people wait for transport here every day. They are looking for shelter from the rain and a hot cup of tea. What if I opened a small kiosk right here?\"", "173": "Both saw the same thing, but only one saw an <b>opportunity</b>. That difference is the <b>entrepreneurial mindset</b>.", "174": "Situation", "175": "👔 Employee mindset", "176": "🚀 Entrepreneur mindset", "177": "<b>Income</b>", "178": "\"How much is my salary?\"", "179": "\"The more value I create, the more I earn\"", "180": "<b>Problem</b>", "181": "\"That is not my job\"", "182": "\"Whoever solves this problem will earn money\"", "183": "<b>Mistake</b>", "184": "\"Who is to blame?\"", "185": "\"What did I learn from this?\"", "186": "<b>Time</b>", "187": "\"Work ends at 18:00\"", "188": "\"It ends when the result is there\"", "189": "<b>Risk</b>", "190": "\"Better to stay safe\"", "191": "\"I accept calculated risk\"", "192": "<b>Knowledge</b>", "193": "\"I got my diploma, that's it\"", "194": "\"I learn something new every month\"", "195": "Note: this does not mean the \"employee mindset\" is bad — it is simply a different approach.", "196": "The <span class=\"grad\">7 traits</span> of the mindset and the <span class=\"grad-w\">5 mistakes</span> of young entrepreneurs", "197": "1. Sensitivity to problems", "198": "Every complaint is free market research.", "199": "2. Customer focus", "200": "Not \"I like it\" but \"does the customer need it?\"", "201": "3. Bias to action", "202": "Not a one-year plan — a small test within a week.", "203": "4. Calculated risk", "204": "\"What is the most I can lose?\"", "205": "5. Learning from failure", "206": "An unsold product is the market's answer.", "207": "6. Resourcefulness", "208": "Not \"I don't have it\" but \"who does?\"", "209": "7. Persistence", "210": "Keeps going even after a hundred \"no\"s.", "211": "The 5 mistakes of young entrepreneurs", "212": "<b>Falling in love with the product.</b> Building it for months and only then finding out there are no customers.", "213": "<b>Starting big.</b> Taking expensive rent and large stock without testing.", "214": "<b>Not asking the market.</b> \"I like it, so everyone will like it\".", "215": "<b>Pricing without maths.</b> Undercutting competitors without knowing your own cost.", "216": "<b>Working alone.</b> Refusing advice, a mentor and a team.", "217": "The fix: <b>a small test → a customer interview → calculating cost → finding a mentor</b>.", "218": "Question 4", "219": "An idea is <span class=\"grad\">not invented</span> — it is found", "220": "Every business is <b>a paid solution to someone's problem</b>. Ideas are not created: they are already hidden inside people's <b>dissatisfaction</b>.", "221": "🔍 Where should you look for problems?", "222": "Source", "223": "Example", "263": "Example", "224": "<b>Your own daily life</b><br><span style=\"color:var(--muted);font-size:13px\">Write down everything that annoyed you in one day</span>", "225": "\"The queue was long\", \"the delivery was late\"", "226": "<b>Other people's complaints</b><br><span style=\"color:var(--muted);font-size:13px\">What are family, classmates and neighbours complaining about?</span>", "227": "Telegram groups, 1–2 star reviews on marketplaces", "228": "<b>Professional experience</b><br><span style=\"color:var(--muted);font-size:13px\">Inefficient processes seen during practice</span>", "229": "\"Why is this still done by hand?\"", "230": "<b>Market gaps</b><br><span style=\"color:var(--muted);font-size:13px\">A service that exists elsewhere but not here</span>", "231": "A service popular abroad that we do not have", "232": "<b>Changes</b><br><span style=\"color:var(--muted);font-size:13px\">A new law, technology or habit</span>", "233": "New tax rules → demand for accounting services", "234": "🧪 Does every problem become a business? <span style=\"color:var(--red)\">No!</span>", "235": "1. Frequency", "236": "Does this problem occur often?", "237": "Once a year → little income", "238": "2. Pain", "239": "How much does it bother people?", "240": "Nobody pays for a minor inconvenience", "241": "3. Ability to pay", "242": "Does the customer have money?", "243": "Problem yes, money no → no business", "244": "4. Sufficient number", "245": "Do many people face it?", "246": "You cannot build a business for 10 people", "247": "✍️ <b>Practical exercise:</b> write 10 problems in 5 minutes → run them through the 4 filters → only 1–2 will remain.", "248": "Question 5 · The most powerful tool", "249": "The \"Problem – Solution – Customer – Revenue source\" <span class=\"grad\">chain</span>", "250": "1. Problem", "251": "What is wrong?", "252": "❌ \"People are struggling\"<br>✅ \"Students spend 40 minutes a day queueing for lunch\"", "253": "2. Solution", "254": "How do I fix it?", "255": "❌ \"I will build an app\"<br>✅ \"A Telegram bot for pre-ordering and skipping the queue\"", "256": "3. Customer", "257": "Who pays for it?", "258": "❌ \"All students\"<br>✅ \"1st–2nd year students with 2+ classes a day and little time\"", "259": "4. Revenue", "260": "How does the money come in?", "261": "Sales · subscription · commission · advertising · service fee · franchise", "262": "⛓ If any link of the chain is empty — the business will not work.", "264": "Problem", "265": "Solution", "266": "Customer", "267": "Revenue", "268": "<b>🍽 Student lunch</b>", "269": "Break is 45 min, the queue takes 25–40 min", "270": "Pre-ordering through a Telegram bot", "271": "200–300 students short on time", "272": "10% commission on every order", "273": "<b>🧺 Laundry</b>", "274": "Not enough machines in the dormitory, a 3–4 day wait", "275": "Collect, wash and iron, return within 24 hours", "276": "Students living in the dormitory", "277": "Price per kg + a monthly \"unlimited\" subscription", "278": "<b>🧵 Social project</b>", "279": "Rural women have the craft but no market", "280": "Branding it and selling on an online platform", "281": "City dwellers and tourists interested in national crafts", "282": "20–25% intermediary share of sales", "283": "✅ 5 questions to test the chain", "284": "1) How many people experienced this problem in the last 7 days? · 2) How do they solve it now (who is the competitor)? · 3) How exactly is my solution better than the existing way? · 4) How much is the customer ready to pay? · 5) How much profit remains from one sale?", "285": "If you can answer them — you no longer have an idea, you have a <b>business hypothesis</b>!", "286": "Summary", "287": "<span class=\"grad\">6 ideas</span> to remember", "288": "Entrepreneurship is not a building or capital — it is <b>seeing a problem and daring to solve it</b>.", "289": "The forms are diverse: micro, small, startup, family, social. <b>None is superior</b> to another.", "290": "<b>A startup ≠ any new business.</b> Its key trait is fast scaling.", "291": "The entrepreneurial mindset is <b>a learnable skill</b>: complaint → opportunity, mistake → information.", "292": "The foundation is the <b>Problem–Solution–Customer–Revenue</b> chain. Break one link and the business collapses.", "293": "In Uzbekistan small business creates <b>half of GDP</b> — a historically favourable time.", "294": "Independent work: \"10 problems – 1 opportunity\"", "295": "Write at least <b>10 problems</b> in a notebook over 3 days.", "296": "Run each through the 4 filters and score it from <b>1 to 5</b>.", "297": "Choose the <b>one problem</b> with the highest score.", "298": "Fill in the <b>Problem–Solution–Customer–Revenue</b> table for it.", "299": "Talk to at least <b>3 potential customers</b>.", "300": "Length: 1–2 pages. Marking: clarity of the problem 30% · logic of the chain 40% · customer interviews 30%.", "301": "Literature and useful resources", "302": "Eric Ries — <b>The Lean Startup</b>", "303": "Osterwalder &amp; Pigneur — <b>Business Model Generation</b>", "304": "Steve Blank — <b>The Four Steps to the Epiphany</b>", "305": "Muhammad Yunus — <b>Building Social Business</b>", "306": "<span class=\"pill g\">birdarcha.uz</span><span class=\"pill g\">my.soliq.uz</span><span class=\"pill g\">stat.uz</span><span class=\"pill g\">lex.uz</span>", "307": "Legislation: the Law \"On guarantees of freedom of entrepreneurial activity\"; Decree PF-50 (19.03.2025).", "308": "🎁 Bonus · Interesting facts", "309": "The world's <span class=\"grad-w\">richest entrepreneurs</span> and largest companies", "310": "💰 The richest people (approximate, recent rankings)", "311": "<b>Elon Musk</b><span>Tesla, SpaceX, X · electric cars and space · ~$400+ bn</span>", "312": "<b>Larry Ellison</b><span>Oracle · corporate software · ~$200+ bn</span>", "313": "<b>Jeff Bezos</b><span>Amazon · online retail · started selling books in a garage</span>", "314": "<b>Mark Zuckerberg</b><span>Meta (Facebook, Instagram, WhatsApp) · started in a student dorm</span>", "315": "<b>Bernard Arnault</b><span>LVMH · 75+ luxury brands (Louis Vuitton, Dior)</span>", "316": "<b>Bill Gates &amp; Warren Buffett</b><span>Microsoft · Berkshire Hathaway — an investing legend</span>", "317": "The figures change daily with share prices — these are approximate values (based on Forbes/Bloomberg rankings).", "318": "🏢 The most valuable companies", "319": "Born in a garage in 1976. Today its market value exceeds <b>3 trillion dollars</b> — more than the economies of many countries.", "320": "Starting from video game cards, it became one of the world's most valuable companies in the age of artificial intelligence.", "321": "Founded by two friends, Gates and Allen, in 1975. Today it leads the cloud and AI market.", "322": "In 1994 it sold <b>only books</b> from a garage. Today it is the \"everything store\" plus the world's largest cloud service.", "323": "Its name came from a typo in the word \"googol\" (10¹⁰⁰). Two PhD students started it in a garage.", "324": "It stood on the edge of bankruptcy several times; today it is the symbol of the electric car industry.", "325": "🎁 Bonus · For inspiration", "326": "<span class=\"grad\">10 interesting facts</span> about entrepreneurship", "327": "Nike's famous \"swoosh\" was drawn by a student for just <b>35 dollars</b> (1971). Today it is one of the most recognised marks in the world.", "328": "KFC founder Colonel Sanders was rejected <b>more than 1000 times</b> when trying to sell his recipe. He built the business at retirement age.", "329": "The founders of Airbnb could not afford the rent, so they rented out an <b>air mattress</b> in their own room to guests. Today it is a global platform.", "330": "When Alibaba founder Jack Ma applied to KFC, 23 out of 24 candidates were hired — <b>only he was rejected</b>. Then he built his own empire.", "331": "The Dyson vacuum cleaner succeeded after <b>5,127 prototypes</b>. Failure is not defeat — it is information.", "332": "Angry Birds was Rovio's <b>52nd game</b>. The 51 before it went unnoticed.", "333": "Spanx founder Sara Blakely started with <b>5,000 dollars</b> of her savings and became one of the first self-made female billionaires.", "334": "When Instagram was sold to Facebook for <b>1 billion dollars</b>, the team had only 13 employees. Scale does not depend on headcount.", "335": "IKEA was founded by Ingvar Kamprad at the age of <b>17</b>. The name comes from the initials of his name, his farm and his village.", "336": "In its first year Coca-Cola sold an average of just <b>9 glasses a day</b>. Today it is tens of thousands per second. Patience is a strategy.", "337": "About <b>90 percent</b> of startups fail, and the most common reason is building <b>a product the market does not need</b>.", "338": "There are <b>more than 1.2 million</b> small business entities in the country and they create <b>half</b> of GDP.", "339": "💡 The common lesson: none of these people started <b>with big money</b>. They all started with one thing — <b>an unsolved problem</b>.", "340": "Final assessment", "341": "🧪 Test questions — <span class=\"grad\">check yourself</span>", "342": "↻ Restart the test", "343": "Result", "344": "🎓 Thank you for your attention!", "345": "In the next topic we will <b>test the business hypothesis in practice</b>. Get your notebook ready — the \"10 problems – 1 opportunity\" assignment is waiting for you.", "346": "Termez State University · Fundamentals of Entrepreneurship"};
+var QEN=[{"q": "According to the legal definition, which row lists the four pillars of entrepreneurship correctly?", "a": ["A licence, tax relief, a warehouse and a distribution network", "A diploma, work experience, connections and a state contract", "Capital, a lease contract, advertising and bookkeeping records", "Initiative, risk, value creation and a regular stream of income"], "c": 3, "e": "The four pillars are initiative, risk, value creation and income."}, {"q": "Why does the topic call \"I have no money, so I cannot start a business\" a false excuse?", "a": ["Because money is not the first but the third step in the sequence", "Because no business in the world ever requires any funding at all", "Because a bank loan is open to everyone with no conditions at all", "Because the state gives every young person free starting capital"], "c": 0, "e": "Find the problem, test the solution, and only then raise money to scale."}, {"q": "Which change would turn a single neighbourhood canteen into a startup?", "a": ["Extending the lease and redecorating the hall in a modern style", "Buying new equipment and slightly widening the range of dishes", "Hiring more staff and keeping the place open until after midnight", "Connecting hundreds of canteens to one app and scaling up sharply"], "c": 3, "e": "One canteen is a proven local model; one app for hundreds of them is scaling."}, {"q": "Which criterion is decisive when telling a startup apart from a small business?", "a": ["The size of the office and the number of desks set aside for workers", "The price of the product and the size of the discount being offered", "The age of the founder and the level of education they have gained", "The speed of growth and scale — reaching national or global level"], "c": 3, "e": "Scalability — being designed for fast, large growth — is the defining trait."}, {"q": "In which respect does social entrepreneurship differ fundamentally from charity?", "a": ["It earns its own income and keeps solving the problem sustainably", "It has no customers, so it never studies the market in any way", "It runs purely on the money collected from sponsors and donors", "It pays no taxes at all and files no reports with the authorities"], "c": 0, "e": "Charity stops when the funds run out; social entrepreneurship funds itself."}, {"q": "Which of these is a weakness rather than a strength of family entrepreneurship?", "a": ["Family savings acting as a reserve fund in the difficult periods", "The low cost of control that comes from a high level of trust", "The chance for the craft to pass down from one generation to next", "Family relations and working relations getting mixed up together"], "c": 3, "e": "When roles get mixed, conflicts damage both the business and the family."}, {"q": "Two people saw the same scene at the bus stop. What set the second one apart?", "a": ["They chose to take a completely different route past that place", "They were first to write a complaint letter to the city office", "They managed to collect the money needed to build the bus stop", "They saw a need that people were ready to pay to have it solved"], "c": 3, "e": "The entrepreneurial mindset is the ability to see an opportunity in the same scene."}, {"q": "Which of the four filters checks exactly the customer's ability to pay?", "a": ["Whether the packaging and colour appeal to the customer or not", "Whether the customer has the money to get this problem solved", "How many times the problem comes back over the course of a year", "How many competing firms are already operating in this market"], "c": 1, "e": "If the problem is real but the customer has no money, there is no business."}, {"q": "In which answer is the \"customer\" link defined correctly — precisely and measurably?", "a": ["The whole population that uses the internet on a regular basis", "All the young people of our country together with their parents", "Students in the dorm who are waiting for a free washing machine", "Any people at all who might take an interest in this new service"], "c": 2, "e": "\"Everyone\" is not a customer: it must be a specific, measurable group."}, {"q": "In the \"student lunch\" example, what exactly is named as the revenue source?", "a": ["A one-off rental payment collected from the canteen's owner", "An annual membership fee collected from all of the students", "A ten per cent commission taken from every single order placed", "A permanent subsidy allocated out of the university's budget"], "c": 2, "e": "The monetisation model is a 10% commission on each order."}, {"q": "How does the topic describe the most common mistake of young entrepreneurs?", "a": ["Falling in love with the product and building it without testing", "Starting on a small scale and running a cheap test beforehand", "Talking to customers and giving their opinion far too much weight", "Working out the cost price first and only then setting the price"], "c": 0, "e": "\"Falling in love with the product\": months of building, then no customers."}, {"q": "Which answer gives the correct sequence for starting a business?", "a": ["Take a large loan, then build the product, then look for customers", "Find the problem, then test the solution, then raise money to grow", "Rent an office, then buy the equipment, then think up a good idea", "Run adverts, then open the shop, then look around for a problem"], "c": 1, "e": "Money is the third step, not the first: problem, then test, then funding."}, {"q": "According to the statistics, what is small business's share of GDP?", "a": ["Three quarters of all production output — that is, 78.0 per cent", "One third of the gross domestic product — that is, 33.5 per cent", "One out of every two so'm created — that is, 50.5 per cent of GDP", "One fifth of the whole national economy — that is, 20.5 per cent"], "c": 2, "e": "518.7 trillion so'm: one out of every two so'm created comes from small business."}, {"q": "What conclusion does the fact about the Dyson vacuum cleaner lead to?", "a": ["That a high-quality product can be created on the very first attempt", "That a new product can only be manufactured in a very large factory", "That you must first find a big investor before inventing anything", "That 5,127 attempts mean failure is not defeat but useful information"], "c": 3, "e": "5,127 prototypes prove that failure is information rather than defeat."}, {"q": "What common lesson follows from the Nike logo, Airbnb and Spanx stories?", "a": ["That it is always wiser to start any business in a foreign country", "That success depends only on a diploma from a famous university", "That you can start from an unsolved problem without large capital", "That the largest budget must be spent on the logo and advertising"], "c": 2, "e": "None of them started with big money — each started with an unsolved problem."}];
+
+(function(){
+  i18nNodes=[].slice.call(document.querySelectorAll("[data-i]"));
+  i18nNodes.forEach(function(el){ i18nOrig.push(el.innerHTML); });
+  uiNodes=[].slice.call(document.querySelectorAll("[data-ui]"));
+  uiNodes.forEach(function(el){ uiOrig.push(el.innerHTML); });
+})();
+function applyLang(L){
+  lang=(L==="en")?"en":"uz";
+  i18nNodes.forEach(function(el,k){
+    var i=el.getAttribute("data-i");
+    el.innerHTML=(lang==="en"&&EN[i])?EN[i]:i18nOrig[k];
+  });
+  uiNodes.forEach(function(el,k){
+    var key=el.getAttribute("data-ui");
+    if(UI[key]&&UI[key][1]) el.innerHTML=UI[key][lang==="en"?1:0];
+    else el.innerHTML=uiOrig[k];
+  });
+  document.documentElement.lang=lang;
+  document.getElementById("langTxt").textContent=(lang==="en")?"UZ":"ENG";
+  setTheme(document.documentElement.getAttribute("data-theme")||"light");
+  thEls.forEach(function(t,i){
+    t.innerHTML="<i>"+UIT("slide")+" "+(i+1)+"</i><b>"+((lang==="en"&&slides[i].dataset.titleEn)?slides[i].dataset.titleEn:slides[i].dataset.title)+"</b>";
+    t.title=(i+1)+". "+t.querySelector("b").textContent;
+  });
+  dotEls.forEach(function(d,i){ d.title=(i+1)+". "+((lang==="en"&&slides[i].dataset.titleEn)?slides[i].dataset.titleEn:slides[i].dataset.title); });
+  $("#slideName").textContent=(lang==="en"&&slides[idx].dataset.titleEn)?slides[idx].dataset.titleEn:slides[idx].dataset.title;
+  renderTest();
+  try{localStorage.setItem("terdu_lang",lang)}catch(e){}
+}
+$("#btnLang").onclick=function(){ applyLang(lang==="en"?"uz":"en"); };
+
+/* ================= START ================= */
+try{
+  var th=localStorage.getItem("terdu_theme");
+  setTheme(th|| (window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"));
+  var hv=parseInt((location.hash||"").replace(/[^0-9]/g,""),10);
+  var sv=isNaN(hv)?parseInt(localStorage.getItem("terdu_slide"),10):(hv-1);
+  go(isNaN(sv)?0:sv);
+  window.addEventListener("hashchange",function(){
+    var h=parseInt((location.hash||"").replace(/[^0-9]/g,""),10);
+    if(!isNaN(h)&&h-1!==idx) go(h-1);
+  });
+}catch(e){ setTheme("light"); go(0); }
+try{ applyLang(localStorage.getItem("terdu_lang")==="en"?"en":"uz"); }catch(e){}
+setTimeout(function(){document.getElementById("hint").classList.add("hide")},7000);
+})();
+</script>
+</body>
+</html>
