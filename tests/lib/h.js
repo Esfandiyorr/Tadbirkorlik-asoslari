@@ -12,6 +12,14 @@ const CORS={"access-control-allow-origin":"*","access-control-allow-headers":"*"
 /* qoidalarning kahoot qismini soddalashtirib tekshiramiz (yozuv poygasi uchun muhim joylar) */
 function kRule(m,path,body,now){
   const p=path.split("/");
+  /* 🔑 hisobga egalik (kirish): owners/<talaba>/<brauzer> ga faqat to'g'ri PIN izi yoziladi — haqiqiy qoidadagi «claim».
+     Yopiq «keys/<talaba>» bor bo'lsa — shunga, bo'lmasa students/<talaba>/pk ga teng bo'lishi kerak; yozuv yo'q bo'lsa — yangi */
+  if(p[0]==="owners"&&p.length===3&&m==="PUT"){
+    const k=dbGet("keys/"+p[1]), pk=dbGet("students/"+p[1]+"/pk");
+    if(k!=null) return body===k;
+    if(pk!=null) return body===pk;
+    return true;
+  }
   if(p[0]!=="kahoot") return true;
   if(p[1]==="games"&&p.length>=3){
     const g=dbGet("kahoot/games/"+p[2])||{}, meta=g.meta||{};

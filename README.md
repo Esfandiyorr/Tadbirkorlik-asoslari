@@ -3,12 +3,13 @@
 **Muassasa:** Termiz davlat universiteti · Fan: Tadbirkorlik asoslari
 
 Sayt — 15 ta interaktiv taqdimot, ball va reyting tizimi, talabalar chati, o'yin arenasi va telefon ilovasi (PWA).
-Talaba ro'yxatdan o'tadi, taqdimotni o'qiydi, testni ishlaydi va ball to'playdi; o'qituvchi hammasini panel orqali
+Istagan kishi taqdimotlarni o'qiydi; talaba ro'yxatdan o'tadi, testni ishlaydi va ball to'playdi; o'qituvchi hammasini panel orqali
 boshqaradi (mavzuni ochish, baholash, e'lon, jonli test).
 
-**[`index.html`](index.html) — fan sahifasi «Tadbirkorlik asoslari»:** saytga kirgan talaba avval shu sahifani
+**[`index.html`](index.html) — fan sahifasi «Tadbirkorlik asoslari»:** saytga kirgan har kim avval shu sahifani
 ko'radi — barcha mavzular kartochkalarda (🟢 ball beriladi · 📖 o'qish rejimi · 🔒 yopiq), tepada
-«⏳ Bu hafta ball beradigan mavzu …, yakshanba 23:59 gacha» eslatmasi, ballari va reyting. Talaba mavzuni o'zi tanlaydi.
+«⏳ Bu hafta ball beradigan mavzu …, yakshanba 23:59 gacha» eslatmasi, ballari va reyting. Mavzuni o'zi tanlaydi.
+**Ro'yxatdan o'tish shart emas** — pastdagi «👀 Mehmon rejimi» ga qarang.
 
 | Fayl | Mavzu | Hajmi | Holati |
 |---|---|---|---|
@@ -38,6 +39,22 @@ ochadi: mavzular ro'yxati va holati; talaba 🟢 mavzuga kirib ishlaydi (ball), 
 sahifaga o'tish yo'q. Har bir taqdimotda mavzular ro'yxatida va logotipda «🏠 Fan sahifasi» havolasi bor.
 Eski «index.html#5» havolalari 1-mavzuning shu slaydini ochadi (`mavzu-1.html#5`).
 Ball, reyting va chat uchun internet kerak (Firebase Realtime Database).
+
+**👀 Mehmon rejimi (hisobsiz kirganlar):** saytni qiziqib ochgan har kim ro'yxatdan o'tmasdan taqdimotlarni **faqat o'qish**
+rejimida ko'ra oladi — o'qituvchi hammaga ochgan (📖 o'qish rejimi yoki hammaga ball beradigan) mavzular. Hali ochilmagan
+mavzu mehmonga ham yopiq («hali ochilmagan»). Mehmon uchun: ball hisoblanmaydi, vaqt sanalmaydi, bazaga hech narsa yozilmaydi,
+chat va reyting ko'rinmaydi. **Testni, krossvordni yoki masalalarni boshlash** tugmasi bosilsa, yopiladigan oyna chiqadi —
+«Testni ishlash va ball olish uchun hisobingizga kiring yoki ro'yxatdan o'ting» (Kirish / Ro'yxatdan o'tish yorliqlari,
+o'qituvchi uchun ham havola). Kirgach shu sahifada davom etadi (sahifa qayta yuklanmaydi); mavzu o'qish rejimida bo'lsa,
+test odatdagidek yopiq turadi. Topbardagi 🏆 o'rniga mehmonda «🔑 Kirish» tugmasi turadi.
+
+**🔗 Havola nomi va logo:** saytning havolasi Telegram, WhatsApp, Facebook va boshqalarga yuborilganda nomi
+**«IsfandiyorSayfiddinov»**, rasmi — yangi logo: TerDU gerbi + Isfandiyor Sayfiddinov
+(`fayllar/havola-isfandiyor.jpg`, 1200×630, 300 KB dan kichik; kvadrat variant — `fayllar/logo-isfandiyor.png`).
+Teglar har bir sahifada (`og:title`, `og:image`, `twitter:card`) `inject.py` orqali qo'yiladi; ular `config.json` dagi
+`siteUrl` (saytning haqiqiy manzili — o'z domeni bo'lsa shuni yozing) va `linkName` dan olinadi. Mavzu sahifalarida tavsif
+«N-mavzu: …». Logoni qayta yaratish: `cd tests && node ../_reyting-manba/logo/yasash.js` (shablon — `_reyting-manba/logo/logo.html`).
+Telegram havola rasmini eslab qoladi — o'zgartirgandan keyin yangilanishi uchun havolani @WebpageBot ga yuboring.
 
 **Muhim:** taqdimotlardagi umumiy kod (`rt-engine.js`, `rt-engine.css`) avtomatik yaratiladi — ularni qo'lda
 tahrirlamang. Manba `_reyting-manba/` papkasida; o'zgartirgandan keyin `python3 _reyting-manba/inject.py`.
@@ -111,8 +128,8 @@ Ball: 3 ta masala = testning 50 bali (har biri ≈ 16,7).
 
 ## 🏆 Reyting tizimi va mavzularni ochish
 
-**Talaba uchun:** saytni ochganda ism, familiya, guruh va 4 raqamli PIN bilan ro'yxatdan o'tadi; o'qituvchi
-tasdiqlagach taqdimotlar ochiladi. Yuqori panelda 🏆 tugmasi: **reyting**, **shaxsiy natija**, **mavzular**
+**Talaba uchun:** o'qish uchun hisob shart emas (mehmon rejimi); ball to'plash va test uchun ism, familiya, guruh va 4 raqamli PIN bilan ro'yxatdan o'tadi (yoki kiradi); o'qituvchi
+tasdiqlagach ball hisoblana boshlaydi. Yuqori panelda 🏆 tugmasi: **reyting**, **shaxsiy natija**, **mavzular**
 va **o'qituvchi bo'limi**.
 
 **Ball (har mavzu — 100 ball):**
@@ -291,7 +308,8 @@ O'qituvchi e'lon yuborganda, bildirishnomani yoqqan talabalar telefoniga xabar k
 ## 🧪 Avtomatik sinovlar (GitHub Actions)
 
 `tests/` papkasida brauzer sinovlari bor (Playwright, Chromium). Ular haqiqiy sahifalarni soxta (xotiradagi)
-Firebase bilan ochib tekshiradi: kirish va yo'naltirish, o'qish rejimi va ball muddati, «Menga nima qoldi?»,
+Firebase bilan ochib tekshiradi: mehmon rejimi (hisobsiz o'qish, test uchun kirish/ro'yxatdan o'tish), havola nomi va rasmi,
+kirish va yo'naltirish, o'qish rejimi va ball muddati, «Menga nima qoldi?»,
 reyting (guruh filtri, nik, qator foni), o'qituvchi paneli (baholash, alifbo, mavzu ochish, push), chat;
 shuningdek bildirishnoma Worker'ining eslatma mantiqi (haqiqiy shifrlash bilan).
 

@@ -26,7 +26,7 @@ function runOne(file){
 }
 srv.listen(PORT,"127.0.0.1",async()=>{
   const files=[...fs.readdirSync(path.join(__dirname,"e2e")).filter(n=>n.endsWith(".test.js")).map(n=>["e2e",n]),
-    ["","worker.test.mjs"],["","rules.test.js"]].filter(([d,n])=>!only.length||only.some(o=>n.indexOf(o)>=0));
+    ["","worker.test.mjs"],["","rules.test.js"],["","havola.test.js"]].filter(([d,n])=>!only.length||only.some(o=>n.indexOf(o)>=0));
   const res=[];
   for(const [d,n] of files){
     const t0=Date.now();
