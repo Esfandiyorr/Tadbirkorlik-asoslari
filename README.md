@@ -48,7 +48,9 @@ Ball, reyting va chat uchun internet kerak (Firebase Realtime Database).
 
 **👀 Mehmon rejimi (hisobsiz kirganlar):** saytni qiziqib ochgan har kim ro'yxatdan o'tmasdan taqdimotlarni **faqat o'qish**
 rejimida ko'ra oladi — o'qituvchi hammaga ochgan (📖 o'qish rejimi yoki hammaga ball beradigan) mavzular. Hali ochilmagan
-mavzu mehmonga ham yopiq («hali ochilmagan»). Mehmon uchun: ball hisoblanmaydi, vaqt sanalmaydi, bazaga hech narsa yozilmaydi,
+mavzu mehmonga ham yopiq («hali ochilmagan»): mehmon **hech qaysi guruhga kirmagan talaba bilan bir xil** ko'radi — faqat bir guruhga
+yoki bir talabaga ochilgan mavzu mehmonga ochilmaydi. Yopiq mavzuga to'g'ridan-to'g'ri havola bilan kirilsa ham qulf oynasi chiqadi
+(Esc, klaviatura va `#N` bilan ochilmaydi), **chop etish / «📥 PDF»** da ham slaydlar chiqmaydi. Mehmon uchun: ball hisoblanmaydi, vaqt sanalmaydi, bazaga hech narsa yozilmaydi,
 chat va reyting ko'rinmaydi. **Testni, krossvordni yoki masalalarni boshlash** tugmasi bosilsa, yopiladigan oyna chiqadi —
 «Testni ishlash va ball olish uchun hisobingizga kiring yoki ro'yxatdan o'ting» (Kirish / Ro'yxatdan o'tish yorliqlari,
 o'qituvchi uchun ham havola). Kirgach shu sahifada davom etadi (sahifa qayta yuklanmaydi); mavzu o'qish rejimida bo'lsa,
@@ -321,7 +323,7 @@ O'qituvchi e'lon yuborganda, bildirishnomani yoqqan talabalar telefoniga xabar k
 ## 🧪 Avtomatik sinovlar (GitHub Actions)
 
 `tests/` papkasida brauzer sinovlari bor (Playwright, Chromium). Ular haqiqiy sahifalarni soxta (xotiradagi)
-Firebase bilan ochib tekshiradi: portal va fanlar ro'yxati, mehmon rejimi (hisobsiz o'qish, topbarda Kirish/Ro'yxatdan o'tish, test uchun kirish), havola nomi va rasmi,
+Firebase bilan ochib tekshiradi: portal va fanlar ro'yxati, yopiq mavzularning mehmonga ham yopiqligi, mehmon rejimi (hisobsiz o'qish, topbarda Kirish/Ro'yxatdan o'tish, test uchun kirish), havola nomi va rasmi,
 kirish va yo'naltirish, o'qish rejimi va ball muddati, «Menga nima qoldi?»,
 reyting (guruh filtri, nik, qator foni), o'qituvchi paneli (baholash, alifbo, mavzu ochish, push), chat;
 shuningdek bildirishnoma Worker'ining eslatma mantiqi (haqiqiy shifrlash bilan).

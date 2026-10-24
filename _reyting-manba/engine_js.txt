@@ -4036,11 +4036,16 @@ function accLoad(cb){
     if(cb) cb();
   });
 }
+function lockPrint(on){
+  document.body.classList.toggle("rt-locked",!!on);
+  document.body.style.setProperty("--rt-lock-msg",JSON.stringify("🔒 "+T("Bu mavzu hali yopiq — o'qituvchi darsda ochadi. Yopiq mavzu chop etilmaydi.","This topic is still locked — the teacher opens it in class. A locked topic cannot be printed.")));
+}
 function accApply(){
   var cur=(CFG.topics||[]).filter(function(x){ return x.id===CFG.topic; })[0];
   if(HOME){ navBuild(); homeRender();     /* bosh sahifa: mavzular holati yangilanadi (o'qituvchi ochsa — 60 soniyada) */
     if(!accIv) accIv=setInterval(function(){ if(!document.hidden) accLoad(accApply); },60000); return; }
   var lock=!!(cur&&cur.open&&!topicOpen(cur));
+  lockPrint(lock);                       /* yopiq mavzu chop etilmaydi / PDF ga saqlanmaydi (mehmonda ham, talabada ham) */
   roApply(!!cur&&!lock&&!isGuest()&&topicRead(cur),cur);
   navBuild();
   /* ball muddati tugashi bilan sahifa o'zi o'qish rejimiga o'tadi */
