@@ -78,7 +78,7 @@ const tools=p=>p.evaluate(()=>[...document.querySelectorAll(".topbar .tools > *"
   const s=await S.evaluate(()=>({open:document.getElementById("hmAbout").open,au:document.getElementById("hmAuth").innerText.replace(/\s+/g," "),cta:document.getElementById("hmCta").innerText.trim(),
     reg:!!document.getElementById("rtReg"),chip:document.getElementById("rtChip").innerText.replace(/\s+/g," "),tools:[...document.querySelectorAll(".topbar .tools > *")].map(e=>e.id),
     c:document.querySelector(".pt-course").innerText.replace(/\s+/g," ")}));
-  ck("talaba: «Bu sayt haqida» yig'iq, salom + jami ball, mehmon bloki yo'q",!s.open&&/Salom, Isfandiyor/.test(s.au)&&/Jami ball/.test(s.au)&&s.cta==="",JSON.stringify(s).slice(0,200));
+  ck("talaba: «Bu sayt haqida» yig'iq; ism/ball/guruh sahifada takrorlanmaydi (topbarda bor), mehmon bloki yo'q",!s.open&&s.au===""&&s.cta==="",JSON.stringify(s).slice(0,200));
   ck("talaba: topbarda «Ro'yxatdan o'tish» yo'q, ism va ball, «Savol va takliflar» birinchi",!s.reg&&/Isfandiyor/.test(s.chip)&&s.tools[0]==="rtAsk",JSON.stringify(s.tools));
   ck("talabaga kartochkada «Bu hafta ball beradi: 6-mavzu»",/Bu hafta ball beradi: 6-mavzu/.test(s.c),s.c);
   await S.click("#hmAbout summary"); await sleep(300);

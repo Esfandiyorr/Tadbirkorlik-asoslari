@@ -50,6 +50,7 @@ const slideWith=(p,sel)=>p.evaluate(sel=>{ const s=[...document.querySelectorAll
   ck("tasdiqlangach: ism topbarda, o'qish rejimi (1-mavzu), test endi «kirish» so'ramaydi",/Zafar/.test(st.chip)&&st.ok&&!st.wait,JSON.stringify(st));
   ck("kirgach topbardagi «Ro'yxatdan o'tish» yo'qoladi, «Savol va takliflar» yana birinchi",await G.evaluate(()=>!document.getElementById("rtReg")&&document.querySelector(".topbar .tools > *").id==="rtAsk"&&!document.getElementById("rtChip").classList.contains("rt-guestbtn")),await G.evaluate(()=>[...document.querySelectorAll(".topbar .tools > *")].map(e=>e.id).join(",")));
   await G.evaluate(i=>{ location.hash="#"+i; },tIdx); await sleep(700);
+  ck("joyida kirgach topbarda «Arena» bitta (ikkilanmaydi), 🏆 chip bitta",await G.evaluate(()=>document.querySelectorAll("#rtArena").length===1&&document.querySelectorAll("#rtChip").length===1&&document.querySelectorAll("#rtAsk").length===1));
   const af=await G.evaluate(()=>({btn:(()=>{ const g=document.getElementById("qtGo"); return !g||getComputedStyle(g).display==="none"; })(),ro:!!document.getElementById("rtRO"),guest:document.body.classList.contains("rt-guest")}));
   ck("hisobli talabada 1-mavzu o'qish rejimida: test tugmasi yashirin (mehmon izohi yo'q), kirish oynasi ochilmaydi",af.btn&&af.ro&&!af.guest&&!(await G.$("#rtGate")),JSON.stringify(af));
   /* 4) boshqa mehmon: krossvord (mavzu-4), masala (mavzu-5), yopiq mavzu */

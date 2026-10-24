@@ -298,7 +298,7 @@ ism, familiya va PIN bilan **🔑 Kirish** qiladi; ballari bazadan tiklanadi.
 
 O'qituvchi e'lon yuborganda, bildirishnomani yoqqan talabalar telefoniga xabar keladi (ilova yopiq bo'lsa ham).
 
-- **Talaba qayerdan yoqadi:** **portalda va fan sahifasida** «🔔 E'lonlar telefoningizga kelsin → **Yoqish**» bloki,
+- **Talaba qayerdan yoqadi:** topbardagi **🔔 / 🔕** belgisi (🔔 — yoqilgan, 🔕 — o'chiq yoki bloklangan; o'qituvchi sozlagan bo'lsa chiqadi). Bosilsa oyna ochiladi: «🔔 E'lonlar telefoningizga kelsin → **Yoqish**» bloki,
   yoki 🏆 → **«Mening ma'lumotim» → 🔔 Telefonga bildirishnoma** (doim turadi). Blok holatni ko'rsatadi: o'chiq / yoqilgan
   («🧪 Sinov» — telefon bildirishnomani ko'rsata olishini tekshiradi) / brauzerda bloklangan (qanday ochish:
   manzil satridagi 🔒 → Ruxsatlar → Bildirishnomalar; ilovada — telefon Sozlamalar → Ilovalar → TerDU → Bildirishnomalar) /

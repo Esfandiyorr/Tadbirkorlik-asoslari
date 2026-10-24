@@ -19,19 +19,22 @@ const FAKE=()=>{ /* PushManager taqlidi: subscribe/getSubscription — soxta, le
   const A=await H.mk(b,H.stu("sA","Ali","Valiyev","AP-223"),{sw:true});
   await A.context().addInitScript(FAKE);
   await A.goto(H.SITE+"/tadbirkorlik-asoslari.html"); await ready(A);
-  ck("sozlanmagan: fan sahifasida 🔔 bloki yo'q",await A.evaluate(()=>document.getElementById("hmPush").innerHTML===""));
+  ck("sozlanmagan: topbarda 🔔 belgisi ham, sahifada 🔔 bloki ham yo'q",await A.evaluate(()=>!document.getElementById("rtBell")&&!document.getElementById("bellPush")));
   /* 2) sozlangan: «🔔 Yoqish» */
   H.dbSet("meta/push",{pub:"BAbcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_-abcdefghijklmnopqrstuv",url:"https://push.test/w"});
   await A.reload(); await ready(A);
-  const st=await A.evaluate(()=>{ const e=document.querySelector("#hmPush .rt-pushbox"); return e?e.className+" | "+e.innerText.replace(/\s+/g," "):""; });
-  ck("fan sahifasida «🔔 E'lonlar telefoningizga kelsin — Yoqish»",/ask/.test(st)&&/Yoqish/.test(st),st);
+  ck("topbarda bitta belgi: 🔕 (o'chiq); sahifada ism/ball/guruh/🔔 bloki takrorlanmaydi",await A.evaluate(()=>{ const b=document.getElementById("rtBell"); return !!b&&/🔕/.test(b.innerText)&&!b.classList.contains("on")&&!document.querySelector(".hm-me")&&!document.getElementById("bellPush")&&document.querySelectorAll("#rtArena").length===1; }));
+  await A.click("#rtBell"); await sleep(800);
+  const st=await A.evaluate(()=>{ const e=document.querySelector("#bellPush .rt-pushbox"); return e?e.className+" | "+e.innerText.replace(/\s+/g," "):""; });
+  ck("🔕 bosilganda oynada «🔔 E'lonlar telefoningizga kelsin — Yoqish»",/ask/.test(st)&&/Yoqish/.test(st),st);
   await A.screenshot({path:"push_home_ask.png"});
-  await A.evaluate(()=>document.querySelector('#hmPush [data-pb="on"]').click()); await sleep(2500);
+  await A.evaluate(()=>document.querySelector('#bellPush [data-pb="on"]').click()); await sleep(2500);
   const subs=H.dbGet("students/sA/push")||{};
   const k=Object.keys(subs)[0];
   ck("bosilganda obuna bazaga yozildi (students/sA/push)",!!k&&subs[k].e==="https://fcm.test/send/abc123"&&subs[k].p==="BPUB_KEY_TEST"&&subs[k].a==="AUTH_TEST",JSON.stringify(subs));
-  ck("holat: «Bildirishnomalar yoqilgan ✅»",await A.evaluate(()=>/yoqilgan/.test(document.querySelector("#hmPush").innerText)&&!!document.querySelector('#hmPush [data-pb="test"]')));
-  await A.evaluate(()=>document.querySelector('#hmPush [data-pb="test"]').click()); await sleep(1200);
+  ck("belgi 🔔 (yoqilgan) bo'ldi",await A.evaluate(()=>{ const b=document.getElementById("rtBell"); return /🔔/.test(b.innerText)&&b.classList.contains("on"); }));
+  ck("holat: «Bildirishnomalar yoqilgan ✅»",await A.evaluate(()=>/yoqilgan/.test(document.querySelector("#bellPush").innerText)&&!!document.querySelector('#bellPush [data-pb="test"]')));
+  await A.evaluate(()=>document.querySelector('#bellPush [data-pb="test"]').click()); await sleep(1200);
   ck("«🧪 Sinov» — telefon bildirishnomasi ko'rsatildi",await A.evaluate(()=>window.__shown.length===1&&/TerDU/.test(window.__shown[0])));
   /* «Mening ma'lumotim» */
   await A.evaluate(()=>{ RT.open("me"); document.querySelector('.rt-tab[data-p="cv"]').click(); }); await sleep(1500);
@@ -40,23 +43,23 @@ const FAKE=()=>{ /* PushManager taqlidi: subscribe/getSubscription — soxta, le
   /* 3) bloklangan */
   const D=await H.mk(b,H.stu("sB","Bobur","Karimov","AP-223"));
   await D.context().addInitScript(()=>{ window.__perm="denied"; Object.defineProperty(Notification,"permission",{configurable:true,get:()=>"denied"}); });
-  await D.goto(H.SITE+"/tadbirkorlik-asoslari.html"); await ready(D);
-  const ds=await D.evaluate(()=>document.querySelector("#hmPush").innerText.replace(/\s+/g," "));
-  ck("bloklangan: qadamma-qadam yo'riqnoma (Ruxsatlar → Bildirishnomalar), «Boshqa holat»",/bloklangan/.test(ds)&&/Ruxsatlar/.test(ds)&&/Bildirishnomalar/.test(ds)&&/Boshqa holat/.test(ds)&&!!(await D.$('#hmPush [data-pb="recheck"]')),ds.slice(0,200));
+  await D.goto(H.SITE+"/tadbirkorlik-asoslari.html"); await ready(D); await D.click("#rtBell"); await sleep(800);
+  const ds=await D.evaluate(()=>document.querySelector("#bellPush").innerText.replace(/\s+/g," "));
+  ck("bloklangan: qadamma-qadam yo'riqnoma (Ruxsatlar → Bildirishnomalar), «Boshqa holat»",/bloklangan/.test(ds)&&/Ruxsatlar/.test(ds)&&/Bildirishnomalar/.test(ds)&&/Boshqa holat/.test(ds)&&!!(await D.$('#bellPush [data-pb="recheck"]')),ds.slice(0,200));
   await D.screenshot({path:"push_denied.png"});
   /* telefon (Android Chrome) va o'rnatilgan ilova uchun mos yo'riqnoma */
   const DM=await H.mk(b,H.stu("sB","Bobur","Karimov","AP-223"),{mobile:true,vp:{width:390,height:844},ua:"Mozilla/5.0 (Linux; Android 14; SM-A546E) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Mobile Safari/537.36"});
   await DM.context().addInitScript(()=>{ window.__perm="denied"; Object.defineProperty(Notification,"permission",{configurable:true,get:()=>"denied"}); });
-  await DM.goto(H.SITE+"/tadbirkorlik-asoslari.html"); await ready(DM);
-  const dm=await DM.evaluate(()=>document.querySelector("#hmPush").innerText.replace(/\s+/g," "));
+  await DM.goto(H.SITE+"/tadbirkorlik-asoslari.html"); await ready(DM); await DM.click("#rtBell"); await sleep(800);
+  const dm=await DM.evaluate(()=>document.querySelector("#bellPush").innerText.replace(/\s+/g," "));
   ck("Android Chrome: «🌐 Chrome brauzerida» qadamlari birinchi",/Chrome brauzerida:/.test(dm.split("Boshqa holat")[0])&&/Ruxsatlarni tiklash/.test(dm),dm.slice(0,220));
   const dmm=dm.split("Boshqa holat")[0];
   ck("Chrome qadamlari to'liq: 🔕 belgisi, umumiy sozlama, Telegram, boshqa brauzer",/🔕/.test(dmm)&&/Saytlar bildirishnoma yuborishi mumkin/.test(dmm)&&/Telegram/.test(dmm)&&/boshqa brauzerda/.test(dmm),dmm.slice(0,120));
-  const dg=await DM.evaluate(()=>{ const e=document.querySelector("#hmPush .rt-pfix-d"); return e?e.innerText:""; });
+  const dg=await DM.evaluate(()=>{ const e=document.querySelector("#bellPush .rt-pfix-d"); return e?e.innerText:""; });
   ck("texnik ma'lumot qatori: brauzer · tizim · ruxsat: denied",/Chrome 141/.test(dg)&&/Android 14/.test(dg)&&/SM-A546E/.test(dg)&&/ruxsat: denied/.test(dg)&&/brauzer oynasi/.test(dg),dg);
   await DM.screenshot({path:"push_denied_m.png",fullPage:false});
   await DM.evaluate(()=>{ Object.defineProperty(Notification,"permission",{configurable:true,get:()=>"default"}); document.dispatchEvent(new Event("visibilitychange")); }); await sleep(800);
-  ck("sozlamadan qaytganda (ruxsat ochilgan) — blok o'zi «🔔 Yoqish» ga o'tadi",await DM.evaluate(()=>!!document.querySelector('#hmPush [data-pb="on"]')));
+  ck("sozlamadan qaytganda (ruxsat ochilgan) — blok o'zi «🔔 Yoqish» ga o'tadi",await DM.evaluate(()=>!!document.querySelector('#bellPush [data-pb="on"]')));
   /* 4) o'qituvchi: e'lon → natija */
   const pushes=[]; let resp={ok:true,total:3,sent:2,failed:1,removed:1};
   const T=await H.mk(b,H.stu("sI","Isfandiyor","Sayfiddinov","T-123"),{tc:true}); T.on("dialog",x=>x.accept());

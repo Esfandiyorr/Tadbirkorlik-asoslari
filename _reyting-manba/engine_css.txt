@@ -776,6 +776,8 @@ body.rt-maint .rt-ov{z-index:330}
 .rt-gate.rt-maint{z-index:300;text-align:center}
 .rt-maint-box{max-width:520px}
 .rt-chip.rt-maintchip{font-weight:800}
+.rt-chip.rt-bell{padding:6px 11px}
+.rt-chip.rt-bell:not(.on){border-color:color-mix(in srgb,#dc2626 55%,transparent);background:color-mix(in srgb,#dc2626 9%,var(--panel))}
 .rt-chip.rt-maintchip.on{border-color:#b91c1c;background:color-mix(in srgb,#dc2626 14%,var(--panel));color:#b91c1c}
 .rt-chip.rt-maintchip.on b{color:#b91c1c}
 .rt-maint-ic{font-size:64px;line-height:1}
