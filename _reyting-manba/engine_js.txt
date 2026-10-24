@@ -939,6 +939,7 @@ function chipUpdate(){
   var c=document.getElementById("rtChip"); if(!c) return;
   if(!S){ guestChipSet(c); return; }
   c.innerHTML='<i class="tb-ic a-shine">🏆</i> '+esc(S.name)+" · <b>"+fmtP(P.total)+"</b>";
+  if(!document.getElementById("rtBell")) bellChip();
   if(document.getElementById("rtTodo")){ todoChip(); todoDraw(); }   /* 📋 qolgan ishlar yangilanadi */
 }
 function T(uz,en){ var l=(document.documentElement.getAttribute("lang")||"uz"); return (l==="en"&&en)?en:uz; }
@@ -3284,6 +3285,7 @@ function chip(){
   var dup=document.getElementById("rtChip"); if(dup) dup.remove();
   var c=el('<button class="rt-chip" id="rtChip" title="'+T("Reyting va ballaringiz","Rating and your points")+'"><i class="tb-ic a-shine">🏆</i></button>');
   tools.insertBefore(c,tools.firstChild);
+  var oa=document.getElementById("rtArena"); if(oa) oa.remove();     /* joyida kirgach chip() qayta chaqiriladi — «Arena» ikkita bo'lib qolmasin */
   var ar=el(ARENA_OPEN
     ? '<a class="rt-chip" id="rtArena" href="arena.html" title="'+T("O\'yin arenasi — talabalar musobaqasi","Game Arena — student competitions")+'"><i class="tb-ic a-wiggle">🎮</i> <b>'+T("Arena","Arena")+'</b></a>'
     : '<button class="rt-chip" id="rtArena" title="'+T("Arena vaqtincha yopiq","The arena is closed for now")+'"><i class="tb-ic a-wiggle">🎮</i> <b>'+T("Arena","Arena")+'</b> 🔒</button>');
@@ -3297,7 +3299,7 @@ function chip(){
   navBuild();
   var lb=document.getElementById("btnLang");
   if(lb) lb.addEventListener("click",function(){ setTimeout(function(){ navBuild(); chipUpdate(); askBar(); appBtn(); maintChip(); tbDeck(); if(HOME) homeRender(); },30); });
-  maintChip();
+  maintChip(); bellChip();
   tbDeck();
 }
 /* ---------- 🧭 topbar: jonli belgilar, ☀️/🌙 almashtirgich, o'qituvchi tanlaydigan fon ----------
@@ -3602,10 +3604,35 @@ function pushFixHtml(){
     '<small class="rt-pfix-d">🔍 '+T("Texnik ma'lumot (yordam so'rasangiz, shuni yuboring): ","Technical info (send this if you ask for help): ")+esc(pushDiag())+'</small>';
 }
 var PB_LIVE=null;
+/* 🔔 topbarda bitta belgi: yoqilgan (🔔) yoki o'chiq/bloklangan (🔕). Bosilsa — yoqish yo'riqnomasi va «Sinov» oynasi */
+function bellChip(){
+  var old=document.getElementById("rtBell"), c=document.getElementById("rtChip");
+  if(!S||!approved()||!c||!c.parentNode){ if(old) old.remove(); return; }
+  pushCfg(function(cfg){
+    var b=document.getElementById("rtBell"), c2=document.getElementById("rtChip");
+    if(!pushOn(cfg)||!c2||!c2.parentNode){ if(b) b.remove(); return; }
+    var on=pushEnv()==="granted";
+    if(!b){ b=el('<button type="button" class="rt-chip rt-bell" id="rtBell"></button>'); c2.parentNode.insertBefore(b,c2.nextSibling); b.onclick=bellOpen; }
+    b.classList.toggle("on",on);
+    b.title=on?T("Bildirishnomalar yoqilgan","Notifications are on"):T("Bildirishnomalar o'chiq — bosing, yoqiladi","Notifications are off — click to turn on");
+    b.innerHTML='<i class="tb-ic '+(on?"a-wave":"a-wiggle")+'">'+(on?"🔔":"🔕")+'</i>';
+  });
+}
+function bellOpen(){
+  var old=document.getElementById("rtBellM"); if(old){ old.remove(); return; }
+  var g=el('<div class="rt-gate rt-authg" id="rtBellM"><div class="rt-box" style="max-width:520px"><button type="button" class="rt-gx" id="rtBellX" aria-label="✕">✕</button>'+
+    '<h3 style="margin:0 40px 10px 0">🔔 '+T("Bildirishnomalar","Notifications")+'</h3><div id="bellPush"></div></div></div>');
+  document.body.appendChild(g);
+  var shut=function(){ g.remove(); document.removeEventListener("keydown",esc2); };
+  var esc2=function(e){ if(e.key==="Escape") shut(); };
+  document.addEventListener("keydown",esc2);
+  document.getElementById("rtBellX").onclick=shut; g.addEventListener("click",function(e){ if(e.target===g) shut(); });
+  pushBox(document.getElementById("bellPush"),"cv");
+}
 function pushBox(box,where){
   if(!box||!S||!approved()) { if(box) box.innerHTML=""; return; }
   if(!PB_LIVE){ PB_LIVE=1;          /* sozlamadan qaytganda (ruxsat o'zgargan bo'lsa) — qayta chizish */
-    var redo=function(){ var a=document.getElementById("hmPush"), c=document.getElementById("cvPush"); if(a) pushBox(a,"home"); if(c) pushBox(c,"cv"); };
+    var redo=function(){ var a=document.getElementById("bellPush"), c=document.getElementById("cvPush"); if(a) pushBox(a,"cv"); if(c) pushBox(c,"cv"); bellChip(); };
     var last=pushEnv();
     document.addEventListener("visibilitychange",function(){ if(!document.hidden&&pushEnv()!==last){ last=pushEnv(); redo(); } });
     try{ navigator.permissions.query({name:"notifications"}).then(function(q){ q.onchange=function(){ last=pushEnv(); redo(); }; },function(){}); }catch(e){} }
@@ -3626,7 +3653,7 @@ function pushBox(box,where){
       '<button type="button" class="btn sm" data-pb="test">🧪 '+T("Sinov","Test")+'</button>');
     else h=wrap("ask","🔔",T("E'lonlar telefoningizga kelsin","Get announcements on your phone"),T("O'qituvchi yangi e'lon yozsa yoki yangi mavzu ochsa, telefoningizga bildirishnoma keladi.","When the teacher posts an announcement or opens a new topic, your phone gets a notification."),
       '<button type="button" class="btn accent sm" data-pb="on">🔔 '+T("Yoqish","Turn on")+'</button>');
-    box.innerHTML=h;
+    box.innerHTML=h; bellChip();
     var b=box.querySelector("[data-pb]"); if(!b) return;
     if(env==="granted") pushSub(c,function(){});           /* obuna bazada turganini tiklab qo'yamiz */
     b.onclick=function(){
@@ -4092,10 +4119,7 @@ function portalRender(){
   var au=document.getElementById("hmAuth"), cb=document.getElementById("hmCourses"), cta=document.getElementById("hmCta"); if(!au||!cb) return;
   var cs=CFG.courses||[], tcv=tcHere()&&!S, now=Date.now(), gst=!S&&!tcv;
   var ab=document.getElementById("hmAbout"); if(ab&&!ab.dataset.set){ ab.dataset.set="1"; if(!gst) ab.open=false; }   /* mehmonga ochiq, o'z talabaga yig'iq */
-  au.innerHTML=S?'<div class="hm-me hm-auth"><span class="hm-hi">👋 '+T("Salom, <b>"+esc(S.name)+"</b>!","Hello, <b>"+esc(S.name)+"</b>!")+'</span>'+
-      '<span class="hm-pill">🏆 '+T("Jami ball","Total")+': <b>'+fmtP(P.total)+'</b></span>'+(S.group?'<span class="hm-pill">👥 '+esc(S.group)+'</span>':'')+
-      '<button type="button" class="btn hm-top" id="hmTop">🏆 '+T("Reyting","Rating")+'</button></div><div id="hmPush"></div>'
-    :tcv?'<div class="hm-week tc hm-auth">👨‍🏫 '+T("O'qituvchi ko'rinishi. Fanni tanlab, mavzularni talabalar uchun ochishingiz mumkin.","Teacher view. Choose a course to open its topics for students.")+'</div>'
+  au.innerHTML=tcv?'<div class="hm-week tc hm-auth">👨‍🏫 '+T("O'qituvchi ko'rinishi. Fanni tanlab, mavzularni talabalar uchun ochishingiz mumkin.","Teacher view. Choose a course to open its topics for students.")+'</div>'
     :'';
   if(cta) cta.innerHTML=gst?'<div class="hm-week hm-guest hm-cta"><b class="hm-wk-h">🔑 '+T("Test ishlamoqchimisiz?","Want to take the tests?")+'</b>'+
       '<p>'+T("Mavzularni <b>ro'yxatdan o'tmasdan</b> ham o'qiy olasiz. <b>Test ishlash</b> va <b>ball to'plash</b> uchun hisobingizga kiring yoki ro'yxatdan o'ting.",
@@ -4113,10 +4137,8 @@ function portalRender(){
   }).join("");
   var cc=document.getElementById("hmCCount"); if(cc) cc.textContent=cs.length;
   var mo=document.getElementById("hmMore"); if(mo) mo.innerHTML=homeArena();
-  var tb=document.getElementById("hmTop"); if(tb) tb.onclick=function(){ openOv(); };
   var hl=document.getElementById("hmLog"); if(hl) hl.onclick=function(){ authOpen(T("Hisobingizga kiring.","Log in to your account."),"log"); };
   var hr=document.getElementById("hmReg"); if(hr) hr.onclick=function(){ authOpen(T("Ro'yxatdan o'ting — bir daqiqa.","Register — it takes a minute."),"reg"); };
-  pushBox(document.getElementById("hmPush"),"home");
 }
 /* ---------- 🏠 fan sahifasi (tadbirkorlik-asoslari.html): fanning barcha mavzulari kartochkalarda ----------
    🟢 ball beriladi (shu haftaning yakshanbasi 23:59 gacha) — «Ishlash», 📖 o'qish rejimi — «O'qish», 🔒 yopiq.
@@ -4127,9 +4149,7 @@ function homeRender(){
   var pc=pageCourse(), tp=pc?courseTopics(pc):(CFG.topics||[]), tcv=tcHere()&&!S, now=Date.now(), gst=!S&&!tcv;
   var st=function(x){ return tcv?(x.open?"tc":"lock"):accState(x,S); };
   var sc=tcv?[]:scoreTopics().filter(function(x){ return tp.indexOf(x)>=0; });
-  var hi=S?'<div class="hm-me"><span class="hm-hi">👋 '+T("Salom, <b>"+esc(S.name)+"</b>!","Hello, <b>"+esc(S.name)+"</b>!")+'</span>'+
-      '<span class="hm-pill">🏆 '+T("Jami ball","Total")+': <b>'+fmtP(P.total)+'</b></span>'+(S.group?'<span class="hm-pill">👥 '+esc(S.group)+'</span>':'')+
-      '<button type="button" class="btn hm-top" id="hmTop">🏆 '+T("Reyting","Rating")+'</button></div>':'';
+  var hi="";        /* ism, ball, guruh, reyting va 🔔 — topbarda; sahifada takrorlanmaydi */
   var wk=gst?'<div class="hm-week hm-guest"><b class="hm-wk-h">👋 '+T("Xush kelibsiz!","Welcome!")+'</b>'+
         '<p>'+T("Mavzularni <b>ro'yxatdan o'tmasdan</b> ham o'qishingiz mumkin — kartochkani bosing. <b>Test ishlash</b> va <b>ball to'plash</b> uchun hisobingizga kiring yoki ro'yxatdan o'ting.",
           "You can read the topics <b>without registering</b> — just tap a card. To <b>take tests</b> and <b>earn points</b>, log in or register.")+'</p>'+
@@ -4159,13 +4179,11 @@ function homeRender(){
     return s0==="lock"||!s0?'<div class="hm-card lock" data-t="'+x.id+'">'+inner+'</div>'
       :'<a class="hm-card '+s0+'" href="'+esc(x.file)+'" data-t="'+x.id+'">'+inner+'</a>';
   }).join("");
-  box.innerHTML=hi+'<div id="hmPush"></div>'+wk+'<h2 class="hm-h2">📚 '+T("Mavzular","Topics")+' <small>'+tp.length+'</small></h2><div class="hm-grid">'+cards+'</div>'+
+  box.innerHTML=hi+wk+'<h2 class="hm-h2">📚 '+T("Mavzular","Topics")+' <small>'+tp.length+'</small></h2><div class="hm-grid">'+cards+'</div>'+
     '<div class="hm-more">'+homeArena()+'</div>';
   [].forEach.call(box.querySelectorAll("a[data-t]"),function(a){ a.addEventListener("click",function(){ try{ sessionStorage.setItem("terdu_pick",a.dataset.t); }catch(e){} }); });
-  var tb=document.getElementById("hmTop"); if(tb) tb.onclick=function(){ openOv(); };
   var hl=document.getElementById("hmLog"); if(hl) hl.onclick=function(){ authOpen(T("Hisobingizga kiring.","Log in to your account."),"log"); };
   var hr=document.getElementById("hmReg"); if(hr) hr.onclick=function(){ authOpen(T("Ro'yxatdan o'ting — bir daqiqa.","Register — it takes a minute."),"reg"); };
-  pushBox(document.getElementById("hmPush"),"home");     /* 🔔 bildirishnomani yoqish */
 }
 /* ---------- 📖 o'qish rejimi: topbarda belgi, bir martalik ogohlantirish, test tugmalari yashiriladi ---------- */
 function roApply(on,cur){
