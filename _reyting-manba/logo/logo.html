@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="uz"><head><meta charset="utf-8">
+<!-- Yangi logo: TerDU gerbi + «Isfandiyor Sayfiddinov». Havola rasmi (1200×630, ?w) va kvadrat logo (1024×1024, ?sq).
+     Yaratish: node _reyting-manba/logo/yasash.js  → fayllar/havola-isfandiyor.png, fayllar/logo-isfandiyor.png -->
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;background:#062b03}
+body{font-family:"Liberation Sans","DejaVu Sans",Arial,sans-serif;color:#fff}
+.card{position:relative;width:100vw;height:100vh;overflow:hidden;
+  background:radial-gradient(900px 560px at 18% 12%,rgba(46,224,127,.30),transparent 62%),radial-gradient(800px 520px at 100% 100%,rgba(13,148,136,.42),transparent 60%),
+    linear-gradient(135deg,#052a02 0%,#0a3605 38%,#0d6b36 78%,#0d9488 100%)}
+.ring{position:absolute;border-radius:50%;border:2px solid rgba(255,255,255,.10)}
+.emb{position:absolute;border-radius:50%;background:#fff url("../../logo_tersu.png") center/84% no-repeat;box-shadow:0 0 0 10px rgba(255,255,255,.14),0 26px 60px rgba(0,0,0,.40)}
+.tx{position:absolute}
+.uni{font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:#bfe9cb}
+.nm1{font-weight:800;line-height:.95;letter-spacing:-.02em;text-shadow:0 6px 24px rgba(0,0,0,.28)}
+.nm2{font-weight:700;line-height:1;letter-spacing:.02em;color:#ffd666}
+.bar{height:6px;border-radius:6px;background:linear-gradient(90deg,#ffd666,#2ee07f)}
+.sub{font-weight:600;color:#e7f7ec}
+.tag{display:inline-block;margin-top:0;padding:.35em .9em;border-radius:999px;background:rgba(255,255,255,.14);border:1.5px solid rgba(255,255,255,.28);font-weight:700;letter-spacing:.04em}
+/* 1200×630 havola rasmi */
+.w .ring.r1{width:760px;height:760px;right:-260px;top:-300px}
+.w .ring.r2{width:520px;height:520px;right:-130px;top:-170px;border-color:rgba(255,255,255,.07)}
+.w .emb{left:84px;top:115px;width:400px;height:400px}
+.w .tx{left:552px;top:0;height:100%;width:610px;display:flex;flex-direction:column;justify-content:center;gap:0}
+.w .uni{font-size:21px;margin-bottom:22px}
+.w .nm1{font-size:120px;margin-left:-3px}
+.w .nm2{font-size:76px;margin-top:8px}
+.w .bar{width:210px;margin:28px 0 26px}
+.w .sub{font-size:40px}
+.w .tag{font-size:25px;margin-top:20px;align-self:flex-start}
+/* 1024×1024 kvadrat logo */
+.sq .ring.r1{width:1100px;height:1100px;left:-38px;top:-480px}
+.sq .ring.r2{width:760px;height:760px;left:132px;top:-310px;border-color:rgba(255,255,255,.07)}
+.sq .emb{left:262px;top:82px;width:500px;height:500px}
+.sq .tx{left:0;top:632px;width:100%;text-align:center;display:flex;flex-direction:column;align-items:center}
+.sq .uni{font-size:23px;margin-bottom:12px}
+.sq .nm1{font-size:128px}
+.sq .nm2{font-size:76px;margin-top:4px}
+.sq .bar{width:200px;margin:24px 0 0}
+.sq .sub,.sq .tag{display:none}
+</style></head>
+<body>
+<div class="card" id="c"><div class="ring r1"></div><div class="ring r2"></div>
+  <div class="emb" role="img" aria-label="TerDU"></div>
+  <div class="tx">
+    <div class="uni">Termiz davlat universiteti</div>
+    <div class="nm1">Isfandiyor</div>
+    <div class="nm2">Sayfiddinov</div>
+    <div class="bar"></div>
+    <div class="sub">Tadbirkorlik asoslari</div>
+    <div class="tag">TerDU</div>
+  </div>
+</div>
+<script>document.getElementById("c").className="card "+(location.search.indexOf("sq")>=0?"sq":"w");</script>
+</body></html>

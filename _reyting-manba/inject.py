@@ -43,6 +43,39 @@ PWA=(PB+'\n<link rel="manifest" href="manifest.webmanifest">\n'
      '<meta name="apple-mobile-web-app-status-bar-style" content="default">\n'
      '<script src="pwa.js" defer></script>\n'+PE+'\n')
 
+# 🔗 havola (Telegram, WhatsApp, Facebook …) ga yuborilganda chiqadigan nom va rasm: nom — «IsfandiyorSayfiddinov»,
+# rasm — TerDU gerbi + Isfandiyor Sayfiddinov (fayllar/havola-isfandiyor.jpg, _reyting-manba/logo/ da yaratiladi)
+OB,OE='<!-- OG:BEGIN -->','<!-- OG:END -->'
+SITE=CONF.get('siteUrl','https://esfandiyorr.github.io/Tadbirkorlik-asoslari/').rstrip('/')+'/'
+LINK=CONF.get('linkName','IsfandiyorSayfiddinov')
+def _esc(t): return t.replace('&','&amp;').replace('"','&quot;').replace('<','&lt;')
+def og(s,file,desc):
+    """sahifa <head> iga og:/twitter: teglar (qayta ishlatilsa almashtiriladi); rasm manzili — fayl izi bilan (yangilansa kesh yangilanadi)"""
+    while OB in s and OE in s:
+        i=s.index(OB); j=s.index(OE)+len(OE)
+        if s[j:j+1]=='\n': j+=1
+        s=s[:i]+s[j:]
+    img=BASE+'fayllar/havola-isfandiyor.jpg'
+    v=hashlib.md5(open(img,'rb').read()).hexdigest()[:8] if os.path.exists(img) else '1'
+    iu=SITE+'fayllar/havola-isfandiyor.jpg?v='+v
+    url=SITE if file=='index.html' else SITE+file
+    d=_esc(desc); n=_esc(LINK)
+    blk=(OB+'\n<meta name="author" content="Isfandiyor Sayfiddinov">\n'
+      '<meta property="og:type" content="website">\n<meta property="og:site_name" content="'+n+'">\n<meta property="og:title" content="'+n+'">\n'
+      '<meta property="og:description" content="'+d+'">\n<meta property="og:url" content="'+url+'">\n<meta property="og:locale" content="uz_UZ">\n'
+      '<meta property="og:image" content="'+iu+'">\n<meta property="og:image:type" content="image/jpeg">\n<meta property="og:image:width" content="1200">\n'
+      '<meta property="og:image:height" content="630">\n<meta property="og:image:alt" content="TerDU logotipi va Isfandiyor Sayfiddinov">\n'
+      '<meta name="twitter:card" content="summary_large_image">\n<meta name="twitter:title" content="'+n+'">\n'
+      '<meta name="twitter:description" content="'+d+'">\n<meta name="twitter:image" content="'+iu+'">\n'+OE+'\n')
+    i=s.index('</head>')
+    return s[:i]+blk+s[i:]
+def topic_desc(meta):
+    if meta.get('home'): return "Tadbirkorlik asoslari fani: 15 ta interaktiv mavzu, testlar, reyting va o'yin arenasi · Termiz davlat universiteti"
+    for i,t in enumerate(CONF['topics']):
+        if t['id']==meta['id']:
+            return "%d-mavzu: %s · Tadbirkorlik asoslari · TerDU"%(i+1,re.sub(r'^M\d+\s*·\s*','',t.get('title','')))
+    return "Tadbirkorlik asoslari · TerDU"
+
 def pwa(s):
     """telefon ilovasi (PWA): manifest, belgilar va pwa.js — </head> dan oldin, qayta ishlatilsa almashtiriladi"""
     while PB in s and PE in s:
@@ -80,6 +113,7 @@ def inject(fn,meta):
     s=open(p,encoding='utf-8').read()
     s=strip(s,B,E); s=strip(s,HB,HE)
     s=pwa(s)
+    s=og(s,fn,topic_desc(meta))
 
     # --- CSS: umumiy fayl, taqdimotning o'z uslublaridan keyin (avvalgi tartib saqlanadi) ---
     s=s.replace('@media print{', B+'\n</style>\n<link rel="stylesheet" href="rt-engine.css?v='+VER['rt-engine.css']+'">\n<style>\n'+E+"\n@media print{",1)
@@ -151,6 +185,7 @@ def inject_arena():
     p=BASE+'arena.html'
     if not os.path.exists(p): return "arena.html: yo'q"
     s=pwa(open(p,encoding='utf-8').read())
+    s=og(s,'arena.html',"O'yin arenasi: krossvord, jonli test va Yozuv Marafoni — guruhdoshlar bilan musobaqa · TerDU")
     for b,e,fn in BLOCKS:
         src=yz_texts() if fn.endswith('.json') else open(SC+fn,encoding='utf-8').read().strip()
         blk=b+"\n"+src+"\n"+e
