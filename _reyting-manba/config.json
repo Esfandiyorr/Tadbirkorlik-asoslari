@@ -184,7 +184,7 @@
   "siteUrl": "https://esfandiyorr.github.io/Tadbirkorlik-asoslari/",
   "linkName": "IsfandiyorSayfiddinov",
   "maintenance": {
-    "on": true,
+    "on": false,
     "uz": "Taqdimotlar vaqtincha yopilgan. Ish tugagach sayt yana ochiladi — iltimos, keyinroq qayta kiring.",
     "en": "The presentations are temporarily closed. The site will reopen when the work is done — please come back later."
   },

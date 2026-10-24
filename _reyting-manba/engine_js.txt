@@ -5425,11 +5425,10 @@ function splash(on,msg){
 var BOOTED_ONCE=false;
 function bootOnce(){ if(BOOTED_ONCE) return; BOOTED_ONCE=true; splash(false); boot(); }
 function connect(){
-  maintApply();                                  /* config.json bo'yicha oldindan; bazadagi holat kelgach aniqlashadi */
-  splash(!maintOn());
+  splash(true);                                  /* holat (yopiq/ochiq) bazadan aniqlanguncha bitta yuklanish ekrani — oynalar almashib ketmasin */
   setTimeout(bootOnce,9000);
   cloudInit(function(ok){
-    if(!ok){ bootOnce(); return; }
+    if(!ok){ maintApply(); bootOnce(); return; }     /* baza yo'q — config.json dagi holat */
     maintLoad(function(){ maintApply(); resetAt(function(rt){ RESET=rt||0; bootOnce(); }); });
   });
 }
