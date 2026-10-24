@@ -3289,7 +3289,8 @@ function chip(){
   chipUpdate(); avChip();
   navBuild();
   var lb=document.getElementById("btnLang");
-  if(lb) lb.addEventListener("click",function(){ setTimeout(function(){ navBuild(); chipUpdate(); askBar(); appBtn(); tbDeck(); if(HOME) homeRender(); },30); });
+  if(lb) lb.addEventListener("click",function(){ setTimeout(function(){ navBuild(); chipUpdate(); askBar(); appBtn(); maintChip(); tbDeck(); if(HOME) homeRender(); },30); });
+  maintChip();
   tbDeck();
 }
 /* ---------- 🧭 topbar: jonli belgilar, ☀️/🌙 almashtirgich, o'qituvchi tanlaydigan fon ----------
@@ -5329,7 +5330,7 @@ function pdfBtn(){
 }
 function boot(){
   if(booted) return;
-  if(maintOn()){ MAINT_HELD=true; maintApply(); return; }     /* 🛠 texnik ishlar: o'qituvchidan boshqaga hech narsa ishga tushmaydi (ball, vaqt, chat) */
+  if(maintOn()){ MAINT_HELD=true; maintApply(); return; }     /* 🛠 texnik ishlar: o'qituvchidan boshqaga hech narsa ishga tushmaydi (ball, vaqt, chat); ochilganda shu yerdan davom etadi */
   booted=true;
   khBanner(); pdfBtn(); tbBgLoad();
   var w=null; try{ w=sessionStorage.getItem("terdu_wiped"); sessionStorage.removeItem("terdu_wiped"); }catch(e){}
@@ -5348,17 +5349,50 @@ function boot(){
   });
 }
 /* ---------- 🛠 texnik ishlar: config.json «maintenance.on» — o'qituvchidan boshqa hamma (talaba ham, mehmon ham) shu ekranni ko'radi ---------- */
-var MAINT_HELD=false;
-function maintOn(){ var m=CFG.maintenance; return !!(m&&m.on)&&!tcHere(); }
+var MAINT_HELD=false, MAINT_R=null, MAINT_IV=null;
+/* holat: bazadagi meta/maint = {on:true|false} (o'qituvchi tugmasi) — bor bo'lsa shu; yo'q bo'lsa config.json «maintenance.on» */
+function maintEff(){ if(MAINT_R!==null) return MAINT_R; var m=CFG.maintenance; return !!(m&&m.on); }
+function maintOn(){ return maintEff()&&!tcHere(); }
+function maintLoad(cb){
+  if(!cloudOn||!BASE){ if(cb) cb(); return; }
+  fetch(BASE+"/meta/maint.json").then(function(r){ return r.ok?r.json():undefined; }).catch(function(){ return undefined; }).then(function(v){
+    if(v!==undefined) MAINT_R=(v&&typeof v.on==="boolean")?v.on:null;
+    if(cb) cb();
+  });
+}
+/* o'qituvchi: saytni yopish / ochish */
+function maintSet(on){
+  if(!cloudOn||!BASE){ toast(T("Baza ulanmagan","No database connected")); return; }
+  if(on&&!confirm(T("Saytni talabalar va mehmonlar uchun yopasizmi? Ular «Texnik ishlar ketyapti» ekranini ko'radi.","Close the site for students and guests? They will see «Technical work in progress»."))) return;
+  fetch(BASE+"/meta/maint.json",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({on:!!on,at:Date.now()})})
+    .then(function(r){ if(!r.ok) throw 0; return r.json(); })
+    .then(function(){ MAINT_R=!!on; maintApply(); toast(on?"🔒 "+T("Sayt yopildi","The site is closed"):"🟢 "+T("Sayt ochildi","The site is open")); })
+    .catch(function(){ toast(T("Saqlanmadi — Google bilan qayta kiring va Firebase qoidalari e'lon qilinganini tekshiring","Not saved — sign in with Google again and check the Firebase rules")); });
+}
+/* o'qituvchi topbarida: «🔒 Yopiq — ochish» / «🛠 Saytni yopish» */
+function maintChip(){
+  var old=document.getElementById("rtMaintBtn"), c=document.getElementById("rtChip");
+  if(!tcHere()||!c||!cloudOn||!c.parentNode){ if(old) old.remove(); return; }
+  var on=maintEff(), b=old||el('<button type="button" class="rt-chip rt-maintchip" id="rtMaintBtn"></button>');
+  b.classList.toggle("on",on);
+  b.title=on?T("Sayt talabalar va mehmonlar uchun yopiq — bosing, ochiladi","The site is closed for students and guests — click to open"):T("Bosing — sayt talabalar va mehmonlar uchun yopiladi (texnik ishlar)","Click to close the site for students and guests (maintenance)");
+  b.innerHTML=on?'🔒 <b>'+T("Yopiq — ochish","Closed — open")+'</b>':'🛠 <b>'+T("Saytni yopish","Close the site")+'</b>';
+  b.onclick=function(){ maintSet(!maintEff()); };
+  if(!old) c.parentNode.insertBefore(b,c.nextSibling);
+}
 function maintApply(){
   if(!document.body) return;
   var on=maintOn(), g=document.getElementById("rtMaint");
   document.documentElement.classList.remove("rt-maint-pre");
   document.body.classList.toggle("rt-maint",on);
-  if(!on){ if(g) g.remove(); if(MAINT_HELD){ var h=MAINT_HELD; MAINT_HELD=false; if(h==="connect") connect(); else boot(); } return; }
+  maintChip();
+  if(!MAINT_IV) MAINT_IV=setInterval(function(){ if(!document.hidden&&cloudOn&&BASE) maintLoad(maintApply); },CFG.maintPoll||60000);   /* sahifa ochiq turganda ham o'qituvchi o'zgartirsa — o'zi yangilanadi */
+  if(!on){ if(g) g.remove(); if(MAINT_HELD){ MAINT_HELD=false; boot(); } return; }
   splash(false);
   if(!g){ g=el('<div class="rt-gate rt-maint" id="rtMaint"></div>'); document.body.appendChild(g); }
-  var m=CFG.maintenance||{};
+  var m=CFG.maintenance||{}, key=T("u","e")+(m.uz||"")+(m.en||"");
+  if(g.dataset.k===key) return;
+  g.dataset.k=key;
   g.innerHTML='<div class="rt-box rt-maint-box"><div class="rt-maint-ic">🛠</div><h2>'+T("Texnik ishlar ketyapti","Technical work in progress")+'</h2>'+
     '<p>'+esc(T(m.uz||"Taqdimotlar vaqtincha yopilgan. Ish tugagach sayt yana ochiladi — iltimos, keyinroq qayta kiring.",
       m.en||"The presentations are temporarily closed. The site will reopen when the work is done — please come back later."))+'</p>'+
@@ -5384,13 +5418,12 @@ function splash(on,msg){
 var BOOTED_ONCE=false;
 function bootOnce(){ if(BOOTED_ONCE) return; BOOTED_ONCE=true; splash(false); boot(); }
 function connect(){
-  maintApply();
-  if(maintOn()){ MAINT_HELD="connect"; splash(false); return; }       /* o'qituvchi kirgach shu yerdan davom etadi */
-  splash(true);
+  maintApply();                                  /* config.json bo'yicha oldindan; bazadagi holat kelgach aniqlashadi */
+  splash(!maintOn());
   setTimeout(bootOnce,9000);
   cloudInit(function(ok){
     if(!ok){ bootOnce(); return; }
-    resetAt(function(rt){ RESET=rt||0; bootOnce(); });
+    maintLoad(function(){ maintApply(); resetAt(function(rt){ RESET=rt||0; bootOnce(); }); });
   });
 }
 /* bu hafta ball beradigan (o'qituvchi ochgan, muddati tugamagan) mavzular — eng so'nggisi birinchi */

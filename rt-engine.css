@@ -776,6 +776,9 @@ body.rt-maint>*:not(#rtMaint):not(.rt-ov):not(.rt-toast){display:none!important}
 body.rt-maint .rt-ov{z-index:330}
 .rt-gate.rt-maint{z-index:300;text-align:center}
 .rt-maint-box{max-width:520px}
+.rt-chip.rt-maintchip{font-weight:800}
+.rt-chip.rt-maintchip.on{border-color:#b91c1c;background:color-mix(in srgb,#dc2626 14%,var(--panel));color:#b91c1c}
+.rt-chip.rt-maintchip.on b{color:#b91c1c}
 .rt-maint-ic{font-size:64px;line-height:1}
 .rt-maint-box h2{margin:10px 0 6px}
 .rt-maint-box p{margin:0 0 16px;font-size:16px;line-height:1.55;color:var(--ink2)}

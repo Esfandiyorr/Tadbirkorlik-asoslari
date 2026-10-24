@@ -2,7 +2,7 @@
    «Texnik ishlar ketyapti» ekranini ko'radi; hech narsa ishga tushmaydi (ball, vaqt, bazaga yozuv yo'q); o'qituvchi kira oladi.
    Sinov bayroqni o'zi yoqadi (config dagi qiymatga bog'liq emas) */
 const H=require('../lib/h.js'); const {sleep,ck}=H;
-const ON=()=>{ let v; Object.defineProperty(window,"RT_CFG",{configurable:true,get(){ return v; },set(x){ if(x) x.maintenance={on:true,uz:"Sinov: serverda ishlar ketyapti.",en:"Test: server work in progress."}; v=x; }}); };
+const ON=()=>{ let v; Object.defineProperty(window,"RT_CFG",{configurable:true,get(){ return v; },set(x){ if(x) x.maintenance={on:true,uz:"Sinov: serverda ishlar ketyapti.",en:"Test: server work in progress."}; x.maintPoll=2000; v=x; }}); };
 const st=p=>p.evaluate(()=>{ const g=document.getElementById("rtMaint"); const vis=e=>{ if(!e) return false; const r=e.getBoundingClientRect(); return getComputedStyle(e).display!=="none"&&getComputedStyle(e).visibility!=="hidden"&&r.width>0&&r.height>0; };
   const t=document.elementFromPoint(innerWidth/2,innerHeight/2);
   return {gate:!!g,txt:g?g.innerText.replace(/\s+/g," "):"",body:document.body.classList.contains("rt-maint"),pre:document.documentElement.classList.contains("rt-maint-pre"),
@@ -56,6 +56,27 @@ const wait=async(p,ms)=>{ await p.waitForLoadState("load").catch(()=>{}); await 
   await L.evaluate(()=>{ window.__TT2=1; }); await L.click("#rtMaintLg"); await sleep(4500);
   const ls=await st(L);
   ck("o'qituvchi kirgach ekran yo'qoladi, portal ishga tushadi (fanlar ro'yxati)",!ls.gate&&!ls.body&&ls.ready&&ls.cards>0,JSON.stringify(ls).slice(0,220));
+  /* 4b) o'qituvchi tugmasi: ochish / yopish (bazadagi meta/maint config dan ustun) */
+  const TB=await mk(null,{tc:true}); TB.on("dialog",d=>d.accept()); await TB.goto(H.SITE+"/index.html"); await wait(TB,4500);
+  const b0=await TB.evaluate(()=>{ const e=document.getElementById("rtMaintBtn"); return e?e.innerText.replace(/\s+/g," ").trim()+"|"+e.classList.contains("on"):null; });
+  ck("o'qituvchi topbarida tugma bor: sayt yopiq (config) — «Yopiq — ochish»",/Yopiq — ochish\|true/.test(b0||""),String(b0));
+  const G2=await mk(null); await G2.goto(H.SITE+"/mavzu-2.html"); await wait(G2); ck("mehmon uchun yopiq",(await st(G2)).gate);
+  await TB.click("#rtMaintBtn"); await sleep(1200);
+  ck("tugma bosildi → bazaga meta/maint {on:false} yozildi, tugma «Saytni yopish» bo'ldi",(H.dbGet("meta/maint")||{}).on===false&&await TB.evaluate(()=>/Saytni yopish/.test(document.getElementById("rtMaintBtn").innerText)),JSON.stringify(H.dbGet("meta/maint")));
+  await sleep(4500);
+  const g2=await st(G2);
+  ck("ochiq turgan yopiq ekran o'zi yo'qoldi (sahifa qayta yuklanmasdan) va taqdimot ishga tushdi",!g2.gate&&g2.ready&&g2.slides>0,JSON.stringify(g2).slice(0,200));
+  const G3=await mk(null); await G3.goto(H.SITE+"/index.html"); await wait(G3);
+  ck("yangi kirgan mehmon ham ochiq saytni ko'radi (baza config dan ustun)",!(await st(G3)).gate&&(await st(G3)).cards>0);
+  await TB.click("#rtMaintBtn"); await sleep(1200);
+  ck("qayta bosilsa — yopiladi (tasdiq so'raladi), baza {on:true}",(H.dbGet("meta/maint")||{}).on===true&&await TB.evaluate(()=>/Yopiq — ochish/.test(document.getElementById("rtMaintBtn").innerText)),JSON.stringify(H.dbGet("meta/maint")));
+  await sleep(4500);
+  const g3=await st(G2), g4=await st(G3);
+  ck("ochiq turgan sahifalar ham o'zi yopiladi (mehmon, portal)",g3.gate&&g4.gate,JSON.stringify([g3.gate,g4.gate]));
+  ck("o'qituvchining o'zi yopiq payt ham sahifani ishlata oladi",await TB.evaluate(()=>!document.getElementById("rtMaint")&&!!window.RT_ready));
+  const S2=await mk(H.stu("sZ","Zafar","Olimov","T-123")); await S2.goto(H.SITE+"/index.html"); await wait(S2);
+  ck("talabada tugma yo'q",!(await S2.$("#rtMaintBtn"))&&(await st(S2)).gate);
+  H.dbSet("meta/maint",null);
   /* 5) o'chirilganda hammasi odatdagidek (bayroq o'chiq) */
   const N=await H.mk(b,null,{}); await N.goto(H.SITE+"/mavzu-2.html"); await wait(N);
   const ns=await st(N); ck("texnik ishlar o'chiq bo'lganda sahifa odatdagidek ochiladi",!ns.gate&&!ns.body&&ns.ready&&ns.slides>0,JSON.stringify(ns).slice(0,200));

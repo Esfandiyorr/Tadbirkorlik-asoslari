@@ -67,8 +67,10 @@ beradi» belgisi), mavzular ro'yxati va raqamlash fan ichida bo'ladi.
 Yoqilganda **o'qituvchidan boshqa hamma** (talaba ham, mehmon ham) har bir sahifada (portal, fan sahifasi, taqdimotlar)
 «🛠 Texnik ishlar ketyapti» ekranini ko'radi — `uz`/`en` matni shu yerda chiqadi; ball, vaqt va chat ishga tushmaydi, bazaga
 hech narsa yozilmaydi, chop etilmaydi. O'qituvchi ekrandagi «🔑 O'qituvchi» orqali Google bilan kirsa (yoki shu qurilmada avval kirgan bo'lsa)
-ekran yo'qoladi va sayt odatdagidek ishlaydi. Yoqish/o'chirish: `on` ni `true`/`false` qilib `python3 _reyting-manba/inject.py`, so'ng push.
-Sahifasi allaqachon ochiq turgan talabaga o'zgarish keyingi yangilanishda (sahifani qayta ochganda) ko'rinadi. O'yin arenasi (`arena.html`)
+ekran yo'qoladi va sayt odatdagidek ishlaydi. **Tugma bilan boshqarish:** o'qituvchi topbarida «🔒 Yopiq — ochish» / «🛠 Saytni yopish» tugmasi turadi (faqat o'qituvchida). U bazadagi
+`meta/maint = {on: true|false}` ni yozadi va `config.json` dagi `on` dan **ustun** turadi (bazada yozuv bo'lmasa — config). Ochiq turgan sahifalar
+ham ~1 daqiqada o'zi yopiladi/ochiladi (sahifani qayta ochish shart emas). Tugma Firebase qoidalari e'lon qilingan bo'lsa ham ishlaydi (`meta` — o'qituvchiga yoziladi).
+Config dagi `on` — bazaga yetib bo'lmagandagi boshlang'ich holat: `true`/`false` qilib `python3 _reyting-manba/inject.py`, so'ng push. O'yin arenasi (`arena.html`)
 alohida: uni yopish uchun u yerdagi `ARENA_OPEN=false`.
 
 **🔗 Havola nomi va logo:** saytning havolasi Telegram, WhatsApp, Facebook va boshqalarga yuborilganda nomi
