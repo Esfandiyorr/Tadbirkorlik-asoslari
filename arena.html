@@ -608,7 +608,7 @@ details.adv summary{cursor:pointer;font-weight:800;color:var(--muted)}
   </div>
   <div class="spacer"></div>
   <div class="tools">
-    <a class="btn ghost" href="index.html" id="btnBack">📚 <span data-ui="lessons">Darslar</span></a>
+    <a class="btn ghost" href="tadbirkorlik-asoslari.html" id="btnBack">📚 <span data-ui="lessons">Darslar</span></a>
     <button class="btn ghost" id="btnLang">🌐 <span id="langTxt">ENG</span></button>
     <button class="btn ghost" id="btnSnd" title="Ovoz">🔊</button>
     <button class="btn ghost" id="btnMus" title="Musiqa">🎵</button>
@@ -1983,7 +1983,7 @@ function liveJoin(g,btn){
   if(btn){ btn.disabled=true; btn.textContent="⏳ "+L("Qo'shilmoqda…","Joining…"); }
   X.saToken(true,function(){
     X.claimMe(function(own){
-      if(!own){ fail(L("Hisobingiz shu brauzerda tasdiqlanmagan. Avval istalgan mavzu taqdimotini ochib, hisobingizga kiring, so'ng qaytib keling.","Your account is not confirmed in this browser. Open any lesson, sign in, then come back.")+' <a href="index.html">📚 '+L("Darsga o'tish","Go to the lesson")+'</a>'); return; }
+      if(!own){ fail(L("Hisobingiz shu brauzerda tasdiqlanmagan. Avval istalgan mavzu taqdimotini ochib, hisobingizga kiring, so'ng qaytib keling.","Your account is not confirmed in this browser. Open any lesson, sign in, then come back.")+' <a href="tadbirkorlik-asoslari.html">📚 '+L("Darsga o'tish","Go to the lesson")+'</a>'); return; }
       X.clockSync(function(){
         var nm=myName().slice(0,60)||"?";
         X.kput("games/"+g.d+"/p/"+me.id,{n:nm,g:String(me.group||"").slice(0,30),at:{".sv":"timestamp"}},function(ok,st){
@@ -3980,13 +3980,13 @@ function need(){
   APP.innerHTML=card('<div class="center"><div style="font-size:44px">🎓</div><h2>'+L("Avval ro'yxatdan o'ting","Register first")+'</h2>'+
     '<p class="note">'+L("Arena darsdagi hisobingiz bilan ishlaydi. Istalgan mavzuni ochib, ism-familiyangizni kiriting va o'qituvchi tasdig'ini oling.",
       "The arena uses your lesson account. Open any topic, enter your name and wait for the teacher to approve you.")+'</p>'+
-    '<a class="btn accent" href="index.html" style="margin-top:14px">📚 '+L("Darsga o'tish","Go to the lesson")+'</a></div>');
+    '<a class="btn accent" href="tadbirkorlik-asoslari.html" style="margin-top:14px">📚 '+L("Darsga o'tish","Go to the lesson")+'</a></div>');
 }
 function pending(){
   APP.innerHTML=card('<div class="center"><div style="font-size:44px">⏳</div><h2>'+L("O'qituvchi tasdig'ini kuting","Waiting for approval")+'</h2>'+
     '<p class="note">'+L("Siz ro'yxatdan o'tgansiz, lekin o'qituvchi hali tasdiqlamagan. Tasdiqlangach arena ochiladi.",
       "You are registered but the teacher has not approved you yet. The arena opens once they do.")+'</p>'+
-    '<a class="btn" href="index.html" style="margin-top:14px">📚 '+L("Darslar","Lessons")+'</a></div>');
+    '<a class="btn" href="tadbirkorlik-asoslari.html" style="margin-top:14px">📚 '+L("Darslar","Lessons")+'</a></div>');
 }
 function offline(msg){
   APP.innerHTML=card('<div class="center"><div style="font-size:44px">🔌</div><h2>'+L("Server ulanmagan","Not connected")+'</h2>'+
@@ -4000,7 +4000,7 @@ function closed(){
    '<h2 style="margin:14px 0 8px">'+L("O'yin emas — dars vaqti!","Lessons now, games later!")+'</h2>'+
    '<p class="note" style="font-size:15px;line-height:1.65">'+L("Arena vaqtincha yopiq. Avval mavzuni o'qing va testlarni ishlang \u2014 o'yin keyin bo'ladi.",
      "The arena is closed for now. Read the topic and finish the quizzes first \u2014 the games can wait.")+'</p>'+
-   '<a class="btn accent" href="index.html" style="margin-top:18px">📖 '+L("Darsni ochish","Open the lesson")+'</a></div>');
+   '<a class="btn accent" href="tadbirkorlik-asoslari.html" style="margin-top:18px">📖 '+L("Darsni ochish","Open the lesson")+'</a></div>');
 }
 
 /* ---------- boshqaruv paneli ---------- */
@@ -4932,7 +4932,7 @@ function lvJoin(btn){
   if(!LV.own){
     var e=document.getElementById("lvJoinErr");
     if(e) e.innerHTML=L("Hisobingiz shu brauzerda tasdiqlanmagan. Avval istalgan mavzu taqdimotini ochib, hisobingizga kiring, so'ng qaytib keling.",
-      "Your account is not confirmed in this browser. Open any lesson, log in, then come back.")+' <a href="index.html">📚 '+L("Darsga o'tish","Go to the lesson")+'</a>';
+      "Your account is not confirmed in this browser. Open any lesson, log in, then come back.")+' <a href="tadbirkorlik-asoslari.html">📚 '+L("Darsga o'tish","Go to the lesson")+'</a>';
     return;
   }
   if(btn){ btn.disabled=true; btn.textContent="⏳ "+L("Qo'shilmoqda…","Joining…"); }

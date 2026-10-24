@@ -768,6 +768,9 @@ body.rt-ro .qt-start::after,body.rt-ro .xw-start::after,body.rt-ro .ms-start::af
 .rt-acc-ro{margin:0 0 8px;padding:8px 12px;border:1px dashed #d97706;border-radius:10px;background:rgba(245,158,11,.1);font-size:13.5px}
 body.rt-ro #btnPrint{display:none!important}
 @media print{body.rt-ro{display:none!important}}
+/* 🔒 yopiq mavzu: chop etilsa slaydlar chiqmaydi, faqat izoh (Ctrl+P, «📥 PDF», «Saqlash — PDF») */
+@media print{body.rt-locked>*{display:none!important}
+  body.rt-locked::before{content:var(--rt-lock-msg,"🔒");display:block;padding:60px 40px;font:700 22px/1.5 system-ui,sans-serif;text-align:center;color:#111}}
 /* 📊 baholash: ism ustuni va sarlavha qotirilgan, mavzu tanlash, bir bosishda baho */
 .rt-nmsort,.rt-mktops{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:8px 0}
 .rt-nmsort>span,.rt-mktops>span{font-size:13px;font-weight:800;color:var(--muted);margin-right:2px}
@@ -872,6 +875,9 @@ body.rt-ro #btnPrint{display:none!important}
 .rt-gate-why{margin:0 40px 12px 0;padding:9px 12px;border-radius:12px;background:color-mix(in srgb,var(--green,#16a34a) 12%,transparent);font-weight:700;font-size:14px;line-height:1.4}
 .rt-chip.rt-guestbtn{border-color:#0a3605;background:linear-gradient(135deg,#16a34a,#0d9488);color:#fff;font-weight:800}
 .rt-chip.rt-guestbtn b{color:#fff}
+.rt-chip.rt-guestreg{border-color:color-mix(in srgb,var(--green,#16a34a) 70%,transparent);background:var(--panel);color:var(--ink);font-weight:800}
+.rt-chip.rt-guestreg b{color:var(--ink)}
+.rt-chip.rt-guestreg:hover{background:color-mix(in srgb,var(--green,#16a34a) 14%,var(--panel))}
 body.rt-guest .qt-start::after,body.rt-guest .xw-start::after,body.rt-guest .ms-start::after{
   content:var(--rt-guest-msg);display:block;max-width:520px;margin:12px auto 0;padding:10px 14px;border:1.5px dashed var(--green,#16a34a);border-radius:12px;
   background:color-mix(in srgb,var(--green,#16a34a) 10%,transparent);color:var(--ink);font-weight:700;font-size:14px;text-align:center;white-space:normal}

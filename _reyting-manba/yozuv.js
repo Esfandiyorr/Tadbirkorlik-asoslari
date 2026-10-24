@@ -1362,7 +1362,7 @@ function liveJoin(g,btn){
   if(btn){ btn.disabled=true; btn.textContent="⏳ "+L("Qo'shilmoqda…","Joining…"); }
   X.saToken(true,function(){
     X.claimMe(function(own){
-      if(!own){ fail(L("Hisobingiz shu brauzerda tasdiqlanmagan. Avval istalgan mavzu taqdimotini ochib, hisobingizga kiring, so'ng qaytib keling.","Your account is not confirmed in this browser. Open any lesson, sign in, then come back.")+' <a href="index.html">📚 '+L("Darsga o'tish","Go to the lesson")+'</a>'); return; }
+      if(!own){ fail(L("Hisobingiz shu brauzerda tasdiqlanmagan. Avval istalgan mavzu taqdimotini ochib, hisobingizga kiring, so'ng qaytib keling.","Your account is not confirmed in this browser. Open any lesson, sign in, then come back.")+' <a href="tadbirkorlik-asoslari.html">📚 '+L("Darsga o'tish","Go to the lesson")+'</a>'); return; }
       X.clockSync(function(){
         var nm=myName().slice(0,60)||"?";
         X.kput("games/"+g.d+"/p/"+me.id,{n:nm,g:String(me.group||"").slice(0,30),at:{".sv":"timestamp"}},function(ok,st){

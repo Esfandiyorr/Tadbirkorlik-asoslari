@@ -108,7 +108,8 @@ var RT=(function(){
 "use strict";
 var CFG=window.RT_CFG||{};
 var GUEST=false;              /* 👀 mehmon: hisobsiz kirgan — taqdimotni faqat o'qiydi; test/krossvord/masala uchun kirish kerak */
-var HOME=!!CFG.home;          /* 🏠 fan bosh sahifasi (index.html): mavzu yo'q — ball, vaqt va qulf ishlamaydi */
+var HOME=!!CFG.home;          /* 🏠 bosh sahifalar: mavzu yo'q — ball, vaqt va qulf ishlamaydi */
+var PORTAL=CFG.home==="portal";   /* 🌐 index.html: sayt haqida + fanlar ro'yxati; "course" — bitta fanning mavzular sahifasi */
 var LS={stu:"terdu_student", prog:"terdu_progress_v1"};
 var S=null, P=null, cloudOn=false, fb=null, listCache=[], listAt=0;
 /* Arena ochiq/yopiq: false bo'lsa 🎮 Arena tugmasi ko'rinmaydi */
@@ -1045,6 +1046,16 @@ function chipUpdate(){
 }
 function T(uz,en){ var l=(document.documentElement.getAttribute("lang")||"uz"); return (l==="en"&&en)?en:uz; }
 
+/* 📚 fanlar: CFG.courses — [{id,icon,title,desc,first}], mavzuda ixtiyoriy «course» (fan id si; berilmasa — birinchi fan) */
+function courseOf(x){ var cs=CFG.courses||[]; return cs.filter(function(c){ return x&&c.id===x.course; })[0]||cs[0]||null; }
+function courseTopics(c){ return (CFG.topics||[]).filter(function(x){ return courseOf(x)===c; }); }
+function curTopicObj(){ return (CFG.topics||[]).filter(function(x){ return x.id===CFG.topic; })[0]||null; }
+function pageCourse(){        /* shu sahifa qaysi fanga tegishli (mavzu sahifasi yoki fan sahifasi) */
+  var here=location.pathname.split("/").pop()||"index.html", cs=CFG.courses||[];
+  return cs.filter(function(c){ return c.first===here; })[0]||courseOf(curTopicObj());
+}
+function coursePage(){ var c=pageCourse(); return (c&&c.first)||"index.html"; }
+
 function pinOk(x){ return /^\d{4}$/.test(String(x||"")); }
 function nrm(x){ return String(x||"").toLowerCase().replace(/[^a-z\u0400-\u04ff']/g,""); }
 /* PIN bazaga ochiq yozilmaydi — faqat ism+familiya+PIN dan chiqqan xesh saqlanadi */
@@ -1253,14 +1264,24 @@ function guestMsg(){
 function guestOff(){
   GUEST=false; document.body.classList.remove("rt-guest");
   var a=document.getElementById("rtGuestBar"); if(a) a.remove();
+  var g=document.getElementById("rtReg"); if(g) g.remove();
   var c=document.getElementById("rtChip"); if(c){ c.classList.remove("rt-guestbtn"); c.onclick=openOv; }
+  askBar();                                   /* «Savol va takliflar» yana chapdan birinchi */
 }
+/* mehmon topbarda ikkita tugma ko'radi: «🔑 Kirish» va «🎓 Ro'yxatdan o'tish» — ikkalasi ham chapdan birinchi */
 function guestChipSet(c){
   if(!c) return;
-  if(tcHere()){ c.classList.remove("rt-guestbtn"); c.innerHTML='<i class="tb-ic a-shine">🏆</i> <b>'+T("Reyting","Rating")+'</b>'; c.onclick=openOv; c.title=T("Reyting va o'qituvchi bo'limi","Rating and the teacher panel"); return; }
-  c.classList.add("rt-guestbtn"); c.title=T("Hisobingizga kiring yoki ro'yxatdan o'ting","Log in or register");
+  var rg=document.getElementById("rtReg");
+  if(tcHere()){ if(rg) rg.remove(); c.classList.remove("rt-guestbtn"); c.innerHTML='<i class="tb-ic a-shine">🏆</i> <b>'+T("Reyting","Rating")+'</b>'; c.onclick=openOv; c.title=T("Reyting va o'qituvchi bo'limi","Rating and the teacher panel"); return; }
+  c.classList.add("rt-guestbtn"); c.title=T("Hisobingiz bor bo'lsa — kiring","Already have an account? Log in");
   c.innerHTML='<i class="tb-ic a-wiggle">🔑</i> <b>'+T("Kirish","Log in")+'</b>';
-  c.onclick=function(){ authOpen(T("Ball to'plash, test ishlash va reytingda qatnashish uchun hisobingizga kiring yoki ro'yxatdan o'ting.","Log in or register to earn points, take tests and join the rating.")); };
+  c.onclick=function(){ authOpen(T("Ball to'plash, test ishlash va reytingda qatnashish uchun hisobingizga kiring.","Log in to earn points, take tests and join the rating."),"log"); };
+  if(!rg){ rg=el('<button type="button" class="rt-chip rt-guestreg" id="rtReg"></button>'); }
+  rg.title=T("Yangi hisob yarating — bir daqiqa","Create an account — it takes a minute");
+  rg.innerHTML='<i class="tb-ic a-bob">🎓</i> <b>'+T("Ro'yxatdan o'tish","Register")+'</b>';
+  rg.onclick=function(){ authOpen(T("Ro'yxatdan o'ting — bir daqiqa. Shundan so'ng test ishlab, ball to'plashingiz mumkin.","Register — it takes a minute. Then you can take tests and earn points."),"reg"); };
+  var tools=c.parentNode; if(!tools) return;
+  tools.insertBefore(c,tools.firstChild); tools.insertBefore(rg,c.nextSibling);
 }
 function guestStart(){
   if(started||GUEST) return;
@@ -1269,7 +1290,7 @@ function guestStart(){
   window.RT_ready=true;
   accApply(); accLoad(accApply);
   try{ if(!sessionStorage.getItem("terdu_guest")){ sessionStorage.setItem("terdu_guest","1");
-    setTimeout(function(){ toast("👀 "+T("Mehmon rejimi: o'qishingiz mumkin. Test va ball uchun «🔑 Kirish» ni bosing.","Guest mode: you can read. For tests and points press «🔑 Log in».")); },900); } }catch(e){}
+    setTimeout(function(){ toast("👀 "+T("Mehmon rejimi: o'qishingiz mumkin. Test va ball uchun yuqoridan «🔑 Kirish» yoki «🎓 Ro'yxatdan o'tish» ni bosing.","Guest mode: you can read. For tests and points use «🔑 Log in» or «🎓 Register» at the top.")); },900); } }catch(e){}
 }
 function waitScreen(){
   var old=document.getElementById("rtWait"); if(old) old.remove();
@@ -3301,7 +3322,8 @@ function askBar(){
   var b=el('<a class="rt-ask" id="rtAsk" href="'+esc(CFG.teacherTg)+'" target="_blank" rel="noopener" '+
     'title="'+T("Telegram orqali to\'g\'ridan-to\'g\'ri yozing","Write directly on Telegram")+'">'+
     '<i class="tb-ic a-wave">🙋</i> <b>'+T("Savol va takliflar","Questions & ideas")+'</b></a>');
-  tools.insertBefore(b,tools.firstChild);   /* eng birinchi o'rinda tursin */
+  var rg=document.getElementById("rtReg");   /* mehmonda «Kirish» va «Ro'yxatdan o'tish» undan oldin turadi */
+  tools.insertBefore(b,rg&&rg.parentNode===tools?rg.nextSibling:tools.firstChild);   /* aks holda eng birinchi o'rinda tursin */
 }
 /* 📚 topbardagi mavzular: bitta tugma («📖 3-mavzu ▾») — bosilganda hamma mavzular ro'yxati ochiladi, talaba keragini tanlaydi.
    Ro'yxat body ga qo'yiladi (topbarning blur effekti ichida fixed oyna noto'g'ri joylashadi) */
@@ -3309,7 +3331,7 @@ function navClose(){ var m=document.getElementById("rtNavMenu"), b=document.getE
 function navBuild(){
   var tools=document.querySelector(".topbar .tools"); if(!tools) return;
   var old=document.getElementById("rtNav"); if(old) old.remove(); navClose();
-  var tops=CFG.topics||[], ci=-1;
+  var pc=pageCourse(), tops=pc?courseTopics(pc):(CFG.topics||[]), ci=-1;
   tops.forEach(function(x,i){ if(x.id===CFG.topic) ci=i; });
   var wrap=el('<span id="rtNav"></span>');
   var btn=el('<button type="button" class="rt-nav cur rt-navbtn" id="rtNavBtn" aria-haspopup="true" aria-expanded="false" title="'+T("Mavzular ro\'yxati","Topics")+'">'+
@@ -3320,7 +3342,8 @@ function navBuild(){
     if(document.getElementById("rtNavMenu")){ navClose(); return; }
     var nOpen=tops.filter(function(x){ return x.id===CFG.topic||topicOpen(x); }).length;
     var m=el('<div class="rt-navmenu" id="rtNavMenu" role="menu"><div class="rt-navhd"><b>📚 '+T("Mavzular","Topics")+'</b><span>'+nOpen+' / '+tops.length+' '+T("ochiq","open")+'</span></div>'+
-      (HOME?'':'<a class="rt-navi rt-navhome" role="menuitem" href="index.html">🏠<span><b>'+T("Fan sahifasi","Course page")+'</b><small>'+T("Tadbirkorlik asoslari — barcha mavzular","Fundamentals of Entrepreneurship — all topics")+'</small></span></a>')+'</div>');
+      (HOME?'':'<a class="rt-navi rt-navhome" role="menuitem" href="'+esc(coursePage())+'">🏠<span><b>'+T("Fan sahifasi","Course page")+'</b><small>'+esc(pc&&pc.title||"")+' — '+T("barcha mavzular","all topics")+'</small></span></a>')+
+      '<a class="rt-navi rt-navhome" role="menuitem" href="index.html">🌐<span><b>'+T("Barcha fanlar","All courses")+'</b><small>'+T("Sayt haqida va fanlar ro'yxati","About the site and the course list")+'</small></span></a></div>');
     tops.forEach(function(x,i){
       var lab=T((i+1)+"-mavzu","Topic "+(i+1)), ttl=esc(String(x.title||"").replace(/^M\d+\s*·\s*/,"")), it;
       if(i===ci) it=el('<div class="rt-navi cur" role="menuitem">📖<span><b>'+lab+'</b><small>'+ttl+'</small></span><em>'+T("hozir","now")+'</em></div>');
@@ -3339,12 +3362,13 @@ function navBuild(){
     var c=m.querySelector(".rt-navi.cur"); if(c&&c.scrollIntoView) c.scrollIntoView({block:"nearest"});
   };
   var sp=document.querySelector('.topbar .spacer');
-  if(sp&&sp.parentNode) sp.parentNode.insertBefore(wrap,sp); else tools.insertBefore(wrap,tools.firstChild);
+  if(PORTAL){ /* portalda mavzular tugmasi yo'q — fanlar sahifaning o'zida */ }
+  else if(sp&&sp.parentNode) sp.parentNode.insertBefore(wrap,sp); else tools.insertBefore(wrap,tools.firstChild);
   if(RO){ roMsg(); roChip(); }             /* 📖 belgisi mavzular tugmasi yonida (til almashganda ham) */
   if(GUEST){ guestMsg(); guestChipSet(document.getElementById("rtChip")); }
   var br=document.querySelector(".topbar .brand");      /* logo va «TerDU» — fan sahifasiga */
   if(br&&!HOME&&!br.dataset.home){ br.dataset.home="1"; br.style.cursor="pointer"; br.title=T("Fan sahifasi — barcha mavzular","Course page — all topics");
-    br.addEventListener("click",function(){ location.href="index.html"; }); }
+    br.addEventListener("click",function(){ location.href=coursePage(); }); }
   var td=document.getElementById("rtTodo"); if(td) td.remove();
   todoChip();                               /* 📋 «Menga nima qoldi?» */
 }
@@ -3726,7 +3750,7 @@ function pushSend(title,body,only,cb,page,extra){
   var c=PUSH.cfg;
   if(!pushOn(c)||!TC_USER){ cb(null); return; }
   TC_USER.getIdToken().then(function(tok){
-    var q={tok:tok,title:title,body:body,url:new URL(page||"index.html",location.href).href,tag:"terdu-"+Date.now(),only:only||null};
+    var q={tok:tok,title:title,body:body,url:new URL(page||coursePage(),location.href).href,tag:"terdu-"+Date.now(),only:only||null};
     for(var k in (extra||{})) q[k]=extra[k];
     return window.fetch(c.url,{method:"POST",headers:{"Content-Type":"text/plain"},body:JSON.stringify(q)});
   }).then(function(r){ return r.json().then(function(j){ return r.ok?j:null; }); }).then(function(j){ cb(j); },function(){ cb(null); });
@@ -4117,11 +4141,16 @@ function accLoad(cb){
     if(cb) cb();
   });
 }
+function lockPrint(on){
+  document.body.classList.toggle("rt-locked",!!on);
+  document.body.style.setProperty("--rt-lock-msg",JSON.stringify("🔒 "+T("Bu mavzu hali yopiq — o'qituvchi darsda ochadi. Yopiq mavzu chop etilmaydi.","This topic is still locked — the teacher opens it in class. A locked topic cannot be printed.")));
+}
 function accApply(){
   var cur=(CFG.topics||[]).filter(function(x){ return x.id===CFG.topic; })[0];
   if(HOME){ navBuild(); homeRender();     /* bosh sahifa: mavzular holati yangilanadi (o'qituvchi ochsa — 60 soniyada) */
     if(!accIv) accIv=setInterval(function(){ if(!document.hidden) accLoad(accApply); },60000); return; }
   var lock=!!(cur&&cur.open&&!topicOpen(cur));
+  lockPrint(lock);                       /* yopiq mavzu chop etilmaydi / PDF ga saqlanmaydi (mehmonda ham, talabada ham) */
   roApply(!!cur&&!lock&&!isGuest()&&topicRead(cur),cur);
   navBuild();
   /* ball muddati tugashi bilan sahifa o'zi o'qish rejimiga o'tadi */
@@ -4149,14 +4178,50 @@ function accApply(){
   }
   todoChip();                                /* 📋 qulf/o'qish holati aniqlangandan keyin */
 }
-/* ---------- 🏠 fan sahifasi (index.html): «Tadbirkorlik asoslari» — barcha mavzular kartochkalarda ----------
+function homeArena(){
+  return '<a class="hm-arena" href="arena.html">🎮 <b>'+T("O'yin arenasi","Game arena")+'</b><small>'+T("Krossvord, jonli test va Yozuv Marafoni — guruhdoshlar bilan musobaqa","Crossword, live quiz and typing marathon — compete with classmates")+'</small></a>';
+}
+/* ---------- 🌐 portal (index.html): sayt haqida, maqsad va FANLAR ro'yxati — mehmon avval shuni ko'radi ----------
+   Fan kartochkasi fanning o'z sahifasiga olib boradi. Yangi fan qo'shish: config.json «courses» + shu fan sahifasi (README) */
+function portalRender(){
+  var au=document.getElementById("hmAuth"), cb=document.getElementById("hmCourses"), cta=document.getElementById("hmCta"); if(!au||!cb) return;
+  var cs=CFG.courses||[], tcv=tcHere()&&!S, now=Date.now(), gst=!S&&!tcv;
+  var ab=document.getElementById("hmAbout"); if(ab&&!ab.dataset.set){ ab.dataset.set="1"; if(!gst) ab.open=false; }   /* mehmonga ochiq, o'z talabaga yig'iq */
+  au.innerHTML=S?'<div class="hm-me hm-auth"><span class="hm-hi">👋 '+T("Salom, <b>"+esc(S.name)+"</b>!","Hello, <b>"+esc(S.name)+"</b>!")+'</span>'+
+      '<span class="hm-pill">🏆 '+T("Jami ball","Total")+': <b>'+fmtP(P.total)+'</b></span>'+(S.group?'<span class="hm-pill">👥 '+esc(S.group)+'</span>':'')+
+      '<button type="button" class="btn hm-top" id="hmTop">🏆 '+T("Reyting","Rating")+'</button></div><div id="hmPush"></div>'
+    :tcv?'<div class="hm-week tc hm-auth">👨‍🏫 '+T("O'qituvchi ko'rinishi. Fanni tanlab, mavzularni talabalar uchun ochishingiz mumkin.","Teacher view. Choose a course to open its topics for students.")+'</div>'
+    :'';
+  if(cta) cta.innerHTML=gst?'<div class="hm-week hm-guest hm-cta"><b class="hm-wk-h">🔑 '+T("Test ishlamoqchimisiz?","Want to take the tests?")+'</b>'+
+      '<p>'+T("Mavzularni <b>ro'yxatdan o'tmasdan</b> ham o'qiy olasiz. <b>Test ishlash</b> va <b>ball to'plash</b> uchun hisobingizga kiring yoki ro'yxatdan o'ting.",
+        "You can read the topics <b>without registering</b>. To <b>take tests</b> and <b>earn points</b>, log in or register.")+'</p>'+
+      '<div class="hm-gbtn"><button type="button" class="btn accent" id="hmLog">🔑 '+T("Kirish","Log in")+'</button><button type="button" class="btn" id="hmReg">🎓 '+T("Ro'yxatdan o'tish","Register")+'</button></div></div>':'';
+  var all=scoreTopics();
+  cb.innerHTML=cs.map(function(c){
+    var ct=courseTopics(c), sc=all.filter(function(x){ return ct.indexOf(x)>=0; }), nr=ct.filter(function(x){ return tcv?x.open:accState(x,S); }).length;
+    var href=c.first||(ct[0]&&ct[0].file)||"index.html";
+    var chips='<i>📑 '+ct.length+' '+T("ta mavzu","topics")+'</i>'+(nr?'<i>📖 '+nr+' '+T("ta o'qish uchun ochiq","open to read")+'</i>':'')+
+      sc.map(function(x){ var k=ct.indexOf(x)+1; return '<i class="live">🟢 '+T("Bu hafta ball beradi: "+k+"-mavzu","Points this week: topic "+k)+'</i>'; }).join("");
+    return '<a class="pt-course" href="'+esc(href)+'" data-c="'+esc(c.id||"")+'"><span class="pt-ic">'+esc(c.icon||"📘")+'</span>'+
+      '<span class="pt-ct"><b>'+esc(c.title||"")+'</b><small>'+esc(c.desc||"")+'</small><span class="pt-meta">'+chips+'</span></span>'+
+      '<span class="pt-go">'+T("Ochish","Open")+' →</span></a>';
+  }).join("");
+  var cc=document.getElementById("hmCCount"); if(cc) cc.textContent=cs.length;
+  var mo=document.getElementById("hmMore"); if(mo) mo.innerHTML=homeArena();
+  var tb=document.getElementById("hmTop"); if(tb) tb.onclick=function(){ openOv(); };
+  var hl=document.getElementById("hmLog"); if(hl) hl.onclick=function(){ authOpen(T("Hisobingizga kiring.","Log in to your account."),"log"); };
+  var hr=document.getElementById("hmReg"); if(hr) hr.onclick=function(){ authOpen(T("Ro'yxatdan o'ting — bir daqiqa.","Register — it takes a minute."),"reg"); };
+  pushBox(document.getElementById("hmPush"),"home");
+}
+/* ---------- 🏠 fan sahifasi (tadbirkorlik-asoslari.html): fanning barcha mavzulari kartochkalarda ----------
    🟢 ball beriladi (shu haftaning yakshanbasi 23:59 gacha) — «Ishlash», 📖 o'qish rejimi — «O'qish», 🔒 yopiq.
    Tepada eslatma: bu hafta qaysi mavzu ball beradi va qancha vaqt qoldi. Talaba o'zi tanlaydi — avtomatik o'tish yo'q */
 function homeRender(){
+  if(PORTAL){ portalRender(); return; }
   var box=document.getElementById("hmBody"); if(!box||!HOME) return;
-  var tp=CFG.topics||[], tcv=tcHere()&&!S, now=Date.now(), gst=!S&&!tcv;
+  var pc=pageCourse(), tp=pc?courseTopics(pc):(CFG.topics||[]), tcv=tcHere()&&!S, now=Date.now(), gst=!S&&!tcv;
   var st=function(x){ return tcv?(x.open?"tc":"lock"):accState(x,S); };
-  var sc=tcv?[]:scoreTopics();
+  var sc=tcv?[]:scoreTopics().filter(function(x){ return tp.indexOf(x)>=0; });
   var hi=S?'<div class="hm-me"><span class="hm-hi">👋 '+T("Salom, <b>"+esc(S.name)+"</b>!","Hello, <b>"+esc(S.name)+"</b>!")+'</span>'+
       '<span class="hm-pill">🏆 '+T("Jami ball","Total")+': <b>'+fmtP(P.total)+'</b></span>'+(S.group?'<span class="hm-pill">👥 '+esc(S.group)+'</span>':'')+
       '<button type="button" class="btn hm-top" id="hmTop">🏆 '+T("Reyting","Rating")+'</button></div>':'';
@@ -4190,7 +4255,7 @@ function homeRender(){
       :'<a class="hm-card '+s0+'" href="'+esc(x.file)+'" data-t="'+x.id+'">'+inner+'</a>';
   }).join("");
   box.innerHTML=hi+'<div id="hmPush"></div>'+wk+'<h2 class="hm-h2">📚 '+T("Mavzular","Topics")+' <small>'+tp.length+'</small></h2><div class="hm-grid">'+cards+'</div>'+
-    '<div class="hm-more"><a class="hm-arena" href="arena.html">🎮 <b>'+T("O'yin arenasi","Game arena")+'</b><small>'+T("Krossvord, jonli test va Yozuv Marafoni — guruhdoshlar bilan musobaqa","Crossword, live quiz and typing marathon — compete with classmates")+'</small></a></div>';
+    '<div class="hm-more">'+homeArena()+'</div>';
   [].forEach.call(box.querySelectorAll("a[data-t]"),function(a){ a.addEventListener("click",function(){ try{ sessionStorage.setItem("terdu_pick",a.dataset.t); }catch(e){} }); });
   var tb=document.getElementById("hmTop"); if(tb) tb.onclick=function(){ openOv(); };
   var hl=document.getElementById("hmLog"); if(hl) hl.onclick=function(){ authOpen(T("Hisobingizga kiring.","Log in to your account."),"log"); };
@@ -4351,7 +4416,7 @@ function accBoxHtml(x,here){
     (x.pdf?'<div class="rt-accpdf"><a class="btn accent" href="'+esc(x.pdf)+'" download>📥 '+T("PDF versiyasini yuklab olish","Download the PDF version")+'</a>'+
       '<span>'+T("Mavzuning barcha slaydlari bitta faylda","All the slides of the topic in one file")+(x.pdfSize?' · '+esc(x.pdfSize):'')+'</span></div>':'')+
     '<div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center">'+
-      '<a class="btn accent" href="index.html">🏠 '+T("Fan sahifasi","Course page")+'</a>'+
+      '<a class="btn accent" href="'+esc(coursePage())+'">🏠 '+T("Fan sahifasi","Course page")+'</a>'+
       other.map(function(y){ var k=(CFG.topics||[]).indexOf(y)+1; return '<a class="btn" href="'+y.file+'">📗 '+T(k+"-mavzu","Topic "+k)+'</a>'; }).join("")+
       (ARENA_OPEN?'<a class="btn" href="arena.html">🎮 '+T("Arena","Arena")+'</a>':'')+
       (here?'<button class="btn" id="rtAccChk">🔄 '+T("Tekshirish","Check again")+'</button>':'')+
