@@ -90,7 +90,9 @@ const tools=p=>p.evaluate(()=>[...document.querySelectorAll(".topbar .tools > *"
   const T=await H.mk(b,null,{tc:true});
   await T.goto(H.SITE+"/index.html"); await ready(T);
   const t=await T.evaluate(()=>({open:document.getElementById("hmAbout").open,reg:!!document.getElementById("rtReg"),chip:document.getElementById("rtChip").innerText.replace(/\s+/g," "),tc:!!document.querySelector(".hm-week.tc"),cta:document.getElementById("hmCta").innerText.trim()}));
-  ck("o'qituvchi: «Ro'yxatdan o'tish» tugmasi yo'q (🏆 Reyting), mehmon bloki yo'q, o'qituvchi izohi bor",!t.reg&&/Reyting/.test(t.chip)&&t.tc&&t.cta==="",JSON.stringify(t));
+  ck("o'qituvchi: 🏆 Reyting + «🎓 Talaba hisobi» tugmasi (Kirish/Ro'yxatdan o'tish emas), mehmon bloki yo'q, o'qituvchi izohi bor",t.reg&&/Reyting/.test(t.chip)&&t.tc&&t.cta==="",JSON.stringify(t));
+  await T.click("#rtReg"); await sleep(500);
+  ck("«Talaba hisobi» → kirish oynasi (Kirish / Ro'yxatdan o'tish yorliqlari bor)",await T.evaluate(()=>!!document.querySelector("#rtGate.rt-authg")&&document.querySelectorAll(".rt-gt").length>=2&&/Talaba sifatida/.test(document.querySelector(".rt-gate-why").innerText)));
   await T.context().close();
   /* 6) kelajakda yangi fan qo'shilganda: ro'yxatda chiqadi, mavzular fanlarga bo'linadi */
   const X=await H.mk(b,H.stu("sI","Isfandiyor","Sayfiddinov","T-123"),{});

@@ -55,7 +55,7 @@ chat va reyting ko'rinmaydi. **Testni, krossvordni yoki masalalarni boshlash** t
 «Testni ishlash va ball olish uchun hisobingizga kiring yoki ro'yxatdan o'ting» (Kirish / Ro'yxatdan o'tish yorliqlari,
 o'qituvchi uchun ham havola). Kirgach shu sahifada davom etadi (sahifa qayta yuklanmaydi); mavzu o'qish rejimida bo'lsa,
 test odatdagidek yopiq turadi. Taqdimot ko'rilayotganda (va portal, fan sahifasida) **topbarda chapdan ikkita tugma** turadi:
-«🔑 Kirish» (hisobi bor) va «🎓 Ro'yxatdan o'tish» (yangi) — mos yorliqli oyna ochiladi; kirgach ikkalasi yo'qoladi.
+«🔑 Kirish» (hisobi bor) va «🎓 Ro'yxatdan o'tish» (yangi) — mos yorliqli oyna ochiladi; kirgach ikkalasi yo'qoladi. O'qituvchida (talaba profilisiz) o'rniga «🎓 Talaba hisobi» tugmasi turadi — talaba sifatida kirish/ro'yxatdan o'tish uchun.
 
 **➕ Yangi fan qo'shish:** (1) `config.json` → `courses` ga `{id, icon, title, desc, first}` qo'shing — `first` shu fanning mavzular
 sahifasi (`tadbirkorlik-asoslari.html` ning nusxasi, masalan `yangi-fan.html`); (2) shu fanning mavzularini `topics` ga qo'shing
