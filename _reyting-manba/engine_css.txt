@@ -768,6 +768,21 @@ body.rt-ro .qt-start::after,body.rt-ro .xw-start::after,body.rt-ro .ms-start::af
 .rt-acc-ro{margin:0 0 8px;padding:8px 12px;border:1px dashed #d97706;border-radius:10px;background:rgba(245,158,11,.1);font-size:13.5px}
 body.rt-ro #btnPrint{display:none!important}
 @media print{body.rt-ro{display:none!important}}
+/* 🛠 texnik ishlar: o'qituvchidan boshqa hamma uchun sahifa o'rniga yopiq ekran */
+html.rt-maint-pre body>*:not(#rtMaint){visibility:hidden}
+body.rt-maint{overflow:hidden}
+body.rt-maint>*:not(#rtMaint):not(.rt-ov):not(.rt-toast){display:none!important}
+body.rt-maint .rt-ov{z-index:330}
+.rt-gate.rt-maint{z-index:300;text-align:center}
+.rt-maint-box{max-width:520px}
+.rt-maint-ic{font-size:64px;line-height:1}
+.rt-maint-box h2{margin:10px 0 6px}
+.rt-maint-box p{margin:0 0 16px;font-size:16px;line-height:1.55;color:var(--ink2)}
+.rt-maint-btns{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.rt-maint-tc{margin-top:22px;text-align:left;font-size:14px}
+.rt-maint-tc summary{cursor:pointer;color:var(--muted);text-align:center;list-style:none}
+.rt-maint-tc[open] summary{margin-bottom:10px}
+@media print{body.rt-maint #rtMaint{display:grid!important;position:static}}
 /* 🔒 yopiq mavzu: chop etilsa slaydlar chiqmaydi, faqat izoh (Ctrl+P, «📥 PDF», «Saqlash — PDF») */
 @media print{body.rt-locked>*{display:none!important}
   body.rt-locked::before{content:var(--rt-lock-msg,"🔒");display:block;padding:60px 40px;font:700 22px/1.5 system-ui,sans-serif;text-align:center;color:#111}}

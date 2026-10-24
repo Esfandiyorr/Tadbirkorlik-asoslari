@@ -276,6 +276,8 @@ function tcAuthStart(){
 function tcAuthRedraw(){
   var box=document.getElementById("rtTc");
   if(box){ box.dataset.on=""; renderTc(); }
+  var mb=document.getElementById("rtMaintTc"); if(mb&&!isTc) renderTcGoogle(mb);    /* «texnik ishlar» ekranidagi o'qituvchi kirishi */
+  maintApply();
 }
 /* shu qurilmada o'qituvchi avval kirgan bo'lsa, sahifa ochilganda holatini tiklaymiz */
 function tcRestore(){ try{ if(fbOn()&&localStorage.getItem(TCG)==="1") tcAuthStart(); }catch(e){} }
@@ -4438,7 +4440,7 @@ function accModal(x){
   g.onclick=function(e){ if(e.target===g||(e.target.classList&&e.target.classList.contains("rt-accx"))) g.remove(); };
 }
 /* talaba qulflangan mavzuda slaydlarni klaviatura bilan varaqlay olmasin */
-window.addEventListener("keydown",function(e){ if(LOCKED&&!(e.target&&/INPUT|TEXTAREA|SELECT/.test(e.target.tagName))) e.stopPropagation(); },true);
+window.addEventListener("keydown",function(e){ if((LOCKED||document.body.classList.contains("rt-maint"))&&!(e.target&&/INPUT|TEXTAREA|SELECT/.test(e.target.tagName))) e.stopPropagation(); },true);
 
 /* --- o'qituvchi paneli --- */
 function accTcRender(okl){
@@ -5467,7 +5469,9 @@ function pdfBtn(){
   b.onclick=function(e){ if(e) e.preventDefault(); var a=document.createElement("a"); a.href=me.pdf; a.setAttribute("download",""); document.body.appendChild(a); a.click(); a.remove(); };
 }
 function boot(){
-  if(booted) return; booted=true;
+  if(booted) return;
+  if(maintOn()){ MAINT_HELD=true; maintApply(); return; }     /* 🛠 texnik ishlar: o'qituvchidan boshqaga hech narsa ishga tushmaydi (ball, vaqt, chat) */
+  booted=true;
   khBanner(); pdfBtn(); tbBgLoad();
   var w=null; try{ w=sessionStorage.getItem("terdu_wiped"); sessionStorage.removeItem("terdu_wiped"); }catch(e){}
   if(w) toast(w==="reset"
@@ -5484,6 +5488,30 @@ function boot(){
     });
   });
 }
+/* ---------- 🛠 texnik ishlar: config.json «maintenance.on» — o'qituvchidan boshqa hamma (talaba ham, mehmon ham) shu ekranni ko'radi ---------- */
+var MAINT_HELD=false;
+function maintOn(){ var m=CFG.maintenance; return !!(m&&m.on)&&!tcHere(); }
+function maintApply(){
+  if(!document.body) return;
+  var on=maintOn(), g=document.getElementById("rtMaint");
+  document.documentElement.classList.remove("rt-maint-pre");
+  document.body.classList.toggle("rt-maint",on);
+  if(!on){ if(g) g.remove(); if(MAINT_HELD){ var h=MAINT_HELD; MAINT_HELD=false; if(h==="connect") connect(); else boot(); } return; }
+  splash(false);
+  if(!g){ g=el('<div class="rt-gate rt-maint" id="rtMaint"></div>'); document.body.appendChild(g); }
+  var m=CFG.maintenance||{};
+  g.innerHTML='<div class="rt-box rt-maint-box"><div class="rt-maint-ic">🛠</div><h2>'+T("Texnik ishlar ketyapti","Technical work in progress")+'</h2>'+
+    '<p>'+esc(T(m.uz||"Taqdimotlar vaqtincha yopilgan. Ish tugagach sayt yana ochiladi — iltimos, keyinroq qayta kiring.",
+      m.en||"The presentations are temporarily closed. The site will reopen when the work is done — please come back later."))+'</p>'+
+    '<div class="rt-maint-btns"><button type="button" class="btn accent" id="rtMaintRe">🔄 '+T("Qayta tekshirish","Check again")+'</button>'+
+    (CFG.teacherTg?'<a class="btn" href="'+esc(CFG.teacherTg)+'" target="_blank" rel="noopener">🙋 '+T("O'qituvchiga yozish","Message the teacher")+'</a>':'')+
+    '<button type="button" class="btn" id="rtMaintLg">🌐 '+T("ENG","UZ")+'</button></div>'+
+    (fbOn()?'<details class="rt-maint-tc" id="rtMaintD"><summary>🔑 '+T("O'qituvchi","Teacher")+'</summary><div id="rtMaintTc"></div></details>':'')+'</div>';
+  document.getElementById("rtMaintRe").onclick=function(){ location.reload(); };
+  document.getElementById("rtMaintLg").onclick=function(){ var lb=document.getElementById("btnLang"); if(lb) lb.click(); setTimeout(maintApply,80); };
+  var d=document.getElementById("rtMaintD");
+  if(d) d.addEventListener("toggle",function(){ if(d.open) renderTcGoogle(document.getElementById("rtMaintTc")); });
+}
 /* yuklanish ekrani: sahifa tayyor bo'lguncha (va kerakli mavzuga o'tilayotganda) bitta bir xil ekran */
 function splash(on,msg){
   var d=document.getElementById("rtSplash");
@@ -5497,6 +5525,8 @@ function splash(on,msg){
 var BOOTED_ONCE=false;
 function bootOnce(){ if(BOOTED_ONCE) return; BOOTED_ONCE=true; splash(false); boot(); }
 function connect(){
+  maintApply();
+  if(maintOn()){ MAINT_HELD="connect"; splash(false); return; }       /* o'qituvchi kirgach shu yerdan davom etadi */
   splash(true);
   setTimeout(bootOnce,9000);
   cloudInit(function(ok){
