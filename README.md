@@ -9,7 +9,7 @@ boshqaradi (mavzuni ochish, baholash, e'lon, jonli test).
 **[`index.html`](index.html) — portal (saytning bosh sahifasi):** havolaga kirgan har kim avval shuni ko'radi —
 **ℹ️ «Bu sayt haqida»** (nima ekani, TerDU, o'qituvchi), **🎯 «Nima maqsadda ochilgan»**, 🧩 saytda nimalar borligi,
 🚀 qanday foydalanish va **📚 «Fanlar»** ro'yxati (hozir — «Tadbirkorlik asoslari»; kelajakda qo'shiladigan fanlar ham shu
-yerda chiqadi, o'qish uchun fanni tanlaysiz). Mehmonga «Bu sayt haqida» ochiq turadi, ro'yxatdan o'tgan talabaga yig'iq.
+yerda chiqadi, o'qish uchun fanni tanlaysiz). Bu ma'lumotlar faqat **hisobsiz kirganlar** uchun chiqadi; hisobi bor talaba (va o'qituvchi) portalda faqat **fan nomini** ko'radi — bossa mavzular ochiladi.
 
 **[`tadbirkorlik-asoslari.html`](tadbirkorlik-asoslari.html) — fan sahifasi:** fan tanlangach shu sahifa ochiladi —
 barcha mavzular kartochkalarda (🟢 ball beriladi · 📖 o'qish rejimi · 🔒 yopiq), tepada

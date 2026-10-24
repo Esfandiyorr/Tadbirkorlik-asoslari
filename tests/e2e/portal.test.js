@@ -77,14 +77,17 @@ const tools=p=>p.evaluate(()=>[...document.querySelectorAll(".topbar .tools > *"
   await S.goto(H.SITE+"/index.html"); await ready(S);
   const s=await S.evaluate(()=>({open:document.getElementById("hmAbout").open,au:document.getElementById("hmAuth").innerText.replace(/\s+/g," "),cta:document.getElementById("hmCta").innerText.trim(),
     reg:!!document.getElementById("rtReg"),chip:document.getElementById("rtChip").innerText.replace(/\s+/g," "),tools:[...document.querySelectorAll(".topbar .tools > *")].map(e=>e.id),
-    c:document.querySelector(".pt-course").innerText.replace(/\s+/g," ")}));
-  ck("talaba: «Bu sayt haqida» yig'iq; ism/ball/guruh sahifada takrorlanmaydi (topbarda bor), mehmon bloki yo'q",!s.open&&s.au===""&&s.cta==="",JSON.stringify(s).slice(0,200));
+    c:document.querySelector(".pt-course").textContent.replace(/\s+/g," ")}));
+  const pvis=await S.evaluate(()=>{ const v=e=>{ if(!e) return false; const r=e.getBoundingClientRect(); return getComputedStyle(e).display!=="none"&&r.height>0; };
+    return {hero:v(document.querySelector(".hm-hero")),about:v(document.getElementById("hmAbout")),soon:v(document.querySelector(".pt-soon")),arena:v(document.querySelector(".hm-arena")),
+      card:v(document.querySelector(".pt-course")),title:document.querySelector(".pt-course b").innerText,desc:v(document.querySelector(".pt-ct small")),meta:v(document.querySelector(".pt-meta"))}; });
+  ck("talaba: sayt haqida, hero, izoh, arena bloki yo'q — faqat fan nomi kartochkasi («Tadbirkorlik asoslari»)",!pvis.hero&&!pvis.about&&!pvis.soon&&!pvis.arena&&!pvis.desc&&!pvis.meta&&pvis.card&&pvis.title==="Tadbirkorlik asoslari",JSON.stringify(pvis));
+  await S.screenshot({path:"portal_student.png"});
+  ck("talaba: ism/ball/guruh sahifada takrorlanmaydi (topbarda bor), mehmon bloki yo'q",s.au===""&&s.cta==="",JSON.stringify(s).slice(0,200));
   ck("talaba: topbarda «Ro'yxatdan o'tish» yo'q, ism va ball, «Savol va takliflar» birinchi",!s.reg&&/Isfandiyor/.test(s.chip)&&s.tools[0]==="rtAsk",JSON.stringify(s.tools));
   ck("talabaga kartochkada «Bu hafta ball beradi: 6-mavzu»",/Bu hafta ball beradi: 6-mavzu/.test(s.c),s.c);
-  await S.click("#hmAbout summary"); await sleep(300);
-  ck("«Bu sayt haqida» ni bosib ochish mumkin va u o'zi yopilib qolmaydi (60 soniyalik yangilanishda)",await S.evaluate(()=>document.getElementById("hmAbout").open));
-  await S.click("#btnLang"); await sleep(500); await S.click("#btnLang"); await sleep(500);   /* til almashganda sahifa qayta chiziladi */
-  ck("qayta chizilganda ochiq qolgan blok yopilib ketmaydi",await S.evaluate(()=>document.getElementById("hmAbout").open));
+  await S.click(".pt-course"); await S.waitForURL(/tadbirkorlik-asoslari\.html/); await ready(S);
+  ck("talaba fan nomini bossa — mavzular chiqadi (15 kartochka)",await S.evaluate(()=>document.querySelectorAll(".hm-card").length===15));
   await S.context().close();
   /* 5) o'qituvchi */
   const T=await H.mk(b,null,{tc:true});
@@ -101,7 +104,7 @@ const tools=p=>p.evaluate(()=>[...document.querySelectorAll(".topbar .tools > *"
       x.topics.forEach(function(t,i){ if(i>=2) t.course="biznes-reja"; }); }
     v=x; }}); });
   await X.goto(H.SITE+"/index.html"); await ready(X);
-  const xc=await X.evaluate(()=>[...document.querySelectorAll(".pt-course")].map(c=>c.querySelector("b").innerText+"|"+c.getAttribute("href")+"|"+(c.innerText.match(/(\d+) ta mavzu/)||[])[1]));
+  const xc=await X.evaluate(()=>[...document.querySelectorAll(".pt-course")].map(c=>c.querySelector("b").innerText+"|"+c.getAttribute("href")+"|"+(c.textContent.match(/(\d+) ta mavzu/)||[])[1]));
   ck("yangi fan portal ro'yxatida chiqadi, mavzular fanlarga bo'lingan (2 + 13)",xc.length===2&&xc[0]==="Tadbirkorlik asoslari|tadbirkorlik-asoslari.html|2"&&xc[1]==="Biznes rejalashtirish|mavzu-3.html|13",JSON.stringify(xc));
   await X.goto(H.SITE+"/tadbirkorlik-asoslari.html"); await ready(X);
   ck("birinchi fan sahifasida faqat o'z 2 ta mavzusi",await X.evaluate(()=>document.querySelectorAll(".hm-card").length===2));
