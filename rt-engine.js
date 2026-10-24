@@ -4223,7 +4223,7 @@ function homeArena(){
 function portalRender(){
   var au=document.getElementById("hmAuth"), cb=document.getElementById("hmCourses"), cta=document.getElementById("hmCta"); if(!au||!cb) return;
   var cs=CFG.courses||[], tcv=tcHere()&&!S, now=Date.now(), gst=!S&&!tcv;
-  var ab=document.getElementById("hmAbout"); if(ab&&!ab.dataset.set){ ab.dataset.set="1"; if(!gst) ab.open=false; }   /* mehmonga ochiq, o'z talabaga yig'iq */
+  document.documentElement.classList.toggle("pt-mini",!gst);      /* hisobi bor talaba (va o'qituvchi): sayt haqida ma'lumot yo'q, faqat fan nomi; hisobsizga — hammasi */
   au.innerHTML=tcv?'<div class="hm-week tc hm-auth">👨‍🏫 '+T("O'qituvchi ko'rinishi. Fanni tanlab, mavzularni talabalar uchun ochishingiz mumkin.","Teacher view. Choose a course to open its topics for students.")+'</div>'
     :'';
   if(cta) cta.innerHTML=gst?'<div class="hm-week hm-guest hm-cta"><b class="hm-wk-h">🔑 '+T("Test ishlamoqchimisiz?","Want to take the tests?")+'</b>'+
