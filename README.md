@@ -63,6 +63,14 @@ va har biriga `"course": "<fan id>"` yozing (yozilmasa — birinchi fan); (3) `i
 (`home='course'`) qo'shing; (4) `python3 _reyting-manba/inject.py`. Portal fanni o'zi ro'yxatga oladi (mavzular soni, «bu hafta ball
 beradi» belgisi), mavzular ro'yxati va raqamlash fan ichida bo'ladi.
 
+**🛠 Texnik ishlar rejimi (saytni vaqtincha yopish):** `config.json` → `"maintenance": {"on": true, "uz": "…", "en": "…"}`.
+Yoqilganda **o'qituvchidan boshqa hamma** (talaba ham, mehmon ham) har bir sahifada (portal, fan sahifasi, taqdimotlar)
+«🛠 Texnik ishlar ketyapti» ekranini ko'radi — `uz`/`en` matni shu yerda chiqadi; ball, vaqt va chat ishga tushmaydi, bazaga
+hech narsa yozilmaydi, chop etilmaydi. O'qituvchi ekrandagi «🔑 O'qituvchi» orqali Google bilan kirsa (yoki shu qurilmada avval kirgan bo'lsa)
+ekran yo'qoladi va sayt odatdagidek ishlaydi. Yoqish/o'chirish: `on` ni `true`/`false` qilib `python3 _reyting-manba/inject.py`, so'ng push.
+Sahifasi allaqachon ochiq turgan talabaga o'zgarish keyingi yangilanishda (sahifani qayta ochganda) ko'rinadi. O'yin arenasi (`arena.html`)
+alohida: uni yopish uchun u yerdagi `ARENA_OPEN=false`.
+
 **🔗 Havola nomi va logo:** saytning havolasi Telegram, WhatsApp, Facebook va boshqalarga yuborilganda nomi
 **«IsfandiyorSayfiddinov»**, rasmi — yangi logo: TerDU gerbi + Isfandiyor Sayfiddinov
 (`fayllar/havola-isfandiyor.jpg`, 1200×630, 300 KB dan kichik; kvadrat variant — `fayllar/logo-isfandiyor.png`).
@@ -323,7 +331,7 @@ O'qituvchi e'lon yuborganda, bildirishnomani yoqqan talabalar telefoniga xabar k
 ## 🧪 Avtomatik sinovlar (GitHub Actions)
 
 `tests/` papkasida brauzer sinovlari bor (Playwright, Chromium). Ular haqiqiy sahifalarni soxta (xotiradagi)
-Firebase bilan ochib tekshiradi: portal va fanlar ro'yxati, yopiq mavzularning mehmonga ham yopiqligi, mehmon rejimi (hisobsiz o'qish, topbarda Kirish/Ro'yxatdan o'tish, test uchun kirish), havola nomi va rasmi,
+Firebase bilan ochib tekshiradi: portal va fanlar ro'yxati, texnik ishlar rejimi, yopiq mavzularning mehmonga ham yopiqligi, mehmon rejimi (hisobsiz o'qish, topbarda Kirish/Ro'yxatdan o'tish, test uchun kirish), havola nomi va rasmi,
 kirish va yo'naltirish, o'qish rejimi va ball muddati, «Menga nima qoldi?»,
 reyting (guruh filtri, nik, qator foni), o'qituvchi paneli (baholash, alifbo, mavzu ochish, push), chat;
 shuningdek bildirishnoma Worker'ining eslatma mantiqi (haqiqiy shifrlash bilan).

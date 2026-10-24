@@ -22,7 +22,15 @@ function build(){
   if(s.indexOf(a)<0||s.indexOf(b)<0) throw new Error("rt-engine.js: o'qituvchi taqlidi uchun qator topilmadi");
   s=s.replace(a,'var tcList=[], isTc=!!window.__TT;')
      .replace(b,'var FBV="10.12.2", FB_AUTH=null, fbWaiters=null, TC_USER=window.__TT?{email:"t@t.uz",getIdToken:function(){return Promise.resolve("tok");}}:null;');
+  const c='function tcHere(){ if(isTc) return true;';
+  if(s.indexOf(c)<0) throw new Error("rt-engine.js: tcHere topilmadi");
+  s=s.replace(c,'function tcHere(){ if(isTc||window.__TT2) return true;');      /* sinov: o'qituvchi keyinroq kirganini taqlid qilish */
   fs.writeFileSync(p,s);
+  /* config.json da «texnik ishlar» yoqilgan bo'lishi mumkin — oddiy sinovlar uchun nusxada o'chiramiz (alohida sinov uni o'zi yoqadi) */
+  for(const n of fs.readdirSync(OUT)) if(/\.html$/i.test(n)){
+    const q=path.join(OUT,n), h=fs.readFileSync(q,"utf8"), h2=h.replace(/"maintenance": \{"on": true/g,'"maintenance": {"on": false');
+    if(h2!==h) fs.writeFileSync(q,h2);
+  }
   return OUT;
 }
 module.exports={build,OUT,ROOT};

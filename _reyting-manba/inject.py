@@ -133,9 +133,9 @@ def inject(fn,meta):
              # Google orqali kirish yoqilgan bo'lsa, parol sahifaga umuman yozilmaydi
              teacher='' if google else CONF.get('teacher',''),
              firebase=CONF.get('firebase'),topics=CONF['topics'],
-             teacherTg=CONF.get('teacherTg',''),teacherName=CONF.get('teacherName',''),reopen=CONF.get('reopen',{}),pwaMsg=CONF.get('pwaMsg',''),courses=CONF.get('courses',[]),groups=CONF.get('groups',[]),groupRenames=CONF.get('groupRenames',{}),hideRating=CONF.get('hideRating',[]),
+             teacherTg=CONF.get('teacherTg',''),teacherName=CONF.get('teacherName',''),reopen=CONF.get('reopen',{}),pwaMsg=CONF.get('pwaMsg',''),courses=CONF.get('courses',[]),maintenance=CONF.get('maintenance') or None,groups=CONF.get('groups',[]),groupRenames=CONF.get('groupRenames',{}),hideRating=CONF.get('hideRating',[]),
              tracks=CONF.get('tracks',[]),fbWeb=fbWeb if google else None,teacherH=teacherH if google else '')
-    block=(HB+'\n<script>var RT_CFG='+json.dumps(cfg,ensure_ascii=False)+';</script>\n'
+    block=(HB+'\n<script>var RT_CFG='+json.dumps(cfg,ensure_ascii=False)+';if(RT_CFG.maintenance&&RT_CFG.maintenance.on)document.documentElement.className+=" rt-maint-pre";</script>\n'
            '<script src="rt-engine.js?v='+VER['rt-engine.js']+'"></script>\n'+HE+'\n')
     i=s.rindex('<script>')          # taqdimotning asosiy skripti
     s=s[:i]+block+s[i:]
