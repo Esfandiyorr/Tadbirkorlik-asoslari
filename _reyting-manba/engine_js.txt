@@ -1169,7 +1169,14 @@ function guestOff(){
 function guestChipSet(c){
   if(!c) return;
   var rg=document.getElementById("rtReg");
-  if(tcHere()){ if(rg) rg.remove(); c.classList.remove("rt-guestbtn"); c.innerHTML='<i class="tb-ic a-shine">🏆</i> <b>'+T("Reyting","Rating")+'</b>'; c.onclick=openOv; c.title=T("Reyting va o'qituvchi bo'limi","Rating and the teacher panel"); return; }
+  if(tcHere()){      /* o'qituvchi: 🏆 Reyting + «🎓 Talaba hisobi» (talaba sifatida kirish yoki ro'yxatdan o'tish — sinash uchun) */
+    c.classList.remove("rt-guestbtn"); c.innerHTML='<i class="tb-ic a-shine">🏆</i> <b>'+T("Reyting","Rating")+'</b>'; c.onclick=openOv; c.title=T("Reyting va o'qituvchi bo'limi","Rating and the teacher panel");
+    if(!rg){ rg=el('<button type="button" class="rt-chip rt-guestreg" id="rtReg"></button>'); }
+    rg.title=T("Talaba sifatida kirish yoki ro'yxatdan o'tish (sinab ko'rish uchun)","Log in or register as a student (to try it out)");
+    rg.innerHTML='<i class="tb-ic a-bob">🎓</i> <b>'+T("Talaba hisobi","Student account")+'</b>';
+    rg.onclick=function(){ authOpen(T("Talaba sifatida kiring yoki ro'yxatdan o'ting (o'qituvchi ko'rinishi talaba hisobi bilan almashadi).","Log in or register as a student (the teacher view switches to the student account)."),"log"); };
+    if(c.parentNode) c.parentNode.insertBefore(rg,c.nextSibling);
+    return; }
   c.classList.add("rt-guestbtn"); c.title=T("Hisobingiz bor bo'lsa — kiring","Already have an account? Log in");
   c.innerHTML='<i class="tb-ic a-wiggle">🔑</i> <b>'+T("Kirish","Log in")+'</b>';
   c.onclick=function(){ authOpen(T("Ball to'plash, test ishlash va reytingda qatnashish uchun hisobingizga kiring.","Log in to earn points, take tests and join the rating."),"log"); };
