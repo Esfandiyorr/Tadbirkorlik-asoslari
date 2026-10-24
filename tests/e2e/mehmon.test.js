@@ -10,11 +10,12 @@ const slideWith=(p,sel)=>p.evaluate(sel=>{ const s=[...document.querySelectorAll
   const before=JSON.stringify(H.dbGet("students"));
   /* 1) fan sahifasi */
   const G=await H.mk(b,null,{});
-  await G.goto(H.SITE+"/index.html"); await ready(G);
+  await G.goto(H.SITE+"/tadbirkorlik-asoslari.html"); await ready(G);
   ck("fan sahifasi: majburiy ro'yxatdan o'tish oynasi yo'q",!(await G.$("#rtGate"))&&!(await G.$("#rtWait")));
   const hs=await G.evaluate(()=>({chip:document.getElementById("rtChip").innerText.replace(/\s+/g," "),cls:document.getElementById("rtChip").className,guest:!!document.querySelector(".hm-guest"),
     cards:[...document.querySelectorAll(".hm-card")].map(c=>c.dataset.t+":"+(c.classList.contains("score")?"s":c.classList.contains("read")?"r":"l")+":"+(c.tagName==="A"?"a":"-")).join(" ")}));
   ck("topbarda «🔑 Kirish» (🏆 emas), «Xush kelibsiz» bloki",/Kirish/.test(hs.chip)&&/rt-guestbtn/.test(hs.cls)&&hs.guest,JSON.stringify(hs));
+  ck("topbarda «🎓 Ro'yxatdan o'tish» ham bor (Kirish bilan yonma-yon, chapdan birinchi)",await G.evaluate(()=>{ const t=[...document.querySelectorAll(".topbar .tools > *")].map(e=>e.id); return t[0]==="rtChip"&&t[1]==="rtReg"&&/Ro'yxatdan o'tish/.test(document.getElementById("rtReg").innerText); }));
   ck("1–5 mavzu 📖 bosiladigan, qolganlari 🔒",hs.cards==="m1:r:a m2:r:a m3:r:a m4:r:a m5:r:a m6:l:- m7:l:- m8:l:- m9:l:- m10:l:- m11:l:- m12:l:- m13:l:- m14:l:- m15:l:-",hs.cards);
   ck("chat va reyting mehmonga ko'rinmaydi",!(await G.$("#chTab"))&&!(await G.$("#hmTop")));
   await G.evaluate(()=>document.getElementById("hmReg").click()); await sleep(500);
@@ -47,6 +48,7 @@ const slideWith=(p,sel)=>p.evaluate(sel=>{ const s=[...document.querySelectorAll
   H.dbSet("students/"+ids[0]+"/status","ok"); await G.click("#rtChk"); await sleep(2500);
   const st=await G.evaluate(()=>({chip:document.getElementById("rtChip").innerText.replace(/\s+/g," "),student:RT.student()&&RT.student().name,ok:RT.ok(),wait:!!document.getElementById("rtWait")}));
   ck("tasdiqlangach: ism topbarda, o'qish rejimi (1-mavzu), test endi «kirish» so'ramaydi",/Zafar/.test(st.chip)&&st.ok&&!st.wait,JSON.stringify(st));
+  ck("kirgach topbardagi «Ro'yxatdan o'tish» yo'qoladi, «Savol va takliflar» yana birinchi",await G.evaluate(()=>!document.getElementById("rtReg")&&document.querySelector(".topbar .tools > *").id==="rtAsk"&&!document.getElementById("rtChip").classList.contains("rt-guestbtn")),await G.evaluate(()=>[...document.querySelectorAll(".topbar .tools > *")].map(e=>e.id).join(",")));
   await G.evaluate(i=>{ location.hash="#"+i; },tIdx); await sleep(700);
   const af=await G.evaluate(()=>({btn:(()=>{ const g=document.getElementById("qtGo"); return !g||getComputedStyle(g).display==="none"; })(),ro:!!document.getElementById("rtRO"),guest:document.body.classList.contains("rt-guest")}));
   ck("hisobli talabada 1-mavzu o'qish rejimida: test tugmasi yashirin (mehmon izohi yo'q), kirish oynasi ochilmaydi",af.btn&&af.ro&&!af.guest&&!(await G.$("#rtGate")),JSON.stringify(af));

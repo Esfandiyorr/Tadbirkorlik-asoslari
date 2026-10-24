@@ -22,5 +22,8 @@ for(const f of pages){
 }
 const topics=pages.filter(f=>/^mavzu-\d+\.html$/.test(f));
 ck("mavzu sahifalarida tavsif «N-mavzu: …»",topics.every(f=>{ const n=+f.match(/\d+/)[0]; return meta(fs.readFileSync(path.join(ROOT,f),"utf8"),"og:description")[0].indexOf(n+"-mavzu: ")===0; }));
-ck("fan sahifasining brauzer sarlavhasi ham «IsfandiyorSayfiddinov — …»",/<title>IsfandiyorSayfiddinov — /.test(fs.readFileSync(path.join(ROOT,"index.html"),"utf8")));
+ck("portalning (index.html) brauzer sarlavhasi ham «IsfandiyorSayfiddinov — …»",/<title>IsfandiyorSayfiddinov — /.test(fs.readFileSync(path.join(ROOT,"index.html"),"utf8")));
+const ph=fs.readFileSync(path.join(ROOT,"index.html"),"utf8"), ch=fs.readFileSync(path.join(ROOT,"tadbirkorlik-asoslari.html"),"utf8");
+ck("havola tavsifi: portalda sayt va fan nomi («Fan: Tadbirkorlik asoslari»), fan sahifasida — fan",/o'quv platformasi/.test(meta(ph,"og:description")[0])&&/Fan: Tadbirkorlik asoslari/.test(meta(ph,"og:description")[0])&&/^Tadbirkorlik asoslari fani/.test(meta(ch,"og:description")[0]),meta(ph,"og:description")[0]);
+ck("og:url: portal — sayt bosh manzili, fan sahifasi — o'z manzili",meta(ph,"og:url")[0]===cfg.siteUrl&&meta(ch,"og:url")[0]===cfg.siteUrl+"tadbirkorlik-asoslari.html");
 console.log("FAILS:",fails);

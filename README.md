@@ -6,9 +6,14 @@ Sayt — 15 ta interaktiv taqdimot, ball va reyting tizimi, talabalar chati, o'y
 Istagan kishi taqdimotlarni o'qiydi; talaba ro'yxatdan o'tadi, testni ishlaydi va ball to'playdi; o'qituvchi hammasini panel orqali
 boshqaradi (mavzuni ochish, baholash, e'lon, jonli test).
 
-**[`index.html`](index.html) — fan sahifasi «Tadbirkorlik asoslari»:** saytga kirgan har kim avval shu sahifani
-ko'radi — barcha mavzular kartochkalarda (🟢 ball beriladi · 📖 o'qish rejimi · 🔒 yopiq), tepada
-«⏳ Bu hafta ball beradigan mavzu …, yakshanba 23:59 gacha» eslatmasi, ballari va reyting. Mavzuni o'zi tanlaydi.
+**[`index.html`](index.html) — portal (saytning bosh sahifasi):** havolaga kirgan har kim avval shuni ko'radi —
+**ℹ️ «Bu sayt haqida»** (nima ekani, TerDU, o'qituvchi), **🎯 «Nima maqsadda ochilgan»**, 🧩 saytda nimalar borligi,
+🚀 qanday foydalanish va **📚 «Fanlar»** ro'yxati (hozir — «Tadbirkorlik asoslari»; kelajakda qo'shiladigan fanlar ham shu
+yerda chiqadi, o'qish uchun fanni tanlaysiz). Mehmonga «Bu sayt haqida» ochiq turadi, ro'yxatdan o'tgan talabaga yig'iq.
+
+**[`tadbirkorlik-asoslari.html`](tadbirkorlik-asoslari.html) — fan sahifasi:** fan tanlangach shu sahifa ochiladi —
+barcha mavzular kartochkalarda (🟢 ball beriladi · 📖 o'qish rejimi · 🔒 yopiq), tepada
+«⏳ Bu hafta ball beradigan mavzu …, yakshanba 23:59 gacha» eslatmasi, ballari va reyting; «← Barcha fanlar» portalga qaytaradi.
 **Ro'yxatdan o'tish shart emas** — pastdagi «👀 Mehmon rejimi» ga qarang.
 
 | Fayl | Mavzu | Hajmi | Holati |
@@ -34,9 +39,10 @@ ko'radi — barcha mavzular kartochkalarda (🟢 ball beriladi · 📖 o'qish re
 
 ## Ishga tushirish
 
-Sayt GitHub Pages orqali ishlaydi — talabalarga bosh sahifa havolasi yuboriladi. U **fan sahifasini** (`index.html`)
-ochadi: mavzular ro'yxati va holati; talaba 🟢 mavzuga kirib ishlaydi (ball), 📖 mavzuni o'qiydi. Avtomatik boshqa
-sahifaga o'tish yo'q. Har bir taqdimotda mavzular ro'yxatida va logotipda «🏠 Fan sahifasi» havolasi bor.
+Sayt GitHub Pages orqali ishlaydi — talabalarga bosh sahifa havolasi yuboriladi. U **portalni** (`index.html`) ochadi:
+sayt haqida, maqsad va fanlar; fanni tanlagach — **fan sahifasi** (mavzular ro'yxati va holati): talaba 🟢 mavzuga kirib ishlaydi (ball),
+📖 mavzuni o'qiydi. Avtomatik boshqa sahifaga o'tish yo'q. Har bir taqdimotda mavzular ro'yxatida «🏠 Fan sahifasi» va
+«🌐 Barcha fanlar» havolalari bor; logotip — fan sahifasiga olib boradi.
 Eski «index.html#5» havolalari 1-mavzuning shu slaydini ochadi (`mavzu-1.html#5`).
 Ball, reyting va chat uchun internet kerak (Firebase Realtime Database).
 
@@ -46,7 +52,14 @@ mavzu mehmonga ham yopiq («hali ochilmagan»). Mehmon uchun: ball hisoblanmaydi
 chat va reyting ko'rinmaydi. **Testni, krossvordni yoki masalalarni boshlash** tugmasi bosilsa, yopiladigan oyna chiqadi —
 «Testni ishlash va ball olish uchun hisobingizga kiring yoki ro'yxatdan o'ting» (Kirish / Ro'yxatdan o'tish yorliqlari,
 o'qituvchi uchun ham havola). Kirgach shu sahifada davom etadi (sahifa qayta yuklanmaydi); mavzu o'qish rejimida bo'lsa,
-test odatdagidek yopiq turadi. Topbardagi 🏆 o'rniga mehmonda «🔑 Kirish» tugmasi turadi.
+test odatdagidek yopiq turadi. Taqdimot ko'rilayotganda (va portal, fan sahifasida) **topbarda chapdan ikkita tugma** turadi:
+«🔑 Kirish» (hisobi bor) va «🎓 Ro'yxatdan o'tish» (yangi) — mos yorliqli oyna ochiladi; kirgach ikkalasi yo'qoladi.
+
+**➕ Yangi fan qo'shish:** (1) `config.json` → `courses` ga `{id, icon, title, desc, first}` qo'shing — `first` shu fanning mavzular
+sahifasi (`tadbirkorlik-asoslari.html` ning nusxasi, masalan `yangi-fan.html`); (2) shu fanning mavzularini `topics` ga qo'shing
+va har biriga `"course": "<fan id>"` yozing (yozilmasa — birinchi fan); (3) `inject.py` dagi `DECKS` ga yangi mavzu sahifalarini va fan sahifasini
+(`home='course'`) qo'shing; (4) `python3 _reyting-manba/inject.py`. Portal fanni o'zi ro'yxatga oladi (mavzular soni, «bu hafta ball
+beradi» belgisi), mavzular ro'yxati va raqamlash fan ichida bo'ladi.
 
 **🔗 Havola nomi va logo:** saytning havolasi Telegram, WhatsApp, Facebook va boshqalarga yuborilganda nomi
 **«IsfandiyorSayfiddinov»**, rasmi — yangi logo: TerDU gerbi + Isfandiyor Sayfiddinov
@@ -273,7 +286,7 @@ ism, familiya va PIN bilan **🔑 Kirish** qiladi; ballari bazadan tiklanadi.
 
 O'qituvchi e'lon yuborganda, bildirishnomani yoqqan talabalar telefoniga xabar keladi (ilova yopiq bo'lsa ham).
 
-- **Talaba qayerdan yoqadi:** **fan sahifasida** (bosh sahifa) «🔔 E'lonlar telefoningizga kelsin → **Yoqish**» bloki,
+- **Talaba qayerdan yoqadi:** **portalda va fan sahifasida** «🔔 E'lonlar telefoningizga kelsin → **Yoqish**» bloki,
   yoki 🏆 → **«Mening ma'lumotim» → 🔔 Telefonga bildirishnoma** (doim turadi). Blok holatni ko'rsatadi: o'chiq / yoqilgan
   («🧪 Sinov» — telefon bildirishnomani ko'rsata olishini tekshiradi) / brauzerda bloklangan (qanday ochish:
   manzil satridagi 🔒 → Ruxsatlar → Bildirishnomalar; ilovada — telefon Sozlamalar → Ilovalar → TerDU → Bildirishnomalar) /
@@ -308,7 +321,7 @@ O'qituvchi e'lon yuborganda, bildirishnomani yoqqan talabalar telefoniga xabar k
 ## 🧪 Avtomatik sinovlar (GitHub Actions)
 
 `tests/` papkasida brauzer sinovlari bor (Playwright, Chromium). Ular haqiqiy sahifalarni soxta (xotiradagi)
-Firebase bilan ochib tekshiradi: mehmon rejimi (hisobsiz o'qish, test uchun kirish/ro'yxatdan o'tish), havola nomi va rasmi,
+Firebase bilan ochib tekshiradi: portal va fanlar ro'yxati, mehmon rejimi (hisobsiz o'qish, topbarda Kirish/Ro'yxatdan o'tish, test uchun kirish), havola nomi va rasmi,
 kirish va yo'naltirish, o'qish rejimi va ball muddati, «Menga nima qoldi?»,
 reyting (guruh filtri, nik, qator foni), o'qituvchi paneli (baholash, alifbo, mavzu ochish, push), chat;
 shuningdek bildirishnoma Worker'ining eslatma mantiqi (haqiqiy shifrlash bilan).

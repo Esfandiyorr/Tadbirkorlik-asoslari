@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="uz" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tadbirkorlik asoslari — TerDU</title>
+<meta name="description" content="Termiz davlat universiteti — «Tadbirkorlik asoslari» fani: 15 ta interaktiv mavzu, testlar, reyting va o'yin arenasi.">
+<script>
+try{ var th=localStorage.getItem("terdu_theme"); if(th) document.documentElement.setAttribute("data-theme",th);
+     if(localStorage.getItem("terdu_lang")==="en") document.documentElement.setAttribute("lang","en"); }catch(e){}
+</script>
+<style>
+/* ================== 🏠 FAN SAHIFASI — «Tadbirkorlik asoslari» ==================
+   Mavzular ro'yxati va holati (ball / o'qish rejimi / yopiq) reyting tizimi (rt-engine.js, homeRender) chizadi */
+:root{
+  --bg:#eef3fb; --bg2:#e6ecf9; --panel:#ffffff; --panel2:#f7f9fe;
+  --ink:#0d1b2a; --ink2:#1f2d3d; --muted:#5b6b82; --line:#e1e8f4; --shadow:0 18px 40px -18px rgba(13,27,42,.35);
+  --green:#12a150; --green2:#0b7a3c; --orange:#f97316; --amber:#f59e0b; --violet:#7c3aed; --pink:#ec4899;
+  --blue:#2563eb; --cyan:#0891b2; --red:#e11d48; --teal:#0d9488; --chip:#f1f5fd; --ok:#12a150; --err:#e11d48;
+}
+:root[data-theme="dark"]{
+  --bg:#080f1d; --bg2:#0d1728; --panel:#111b2e; --panel2:#0e1726;
+  --ink:#eaf1ff; --ink2:#dbe6fb; --muted:#9db0cd; --line:#22304c; --shadow:0 18px 44px -18px rgba(0,0,0,.75);
+  --green:#2ee07f; --green2:#12a150; --orange:#ff9d4d; --amber:#fbbf24; --violet:#a78bfa; --pink:#f472b6;
+  --blue:#60a5fa; --cyan:#22d3ee; --red:#fb7185; --teal:#2dd4bf; --chip:#17243c; --ok:#2ee07f; --err:#fb7185;
+}
+*{box-sizing:border-box}
+html{background:var(--bg2)}
+body{margin:0;color:var(--ink);font-family:"Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;min-height:100vh;
+  background:radial-gradient(1100px 600px at 8% -10%,rgba(18,161,80,.20),transparent 60%),radial-gradient(900px 520px at 100% 0%,rgba(124,58,237,.18),transparent 55%),
+    linear-gradient(160deg,var(--bg),var(--bg2));background-attachment:fixed;transition:background .4s ease,color .3s ease}
+.terdu-logo{background-image:url("logo_tersu.png");background-size:contain;background-position:center;background-repeat:no-repeat}
+:root[data-theme="dark"] .terdu-logo{background-color:#fff;border-radius:50%}
+.topbar{position:sticky;top:0;display:flex;align-items:center;gap:14px;padding:10px 18px;background:color-mix(in srgb,var(--panel) 82%,transparent);
+  backdrop-filter:blur(14px);border-bottom:1px solid var(--line);z-index:30}
+.brand{display:flex;align-items:center;gap:12px;min-width:0;color:inherit;text-decoration:none}
+.brand .logo{width:44px;height:44px;flex:0 0 auto;filter:drop-shadow(0 4px 8px rgba(0,0,0,.15))}
+.brand b{display:block;font-size:14px;line-height:1.15;letter-spacing:.2px}
+.brand span{display:block;font-size:12px;color:var(--muted)}
+.spacer{flex:1}
+.tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:12px;padding:8px 13px;
+  font:inherit;font-size:13.5px;font-weight:700;cursor:pointer;transition:transform .15s ease,box-shadow .15s ease;text-decoration:none}
+.btn:hover{transform:translateY(-2px);box-shadow:0 10px 22px -12px rgba(0,0,0,.5)}
+.btn.accent{background:linear-gradient(135deg,var(--green),var(--teal));color:#fff;border-color:transparent}
+.btn.ghost{background:transparent}
+#home{max-width:1180px;margin:0 auto;padding:22px 18px 60px}
+.hm-back{display:inline-flex;align-items:center;gap:6px;margin:0 0 12px;padding:6px 12px;border:1px solid var(--line);border-radius:999px;background:var(--panel);color:var(--ink);font-size:13.5px;font-weight:700;text-decoration:none}
+.hm-back:hover{border-color:var(--green)}
+.hm-hero{display:flex;align-items:center;gap:20px;padding:24px 26px;border-radius:24px;background:linear-gradient(135deg,#0a3605,#12a150 55%,#0d9488);color:#fff;
+  box-shadow:var(--shadow);position:relative;overflow:hidden}
+.hm-hero::after{content:"";position:absolute;right:-60px;top:-60px;width:260px;height:260px;border-radius:50%;background:rgba(255,255,255,.08)}
+.hm-logo{width:86px;height:86px;flex:0 0 auto;border-radius:50%;background-color:#fff;box-shadow:0 8px 22px rgba(0,0,0,.25)}
+.hm-hero small{display:block;font-size:13px;font-weight:700;opacity:.9;letter-spacing:.4px;text-transform:uppercase}
+.hm-hero h1{margin:4px 0 6px;font-size:34px;line-height:1.1}
+.hm-hero p{margin:0;font-size:15px;opacity:.95}
+#hmBody{margin-top:18px}
+.hm-load{color:var(--muted)}
+.hm-me{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 14px}
+.hm-hi{font-size:16px}
+.hm-pill{padding:6px 12px;border:1px solid var(--line);border-radius:999px;background:var(--panel);font-size:13.5px}
+.hm-top{margin-left:auto}
+.hm-week{margin:0 0 20px;padding:16px 18px;border-radius:20px;border:2px solid color-mix(in srgb,var(--green) 55%,transparent);
+  background:linear-gradient(135deg,color-mix(in srgb,var(--green) 14%,var(--panel)),var(--panel));box-shadow:var(--shadow)}
+.hm-week.none,.hm-week.tc{border-color:var(--line);background:var(--panel);box-shadow:none;font-size:14.5px;color:var(--ink2)}
+.hm-wk-h{display:block;margin-bottom:10px;font-size:16px}
+.hm-wk-i{display:flex;align-items:center;gap:14px;padding:12px 14px;margin-top:8px;border-radius:14px;background:var(--panel);border:1px solid var(--line);color:inherit;text-decoration:none;transition:transform .15s ease}
+.hm-wk-i:hover{transform:translateY(-2px)}
+.hm-wk-n{display:grid;place-items:center;width:42px;height:42px;flex:0 0 auto;border-radius:12px;background:linear-gradient(135deg,var(--green),var(--teal));color:#fff;font-weight:900;font-size:18px}
+.hm-wk-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.hm-wk-t small{color:var(--muted);font-size:13px}
+.hm-wk-go{padding:8px 14px;border-radius:12px;background:linear-gradient(135deg,var(--green),var(--teal));color:#fff;font-weight:800;font-size:14px;white-space:nowrap}
+.hm-h2{display:flex;align-items:baseline;gap:8px;margin:6px 0 12px;font-size:20px}
+.hm-h2 small{font-size:13px;color:var(--muted)}
+.hm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px}
+.hm-card{position:relative;display:flex;flex-direction:column;gap:6px;padding:16px 16px 14px;border-radius:18px;background:var(--panel);border:1.5px solid var(--line);
+  color:inherit;text-decoration:none;box-shadow:0 10px 26px -20px rgba(13,27,42,.45);transition:transform .15s ease,box-shadow .15s ease;min-height:150px}
+a.hm-card:hover{transform:translateY(-3px);box-shadow:0 18px 34px -20px rgba(13,27,42,.55)}
+.hm-card.score{border-color:color-mix(in srgb,var(--green) 70%,transparent);background:linear-gradient(160deg,color-mix(in srgb,var(--green) 10%,var(--panel)),var(--panel))}
+.hm-card.read{border-color:color-mix(in srgb,var(--amber) 45%,var(--line))}
+.hm-card.lock{opacity:.6}
+.hm-n{position:absolute;top:14px;right:14px;display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:var(--chip);font-weight:900;color:var(--muted)}
+.hm-card.score .hm-n{background:var(--green);color:#fff}
+.hm-st{font-size:12.5px;font-weight:800;color:var(--muted);padding-right:40px}
+.hm-card.score .hm-st{color:var(--green2)}
+:root[data-theme="dark"] .hm-card.score .hm-st{color:var(--green)}
+.hm-card.read .hm-st{color:#b45309}
+:root[data-theme="dark"] .hm-card.read .hm-st{color:var(--amber)}
+.hm-t{font-size:16px;line-height:1.3;padding-right:34px}
+.hm-sub{font-size:12.5px;color:var(--muted)}
+.hm-pr{display:block;height:6px;margin-top:4px;border-radius:6px;background:var(--line);overflow:hidden}
+.hm-pr i{display:block;height:100%;background:linear-gradient(90deg,var(--teal),var(--green))}
+.hm-pts{font-size:12px;color:var(--muted)}
+.hm-go{align-self:flex-start;margin-top:auto;padding:7px 13px;border-radius:11px;font-weight:800;font-size:13.5px;background:var(--chip);color:var(--ink)}
+.hm-card.score .hm-go{background:linear-gradient(135deg,var(--green),var(--teal));color:#fff}
+.hm-card.read .hm-go{background:color-mix(in srgb,var(--amber) 20%,var(--panel))}
+.hm-more{margin-top:20px}
+.hm-arena{display:flex;flex-direction:column;gap:4px;padding:16px 18px;border-radius:18px;background:linear-gradient(135deg,#7c3aed,#2563eb);color:#fff;text-decoration:none;box-shadow:var(--shadow)}
+.hm-arena b{font-size:16px}.hm-arena small{opacity:.9}
+.hm-foot{margin-top:26px;text-align:center;color:var(--muted);font-size:12.5px}
+@media(max-width:640px){
+  #home{padding:14px 12px 50px}
+  .hm-hero{padding:18px;gap:14px}.hm-logo{width:60px;height:60px}.hm-hero h1{font-size:25px}.hm-hero p{font-size:13.5px}
+  .hm-wk-i{flex-wrap:wrap}.hm-wk-go{width:100%;text-align:center}
+  .hm-grid{grid-template-columns:1fr}
+  .hm-top{margin-left:0}
+}
+/* RT:BEGIN */
+</style>
+<link rel="stylesheet" href="rt-engine.css?v=a5e3725211">
+<style>
+/* RT:END */
+@media print{.topbar{display:none}}
+</style>
+<!-- PWA:BEGIN -->
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0a3605">
+<link rel="apple-touch-icon" href="fayllar/ilova/icon-180.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="TerDU Biznes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<script src="pwa.js" defer></script>
+<!-- PWA:END -->
+<!-- OG:BEGIN -->
+<meta name="author" content="Isfandiyor Sayfiddinov">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="IsfandiyorSayfiddinov">
+<meta property="og:title" content="IsfandiyorSayfiddinov">
+<meta property="og:description" content="Tadbirkorlik asoslari fani: 15 ta interaktiv mavzu, testlar, reyting va o'yin arenasi · Termiz davlat universiteti">
+<meta property="og:url" content="https://esfandiyorr.github.io/Tadbirkorlik-asoslari/tadbirkorlik-asoslari.html">
+<meta property="og:locale" content="uz_UZ">
+<meta property="og:image" content="https://esfandiyorr.github.io/Tadbirkorlik-asoslari/fayllar/havola-isfandiyor.jpg?v=7c06edc5">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="TerDU logotipi va Isfandiyor Sayfiddinov">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="IsfandiyorSayfiddinov">
+<meta name="twitter:description" content="Tadbirkorlik asoslari fani: 15 ta interaktiv mavzu, testlar, reyting va o'yin arenasi · Termiz davlat universiteti">
+<meta name="twitter:image" content="https://esfandiyorr.github.io/Tadbirkorlik-asoslari/fayllar/havola-isfandiyor.jpg?v=7c06edc5">
+<!-- OG:END -->
+</head>
+<body>
+<div id="app">
+  <header class="topbar">
+    <a class="brand" href="index.html" title="Barcha fanlar">
+      <div class="logo terdu-logo" role="img" aria-label="Termiz davlat universiteti logotipi"></div>
+      <div><b class="tb-name">TerDU</b><span data-uz="Tadbirkorlik asoslari" data-en="Fundamentals of Entrepreneurship">Tadbirkorlik asoslari</span></div>
+    </a>
+    <div class="spacer"></div>
+    <div class="tools">
+      <button class="btn ghost" id="btnLang" title="O'zbekcha / English (L)">🌐 <span id="langTxt">ENG</span></button>
+      <button class="btn ghost" id="btnTheme" title="Tun / Kun rejimi (D)">🌙 <span id="themeTxt">Tun</span></button>
+    </div>
+  </header>
+  <main id="home">
+    <a class="hm-back" href="index.html" data-uz="← Barcha fanlar" data-en="← All courses">← Barcha fanlar</a>
+    <section class="hm-hero">
+      <div class="hm-logo terdu-logo" role="img" aria-label="TerDU"></div>
+      <div>
+        <small data-uz="Termiz davlat universiteti" data-en="Termez State University">Termiz davlat universiteti</small>
+        <h1 data-uz="Tadbirkorlik asoslari" data-en="Fundamentals of Entrepreneurship">Tadbirkorlik asoslari</h1>
+        <p data-uz="15 ta mavzu · interaktiv taqdimotlar, testlar va amaliy topshiriqlar. Mavzuni tanlang: 🟢 — ball beriladi, 📖 — o'qish rejimi."
+           data-en="15 topics · interactive presentations, tests and practical tasks. Choose a topic: 🟢 — points are given, 📖 — reading mode.">15 ta mavzu · interaktiv taqdimotlar, testlar va amaliy topshiriqlar. Mavzuni tanlang: 🟢 — ball beriladi, 📖 — o'qish rejimi.</p>
+      </div>
+    </section>
+    <div id="hmBody"><p class="hm-load">⏳ <span data-uz="Yuklanmoqda…" data-en="Loading…">Yuklanmoqda…</span></p></div>
+    <p class="hm-foot" data-uz="Termiz davlat universiteti · Tadbirkorlik asoslari" data-en="Termez State University · Fundamentals of Entrepreneurship">Termiz davlat universiteti · Tadbirkorlik asoslari</p>
+  </main>
+</div>
+<!-- RT:BEGIN -->
+<script>var RT_CFG={"topic": "", "home": "course", "slides": 0, "quiz": 0, "pSlide": 2, "pAll": 10, "teacher": "", "firebase": {"db": "tadbirkorlik-asoslari-default-rtdb", "regions": ["asia-southeast1", "europe-west1", "us-central1", "europe-west4", "asia-east1", "us-east1", "northamerica-northeast1"], "url": "https://tadbirkorlik-asoslari-default-rtdb.asia-southeast1.firebasedatabase.app"}, "topics": [{"id": "m1", "file": "mavzu-1.html", "title": "M1 · Tadbirkorlik tafakkuri va biznes imkoniyatlar", "open": true, "read": true, "quiz": 15, "slides": 18, "pdf": "fayllar/M1-mavzu.pdf", "pdfSize": "3,3 MB"}, {"id": "m2", "file": "mavzu-2.html", "title": "M2 · Mijoz muammosi asosida biznes g'oya", "open": true, "read": true, "quiz": 15, "slides": 24, "pdf": "fayllar/M2-mavzu.pdf", "pdfSize": "4,9 MB"}, {"id": "m3", "file": "mavzu-3.html", "title": "M3 · Mahsulotni kam xarajat bilan sinash (moliya va kredit)", "open": true, "read": true, "quiz": 15, "slides": 15, "lim": true, "pdf": "fayllar/M3-mavzu.pdf", "pdfSize": "2,1 MB"}, {"id": "m4", "file": "mavzu-4.html", "title": "M4 · Biznesni qonuniy rasmiylashtirish", "open": true, "read": true, "quiz": 18, "slides": 18, "lim": true}, {"id": "m5", "file": "mavzu-5.html", "title": "M5 · Soliqlar va hujjatlar", "open": true, "read": true, "quiz": 3, "slides": 18, "lim": true}, {"id": "m6", "file": "mavzu-6.html", "title": "M6 · Biznes-model qanday ishlaydi", "open": true, "quiz": 15, "slides": 18, "lim": true}, {"id": "m7", "file": "mavzu-7.html", "title": "M7 · Mijoz kim va unga nima kerak", "open": true, "quiz": 15, "slides": 18, "lim": true}, {"id": "m8", "title": "M8 · Mahsulotni reklama qilish va mijozga yetkazish", "file": "mavzu-8.html", "open": true, "slides": 18, "quiz": 15, "lim": true}, {"id": "m9", "title": "M9 · Biznes g'oyani taqdim etish va tadbirkorlik yo'lini boshlash", "file": "mavzu-9.html", "open": true, "slides": 18, "quiz": 15, "lim": true}, {"id": "m10", "title": "M10 · Savdo jarayonini tashkil etish va mijozlar bilan ishlash", "file": "mavzu-10.html", "open": true, "slides": 18, "quiz": 15, "lim": true}, {"id": "m11", "title": "M11 · Mahsulot narxini shakllantirish", "file": "mavzu-11.html", "open": true, "slides": 18, "quiz": 15, "lim": true}, {"id": "m12", "title": "M12 · Biznesda pul oqimini rejalashtirish: kirim, chiqim va mablag' jalb qilish", "file": "mavzu-12.html", "open": true, "slides": 18, "quiz": 15, "lim": true}, {"id": "m13", "title": "M13 · Biznesda foyda va zarar tahlili", "file": "mavzu-13.html", "open": true, "slides": 18, "quiz": 15, "lim": true}, {"id": "m14", "title": "M14 · Biznes-reja tuzish va mahsulotni tashqi bozorga olib chiqish", "file": "mavzu-14.html", "open": true, "slides": 18, "quiz": 15, "lim": true}, {"id": "m15", "title": "M15 · Jamoani shakllantirish, xodimlarni boshqarish va xavflarni aniqlash", "file": "mavzu-15.html", "open": true, "slides": 18, "quiz": 15, "lim": true}], "teacherTg": "https://t.me/esfandiyorr?direct", "teacherName": "Isfandiyor Sayfiddinov", "reopen": {"m1": {"id": "2026-10-19", "until": "2026-10-22T23:59:59+05:00"}}, "pwaMsg": "2026-10-19", "courses": [{"id": "tad-asoslari", "icon": "🚀", "title": "Tadbirkorlik asoslari", "desc": "Nazariya, interaktiv testlar va amaliy topshiriqlar", "first": "tadbirkorlik-asoslari.html"}], "groups": ["FIZ-123", "FIZ-223", "FIZ-323", "AP-123", "AP-223", "AP-323", "D-123", "DKG-BF-123", "YES-123", "T-123", "T-223", "T-323", "T-423", "KI-123", "KI-223", "DI-123", "DI-223"], "groupRenames": {"T-232": "T-223"}, "hideRating": [{"name": "Isfandiyor", "surname": "Sayfiddinov"}], "tracks": [{"file": "Musofir.mp3", "title": "Musofir", "artist": ""}], "fbWeb": {"apiKey": "AIzaSyDPOvO9kqBcD9zIeCy_eR9szezLhoDB4Oo", "authDomain": "tadbirkorlik-asoslari.firebaseapp.com", "databaseURL": "https://tadbirkorlik-asoslari-default-rtdb.asia-southeast1.firebasedatabase.app", "projectId": "tadbirkorlik-asoslari", "storageBucket": "tadbirkorlik-asoslari.firebasestorage.app", "messagingSenderId": "303986754308", "appId": "1:303986754308:web:fca65cded4728199e68651"}, "teacherH": "9a5935bc7e3abb2f8da12a8f053d28b942d399f06d3841a799d1616c7bc48ceb"};</script>
+<script src="rt-engine.js?v=e8a9607981"></script>
+<!-- RT:END -->
+<script>
+/* til (UZ / ENG) va tun/kun rejimi — taqdimotlar bilan bir xil saqlanadi (terdu_lang, terdu_theme) */
+(function(){
+  var html=document.documentElement;
+  function lang(){ return html.getAttribute("lang")==="en"?"en":"uz"; }
+  function paint(){
+    var l=lang();
+    [].forEach.call(document.querySelectorAll("[data-uz]"),function(e){ e.textContent=e.getAttribute("data-"+l)||e.getAttribute("data-uz"); });
+    document.getElementById("langTxt").textContent=l==="en"?"UZB":"ENG";
+    var d=html.getAttribute("data-theme")==="dark";
+    document.getElementById("themeTxt").textContent=l==="en"?(d?"Light":"Dark"):(d?"Kun":"Tun");
+    document.title=(l==="en"?"Fundamentals of Entrepreneurship":"Tadbirkorlik asoslari")+" — TerDU";
+  }
+  function setLang(){ var n=lang()==="en"?"uz":"en"; html.setAttribute("lang",n); try{ localStorage.setItem("terdu_lang",n); }catch(e){} paint(); }
+  function setTheme(){ var n=html.getAttribute("data-theme")==="dark"?"light":"dark"; html.setAttribute("data-theme",n); try{ localStorage.setItem("terdu_theme",n); }catch(e){} paint(); }
+  document.getElementById("btnLang").onclick=setLang;
+  document.getElementById("btnTheme").onclick=setTheme;
+  document.addEventListener("keydown",function(e){
+    if(e.target&&/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)||e.ctrlKey||e.metaKey||e.altKey) return;
+    if(e.key==="l"||e.key==="L") setLang(); else if(e.key==="d"||e.key==="D") setTheme();
+  });
+  paint();
+})();
+</script>
+</body>
+</html>

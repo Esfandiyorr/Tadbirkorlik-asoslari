@@ -873,6 +873,9 @@ body.rt-ro #btnPrint{display:none!important}
 .rt-gate-why{margin:0 40px 12px 0;padding:9px 12px;border-radius:12px;background:color-mix(in srgb,var(--green,#16a34a) 12%,transparent);font-weight:700;font-size:14px;line-height:1.4}
 .rt-chip.rt-guestbtn{border-color:#0a3605;background:linear-gradient(135deg,#16a34a,#0d9488);color:#fff;font-weight:800}
 .rt-chip.rt-guestbtn b{color:#fff}
+.rt-chip.rt-guestreg{border-color:color-mix(in srgb,var(--green,#16a34a) 70%,transparent);background:var(--panel);color:var(--ink);font-weight:800}
+.rt-chip.rt-guestreg b{color:var(--ink)}
+.rt-chip.rt-guestreg:hover{background:color-mix(in srgb,var(--green,#16a34a) 14%,var(--panel))}
 body.rt-guest .qt-start::after,body.rt-guest .xw-start::after,body.rt-guest .ms-start::after{
   content:var(--rt-guest-msg);display:block;max-width:520px;margin:12px auto 0;padding:10px 14px;border:1.5px dashed var(--green,#16a34a);border-radius:12px;
   background:color-mix(in srgb,var(--green,#16a34a) 10%,transparent);color:var(--ink);font-weight:700;font-size:14px;text-align:center;white-space:normal}

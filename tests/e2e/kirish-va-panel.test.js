@@ -9,11 +9,11 @@ const rowCls=(p,re)=>p.evaluate(re=>{ const r=[...document.querySelectorAll("#rt
   H.dbSet("meta/access/m6",{lim:true,g:{"AP-223":Date.now()-60000}});   /* 1 daqiqa oldin (dushanba 00:00 dan keyin ham ishlasin) */
   /* e'lon (bir martalik oynalar ham bo'lsin) */
   H.dbSet("meta/ann",{a1:{at:Date.now()-60000,t:"Salom talabalar"}});
-  /* 1) kirish: index.html — «Tadbirkorlik asoslari» fan sahifasi; avtomatik o'tish yo'q, talaba o'zi tanlaydi */
+  /* 1) kirish: tadbirkorlik-asoslari.html — «Tadbirkorlik asoslari» fan sahifasi; avtomatik o'tish yo'q, talaba o'zi tanlaydi */
   const A=await H.mk(b,H.stu("sA","Ali","Valiyev","AP-223"),{land:true,ro:true});
   const urls=[]; A.on("framenavigated",f=>{ if(f===A.mainFrame()) urls.push(f.url().replace(H.SITE,"")); });
-  await A.goto(H.SITE+"/index.html"); await ready(A); await sleep(2500);
-  ck("index.html — fan sahifasi, boshqa sahifaga o'tib ketmadi",/\/index\.html$/.test(A.url())&&urls.every(u=>/^\/index\.html/.test(u))&&await A.evaluate(()=>/Tadbirkorlik asoslari/.test(document.querySelector(".hm-hero").innerText)),A.url()+" "+JSON.stringify(urls));
+  await A.goto(H.SITE+"/tadbirkorlik-asoslari.html"); await ready(A); await sleep(2500);
+  ck("fan sahifasi, boshqa sahifaga o'tib ketmadi",/\/tadbirkorlik-asoslari\.html$/.test(A.url())&&urls.every(u=>/^\/tadbirkorlik-asoslari\.html/.test(u))&&await A.evaluate(()=>/Tadbirkorlik asoslari/.test(document.querySelector(".hm-hero").innerText)),A.url()+" "+JSON.stringify(urls));
   ck("o'qish rejimi oynasi chiqmadi",!(await A.$("#rtRoG"))&&!(await A.$("#rtRO")));
   const wk=await A.evaluate(()=>{ const w=document.querySelector(".hm-week"); return w?w.innerText.replace(/\s+/g," "):""; });
   ck("eslatma: «Bu hafta ball beradigan mavzu» — 6-mavzu, yakshanba 23:59 gacha",/Bu hafta ball beradigan mavzu/.test(wk)&&/Biznes-model/.test(wk)&&/yakshanba 23:59 gacha/.test(wk)&&/Ishlash/.test(wk),wk.slice(0,200));
@@ -24,10 +24,10 @@ const rowCls=(p,re)=>p.evaluate(re=>{ const r=[...document.querySelectorAll("#rt
   await A.click('.hm-card[data-t="m1"]'); await A.waitForURL(/mavzu-1\.html/); await ready(A);
   ck("1-mavzu kartochkasi → mavzu-1.html, o'qish rejimi (oyna emas, 📖 belgi)",/mavzu-1\.html/.test(A.url())&&!(await A.$("#rtRoG"))&&!!(await A.$("#rtRO")));
   await A.click("#rtNavBtn"); await sleep(300);
-  ck("mavzular ro'yxatida «🏠 Fan sahifasi»",await A.evaluate(()=>{ const h=document.querySelector("#rtNavMenu .rt-navhome"); return !!h&&h.getAttribute("href")==="index.html"; }));
+  ck("mavzular ro'yxatida «🏠 Fan sahifasi»",await A.evaluate(()=>{ const h=document.querySelector("#rtNavMenu .rt-navhome"); return !!h&&h.getAttribute("href")==="tadbirkorlik-asoslari.html"; }));
   await A.keyboard.press("Escape");
   /* 🟢 ishlash: eslatmadagi 6-mavzu */
-  await A.goto(H.SITE+"/index.html"); await ready(A);
+  await A.goto(H.SITE+"/tadbirkorlik-asoslari.html"); await ready(A);
   await A.click(".hm-wk-i"); await A.waitForURL(/mavzu-6\.html/); await ready(A);
   ck("eslatmadagi «Ishlash» → mavzu-6.html, ball beriladi",/mavzu-6\.html/.test(A.url())&&!(await A.$("#rtRO"))&&!!(await A.$("#rtTodo")));
   /* eski havola: index.html#5 → 1-mavzuning 5-slaydi */

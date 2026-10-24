@@ -18,7 +18,7 @@ const FAKE=()=>{ /* PushManager taqlidi: subscribe/getSubscription — soxta, le
   /* 1) o'qituvchi sozlamagan: fan sahifasida taklif yo'q, profilda izoh */
   const A=await H.mk(b,H.stu("sA","Ali","Valiyev","AP-223"),{sw:true});
   await A.context().addInitScript(FAKE);
-  await A.goto(H.SITE+"/index.html"); await ready(A);
+  await A.goto(H.SITE+"/tadbirkorlik-asoslari.html"); await ready(A);
   ck("sozlanmagan: fan sahifasida 🔔 bloki yo'q",await A.evaluate(()=>document.getElementById("hmPush").innerHTML===""));
   /* 2) sozlangan: «🔔 Yoqish» */
   H.dbSet("meta/push",{pub:"BAbcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_-abcdefghijklmnopqrstuv",url:"https://push.test/w"});
@@ -40,14 +40,14 @@ const FAKE=()=>{ /* PushManager taqlidi: subscribe/getSubscription — soxta, le
   /* 3) bloklangan */
   const D=await H.mk(b,H.stu("sB","Bobur","Karimov","AP-223"));
   await D.context().addInitScript(()=>{ window.__perm="denied"; Object.defineProperty(Notification,"permission",{configurable:true,get:()=>"denied"}); });
-  await D.goto(H.SITE+"/index.html"); await ready(D);
+  await D.goto(H.SITE+"/tadbirkorlik-asoslari.html"); await ready(D);
   const ds=await D.evaluate(()=>document.querySelector("#hmPush").innerText.replace(/\s+/g," "));
   ck("bloklangan: qadamma-qadam yo'riqnoma (Ruxsatlar → Bildirishnomalar), «Boshqa holat»",/bloklangan/.test(ds)&&/Ruxsatlar/.test(ds)&&/Bildirishnomalar/.test(ds)&&/Boshqa holat/.test(ds)&&!!(await D.$('#hmPush [data-pb="recheck"]')),ds.slice(0,200));
   await D.screenshot({path:"push_denied.png"});
   /* telefon (Android Chrome) va o'rnatilgan ilova uchun mos yo'riqnoma */
   const DM=await H.mk(b,H.stu("sB","Bobur","Karimov","AP-223"),{mobile:true,vp:{width:390,height:844},ua:"Mozilla/5.0 (Linux; Android 14; SM-A546E) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Mobile Safari/537.36"});
   await DM.context().addInitScript(()=>{ window.__perm="denied"; Object.defineProperty(Notification,"permission",{configurable:true,get:()=>"denied"}); });
-  await DM.goto(H.SITE+"/index.html"); await ready(DM);
+  await DM.goto(H.SITE+"/tadbirkorlik-asoslari.html"); await ready(DM);
   const dm=await DM.evaluate(()=>document.querySelector("#hmPush").innerText.replace(/\s+/g," "));
   ck("Android Chrome: «🌐 Chrome brauzerida» qadamlari birinchi",/Chrome brauzerida:/.test(dm.split("Boshqa holat")[0])&&/Ruxsatlarni tiklash/.test(dm),dm.slice(0,220));
   const dmm=dm.split("Boshqa holat")[0];

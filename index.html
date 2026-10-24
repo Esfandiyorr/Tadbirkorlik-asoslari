@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>IsfandiyorSayfiddinov — Tadbirkorlik asoslari</title>
-<meta name="description" content="Termiz davlat universiteti — «Tadbirkorlik asoslari» fani: 15 ta interaktiv mavzu, testlar, reyting, chat va o'yin arenasi.">
+<title>IsfandiyorSayfiddinov — TerDU interaktiv o'quv platformasi</title>
+<meta name="description" content="Termiz davlat universiteti interaktiv o'quv platformasi: fanlar bo'yicha taqdimotlar, testlar va reyting — qiziqqan har kim o'qiy oladi. Fan: Tadbirkorlik asoslari.">
 <script>
 /* eski havolalar: «index.html#5» — 1-mavzuning 5-slaydi edi (1-mavzu endi mavzu-1.html da) */
 if(/^#\d+$/.test(location.hash)) location.replace("mavzu-1.html"+location.hash);
@@ -47,6 +47,36 @@ body{margin:0;color:var(--ink);font-family:"Segoe UI",system-ui,-apple-system,"H
 .btn.accent{background:linear-gradient(135deg,var(--green),var(--teal));color:#fff;border-color:transparent}
 .btn.ghost{background:transparent}
 #home{max-width:1180px;margin:0 auto;padding:22px 18px 60px}
+.pt-jump{display:inline-block;margin-top:12px;padding:8px 15px;border-radius:12px;background:rgba(255,255,255,.18);border:1.5px solid rgba(255,255,255,.4);color:#fff;font-weight:800;font-size:14px;text-decoration:none}
+.pt-jump:hover{background:rgba(255,255,255,.28)}
+.pt-about{margin:18px 0 24px;border:1px solid var(--line);border-radius:20px;background:var(--panel);box-shadow:var(--shadow);overflow:hidden}
+.pt-about>summary{cursor:pointer;list-style:none;padding:14px 18px;font-size:17px;font-weight:800;display:flex;align-items:center;justify-content:space-between}
+.pt-about>summary::-webkit-details-marker{display:none}
+.pt-about>summary::after{content:"▾";color:var(--muted);transition:transform .2s}
+.pt-about[open]>summary::after{transform:rotate(180deg)}
+.pt-lead{margin:0;padding:0 18px 4px;font-size:15.5px;line-height:1.65;color:var(--ink2)}
+.pt-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;padding:14px 18px 18px}
+.pt-card{padding:14px 16px;border:1px solid var(--line);border-radius:16px;background:var(--panel2)}
+.pt-card h3{margin:0 0 8px;font-size:15.5px}
+.pt-card ul,.pt-card ol{margin:0;padding-left:20px;font-size:14px;line-height:1.6;color:var(--ink2)}
+.pt-card li{margin:3px 0}
+#fanlar{scroll-margin-top:70px}
+.pt-courses{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:14px}
+.pt-course{display:flex;align-items:center;gap:16px;padding:18px;border-radius:20px;border:2px solid color-mix(in srgb,var(--green) 55%,transparent);background:linear-gradient(135deg,color-mix(in srgb,var(--green) 11%,var(--panel)),var(--panel));color:inherit;text-decoration:none;box-shadow:var(--shadow);transition:transform .15s ease}
+.pt-course:hover{transform:translateY(-3px)}
+.pt-ic{display:grid;place-items:center;width:62px;height:62px;flex:0 0 auto;border-radius:18px;background:linear-gradient(135deg,var(--green),var(--teal));font-size:32px}
+.pt-ct{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px}
+.pt-ct b{font-size:19px;line-height:1.2}
+.pt-ct small{font-size:13.5px;color:var(--muted);line-height:1.45}
+.pt-meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:2px}
+.pt-meta i{font-style:normal;padding:3px 9px;border-radius:999px;background:var(--chip);font-size:12.5px;font-weight:700;color:var(--ink2)}
+.pt-meta i.live{background:color-mix(in srgb,var(--green) 18%,transparent);color:var(--green2)}
+:root[data-theme="dark"] .pt-meta i.live{color:var(--green)}
+.pt-go{padding:9px 15px;border-radius:12px;background:linear-gradient(135deg,var(--green),var(--teal));color:#fff;font-weight:800;font-size:14px;white-space:nowrap}
+.pt-soon{margin:12px 2px 0;padding:11px 14px;border:1.5px dashed var(--line);border-radius:14px;color:var(--muted);font-size:13.5px}
+.hm-week.hm-auth,.hm-me.hm-auth{margin:16px 0 0}
+.hm-week.hm-cta{margin:18px 0 0}
+@media(max-width:640px){.pt-about>summary{padding:12px 14px;font-size:16px}.pt-lead{padding:0 14px 4px;font-size:14.5px}.pt-grid{padding:12px 14px 14px}.pt-courses{grid-template-columns:1fr}.pt-course{flex-wrap:wrap}.pt-go{width:100%;text-align:center}}
 .hm-hero{display:flex;align-items:center;gap:20px;padding:24px 26px;border-radius:24px;background:linear-gradient(135deg,#0a3605,#12a150 55%,#0d9488);color:#fff;
   box-shadow:var(--shadow);position:relative;overflow:hidden}
 .hm-hero::after{content:"";position:absolute;right:-60px;top:-60px;width:260px;height:260px;border-radius:50%;background:rgba(255,255,255,.08)}
@@ -107,7 +137,7 @@ a.hm-card:hover{transform:translateY(-3px);box-shadow:0 18px 34px -20px rgba(13,
 }
 /* RT:BEGIN */
 </style>
-<link rel="stylesheet" href="rt-engine.css?v=44bc6406f0">
+<link rel="stylesheet" href="rt-engine.css?v=a5e3725211">
 <style>
 /* RT:END */
 @media print{.topbar{display:none}}
@@ -127,7 +157,7 @@ a.hm-card:hover{transform:translateY(-3px);box-shadow:0 18px 34px -20px rgba(13,
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="IsfandiyorSayfiddinov">
 <meta property="og:title" content="IsfandiyorSayfiddinov">
-<meta property="og:description" content="Tadbirkorlik asoslari fani: 15 ta interaktiv mavzu, testlar, reyting va o'yin arenasi · Termiz davlat universiteti">
+<meta property="og:description" content="Termiz davlat universiteti interaktiv o'quv platformasi: fanlar bo'yicha taqdimotlar, testlar va reyting — qiziqqan har kim o'qiy oladi · Fan: Tadbirkorlik asoslari">
 <meta property="og:url" content="https://esfandiyorr.github.io/Tadbirkorlik-asoslari/">
 <meta property="og:locale" content="uz_UZ">
 <meta property="og:image" content="https://esfandiyorr.github.io/Tadbirkorlik-asoslari/fayllar/havola-isfandiyor.jpg?v=7c06edc5">
@@ -137,7 +167,7 @@ a.hm-card:hover{transform:translateY(-3px);box-shadow:0 18px 34px -20px rgba(13,
 <meta property="og:image:alt" content="TerDU logotipi va Isfandiyor Sayfiddinov">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="IsfandiyorSayfiddinov">
-<meta name="twitter:description" content="Tadbirkorlik asoslari fani: 15 ta interaktiv mavzu, testlar, reyting va o'yin arenasi · Termiz davlat universiteti">
+<meta name="twitter:description" content="Termiz davlat universiteti interaktiv o'quv platformasi: fanlar bo'yicha taqdimotlar, testlar va reyting — qiziqqan har kim o'qiy oladi · Fan: Tadbirkorlik asoslari">
 <meta name="twitter:image" content="https://esfandiyorr.github.io/Tadbirkorlik-asoslari/fayllar/havola-isfandiyor.jpg?v=7c06edc5">
 <!-- OG:END -->
 </head>
@@ -146,7 +176,7 @@ a.hm-card:hover{transform:translateY(-3px);box-shadow:0 18px 34px -20px rgba(13,
   <header class="topbar">
     <a class="brand" href="index.html">
       <div class="logo terdu-logo" role="img" aria-label="Termiz davlat universiteti logotipi"></div>
-      <div><b class="tb-name">TerDU</b><span data-uz="Tadbirkorlik asoslari" data-en="Fundamentals of Entrepreneurship">Tadbirkorlik asoslari</span></div>
+      <div><b class="tb-name">TerDU</b><span data-uz="Interaktiv o'quv platformasi" data-en="Interactive learning platform">Interaktiv o'quv platformasi</span></div>
     </a>
     <div class="spacer"></div>
     <div class="tools">
@@ -159,18 +189,56 @@ a.hm-card:hover{transform:translateY(-3px);box-shadow:0 18px 34px -20px rgba(13,
       <div class="hm-logo terdu-logo" role="img" aria-label="TerDU"></div>
       <div>
         <small data-uz="Termiz davlat universiteti" data-en="Termez State University">Termiz davlat universiteti</small>
-        <h1 data-uz="Tadbirkorlik asoslari" data-en="Fundamentals of Entrepreneurship">Tadbirkorlik asoslari</h1>
-        <p data-uz="15 ta mavzu · interaktiv taqdimotlar, testlar va amaliy topshiriqlar. Mavzuni tanlang: 🟢 — ball beriladi, 📖 — o'qish rejimi."
-           data-en="15 topics · interactive presentations, tests and practical tasks. Choose a topic: 🟢 — points are given, 📖 — reading mode.">15 ta mavzu · interaktiv taqdimotlar, testlar va amaliy topshiriqlar. Mavzuni tanlang: 🟢 — ball beriladi, 📖 — o'qish rejimi.</p>
+        <h1 data-uz="Interaktiv o'quv platformasi" data-en="Interactive learning platform">Interaktiv o'quv platformasi</h1>
+        <p data-uz="Fanlar bo'yicha ma'ruza taqdimotlari, testlar va amaliy topshiriqlar — talabalar uchun va qiziqqan har bir kishi uchun." data-en="Lecture presentations, tests and practical tasks by course — for students and for everyone who is interested.">Fanlar bo'yicha ma'ruza taqdimotlari, testlar va amaliy topshiriqlar — talabalar uchun va qiziqqan har bir kishi uchun.</p>
+        <a class="pt-jump" href="#fanlar" data-uz="📚 Fanlarni ko'rish ↓" data-en="📚 See the courses ↓">📚 Fanlarni ko'rish ↓</a>
       </div>
     </section>
-    <div id="hmBody"><p class="hm-load">⏳ <span data-uz="Yuklanmoqda…" data-en="Loading…">Yuklanmoqda…</span></p></div>
-    <p class="hm-foot" data-uz="Termiz davlat universiteti · Tadbirkorlik asoslari" data-en="Termez State University · Fundamentals of Entrepreneurship">Termiz davlat universiteti · Tadbirkorlik asoslari</p>
+    <div id="hmAuth"></div>
+    <details id="hmAbout" class="pt-about" open>
+      <summary data-uz="ℹ️ Bu sayt haqida" data-en="ℹ️ About this site">ℹ️ Bu sayt haqida</summary>
+      <p class="pt-lead" data-html="1" data-uz="Bu — <b>Termiz davlat universiteti (TerDU)</b> talabalari uchun yaratilgan interaktiv o'quv platformasi. Fan o'qituvchisi — <b>Isfandiyor Sayfiddinov</b>. Ma'ruzalar oddiy matn emas, ko'rgazmali interaktiv taqdimotlar ko'rinishida; bilim esa testlar va amaliy topshiriqlar bilan mustahkamlanadi." data-en="This is an interactive learning platform created for the students of <b>Termez State University (TerDU)</b>. The course teacher is <b>Isfandiyor Sayfiddinov</b>. Lectures are visual interactive presentations rather than plain text, and knowledge is reinforced with tests and practical tasks.">Bu — <b>Termiz davlat universiteti (TerDU)</b> talabalari uchun yaratilgan interaktiv o'quv platformasi. Fan o'qituvchisi — <b>Isfandiyor Sayfiddinov</b>. Ma'ruzalar oddiy matn emas, ko'rgazmali interaktiv taqdimotlar ko'rinishida; bilim esa testlar va amaliy topshiriqlar bilan mustahkamlanadi.</p>
+      <div class="pt-grid">
+        <article class="pt-card">
+          <h3 data-uz="🎯 Nima maqsadda ochilgan" data-en="🎯 Why it exists">🎯 Nima maqsadda ochilgan</h3>
+          <ul>
+            <li data-uz="Ma'ruza materiallarini qulay, ko'rgazmali va istalgan qurilmada (telefon, planshet, kompyuter) o'qish imkonini berish" data-en="To let students read the lecture material comfortably and visually on any device (phone, tablet, computer)">Ma'ruza materiallarini qulay, ko'rgazmali va istalgan qurilmada (telefon, planshet, kompyuter) o'qish imkonini berish</li>
+            <li data-uz="Bilimni darhol test va amaliy topshiriqlar bilan tekshirish va mustahkamlash" data-en="To check and reinforce knowledge right away with tests and practical tasks">Bilimni darhol test va amaliy topshiriqlar bilan tekshirish va mustahkamlash</li>
+            <li data-uz="O'qishni ball va reyting orqali rag'batlantirish, natijalarni ochiq va adolatli ko'rsatish" data-en="To motivate learning with points and a rating, and to show results openly and fairly">O'qishni ball va reyting orqali rag'batlantirish, natijalarni ochiq va adolatli ko'rsatish</li>
+            <li data-uz="Qiziqqan har bir kishi uchun ochiq bo'lish: mavzularni ro'yxatdan o'tmasdan ham o'qish mumkin" data-en="To be open to anyone who is interested: topics can be read without registering">Qiziqqan har bir kishi uchun ochiq bo'lish: mavzularni ro'yxatdan o'tmasdan ham o'qish mumkin</li>
+          </ul>
+        </article>
+        <article class="pt-card">
+          <h3 data-uz="🧩 Saytda nimalar bor" data-en="🧩 What is on the site">🧩 Saytda nimalar bor</h3>
+          <ul>
+            <li data-uz="📑 Interaktiv ma'ruza taqdimotlari (mavzular bo'yicha)" data-en="📑 Interactive lecture presentations (by topic)">📑 Interaktiv ma'ruza taqdimotlari (mavzular bo'yicha)</li>
+            <li data-uz="🧪 Testlar, krossvord va amaliy masalalar" data-en="🧪 Tests, a crossword and practical problems">🧪 Testlar, krossvord va amaliy masalalar</li>
+            <li data-uz="🏆 Ball, baho va talabalar reytingi" data-en="🏆 Points, marks and the student rating">🏆 Ball, baho va talabalar reytingi</li>
+            <li data-uz="🎮 O'yin arenasi: jonli test va yozuv marafoni" data-en="🎮 Game arena: live quiz and typing marathon">🎮 O'yin arenasi: jonli test va yozuv marafoni</li>
+            <li data-uz="📲 Telefon ilovasi va 🔔 eslatmalar; 🌐 o'zbekcha va inglizcha" data-en="📲 Phone app and 🔔 reminders; 🌐 Uzbek and English">📲 Telefon ilovasi va 🔔 eslatmalar; 🌐 o'zbekcha va inglizcha</li>
+          </ul>
+        </article>
+        <article class="pt-card">
+          <h3 data-uz="🚀 Qanday foydalaniladi" data-en="🚀 How to use it">🚀 Qanday foydalaniladi</h3>
+          <ol>
+            <li data-html="1" data-uz="Quyida <b>fanni tanlang</b> — mavzular ro'yxati ochiladi." data-en="<b>Choose a course</b> below — the list of topics opens.">Quyida <b>fanni tanlang</b> — mavzular ro'yxati ochiladi.</li>
+            <li data-html="1" data-uz="Mavzuni oching va <b>o'qing</b> — ro'yxatdan o'tish shart emas." data-en="Open a topic and <b>read</b> it — no registration needed.">Mavzuni oching va <b>o'qing</b> — ro'yxatdan o'tish shart emas.</li>
+            <li data-html="1" data-uz="<b>Test ishlash</b> va <b>ball to'plash</b> uchun hisobingizga kiring yoki ro'yxatdan o'ting (talabalar uchun; o'qituvchi tasdiqlaydi)." data-en="To <b>take tests</b> and <b>earn points</b>, log in or register (for students; the teacher approves)." >Test ishlash va ball to'plash uchun hisobingizga kiring yoki ro'yxatdan o'ting (talabalar uchun; o'qituvchi tasdiqlaydi).</li>
+          </ol>
+        </article>
+      </div>
+    </details>
+    <h2 class="hm-h2" id="fanlar"><span data-uz="📚 Fanlar" data-en="📚 Courses">📚 Fanlar</span> <small id="hmCCount"></small></h2>
+    <div id="hmCourses" class="pt-courses"><p class="hm-load">⏳ <span data-uz="Yuklanmoqda…" data-en="Loading…">Yuklanmoqda…</span></p></div>
+    <p class="pt-soon" data-uz="➕ Yangi fanlar qo'shilganda shu yerda paydo bo'ladi — fanni tanlab o'qiysiz." data-en="➕ New courses will appear here — you choose a course and read it.">➕ Yangi fanlar qo'shilganda shu yerda paydo bo'ladi — fanni tanlab o'qiysiz.</p>
+    <div id="hmCta"></div>
+    <div class="hm-more" id="hmMore"></div>
+    <p class="hm-foot" data-uz="Termiz davlat universiteti · Isfandiyor Sayfiddinov" data-en="Termez State University · Isfandiyor Sayfiddinov">Termiz davlat universiteti · Isfandiyor Sayfiddinov</p>
   </main>
 </div>
 <!-- RT:BEGIN -->
-<script>var RT_CFG={"topic": "", "home": true, "slides": 0, "quiz": 0, "pSlide": 2, "pAll": 10, "teacher": "", "firebase": {"db": "tadbirkorlik-asoslari-default-rtdb", "regions": ["asia-southeast1", "europe-west1", "us-central1", "europe-west4", "asia-east1", "us-east1", "northamerica-northeast1"], "url": "https://tadbirkorlik-asoslari-default-rtdb.asia-southeast1.firebasedatabase.app"}, "topics": [{"id": "m1", "file": "mavzu-1.html", "title": "M1 · Tadbirkorlik tafakkuri va biznes imkoniyatlar", "open": true, "read": true, "quiz": 15, "slides": 18, "pdf": "fayllar/M1-mavzu.pdf", "pdfSize": "3,3 MB"}, {"id": "m2", "file": "mavzu-2.html", "title": "M2 · Mijoz muammosi asosida biznes g'oya", "open": true, "read": true, "quiz": 15, "slides": 24, "pdf": "fayllar/M2-mavzu.pdf", "pdfSize": "4,9 MB"}, {"id": "m3", "file": "mavzu-3.html", "title": "M3 · Mahsulotni kam xarajat bilan sinash (moliya va kredit)", "open": true, "read": true, "quiz": 15, "slides": 15, "lim": true, "pdf": "fayllar/M3-mavzu.pdf", "pdfSize": "2,1 MB"}, {"id": "m4", "file": "mavzu-4.html", "title": "M4 · Biznesni qonuniy rasmiylashtirish", "open": true, "read": true, "quiz": 18, "slides": 18, "lim": true}, {"id": "m5", "file": "mavzu-5.html", "title": "M5 · Soliqlar va hujjatlar", "open": true, "read": true, "quiz": 3, "slides": 18, "lim": true}, {"id": "m6", "file": "mavzu-6.html", "title": "M6 · Biznes-model qanday ishlaydi", "open": true, "quiz": 15, "slides": 18, "lim": true}, {"id": "m7", "file": "mavzu-7.html", "title": "M7 · Mijoz kim va unga nima kerak", "open": true, "quiz": 15, "slides": 18, "lim": true}, {"id": "m8", "title": "M8 · Mahsulotni reklama qilish va mijozga yetkazish", "file": "mavzu-8.html", "open": true, "slides": 18, "quiz": 15, "lim": true}, {"id": "m9", "title": "M9 · Biznes g'oyani taqdim etish va tadbirkorlik yo'lini boshlash", "file": "mavzu-9.html", "open": true, "slides": 18, "quiz": 15, "lim": true}, {"id": "m10", "title": "M10 · Savdo jarayonini tashkil etish va mijozlar bilan ishlash", "file": "mavzu-10.html", "open": true, "slides": 18, "quiz": 15, "lim": true}, {"id": "m11", "title": "M11 · Mahsulot narxini shakllantirish", "file": "mavzu-11.html", "open": true, "slides": 18, "quiz": 15, "lim": true}, {"id": "m12", "title": "M12 · Biznesda pul oqimini rejalashtirish: kirim, chiqim va mablag' jalb qilish", "file": "mavzu-12.html", "open": true, "slides": 18, "quiz": 15, "lim": true}, {"id": "m13", "title": "M13 · Biznesda foyda va zarar tahlili", "file": "mavzu-13.html", "open": true, "slides": 18, "quiz": 15, "lim": true}, {"id": "m14", "title": "M14 · Biznes-reja tuzish va mahsulotni tashqi bozorga olib chiqish", "file": "mavzu-14.html", "open": true, "slides": 18, "quiz": 15, "lim": true}, {"id": "m15", "title": "M15 · Jamoani shakllantirish, xodimlarni boshqarish va xavflarni aniqlash", "file": "mavzu-15.html", "open": true, "slides": 18, "quiz": 15, "lim": true}], "teacherTg": "https://t.me/esfandiyorr?direct", "teacherName": "Isfandiyor Sayfiddinov", "reopen": {"m1": {"id": "2026-10-19", "until": "2026-10-22T23:59:59+05:00"}}, "pwaMsg": "2026-10-19", "courses": [{"id": "tad-asoslari", "icon": "🚀", "title": "Tadbirkorlik asoslari", "desc": "15 ta mavzu · nazariya, testlar va amaliy topshiriqlar", "first": "index.html"}], "groups": ["FIZ-123", "FIZ-223", "FIZ-323", "AP-123", "AP-223", "AP-323", "D-123", "DKG-BF-123", "YES-123", "T-123", "T-223", "T-323", "T-423", "KI-123", "KI-223", "DI-123", "DI-223"], "groupRenames": {"T-232": "T-223"}, "hideRating": [{"name": "Isfandiyor", "surname": "Sayfiddinov"}], "tracks": [{"file": "Musofir.mp3", "title": "Musofir", "artist": ""}], "fbWeb": {"apiKey": "AIzaSyDPOvO9kqBcD9zIeCy_eR9szezLhoDB4Oo", "authDomain": "tadbirkorlik-asoslari.firebaseapp.com", "databaseURL": "https://tadbirkorlik-asoslari-default-rtdb.asia-southeast1.firebasedatabase.app", "projectId": "tadbirkorlik-asoslari", "storageBucket": "tadbirkorlik-asoslari.firebasestorage.app", "messagingSenderId": "303986754308", "appId": "1:303986754308:web:fca65cded4728199e68651"}, "teacherH": "9a5935bc7e3abb2f8da12a8f053d28b942d399f06d3841a799d1616c7bc48ceb"};</script>
-<script src="rt-engine.js?v=7353beeb93"></script>
+<script>var RT_CFG={"topic": "", "home": "portal", "slides": 0, "quiz": 0, "pSlide": 2, "pAll": 10, "teacher": "", "firebase": {"db": "tadbirkorlik-asoslari-default-rtdb", "regions": ["asia-southeast1", "europe-west1", "us-central1", "europe-west4", "asia-east1", "us-east1", "northamerica-northeast1"], "url": "https://tadbirkorlik-asoslari-default-rtdb.asia-southeast1.firebasedatabase.app"}, "topics": [{"id": "m1", "file": "mavzu-1.html", "title": "M1 · Tadbirkorlik tafakkuri va biznes imkoniyatlar", "open": true, "read": true, "quiz": 15, "slides": 18, "pdf": "fayllar/M1-mavzu.pdf", "pdfSize": "3,3 MB"}, {"id": "m2", "file": "mavzu-2.html", "title": "M2 · Mijoz muammosi asosida biznes g'oya", "open": true, "read": true, "quiz": 15, "slides": 24, "pdf": "fayllar/M2-mavzu.pdf", "pdfSize": "4,9 MB"}, {"id": "m3", "file": "mavzu-3.html", "title": "M3 · Mahsulotni kam xarajat bilan sinash (moliya va kredit)", "open": true, "read": true, "quiz": 15, "slides": 15, "lim": true, "pdf": "fayllar/M3-mavzu.pdf", "pdfSize": "2,1 MB"}, {"id": "m4", "file": "mavzu-4.html", "title": "M4 · Biznesni qonuniy rasmiylashtirish", "open": true, "read": true, "quiz": 18, "slides": 18, "lim": true}, {"id": "m5", "file": "mavzu-5.html", "title": "M5 · Soliqlar va hujjatlar", "open": true, "read": true, "quiz": 3, "slides": 18, "lim": true}, {"id": "m6", "file": "mavzu-6.html", "title": "M6 · Biznes-model qanday ishlaydi", "open": true, "quiz": 15, "slides": 18, "lim": true}, {"id": "m7", "file": "mavzu-7.html", "title": "M7 · Mijoz kim va unga nima kerak", "open": true, "quiz": 15, "slides": 18, "lim": true}, {"id": "m8", "title": "M8 · Mahsulotni reklama qilish va mijozga yetkazish", "file": "mavzu-8.html", "open": true, "slides": 18, "quiz": 15, "lim": true}, {"id": "m9", "title": "M9 · Biznes g'oyani taqdim etish va tadbirkorlik yo'lini boshlash", "file": "mavzu-9.html", "open": true, "slides": 18, "quiz": 15, "lim": true}, {"id": "m10", "title": "M10 · Savdo jarayonini tashkil etish va mijozlar bilan ishlash", "file": "mavzu-10.html", "open": true, "slides": 18, "quiz": 15, "lim": true}, {"id": "m11", "title": "M11 · Mahsulot narxini shakllantirish", "file": "mavzu-11.html", "open": true, "slides": 18, "quiz": 15, "lim": true}, {"id": "m12", "title": "M12 · Biznesda pul oqimini rejalashtirish: kirim, chiqim va mablag' jalb qilish", "file": "mavzu-12.html", "open": true, "slides": 18, "quiz": 15, "lim": true}, {"id": "m13", "title": "M13 · Biznesda foyda va zarar tahlili", "file": "mavzu-13.html", "open": true, "slides": 18, "quiz": 15, "lim": true}, {"id": "m14", "title": "M14 · Biznes-reja tuzish va mahsulotni tashqi bozorga olib chiqish", "file": "mavzu-14.html", "open": true, "slides": 18, "quiz": 15, "lim": true}, {"id": "m15", "title": "M15 · Jamoani shakllantirish, xodimlarni boshqarish va xavflarni aniqlash", "file": "mavzu-15.html", "open": true, "slides": 18, "quiz": 15, "lim": true}], "teacherTg": "https://t.me/esfandiyorr?direct", "teacherName": "Isfandiyor Sayfiddinov", "reopen": {"m1": {"id": "2026-10-19", "until": "2026-10-22T23:59:59+05:00"}}, "pwaMsg": "2026-10-19", "courses": [{"id": "tad-asoslari", "icon": "🚀", "title": "Tadbirkorlik asoslari", "desc": "Nazariya, interaktiv testlar va amaliy topshiriqlar", "first": "tadbirkorlik-asoslari.html"}], "groups": ["FIZ-123", "FIZ-223", "FIZ-323", "AP-123", "AP-223", "AP-323", "D-123", "DKG-BF-123", "YES-123", "T-123", "T-223", "T-323", "T-423", "KI-123", "KI-223", "DI-123", "DI-223"], "groupRenames": {"T-232": "T-223"}, "hideRating": [{"name": "Isfandiyor", "surname": "Sayfiddinov"}], "tracks": [{"file": "Musofir.mp3", "title": "Musofir", "artist": ""}], "fbWeb": {"apiKey": "AIzaSyDPOvO9kqBcD9zIeCy_eR9szezLhoDB4Oo", "authDomain": "tadbirkorlik-asoslari.firebaseapp.com", "databaseURL": "https://tadbirkorlik-asoslari-default-rtdb.asia-southeast1.firebasedatabase.app", "projectId": "tadbirkorlik-asoslari", "storageBucket": "tadbirkorlik-asoslari.firebasestorage.app", "messagingSenderId": "303986754308", "appId": "1:303986754308:web:fca65cded4728199e68651"}, "teacherH": "9a5935bc7e3abb2f8da12a8f053d28b942d399f06d3841a799d1616c7bc48ceb"};</script>
+<script src="rt-engine.js?v=e8a9607981"></script>
 <!-- RT:END -->
 <script>
 /* til (UZ / ENG) va tun/kun rejimi — taqdimotlar bilan bir xil saqlanadi (terdu_lang, terdu_theme) */
@@ -179,11 +247,11 @@ a.hm-card:hover{transform:translateY(-3px);box-shadow:0 18px 34px -20px rgba(13,
   function lang(){ return html.getAttribute("lang")==="en"?"en":"uz"; }
   function paint(){
     var l=lang();
-    [].forEach.call(document.querySelectorAll("[data-uz]"),function(e){ e.textContent=e.getAttribute("data-"+l)||e.getAttribute("data-uz"); });
+    [].forEach.call(document.querySelectorAll("[data-uz]"),function(e){ var v=e.getAttribute("data-"+l)||e.getAttribute("data-uz"); if(e.hasAttribute("data-html")) e.innerHTML=v; else e.textContent=v; });
     document.getElementById("langTxt").textContent=l==="en"?"UZB":"ENG";
     var d=html.getAttribute("data-theme")==="dark";
     document.getElementById("themeTxt").textContent=l==="en"?(d?"Light":"Dark"):(d?"Kun":"Tun");
-    document.title="IsfandiyorSayfiddinov — "+(l==="en"?"Fundamentals of Entrepreneurship":"Tadbirkorlik asoslari");
+    document.title="IsfandiyorSayfiddinov — "+(l==="en"?"TerDU interactive learning platform":"TerDU interaktiv o'quv platformasi");
   }
   function setLang(){ var n=lang()==="en"?"uz":"en"; html.setAttribute("lang",n); try{ localStorage.setItem("terdu_lang",n); }catch(e){} paint(); }
   function setTheme(){ var n=html.getAttribute("data-theme")==="dark"?"light":"dark"; html.setAttribute("data-theme",n); try{ localStorage.setItem("terdu_theme",n); }catch(e){} paint(); }
