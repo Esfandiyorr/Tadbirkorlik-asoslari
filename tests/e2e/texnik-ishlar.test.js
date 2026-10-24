@@ -77,6 +77,13 @@ const wait=async(p,ms)=>{ await p.waitForLoadState("load").catch(()=>{}); await 
   const S2=await mk(H.stu("sZ","Zafar","Olimov","T-123")); await S2.goto(H.SITE+"/index.html"); await wait(S2);
   ck("talabada tugma yo'q",!(await S2.$("#rtMaintBtn"))&&(await st(S2)).gate);
   H.dbSet("meta/maint",null);
+  /* 4c) baza «ochiq» desa — config «yopiq» bo'lsa ham yopiq ekran bir lahzaga ham chiqmaydi (oynalar almashib ketmaydi) */
+  H.dbSet("meta/maint",{on:false,at:Date.now()});
+  const F=await mk(null); await F.context().addInitScript(()=>{ window.__saw=[]; new MutationObserver(()=>{ if(document.getElementById("rtMaint")) window.__saw.push("maint"); }).observe(document,{childList:true,subtree:true}); });
+  await F.goto(H.SITE+"/mavzu-2.html"); await wait(F,4500);
+  const fs_=await st(F), saw=await F.evaluate(()=>window.__saw.length);
+  ck("baza «ochiq» — «Texnik ishlar» oynasi umuman chiqmadi, taqdimot ochildi",saw===0&&!fs_.gate&&fs_.ready&&fs_.slides>0,JSON.stringify({saw,fs_}).slice(0,200));
+  H.dbSet("meta/maint",null);
   /* 5) o'chirilganda hammasi odatdagidek (bayroq o'chiq) */
   const N=await H.mk(b,null,{}); await N.goto(H.SITE+"/mavzu-2.html"); await wait(N);
   const ns=await st(N); ck("texnik ishlar o'chiq bo'lganda sahifa odatdagidek ochiladi",!ns.gate&&!ns.body&&ns.ready&&ns.slides>0,JSON.stringify(ns).slice(0,200));

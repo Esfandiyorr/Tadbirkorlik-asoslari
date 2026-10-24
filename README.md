@@ -70,7 +70,7 @@ hech narsa yozilmaydi, chop etilmaydi. O'qituvchi ekrandagi «🔑 O'qituvchi» 
 ekran yo'qoladi va sayt odatdagidek ishlaydi. **Tugma bilan boshqarish:** o'qituvchi topbarida «🔒 Yopiq — ochish» / «🛠 Saytni yopish» tugmasi turadi (faqat o'qituvchida). U bazadagi
 `meta/maint = {on: true|false}` ni yozadi va `config.json` dagi `on` dan **ustun** turadi (bazada yozuv bo'lmasa — config). Ochiq turgan sahifalar
 ham ~1 daqiqada o'zi yopiladi/ochiladi (sahifani qayta ochish shart emas). Tugma Firebase qoidalari e'lon qilingan bo'lsa ham ishlaydi (`meta` — o'qituvchiga yoziladi).
-Config dagi `on` — bazaga yetib bo'lmagandagi boshlang'ich holat: `true`/`false` qilib `python3 _reyting-manba/inject.py`, so'ng push. O'yin arenasi (`arena.html`)
+Sahifa ochilganda holat aniqlanguncha faqat yuklanish ekrani turadi (oynalar almashib ketmaydi). Config dagi `on` (hozir `false` — ochiq) — bazaga yetib bo'lmagandagi holat: `true`/`false` qilib `python3 _reyting-manba/inject.py`, so'ng push. O'yin arenasi (`arena.html`)
 alohida: uni yopish uchun u yerdagi `ARENA_OPEN=false`.
 
 **🔗 Havola nomi va logo:** saytning havolasi Telegram, WhatsApp, Facebook va boshqalarga yuborilganda nomi
