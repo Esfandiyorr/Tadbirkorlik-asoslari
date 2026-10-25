@@ -206,6 +206,30 @@ canvas{max-width:100%;border-radius:14px;background:var(--panel2);touch-action:n
 .inv-ic{font-size:52px}
 .inv-box h3{margin:6px 0 0;font-size:20px}
 .inv-t{font-size:15px;margin:10px 0 14px}
+.dctl{display:inline-flex;gap:6px;flex-wrap:wrap}
+/* 💬 xona chati */
+.rc-btn{position:fixed;right:16px;bottom:16px;z-index:80;width:56px;height:56px;border-radius:50%;border:none;background:linear-gradient(135deg,var(--violet),var(--blue));color:#fff;font-size:24px;box-shadow:var(--shadow);cursor:pointer}
+.rc-btn[hidden]{display:none}
+.rc-btn.on{outline:3px solid color-mix(in srgb,var(--violet) 35%,transparent)}
+.rc-n{position:absolute;top:-4px;right:-4px;min-width:22px;height:22px;padding:0 5px;border-radius:11px;background:#ef4444;color:#fff;font-size:12px;font-weight:800;display:grid;place-items:center}
+.rc-n[hidden]{display:none}
+.rc-box{position:fixed;right:16px;bottom:84px;z-index:81;width:min(340px,calc(100vw - 32px));height:min(440px,calc(100vh - 170px));display:flex;flex-direction:column;background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);overflow:hidden}
+.rc-box[hidden]{display:none}
+.rc-h{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--line)}
+.rc-h b{flex:1}
+.rc-x{border:none;background:none;color:var(--ink);font-size:16px;cursor:pointer;padding:4px 6px}
+.rc-l{flex:1;overflow:auto;padding:10px;display:flex;flex-direction:column;gap:6px}
+.rc-m{max-width:85%;align-self:flex-start;background:var(--panel2);border-radius:14px 14px 14px 4px;padding:6px 10px;font-size:14px;line-height:1.35;overflow-wrap:anywhere}
+.rc-m.me{align-self:flex-end;background:color-mix(in srgb,var(--violet) 18%,var(--panel));border-radius:14px 14px 4px 14px}
+.rc-m b{display:block;font-size:11.5px;color:var(--violet)}
+.rc-q{display:flex;gap:5px;flex-wrap:wrap;padding:6px 8px;border-top:1px solid var(--line)}
+.rc-q button{border:1px solid var(--line);background:var(--panel2);color:var(--ink);border-radius:999px;padding:4px 9px;font:inherit;font-size:13px;cursor:pointer}
+.rc-f{display:flex;gap:6px;padding:8px;border-top:1px solid var(--line)}
+.rc-f input{flex:1;min-width:0;border:1px solid var(--line);border-radius:12px;padding:8px 10px;background:var(--panel2);color:var(--ink);font:inherit;font-size:15px}
+.rc-bub{position:fixed;right:82px;bottom:24px;z-index:80;max-width:min(260px,calc(100vw - 110px));background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:8px 12px;box-shadow:var(--shadow);font-size:13.5px;opacity:0;transform:translateY(6px);transition:.25s;pointer-events:none;overflow-wrap:anywhere}
+.rc-bub.on{opacity:1;transform:none}
+@media(max-width:600px){.rc-box{left:8px;right:8px;width:auto;bottom:80px;height:min(60vh,460px)}}
+.dctl[hidden]{display:none}
 .stage.gp-off{filter:blur(14px) grayscale(.5);pointer-events:none;user-select:none}
 .duel .spin{font-size:56px;display:inline-block;animation:dspin 1.6s ease-in-out infinite}
 @keyframes dspin{0%,100%{transform:rotate(-12deg) scale(1)}50%{transform:rotate(12deg) scale(1.12)}}
@@ -3727,8 +3751,8 @@ function byeScreen(c,pts){
 }
 
 /* --- 4. Shashka (rus shashkasi) --- */
-addG("dama",{ic:"🔴",nm:["Shashka","Draughts"],desc:["Juftlikda · yeyish majburiy · oxirgi qatorga yetgan tosh damka bo'ladi","In pairs · capturing is compulsory · a man reaching the last row becomes a king"],
- dur:240,higher:true,unit:["ball","pts"],shared:true,pair:true,
+addG("dama",{ic:"🔴",nm:["Shashka","Draughts"],desc:["Juftlikda · vaqt cheklanmagan · yeyish majburiy · oxirgi qatorga yetgan tosh damka bo'ladi","In pairs · no time limit · capturing is compulsory · a man reaching the last row becomes a king"],
+ dur:240,untimed:true,res:{w:300,l:60,d:150},higher:true,unit:["ball","pts"],shared:true,pair:true,
  run:function(c){
   var P=pairSetup(c);
   if(!P.opp){ return byeScreen(c,150); }
@@ -3879,8 +3903,8 @@ addG("dama",{ic:"🔴",nm:["Shashka","Draughts"],desc:["Juftlikda · yeyish majb
  }});
 
 /* --- 5. Shaxmat --- */
-addG("chess",{ic:"♟",nm:["Shaxmat","Chess"],desc:["Juftlikda · to'liq qoidalar: rokirovka, o't o'tida yeyish, piyoda almashinuvi","In pairs · full rules: castling, en passant and promotion"],
- dur:300,higher:true,unit:["ball","pts"],shared:true,pair:true,
+addG("chess",{ic:"♟",nm:["Shaxmat","Chess"],desc:["Juftlikda · vaqt cheklanmagan · to'liq qoidalar: rokirovka, o't o'tida yeyish, piyoda almashinuvi","In pairs · no time limit · full rules: castling, en passant and promotion"],
+ dur:300,untimed:true,res:{w:320,l:70,d:160},higher:true,unit:["ball","pts"],shared:true,pair:true,
  run:function(c){
   var P=pairSetup(c);
   if(!P.opp){ return byeScreen(c,150); }
@@ -4416,8 +4440,8 @@ addG("pzt",{ic:"🖼",nm:["Jamoaviy puzzle","Team puzzle"],desc:["Hamma birga bi
  }});
 
 /* --- 8. To'rttalik (Connect Four): ketma-ket 4 ta tosh — g'alaba --- */
-addG("c4",{ic:"🟡",nm:["To'rttalik","Connect Four"],desc:["Juftlikda · ustunga tosh tashlang · gorizontal, vertikal yoki diagonal 4 ta — g'alaba","In pairs · drop discs into columns · four in a row in any direction wins"],
- dur:240,higher:true,unit:["ball","pts"],shared:true,pair:true,
+addG("c4",{ic:"🟡",nm:["To'rttalik","Connect Four"],desc:["Juftlikda · vaqt cheklanmagan · ustunga tosh tashlang · gorizontal, vertikal yoki diagonal 4 ta — g'alaba","In pairs · no time limit · drop discs into columns · four in a row in any direction wins"],
+ dur:240,untimed:true,res:{w:300,l:60,d:150},higher:true,unit:["ball","pts"],shared:true,pair:true,
  run:function(c){
   var P=pairSetup(c);
   if(!P.opp){ return byeScreen(c,150); }
@@ -4528,7 +4552,7 @@ function card(inner,cls){ return '<div class="card '+(cls||"")+'">'+inner+'</div
 function gameCard(id,on,click){
   var g=GAMES[id];
   var tag=g.minp?('<span class="tag" style="margin-top:6px;display:inline-block">👥 '+g.minp+'+</span>'):
-          (g.pair?('<span class="tag" style="margin-top:6px;display:inline-block">⚔️ '+L("juftlik","pairs")+'</span>'):'');
+          (g.pair?('<span class="tag" style="margin-top:6px;display:inline-block">⚔️ '+L("juftlik","pairs")+(g.untimed?' · ∞ '+L("vaqtsiz","untimed"):'')+'</span>'):'');
   return '<button class="gcard'+(on?" on":"")+'" data-g="'+id+'"><span class="tick">✅</span>'+
     '<span class="ic">'+g.ic+'</span><b>'+esc(L(g.nm[0],g.nm[1]))+'</b><span>'+esc(L(g.desc[0],g.desc[1]))+'</span>'+tag+'</button>';
 }
@@ -5233,6 +5257,7 @@ function vRoom(code,tryN){
 }
 function startRoom(code){
   clearInterval(HB);
+  if(ROOM&&ROOM.meta&&(ROOM.meta.max||4)>1) rcMount(code);
   HB=setInterval(function(){ DB.set("rooms/"+code+"/players/"+ME.id+"/seen",Date.now()); },5000);
   DB.set("rooms/"+code+"/players/"+ME.id+"/seen",Date.now());
   var lastPh="", lastR=-1, lastCnt=-1, miss=0;
@@ -5255,7 +5280,9 @@ function startRoom(code){
       miss = 0;
       if(JUST_CREATED[code]) delete JUST_CREATED[code];
     }
-    ROOM=v; v.code=code;
+    ROOM=v; v.code=code; ROOM_AT=Date.now();
+    if((v.meta.max||4)>1) rcMount(code);
+    rcSync(v);
     var st=v.state||{ph:"lobby",r:0}, pls=plList(v), key=st.ph+"|"+st.r;
     if(isHost(v)) hostTick(v);
     if(key!==lastPh+"|"+lastR || (st.ph==="lobby"&&pls.length+readyN(v)!==lastCnt)){
@@ -5354,8 +5381,8 @@ function gameDur(v,gid){ var g=GAMES[gid]; return v.meta.limit>0?v.meta.limit:(g
 function startRound(v,r){
   var gid=v.meta.games[r-1];
   if(!gid){ finishAll(v); return; }
-  var start=Date.now()+4200, dur=gameDur(v,gid);
-  DB.set("rooms/"+v.code+"/state",{ph:"play",g:gid,r:r,startAt:start,endAt:start+dur*1000,seed:seedOf(v.code,r)});
+  var start=Date.now()+4200, nt=!!(GAMES[gid].untimed&&!(v.meta.limit>0)), dur=nt?43200:gameDur(v,gid);   /* nt: stol o'yini — vaqt cheklanmagan (12 soat — faqat chegara) */
+  DB.set("rooms/"+v.code+"/state",{ph:"play",g:gid,r:r,startAt:start,endAt:start+dur*1000,seed:seedOf(v.code,r),nt:nt?1:0});
   DB.set("rooms/"+v.code+"/meta/status","playing");
   if(r===1&&v.meta.pub) DB.del("public/"+v.code);          /* boshlangan o'yin «kutilayotganlar» ro'yxatidan chiqadi */
 }
@@ -5401,9 +5428,74 @@ function finishAll(v){
      Xona o'yinchilar natijani ko'rib ulgurishi uchun 3 daqiqadan keyin o'chiriladi. */
   setTimeout(function(){ DB.del("rooms/"+v.code); },180000);
 }
+/* ================== 💬 XONA CHATI — o'yin paytida ham (lobbi, o'yin, natijalar; 2 va undan ko'p kishi) ==================
+   rooms/<KOD>/chat/<kalit> = {u, n, t, at}. Kalit server vaqti bo'yicha tartiblanadi; xona o'chirilganda chat ham o'chadi.
+   Xabarlar xonaning umumiy so'rovi (har 1,4 s) bilan keladi — alohida so'rov yo'q */
+var RCH={code:null,open:false,seen:"",last:"",n:0,sendAt:0,bubT:null};
+function rcMount(code){
+  if(RCH.code===code&&document.getElementById("rcBtn")) return;
+  rcUnmount(); RCH.code=code; RCH.open=false; RCH.last=""; RCH.n=0; RCH.first=true;
+  try{ RCH.seen=sessionStorage.getItem("rc_seen_"+code)||""; }catch(e){ RCH.seen=""; }
+  var q=[["👍","👍"],["😂","😂"],["🔥","🔥"],["👏","👏"],["GG","GG"],["🤝",L("Yaxshi o'yin!","Good game!")]];
+  document.body.appendChild(el('<button type="button" class="rc-btn" id="rcBtn" hidden aria-label="'+esc(L("Chat","Chat"))+'">💬<span class="rc-n" id="rcN" hidden></span></button>'));
+  document.body.appendChild(el('<div class="rc-bub" id="rcBub"></div>'));
+  document.body.appendChild(el('<div class="rc-box" id="rcBox" hidden role="dialog"><div class="rc-h"><b>💬 '+L("Xona chati","Room chat")+'</b><span class="note">'+esc(code)+'</span>'+
+    '<button type="button" class="rc-x" id="rcX" aria-label="'+esc(L("Yopish","Close"))+'">✕</button></div>'+
+    '<div class="rc-l" id="rcL"><p class="note center">'+L("Hali xabar yo'q — birinchi bo'lib yozing!","No messages yet — say hi!")+'</p></div>'+
+    '<div class="rc-q">'+q.map(function(x){ return '<button type="button" data-q="'+esc(x[1])+'">'+esc(x[0])+'</button>'; }).join("")+'</div>'+
+    '<form class="rc-f" id="rcF"><input id="rcI" maxlength="200" autocomplete="off" placeholder="'+esc(L("Xabar yozing…","Type a message…"))+'"><button type="submit" class="btn accent sm">➤</button></form></div>'));
+  var I=document.getElementById("rcI");
+  I.addEventListener("keydown",function(e){ e.stopPropagation(); });     /* yozilgan harflar o'yinga (so'z topish) bormasin */
+  I.addEventListener("keyup",function(e){ e.stopPropagation(); });
+  document.getElementById("rcBtn").onclick=function(){ rcOpen(!RCH.open); };
+  document.getElementById("rcX").onclick=function(){ rcOpen(false); };
+  document.getElementById("rcF").onsubmit=function(e){ e.preventDefault(); rcSend(I.value); I.value=""; };
+  document.querySelector("#rcBox .rc-q").onclick=function(e){ var b=e.target.closest("[data-q]"); if(b) rcSend(b.dataset.q); };
+  if(ROOM&&ROOM.code===code) rcSync(ROOM);
+}
+function rcUnmount(){ ["rcBtn","rcBox","rcBub"].forEach(function(id){ var e=document.getElementById(id); if(e) e.remove(); }); RCH.code=null; RCH.open=false; }
+function rcOpen(on){
+  var box=document.getElementById("rcBox"); if(!box) return;
+  RCH.open=on; box.hidden=!on; document.getElementById("rcBtn").classList.toggle("on",on);
+  if(on){ var b=document.getElementById("rcBub"); if(b) b.classList.remove("on"); rcRead(); var l=document.getElementById("rcL"); l.scrollTop=l.scrollHeight;
+    if(!matchMedia("(pointer:coarse)").matches) document.getElementById("rcI").focus(); }
+}
+function rcRead(){ RCH.seen=RCH.last; try{ sessionStorage.setItem("rc_seen_"+RCH.code,RCH.seen); }catch(e){} var n=document.getElementById("rcN"); if(n) n.hidden=true; }
+function rcSend(t){
+  t=String(t||"").replace(/\s+/g," ").trim().slice(0,200); if(!t||!RCH.code) return;
+  if(Date.now()-RCH.sendAt<700) return; RCH.sendAt=Date.now();
+  var k="k"+String(srvNow()).padStart(14,"0")+"_"+ME.id, m={u:ME.id,n:ME.name||"?",t:t,at:{".sv":"timestamp"}};
+  DB.set("rooms/"+RCH.code+"/chat/"+k,m);
+  if(ROOM&&ROOM.code===RCH.code){ ROOM.chat=ROOM.chat||{}; ROOM.chat[k]={u:ME.id,n:m.n,t:t,at:Date.now()}; rcSync(ROOM); }
+  FX.s.tap();
+}
+function rcSync(v){
+  if(!RCH.code||!v||v.code!==RCH.code) return;
+  var btn=document.getElementById("rcBtn"); if(!btn) return;
+  var ch=v.chat||{}, keys=Object.keys(ch).sort(), many=plList(v).length>=2||keys.length>0;
+  btn.hidden=!many; if(!many) return;
+  var last=keys.length?keys[keys.length-1]:"", first=RCH.first; RCH.first=false;
+  if(last===RCH.last&&keys.length===RCH.n) return;
+  var fresh=keys.filter(function(k){ return k>RCH.last&&ch[k]&&ch[k].u!==ME.id; });
+  RCH.last=last; RCH.n=keys.length;
+  var l=document.getElementById("rcL"), atEnd=l.scrollHeight-l.scrollTop-l.clientHeight<40;
+  l.innerHTML=keys.length?keys.slice(-80).map(function(k){ var m=ch[k]||{}, me=m.u===ME.id;
+    return '<div class="rc-m'+(me?" me":"")+'">'+(me?'':'<b>'+esc(m.n||"?")+'</b>')+esc(m.t||"")+'</div>'; }).join(""):
+    '<p class="note center">'+L("Hali xabar yo'q — birinchi bo'lib yozing!","No messages yet — say hi!")+'</p>';
+  if(atEnd||RCH.open) l.scrollTop=l.scrollHeight;
+  if(RCH.open){ rcRead(); return; }
+  var unread=keys.filter(function(k){ return k>RCH.seen&&ch[k]&&ch[k].u!==ME.id; }).length, n=document.getElementById("rcN");
+  n.hidden=!unread; n.textContent=unread>9?"9+":String(unread);
+  if(first) return;                                                         /* xonaga kirganda eski xabarlar uchun ovoz/pufak yo'q */
+  if(fresh.length){
+    var m=ch[fresh[fresh.length-1]], b=document.getElementById("rcBub");
+    b.innerHTML='<b>'+esc(m.n||"?")+':</b> '+esc(m.t||""); b.classList.add("on"); FX.s.pop();
+    clearTimeout(RCH.bubT); RCH.bubT=setTimeout(function(){ b.classList.remove("on"); },4500);
+  }
+}
 /* yolg'iz o'yinda ⏸ pauza: vaqt to'xtaydi (tugash vaqti pauza davomiyligiga suriladi), o'yin maydoni yopiladi, klaviatura o'yinga bormaydi;
    boshqa ilova yoki varaqqa o'tilsa — o'zi pauza. 🚪 chiqish — xona o'chiriladi, natija saqlanmaydi */
-var GP=null, SOLO_PAUSE={}, SOLO_END={};
+var GP=null, SOLO_PAUSE={}, SOLO_END={}, ROOM_AT=0;
 window.addEventListener("keydown",function(e){ if(GP&&GP.on()&&!(e.target&&e.target.closest&&e.target.closest(".gp-ov"))){ e.stopImmediatePropagation(); if(e.key!=="Tab") e.preventDefault(); } },true);
 document.addEventListener("visibilitychange",function(){ if(document.hidden&&GP) GP.pause(false); });
 function vPlay(v){
@@ -5413,9 +5505,12 @@ function vPlay(v){
   APP.innerHTML='<div class="hud"><b>'+g.ic+" "+esc(L(g.nm[0],g.nm[1]))+'</b>'+
     '<span class="note">'+L("Raund","Round")+" "+st.r+" / "+v.meta.games.length+'</span>'+
     '<div class="opps" id="opps" style="flex:1"></div>'+
+    (st.nt?'<span class="note" title="'+esc(L("Vaqt cheklanmagan — o'tgan vaqt","No time limit — time played"))+'">∞ ⏱</span>':
     '<svg class="ring" viewBox="0 0 52 52"><circle class="bgc" cx="26" cy="26" r="22"></circle>'+
-    '<circle class="fgc" id="rg" cx="26" cy="26" r="22" stroke-dasharray="138" stroke-dashoffset="0"></circle></svg>'+
+    '<circle class="fgc" id="rg" cx="26" cy="26" r="22" stroke-dasharray="138" stroke-dashoffset="0"></circle></svg>')+
     '<span class="t" id="tmr">--</span>'+
+    (st.nt&&g.pair?'<span class="dctl" id="dctl" hidden><button type="button" class="btn sm" id="dDraw">🤝 '+L("Durang","Draw")+'</button>'+
+      '<button type="button" class="btn sm warn" id="dRes">🏳 '+L("Taslim","Resign")+'</button></span>':'')+
     (solo?'<button type="button" class="btn sm vio" id="gPause">⏸ '+L("Pauza","Pause")+'</button><button type="button" class="btn sm warn" id="gExit">🚪 '+L("Chiqish","Exit")+'</button>':'')+'</div>'+
     '<div class="stage gb" id="stage" style="--c1:'+bg[0]+';--c2:'+bg[1]+'"></div>';
   var stage=document.getElementById("stage"), timer=document.getElementById("tmr"), ring=document.getElementById("rg");
@@ -5453,6 +5548,52 @@ function vPlay(v){
     unwatchAll(); clearInterval(HB); delete SOLO_PAUSE[v.code]; DB.del("rooms/"+v.code);
     if(again) soloStart(st.g); else nav("#/");
   }
+  /* vaqtsiz juftlik o'yini: 🤝 durang taklifi, 🏳 taslim bo'lish, raqib chiqib ketsa — g'alaba.
+     rooms/<KOD>/duel/r<N>/p<juft> = {rs: taslim bo'lgan, dw: durang taklif qilgan, dx: rad etgan, da: qabul qilindi} */
+  function duelCtl(ctx){
+    var P=pairSetup(ctx), box=document.getElementById("dctl"); if(!P.opp||!box) return;
+    var dp="rooms/"+v.code+"/duel/r"+st.r+"/p"+P.pair, R=g.res||{w:300,l:60,d:150}, asked=null, offerAt=0, oSeen=null, oAt=Date.now(), warned=false,
+        GONE=window.__DUELGONE||90000;                                      /* sinovda qisqartiriladi */
+    var bD=document.getElementById("dDraw"), bR=document.getElementById("dRes");
+    box.hidden=false;
+    function over(raw,msg,good){
+      if(sent) return; ctx.finish(raw); box.hidden=true; if(asked){ asked.remove(); asked=null; }
+      if(inst&&inst.end){ try{ inst.end(); }catch(e){} }                 /* o'yin taxtasi qotadi (natija allaqachon yuborilgan) */
+      toast(msg); if(good===true){ FX.s.win(); FX.confetti(2500); } else if(good===false) FX.s.lose(); else FX.s.ok();
+    }
+    function ask(h,yes,no,onYes,onNo){
+      var o=el('<div class="inv-ov"><div class="inv-box">'+h+'<div class="row" style="justify-content:center"><button type="button" class="btn accent" data-a="1">'+yes+'</button>'+
+        '<button type="button" class="btn" data-a="0">'+no+'</button></div></div></div>');
+      o.onclick=function(e){ var b=e.target.closest("[data-a]"); if(!b) return; o.remove(); if(o===asked) asked=null; (b.dataset.a==="1"?onYes:onNo)(); };
+      document.body.appendChild(o); return o;
+    }
+    bR.onclick=function(){ if(sent) return;
+      ask('<div class="inv-ic">🏳</div><h3>'+L("Taslim bo'lasizmi?","Resign?")+'</h3><p class="inv-t">'+L("Raqibingiz g'olib bo'ladi.","Your opponent wins.")+'</p>',
+        "🏳 "+L("Ha, taslim","Yes, resign"),L("Yo'q, davom","No, play on"),
+        function(){ DB.upd(dp,{rs:ME.id}); over(R.l,"🏳 "+L("Siz taslim bo'ldingiz","You resigned"),false); },function(){}); };
+    bD.onclick=function(){ if(sent||Date.now()-offerAt<20000) return; offerAt=Date.now();
+      DB.upd(dp,{dw:ME.id,dx:null}); bD.disabled=true; bD.textContent="⏳ "+L("Taklif yuborildi","Offer sent"); };
+    watch(dp,1500,function(d){
+      if(sent){ box.hidden=true; if(asked){ asked.remove(); asked=null; } return; } d=d||{};
+      if(d.rs===P.opp){ over(R.w,"🏆 "+L("Raqib taslim bo'ldi — siz yutdingiz!","Your opponent resigned — you win!"),true); return; }
+      if(d.da&&d.dw){ over(R.d,"🤝 "+L("Durang — kelishildi","Draw agreed"),null); return; }
+      if(d.dw===ME.id&&d.dx){ toast(L("Raqib durangni rad etdi","The opponent declined the draw")); DB.upd(dp,{dw:null,dx:null});
+        bD.disabled=false; bD.textContent="🤝 "+L("Durang","Draw"); }
+      if(d.dw===P.opp&&!d.dx&&!d.da&&!asked){
+        asked=ask('<div class="inv-ic">🤝</div><h3>'+L("Raqib durang taklif qilmoqda","Your opponent offers a draw")+'</h3><p class="inv-t">'+esc(P.oppName)+'</p>',
+          "🤝 "+L("Qabul qilish","Accept"),L("Rad etish","Decline"),
+          function(){ DB.upd(dp,{da:1}); over(R.d,"🤝 "+L("Durang — kelishildi","Draw agreed"),null); },function(){ DB.upd(dp,{dx:ME.id}); });
+      }
+      if(d.dw!==P.opp&&asked){ asked.remove(); asked=null; }
+      /* raqib aloqadan chiqdimi: uning «seen» belgisi (har 5 s yangilanadi) o'zgarmay qolsa — soatlar farqiga bog'liq emas */
+      var op=((ROOM||{}).players||{})[P.opp], sn=op?op.seen:null;
+      if(sn!==oSeen){ oSeen=sn; oAt=Date.now(); if(warned){ warned=false; toast(L("Raqib qaytdi","Your opponent is back")); } }
+      if(Date.now()-ROOM_AT<6000){
+        if(Date.now()-oAt>GONE*0.45&&!warned){ warned=true; toast("⚠️ "+L("Raqib aloqada emas — 1 daqiqa kutamiz","The opponent is offline — waiting one minute")); }
+        if(Date.now()-oAt>GONE) over(R.w,"🏆 "+L("Raqib o'yindan chiqib ketdi — siz yutdingiz","Your opponent left — you win"),true);
+      }
+    });
+  }
   if(solo){
     GP={on:function(){ return !!paused; },pause:pause};
     document.getElementById("gPause").onclick=function(){ pause(false); };
@@ -5484,7 +5625,7 @@ function vPlay(v){
       var sec=Math.ceil((st.startAt-now)/1000);
       var n=document.getElementById("cdn");
       if(n&&n.textContent!==(sec>0?String(sec):"GO!")){ n.textContent=sec>0?sec:"GO!"; if(sec>0) FX.s.tick(); else FX.s.go(); }
-      timer.textContent=esec(total); return;
+      timer.textContent=st.nt?"0:00":esec(total); return;
     }
     if(cd.parentNode) cd.remove();
     if(!started){
@@ -5496,7 +5637,9 @@ function vPlay(v){
       try{ inst=g.run(ctx); }
       catch(e){ stage.innerHTML='<p class="note center">'+L("O'yinni yuklashda xato","Error loading the game")+'</p>'; submit(v,st,0); }
       RUN=inst;
+      if(st.nt&&g.pair) duelCtl(ctx);
     }
+    if(st.nt){ timer.textContent=esec(now-st.startAt); return; }        /* vaqtsiz: o'tgan vaqt, tugash yo'q */
     var left=st.endAt-now;
     timer.textContent=esec(left);
     timer.classList.toggle("low",left<10000);
@@ -6392,6 +6535,7 @@ function route(){
   if(RUN&&RUN.off){ try{RUN.off()}catch(e){} RUN=null; }
   var cd=document.querySelector(".cd"); if(cd) cd.remove();
   [].slice.call(document.querySelectorAll(".pzs-ov,.gp-ov,.pzs-big")).forEach(function(o){ o.remove(); });
+  var rh=location.hash||""; if(!(RCH.code&&rh==="#/room/"+RCH.code)) rcUnmount();
   clearInterval(PZT); GP=null;
   var h=location.hash||"#/";
   if(!ME) return need();

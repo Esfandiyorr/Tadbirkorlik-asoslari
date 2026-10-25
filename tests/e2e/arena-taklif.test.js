@@ -64,6 +64,7 @@ async function solveStep(p){
   await until(D,()=>!!document.getElementById("pzB"),null,10000); await until(E,()=>!!document.getElementById("pzB"),null,10000);
   await sleep(4800);
   ck("jamoa: 3 kishi → 5×5 (25 bo'lak), vaqt 8 daqiqa",(await perm(C)).length===25&&await C.evaluate(()=>{ const t=document.getElementById("tmr").textContent; return /^[78]:/.test(t); }),await C.evaluate(()=>document.getElementById("tmr").textContent));
+  ck("jamoaviy o'yinda ham 💬 chat tugmasi (3 kishida)",await C.evaluate(()=>{ const b=document.getElementById("rcBtn"); return !!b&&!b.hidden; })&&await E.evaluate(()=>{ const b=document.getElementById("rcBtn"); return !!b&&!b.hidden; }));
   ck("hammada bir xil rasm va bir xil tartib",JSON.stringify(await perm(C))===JSON.stringify(await perm(D))&&JSON.stringify(await perm(D))===JSON.stringify(await perm(E)));
   await C.screenshot({path:"arena_pzt.png"});
   /* uch kishi navbatma-navbat yig'adi */
