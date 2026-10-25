@@ -24,6 +24,13 @@ const txt=(p,s)=>p.evaluate(q=>{ const e=document.querySelector(q); return e?e.i
   /* 100 bo'lak — Samarqand */
   await P.click('[data-tab="city"]'); await P.click('[data-lv="100"]'); await P.click('.pzg-i[data-id="samarqand"]');
   ck("100 bo'lak: 10×10 taxta",await until(P,()=>document.querySelectorAll("#pzB .pzt").length===100,null,15000)&&/10×10 = 100/.test(await txt(P,".pzs-hud")));
+  ck("kompyuterda asl rasm taxta yonida doim ko'rinadi (kichik nusxa yashirin)",await P.evaluate(()=>{ const r=document.getElementById("pzRefIm"), b=r.getBoundingClientRect(), w=document.getElementById("pzW").getBoundingClientRect();
+    return /blob:/.test(r.style.backgroundImage)&&b.width>=200&&b.left>=w.right-2&&b.bottom<=innerHeight&&getComputedStyle(document.getElementById("pzMini")).display==="none"; }));
+  await P.evaluate(()=>window.scrollTo(0,400)); await sleep(150);
+  ck("pastga surilganda ham asl rasm ko'rinib turadi",await P.evaluate(()=>{ const b=document.getElementById("pzRefIm").getBoundingClientRect(); return b.top>=0&&b.top<innerHeight&&b.height>100; }));
+  await P.evaluate(()=>window.scrollTo(0,0));
+  await P.click("#pzRef");
+  ck("asl rasm bosilsa — katta ko'rinadi, yana bosilsa yopiladi",await until(P,()=>{ const o=document.querySelector(".pzs-big"); return !!o&&o.querySelector(".pzs-bim").getBoundingClientRect().width>400; },null,3000)&&(await P.click(".pzs-big"),await until(P,()=>!document.querySelector(".pzs-big"),null,3000)));
   ck("bo'laklar rasmi blob-URL dan (kanvasdan), joyida turganlari kam",await P.evaluate(()=>/blob:/.test(getComputedStyle(document.querySelector("#pzB .pzt")).backgroundImage))&&(await board(P)).filter(x=>x.ok).length<=12);
   let bd=await board(P), i=bd.findIndex((x,k)=>!x.ok&&bd.findIndex((y,j)=>y.p===k&&!y.ok)>=0), j=bd.findIndex(y=>y.p===i&&!y.ok);
   const ok0=bd.filter(x=>x.ok).length;
@@ -95,6 +102,14 @@ const txt=(p,s)=>p.evaluate(q=>{ const e=document.querySelector(q); return e?e.i
   bd=await board(M); i=bd.findIndex((x,k)=>!x.ok&&bd.findIndex(y=>y.p===k&&!y.ok)>=0); j=bd.findIndex(y=>y.p===i&&!y.ok);
   await M.tap('#pzB .pzt[data-pos="'+i+'"]'); await M.tap('#pzB .pzt[data-pos="'+j+'"]'); await sleep(200);
   ck("telefonda barmoq bilan ikki bo'lakni bosib almashtirish",(await board(M))[i].ok);
+  ck("telefonda asl rasm tepadagi panelda (yon panel yashirin)",await M.evaluate(()=>{ const m=document.getElementById("pzMini"), b=m.getBoundingClientRect(); return /blob:/.test(m.style.backgroundImage)&&b.height>=40&&b.width>=40&&getComputedStyle(document.getElementById("pzRef")).display==="none"; }));
+  await M.tap("#pzZi"); await M.tap("#pzZi"); await sleep(200);                       /* katta taxta — sahifa pastga suriladi */
+  await M.evaluate(()=>window.scrollTo(0,document.body.scrollHeight)); await sleep(200);
+  ck("telefonda pastga surilganda ham asl rasm ko'rinib turadi",await M.evaluate(()=>{ const b=document.getElementById("pzMini").getBoundingClientRect(); return scrollY>100&&b.top>=0&&b.bottom<=innerHeight; }),await M.evaluate(()=>JSON.stringify([scrollY,document.body.scrollHeight,innerHeight,document.getElementById("pzMini").getBoundingClientRect().top])));
+  await M.tap("#pzMini");
+  ck("telefonda asl rasmni bosish — ekran bo'ylab katta ko'rinadi",await until(M,()=>{ const o=document.querySelector(".pzs-big"); return !!o&&o.querySelector(".pzs-bim").getBoundingClientRect().width>300; },null,3000));
+  await M.screenshot({path:"pz_big_m.png"});
+  await M.tap(".pzs-big"); await M.evaluate(()=>window.scrollTo(0,0)); await M.tap("#pzZo"); await M.tap("#pzZo");
   await M.screenshot({path:"pz_play_m.png"});
   /* yolg'iz arena o'yini: ⏸ pauza (tugash vaqti suriladi) va 🚪 chiqish */
   await P.goto(ARENA+"#/"); await until(P,()=>!!document.querySelector('[data-solo="memory"]'),null,15000);

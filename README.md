@@ -244,6 +244,7 @@ menga ayting, qo'shib beraman.
 ## 🧩 Puzzle rasmlari (fotosurat qo'shish)
 
 Arenadagi **🧩 Puzzle** (yakka) — talaba rasm va qiyinlikni o'zi tanlaydi: 16 / 36 / 64 / 100 / 144 / ~200 bo'lak.
+O'ynayotganda asl rasm doim ko'rinib turadi (kompyuterda taxta yonida, telefonda tepada; bosilsa — katta).
 Bo'limlar: 🏙 Shaharlar, 📈 Iqtisod (saytda chizilgan 31 ta rasm) va 📷 **Fotosuratlar** — `fayllar/puzzle/` papkasidagi rasmlar.
 
 **Yangi fotosurat qo'shish (telefondan ham bo'ladi):** GitHub'da `fayllar/puzzle` papkasini oching → **Add file → Upload files** →
