@@ -76,10 +76,13 @@ shablondan o'zgarishsiz o'tadi.
 
 1. `mavzu_N_matn.py` yozing: `slide(sarlavha, sarlavha_en, HTML)` bilan slaydlar,
    har bir matn `d(uz, en)` orqali (u `data-i="N"` qaytaradi va EN lug'atiga yozadi),
-   oxirida `Q=[{q,a,c,e,qe,ae,ee}, ...]` — 15 ta savol.
+   oxirida `Q=[{q,a,c,e,qe,ae,ee}, ...]` — 15 ta savol. **Ochiq savol** (talaba javobni o'zi yozadi — bitta so'z
+   yoki son): `{q, o:[qabul qilinadigan javoblar], e, qe, oe:[...], ee}`. Tekshiruvda katta-kichik harf, tutuq belgisi,
+   bo'shliq va kirill/lotin farq qilmaydi, 6+ harfli so'zda bitta harf xatosi kechiriladi, son javobda faqat raqamlar
+   solishtiriladi. Ochiq savolni qo'llaydigan test dvigateli `mavzu-6.html` da — shablon sifatida uni bering (6-argument).
 2. `tekshir(Q)` — har bir savolda 4 variant uzunligi farqi 4 belgidan oshmasligini
    tekshiradi (talab: to'g'ri va noto'g'ri javoblar bir xil uzunlikda).
-3. `python3 _reyting-manba/yangi_mavzu.py mavzu_N_matn.py mavzu-N.html "Sarlavha" N`
+3. `python3 _reyting-manba/yangi_mavzu.py mavzu_N_matn.py mavzu-N.html "Sarlavha" N` (ochiq savollar bo'lsa oxiriga `"" mavzu-6.html`)
 4. `config.json` → `topics` ga `{"id":"mN","file":"mavzu-N.html","open":false}` qo'shing,
    `inject.py` dagi `DECKS` ga ham qo'shing, so'ng `python3 _reyting-manba/inject.py`.
 5. Yangi mavzu **yopiq** holda `yopiq-mavzular` shoxchasiga, `config.json` va
