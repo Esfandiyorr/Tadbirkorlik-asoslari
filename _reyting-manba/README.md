@@ -126,6 +126,21 @@ bo'yicha ball beriladi (100 / 75 / 50 / 25, teng natijalar o'rtacha oladi).
   taqsimlanadi (1-o'rin 100, oxirgisi 10). Juftlik o'yinlari (uch toshcha,
   shashka, shaxmat) o'yinchilarni juftlarga bo'ladi, toq qolgani o'rtacha ball oladi.
 - **Yolg'iz mashq:** bosh sahifadagi 🎯 tugmasi bitta kishilik xona ochadi.
+- **🟢 Hozir onlayn va taklif:** arenaga kirgan talaba `arena/on/<sid>` ga har 15 soniyada belgi qo'yadi (server vaqti,
+  45 soniyadan eskisi oflayn). Bosh sahifada onlaynlar ro'yxati (🟢 bo'sh / 🎮 o'yinda) va «⚔️ Taklif» tugmasi: o'yin
+  tanlanadi (Shashka, Shaxmat, To'rttalik, Puzzle duel) → taklif qiluvchi 2 kishilik yopiq xona ochadi (`meta.duel`) va
+  `arena/inv/<kimga>/<kimdan>` ga yozadi. Taklif olgan talabada oyna chiqadi (60 soniya): **Qabul** — xonaga kiradi va host
+  o'yinni darhol boshlaydi; **Rad** — `meta.dec`, taklif qiluvchida «rad etdi». Javob bo'lmasa — «javob bermadi», qayta
+  taklif qilish mumkin. O'yin oxirida «🔁 Revansh».
+- **⏳ Kutilayotgan o'yinlar:** «O'yin ochish» — bitta o'yinli ochiq xona (`meta.quick`, `arena/public/<KOD>`: `n`/`max`).
+  Ro'yxatda o'yin, kim ochgani, joylar (●●○) va «yana N joy» ko'rinadi; joylar to'lganda o'yin o'zi boshlanadi va
+  ro'yxatdan chiqadi (host «Boshlash» ni ertaroq ham bosishi mumkin).
+- **Yangi o'yinlar:** 🧩 **Puzzle duel** (juftlik, 4×4, har biriga boshqa rasm; kim birinchi yig'sa — g'olib, raqibning
+  taxtasi qotadi), 🖼 **Jamoaviy puzzle** (hamma bitta rasmni birga yig'adi: 2 kishi — 4×4, 5 daqiqa; 3–4 — 5×5, 8 daqiqa;
+  5+ — 6×6, 10 daqiqa; qadamlar `rooms/<KOD>/pz/r<N>/m` da, har bir brauzer bir xil tartibda qo'llaydi), 🟡 **To'rttalik**
+  (Connect Four), 🔢 **Sudoku poygasi** (6×6, hammaga bir xil; har qanday to'g'ri yechim qabul qilinadi). Puzzle rasmlari
+  saytning o'zida SVG bilan chiziladi (13 ta: Samarqand, Toshkent, Parij, Nyu-York, Dubay, Tokio, London, bozor, bank,
+  zavod, port, startap, fermer xo'jaligi) — tashqi fayl va litsenziya talab qilmaydi.
 
 **Cheklov (halol eslatma):** sayt GitHub Pages'da, ya'ni serversiz ishlaydi.
 Shuning uchun ballni serverda qayta hisoblash imkoni yo'q. Himoya choralari:
