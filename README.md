@@ -23,7 +23,7 @@ barcha mavzular kartochkalarda (🟢 ball beriladi · 📖 o'qish rejimi · 🔒
 | [`mavzu-3.html`](mavzu-3.html) | **M3** — Mahsulotni kam xarajat bilan sinash (moliya va kredit) | 15 slayd · 15 test | 📖 o'qish rejimi |
 | [`mavzu-4.html`](mavzu-4.html) | **M4** — Biznesni qonuniy rasmiylashtirish | 18 slayd · 🧩 krossvord | 📖 o'qish rejimi |
 | [`mavzu-5.html`](mavzu-5.html) | **M5** — Soliqlar va hujjatlar | 18 slayd · 🧮 3 masala | 📖 o'qish rejimi |
-| [`mavzu-6.html`](mavzu-6.html) | **M6** — Biznes-model qanday ishlaydi | 18 slayd · 15 test | 🔒 o'qituvchi ochadi |
+| [`mavzu-6.html`](mavzu-6.html) | **M6** — Biznes-model qanday ishlaydi | 24 slayd · 20 test (6 tasi ochiq) | 🔒 o'qituvchi ochadi |
 | [`mavzu-7.html`](mavzu-7.html) | **M7** — Mijoz kim va unga nima kerak | 18 slayd · 15 test | 🔒 o'qituvchi ochadi |
 | [`mavzu-8.html`](mavzu-8.html) | **M8** — Mahsulotni reklama qilish va mijozga yetkazish | 18 slayd · 15 test | 🔒 o'qituvchi ochadi |
 | [`mavzu-9.html`](mavzu-9.html) | **M9** — Biznes g'oyani taqdim etish va tadbirkorlik yo'lini boshlash | 18 slayd · 15 test | 🔒 o'qituvchi ochadi |

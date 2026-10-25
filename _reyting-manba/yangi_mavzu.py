@@ -13,7 +13,7 @@ import json,re,sys,os,subprocess
 BASE=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))+'/'
 SHABLON=BASE+'mavzu-3.html'          # test dvigateli bor namuna (15 savol)
 
-def yig(matn_fayl,chiqish,sarlavha,raqam,tavsif=""):
+def yig(matn_fayl,chiqish,sarlavha,raqam,tavsif="",shablon=None):
     ns={'UZ':[],'EN':[],'S':[]}
     def T(uz,en): ns['UZ'].append(uz); ns['EN'].append(en); return len(ns['UZ'])-1
     def d(uz,en): return 'data-i="%d"'%T(uz,en)
@@ -22,10 +22,11 @@ def yig(matn_fayl,chiqish,sarlavha,raqam,tavsif=""):
     exec(open(matn_fayl,encoding='utf-8').read(),ns)
     S,UZ,EN,Q=ns['S'],ns['UZ'],ns['EN'],ns['Q']
 
-    if os.path.exists(SHABLON): s=open(SHABLON,encoding='utf-8').read()
+    SH=shablon or SHABLON
+    if os.path.exists(SH): s=open(SH,encoding='utf-8').read()
     else:  # yopiq mavzular shoxchasidan olinadi
         s=subprocess.run(['git','-C',BASE,'show','yopiq-mavzular:'+os.path.basename(SHABLON)],
-                         capture_output=True,text=True,check=True).stdout
+                         capture_output=True,text=True,check=True).stdout if SH==SHABLON else open(SH,encoding='utf-8').read()
     for b,e in [('<!-- RT:BEGIN -->','<!-- RT:END -->'),('/* RT:BEGIN */','/* RT:END */')]:
         if b in s: i=s.index(b); j=s.index(e)+len(e); s=s[:i]+s[j:]
     s=re.sub(r'<title>.*?</title>','<title>%s — TerDU</title>'%sarlavha,s,count=1,flags=re.S)
@@ -34,17 +35,21 @@ def yig(matn_fayl,chiqish,sarlavha,raqam,tavsif=""):
     s=re.sub(r' subj:\[[^\]]*\]',' subj:["Tadbirkorlik asoslari · M%d-mavzu", "Fundamentals of Entrepreneurship · Topic %d"]'%(raqam,raqam),s,count=1)
     a=s.index('  <section class="slide"'); b=s.index('  </main>')
     s=s[:a]+"\n\n".join(S)+"\n\n"+s[b:]
-    q="var Q=[\n"+",\n".join(' {q:%s,\n  a:[%s],c:%d,\n  e:%s}'%(
-        json.dumps(it['q'],ensure_ascii=False),
-        ",\n     ".join(json.dumps(x,ensure_ascii=False) for x in it['a']),
-        it['c'],json.dumps(it['e'],ensure_ascii=False)) for it in Q)+"\n];"
+    def qjs(it):
+        if 'o' in it:      # ochiq savol: javob yoziladi (bitta so'z yoki son), o — qabul qilinadigan javoblar
+            return ' {q:%s,\n  o:%s,\n  e:%s}'%(json.dumps(it['q'],ensure_ascii=False),json.dumps(it['o'],ensure_ascii=False),json.dumps(it['e'],ensure_ascii=False))
+        return ' {q:%s,\n  a:[%s],c:%d,\n  e:%s}'%(
+            json.dumps(it['q'],ensure_ascii=False),
+            ",\n     ".join(json.dumps(x,ensure_ascii=False) for x in it['a']),
+            it['c'],json.dumps(it['e'],ensure_ascii=False))
+    q="var Q=[\n"+",\n".join(qjs(it) for it in Q)+"\n];"
     i=s.index('var Q=[')
     js=[s.index(m) for m in ('var picked=new Array','var KEYS=') if m in s[i:]]   # eski va yangi (Testni boshlash) shablon
     j=min(x for x in js if x>i); s=s[:i]+q+"\n"+s[j:]
     s=almash(s,'var EN',json.dumps({str(k):v for k,v in enumerate(EN)},ensure_ascii=False))
-    s=almash(s,'var QEN',json.dumps([{"q":x['qe'],"a":x['ae'],"c":x['c'],"e":x['ee']} for x in Q],ensure_ascii=False))
+    s=almash(s,'var QEN',json.dumps([({"q":x['qe'],"o":x['oe'],"e":x['ee']} if 'o' in x else {"q":x['qe'],"a":x['ae'],"c":x['c'],"e":x['ee']}) for x in Q],ensure_ascii=False))
     open(chiqish,'w',encoding='utf-8').write(s)
-    return "%s: %d slayd · %d savol · %d matn"%(os.path.basename(chiqish),len(S),len(Q),len(UZ))
+    return "%s: %d slayd · %d savol (%d ochiq) · %d matn"%(os.path.basename(chiqish),len(S),len(Q),sum(1 for x in Q if 'o' in x),len(UZ))
 
 def almash(src,nom,yangi):
     """nom=<{...}> yoki nom=<[...]> qiymatini qavslarni sanab almashtiradi."""
@@ -69,6 +74,7 @@ def tekshir(Q,chek=4):
     """Test variantlari uzunligi bir xilligini tekshiradi."""
     xato=[]
     for i,x in enumerate(Q,1):
+        if 'o' in x: continue                  # ochiq savolda variant yo'q
         for k,nom in (('a','uz'),('ae','en')):
             L=[len(v) for v in x[k]]
             if max(L)-min(L)>chek: xato.append((i,nom,L))
@@ -76,4 +82,5 @@ def tekshir(Q,chek=4):
 
 if __name__=="__main__":
     print(yig(sys.argv[1],BASE+sys.argv[2],sys.argv[3],int(sys.argv[4]),
-              sys.argv[5] if len(sys.argv)>5 else ""))
+              sys.argv[5] if len(sys.argv)>5 else "",
+              (BASE+sys.argv[6]) if len(sys.argv)>6 else None))   # 6-argument: boshqa shablon (masalan, ochiq savolli test dvigateli bor taqdimot)

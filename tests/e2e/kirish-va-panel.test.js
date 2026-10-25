@@ -41,7 +41,7 @@ const rowCls=(p,re)=>p.evaluate(re=>{ const r=[...document.querySelectorAll("#rt
   ck("topbarda ⏳ qolgan vaqt chipi",/⏳/.test(chip)&&/(kun|soat|daq)/.test(chip),chip);
   await A.click("#rtTodo"); await sleep(400);
   const pt=await A.evaluate(()=>{ const p=document.getElementById("rtTodoP"); return p?p.innerText.replace(/\s+/g," "):""; });
-  ck("panel: «Menga nima qoldi?», muddat, slaydlar, vaqt, test",/Menga nima qoldi/.test(pt)&&/Ball tugashiga/.test(pt)&&/yakshanba 23:59/.test(pt)&&/Slaydlar: \d+ \/ 18/.test(pt)&&/O'qish vaqti/.test(pt)&&/Test: 0 \/ 15/.test(pt),pt.slice(0,300));
+  ck("panel: «Menga nima qoldi?», muddat, slaydlar, vaqt, test",/Menga nima qoldi/.test(pt)&&/Ball tugashiga/.test(pt)&&/yakshanba 23:59/.test(pt)&&/Slaydlar: \d+ \/ 24/.test(pt)&&/O'qish vaqti/.test(pt)&&/Test: 0 \/ 20/.test(pt),pt.slice(0,300));
   const unseen0=await A.evaluate(()=>document.querySelectorAll("#rtTodoP .rt-todo-sl button").length);
   await A.screenshot({path:"todo.png"});
   await A.evaluate(()=>document.querySelector('#rtTodoP .rt-todo-sl button[data-s="5"]').click()); await sleep(1200);
