@@ -132,7 +132,8 @@ bo'yicha ball beriladi (100 / 75 / 50 / 25, teng natijalar o'rtacha oladi).
 - **🧩 Yakka puzzle (`#/puzzle`):** rasm va qiyinlik tanlanadi — 16 / 36 / 64 / 100 / 144 / ~200 bo'lak. Bo'limlar:
   🏙 Shaharlar (17), 📈 Iqtisod (14), 📷 Fotosuratlar (`fayllar/puzzle/` papkasidagi rasmlar). Vaqt cheklanmagan, ⏸ pauza va
   🚪 chiqish bor; holat brauzerda saqlanadi (`pz_save_v1`) — keyin «▶ Davom ettirish». 💡 yordam (bitta bo'lakni joyiga
-  qo'yadi), 👁 namuna, ➕/➖ kattalashtirish, kompyuterda sichqoncha bilan sudrash; rekordlar `pz_best_v1`. Baza kerak emas.
+  qo'yadi), 🖼 **asl rasm doim ko'rinadi** (kompyuterda taxta yonida, telefonda tepadagi yopishqoq panelda; bosilsa —
+  ekran bo'ylab katta; duel va jamoaviy puzzle'dagi kichik rasm ham bosilsa kattalashadi), 👁 namuna (taxta ustida xira), ➕/➖ kattalashtirish, kompyuterda sichqoncha bilan sudrash; rekordlar `pz_best_v1`. Baza kerak emas.
   Rasm kanvasga chiziladi va bir xil ko'rinadigan bo'laklar (masalan, bir xil osmon) o'zaro almashinuvchi hisoblanadi.
   **Yangi fotosurat qo'shish:** GitHub'da `fayllar/puzzle` papkasini oching → **Add file → Upload files** → JPG/PNG/WEBP
   (har biri 2 MB gacha) → **Commit**. 1–2 daqiqada «📷 Fotosuratlar» da chiqadi. Fayl nomi — rasm nomi: `Rim__Kolizey.jpg`

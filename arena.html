@@ -211,7 +211,7 @@ canvas{max-width:100%;border-radius:14px;background:var(--panel2);touch-action:n
 @keyframes dspin{0%,100%{transform:rotate(-12deg) scale(1)}50%{transform:rotate(12deg) scale(1.12)}}
 /* 🧩 puzzle */
 .pz-top{display:flex;align-items:center;gap:12px;margin:0 auto 10px;max-width:480px}
-.pz-prev{width:78px;height:78px;flex:none;border-radius:12px;background-size:cover;border:2px solid var(--line);box-shadow:var(--shadow)}
+.pz-prev{width:78px;height:78px;flex:none;border-radius:12px;background-size:cover;border:2px solid var(--line);box-shadow:var(--shadow);cursor:zoom-in}
 .pz-info{display:flex;flex-direction:column;gap:2px;min-width:0}
 .pz-info b{font-size:15px}
 .pz{display:grid;gap:2px;width:min(480px,100%);aspect-ratio:1;margin:0 auto;background:#0f172a;border-radius:12px;padding:2px;touch-action:manipulation}
@@ -250,6 +250,15 @@ canvas{max-width:100%;border-radius:14px;background:var(--panel2);touch-action:n
 .pzs-wrap.gh .pzs-ghost{opacity:.45}
 .pzs-wrap.off .pzs{filter:blur(14px) grayscale(.6)}
 .pzs-wrap.done .pzs{gap:0}
+.pzs-lay{display:flex;gap:16px;align-items:flex-start}
+.pzs-lay .pzs-wrap{flex:1;min-width:0;margin:0 0 10px}
+.pzs-ref{flex:none;width:clamp(200px,24vw,320px);position:sticky;top:170px;display:flex;flex-direction:column;align-items:center;gap:6px;padding:0;border:none;background:none;color:inherit;font:inherit;cursor:zoom-in}
+.pzs-refim{display:block;width:100%;max-height:calc(100vh - 200px);border-radius:12px;border:2px solid var(--line);box-shadow:var(--shadow);background:#0f172a center/contain no-repeat}
+.pzs-mini{display:none;height:56px;max-width:112px;flex:none;padding:0;border-radius:8px;border:2px solid var(--line);background:#0f172a center/contain no-repeat;cursor:zoom-in}
+@media(max-width:899px){.pzs-ref{display:none}.pzs-mini{display:block}}
+.pzs-big{position:fixed;inset:0;z-index:97;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:16px;background:rgba(5,10,20,.85);cursor:zoom-out}
+.pzs-bim{width:min(94vw,calc(84vh * var(--ar)));aspect-ratio:var(--ar);border-radius:12px;background:center/contain no-repeat}
+.pzs-big span{color:#fff;font-weight:700;font-size:14px;text-align:center}
 .btn.sm.on{border-color:var(--violet);color:var(--violet)}
 /* 🟡 to'rttalik */
 .c4{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;width:min(440px,100%);margin:0 auto;padding:10px;border-radius:16px;background:#1d4ed8}
@@ -4299,10 +4308,11 @@ var PZ=(function(){
    perm[pos] = bo'lak raqami; pos===perm[pos] bo'lsa bo'lak joyida (qotadi). Ikki bo'lakni bosib, o'rnini almashtiriladi */
 function pzMount(c,o){
   var n=o.n, N=n*n, img=PZ.url(o.img), sel=-1;
-  c.el.innerHTML='<div class="pz-top"><div class="pz-prev" title="'+esc(L("Namuna","Preview"))+'"></div>'+
+  c.el.innerHTML='<div class="pz-top"><div class="pz-prev" title="'+esc(L("Asl rasm — kattalashtirish uchun bosing","Original picture — tap to enlarge"))+'"></div>'+
     '<div class="pz-info"><b id="pzT">'+esc(o.title||"")+'</b><span class="note" id="pzS"></span><span class="note" id="pzM">'+esc(o.msg||"")+'</span></div></div>'+
     '<div class="pz" id="pzB" style="grid-template-columns:repeat('+n+',1fr)"></div>';
-  c.el.querySelector(".pz-prev").style.backgroundImage=img;      /* data-URL ichida qo'shtirnoq bor — atributga emas, JS orqali */
+  var pv=c.el.querySelector(".pz-prev"); pv.style.backgroundImage=img;      /* data-URL ichida qo'shtirnoq bor — atributga emas, JS orqali */
+  pv.onclick=function(){ pzBig(img,1,o.title); };
   var bd=c.el.querySelector("#pzB"), cells=[];
   for(var i=0;i<N;i++){ var t=document.createElement("button"); t.type="button"; t.className="pzt"; t.setAttribute("data-pos",i); bd.appendChild(t); cells.push(t); }
   function paint(perm){
@@ -4757,6 +4767,14 @@ function pzNew(id,R,lv){
 }
 function pzFmt(s){ s=Math.max(0,Math.round(s)); var h=Math.floor(s/3600), m=Math.floor(s%3600/60), x=s%60; return (h?h+":"+("0"+m).slice(-2):m)+":"+("0"+x).slice(-2); }
 function pzBg(root){ [].slice.call(root.querySelectorAll("[data-bg]")).forEach(function(e){ e.style.backgroundImage=e.getAttribute("data-bg"); e.removeAttribute("data-bg"); }); }
+/* asl rasmni ekran bo'ylab ko'rsatish (bosilsa yoki Esc — yopiladi) */
+function pzBig(u,ar,t){
+  var o=el('<div class="pzs-big" role="dialog"><div class="pzs-bim"></div><span>'+esc(t||"")+' · '+L("yopish uchun bosing","tap to close")+'</span></div>');
+  o.style.setProperty("--ar",String(ar||1)); o.firstChild.style.backgroundImage=u;
+  function close(){ o.remove(); document.removeEventListener("keydown",esc1,true); }
+  function esc1(e){ if(e.key==="Escape"){ e.stopPropagation(); close(); } }
+  o.onclick=close; document.addEventListener("keydown",esc1,true); document.body.appendChild(o);
+}
 function vPuzzle(h){
   clearInterval(PZT);
   APP.innerHTML=card('<p class="note center">'+L("Yuklanmoqda…","Loading…")+'</p>');
@@ -4822,18 +4840,23 @@ function pzPlay(sv){
     var can=(PZG&&PZG.R===R&&PZG.c===c&&PZG.r===r&&PZG.can)?PZG.can:pzCanon(R,c,r);
     PZG={img:sv.img,R:R,c:c,r:r,can:can};
     function okAt(i){ return can[perm[i]]===can[i]; }
-    APP.innerHTML='<div class="hud pzs-hud"><b>🧩 '+esc(info.n)+'</b><span class="note">'+c+'×'+r+' = '+N+'</span>'+
+    APP.innerHTML='<div class="hud pzs-hud"><button type="button" class="pzs-mini" id="pzMini" title="'+esc(L("Asl rasm — kattalashtirish","Original picture — enlarge"))+'" aria-label="'+esc(L("Asl rasm","Original picture"))+'"></button><b>🧩 '+esc(info.n)+'</b><span class="note">'+c+'×'+r+' = '+N+'</span>'+
       '<span class="tag ok" id="pzK"></span><span class="t" id="pzTm">0:00</span><div style="flex:1"></div>'+
       '<button type="button" class="btn sm" id="pzGh" title="'+esc(L("Namunani taxta ustida ko'rsatish","Show the picture over the board"))+'">👁 '+L("Namuna","Preview")+'</button>'+
       '<button type="button" class="btn sm" id="pzHint" title="'+esc(L("Bitta bo'lakni joyiga qo'yadi","Puts one piece in place"))+'">💡 <span id="pzHn"></span></button>'+
       '<button type="button" class="btn sm" id="pzZo" aria-label="'+esc(L("Kichraytirish","Zoom out"))+'">➖</button><button type="button" class="btn sm" id="pzZi" aria-label="'+esc(L("Kattalashtirish","Zoom in"))+'">➕</button>'+
       '<button type="button" class="btn sm vio" id="pzPause">⏸ '+L("Pauza","Pause")+'</button>'+
       '<button type="button" class="btn sm warn" id="pzExit">🚪 '+L("Chiqish","Exit")+'</button></div>'+
-      '<div class="pzs-wrap" id="pzW"><div class="pzs-in"><div class="pzs" id="pzB"></div><div class="pzs-ghost" id="pzGhost"></div></div></div>'+
+      '<div class="pzs-lay"><div class="pzs-wrap" id="pzW"><div class="pzs-in"><div class="pzs" id="pzB"></div><div class="pzs-ghost" id="pzGhost"></div></div></div>'+
+      '<button type="button" class="pzs-ref" id="pzRef" title="'+esc(L("Kattalashtirish","Enlarge"))+'"><span class="pzs-refim" id="pzRefIm"></span><span class="note">🖼 '+L("Asl rasm","Original picture")+'</span></button></div>'+
       '<p class="note center">'+L("Ikki bo'lakni bosing — o'rni almashadi (kompyuterda sichqoncha bilan sudrab ham qo'yish mumkin). Joyiga tushgan bo'lak qotadi.","Tap two pieces to swap them (on a computer you can also drag with the mouse). A piece in its place locks.")+'</p>';
     var bd=document.getElementById("pzB"), wrap=document.getElementById("pzW"), gh=document.getElementById("pzGhost"), cells=[], ta=(R.w/c)/(R.h/r);
     for(var i=0;i<N;i++){ var t=document.createElement("button"); t.type="button"; t.className="pzt"; t.setAttribute("data-pos",i); bd.appendChild(t); cells.push(t); }
     bd.style.setProperty("--pzimg",R.url); gh.style.backgroundImage=R.url;
+    /* asl rasm doim ko'rinadi: kompyuterda taxta yonida, telefonda tepadagi (yopishqoq) panelda; bosilsa — katta */
+    var ar=R.w/R.h, mini=document.getElementById("pzMini"), refim=document.getElementById("pzRefIm");
+    [mini,refim].forEach(function(e){ e.style.backgroundImage=R.url; e.style.aspectRatio=R.w+" / "+R.h; });
+    mini.onclick=document.getElementById("pzRef").onclick=function(){ pzBig(R.url,ar,info.n); };
     function size(){
       /* boshida taxta ekranga to'liq sig'adi (bo'yi ham) — tik rasmda ham; ➕ bilan kattalashtiriladi */
       var avail=Math.max(260,Math.min(wrap.clientWidth||600,980)-8), availH=Math.max(300,(window.innerHeight||700)-210),
@@ -6368,7 +6391,7 @@ function route(){
   var gp=document.getElementById("gpick"); if(gp) gp.remove();
   if(RUN&&RUN.off){ try{RUN.off()}catch(e){} RUN=null; }
   var cd=document.querySelector(".cd"); if(cd) cd.remove();
-  [].slice.call(document.querySelectorAll(".pzs-ov,.gp-ov")).forEach(function(o){ o.remove(); });
+  [].slice.call(document.querySelectorAll(".pzs-ov,.gp-ov,.pzs-big")).forEach(function(o){ o.remove(); });
   clearInterval(PZT); GP=null;
   var h=location.hash||"#/";
   if(!ME) return need();
