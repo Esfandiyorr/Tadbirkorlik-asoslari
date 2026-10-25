@@ -125,6 +125,13 @@ bo'yicha ball beriladi (100 / 75 / 50 / 25, teng natijalar o'rtacha oladi).
 - **Xona 20 kishigacha:** yaratishda 4/6/8/12/16/20 tanlanadi. Ball o'rin bo'yicha
   taqsimlanadi (1-o'rin 100, oxirgisi 10). Juftlik o'yinlari (uch toshcha,
   shashka, shaxmat) o'yinchilarni juftlarga bo'ladi, toq qolgani o'rtacha ball oladi.
+- **♾ Vaqtsiz stol o'yinlari:** Shashka, Shaxmat va To'rttalik vaqt bilan cheklanmaydi (`state.nt=1`; xona yaratishda
+  «Har o'yin uchun vaqt» tanlansa — o'sha vaqt amal qiladi). HUD da o'tgan vaqt, **🤝 Durang** taklifi (raqib qabul
+  qiladi yoki rad etadi) va **🏳 Taslim** tugmalari; raqib aloqadan chiqsa (uning `seen` belgisi 45 s o'zgarmasa —
+  ogohlantirish, 90 s — g'alaba). Holat: `rooms/<KOD>/duel/r<N>/p<juft> = {rs, dw, dx, da}`.
+- **💬 Xona chati:** 2 va undan ko'p kishilik har bir xonada (lobbi, o'yin, natijalar) pastki o'ng burchakda 💬 tugmasi:
+  xabarlar (200 belgigacha), tezkor javoblar (👍 😂 🔥 👏 GG 🤝), o'qilmaganlar soni va yangi xabar pufakchasi.
+  `rooms/<KOD>/chat/<kalit> = {u, n, t, at}` — xona bilan birga o'chadi. Chatga yozilgan harflar o'yinga bormaydi.
 - **Yolg'iz mashq:** bosh sahifadagi 🎯 tugmasi bitta kishilik xona ochadi. O'yin paytida **⏸ Pauza** (vaqt to'xtaydi —
   tugash vaqti pauza davomiyligiga suriladi, o'yin maydoni xiralashadi, klaviatura o'yinga bormaydi; boshqa ilova yoki
   varaqqa o'tilsa — o'zi pauza) va **🚪 Chiqish** (so'raladi; xona o'chiriladi, natija saqlanmaydi). Pauza oynasida
