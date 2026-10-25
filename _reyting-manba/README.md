@@ -125,7 +125,20 @@ bo'yicha ball beriladi (100 / 75 / 50 / 25, teng natijalar o'rtacha oladi).
 - **Xona 20 kishigacha:** yaratishda 4/6/8/12/16/20 tanlanadi. Ball o'rin bo'yicha
   taqsimlanadi (1-o'rin 100, oxirgisi 10). Juftlik o'yinlari (uch toshcha,
   shashka, shaxmat) o'yinchilarni juftlarga bo'ladi, toq qolgani o'rtacha ball oladi.
-- **Yolg'iz mashq:** bosh sahifadagi 🎯 tugmasi bitta kishilik xona ochadi.
+- **Yolg'iz mashq:** bosh sahifadagi 🎯 tugmasi bitta kishilik xona ochadi. O'yin paytida **⏸ Pauza** (vaqt to'xtaydi —
+  tugash vaqti pauza davomiyligiga suriladi, o'yin maydoni xiralashadi, klaviatura o'yinga bormaydi; boshqa ilova yoki
+  varaqqa o'tilsa — o'zi pauza) va **🚪 Chiqish** (so'raladi; xona o'chiriladi, natija saqlanmaydi). Pauza oynasida
+  «🔄 Qaytadan boshlash» ham bor.
+- **🧩 Yakka puzzle (`#/puzzle`):** rasm va qiyinlik tanlanadi — 16 / 36 / 64 / 100 / 144 / ~200 bo'lak. Bo'limlar:
+  🏙 Shaharlar (17), 📈 Iqtisod (14), 📷 Fotosuratlar (`fayllar/puzzle/` papkasidagi rasmlar). Vaqt cheklanmagan, ⏸ pauza va
+  🚪 chiqish bor; holat brauzerda saqlanadi (`pz_save_v1`) — keyin «▶ Davom ettirish». 💡 yordam (bitta bo'lakni joyiga
+  qo'yadi), 👁 namuna, ➕/➖ kattalashtirish, kompyuterda sichqoncha bilan sudrash; rekordlar `pz_best_v1`. Baza kerak emas.
+  Rasm kanvasga chiziladi va bir xil ko'rinadigan bo'laklar (masalan, bir xil osmon) o'zaro almashinuvchi hisoblanadi.
+  **Yangi fotosurat qo'shish:** GitHub'da `fayllar/puzzle` papkasini oching → **Add file → Upload files** → JPG/PNG/WEBP
+  (har biri 2 MB gacha) → **Commit**. 1–2 daqiqada «📷 Fotosuratlar» da chiqadi. Fayl nomi — rasm nomi: `Rim__Kolizey.jpg`
+  → «Rim · Kolizey» (ikki pastki chiziq — «·», bittasi — bo'sh joy). Ro'yxatni (`fayllar/puzzle/rasmlar.json`) GitHub Pages
+  (Jekyll) o'zi tuzadi; u ochilmasa, `arena.html` dagi `PZ_FOTO` ro'yxati ishlatiladi. Rasmni o'chirish — papkadan faylni
+  o'chirish.
 - **🟢 Hozir onlayn va taklif:** arenaga kirgan talaba `arena/on/<sid>` ga har 15 soniyada belgi qo'yadi (server vaqti,
   45 soniyadan eskisi oflayn). Bosh sahifada onlaynlar ro'yxati (🟢 bo'sh / 🎮 o'yinda) va «⚔️ Taklif» tugmasi: o'yin
   tanlanadi (Shashka, Shaxmat, To'rttalik, Puzzle duel) → taklif qiluvchi 2 kishilik yopiq xona ochadi (`meta.duel`) va
@@ -139,8 +152,10 @@ bo'yicha ball beriladi (100 / 75 / 50 / 25, teng natijalar o'rtacha oladi).
   taxtasi qotadi), 🖼 **Jamoaviy puzzle** (hamma bitta rasmni birga yig'adi: 2 kishi — 4×4, 5 daqiqa; 3–4 — 5×5, 8 daqiqa;
   5+ — 6×6, 10 daqiqa; qadamlar `rooms/<KOD>/pz/r<N>/m` da, har bir brauzer bir xil tartibda qo'llaydi), 🟡 **To'rttalik**
   (Connect Four), 🔢 **Sudoku poygasi** (6×6, hammaga bir xil; har qanday to'g'ri yechim qabul qilinadi). Puzzle rasmlari
-  saytning o'zida SVG bilan chiziladi (13 ta: Samarqand, Toshkent, Parij, Nyu-York, Dubay, Tokio, London, bozor, bank,
-  zavod, port, startap, fermer xo'jaligi) — tashqi fayl va litsenziya talab qilmaydi.
+  saytning o'zida SVG bilan chiziladi (31 ta: 17 ta shahar — Samarqand, Toshkent, Buxoro, Xiva, Termiz, Parij, London, Rim,
+  Istanbul, Qohira, Agra, Xitoy devori, Tokio, Singapur, Dubay, Nyu-York, Sidney; 14 ta iqtisod — bozor, bank, birja, onlayn
+  to'lov, zavod, port, logistika, supermarket, kafe, startap, fermer xo'jaligi, yashil energiya, qurilish, turizm) — tashqi
+  fayl talab qilmaydi. Duel va jamoaviy puzzle shu SVG rasmlardan tasodifiy tanlaydi.
 
 **Cheklov (halol eslatma):** sayt GitHub Pages'da, ya'ni serversiz ishlaydi.
 Shuning uchun ballni serverda qayta hisoblash imkoni yo'q. Himoya choralari:
