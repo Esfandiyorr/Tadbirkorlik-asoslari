@@ -206,6 +206,7 @@ canvas{max-width:100%;border-radius:14px;background:var(--panel2);touch-action:n
 .inv-ic{font-size:52px}
 .inv-box h3{margin:6px 0 0;font-size:20px}
 .inv-t{font-size:15px;margin:10px 0 14px}
+.stage.gp-off{filter:blur(14px) grayscale(.5);pointer-events:none;user-select:none}
 .duel .spin{font-size:56px;display:inline-block;animation:dspin 1.6s ease-in-out infinite}
 @keyframes dspin{0%,100%{transform:rotate(-12deg) scale(1)}50%{transform:rotate(12deg) scale(1.12)}}
 /* 🧩 puzzle */
@@ -219,6 +220,37 @@ canvas{max-width:100%;border-radius:14px;background:var(--panel2);touch-action:n
 .pzt.sel{box-shadow:inset 0 0 0 4px #facc15;transform:scale(.93)}
 .pzt.ok{cursor:default;box-shadow:inset 0 0 0 2px rgba(34,197,94,.75)}
 .pzt.ok:hover{transform:none}
+/* 🧩 yakka puzzle: galereya, qiyinlik, katta taxta */
+.pzg{display:grid;grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:10px;margin-top:12px}
+.pzg-i{position:relative;display:flex;flex-direction:column;gap:6px;padding:6px;border:1px solid var(--line);border-radius:14px;background:var(--panel2);color:var(--ink);font:inherit;cursor:pointer;text-align:left;transition:transform .15s,border-color .15s}
+.pzg-i:hover{border-color:var(--violet);transform:translateY(-2px)}
+.pzg-im{display:block;aspect-ratio:1;border-radius:10px;background:#0f172a center/cover no-repeat}
+.pzg-i b{font-size:13px;line-height:1.25}
+.pzg-i i{position:absolute;top:10px;right:10px;font-style:normal;font-size:11.5px;font-weight:800;background:rgba(15,23,42,.8);color:#fde047;border-radius:999px;padding:2px 7px}
+.pzlv{display:grid;grid-template-columns:repeat(auto-fit,minmax(92px,1fr));gap:8px;margin:10px 0 14px}
+.pzlv button{display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 6px;border:2px solid var(--line);border-radius:14px;background:var(--panel2);color:var(--ink);font:inherit;cursor:pointer}
+.pzlv button b{font-size:20px}
+.pzlv button span{font-size:12px;color:var(--muted)}
+.pzlv button.on{border-color:var(--violet);background:color-mix(in srgb,var(--violet) 14%,var(--panel))}
+.pztabs{display:flex;flex-wrap:wrap;gap:6px}
+.pztabs button{border:1px solid var(--line);background:var(--panel2);color:var(--ink);border-radius:999px;padding:7px 13px;font:inherit;font-weight:700;font-size:13px;cursor:pointer}
+.pztabs button.on{background:var(--violet);border-color:var(--violet);color:#fff}
+.pz-cont{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.pz-cont .pzg-im{width:64px;flex:none}
+.pz-ct{flex:1;min-width:160px;display:flex;flex-direction:column;gap:2px}
+.pzs-wrap{overflow:auto;max-width:100%;margin:0 auto 10px;padding:4px;-webkit-overflow-scrolling:touch}
+.pzs-in{position:relative;width:max-content;margin:0 auto}
+.pzs{display:grid;gap:1px;background:#0f172a;border-radius:8px;padding:1px;touch-action:manipulation;transition:filter .25s}
+.pzs .pzt{background-image:var(--pzimg);border-radius:0;width:100%;height:100%}
+.pzs .pzt.sel{box-shadow:inset 0 0 0 3px #facc15}
+.pzs .pzt.ok{box-shadow:none}
+.pzs .pzt.hint{animation:pzh 1.2s ease}
+@keyframes pzh{0%,100%{filter:none}30%{filter:brightness(1.6) drop-shadow(0 0 6px #facc15)}}
+.pzs-ghost{position:absolute;inset:1px;background-size:100% 100%;opacity:0;pointer-events:none;transition:opacity .25s}
+.pzs-wrap.gh .pzs-ghost{opacity:.45}
+.pzs-wrap.off .pzs{filter:blur(14px) grayscale(.6)}
+.pzs-wrap.done .pzs{gap:0}
+.btn.sm.on{border-color:var(--violet);color:var(--violet)}
 /* 🟡 to'rttalik */
 .c4{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;width:min(440px,100%);margin:0 auto;padding:10px;border-radius:16px;background:#1d4ed8}
 .c4c{display:grid;grid-template-rows:repeat(6,1fr);gap:6px;border:none;background:none;padding:0;cursor:default;border-radius:10px}
@@ -4121,12 +4153,146 @@ var PZ=(function(){
      '<path d="M0 360 h600" stroke="#92400e" stroke-width="4"/>'+[20,80,140,200,260,320,380,440,500,560].map(function(x){ return '<rect x="'+x+'" y="344" width="6" height="26" fill="#92400e"/>'; }).join("")+
      '<rect x="330" y="400" width="130" height="56" rx="8" fill="#16a34a"/><rect x="400" y="360" width="56" height="46" rx="6" fill="#15803d"/><rect x="408" y="368" width="40" height="26" fill="#bae6fd"/><rect x="340" y="384" width="10" height="22" fill="#374151"/>'+
      '<circle cx="430" cy="468" r="34" fill="#111827"/><circle cx="430" cy="468" r="13" fill="#facc15"/><circle cx="350" cy="478" r="22" fill="#111827"/><circle cx="350" cy="478" r="8" fill="#facc15"/>'+
-     label("Fermer xo'jaligi","Qishloq xo'jaligi · paxta, g'alla va bog'","#14532d"); }
+     label("Fermer xo'jaligi","Qishloq xo'jaligi · paxta, g'alla va bog'","#14532d"); },
+   buxoro:function(){ var bands=""; for(var y=110;y<440;y+=34) bands+='<rect x="'+(372-(y-60)*0.045)+'" y="'+y+'" width="'+(56+(y-60)*0.09)+'" height="9" fill="#92400e" opacity=".55"/>';
+     return sky("#38bdf8","#e0f2fe")+sun(110,90,34,"#fde047")+cloud(250,70,.9)+
+     '<path d="M350 470 L362 90 L410 90 L422 470 Z" fill="#d6a86c"/>'+bands+'<rect x="352" y="70" width="68" height="30" fill="#b45309"/>'+wins(358,76,4,1,9,16,16,1,"#7c2d12",5)+'<path d="M356 70 Q386 40 416 70 Z" fill="#c2410c"/>'+
+     '<rect x="40" y="300" width="300" height="170" fill="#e2b77a"/>'+wins(56,330,12,4,12,16,23,34,"#a16207",11)+
+     '<path d="M110 300 Q170 205 230 300 Z" fill="#0d9488"/><path d="M128 300 Q170 232 212 300" fill="none" stroke="#115e59" stroke-width="3"/><rect x="166" y="190" width="8" height="22" fill="#a16207"/>'+
+     '<rect x="135" y="350" width="70" height="120" fill="#1e40af"/>'+tiles(138,354,64,40,"#fbbf24")+'<path d="M148 470 V410 Q170 380 192 410 V470 Z" fill="#7dd3fc"/>'+
+     '<rect x="430" y="330" width="150" height="140" fill="#e2b77a"/><path d="M455 330 Q505 260 555 330 Z" fill="#14b8a6"/>'+wins(442,360,6,3,10,14,22,34,"#a16207",13)+
+     '<rect y="470" width="600" height="50" fill="#d6b380"/>'+wins(0,482,30,2,14,4,20,16,"#c4a06a",7)+
+     label("Buxoro","O'zbekiston · Poi Kalon majmuasi","#7c2d12"); },
+   xiva:function(){ var cren=""; for(var x=0;x<600;x+=30) cren+='<rect x="'+x+'" y="352" width="18" height="18" fill="#c08457"/>';
+     return sky("#fdba74","#fef3c7")+sun(480,100,40,"#fff7ed")+
+     '<rect x="250" y="70" width="34" height="290" fill="#d6a86c"/>'+[100,150,200,250,300].map(function(y){ return '<rect x="250" y="'+y+'" width="34" height="10" fill="#0e7490"/>'; }).join("")+'<rect x="244" y="56" width="46" height="18" fill="#0e7490"/>'+
+     '<path d="M80 470 L92 210 L188 210 L200 470 Z" fill="#d6a86c"/>'+[230,262,294,326,358,390,422].map(function(y,i){ return '<rect x="'+(92-(y-210)*0.046)+'" y="'+y+'" width="'+(96+(y-210)*0.092)+'" height="18" fill="'+(i%2?"#0d9488":"#1d4ed8")+'"/>'; }).join("")+'<rect x="86" y="196" width="108" height="16" fill="#0e7490"/>'+
+     '<rect y="370" width="600" height="100" fill="#c08457"/>'+cren+'<path d="M380 470 V410 Q420 370 460 410 V470 Z" fill="#7c2d12"/>'+wins(20,390,20,2,14,10,30,34,"#a16207",3)+
+     '<rect x="470" y="250" width="110" height="120" fill="#d6a86c"/><path d="M490 250 Q525 200 560 250 Z" fill="#14b8a6"/>'+
+     '<rect y="470" width="600" height="50" fill="#e7c79a"/>'+label("Xiva","O'zbekiston · Ichan qal'a va Kalta minor","#7c2d12"); },
+   termiz:function(){ var tr=""; for(var x=40;x<560;x+=40) tr+='<path d="M'+x+' 360 L'+(x+20)+' 330 L'+(x+40)+' 360" stroke="#475569" stroke-width="4" fill="none"/>';
+     return sky("#0ea5e9","#e0f2fe")+sun(500,90,40,"#fde047")+
+     '<path d="M0 300 L90 200 L170 270 L260 170 L360 260 L450 190 L600 290 V340 H0 Z" fill="#a8a29e"/><path d="M240 192 L260 170 L282 192 L270 188 L260 196 L250 188 Z" fill="#f8fafc"/>'+
+     '<path d="M0 330 Q300 300 600 330 V380 H0 Z" fill="#65a30d"/>'+
+     '<rect y="380" width="600" height="90" fill="#0891b2"/><path d="M30 410 h80 M200 430 h90 M380 405 h70 M480 440 h90" stroke="#a5f3fc" stroke-width="4" stroke-linecap="round"/>'+
+     '<rect x="20" y="360" width="560" height="12" fill="#334155"/>'+tr+[60,180,300,420,540].map(function(x){ return '<rect x="'+(x-6)+'" y="372" width="12" height="70" fill="#475569"/>'; }).join("")+
+     '<rect x="250" y="342" width="70" height="18" rx="4" fill="#dc2626"/><rect x="330" y="344" width="44" height="16" rx="4" fill="#2563eb"/>'+
+     '<rect y="470" width="600" height="50" fill="#d6b380"/>'+[70,130,470,530].map(function(x){ return '<path d="M'+x+' 500 Q'+(x+4)+' 470 '+(x-2)+' 448" stroke="#92400e" stroke-width="6" fill="none"/><circle cx="'+(x-2)+'" cy="444" r="14" fill="#16a34a"/>'; }).join("")+
+     label("Termiz","O'zbekiston · Surxondaryo, Amudaryo va Do'stlik ko'prigi","#0c4a6e"); },
+   rim:function(){ function tier(y,h,w,n,c){ var s='<rect x="'+(300-w/2)+'" y="'+y+'" width="'+w+'" height="'+h+'" fill="'+c+'"/>'; for(var i=0;i<n;i++) s+='<path d="M'+(300-w/2+12+i*(w-24)/n)+' '+(y+h)+' V'+(y+h*0.45)+' Q'+(300-w/2+12+i*(w-24)/n+(w-24)/n/2-3)+' '+(y+h*0.1)+' '+(300-w/2+12+(i+1)*(w-24)/n-6)+' '+(y+h*0.45)+' V'+(y+h)+' Z" fill="#78350f" opacity=".75"/>'; return s; }
+     return sky("#7dd3fc","#fef9c3")+sun(90,90,34,"#fde047")+cloud(460,70,1)+
+     tier(170,60,420,9,"#d6b07a")+tier(230,70,460,10,"#e2bf8a")+tier(300,80,500,11,"#d6b07a")+tier(380,90,540,12,"#e2bf8a")+
+     '<path d="M510 170 L520 140 L530 170 Z" fill="#d6b07a"/>'+
+     [40,560].map(function(x){ return '<rect x="'+(x-4)+'" y="400" width="8" height="70" fill="#78350f"/><ellipse cx="'+x+'" cy="395" rx="40" ry="20" fill="#166534"/>'; }).join("")+
+     '<rect y="470" width="600" height="50" fill="#a8a29e"/>'+wins(0,478,24,2,20,6,25,18,"#78716c",9)+label("Rim","Italiya · Kolizey","#78350f"); },
+   qohira:function(){ return sky("#f59e0b","#fef3c7")+sun(470,110,46,"#fff7ed")+
+     '<path d="M40 470 L200 210 L360 470 Z" fill="#d97706"/><path d="M200 210 L360 470 L280 470 Z" fill="#b45309"/>'+
+     '<path d="M300 470 L420 260 L540 470 Z" fill="#f59e0b"/><path d="M420 260 L540 470 L480 470 Z" fill="#d97706"/>'+
+     '<path d="M520 470 L570 380 L620 470 Z" fill="#d97706"/>'+wins(80,300,10,6,22,3,26,26,"#92400e",4)+
+     '<path d="M60 440 h70 v-20 q10 -25 30 -20 v40 Z" fill="#a16207"/>'+
+     '<path d="M440 470 q10 -40 30 -40 q10 -20 25 0 q20 -10 25 20 v20 h-6 v-15 h-50 v15 Z" fill="#78350f"/>'+
+     '<rect y="470" width="600" height="50" fill="#fcd34d"/>'+label("Qohira","Misr · Giza piramidalari","#78350f"); },
+   agra:function(){ return sky("#c4b5fd","#fdf4ff")+sun(110,100,32,"#fde68a")+
+     '<rect x="150" y="250" width="300" height="200" fill="#f8fafc"/><path d="M220 250 Q300 110 380 250 Z" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="3"/><rect x="296" y="110" width="8" height="34" fill="#cbd5e1"/>'+
+     '<path d="M260 450 V340 Q300 290 340 340 V450 Z" fill="#cbd5e1"/><path d="M170 450 V380 Q190 352 210 380 V450 Z M390 450 V380 Q410 352 430 380 V450 Z" fill="#e2e8f0"/>'+
+     '<path d="M165 250 Q185 220 205 250 Z M395 250 Q415 220 435 250 Z" fill="#e2e8f0"/>'+
+     [80,520].map(function(x){ return '<rect x="'+(x-10)+'" y="210" width="20" height="240" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2"/><path d="M'+(x-14)+' 210 Q'+x+' 186 '+(x+14)+' 210 Z" fill="#e2e8f0"/>'; }).join("")+
+     '<rect y="450" width="600" height="70" fill="#86efac"/><rect x="270" y="455" width="60" height="65" fill="#38bdf8"/><path d="M285 470 V510 M315 470 V510" stroke="#e0f2fe" stroke-width="4"/>'+
+     label("Agra","Hindiston · Toj Mahal","#581c87"); },
+   pekin:function(){ function tower(x,y){ return '<rect x="'+(x-22)+'" y="'+(y-40)+'" width="44" height="44" fill="#a8a29e"/><path d="M'+(x-28)+' '+(y-40)+' L'+x+' '+(y-62)+' L'+(x+28)+' '+(y-40)+' Z" fill="#7f1d1d"/><rect x="'+(x-6)+'" y="'+(y-22)+'" width="12" height="16" fill="#44403c"/>'; }
+     return sky("#93c5fd","#f0fdf4")+cloud(150,80,1)+cloud(430,60,.8)+
+     '<path d="M0 300 L120 190 L230 280 L340 170 L460 270 L600 180 V520 H0 Z" fill="#15803d"/><path d="M0 380 L150 300 L300 360 L450 290 L600 350 V520 H0 Z" fill="#166534"/>'+
+     '<path d="M0 420 Q120 330 230 380 T430 300 T600 260" fill="none" stroke="#a8a29e" stroke-width="26" stroke-linecap="round"/><path d="M0 412 Q120 322 230 372 T430 292 T600 252" fill="none" stroke="#78716c" stroke-width="6" stroke-dasharray="10 8"/>'+
+     tower(120,350)+tower(330,330)+tower(520,268)+label("Xitoy","Buyuk Xitoy devori","#7f1d1d"); },
+   istanbul:function(){ function minaret(x){ return '<rect x="'+(x-6)+'" y="150" width="12" height="230" fill="#e2e8f0"/><path d="M'+(x-8)+' 150 L'+x+' 112 L'+(x+8)+' 150 Z" fill="#64748b"/><rect x="'+(x-9)+'" y="220" width="18" height="6" fill="#94a3b8"/>'; }
+     return sky("#fb7185","#fde68a")+sun(300,150,44,"#fff7ed")+
+     minaret(110)+minaret(160)+minaret(440)+minaret(490)+
+     '<rect x="170" y="300" width="260" height="90" fill="#cbd5e1"/><path d="M200 300 Q300 180 400 300 Z" fill="#94a3b8"/><path d="M170 320 Q205 270 240 320 Z M360 320 Q395 270 430 320 Z" fill="#94a3b8"/>'+wins(185,330,10,2,10,16,24,30,"#475569",3)+
+     '<rect y="390" width="600" height="130" fill="#1d4ed8"/><path d="M20 420 h90 M180 450 h80 M330 425 h100 M470 460 h80" stroke="#93c5fd" stroke-width="4" stroke-linecap="round"/>'+
+     '<path d="M380 470 H520 L505 495 H395 Z" fill="#f8fafc"/><rect x="420" y="450" width="60" height="20" fill="#f8fafc"/><rect x="430" y="455" width="40" height="8" fill="#38bdf8"/>'+
+     '<path d="M80 100 l10 8 l10 -8 M520 80 l9 7 l9 -7" stroke="#1f2937" stroke-width="3" fill="none"/>'+label("Istanbul","Turkiya · masjidlar va Bosfor","#7f1d1d"); },
+   sidney:function(){ return sky("#38bdf8","#e0f2fe")+sun(500,80,32,"#fde047")+cloud(180,70,1)+
+     '<path d="M330 300 Q470 120 600 300" fill="none" stroke="#64748b" stroke-width="16"/><path d="M330 300 Q470 160 600 300" fill="none" stroke="#94a3b8" stroke-width="6"/>'+[360,400,440,480,520,560].map(function(x){ return '<path d="M'+x+' 300 V'+(300-Math.round(Math.sin((x-330)/270*Math.PI)*120))+'" stroke="#94a3b8" stroke-width="3"/>'; }).join("")+'<rect x="320" y="296" width="290" height="12" fill="#475569"/>'+
+     '<rect x="40" y="380" width="300" height="40" fill="#d6b07a"/>'+
+     '<path d="M70 380 Q90 260 160 230 Q140 300 150 380 Z" fill="#f8fafc" stroke="#cbd5e1" stroke-width="3"/><path d="M140 380 Q170 250 250 220 Q220 300 230 380 Z" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="3"/><path d="M220 380 Q250 290 320 270 Q300 330 310 380 Z" fill="#f8fafc" stroke="#cbd5e1" stroke-width="3"/>'+
+     '<rect y="420" width="600" height="100" fill="#0369a1"/><path d="M40 450 h80 M210 470 h90 M380 445 h80 M500 480 h70" stroke="#bae6fd" stroke-width="4" stroke-linecap="round"/>'+label("Sidney","Avstraliya · Opera teatri va ko'prik","#0c4a6e"); },
+   singapur:function(){ var st=""; for(var i=0;i<22;i++){ st+='<circle cx="'+((i*97)%600)+'" cy="'+((i*43)%170+10)+'" r="1.6" fill="#fff"/>'; }
+     function tree(x){ return '<path d="M'+(x-6)+' 470 L'+(x-14)+' 330 L'+(x+14)+' 330 L'+(x+6)+' 470 Z" fill="#7c3aed"/><path d="M'+(x-40)+' 330 Q'+x+' 290 '+(x+40)+' 330 Z" fill="#a855f7"/>'+[-30,-15,0,15,30].map(function(d){ return '<circle cx="'+(x+d)+'" cy="'+(318+Math.abs(d)/3)+'" r="4" fill="#f0abfc"/>'; }).join(""); }
+     return sky("#0f172a","#7c3aed")+st+
+     [190,290,390].map(function(x){ return '<path d="M'+(x-30)+' 470 L'+(x-22)+' 150 L'+(x+22)+' 150 L'+(x+30)+' 470 Z" fill="#334155"/>'+wins(x-20,170,4,14,6,10,11,20,"#fde047",x); }).join("")+
+     '<path d="M140 150 H470 Q480 125 450 125 H150 Q130 130 140 150 Z" fill="#0d9488"/><rect x="160" y="132" width="290" height="6" fill="#14b8a6"/>'+tree(70)+tree(540)+
+     '<rect y="470" width="600" height="50" fill="#1e1b4b"/><path d="M20 490 h90 M210 500 h80 M400 488 h90" stroke="#a78bfa" stroke-width="4" stroke-linecap="round"/>'+label("Singapur","Marina Bay — biznes markazi","#3b0764"); },
+   birja:function(){ var cd="", vals=[300,280,310,260,270,230,250,200,215,180,190,150], prev=330;
+     vals.forEach(function(v,i){ var x=60+i*40, up=v<prev, top=Math.min(v,prev), h=Math.max(8,Math.abs(v-prev)); cd+='<path d="M'+(x+10)+' '+(top-18)+' V'+(top+h+18)+'" stroke="'+(up?"#22c55e":"#ef4444")+'" stroke-width="3"/><rect x="'+x+'" y="'+top+'" width="20" height="'+h+'" fill="'+(up?"#22c55e":"#ef4444")+'"/>'; prev=v; });
+     return '<rect width="600" height="600" fill="#0f172a"/>'+wins(0,0,30,26,1,1,20,20,"#1e293b",1)+
+     '<path d="M40 120 H560 M40 200 H560 M40 280 H560 M40 360 H560" stroke="#1e293b" stroke-width="2"/>'+cd+
+     '<polyline points="70,320 150,300 230,270 310,240 390,210 470,180 540,150" fill="none" stroke="#38bdf8" stroke-width="4" stroke-dasharray="8 6"/>'+
+     '<rect x="40" y="410" width="520" height="60" rx="10" fill="#1e293b"/><text x="60" y="448" '+F+' font-size="22" font-weight="800" fill="#22c55e">UZSE ▲ +2,4%</text><text x="300" y="448" '+F+' font-size="22" font-weight="800" fill="#ef4444">USD ▼ −0,3%</text><text x="470" y="448" '+F+' font-size="22" font-weight="800" fill="#fde047">AU ▲</text>'+
+     label("Birja","Aksiyalar, narx va investitsiya","#1e293b"); },
+   supermarket:function(){ var sh="", C=["#ef4444","#f97316","#eab308","#22c55e","#06b6d4","#3b82f6","#8b5cf6","#ec4899"];
+     for(var r=0;r<4;r++){ sh+='<rect x="30" y="'+(120+r*80)+'" width="360" height="8" fill="#94a3b8"/>'; for(var i=0;i<12;i++) sh+='<rect x="'+(38+i*29)+'" y="'+(80+r*80)+'" width="24" height="'+(30+((i*7+r*3)%3)*4)+'" rx="3" fill="'+C[(i+r*3)%8]+'"/>'; }
+     return sky("#f1f5f9","#e2e8f0")+'<rect x="20" y="40" width="380" height="430" fill="#cbd5e1"/>'+sh+
+     '<rect x="420" y="60" width="160" height="40" rx="8" fill="#16a34a"/><text x="500" y="88" text-anchor="middle" '+F+' font-size="22" font-weight="900" fill="#fff">-20%</text>'+
+     '<path d="M420 330 H560 L540 420 H440 Z" fill="none" stroke="#2563eb" stroke-width="8" stroke-linejoin="round"/><path d="M400 300 H425 L445 420" fill="none" stroke="#2563eb" stroke-width="8" stroke-linecap="round"/>'+
+     '<rect x="450" y="300" width="30" height="40" fill="#f97316"/><rect x="485" y="290" width="26" height="50" fill="#22c55e"/><circle cx="530" cy="320" r="18" fill="#ef4444"/>'+
+     '<circle cx="455" cy="445" r="14" fill="#1f2937"/><circle cx="530" cy="445" r="14" fill="#1f2937"/><rect y="470" width="600" height="50" fill="#94a3b8"/>'+
+     label("Supermarket","Chakana savdo · assortiment va aksiyalar","#14532d"); },
+   logistika:function(){ var bx=""; for(var r=0;r<3;r++) for(var q=0;q<4;q++) bx+='<rect x="'+(40+q*52)+'" y="'+(330-r*44)+'" width="48" height="42" fill="#d97706" stroke="#92400e" stroke-width="3"/><path d="M'+(40+q*52)+' '+(351-r*44)+' h48" stroke="#92400e" stroke-width="2"/>';
+     return sky("#bae6fd","#f0f9ff")+'<path d="M20 200 L150 120 L280 200 V470 H20 Z" fill="#94a3b8"/>'+bx+'<rect x="20" y="380" width="260" height="90" fill="#64748b"/>'+wins(30,392,8,2,24,30,31,38,"#475569",2)+
+     '<rect x="320" y="330" width="190" height="110" rx="6" fill="#2563eb"/><text x="415" y="395" text-anchor="middle" '+F+' font-size="22" font-weight="900" fill="#fff">CARGO</text>'+
+     '<path d="M510 360 H555 L585 395 V440 H510 Z" fill="#1d4ed8"/><rect x="525" y="370" width="36" height="26" fill="#bae6fd"/>'+
+     '<circle cx="360" cy="450" r="20" fill="#111827"/><circle cx="430" cy="450" r="20" fill="#111827"/><circle cx="550" cy="450" r="20" fill="#111827"/>'+
+     '<rect y="470" width="600" height="50" fill="#475569"/><path d="M0 495 h600" stroke="#facc15" stroke-width="5" stroke-dasharray="30 20"/>'+label("Logistika","Ombor, yuk va yetkazib berish","#1e3a8a"); },
+   energetika:function(){ function turbine(x,h){ return '<path d="M'+(x-5)+' 470 L'+(x-2)+' '+(470-h)+' L'+(x+2)+' '+(470-h)+' L'+(x+5)+' 470 Z" fill="#f8fafc"/>'+[0,120,240].map(function(a){ return '<rect x="'+(x-3)+'" y="'+(470-h-70)+'" width="6" height="70" rx="3" fill="#f1f5f9" transform="rotate('+(a+15)+' '+x+' '+(470-h)+')"/>'; }).join("")+'<circle cx="'+x+'" cy="'+(470-h)+'" r="7" fill="#cbd5e1"/>'; }
+     var pv=""; for(var r=0;r<3;r++) for(var q=0;q<5;q++) pv+='<path d="M'+(20+q*60+r*18)+' '+(390+r*28)+' l52 0 l-14 24 l-52 0 Z" fill="#1d4ed8" stroke="#bfdbfe" stroke-width="2"/>';
+     return sky("#38bdf8","#ecfeff")+sun(120,100,46,"#facc15")+cloud(320,80,.9)+
+     '<path d="M0 360 Q200 320 400 350 T600 340 V520 H0 Z" fill="#4ade80"/>'+turbine(380,230)+turbine(470,190)+turbine(550,250)+pv+
+     label("Yashil energiya","Quyosh panellari va shamol generatorlari","#14532d"); },
+   qurilish:function(){ var fl=""; for(var r=0;r<6;r++) fl+='<rect x="180" y="'+(200+r*45)+'" width="200" height="8" fill="#64748b"/>'+(r>1?wins(190,210+r*45,6,1,22,26,32,1,"#93c5fd",r):"");
+     return sky("#fde68a","#fff7ed")+sun(500,90,38,"#fb923c")+
+     '<rect x="380" y="60" width="16" height="410" fill="#eab308"/><rect x="200" y="56" width="340" height="16" fill="#eab308"/><path d="M380 72 L420 60 L540 72 M396 72 L460 60" stroke="#ca8a04" stroke-width="3"/><path d="M260 72 V150" stroke="#1f2937" stroke-width="3"/><rect x="244" y="150" width="32" height="22" fill="#b91c1c"/>'+
+     '<rect x="510" y="72" width="30" height="30" fill="#334155"/>'+
+     '<rect x="180" y="200" width="8" height="270" fill="#475569"/><rect x="372" y="200" width="8" height="270" fill="#475569"/>'+fl+
+     '<rect x="30" y="420" width="120" height="50" fill="#b91c1c"/>'+wins(34,424,5,3,20,12,23,16,"#ef4444",1)+
+     '<rect y="470" width="600" height="50" fill="#a8a29e"/><path d="M430 470 L460 440 H520 L550 470 Z" fill="#eab308"/>'+label("Qurilish","Ko'chmas mulk va investitsiya","#78350f"); },
+   tolov:function(){ var qr=""; for(var r=0;r<9;r++) for(var q=0;q<9;q++){ var on=((r*7+q*13+r*q)%3===0)||(r<3&&q<3)||(r<3&&q>5)||(r>5&&q<3); if(on) qr+='<rect x="'+(250+q*12)+'" y="'+(170+r*12)+'" width="12" height="12" fill="#0f172a"/>'; }
+     return sky("#c7d2fe","#eef2ff")+
+     '<rect x="200" y="70" width="210" height="400" rx="30" fill="#0f172a"/><rect x="214" y="96" width="182" height="340" rx="14" fill="#f8fafc"/><rect x="280" y="80" width="50" height="8" rx="4" fill="#334155"/>'+
+     '<rect x="240" y="160" width="128" height="128" fill="#fff" stroke="#e2e8f0" stroke-width="2"/>'+qr+
+     '<text x="305" y="320" text-anchor="middle" '+F+' font-size="24" font-weight="900" fill="#16a34a">150 000 so\'m</text><rect x="240" y="340" width="130" height="40" rx="10" fill="#2563eb"/><text x="305" y="367" text-anchor="middle" '+F+' font-size="18" font-weight="800" fill="#fff">To\'lash</text>'+
+     '<rect x="410" y="300" width="170" height="106" rx="14" fill="#7c3aed" transform="rotate(-12 495 353)"/><rect x="430" y="330" width="34" height="24" rx="4" fill="#fde047" transform="rotate(-12 495 353)"/><text x="470" y="390" '+F+' font-size="16" font-weight="800" fill="#e9d5ff" transform="rotate(-12 495 353)">8600 •••• 1234</text>'+
+     '<circle cx="100" cy="380" r="34" fill="#facc15" stroke="#a16207" stroke-width="5"/><circle cx="140" cy="420" r="30" fill="#fde047" stroke="#a16207" stroke-width="5"/><text x="100" y="391" text-anchor="middle" '+F+' font-size="28" font-weight="900" fill="#a16207">S</text>'+
+     '<rect y="470" width="600" height="50" fill="#a5b4fc"/>'+label("Onlayn to'lov","Fintex · QR-kod, karta va ilova","#312e81"); },
+   kafe:function(){ return sky("#fed7aa","#fff7ed")+
+     '<rect x="40" y="50" width="300" height="200" rx="10" fill="#1f2937"/><text x="190" y="90" text-anchor="middle" '+F+' font-size="26" font-weight="900" fill="#fde68a">MENYU</text>'+
+     [["Kofe","12 000"],["Choy","5 000"],["Somsa","8 000"],["Pirog","15 000"]].map(function(m,i){ return '<text x="70" y="'+(130+i*30)+'" '+F+' font-size="20" fill="#f8fafc">'+m[0]+'</text><text x="310" y="'+(130+i*30)+'" text-anchor="end" '+F+' font-size="20" fill="#86efac">'+m[1]+'</text>'; }).join("")+
+     '<rect x="380" y="60" width="180" height="180" rx="90" fill="#92400e"/><text x="470" y="160" text-anchor="middle" '+F+' font-size="34" font-weight="900" fill="#fef3c7">CAFE</text>'+
+     '<rect y="330" width="600" height="190" fill="#7c2d12"/><rect y="320" width="600" height="18" fill="#a16207"/>'+
+     [90,230,370,500].map(function(x,i){ return '<path d="M'+(x-34)+' 250 H'+(x+34)+' L'+(x+26)+' 318 H'+(x-26)+' Z" fill="'+["#f8fafc","#fde68a","#fecaca","#bbf7d0"][i]+'"/><path d="M'+(x+34)+' 266 q22 4 0 30" stroke="#e5e7eb" stroke-width="6" fill="none"/><path d="M'+(x-10)+' 240 q8 -14 0 -26 M'+(x+8)+' 240 q8 -14 0 -26" stroke="#94a3b8" stroke-width="3" fill="none"/>'; }).join("")+
+     '<rect x="60" y="380" width="160" height="80" rx="10" fill="#fef3c7"/><text x="140" y="430" text-anchor="middle" '+F+' font-size="22" font-weight="900" fill="#7c2d12">Kassa</text>'+label("Kafe","Xizmat ko'rsatish · menyu va narx","#7c2d12"); },
+   turizm:function(){ return sky("#60a5fa","#e0f2fe")+sun(500,90,36,"#fde047")+cloud(150,90,1.1)+
+     '<path d="M0 360 L120 240 L220 330 L330 200 L450 320 L600 230 V420 H0 Z" fill="#64748b"/><path d="M300 228 L330 200 L362 230 L345 226 L330 238 L316 226 Z M100 260 L120 240 L142 262 Z" fill="#f8fafc"/>'+
+     '<path d="M180 150 L420 120 L440 130 L200 168 Z" fill="#f8fafc"/><path d="M300 136 L340 80 L360 82 L340 132 Z M300 150 L330 205 L350 205 L338 146 Z" fill="#e2e8f0"/><path d="M190 152 L170 125 L185 125 L210 148 Z" fill="#ef4444"/><circle cx="410" cy="126" r="5" fill="#38bdf8"/>'+
+     '<rect y="420" width="600" height="100" fill="#22c55e"/>'+
+     '<rect x="420" y="330" width="140" height="140" fill="#f8fafc"/><rect x="420" y="320" width="140" height="16" fill="#dc2626"/>'+wins(432,350,4,3,20,22,32,38,"#38bdf8",6)+'<text x="490" y="315" text-anchor="middle" '+F+' font-size="18" font-weight="900" fill="#dc2626">HOTEL</text>'+
+     '<rect x="80" y="380" width="110" height="90" rx="12" fill="#f97316"/><rect x="115" y="360" width="40" height="24" rx="8" fill="none" stroke="#7c2d12" stroke-width="6"/><path d="M80 410 H190 M80 440 H190" stroke="#c2410c" stroke-width="4"/>'+
+     label("Turizm","Xizmatlar eksporti · mehmonxona va aviaqatnov","#0c4a6e"); }
   };
-  var LIST=["samarqand","toshkent","parij","nyuyork","dubay","tokio","london","bozor","bank","zavod","port","startap","fermer"];
+  /* rasm nomlari (o'zbekcha, inglizcha) va bo'limlar: yakka puzzle galereyasi uchun */
+  var T={samarqand:["Samarqand","Samarkand"],toshkent:["Toshkent","Tashkent"],buxoro:["Buxoro","Bukhara"],xiva:["Xiva","Khiva"],termiz:["Termiz","Termez"],
+    parij:["Parij","Paris"],london:["London","London"],rim:["Rim","Rome"],istanbul:["Istanbul","Istanbul"],qohira:["Qohira","Cairo"],agra:["Agra · Toj Mahal","Agra · Taj Mahal"],
+    pekin:["Buyuk Xitoy devori","Great Wall of China"],tokio:["Tokio","Tokyo"],singapur:["Singapur","Singapore"],dubay:["Dubay","Dubai"],nyuyork:["Nyu-York","New York"],sidney:["Sidney","Sydney"],
+    bozor:["Bozor","Market"],bank:["Bank","Bank"],birja:["Birja","Stock exchange"],tolov:["Onlayn to'lov","Online payment"],zavod:["Zavod","Factory"],port:["Port","Port"],
+    logistika:["Logistika","Logistics"],supermarket:["Supermarket","Supermarket"],kafe:["Kafe","Cafe"],startap:["Startap","Startup"],fermer:["Fermer xo'jaligi","Farm"],
+    energetika:["Yashil energiya","Green energy"],qurilish:["Qurilish","Construction"],turizm:["Turizm","Tourism"]};
+  var CATS={city:["samarqand","toshkent","buxoro","xiva","termiz","parij","london","rim","istanbul","qohira","agra","pekin","tokio","singapur","dubay","nyuyork","sidney"],
+    econ:["bozor","bank","birja","tolov","zavod","port","logistika","supermarket","kafe","startap","fermer","energetika","qurilish","turizm"]};
+  var LIST=CATS.city.concat(CATS.econ);
   var CACHE={};
-  function url(id){ if(!CACHE[id]) CACHE[id]='url("data:image/svg+xml;charset=utf-8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="600" height="600">'+S[id]()+'</svg>')+'")'; return CACHE[id]; }
-  return {list:LIST,url:url,svg:function(id){ return S[id](); }};
+  function svg(id){ return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="600" height="600">'+S[id]()+'</svg>'; }
+  function src(id){ return "data:image/svg+xml;charset=utf-8,"+encodeURIComponent(svg(id)); }
+  function url(id){ if(!CACHE[id]) CACHE[id]='url("'+src(id)+'")'; return CACHE[id]; }
+  return {list:LIST,cats:CATS,url:url,src:src,title:function(id){ return T[id]||[id,id]; },svg:function(id){ return S[id](); }};
 })();
 
 /* ============ 🧩 puzzle taxtasi (yakka, duel va jamoa uchun umumiy) ============
@@ -4342,7 +4508,7 @@ addG("sudoku",{ic:"🔢",nm:["Sudoku poygasi","Sudoku race"],desc:["Hammaga bir 
  }});
 
 var GLIST=["word","memory","sudoku","pzt","dama","chess","c4","pzl"];   /* viktorina o'rniga — kunlik "Jonli test" */
-window.ARENA_TEST.GAMES=GAMES; window.ARENA_TEST.GLIST=GLIST; window.ARENA_TEST.FX=FX; window.ARENA_TEST.PZ=PZ; window.ARENA_TEST.sdkMake=sdkMake; window.ARENA_TEST.sdkBad=sdkBad;
+window.ARENA_TEST.GAMES=GAMES; window.ARENA_TEST.GLIST=GLIST; window.ARENA_TEST.FX=FX; window.ARENA_TEST.PZ=PZ; window.ARENA_TEST.sdkMake=sdkMake; window.ARENA_TEST.sdkBad=sdkBad; window.ARENA_TEST.pz=function(){ return PZG; };
 
 /* ================== KO'RINISH VA OQIM ================== */
 var SOLO_GO={};
@@ -4516,6 +4682,250 @@ function quickRoom(g,mx){
   });
 }
 
+/* ================== 🧩 YAKKA PUZZLE (#/puzzle): rasm va qiyinlikni tanlash — 16 dan ~200 gacha bo'lak ==================
+   Baza kerak emas: vaqt cheklanmagan, holat localStorage da (pz_save_v1) — chiqib ketsangiz ham keyin davom ettirasiz;
+   rekordlar pz_best_v1 (rasm|ustun×qator bo'yicha). ⏸ Pauza vaqtni to'xtatadi va taxtani yopadi (boshqa ilovaga o'tilsa — o'zi).
+   Yuklangan rasmlar: fayllar/puzzle/ papkasidagi JPG/PNG/WEBP — ro'yxatni (fayllar/puzzle/rasmlar.json) GitHub Pages o'zi tuzadi.
+   Bir xil ko'rinadigan bo'laklar (masalan, bir xil osmon) o'zaro almashinuvchi hisoblanadi — katta puzzleda «to'g'ri, lekin qotmadi» bo'lmaydi */
+var PZLV=[[16,["Oson","Easy"]],[36,["O'rta","Medium"]],[64,["Qiyin","Hard"]],[100,["Murakkab","Expert"]],[144,["Juda murakkab","Master"]],[196,["Usta","Grandmaster"]]];
+var PZPH=null, PZG=null, PZT=null;
+function pzLs(k,v){ try{ if(v===undefined){ var x=localStorage.getItem(k); return x?JSON.parse(x):null; } if(v===null) localStorage.removeItem(k); else localStorage.setItem(k,JSON.stringify(v)); }catch(e){} return null; }
+/* fayl nomi → rasm nomi: «Buxoro__Poi_Kalon.jpg» → «Buxoro · Poi Kalon» (ikki pastki chiziq — nuqta, bittasi — bo'sh joy) */
+function pzName(n){ n=String(n||"").replace(/^.*\//,"").replace(/\.[a-z0-9]+$/i,"").replace(/__+/g," · ").replace(/_/g," ").replace(/\s+/g," ").trim(); return n?n.charAt(0).toUpperCase()+n.slice(1):"?"; }
+/* ro'yxat (rasmlar.json) ochilmasa — repoga qo'shilgan rasmlar shu yerdan olinadi */
+var PZ_FOTO=["Buxoro__Poi_Kalon.jpg","Astana__Boyterak.jpg","Kuala-Lumpur__Petronas_minoralari.jpg","Nyu-York__Tayms_skver.jpg","Nyu-York__Ozodlik_haykali.jpg",
+  "Rim__Kolizey.jpg","London__Tower_Bridge.jpg","London__Big_Ben_va_Vestminster.jpg","London__Temza_va_London_Eye.jpg","London__Kechki_Temza.jpg"];
+function pzPhotos(cb){
+  if(PZPH){ cb(PZPH); return; }
+  fetch("fayllar/puzzle/rasmlar.json",{cache:"no-cache"}).then(function(r){ return r.ok?r.text():"[]"; }).catch(function(){ return "[]"; }).then(function(t){
+    var a=null; try{ a=JSON.parse(t); }catch(e){ a=null; }
+    if(!Array.isArray(a)) a=PZ_FOTO.map(function(f){ return {f:"fayllar/puzzle/"+f}; });
+    PZPH=a.filter(function(x){ return x&&x.f; }).map(function(x){ var f=String(x.f).replace(/^\/+/,""); return {id:"ph:"+f,f:f,n:pzName(x.n||f)}; });
+    cb(PZPH);
+  });
+}
+function pzInfo(id){
+  if(String(id).indexOf("ph:")===0){ var f=id.slice(3), ph=(PZPH||[]).filter(function(x){ return x.id===id; })[0];
+    return {id:id,src:encodeURI(f),thumb:'url("'+encodeURI(f)+'")',n:ph?ph.n:pzName(f),photo:true}; }
+  var t=PZ.title(id); return {id:id,src:PZ.src(id),thumb:PZ.url(id),n:L(t[0],t[1]),photo:false};
+}
+/* rasmni kanvasga chizish: bo'laklar uchun qisqa blob-URL (200 ta bo'lakda ham yengil) va piksellar (bir xil bo'laklarni topish uchun) */
+function pzRaster(info,cb){
+  var im=new Image(), done=false;
+  im.onload=function(){
+    if(done) return; done=true;
+    var w=im.naturalWidth||600, h=im.naturalHeight||600;
+    if(!info.photo){ w=1200; h=1200; } else { var k=Math.min(1,1400/Math.max(w,h)); w=Math.round(w*k); h=Math.round(h*k); }
+    var cv=document.createElement("canvas"); cv.width=w; cv.height=h;
+    var x=cv.getContext("2d"), data=null; x.fillStyle="#fff"; x.fillRect(0,0,w,h);
+    try{ x.drawImage(im,0,0,w,h); data=x.getImageData(0,0,w,h); }catch(e){ data=null; }
+    try{ cv.toBlob(function(b){ cb({url:b?'url("'+URL.createObjectURL(b)+'")':'url("'+info.src+'")',w:w,h:h,data:data}); },"image/jpeg",0.9); }
+    catch(e){ cb({url:'url("'+info.src+'")',w:w,h:h,data:null}); }
+  };
+  im.onerror=function(){ if(done) return; done=true; cb(null); };
+  im.src=info.src;
+}
+/* to'rtburchak rasm uchun ustun×qator: bo'laklar kvadratga yaqin, soni tanlanganiga yaqin */
+function pzGrid(target,w,h){ var A=w/h, c=Math.max(2,Math.round(Math.sqrt(target*A))), r=Math.max(2,Math.round(target/c)); return [c,r]; }
+function pzCanon(R,c,r){
+  var N=c*r, can=[], seen={};
+  if(!R||!R.data){ for(var i=0;i<N;i++) can.push(i); return can; }
+  var d=R.data.data, W=R.w, H=R.h;
+  for(var p=0;p<N;p++){
+    var q=p%c, row=Math.floor(p/c), x0=Math.floor(q*W/c), y0=Math.floor(row*H/r), x1=Math.floor((q+1)*W/c), y1=Math.floor((row+1)*H/r), h1=2166136261>>>0, h2=5381;
+    for(var y=y0+1;y<y1-1;y+=2) for(var x=x0+1;x<x1-1;x+=2){ var k=(y*W+x)*4, v=((d[k]>>3)<<10)|((d[k+1]>>3)<<5)|(d[k+2]>>3); h1=Math.imul(h1^v,16777619)>>>0; h2=((h2*33)^v)>>>0; }
+    var sig=h1+":"+h2+":"+(x1-x0)+"x"+(y1-y0);
+    if(seen[sig]===undefined) seen[sig]=p; can.push(seen[sig]);
+  }
+  return can;
+}
+/* aralashtirish: joyida qolganlar iloji boricha kam bo'lsin (bir xil osmon bo'laklari ko'p bo'lsa ham cheksiz aylanmaydi) */
+function pzMix(N,can){
+  var rnd=rng(((Date.now()^Math.floor(Math.random()*1e9))>>>0)||7), best=null, bk=1e9;
+  for(var t=0;t<40&&bk>N/12;t++){
+    var p=[]; for(var i=0;i<N;i++) p.push(i); shuffle(p,rnd);
+    var k=p.filter(function(x,j){ return can[x]===can[j]; }).length;
+    if(k<bk){ bk=k; best=p; }
+  }
+  return best;
+}
+function pzNew(id,R,lv){
+  var g=pzGrid(lv,R.w,R.h), can=pzCanon(R,g[0],g[1]);
+  PZG={img:id,R:R,c:g[0],r:g[1],can:can};
+  var s={img:id,c:g[0],r:g[1],perm:pzMix(g[0]*g[1],can),t:0,h:0,at:Date.now()};
+  pzLs("pz_save_v1",s); return s;
+}
+function pzFmt(s){ s=Math.max(0,Math.round(s)); var h=Math.floor(s/3600), m=Math.floor(s%3600/60), x=s%60; return (h?h+":"+("0"+m).slice(-2):m)+":"+("0"+x).slice(-2); }
+function pzBg(root){ [].slice.call(root.querySelectorAll("[data-bg]")).forEach(function(e){ e.style.backgroundImage=e.getAttribute("data-bg"); e.removeAttribute("data-bg"); }); }
+function vPuzzle(h){
+  clearInterval(PZT);
+  APP.innerHTML=card('<p class="note center">'+L("Yuklanmoqda…","Loading…")+'</p>');
+  pzPhotos(function(){
+    if((location.hash||"").indexOf("#/puzzle")!==0) return;
+    var sv=pzLs("pz_save_v1");
+    if(h==="#/puzzle/play"&&sv&&sv.perm) pzPlay(sv); else pzMenu(sv);
+  });
+}
+function pzMenu(sv){
+  var lv=+(pzLs("pz_lvl")||36), tab=pzLs("pz_tab")||"city", best=pzLs("pz_best_v1")||{};
+  if(sv&&!(sv.perm&&(String(sv.img).indexOf("ph:")===0||PZ.list.indexOf(sv.img)>=0))){ pzLs("pz_save_v1",null); sv=null; }
+  var cats={city:PZ.cats.city,econ:PZ.cats.econ,photo:(PZPH||[]).map(function(x){ return x.id; })};
+  function thumbs(){
+    var ids=cats[tab]||[];
+    if(!ids.length) return '<p class="note">📷 '+L("Hozircha fotosurat yo'q. O'qituvchi «fayllar/puzzle» papkasiga rasm qo'shsa, shu yerda chiqadi.","No photos yet. When the teacher adds pictures to the «fayllar/puzzle» folder, they appear here.")+'</p>';
+    return '<div class="pzg">'+ids.map(function(id){ var I=pzInfo(id), rk=Object.keys(best).filter(function(k){ return k.indexOf(id+"|")===0; }).length;
+      return '<button type="button" class="pzg-i" data-id="'+esc(id)+'"><span class="pzg-im" data-bg="'+esc(I.thumb)+'"></span><b>'+esc(I.n)+'</b>'+(rk?'<i title="'+esc(L("Yig'ilgan","Solved"))+'">🏆 '+rk+'</i>':'')+'</button>'; }).join("")+'</div>';
+  }
+  APP.innerHTML='<div class="ah"><div style="flex:1;min-width:220px"><span class="kicker">🧩 '+L("Yakka puzzle","Solo puzzle")+'</span><h1>'+L("Rasm tanlang","Pick a picture")+'</h1>'+
+      '<p class="note">'+L("Vaqt cheklanmagan. Istalgan payt ⏸ to'xtatib yoki 🚪 chiqib ketishingiz mumkin — keyin shu joydan davom ettirasiz.","No time limit. Pause ⏸ or leave 🚪 at any time — you continue later from the same place.")+'</p></div>'+
+      '<button type="button" class="btn" id="pzHome">🚪 '+L("Arenaga","To the arena")+'</button></div>'+
+    (sv?'<div class="card pz-cont"><span class="pzg-im" data-bg="'+esc(pzInfo(sv.img).thumb)+'"></span><div class="pz-ct"><b>▶ '+L("Tugallanmagan puzzle","Unfinished puzzle")+': '+esc(pzInfo(sv.img).n)+'</b>'+
+      '<span class="note">'+sv.c*sv.r+' '+L("bo'lak","pieces")+' · ⏱ '+pzFmt(sv.t||0)+'</span></div><button type="button" class="btn accent" id="pzGo">▶ '+L("Davom ettirish","Continue")+'</button>'+
+      '<button type="button" class="btn sm" id="pzDrop" title="'+esc(L("O'chirish","Delete"))+'">🗑</button></div>':'')+
+    '<div class="card"><h3>🎚 '+L("Qiyinlik — necha bo'lak","Difficulty — how many pieces")+'</h3><div class="pzlv">'+PZLV.map(function(x){
+      return '<button type="button" data-lv="'+x[0]+'"'+(x[0]===lv?' class="on"':'')+'><b>'+(x[0]===196?"~200":x[0])+'</b><span>'+esc(L(x[1][0],x[1][1]))+'</span></button>'; }).join("")+'</div>'+
+      '<div class="pztabs">'+[["city","🏙 "+L("Shaharlar","Cities")+" ("+cats.city.length+")"],["econ","📈 "+L("Iqtisod","Economy")+" ("+cats.econ.length+")"],["photo","📷 "+L("Fotosuratlar","Photos")+" ("+cats.photo.length+")"]].map(function(t){
+        return '<button type="button" data-tab="'+t[0]+'"'+(t[0]===tab?' class="on"':'')+'>'+esc(t[1])+'</button>'; }).join("")+
+      '<button type="button" id="pzRnd">🎲 '+L("Tasodifiy","Random")+'</button></div><div id="pzThumbs">'+thumbs()+'</div></div>';
+  pzBg(APP);
+  document.getElementById("pzHome").onclick=function(){ nav("#/"); };
+  var go=document.getElementById("pzGo"); if(go) go.onclick=function(){ nav("#/puzzle/play"); };
+  var dr=document.getElementById("pzDrop"); if(dr) dr.onclick=function(){ if(confirm(L("Tugallanmagan puzzle o'chirilsinmi?","Delete the unfinished puzzle?"))){ pzLs("pz_save_v1",null); pzMenu(null); } };
+  [].slice.call(APP.querySelectorAll("[data-lv]")).forEach(function(b){ b.onclick=function(){ lv=+b.dataset.lv; pzLs("pz_lvl",lv);
+    [].slice.call(APP.querySelectorAll("[data-lv]")).forEach(function(x){ x.classList.toggle("on",x===b); }); FX.s.tap(); }; });
+  [].slice.call(APP.querySelectorAll("[data-tab]")).forEach(function(b){ b.onclick=function(){ tab=b.dataset.tab; pzLs("pz_tab",tab);
+    [].slice.call(APP.querySelectorAll("[data-tab]")).forEach(function(x){ x.classList.toggle("on",x===b); });
+    var box=document.getElementById("pzThumbs"); box.innerHTML=thumbs(); pzBg(box); bind(); }; });
+  var busy=false;
+  function start(id){
+    if(busy) return;
+    if(sv&&!confirm(L("Tugallanmagan puzzle o'rniga yangisini boshlaysizmi?","Start a new puzzle instead of the unfinished one?"))) return;
+    busy=true; var info=pzInfo(id), w=el('<p class="note center pz-wait">⏳ '+L("Rasm tayyorlanmoqda…","Preparing the picture…")+'</p>');
+    APP.insertBefore(w,APP.firstChild);
+    pzRaster(info,function(R){
+      busy=false; if(w.parentNode) w.remove();
+      if(!R){ toast(L("Rasm yuklanmadi","The picture did not load")); return; }
+      pzNew(id,R,lv); nav("#/puzzle/play");
+    });
+  }
+  function bind(){ [].slice.call(APP.querySelectorAll(".pzg-i")).forEach(function(b){ b.onclick=function(){ start(b.dataset.id); }; }); }
+  bind();
+  document.getElementById("pzRnd").onclick=function(){ var all=PZ.list.concat(cats.photo); start(all[Math.floor(Math.random()*all.length)]); };
+}
+function pzPlay(sv){
+  var info=pzInfo(sv.img), c=sv.c, r=sv.r, N=c*r, perm=sv.perm, sel=-1, fin=false, zoom=+(pzLs("pz_zoom")||0), down=null, paused=false;
+  APP.innerHTML=card('<p class="note center">⏳ '+L("Rasm tayyorlanmoqda…","Preparing the picture…")+'</p>');
+  function ready(R){
+    if((location.hash||"")!=="#/puzzle/play") return;
+    if(!R){ APP.innerHTML=card('<p class="note center">⚠️ '+L("Rasm yuklanmadi.","The picture did not load.")+'</p><div class="row" style="justify-content:center"><button type="button" class="btn" id="pzBk">← '+L("Orqaga","Back")+'</button></div>');
+      document.getElementById("pzBk").onclick=function(){ nav("#/puzzle"); }; return; }
+    var can=(PZG&&PZG.R===R&&PZG.c===c&&PZG.r===r&&PZG.can)?PZG.can:pzCanon(R,c,r);
+    PZG={img:sv.img,R:R,c:c,r:r,can:can};
+    function okAt(i){ return can[perm[i]]===can[i]; }
+    APP.innerHTML='<div class="hud pzs-hud"><b>🧩 '+esc(info.n)+'</b><span class="note">'+c+'×'+r+' = '+N+'</span>'+
+      '<span class="tag ok" id="pzK"></span><span class="t" id="pzTm">0:00</span><div style="flex:1"></div>'+
+      '<button type="button" class="btn sm" id="pzGh" title="'+esc(L("Namunani taxta ustida ko'rsatish","Show the picture over the board"))+'">👁 '+L("Namuna","Preview")+'</button>'+
+      '<button type="button" class="btn sm" id="pzHint" title="'+esc(L("Bitta bo'lakni joyiga qo'yadi","Puts one piece in place"))+'">💡 <span id="pzHn"></span></button>'+
+      '<button type="button" class="btn sm" id="pzZo" aria-label="'+esc(L("Kichraytirish","Zoom out"))+'">➖</button><button type="button" class="btn sm" id="pzZi" aria-label="'+esc(L("Kattalashtirish","Zoom in"))+'">➕</button>'+
+      '<button type="button" class="btn sm vio" id="pzPause">⏸ '+L("Pauza","Pause")+'</button>'+
+      '<button type="button" class="btn sm warn" id="pzExit">🚪 '+L("Chiqish","Exit")+'</button></div>'+
+      '<div class="pzs-wrap" id="pzW"><div class="pzs-in"><div class="pzs" id="pzB"></div><div class="pzs-ghost" id="pzGhost"></div></div></div>'+
+      '<p class="note center">'+L("Ikki bo'lakni bosing — o'rni almashadi (kompyuterda sichqoncha bilan sudrab ham qo'yish mumkin). Joyiga tushgan bo'lak qotadi.","Tap two pieces to swap them (on a computer you can also drag with the mouse). A piece in its place locks.")+'</p>';
+    var bd=document.getElementById("pzB"), wrap=document.getElementById("pzW"), gh=document.getElementById("pzGhost"), cells=[], ta=(R.w/c)/(R.h/r);
+    for(var i=0;i<N;i++){ var t=document.createElement("button"); t.type="button"; t.className="pzt"; t.setAttribute("data-pos",i); bd.appendChild(t); cells.push(t); }
+    bd.style.setProperty("--pzimg",R.url); gh.style.backgroundImage=R.url;
+    function size(){
+      /* boshida taxta ekranga to'liq sig'adi (bo'yi ham) — tik rasmda ham; ➕ bilan kattalashtiriladi */
+      var avail=Math.max(260,Math.min(wrap.clientWidth||600,980)-8), availH=Math.max(300,(window.innerHeight||700)-210),
+          tw=Math.floor(Math.max(26,Math.min(Math.floor(avail/c),Math.floor(availH/r*ta)))*[1,1.35,1.8,2.4,3.2][zoom]), th=Math.max(18,Math.round(tw/ta));
+      bd.style.gridTemplateColumns="repeat("+c+","+tw+"px)"; bd.style.gridAutoRows=th+"px";
+    }
+    function paint(){
+      var k=0;
+      for(var i=0;i<N;i++){ var p=perm[i], t=cells[i];
+        t.style.backgroundSize=(c*100)+"% "+(r*100)+"%";
+        t.style.backgroundPosition=(p%c)/(c-1)*100+"% "+Math.floor(p/c)/(r-1)*100+"%";
+        t.setAttribute("data-p",p); var ok=okAt(i); if(ok) k++;
+        t.classList.toggle("ok",ok); t.classList.toggle("sel",i===sel); }
+      document.getElementById("pzK").textContent="✅ "+k+" / "+N;
+      document.getElementById("pzHn").textContent=sv.h?String(sv.h):L("Yordam","Hint");
+      return k;
+    }
+    function save(){ if(!fin){ sv.perm=perm; pzLs("pz_save_v1",sv); } }
+    function swap(a,b){
+      if(fin||paused||a===b||okAt(a)||okAt(b)) return;
+      var x=perm[a]; perm[a]=perm[b]; perm[b]=x; sel=-1;
+      FX.s[(okAt(a)||okAt(b))?"ok":"tap"](); var k=paint(); save();
+      if(k===N) finish();
+    }
+    function tap(i){
+      if(fin||paused) return;
+      if(okAt(i)){ FX.s.no(); return; }
+      if(sel<0){ sel=i; FX.s.tap(); paint(); return; }
+      if(sel===i){ sel=-1; paint(); return; }
+      swap(sel,i);
+    }
+    bd.addEventListener("pointerdown",function(e){ var t=e.target.closest(".pzt"); if(!t) return; down={i:+t.getAttribute("data-pos"),m:e.pointerType==="mouse"}; if(down.m) e.preventDefault(); });
+    bd.addEventListener("pointerup",function(e){ if(!down) return; var d=down; down=null;
+      var t=document.elementFromPoint(e.clientX,e.clientY); t=t&&t.closest?t.closest(".pzt"):null; if(!t) return;
+      var i=+t.getAttribute("data-pos");
+      if(i===d.i) tap(i); else if(d.m&&!okAt(d.i)) swap(d.i,i); });
+    bd.addEventListener("pointercancel",function(){ down=null; });
+    bd.addEventListener("click",function(e){ if(e.detail!==0) return; var t=e.target.closest(".pzt"); if(t) tap(+t.getAttribute("data-pos")); });   /* klaviatura (Enter/Probel) */
+    function ov(h){ var o=el('<div class="inv-ov pzs-ov">'+h+'</div>'); document.body.appendChild(o); return o; }
+    function pause(){
+      if(fin||paused) return; paused=true; save(); wrap.classList.add("off");
+      var o=ov('<div class="inv-box"><div class="inv-ic">⏸</div><h3>'+L("Pauza","Paused")+'</h3><p class="inv-t">'+L("Vaqt to'xtatildi","The clock is stopped")+': ⏱ <b>'+pzFmt(sv.t)+'</b> · ✅ '+paint()+' / '+N+'</p>'+
+        '<div class="row" style="justify-content:center"><button type="button" class="btn accent" data-a="go">▶ '+L("Davom ettirish","Resume")+'</button>'+
+        '<button type="button" class="btn" data-a="menu">🖼 '+L("Boshqa rasm","Another picture")+'</button>'+
+        '<button type="button" class="btn warn" data-a="out">🚪 '+L("Arenaga chiqish","Back to the arena")+'</button></div>'+
+        '<p class="note">'+L("Chiqib ketsangiz ham puzzle saqlanadi — keyin «Davom ettirish» ni bosasiz.","Even if you leave, the puzzle is saved — press «Continue» later.")+'</p></div>');
+      o.onclick=function(e){ var b=e.target.closest("[data-a]"); if(!b) return; var a=b.dataset.a; o.remove();
+        if(a==="go"){ paused=false; wrap.classList.remove("off"); FX.s.go(); return; }
+        nav(a==="menu"?"#/puzzle":"#/"); };
+    }
+    function finish(){
+      fin=true; clearInterval(PZT); pzLs("pz_save_v1",null);
+      var key=sv.img+"|"+c+"x"+r, best=pzLs("pz_best_v1")||{}, rec=!best[key]||sv.t<best[key].t;
+      if(rec){ best[key]={t:sv.t,h:sv.h||0,at:Date.now()}; pzLs("pz_best_v1",best); }
+      FX.s.win(); FX.confetti(3500); wrap.classList.add("done");
+      var nx=PZLV.map(function(x){ return x[0]; }).filter(function(x){ return x>N+4; })[0];
+      var o=ov('<div class="inv-box"><div class="inv-ic">🎉</div><h3>'+L("Rasm yig'ildi!","Picture complete!")+'</h3>'+
+        '<p class="inv-t">'+esc(info.n)+' · '+N+' '+L("bo'lak","pieces")+'<br>⏱ <b>'+pzFmt(sv.t)+'</b>'+(sv.h?' · 💡 '+sv.h:'')+'</p>'+
+        (rec?'<p class="inv-t">🏆 <b>'+L("Yangi rekord!","New record!")+'</b></p>':'<p class="note">'+L("Rekordingiz","Your record")+': '+pzFmt(best[key].t)+'</p>')+
+        '<div class="row" style="justify-content:center"><button type="button" class="btn accent" data-a="again">🔁 '+L("Yana shu rasm","Same picture again")+'</button>'+
+        (nx?'<button type="button" class="btn vio" data-a="up">⬆ '+(nx===196?"~200":nx)+' '+L("bo'lak","pieces")+'</button>':'')+
+        '<button type="button" class="btn" data-a="menu">🖼 '+L("Boshqa rasm","Another picture")+'</button></div></div>');
+      o.onclick=function(e){ var b=e.target.closest("[data-a]"); if(!b) return; o.remove(); var a=b.dataset.a;
+        if(a==="menu"){ nav("#/puzzle"); return; }
+        if(a==="up") pzLs("pz_lvl",nx);
+        pzPlay(pzNew(sv.img,R,a==="up"?nx:N)); };
+    }
+    document.getElementById("pzPause").onclick=pause;
+    document.getElementById("pzExit").onclick=function(){ save(); toast(L("Saqlandi — keyin davom ettirasiz","Saved — continue later")); nav("#/puzzle"); };
+    document.getElementById("pzGh").onclick=function(){ var on=wrap.classList.toggle("gh"); this.classList.toggle("on",on); };
+    document.getElementById("pzHint").onclick=function(){
+      if(fin||paused) return; var bad=[]; for(var i=0;i<N;i++) if(!okAt(i)) bad.push(i);
+      if(!bad.length) return; var i0=bad[Math.floor(Math.random()*bad.length)];
+      for(var j=0;j<N;j++) if(j!==i0&&!okAt(j)&&can[perm[j]]===can[i0]){ sv.h=(sv.h||0)+1; var t=cells[i0]; swap(i0,j); t.classList.add("hint");
+        setTimeout(function(){ t.classList.remove("hint"); },1200); try{ t.scrollIntoView({block:"nearest",inline:"nearest"}); }catch(e){} return; }
+    };
+    document.getElementById("pzZi").onclick=function(){ zoom=Math.min(4,zoom+1); pzLs("pz_zoom",zoom); size(); };
+    document.getElementById("pzZo").onclick=function(){ zoom=Math.max(0,zoom-1); pzLs("pz_zoom",zoom); size(); };
+    size(); paint();
+    var tm=document.getElementById("pzTm"); tm.textContent=pzFmt(sv.t||0);
+    clearInterval(PZT);
+    PZT=setInterval(function(){
+      if(!document.getElementById("pzB")){ clearInterval(PZT); return; }
+      if(document.hidden&&!fin){ pause(); return; }          /* boshqa ilova yoki varaqqa o'tildi — o'zi pauza */
+      if(fin||paused) return;
+      sv.t=(sv.t||0)+1; tm.textContent=pzFmt(sv.t); if(sv.t%5===0) save(); },1000);
+    if(paint()===N) finish();
+  }
+  if(PZG&&PZG.R&&PZG.img===sv.img) ready(PZG.R);
+  else pzRaster(info,function(R){ if(R) PZG={img:sv.img,R:R}; ready(R); });
+}
+
 /* ---------- boshqaruv paneli ---------- */
 function soloStart(g){
   var code=newCode();
@@ -4580,7 +4990,8 @@ function vHome(){
    '</div>'+
    '<div class="grid g2">'+
      '<div class="mode"><h3>🎯 '+L("Yolg'iz o'ynash","Play alone")+'</h3><p class="note">'+L("O'yinni tanlang — darhol boshlanadi.","Pick a game — it starts at once.")+'</p>'+
-       '<div class="qg">'+["word","memory","sudoku","pzt"].map(function(g){ var G=GAMES[g];
+       '<div class="qg"><button type="button" class="qbtn" id="bPz"><span class="ic">🧩</span>'+L("Puzzle","Jigsaw puzzle")+'<small>'+L("16–200 bo'lak · rasm tanlang","16–200 pieces · pick a picture")+'</small></button>'+
+         ["word","memory","sudoku"].map(function(g){ var G=GAMES[g];
          return '<button type="button" class="qbtn" data-solo="'+g+'"><span class="ic">'+G.ic+'</span>'+esc(L(G.nm[0],G.nm[1]))+'<small>'+L("1 o'yinchi","1 player")+'</small></button>'; }).join("")+'</div></div>'+
      '<div class="mode"><h3>👥 '+L("Do'stlar bilan","With friends")+'</h3><p class="note">'+L("Xona oching va 4 harfli kodni do'stlaringizga yuboring.","Open a room and send the 4-letter code to your friends.")+'</p>'+
        '<button type="button" class="btn accent big2" id="bNew">➕ '+L("Xona ochish","Open a room")+'</button>'+
@@ -4595,6 +5006,7 @@ function vHome(){
    '<details class="adv" style="margin-top:16px"><summary>🔎 '+L("Ulanish tekshiruvi","Connection test")+'</summary>'+
      '<button type="button" class="btn ghost sm" id="bDiag" style="margin-top:8px">'+L("Tekshirish","Run the test")+'</button><div id="diag"></div></details>';
   document.getElementById("bNew").onclick=function(){ nav("#/create"); };
+  document.getElementById("bPz").onclick=function(){ nav("#/puzzle"); };
   document.getElementById("bDiag").onclick=runDiag;
   [].slice.call(document.querySelectorAll("[data-solo]")).forEach(function(b){ b.onclick=function(){ b.disabled=true; soloStart(b.dataset.solo); }; });
   var hc=document.getElementById("hc"), hj=document.getElementById("hj");
@@ -4934,9 +5346,10 @@ function hostTick(v){
     return;
   }
   if(st.ph==="play"){
+    if(SOLO_PAUSE[v.code]) return;                            /* yolg'iz o'yin pauzada — vaqt to'xtagan */
     var pls=plList(v).filter(function(p){ return Date.now()-(p.seen||0)<30000; });
     var sc=(v.scores||{}), done=pls.filter(function(p){ return sc[p.id]&&sc[p.id]["r"+st.r]!==undefined; }).length;
-    if((done>=pls.length&&pls.length>0)||Date.now()>st.endAt+2500) scoreRound(v);
+    if((done>=pls.length&&pls.length>0)||Date.now()>Math.max(st.endAt,SOLO_END[v.code]||0)+2500) scoreRound(v);
   } else if(st.ph==="res"){
     if(Date.now()>(st.nextAt||0)){
       if(st.r>=v.meta.games.length) finishAll(v); else startRound(v,st.r+1);
@@ -4965,8 +5378,13 @@ function finishAll(v){
      Xona o'yinchilar natijani ko'rib ulgurishi uchun 3 daqiqadan keyin o'chiriladi. */
   setTimeout(function(){ DB.del("rooms/"+v.code); },180000);
 }
+/* yolg'iz o'yinda ⏸ pauza: vaqt to'xtaydi (tugash vaqti pauza davomiyligiga suriladi), o'yin maydoni yopiladi, klaviatura o'yinga bormaydi;
+   boshqa ilova yoki varaqqa o'tilsa — o'zi pauza. 🚪 chiqish — xona o'chiriladi, natija saqlanmaydi */
+var GP=null, SOLO_PAUSE={}, SOLO_END={};
+window.addEventListener("keydown",function(e){ if(GP&&GP.on()&&!(e.target&&e.target.closest&&e.target.closest(".gp-ov"))){ e.stopImmediatePropagation(); if(e.key!=="Tab") e.preventDefault(); } },true);
+document.addEventListener("visibilitychange",function(){ if(document.hidden&&GP) GP.pause(false); });
 function vPlay(v){
-  var st=v.state, g=GAMES[st.g], pls=plList(v);
+  var st=v.state, g=GAMES[st.g], pls=plList(v), solo=(v.meta.max||4)===1, paused=0, gctx=null;
   setSt("busy");
   var bg=GBG[st.g]||["#2563eb33","#7c3aed33"];
   APP.innerHTML='<div class="hud"><b>'+g.ic+" "+esc(L(g.nm[0],g.nm[1]))+'</b>'+
@@ -4974,13 +5392,49 @@ function vPlay(v){
     '<div class="opps" id="opps" style="flex:1"></div>'+
     '<svg class="ring" viewBox="0 0 52 52"><circle class="bgc" cx="26" cy="26" r="22"></circle>'+
     '<circle class="fgc" id="rg" cx="26" cy="26" r="22" stroke-dasharray="138" stroke-dashoffset="0"></circle></svg>'+
-    '<span class="t" id="tmr">--</span></div>'+
+    '<span class="t" id="tmr">--</span>'+
+    (solo?'<button type="button" class="btn sm vio" id="gPause">⏸ '+L("Pauza","Pause")+'</button><button type="button" class="btn sm warn" id="gExit">🚪 '+L("Chiqish","Exit")+'</button>':'')+'</div>'+
     '<div class="stage gb" id="stage" style="--c1:'+bg[0]+';--c2:'+bg[1]+'"></div>';
   var stage=document.getElementById("stage"), timer=document.getElementById("tmr"), ring=document.getElementById("rg");
   var started=false, sent=false, inst=null, total=st.endAt-st.startAt;
   stage.innerHTML='<div class="center"><div style="font-size:52px">'+g.ic+'</div><h2>'+esc(L(g.nm[0],g.nm[1]))+
     '</h2><p class="note" style="max-width:440px;margin:8px auto 0">'+esc(L(g.desc[0],g.desc[1]))+'</p></div>';
   var cd=el('<div class="cd"><b id="cdn">3</b></div>'); document.body.appendChild(cd);
+  function gpOv(ask){
+    var o=el('<div class="inv-ov gp-ov"><div class="inv-box"><div class="inv-ic">'+(ask?"🚪":"⏸")+'</div><h3>'+(ask?L("O'yindan chiqasizmi?","Leave the game?"):L("Pauza","Paused"))+'</h3>'+
+      '<p class="inv-t">'+(ask?L("Bu o'yin natijasi saqlanmaydi.","The result of this game will not be kept."):L("Vaqt to'xtatildi. Qolgan vaqt","The clock is stopped. Time left")+': <b>'+esec(Math.min(total,st.endAt-Math.max(paused,st.startAt)))+'</b>')+'</p>'+
+      '<div class="row" style="justify-content:center"><button type="button" class="btn accent" data-a="go">▶ '+L("Davom ettirish","Resume")+'</button>'+
+      (ask?'':'<button type="button" class="btn" data-a="again">🔄 '+L("Qaytadan boshlash","Start over")+'</button>')+
+      '<button type="button" class="btn warn" data-a="out">🚪 '+(ask?L("Ha, chiqish","Yes, leave"):L("Chiqish","Exit"))+'</button></div></div></div>');
+    document.body.appendChild(o);
+    var b0=o.querySelector("[data-a=go]"); if(b0) b0.focus();
+    o.onclick=function(e){ var b=e.target.closest("[data-a]"); if(!b) return; var a=b.dataset.a; o.remove();
+      if(a==="go") resume(); else leave(a==="again"); };
+  }
+  function pause(ask){
+    if(!solo||sent||paused||document.getElementById("stage")!==stage) return;
+    paused=Date.now(); SOLO_PAUSE[v.code]=1; stage.classList.add("gp-off"); gpOv(ask);
+  }
+  function resume(){
+    if(!paused) return;
+    var d=Date.now()-paused; paused=0; stage.classList.remove("gp-off");
+    st.endAt+=d; if(!started) st.startAt+=d;
+    if(gctx) gctx.endAt=st.endAt;
+    SOLO_END[v.code]=st.endAt; delete SOLO_PAUSE[v.code];
+    DB.upd("rooms/"+v.code+"/state",{endAt:st.endAt,startAt:st.startAt}); FX.s.go();
+  }
+  function leave(again){
+    sent=true; paused=0; GP=null; clearInterval(TICK);
+    if(RUN&&RUN.off){ try{ RUN.off(); }catch(e){} } RUN=null;
+    if(cd.parentNode) cd.remove();
+    unwatchAll(); clearInterval(HB); delete SOLO_PAUSE[v.code]; DB.del("rooms/"+v.code);
+    if(again) soloStart(st.g); else nav("#/");
+  }
+  if(solo){
+    GP={on:function(){ return !!paused; },pause:pause};
+    document.getElementById("gPause").onclick=function(){ pause(false); };
+    document.getElementById("gExit").onclick=function(){ if(sent) leave(false); else pause(true); };
+  }
   /* jonli raqiblar paneli */
   var pv={}, myP=0, myS=0, lastPush=0;
   function pushProg(p,sc){
@@ -5001,6 +5455,7 @@ function vPlay(v){
   var lastBeep=0;
   clearInterval(TICK);
   TICK=setInterval(function(){
+    if(paused) return;
     var now=Date.now();
     if(now<st.startAt){
       var sec=Math.ceil((st.startAt-now)/1000);
@@ -5014,6 +5469,7 @@ function vPlay(v){
       var ctx={el:stage,seed:st.seed,rand:rng(st.seed),endAt:st.endAt,me:ME,players:pls,code:v.code,round:st.r,
         fx:FX,L:L,prog:pushProg,teams:(v.meta.teams===1),startAt:st.startAt,
         finish:function(raw){ if(sent) return; sent=true; pushProg(100,raw); lastPush=0; pushProg(100,raw); submit(v,st,raw); }};
+      gctx=ctx;
       try{ inst=g.run(ctx); }
       catch(e){ stage.innerHTML='<p class="note center">'+L("O'yinni yuklashda xato","Error loading the game")+'</p>'; submit(v,st,0); }
       RUN=inst;
@@ -5912,11 +6368,14 @@ function route(){
   var gp=document.getElementById("gpick"); if(gp) gp.remove();
   if(RUN&&RUN.off){ try{RUN.off()}catch(e){} RUN=null; }
   var cd=document.querySelector(".cd"); if(cd) cd.remove();
+  [].slice.call(document.querySelectorAll(".pzs-ov,.gp-ov")).forEach(function(o){ o.remove(); });
+  clearInterval(PZT); GP=null;
   var h=location.hash||"#/";
   if(!ME) return need();
   if(ME.status&&ME.status!=="ok") return pending();
   if(h==="#/kross") return vKross();            /* krossvord yasash — server va arena holatiga bog'liq emas */
   if(h==="#/yozuv") return vYozuv();            /* Yozuv Marafoni: mashq internetsiz ham ishlaydi, jonli poyga — arena yopiq bo'lsa ham */
+  if(h.indexOf("#/puzzle")===0){ if(online&&ARENA_OPEN){ socialStart(); setSt("idle"); } return vPuzzle(h); }   /* yakka puzzle — baza kerak emas */
   if(!online) return offline();
   if(h==="#/live") return vLive();              /* jonli test arena yopiq bo'lsa ham ishlaydi */
   if(!ARENA_OPEN) return closed();

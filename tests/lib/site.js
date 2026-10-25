@@ -17,6 +17,10 @@ function build(){
     if(/\.(html|js|css|webmanifest|png)$/i.test(n)) fs.copyFileSync(path.join(ROOT,n),path.join(OUT,n));
   }
   copyDir(path.join(ROOT,"fayllar"),path.join(OUT,"fayllar"));
+  /* fayllar/puzzle/rasmlar.json ni GitHub Pages (Jekyll) tuzadi — sinov nusxasida o'zimiz shu ko'rinishda yozamiz */
+  const pzd=path.join(OUT,"fayllar","puzzle");
+  if(fs.existsSync(pzd)) fs.writeFileSync(path.join(pzd,"rasmlar.json"),JSON.stringify(fs.readdirSync(pzd).filter(n=>/\.(jpe?g|png|webp)$/i.test(n)).sort()
+    .map(n=>({f:"/fayllar/puzzle/"+n,n:n.replace(/\.[^.]+$/,"")}))));
   const p=path.join(OUT,"rt-engine.js"); let s=fs.readFileSync(p,"utf8");
   const a='var tcList=[], isTc=false;', b='var FBV="10.12.2", FB_AUTH=null, fbWaiters=null, TC_USER=null;';
   if(s.indexOf(a)<0||s.indexOf(b)<0) throw new Error("rt-engine.js: o'qituvchi taqlidi uchun qator topilmadi");

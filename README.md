@@ -241,6 +241,16 @@ ovoz darajasi va takrorlash holati brauzerda eslab qolinadi.
 So'ng `python3 _reyting-manba/inject.py` ni ishga tushirib, o'zgarishni push qiling — yoki shunchaki
 menga ayting, qo'shib beraman.
 
+## 🧩 Puzzle rasmlari (fotosurat qo'shish)
+
+Arenadagi **🧩 Puzzle** (yakka) — talaba rasm va qiyinlikni o'zi tanlaydi: 16 / 36 / 64 / 100 / 144 / ~200 bo'lak.
+Bo'limlar: 🏙 Shaharlar, 📈 Iqtisod (saytda chizilgan 31 ta rasm) va 📷 **Fotosuratlar** — `fayllar/puzzle/` papkasidagi rasmlar.
+
+**Yangi fotosurat qo'shish (telefondan ham bo'ladi):** GitHub'da `fayllar/puzzle` papkasini oching → **Add file → Upload files** →
+JPG/PNG/WEBP rasmlarni tanlang (har biri 2 MB gacha) → **Commit changes**. 1–2 daqiqadan keyin rasm «📷 Fotosuratlar» da chiqadi.
+Fayl nomi — rasm nomi: `Rim__Kolizey.jpg` → «Rim · Kolizey» (ikki pastki chiziq `__` — «·», bitta `_` — bo'sh joy).
+O'chirish — papkadan faylni o'chirish. Ro'yxat (`fayllar/puzzle/rasmlar.json`) avtomatik tuziladi.
+
 ## Imkoniyatlar
 
 - 🌐 **UZ ⇄ ENG til almashtirish** — `L` tugmasi yoki yuqoridagi 🌐 tugma: barcha slaydlar, jadvallar, interfeys va test to'liq ingliz tiliga o'tadi (tanlov saqlanadi)

@@ -5,7 +5,7 @@ const {build}=require("./lib/site.js");
 const PORT=+process.env.PORT||8124, SITE="http://127.0.0.1:"+PORT;
 const OUTDIR=path.join(__dirname,".out"); fs.mkdirSync(OUTDIR,{recursive:true});
 const TYPES={".html":"text/html; charset=utf-8",".js":"text/javascript; charset=utf-8",".mjs":"text/javascript",".css":"text/css; charset=utf-8",
-  ".json":"application/json",".webmanifest":"application/manifest+json",".png":"image/png",".webp":"image/webp",".svg":"image/svg+xml",".ico":"image/x-icon"};
+  ".json":"application/json",".webmanifest":"application/manifest+json",".png":"image/png",".jpg":"image/jpeg",".jpeg":"image/jpeg",".webp":"image/webp",".svg":"image/svg+xml",".ico":"image/x-icon"};
 const only=process.argv.slice(2);
 const site=build();
 const srv=http.createServer((q,r)=>{

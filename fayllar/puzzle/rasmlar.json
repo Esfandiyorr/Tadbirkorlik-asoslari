@@ -1,0 +1,4 @@
+---
+layout: null
+---
+[{% assign first = true %}{% for f in site.static_files %}{% if f.path contains '/fayllar/puzzle/' %}{% assign e = f.extname | downcase %}{% if e == '.jpg' or e == '.jpeg' or e == '.png' or e == '.webp' %}{% unless first %},{% endunless %}{% assign first = false %}{"f":{{ f.path | jsonify }},"n":{{ f.basename | jsonify }}}{% endif %}{% endif %}{% endfor %}]
