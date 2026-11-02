@@ -35,6 +35,7 @@ Existing verified teacher email sign-in is recognized by the configured original
 ## 3. Vercel staging
 
 1. Import this GitHub repository into Vercel as a new project. Select **Root Directory: `studyquest`**, framework Next.js, Node.js 22, build `npm run build`, install `npm ci`.
+   The included `vercel.json` explicitly selects Next.js and restores its default output handling. This prevents the project from being served as a generic static site if import detection selects Other. Leave Output Directory at the framework default.
 2. Enable access to files outside the root directory in Vercel project settings. The build copies original lesson files from the repository root; build from a full checkout, not an isolated copy of `studyquest/`.
 3. Add the Firebase environment values for Preview and Production separately. Set `STUDYQUEST_DEMO=false`. Demo role authentication is additionally disabled by code on Vercel and in production.
 4. Build a preview deployment first. Add that exact stable preview domain to Firebase authorized domains. Rebuild after changing `NEXT_PUBLIC_*` values because they are embedded at build time.
