@@ -8,7 +8,7 @@ function copyDir(a,b){
   fs.mkdirSync(b,{recursive:true});
   for(const n of fs.readdirSync(a)){
     const pa=path.join(a,n), pb=path.join(b,n), st=fs.statSync(pa);
-    if(st.isDirectory()) copyDir(pa,pb); else if(!SKIP.test(n)) fs.copyFileSync(pa,pb);
+    if(st.isDirectory()) copyDir(pa,pb); else if(!SKIP.test(n)||n==="auth-workspace.mp4") fs.copyFileSync(pa,pb);
   }
 }
 function build(){

@@ -118,7 +118,12 @@
   /* Reference-inspired account card; all form fields remain in one column. */
   #rtGate.rt-auth-page{--panel:#fff;--panel2:#f7f5fc;--ink:#302c42;--ink2:#4a455c;--muted:#817a92;--line:#e5e1ee;--green:#6554c0;--focus:#8c79dc;display:grid;place-items:center;padding:32px;background:#eeedf4;overflow:auto;overscroll-behavior:contain;z-index:180}
   #rtGate .rt-auth-layout{display:grid;grid-template-columns:1.06fr 1fr;max-width:1080px;width:100%;min-height:640px;padding:0;margin:auto;border:1px solid #e5e1ee;border-radius:16px;box-shadow:0 24px 70px -24px rgba(47,39,80,.25);position:relative;background:var(--panel);overflow:hidden}
-  #rtGate .rt-auth-visual{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0;padding:40px 12px;background:#f8f6fd;border-right:1px solid #eeebf6}
+  #rtGate .rt-auth-visual{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0;padding:36px 24px 56px;background:#f8f6fd;border-right:1px solid #eeebf6}
+  #rtGate .rt-auth-video{display:none;width:100%;max-width:460px;aspect-ratio:1;object-fit:contain;border-radius:12px;background:#f8f6fd}
+  #rtGate[data-design="workspace"] .rt-auth-video{display:block}
+  #rtGate[data-design="workspace"] .rt-auth-scenes{display:none}
+  #rtGate .rt-auth-motion{position:absolute;left:22px;bottom:18px;border:1px solid var(--line);border-radius:20px;background:var(--panel);color:var(--ink2);font:inherit;font-size:12px;min-height:34px;padding:6px 14px;cursor:pointer}
+  #rtGate .rt-auth-motion:hover{border-color:var(--green)}
   #rtGate .rt-auth-scenes{position:relative;width:100%;max-width:540px;aspect-ratio:680/460}
   #rtGate .rt-auth-scene{display:block;position:absolute;inset:0;width:100%;height:100%;object-fit:contain;opacity:0;transform:translateY(14px) scale(.96);transition:opacity .45s ease,transform .6s cubic-bezier(.2,.7,.25,1);pointer-events:none}
   #rtGate[data-mode="log"] .rt-auth-scene-login,#rtGate[data-mode="reg"] .rt-auth-scene-register{opacity:1;transform:translateY(0) scale(1)}
@@ -215,7 +220,7 @@
   @media(max-width:900px){
     #rtGate.rt-auth-page{padding:0;background:var(--panel)}
     #rtGate .rt-auth-layout{display:block;min-height:100dvh;max-width:none;border:0;border-radius:0;box-shadow:none}
-    #rtGate .rt-auth-visual{display:none}
+    #rtGate .rt-auth-visual,#rtGate .rt-auth-motion{display:none}
     #rtGate .rt-auth-main{max-width:420px;min-height:100dvh;padding:48px 28px}
     #rtGate #rtGateX{position:fixed;right:18px;top:20px}
   }

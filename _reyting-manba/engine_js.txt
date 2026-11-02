@@ -1034,7 +1034,7 @@ function courseGate(next){
   });
 }
 /* Login design library: public selection, teacher-authenticated writes to meta/design. */
-var AUTH_DESIGNS=[{id:"workspace",uz:"Raqamli ta’lim",en:"Digital learning",image:"fayllar/auth-desktop.svg"},
+var AUTH_DESIGNS=[{id:"workspace",uz:"Raqamli ta’lim",en:"Digital learning",image:"fayllar/auth-workspace-poster.webp"},
   {id:"rocket",uz:"Biznes start",en:"Business startup",image:"fayllar/auth-rocket-preview.webp"}];
 function authDesignKnown(id){ return AUTH_DESIGNS.some(function(d){ return d.id===id; }); }
 var AUTH_DESIGN=lget("terdu_login_design","workspace");
@@ -1044,6 +1044,42 @@ function authDesignDecorate(g,id){
   var caption=g.querySelector(".rt-auth-visual>p");
   if(caption) caption.textContent=id==="rocket"?T("Tadbirkorlik asoslari","Entrepreneurship fundamentals"):T("Bilimdan biznes sari.","From learning to building.");
   var sub=g.querySelector(".rt-auth-subtitle"); if(sub) sub.textContent=T("TerDU o‘quv platformasi","TerDU learning platform");
+  if(g._motionSync) g._motionSync();
+}
+/* Decorative video loads only while the desktop workspace design is visible. */
+function authMotionSetup(g){
+  var video=g.querySelector(".rt-auth-video"),button=g.querySelector(".rt-auth-motion");
+  var desktop=matchMedia("(min-width:901px)"),reduced=matchMedia("(prefers-reduced-motion:reduce)");
+  var paused=false,manual=false,disposed=false;
+  function label(){
+    var playing=!video.paused;
+    button.textContent=playing?T("Ⅱ Pauza","Ⅱ Pause"):T("▶ Ijro","▶ Play");
+    button.setAttribute("aria-label",playing?T("Animatsiyani to‘xtatish","Pause animation"):T("Animatsiyani davom ettirish","Play animation"));
+  }
+  function sync(){
+    var visible=g.dataset.design==="workspace"&&desktop.matches;
+    button.hidden=!visible;
+    if(!visible||document.hidden||paused||(reduced.matches&&!manual)) { video.pause(); label(); return; }
+    if(!video.dataset.loaded){
+      video.querySelectorAll("source").forEach(function(src){ src.src=src.dataset.src; });
+      video.dataset.loaded="true"; video.load();
+    }
+    video.muted=true; video.autoplay=true;
+    var play=video.play(); if(play) play.catch(function(){ if(!disposed) label(); });
+  }
+  button.onclick=function(){ paused=!video.paused; manual=!paused; sync(); };
+  video.addEventListener("play",label); video.addEventListener("pause",label);
+  function preference(){ manual=false; sync(); }
+  desktop.addEventListener("change",sync); reduced.addEventListener("change",preference);
+  document.addEventListener("visibilitychange",sync);
+  var observer=new MutationObserver(function(){
+    if(g.isConnected) return;
+    disposed=true; video.pause(); observer.disconnect();
+    desktop.removeEventListener("change",sync); reduced.removeEventListener("change",preference);
+    document.removeEventListener("visibilitychange",sync); delete g._motionSync;
+  });
+  observer.observe(document.body,{childList:true});
+  g._motionSync=sync; sync(); label();
 }
 function authDesignApply(id){
   AUTH_DESIGN=authDesignKnown(id)?id:"workspace"; lset("terdu_login_design",AUTH_DESIGN);
@@ -1088,10 +1124,10 @@ function gate(opts){
   var oldG=document.getElementById("rtGate"); if(oldG) oldG.remove();
   var g=el('<div class="rt-gate rt-auth-page'+(guest?' rt-authg':'')+'" id="rtGate" role="dialog" aria-modal="true" aria-labelledby="rtAuthTitle"><div class="rt-box rt-auth-layout">'+
     (guest?'<button type="button" class="rt-gx" id="rtGateX" aria-label="'+T("Yopish","Close")+'">✕</button>':'')+
-    '<aside class="rt-auth-visual" aria-hidden="true"><div class="rt-auth-scenes">'+
+    '<aside class="rt-auth-visual" aria-hidden="true"><video class="rt-auth-video" muted loop playsinline preload="none" poster="fayllar/auth-workspace-poster.webp" tabindex="-1"><source data-src="fayllar/auth-workspace.webm" type="video/webm"><source data-src="fayllar/auth-workspace.mp4" type="video/mp4"></video><div class="rt-auth-scenes">'+
     '<img class="rt-auth-scene rt-auth-scene-login" src="fayllar/auth-laptop.svg" alt="" width="680" height="460">'+
     '<img class="rt-auth-scene rt-auth-scene-register" src="fayllar/auth-desktop.svg" alt="" width="680" height="460">'+
-    '</div><p>'+T("Bilimdan biznes sari.","From learning to building.")+'</p><span class="rt-auth-subtitle"></span></aside>'+
+    '</div><p>'+T("Bilimdan biznes sari.","From learning to building.")+'</p><span class="rt-auth-subtitle"></span></aside><button type="button" class="rt-auth-motion" hidden>Ⅱ Pauza</button>'+
     '<div class="rt-auth-main"><div class="rt-auth-brand"><span class="terdu-logo" role="img" aria-label="TerDU"></span><span>TerDU</span></div>'+
     '<div class="rt-auth-content"><div id="rtGateBody"></div><div class="rt-gtabs" role="group" aria-label="'+T("Hisobga kirish usuli","Account access")+'">'+
     '<button type="button" class="rt-gt" data-m="log">'+T("Kirish","Log in")+'</button>'+
@@ -1102,6 +1138,7 @@ function gate(opts){
   if(preview) g.dataset.preview="true";
   authDesignDecorate(g,preview?opts.preview:AUTH_DESIGN);
   document.body.appendChild(g);
+  authMotionSetup(g);
   g.addEventListener("keydown",function(e){
     if(e.key!=="Tab") return;
     var items=[].slice.call(g.querySelectorAll("button,input,select,a[href]")).filter(function(x){ return !x.disabled&&x.getClientRects().length; });
