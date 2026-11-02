@@ -1,4 +1,4 @@
-const CACHE = 'studyquest-shell-v2';
+const CACHE = 'studyquest-shell-v3';
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(['/offline.html', '/icon.svg'])));
   self.skipWaiting();

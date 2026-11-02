@@ -1,6 +1,6 @@
 # Tadbirkorlik asoslari architecture and preservation plan
 
-The existing static site remains the GitHub Pages site. No automatic database migration, point reset, role reassignment, lesson replacement, or live deployment is performed.
+The public GitHub Pages entry points now redirect to the new Vercel environment. Original source lessons, student credentials, academic points, class/game records and Realtime Database ownership remain intact. An administrator-authorized first-visit migration links private Firestore profiles/progress without resetting grades or issuing XP.
 
 `studyquest/` is a separate Next.js application for Vercel. At build time, `scripts/sync-legacy.mjs` copies the existing materials into `/legacy/` and imports the existing catalog. Original files remain the source of truth. A same-origin iframe bridge preserves lesson controls, original quizzes, university grades, independent learning, the teacher panel, and the supplied animated login. It sends only public session fields and slide navigation; credentials are not posted.
 
@@ -11,3 +11,5 @@ Folders: `app/` routes and API; `components/` dashboard, lesson, quiz and manage
 Stages: (1) design/navigation; (2) catalog and legacy bridge; (3) server-authorized progress, quiz, XP ledger, staff management and uploads; (4) games, analytics, translation, PWA and verification.
 
 Demo mode is explicitly local-only, has separate demo accounts and a local JSON repository, and never connects to live Firebase data. Production requires Firebase Admin credentials, Firestore and Storage setup. The server refuses to fall back to demo storage in production. The interface distinguishes demo progress from existing academic scores.
+
+See [MIGRATION.md](MIGRATION.md) for the account, academic-record, original-link and application transition.

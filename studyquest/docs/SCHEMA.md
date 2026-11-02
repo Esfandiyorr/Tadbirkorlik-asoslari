@@ -34,6 +34,8 @@ Firestore rules permit public published catalog metadata, badge definitions, sub
 
 Reward transactions read the user and a deterministic event key, then write the XP balance, ledger event, notification, and appropriate badge atomically. Pending writes remain visible to subsequent rewards within the same transaction. Repeated submissions/completions cannot create a second reward for the same target. Daily reward keys use the Asia/Tashkent calendar date. Calendar week/month leaderboard boundaries also use Asia/Tashkent.
 
+`users` may also contain `legacyId`, `legacyStatus`, `academicPoints`, `academicTopics`, `manualMarks`, and `legacyLinkedAt`. The private `migrations/legacy-v1` document records the authorized import count, timestamp and administrator. Credentials, password hashes and ownership keys are never imported.
+
 The original university permissions remain authoritative for imported lessons. Enrollment alone does not unlock a closed original topic. Imported catalog seeding adds missing Tadbirkorlik asoslari records and never updates an existing lesson document or original RTDB data.
 
-`firestore.indexes.json` includes indexes for progress, attempts, and XP queries. Current collection scans are bounded to 1,000 records; pagination and server-maintained aggregates are required before scaling beyond a small pilot.
+`firestore.indexes.json` includes indexes for progress, attempts, and XP queries. Collection scans fetch 500-document pages until exhausted; scoped report queries and server-maintained aggregates are still required for a large deployment.

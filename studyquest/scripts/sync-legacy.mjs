@@ -12,23 +12,50 @@ for (const entry of fs.readdirSync(root))
       data = Buffer.from(
         data
           .toString()
+          .replace(/<!-- PWA:BEGIN -->[\s\S]*?<!-- PWA:END -->\s*/g, '')
+          .replace(/<!-- PLATFORM:BEGIN -->[\s\S]*?<!-- PLATFORM:END -->\s*/g, '')
           .replace(
             '<head>',
             '<head><script>window.STUDYQUEST_DEMO_COPY=' +
               String(
                 process.env.STUDYQUEST_DEMO === 'true' && !process.argv.includes('--production'),
               ) +
-              '</script><script src="demo-guard.js"></script>',
+              '</script><script src="demo-guard.js"></script><script src="embed.js"></script>',
           )
+          .replace('</head>', '<link rel="stylesheet" href="embed.css"></head>')
           .replace('</body>', '<script src="bridge.js"></script></body>'),
+      );
+    if (entry === 'rt-engine.js')
+      data = Buffer.from(
+        data
+          .toString()
+          .replace(
+            'function announceGate(next){',
+            'function announceGate(next){ if(document.documentElement.classList.contains("sq-lesson")||document.documentElement.classList.contains("sq-chat")){next();return;}',
+          )
+          .replace(
+            'if(u&&!ok) a.signOut();',
+            'if(u&&!ok&&!document.documentElement.classList.contains("sq-embed")) a.signOut();',
+          )
+          .replace(
+            'window.RT_ready&&window.RT&&RT.ok&&RT.ok()',
+            'window.RT_ready&&window.RT&&((RT.ok&&RT.ok())||(RT.teacher&&RT.teacher()))',
+          )
+          .replace(
+            /function pwaAsk\(([^)]*)\)\s*\{/,
+            'function pwaAsk($1){ if(document.documentElement.classList.contains("sq-embed"))return;',
+          ),
       );
     fs.writeFileSync(path.join(out, entry), data);
   }
 fs.cpSync(path.join(root, 'fayllar'), path.join(out, 'fayllar'), { recursive: true });
 fs.copyFileSync(path.join(app, 'scripts/legacy-bridge.js'), path.join(out, 'bridge.js'));
 fs.copyFileSync(path.join(app, 'scripts/legacy-demo.js'), path.join(out, 'demo-guard.js'));
+fs.copyFileSync(path.join(app, 'scripts/legacy-embed.js'), path.join(out, 'embed.js'));
+fs.copyFileSync(path.join(app, 'scripts/legacy-embed.css'), path.join(out, 'embed.css'));
 const config = JSON.parse(fs.readFileSync(path.join(root, '_reyting-manba/config.json'), 'utf8'));
 const catalog = {
+  manualPts: config.manualPts || 2,
   courses: config.courses,
   topics: config.topics.map((t) => ({
     id: t.id,

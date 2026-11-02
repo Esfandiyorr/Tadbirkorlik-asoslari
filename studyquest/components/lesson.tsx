@@ -9,6 +9,8 @@ import {
   Clock,
   Play,
   BookOpen,
+  Minimize,
+  Info,
 } from 'lucide-react';
 import { useApp } from './provider';
 import { Button } from './ui/button';
@@ -16,18 +18,33 @@ import { ProgressBar, navigate } from './dashboard';
 import { t } from '@/lib/i18n';
 import type { Lesson as LessonType, Question } from '@/lib/types';
 export function LessonView({ id }: { id: string }) {
-  const { data, lang, call, toast, request } = useApp(),
+  const { data, lang, dark, call, toast, request } = useApp(),
     meta = data!.lessons.find((x) => x.id === id),
     [detail, setDetail] = useState<LessonType | null>(null),
     [index, setIndex] = useState(0),
     [busy, setBusy] = useState(false),
     [error, setError] = useState(''),
+    [fit, setFit] = useState(true),
+    [details, setDetails] = useState(false),
     frame = useRef<HTMLIFrameElement>(null),
     viewer = useRef<HTMLDivElement>(null),
     loaded = useRef('');
   const progress = data?.progress?.find((p) => p.lessonId === id),
     legacyMode = data?.mode === 'legacy',
     initialPosition = useRef(progress?.last || 0);
+  useEffect(() => {
+    setFit(window.innerWidth >= 768);
+  }, []);
+  useEffect(() => {
+    frame.current?.contentWindow?.postMessage(
+      { source: 'studyquest-parent', type: 'fit', value: fit },
+      location.origin,
+    );
+    frame.current?.contentWindow?.postMessage(
+      { source: 'studyquest-parent', type: 'theme', dark },
+      location.origin,
+    );
+  }, [fit, dark, detail]);
   useEffect(() => {
     if (!meta || loaded.current === id) return;
     loaded.current = id;
@@ -76,6 +93,13 @@ export function LessonView({ id }: { id: string }) {
   }, [id, legacyMode, call, toast]);
   async function go(n: number) {
     if (!detail || n < 0 || n >= detail.slideCount) return;
+    if (detail.legacyFile) {
+      frame.current?.contentWindow?.postMessage(
+        { source: 'studyquest-parent', type: 'navigate', index: n },
+        location.origin,
+      );
+      return;
+    }
     setIndex(n);
     try {
       await call('slide', { lessonId: id, index: n });
@@ -122,146 +146,162 @@ export function LessonView({ id }: { id: string }) {
         <Button onClick={() => navigate('courses')}>{t(lang, 'courses')}</Button>
       </div>
     );
-  if (!detail && !legacyMode && !error)
-    return (
-      <div className="panel editor">
-        <h1>{meta.title}</h1>
-        <div className="skeleton h-64" aria-label="Loading lesson" />
-      </div>
-    );
   const lesson = detail || meta,
     related = data!.quizzes.filter((q) => q.lessonId === id);
   return (
-    <>
-      <div className="lesson-toolbar">
-        <Button variant="ghost" onClick={() => navigate('course/' + meta.courseId)}>
-          <ArrowLeft size={17} />
-          {t(lang, 'courses')}
-        </Button>
-        <span>{legacyMode ? '' : `${progress?.seen.length || 0} / ${meta.slideCount}`}</span>
+    <section className="focus-reader" ref={viewer} aria-label={meta.title}>
+      <header className="reader-toolbar">
         <Button
-          variant="outline"
-          onClick={() =>
-            viewer.current?.requestFullscreen().catch(() => toast('Fullscreen unavailable'))
-          }
+          variant="ghost"
+          size="icon"
+          aria-label={lang === 'uz' ? 'Kursga qaytish' : 'Back to course'}
+          onClick={() => navigate('course/' + meta.courseId)}
         >
-          <Expand size={16} />
-          <span className="desktop-label">Fullscreen</span>
+          <ArrowLeft size={18} />
         </Button>
-      </div>
-      <div className="page-heading">
-        <div>
-          <span className="eyebrow">
-            {data!.modules.find((m) => m.id === meta.moduleId)?.title}
+        <h1 title={meta.title}>{meta.title}</h1>
+        <div className="reader-navigation">
+          <Button
+            variant="outline"
+            size="icon"
+            aria-label="Previous slide"
+            disabled={!detail || index === 0}
+            onClick={() => go(index - 1)}
+          >
+            <ArrowLeft size={17} />
+          </Button>
+          <span aria-live="polite">
+            {index + 1} / {meta.slideCount}
           </span>
-          <h1>{meta.title}</h1>
+          <Button
+            variant="outline"
+            size="icon"
+            aria-label="Next slide"
+            disabled={!detail || index >= meta.slideCount - 1}
+            onClick={() => go(index + 1)}
+          >
+            <ArrowRight size={17} />
+          </Button>
         </div>
-      </div>
+        {lesson.legacyFile && (
+          <Button
+            variant={fit ? 'secondary' : 'ghost'}
+            size="icon"
+            aria-label="Fit slide"
+            aria-pressed={fit}
+            title={lang === 'uz' ? 'Slaydni ekranga sig‘dirish' : 'Fit slide'}
+            onClick={() => setFit(!fit)}
+          >
+            <Minimize size={17} />
+          </Button>
+        )}
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label="Fullscreen"
+          onClick={() => {
+            const action = document.fullscreenElement
+              ? document.exitFullscreen()
+              : viewer.current?.requestFullscreen();
+            action?.catch(() => toast('Fullscreen unavailable'));
+          }}
+        >
+          <Expand size={18} />
+        </Button>
+        <Button
+          variant={details ? 'secondary' : 'ghost'}
+          size="icon"
+          aria-label={lang === 'uz' ? 'Dars natijalari' : 'Lesson results'}
+          aria-expanded={details}
+          onClick={() => setDetails(!details)}
+        >
+          <Info size={18} />
+        </Button>
+      </header>
+      <ProgressBar value={((index + 1) / meta.slideCount) * 100} />
       {error ? (
         <div role="alert" className="error-state">
           {error}
-          <Button onClick={() => navigate('courses')}>{t(lang, 'courses')}</Button>
         </div>
+      ) : !detail ? (
+        <div className="skeleton reader-loading" aria-label="Loading lesson" />
       ) : (
-        <>
-          <div
-            ref={viewer}
-            className={'presentation-viewer ' + (lesson.legacyFile ? 'legacy-viewer' : '')}
-          >
-            {lesson.legacyFile ? (
-              <iframe
-                ref={frame}
-                title={lesson.title}
-                src={
-                  '/legacy/' +
-                  lesson.legacyFile +
-                  (data?.mode === 'demo' ? '?sqDemo=1' : '') +
-                  '#' +
-                  (initialPosition.current + 1)
-                }
-                allowFullScreen
-              />
-            ) : (
-              <>
-                <div className="slide-content">
-                  <span className="slide-number">
-                    {index + 1} / {lesson.slideCount}
-                  </span>
-                  <h2>{lesson.slides[index]?.title}</h2>
-                  <p>{lesson.slides[index]?.body}</p>
-                </div>
-                <div className="slide-controls">
-                  <Button variant="outline" disabled={index === 0} onClick={() => go(index - 1)}>
-                    <ArrowLeft size={17} />
-                  </Button>
-                  <ProgressBar value={((index + 1) / lesson.slideCount) * 100} />
-                  <Button disabled={index >= lesson.slideCount - 1} onClick={() => go(index + 1)}>
-                    <ArrowRight size={17} />
-                  </Button>
-                </div>
-              </>
-            )}
-          </div>
-          <div className="lesson-footer panel">
-            <div>
-              <Clock size={18} />
-              <p>
-                {lang === 'uz'
-                  ? 'Yakunlash uchun kamida 80% slaydni o‘qing. O‘qish vaqti serverda tekshiriladi.'
-                  : lang === 'en'
-                    ? 'Read at least 80% of the slides. Reading time is checked by the server.'
-                    : 'Прочитайте не менее 80% слайдов. Время проверяется сервером.'}
-              </p>
+        <div
+          className={
+            'presentation-viewer reader-viewer ' + (lesson.legacyFile ? 'legacy-viewer' : '')
+          }
+        >
+          {lesson.legacyFile ? (
+            <iframe
+              ref={frame}
+              title={lesson.title}
+              src={
+                '/legacy/' +
+                lesson.legacyFile +
+                '?sqEmbed=lesson' +
+                (data?.mode === 'demo' ? '&sqDemo=1' : '') +
+                '#' +
+                (initialPosition.current + 1)
+              }
+              onLoad={() => {
+                frame.current?.contentWindow?.postMessage(
+                  { source: 'studyquest-parent', type: 'fit', value: fit },
+                  location.origin,
+                );
+                frame.current?.contentWindow?.postMessage(
+                  { source: 'studyquest-parent', type: 'theme', dark },
+                  location.origin,
+                );
+              }}
+              allowFullScreen
+            />
+          ) : (
+            <div className="slide-content">
+              <span className="slide-number">
+                {index + 1} / {lesson.slideCount}
+              </span>
+              <h2>{lesson.slides[index]?.title}</h2>
+              <p>{lesson.slides[index]?.body}</p>
             </div>
-            {!legacyMode && (
-              <Button disabled={busy || progress?.completed} onClick={complete}>
-                <Check size={16} />
-                {progress?.completed
-                  ? lang === 'uz'
-                    ? 'Yakunlangan'
-                    : 'Completed'
-                  : t(lang, 'complete')}
-              </Button>
-            )}
-            {lesson.materialId && (
-              <Button variant="outline" onClick={material}>
-                <Download size={16} />
-                PDF
-              </Button>
-            )}
-          </div>
-          {legacyMode && (
-            <p className="muted">
-              {lang === 'uz'
-                ? 'Asl taqdimot va hisobingiz avvalgidek ishlaydi. Yangi XP xizmati hali yoqilmagan.'
-                : lang === 'en'
-                  ? 'Your original presentation and account work as before. The new XP service is not enabled yet.'
-                  : 'Исходная презентация и аккаунт работают как раньше. Новый сервис XP пока не включён.'}
-            </p>
           )}
-          {!legacyMode &&
-            related.map((q) => (
-              <button
-                className="quiz-prompt panel"
-                key={q.id}
-                onClick={() => navigate('quiz/' + q.id)}
-              >
-                <BookOpen />
-                <div>
-                  <h3>{q.title}</h3>
-                  <p>
-                    {q.timeLimit / 60} min · {q.attempts}{' '}
-                    {lang === 'en' ? 'attempts' : lang === 'ru' ? 'попытки' : 'urinish'}
-                  </p>
-                </div>
-                <Play size={20} />
-              </button>
-            ))}
-        </>
+        </div>
       )}
-    </>
+      {details && (
+        <aside className="reader-details panel">
+          <h2>{lang === 'uz' ? 'Dars natijalari' : 'Lesson results'}</h2>
+          <p>
+            {lang === 'uz'
+              ? 'Yakunlash uchun kamida 80% slaydni o‘qing. O‘qish vaqti hisobga olinadi.'
+              : 'Read at least 80% of the slides and meet the reading time.'}
+          </p>
+          {!legacyMode && (
+            <Button disabled={busy || progress?.completed} onClick={complete}>
+              <Check size={16} />
+              {progress?.completed
+                ? lang === 'uz'
+                  ? 'Yakunlangan'
+                  : 'Completed'
+                : t(lang, 'complete')}
+            </Button>
+          )}
+          {lesson.materialId && (
+            <Button variant="outline" onClick={material}>
+              <Download size={16} />
+              PDF
+            </Button>
+          )}
+          {related.map((q) => (
+            <Button key={q.id} variant="outline" onClick={() => navigate('quiz/' + q.id)}>
+              <BookOpen size={17} />
+              {q.title}
+            </Button>
+          ))}
+        </aside>
+      )}
+    </section>
   );
 }
+
 export function QuizView({ id }: { id: string }) {
   const { data, lang, call, toast } = useApp(),
     q = data!.quizzes.find((x) => x.id === id),

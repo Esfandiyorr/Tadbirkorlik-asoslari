@@ -11,6 +11,10 @@ export type Actor = {
   learnerType: 'university' | 'independent';
 };
 export type User = Actor & {
+  legacyId?: string;
+  legacyStatus?: string;
+  academicTopics?: Record<string, Record<string, number>>;
+  manualMarks?: Record<string, number>;
   xp: number;
   streak: number;
   lastStudyDay?: string;
@@ -63,6 +67,8 @@ export type Quiz = {
   questions: Question[];
 };
 export type Progress = {
+  legacySeen?: number;
+  legacySeconds?: number;
   id: string;
   userId: string;
   lessonId: string;
@@ -101,6 +107,7 @@ export type Settings = {
 };
 export type Badge = { id: string; name: string; description: string; icon: string };
 export type Data = {
+  legacyMigration?: { students: number; syncedAt: number } | null;
   courses: Course[];
   modules: Module[];
   lessons: Lesson[];

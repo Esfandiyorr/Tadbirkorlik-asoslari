@@ -118,8 +118,8 @@ export async function actor(req: NextRequest): Promise<Actor> {
     uid: decoded.uid,
     name: stored?.name || name,
     email: decoded.email,
-    classId: stored?.classId || classId,
-    learnerType: stored?.learnerType || learnerType,
+    classId: legacyId ? classId : stored?.classId || classId,
+    learnerType: legacyId ? learnerType : stored?.learnerType || learnerType,
     role,
     xp: stored?.xp || 0,
     streak: stored?.streak || 0,
@@ -128,7 +128,14 @@ export async function actor(req: NextRequest): Promise<Actor> {
   };
   await repo.transaction(async (tx) => {
     const current = await tx.get('users', id);
-    tx.set('users', id, { ...u, ...current, uid: decoded.uid, role });
+    tx.set('users', id, {
+      ...u,
+      ...current,
+      uid: decoded.uid,
+      role,
+      classId: u.classId,
+      learnerType: u.learnerType,
+    });
     tx.set('authLinks', decoded.uid, { id: decoded.uid, actorId: id });
   });
   return { ...u, ...(academicPoints !== undefined ? { academicPoints } : {}) };

@@ -17,6 +17,7 @@ import { t } from '@/lib/i18n';
 export function AuthPanel() {
   const { data, lang, refresh, toast, setLogin, demoLogin, useEmailMode } = useApp(),
     [register, setRegister] = useState(false),
+    [student, setStudent] = useState(true),
     [name, setName] = useState(''),
     [email, setEmail] = useState(''),
     [password, setPassword] = useState(''),
@@ -135,9 +136,26 @@ export function AuthPanel() {
               );
             })}
           </>
+        ) : student ? (
+          <>
+            <p className="muted">
+              {lang === 'uz'
+                ? 'Avvalgi ism, familiya va kodingiz bilan kiring.'
+                : 'Use your existing first name, surname and code.'}
+            </p>
+            <iframe
+              id="student-login"
+              className="student-login-frame"
+              title="Talaba hisobiga kirish"
+              src="/legacy/index.html?studyquest=login&sqEmbed=login"
+            />
+            <Button variant="outline" onClick={() => setStudent(false)}>
+              Google / Email
+            </Button>
+          </>
         ) : (
           <>
-            <Button className="w-full" onClick={() => setLogin(true)}>
+            <Button className="w-full" onClick={() => setStudent(true)}>
               {t(lang, 'legacy')}
               <ArrowRight size={16} />
             </Button>
@@ -235,12 +253,12 @@ export function AuthPanel() {
             </Button>
           </>
         )}
-        <a className="auth-back" href="/legacy/index.html">
+        <a className="auth-back" href="#courses">
           {lang === 'uz'
-            ? 'Asl platformaga qaytish'
+            ? 'Kurslarni ko‘rish'
             : lang === 'ru'
-              ? 'Вернуться на исходный сайт'
-              : 'Back to the original platform'}{' '}
+              ? 'Посмотреть курсы'
+              : 'View courses'}{' '}
           ↗
         </a>
       </div>

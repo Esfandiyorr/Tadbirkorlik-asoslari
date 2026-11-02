@@ -2,7 +2,9 @@
 
 **Muassasa:** Termiz davlat universiteti · Fan: Tadbirkorlik asoslari
 
-**Yangi Tadbirkorlik asoslari ilovasi:** [ishlatish va sinash qo‘llanmasi](studyquest/README.md) · [Vercel + Firebase sozlash](studyquest/docs/DEPLOYMENT.md). Yangi Next.js ilovasi `studyquest/` papkasida; mavjud taqdimotlar va talabalar ma’lumotlari saqlanadi. GitHub Pages sahifasi avtomatik yangi ilovaga almashtirilmaydi.
+**Amaldagi platforma:** https://tadbirkorlik-asoslari.vercel.app/ — talabalar avvalgi ism, familiya va kod/parol bilan kiradi. Akademik ballar, baholar va guruhlar saqlanadi. Talabalar ro‘yxati administratorning yangi versiyaga birinchi kirishida ulanadi. [Muhitni almashtirish tafsilotlari](studyquest/docs/MIGRATION.md).
+
+**Yangi Tadbirkorlik asoslari ilovasi:** [ishlatish va sinash qo‘llanmasi](studyquest/README.md) · [Vercel + Firebase sozlash](studyquest/docs/DEPLOYMENT.md). Yangi Next.js ilovasi `studyquest/` papkasida; mavjud taqdimotlar va talabalar ma’lumotlari saqlanadi. Eski GitHub Pages havolalari yangi ilovadagi tegishli sahifaga yo‘naltiriladi.
 
 Sayt — 15 ta interaktiv taqdimot, ball va reyting tizimi, talabalar chati, o'yin arenasi va telefon ilovasi (PWA).
 Mehmon ochiq taqdimotlarni o‘qiydi; universitet talabasi test ishlaydi va ball to‘playdi; mustaqil o‘quvchi guruhsiz o‘qiydi va o‘qish jarayonini saqlaydi; o'qituvchi hammasini panel orqali

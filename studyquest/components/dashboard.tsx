@@ -23,7 +23,8 @@ import { useApp } from './provider';
 import { Button } from './ui/button';
 import { Illustration } from './illustration';
 import { t, dateLabel, weekdayLabel, levelLabel } from '@/lib/i18n';
-import type { Lesson } from '@/lib/types';
+import type { Lesson, Progress } from '@/lib/types';
+const seenCount = (p: Progress) => Math.max(p.seen.length, p.legacySeen || 0);
 export const navigate = (view: string) => {
   location.hash = view;
 };
@@ -159,8 +160,19 @@ export function Dashboard() {
                 <Sparkles />
               </span>
               <div>
-                <small>{d.mode === 'legacy' ? 'Tadbirkorlik asoslari XP' : 'TOTAL XP'}</small>
-                <strong>{xp.toLocaleString()}</strong>
+                <small>
+                  {u?.academicPoints !== undefined
+                    ? lang === 'uz'
+                      ? 'Akademik ball'
+                      : lang === 'en'
+                        ? 'Academic points'
+                        : 'Академические баллы'
+                    : d.mode === 'legacy'
+                      ? 'Tadbirkorlik asoslari XP'
+                      : 'TOTAL XP'}
+                </small>
+                <strong>{(u?.academicPoints ?? xp).toLocaleString()}</strong>
+                {u?.academicPoints !== undefined && <small>{xp.toLocaleString()} XP</small>}
               </div>
             </div>
             <div className="stat-card">
@@ -213,13 +225,11 @@ export function Dashboard() {
                   </span>
                   <h3>{lesson.title}</h3>
                   <p>
-                    {active ? Math.round((active.seen.length / lesson.slideCount) * 100) : 0}% ·{' '}
+                    {active ? Math.round((seenCount(active) / lesson.slideCount) * 100) : 0}% ·{' '}
                     {lesson.slideCount}{' '}
                     {lang === 'en' ? 'slides' : lang === 'ru' ? 'слайдов' : 'slayd'}
                   </p>
-                  <ProgressBar
-                    value={active ? (active.seen.length / lesson.slideCount) * 100 : 0}
-                  />
+                  <ProgressBar value={active ? (seenCount(active) / lesson.slideCount) * 100 : 0} />
                 </div>
                 <Button
                   size="icon"
@@ -633,7 +643,7 @@ export function CourseList({ search = '', courseId }: { search?: string; courseI
                 {l.slideCount} {lang === 'en' ? 'slides' : lang === 'ru' ? 'слайдов' : 'slayd'} · +
                 {d.settings.rewards.lesson} XP
               </p>
-              <ProgressBar value={p ? (p.seen.length / l.slideCount) * 100 : 0} />
+              <ProgressBar value={p ? (seenCount(p) / l.slideCount) * 100 : 0} />
               <span className="lesson-link">
                 {p ? t(lang, 'continue') : t(lang, 'begin')}
                 <ChevronRight size={16} />

@@ -3,6 +3,7 @@ const words = {
   home: ['Bosh sahifa', 'Home', 'Главная'],
   courses: ['Kurslar', 'Courses', 'Курсы'],
   arena: ['O‘yin maydoni', 'Game arena', 'Игровая арена'],
+  chat: ['Talabalar chati', 'Class chat', 'Чат студентов'],
   ranking: ['Reyting', 'Leaderboard', 'Рейтинг'],
   badges: ['Yutuqlar', 'Achievements', 'Достижения'],
   profile: ['Profil', 'Profile', 'Профиль'],

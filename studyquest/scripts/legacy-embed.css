@@ -1,0 +1,129 @@
+html.sq-embed .topbar,
+html.sq-embed .navbar,
+html.sq-embed .progress-wrap,
+html.sq-embed #mzTab,
+html.sq-embed #mzPanel,
+html.sq-embed .tb-toggle,
+html.sq-lesson #rtGate,
+html.sq-lesson .rt-gate,
+html.sq-arena #rtGate,
+html.sq-arena .rt-gate,
+html.sq-embed #hint {
+  display: none !important;
+}
+html.sq-embed,
+html.sq-embed body {
+  margin: 0 !important;
+  width: 100%;
+  height: 100%;
+}
+html.sq-lesson,
+html.sq-lesson body {
+  overflow: hidden !important;
+}
+html.sq-lesson #app {
+  height: 100dvh !important;
+  min-height: 0 !important;
+}
+html.sq-lesson #deck {
+  flex: 1;
+  min-height: 0;
+  display: block !important;
+  filter: none !important;
+}
+html.sq-lesson .slide {
+  padding: 18px clamp(12px, 2vw, 32px);
+  transition: none;
+}
+html.sq-lesson .slide .inner {
+  transform-origin: top center;
+}
+html.sq-lesson .rt-locked #deck {
+  visibility: visible !important;
+}
+html.sq-arena .wrap {
+  max-width: none;
+  padding: 16px;
+}
+
+html.sq-login #app,
+html.sq-account #app,
+html.sq-teacher #app {
+  display: none !important;
+}
+html.sq-login body,
+html.sq-account body,
+html.sq-teacher body {
+  background: transparent !important;
+}
+html.sq-login #rtGate.rt-auth-page {
+  background: transparent !important;
+  padding: 4px !important;
+}
+html.sq-login #rtGate .rt-auth-layout {
+  display: block !important;
+  width: 100% !important;
+  min-height: 0 !important;
+  max-width: 480px !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+html.sq-login .rt-auth-visual,
+html.sq-login .rt-auth-motion,
+html.sq-login .rt-auth-brand,
+html.sq-login #rtGateX {
+  display: none !important;
+}
+html.sq-login #rtGate .rt-auth-main {
+  padding: 8px !important;
+  width: 100% !important;
+}
+html.sq-login #rtGate .rt-auth-content {
+  width: 100% !important;
+  max-width: none !important;
+}
+html.sq-account .rt-ov,
+html.sq-teacher .rt-ov {
+  padding: 0 !important;
+  background: transparent !important;
+}
+html.sq-account .rt-box,
+html.sq-teacher .rt-box {
+  width: 100% !important;
+  max-width: none !important;
+  min-height: 100dvh;
+  margin: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+}
+html.sq-embed {
+  --green: #7c3aed;
+  --green2: #6d28d9;
+  --teal: #8b5cf6;
+}
+
+html.sq-lesson #chTab,
+html.sq-lesson #chPanel {
+  display: none !important;
+}
+
+html.sq-chat #app,
+html.sq-chat .rt-ov,
+html.sq-chat .rt-gate,
+html.sq-chat #chTab {
+  display: none !important;
+}
+html.sq-chat body {
+  background: #fff !important;
+}
+html.sq-chat #chPanel {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100dvh !important;
+  max-height: none !important;
+  transform: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}

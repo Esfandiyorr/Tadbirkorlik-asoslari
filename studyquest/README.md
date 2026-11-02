@@ -1,6 +1,6 @@
 # Tadbirkorlik asoslari
 
-A mobile-first Next.js learning application alongside the existing TerDU presentation website. The original 15 presentations, quizzes, accounts, academic scores, teacher controls, and animated login remain available. Existing Realtime Database records are never automatically migrated or reset.
+The new mobile-first TerDU learning environment. All 15 original presentations, quizzes, exercises, PDF/video materials, accounts, academic scores, teacher controls and game data remain available. Existing Realtime Database records remain authoritative and are never deleted or reset. Approved migration creates private linked profile/progress snapshots in Firestore.
 
 ## Run locally
 
@@ -24,8 +24,9 @@ For Firebase-backed development, copy `.env.example` to `.env.local`, supply you
 - Server-graded choice, true/false, matching, and accepted-answer quizzes; randomized question order, attempt limits, time limits, feedback settings, and history.
 - Transactional XP ledger, achievement levels, badges, daily challenges, learning streaks, course completion rewards, and class/course/calendar-period leaderboards. Independent learners remain outside university rankings.
 - Teacher tools for subjects, courses, modules, lessons, quizzes, material uploads, enrollment, classes, achievements, analytics, and CSV reports. Administrator tools manage roles, blocking, XP settings, and level thresholds.
-- Memory, vocabulary, arithmetic, and typing practice. Quiz Battle opens a server-graded timed quiz; existing multiplayer class games remain in the original arena.
-- Installable PWA with an offline notice. Private responses and presentations are not cached by the new worker.
+- Memory, vocabulary, arithmetic, and typing practice. Quiz Battle opens a server-graded timed quiz; existing multiplayer class games are embedded in the new Game Arena.
+- Student name/surname/existing code entry, live academic rankings, a linked academic grade roster, preserved class chat, and automatic idempotent profile linking on the administrator’s first visit after deployment.
+- Installable Android/iPhone/desktop PWA with an installation guide and an offline notice. Private responses and presentations are not cached by the new worker.
 
 ## Architecture
 
@@ -62,14 +63,14 @@ Browser tests launch a local demo server and cover responsive navigation, langua
 
 ## Production setup and current boundaries
 
-See [deployment instructions](docs/DEPLOYMENT.md), [database schema](docs/SCHEMA.md), and the [preservation plan](docs/IMPLEMENTATION.md). Recommended hosting is **Vercel + Firebase**, with Vercel's root directory set to `studyquest`. GitHub Pages continues serving the existing website until an intentional migration.
+See [deployment instructions](docs/DEPLOYMENT.md), [database schema](docs/SCHEMA.md), and the [preservation plan](docs/IMPLEMENTATION.md). Recommended hosting is **Vercel + Firebase**, with Vercel's root directory set to `studyquest`. Existing GitHub Pages links now redirect to the corresponding course, topic or game in the new environment.
 
 This implementation is ready for a configured staging review. Real Firebase sign-in, Storage, and production deployment need your Firebase/Vercel setup; local tests do not prove those external integrations are configured.
 
 - New Tadbirkorlik asoslari XP is separate from original academic grades; it is never converted into university marks. Levels are platform achievements, not academic qualifications.
 - Lesson rewards require at least 80% unique slides and the configured server-measured elapsed time. This checks coverage/time, not learner attention. Repeated reward events cannot generate additional XP.
 - Starting a quiz consumes an attempt. Refreshing an in-progress new quiz does not restore its unsent answers. Short answers use teacher-defined accepted variants, not AI grading. Publish quiz edits between assessment sessions.
-- The current repository caps collection reads at 1,000 records. Before opening a large paid service, replace broad collection scans with scoped/paginated queries and materialized leaderboard aggregates. Index definitions are included.
+- Collection reads fetch successive 500-document pages, so migrated student records are not silently truncated. Before opening a large paid service, replace broad report scans with scoped queries and materialized leaderboard aggregates. Index definitions are included.
 - Original learning content remains Uzbek. Interface navigation and key learning flows support three languages; teacher-created content and the small practice activities retain their authored language.
 - Uploads currently support PDF, PNG, and JPEG up to 4 MiB. Uploaded files download through an authorized API; original PDFs/video remain in their existing presentation viewer.
 - Practice mini-games are local exercises and award no XP. Live multiplayer Quiz Battle uses the existing arena rather than a new matchmaking service. Top Student badges are teacher-approved.

@@ -1,6 +1,6 @@
 # Staging and deployment
 
-The recommended target is Vercel for Next.js and Firebase for authentication, Firestore, Storage, and the existing Realtime Database. GitHub Pages cannot run the protected Node.js API. Keep the current Pages site running while reviewing a separate staging deployment.
+The recommended target is Vercel for Next.js and Firebase for authentication, Firestore, Storage, and the existing Realtime Database. GitHub Pages cannot run the protected Node.js API. The configured existing Pages links now open the matching Vercel page. Keep the repository’s original materials as the source of truth.
 
 ## 1. Firebase configuration
 
@@ -37,7 +37,7 @@ Existing verified teacher email sign-in is recognized by the configured original
 1. Import this GitHub repository into Vercel as a new project. Select **Root Directory: `studyquest`**, framework Next.js, Node.js 22, build `npm run build`, install `npm ci`.
    The included `vercel.json` explicitly selects Next.js and restores its default output handling. This prevents the project from being served as a generic static site if import detection selects Other. Leave Output Directory at the framework default.
 2. Enable access to files outside the root directory in Vercel project settings. The build copies original lesson files from the repository root; build from a full checkout, not an isolated copy of `studyquest/`.
-3. Add the Firebase environment values for Preview and Production separately. Set `STUDYQUEST_DEMO=false`. Demo role authentication is additionally disabled by code on Vercel and in production.
+3. Add the Firebase environment values for Preview and Production separately. Set `STUDYQUEST_DEMO=false`. The configured function region is Singapore (`sin1`), matching the existing Firebase databases. Demo role authentication is additionally disabled by code on Vercel and in production.
 4. Build a preview deployment first. Add that exact stable preview domain to Firebase authorized domains. Rebuild after changing `NEXT_PUBLIC_*` values because they are embedded at build time.
 5. Sign in as the administrator and use **Administrator → Import catalog** to add the original lessons and sample assessment to the new Firestore collections. Import is additive; it never replaces existing records or original content.
 
@@ -47,9 +47,11 @@ Original browser sessions stored under GitHub Pages do not automatically transfe
 
 Verify real email/Google sign-in and password reset, original name/password login, original group approval/access, independent open lessons, teacher editing, a real PDF upload/download, administrator role changes, and duplicate XP protection on staging. Confirm that existing academic grades are unchanged. Local demo/emulator tests do not verify production credentials or IAM permissions.
 
-No payment provider is connected in this version. Paid enrollment requires a separate reviewed payment/webhook integration before selling courses. Pagination/aggregates should replace current 1,000-record collection scans before a larger launch.
+On the first authenticated administrator visit after deployment, the client requests the idempotent existing-account import. The administrator can retry through Teacher/Administration → Academic records → Link existing students. See [MIGRATION.md](MIGRATION.md).
 
-After staging review, point the chosen custom domain or public link to Vercel. Leave GitHub Pages available until that migration is accepted. Neither the domain switch nor a live Firebase rules deployment is performed by the source-code build.
+No payment provider is connected in this version. Paid enrollment requires a separate reviewed payment/webhook integration before selling courses. Scoped queries and aggregates should replace broad report scans before a larger launch.
+
+Original Pages routes redirect to `https://tadbirkorlik-asoslari.vercel.app/`. Changing this public origin later requires updating `platform-redirect.js`. The copied `/legacy/` documents redirect standalone visits into the new application but stay embedded for authenticated learning/account/game workflows.
 
 ## Troubleshooting
 

@@ -20,7 +20,7 @@ const pairs = [
   ['SOM', 'Egallash rejalashtirilgan bozor'],
   ['Foyda', 'Tushum − xarajat'],
 ];
-export function Games() {
+export function Games({ live = false }: { live?: boolean }) {
   const { data, lang } = useApp(),
     [game, setGame] = useState('');
   const games = [
@@ -60,9 +60,11 @@ export function Games() {
           </p>
         </div>
         <Button variant="outline" asChild>
-          <a href={'/legacy/arena.html' + (data?.mode === 'demo' ? '?sqDemo=1' : '')}>
+          <a href={live ? '#arena' : '#arena/live'}>
             {lang === 'uz'
-              ? 'Guruh musobaqalari'
+              ? live
+                ? 'Mashq o‘yinlari'
+                : 'Guruh musobaqalari'
               : lang === 'en'
                 ? 'Class competitions'
                 : 'Соревнования класса'}
@@ -70,40 +72,57 @@ export function Games() {
           </a>
         </Button>
       </div>
-      <div className="game-grid">
-        {games.map((g, i) => (
-          <button
-            key={g.id}
-            className={'game-card tone-' + (i % 3) + (game === g.id ? ' selected' : '')}
-            onClick={() => setGame(g.id)}
-          >
-            <g.icon size={35} />
-            <h3>{g.title}</h3>
-            <p>{g.description}</p>
-          </button>
-        ))}
-      </div>
-      {game === 'memory' && <Memory />}
-      {game === 'typing' && <Typing />}
-      {game === 'math' && <MathGame />}
-      {game === 'word' && <Word />}
-      {game === 'quiz' && (
-        <div className="panel game-play">
-          <Zap size={36} />
-          <h2>Quiz Battle</h2>
-          <p>
-            {lang === 'uz'
-              ? 'Vaqtli testni boshlang. Natija serverda tekshiriladi.'
-              : lang === 'en'
-                ? 'Start the timed quiz. Your result is graded on the server.'
-                : 'Начните тест на время. Результат проверяется сервером.'}
-          </p>
-          {data?.quizzes.map((q) => (
-            <Button key={q.id} onClick={() => navigate('quiz/' + q.id)}>
-              {q.title}
-            </Button>
-          ))}
+      {live ? (
+        <div className="embedded-arena panel">
+          <iframe
+            title="Guruh o‘yinlari arenasi"
+            src={
+              '/legacy/arena.html?sqEmbed=arena' +
+              (data?.mode === 'demo' ? '&sqDemo=1' : '') +
+              (new URLSearchParams(typeof window === 'undefined' ? '' : location.search).get(
+                'arena',
+              ) || '#/')
+            }
+          />
         </div>
+      ) : (
+        <>
+          <div className="game-grid">
+            {games.map((g, i) => (
+              <button
+                key={g.id}
+                className={'game-card tone-' + (i % 3) + (game === g.id ? ' selected' : '')}
+                onClick={() => setGame(g.id)}
+              >
+                <g.icon size={35} />
+                <h3>{g.title}</h3>
+                <p>{g.description}</p>
+              </button>
+            ))}
+          </div>
+          {game === 'memory' && <Memory />}
+          {game === 'typing' && <Typing />}
+          {game === 'math' && <MathGame />}
+          {game === 'word' && <Word />}
+          {game === 'quiz' && (
+            <div className="panel game-play">
+              <Zap size={36} />
+              <h2>Quiz Battle</h2>
+              <p>
+                {lang === 'uz'
+                  ? 'Vaqtli testni boshlang. Natija serverda tekshiriladi.'
+                  : lang === 'en'
+                    ? 'Start the timed quiz. Your result is graded on the server.'
+                    : 'Начните тест на время. Результат проверяется сервером.'}
+              </p>
+              {data?.quizzes.map((q) => (
+                <Button key={q.id} onClick={() => navigate('quiz/' + q.id)}>
+                  {q.title}
+                </Button>
+              ))}
+            </div>
+          )}
+        </>
       )}
     </>
   );

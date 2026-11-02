@@ -1,5 +1,8 @@
 {
   "name": "Tadbirkorlik asoslari",
+  "id": "/",
+  "categories": ["education"],
+  "orientation": "any",
   "short_name": "Tadbirkorlik asoslari",
   "description": "Bilim sari har kuni yangi qadam",
   "lang": "uz",
@@ -8,6 +11,11 @@
   "display": "standalone",
   "background_color": "#f7f8fc",
   "theme_color": "#7c3aed",
+  "shortcuts": [
+    { "name": "Kurslar", "url": "/#courses" },
+    { "name": "Reyting", "url": "/#ranking" },
+    { "name": "O‘yin maydoni", "url": "/#arena" }
+  ],
   "icons": [
     { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
     { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },

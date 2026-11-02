@@ -13,6 +13,7 @@ import {
   Search,
   Bell,
   Menu,
+  MessageSquare,
   X,
   ArrowUpRight,
   Sun,
@@ -28,6 +29,7 @@ import { AuthPanel } from './auth-panel';
 import { Leaderboard } from './leaderboard';
 import { Games } from './games';
 import { Staff } from './staff';
+import { InstallApp } from './install-app';
 import { Button } from './ui/button';
 import { t, type Key } from '@/lib/i18n';
 import type { Lang } from '@/lib/types';
@@ -102,6 +104,9 @@ export function StudyQuest() {
     { id: 'arena', key: 'arena', icon: Gamepad2 },
     { id: 'ranking', key: 'ranking', icon: Trophy },
     { id: 'badges', key: 'badges', icon: Medal },
+    ...(user && (role !== 'student' || user.learnerType === 'university')
+      ? [{ id: 'chat', key: 'chat' as Key, icon: MessageSquare }]
+      : []),
   ];
   const signedIn = !!user || !!legacy;
   let content;
@@ -117,14 +122,31 @@ export function StudyQuest() {
     content = user ? <QuizView key={id + user.id} id={id} /> : <AuthPanel />;
   else if (mainView === 'course' || mainView === 'courses')
     content = <CourseList courseId={mainView === 'course' ? id : undefined} search={search} />;
+  else if (view === 'chat')
+    content =
+      user && (role !== 'student' || user.learnerType === 'university') ? (
+        <section className="embedded-workspace panel">
+          <h1>{t(lang, 'chat')}</h1>
+          <iframe
+            title={t(lang, 'chat')}
+            src={'/legacy/index.html?sqEmbed=chat' + (data.mode === 'demo' ? '&sqDemo=1' : '')}
+          />
+        </section>
+      ) : (
+        <AuthPanel />
+      );
   else if (view === 'badges') content = <Badges />;
   else if (view === 'ranking') content = user ? <Leaderboard /> : <AuthPanel />;
-  else if (view === 'arena') content = <Games />;
+  else if (mainView === 'arena') content = <Games live={id === 'live'} />;
   else if (view === 'teacher') content = user ? <Staff /> : <AuthPanel />;
   else if (view === 'admin') content = user ? <Staff admin /> : <AuthPanel />;
+  else if (view === 'app')
+    content = <InstallApp prompt={install} onInstalled={() => setInstall(null)} />;
   else if (view === 'profile')
     content = signedIn ? <Profile key={user?.id || legacy?.id} /> : <AuthPanel />;
   else content = <Dashboard />;
+  if (mainView === 'lesson' && (user || data.mode === 'legacy'))
+    return <main className="focus-learning">{content}</main>;
   return (
     <div className="app-shell">
       {menu && (
@@ -188,15 +210,11 @@ export function StudyQuest() {
               <ChevronRight size={14} />
             </Button>
           </div>
-          <a className="original-link" href="/legacy/index.html">
+          <a className="original-link" href="#app">
             <img src="/legacy/logo_tersu.png" alt="" width="27" height="27" />
             <span>
               TerDU ·{' '}
-              {lang === 'uz'
-                ? 'Asl platforma'
-                : lang === 'ru'
-                  ? 'Исходный сайт'
-                  : 'Original platform'}
+              {lang === 'uz' ? 'Telefon ilovasi' : lang === 'ru' ? 'Приложение' : 'Install app'}
             </span>
             <ArrowUpRight size={14} />
           </a>
@@ -319,7 +337,7 @@ export function StudyQuest() {
       </div>
       <nav className="bottom-nav" aria-label="Mobile navigation">
         {[
-          ...nav.filter((n) => n.id !== 'badges'),
+          ...nav.filter((n) => n.id !== 'badges' && n.id !== 'chat'),
           { id: 'profile', key: 'profile' as Key, icon: User },
         ].map((n) => (
           <a key={n.id} href={'#' + n.id} className={mainView === n.id ? 'active' : ''}>
@@ -335,7 +353,8 @@ function Profile() {
   const { data, lang, call, toast, legacy, setLogin, logout } = useApp(),
     u = data?.user,
     [name, setName] = useState(u?.name || legacy?.name || ''),
-    [visible, setVisible] = useState(u?.leaderboardVisible !== false);
+    [visible, setVisible] = useState(u?.leaderboardVisible !== false),
+    [advanced, setAdvanced] = useState(false);
   return (
     <>
       <div className="page-heading">
@@ -361,6 +380,28 @@ function Profile() {
                   ? 'Академические баллы исходной платформы'
                   : 'Academic points in the original platform'}
             </span>
+          </div>
+        )}
+        {u?.academicTopics && (
+          <div className="profile-academic-topics">
+            <h3>{lang === 'uz' ? 'Mavzular bo‘yicha natijalar' : 'Results by topic'}</h3>
+            {data!.lessons
+              .filter((l) => l.courseId === 'tad-asoslari')
+              .sort((a, b) => a.order - b.order)
+              .map((l) => {
+                const result = u.academicTopics?.[l.id];
+                return (
+                  <div key={l.id}>
+                    <span>
+                      {l.order + 1}. {l.title}
+                    </span>
+                    <b>
+                      {result?.p || 0} {lang === 'uz' ? 'ball' : 'points'} ·{' '}
+                      {lang === 'uz' ? 'Baho' : 'Grade'}: {result?.b || '—'}
+                    </b>
+                  </div>
+                );
+              })}
           </div>
         )}
         <form
@@ -402,11 +443,19 @@ function Profile() {
           </p>
           <Button disabled={!u}>{t(lang, 'save')}</Button>
         </form>
-        <Button variant="outline" onClick={() => setLogin(true)}>
-          {t(lang, 'legacy')}
+        <Button
+          variant="outline"
+          onClick={() => (legacy ? setAdvanced(!advanced) : setLogin(true))}
+        >
+          {lang === 'uz' ? 'Hisob va guruh ma’lumotlari' : 'Account and class details'}
           <ArrowUpRight size={16} />
         </Button>
       </section>
+      {advanced && (
+        <section className="embedded-workspace panel">
+          <iframe title="Hisob va guruh" src="/legacy/index.html?sqEmbed=account" />
+        </section>
+      )}
     </>
   );
 }

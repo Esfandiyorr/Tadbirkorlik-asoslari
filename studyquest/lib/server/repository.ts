@@ -2,7 +2,7 @@ import 'server-only';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { getApps, initializeApp, cert, applicationDefault } from 'firebase-admin/app';
-import { getFirestore, FieldValue } from 'firebase-admin/firestore';
+import { getFirestore, FieldValue, FieldPath } from 'firebase-admin/firestore';
 import { getAuth } from 'firebase-admin/auth';
 import { getDatabase } from 'firebase-admin/database';
 import { getStorage } from 'firebase-admin/storage';
@@ -160,8 +160,15 @@ class FirebaseRepository implements Repository {
     return d.exists ? { ...d.data(), id: d.id } : null;
   }
   async list(c: string): Promise<Row[]> {
-    const q = await this.db.collection(c).limit(1000).get();
-    return q.docs.map((d) => ({ ...d.data(), id: d.id }));
+    const rows: Row[] = [];
+    let cursor: string | undefined;
+    while (true) {
+      const base = this.db.collection(c).orderBy(FieldPath.documentId()).limit(500);
+      const q = await (cursor ? base.startAfter(cursor) : base).get();
+      rows.push(...q.docs.map((d) => ({ ...d.data(), id: d.id })));
+      if (q.size < 500) return rows;
+      cursor = q.docs[q.docs.length - 1].id;
+    }
   }
   async transaction<T>(f: (tx: Tx) => Promise<T>) {
     return this.db.runTransaction(async (t) => {

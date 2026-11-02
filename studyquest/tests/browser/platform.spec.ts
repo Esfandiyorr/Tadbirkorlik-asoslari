@@ -99,6 +99,9 @@ test('API rejects escalation, forged cookies, wrong origins and private answer r
   baseURL,
 }) => {
   await login(request, 'student');
+  expect((await act(request, 'syncLegacy', {})).status()).toBe(403);
+  expect((await act(request, 'legacyStudent', { id: 'alice', status: 'ok' })).status()).toBe(403);
+  expect((await request.get('/api/platform?view=roster')).status()).toBe(403);
   expect((await act(request, 'role', { userId: 'demo-student', role: 'admin' })).status()).toBe(
     403,
   );
@@ -173,6 +176,7 @@ test('teacher can publish a course and lesson; students earn a reward only after
   const before = (await (await page.request.get('/api/platform')).json()).user.xp;
   expect((await act(page.request, 'completeLesson', { lessonId })).status()).toBe(409);
   await page.waitForTimeout(31000);
+  await page.getByRole('button', { name: 'Dars natijalari', exact: true }).click();
   await page.getByRole('button', { name: 'Darsni yakunlash', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Yakunlangan', exact: true })).toBeDisabled();
   const after = await (await page.request.get('/api/platform')).json();
@@ -198,7 +202,15 @@ test('original presentation stays usable and demo never contacts the live databa
   const frame = page.frameLocator('.legacy-viewer iframe');
   await expect(frame.locator('.slide.active')).toBeVisible();
   await expect(frame.locator('#cur')).toHaveText(String(position + 1));
-  await frame.locator(nextPosition > position ? '#btnNext' : '#btnPrev').click();
+  await expect(frame.locator('.topbar')).toBeHidden();
+  await expect(frame.locator('.navbar')).toBeHidden();
+  await expect(page.locator('.sidebar')).toHaveCount(0);
+  await page
+    .getByRole('button', {
+      name: nextPosition > position ? 'Next slide' : 'Previous slide',
+      exact: true,
+    })
+    .click();
   await expect(frame.locator('#cur')).toHaveText(String(nextPosition + 1));
   await expect
     .poll(async () => {
@@ -247,4 +259,167 @@ test('teacher editing, upload validation and administrator controls are real ser
   await expect(page.locator('h1')).toHaveText('Administrator paneli');
   await page.getByRole('button', { name: 'Sozlamalar', exact: true }).click();
   await expect(page.locator('form')).toBeVisible();
+});
+
+test('all original presentations use a complete viewport with no legacy topbar', async ({
+  page,
+}) => {
+  test.setTimeout(180000);
+  await login(page.request, 'student');
+  const errors: string[] = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  for (let i = 1; i <= 15; i++) {
+    await page.goto('/#lesson/m' + i, { waitUntil: 'domcontentloaded' });
+    const frame = page.frameLocator('.legacy-viewer iframe');
+    await expect(frame.locator('.slide.active')).toBeVisible();
+    await expect(frame.locator('.topbar')).toBeHidden();
+    await expect(frame.locator('.navbar')).toBeHidden();
+    await expect(page.locator('.app-header')).toHaveCount(0);
+    await expect(page.locator('.reader-navigation')).toBeVisible();
+    expect(
+      await page
+        .locator('.focus-reader')
+        .evaluate((el) => Math.abs(el.getBoundingClientRect().height - innerHeight) < 2),
+    ).toBe(true);
+  }
+  await page.goto('/#lesson/m1', { waitUntil: 'domcontentloaded' });
+  const frame = page.frameLocator('.legacy-viewer iframe');
+  await expect(frame.locator('.slide.active')).toBeVisible();
+  await page.waitForTimeout(250);
+  await page.screenshot({ path: 'tests/artifacts/focus-presentation-desktop.png', fullPage: true });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.waitForTimeout(350);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(
+    true,
+  );
+  await page.screenshot({ path: 'tests/artifacts/focus-presentation-mobile.png', fullPage: true });
+  expect(errors).toEqual([]);
+});
+
+test('the original arena stays inside the game page and the new app can be installed', async ({
+  page,
+}) => {
+  await login(page.request, 'student');
+  await page.goto('/#arena', { waitUntil: 'domcontentloaded' });
+  await page.getByRole('link', { name: 'Guruh musobaqalari', exact: true }).click();
+  await expect(page.locator('.embedded-arena iframe')).toBeVisible();
+  await expect(page.frameLocator('.embedded-arena iframe').locator('.topbar')).toBeHidden();
+  await expect(page.locator('.sidebar')).toBeVisible();
+  expect(new URL(page.url()).hash).toBe('#arena/live');
+  await page.evaluate(() => {
+    const event = new Event('beforeinstallprompt');
+    Object.assign(event, {
+      prompt: async () => {},
+      userChoice: Promise.resolve({ outcome: 'accepted' }),
+    });
+    window.dispatchEvent(event);
+  });
+  await page.goto('/#app', { waitUntil: 'domcontentloaded' });
+  await page.getByRole('button', { name: 'Ilovani o‘rnatish', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Ilova o‘rnatilgan', exact: true })).toBeDisabled();
+  const manifest = await (await page.request.get('/manifest.webmanifest')).json();
+  expect(manifest.name).toBe('Tadbirkorlik asoslari');
+  expect(manifest.shortcuts.some((s: any) => s.url === '/#arena')).toBe(true);
+});
+
+test('student entry asks for the existing first name, surname and code', async ({ page }) => {
+  await page.route('**/api/platform', async (route) => {
+    if (route.request().method() !== 'GET') return route.continue();
+    const response = await route.fetch();
+    const state = await response.json();
+    state.mode = 'legacy';
+    delete state.user;
+    await route.fulfill({ response, json: state });
+  });
+  await page.route('**/legacy/index.html*', async (route) => {
+    const response = await route.fetch();
+    let body = await response.text();
+    body = body.replace(
+      '<script src="embed.js"></script>',
+      '<script>localStorage.removeItem("terdu_student");</script><script src="embed.js"></script>',
+    );
+    await route.fulfill({ response, body });
+  });
+  await page.goto('/#login', { waitUntil: 'domcontentloaded' });
+  const frame = page.frameLocator('#student-login');
+  await expect(frame.locator('#lgN')).toBeVisible();
+  await expect(frame.locator('#lgS')).toBeVisible();
+  await expect(frame.locator('#lgB')).toBeVisible();
+  await expect(frame.locator('.topbar')).toBeHidden();
+  await frame.locator('#lgN').fill('Ali');
+  await frame.locator('#lgS').fill('Valiyev');
+  await frame.locator('#lgB').fill('1234');
+  expect(await frame.locator('#lgB').inputValue()).toBe('1234');
+  await page.screenshot({ path: 'tests/artifacts/student-code-login.png', fullPage: true });
+});
+
+test('existing academic points remain visible on the dashboard, profile and academic ranking', async ({
+  page,
+}) => {
+  await login(page.request, 'student');
+  await page.route('**/api/platform*', async (route) => {
+    if (route.request().method() !== 'GET') return route.continue();
+    if (new URL(route.request().url()).searchParams.get('view') === 'academic')
+      return route.fulfill({
+        json: {
+          leaderboard: [
+            { id: 'legacy_other', name: 'Bobur Aliyev', classId: 'AP-223', academicPoints: 450 },
+            { id: 'legacy_alice', name: 'Ali Valiyev', classId: 'AP-223', academicPoints: 375.5 },
+          ],
+        },
+      });
+    const response = await route.fetch(),
+      state = await response.json();
+    state.user = {
+      ...state.user,
+      id: 'legacy_alice',
+      name: 'Ali Valiyev',
+      academicPoints: 375.5,
+      academicTopics: { m1: { p: 75, b: 4 } },
+      classId: 'AP-223',
+    };
+    await route.fulfill({ response, json: state });
+  });
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
+  await expect(page.locator('.stats-grid .stat-card').first()).toContainText('Akademik ball');
+  await expect(page.locator('.stats-grid .stat-card').first().locator('strong')).toHaveText(
+    '375.5',
+  );
+  await page.locator('.sidebar a[href="#ranking"]').click();
+  await expect(page.locator('.ranking-list')).toContainText('Ali Valiyev');
+  await expect(page.locator('.ranking-list')).toContainText('375.5');
+  await page.goto('/#profile', { waitUntil: 'domcontentloaded' });
+  await expect(page.locator('.academic-summary b')).toHaveText('375.5');
+  await expect(page.locator('.profile-academic-topics')).toContainText('75 ball · Baho: 4');
+});
+
+test('class chat remains in the new navigation and opens the existing chat interface', async ({
+  page,
+}) => {
+  await login(page.request, 'student');
+  await page.route('**/legacy/index.html*', async (route) => {
+    const response = await route.fetch();
+    let body = await response.text();
+    body = body.replace(
+      '<script src="embed.js"></script>',
+      '<script>if(new URLSearchParams(location.search).get("sqEmbed")==="chat"){var s=JSON.parse(localStorage.getItem("terdu_student"));s.learnerType="university";s.status="ok";s.group="AP-223";localStorage.setItem("terdu_student",JSON.stringify(s));}</script><script src="embed.js"></script>',
+    );
+    await route.fulfill({ response, body });
+  });
+  await page.goto('/#chat', { waitUntil: 'domcontentloaded' });
+  const frame = page.frameLocator('.embedded-workspace iframe');
+  await expect(frame.locator('#chPanel')).toBeVisible();
+  await expect(frame.locator('.topbar')).toBeHidden();
+  await expect(page.locator('.sidebar')).toBeVisible();
+});
+
+test('standalone copied lesson and game links return to the new application', async ({ page }) => {
+  await login(page.request, 'student');
+  await page.goto('/legacy/mavzu-7.html', { waitUntil: 'domcontentloaded' });
+  await expect.poll(() => new URL(page.url()).hash).toBe('#lesson/m7');
+  await expect(page.locator('.focus-reader')).toBeVisible();
+  await page.goto('/legacy/arena.html#/room/ABCD', { waitUntil: 'domcontentloaded' });
+  await expect.poll(() => new URL(page.url()).hash).toBe('#arena/live');
+  expect(new URL(page.url()).searchParams.get('arena')).toBe('#/room/ABCD');
+  await expect(page.locator('.embedded-arena iframe')).toBeVisible();
 });

@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { useApp } from './provider';
 import { Button } from './ui/button';
+import { AcademicRoster } from './academic-roster';
 import { t } from '@/lib/i18n';
 import type { Data, Lesson, Question, Quiz, Progress, Attempt, Settings } from '@/lib/types';
 const blankQuestion = (): Question => ({
@@ -168,6 +169,8 @@ export function Staff({ admin = false }: { admin?: boolean }) {
           ['lessons', L('Darslar', 'Lessons', 'Уроки')],
           ['quiz', L('Testlar', 'Quizzes', 'Тесты')],
           ['students', L('O‘quvchilar', 'Learners', 'Ученики')],
+          ['academic', L('Talabalar va baholar', 'Academic records', 'Студенты и оценки')],
+          ['legacy', L('Kursni boshqarish', 'Course controls', 'Управление предметом')],
           ...(admin ? [['settings', t(lang, 'settings')]] : []),
         ].map(([id, label]) => (
           <Button
@@ -180,6 +183,15 @@ export function Staff({ admin = false }: { admin?: boolean }) {
           </Button>
         ))}
       </div>
+      {tab === 'academic' && <AcademicRoster />}
+      {tab === 'legacy' && (
+        <section className="embedded-workspace panel">
+          <iframe
+            title="Fan bo‘yicha barcha boshqaruvlar"
+            src="/legacy/index.html?sqEmbed=teacher"
+          />
+        </section>
+      )}
       {tab === 'overview' && (
         <>
           <div className="stats-grid">

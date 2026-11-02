@@ -1,5 +1,13 @@
 'use client';
-import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from 'react';
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+  useRef,
+  type ReactNode,
+} from 'react';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { firebaseAuth } from '@/lib/firebase-client';
 import { legacySessionToken } from '@/lib/legacy-session';
@@ -55,6 +63,7 @@ export function Provider({
     setMessage(s);
     setTimeout(() => setMessage(''), 4500);
   }, []);
+  const migrated = useRef('');
   const request = useCallback(
     async (url: string, init: RequestInit = {}) => {
       const h = new Headers(init.headers);
@@ -132,6 +141,19 @@ export function Provider({
     void refresh();
   }, [refresh]);
   useEffect(() => {
+    if (
+      data?.mode !== 'firebase' ||
+      data.user?.role !== 'admin' ||
+      data.legacyMigration ||
+      migrated.current === data.user.id
+    )
+      return;
+    migrated.current = data.user.id;
+    call<{ students: number }>('syncLegacy', {})
+      .then((r) => toast(r.students + ' ta mavjud hisob ulandi.'))
+      .catch((e) => toast('Talabalar bazasini ulash: ' + e.message));
+  }, [data, call, toast]);
+  useEffect(() => {
     const f = (e: MessageEvent) => {
       if (
         e.origin !== location.origin ||
@@ -139,13 +161,15 @@ export function Provider({
         e.data.type !== 'session'
       )
         return;
-      const frame = document.querySelector<HTMLIFrameElement>('#legacy-login');
-      if (!frame || e.source !== frame.contentWindow) return;
+      const frames = document.querySelectorAll<HTMLIFrameElement>('#legacy-login, #student-login');
+      if (!Array.from(frames).some((frame) => e.source === frame.contentWindow)) return;
       const s = e.data.student as Legacy | null;
       if (s && (s.status === 'ok' || s.learnerType === 'independent')) {
         setLegacy(s);
         setPreferLegacy(true);
+        localStorage.setItem('sq-session-mode', 'legacy');
         setLogin(false);
+        if (location.hash === '#login') location.hash = 'home';
         void refresh();
       }
     };
@@ -175,6 +199,9 @@ export function Provider({
   };
   const useEmailMode = () => {
     setPreferLegacy(false);
+    setLegacy(null);
+    localStorage.removeItem('terdu_student');
+    localStorage.removeItem('terdu_sa');
     localStorage.setItem('sq-session-mode', 'email');
   };
   const showLogin = (v: boolean) => {
@@ -235,7 +262,7 @@ export function Provider({
             <iframe
               id="legacy-login"
               title="TerDU account login"
-              src="/legacy/index.html?studyquest=login"
+              src="/legacy/index.html?studyquest=login&sqEmbed=login"
             />
           </div>
         </div>

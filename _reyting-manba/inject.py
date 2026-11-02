@@ -115,10 +115,17 @@ def strip(s,b,e):
         s=s[:i]+s[j:]
     return s
 
+def platform_redirect(s):
+    s=strip(s,'<!-- PLATFORM:BEGIN -->','<!-- PLATFORM:END -->')
+    path=BASE+'platform-redirect.js'
+    version=hashlib.md5(open(path,'rb').read()).hexdigest()[:10]
+    block='<!-- PLATFORM:BEGIN -->\n<script src="platform-redirect.js?v='+version+'"></script>\n<!-- PLATFORM:END -->\n'
+    return s.replace('<head>','<head>\n'+block,1)
+
 def inject(fn,meta):
     p=BASE+fn
     if not os.path.exists(p): return fn+": yo'q"
-    s=open(p,encoding='utf-8').read()
+    s=platform_redirect(open(p,encoding='utf-8').read())
     s=strip(s,B,E); s=strip(s,HB,HE)
     s=pwa(s)
     s=og(s,fn,topic_desc(meta))
@@ -193,7 +200,7 @@ def inject_arena():
     """arena.html ga umumiy modullar: avatar (AVP), krossvord (KV), Yozuv Marafoni (YZT, YZB, YZ) - alohida <script> bloklari"""
     p=BASE+'arena.html'
     if not os.path.exists(p): return "arena.html: yo'q"
-    s=pwa(open(p,encoding='utf-8').read())
+    s=pwa(platform_redirect(open(p,encoding='utf-8').read()))
     s=og(s,'arena.html',"O'yin arenasi: krossvord, jonli test va Yozuv Marafoni — guruhdoshlar bilan musobaqa · TerDU")
     s=design(s)
     for b,e,fn in BLOCKS:
