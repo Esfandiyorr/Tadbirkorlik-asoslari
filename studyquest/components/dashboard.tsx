@@ -4,6 +4,7 @@ import { motion, useReducedMotion } from 'framer-motion';
 import { ResponsiveContainer, BarChart, Bar, XAxis, Tooltip } from 'recharts';
 import {
   ArrowUpRight,
+  ArrowLeft,
   BookOpen,
   Flame,
   Play,
@@ -446,12 +447,19 @@ export function CourseList({ search = '', courseId }: { search?: string; courseI
     d = data!,
     [moduleId, setModule] = useState('');
   const course = courseId ? d.courses.find((x) => x.id === courseId) : null,
-    mods = d.modules.filter((m) => !courseId || m.courseId === courseId),
-    list = d.lessons.filter(
+    query = search.trim().toLocaleLowerCase(),
+    mods = d.modules
+      .filter((m) => m.courseId === courseId)
+      .sort((a, b) => a.order - b.order || a.id.localeCompare(b.id)),
+    courseLessons = d.lessons
+      .filter((l) => l.courseId === courseId)
+      .sort((a, b) => a.order - b.order || a.id.localeCompare(b.id, undefined, { numeric: true })),
+    list = courseLessons.filter(
       (l) =>
-        (!courseId || l.courseId === courseId) &&
         (!moduleId || l.moduleId === moduleId) &&
-        l.title.toLowerCase().includes(search.toLowerCase()),
+        (!query ||
+          course?.title.toLocaleLowerCase().includes(query) ||
+          l.title.toLocaleLowerCase().includes(query)),
     );
   async function open(l: Lesson) {
     if (d.mode === 'legacy') {
@@ -470,13 +478,113 @@ export function CourseList({ search = '', courseId }: { search?: string; courseI
       toast((e as Error).message);
     }
   }
+  if (!courseId) {
+    const courses = d.courses.filter(
+      (c) =>
+        !query ||
+        c.title.toLocaleLowerCase().includes(query) ||
+        d.lessons.some((l) => l.courseId === c.id && l.title.toLocaleLowerCase().includes(query)),
+    );
+    return (
+      <>
+        <div className="page-heading">
+          <div>
+            <span className="eyebrow">
+              {lang === 'uz'
+                ? 'KURSNI TANLANG'
+                : lang === 'en'
+                  ? 'CHOOSE A COURSE'
+                  : 'ВЫБЕРИТЕ КУРС'}
+            </span>
+            <h1>{t(lang, 'courses')}</h1>
+            <p>
+              {lang === 'uz'
+                ? 'Kursni oching va uning ichidagi mavzularni ketma-ket o‘rganing.'
+                : lang === 'en'
+                  ? 'Open a course to study its lessons in order.'
+                  : 'Откройте курс и изучайте его темы по порядку.'}
+            </p>
+          </div>
+        </div>
+        <div className="course-grid">
+          {courses.map((c, i) => {
+            const topics = d.lessons.filter((l) => l.courseId === c.id),
+              completed = topics.filter((l) =>
+                d.progress?.some((p) => p.lessonId === l.id && p.completed),
+              ).length,
+              matches = topics.filter((l) => l.title.toLocaleLowerCase().includes(query)).length;
+            return (
+              <button key={c.id} className="course-card" onClick={() => navigate('course/' + c.id)}>
+                <div className={'course-art tone-' + (i % 3)}>
+                  <Illustration variant={c.id} />
+                  <span className="course-category">{c.category}</span>
+                </div>
+                <div className="course-card-body">
+                  <span className="course-level">{c.difficulty}</span>
+                  <h3>{c.title}</h3>
+                  <p>{c.description}</p>
+                  <p>
+                    <span>
+                      {topics.length}{' '}
+                      {lang === 'uz' ? 'ta mavzu' : lang === 'en' ? 'lessons' : 'тем'}
+                    </span>
+                    <span>
+                      {completed}/{topics.length}
+                    </span>
+                  </p>
+                  <ProgressBar value={topics.length ? (completed / topics.length) * 100 : 0} />
+                  {query && !c.title.toLocaleLowerCase().includes(query) && (
+                    <p>
+                      {matches}{' '}
+                      {lang === 'uz'
+                        ? 'ta mavzu topildi'
+                        : lang === 'en'
+                          ? 'matching lessons'
+                          : 'тем найдено'}
+                    </p>
+                  )}
+                  <span className="lesson-link">
+                    {lang === 'uz'
+                      ? 'Kursni ochish'
+                      : lang === 'en'
+                        ? 'Open course'
+                        : 'Открыть курс'}
+                    <ChevronRight size={16} />
+                  </span>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+        {!courses.length && <div className="empty-state">{t(lang, 'empty')}</div>}
+      </>
+    );
+  }
+  if (!course)
+    return (
+      <div className="empty-state">
+        <p>
+          {lang === 'uz' ? 'Kurs topilmadi' : lang === 'en' ? 'Course not found' : 'Курс не найден'}
+        </p>
+        <Button onClick={() => navigate('courses')}>{t(lang, 'courses')}</Button>
+      </div>
+    );
   return (
     <>
+      <Button variant="ghost" onClick={() => navigate('courses')}>
+        <ArrowLeft size={16} />
+        {t(lang, 'courses')}
+      </Button>
       <div className="page-heading">
         <div>
-          <span className="eyebrow">LEARN SOMETHING NEW</span>
+          <span className="eyebrow">
+            {lang === 'uz' ? 'KURS MAVZULARI' : lang === 'en' ? 'COURSE LESSONS' : 'ТЕМЫ КУРСА'}
+          </span>
           <h1>{course?.title || t(lang, 'courses')}</h1>
-          <p>{course?.description || t(lang, 'explore')}</p>
+          <p>
+            {courseLessons.length} {lang === 'uz' ? 'ta mavzu' : lang === 'en' ? 'lessons' : 'тем'}{' '}
+            · {course.description}
+          </p>
         </div>
         <Button variant="outline" asChild>
           <a href="/legacy/tadbirkorlik-asoslari.html">
@@ -511,7 +619,12 @@ export function CourseList({ search = '', courseId }: { search?: string; courseI
             <button key={l.id} className="lesson-card panel" onClick={() => open(l)}>
               <div className={'mini-cover tone-' + (i % 3)}>
                 <BookOpen size={30} />
-                <span>{String(i + 1).padStart(2, '0')}</span>
+                <span>
+                  {String(courseLessons.findIndex((topic) => topic.id === l.id) + 1).padStart(
+                    2,
+                    '0',
+                  )}
+                </span>
                 {p?.completed && <Check className="completed-check" />}
               </div>
               <span className="course-level">{mods.find((m) => m.id === l.moduleId)?.title}</span>

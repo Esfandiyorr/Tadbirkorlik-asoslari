@@ -18,6 +18,7 @@ For Firebase-backed development, copy `.env.example` to `.env.local`, supply you
 ## Included
 
 - Responsive violet dashboard, desktop sidebar, mobile navigation, dark mode, animated progress, notifications, course search, and Uzbek/English/Russian interface switching.
+- Course catalog with **Tadbirkorlik asoslari → 15 numbered topics**, course progress, module filters, and course/topic search.
 - Original presentation viewer with slide navigation, fullscreen, saved position, and embedded original learning activities/video. New teacher-authored slide lessons and protected material downloads are supported too.
 - Email/password, password reset, Google sign-in, and a bridge to existing TerDU accounts. University students retain the original approval and lesson-access checks. New email accounts are independent learners by default.
 - Server-graded choice, true/false, matching, and accepted-answer quizzes; randomized question order, attempt limits, time limits, feedback settings, and history.

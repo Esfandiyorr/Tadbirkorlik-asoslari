@@ -36,6 +36,10 @@ test('responsive dashboard, search, theme and three interface languages', async 
   ).toBeLessThanOrEqual(1);
   await page.screenshot({ path: 'tests/artifacts/student-mobile.png', fullPage: true });
   await page.locator('.search-box input').fill('Mijoz');
+  const matchingCourse = page.locator('.course-card').filter({ hasText: 'Tadbirkorlik asoslari' });
+  await expect(matchingCourse).toBeVisible();
+  await expect(page.locator('.lesson-card')).toHaveCount(0);
+  await matchingCourse.click();
   await expect(page.locator('.lesson-card').first()).toBeVisible();
   expect(
     (await page.locator('.lesson-card').allTextContents()).every((x) =>
@@ -43,6 +47,52 @@ test('responsive dashboard, search, theme and three interface languages', async 
     ),
   ).toBe(true);
   expect(errors).toEqual([]);
+});
+test('course catalog contains one entrepreneurship course with 15 ordered topics inside', async ({
+  page,
+}) => {
+  await login(page.request, 'student');
+  // Firestore returns document IDs lexicographically: m1, m10, ... m2.
+  await page.route('**/api/platform', async (route) => {
+    if (route.request().method() !== 'GET') return route.continue();
+    const response = await route.fetch();
+    const state = await response.json();
+    state.courses = state.courses.filter((c: any) => c.id === 'tad-asoslari');
+    state.lessons = state.lessons
+      .filter((l: any) => l.courseId === 'tad-asoslari')
+      .sort((a: any, b: any) => a.id.localeCompare(b.id));
+    await route.fulfill({ response, json: state });
+  });
+  await page.goto('/#courses', { waitUntil: 'domcontentloaded' });
+  const course = page.locator('.course-card').filter({ hasText: 'Tadbirkorlik asoslari' });
+  await expect(course).toHaveCount(1);
+  await expect(page.locator('.course-card')).toHaveCount(1);
+  await expect(course.getByText('15 ta mavzu', { exact: true })).toBeVisible();
+  await expect(page.locator('.lesson-card')).toHaveCount(0);
+  await page.screenshot({ path: 'tests/artifacts/course-catalog.png', fullPage: true });
+  await course.click();
+  await expect(page.locator('h1')).toHaveText('Tadbirkorlik asoslari');
+  await expect(page.locator('.lesson-card')).toHaveCount(15);
+  await expect(page.locator('.lesson-card').nth(1).locator('h3')).toContainText('Mijoz muammosi');
+  await expect(page.locator('.lesson-card').nth(9).locator('h3')).toContainText('Savdo jarayonini');
+  expect(await page.locator('.mini-cover > span').allTextContents()).toEqual(
+    Array.from({ length: 15 }, (_, i) => String(i + 1).padStart(2, '0')),
+  );
+  await page.screenshot({ path: 'tests/artifacts/course-topics.png', fullPage: true });
+  await page.getByRole('button', { name: 'Bozorni o‘rganish', exact: true }).click();
+  await expect(page.locator('.lesson-card')).toHaveCount(1);
+  await expect(page.locator('.mini-cover > span')).toHaveText('07');
+  await page.getByRole('button', { name: 'Hammasi', exact: true }).click();
+  await expect(page.locator('.lesson-card')).toHaveCount(15);
+  await page.locator('.app-main').getByRole('button', { name: 'Kurslar', exact: true }).click();
+  await expect(course).toBeVisible();
+  await expect(page.locator('.lesson-card')).toHaveCount(0);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.waitForTimeout(400);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(
+    true,
+  );
+  await page.screenshot({ path: 'tests/artifacts/course-catalog-mobile.png', fullPage: true });
 });
 test('API rejects escalation, forged cookies, wrong origins and private answer reads', async ({
   request,
