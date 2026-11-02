@@ -290,6 +290,23 @@ export function LessonView({ id }: { id: string }) {
               PDF
             </Button>
           )}
+          {lesson.legacyPdf && (
+            <Button variant="outline" asChild>
+              <a
+                href={
+                  lesson.legacyPdf.startsWith('https://')
+                    ? lesson.legacyPdf
+                    : '/legacy/' + lesson.legacyPdf
+                }
+                target="_blank"
+                rel="noopener noreferrer"
+                download
+              >
+                <Download size={16} />
+                PDF
+              </a>
+            </Button>
+          )}
           {related.map((q) => (
             <Button key={q.id} variant="outline" onClick={() => navigate('quiz/' + q.id)}>
               <BookOpen size={17} />

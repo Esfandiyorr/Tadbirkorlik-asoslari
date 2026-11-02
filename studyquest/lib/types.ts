@@ -44,6 +44,7 @@ export type Lesson = {
   minSeconds: number;
   published: boolean;
   legacyFile?: string;
+  legacyPdf?: string;
   materialId?: string;
 };
 export type Question = {

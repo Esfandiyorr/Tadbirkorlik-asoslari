@@ -219,6 +219,10 @@ test('original presentation stays usable and demo never contacts the live databa
     })
     .toBe(true);
   expect(liveRequests).toEqual([]);
+  await page.getByRole('button', { name: 'Dars natijalari', exact: true }).click();
+  await expect(
+    page.locator('.reader-details').getByRole('link', { name: 'PDF', exact: true }),
+  ).toHaveAttribute('href', '/legacy/fayllar/M1-mavzu.pdf');
 });
 test('teacher editing, upload validation and administrator controls are real server actions', async ({
   page,
