@@ -36,7 +36,10 @@ const en=JSON.parse(src.match(/var EN=(.*);/)[1]),qen=JSON.parse(src.match(/var 
      const cover=p.locator('.slide.active');
      ck(language+': cover has logo, large heading and four metadata badges',await cover.locator('.big-logo.terdu-logo[role="img"]').count()===1&&await cover.locator('h1.grad').count()===1&&await cover.locator('.meta > div').count()===4);
      const logo=await cover.locator('.big-logo').boundingBox();
-     ck(language+': logo is visible and fits screen',!!logo&&logo.width>=150&&logo.height>=150&&logo.x>=0&&logo.x+logo.width<=width+1);
+     // The floating animation can report 150 CSS pixels as 149.9999847.
+     // Allow subpixel rounding while preserving the minimum size and viewport checks.
+     const epsilon=0.01;
+     ck(language+': logo is visible and fits screen',!!logo&&logo.width>=150-epsilon&&logo.height>=150-epsilon&&logo.x>=-epsilon&&logo.x+logo.width<=width+1,JSON.stringify(logo));
      await p.screenshot({path:'mavzu-7-cover-'+language+'.png'});
     }
     if(i===15) {
