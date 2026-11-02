@@ -19,6 +19,7 @@ async function ready(p){await p.waitForFunction(()=>window.RT_ready);await sleep
    ck(id+': registration still has only three inputs',await a.locator('#rtGateBody input').count()===3&&await a.locator('#rtG,#rtE').count()===0);
    if(id==='workspace'){
     await a.waitForFunction(()=>{const v=document.querySelector('.rt-auth-video');return v.readyState>=2&&!v.paused&&v.currentTime>.2;});
+    ck('animation uses the high-resolution 60 fps source',await a.locator('.rt-auth-video').evaluate(v=>v.videoWidth===748&&v.videoHeight===748));
     ck('workspace plays the uploaded animation beside the real form',await a.locator('.rt-auth-video').evaluate(v=>v.muted&&v.loop&&v.playsInline&&v.getBoundingClientRect().right<document.querySelector('.rt-auth-main').getBoundingClientRect().left));
     await a.locator('.rt-auth-video').evaluate(v=>v.currentTime=v.duration-.15);await sleep(600);
     ck('animation loops without a form interaction',await a.locator('.rt-auth-video').evaluate(v=>!v.paused&&v.currentTime<1.5));
@@ -54,7 +55,7 @@ async function ready(p){await p.waitForFunction(()=>window.RT_ready);await sleep
   ck('mobile never downloads decorative video',await invalid.locator('.rt-auth-video source').evaluateAll(s=>s.every(x=>!x.hasAttribute('src'))));
   const fallback=await H.mk(b,null,{});await fallback.emulateMedia({reducedMotion:'reduce'});await fallback.goto(H.SITE+'/index.html');await ready(fallback);await fallback.locator('#rtChip').click();
   ck('reduced motion starts with a poster and no video download',await fallback.locator('.rt-auth-video').evaluate(v=>v.paused&&!v.dataset.loaded&&!!v.poster));
-  await fallback.route('**/auth-workspace.webm',r=>r.abort());await fallback.route('**/auth-workspace.mp4',r=>r.abort());await fallback.emulateMedia({reducedMotion:'no-preference'});await sleep(500);
+  await fallback.route('**/auth-workspace.webm*',r=>r.abort());await fallback.route('**/auth-workspace.mp4*',r=>r.abort());await fallback.emulateMedia({reducedMotion:'no-preference'});await sleep(500);
   ck('unavailable media leaves login and its poster available',await fallback.locator('#lgGo').isEnabled()&&await fallback.locator('.rt-auth-video').isVisible());
   const errors=[...a._errs,...p._errs,...invalid._errs].filter(e=>!/^console:/.test(e));ck('no JavaScript exceptions',errors.length===0,JSON.stringify(errors));
  }finally{await b.close();}

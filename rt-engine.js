@@ -1139,7 +1139,7 @@ function courseGate(next){
   });
 }
 /* Login design library: public selection, teacher-authenticated writes to meta/design. */
-var AUTH_DESIGNS=[{id:"workspace",uz:"Raqamli ta’lim",en:"Digital learning",image:"fayllar/auth-workspace-poster.webp"},
+var AUTH_DESIGNS=[{id:"workspace",uz:"Raqamli ta’lim",en:"Digital learning",image:"fayllar/auth-workspace-poster.webp?v=0f9dbb5fda"},
   {id:"rocket",uz:"Biznes start",en:"Business startup",image:"fayllar/auth-rocket-preview.webp"}];
 function authDesignKnown(id){ return AUTH_DESIGNS.some(function(d){ return d.id===id; }); }
 var AUTH_DESIGN=lget("terdu_login_design","workspace");
@@ -1229,7 +1229,7 @@ function gate(opts){
   var oldG=document.getElementById("rtGate"); if(oldG) oldG.remove();
   var g=el('<div class="rt-gate rt-auth-page'+(guest?' rt-authg':'')+'" id="rtGate" role="dialog" aria-modal="true" aria-labelledby="rtAuthTitle"><div class="rt-box rt-auth-layout">'+
     (guest?'<button type="button" class="rt-gx" id="rtGateX" aria-label="'+T("Yopish","Close")+'">✕</button>':'')+
-    '<aside class="rt-auth-visual" aria-hidden="true"><video class="rt-auth-video" muted loop playsinline preload="none" poster="fayllar/auth-workspace-poster.webp" tabindex="-1"><source data-src="fayllar/auth-workspace.webm" type="video/webm"><source data-src="fayllar/auth-workspace.mp4" type="video/mp4"></video><div class="rt-auth-scenes">'+
+    '<aside class="rt-auth-visual" aria-hidden="true"><video class="rt-auth-video" muted loop playsinline preload="none" poster="fayllar/auth-workspace-poster.webp?v=0f9dbb5fda" tabindex="-1"><source data-src="fayllar/auth-workspace.webm?v=9c741dba2d" type="video/webm"><source data-src="fayllar/auth-workspace.mp4?v=d2173ba67c" type="video/mp4"></video><div class="rt-auth-scenes">'+
     '<img class="rt-auth-scene rt-auth-scene-login" src="fayllar/auth-laptop.svg" alt="" width="680" height="460">'+
     '<img class="rt-auth-scene rt-auth-scene-register" src="fayllar/auth-desktop.svg" alt="" width="680" height="460">'+
     '</div><p>'+T("Bilimdan biznes sari.","From learning to building.")+'</p><span class="rt-auth-subtitle"></span></aside><button type="button" class="rt-auth-motion" hidden>Ⅱ Pauza</button>'+
