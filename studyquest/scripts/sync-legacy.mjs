@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createHash } from 'node:crypto';
 const app = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..'),
   root = path.resolve(app, '..'),
   out = path.join(app, 'public/legacy');
@@ -53,6 +54,21 @@ fs.copyFileSync(path.join(app, 'scripts/legacy-bridge.js'), path.join(out, 'brid
 fs.copyFileSync(path.join(app, 'scripts/legacy-demo.js'), path.join(out, 'demo-guard.js'));
 fs.copyFileSync(path.join(app, 'scripts/legacy-embed.js'), path.join(out, 'embed.js'));
 fs.copyFileSync(path.join(app, 'scripts/legacy-embed.css'), path.join(out, 'embed.css'));
+// Existing installed legacy workers cache versioned engine files indefinitely.
+// Version the adapted copy by its actual content, rather than the source engine's hash.
+const engineVersion = createHash('sha256')
+  .update(fs.readFileSync(path.join(out, 'rt-engine.js')))
+  .digest('hex')
+  .slice(0, 10);
+for (const file of fs.readdirSync(out).filter((name) => name.endsWith('.html'))) {
+  const html = path.join(out, file);
+  fs.writeFileSync(
+    html,
+    fs
+      .readFileSync(html, 'utf8')
+      .replace(/rt-engine\.js\?v=[a-f0-9]+/g, 'rt-engine.js?v=' + engineVersion),
+  );
+}
 const config = JSON.parse(fs.readFileSync(path.join(root, '_reyting-manba/config.json'), 'utf8'));
 const catalog = {
   manualPts: config.manualPts || 2,
