@@ -12,19 +12,21 @@ async function ready(p){await p.waitForFunction(()=>window.RT_ready);for(const i
    await p.setViewportSize({width,height});await sleep(150);
    const size=await p.locator('#rtGate').evaluate(e=>({w:e.scrollWidth,c:e.clientWidth,columns:getComputedStyle(e.querySelector('.rt-form')).gridTemplateColumns}));
    ck(name+': account screen fits horizontally',size.w<=size.c+1,JSON.stringify(size));
-   ck(name+': account form is one column',size.columns.split(' ').length===1&&await p.locator('.rt-auth-aside').count()===0);
+   ck(name+': account form is one column',size.columns.split(' ').length===1);
+   ck(name+': reference illustration adapts to screen',await p.locator('.rt-auth-visual').isVisible()===(width>900));
    await p.screenshot({path:'design-register-'+name+'.png'});
   }
   await p.locator('#rtGo').click();
   ck('empty registration gives a visible validation error',await p.locator('#rtErr').isVisible());
   await p.locator('[data-m="log"]').click();
+  ck('switching tabs changes the illustration scene',await p.locator('#rtGate').getAttribute('data-mode')==='log');
   ck('login tab preserves the actual login form',await p.locator('#lgN').count()===1&&await p.locator('#lgB').count()===1);
   await p.screenshot({path:'design-login-mobile.png'});
   await p.locator('#rtGateX').click();
   ck('closing account screen returns to the portal',await p.locator('#rtGate').count()===0);
   await p.locator('#rtReg').click();
   await p.locator('#rtN').fill('Dilnoza');await p.locator('#rtS').fill('Valiyeva');await p.locator('#rtB').fill('Talaba2468');
-  await p.locator('#rtGo').click();await p.waitForFunction(()=>!document.getElementById('rtGate'));await sleep(300);
+  await p.locator('#rtGo').click();await p.waitForFunction(()=>!document.getElementById('rtGate')).catch(async e=>{console.log('REGISTRATION DEBUG',JSON.stringify({error:await p.locator('#rtErr').textContent(),nameLength:(await p.locator('#rtN').inputValue()).length,surnameLength:(await p.locator('#rtS').inputValue()).length,passwordLength:(await p.locator('#rtB').inputValue()).length}));throw e;});await sleep(300);
   ck('registration still creates a pending student',Object.values(H.DBS.students).some(s=>s.name==='Dilnoza'&&s.status==='pending'));
   const created=Object.values(H.DBS.students).find(s=>s.name==='Dilnoza');
   ck('registration defers group and email',created.group===''&&!created.email);

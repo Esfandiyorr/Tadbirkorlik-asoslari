@@ -1033,6 +1033,46 @@ function courseGate(next){
     };
   });
 }
+/* Login design library: public selection, teacher-authenticated writes to meta/design. */
+var AUTH_DESIGNS=[{id:"workspace",uz:"Raqamli ta’lim",en:"Digital learning",image:"fayllar/auth-desktop.svg"},
+  {id:"rocket",uz:"Biznes start",en:"Business startup",image:"fayllar/auth-rocket-preview.webp"}];
+function authDesignKnown(id){ return AUTH_DESIGNS.some(function(d){ return d.id===id; }); }
+var AUTH_DESIGN=lget("terdu_login_design","workspace");
+if(!authDesignKnown(AUTH_DESIGN)) AUTH_DESIGN="workspace";
+function authDesignDecorate(g,id){
+  g.dataset.design=authDesignKnown(id)?id:"workspace";
+  var caption=g.querySelector(".rt-auth-visual>p");
+  if(caption) caption.textContent=id==="rocket"?T("Tadbirkorlik asoslari","Entrepreneurship fundamentals"):T("Bilimdan biznes sari.","From learning to building.");
+  var sub=g.querySelector(".rt-auth-subtitle"); if(sub) sub.textContent=T("TerDU o‘quv platformasi","TerDU learning platform");
+}
+function authDesignApply(id){
+  AUTH_DESIGN=authDesignKnown(id)?id:"workspace"; lset("terdu_login_design",AUTH_DESIGN);
+  var g=document.getElementById("rtGate"); if(g&&!g.dataset.preview) authDesignDecorate(g,AUTH_DESIGN);
+}
+function authDesignLoad(cb){
+  if(!cloudOn||!BASE){ if(cb) cb(); return; }
+  tmo(fetch(BASE+"/meta/design.json").then(function(r){ if(!r.ok) throw 0; return r.json(); }),3000)
+    .then(function(v){ authDesignApply(v&&v.login); }).catch(function(){}).then(function(){ if(cb) cb(); });
+}
+function designLibraryRender(){
+  var box=document.getElementById("rtDesignLibrary"); if(!box||!isTc) return;
+  box.innerHTML='<h3>'+T("Dizayn kutubxonasi","Design library")+'</h3><p class="rt-note">'+T("Kirish oynasi uchun dizayn tanlang. Qo‘llangan dizayn talaba va mehmonlarga ko‘rinadi.","Choose the login design shown to students and visitors.")+'</p><div class="rt-design-grid">'+
+    AUTH_DESIGNS.map(function(d){ var active=d.id===AUTH_DESIGN;
+      return '<article class="rt-design-card'+(active?' on':'')+'"><div class="rt-design-thumb rt-design-thumb-'+d.id+'" aria-hidden="true"><div class="rt-design-thumb-art"><img src="'+d.image+'" alt=""></div><div class="rt-design-thumb-form"><span class="terdu-logo"></span><i></i><i></i><i></i><b></b></div></div><div class="rt-design-card-body"><h4>'+esc(T(d.uz,d.en))+(active?' <span class="rt-design-active">'+T("Faol","Active")+'</span>':'')+'</h4><div class="rt-design-actions">'+
+      '<button type="button" class="btn rt-design-preview" data-design="'+d.id+'">'+T("Ko‘rib chiqish","Preview")+'</button><button type="button" class="btn accent rt-design-apply" data-design="'+d.id+'"'+(active?' disabled':'')+'>'+T("Qo‘llash","Apply")+'</button></div></div></article>';
+    }).join("")+'</div><p class="rt-note" id="rtDesignStatus" role="status" aria-live="polite"></p>';
+  box.querySelectorAll(".rt-design-preview").forEach(function(b){ b.onclick=function(){ gate({guest:true,mode:"log",preview:b.dataset.design}); }; });
+  box.querySelectorAll(".rt-design-apply").forEach(function(b){ b.onclick=function(){
+    if(!isTc||!authDesignKnown(b.dataset.design)) return;
+    var status=document.getElementById("rtDesignStatus"),id=b.dataset.design;
+    if(!cloudOn||!BASE){ status.textContent=T("Baza ulanmagan. Qayta urining.","Not connected. Try again."); return; }
+    box.querySelectorAll(".rt-design-apply").forEach(function(x){ x.disabled=true; });
+    status.textContent=T("Saqlanmoqda…","Saving…");
+    fetch(BASE+"/meta/design.json",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({login:id,at:Date.now()})})
+      .then(function(r){ if(!r.ok) throw 0; authDesignApply(id); designLibraryRender(); var status=document.getElementById("rtDesignStatus"); if(status) status.textContent=T("Dizayn saqlandi.","Design saved."); })
+      .catch(function(){ designLibraryRender(); var status=document.getElementById("rtDesignStatus"); if(status) status.textContent=T("Saqlanmadi. O‘qituvchi sifatida kirganingizni tekshiring.","Not saved. Check your teacher sign-in."); });
+  }; });
+}
 function gate(opts){
   var guest=!!(opts&&opts.guest);
   if(S&&!guest){
@@ -1044,17 +1084,23 @@ function gate(opts){
     return;
   }
   var mode=(opts&&opts.mode)||"reg";
+  var preview=!!(isTc&&opts&&authDesignKnown(opts.preview));
   var oldG=document.getElementById("rtGate"); if(oldG) oldG.remove();
   var g=el('<div class="rt-gate rt-auth-page'+(guest?' rt-authg':'')+'" id="rtGate" role="dialog" aria-modal="true" aria-labelledby="rtAuthTitle"><div class="rt-box rt-auth-layout">'+
     (guest?'<button type="button" class="rt-gx" id="rtGateX" aria-label="'+T("Yopish","Close")+'">✕</button>':'')+
+    '<aside class="rt-auth-visual" aria-hidden="true"><div class="rt-auth-scenes">'+
+    '<img class="rt-auth-scene rt-auth-scene-login" src="fayllar/auth-laptop.svg" alt="" width="680" height="460">'+
+    '<img class="rt-auth-scene rt-auth-scene-register" src="fayllar/auth-desktop.svg" alt="" width="680" height="460">'+
+    '</div><p>'+T("Bilimdan biznes sari.","From learning to building.")+'</p><span class="rt-auth-subtitle"></span></aside>'+
     '<div class="rt-auth-main"><div class="rt-auth-brand"><span class="terdu-logo" role="img" aria-label="TerDU"></span><span>TerDU</span></div>'+
-    '<div class="rt-auth-content"><div class="rt-gtabs" role="group" aria-label="'+T("Hisobga kirish usuli","Account access")+'">'+
+    '<div class="rt-auth-content"><div id="rtGateBody"></div><div class="rt-gtabs" role="group" aria-label="'+T("Hisobga kirish usuli","Account access")+'">'+
     '<button type="button" class="rt-gt" data-m="log">'+T("Kirish","Log in")+'</button>'+
     '<button type="button" class="rt-gt" data-m="reg">'+T("Ro\'yxatdan o\'tish","Register")+'</button></div>'+
-    '<div id="rtGateBody"></div>'+
     (guest?'<div class="rt-gate-why rt-sr-only">'+esc((opts&&opts.why)||T("Hisobingizga kiring.","Log in to your account."))+'</div>':'')+
     '<button class="rt-tclink" id="rtGateTc">'+T("O\'qituvchi","Teacher")+'</button>'+
     '</div></div></div></div>');
+  if(preview) g.dataset.preview="true";
+  authDesignDecorate(g,preview?opts.preview:AUTH_DESIGN);
   document.body.appendChild(g);
   g.addEventListener("keydown",function(e){
     if(e.key!=="Tab") return;
@@ -1063,7 +1109,11 @@ function gate(opts){
     if(e.shiftKey&&document.activeElement===first){ e.preventDefault(); last.focus(); }
     else if(!e.shiftKey&&document.activeElement===last){ e.preventDefault(); first.focus(); }
   });
-  setTimeout(function(){ var f=g.querySelector("#rtGateBody input"); if(f) f.focus(); },50);
+  setTimeout(function(){
+    if(!g.isConnected||g.contains(document.activeElement)) return;
+    var f=g.querySelector("#rtGateBody input:not(:disabled)")||g.querySelector("button:not(:disabled)");
+    if(f) f.focus();
+  },0);
   g.querySelectorAll(".rt-gt").forEach(function(b){ b.classList.toggle("on",b.dataset.m===mode); });
   if(guest){
     var shut=function(){ g.remove(); document.removeEventListener("keydown",esc2); };
@@ -1084,11 +1134,13 @@ function gate(opts){
   }
   function draw(){
     var b=document.getElementById("rtGateBody"),reg=mode==="reg",pre=reg?"rt":"lg";
-    b.innerHTML='<h2 id="rtAuthTitle" class="rt-sr-only">'+T(reg?"Ro\'yxatdan o\'tish":"Kirish",reg?"Register":"Log in")+'</h2>'+
-      '<div class="rt-form">'+fields(pre)+'<p role="alert" id="'+pre+'Err" style="color:var(--red);display:none;margin:0"></p>'+
+    g.dataset.mode=mode;
+    b.innerHTML='<h2 id="rtAuthTitle">'+T(reg?"Ro\'yxatdan o\'tish":"Kirish",reg?"Register":"Log in")+'</h2>'+
+      '<p class="rt-auth-welcome">'+T("Xush kelibsiz!","Welcome!")+'</p><div class="rt-form">'+fields(pre)+'<p role="alert" id="'+pre+'Err" style="color:var(--red);display:none;margin:0"></p>'+
       '<button class="btn accent" id="'+(reg?"rtGo":"lgGo")+'" style="justify-content:center">'+T(reg?"Hisob yaratish":"Kirish",reg?"Create account":"Log in")+'</button></div>';
     document.getElementById(reg?"rtGo":"lgGo").onclick=reg?doReg:doLog;
     [pre+"N",pre+"S",pre+"B"].forEach(bindEnter(reg?doReg:doLog));
+    if(preview){ b.querySelectorAll("input,button").forEach(function(x){ x.disabled=true; }); document.getElementById("rtGateTc").hidden=true; }
     g.querySelectorAll(".rt-gt").forEach(function(x){ x.setAttribute("aria-pressed",x.dataset.m===mode?"true":"false"); });
   }
   function bindEnter(fn){
@@ -1099,6 +1151,7 @@ function gate(opts){
   }
   function err(id,txt){ var e=document.getElementById(id); if(!e) return; e.style.display="block"; e.textContent=txt; }
   function doReg(){
+    if(preview) return;
     var n=document.getElementById("rtN").value.trim(),sn=document.getElementById("rtS").value.trim(),password=document.getElementById("rtB").value;
     if(n.length<2||sn.length<2) return err("rtErr",T("Ism va familiyani kiriting.","Enter your name and surname."));
     if(!passwordOk(password)) return err("rtErr",T("Parol 8–128 belgidan iborat bo‘lsin.","Use a password of 8–128 characters."));
@@ -1118,6 +1171,7 @@ function gate(opts){
     });
   }
   function doLog(){
+    if(preview) return;
     var n=document.getElementById("lgN").value.trim(),
         sn=document.getElementById("lgS").value.trim(),
         pin=document.getElementById("lgB").value;
@@ -2431,7 +2485,7 @@ function fixApply(list,again){
 }
 /* o'qituvchi paneli bo'limlarga bo'lingan: bir vaqtda faqat bittasi ko'rinadi (tanlov shu brauzerda eslab qolinadi).
    Hamma bo'lim sahifada turadi — faqat yashiriladi, shuning uchun ularning tugmalari va yangilanishlari avvalgidek ishlaydi. */
-var TC_TABS=[["stu","👥","Talabalar","Students"],["mk","📊","Baholash va reyting","Marks and rating"],["ann","📢","E'lon yuborish","Announcements"],["kh","⚡","Jonli test","Live quiz"]];
+var TC_TABS=[["stu","👥","Talabalar","Students"],["mk","📊","Baholash va reyting","Marks and rating"],["ann","📢","E'lon yuborish","Announcements"],["kh","⚡","Jonli test","Live quiz"],["design","▦","Dizaynlar","Design library"]];
 function tcTabCur(){ var v=""; try{ v=localStorage.getItem("terdu_tctab")||""; }catch(e){} return TC_TABS.some(function(t){ return t[0]===v; })?v:"stu"; }
 function tcTabsHtml(pend,stk){
   var cur=tcTabCur(), bd={stu:pend,mk:stk};
@@ -2441,6 +2495,7 @@ function tcTabsHtml(pend,stk){
   }).join("")+'</div>';
 }
 function tcTabShow(out,p){
+  out.classList.toggle("rt-design-open",p==="design");
   [].forEach.call(out.querySelectorAll(".rt-stab"),function(b){ b.classList.toggle("on",b.dataset.p===p); b.setAttribute("aria-selected",b.dataset.p===p?"true":"false"); });
   [].forEach.call(out.querySelectorAll(".rt-tcpane"),function(x){ x.classList.toggle("on",x.dataset.p===p); });
 }
@@ -2511,6 +2566,7 @@ function tcDraw(){
      '<div class="rt-tcpane" data-p="ann"><div class="rt-ann-holder">'+(ANN_LOADED?annBox():'<p class="rt-note">'+T("Yuklanmoqda…","Loading…")+'</p>')+'</div>'+
      '<div id="pushTc"></div>'+tcMailBox(okl)+'</div>'+
      '<div class="rt-tcpane" data-p="kh"><div id="khTc"></div></div>';
+  h+='<div class="rt-tc-common">';
   var dn=dupGroups().reduce(function(a,g){ return a+g.length-1; },0);
   h+='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px">'+
      (dn?'<button class="btn warn" id="rtDup">🧹 '+T("Takrorlarni tozalash","Clean duplicates")+' ('+dn+')</button>':'')+
@@ -2525,8 +2581,11 @@ function tcDraw(){
      '<p class="rt-note">'+T("Jami talaba","Total students")+": "+tcList.length+" · "+T("guruhlar","groups")+": "+groupsOf(okl).length+(cloudOn?"":" · "+T("(faqat shu qurilma)","(this device only)"))+'</p>'+
      '<p class="rt-note">'+T("Talaba faqat siz tasdiqlagandan keyin taqdimot va chatga kira oladi.",
        "A student can enter the presentation and the chat only after you approve them.")+'</p>';
+  h+='</div>';
   var mw=document.getElementById("mkWrap"), msc=mw?[mw.scrollTop,mw.scrollLeft]:null;
+  h+='<div class="rt-tcpane" data-p="design"><div id="rtDesignLibrary"></div></div>';
   out.innerHTML=h;
+  designLibraryRender();
   mw=document.getElementById("mkWrap"); if(mw&&msc){ mw.scrollTop=msc[0]; mw.scrollLeft=msc[1]; }
   tcTabsBind(out);
   pushTcRender();                            /* telefonga bildirishnoma sozlamasi */
@@ -5452,7 +5511,7 @@ function connect(){
   setTimeout(bootOnce,9000);
   cloudInit(function(ok){
     if(!ok){ maintApply(); bootOnce(); return; }     /* baza yo'q — config.json dagi holat */
-    maintLoad(function(){ maintApply(); resetAt(function(rt){ RESET=rt||0; bootOnce(); }); });
+    authDesignLoad(function(){ maintLoad(function(){ maintApply(); resetAt(function(rt){ RESET=rt||0; bootOnce(); }); }); });
   });
 }
 /* bu hafta ball beradigan (o'qituvchi ochgan, muddati tugamagan) mavzular — eng so'nggisi birinchi */

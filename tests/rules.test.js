@@ -45,6 +45,9 @@ let EMU=null;
     arena:{rooms:{R1:{meta:{at:now}}},public:{R1:{at:now}},meta:{cleanAt:1}}
   })});
   const A=tok("uA"), B=tok("uB"), X=tok("uX"), P=tok("uP");
+  ck("student cannot change shared login design",await req("PUT","meta/design",{login:"rocket"},A)!==200);
+  ck("teacher can change shared login design",await req("PUT","meta/design",{login:"rocket"},TC)===200);
+  ck("guest can read shared login design",await req("GET","meta/design")===200);
   const msg=(id,t)=>({id:id,n:"Ali V",g:"AP",t:t||"hello",at:Date.now()});
   ck("talaba o'z nomidan yangi xabar qo'sha oladi",await req("PUT","chat/c2",msg("sA"),A)===200);
   ck("birov nomidan yozib bo'lmaydi",await req("PUT","chat/c3",msg("sB"),A)!==200);

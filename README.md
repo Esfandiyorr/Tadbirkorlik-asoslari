@@ -41,6 +41,10 @@ barcha mavzular kartochkalarda (🟢 ball beriladi · 📖 o'qish rejimi · 🔒
 
 Yangi talaba ism, familiya va 8–128 belgili parol bilan hisob yaratadi. Guruh va ixtiyoriy email kirgandan keyin **O‘zim haqimda** bo‘limida to‘ldiriladi; tasdiq kutilayotgan hisobdan ham shu bo‘lim ochiladi. Yangi parollar tasodifiy salt bilan PBKDF2-SHA256 (600 000 iteratsiya) orqali qayta ishlanadi, ochiq parol saqlanmaydi. Eski 4 raqamli PIN hisoblari avvalgi kalit bilan ishlaydi; parol tiklanganda yangi formatga o‘tadi. O‘qituvchi tasdig‘i va mavjud ballar saqlanadi.
 
+## Kirish dizaynlari
+
+O‘qituvchi paneli → **Dizaynlar / Design library** bo‘limida ikkita variant bor: **Raqamli ta’lim** (noutbuk va monitor orasida o‘tish) va **Biznes start** (raketa). **Ko‘rib chiqish** hisob yaratmaydigan namuna oynasini ochadi; **Qo‘llash** tanlovni Firebase `meta/design` bo‘limiga saqlaydi. Tanlov talabalar va mehmonlarda sahifa qayta ochilganda yuklanadi. Mavjud himoyalangan Firebase qoidalarida `meta` yozuvlari o‘qituvchiga tegishli. Dizaynlar ro‘yxati `engine_js.txt` ichidagi `AUTH_DESIGNS`, uslublar `design.css`, rasmlar `fayllar/auth-*.svg` va `fayllar/auth-*.webp` fayllarida. Biznes start dizayni tasdiqlangan binafsha raketa ko‘rinishi va «Kirish» ustidagi kichik TerDU logotipidan foydalanadi.
+
 ## Ishga tushirish
 
 Sayt GitHub Pages orqali ishlaydi — talabalarga bosh sahifa havolasi yuboriladi. U **portalni** (`index.html`) ochadi:

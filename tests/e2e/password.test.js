@@ -21,7 +21,7 @@ async function login(p,password){await p.locator('#rtChip').click();await p.loca
   const x=await H.mk(b,null,{});await x.goto(H.SITE+'/index.html');await ready(x);
   await login(x,'2468');await x.waitForFunction(()=>document.getElementById('lgErr').style.display!=='none');
   ck('old PIN stops working after password reset',await x.evaluate(()=>!RT.student()));
-  await x.locator('#lgB').fill('NewPassword2468');await x.locator('#lgGo').click();await x.waitForFunction(()=>!document.getElementById('rtGate'));
+  await x.locator('#lgB').fill('NewPassword2468');await x.locator('#lgGo').click();await x.waitForFunction(()=>!document.getElementById('rtGate')).catch(async e=>{ console.log('LOGIN DEBUG',JSON.stringify({error:await x.locator('#lgErr').textContent(),version:H.DBS.students.legacy.authVersion,saltLength:(H.DBS.students.legacy.pwSalt||'').length,keyPresent:!!H.dbGet('keys/legacy')})); throw e; });
   ck('new password restores the same account and score',await x.evaluate(()=>RT.student().id==='legacy'&&RT.points().total>0&&RT.points().topics.m1.acts.test0===5));
   const f=await H.mk(b,null,{});await f.goto(H.SITE+'/index.html');await ready(f);await f.locator('#rtReg').click();
   await f.locator('#rtN').fill('Nilufar');await f.locator('#rtS').fill('Saidova');await f.locator('#rtB').fill('1234');await f.locator('#rtGo').click();
