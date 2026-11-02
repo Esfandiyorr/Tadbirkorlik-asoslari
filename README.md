@@ -3,7 +3,7 @@
 **Muassasa:** Termiz davlat universiteti · Fan: Tadbirkorlik asoslari
 
 Sayt — 15 ta interaktiv taqdimot, ball va reyting tizimi, talabalar chati, o'yin arenasi va telefon ilovasi (PWA).
-Istagan kishi taqdimotlarni o'qiydi; talaba ro'yxatdan o'tadi, testni ishlaydi va ball to'playdi; o'qituvchi hammasini panel orqali
+Mehmon ochiq taqdimotlarni o‘qiydi; universitet talabasi test ishlaydi va ball to‘playdi; mustaqil o‘quvchi guruhsiz o‘qiydi va o‘qish jarayonini saqlaydi; o'qituvchi hammasini panel orqali
 boshqaradi (mavzuni ochish, baholash, e'lon, jonli test).
 
 **[`index.html`](index.html) — portal (saytning bosh sahifasi):** havolaga kirgan har kim avval shuni ko'radi —
@@ -36,6 +36,19 @@ barcha mavzular kartochkalarda (🟢 ball beriladi · 📖 o'qish rejimi · 🔒
 
 «Holati» — `config.json` dagi boshlang'ich holat; har bir guruh uchun haqiqiy holatni o'qituvchi panelda belgilaydi
 (pastda «🏆 Reyting tizimi va mavzularni ochish»).
+
+## Ikki o‘qish yo‘li
+
+Ro‘yxatdan o‘tishda **Universitet talabasi** yoki **Mustaqil o‘quvchi** tanlanadi. Ism, familiya va parol ikkala yo‘l uchun bir xil.
+
+- **Universitet talabasi:** profilida guruh tanlaydi, o‘qituvchi tasdig‘idan keyin guruhiga ochilgan darslar va topshiriqlardan foydalanadi. Ball, baho, muddat va universitet reytingi shu yo‘lga tegishli.
+- **Mustaqil o‘quvchi:** guruh va o‘qituvchi tasdig‘i talab qilinmaydi. Faqat hammaga ochiq darslarni o‘z tezligida o‘qiydi; slaydlar va davom etish joyi hisobida saqlanadi. Guruhga yoki bitta talabaga ochilgan universitet darsi unga ochilmaydi. Universitet reytingi, baholash, guruh chati va musobaqalariga qo‘shilmaydi.
+
+Mavjud hisoblar, guruhlar va ballar saqlanadi. `learnerType` yozilmagan eski hisob universitet talabasi hisoblanadi. Yangi hisoblarda `learnerType: university | independent` saqlanadi. Mustaqil o‘quvchining jarayoni `students/<id>/reading` da, universitet baholari esa avvalgidek `prog` va `topics` da turadi. Mavjud autentifikatsiya va yozuvga egalik qoidalari ishlatiladi; baza ko‘chirilmaydi. Mustaqil hisobning ichki `pending` holati universitet tasdig‘iga ariza hisoblanmaydi; `blocked` holati ikkala yo‘lni ham to‘xtatadi.
+
+O‘qituvchi panelida mustaqil hisoblar alohida ro‘yxatda ko‘rsatiladi. Ularni bloklash, tiklash yoki o‘chirish mumkin; ular talabalarning tasdiq navbati, guruhlar, baholash va CSV reytingiga kirmaydi. «Talabalarni tozalash» mustaqil hisoblar va ularning o‘qish jarayoniga tegmaydi.
+
+Bu bosqichda mustaqil ta’lim ochiq darslar uchun ishlaydi. To‘lov va kurs xaridi keyingi bosqichda qo‘shiladi.
 
 ## Hisobga kirish
 

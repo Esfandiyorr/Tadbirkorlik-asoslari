@@ -29,12 +29,12 @@ const tools=p=>p.evaluate(()=>[...document.querySelectorAll(".topbar .tools > *"
   await G.click("#rtChip"); await sleep(500);
   ck("topbardagi «Kirish» → oyna kirish yorlig'ida",await G.evaluate(()=>!!document.querySelector("#rtGate.rt-authg")&&document.querySelector(".rt-gt.on").dataset.m==="log"));
   await G.click("#rtGateX"); await sleep(300);
-  ck("sahifa pastida «Test ishlamoqchimisiz?» + Kirish / Ro'yxatdan o'tish",await G.evaluate(()=>/Test ishlamoqchimisiz/.test(document.getElementById("hmCta").innerText)&&!!document.getElementById("hmLog")&&!!document.getElementById("hmReg")));
+  ck("sahifa pastida ikkita o‘qish yo‘li va Kirish tugmasi",await G.evaluate(()=>/Universitet talabasi/.test(document.getElementById("hmCta").innerText)&&!!document.getElementById("hmIndependent")&&!!document.getElementById("hmLog")&&!!document.getElementById("hmReg")));
   await G.screenshot({path:"portal.png",fullPage:true});
   /* ingliz tili */
   await G.click("#btnLang"); await sleep(600);
   const en=await G.evaluate(()=>({sum:document.querySelector("#hmAbout summary").innerText,go:document.querySelector(".pt-go").innerText,cta:document.getElementById("hmCta").innerText,chip:document.getElementById("rtReg").innerText,title:document.title}));
-  ck("ingliz tili: sayt haqida, fan kartochkasi, tugmalar tarjima qilinadi",/About this site/.test(en.sum)&&/Open/.test(en.go)&&/Want to take the tests/.test(en.cta)&&/Register/.test(en.chip)&&/learning platform/i.test(en.title),JSON.stringify(en));
+  ck("ingliz tili: sayt haqida, fan kartochkasi, tugmalar tarjima qilinadi",/About this site/.test(en.sum)&&/Open/.test(en.go)&&/University student/.test(en.cta)&&/Independent learner/.test(en.cta)&&/Register/.test(en.chip)&&/learning platform/i.test(en.title),JSON.stringify(en));
   await G.click("#btnLang"); await sleep(600);
   /* fanni tanlash → fan sahifasi → ← Barcha fanlar */
   await G.click(".pt-course"); await G.waitForURL(/tadbirkorlik-asoslari\.html/); await ready(G);

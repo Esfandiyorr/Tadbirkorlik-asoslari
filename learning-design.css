@@ -136,6 +136,15 @@
   #rtGate .rt-gtabs{display:flex;justify-content:center;border-bottom:1px solid var(--line);margin-bottom:26px;gap:28px}
   #rtGate .rt-gt{flex:none;border:0;border-bottom:2px solid transparent;border-radius:0;padding:12px 0;background:none;color:var(--muted);font-size:14px;font-weight:500;box-shadow:none;transition:color .2s,border-color .2s}
   #rtGate .rt-gt.on{background:none;color:var(--green);border-bottom-color:var(--green)}
+  #rtGate .rt-modechoices{display:flex;gap:6px;margin:0 0 18px}
+  #rtGate .rt-modechoices button{flex:1;min-width:0;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--ink2);font:inherit;font-size:12px;line-height:1.4;padding:10px 8px;cursor:pointer}
+  #rtGate .rt-modechoices button[aria-pressed="true"]{border-color:var(--green);background:var(--panel2);color:var(--green);font-weight:600}
+  .rt-path-choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:16px 0}
+  .rt-path-choices button{display:flex;flex-direction:column;gap:6px;text-align:left;border:1px solid var(--line);border-radius:12px;padding:18px;background:var(--panel);color:var(--ink);font:inherit;cursor:pointer}
+  .rt-path-choices button:hover{border-color:var(--green)}
+  .rt-path-choices button span{font-size:14px;line-height:1.5;color:var(--muted)}
+  .rt-independent .rt-tab[hidden]{display:none!important}
+  @media(max-width:600px){.rt-path-choices{grid-template-columns:1fr}}
   #rtGate .rt-form{display:grid;grid-template-columns:1fr;gap:17px}
   #rtGate .rt-form label{display:flex;flex-direction:column;gap:8px;margin:0;font-size:12px;font-weight:500;color:var(--ink2);min-width:0}
   #rtGate input{width:100%;min-width:0;border:1px solid var(--line);border-radius:7px;background:var(--panel);color:var(--ink);padding:12px 13px;font-size:16px;line-height:1.4;box-shadow:none;height:46px;font-family:inherit;font-weight:400;transition:border-color .2s,box-shadow .2s}

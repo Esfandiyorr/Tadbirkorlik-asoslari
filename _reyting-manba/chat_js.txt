@@ -273,6 +273,7 @@ function warn(txt){
   clearTimeout(w._h); w._h=setTimeout(function(){ w.classList.remove("on"); },6000);
 }
 function send(){
+  if(me()&&me().learnerType==="independent") return;
   var ta=$("chTa"); if(!ta) return;
   var v=ta.value.replace(/\s+/g," ").trim();
   if(!v&&!att) return;
@@ -386,6 +387,7 @@ function langSync(){
   build(); if(was){ shown=false; toggle(); }
 }
 function wait(){
+  if(window.RT_ready&&me()&&me().learnerType==="independent") return;
   if(window.RT_ready&&window.RT&&RT.ok&&RT.ok()){
     build();
     var lb=$("btnLang");

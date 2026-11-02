@@ -37,8 +37,8 @@ let EMU=null;
   /* boshlang'ich holat (owner sifatida) */
   const now=Date.now(), old=now-8*86400000, d2=now-2*86400000;
   await fetch(U+"/.json?ns="+NS,{method:"PUT",headers:{Authorization:"Bearer owner"},body:JSON.stringify({
-    students:{sA:{name:"Ali",surname:"V",group:"AP",status:"ok",media:true},sB:{name:"Bobur",surname:"K",group:"AP",status:"ok"},sP:{name:"P",surname:"P",status:"pending"}},
-    owners:{sA:{uA:"x"},sB:{uB:"x"},sP:{uP:"x"}},
+    students:{sA:{name:"Ali",surname:"V",group:"AP",status:"ok",media:true},sB:{name:"Bobur",surname:"K",group:"AP",status:"ok"},sP:{name:"P",surname:"P",status:"pending"},sI:{name:"Independent",surname:"Learner",status:"pending",learnerType:"independent"}},
+    owners:{sA:{uA:"x"},sB:{uB:"x"},sP:{uP:"x"},sI:{uI:"x"}},
     chat:{c1:{id:"sB",n:"Bobur K",at:now-3600000,t:"salom"},cOld:{id:"sB",n:"Bobur K",at:old,t:"eski"},
           cVid:{id:"sA",n:"Ali V",at:d2,t:"video",mk:"v1",mt:"video"}},
     media:{m1:{t:"img",d:"data:x",at:now-3600000,by:"sA"},mOld:{t:"img",d:"data:x",at:old,by:"sA"},v1:{t:"video",d:"data:v",at:d2,by:"sA"}},
@@ -48,6 +48,10 @@ let EMU=null;
   ck("student cannot change shared login design",await req("PUT","meta/design",{login:"rocket"},A)!==200);
   ck("teacher can change shared login design",await req("PUT","meta/design",{login:"rocket"},TC)===200);
   ck("guest can read shared login design",await req("GET","meta/design")===200);
+  const I=tok("uI");
+  ck("independent learner saves reading progress without university approval",await req("PUT","students/sI/reading/m1/sl/slide0",1,I)===200);
+  ck("independent learner cannot write another account's progress",await req("PUT","students/sA/reading/m1/sl/slide0",1,I)!==200);
+  ck("independent learner cannot approve their own university status",await req("PUT","students/sI/status","ok",I)!==200);
   const msg=(id,t)=>({id:id,n:"Ali V",g:"AP",t:t||"hello",at:Date.now()});
   ck("talaba o'z nomidan yangi xabar qo'sha oladi",await req("PUT","chat/c2",msg("sA"),A)===200);
   ck("birov nomidan yozib bo'lmaydi",await req("PUT","chat/c3",msg("sB"),A)!==200);

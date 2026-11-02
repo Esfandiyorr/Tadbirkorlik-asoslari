@@ -30,7 +30,7 @@ async function ready(p){await p.waitForFunction(()=>window.RT_ready);for(const i
   ck('registration still creates a pending student',Object.values(H.DBS.students).some(s=>s.name==='Dilnoza'&&s.status==='pending'));
   const created=Object.values(H.DBS.students).find(s=>s.name==='Dilnoza');
   ck('registration defers group and email',created.group===''&&!created.email);
-  ck('password uses versioned salted credentials',created.authVersion===2&&created.pwSalt.length===32&&!JSON.stringify(created).includes('Talaba2468'));
+  ck('password uses versioned salted credentials',created.learnerType==='university'&&created.authVersion===2&&created.pwSalt.length===32&&!JSON.stringify(created).includes('Talaba2468'));
   await p.locator('#rtEdit').click();
   await p.locator('#cvG').selectOption('AP-223');await p.locator('#cvSaveB').click();await sleep(250);
   ck('pending student selects group in profile without losing account',H.DBS.students[created.id].group==='AP-223'&&H.DBS.students[created.id].status==='pending');

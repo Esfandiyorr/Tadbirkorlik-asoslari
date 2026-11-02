@@ -715,7 +715,7 @@ details.adv summary{cursor:pointer;font-weight:800;color:var(--muted)}
 <meta name="twitter:image" content="https://esfandiyorr.github.io/Tadbirkorlik-asoslari/fayllar/havola-isfandiyor.jpg?v=7c06edc5">
 <!-- OG:END -->
 <!-- DESIGN:BEGIN -->
-<link rel="stylesheet" href="learning-design.css?v=1fbc8bed60">
+<link rel="stylesheet" href="learning-design.css?v=f3054b33b4">
 <!-- DESIGN:END -->
 </head>
 <body>
@@ -6542,6 +6542,9 @@ function route(){
   clearInterval(PZT); GP=null;
   var h=location.hash||"#/";
   if(!ME) return need();
+  if(ME.learnerType==="independent"){
+    APP.innerHTML=card('<div class="center"><h2>'+L("Mustaqil ta’lim","Independent learning")+'</h2><p class="note">'+L("Arena universitet talabalarining guruh musobaqalari uchun. Ochiq darslarni kurslar sahifasida o‘qishingiz mumkin.","The arena is for university group competitions. You can read open lessons on the course page.")+'</p><a class="btn accent" href="tadbirkorlik-asoslari.html">'+L("Kursga qaytish","Back to the course")+'</a></div>'); return;
+  }
   if(ME.status&&ME.status!=="ok") return pending();
   if(h==="#/kross") return vKross();            /* krossvord yasash — server va arena holatiga bog'liq emas */
   if(h==="#/yozuv") return vYozuv();            /* Yozuv Marafoni: mashq internetsiz ham ishlaydi, jonli poyga — arena yopiq bo'lsa ham */
