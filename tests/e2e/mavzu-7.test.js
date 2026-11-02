@@ -18,6 +18,9 @@ const en=JSON.parse(src.match(/var EN=(.*);/)[1]),qen=JSON.parse(src.match(/var 
   ck('18 slides and 15 bilingual questions',await p.locator('.slide').count()===18&&data.length===15&&qen.length===15);
   ck('all slide text has English translations',await p.locator('.slide [data-i]').evaluateAll((els,en)=>els.every(e=>typeof en[e.dataset.i]==='string'&&en[e.dataset.i].length>0),en));
   ck('university logo asset loads',(await p.request.get(H.SITE+'/logo_tersu.png')).ok());
+  const lessonText=await p.locator('#deck').textContent();
+  ck('group exercise and rubric are removed',!lessonText.includes('Guruh mashqi')&&!lessonText.includes('10 ballik baholash')&&!lessonText.includes('guruh ishi'));
+  ck('full English market terms remain in Uzbek slides',['Total Addressable Market','Serviceable Available Market','Serviceable Obtainable Market'].every(term=>lessonText.includes(term)));
   ck('bilingual quiz indices agree',data.every((q,i)=>q.a.length===4&&q.c>=0&&q.c<4&&qen[i].a.length===4&&qen[i].c===q.c));
   const a=p.locator('a[href*="z4hmIU-PiR0"]');
   ck('supplied video link',await a.count()===1&&await a.getAttribute('target')==='_blank'&&(await a.getAttribute('rel')).includes('noopener'));

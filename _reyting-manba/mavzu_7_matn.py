@@ -29,8 +29,8 @@ slide('Muqova', 'Cover',
  '<div class="title-wrap"><div class="big-logo terdu-logo" role="img" aria-label="Termiz davlat universiteti logotipi"></div><div>'+
  cover_text('span', "M7-mavzu · Ma’ruza · 2 soat", 'Topic 7 · Lecture · 2 hours', 'kicker')+
  cover_text('h1', 'MIJOZ KIM VA UNGA NIMA KERAK?', 'WHO IS THE CUSTOMER AND WHAT DO THEY NEED?', 'grad')+
- p('Maqsadli mijozlarni <b>segmentlash</b> · mijoz portreti (<b>persona</b>) · xarid motivlari va <b>JTBD</b> · mijoz bilan suhbat · qiymat taklifi · <b>TAM, SAM, SOM</b> va birinchi mijozlar hisobi · amaliy sinov.',
- 'Customer <b>segmentation</b> · customer <b>persona</b> · buying motives and <b>JTBD</b> · customer interviews · value proposition · <b>TAM, SAM, SOM</b> and initial customer estimates · practical experiments.', 'lead')+
+ p('Mijoz kim? · Odamlarga nima kerak? · Mijozlarni guruhlarga ajratish · Mijoz portreti · To‘g‘ri savol berish · Bozor hajmini oddiy misolda tushunish.',
+ 'Who is the customer? · What do people need? · Grouping customers · A customer profile · Asking useful questions · Understanding market size through a simple example.', 'lead')+
  '<div class="meta">'+
  cover_text('div', '📚 Fan: <b>Tadbirkorlik asoslari</b>', '📚 Subject: <b>Fundamentals of Entrepreneurship</b>')+
  cover_text('div', '🎓 <b>Termiz davlat universiteti</b>', '🎓 <b>Termez State University</b>')+
@@ -38,150 +38,154 @@ slide('Muqova', 'Cover',
  cover_text('div', '⌨️ <b>→</b> tugmasi bilan davom eting', '⌨️ Press <b>→</b> to continue')+
  '</div></div></div>')
 
-page('Dars yakunida nima tayyor bo‘ladi?', 'What will you produce?',
- grid(card('1. Aniq mijoz','1. A specific customer','Tor segmentni tanlaysiz; foydalanuvchi, to‘lovchi va qaror egasini farqlaysiz.',
- 'Choose a focused segment; distinguish user, payer and decision maker.'),
- card('2. Tekshirilgan ehtiyoj','2. Evidence of a need','Sotishga urinmasdan suhbat o‘tkazasiz; faktni taxmin va talqindan ajratasiz.',
- 'Interview without pitching; separate observations from assumptions and interpretations.'),
- card('3. Hisoblangan imkoniyat','3. An estimated opportunity','TAM, SAM, SOM va voronkani bir xil davr hamda birliklarda hisoblaysiz.',
- 'Estimate TAM, SAM, SOM and a funnel using consistent time periods and units.'),
- card('4. Sinov rejasi','4. A test plan','Gipoteza, muddat, mezon va keyingi qarori bor kichik tajriba tuzasiz.',
- 'Design a small experiment with a hypothesis, deadline, decision threshold and next step.'))+
- p('Dars rejasi: 15 daqiqa tushunchalar, 20 daqiqa suhbat va persona, 15 daqiqa hisob, 15 daqiqa guruh ishi, 15 daqiqa video muhokamasi va test.',
- 'Plan: 15 minutes of concepts, 20 of interviews and personas, 15 of calculation, 15 of group work, 15 of video discussion and quiz.'))
+page('Bugun nimalarni o‘rganamiz?', 'What will we learn today?',
+ grid(card('Mijozni taniymiz','Understand the customer','Kim mahsulotdan foydalanadi, kim pul to‘laydi va nima uchun sotib oladi — shuni ajratamiz.',
+ 'Distinguish who uses a product, who pays and why they buy.'),
+ card('Ehtiyojni tushunamiz','Understand the need','Ehtiyoj — odamga kerak bo‘lgan narsa yoki natija. Masalan: talaba tanaffusda ovqatlanib, darsga kechikmaslikni xohlaydi.',
+ 'A need is something a person requires or wants to achieve. For example, a student wants to eat during the break without being late for class.'),
+ card('Savol berishni o‘rganamiz','Learn to ask questions','Mijozning fikrini taxmin qilish o‘rniga, uning oxirgi xaridi va duch kelgan qiyinchiligini so‘raymiz.',
+ 'Instead of guessing what customers think, ask about their last purchase and the difficulty they faced.'),
+ card('Oddiy hisobni ko‘ramiz','Look at a simple calculation','Qancha odamga taklif bera olamiz va nechta buyurtmani bajara olamiz — oddiy sonlar bilan tushunamiz.',
+ 'Use simple numbers to understand how many people we can serve and how many orders we can fulfil.'))+
+ box('Dars davomida bitta misol: <b>universitet yaqinida talabalar uchun tushlik sotish</b>. Barcha sonlar tushuntirish uchun olingan shartli misollardir.',
+ 'One example throughout: <b>selling lunch to students near a university</b>. All figures are hypothetical teaching examples.'))
 
-page('Mijoz rollari: kim foydalanadi, kim to‘laydi?', 'Customer roles: who uses and who pays?',
- table(['Rol','Tushlik xizmatidagi misol','Tekshiriladigan savol'],['Role','Lunch-service example','Question to investigate'],[
- [('Foydalanuvchi','User'),('Talaba tushlikni yeydi','Student eats the lunch'),('Unga tezlikmi, ta’mmi, to‘yimlilikmi muhim?','Does speed, taste or portion size matter?')],
- [('To‘lovchi','Payer'),('Talabaning o‘zi yoki ota-onasi','Student or parent'),('Kimning byudjeti va to‘lov usuli ishlatiladi?','Whose budget and payment method are used?')],
- [('Qaror egasi','Decision maker'),('Buyurtmani tanlaydigan shaxs','Person choosing the order'),('Oxirgi tanlovni kim tasdiqlaydi?','Who approves the final choice?')],
- [('Ta’sir qiluvchi','Influencer'),('Do‘st tavsiya qiladi','Friend recommends it'),('Kimning fikriga ishoniladi?','Whose opinion is trusted?')]])+
- box('Bir kishi bir necha rolni bajarishi mumkin. <b>Ta’sir qiluvchi qaror egasi bo‘lishi shart emas.</b> B2B misol: dasturdan hisobchi foydalanadi, rahbar tasdiqlaydi, moliya bo‘limi to‘laydi.',
- 'One person may hold several roles. <b>An influencer does not necessarily decide.</b> B2B example: an accountant uses software, a manager approves it, finance pays.'))
+page('Mijoz kim?', 'Who is a customer?',
+ box('<b>Mijoz — mahsulot yoki xizmatni sotib oladigan odam yoki tashkilot.</b> Mahsulotdan foydalanadigan odam bilan pul to‘laydigan odam har doim bir kishi bo‘lavermaydi.',
+ '<b>A customer is a person or organization that buys a product or service.</b> The user and the person paying are not always the same.')+
+ table(['Oddiy savol','Rolning nomi','Misol'],['Simple question','Role','Example'],[
+ [('Kim foydalanadi?','Who uses it?'),('Foydalanuvchi','User'),('Bola maktab sumkasini ishlatadi','A child uses the schoolbag')],
+ [('Kim pul to‘laydi?','Who pays?'),('To‘lovchi','Payer'),('Sumka pulini ota-ona to‘laydi','A parent pays for the schoolbag')],
+ [('Kim tanlaydi?','Who decides?'),('Qaror qabul qiluvchi','Decision maker'),('Ota-ona bola bilan birga sumkani tanlaydi','Parent and child choose the schoolbag together')]])+
+ p('Talaba tushlikni o‘zi tanlab, o‘zi to‘lab, o‘zi yesa — uchala rolni ham o‘zi bajaradi. Sotuvchi foydalanuvchi uchun qulaylikni, to‘lovchi uchun narxni ham hisobga oladi.',
+ 'A student who chooses, pays for and eats lunch fills all three roles. A seller considers convenience for the user and price for the payer.'))
 
-page('Segmentlash: yoshning o‘zi yetmaydi', 'Segmentation: age alone is not enough',
- table(['Mezon','Misol','Nima uchun kerak?'],['Criterion','Example','Why use it?'],[
- [('Geografik','Geographic'),('Kampusga 1 km ichida','Within 1 km of campus'),('Yetkazish hududini cheklaydi','Defines the delivery area')],
- [('Demografik','Demographic'),('Talaba, tushlik byudjeti cheklangan','Student with a limited lunch budget'),('Narx chegarasini o‘rganish uchun','Investigate the budget constraint')],
- [('Psixografik','Psychographic'),('Sog‘lom ovqatlanishga ahamiyat beradi','Values healthy food'),('Qadriyat va tanlov sababini anglash uchun','Understand values and preferences')],
- [('Xulq-atvor','Behavioural'),('Haftada 3 marta navbat sabab tushlikni o‘tkazadi','Misses lunch 3 times a week due to queues'),('Muammo takrorlanishini ko‘rsatadi','Shows a recurring problem')]])+
- box('Ishchi segment: <b>kampusga yaqin, 30 daqiqalik tanaffusda navbatga ulgurmaydigan, haftada kamida 3 marta tayyor tushlik oladigan talabalar.</b> Bu ta’rifning har qismi tekshiriladigan taxmindir.',
- 'Working segment: <b>students near campus who cannot finish queuing in a 30-minute break and buy prepared lunch at least 3 times a week.</b> Every part is an assumption to check.')+
- p('Segment o‘lchanadigan, yetib boriladigan, yetarli hajmli va alohida taklifga javob beradigan bo‘lsin. B2Bda korxona sohasi, hajmi va xarid jarayoni ham muhim.',
- 'A useful segment is measurable, reachable, sufficiently large and responsive to a distinct offer. For B2B, include industry, company size and buying process.'))
+page('Hamma odamga bir xil mahsulot kerakmi?', 'Does everyone need the same product?',
+ box('<b>Segment — ehtiyoji yoki xarid odati o‘xshash mijozlar guruhi.</b> Segmentlash — odamlarni shunday guruhlarga ajratish.',
+ '<b>A segment is a group of customers with similar needs or buying habits.</b> Segmentation means dividing customers into such groups.')+
+ table(['Nimaga qaraymiz?','Ilmiy nomi','Tushlik misoli'],['What do we consider?','Technical term','Lunch example'],[
+ [('Qayerda yashaydi yoki o‘qiydi?','Where do they live or study?'),('Geografik belgi','Geographic'),('Universitetga yaqin talabalar','Students near the university')],
+ [('Yoshi va daromadi qanday?','What is their age or income?'),('Demografik belgi','Demographic'),('Tushlikka ajratadigan puli cheklangan talaba','Student with a limited lunch budget')],
+ [('Nimaga ahamiyat beradi?','What matters to them?'),('Psixografik belgi','Psychographic'),('Sog‘lom ovqatni afzal ko‘radi','Prefers healthy food')],
+ [('Qanchalik tez-tez xarid qiladi?','How often do they buy?'),('Xulq-atvor belgisi','Behavioural'),('Haftada uch marta tayyor tushlik oladi','Buys prepared lunch three times a week')]])+
+ p('Bir xil yoshdagi ikki talabaning ham ehtiyoji farq qilishi mumkin: biri arzon narxni, ikkinchisi tez xizmatni birinchi o‘ringa qo‘yadi.',
+ 'Even two students of the same age may have different needs: one prioritizes low price, the other quick service.'))
 
-page('Qaysi segmentdan boshlaymiz?', 'Which segment should we start with?',
- p('1 — past, 5 — yuqori. Ballar — suhbatdan oldingi ishchi taxmin; natija talab isboti emas.',
- '1 = low, 5 = high. Scores are working assumptions before interviews; a ranking is not proof of demand.')+
- table(['Segment','Muammo','Yetib borish','To‘lash','Jami'],['Segment','Pain','Reach','Ability to pay','Total'],[
- [('Talabalar','Students'),('5','5'),('5','5'),('2','2'),('12','12')],
- [('Ofis xodimlari','Office workers'),('4','4'),('3','3'),('4','4'),('11','11')],
- [('Sayyohlar','Tourists'),('3','3'),('2','2'),('4','4'),('9','9')]])+
- grid(card('Tanlov sababi','Reason for selection','Talabalarga yetib borish oson va muammo takrorlanishi mumkin. Lekin narxga sezgirlik sinovning asosiy xavfi.',
- 'Students are easy to reach and may have a recurring problem. Price sensitivity is the main risk to test.'),
- card('Cheklov','Constraint','Muammosi kuchli segment ham zararli bo‘lishi mumkin. Buyurtma tannarxi, yetkazish quvvati va ruxsatlarni alohida tekshiring.',
- 'Even a segment with strong pain may be unprofitable. Check order costs, delivery capacity and permissions separately.')))
+page('Avval kimga sotamiz?', 'Who should we sell to first?',
+ p('Tushlikni talabaga ham, ofis xodimiga ham, sayyohga ham sotish mumkin. Lekin yangi ish boshlaganda bitta aniq guruhni tushunish osonroq.',
+ 'Lunch can be sold to students, office workers or tourists. When starting out, it is easier to understand one specific group.')+
+ grid(card('1. Muammo bormi?','1. Is there a problem?','Talabaning tanaffusi qisqa, oshxonada navbat uzun. Tez ovqatlanishga ehtiyoj bo‘lishi mumkin.',
+ 'A student has a short break and faces long queues. They may need a faster way to get lunch.'),
+ card('2. Ularga yeta olamizmi?','2. Can we reach them?','Universitetga yaqin ishlasak, tushlikni kelishilgan joyda topshirishimiz osonroq.',
+ 'Working near the university makes it easier to hand over lunch at an agreed place.'),
+ card('3. Narx mos keladimi?','3. Does the price fit?','Mijozga qancha pul sarflash qulayligini so‘raymiz. Arzon narxda sotishning o‘zi yetmaydi — xarajat ham qoplanishi kerak.',
+ 'Ask what the customer can comfortably spend. A low price alone is not enough; costs must also be covered.'),
+ card('4. Xizmatni bajara olamizmi?','4. Can we deliver?','Bir kunda nechta tushlikni sifatli tayyorlab, vaqtida topshira olishimizni bilamiz.',
+ 'Know how many lunches we can prepare well and hand over on time each day.')))
 
-page('Persona: hikoya emas, dalillar xulosasi', 'Persona: a synthesis of evidence',
- grid(card('Ishchi persona: Dilnoza','Working persona: Dilnoza','2-kurs talabasi; tanaffusi 30 daqiqa. Faraz: haftada 3 kun tayyor tushlik oladi, 25 000 so‘mgacha sarflay oladi. Bu uydirma o‘quv profili; real mijoz haqidagi fakt emas.',
- 'Second-year student with a 30-minute break. Assumption: buys lunch 3 days a week and can spend up to UZS 25,000. This is a fictional teaching profile, not evidence about real customers.'),
- card('Kartaga nimalar yoziladi?','What belongs on the card?','Vaziyat; maqsad; muammo; hozirgi yechim; sarflanayotgan vaqt/pul; xarid mezoni; e’tiroz; dalil manbasi va sana.',
- 'Context; goal; problem; current workaround; time/money spent; buying criteria; objection; evidence source and date.'))+
- box('Dalil yorlig‘i: <b>Fakt</b> — suhbatdosh aytgan aniq voqea. <b>Talqin</b> — biz chiqargan xulosa. <b>Taxmin</b> — hali tekshirilmagan fikr. Iqtibosni o‘ylab topmang; ism o‘rniga anonim kod ishlating.',
- 'Evidence labels: <b>Observation</b> = a specific event reported by a participant. <b>Interpretation</b> = our inference. <b>Assumption</b> = untested belief. Never invent a quote; use anonymous participant codes.')+
- p('Persona bir segmentdagi o‘xshash ehtiyojlarni jamlaydi. Yosh yoki chiroyli suratning o‘zi xaridni tushuntirmaydi. Yangi dalillar kelganda kartani yangilang.',
- 'A persona summarizes similar needs in a segment. Age or a polished photo alone does not explain a purchase. Update it as evidence changes.'))
+page('Mijoz portreti — persona', 'Customer profile — persona',
+ box('<b>Persona — odatiy mijozning sodda tavsifi.</b> U kim, nimaga muhtoj va xaridda nimaga qaraydi? Haqiqiy portretni mijozlar bilan suhbat asosida tuzamiz.',
+ '<b>A persona is a simple description of a typical customer.</b> Who are they, what do they need and what matters when buying? Build a real profile from customer conversations.')+
+ grid(card('Misol: Dilnoza','Example: Dilnoza','O‘quv misolidagi Dilnoza — 2-kurs talabasi. Tanaffusi 30 daqiqa. U uzoq navbatda turmasdan, 25 000 so‘mgacha tushlik olishni xohlaydi.',
+ 'In this fictional example, Dilnoza is a second-year student with a 30-minute break. She wants lunch costing up to UZS 25,000 without a long queue.'),
+ card('Sotuvchiga nima ma’lum bo‘ldi?','What did the seller learn?','Muhim narsalar: narx, vaqt va to‘yimli ovqat. Demak, taklif shu uch ehtiyojga mos bo‘lishi kerak.',
+ 'Important factors: price, time and a filling meal. The offer should address these three needs.'))+
+ p('Bu misolni barcha talabalar haqida fakt deb qabul qilmaymiz. Boshqa talabalardan ham so‘rab, o‘xshash va farqli ehtiyojlarni bilib olamiz.',
+ 'Do not treat this example as a fact about every student. Ask other students to learn which needs are shared and which differ.'))
 
-page('Xarid motivi: mijoz kutayotgan natija', 'Buying motivation: the desired outcome',
- box('<b>JTBD:</b> «[Vaziyat] bo‘lganda, [ishni] bajarmoqchiman, shunda [natijaga] erishaman». Bu tayyor mahsulot g‘oyasi emas, mijozning vazifasi.',
- '<b>JTBD:</b> “When [situation], I want to [make progress], so I can [achieve an outcome].” This describes the customer’s job, not a proposed product.')+
- p('Misol: «Darslar orasida 30 daqiqa bo‘lganda, navbatsiz tushlik qilmoqchiman, shunda keyingi darsga vaqtida va xotirjam kiraman».',
- 'Example: “When I have 30 minutes between classes, I want lunch without queuing, so I can get to the next class on time and relaxed.”')+
- grid(card('Funksional va hissiy','Functional and emotional','Funksional: vaqtida ovqatlanish. Hissiy: kechikishdan xavotir olmaslik. Ijtimoiy: do‘stlar bilan birga ovqatlanish. Bir xaridda uchala motiv ham bo‘lishi mumkin.',
- 'Functional: eat on time. Emotional: avoid worrying about being late. Social: eat with friends. One purchase may involve all three.'),
- card('Haqiqiy raqobatchilar','Real alternatives','Oshxona, uyda tayyorlangan ovqat, do‘kondagi gazak va tushlik qilmaslik ham muqobil. Mijoz yangi xizmatga o‘tishi uchun nimadan voz kechadi?',
- 'Canteen, packed lunch, a shop snack and skipping lunch are all alternatives. What must the customer give up to switch?')))
+page('Odam mahsulotni nima uchun sotib oladi?', 'Why do people buy a product?',
+ box('<b>Odam mahsulot orqali biror ehtiyojini qondirmoqchi bo‘ladi.</b> Tushlik — ochlikni qondiradi; tez xizmat — vaqtni tejaydi.',
+ '<b>People buy products to meet a need.</b> Lunch satisfies hunger; fast service saves time.')+
+ grid(card('Amaliy sabab','Practical reason','Talaba ovqatlanib, keyingi darsga vaqtida kirishni xohlaydi.',
+ 'A student wants to eat and reach the next class on time.'),
+ card('His-tuyg‘u va atrofdagilar','Feelings and other people','U kechikishdan xavotir olmaslikni yoki do‘stlari bilan birga ovqatlanishni ham xohlashi mumkin.',
+ 'They may also want to avoid worrying about being late or enjoy eating with friends.'))+
+ p('Bu yondashuv <b>JTBD — Jobs to Be Done</b>, ya’ni «mijoz mahsulot yordamida bajarmoqchi bo‘lgan ish» deb ataladi. Atamani yodlashdan ko‘ra, <b>«Mijoz qanday natija kutmoqda?»</b> degan savolni tushunish muhim.',
+ 'This approach is called <b>JTBD — Jobs to Be Done</b>: the job the customer wants a product to help with. Focus on understanding <b>“What outcome does the customer want?”</b> rather than memorizing the acronym.'))
 
-page('Suhbat: reklama qilmay, o‘tmishni so‘rang', 'Interview: ask about the past, without pitching',
- table(['Yo‘naltiruvchi savol','Dalilga yaqin savol'],['Leading question','Evidence-oriented question'],[
- [('Bizning xizmat zo‘r, olasizmi?','Our service is great; would you buy it?'),('Oxirgi marta tushlikka ulgurmaganingizda nima bo‘ldi?','What happened the last time you could not get lunch?')],
- [('25 000 so‘m arzon-ku, to‘g‘rimi?','UZS 25,000 is cheap, right?'),('Oxirgi tushlikka qancha va qanday to‘ladingiz?','How much did your last lunch cost and how did you pay?')],
- [('Yetkazish kerakmi?','Do you need delivery?'),('O‘shanda muammoni qanday hal qildingiz?','How did you deal with the problem that time?')]])+
- p('<b>15 daqiqalik tartib:</b> rozilik oling → oxirgi aniq voqeani so‘rang → vaqt, xarajat va oqibatni aniqlang → hozirgi yechimni so‘rang → xulosani suhbatdoshga tekshirtiring.',
- '<b>15-minute structure:</b> obtain consent → ask about a recent specific event → explore time, cost and consequences → ask about the workaround → confirm your understanding.')+
- box('«Ha» javobi buyurtma emas. 5–10 suhbat dastlabki naqshlarni ochishi mumkin, ammo butun bozor ulushini isbotlamaydi. Faqat do‘stlar bilan cheklanmang; turli va xizmatni rad etgan odamlarni ham tinglang.',
- 'A “yes” is not an order. Five to ten interviews can reveal early patterns, but cannot prove population shares. Go beyond friends; include varied participants and people who reject the offer.'))
+page('Mijozdan qanday so‘raymiz?', 'How should we ask customers?',
+ table(['Bunday so‘rash o‘rniga…','Bunday so‘rash foydaliroq'],['Instead of asking…','It is more useful to ask…'],[
+ [('Bizning tushlikni olasizmi?','Would you buy our lunch?'),('Kecha qayerda tushlik qildingiz?','Where did you have lunch yesterday?')],
+ [('Narximiz arzon, to‘g‘rimi?','Our price is low, right?'),('Oxirgi tushlikka qancha pul sarfladingiz?','How much did you spend on your last lunch?')],
+ [('Sizga tez yetkazish kerakmi?','Do you need fast delivery?'),('Tushlik olayotganda nimasi qiyin bo‘ldi?','What was difficult about getting lunch?')]])+
+ box('<b>Avval tinglang, keyin taklif qiling.</b> Odamning o‘tgan tajribasi haqidagi savol aniqroq javob beradi. Suhbatni boshlashdan oldin vaqt ajrata olishini so‘rang.',
+ '<b>Listen first, then offer.</b> Asking about a past experience produces more specific answers. Ask whether the person has time before starting the conversation.')+
+ p('«Yaxshi fikr ekan» degan javob hali buyurtma emas. Mijozning aytgani bilan amalda qilganini solishtiring.',
+ '“That sounds like a good idea” is not an order. Compare what customers say with what they actually do.'))
 
-page('Dalillar: qaysi xulosaga haqqimiz bor?', 'Evidence: what can we conclude?',
- table(['O‘quv kuzatuvi','Ehtiyotkor xulosa','Keyingi tekshiruv'],['Teaching observation','Careful inference','Next check'],[
- [('8 suhbatdan 5 tasida navbat tilga olindi','5 of 8 interviews mentioned queues'),('Shu suhbatlarda muammo takrorlandi','The issue recurred in these interviews'),('Boshqa vaqt va joylarda ham kuzatish','Observe other times and locations')],
- [('20 taklifdan 6 ta haqiqiy buyurtma','6 real orders from 20 offers'),('Shu sinovda konversiya 30%','Conversion was 30% in this test'),('Boshqa guruhda qayta sinash','Repeat with another group')],
- [('Mijoz «mazali» dedi, qaytmadi','Customer said “tasty” but did not return'),('Maqtov qayta xaridga teng emas','Praise is not repeat purchase'),('Sababini so‘rash va kuzatish','Ask why and observe')]])+
- box('<b>5/8 = butun bozorning 62,5%i degani emas.</b> Qulay tanlama, kichik son va savol usuli xulosani cheklaydi. Sana, joy, tanlash usuli va kuzatuv sonini yozing.',
- '<b>5/8 does not mean 62.5% of the entire market.</b> Convenience sampling, small numbers and question wording limit inference. Record date, place, recruitment method and sample size.')+
- p('Shaxsiy ma’lumotni zaruratdan ortiq yig‘mang. Telefon yoki audio yozuv uchun alohida rozilik oling; hisobotda odamlarni aniqlashga imkon beradigan ma’lumotni bermang.',
- 'Collect only necessary personal data. Obtain separate consent for phone details or recordings; omit identifying information from reports.'))
+page('Taxmin va dalilning farqi', 'The difference between a guess and evidence',
+ grid(card('Taxmin — hali bilmaymiz','A guess — we do not know yet','«Menimcha, talabalar 25 000 so‘mlik tushlik oladi». Bu bizning fikrimiz; hali tekshirilmagan.',
+ '“I think students will buy lunch for UZS 25,000.” This is our belief; it has not been checked.'),
+ card('Dalil — ko‘rdik yoki tekshirdik','Evidence — we observed or checked','«Bugun 6 kishi shu narxda tushlik sotib oldi». Bu aynan bugungi sotuv haqida ma’lumot.',
+ '“Today, 6 people bought lunch at that price.” This is information about today’s sales.'))+
+ box('6 kishi sotib olgani <b>hamma talaba sotib oladi</b> degani emas. Boshqa kunlarda ham kuzatamiz va kimlar nima sababdan olmaganini so‘raymiz.',
+ 'Six purchases do <b>not mean every student will buy</b>. Observe on other days and ask why some people did not buy.')+
+ p('Qaydga sana va ko‘rgan natijangizni yozing. Suhbatdoshning ruxsatisiz uning telefon raqamini yoki audio yozuvini tarqatmang.',
+ 'Record the date and what you observed. Do not share a participant’s phone number or recording without permission.'))
 
-page('Qiymat taklifi: ehtiyojdan aniq va’daga', 'Value proposition: from need to a specific promise',
- box('«[Segment] uchun, [vaziyat/muammo] paytida, [natija] beramiz; [muqobil]ga nisbatan [tekshiriladigan farq] bilan».',
- '“For [segment], facing [situation/problem], we deliver [outcome], with [testable difference] compared with [alternative].”')+
- p('<b>Taklif gipotezasi:</b> kampus yaqinidagi talabalar uchun tanaffus boshida belgilangan topshirish nuqtasiga 25 000 so‘mlik tushlik. Menyu, tarkib va umumiy narx oldindan ko‘rsatiladi.',
- '<b>Offer hypothesis:</b> lunch for students near campus, delivered to an agreed pickup point at the start of the break for UZS 25,000. Show menu, ingredients and total price in advance.')+
- grid(card('Moslik','Fit','Muammo — navbat. Yechim — oldindan buyurtma va aniq vaqt. Dalil — vaqtida topshirilgan buyurtmalar ulushi hamda qayta xarid.',
- 'Pain: queues. Response: pre-ordering and a clear time slot. Evidence: on-time handover rate and repeat purchases.'),
- card('Va’dani o‘lchang','Measure the promise','«Eng zo‘r» o‘rniga aniq vaqt oralig‘ini ayting. Kechikish, bekor qilish va pulni qaytarish shartlarini tushuntiring; bajara olmaydigan kafolat bermang.',
- 'Replace “the best” with a specific time window. Explain delays, cancellation and refunds; avoid promises you cannot fulfil.')))
+page('Mijozga qanday taklif beramiz?', 'What should we offer the customer?',
+ box('<b>Qiymat taklifi — «Nega mijoz aynan bizdan olishi kerak?» degan savolga javob.</b> Mijozga qanday foyda berishingizni oddiy va aniq ayting.',
+ '<b>A value proposition answers “Why should the customer buy from us?”</b> Explain the benefit simply and clearly.')+
+ table(['Noaniq taklif','Aniqroq taklif'],['Vague offer','More specific offer'],[
+ [('Bizning tushlik eng zo‘ri!','Our lunch is the best!'),('25 000 so‘mlik tushlik; tanaffus boshida universitet yonidagi kelishilgan joyda topshiramiz.','Lunch for UZS 25,000, handed over at an agreed place near the university at the start of the break.')]])+
+ p('Bu taklifda uch narsa tushunarli: <b>nima beriladi, narxi qancha va qachon olinadi</b>. Mijoz tarkibi va porsiya hajmini ham bilishi kerak.',
+ 'Three things are clear: <b>what is offered, what it costs and when it is available</b>. Customers should also know the ingredients and portion size.')+
+ p('Faqat bajara oladigan va’dani bering. Vaqtida topshirish imkoni bo‘lmasa, avval xizmatni to‘g‘rilang.',
+ 'Promise only what you can deliver. If you cannot hand it over on time, improve the service first.'))
 
 page('TAM, SAM, SOM: uch xil savol', 'TAM, SAM, SOM: three different questions',
- grid(card('TAM — umumiy imkoniyat','TAM — total addressable market','Aniq mahsulot toifasi, geografiya va davr ichidagi barcha mos talab. «Dunyodagi hamma odam» emas. Chegarani avval belgilang.',
- 'All relevant demand within a defined category, geography and period. Not “everyone in the world.” Define the boundary first.'),
- card('SAM — xizmat ko‘rsatish mumkin bo‘lgan qism','SAM — serviceable available market','TAM ichidan hudud, taklif, narx va kanalingiz mos keladigan qism. Xizmat modeliga mos kelmaydigan talabni chiqarib tashlang.',
- 'The part of TAM compatible with your area, offer, price and channels. Exclude demand your service model cannot serve.'),
- card('SOM — erishish mumkin bo‘lgan qism','SOM — serviceable obtainable market','Belgilangan davrda raqobat, konversiya, byudjet va quvvat bilan olinishi mumkin bo‘lgan qism. Ixtiyoriy 1–2% emas.',
- 'The realistically obtainable part in a stated period, considering competition, conversion, budget and capacity. Not an arbitrary 1–2%.'),
- card('Birlik va manba','Units and sources','Mijoz, buyurtma va tushumni aralashtirmang. SOM ≤ SAM ≤ TAM. Rasmiy statistikaning sanasi va aynan qaysi guruhni sanaganini tekshiring.',
- 'Do not mix customers, orders and revenue. SOM ≤ SAM ≤ TAM. Check the date and population definition of official data.')))
+ grid(card('TAM — umumiy bozor','TAM — total market','<b>Total Addressable Market</b> — umumiy qamrab olinishi mumkin bo‘lgan bozor.<br>Oddiy savol: <b>«Belgilangan hududda bu mahsulot kimlarga kerak bo‘lishi mumkin?»</b>',
+ '<b>Total Addressable Market</b> — the total relevant market.<br>Simple question: <b>“Who might need this product in the area we have defined?”</b>'),
+ card('SAM — xizmatimiz yeta oladigan qism','SAM — the part our service can reach','<b>Serviceable Available Market</b> — xizmat ko‘rsatish mumkin bo‘lgan mavjud bozor.<br>Oddiy savol: <b>«Shulardan qaysilariga bizning joyimiz va xizmatimiz mos?»</b>',
+ '<b>Serviceable Available Market</b> — the part we can serve.<br>Simple question: <b>“Which of those customers fit our location and service?”</b>'),
+ card('SOM — amalda oladigan qismimiz','SOM — the part we can realistically win','<b>Serviceable Obtainable Market</b> — amalda egallash mumkin bo‘lgan bozor ulushi.<br>Oddiy savol: <b>«Hozir nechta mijozni jalb qilib, ularga xizmat bera olamiz?»</b>',
+ '<b>Serviceable Obtainable Market</b> — the share we can realistically win.<br>Simple question: <b>“How many customers can we attract and serve now?”</b>'),
+ card('Esda saqlash oson','An easy way to remember','<b>Hammasi → bizga mos qismi → biz oladigan qism.</b> Uchalasida ham bir xil hudud va davrni nazarda tuting.',
+ '<b>The whole → the suitable part → the part we win.</b> Use the same area and time period for all three.')))
 
-page('Bozor hisobi: bir xil davr, aniq faraz', 'Market sizing: a consistent period and explicit assumptions',
- p('<b>Barcha sonlar shartli.</b> Davr — yil; narx — 25 000 so‘m/buyurtma; mos mijoz yiliga 40 buyurtma beradi deb faraz qilamiz.',
- '<b>All figures are hypothetical.</b> Period: one year; price: UZS 25,000 per order; assume 40 annual orders per relevant customer.')+
- table(['Qatlam','Hisob','Yillik tushum imkoniyati'],['Layer','Calculation','Annual revenue opportunity'],[
- [('TAM: shartli hududda 10 000 mos mijoz','TAM: 10,000 relevant customers in a defined area'),('10 000 × 40 × 25 000','10,000 × 40 × 25,000'),('10 mlrd so‘m','UZS 10 billion')],
- [('SAM: yetkazish hududida 1 000 mijoz','SAM: 1,000 customers in the delivery area'),('1 000 × 40 × 25 000','1,000 × 40 × 25,000'),('1 mlrd so‘m','UZS 1 billion')],
- [('SOM: faraziy 100 faol mijoz','SOM: hypothetical 100 active customers'),('100 × 40 × 25 000','100 × 40 × 25,000'),('100 mln so‘m','UZS 100 million')]])+
- box('<b>Quvvat chegarasi:</b> 20 buyurtma/kun × 200 ish kuni = 4 000 buyurtma/yil. 100 mijoz × 40 = 4 000: bu to‘liq quvvat, kafolatlangan sotuv emas. Yetkazish va oshxona quvvatidan kichigini oling; zaxira vaqt ham kerak.',
- '<b>Capacity ceiling:</b> 20 orders/day × 200 operating days = 4,000 orders/year. 100 customers × 40 = 4,000: full capacity, not guaranteed sales. Use the smaller of kitchen and delivery capacity; allow a buffer.')+
- p('Sezgirlik: yiliga 20 buyurtma bo‘lsa, bir xil 100 mijozdan tushum 50 mln so‘mga tushadi. Narx × son — foyda emas: xarajatlar hali ayrilmagan.',
- 'Sensitivity: at 20 annual orders, the same 100 customers yield UZS 50 million. Price × quantity is revenue, not profit; costs have not been deducted.'))
+page('Bozor hajmi: 100 → 40 → 10', 'Market size: 100 → 40 → 10',
+ p('<b>Shartli misol:</b> bir kunlik tushlik bozori. Har bir odam shu kuni bittadan tushlik olishi mumkin deb olaylik.',
+ '<b>Hypothetical example:</b> lunch demand for one day. Assume each person may buy one lunch that day.')+
+ table(['Atama','Oddiy misol','Mijoz soni'],['Term','Simple example','Customer count'],[
+ [('TAM','TAM'),('Belgilangan kichik hududda tushlik olishi mumkin bo‘lganlar','People who might buy lunch in our defined small area'),('100 kishi','100 people')],
+ [('SAM','SAM'),('Ulardan universitet yonidagi joyimiz va taklifimiz mos keladiganlar','Those for whom our university-side location and offer are suitable'),('40 kishi','40 people')],
+ [('SOM','SOM'),('Birinchi kuni jalb etishni rejalagan va xizmat bera oladiganlar','Customers we plan to attract and serve on the first day'),('10 kishi','10 people')]])+
+ box('<b>10 ta tushlik × 25 000 so‘m = 250 000 so‘m tushum.</b> Tushum — sotuvdan kelgan jami pul. Bu foyda emas: ovqat, qadoq va boshqa xarajatlar hali ayrilmagan.',
+ '<b>10 lunches × UZS 25,000 = UZS 250,000 revenue.</b> Revenue is the total money from sales. It is not profit: food, packaging and other costs have not been deducted.')+
+ p('10 mijoz — reja, kafolat emas. Uni suhbat, kichik sotuv va ish imkoniyatimizga qarab tekshiramiz. Bir kunda 10 porsiya tayyorlasak, 40 kishiga birdan va’da bermaymiz.',
+ 'Ten customers is a plan, not a guarantee. Check it through conversations, small sales and our ability to deliver. If we can prepare 10 portions a day, do not promise 40.'))
 
-page('Birinchi oy: voronka va qayta xarid', 'First month: funnel and repeat purchase',
- table(['Bosqich','Hisob','Natija'],['Stage','Calculation','Result'],[
- [('Noyob auditoriya','Unique audience'),('400 kishi taklifni ko‘rdi','400 people saw the offer'),('400','400')],
- [('Qiziqish','Interest'),('400 × 25%','400 × 25%'),('100 kishi','100 people')],
- [('Birinchi xarid','First purchase'),('100 × 20%','100 × 20%'),('20 noyob xaridor','20 unique buyers')],
- [('Qayta xarid','Repeat purchase'),('20 × 30%','20 × 30%'),('6 qaytgan xaridor','6 returning buyers')]])+
- box('Umumiy birinchi xarid konversiyasi = <b>20 / 400 = 5%</b>. Qaytgan 6 kishi yangi mijoz emas. Har biri yana bir marta olsa: 20 + 6 = <b>26 buyurtma</b>; tushum = 26 × 25 000 = <b>650 000 so‘m</b>.',
- 'Overall first-purchase conversion = <b>20 / 400 = 5%</b>. The 6 returning buyers are not new customers. If each orders once more: 20 + 6 = <b>26 orders</b>; revenue = 26 × 25,000 = <b>UZS 650,000</b>.')+
- p('Bu foizlar universal me’yor emas. Kanal, davr va hisoblash asosini yozing. Shu sur’atning o‘zi 100 faol mijozga yetish rejasini tasdiqlamaydi: jalb qilish va qayta xaridni alohida tekshiring.',
- 'These rates are not universal benchmarks. State channel, period and denominator. This pace alone does not validate a plan for 100 active customers: test acquisition and repeat behaviour separately.'))
+page('Taklifni ko‘rganlarning hammasi xarid qiladimi?', 'Does everyone who sees an offer buy?',
+ box('<b>Misol:</b> 100 kishi e’lonni ko‘rdi → 20 kishi narxini so‘radi → 5 kishi tushlik oldi. Taklifni ko‘rgan odam bilan haqiqiy xaridor bir xil narsa emas.',
+ '<b>Example:</b> 100 people saw an advert → 20 asked the price → 5 bought lunch. Someone who sees an offer is not necessarily a buyer.')+
+ p('Buni <b>sotuv voronkasi</b> deyishadi: har bosqichda odamlar soni kamayishi mumkin. <b>Konversiya</b> — ko‘rganlarning qancha qismi xarid qilganini ko‘rsatadi: 5 ÷ 100 × 100 = <b>5%</b>.',
+ 'This is called a <b>sales funnel</b>: the number of people may decrease at each step. <b>Conversion</b> tells us what share of viewers bought: 5 ÷ 100 × 100 = <b>5%</b>.')+
+ grid(card('Nega xarid qilmasligi mumkin?','Why might someone not buy?','Narx mos emas, vaqti to‘g‘ri kelmadi, ovqat yoqmadi yoki mijoz hali ishonmadi. Sababni so‘rab bilamiz.',
+ 'The price may not fit, timing may be wrong, the food may not appeal or the person may not yet trust us. Ask to find out.'),
+ card('Qayta xarid nima?','What is a repeat purchase?','5 xaridordan 2 tasi ertasi kuni yana oldi. Bu — qayta xarid. Ular yangi odamlar emas, oldingi mijozlarimiz.',
+ 'Two of the 5 buyers buy again the next day. These are repeat purchases. They are existing customers, not new people.')))
 
-page('Kichik sinov: oldindan mezon belgilang', 'Small experiment: set a decision rule in advance',
- grid(card('Gipoteza va tajriba','Hypothesis and experiment','Tanlangan segmentdagi 20 kishiga aniq menyu, 25 000 so‘mlik yakuniy narx va vaqt oralig‘ini taklif qilamiz. Sinov — 5 ish kuni; faqat bajarish mumkin bo‘lgan buyurtma olinadi.',
- 'Offer 20 people in the chosen segment a defined menu, total price of UZS 25,000 and a delivery window. Run for 5 working days; accept only orders you can fulfil.'),
- card('O‘quv qaror mezoni','Teaching decision rule','Kamida 6 ta haqiqiy buyurtma va ularning kamida 5 tasi vaqtida topshirilsa — takroriy sinov. Aks holda rad etish sababi va jarayonni o‘rganib, taklifni qayta ko‘ramiz. Bu universal standart emas.',
- 'If at least 6 real orders are received and at least 5 arrive on time, repeat the experiment. Otherwise study rejection reasons and operations, then revise the offer. This is not a universal standard.'))+
- p('<b>Bir buyurtma hisobi:</b> 25 000 − 17 000 ovqat/qadoq − 4 000 yetkazish = 4 000 so‘m hissa. 26 buyurtma = 104 000 so‘m; ijara, reklama va boshqa doimiy xarajatlar hali ayrilmagan.',
- '<b>Per-order economics:</b> 25,000 − 17,000 food/packaging − 4,000 delivery = UZS 4,000 contribution. 26 orders = UZS 104,000 before rent, advertising and other fixed costs.')+
- box('Buyurtma soni bilan birga kechikish, bekor qilish, shikoyat va qayta xaridni yozing. Oziq-ovqat xavfsizligi, allergenlar va sotishga tegishli mahalliy talablarni haqiqiy sinovdan oldin tekshiring.',
- 'Track delays, cancellations, complaints and repeat purchases alongside orders. Check food safety, allergens and applicable local selling requirements before a real pilot.'))
+page('Avval oz miqdorda sinab ko‘ramiz', 'Try a small amount first',
+ grid(card('1. Aniq taklif','1. A clear offer','Menyu, porsiya, narx va olish vaqtini aytamiz. Mijoz nimaga pul to‘lashini bilsin.',
+ 'State the menu, portion, price and pickup time so customers know what they are paying for.'),
+ card('2. Kichik miqdor','2. A small quantity','Darrov 100 porsiya emas, masalan, buyurtmaga qarab 10 porsiyagacha tayyorlaymiz. Sotishdan oldin oziq-ovqat xavfsizligi va tegishli talablarni tekshiramiz.',
+ 'Instead of immediately making 100 portions, prepare up to 10 based on orders. Check food safety and applicable requirements before selling.'),
+ card('3. Natijani yozish','3. Record the result','Nechta sotildi? Vaqtida berildimi? Nima yoqdi, nima yoqmadi? Qancha xarajat bo‘ldi?',
+ 'How many sold? Were they handed over on time? What did customers like or dislike? What did it cost?'),
+ card('4. Yaxshilash','4. Improve','Mijoz fikri va xarajatni ko‘rib, porsiya, narx yoki vaqtni o‘zgartiramiz. Natija yaxshi bo‘lsa, asta ko‘paytiramiz.',
+ 'Use customer feedback and costs to adjust portions, price or timing. Expand gradually if results are good.'))+
+ p('Maqsad — katta pul sarflashdan oldin odamlarga taklifimiz kerakligini tushunish.',
+ 'The aim is to understand whether people need the offer before spending a lot of money.'))
 
-page('Guruh mashqi: tadqiqotchi va tadbirkor', 'Group exercise: researcher and entrepreneur',
- grid(card('15 daqiqa · uch kishilik guruh','15 minutes · groups of three','3 daqiqa: xizmat va segmentni tanlang. 5 daqiqa: suhbatdosh, tadqiqotchi va kuzatuvchi bo‘lib suhbat qiling. 4 daqiqa: fakt/talqin/taxmin kartasini tuzing. 3 daqiqa: xulosa va sinov rejasini ayting.',
- '3 minutes: choose a service and segment. 5 minutes: interview in participant, researcher and observer roles. 4 minutes: build an observation/interpretation/assumption card. 3 minutes: present findings and a test plan.'),
- card('Topshiriladigan bitta sahifa','One-page deliverable','Segment + rollar; bitta aniq voqea; JTBD; muqobil yechim; qiymat taklifi; TAM/SAM/SOM farazlari; sinov mezoni. Auditoriyadagi rolli o‘yin real bozor tadqiqoti o‘rnini bosmaydi.',
- 'Segment and roles; one specific event; JTBD; alternative; value proposition; TAM/SAM/SOM assumptions; experiment threshold. Classroom role-play does not replace real market research.'))+
- box('<b>10 ballik baholash:</b> segment va rollar — 2; dalil va taxmin farqi — 2; JTBD va taklif mosligi — 2; birliklari to‘g‘ri hisob — 2; aniq sinov va qaror — 2.',
- '<b>10-point rubric:</b> segment and roles — 2; evidence versus assumptions — 2; JTBD/offer fit — 2; consistent calculations — 2; explicit experiment and decision — 2.'))
+page('Ko‘p uchraydigan xatolar', 'Common mistakes',
+ table(['Xato fikr','To‘g‘riroq yondashuv'],['Mistaken belief','Better approach'],[
+ [('Hamma mening mijozim','Everyone is my customer'),('Avval bitta aniq mijozlar guruhini tanlayman','Start with one specific customer group')],
+ [('Menga yoqdi, hammaga yoqadi','I like it, so everyone will'),('Mijozdan so‘rayman va kichik miqdorda sinayman','Ask customers and try a small amount')],
+ [('E’lonni ko‘rdi — demak xaridor','They saw the advert, so they are a buyer'),('Qiziqish va haqiqiy xaridni alohida sanayman','Count interest and actual purchases separately')],
+ [('Tushgan pulning hammasi foyda','All money received is profit'),('Tushumdan xarajatlarni ayirish kerak','Costs must be deducted from revenue')],
+ [('Ko‘proq va’da bersam, yaxshi sotiladi','More promises mean more sales'),('Faqat bajara oladigan va’dani beraman','Promise only what can be delivered')]])+
+ box('<b>Oddiy qoida:</b> mijozni tinglang → unga mos taklif bering → oz miqdorda sinang → natijaga qarab yaxshilang.',
+ '<b>Simple rule:</b> listen to the customer → make a suitable offer → try a small amount → improve based on results.'))
 
 video='https://www.youtube.com/watch?v=z4hmIU-PiR0'
 page('Video va tekshiriladigan manbalar', 'Video and reference sources',
@@ -191,21 +195,23 @@ page('Video va tekshiriladigan manbalar', 'Video and reference sources',
  f'<h3 {d("▶ Mavzuga oid video dars / Video lesson","▶ Mavzuga oid video dars / Video lesson")}>▶ Mavzuga oid video dars / Video lesson</h3>'+
  p('Videoni yuqoridagi pleyerda tomosha qiling. Pleyer ochilmasa, shu havola orqali YouTube’da ko‘ring. Ko‘rgach, quyidagi savollarni muhokama qiling.',
  'Watch in the player above. If the player is unavailable, use this link to watch on YouTube. Afterwards, discuss the questions below.')+'</a>'+
- p('<b>Ko‘rish vazifasi:</b> 1) mijozni aniqlashga yordam beradigan ikkita fikrni yozing; 2) ularni o‘z g‘oyangizga qo‘llang; 3) tekshirish uchun uchta yo‘naltirmaydigan suhbat savolini tuzing.',
- '<b>Viewing task:</b> 1) note two ideas that help identify customers; 2) apply them to your idea; 3) write three non-leading interview questions to test your assumptions.')+
+ p('<b>Ko‘rish vazifasi:</b> Mijoz haqida esda qolgan ikkita fikrni yozib oling. Ularni tushlik xizmati misoli bilan bog‘lab ko‘ring.',
+ '<b>Viewing task:</b> Note two ideas about customers that you remember. Relate them to the lunch-service example.')+
  '<ul><li><a href="https://www.strategyzer.com/library/the-value-proposition-canvas" target="_blank" rel="noopener noreferrer">Strategyzer — Value Proposition Canvas</a></li><li><a href="https://www.strategyzer.com/books/testing-business-ideas" target="_blank" rel="noopener noreferrer">Bland &amp; Osterwalder — Testing Business Ideas (2019)</a></li><li><a href="https://www.momtestbook.com/" target="_blank" rel="noopener noreferrer">Rob Fitzpatrick — The Mom Test (2013)</a></li><li><a href="https://stat.uz/" target="_blank" rel="noopener noreferrer">O‘zbekiston rasmiy statistikasi / Official statistics of Uzbekistan</a></li></ul>'+
  p('Manbalar tushuncha va tadqiqot usullarini chuqurlashtirish uchun. Darsdagi sonlar ulardan olingan statistik ma’lumot emas. Video ochilmasa, 8-slayddagi savollar bilan mashqni davom ettiring.',
  'Sources extend the concepts and research methods. The figures in this lesson are not statistics taken from these sources. If the video is unavailable, use the interview questions on slide 8.'))
 
-page('Xulosa va mustaqil ish', 'Summary and assignment',
- box('<b>Esda tuting:</b> segment — kim; JTBD — vaziyatdagi natija; persona — dalillar xulosasi; qiymat taklifi — tekshiriladigan va’da; bozor hisobi — manbali faraz; sinov — keyingi qaror uchun dalil.',
- '<b>Remember:</b> segment = who; JTBD = progress in context; persona = evidence synthesis; value proposition = testable promise; market estimate = sourced assumptions; experiment = evidence for a decision.')+
- grid(card('Mustaqil ish','Assignment','Bir g‘oya uchun 3 segmentni solishtiring. Tanlangan segmentdan kamida 3 kishi bilan rozilik asosida suhbat qiling. Anonim qaydlar, bitta persona va JTBD tuzing; kamida 2 muqobilni solishtiring.',
- 'Compare 3 segments for one idea. Interview at least 3 consenting people from your chosen segment. Produce anonymous notes, one persona and JTBD; compare at least 2 alternatives.'),
- card('Hisob va topshirish','Calculation and submission','Bir xil davrda TAM/SAM/SOM hisoblang; har farazga manba yoki «tekshirilmagan» yorlig‘ini bering. 2 sahifalik hisobotga voronka, birlik xarajatlari va 5 kunlik sinov rejasini qo‘shing.',
- 'Calculate TAM/SAM/SOM for the same period; attach a source or “untested” label to each assumption. Submit a 2-page report with a funnel, unit costs and a 5-day experiment plan.'))+
- p('Kamida 3 suhbat — mashqning minimumi; bozor bo‘yicha umumlashtirish uchun yetarli tanlama emas. Keyingi darsda qaysi taxminingiz o‘zgarganini aytasiz.',
- 'Three interviews are the assignment minimum, not a sufficient sample for population claims. Next lesson, explain which assumption changed.'))
+page('Xulosa: esda qoladigan 5 fikr', 'Summary: five things to remember',
+ grid(card('1. Mijozni aniq biling','1. Know your customer','Kimga sotishingizni ayta oling. «Hamma uchun» degan javob o‘rniga aniq guruhni tanlang.',
+ 'Be able to say who you sell to. Choose a specific group instead of saying “everyone”.'),
+ card('2. Ehtiyojni tushuning','2. Understand the need','Mijoz nimani xohlayapti: arzon narxmi, tezlikmi, qulaylikmi? Javobni uning o‘zidan bilib oling.',
+ 'What does the customer want: a low price, speed or convenience? Find out from the customer.'),
+ card('3. Sodda va aniq taklif bering','3. Make a clear, simple offer','Mahsulot nima, qancha turadi va qachon olinadi — tushunarli bo‘lsin.',
+ 'Make clear what the product is, what it costs and when it is available.'),
+ card('4. Hisobni farqlang','4. Distinguish the numbers','Bozorning hammasi sizning mijozingiz emas. Sotuvdan kelgan jami pul ham foyda emas.',
+ 'The entire market is not your customer base. Total sales revenue is not profit.'))+
+ box('<b>5. Avval kichik sinov.</b> Natijani ko‘rib keyin kengaying. <b>O‘zingizni tekshiring:</b> yaqin do‘kon yoki oshxonaning mijozlari kim va ular nega aynan shu yerdan xarid qiladi?',
+ '<b>5. Start small.</b> Look at results before expanding. <b>Check your understanding:</b> who buys from a nearby shop or canteen, and why do they choose it?'))
 
 # Keep the existing multiple-choice engine and its DOM contract.
 page('Bilimni tekshirish · 15 savol', 'Check your understanding · 15 questions',
@@ -215,33 +221,183 @@ page('Bilimni tekshirish · 15 savol', 'Check your understanding · 15 questions
 
 Q=[]
 def quiz(q,qe,a,ae,c,e,ee): Q.append(dict(q=q,qe=qe,a=a,ae=ae,c=c,e=e,ee=ee))
-quiz('Dasturdan hisobchi foydalanadi, rahbar xaridni tasdiqlaydi. Rahbarning roli nima?', 'An accountant uses software; a manager approves its purchase. What is the manager’s role?',
- ['Foydalanuvchi','Qaror egasi','Oddiy kuzatuvchi','Tashqi yetkazuvchi'],['User','Decision maker','Casual observer','External supplier'],1,'Qarorni tasdiqlash — qaror egasining roli. To‘lovchi alohida bo‘lishi mumkin.','Approving the purchase is the decision-maker role. The payer may be someone else.')
-quiz('Qaysi belgi xulq-atvor segmentlashiga kiradi?', 'Which is a behavioural segmentation criterion?',
- ['Yashash tumani','Talabaning yoshi','Haftalik xarid chastotasi','Sog‘lom hayot qadriyati'],['District of residence','Student age','Weekly purchase frequency','Valuing a healthy lifestyle'],2,'Xarid chastotasi — kuzatiladigan xarid odati.','Purchase frequency describes buying behaviour.')
-quiz('Jadvalda eng ko‘p ball olgan segment haqida nima deya olamiz?', 'What can we conclude about the highest-scoring segment?',
- ['Talab to‘liq isbotlangan','Sinov uchun ustuvor taxmin','Raqobatchilar yo‘q','Foyda kafolatlangan'],['Demand is fully proven','It is a priority hypothesis to test','There are no competitors','Profit is guaranteed'],1,'Reyting tanlovga yordam beradi, ammo mijoz dalili va iqtisodiy hisobni almashtirmaydi.','A ranking helps prioritize; it does not replace customer evidence or economic checks.')
-quiz('Personadagi «25 000 so‘m to‘laydi» fikri hali tekshirilmagan. Uni qanday belgilaymiz?', 'A persona says “will pay UZS 25,000”, without evidence. How should we label it?',
- ['Tasdiqlangan fakt','Rasmiy statistika','Haqiqiy buyurtma','Tekshirilmagan taxmin'],['Confirmed observation','Official statistic','Real order','Untested assumption'],3,'Dalil bo‘lmasa, bu taxmin. Uni haqiqiy xarid yoki boshqa mos sinov bilan tekshiramiz.','Without evidence it is an assumption; test it through real purchase behaviour or another suitable experiment.')
-quiz('Qaysi jumla JTBDga mos?', 'Which statement describes a JTBD?',
- ['Tanaffusda navbatsiz ovqatlanib, darsga vaqtida kirmoqchiman','Biz qizil qadoqli yangi mahsulot ishlab chiqaramiz','Mijozlarimiz 18–24 yoshdagi barcha odamlar','Mahsulotimiz bozordagi eng mashhur brend bo‘ladi'],['During my break I want lunch without queuing so I reach class on time','We will produce a new item in red packaging','Our customers are all people aged 18–24','Our product will become the most famous brand'],0,'JTBD vaziyat, bajariladigan ish va kutilgan natijani bog‘laydi.','JTBD connects context, desired progress and outcome.')
-quiz('Suhbatni qaysi savol bilan boshlash foydaliroq?', 'Which is the more useful interview question?',
- ['Yangi xizmatimizni albatta olasizmi?','25 000 so‘m sizga arzon, shundaymi?','Oxirgi marta tushlikka ulgurmaganingizda nima qildingiz?','Bizning menyu hammadan yaxshi emasmi?'],['Will you definitely buy our new service?','UZS 25,000 is cheap for you, right?','What did you do the last time you could not get lunch?','Is our menu not better than everyone else’s?'],2,'Aniq o‘tgan voqea haqidagi savol odat va muqobil yechimni ochadi.','A specific past event reveals behaviour and alternatives.')
-quiz('8 suhbatdan 5 tasida navbat muammosi aytildi. To‘g‘ri xulosa qaysi?', 'Five of eight interviews mentioned queues. Which conclusion is justified?',
- ['Butun bozorning 62,5%i mijoz bo‘ladi','Shu suhbatlarda muammo takrorlandi','Mahsulotning foydasi isbotlandi','Boshqa tadqiqot endi kerak emas'],['62.5% of the whole market will become customers','The issue recurred in these interviews','Product profitability is proven','No further research is needed'],1,'Kichik, qulay tanlama butun bozorni ifodalamasligi mumkin.','A small convenience sample may not represent the population.')
-quiz('Tushlik xizmatining muqobili qaysi?', 'Which can be an alternative to a lunch service?',
- ['Faqat aynan shunday yetkazish ilovasi','Faqat eng qimmat restoran','Faqat yirik xalqaro brend','Uy ovqati, gazak yoki tushlikni o‘tkazish'],['Only an identical delivery app','Only the most expensive restaurant','Only a major international brand','Packed lunch, a snack or skipping lunch'],3,'Muqobil — mijoz bugun ishlatayotgan boshqa yechim, shu jumladan hech narsa qilmaslik.','An alternative is another way customers handle the situation, including doing nothing.')
-quiz('SAM qaysi ta’rifga mos?', 'Which definition fits SAM?',
- ['TAMning xizmat modelimiz mos keladigan qismi','Birinchi oyning sof foydasi','Dunyodagi barcha odamlar soni','Raqobatchilarning umumiy xarajati'],['The part of TAM compatible with our service model','Net profit in the first month','Everyone in the world','Competitors’ total costs'],0,'SAM hudud, taklif, narx va kanal cheklovlariga mos bozor qismidir.','SAM reflects constraints of geography, offer, price and channels.')
-quiz('100 mijoz yiliga 40 buyurtma beradi, narx 25 000 so‘m. Yillik tushum qancha?', '100 customers place 40 annual orders each at UZS 25,000. What is annual revenue?',
- ['10 mln so‘m','40 mln so‘m','100 mln so‘m','1 mlrd so‘m'],['UZS 10 million','UZS 40 million','UZS 100 million','UZS 1 billion'],2,'100 × 40 × 25 000 = 100 000 000 so‘m. Bu tushum, sof foyda emas.','100 × 40 × 25,000 = UZS 100,000,000. This is revenue, not net profit.')
-quiz('Kuniga 20 buyurtma va yiliga 200 ish kunida quvvat qancha?', 'What is capacity at 20 daily orders over 200 operating days?',
- ['4 000 buyurtma/yil','4 000 noyob mijoz/kun','400 buyurtma/yil','20 000 mijoz/yil'],['4,000 orders/year','4,000 unique customers/day','400 orders/year','20,000 customers/year'],0,'20 × 200 = 4 000 buyurtma. Quvvat mijoz soni va sotuv kafolati emas.','20 × 200 = 4,000 orders. Capacity is not a customer count or a sales guarantee.')
-quiz('400 kishidan 100 tasi qiziqdi, ulardan 20 tasi xarid qildi. Umumiy konversiya qancha?', 'Of 400 people, 100 showed interest and 20 purchased. What is overall conversion?',
- ['25%','20%','30%','5%'],['25%','20%','30%','5%'],3,'20 / 400 × 100 = 5%. 20 / 100 = 20% esa faqat ikkinchi bosqich konversiyasi.','20 / 400 × 100 = 5%. 20 / 100 = 20% is only the second-stage conversion.')
-quiz('20 xaridordan 6 tasi yana bir marta oldi. Noyob mijoz va buyurtmalar soni qancha?', '20 buyers each order once; 6 order once more. How many unique customers and orders?',
- ['26 mijoz, 26 buyurtma','20 mijoz, 26 buyurtma','20 mijoz, 6 buyurtma','6 mijoz, 20 buyurtma'],['26 customers, 26 orders','20 customers, 26 orders','20 customers, 6 orders','6 customers, 20 orders'],1,'Qaytgan mijozni yangi mijoz deb qayta sanamaymiz; buyurtma soni esa oshadi.','Returning buyers are not counted again as new customers; order count increases.')
-quiz('Narx 25 000, ovqat/qadoq 17 000, yetkazish 4 000 so‘m. Bir buyurtma hissasi qancha?', 'Price is 25,000, food/packaging 17,000, delivery 4,000. What is contribution per order?',
- ['25 000 so‘m sof foyda','8 000 so‘m sof foyda','4 000 so‘m hissa','21 000 so‘m hissa'],['UZS 25,000 net profit','UZS 8,000 net profit','UZS 4,000 contribution','UZS 21,000 contribution'],2,'25 000 − 17 000 − 4 000 = 4 000. Doimiy xarajatlar ayrilmagani uchun bu sof foyda emas.','25,000 − 17,000 − 4,000 = 4,000. Fixed costs have not been deducted, so this is not net profit.')
-quiz('Kichik sinovdan oldin nimani belgilash kerak?', 'What should be defined before a small experiment?',
- ['Gipoteza, muddat, o‘lchov va qaror mezoni','Faqat logotipning yangi rangini','Faqat xodimlar uchun lavozim nomini','Natijadan keyin qulay kelgan mezonni'],['Hypothesis, deadline, measure and decision rule','Only a new logo colour','Only new staff job titles','A convenient threshold chosen after results'],0,'Oldindan mezon qo‘yish natijani o‘z xohishimizga mos talqin qilish xavfini kamaytiradi.','A pre-defined decision rule reduces the risk of interpreting results to suit our preferences.')
+quiz('Ona bola bilan sumka tanladi va pulini to‘ladi. Sumkani bola ishlatadi. Rollar qaysi javobda to‘g‘ri ajratilgan?',
+ 'A mother chooses a schoolbag with her child and pays for it. The child uses it. Which allocation of roles is correct?',
+ ['Ona — foydalanuvchi; bola — to‘lovchi; ikkalasi — qaror egasi',
+ 'Bola — foydalanuvchi; ona — to‘lovchi; ikkalasi — qaror egasi',
+ 'Bola — foydalanuvchi; ikkalasi — to‘lovchi; ona — qaror egasi',
+ 'Ikkalasi — foydalanuvchi; bola — to‘lovchi; ona — qaror egasi'],
+ ['Mother: user; child: payer; both: decision makers',
+ 'Child: user; mother: payer; both: decision makers',
+ 'Child: user; both: payers; mother: decision maker',
+ 'Both: users; child: payer; mother: decision maker'],1,
+ '3-slayd: foydalanuvchi sumkani ishlatadi, to‘lovchi pul beradi, qaror egasi tanlaydi. Bu holatda tanlov birgalikda qilingan.',
+ 'Slide 3: the user uses the bag, the payer pays, and the decision maker chooses. Here the choice was made together.')
+quiz('Sotuvchi mijozlarni to‘rt guruhga ajratdi. Qaysi guruh xarid odatiga, ya’ni xulq-atvor belgisiga asoslangan?',
+ 'A seller divides customers into four groups. Which group is based on buying behaviour?',
+ ['Universitetdan bir kilometr masofada yashaydiganlar',
+ 'Bir xil yosh va o‘xshash daromadga ega bo‘lganlar',
+ 'Haftada uch marta tayyor tushlik sotib oladiganlar',
+ 'Ovqat tanlashda sog‘lom hayotni muhim deb biladiganlar'],
+ ['People living within one kilometre of the university',
+ 'People of the same age with similar incomes',
+ 'People buying prepared lunch three times a week',
+ 'People who value healthy living when choosing food'],2,
+ '4-slayd: xaridning qanchalik tez-tez takrorlanishi xulq-atvor belgisidir. Masofa — geografik, yosh va daromad — demografik, qadriyat — psixografik belgi.',
+ 'Slide 4: purchase frequency is behavioural. Distance is geographic, age and income are demographic, and values are psychographic.')
+quiz('Talabalar tez tushlik istaydi va ularga yetib borish oson. Lekin ular ma’qul ko‘rgan narx sotuvchining xarajatini qoplamaydi. Eng asosli keyingi qadam qaysi?',
+ 'Students want fast lunch and are easy to reach. However, their preferred price does not cover the seller’s costs. What is the best next step?',
+ ['Ehtiyoj kuchli bo‘lgani uchun shu narxda sotuvni ko‘paytirish',
+ 'Yetib borish osonligi uchun xarajatni keyinroq hisoblash',
+ 'Narxni saqlab, yangi mijoz kelishini kutib ishlash',
+ 'Taklif va xarajatni qayta ko‘rib, keyin kichik sinash'],
+ ['Increase sales at that price because the need is strong',
+ 'Calculate costs later because customers are easy to reach',
+ 'Keep the price and operate while waiting for new customers',
+ 'Review the offer and costs, then test on a small scale'],3,
+ '5-slayd: ehtiyoj va yetib borishning o‘zi yetarli emas; narx xarajatni ham qoplashi kerak. Taklifni shu shartga moslash lozim.',
+ 'Slide 5: need and reach alone are insufficient; the price must also cover costs. Adapt the offer accordingly.')
+quiz('Sotuvchi Dilnoza haqidagi o‘quv misolini o‘qib, «Barcha talabalar 25 000 so‘mlik tushlik xohlaydi», dedi. Persona haqidagi tushunchaga mos javob qaysi?',
+ 'After reading the fictional Dilnoza example, a seller says, “All students want lunch for UZS 25,000.” Which response fits the lesson on personas?',
+ ['Bu portretni taxmin sifatida olib, boshqa talabalar bilan ham suhbatlashish kerak',
+ 'Bitta portret barcha talabalarni ifodalaydi, shu narxni umumiy qo‘llash kerak',
+ 'Talabalar bir joyda o‘qigani uchun ularning ehtiyojini bir xil olish kerak',
+ 'Portretda aniq narx borligi uchun uni haqiqiy sotuv dalili deb olish kerak'],
+ ['Treat the profile as an assumption and also interview other students',
+ 'One profile represents all students, so use that price for everyone',
+ 'Students study in one place, so treat their needs as identical',
+ 'The profile states a price, so treat it as evidence of actual sales'],0,
+ '6-slayd: Dilnoza — shartli misol. Haqiqiy persona suhbatlarga tayanadi; bir odamning ehtiyojini hammaga ko‘chirish mumkin emas.',
+ 'Slide 6: Dilnoza is a fictional example. A real persona relies on conversations; one person’s needs cannot be applied to everyone.')
+quiz('Talaba «Menga shunchaki tushlik emas, navbatsiz ovqatlanib darsga vaqtida kirish muhim», dedi. JTBD yondashuvida asosiy e’tibor nimaga qaratiladi?',
+ 'A student says, “I need more than lunch: I want to eat without queuing and reach class on time.” What does the JTBD approach focus on?',
+ ['Sotuvchi tayyorlaydigan porsiyalar soniga',
+ 'Mijoz mahsulot orqali kutayotgan natijaga',
+ 'Taklifni ko‘rgan barcha odamlar soniga',
+ 'Tushlik sotiladigan joyning bezagiga'],
+ ['The number of portions the seller prepares',
+ 'The outcome the customer wants from the product',
+ 'The number of people who see the offer',
+ 'The decoration of the place selling lunch'],1,
+ '7-slayd: JTBD — Jobs to Be Done. Bu misolda mijozning vazifasi ovqatlanish bilan birga vaqtni tejash va darsga kechikmaslikdir.',
+ 'Slide 7: JTBD means Jobs to Be Done. Here the customer wants to eat, save time and avoid being late for class.')
+quiz('Tushlik narxi mijozga mosligini bilmoqchisiz. Qaysi savol uni ma’lum javobga undamasdan, avvalgi xaridi haqida dalil olishga yordam beradi?',
+ 'You want to learn whether a lunch price fits a customer. Which question seeks evidence from a past purchase without leading the answer?',
+ ['Bizning 25 000 so‘mlik tushligimiz sizga arzon, shundaymi?',
+ 'Agar narxni tushirsak, keyingi safar albatta olasizmi?',
+ 'Do‘stlaringiz ham bizning narximizni ma’qullaydimi?',
+ 'Oxirgi tushlikka qancha sarfladingiz va uni nega tanladingiz?'],
+ ['Our lunch at UZS 25,000 is cheap for you, right?',
+ 'If we lower the price, will you definitely buy next time?',
+ 'Would your friends also approve of our price?',
+ 'How much did your last lunch cost, and why did you choose it?'],3,
+ '8-slayd: aniq o‘tgan xaridni so‘rash mijozning amaldagi tanlovini ochadi. Qolgan savollar yo javobni yo‘naltiradi, yo kelajak haqidagi taxminni so‘raydi.',
+ 'Slide 8: a specific past purchase reveals actual choices. The other questions either lead the answer or ask for speculation about the future.')
+quiz('Sotuvchi «Talabalar bizdan oladi», deb o‘yladi. Bugun 6 kishi uning tushligini sotib oldi. Qaysi xulosa to‘g‘ri?',
+ 'A seller expected students to buy. Today, six people bought the lunch. Which conclusion is justified?',
+ ['Bugungi 6 xarid — dalil; barcha talabalar olishi esa hali tasdiqlanmagan',
+ 'Bugungi 6 xarid — dalil; endi qolgan talabalar ham olishi tasdiqlangan',
+ 'Bugungi 6 xarid — taxmin; faqat mijozning maqtovi dalil hisoblanadi',
+ 'Bugungi 6 xarid — kafolat; keyingi kun ham shuncha sotilishi aniq'],
+ ['Today’s six purchases are evidence; purchases by all students remain unproven',
+ 'Today’s six purchases prove that the remaining students will also buy',
+ 'Today’s six purchases are a guess; only customer praise counts as evidence',
+ 'Today’s six purchases guarantee the same sales on the next day'],0,
+ '9-slayd: dalil aynan kuzatilgan natijaga tegishli. Kichik sotuv natijasini butun bozorga yoki keyingi kunga kafolat qilib bo‘lmaydi.',
+ 'Slide 9: evidence concerns what was observed. A small sales result does not guarantee the entire market or the next day’s sales.')
+quiz('Mijoz uchun mahsulot, narx va olish vaqti aniq bo‘lishi kerak. Qaysi taklif uchalasini ham tushuntiradi?',
+ 'A customer needs to know the product, price and pickup time. Which offer explains all three?',
+ ['Talabalar uchun issiq tushlik — arzon narxda, qulay joyda',
+ '25 000 so‘mlik tushlik — universitet yonida, yaxshi xizmat bilan',
+ '25 000 so‘mlik tushlik — tanaffus boshida, kelishilgan joyda',
+ 'Tanaffus boshida tayyor tushlik — yaxshi narx va sifat bilan'],
+ ['Hot lunch for students, at a low price in a convenient place',
+ 'Lunch for UZS 25,000 near the university, with good service',
+ 'Lunch for UZS 25,000 at the start of the break, at an agreed place',
+ 'Prepared lunch at the start of the break, with good price and quality'],2,
+ '10-slayd: aniq taklif nima berilishi, qancha turishi va qachon olinishini aytadi. «Arzon» yoki «yaxshi» so‘zlari aniq narx va vaqtni almashtirmaydi.',
+ 'Slide 10: a clear offer states what is provided, its price and when it is available. “Cheap” or “good” does not replace a specific price or time.')
+quiz('Bir kunlik misolda hududda 100 ehtimoliy xaridor bor, 40 kishiga xizmatimiz mos. Birinchi kuni 10 mijozni jalb etib xizmat berishni rejaladik. TAM, SAM, SOM qaysi tartibda?',
+ 'In the one-day example, the area has 100 potential buyers; the service suits 40. We plan to attract and serve 10 on day one. Which order correctly gives TAM, SAM and SOM?',
+ ['TAM — 40; SAM — 100; SOM — 10',
+ 'TAM — 100; SAM — 40; SOM — 10',
+ 'TAM — 100; SAM — 10; SOM — 40',
+ 'TAM — 10; SAM — 40; SOM — 100'],
+ ['TAM: 40; SAM: 100; SOM: 10',
+ 'TAM: 100; SAM: 40; SOM: 10',
+ 'TAM: 100; SAM: 10; SOM: 40',
+ 'TAM: 10; SAM: 40; SOM: 100'],1,
+ '11–12-slaydlar: TAM — umumiy bozor, SAM — xizmatimiz mos qism, SOM — amalda jalb etib xizmat bera oladigan qism. Davr bir xil — bir kun.',
+ 'Slides 11–12: TAM is the total market, SAM is the suitable part, and SOM is the part we can realistically attract and serve. The period is one day throughout.')
+quiz('Serviceable Available Market — SAM 40 kishi. Sotuvchi bir kunda 10 porsiya tayyorlay oladi. Faqat shu ma’lumotdan qaysi qaror asosli?',
+ 'SAM — Serviceable Available Market — contains 40 people. The seller can prepare 10 portions a day. Which decision follows from this information alone?',
+ ['SAM 40 bo‘lgani uchun 40 ta buyurtmani kafolatlash',
+ 'Quvvat 10 bo‘lgani uchun SAMni avtomatik 10 ga tenglash',
+ 'Quvvat 10 bo‘lgani uchun 10 ta sotuvni aniq deb olish',
+ '10 porsiyadan ortiq va’da bermay, haqiqiy talabni tekshirish'],
+ ['Guarantee 40 orders because SAM is 40',
+ 'Automatically set SAM to 10 because capacity is 10',
+ 'Assume exactly 10 sales because capacity is 10',
+ 'Promise no more than 10 portions and check actual demand'],3,
+ '12-slayd: xizmat mos keladigan mijozlar soni, tayyorlash imkoniyati va haqiqiy sotuv bir xil emas. 10 porsiyalik quvvat 10 xaridni kafolatlamaydi.',
+ 'Slide 12: suitable customer count, production capacity and actual sales are different. Capacity for ten portions does not guarantee ten purchases.')
+quiz('Taqdimotdagi 10 ta tushlikning har biri 25 000 so‘mdan sotildi. Qaysi hisob va izoh birgalikda to‘g‘ri?',
+ 'The lesson’s ten lunches sell for UZS 25,000 each. Which calculation and explanation are both correct?',
+ ['250 000 so‘m tushum; foydani bilish uchun xarajatlarni ayirish kerak',
+ '250 000 so‘m sof foyda; sotilgan ovqat xarajati endi hisoblanmaydi',
+ '25 000 so‘m tushum; xaridorlar soni hisobga qo‘shilmaydi',
+ '250 000 so‘m xarajat; sotuvdan kelgan pul keyin hisoblanadi'],
+ ['UZS 250,000 revenue; deduct costs to determine profit',
+ 'UZS 250,000 net profit; sold food costs no longer count',
+ 'UZS 25,000 revenue; buyer count is not included',
+ 'UZS 250,000 costs; money from sales is counted later'],0,
+ '12-slayd: 10 × 25 000 = 250 000 so‘m — tushum. Ovqat, qadoq va boshqa xarajatlar ayirilmaguncha uni foyda deyish noto‘g‘ri.',
+ 'Slide 12: 10 × 25,000 = UZS 250,000 revenue. Calling it profit before deducting food, packaging and other costs is incorrect.')
+quiz('Sotuvchi «Bugun 250 000 so‘m tushdi, demak shuncha foyda qildim», dedi. Uning xulosasini tekshirish uchun eng zarur ma’lumot qaysi?',
+ 'A seller says, “I received UZS 250,000 today, so that is my profit.” Which information is most necessary to check the claim?',
+ ['E’lonni jami necha kishi ko‘rgani',
+ 'Mijozlarning qaysi kursda o‘qishi',
+ 'Shu sotuvga tegishli jami xarajatlar',
+ 'Boshqa sotuvchining mahsulot nomi'],
+ ['How many people saw the advert',
+ 'Which year the customers study in',
+ 'Total costs attributable to those sales',
+ 'Another seller’s product name'],2,
+ '12 va 15-slaydlar: tushumdan xarajatlar ayriladi. Tushumning o‘zi qancha foyda qolganini ko‘rsatmaydi.',
+ 'Slides 12 and 15: costs must be deducted from revenue. Revenue alone does not show how much profit remains.')
+quiz('E’lonni 100 kishi ko‘rdi, 20 kishi narx so‘radi, 5 kishi xarid qildi. E’lonni ko‘rganlarning xaridga aylanish ulushi qancha?',
+ '100 people saw the advert, 20 asked the price and 5 purchased. What share of advert viewers became buyers?',
+ ['20% — narx so‘ragan 20 kishini 100 ga bo‘lamiz',
+ '5% — xarid qilgan 5 kishini 100 ga bo‘lamiz',
+ '25% — xarid qilgan 5 kishini 20 ga bo‘lamiz',
+ '100% — e’lonni ko‘rganlar ham xaridor hisoblanadi'],
+ ['20%: divide the 20 price enquiries by 100',
+ '5%: divide the 5 purchasers by 100',
+ '25%: divide the 5 purchasers by 20',
+ '100%: everyone viewing the advert counts as a buyer'],1,
+ '13-slayd: savolda asos — e’lonni ko‘rgan 100 kishi. 5 ÷ 100 × 100 = 5%. 5 ÷ 20 esa boshqa bosqichning ulushini beradi.',
+ 'Slide 13: the denominator requested is the 100 advert viewers. 5 ÷ 100 × 100 = 5%. Dividing 5 by 20 measures a different stage.')
+quiz('Dushanba kuni 5 xil odam bittadan tushlik oldi. Seshanba kuni ulardan 2 tasi yana bittadan oldi; yangi xaridor kelmadi. Ikki kunda natija qanday?',
+ 'On Monday, five different people each buy one lunch. On Tuesday, two of them each buy one more; no new buyers arrive. What are the two-day totals?',
+ ['7 xil mijoz va 7 ta buyurtma',
+ '5 xil mijoz va 5 ta buyurtma',
+ '2 xil mijoz va 7 ta buyurtma',
+ '5 xil mijoz va 7 ta buyurtma'],
+ ['7 different customers and 7 orders',
+ '5 different customers and 5 orders',
+ '2 different customers and 7 orders',
+ '5 different customers and 7 orders'],3,
+ '13-slayd: qayta xarid qilgan odam yangi mijoz bo‘lib qolmaydi. Mijozlar soni 5, buyurtmalar esa 5 + 2 = 7 ta.',
+ 'Slide 13: a repeat buyer is not a new customer. There are still five customers, but 5 + 2 = 7 orders.')
+quiz('Kichik sinovda taklifni ko‘rganlar ko‘p, lekin xarid kam bo‘ldi. Taqdimotdagi yondashuv bo‘yicha eng asosli keyingi qadam qaysi?',
+ 'In a small trial, many people saw the offer but few bought. According to the lesson, what is the best next step?',
+ ['Xarid qilmaganlar sababini so‘rab, taklif va xarajatni ko‘rib, qayta sinash',
+ 'Ko‘rganlar soniga tayanib, darhol ko‘proq porsiya ishlab chiqarish',
+ 'Xarajatni tekshirmasdan narxni keskin tushirib, katta sotuv boshlash',
+ 'Kam sotuvga tayanib, boshqa tekshiruvsiz hamma talab yo‘q deb hisoblash'],
+ ['Ask non-buyers why, review the offer and costs, then test again',
+ 'Use viewer count to immediately produce many more portions',
+ 'Cut the price sharply and expand without checking costs',
+ 'Conclude there is no demand anywhere without further checks'],0,
+ '13–15-slaydlar: ko‘rish xarid emas. Narx, vaqt, mahsulot yoki ishonch sabab bo‘lishi mumkin. Sababni bilib, kichik sinov orqali yaxshilash kerak.',
+ 'Slides 13–15: viewing is not buying. Price, timing, product or trust may matter. Find the reason and improve through another small trial.')
