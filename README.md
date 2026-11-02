@@ -2,6 +2,8 @@
 
 **Muassasa:** Termiz davlat universiteti · Fan: Tadbirkorlik asoslari
 
+**Yangi Tadbirkorlik asoslari ilovasi:** [ishlatish va sinash qo‘llanmasi](studyquest/README.md) · [Vercel + Firebase sozlash](studyquest/docs/DEPLOYMENT.md). Yangi Next.js ilovasi `studyquest/` papkasida; mavjud taqdimotlar va talabalar ma’lumotlari saqlanadi. GitHub Pages sahifasi avtomatik yangi ilovaga almashtirilmaydi.
+
 Sayt — 15 ta interaktiv taqdimot, ball va reyting tizimi, talabalar chati, o'yin arenasi va telefon ilovasi (PWA).
 Mehmon ochiq taqdimotlarni o‘qiydi; universitet talabasi test ishlaydi va ball to‘playdi; mustaqil o‘quvchi guruhsiz o‘qiydi va o‘qish jarayonini saqlaydi; o'qituvchi hammasini panel orqali
 boshqaradi (mavzuni ochish, baholash, e'lon, jonli test).

@@ -1,0 +1,123 @@
+export type Role = 'student' | 'teacher' | 'admin';
+export type Lang = 'uz' | 'en' | 'ru';
+export type Actor = {
+  id: string;
+  uid: string;
+  role: Role;
+  name: string;
+  email?: string;
+  classId: string;
+  academicPoints?: number;
+  learnerType: 'university' | 'independent';
+};
+export type User = Actor & {
+  xp: number;
+  streak: number;
+  lastStudyDay?: string;
+  leaderboardVisible: boolean;
+  createdAt: number;
+};
+export type Course = {
+  id: string;
+  title: string;
+  description: string;
+  published: boolean;
+  ownerId: string;
+  difficulty: string;
+  category: string;
+  illustration: string;
+};
+export type Module = { id: string; courseId: string; title: string; order: number };
+export type Slide = { title: string; body: string; image?: string; video?: string };
+export type Lesson = {
+  id: string;
+  courseId: string;
+  moduleId: string;
+  title: string;
+  order: number;
+  slides: Slide[];
+  slideCount: number;
+  minSeconds: number;
+  published: boolean;
+  legacyFile?: string;
+  materialId?: string;
+};
+export type Question = {
+  id: string;
+  type: 'choice' | 'boolean' | 'matching' | 'short';
+  prompt: string;
+  options?: string[];
+  pairs?: string[];
+  accepted?: string[];
+  answer?: unknown;
+  explanation: string;
+};
+export type Quiz = {
+  id: string;
+  lessonId: string;
+  title: string;
+  passingScore: number;
+  attempts: number;
+  timeLimit: number;
+  randomize: boolean;
+  questions: Question[];
+};
+export type Progress = {
+  id: string;
+  userId: string;
+  lessonId: string;
+  courseId: string;
+  startedAt: number;
+  updatedAt: number;
+  seen: number[];
+  last: number;
+  completed: boolean;
+};
+export type Attempt = {
+  id: string;
+  userId: string;
+  quizId: string;
+  courseId: string;
+  startedAt: number;
+  submittedAt?: number;
+  questionIds: string[];
+  score?: number;
+  correct?: number;
+  passed?: boolean;
+  answers?: Record<string, unknown>;
+};
+export type XpTransaction = {
+  id: string;
+  userId: string;
+  courseId: string;
+  kind: string;
+  points: number;
+  createdAt: number;
+  classId: string;
+};
+export type Settings = {
+  rewards: { lesson: number; quiz: number; perfect: number; challenge: number; course: number };
+  levels: { name: string; xp: number }[];
+};
+export type Badge = { id: string; name: string; description: string; icon: string };
+export type Data = {
+  courses: Course[];
+  modules: Module[];
+  lessons: Lesson[];
+  quizzes: Omit<Quiz, 'questions'>[];
+  settings: Settings;
+  badges: Badge[];
+  mode: 'demo' | 'firebase' | 'legacy';
+  user?: User;
+  progress?: Progress[];
+  attempts?: Attempt[];
+  transactions?: XpTransaction[];
+  earned?: string[];
+  activity?: { day: string; xp: number }[];
+  notifications?: Record<string, unknown>[];
+  subjects?: { id: string; title: string }[];
+  classes?: { id: string; title: string; teacherId?: string }[];
+  users?: User[];
+  leaderboard?: { id: string; name: string; xp: number; classId: string }[];
+  error?: string;
+};

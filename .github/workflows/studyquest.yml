@@ -1,0 +1,64 @@
+name: Tadbirkorlik asoslari checks
+
+on:
+  push:
+    paths:
+      - 'studyquest/**'
+      - '_reyting-manba/**'
+      - '*.html'
+      - 'rt-engine.js'
+      - 'fayllar/**'
+      - '.github/workflows/studyquest.yml'
+  pull_request:
+    paths:
+      - 'studyquest/**'
+      - '_reyting-manba/**'
+      - '*.html'
+      - 'rt-engine.js'
+      - 'fayllar/**'
+      - '.github/workflows/studyquest.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: studyquest-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: studyquest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: studyquest/package-lock.json
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - run: npm ci --no-audit --no-fund
+      - name: Generate catalog from preserved presentations
+        run: node scripts/sync-legacy.mjs
+      - run: npm run typecheck
+      - run: npm test
+      - name: Firestore rules against local demo emulator
+        run: npm run test:emulator
+      - run: npx playwright install --with-deps chromium
+      - name: Browser workflows in isolated local demo
+        run: npm run test:browser
+      - name: Production build without demo authentication
+        run: npm run build
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: studyquest-browser-artifacts
+          path: studyquest/tests/artifacts/
+          retention-days: 7

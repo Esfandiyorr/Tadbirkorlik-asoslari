@@ -1,0 +1,8 @@
+rules_version = '2';
+service firebase.storage {
+ match /b/{bucket}/o {
+  // Uploads and downloads use the server API after role, enrollment, byte signature and size checks.
+  // No public download tokens are written to uploaded files.
+  match /{path=**}{allow read,write: if false;}
+ }
+}

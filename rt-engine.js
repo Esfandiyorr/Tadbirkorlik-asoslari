@@ -5792,7 +5792,7 @@ function myKv(sub,val,cb){
   (val===undefined?fetch(u):fetch(u,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(val)}))
     .then(function(r){ if(!r.ok) throw 0; return r.json(); }).then(function(v){ cb(v,true); },function(){ cb(null,false); });
 }
-return {award:award, slideSeen:slideSeen, open:openOv, student:function(){return S;}, points:function(){return P;}, kv:myKv,
+return {auth:function(mode){ authOpen("",mode||"log"); }, award:award, slideSeen:slideSeen, open:openOv, student:function(){return S;}, points:function(){return P;}, kv:myKv,
         ok:approved, university:function(){ return !!S&&!independent(S)&&approved(); }, teacher:function(){return isTc;}, cloud:function(){return {on:cloudOn,base:BASE};},
         t:T, esc:esc, toast:toast, save:save, qUsed:qUsed, qBump:qBump, qGrant:qGrant,
         fetch:fetch};                         /* bazaga kalit (token) bilan so'rov — chat shu orqali yozadi */

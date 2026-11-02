@@ -1,0 +1,11 @@
+node_modules/
+.next/
+public/legacy/
+lib/catalog.generated.json
+.studyquest-demo/
+tests/artifacts/
+test-results/
+playwright-report/
+package-lock.json
+next-env.d.ts
+*-debug.log

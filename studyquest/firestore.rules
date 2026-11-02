@@ -1,0 +1,30 @@
+rules_version = '2';
+service cloud.firestore {
+ match /databases/{database}/documents {
+  // The authenticated server API is the only access path for private data.
+  // It verifies Firebase tokens AND current legacy ownership/status on every request.
+  // This prevents a cached client token or stale auth link from bypassing an account reset.
+  match /subjects/{id}{allow read: if true; allow write: if false;}
+  match /courses/{id}{allow read: if resource.data.published == true; allow write: if false;}
+  match /achievements/{id}{allow read: if true; allow write: if false;}
+  match /settings/{id}{allow read: if true; allow write: if false;}
+  match /users/{id}{allow read,write: if false;}
+  match /authLinks/{id}{allow read,write: if false;}
+  match /modules/{id}{allow read,write: if false;}
+  match /lessons/{id}{allow read,write: if false;}
+  match /presentations/{id}{allow read,write: if false;}
+  match /quizzes/{id}{allow read,write: if false;}
+  match /quizKeys/{id}{allow read,write: if false;}
+  match /quizUsage/{id}{allow read,write: if false;}
+  match /quizAttempts/{id}{allow read,write: if false;}
+  match /enrollments/{id}{allow read,write: if false;}
+  match /progress/{id}{allow read,write: if false;}
+  match /xpTransactions/{id}{allow read,write: if false;}
+  match /userAchievements/{id}{allow read,write: if false;}
+  match /leaderboards/{id}{allow read,write: if false;}
+  match /classes/{id}{allow read,write: if false;}
+  match /challenges/{id}{allow read,write: if false;}
+  match /notifications/{id}{allow read,write: if false;}
+  match /{document=**}{allow read,write: if false;}
+ }
+}
