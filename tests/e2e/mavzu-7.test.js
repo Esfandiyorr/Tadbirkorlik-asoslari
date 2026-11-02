@@ -17,6 +17,7 @@ const en=JSON.parse(src.match(/var EN=(.*);/)[1]),qen=JSON.parse(src.match(/var 
   ck('lesson is open to the test student',!await p.locator('body').evaluate(e=>e.classList.contains('rt-locked')));
   ck('18 slides and 15 bilingual questions',await p.locator('.slide').count()===18&&data.length===15&&qen.length===15);
   ck('all slide text has English translations',await p.locator('.slide [data-i]').evaluateAll((els,en)=>els.every(e=>typeof en[e.dataset.i]==='string'&&en[e.dataset.i].length>0),en));
+  ck('university logo asset loads',(await p.request.get(H.SITE+'/logo_tersu.png')).ok());
   ck('bilingual quiz indices agree',data.every((q,i)=>q.a.length===4&&q.c>=0&&q.c<4&&qen[i].a.length===4&&qen[i].c===q.c));
   const a=p.locator('a[href*="z4hmIU-PiR0"]');
   ck('supplied video link',await a.count()===1&&await a.getAttribute('target')==='_blank'&&(await a.getAttribute('rel')).includes('noopener'));
@@ -27,6 +28,14 @@ const en=JSON.parse(src.match(/var EN=(.*);/)[1]),qen=JSON.parse(src.match(/var 
    const over=[];
    for(let i=0;i<18;i++) {
     await p.evaluate(n=>{location.hash=String(n+1)},i); await sleep(100);
+    if(i===0) {
+     await sleep(550); // Wait for the slide transition before measuring and capturing.
+     const cover=p.locator('.slide.active');
+     ck(language+': cover has logo, large heading and four metadata badges',await cover.locator('.big-logo.terdu-logo[role="img"]').count()===1&&await cover.locator('h1.grad').count()===1&&await cover.locator('.meta > div').count()===4);
+     const logo=await cover.locator('.big-logo').boundingBox();
+     ck(language+': logo is visible and fits screen',!!logo&&logo.width>=150&&logo.height>=150&&logo.x>=0&&logo.x+logo.width<=width+1);
+     await p.screenshot({path:'mavzu-7-cover-'+language+'.png'});
+    }
     if(i===15) {
      const size=await player.boundingBox();
      ck(language+': embedded player fits slide',!!size&&size.width>200&&size.x>=0&&size.x+size.width<=width+1&&Math.abs(size.width/size.height-16/9)<0.02);

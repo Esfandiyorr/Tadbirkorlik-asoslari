@@ -22,14 +22,21 @@ def table(headers, headers_en, rows):
         s+='<tr>'+''.join(f'<td {d(uz,en)}>{uz}</td>' for uz,en in row)+'</tr>'
     return s+'</tbody></table></div>'
 
-page('Mijoz kim va unga nima kerak?', 'Who is the customer and what do they need?',
- p('7-mavzu · Tadbirkorlik asoslari · 2 akademik soat','Topic 7 · Fundamentals of Entrepreneurship · 2 academic hours','lead')+
- box('Asosiy savol: <b>kimning, qaysi vaziyatdagi muammosini, qanday dalil asosida hal qilamiz?</b>',
- 'Core question: <b>whose problem, in what situation, are we solving — and what evidence supports it?</b>')+
- p('Segment → suhbat → persona → qiymat taklifi → bozor hisobi → kichik sinov. Barcha bosqichlar bitta tushlik xizmati misolida bog‘lanadi.',
- 'Segment → interview → persona → value proposition → market estimate → small experiment. A lunch-service example connects every step.')+
- p('18 slayd · 15 ta izohli test · guruh mashqi · mustaqil ish. Raqamlar o‘quv misoli, haqiqiy statistika emas.',
- '18 slides · 15 explained questions · group exercise · assignment. All numerical examples are teaching assumptions, not real statistics.'))
+def cover_text(tag, uz, en, cls=''):
+    return f'<{tag} class="{cls}" {d(uz,en)}>{uz}</{tag}>'
+
+slide('Muqova', 'Cover',
+ '<div class="title-wrap"><div class="big-logo terdu-logo" role="img" aria-label="Termiz davlat universiteti logotipi"></div><div>'+
+ cover_text('span', "M7-mavzu · Ma’ruza · 2 soat", 'Topic 7 · Lecture · 2 hours', 'kicker')+
+ cover_text('h1', 'MIJOZ KIM VA UNGA NIMA KERAK?', 'WHO IS THE CUSTOMER AND WHAT DO THEY NEED?', 'grad')+
+ p('Maqsadli mijozlarni <b>segmentlash</b> · mijoz portreti (<b>persona</b>) · xarid motivlari va <b>JTBD</b> · mijoz bilan suhbat · qiymat taklifi · <b>TAM, SAM, SOM</b> va birinchi mijozlar hisobi · amaliy sinov.',
+ 'Customer <b>segmentation</b> · customer <b>persona</b> · buying motives and <b>JTBD</b> · customer interviews · value proposition · <b>TAM, SAM, SOM</b> and initial customer estimates · practical experiments.', 'lead')+
+ '<div class="meta">'+
+ cover_text('div', '📚 Fan: <b>Tadbirkorlik asoslari</b>', '📚 Subject: <b>Fundamentals of Entrepreneurship</b>')+
+ cover_text('div', '🎓 <b>Termiz davlat universiteti</b>', '🎓 <b>Termez State University</b>')+
+ cover_text('div', '🗂 <b>18</b> slayd · <b>15</b> ta test', '🗂 <b>18</b> slides · <b>15</b> questions')+
+ cover_text('div', '⌨️ <b>→</b> tugmasi bilan davom eting', '⌨️ Press <b>→</b> to continue')+
+ '</div></div></div>')
 
 page('Dars yakunida nima tayyor bo‘ladi?', 'What will you produce?',
  grid(card('1. Aniq mijoz','1. A specific customer','Tor segmentni tanlaysiz; foydalanuvchi, to‘lovchi va qaror egasini farqlaysiz.',
