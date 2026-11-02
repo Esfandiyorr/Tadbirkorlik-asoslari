@@ -120,7 +120,7 @@ def platform_redirect(s):
     path=BASE+'platform-redirect.js'
     version=hashlib.md5(open(path,'rb').read()).hexdigest()[:10]
     block='<!-- PLATFORM:BEGIN -->\n<script src="platform-redirect.js?v='+version+'"></script>\n<!-- PLATFORM:END -->\n'
-    return s.replace('<head>','<head>\n'+block,1)
+    return re.sub(r'<head>\s*', '<head>\n'+block, s, count=1)
 
 def inject(fn,meta):
     p=BASE+fn
