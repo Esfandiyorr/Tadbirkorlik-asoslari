@@ -215,7 +215,8 @@ function rec(){
   /* guruh bu yerda yo'q: uni o'qituvchi o'zgartiradi, talabaning eski nusxasi ustidan yozib yubormasin */
   /* PIN izi va email bu yerda yo'q: ular faqat ro'yxatdan o'tishda (yoki alohida) yoziladi */
   return {id:S.id,name:S.name,surname:S.surname,
-          total:P.total||0,topics:topicSummary(),at:S.at||Date.now(),updated:Date.now()};
+          total:P.total||0,topics:topicSummary(),at:S.at||Date.now(),updated:Date.now(),
+          authVersion:S.authVersion||1,pwSalt:S.pwSalt||""};
 }
 function cloudSave(withGroup){   /* status maydoniga tegmaydi — uni faqat o'qituvchi o'zgartiradi */
   if(!cloudOn||!BASE||!S||DEAD) return;   /* o'chirilgan hisob qayta tiklanmasin */
@@ -237,8 +238,8 @@ function ownLost(){
     var g=el('<div class="rt-gate" id="rtRelog"><div class="rt-box" style="text-align:center">'+
       '<div style="font-size:44px">🔐</div>'+
       '<h2 style="margin:6px 0 4px">'+T("Hisobingizga qayta kiring","Please log in again")+'</h2>'+
-      '<p class="rt-note">'+T("Xavfsizlik uchun bu brauzerni qayta tasdiqlash kerak (masalan, PIN-kod o\'zgartirilgan). Ism, familiya va PIN-kod bilan kiring — ballaringiz saqlanib qolgan.",
-        "For security this browser must be confirmed again (for example, the PIN was changed). Log in with your name, surname and PIN — your points are kept.")+'</p>'+
+      '<p class="rt-note">'+T("Xavfsizlik uchun bu brauzerni qayta tasdiqlash kerak (masalan, parol o\'zgartirilgan). Ism, familiya va parol bilan kiring — ballaringiz saqlanib qolgan.",
+        "For security this browser must be confirmed again (for example, the password was changed). Log in with your name, surname and PIN — your points are kept.")+'</p>'+
       '<button class="btn accent" id="rtRelogGo" style="justify-content:center;margin-top:10px">🔑 '+T("Qayta kirish","Log in again")+'</button>'+
       '</div></div>');
     document.body.appendChild(g);
@@ -254,23 +255,23 @@ function cloudSetEmail(){
     if(!r.ok) return fetch(BASE+"/students/"+S.id+"/email.json",{method:"PUT",headers:H,body:v});
   }).catch(function(){});
 }
-function cloudCreate(){          /* faqat ro'yxatdan o'tishda: status="pending" */
-  if(!cloudOn||!BASE||!S) return;
-  FSYNC=true;                    /* yangi yozuv — bulutda boshqa "birinchi kirish" sanasi yo'q */
+function cloudCreate(cb){
+  cb=cb||function(){};
+  if(!cloudOn||!BASE||!S){ cb(false); return; }
+  FSYNC=true;
   var me=S;
   function put(sec){
-    if(S!==me) return;
+    if(S!==me){ cb(false); return; }
     var r=rec(); r.status="pending"; r.group=S.group;
-    if(!sec){ r.pk=S.pk||""; r.email=S.email||""; }      /* eski qoidalar: avvalgidek ochiq */
-    fetch(BASE+"/students/"+S.id+".json",{method:"PUT",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify(r)}).then(function(){ if(sec&&S===me&&S.email) cloudSetEmail(); }).catch(function(){});
+    if(!sec){ r.pk=S.pk||""; r.email=S.email||""; }
+    fetch(BASE+"/students/"+S.id+".json",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(r)})
+      .then(function(x){ if(x.ok&&sec&&S===me&&S.email) cloudSetEmail(); cb(x.ok); }).catch(function(){ cb(false); });
   }
-  /* avval yopiq kalit va shu brauzerning egaligi, keyin yozuvning o'zi */
   saToken(true,function(t){
-    if(!t){ put(false); return; }
+    if(!t){ if(me.authVersion===2) cb(false); else put(false); return; }
     var b={}; b["keys/"+S.id]=S.pk; b["owners/"+S.id+"/"+SA.uid]=S.pk;
-    tmo(window.fetch(BASE+"/.json?auth="+encodeURIComponent(t),{method:"PATCH",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify(b)}),9000).then(function(x){ SEC=x.ok; put(x.ok); },function(){ put(false); });
+    tmo(window.fetch(BASE+"/.json?auth="+encodeURIComponent(t),{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify(b)}),9000)
+      .then(function(x){ SEC=x.ok; if(!x.ok&&me.authVersion===2) cb(false); else put(x.ok); },function(){ if(me.authVersion===2) cb(false); else put(false); });
   });
 }
 /* o'qituvchi talabani o'chirganda: yopiq kalit, egalar va email ham o'chiriladi */
@@ -966,23 +967,37 @@ function pkey(n,sn,pin){
   var b="terdu:"+nrm(n)+"|"+nrm(sn)+"|"+String(pin);
   return hash32(b,2166136261)+hash32(b+"#2",3323198485);
 }
-function findMe(n,sn,pin,cb){
+function passwordOk(v){ return typeof v==="string"&&v.trim().length>=8&&v.length<=128; }
+function passwordKey(n,sn,password,salt){
+  if(!window.crypto||!crypto.subtle) return Promise.reject(new Error("crypto unavailable"));
+  return crypto.subtle.importKey("raw",new TextEncoder().encode(password),"PBKDF2",false,["deriveBits"])
+    .then(function(key){ return crypto.subtle.deriveBits({name:"PBKDF2",hash:"SHA-256",iterations:600000,
+      salt:new TextEncoder().encode("terdu-password-v2|"+nrm(n)+"|"+nrm(sn)+"|"+salt)},key,256); })
+    .then(function(bits){ return "p2:"+Array.prototype.map.call(new Uint8Array(bits),function(x){ return ("0"+x.toString(16)).slice(-2); }).join(""); });
+}
+function newPassword(n,sn,password){
+  var bytes=new Uint8Array(16); crypto.getRandomValues(bytes);
+  var salt=Array.prototype.map.call(bytes,function(x){ return ("0"+x.toString(16)).slice(-2); }).join("");
+  return passwordKey(n,sn,password,salt).then(function(key){ return {key:key,salt:salt}; });
+}
+function findMe(n,sn,password,cb){
   if(!cloudOn||!BASE){ cb(null); return; }
-  var k=pkey(n,sn,pin);
   cloudList(function(a){
     if(!a){ cb(null); return; }
-    var hit=a.filter(function(x){ return x.pk===k; })[0];          /* PIN izi hali ochiq turgan eski yozuv */
-    if(hit){ claimOwn(hit.id,k,function(){ cb(hit); }); return; }
-    /* yangi tizim: PIN izi yopiq — shu ism-familiyadagi yozuvlarga egalikni tasdiqlab ko'ramiz */
-    var cand=a.filter(function(x){ return !x.pk&&nrm(x.name)===nrm(n)&&nrm(x.surname)===nrm(sn); });
+    var cand=a.filter(function(x){ return nrm(x.name)===nrm(n)&&nrm(x.surname)===nrm(sn); });
     (function next(i){
       if(i>=cand.length){ cb(null); return; }
-      claimOwn(cand[i].id,k,function(ok){
-        if(!ok){ next(i+1); return; }
-        var h=cand[i];
-        fetch(BASE+"/priv/"+h.id+".json").then(function(r){ return r.ok?r.json():null; })
-          .then(function(pv){ if(pv&&pv.email) h.email=pv.email; cb(h); },function(){ cb(h); });
-      });
+      var h=cand[i],modern=+h.authVersion===2;
+      if((modern&&!passwordOk(password))||(!modern&&!pinOk(password))){ next(i+1); return; }
+      var key=modern?passwordKey(n,sn,password,h.pwSalt):Promise.resolve(pkey(n,sn,password));
+      key.then(function(k){
+        if(h.pk&&h.pk!==k){ next(i+1); return; }
+        claimOwn(h.id,k,function(ok){
+          if(!ok){ next(i+1); return; }
+          fetch(BASE+"/priv/"+h.id+".json").then(function(r){ return r.ok?r.json():null; })
+            .then(function(pv){ if(pv&&pv.email) h.email=pv.email; cb(h,k); },function(){ cb(h,k); });
+        });
+      }).catch(function(){ cb(null); });
     })(0);
   });
 }
@@ -1030,15 +1045,25 @@ function gate(opts){
   }
   var mode=(opts&&opts.mode)||"reg";
   var oldG=document.getElementById("rtGate"); if(oldG) oldG.remove();
-  var g=el('<div class="rt-gate'+(guest?' rt-authg':'')+'" id="rtGate"><div class="rt-box">'+
-    (guest?'<button type="button" class="rt-gx" id="rtGateX" aria-label="'+T("Yopish","Close")+'">✕</button>'+
-      '<div class="rt-gate-why">🔑 '+esc((opts&&opts.why)||T("Davom etish uchun hisobingizga kiring yoki ro'yxatdan o'ting.","Log in or register to continue."))+'</div>':'')+
-    '<div class="rt-gtabs"><button class="rt-gt on" data-m="reg">🎓 '+T("Ro\'yxatdan o\'tish","Register")+'</button>'+
-      '<button class="rt-gt" data-m="log">🔑 '+T("Kirish","Log in")+'</button></div>'+
+  var g=el('<div class="rt-gate rt-auth-page'+(guest?' rt-authg':'')+'" id="rtGate" role="dialog" aria-modal="true" aria-labelledby="rtAuthTitle"><div class="rt-box rt-auth-layout">'+
+    (guest?'<button type="button" class="rt-gx" id="rtGateX" aria-label="'+T("Yopish","Close")+'">✕</button>':'')+
+    '<div class="rt-auth-main"><div class="rt-auth-brand"><span class="terdu-logo" role="img" aria-label="TerDU"></span><span>TerDU</span></div>'+
+    '<div class="rt-auth-content"><div class="rt-gtabs" role="group" aria-label="'+T("Hisobga kirish usuli","Account access")+'">'+
+    '<button type="button" class="rt-gt" data-m="log">'+T("Kirish","Log in")+'</button>'+
+    '<button type="button" class="rt-gt" data-m="reg">'+T("Ro\'yxatdan o\'tish","Register")+'</button></div>'+
     '<div id="rtGateBody"></div>'+
-    '<button class="rt-tclink" id="rtGateTc">🔑 '+T("O\'qituvchi bo\'limiga kirish","Teacher panel")+'</button>'+
-    '</div></div>');
+    (guest?'<div class="rt-gate-why rt-sr-only">'+esc((opts&&opts.why)||T("Hisobingizga kiring.","Log in to your account."))+'</div>':'')+
+    '<button class="rt-tclink" id="rtGateTc">'+T("O\'qituvchi","Teacher")+'</button>'+
+    '</div></div></div></div>');
   document.body.appendChild(g);
+  g.addEventListener("keydown",function(e){
+    if(e.key!=="Tab") return;
+    var items=[].slice.call(g.querySelectorAll("button,input,select,a[href]")).filter(function(x){ return !x.disabled&&x.getClientRects().length; });
+    var first=items[0],last=items[items.length-1];
+    if(e.shiftKey&&document.activeElement===first){ e.preventDefault(); last.focus(); }
+    else if(!e.shiftKey&&document.activeElement===last){ e.preventDefault(); first.focus(); }
+  });
+  setTimeout(function(){ var f=g.querySelector("#rtGateBody input"); if(f) f.focus(); },50);
   g.querySelectorAll(".rt-gt").forEach(function(b){ b.classList.toggle("on",b.dataset.m===mode); });
   if(guest){
     var shut=function(){ g.remove(); document.removeEventListener("keydown",esc2); };
@@ -1052,43 +1077,19 @@ function gate(opts){
     if(guest){ var w=document.getElementById("rtGate"); if(w) w.remove(); guestOff(); if(approved()) start(); else waitScreen(); }
     else courseGate(function(){ if(approved()) start(); else waitScreen(); });
   }
-function fields(pre,withExtra){
-    return '<label>'+T("Ism","First name")+'<input id="'+pre+'N" autocomplete="given-name" placeholder="'+T("Ismingiz","Your first name")+'"></label>'+
-      '<label>'+T("Familiya","Surname")+'<input id="'+pre+'S" autocomplete="family-name" placeholder="'+T("Familiyangiz","Your surname")+'"></label>'+
-      '<label>'+T("PIN-kod (4 raqam)","PIN code (4 digits)")+
-        '<input id="'+pre+'B" class="rt-pin" type="password" inputmode="numeric" autocomplete="off" '+
-        'maxlength="4" pattern="[0-9]*" placeholder="••••"></label>'+
-      (withExtra
-        ? '<label>'+T("Guruh","Group")+groupField(pre+"G","")+'</label>'+
-          '<label>'+T("Email","Email")+'<input id="'+pre+'E" type="email" inputmode="email" autocomplete="email" placeholder="ism@gmail.com"></label>'
-        : '');
+  function fields(pre){
+    return '<label>'+T("Ism","First name")+'<input id="'+pre+'N" autocomplete="given-name" placeholder="'+T("Ismingiz","First name")+'"></label>'+
+      '<label>'+T("Familiya","Surname")+'<input id="'+pre+'S" autocomplete="family-name" placeholder="'+T("Familiyangiz","Surname")+'"></label>'+
+      '<label>'+T("Maxsus parol","Password")+'<input id="'+pre+'B" type="password" maxlength="128" autocomplete="'+(pre==="rt"?"new-password":"current-password")+'" placeholder="'+T(pre==="rt"?"Kamida 8 belgi":"Parolingiz",pre==="rt"?"At least 8 characters":"Your password")+'"></label>';
   }
   function draw(){
-    var b=document.getElementById("rtGateBody");
-    if(mode==="reg"){
-      b.innerHTML='<h2 style="margin:4px 0 2px">🎓 '+T("Ro\'yxatdan o\'ting","Register")+'</h2>'+
-        '<p style="color:var(--muted);margin-top:4px">'+T(
-          "O\'zingiz uchun 4 raqamli PIN-kod o\'ylab toping va uni eslab qoling — boshqa kompyuterdan ism, familiya va shu PIN bilan hisobingizga kirasiz.",
-          "Think up a 4-digit PIN and remember it — your name, surname and that PIN let you back into your account from any other computer.")+'</p>'+
-        '<div class="rt-form">'+fields("rt",true)+
-        '<p id="rtErr" style="color:var(--red);font-weight:700;display:none;margin:0"></p>'+
-        '<button class="btn accent" id="rtGo" style="justify-content:center;padding:12px">'+T("Boshlash →","Start →")+'</button></div>'+
-        '<p class="rt-note">'+T("Ma\'lumot faqat o\'qituvchi reytingi uchun ishlatiladi.",
-          "The data is used only for the teacher\'s rating.")+'</p>';
-      document.getElementById("rtGo").onclick=doReg;
-      ["rtN","rtS","rtB","rtG","rtE"].forEach(bindEnter(doReg));
-    } else {
-      b.innerHTML='<h2 style="margin:4px 0 2px">🔑 '+T("Hisobingizga kiring","Log in")+'</h2>'+
-        '<p style="color:var(--muted);margin-top:4px">'+T(
-          "Avval ro\'yxatdan o\'tgan bo\'lsangiz — ism, familiya va PIN-kodingizni kiriting. Ballaringiz saqlanib qoladi.",
-          "If you have registered before, enter your name, surname and PIN. Your points are kept.")+'</p>'+
-        '<div class="rt-form">'+fields("lg",false)+
-        '<p id="lgErr" style="color:var(--red);font-weight:700;display:none;margin:0"></p>'+
-        '<button class="btn accent" id="lgGo" style="justify-content:center;padding:12px">'+T("Kirish →","Log in →")+'</button></div>'+
-        '<p class="rt-note">'+T("Masalan: Ali · Valiyev · 2468","For example: Ali · Valiyev · 2468")+'</p>';
-      document.getElementById("lgGo").onclick=doLog;
-      ["lgN","lgS","lgB"].forEach(bindEnter(doLog));
-    }
+    var b=document.getElementById("rtGateBody"),reg=mode==="reg",pre=reg?"rt":"lg";
+    b.innerHTML='<h2 id="rtAuthTitle" class="rt-sr-only">'+T(reg?"Ro\'yxatdan o\'tish":"Kirish",reg?"Register":"Log in")+'</h2>'+
+      '<div class="rt-form">'+fields(pre)+'<p role="alert" id="'+pre+'Err" style="color:var(--red);display:none;margin:0"></p>'+
+      '<button class="btn accent" id="'+(reg?"rtGo":"lgGo")+'" style="justify-content:center">'+T(reg?"Hisob yaratish":"Kirish",reg?"Create account":"Log in")+'</button></div>';
+    document.getElementById(reg?"rtGo":"lgGo").onclick=reg?doReg:doLog;
+    [pre+"N",pre+"S",pre+"B"].forEach(bindEnter(reg?doReg:doLog));
+    g.querySelectorAll(".rt-gt").forEach(function(x){ x.setAttribute("aria-pressed",x.dataset.m===mode?"true":"false"); });
   }
   function bindEnter(fn){
     return function(id){
@@ -1096,29 +1097,24 @@ function fields(pre,withExtra){
       if(e) e.addEventListener("keydown",function(ev){ if(ev.key==="Enter") fn(); });
     };
   }
-  function err(id,txt){ var e=document.getElementById(id); e.style.display="block"; e.textContent=txt; }
+  function err(id,txt){ var e=document.getElementById(id); if(!e) return; e.style.display="block"; e.textContent=txt; }
   function doReg(){
-    var n=document.getElementById("rtN").value.trim(),
-        sn=document.getElementById("rtS").value.trim(),
-        pin=document.getElementById("rtB").value,
-        gr=document.getElementById("rtG").value.trim(),
-        em=document.getElementById("rtE").value.trim();
-    if(n.length<2||sn.length<2) return err("rtErr",T("Ism va familiyani to'liq kiriting.","Fill in your name and surname."));
-    if(!gr) return err("rtErr",T("Guruhingizni tanlang.","Choose your group."));
-    if(!pinOk(pin)) return err("rtErr",T("PIN-kod 4 ta raqamdan iborat bo'lsin (masalan: 2468).","The PIN must be 4 digits (for example: 2468)."));
-    if(!okMail(em)) return err("rtErr",T("Email manzilni to'g'ri kiriting.","Enter a valid email address."));
+    var n=document.getElementById("rtN").value.trim(),sn=document.getElementById("rtS").value.trim(),password=document.getElementById("rtB").value;
+    if(n.length<2||sn.length<2) return err("rtErr",T("Ism va familiyani kiriting.","Enter your name and surname."));
+    if(!passwordOk(password)) return err("rtErr",T("Parol 8–128 belgidan iborat bo‘lsin.","Use a password of 8–128 characters."));
+    if(!cloudOn) return err("rtErr",T("Internetga ulanib qayta urining.","Connect to the internet and try again."));
     var btn=document.getElementById("rtGo"); btn.disabled=true;
-    findMe(n,sn,pin,function(hit){
-      if(hit){
-        btn.disabled=false;
-        return err("rtErr",T("Bu ism, familiya va PIN bilan hisob allaqachon bor. \"Kirish\" dan foydalaning yoki boshqa PIN tanlang.",
-          "An account with this name, surname and PIN already exists. Use \"Log in\", or pick another PIN."));
-      }
-      S={id:uid(),name:n,surname:sn,group:gr,email:em,pk:pkey(n,sn,pin),at:Date.now(),status:cloudOn?"pending":"ok"};
-      P={total:0,topics:{},log:{}};             /* yangi talaba — shu brauzerdagi oldingi natijalar o'tib ketmasin */
-      lset(LS.stu,S); lsetP(); cloudCreate();
-      g.remove();
-      done();
+    findMe(n,sn,password,function(hit){
+      if(hit){ btn.disabled=false; return err("rtErr",T("Bu hisob mavjud. Kirish bo‘limidan foydalaning.","This account exists. Use Log in.")); }
+      newPassword(n,sn,password).then(function(credentials){
+        var previous=S,previousProgress=P;
+        S={id:uid(),name:n,surname:sn,group:"",email:"",pk:credentials.key,authVersion:2,pwSalt:credentials.salt,at:Date.now(),status:"pending"};
+        P={total:0,topics:{},log:{}};
+        cloudCreate(function(ok){
+          if(!ok){ S=previous; P=previousProgress; btn.disabled=false; err("rtErr",T("Hisob saqlanmadi. Qayta urining.","Account could not be saved. Try again.")); return; }
+          lset(LS.stu,S); lsetP(); g.remove(); done();
+        });
+      }).catch(function(){ btn.disabled=false; err("rtErr",T("Hisob yaratib bo‘lmadi. Qayta urining.","Could not create the account. Try again.")); });
     });
   }
   function doLog(){
@@ -1126,16 +1122,16 @@ function fields(pre,withExtra){
         sn=document.getElementById("lgS").value.trim(),
         pin=document.getElementById("lgB").value;
     if(n.length<2||sn.length<2) return err("lgErr",T("Ism va familiyani kiriting.","Enter your name and surname."));
-    if(!pinOk(pin)) return err("lgErr",T("PIN-kod 4 ta raqamdan iborat bo'lsin.","The PIN must be 4 digits."));
+    if(!pinOk(pin)&&!passwordOk(pin)) return err("lgErr",T("Parolingizni kiriting.","Enter your password."));
     if(!cloudOn) return err("lgErr",T("Server ulanmagan — kirish imkonsiz.","No server connection — cannot log in."));
     var btn=document.getElementById("lgGo"); btn.disabled=true; btn.textContent=T("Qidirilmoqda…","Searching…");
-    findMe(n,sn,pin,function(hit){
+    findMe(n,sn,pin,function(hit,key){
       btn.disabled=false; btn.textContent=T("Kirish →","Log in →");
-      if(!hit) return err("lgErr",T("Bunday hisob topilmadi. Ism, familiya va PIN-kodni tekshiring yoki ro'yxatdan o'ting.",
-        "No such account. Check the name, surname and PIN, or register instead."));
+      if(!hit) return err("lgErr",T("Ism, familiya yoki parol noto‘g‘ri.",
+        "The name, surname or password is incorrect."));
       if(hit.status==="blocked") return err("lgErr",T("Hisobingiz bloklangan. O'qituvchiga murojaat qiling.","Your account is blocked. Contact the teacher."));
       S={id:hit.id,name:hit.name,surname:hit.surname,group:hit.group,email:hit.email||"",
-         pk:pkey(n,sn,pin),at:hit.at||Date.now(),status:hit.status||"pending"};
+         pk:key,authVersion:hit.authVersion||1,pwSalt:hit.pwSalt||"",at:hit.at||Date.now(),status:hit.status||"pending"};
       P={total:0,topics:{},log:{}};
       mergeCloud(hit);
       lset(LS.stu,S); lsetP();
@@ -1207,11 +1203,11 @@ function waitScreen(){
       "Your request has been sent. Once the teacher approves you, the presentation and the chat will open.")+'</p>'+
     '<div class="rt-card" style="text-align:left;margin:14px 0"><span>'+T("Yuborilgan ma\'lumot","Submitted data")+'</span>'+
       '<b style="font-size:17px">'+esc(S.name)+" "+esc(S.surname)+'</b>'+
-      '<p class="rt-note" style="margin:2px 0 0">'+T("Guruh","Group")+": "+esc(S.group)+
+      '<p class="rt-note" style="margin:2px 0 0">'+T("Guruh","Group")+": "+esc((S.group||T("Tanlanmagan","Not selected")))+
         (S.email?" \u00b7 "+esc(S.email):"")+'</p></div>'+
     '<div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">'+
       '<button class="btn accent" id="rtChk">🔄 '+T("Tekshirish","Check")+'</button>'+
-      '<button class="btn" id="rtEdit">✏️ '+T("Ma\'lumotni o\'zgartirish","Edit my data")+'</button>'+
+      '<button class="btn" id="rtEdit">✏️ '+T("O‘zim haqimda","About me")+'</button>'+
       '<button class="btn" id="rtTcOpen">🔑 '+T("O\'qituvchi","Teacher")+'</button></div>'+
     '<p class="rt-note" id="rtWaitMsg"></p>'+
     '</div></div>');
@@ -1226,10 +1222,7 @@ function waitScreen(){
   }
   document.getElementById("rtChk").onclick=function(){ check(false); };
   document.getElementById("rtTcOpen").onclick=function(){ openOv("tc"); };
-  document.getElementById("rtEdit").onclick=function(){
-    if(cloudOn&&S) cloudDrop(S.id);
-    clearInterval(iv); S=null; lset(LS.stu,null); w.remove(); gate();
-  };
+  document.getElementById("rtEdit").onclick=function(){ openOv("cv"); };
   iv=setInterval(function(){ check(true); },12000);
   cloudSave();
 }
@@ -1243,7 +1236,7 @@ function overlay(){
       '<button class="rt-tab on" data-p="top">👑 '+T("Reyting","Rating")+'</button>'+
       '<button class="rt-tab" data-p="me">📊 '+T("Mening natijam","My result")+'</button>'+
       '<button class="rt-tab" data-p="tp">📚 '+T("Mavzular","Topics")+'</button>'+
-      '<button class="rt-tab" data-p="cv">📄 '+T("Mening ma\'lumotim","My profile")+'</button>'+
+      '<button class="rt-tab" data-p="cv">📄 '+T("O‘zim haqimda","My profile")+'</button>'+
       '<button class="rt-tab" data-p="tc">🔑 '+T("O\'qituvchi","Teacher")+'</button>'+
     '</div>'+
     '<div class="rt-pane on" id="rtTop"></div>'+
@@ -1872,8 +1865,8 @@ function emailAsk(){
    (kalit o'chmasa, keyingi talaba shu brauzerda oldingi hisobga yoza olardi) */
 function logout(){
   if(!S) return;
-  if(!confirm(T("Hisobdan chiqasizmi? Keyin ism, familiya va PIN-kod bilan qayta kirishingiz mumkin.",
-    "Log out? You can log back in later with your name, surname and PIN."))) return;
+  if(!confirm(T("Hisobdan chiqasizmi? Keyin ism, familiya va parol bilan qayta kirishingiz mumkin.",
+    "Log out? You can log back in later with your name, surname and password."))) return;
   try{ if(cloudOn) cloudSave(); }catch(e){}
   setTimeout(function(){
     DEAD=true; S=null;
@@ -1908,8 +1901,8 @@ function renderCv(){
         '<label>'+T("Email","Email")+'<input id="cvE" type="email" inputmode="email" value="'+esc(S.email||"")+'" placeholder="ism@gmail.com"></label>'+
         '<button class="btn accent" id="cvSaveB" style="justify-content:center">💾 '+T("Saqlash","Save")+'</button>'+
         '<button class="btn" id="cvOutB" style="justify-content:center">🚪 '+T("Hisobdan chiqish","Log out")+'</button>'+
-        '<p class="rt-note" style="margin:0">'+T("Chiqqandan keyin shu brauzerda boshqa hisobga kirish yoki yangi ro\'yxatdan o\'tish mumkin. Ballaringiz saqlanib qoladi — qayta ism, familiya va PIN bilan kirasiz.",
-          "After logging out you can log in to another account or register on this browser. Your points are kept — log back in with your name, surname and PIN.")+'</p>'+
+        '<p class="rt-note" style="margin:0">'+T("Chiqqandan keyin shu brauzerda boshqa hisobga kirish yoki yangi ro\'yxatdan o\'tish mumkin. Ballaringiz saqlanib qoladi — qayta ism, familiya va parol bilan kirasiz.",
+          "After logging out you can log in to another account or register on this browser. Your points are kept — log back in with your name, surname and password.")+'</p>'+
       '</div></div>'+
     '<div class="rt-sec"><h4>📋 '+T("Mening baholarim","My marks")+'</h4>'+
       '<div id="myJur"><p class="rt-note" style="margin:0">'+T("Yuklanmoqda…","Loading…")+'</p></div></div>';
@@ -1920,10 +1913,13 @@ function renderCv(){
     var n=document.getElementById("cvN").value.trim(), sn=document.getElementById("cvS").value.trim(),
         g=document.getElementById("cvG").value.trim(), em=document.getElementById("cvE").value.trim();
     if(n.length<2||sn.length<2||!g){ toast(T("Maydonlarni to'ldiring","Fill in the fields")); return; }
-    if(!okMail(em)){ toast(T("Email noto'g'ri","Invalid email")); return; }
+    if(em&&!okMail(em)){ toast(T("Email noto'g'ri","Invalid email")); return; }
     var emCh=(em!==(S.email||""));
     S.group=g; S.email=em; lset(LS.stu,S); cloudSave(true); if(emCh) cloudSetEmail();
-    chipUpdate(); toast(T("Saqlandi ✅","Saved ✅"));
+    chipUpdate();
+    var pending=document.querySelector("#rtWait .rt-card .rt-note");
+    if(pending) pending.textContent=T("Guruh","Group")+": "+g+(em?" · "+em:"");
+    toast(T("Saqlandi ✅","Saved ✅"));
   };
 }
 
@@ -2495,7 +2491,7 @@ function tcDraw(){
           return tcRow(x,'<button class="btn rt-g2" data-id="'+esc(x.id)+'" data-g="'+esc(x.group||"")+
             '" title="'+T("Guruhini o\'zgartirish","Change the group")+'">🔀</button> '+
             '<button class="btn rt-pin2" data-id="'+esc(x.id)+'" data-n="'+esc(x.name)+'" data-s="'+esc(x.surname)+
-            '" title="'+T("PIN-kodni tiklash","Reset the PIN")+'">🔑</button> '+
+            '" title="'+T("Parolni tiklash","Reset password")+'">🔑</button> '+
             '<button class="btn rt-m'+(on?" accent":"")+'" data-id="'+esc(x.id)+'" data-v="'+(on?"0":"1")+
             '" title="'+T("Rasm va video yuborish huquqi","Permission to send images and videos")+'">'+
             (on?"🖼":"🔒")+'</button> '+
@@ -2642,27 +2638,21 @@ function tcDraw(){
   });
   out.querySelectorAll(".rt-pin2").forEach(function(b){
     b.onclick=function(){
-      var v=prompt(T("Yangi PIN-kod (4 raqam):","New PIN (4 digits):"),"");
-      if(v===null) return; v=String(v).trim();
-      if(!pinOk(v)){ toast(T("PIN 4 ta raqam bo'lsin","The PIN must be 4 digits")); return; }
-      var pk=pkey(b.dataset.n,b.dataset.s,v);
+      var v=prompt(T("Yangi parol (kamida 8 belgi):","New password (at least 8 characters):"),"");
+      if(v===null) return;
+      if(!passwordOk(v)){ toast(T("Parol 8–128 belgidan iborat bo‘lsin.","Use 8–128 characters.")); return; }
       b.disabled=true;
-      var done=function(ok){
-        b.disabled=false;
-        if(!ok){ toast(T("Saqlanmadi","Not saved")); return; }
-        for(var i=0;i<tcList.length;i++) if(tcList[i].id===b.dataset.id) tcList[i].pk=pk;
-        if(S&&S.id===b.dataset.id){ S.pk=pk; lset(LS.stu,S); }
-        toast(T("Yangi PIN: ","New PIN: ")+v);
-      };
-      if(!cloudOn||!BASE){ done(true); return; }
-      /* yangi tizim: kalit yopiq bo'limga yoziladi va eski brauzerlarning egaligi bekor qilinadi */
-      var id=b.dataset.id, nb={}; nb["keys/"+id]=pk; nb["owners/"+id]=null; nb["students/"+id+"/pk"]=null;
-      fetch(BASE+"/.json",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify(nb)})
-        .then(function(r){
-          if(r.ok){ done(true); return; }
-          return fetch(BASE+"/students/"+id+"/pk.json",{method:"PUT",headers:{"Content-Type":"application/json"},
-            body:JSON.stringify(pk)}).then(function(r2){ done(r2.ok); });
-        }).catch(function(){ done(false); });
+      newPassword(b.dataset.n,b.dataset.s,v).then(function(c){
+        var id=b.dataset.id,nb={}; nb["keys/"+id]=c.key; nb["owners/"+id]=null; nb["students/"+id+"/pk"]=null;
+        nb["students/"+id+"/authVersion"]=2; nb["students/"+id+"/pwSalt"]=c.salt;
+        return fetch(BASE+"/.json",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify(nb)})
+          .then(function(r){
+            if(!r.ok) throw 0;
+            for(var i=0;i<tcList.length;i++) if(tcList[i].id===id){ tcList[i].pk=null; tcList[i].authVersion=2; tcList[i].pwSalt=c.salt; }
+            if(S&&S.id===id){ S.pk=c.key; S.authVersion=2; S.pwSalt=c.salt; lset(LS.stu,S); }
+            toast(T("Parol yangilandi.","Password updated."));
+          });
+      }).catch(function(){ toast(T("Parol saqlanmadi.","Could not save the password.")); }).then(function(){ b.disabled=false; });
     };
   });
   out.querySelectorAll(".rt-ml").forEach(function(b){
@@ -2848,13 +2838,13 @@ function okMailText(x){
       "Assalomu alaykum, "+nm+"!\n\n"+
       "\"Tadbirkorlik asoslari\" fani platformasida hisobingiz tasdiqlandi. Endi taqdimotlar, testlar va talabalar chati siz uchun ochiq.\n\n"+
       "Kirish havolasi: "+siteUrl()+"\n"+
-      "Kirish uchun: ism, familiya va o'zingiz tanlagan 4 raqamli PIN-kod.\n\n"+
+      "Kirish uchun: ism, familiya va o'zingiz tanlagan parol.\n\n"+
       "Har bir mavzu uchun baho avtomatik qo'yiladi: slaydlarni o'qish, sarflangan vaqt va test natijasi hisobga olinadi.\n\n"+
       "Omad tilayman,\nTermiz davlat universiteti · Tadbirkorlik asoslari",
       "Hello "+nm+"!\n\n"+
       "Your account on the \"Fundamentals of Entrepreneurship\" platform has been approved. The slides, the tests and the student chat are now open to you.\n\n"+
       "Link: "+siteUrl()+"\n"+
-      "Log in with your first name, surname and the 4-digit PIN you chose.\n\n"+
+      "Log in with your first name, surname and your password.\n\n"+
       "Best regards,\nTermez State University")
   };
 }
@@ -3314,6 +3304,21 @@ function tbIcon(id,cls){
 }
 function tbDeck(){
   var tb=document.querySelector(".topbar"); if(!tb) return;
+  var full=document.getElementById("btnFull");
+  if(full&&!full.dataset.ready){
+    full.dataset.ready="1"; full.removeAttribute("data-ui");
+    var fullSync=function(){ var on=!!document.fullscreenElement;
+      full.textContent=(on?"⤢ ":"⛶ ")+T(on?"Ekrandan chiqish":"To'liq ekran",on?"Exit full screen":"Full screen");
+      full.title=full.textContent+" (F)"; full.setAttribute("aria-pressed",on?"true":"false"); };
+    full.onclick=function(){
+      var req=document.fullscreenElement?document.exitFullscreen&&document.exitFullscreen.bind(document):document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen.bind(document.documentElement);
+      if(!req){ toast(T("Bu brauzer to'liq ekranni qo'llamaydi.","Full screen is unavailable in this browser.")); return; }
+      try{ Promise.resolve(req()).catch(function(){ toast(T("To'liq ekranga o'tib bo'lmadi.","Could not enter full screen.")); }); }catch(e){ fullSync(); }
+    };
+    document.addEventListener("fullscreenchange",fullSync);
+    if(window.MutationObserver) new MutationObserver(fullSync).observe(document.documentElement,{attributes:true,attributeFilter:["lang"]});
+    fullSync();
+  }
   tbIcon("btnLang","a-spin"); tbIcon("btnTimer","a-tick"); tbIcon("btnPrint","a-bob"); tbIcon("btnHelp","a-wobble");
   if(document.getElementById("btnTheme")&&!document.getElementById("rtTheme")){
     var t=el('<button type="button" class="rt-theme" id="rtTheme" role="switch"><span class="rt-th-sun">☀️</span><span class="rt-th-moon">🌙</span><i class="rt-th-knob"></i></button>');
@@ -3952,7 +3957,7 @@ function start(){
   accApply();                                /* guruhi uchun yopiq mavzu — LOCKED, ball berilmaydi */
   if(!HOME){ var tf=topicObj(); if(!tf.f&&!LOCKED){ tf.f=Date.now(); lsetP(); } }
   chip(); askBar(); tbWatch(); dragWatch(); watchStatus(); timeStart(); if(cloudOn&&S) cloudSave();
-  khBanner(); khMine(); pushInit(); if(S&&!S.email) setTimeout(emailAsk,900);
+  khBanner(); khMine(); pushInit();
   accLoad(accApply);                         /* bazadagi eng so'nggi holat */
   avLoad();                                  /* talabaning avatari */
   if(typeof idx!=="undefined") slideSeen(idx);

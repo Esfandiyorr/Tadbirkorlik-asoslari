@@ -1,4 +1,4 @@
-/* Topbar: TerDU, ☀️/🌙, jonli belgilar, savol va takliflar */
+/* Calm toolbar: branding, static controls, theme and functional full screen. */
 const H=require('../lib/h.js'); const {sleep,ck}=H;
 async function ready(p){ for(let t=0;t<30;t++){ await sleep(500); if(await p.$("#rtAnnGo")) await p.click("#rtAnnGo").catch(()=>{}); if(await p.$("#rtEm")) await p.evaluate(()=>document.getElementById("rtEm").remove()); if(await p.evaluate(()=>!!window.RT_ready).catch(()=>false)) break; } await sleep(1000); }
 (async()=>{
@@ -14,10 +14,10 @@ async function ready(p){ for(let t=0;t<30;t++){ await sleep(500); if(await p.$("
         tgl:q("tbToggle")?{d:getComputedStyle(q("tbToggle")).display,r:Math.round(innerWidth-q("tbToggle").getBoundingClientRect().right)}:null}; });
     console.log("   ",nm,JSON.stringify(r));
     ck(nm+": logo yonida «TerDU», «Termiz davlat universiteti» yo'q",r.brand==="TerDU");
-    ck(nm+": «Slaydlar», «Ekran» va eski «Tun/Kun» tugmalari yo'q",!r.grid&&!r.full&&!r.oldTheme);
+    ck(nm+": fullscreen is available on desktop; legacy duplicate controls stay hidden",!r.grid&&!r.oldTheme&&r.full===(nm==="d"));
     ck(nm+": ☀️/🌙 almashtirgich o'ng tepada",r.sw&&r.swRight&&r.swTop);
     ck(nm+": «🙋 Savol va takliflar»",/^🙋\s*Savol va takliflar$/.test(r.ask),r.ask);
-    ck(nm+": belgilar jonli (animatsiya bor)",/🙋:tbWave/.test(r.anim)&&/🏆:tbHop/.test(r.anim)&&/🎮:tbWiggle/.test(r.anim)&&/📖:tbFlip/.test(r.anim)&&/🌐:tbSpin/.test(r.anim),r.anim);
+    ck(nm+": toolbar icons are static",r.anim.split(" ").every(x=>x.endsWith(":none")),r.anim);
     if(nm==="m") ck("telefon: yig'ish tugmasi o'ng chetda (yozuvni to'smaydi)",r.tgl&&r.tgl.d==="flex"&&r.tgl.r<=14,JSON.stringify(r.tgl));
     await A.screenshot({path:"tb_"+nm+".png",clip:{x:0,y:0,width:o.vp?390:1280,height:o.vp?220:90}});
     /* tun/kun */
@@ -29,20 +29,11 @@ async function ready(p){ for(let t=0;t<30;t++){ await sleep(500); if(await p.$("
     ck(nm+": talabada 🎨 (fon) tugmasi yo'q",!(await A.$("#rtTbBg")));
     ck(nm+": JS xatolari yo'q",!A._errs.filter(e=>!/Failed to load resource|net::ERR/.test(e)).length,JSON.stringify(A._errs));
   }
-  /* o'qituvchi fon tanlaydi */
-  const T=await H.mk(b,H.stu("sI","Isfandiyor","Sayfiddinov","T-123"),{tc:true});
-  await T.goto(H.SITE+"/mavzu-1.html"); await ready(T); await sleep(600);
-  ck("o'qituvchida 🎨 tugmasi",!!(await T.$("#rtTbBg")));
-  await T.click("#rtTbBg"); await sleep(400);
-  ck("fonlar ro'yxati: 15 ta (standart + 14)",await T.evaluate(()=>document.querySelectorAll("#rtTbMenu .rt-tbopt").length)===15);
-  await T.screenshot({path:"tb_menu.png"});
-  await T.evaluate(()=>[...document.querySelectorAll("#rtTbMenu .rt-tbopt")].find(x=>x.dataset.id==="t2").click()); await sleep(800);
-  ck("tanlandi: meta/tb = t2, topbarda darhol",(H.dbGet("meta/tb")||{}).bg==="t2"&&await T.evaluate(()=>document.querySelector(".topbar").classList.contains("tbg-t2")));
+  /* Existing saved decorations must not override the new reading palette. */
+  H.dbSet("meta/tb",{bg:"t2",at:Date.now()});
   const S2=await H.mk(b,H.stu("sA","Ali","Valiyev","AP-223"));
-  await S2.goto(H.SITE+"/mavzu-1.html"); await ready(S2); await sleep(600);
-  ck("talabada ham bo'r doskasi foni, TerDU oq",await S2.evaluate(()=>{ const tb=document.querySelector(".topbar"); return tb.classList.contains("tbg-t2")&&tb.classList.contains("tb-dk")&&getComputedStyle(tb.querySelector(".tb-name")).webkitTextFillColor==="rgb(255, 255, 255)"; }));
-  await S2.screenshot({path:"tb_t2.png",clip:{x:0,y:0,width:1280,height:90}});
-  for(const id of ["t1","t3","t5","t6","t7","t9","t11","t13","t14"]){ await S2.evaluate(id=>tbBgSet?0:0,id).catch(()=>{}); }
-  ck("JS xatolari yo'q (o'qituvchi)",!T._errs.filter(e=>!/Failed to load resource|net::ERR/.test(e)).length,JSON.stringify(T._errs));
+  await S2.goto(H.SITE+"/mavzu-1.html"); await ready(S2);
+  ck("saved decorative theme remains a calm surface",await S2.evaluate(()=>{const tb=document.querySelector('.topbar');return getComputedStyle(tb).backgroundImage==='none'&&getComputedStyle(tb.querySelector('.tb-name')).webkitTextFillColor===getComputedStyle(document.documentElement).getPropertyValue('--ink').trim().replace('#25342d','rgb(37, 52, 45)');}));
+  await S2.screenshot({path:"tb_saved_theme.png",clip:{x:0,y:0,width:1280,height:90}});
   await b.close(); console.log("FAILS:",H.fails());
 })().catch(e=>{ console.log("ERR",e.stack||e.message); process.exit(1); });

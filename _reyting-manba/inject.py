@@ -36,7 +36,7 @@ DECKS={
 B,E='/* RT:BEGIN */','/* RT:END */'
 PB,PE='<!-- PWA:BEGIN -->','<!-- PWA:END -->'
 PWA=(PB+'\n<link rel="manifest" href="manifest.webmanifest">\n'
-     '<meta name="theme-color" content="#0a3605">\n'
+     '<meta name="theme-color" content="#f7f8f6">\n'
      '<link rel="apple-touch-icon" href="fayllar/ilova/icon-180.png">\n'
      '<meta name="mobile-web-app-capable" content="yes">\n'
      '<meta name="apple-mobile-web-app-capable" content="yes">\n'
@@ -96,11 +96,17 @@ def shared():
     js=SHARED_HEAD+"\n".join('try{\n'+m.strip()+'\n}catch(e){ if(window.console) console.error("rt-engine:",e); }' for m in mods)+"\n"
     css=SHARED_HEAD+CSS.strip()+"\n"+MCSS.strip()+"\n"+CCSS.strip()+"\n"
     out={}
-    for fn,txt in (('rt-engine.js',js),('rt-engine.css',css)):
+    for fn,txt in (('rt-engine.js',js),('rt-engine.css',css),('learning-design.css',SHARED_HEAD+open(SC+'design.css',encoding='utf-8').read())):
         open(BASE+fn,'w',encoding='utf-8').write(txt)
         out[fn]=hashlib.md5(txt.encode('utf-8')).hexdigest()[:10]
     return out
 VER=None
+
+def design(s):
+    """Apply the shared visual layer last, including the standalone arena."""
+    s=strip(s,'<!-- DESIGN:BEGIN -->','<!-- DESIGN:END -->')
+    block='<!-- DESIGN:BEGIN -->\n<link rel="stylesheet" href="learning-design.css?v='+VER['learning-design.css']+'">\n<!-- DESIGN:END -->\n'
+    return s.replace('</head>',block+'</head>',1)
 
 def strip(s,b,e):
     while b in s and e in s:
@@ -116,6 +122,7 @@ def inject(fn,meta):
     s=strip(s,B,E); s=strip(s,HB,HE)
     s=pwa(s)
     s=og(s,fn,topic_desc(meta))
+    s=design(s)
 
     # --- CSS: umumiy fayl, taqdimotning o'z uslublaridan keyin (avvalgi tartib saqlanadi) ---
     s=s.replace('@media print{', B+'\n</style>\n<link rel="stylesheet" href="rt-engine.css?v='+VER['rt-engine.css']+'">\n<style>\n'+E+"\n@media print{",1)
@@ -188,6 +195,7 @@ def inject_arena():
     if not os.path.exists(p): return "arena.html: yo'q"
     s=pwa(open(p,encoding='utf-8').read())
     s=og(s,'arena.html',"O'yin arenasi: krossvord, jonli test va Yozuv Marafoni — guruhdoshlar bilan musobaqa · TerDU")
+    s=design(s)
     for b,e,fn in BLOCKS:
         src=yz_texts() if fn.endswith('.json') else open(SC+fn,encoding='utf-8').read().strip()
         blk=b+"\n"+src+"\n"+e

@@ -39,12 +39,13 @@ const slideWith=(p,sel)=>p.evaluate(sel=>{ const s=[...document.querySelectorAll
   await G.screenshot({path:"mehmon_auth.png"});
   /* 3) ro'yxatdan o'tish (oynadan) → kutish ekrani → tasdiq → joyida davom */
   await G.evaluate(()=>document.querySelector('.rt-gt[data-m="reg"]').click()); await sleep(300);
-  await G.fill("#rtN","Zafar"); await G.fill("#rtS","Olimov"); await G.fill("#rtB","2468"); await G.selectOption("#rtG","AP-223"); await G.fill("#rtE","zafar@gmail.com");
+  await G.fill("#rtN","Zafar"); await G.fill("#rtS","Olimov"); await G.fill("#rtB","Talaba2468");
   await G.click("#rtGo"); await sleep(2500);
   const ids=Object.keys(H.dbGet("students")||{}).filter(k=>k!=="sI"&&k!=="sX");
   const rec=H.dbGet("students/"+ids[0])||{};
   ck("ro'yxatdan o'tish: bazada yangi talaba (kutmoqda), kutish ekrani",ids.length===1&&rec.name==="Zafar"&&rec.status==="pending"&&!!(await G.$("#rtWait")),JSON.stringify(rec).slice(0,160));
   ck("sahifa qayta yuklanmadi (shu mavzu-1 da turibdi), mehmon rejimi o'chdi",/mavzu-1\.html/.test(G.url())&&await G.evaluate(()=>!document.body.classList.contains("rt-guest")));
+  await G.click("#rtEdit"); await G.selectOption("#cvG","AP-223"); await G.click("#cvSaveB"); await G.click("#rtClose");
   H.dbSet("students/"+ids[0]+"/status","ok"); await G.click("#rtChk"); await sleep(2500);
   const st=await G.evaluate(()=>({chip:document.getElementById("rtChip").innerText.replace(/\s+/g," "),student:RT.student()&&RT.student().name,ok:RT.ok(),wait:!!document.getElementById("rtWait")}));
   ck("tasdiqlangach: ism topbarda, o'qish rejimi (1-mavzu), test endi «kirish» so'ramaydi",/Zafar/.test(st.chip)&&st.ok&&!st.wait,JSON.stringify(st));
@@ -79,13 +80,13 @@ const slideWith=(p,sel)=>p.evaluate(sel=>{ const s=[...document.querySelectorAll
   await L.goto(H.SITE+"/mavzu-2.html"); await ready(L);
   await L.click("#rtChip"); await sleep(500);
   ck("«🔑 Kirish» → kirish oynasi, «Kirish» yorlig'i",await L.evaluate(()=>!!document.querySelector("#rtGate.rt-authg")&&document.querySelector(".rt-gt.on").dataset.m==="log"));
-  await L.fill("#lgN","Zafar"); await L.fill("#lgS","Olimov"); await L.fill("#lgB","2468"); await L.click("#lgGo"); await sleep(3500);
+  await L.fill("#lgN","Zafar"); await L.fill("#lgS","Olimov"); await L.fill("#lgB","Talaba2468"); await L.click("#lgGo"); await sleep(3500);
   const ls=await L.evaluate(()=>({student:RT.student()&&RT.student().name,gate:!!document.getElementById("rtGate"),guest:document.body.classList.contains("rt-guest"),chip:document.getElementById("rtChip").innerText.replace(/\s+/g," ")}));
   ck("mavjud hisobga kirdi: Zafar, mehmon rejimi o'chdi, shu sahifada qoldi",ls.student==="Zafar"&&!ls.gate&&!ls.guest&&/mavzu-2\.html/.test(L.url()),JSON.stringify(ls));
   let wrongPin=null;
   ck("noto'g'ri PIN bilan kirib bo'lmaydi",await (async()=>{ const X=await H.mk(b,null,{}); await X.goto(H.SITE+"/mavzu-2.html"); await ready(X); await X.click("#rtChip"); await sleep(400);
     await X.fill("#lgN","Zafar"); await X.fill("#lgS","Olimov"); await X.fill("#lgB","1111"); await X.click("#lgGo"); await sleep(2500);
-    const r=await X.evaluate(()=>({err:(document.getElementById("lgErr")||{}).innerText||"",stu:RT.student()&&RT.student().name,gate:!!document.getElementById("rtGate")})); await X.context().close(); wrongPin=r; return /topilmadi/.test(r.err)&&!r.stu&&r.gate; })(),JSON.stringify(wrongPin));
+    const r=await X.evaluate(()=>({err:(document.getElementById("lgErr")||{}).innerText||"",stu:RT.student()&&RT.student().name,gate:!!document.getElementById("rtGate")})); await X.context().close(); wrongPin=r; return /noto‘g‘ri/.test(r.err)&&!r.stu&&r.gate; })(),JSON.stringify(wrongPin));
   /* 7) o'qituvchi hisobsiz */
   const T=await H.mk(b,null,{tc:true});
   await T.goto(H.SITE+"/mavzu-9.html"); await ready(T);

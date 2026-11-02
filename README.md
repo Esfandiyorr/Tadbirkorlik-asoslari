@@ -37,6 +37,10 @@ barcha mavzular kartochkalarda (🟢 ball beriladi · 📖 o'qish rejimi · 🔒
 «Holati» — `config.json` dagi boshlang'ich holat; har bir guruh uchun haqiqiy holatni o'qituvchi panelda belgilaydi
 (pastda «🏆 Reyting tizimi va mavzularni ochish»).
 
+## Hisobga kirish
+
+Yangi talaba ism, familiya va 8–128 belgili parol bilan hisob yaratadi. Guruh va ixtiyoriy email kirgandan keyin **O‘zim haqimda** bo‘limida to‘ldiriladi; tasdiq kutilayotgan hisobdan ham shu bo‘lim ochiladi. Yangi parollar tasodifiy salt bilan PBKDF2-SHA256 (600 000 iteratsiya) orqali qayta ishlanadi, ochiq parol saqlanmaydi. Eski 4 raqamli PIN hisoblari avvalgi kalit bilan ishlaydi; parol tiklanganda yangi formatga o‘tadi. O‘qituvchi tasdig‘i va mavjud ballar saqlanadi.
+
 ## Ishga tushirish
 
 Sayt GitHub Pages orqali ishlaydi — talabalarga bosh sahifa havolasi yuboriladi. U **portalni** (`index.html`) ochadi:
