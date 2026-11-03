@@ -240,6 +240,12 @@
 .native-document button,
 .native-document .btn {
   display: inline-flex;
+  flex-shrink: 0;
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: break-word;
+  word-break: normal;
+  text-align: center;
   align-items: center;
   justify-content: center;
   gap: 8px;
@@ -529,12 +535,31 @@
 }
 .native-workspace .native-document .rt-head {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   gap: 12px;
   align-items: center;
 }
 .native-workspace .native-document .rt-head h2 {
   font-size: 24px;
+  min-width: 0;
+  flex: 1 1 200px;
+}
+.native-document .rt-tc-common > div:first-child {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 10px;
+  margin: 16px 0;
+}
+.native-document .tw {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+}
+.native-workspace .native-document .tw > .rt-table {
+  min-width: 640px;
+  overflow-wrap: normal;
 }
 .native-workspace .native-document .rt-pane {
   margin: 22px 0;
@@ -750,12 +775,26 @@
   .native-workspace {
     padding: 17px;
   }
+  .native-document .rt-tc-common > div:first-child {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .native-document .rt-tc-common > div:first-child > button {
+    width: 100%;
+    min-width: 0;
+    min-height: 44px;
+  }
   .native-arena .native-document .games,
   .native-arena .native-document .game-grid {
     grid-template-columns: 1fr;
   }
   .academic-topic-grid {
     grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 360px) {
+  .native-document .rt-tc-common > div:first-child {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 .native-document {

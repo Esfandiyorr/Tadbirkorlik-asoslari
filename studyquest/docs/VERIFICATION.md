@@ -164,3 +164,26 @@ Existing scoring windows and tests are preserved; open reading does not renew
 academic assessment deadlines.
 
 TypeScript, formatting and the production build also passed for this update.
+
+## Responsive text and teacher controls (3 November 2026)
+
+Reproduced the reported teacher toolbar at 390px: five controls shrank to
+51–69px widths and 190px heights because inline flex wrapping was dropped by the
+adapter. The bounded layout allowlist now preserves `flex-wrap`. Native buttons
+keep readable word boundaries, mobile teacher tools use two columns (one below
+360px), page headings wrap with their actions, and staff tables scroll locally.
+Screenshots confirm 44–64px action heights at phone widths after the fix.
+
+The 20 existing platform/native browser journeys passed, including every slide
+in all fifteen presentations, quizzes, crossword, Arena, teacher editing, saved
+progress, security rejection and quota fallback. Eight focused responsive checks
+also passed at 320, 390, 768 and 1280px, measuring actual word line ranges and
+clipping, switching original teacher tabs, and visiting eight main pages with a
+long profile name. The layout fixture uses a local demo profile and restores its
+original value. Initial new-fixture failures involved intercepted responses at
+teardown and a zero-height empty marks pane; the revised fixtures use a restored
+demo profile and a populated announcements pane. All eight then passed. No live
+Firebase account, academic data or teaching text was modified by these checks.
+
+TypeScript, formatting and the production build passed. Live Vercel rollout
+was not verified locally.

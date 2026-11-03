@@ -35,3 +35,14 @@ without scripts, styles, executable attributes or credentials. The native surfac
 sanitizes every snapshot again and forwards only bounded user input to elements
 inside the current approved surface. All messages validate exact origin and
 source window. Password values are never serialized back into snapshots.
+
+## Responsive controls
+
+The adapter forwards validated inline `flex-wrap` alongside the existing layout
+allowlist. Losing that property made original teacher toolbars shrink every
+button into a single unwrapped row; inherited arbitrary-word wrapping then split
+labels into letter columns. Button labels now keep normal word boundaries,
+controls retain their content width, and mobile teacher actions use two columns
+(or one column on the narrowest phones). Wider staff tables scroll inside their
+own wrapper. Page headings reflow with their actions, and ranking names can wrap
+without shrinking avatars or scores. No teaching text or academic logic changes.

@@ -433,10 +433,21 @@ a:focus-visible {
 }
 .page-heading {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
   gap: 18px;
   margin-bottom: 26px;
+}
+.page-heading > div {
+  flex: 1 1 200px;
+  min-width: 0;
+}
+.page-heading h1,
+.course-card-body h3,
+.lesson-card h3,
+.continue-content h3 {
+  overflow-wrap: break-word;
 }
 .page-heading p {
   font-size: 12px;
@@ -1228,11 +1239,13 @@ a:focus-visible {
   border-radius: 12px;
 }
 .ranking-list > div > span {
+  flex-shrink: 0;
   width: 18px;
   color: var(--muted);
   font-size: 12px;
 }
 .rank-avatar {
+  flex-shrink: 0;
   width: 35px;
   height: 35px;
   display: grid;
@@ -1243,6 +1256,12 @@ a:focus-visible {
 }
 .ranking-list b {
   font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.ranking-list > div > div:not(.rank-avatar) {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 .ranking-list small {
   display: block;
@@ -1250,6 +1269,7 @@ a:focus-visible {
   color: var(--muted);
 }
 .ranking-list strong {
+  flex-shrink: 0;
   margin-left: auto;
   color: #a381da;
   font-size: 14px;

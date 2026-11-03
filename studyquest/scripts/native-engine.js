@@ -63,6 +63,7 @@
     'flex',
     'flex-basis',
     'flex-grow',
+    'flex-wrap',
     'order',
     'position',
     'top',

@@ -32,6 +32,7 @@ const layoutProperties = new Set([
   'flex',
   'flex-basis',
   'flex-grow',
+  'flex-wrap',
   'order',
   'position',
   'top',

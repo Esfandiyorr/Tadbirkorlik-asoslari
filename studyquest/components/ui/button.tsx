@@ -5,7 +5,7 @@ import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 export const cn = (...v: Parameters<typeof clsx>) => twMerge(clsx(v));
 const variants = cva(
-  'inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-violet-500',
+  'inline-flex max-w-full shrink-0 items-center justify-center gap-2 whitespace-normal rounded-xl px-4 py-2.5 text-center text-sm font-semibold transition disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-violet-500 [&_svg]:shrink-0',
   {
     variants: {
       variant: {
