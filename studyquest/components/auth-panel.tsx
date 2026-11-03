@@ -8,14 +8,13 @@ import {
   GoogleAuthProvider,
   signInWithPopup,
 } from 'firebase/auth';
-import { BookOpen, GraduationCap, Shield, ArrowRight, Mail } from 'lucide-react';
+import { BookOpen, GraduationCap, Shield, ArrowRight, X } from 'lucide-react';
 import { firebaseAuth } from '@/lib/firebase-client';
 import { useApp } from './provider';
 import { Button } from './ui/button';
-import { Illustration } from './illustration';
 import { t } from '@/lib/i18n';
 import { NativeSurface } from './native-surface';
-export function AuthPanel() {
+export function AuthPanel({ onClose }: { onClose?: () => void }) {
   const { data, lang, refresh, toast, setLogin, demoLogin, useEmailMode } = useApp(),
     [register, setRegister] = useState(false),
     [student, setStudent] = useState(true),
@@ -24,6 +23,9 @@ export function AuthPanel() {
     [password, setPassword] = useState(''),
     [busy, setBusy] = useState(false),
     [googleError, setGoogleError] = useState('');
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   async function googleLogin() {
     if (busy) return;
     setBusy(true);
@@ -122,7 +124,28 @@ export function AuthPanel() {
       </main>
     );
   return (
-    <div className="auth-page">
+    <main
+      className="auth-page"
+      onClickCapture={(event) => {
+        const tab =
+          event.target instanceof Element
+            ? event.target.closest<HTMLElement>('.native-login [data-m]')
+            : null;
+        if (tab) {
+          setRegister(tab.dataset.m === 'reg');
+          window.scrollTo(0, 0);
+        }
+      }}
+    >
+      <Button
+        variant="ghost"
+        size="icon"
+        className="auth-close"
+        aria-label="Close"
+        onClick={() => (onClose ? onClose() : (location.hash = 'courses'))}
+      >
+        <X size={20} />
+      </Button>
       <div className="auth-story">
         <span className="hero-tag">Tadbirkorlik asoslari</span>
         <h1>
@@ -264,7 +287,13 @@ export function AuthPanel() {
                   : t(lang, 'login')}
               </Button>
             </form>
-            <Button variant="ghost" onClick={() => setRegister(!register)}>
+            <Button
+              variant="ghost"
+              onClick={() => {
+                setRegister(!register);
+                window.scrollTo(0, 0);
+              }}
+            >
               {register
                 ? t(lang, 'login')
                 : lang === 'uz'
@@ -285,7 +314,7 @@ export function AuthPanel() {
             </Button>
           </>
         )}
-        <a className="auth-back" href="#courses">
+        <a className="auth-back" href="#courses" onClick={onClose}>
           {lang === 'uz'
             ? 'Kurslarni ko‘rish'
             : lang === 'ru'
@@ -294,7 +323,7 @@ export function AuthPanel() {
           ↗
         </a>
       </div>
-    </div>
+    </main>
   );
 }
 

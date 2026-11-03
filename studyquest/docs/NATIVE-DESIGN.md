@@ -46,3 +46,16 @@ controls retain their content width, and mobile teacher actions use two columns
 (or one column on the narrowest phones). Wider staff tables scroll inside their
 own wrapper. Page headings reflow with their actions, and ranking names can wrap
 without shrinking avatars or scores. No teaching text or academic logic changes.
+
+## Full-window authentication
+
+Direct login, protected-page prompts and course sign-in all use the same
+standalone authentication page. The application shell is not rendered around
+it; the previous form-only modal is removed. On desktop, the existing animated
+artwork and form fill two full-height columns. On phones the artwork remains
+visible in a compact banner above a single-column form. Registration can scroll
+vertically, and switching between native login/registration returns to the top
+with the matching heading. Closing a course sign-in returns to that course.
+Google popup initiation and the original credential/session verification remain
+in their existing click and server paths. Reduced motion still pauses animation
+while retaining its poster.

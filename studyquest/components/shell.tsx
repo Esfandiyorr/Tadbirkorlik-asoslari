@@ -49,6 +49,7 @@ export function StudyQuest() {
       message,
       toast,
       setLogin,
+      login,
       logout,
       demoLogin,
       legacy,
@@ -89,6 +90,15 @@ export function StudyQuest() {
       </div>
     );
   if (data?.adminOnly) return <AuthPanel />;
+  if (login)
+    return (
+      <AuthPanel
+        onClose={() => {
+          setLogin(false);
+          window.scrollTo(0, 0);
+        }}
+      />
+    );
   if (!data && view.split('/')[0] === 'login') return <AuthPanel />;
   if (!data)
     return (
@@ -152,6 +162,7 @@ export function StudyQuest() {
   else if (view === 'profile')
     content = signedIn ? <Profile key={user?.id || legacy?.id} /> : <AuthPanel />;
   else content = <Dashboard />;
+  if (content.type === AuthPanel) return content;
   if (mainView === 'lesson' && (user || data.mode === 'legacy'))
     return <main className="focus-learning">{content}</main>;
   return (

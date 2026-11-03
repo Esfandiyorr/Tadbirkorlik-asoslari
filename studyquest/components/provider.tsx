@@ -12,7 +12,6 @@ import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { firebaseAuth } from '@/lib/firebase-client';
 import { legacySessionToken } from '@/lib/legacy-session';
 import type { Data, Lang, Actor } from '@/lib/types';
-import { NativeSurface } from './native-surface';
 type Legacy = {
   id: string;
   name: string;
@@ -338,21 +337,6 @@ export function Provider({
       {message && (
         <div role="status" className="toast">
           {message}
-        </div>
-      )}
-      {login && !data?.adminOnly && (
-        <div className="modal-backdrop">
-          <div className="legacy-modal">
-            <button aria-label="Close" className="close-modal" onClick={() => setLogin(false)}>
-              ×
-            </button>
-            <NativeSurface
-              id="legacy-login"
-              className="native-login"
-              title="TerDU account login"
-              src="/legacy/index.html?studyquest=login&sqEmbed=login"
-            />
-          </div>
         </div>
       )}
     </C.Provider>

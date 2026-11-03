@@ -187,3 +187,25 @@ Firebase account, academic data or teaching text was modified by these checks.
 
 TypeScript, formatting and the production build passed. Live Vercel rollout
 was not verified locally.
+
+## Full-window registration and mobile artwork (3 November 2026)
+
+Authentication now renders as a standalone full-width, viewport-height page
+for direct login, protected-page prompts and course sign-in. The previous
+form-only modal is replaced with the complete branded page. Mobile styling
+keeps the existing animation visible in a compact header instead of hiding it;
+forms remain a single column with reachable controls through vertical scrolling.
+Native login/registration switches update the heading and return to the top.
+Originally screen-reader-only helper text retains its intended visual hiding.
+
+All 17 authentication browser journeys passed, covering Google popup/error
+handling, restored/rejected sessions, original and 1111 codes, registration and
+guest ranking denial. New checks verify full-width geometry, absence of app
+chrome, visible artwork, registration controls and no horizontal overflow at
+320, 390, 768 and 1440px; course sign-in closes back to its original course.
+After the heading refinement, all four responsive checks and actual initial-code
+registration passed again. All three maintenance/administrator journeys passed.
+TypeScript, formatting and the production build passed. Screenshots of phone
+and desktop registration were inspected. Remote auth/database responses in the
+sign-in suite are mocked; no live student records or Firebase configuration
+were changed, and live Vercel rollout remains to be confirmed after deployment.

@@ -1805,22 +1805,41 @@ td .input {
   font-size: 10px;
 }
 .auth-page {
+  position: relative;
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 40px;
-  max-width: 1100px;
-  margin: 20px auto;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  min-height: 100vh;
+  min-height: 100dvh;
+  width: 100%;
+  background: var(--surface);
+}
+.auth-close {
+  position: absolute;
+  top: max(14px, env(safe-area-inset-top));
+  right: max(14px, env(safe-area-inset-right));
+  z-index: 2;
+  background: var(--surface);
+  color: var(--text);
 }
 .auth-story {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
   background: linear-gradient(135deg, #8d5de4, #7850c9);
   color: white;
-  border-radius: 26px;
-  padding: 40px;
+  padding: clamp(32px, 5vw, 88px);
+  text-align: center;
 }
 .auth-story h1 {
-  font-size: 38px;
+  font-size: clamp(28px, 3.4vw, 48px);
   line-height: 1.25;
-  margin-top: 30px;
+  max-width: 600px;
+  margin: 22px 0 0;
+}
+.auth-story .auth-video {
+  width: min(100%, clamp(260px, 45dvh, 560px));
 }
 .auth-story > svg {
   max-width: 100%;
@@ -1832,12 +1851,24 @@ td .input {
   margin: 0;
 }
 .auth-form {
-  padding: 40px;
+  padding: clamp(32px, 5vw, 88px);
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 13px;
   justify-content: center;
+}
+.auth-form > * {
+  max-width: 440px;
+}
+.auth-form > .native-login,
+.auth-form > button,
+.auth-form > form {
+  width: 100%;
 }
 .auth-form h2 {
   font-size: 24px;
@@ -2129,7 +2160,7 @@ td .input {
     padding: 15px 11px;
   }
   .auth-page {
-    gap: 20px;
+    gap: 0;
   }
   .auth-story {
     padding: 25px;
@@ -2652,20 +2683,54 @@ td .input {
     display: flex;
     flex-direction: column;
     margin: 0;
-    gap: 22px;
+    gap: 0;
   }
   .auth-story {
-    padding: 27px;
-    display: none;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) clamp(120px, 34vw, 168px);
+    grid-template-rows: auto 1fr auto;
+    grid-template-areas: 'tag art' 'title art' 'description description';
+    align-items: center;
+    gap: 12px;
+    padding: max(28px, env(safe-area-inset-top)) 20px 22px;
+    text-align: left;
+  }
+  .auth-story .hero-tag {
+    grid-area: tag;
+    align-self: end;
+    justify-self: start;
+    font-size: 10px;
+  }
+  .auth-story .auth-video {
+    grid-area: art;
+    width: 100%;
+    margin: 0;
+    border-radius: 14px;
   }
   .auth-story h1 {
-    font-size: 30px;
+    grid-area: title;
+    align-self: start;
+    font-size: clamp(19px, 4.5vw, 25px);
+    margin: 0;
+  }
+  .auth-story > p {
+    grid-area: description;
+    font-size: 12px;
+    line-height: 1.6;
   }
   .auth-story > svg {
     height: 200px;
   }
   .auth-form {
-    padding: 35px 25px;
+    flex: 1;
+    padding: 28px 20px max(28px, env(safe-area-inset-bottom));
+  }
+  .auth-close {
+    top: max(5px, env(safe-area-inset-top));
+    right: max(5px, env(safe-area-inset-right));
+    width: 30px;
+    height: 30px;
+    min-height: 30px;
   }
   .modal-backdrop {
     padding: 0;

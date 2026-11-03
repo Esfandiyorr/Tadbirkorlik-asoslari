@@ -40,6 +40,75 @@ const userData = {
   activity: [],
   notifications: [],
 };
+for (const viewport of [
+  { width: 320, height: 740 },
+  { width: 390, height: 844 },
+  { width: 768, height: 1024 },
+  { width: 1440, height: 900 },
+]) {
+  test(`registration fills the window and keeps its artwork visible at ${viewport.width}px`, async ({
+    page,
+  }) => {
+    await page.setViewportSize(viewport);
+    await services(page);
+    await page.route('**/api/platform*', (route) => route.fulfill({ json: publicData }));
+    await page.goto('/#login');
+    await expect(page.locator('.native-login #lgN')).toBeVisible();
+    await expect(page.locator('.app-shell, .sidebar, .bottom-nav')).toHaveCount(0);
+    const bounds = await page.locator('.auth-page').boundingBox();
+    expect(bounds!.x).toBe(0);
+    expect(bounds!.width).toBe(viewport.width);
+    expect(bounds!.height).toBeGreaterThanOrEqual(viewport.height);
+    await page.locator('.native-login [data-m="reg"]').click();
+    await expect(page.locator('.native-login #rtN')).toBeVisible();
+    await expect(page.locator('.auth-form > h2')).toHaveText('Hisob yaratish');
+    await expect
+      .poll(async () => {
+        const art = await page.locator('.auth-video video').boundingBox();
+        return (
+          !!art &&
+          art.width > 100 &&
+          art.height > 100 &&
+          art.y >= 0 &&
+          art.y + art.height <= viewport.height
+        );
+      })
+      .toBe(true);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(
+      true,
+    );
+    await expect(page.locator('.native-login #rtB')).toHaveValue('1111');
+    await page.locator('.native-login #rtGo').scrollIntoViewIfNeeded();
+    await expect(page.locator('.native-login #rtGo')).toBeInViewport();
+    if (viewport.width === 390) {
+      await page.evaluate(() => scrollTo(0, 0));
+      await page.screenshot({
+        path: 'tests/artifacts/auth-registration-mobile.png',
+        fullPage: true,
+      });
+    }
+    if (viewport.width === 1440)
+      await page.screenshot({
+        path: 'tests/artifacts/auth-registration-desktop.png',
+        fullPage: true,
+      });
+  });
+}
+
+test('catalog sign-in uses the complete design and closes back to the course', async ({ page }) => {
+  await services(page);
+  await page.route('**/api/platform*', (route) => route.fulfill({ json: publicData }));
+  await page.goto('/#course/tad-asoslari');
+  await page.locator('.lesson-card').first().click();
+  await expect(page.locator('.auth-page')).toBeVisible();
+  await expect(page.locator('.auth-video video')).toBeVisible();
+  await expect(page.locator('.app-shell, .legacy-modal')).toHaveCount(0);
+  await page.getByRole('button', { name: 'Close', exact: true }).click();
+  await expect(page.locator('.auth-page')).toHaveCount(0);
+  await expect(page.locator('.lesson-card').first()).toBeVisible();
+  expect(new URL(page.url()).hash).toBe('#course/tad-asoslari');
+});
+
 async function services(page: Page) {
   // No live student data, authentication, or database mutations in these checks.
   await page.addInitScript(() => {
