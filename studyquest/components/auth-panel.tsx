@@ -14,6 +14,7 @@ import { useApp } from './provider';
 import { Button } from './ui/button';
 import { Illustration } from './illustration';
 import { t } from '@/lib/i18n';
+import { NativeSurface } from './native-surface';
 export function AuthPanel() {
   const { data, lang, refresh, toast, setLogin, demoLogin, useEmailMode } = useApp(),
     [register, setRegister] = useState(false),
@@ -167,14 +168,9 @@ export function AuthPanel() {
           </>
         ) : student ? (
           <>
-            <p className="muted">
-              {lang === 'uz'
-                ? 'Avvalgi ism, familiya va kodingiz bilan kiring.'
-                : 'Use your existing first name, surname and code.'}
-            </p>
-            <iframe
+            <NativeSurface
               id="student-login"
-              className="student-login-frame"
+              className="native-login"
               title="Talaba hisobiga kirish"
               src="/legacy/index.html?studyquest=login&sqEmbed=login"
             />

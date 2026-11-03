@@ -6,12 +6,15 @@ const mocks = vi.hoisted(() => ({
   list: vi.fn(),
   actor: vi.fn(),
   access: vi.fn(),
+  original: vi.fn(),
 }));
 vi.mock('../lib/server/repository', () => ({
   configured: () => true,
   demo: () => false,
   repository: async () => ({ list: mocks.list }),
-  legacyDb: vi.fn(),
+  legacyDb: () => ({
+    ref: (path: string) => ({ get: async () => ({ val: () => mocks.original(path) }) }),
+  }),
   authAdmin: vi.fn(),
 }));
 vi.mock('../lib/server/auth', async (original) => ({
@@ -29,6 +32,14 @@ beforeEach(() => {
     return { ...demoUsers[0], academicPoints: 375.5 };
   });
   mocks.access.mockResolvedValue(undefined);
+  mocks.original.mockReturnValue({
+    name: 'Ali',
+    surname: 'Valiyev',
+    status: 'ok',
+    total: 375.5,
+    pk: 'PRIVATE',
+    topics: { m1: { p: 75, b: 4, s: 12, t: 3000, q: 8 } },
+  });
 });
 
 it('serves a safe public catalog when Firestore refuses reads', async () => {
@@ -94,4 +105,35 @@ it('returns a retryable quota error instead of reporting a successful XP write',
   );
   expect(response.status).toBe(503);
   expect(response.headers.get('Retry-After')).toBe('60');
+});
+
+it('returns original per-topic history even when Firestore profiles cannot load', async () => {
+  mocks.actor.mockImplementation(async (_req, readOnly) => {
+    if (!readOnly) throw { code: 8 };
+    return { ...demoUsers[0], id: 'legacy_alice', academicPoints: 375.5 };
+  });
+  const response = await GET(
+    new NextRequest('https://example.test/api/platform', {
+      headers: { authorization: 'Bearer valid' },
+    }),
+  );
+  const data = await response.json();
+  expect(data.user.readingHistory.m1).toMatchObject({
+    score: 75,
+    grade: 4,
+    seenSlides: 12,
+    status: 'started',
+  });
+  expect(data.user.academicPoints).toBe(375.5);
+  expect(JSON.stringify(data)).not.toContain('PRIVATE');
+});
+
+it('does not expose the original roster to a student while quota is exhausted', async () => {
+  const response = await GET(
+    new NextRequest('https://example.test/api/platform?view=roster', {
+      headers: { authorization: 'Bearer valid' },
+    }),
+  );
+  expect(response.status).toBe(403);
+  expect(mocks.original).not.toHaveBeenCalled();
 });

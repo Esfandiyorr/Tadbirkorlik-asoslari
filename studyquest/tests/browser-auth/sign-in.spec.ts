@@ -113,7 +113,7 @@ test('blocked Google popups show a persistent explanation', async ({ page }) => 
   await page.route('**/api/platform', (route) => route.fulfill({ json: publicData }));
   await page.goto('/#login');
   await page.getByRole('button', { name: 'Google', exact: true }).click();
-  await expect(page.locator('.auth-form [role="alert"]')).toContainText(
+  await expect(page.locator('.auth-form > [role="alert"]')).toContainText(
     'Brauzer Google oynasini blokladi',
   );
 });
@@ -129,7 +129,7 @@ test('expired saved session still allows reopening the student and Google sign-i
   }, student);
   await page.route('**/api/platform', (route) => route.fulfill({ json: publicData }));
   await page.goto('/#login');
-  await expect(page.frameLocator('#student-login').locator('#lgN')).toBeVisible();
+  await expect(page.locator('.native-login #lgN')).toBeVisible();
   // A saved legacy record is emitted every second, even when its token is invalid.
   await page.waitForTimeout(2200);
   expect(new URL(page.url()).hash).toBe('#login');
@@ -172,7 +172,7 @@ test('sign-in remains available when the platform API is unavailable', async ({ 
   );
   await page.goto('/');
   await page.locator('a[href="#login"]').click();
-  await expect(page.frameLocator('#student-login').locator('#lgB')).toBeVisible();
+  await expect(page.locator('.native-login #lgB')).toBeVisible();
 });
 
 test('existing code login establishes the legacy session and displays the original academic points', async ({
@@ -188,7 +188,7 @@ test('existing code login establishes the legacy session and displays the origin
     return route.fulfill({ json: signedIn ? userData : publicData });
   });
   await page.goto('/#login');
-  const frame = page.frameLocator('#student-login');
+  const frame = page.locator('.native-login .native-document');
   await expect(frame.locator('#lgN')).toBeVisible();
   await expect
     .poll(() =>

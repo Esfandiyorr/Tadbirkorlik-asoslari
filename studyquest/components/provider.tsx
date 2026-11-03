@@ -12,6 +12,7 @@ import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { firebaseAuth } from '@/lib/firebase-client';
 import { legacySessionToken } from '@/lib/legacy-session';
 import type { Data, Lang, Actor } from '@/lib/types';
+import { NativeSurface } from './native-surface';
 type Legacy = {
   id: string;
   name: string;
@@ -183,13 +184,16 @@ export function Provider({
   }, [refresh]);
   useEffect(() => {
     const f = (e: MessageEvent) => {
+      if (demoMode) return;
       if (
         e.origin !== location.origin ||
         e.data?.source !== 'studyquest-legacy' ||
         e.data.type !== 'session'
       )
         return;
-      const frames = document.querySelectorAll<HTMLIFrameElement>('#legacy-login, #student-login');
+      const frames = document.querySelectorAll<HTMLIFrameElement>(
+        '#legacy-login, #student-login, iframe[data-native-engine]',
+      );
       if (!Array.from(frames).some((frame) => e.source === frame.contentWindow)) return;
       const s = e.data.student as Legacy | null;
       if (s && (s.status === 'ok' || s.learnerType === 'independent')) {
@@ -298,8 +302,9 @@ export function Provider({
             <button aria-label="Close" className="close-modal" onClick={() => setLogin(false)}>
               ×
             </button>
-            <iframe
+            <NativeSurface
               id="legacy-login"
+              className="native-login"
               title="TerDU account login"
               src="/legacy/index.html?studyquest=login&sqEmbed=login"
             />

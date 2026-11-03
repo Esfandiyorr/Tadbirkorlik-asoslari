@@ -1,24 +1,92 @@
 import 'server-only';
 import { createHash } from 'node:crypto';
-import type { Actor } from '../types';
+import type { Actor, ReadingHistory } from '../types';
 import type { Repository, Row } from './repository';
 import { administrator, check, staff } from './auth';
 import { legacyDb } from './repository';
-import { course, lessons } from '../seed';
+import { course, lessons, catalog } from '../seed';
 
 type Read = (path: string) => Promise<any>;
 const number = (v: unknown) => (Number.isFinite(Number(v)) ? Math.max(0, Number(v)) : 0);
 export function academicRecord(id: string, s: Row) {
   const topics: Record<string, Row> = {},
-    manual: Record<string, number> = {};
+    manual: Record<string, number> = {},
+    history: Record<string, ReadingHistory> = {};
   for (const lesson of lessons) {
-    const value = s.topics?.[lesson.id];
-    if (value && typeof value === 'object')
-      topics[lesson.id] = Object.fromEntries(
-        ['p', 's', 't', 'q', 'b', 'z']
-          .filter((k) => value[k] !== undefined)
-          .map((k) => [k, number(value[k])]),
+    const value = s.topics?.[lesson.id] || {},
+      progress = s.prog?.[lesson.id] || {},
+      reading = s.reading?.[lesson.id] || {};
+    const independent = s.learnerType === 'independent';
+    const seen = Object.keys(independent ? reading.sl || {} : progress.sl || {})
+      .map((k) => /^slide(\d+)$/.exec(k))
+      .filter(Boolean)
+      .map((match) => Number(match![1]))
+      .filter((n) => n >= 0 && n < lesson.slideCount);
+    const newer = Object.keys(progress.nw || {}),
+      acts = Object.keys(progress.ac || {}).filter(
+        (k) => /^(?:test|task|xw)/.test(k) && k !== 'xwAll',
       );
+    const count = Math.min(
+      lesson.slideCount,
+      Math.max(
+        seen.length,
+        independent ? 0 : number(value.s),
+        number(progress.sF) + newer.filter((k) => k.startsWith('slide')).length,
+      ),
+    );
+    const seconds = Math.max(
+      number(value.t),
+      Object.values(progress.tm || {}).reduce<number>((sum, value) => sum + number(value), 0),
+    );
+    const correct = Math.max(
+      number(value.q),
+      acts.length,
+      number(progress.qF) + newer.filter((k) => !k.startsWith('slide')).length,
+    );
+    const maximum = Number(catalog.topics.find((t) => t.id === lesson.id)?.quiz || 15);
+    const ratio =
+      (0.3 * count) / lesson.slideCount +
+      0.2 * Math.min(1, seconds / 3600) +
+      0.5 * Math.min(1, correct / maximum);
+    const score =
+      value.p !== undefined && value.p !== null && Number.isFinite(Number(value.p))
+        ? number(value.p)
+        : Math.round(ratio * 1000) / 10;
+    const pc = Math.round(ratio * 100),
+      grade =
+        number(value.b) ||
+        (count || seconds || correct
+          ? pc >= 90
+            ? 5
+            : pc >= 75
+              ? 4
+              : pc >= 60
+                ? 3
+                : pc >= 40
+                  ? 2
+                  : 1
+          : 0);
+    history[lesson.id] = {
+      seenSlides: count,
+      totalSlides: lesson.slideCount,
+      lastSlide: Math.min(
+        lesson.slideCount - 1,
+        Number.isInteger(reading.last) ? Math.max(0, reading.last) : Math.max(0, ...seen),
+      ),
+      seconds,
+      correctAnswers: correct,
+      status: count >= lesson.slideCount ? 'read' : count || seconds || correct ? 'started' : 'new',
+      ...(!independent ? { score, grade } : {}),
+    };
+    if (!independent && (s.topics?.[lesson.id] || s.prog?.[lesson.id]))
+      topics[lesson.id] = {
+        p: score,
+        s: count,
+        t: seconds,
+        q: correct,
+        b: grade,
+        z: Number.isFinite(value.z) ? number(value.z) : pc,
+      };
     if (number(s.manual?.[lesson.id]) <= 5 && number(s.manual?.[lesson.id]) > 0)
       manual[lesson.id] = number(s.manual[lesson.id]);
   }
@@ -35,6 +103,7 @@ export function academicRecord(id: string, s: Row) {
     academicPoints: number(s.total),
     academicTopics: topics,
     manualMarks: manual,
+    readingHistory: history,
   };
 }
 

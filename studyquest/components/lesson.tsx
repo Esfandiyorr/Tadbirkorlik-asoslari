@@ -17,23 +17,24 @@ import { Button } from './ui/button';
 import { ProgressBar, navigate } from './dashboard';
 import { t } from '@/lib/i18n';
 import type { Lesson as LessonType, Question } from '@/lib/types';
+import { NativeSurface } from './native-surface';
 export function LessonView({ id }: { id: string }) {
-  const { data, lang, dark, call, toast, request } = useApp(),
+  const { data, lang, setLang, dark, call, toast, request } = useApp(),
     meta = data!.lessons.find((x) => x.id === id),
     [detail, setDetail] = useState<LessonType | null>(null),
     [index, setIndex] = useState(0),
     [busy, setBusy] = useState(false),
     [error, setError] = useState(''),
-    [fit, setFit] = useState(true),
+    [fit, setFit] = useState(false),
     [details, setDetails] = useState(false),
     frame = useRef<HTMLIFrameElement>(null),
     viewer = useRef<HTMLDivElement>(null),
     loaded = useRef('');
   const progress = data?.progress?.find((p) => p.lessonId === id),
     legacyMode = data?.mode === 'legacy',
-    initialPosition = useRef(progress?.last || 0);
+    initialPosition = useRef(progress?.last ?? data?.user?.readingHistory?.[id]?.lastSlide ?? 0);
   useEffect(() => {
-    setFit(window.innerWidth >= 768);
+    setFit(false);
   }, []);
   useEffect(() => {
     frame.current?.contentWindow?.postMessage(
@@ -169,6 +170,16 @@ export function LessonView({ id }: { id: string }) {
           <ArrowLeft size={18} />
         </Button>
         <h1 title={meta.title}>{meta.title}</h1>
+        <select
+          className="reader-language"
+          aria-label="Dars tili"
+          value={lang}
+          onChange={(e) => setLang(e.target.value as 'uz' | 'en' | 'ru')}
+        >
+          <option value="uz">UZ</option>
+          <option value="en">EN</option>
+          <option value="ru">RU</option>
+        </select>
         <div className="reader-navigation">
           <Button
             variant="outline"
@@ -237,12 +248,13 @@ export function LessonView({ id }: { id: string }) {
       ) : (
         <div
           className={
-            'presentation-viewer reader-viewer ' + (lesson.legacyFile ? 'legacy-viewer' : '')
+            'presentation-viewer reader-viewer ' + (lesson.legacyFile ? 'native-viewer' : '')
           }
         >
           {lesson.legacyFile ? (
-            <iframe
+            <NativeSurface
               ref={frame}
+              fit={fit}
               title={lesson.title}
               src={
                 '/legacy/' +
@@ -262,7 +274,6 @@ export function LessonView({ id }: { id: string }) {
                   location.origin,
                 );
               }}
-              allowFullScreen
             />
           ) : (
             <div className="slide-content">

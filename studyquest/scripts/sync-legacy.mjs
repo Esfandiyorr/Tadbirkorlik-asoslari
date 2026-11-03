@@ -24,7 +24,10 @@ for (const entry of fs.readdirSync(root))
               '</script><script src="demo-guard.js"></script><script src="embed.js"></script>',
           )
           .replace('</head>', '<link rel="stylesheet" href="embed.css"></head>')
-          .replace('</body>', '<script src="bridge.js"></script></body>'),
+          .replace(
+            '</body>',
+            '<script src="bridge.js"></script><script src="native-engine.js"></script></body>',
+          ),
       );
     if (entry === 'rt-engine.js')
       data = Buffer.from(
@@ -51,6 +54,7 @@ for (const entry of fs.readdirSync(root))
   }
 fs.cpSync(path.join(root, 'fayllar'), path.join(out, 'fayllar'), { recursive: true });
 fs.copyFileSync(path.join(app, 'scripts/legacy-bridge.js'), path.join(out, 'bridge.js'));
+fs.copyFileSync(path.join(app, 'scripts/native-engine.js'), path.join(out, 'native-engine.js'));
 fs.copyFileSync(path.join(app, 'scripts/legacy-demo.js'), path.join(out, 'demo-guard.js'));
 fs.copyFileSync(path.join(app, 'scripts/legacy-embed.js'), path.join(out, 'embed.js'));
 fs.copyFileSync(path.join(app, 'scripts/legacy-embed.css'), path.join(out, 'embed.css'));

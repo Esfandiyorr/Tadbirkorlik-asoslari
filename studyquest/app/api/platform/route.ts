@@ -99,6 +99,15 @@ export async function GET(req: NextRequest) {
         : {}),
     });
   } catch (e) {
+    if (quotaExceeded(e) && !demo() && req.nextUrl.searchParams.get('view') === 'roster') {
+      try {
+        const a = await actor(req, true);
+        staff(a);
+        return NextResponse.json({ users: await new Academic(await repository()).roster(a) });
+      } catch (authError) {
+        return failure(authError);
+      }
+    }
     if (
       quotaExceeded(e) &&
       !demo() &&
@@ -108,7 +117,16 @@ export async function GET(req: NextRequest) {
     ) {
       try {
         const a = req.headers.get('authorization') ? await actor(req, true) : undefined;
-        return NextResponse.json(limitedCatalog(a), { headers: { 'Cache-Control': 'no-store' } });
+        const limited = limitedCatalog(a);
+        if (a?.id.startsWith('legacy_') && limited.user) {
+          const original = (
+            await legacyDb()
+              .ref('students/' + a.id.slice(7))
+              .get()
+          ).val();
+          if (original) Object.assign(limited.user, academicRecord(a.id.slice(7), original));
+        }
+        return NextResponse.json(limited, { headers: { 'Cache-Control': 'no-store' } });
       } catch (authError) {
         return failure(authError);
       }
@@ -120,12 +138,21 @@ export async function POST(req: NextRequest) {
   try {
     sameOrigin(req);
     check(Number(req.headers.get('content-length') || 0) < 128000, 413, 'So‘rov juda katta');
-    const a = await actor(req),
-      input = await req.text();
+    const input = await req.text();
     check(input.length < 128000, 413, 'So‘rov juda katta');
     const p = z.object({ action: z.string().max(40), input: z.unknown() }).parse(JSON.parse(input));
+    let a,
+      legacyOnly = false;
+    try {
+      a = await actor(req);
+    } catch (error) {
+      if (!quotaExceeded(error) || p.action !== 'legacyStudent' || demo()) throw error;
+      a = await actor(req, true);
+      staff(a);
+      legacyOnly = true;
+    }
     if (p.action === 'legacyStudent') {
-      await new Platform(await repository()).manage(a, course.id);
+      if (!legacyOnly) await new Platform(await repository()).manage(a, course.id);
       check(!demo(), 409, 'Demo muhit jonli bazani o‘zgartirmaydi.');
       const update = z
         .object({

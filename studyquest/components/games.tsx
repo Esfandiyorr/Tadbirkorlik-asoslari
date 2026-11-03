@@ -14,6 +14,7 @@ import { useApp } from './provider';
 import { Button } from './ui/button';
 import { navigate } from './dashboard';
 import { t } from '@/lib/i18n';
+import { NativeSurface } from './native-surface';
 const pairs = [
   ['TAM', 'Umumiy mumkin bo‘lgan bozor'],
   ['SAM', 'Xizmat ko‘rsatish mumkin bo‘lgan bozor'],
@@ -73,8 +74,9 @@ export function Games({ live = false }: { live?: boolean }) {
         </Button>
       </div>
       {live ? (
-        <div className="embedded-arena panel">
-          <iframe
+        <div className="panel">
+          <NativeSurface
+            className="native-workspace native-arena"
             title="Guruh o‘yinlari arenasi"
             src={
               '/legacy/arena.html?sqEmbed=arena' +

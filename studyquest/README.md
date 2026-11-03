@@ -19,13 +19,13 @@ For Firebase-backed development, copy `.env.example` to `.env.local`, supply you
 
 - Responsive violet dashboard, desktop sidebar, mobile navigation, dark mode, animated progress, notifications, course search, and Uzbek/English/Russian interface switching.
 - Course catalog with **Tadbirkorlik asoslari → 15 numbered topics**, course progress, module filters, and course/topic search.
-- Original presentation viewer with slide navigation, fullscreen, saved position, and embedded original learning activities/video. New teacher-authored slide lessons and protected material downloads are supported too.
+- Native presentation reader with slide navigation, fullscreen, saved position, and restyled original learning activities/video. New teacher-authored slide lessons and protected material downloads are supported too.
 - Email/password, password reset, Google sign-in, and a bridge to existing TerDU accounts. University students retain the original approval and lesson-access checks. New email accounts are independent learners by default.
 - Server-graded choice, true/false, matching, and accepted-answer quizzes; randomized question order, attempt limits, time limits, feedback settings, and history.
 - Transactional XP ledger, achievement levels, badges, daily challenges, learning streaks, course completion rewards, and class/course/calendar-period leaderboards. Independent learners remain outside university rankings.
 - Teacher tools for subjects, courses, modules, lessons, quizzes, material uploads, enrollment, classes, achievements, analytics, and CSV reports. Administrator tools manage roles, blocking, XP settings, and level thresholds.
-- Memory, vocabulary, arithmetic, and typing practice. Quiz Battle opens a server-graded timed quiz; existing multiplayer class games are embedded in the new Game Arena.
-- Student name/surname/existing code entry, live academic rankings, a linked academic grade roster, preserved class chat, and administrator-triggered, repeat-safe profile linking.
+- Memory, vocabulary, arithmetic, and typing practice. Quiz Battle opens a server-graded timed quiz; existing multiplayer class games use the new native Game Arena surface.
+- Student name/surname/existing code entry, live academic rankings, all 15 per-topic reading/grade histories, a linked academic roster, preserved class chat, and administrator-triggered, repeat-safe profile linking.
 - Installable Android/iPhone/desktop PWA with an installation guide and an offline notice. Private responses and presentations are not cached by the new worker.
 
 ## Architecture
@@ -44,7 +44,7 @@ docs/                Data model, implementation, deployment
 
 The client uses hash navigation within the root App Router page. Sensitive actions go through protected Node.js route handlers. Firebase Admin credentials stay on the server. Client Firestore and Storage rules deny all private reads and writes; the HTTP API verifies identity, role, enrollment, and original account ownership before using Admin SDK access.
 
-`scripts/sync-legacy.mjs` generates the catalog and copies original materials into `public/legacy/` before development/build. Only the generated copy receives the same-origin bridge and local demo guard. Edit original lessons in the repository root and the shared engine in `_reyting-manba/`, then run `python3 _reyting-manba/inject.py` from the repository root. Do not edit generated copies.
+`scripts/sync-legacy.mjs` generates the catalog and copies original materials into `public/legacy/` before development/build. Only the generated copy receives the same-origin interaction adapter and local demo guard. The visible content is sanitized and rendered in the main document using the new design; an offscreen compatibility engine preserves original assessment and game rules. See [native design migration](docs/NATIVE-DESIGN.md). Edit original lessons in the repository root and the shared engine in `_reyting-manba/`, then run `python3 _reyting-manba/inject.py` from the repository root. Do not edit generated copies.
 
 ## Verification
 

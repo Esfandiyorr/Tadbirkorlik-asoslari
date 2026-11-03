@@ -16,6 +16,7 @@ import {
 import { useApp } from './provider';
 import { Button } from './ui/button';
 import { AcademicRoster } from './academic-roster';
+import { NativeSurface } from './native-surface';
 import { t } from '@/lib/i18n';
 import type { Data, Lesson, Question, Quiz, Progress, Attempt, Settings } from '@/lib/types';
 const blankQuestion = (): Question => ({
@@ -185,8 +186,9 @@ export function Staff({ admin = false }: { admin?: boolean }) {
       </div>
       {tab === 'academic' && <AcademicRoster />}
       {tab === 'legacy' && (
-        <section className="embedded-workspace panel">
-          <iframe
+        <section className="panel">
+          <NativeSurface
+            className="native-workspace"
             title="Fan bo‘yicha barcha boshqaruvlar"
             src="/legacy/index.html?sqEmbed=teacher"
           />

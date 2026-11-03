@@ -126,3 +126,32 @@ it('preserves summary-only legacy learning completion without creating XP reward
   });
   expect(await db.list('xpTransactions')).toEqual([]);
 });
+
+it('exposes original work and grades in all fifteen native topic cards without changing the total', () => {
+  const record = academicRecord('alice', source.alice);
+  expect(record.academicPoints).toBe(375.5);
+  expect(Object.keys(record.readingHistory)).toHaveLength(15);
+  expect(record.readingHistory.m1).toMatchObject({
+    seenSlides: 12,
+    totalSlides: 18,
+    seconds: 3000,
+    correctAnswers: 8,
+    score: 75,
+    grade: 4,
+    status: 'started',
+  });
+  expect(record.readingHistory.m2.status).toBe('new');
+  expect(record.manualMarks.m1).toBe(4);
+  expect(JSON.stringify(record)).not.toMatch(/DO_NOT_COPY|PRIVATE|private@example/);
+});
+
+it('independent reading history contains the saved position without university grades', () => {
+  const record = academicRecord('independent', source.independent);
+  expect(record.readingHistory.m1).toMatchObject({
+    seenSlides: 1,
+    lastSlide: 2,
+    status: 'started',
+  });
+  expect(record.readingHistory.m1).not.toHaveProperty('grade');
+  expect(record.readingHistory.m1).not.toHaveProperty('score');
+});

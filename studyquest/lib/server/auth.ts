@@ -108,9 +108,9 @@ export async function actor(req: NextRequest, readOnly = false): Promise<Actor> 
   const role = admins.includes(decoded.uid)
     ? 'admin'
     : stored?.role ||
-      (decoded.role === 'admin'
+      (!readOnly && decoded.role === 'admin'
         ? 'admin'
-        : decoded.role === 'teacher' || emailTeacher
+        : (!readOnly && decoded.role === 'teacher') || emailTeacher
           ? 'teacher'
           : 'student');
   const u: User = {

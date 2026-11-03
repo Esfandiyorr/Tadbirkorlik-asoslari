@@ -30,6 +30,8 @@ import { Leaderboard } from './leaderboard';
 import { Games } from './games';
 import { Staff } from './staff';
 import { InstallApp } from './install-app';
+import { NativeSurface } from './native-surface';
+import { AcademicHistory } from './academic-history';
 import { Button } from './ui/button';
 import { t, type Key } from '@/lib/i18n';
 import type { Lang } from '@/lib/types';
@@ -126,9 +128,10 @@ export function StudyQuest() {
   else if (view === 'chat')
     content =
       user && (role !== 'student' || user.learnerType === 'university') ? (
-        <section className="embedded-workspace panel">
+        <section className="panel">
           <h1>{t(lang, 'chat')}</h1>
-          <iframe
+          <NativeSurface
+            className="native-workspace"
             title={t(lang, 'chat')}
             src={'/legacy/index.html?sqEmbed=chat' + (data.mode === 'demo' ? '&sqDemo=1' : '')}
           />
@@ -388,28 +391,7 @@ function Profile() {
             </span>
           </div>
         )}
-        {u?.academicTopics && (
-          <div className="profile-academic-topics">
-            <h3>{lang === 'uz' ? 'Mavzular bo‘yicha natijalar' : 'Results by topic'}</h3>
-            {data!.lessons
-              .filter((l) => l.courseId === 'tad-asoslari')
-              .sort((a, b) => a.order - b.order)
-              .map((l) => {
-                const result = u.academicTopics?.[l.id];
-                return (
-                  <div key={l.id}>
-                    <span>
-                      {l.order + 1}. {l.title}
-                    </span>
-                    <b>
-                      {result?.p || 0} {lang === 'uz' ? 'ball' : 'points'} ·{' '}
-                      {lang === 'uz' ? 'Baho' : 'Grade'}: {result?.b || '—'}
-                    </b>
-                  </div>
-                );
-              })}
-          </div>
-        )}
+        <AcademicHistory />
         <form
           onSubmit={async (e) => {
             e.preventDefault();
@@ -458,8 +440,12 @@ function Profile() {
         </Button>
       </section>
       {advanced && (
-        <section className="embedded-workspace panel">
-          <iframe title="Hisob va guruh" src="/legacy/index.html?sqEmbed=account" />
+        <section className="panel">
+          <NativeSurface
+            className="native-workspace"
+            title="Hisob va guruh"
+            src="/legacy/index.html?sqEmbed=account"
+          />
         </section>
       )}
     </>

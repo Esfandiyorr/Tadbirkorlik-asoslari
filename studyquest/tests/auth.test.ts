@@ -82,3 +82,10 @@ it('does not trust a browser-selected role during quota recovery', async () => {
   });
   expect((await actor(req, true)).role).toBe('student');
 });
+
+it('quota-only legacy administration requires the allowlist or original teacher identity, not a stale custom role', async () => {
+  mocks.verify.mockResolvedValue({ uid: 'test-uid', name: 'Former Teacher', role: 'admin' });
+  expect((await actor(request(), true)).role).toBe('student');
+  vi.stubEnv('STUDYQUEST_ADMIN_UIDS', 'test-uid');
+  expect((await actor(request(), true)).role).toBe('admin');
+});

@@ -199,9 +199,9 @@ test('original presentation stays usable and demo never contacts the live databa
   const slideCount = before.lessons.find((l: any) => l.id === 'm1').slideCount;
   const nextPosition = position < slideCount - 1 ? position + 1 : position - 1;
   await page.goto('/#lesson/m1', { waitUntil: 'domcontentloaded' });
-  const frame = page.frameLocator('.legacy-viewer iframe');
-  await expect(frame.locator('.slide.active')).toBeVisible();
-  await expect(frame.locator('#cur')).toHaveText(String(position + 1));
+  const frame = page.locator('.native-viewer .native-document');
+  await expect(frame.locator(':scope > .inner')).toBeVisible();
+  await expect(page.locator('.reader-navigation')).toContainText(String(position + 1) + ' / ');
   await expect(frame.locator('.topbar')).toBeHidden();
   await expect(frame.locator('.navbar')).toBeHidden();
   await expect(page.locator('.sidebar')).toHaveCount(0);
@@ -211,7 +211,7 @@ test('original presentation stays usable and demo never contacts the live databa
       exact: true,
     })
     .click();
-  await expect(frame.locator('#cur')).toHaveText(String(nextPosition + 1));
+  await expect(page.locator('.reader-navigation')).toContainText(String(nextPosition + 1) + ' / ');
   await expect
     .poll(async () => {
       const d = await (await page.request.get('/api/platform')).json();
@@ -274,8 +274,8 @@ test('all original presentations use a complete viewport with no legacy topbar',
   page.on('pageerror', (e) => errors.push(e.message));
   for (let i = 1; i <= 15; i++) {
     await page.goto('/#lesson/m' + i, { waitUntil: 'domcontentloaded' });
-    const frame = page.frameLocator('.legacy-viewer iframe');
-    await expect(frame.locator('.slide.active')).toBeVisible();
+    const frame = page.locator('.native-viewer .native-document');
+    await expect(frame.locator(':scope > .inner')).toBeVisible();
     await expect(frame.locator('.topbar')).toBeHidden();
     await expect(frame.locator('.navbar')).toBeHidden();
     await expect(page.locator('.app-header')).toHaveCount(0);
@@ -287,8 +287,8 @@ test('all original presentations use a complete viewport with no legacy topbar',
     ).toBe(true);
   }
   await page.goto('/#lesson/m1', { waitUntil: 'domcontentloaded' });
-  const frame = page.frameLocator('.legacy-viewer iframe');
-  await expect(frame.locator('.slide.active')).toBeVisible();
+  const frame = page.locator('.native-viewer .native-document');
+  await expect(frame.locator(':scope > .inner')).toBeVisible();
   await page.waitForTimeout(250);
   await page.screenshot({ path: 'tests/artifacts/focus-presentation-desktop.png', fullPage: true });
   await page.setViewportSize({ width: 390, height: 844 });
@@ -306,8 +306,8 @@ test('the original arena stays inside the game page and the new app can be insta
   await login(page.request, 'student');
   await page.goto('/#arena', { waitUntil: 'domcontentloaded' });
   await page.getByRole('link', { name: 'Guruh musobaqalari', exact: true }).click();
-  await expect(page.locator('.embedded-arena iframe')).toBeVisible();
-  await expect(page.frameLocator('.embedded-arena iframe').locator('.topbar')).toBeHidden();
+  await expect(page.locator('.native-arena .native-document')).toBeVisible();
+  await expect(page.locator('.native-arena .native-document').locator('.topbar')).toBeHidden();
   await expect(page.locator('.sidebar')).toBeVisible();
   expect(new URL(page.url()).hash).toBe('#arena/live');
   await page.evaluate(() => {
@@ -345,7 +345,7 @@ test('student entry asks for the existing first name, surname and code', async (
     await route.fulfill({ response, body });
   });
   await page.goto('/#login', { waitUntil: 'domcontentloaded' });
-  const frame = page.frameLocator('#student-login');
+  const frame = page.locator('.native-login .native-document');
   await expect(frame.locator('#lgN')).toBeVisible();
   await expect(frame.locator('#lgS')).toBeVisible();
   await expect(frame.locator('#lgB')).toBeVisible();
@@ -380,6 +380,23 @@ test('existing academic points remain visible on the dashboard, profile and acad
       name: 'Ali Valiyev',
       academicPoints: 375.5,
       academicTopics: { m1: { p: 75, b: 4 } },
+      readingHistory: Object.fromEntries(
+        state.lessons
+          .filter((l: any) => l.courseId === 'tad-asoslari')
+          .map((l: any) => [
+            l.id,
+            {
+              seenSlides: l.id === 'm1' ? 12 : 0,
+              totalSlides: l.slideCount,
+              lastSlide: 0,
+              seconds: l.id === 'm1' ? 3000 : 0,
+              correctAnswers: l.id === 'm1' ? 8 : 0,
+              score: l.id === 'm1' ? 75 : 0,
+              grade: l.id === 'm1' ? 4 : 0,
+              status: l.id === 'm1' ? 'started' : 'new',
+            },
+          ]),
+      ),
       classId: 'AP-223',
     };
     await route.fulfill({ response, json: state });
@@ -394,7 +411,9 @@ test('existing academic points remain visible on the dashboard, profile and acad
   await expect(page.locator('.ranking-list')).toContainText('375.5');
   await page.goto('/#profile', { waitUntil: 'domcontentloaded' });
   await expect(page.locator('.academic-summary b')).toHaveText('375.5');
-  await expect(page.locator('.profile-academic-topics')).toContainText('75 ball · Baho: 4');
+  await expect(page.locator('.academic-topic-card')).toHaveCount(15);
+  await expect(page.locator('.academic-topic-card').first()).toContainText('75');
+  await expect(page.locator('.academic-topic-card').first()).toContainText('12 / 18');
 });
 
 test('class chat remains in the new navigation and opens the existing chat interface', async ({
@@ -411,7 +430,7 @@ test('class chat remains in the new navigation and opens the existing chat inter
     await route.fulfill({ response, body });
   });
   await page.goto('/#chat', { waitUntil: 'domcontentloaded' });
-  const frame = page.frameLocator('.embedded-workspace iframe');
+  const frame = page.locator('.native-workspace .native-document');
   await expect(frame.locator('#chPanel')).toBeVisible();
   await expect(frame.locator('.topbar')).toBeHidden();
   await expect(page.locator('.sidebar')).toBeVisible();
@@ -425,7 +444,7 @@ test('standalone copied lesson and game links return to the new application', as
   await page.goto('/legacy/arena.html#/room/ABCD', { waitUntil: 'domcontentloaded' });
   await expect.poll(() => new URL(page.url()).hash).toBe('#arena/live');
   expect(new URL(page.url()).searchParams.get('arena')).toBe('#/room/ABCD');
-  await expect(page.locator('.embedded-arena iframe')).toBeVisible();
+  await expect(page.locator('.native-arena .native-document')).toBeVisible();
 });
 
 test('quota fallback preserves academic points and opens original slides without XP writes', async ({
@@ -459,8 +478,8 @@ test('quota fallback preserves academic points and opens original slides without
   );
   await page.goto('/#course/tad-asoslari');
   await page.locator('.lesson-card').first().click();
-  const frame = page.frameLocator('.legacy-viewer iframe');
-  await expect(frame.locator('.slide.active')).toBeVisible();
+  const frame = page.locator('.native-viewer .native-document');
+  await expect(frame.locator(':scope > .inner')).toBeVisible();
   await page.getByRole('button', { name: 'Next slide', exact: true }).click();
   await expect(page.locator('.reader-navigation')).toContainText('2 / 18');
   expect(writes).toEqual([]);

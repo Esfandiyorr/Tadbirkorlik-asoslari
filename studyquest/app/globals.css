@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@import './native-learning.css';
 @custom-variant dark (&:where(.dark, .dark *));
 :root {
   --page: #f7f8fc;
@@ -2950,14 +2951,6 @@ td .input {
 .auth-form:has(.student-login-frame) > h2 {
   display: none;
 }
-.embedded-arena iframe,
-.embedded-workspace iframe {
-  display: block;
-  width: 100%;
-  height: max(720px, calc(100dvh - 160px));
-  border: 0;
-  border-radius: 18px;
-}
 .academic-table {
   width: 100%;
   overflow: auto;
@@ -3047,19 +3040,4 @@ td .input {
   border-radius: 6px;
   background: var(--surface);
   color: var(--text);
-}
-.profile-academic-topics {
-  margin-bottom: 22px;
-}
-.profile-academic-topics > div {
-  display: flex;
-  justify-content: space-between;
-  gap: 15px;
-  padding: 10px 0;
-  border-bottom: 1px solid var(--border);
-  font-size: 12px;
-}
-.profile-academic-topics b {
-  flex-shrink: 0;
-  color: var(--violet);
 }

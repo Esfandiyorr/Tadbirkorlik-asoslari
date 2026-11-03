@@ -1,5 +1,15 @@
 export type Role = 'student' | 'teacher' | 'admin';
 export type Lang = 'uz' | 'en' | 'ru';
+export type ReadingHistory = {
+  seenSlides: number;
+  totalSlides: number;
+  lastSlide: number;
+  seconds: number;
+  correctAnswers: number;
+  score?: number;
+  grade?: number;
+  status: 'new' | 'started' | 'read';
+};
 export type Actor = {
   id: string;
   uid: string;
@@ -11,6 +21,7 @@ export type Actor = {
   learnerType: 'university' | 'independent';
 };
 export type User = Actor & {
+  readingHistory?: Record<string, ReadingHistory>;
   legacyId?: string;
   legacyStatus?: string;
   academicTopics?: Record<string, Record<string, number>>;

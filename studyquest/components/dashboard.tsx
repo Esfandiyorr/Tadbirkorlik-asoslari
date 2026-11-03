@@ -63,6 +63,10 @@ export function Dashboard() {
     active = [...progress].sort((a, b) => b.updatedAt - a.updatedAt).find((x) => !x.completed),
     lesson =
       d.lessons.find((l) => l.id === active?.lessonId) ||
+      d.lessons.find((l) => u?.readingHistory?.[l.id]?.status === 'started') ||
+      (u?.readingHistory
+        ? d.lessons.find((l) => u.readingHistory?.[l.id]?.status === 'new')
+        : undefined) ||
       d.lessons.find((l) => !done.some((p) => p.lessonId === l.id)) ||
       d.lessons[0],
     pct = next ? ((xp - level.xp) / (next.xp - level.xp)) * 100 : 100;
@@ -209,7 +213,11 @@ export function Dashboard() {
                       : 'Пройдено уроков'}
                 </small>
                 <strong>
-                  {d.limited ? '—' : done.length}
+                  {u?.readingHistory
+                    ? Object.values(u.readingHistory).filter((h) => h.status === 'read').length
+                    : d.limited
+                      ? '—'
+                      : done.length}
                   <em> / {d.lessons.length}</em>
                 </strong>
               </div>
@@ -536,8 +544,10 @@ export function CourseList({ search = '', courseId }: { search?: string; courseI
         <div className="course-grid">
           {courses.map((c, i) => {
             const topics = d.lessons.filter((l) => l.courseId === c.id),
-              completed = topics.filter((l) =>
-                d.progress?.some((p) => p.lessonId === l.id && p.completed),
+              completed = topics.filter(
+                (l) =>
+                  d.user?.readingHistory?.[l.id]?.status === 'read' ||
+                  d.progress?.some((p) => p.lessonId === l.id && p.completed),
               ).length,
               matches = topics.filter((l) => l.title.toLocaleLowerCase().includes(query)).length;
             return (
@@ -556,7 +566,7 @@ export function CourseList({ search = '', courseId }: { search?: string; courseI
                       {lang === 'uz' ? 'ta mavzu' : lang === 'en' ? 'lessons' : 'тем'}
                     </span>
                     <span>
-                      {d.limited ? '—' : completed}/{topics.length}
+                      {d.limited && !d.user?.readingHistory ? '—' : completed}/{topics.length}
                     </span>
                   </p>
                   <ProgressBar value={topics.length ? (completed / topics.length) * 100 : 0} />
@@ -641,7 +651,8 @@ export function CourseList({ search = '', courseId }: { search?: string; courseI
       </div>
       <div className="lesson-grid">
         {list.map((l, i) => {
-          const p = d.progress?.find((x) => x.lessonId === l.id);
+          const p = d.progress?.find((x) => x.lessonId === l.id),
+            history = d.user?.readingHistory?.[l.id];
           return (
             <button key={l.id} className="lesson-card panel" onClick={() => open(l)}>
               <div className={'mini-cover tone-' + (i % 3)}>
@@ -660,9 +671,31 @@ export function CourseList({ search = '', courseId }: { search?: string; courseI
                 {l.slideCount} {lang === 'en' ? 'slides' : lang === 'ru' ? 'слайдов' : 'slayd'}
                 {!d.limited && <> · +{d.settings.rewards.lesson} XP</>}
               </p>
-              <ProgressBar value={p ? (seenCount(p) / l.slideCount) * 100 : 0} />
+              <ProgressBar
+                value={
+                  (Math.max(p ? seenCount(p) : 0, history?.seenSlides || 0) / l.slideCount) * 100
+                }
+              />
+              {history && (
+                <div className="lesson-academic-summary">
+                  <span>
+                    {history.seenSlides} / {history.totalSlides}{' '}
+                    {lang === 'en' ? 'slides' : lang === 'ru' ? 'слайдов' : 'slayd'}
+                  </span>
+                  {d.user?.learnerType === 'university' && (
+                    <b>
+                      {history.score ?? 0}{' '}
+                      {lang === 'en' ? 'points' : lang === 'ru' ? 'баллов' : 'ball'} ·{' '}
+                      {lang === 'en' ? 'Grade' : lang === 'ru' ? 'Оценка' : 'Baho'}:{' '}
+                      {history.grade || '—'}
+                    </b>
+                  )}
+                </div>
+              )}
               <span className="lesson-link">
-                {p ? t(lang, 'continue') : t(lang, 'begin')}
+                {p || (history && history.status !== 'new')
+                  ? t(lang, 'continue')
+                  : t(lang, 'begin')}
                 <ChevronRight size={16} />
               </span>
             </button>
