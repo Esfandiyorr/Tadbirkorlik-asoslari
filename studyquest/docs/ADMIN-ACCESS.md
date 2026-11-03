@@ -107,3 +107,14 @@ original RTDB records regardless of whether that snapshot was run.
 Local tests use isolated fixtures and mocked remote services. They do not read or
 reset production credentials. Real student counts, production owner Google
 sign-in and Vercel rollout must be checked on the configured deployed project.
+
+## Topic availability
+
+Topics 1–7 are available for reading to approved students across all groups.
+Topics 8–15 remain limited by the original administrator-controlled access grants
+and are closed by default without a grant. The owner opens them through
+**Boshqaruv → Kursni boshqarish → Mavzuni guruhlarga ochish**, choosing everyone,
+a group or an individual. Existing explicit grants, weekly scoring windows and
+reading-only transitions are preserved; opening reading access does not reset
+grades or restart assessment deadlines. The source config and embedded configs
+are generated together so the server and original learning engine agree.

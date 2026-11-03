@@ -87,7 +87,8 @@
       "open": true,
       "quiz": 20,
       "slides": 24,
-      "lim": true
+      "lim": true,
+      "read": true
     },
     {
       "id": "m7",
@@ -96,7 +97,8 @@
       "open": true,
       "quiz": 15,
       "slides": 18,
-      "lim": true
+      "lim": true,
+      "read": true
     },
     {
       "id": "m8",

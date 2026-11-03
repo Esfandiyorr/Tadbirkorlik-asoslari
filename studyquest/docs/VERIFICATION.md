@@ -147,3 +147,20 @@ checks guest deep links without ranking requests, signed-in scores across groups
 rejected or missing API sessions before student reads, and ignoring an older
 public-ranking setting. TypeScript and the production build passed. Local tests
 used fixtures only; no live student data or Firebase settings were changed.
+
+## Topics 1–7 reading access (3 November 2026)
+
+Enabled the same open-reading configuration already used for topics 1–5 on
+topics 6 and 7, regenerated every embedded configuration, and retained the
+limited defaults for topics 8–15. All 82 unit/server tests passed. New coverage
+checks all fifteen actual catalog entries against the original engine's access
+functions and the server evaluator: topics 1–7 remain readable even with empty
+restricted-group grants; topics 8–15 are closed without a grant and accept an
+explicit administrator opening. Every embedded presentation configuration
+matches the source configuration. All fifteen original educational main-content
+hashes match their pre-change values; no student data was read or modified.
+The focused native browser journey for all fifteen presentations passed.
+Existing scoring windows and tests are preserved; open reading does not renew
+academic assessment deadlines.
+
+TypeScript, formatting and the production build also passed for this update.
