@@ -91,7 +91,7 @@ it('quota-only legacy administration requires the allowlist or original teacher 
 });
 
 it('administrator-only closure denies other users before any profile or original record read', async () => {
-  vi.stubEnv('PLATFORM_ADMIN_ONLY', 'true');
+  vi.stubEnv('PLATFORM_MAINTENANCE', 'true');
   vi.stubEnv('STUDYQUEST_ADMIN_UIDS', 'owner');
   mocks.verify.mockResolvedValue({ uid: 'other', role: 'admin' });
   await expect(actor(request(), true)).rejects.toMatchObject({ status: 403 });
@@ -99,4 +99,24 @@ it('administrator-only closure denies other users before any profile or original
   expect(mocks.original).not.toHaveBeenCalled();
   mocks.verify.mockResolvedValue({ uid: 'owner' });
   expect(await actor(request(), true)).toMatchObject({ role: 'admin', uid: 'owner' });
+});
+
+it('recognizes the supplied administrator only by a verified email, never by name or unverified claims', async () => {
+  mocks.verify.mockResolvedValue({
+    uid: 'new-owner',
+    name: 'Different display name',
+    email: 'isfandiyor2198@gmail.com',
+    email_verified: true,
+  });
+  expect(await actor(request(), true)).toMatchObject({
+    role: 'admin',
+    name: 'Isfandiyor Sayfiddinov',
+  });
+  mocks.verify.mockResolvedValue({
+    uid: 'imposter',
+    name: 'Isfandiyor Sayfiddinov',
+    email: 'isfandiyor2198@gmail.com',
+    email_verified: false,
+  });
+  expect(await actor(request(), true)).toMatchObject({ role: 'student' });
 });

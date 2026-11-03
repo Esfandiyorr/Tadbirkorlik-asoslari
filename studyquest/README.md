@@ -2,9 +2,12 @@
 
 The new mobile-first TerDU learning environment. All 15 original presentations, quizzes, exercises, PDF/video materials, accounts, academic scores, teacher controls and game data remain available. Existing Realtime Database records remain authoritative and are never deleted or reset. Approved migration creates private linked profile/progress snapshots in Firestore.
 
-The platform is currently restricted to the configured administrator UIDs. See
-[administrator access and student recovery](docs/ADMIN-ACCESS.md) for deployment,
-reopening, the live student roster and password resets.
+The platform is open to students. Existing personal codes are preserved, with
+`1111` available as an additional login method. The overall academic ranking is
+public by default. The verified owner Google account is
+`isfandiyor2198@gmail.com` (Isfandiyor Sayfiddinov). See
+[administrator access and student recovery](docs/ADMIN-ACCESS.md) for runtime
+access controls, the live student roster and password recovery.
 
 ## Run locally
 
@@ -12,7 +15,7 @@ Use Node.js 22 or newer. Run these commands from this folder:
 
 ```bash
 npm ci
-PLATFORM_ADMIN_ONLY=false npm run dev:demo
+npm run dev:demo
 ```
 
 Open http://localhost:3000. The local demo role selector provides separate student, teacher, and administrator accounts. Demo changes are saved in `.studyquest-demo/`; deleting that folder resets only the local demonstration. Demo presentation frames use isolated browser storage and block live Firebase requests. **Demo authentication is disabled in production and on Vercel.**

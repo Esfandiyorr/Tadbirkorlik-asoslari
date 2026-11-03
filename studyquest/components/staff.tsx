@@ -16,6 +16,7 @@ import {
 import { useApp } from './provider';
 import { Button } from './ui/button';
 import { AcademicRoster } from './academic-roster';
+import { PlatformSettings } from './platform-settings';
 import { NativeSurface } from './native-surface';
 import { t } from '@/lib/i18n';
 import type { Data, Lesson, Question, Quiz, Progress, Attempt, Settings } from '@/lib/types';
@@ -172,7 +173,12 @@ export function Staff({ admin = false }: { admin?: boolean }) {
           ['students', L('O‘quvchilar', 'Learners', 'Ученики')],
           ['academic', L('Talabalar va baholar', 'Academic records', 'Студенты и оценки')],
           ['legacy', L('Kursni boshqarish', 'Course controls', 'Управление предметом')],
-          ...(admin ? [['settings', t(lang, 'settings')]] : []),
+          ...(admin
+            ? [
+                ['platform', L('Platforma', 'Platform', 'Платформа')],
+                ['settings', t(lang, 'settings')],
+              ]
+            : []),
         ].map(([id, label]) => (
           <Button
             key={id}
@@ -185,6 +191,7 @@ export function Staff({ admin = false }: { admin?: boolean }) {
         ))}
       </div>
       {tab === 'academic' && <AcademicRoster />}
+      {admin && tab === 'platform' && <PlatformSettings />}
       {tab === 'legacy' && (
         <section className="panel">
           <NativeSurface

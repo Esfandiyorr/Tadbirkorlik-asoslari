@@ -93,6 +93,20 @@ export async function resetStudentPassword(
   );
   const student = await read('students/' + id);
   validStudent(student);
+  if (password === '1111') {
+    await update({
+      ['owners/' + id]: null,
+      ['students/' + id + '/mustChangePassword']: true,
+      ['students/' + id + '/allowInitialCode']: true,
+      ['adminAudit/' + randomUUID()]: {
+        action: 'enableSharedCode',
+        studentId: id,
+        by: actor.uid,
+        at: Date.now(),
+      },
+    });
+    return { ok: true, id };
+  }
   await update({
     ...(await credentialPatch(id, student, password)),
     ['adminAudit/' + randomUUID()]: {
@@ -128,15 +142,21 @@ export async function changeStudentPassword(
   const id = actor.id.slice(7),
     student = await read('students/' + id);
   validStudent(student);
+  const sharedOwner = await read('owners/' + id + '/' + actor.uid);
+  const sharedCurrent =
+    currentPassword === '1111' &&
+    typeof sharedOwner === 'string' &&
+    sharedOwner.startsWith('shared1111:');
   const expected = (await read('keys/' + id)) || student.pk || '';
   const supplied =
     Number(student.authVersion) === 2
       ? await passwordKey(student, currentPassword, String(student.pwSalt || ''))
       : originalPinKey(student.name, student.surname, currentPassword);
   check(
-    typeof expected === 'string' &&
-      expected.length === supplied.length &&
-      timingSafeEqual(Buffer.from(expected), Buffer.from(supplied)),
+    sharedCurrent ||
+      (typeof expected === 'string' &&
+        expected.length === supplied.length &&
+        timingSafeEqual(Buffer.from(expected), Buffer.from(supplied))),
     403,
     'Joriy parol noto‘g‘ri.',
   );
@@ -151,103 +171,15 @@ export async function changeStudentPassword(
   });
   return { ok: true, reauthenticate: true };
 }
-type CredentialStore = {
-  read: (path: string) => Promise<any>;
-  update: (patch: Record<string, unknown>) => Promise<unknown>;
-  transaction: (
-    path: string,
-    fn: (value: any) => any,
-  ) => Promise<{ committed: boolean; snapshot: { val(): any } }>;
-};
-export async function initializeStudentPasswords(
-  actor: Actor,
-  io: CredentialStore = {
-    read: readDefault,
-    update: updateDefault,
-    transaction: async (path: string, fn: (value: any) => any) =>
-      legacyDb().ref(path).transaction(fn),
-  },
-) {
+// Compatibility endpoint for previously deployed clients: never overwrite personal credentials.
+export async function initializeStudentPasswords(actor: Actor, io = { read: readDefault }) {
   administrator(actor);
-  const runId = randomUUID(),
-    now = Date.now();
-  const lock = await io.transaction(credentialSetupPath, (value) => {
-    if (value?.completed || value?.leaseUntil > now) return;
-    return {
-      ...value,
-      runId,
-      leaseUntil: now + 120000,
-      startedAt: value?.startedAt || now,
-      by: actor.uid,
-    };
-  });
-  if (!lock.committed) {
-    const previous = lock.snapshot.val() || {};
-    return {
-      completed: !!previous.completed,
-      students: Number(previous.students || 0),
-      running: !previous.completed,
-    };
-  }
-  try {
-    const source = (await io.read('students')) || {};
-    const entries = Object.entries(source).filter(
-      ([id, s]: [string, any]) =>
-        studentId.safeParse(id).success &&
-        typeof s?.name === 'string' &&
-        s.name &&
-        typeof s.surname === 'string' &&
-        s.status,
-    );
-    for (let start = 0; start < entries.length; start += 50) {
-      const lease = await io.read(credentialSetupPath);
-      check(
-        lease?.runId === runId && lease.leaseUntil > Date.now(),
-        409,
-        'Parollarni sozlash boshqa jarayonda davom etmoqda.',
-      );
-      const patch: Record<string, unknown> = {};
-      const updates = await Promise.all(
-        entries.slice(start, start + 50).map(async ([id]) => {
-          const student = await io.read('students/' + id);
-          if (!student || student.credentialSetupVersion === credentialSetupVersion) return {};
-          validStudent(student);
-          return credentialPatch(id, student, '1111');
-        }),
-      );
-      const currentLease = await io.read(credentialSetupPath);
-      check(
-        currentLease?.runId === runId && currentLease.leaseUntil > Date.now(),
-        409,
-        'Parollarni sozlash boshqa jarayonda davom etmoqda.',
-      );
-      for (const change of updates) Object.assign(patch, change);
-      patch[credentialSetupPath + '/leaseUntil'] = Date.now() + 120000;
-      await io.update(patch);
-    }
-    const result = {
-      completed: true,
-      students: entries.length,
-      completedAt: Date.now(),
-      by: actor.uid,
-      runId,
-    };
-    await io.update({
-      [credentialSetupPath]: result,
-      ['adminAudit/' + randomUUID()]: {
-        action: 'initializeStudentPasswords',
-        students: entries.length,
-        by: actor.uid,
-        at: Date.now(),
-      },
-    });
-    return result;
-  } catch (error) {
-    const lease = await io.read(credentialSetupPath).catch(() => null);
-    if (lease?.runId === runId)
-      await io.update({ [credentialSetupPath + '/leaseUntil']: 0 }).catch(() => {});
-    throw error;
-  }
+  const students = (await io.read('students')) || {};
+  return {
+    completed: true,
+    students: Object.values(students).filter((s: any) => s?.name && s?.surname && s?.status).length,
+    sharedCode: true,
+  };
 }
 export async function deleteStudent(
   actor: Actor,

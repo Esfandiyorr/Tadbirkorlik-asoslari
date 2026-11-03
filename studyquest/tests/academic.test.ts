@@ -170,3 +170,10 @@ it('staff roster includes contact and registration details without exposing cred
   expect(JSON.stringify(roster)).not.toMatch(/NEVER_EXPOSE|DO_NOT_COPY|pwSalt/);
   expect(JSON.stringify(await records.board(admin))).not.toContain('contact@example.test');
 });
+
+it('public academic ranking includes all groups with an explicit four-field allowlist', async () => {
+  const board = await service.publicBoard();
+  expect(board.map((u) => u.classId)).toEqual(['AP-224', 'AP-223']);
+  expect(Object.keys(board[0]).sort()).toEqual(['academicPoints', 'classId', 'id', 'name']);
+  expect(JSON.stringify(board)).not.toMatch(/PRIVATE|email|topics|readingHistory|pwSalt/);
+});

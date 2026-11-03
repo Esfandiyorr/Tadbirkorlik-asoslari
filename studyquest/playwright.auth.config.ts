@@ -19,7 +19,7 @@ export default defineConfig({
     timeout: 120000,
     env: {
       STUDYQUEST_DEMO: 'false',
-      PLATFORM_ADMIN_ONLY: 'false',
+      PLATFORM_MAINTENANCE: 'false',
       NEXT_PUBLIC_FIREBASE_API_KEY: config.fbWeb.apiKey,
       NEXT_PUBLIC_FIREBASE_PROJECT_ID: config.fbWeb.projectId,
       NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: config.fbWeb.authDomain,

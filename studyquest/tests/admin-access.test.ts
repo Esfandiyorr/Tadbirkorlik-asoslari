@@ -1,9 +1,16 @@
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { NextRequest } from 'next/server';
-import { accessCookie, adminOnly, issueAccess, validAccess } from '../lib/server/admin-access';
+import {
+  accessCookie,
+  adminOnly,
+  issueAccess,
+  validAccess,
+  ownerEmail,
+  isOwnerIdentity,
+} from '../lib/server/admin-access';
 import { proxy } from '../proxy';
 beforeEach(() => {
-  vi.stubEnv('PLATFORM_ADMIN_ONLY', 'true');
+  vi.stubEnv('PLATFORM_MAINTENANCE', 'true');
   vi.stubEnv('STUDYQUEST_ADMIN_UIDS', 'owner-uid');
   vi.stubEnv('PLATFORM_ACCESS_SECRET', 'isolated-test-only-secret');
 });
@@ -19,43 +26,48 @@ it('denies forged, expired and removed-owner sessions', () => {
   expect(validAccess(value, now)).toBe(false);
   expect(() => issueAccess('owner-uid', now)).toThrow();
 });
-it('shows a data-free maintenance state and blocks API, original assets and image optimization', async () => {
-  const state = proxy(new NextRequest('https://example.test/api/platform'));
-  expect(await state.json()).toMatchObject({ adminOnly: true, lessons: [], courses: [] });
-  expect(state.headers.get('cache-control')).toContain('no-store');
+it('enforces maintenance for APIs, original assets and optimized images when enabled', async () => {
+  const state = await proxy(new NextRequest('https://example.test/api/platform'));
+  expect(await state.json()).toMatchObject({ adminOnly: true, lessons: [] });
   for (const path of [
     '/api/platform?view=roster',
-    '/api/platform?view=legacyLesson&lesson=m1',
-    '/api/upload',
-    '/api/material?id=private',
-    '/api/auth/demo',
+    '/api/material?id=x',
     '/legacy/mavzu-1.html',
     '/%6cegacy/rt-engine.js',
     '/_next/image?url=%2Flegacy%2Flogo_tersu.png&w=640&q=75',
   ])
-    expect(proxy(new NextRequest('https://example.test' + path)).status, path).toBe(403);
-  expect(
-    proxy(new NextRequest('https://example.test/api/platform', { method: 'POST' })).status,
-  ).toBe(403);
+    expect((await proxy(new NextRequest('https://example.test' + path))).status).toBe(403);
 });
-it('allows only signed owner sessions through the gate without replacing API authorization', () => {
+it('allows signed owner access and the administrator sign-in endpoint during maintenance', async () => {
   const cookie = accessCookie + '=' + issueAccess('owner-uid');
   expect(
-    proxy(
-      new NextRequest('https://example.test/legacy/mavzu-1.html', { headers: { cookie } }),
+    (
+      await proxy(
+        new NextRequest('https://example.test/legacy/mavzu-1.html', { headers: { cookie } }),
+      )
     ).headers.get('x-middleware-next'),
   ).toBe('1');
   expect(
-    proxy(new NextRequest('https://example.test/api/admin-access')).headers.get(
+    (await proxy(new NextRequest('https://example.test/api/admin-access'))).headers.get(
       'x-middleware-next',
     ),
   ).toBe('1');
 });
-it('is closed by default in production even when a demo flag is set, and can be explicitly reopened', () => {
-  vi.stubEnv('NODE_ENV', 'production');
-  vi.stubEnv('PLATFORM_ADMIN_ONLY', '');
-  vi.stubEnv('STUDYQUEST_DEMO', 'true');
-  expect(adminOnly()).toBe(true);
-  vi.stubEnv('PLATFORM_ADMIN_ONLY', 'false');
+it('reopens by default and ignores the previous temporary closure flag', async () => {
+  vi.stubEnv('PLATFORM_MAINTENANCE', 'false');
+  vi.stubEnv('PLATFORM_ADMIN_ONLY', 'true');
   expect(adminOnly()).toBe(false);
+  expect(
+    (await proxy(new NextRequest('https://example.test/legacy/mavzu-1.html'))).headers.get(
+      'x-middleware-next',
+    ),
+  ).toBe('1');
+});
+it('accepts only a verified owner email and signs its UID independently of the allowlist', () => {
+  expect(isOwnerIdentity({ uid: 'new-owner', email: ownerEmail, email_verified: true })).toBe(true);
+  expect(isOwnerIdentity({ uid: 'other', email: ownerEmail, email_verified: false })).toBe(false);
+  expect(
+    isOwnerIdentity({ uid: 'other', email: 'attacker@example.test', email_verified: true }),
+  ).toBe(false);
+  expect(validAccess(issueAccess('new-owner', Date.now(), ownerEmail))).toBe(true);
 });

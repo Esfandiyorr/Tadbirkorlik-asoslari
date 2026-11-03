@@ -16,7 +16,7 @@ export default defineConfig({
     timeout: 120000,
     env: {
       STUDYQUEST_DEMO: 'false',
-      PLATFORM_ADMIN_ONLY: 'true',
+      PLATFORM_MAINTENANCE: 'true',
       STUDYQUEST_ADMIN_UIDS: 'test-owner',
       PLATFORM_ACCESS_SECRET: 'isolated-browser-test-key',
     },

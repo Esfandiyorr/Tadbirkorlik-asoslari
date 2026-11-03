@@ -9,6 +9,7 @@ import { Academic, academicRecord } from '@/lib/server/academic';
 import { course, modules, lessons, quiz, settings, badges, catalog } from '@/lib/seed';
 import { quotaExceeded } from '@/lib/server/quota';
 import { limitedCatalog } from '@/lib/server/limited';
+import { sitePolicy, clearPolicyCache, normalizePolicy } from '@/lib/server/site-policy';
 import {
   resetStudentPassword,
   changeStudentPassword,
@@ -29,6 +30,37 @@ async function deletedStudentIds() {
 }
 export async function GET(req: NextRequest) {
   try {
+    if (req.nextUrl.searchParams.get('view') === 'siteSettings') {
+      const a = await actor(req, true);
+      administrator(a);
+      return NextResponse.json(
+        normalizePolicy(demo() ? null : (await legacyDb().ref('meta/platformPolicy').get()).val()),
+        { headers: { 'Cache-Control': 'private, no-store' } },
+      );
+    }
+    if (req.nextUrl.searchParams.get('view') === 'academic') {
+      if (demo())
+        return NextResponse.json({
+          leaderboard: (await (await repository()).list('users'))
+            .filter((u) => u.role === 'student' && u.learnerType === 'university' && !u.blocked)
+            .map((u) => ({
+              id: u.id,
+              name: u.name,
+              classId: u.classId,
+              academicPoints: u.academicPoints || 0,
+            }))
+            .sort((a, b) => b.academicPoints - a.academicPoints),
+        });
+      const policy = await sitePolicy();
+      if (policy.maintenance) {
+        const a = await actor(req, true);
+        administrator(a);
+      } else if (!policy.publicLeaderboard) await actor(req, true);
+      return NextResponse.json(
+        { leaderboard: await new Academic(await repository()).publicBoard() },
+        { headers: { 'Cache-Control': 'no-store' } },
+      );
+    }
     // Existing presentations retain the original RTDB group/access checks and
     // remain available without a Firestore profile or an XP write.
     if (req.nextUrl.searchParams.get('view') === 'legacyLesson') {
@@ -56,14 +88,6 @@ export async function GET(req: NextRequest) {
       hasSession = req.cookies.has('sq-demo') || !!req.headers.get('authorization');
     if (!hasSession) return NextResponse.json({ ...(await service.publicData()), mode });
     const a = await actor(req);
-    if (req.nextUrl.searchParams.get('view') === 'academic')
-      return NextResponse.json({
-        leaderboard: demo()
-          ? (await (await repository()).list('users'))
-              .filter((u) => u.role === 'student' && u.learnerType === 'university')
-              .map((u) => ({ ...u, academicPoints: u.academicPoints || 0 }))
-          : await new Academic(await repository()).board(a),
-      });
     if (req.nextUrl.searchParams.get('view') === 'roster') {
       staff(a);
       return NextResponse.json({
@@ -144,7 +168,7 @@ export async function GET(req: NextRequest) {
     if (
       quotaExceeded(e) &&
       !demo() &&
-      !['academic', 'roster', 'leaderboard', 'legacyLesson'].includes(
+      !['academic', 'roster', 'leaderboard', 'legacyLesson', 'siteSettings'].includes(
         req.nextUrl.searchParams.get('view') || '',
       )
     ) {
@@ -174,6 +198,22 @@ export async function POST(req: NextRequest) {
     const input = await req.text();
     check(input.length < 128000, 413, 'So‘rov juda katta');
     const p = z.object({ action: z.string().max(40), input: z.unknown() }).parse(JSON.parse(input));
+    if (p.action === 'siteSettings') {
+      const a = await actor(req, true);
+      administrator(a);
+      check(!demo(), 409, 'Demo sozlamalari jonli bazani o‘zgartirmaydi.');
+      const policy = z
+        .object({
+          maintenance: z.boolean(),
+          publicLeaderboard: z.boolean(),
+          allowInitialCode: z.boolean(),
+        })
+        .strict()
+        .parse(p.input);
+      await legacyDb().ref('meta/platformPolicy').set(policy);
+      clearPolicyCache();
+      return NextResponse.json({ ok: true });
+    }
     if (p.action === 'legacyChangePassword') {
       const a = await actor(req, true);
       check(!demo(), 409, 'Demo muhit jonli parollarni o‘zgartirmaydi.');

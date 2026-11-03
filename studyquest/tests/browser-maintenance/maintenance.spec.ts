@@ -101,6 +101,10 @@ test('administrator finds original students, views fifteen histories and resets 
       if (body.action === 'legacyDeleteStudent') deleted = true;
       return route.fulfill({ json: { ok: true } });
     }
+    if (new URL(route.request().url()).searchParams.get('view') === 'siteSettings')
+      return route.fulfill({
+        json: { maintenance: false, publicLeaderboard: true, allowInitialCode: true },
+      });
     if (new URL(route.request().url()).searchParams.get('view') === 'roster')
       return route.fulfill({ json: { users: deleted ? [] : [student] } });
     return route.fulfill({
@@ -145,9 +149,7 @@ test('administrator finds original students, views fifteen histories and resets 
     input: { id: 'alice', password: 'NewPassword-123' },
   });
   await expect(row).toContainText('375.5');
-  await expect(page.locator('.credential-setup')).toContainText(
-    'Shaxsiy parollar qayta almashtirilmaydi',
-  );
+  await expect(page.locator('.credential-setup')).toContainText('Avvalgi shaxsiy kodlar saqlanadi');
   await page.screenshot({ path: 'tests/artifacts/admin-student-roster.png', fullPage: true });
   await row.getByRole('button', { name: 'Talabani o‘chirish', exact: true }).click();
   const removal = page.getByRole('dialog', { name: 'Talabani o‘chirish', exact: true });
@@ -163,4 +165,15 @@ test('administrator finds original students, views fifteen histories and resets 
     action: 'legacyDeleteStudent',
     input: { id: 'alice', confirmation: 'Ali Valiyev' },
   });
+  await page.getByRole('button', { name: 'Platforma', exact: true }).click();
+  const publish = page.getByLabel('Umumiy akademik reytingni hammaga ko‘rsatish', { exact: true });
+  await expect(publish).toBeChecked();
+  await publish.uncheck();
+  await page.getByRole('button', { name: 'Sozlamalarni saqlash', exact: true }).click();
+  await expect
+    .poll(() => reset)
+    .toEqual({
+      action: 'siteSettings',
+      input: { maintenance: false, publicLeaderboard: false, allowInitialCode: true },
+    });
 });

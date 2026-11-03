@@ -65,7 +65,6 @@ export function Provider({
     setTimeout(() => setMessage(''), 4500);
   }, []);
   const receivedSession = useRef('');
-  const credentialInitialization = useRef('');
   const ownerAccess = useRef({ token: '', until: 0 });
   const accessPending = useRef<Promise<void> | null>(null);
   const refreshVersion = useRef(0);
@@ -251,33 +250,6 @@ export function Provider({
     window.addEventListener('message', f);
     return () => window.removeEventListener('message', f);
   }, [refresh]);
-  useEffect(() => {
-    if (
-      data?.mode !== 'firebase' ||
-      data.user?.role !== 'admin' ||
-      credentialInitialization.current === data.user.id
-    )
-      return;
-    credentialInitialization.current = data.user.id;
-    const administratorId = data.user.id;
-    void request('/api/platform', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'initializeStudentPasswords', input: {} }),
-    })
-      .then(async (response) => {
-        const result = await response.json();
-        if (!response.ok) throw Error(result.error);
-        if (typeof result.completed === 'boolean') {
-          setData((d) =>
-            d?.user?.id === administratorId ? { ...d, studentPasswordSetup: result } : d,
-          );
-          if (result.completed)
-            toast(result.students + ' ta hisob uchun boshlang‘ich parollar tayyor.');
-        }
-      })
-      .catch((error) => toast(error.message));
-  }, [data?.mode, data?.user?.id, data?.user?.role, request, toast]);
   useEffect(() => {
     // Stored names alone are not proof of a successful sign-in.
     // Keep the form open until the server accepts the account and ownership token.

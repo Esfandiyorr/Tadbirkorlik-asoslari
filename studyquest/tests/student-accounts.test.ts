@@ -63,43 +63,9 @@ it('matches the actual original login hash for 1111', () => {
     vm.runInContext("pkey('Ali','Valiyev','1111')", context),
   );
 });
-it('initializes the cohort once, preserves scores/status, and never resets a changed personal password', async () => {
-  const db = database({
-    alice,
-    bob: { ...alice, name: 'Bobur', status: 'blocked' },
-    staff: { name: 'Staff', role: 'teacher' },
-  });
-  const result = await initializeStudentPasswords(admin, db);
-  expect(result).toMatchObject({ completed: true, students: 2 });
-  expect(db.root.keys.alice).toBe(originalPinKey('Ali', 'Valiyev', '1111'));
-  expect(db.root.students.alice).toMatchObject({
-    total: 375.5,
-    mustChangePassword: true,
-    credentialSetupVersion,
-    authVersion: 1,
-  });
-  expect(db.root.students.alice.prog).toEqual(alice.prog);
-  expect(db.root.students.bob.status).toBe('blocked');
-  expect(db.root.students.staff.authVersion).toBeUndefined();
-  expect(db.root.owners.alice).toBeUndefined();
-  await changeStudentPassword(
-    student,
-    { currentPassword: '1111', newPassword: 'Personal-Password-123' },
-    db.read,
-    db.update,
-  );
-  const changed = db.root.keys.alice;
-  expect(changed).toMatch(/^p2:/);
-  expect(db.root.students.alice.mustChangePassword).toBe(false);
-  const writes = db.update.mock.calls.length;
-  await initializeStudentPasswords(admin, db);
-  expect(db.root.keys.alice).toBe(changed);
-  expect(db.update).toHaveBeenCalledTimes(writes);
-  expect(db.root.students.alice.total).toBe(375.5);
-});
 it('refuses wrong current passwords and another student ID in personal password input', async () => {
   const db = database({ alice });
-  await initializeStudentPasswords(admin, db);
+  db.root.keys.alice = originalPinKey('Ali', 'Valiyev', '1111');
   const writes = db.update.mock.calls.length;
   await expect(
     changeStudentPassword(
@@ -130,7 +96,7 @@ it('refuses wrong current passwords and another student ID in personal password 
 it('administrator can reset to 1111 and archive-delete a selected account with exact confirmation', async () => {
   const db = database({ alice });
   await resetStudentPassword(admin, { id: 'alice', password: '1111' }, db.read, db.update);
-  expect(db.root.keys.alice).toBe(originalPinKey('Ali', 'Valiyev', '1111'));
+  expect(db.root.keys.alice).toBe('old-key');
   await expect(
     deleteStudent(student, { id: 'alice', confirmation: 'Ali Valiyev' }, db.read, db.update),
   ).rejects.toMatchObject({ status: 403 });
@@ -147,37 +113,4 @@ it('administrator can reset to 1111 and archive-delete a selected account with e
   expect(archive.record.prog).toEqual(alice.prog);
   expect(archive.record.pk).toBeUndefined();
   expect(archive.record.pwSalt).toBeUndefined();
-});
-it('resumes an interrupted cohort job without resetting completed students or taking an active lease', async () => {
-  const records = Object.fromEntries(
-    Array.from({ length: 51 }, (_, i) => ['s' + i, { ...alice, name: 'Student' + i }]),
-  );
-  const db = database(records),
-    update = db.update;
-  let batches = 0;
-  const failing = async (patch: Record<string, unknown>) => {
-    if (++batches === 2) throw Error('interrupted');
-    await update(patch);
-  };
-  await expect(initializeStudentPasswords(admin, { ...db, update: failing })).rejects.toThrow(
-    'interrupted',
-  );
-  expect(db.root.students.s0.credentialSetupVersion).toBe(credentialSetupVersion);
-  await changeStudentPassword(
-    { ...student, id: 'legacy_s0' },
-    { currentPassword: '1111', newPassword: 'Already-Changed-123' },
-    db.read,
-    db.update,
-  );
-  const personalKey = db.root.keys.s0;
-  await initializeStudentPasswords(admin, db);
-  expect(db.root.keys.s0).toBe(personalKey);
-  expect((await db.read(credentialSetupPath)).completed).toBe(true);
-  const busy = database({ alice });
-  await busy.update({ [credentialSetupPath]: { leaseUntil: Date.now() + 120000, runId: 'other' } });
-  expect(await initializeStudentPasswords(admin, busy)).toMatchObject({
-    running: true,
-    completed: false,
-  });
-  expect(busy.root.keys.alice).toBe('old-key');
 });

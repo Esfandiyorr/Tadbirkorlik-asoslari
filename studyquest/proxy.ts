@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { accessCookie, adminOnly, maintenanceData, validAccess } from './lib/server/admin-access';
-export function proxy(req: NextRequest) {
-  if (!adminOnly()) return NextResponse.next();
+import { accessCookie, maintenanceData, validAccess } from './lib/server/admin-access';
+import { sitePolicy } from './lib/server/site-policy';
+export async function proxy(req: NextRequest) {
+  if (!(await sitePolicy()).maintenance) return NextResponse.next();
   let path: string;
   try {
     path = decodeURIComponent(req.nextUrl.pathname).replace(/\\/g, '/').replace(/\/+/g, '/');

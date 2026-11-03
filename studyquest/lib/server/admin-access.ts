@@ -7,24 +7,32 @@ export const ownerUids = () =>
     .split(',')
     .map((v) => v.trim())
     .filter(Boolean);
-export function adminOnly() {
-  if (process.env.PLATFORM_ADMIN_ONLY === 'false') return false;
-  if (process.env.PLATFORM_ADMIN_ONLY === 'true') return true;
+export const ownerEmail = 'isfandiyor2198@gmail.com';
+export const ownerName = 'Isfandiyor Sayfiddinov';
+export function isOwnerIdentity(identity: {
+  uid: string;
+  email?: string;
+  email_verified?: boolean;
+}) {
   return (
-    process.env.NODE_ENV !== 'test' &&
-    !(
-      process.env.STUDYQUEST_DEMO === 'true' &&
-      process.env.NODE_ENV !== 'production' &&
-      !process.env.VERCEL
-    )
+    ownerUids().includes(identity.uid) ||
+    (identity.email_verified === true && identity.email?.trim().toLowerCase() === ownerEmail)
   );
 }
+export function adminOnly() {
+  return process.env.PLATFORM_MAINTENANCE === 'true';
+}
 const secret = () => process.env.PLATFORM_ACCESS_SECRET || process.env.FIREBASE_PRIVATE_KEY || '';
-export function issueAccess(uid: string, now = Date.now()) {
-  if (!secret() || !ownerUids().includes(uid)) throw Error('Administrator kirishi sozlanmagan.');
-  const payload = Buffer.from(JSON.stringify({ uid, exp: now + accessLifetime * 1000 })).toString(
-    'base64url',
-  );
+export function issueAccess(uid: string, now = Date.now(), email?: string) {
+  if (!secret() || (!ownerUids().includes(uid) && email !== ownerEmail))
+    throw Error('Administrator kirishi sozlanmagan.');
+  const payload = Buffer.from(
+    JSON.stringify({
+      uid,
+      ...(email === ownerEmail ? { email } : {}),
+      exp: now + accessLifetime * 1000,
+    }),
+  ).toString('base64url');
   return payload + '.' + createHmac('sha256', secret()).update(payload).digest('hex');
 }
 export function validAccess(value: string | undefined, now = Date.now()) {
@@ -36,7 +44,7 @@ export function validAccess(value: string | undefined, now = Date.now()) {
     if (!timingSafeEqual(expected, Buffer.from(sig, 'hex'))) return false;
     const data = JSON.parse(Buffer.from(payload, 'base64url').toString());
     return (
-      ownerUids().includes(data.uid) &&
+      (ownerUids().includes(data.uid) || data.email === ownerEmail) &&
       Number.isFinite(data.exp) &&
       data.exp > now &&
       data.exp <= now + accessLifetime * 1000

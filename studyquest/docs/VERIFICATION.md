@@ -95,3 +95,40 @@ matches the original catalog project. An explicit FIREBASE_DATABASE_URL always
 wins; an unrelated project never inherits the original database URL. This avoids
 requiring an extra URL setting for the existing project while preserving project
 separation. No live database credentials are present in local verification.
+
+## Reopening, preserved codes and overall ranking (3 November 2026)
+
+This release supersedes the temporary closure and automatic password setup
+recorded above. Access is now open by default; stored personal keys are kept and
+`1111` is a separate authorized session path. The old initialization endpoint
+is non-destructive, and the client no longer calls it. Password hashes already
+lost under an earlier live reset cannot be recovered by this code change.
+
+All 78 unit/server tests passed, including verified owner-email authorization,
+student access negotiation while open, owner-cookie issuance before closing,
+scoped anonymous common-code grants, revoked-session rejection, unchanged
+personal credentials/scores, emergency policy override, policy cache/failure
+handling, public minimal academic ranking independent of Firestore quota, and
+administrator-only settings writes. TypeScript, formatting and the production
+build passed. Production loopback smoke verified the 15-topic single-course
+catalog and original lesson remain accessible despite the retired closure flag;
+unconfigured login and anonymous settings writes fail instead of fabricating
+successful authentication. An initial smoke assertion used an incorrect bridge
+marker; checking the actual preserved lesson title passed.
+
+Twelve authentication browser journeys passed with mocked remote services,
+including public ranking for guests across groups, original personal-code
+verification, common-code entry with preserved points, password changes,
+registration and duplicate-name account choice. Three maintenance/admin browser
+journeys passed, including protected material paths, signed owner access,
+roster/topic history, reset, confirmed deletion and the new platform settings
+form. Tests never log in to live Firebase or modify live student records.
+
+All 20 existing platform/native browser journeys also passed in one complete
+run (5.2 minutes), including traversal of every slide in all fifteen topics,
+mobile/desktop viewports, teacher editing, meaningful completion/duplicate XP,
+chat, Arena, install flow and quota-limited academic results. Combined with the
+twelve authentication and three maintenance journeys, 35 browser checks passed.
+No original root lesson source or resource data was modified by this release.
+The deployed Firebase/Google exchange and live Vercel rollout remain unverified
+locally; the production smoke ran only on loopback without service credentials.

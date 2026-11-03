@@ -12,7 +12,7 @@ const req = (origin = 'https://example.test') =>
     headers: { origin, authorization: 'Bearer valid-token' },
   });
 beforeEach(() => {
-  vi.stubEnv('PLATFORM_ADMIN_ONLY', 'true');
+  vi.stubEnv('PLATFORM_MAINTENANCE', 'true');
   vi.stubEnv('STUDYQUEST_ADMIN_UIDS', 'owner');
   vi.stubEnv('PLATFORM_ACCESS_SECRET', 'test-only-signing-key');
   mocks.verify.mockResolvedValue({ uid: 'owner' });
@@ -31,4 +31,25 @@ it('rejects non-owner role claims, invalid sessions and cross-origin requests', 
   mocks.verify.mockRejectedValue(new Error('revoked'));
   expect((await POST(req())).status).toBe(401);
   expect((await POST(req('https://attacker.test'))).status).toBe(403);
+});
+it('allows verified students through the access handshake when reopened without an owner cookie', async () => {
+  vi.stubEnv('PLATFORM_MAINTENANCE', 'false');
+  vi.stubEnv('PLATFORM_ADMIN_ONLY', 'true');
+  mocks.verify.mockResolvedValue({ uid: 'student' });
+  const response = await POST(req());
+  expect(response.status).toBe(200);
+  expect(await response.json()).toEqual({ restricted: false });
+  expect(response.headers.get('set-cookie')).toBeNull();
+});
+it('issues the verified email owner a cookie while open so closing access does not lock them out', async () => {
+  vi.stubEnv('PLATFORM_MAINTENANCE', 'false');
+  vi.stubEnv('STUDYQUEST_ADMIN_UIDS', '');
+  mocks.verify.mockResolvedValue({
+    uid: 'email-owner',
+    email: 'isfandiyor2198@gmail.com',
+    email_verified: true,
+  });
+  const response = await POST(req());
+  expect(response.status).toBe(200);
+  expect(response.headers.get('set-cookie')).toContain('HttpOnly');
 });

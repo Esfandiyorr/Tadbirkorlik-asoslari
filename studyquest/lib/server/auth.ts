@@ -4,7 +4,8 @@ import { NextRequest } from 'next/server';
 import { authAdmin, legacyDb, repository, demo, configured } from './repository';
 import { catalog, demoUsers } from '../seed';
 import type { Actor, User } from '../types';
-import { adminOnly, ownerUids } from './admin-access';
+import { isOwnerIdentity, ownerName } from './admin-access';
+import { sitePolicy } from './site-policy';
 export class ApiError extends Error {
   constructor(
     public status: number,
@@ -71,7 +72,7 @@ export async function actor(req: NextRequest, readOnly = false): Promise<Actor> 
     throw new ApiError(401, 'Seans tugagan. Qayta kiring.');
   }
   check(
-    !adminOnly() || ownerUids().includes(decoded.uid),
+    !(await sitePolicy()).maintenance || isOwnerIdentity(decoded),
     403,
     'Platforma vaqtincha faqat administrator uchun ochiq.',
   );
@@ -103,15 +104,15 @@ export async function actor(req: NextRequest, readOnly = false): Promise<Actor> 
     learnerType = s.learnerType === 'independent' ? 'independent' : 'university';
   }
   const stored = readOnly ? null : await repo.get('users', id);
-  check(!stored?.blocked, 403, 'Hisob bloklangan');
-  const admins = (process.env.STUDYQUEST_ADMIN_UIDS || '').split(',').map((x) => x.trim());
+  check(!stored?.blocked || isOwnerIdentity(decoded), 403, 'Hisob bloklangan');
+  const owner = isOwnerIdentity(decoded);
   const emailTeacher =
     decoded.email_verified &&
     crypto
       .createHash('sha256')
       .update((decoded.email || '').toLowerCase())
       .digest('hex') === catalog.teacherH;
-  const role = admins.includes(decoded.uid)
+  const role = owner
     ? 'admin'
     : stored?.role ||
       (!readOnly && decoded.role === 'admin'
@@ -122,7 +123,7 @@ export async function actor(req: NextRequest, readOnly = false): Promise<Actor> 
   const u: User = {
     id,
     uid: decoded.uid,
-    name: stored?.name || name,
+    name: owner && decoded.email_verified === true ? ownerName : stored?.name || name,
     email: decoded.email,
     classId: legacyId ? classId : stored?.classId || classId,
     learnerType: legacyId ? learnerType : stored?.learnerType || learnerType,
@@ -139,7 +140,8 @@ export async function actor(req: NextRequest, readOnly = false): Promise<Actor> 
       stored.role !== role ||
       stored.classId !== u.classId ||
       stored.learnerType !== u.learnerType ||
-      stored.authLinkedUid !== decoded.uid)
+      stored.authLinkedUid !== decoded.uid ||
+      (owner && stored.name !== u.name))
   )
     await repo.transaction(async (tx) => {
       const current = await tx.get('users', id);
@@ -148,6 +150,7 @@ export async function actor(req: NextRequest, readOnly = false): Promise<Actor> 
         ...current,
         uid: decoded.uid,
         role,
+        name: u.name,
         classId: u.classId,
         learnerType: u.learnerType,
         authLinkedUid: decoded.uid,

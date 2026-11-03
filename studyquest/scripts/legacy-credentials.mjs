@@ -17,8 +17,20 @@ export function adaptStudentRegistration(source) {
       }
     }else if(choose){choose.parentElement.remove();}
   `;
+  const sharedLogin = `
+      if(password==="1111"&&cand.length===1){
+        var candidate=cand[0];saToken(true,function(token){if(!token){cb(null);return;}
+          fetch("/api/student-login",{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+token},body:JSON.stringify({id:candidate.id,name:n,surname:sn,password:"1111"})})
+          .then(function(response){if(!response.ok)throw 0;SEC=true;cb(candidate,"shared1111");}).catch(function(){cb(null);});
+        });return;
+      }
+  `;
   const patches = [
-    [names, names + choice],
+    [
+      'function claimOwn(id,pk,cb){',
+      'function claimOwn(id,pk,cb){ if(pk==="shared1111"){ saToken(true,function(token){ if(!token){cb(false);return;} fetch("/api/student-login",{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+token},body:JSON.stringify({id:id,session:true})}).then(function(response){SEC=response.ok;cb(response.ok);}).catch(function(){cb(false);}); });return; }',
+    ],
+    [names, names + choice + sharedLogin],
     [
       'password=document.getElementById("rtB").value,selectedType=regType;',
       'password="1111",selectedType=regType;',

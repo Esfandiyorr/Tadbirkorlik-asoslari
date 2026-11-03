@@ -142,10 +142,11 @@ export function StudyQuest() {
         <AuthPanel />
       );
   else if (view === 'badges') content = <Badges />;
-  else if (view === 'ranking') content = user ? <Leaderboard /> : <AuthPanel />;
+  else if (view === 'ranking') content = <Leaderboard />;
   else if (mainView === 'arena') content = <Games live={id === 'live'} />;
-  else if (view === 'teacher') content = user ? <Staff /> : <AuthPanel />;
-  else if (view === 'admin') content = user ? <Staff admin /> : <AuthPanel />;
+  else if (view === 'teacher')
+    content = role === 'teacher' || role === 'admin' ? <Staff /> : <AuthPanel />;
+  else if (view === 'admin') content = role === 'admin' ? <Staff admin /> : <AuthPanel />;
   else if (view === 'app')
     content = <InstallApp prompt={install} onInstalled={() => setInstall(null)} />;
   else if (view === 'profile')
@@ -415,13 +416,14 @@ function Profile() {
               onChange={(e) => setName(e.target.value)}
             />
           </label>
+          <p className="muted">Umumiy akademik reytingda ism-familiya, guruh va ball ko‘rinadi.</p>
           <label className="checkbox-label">
             <input
               type="checkbox"
               checked={visible}
               onChange={(e) => setVisible(e.target.checked)}
             />
-            {t(lang, 'privacy')}
+            {lang === 'uz' ? 'Platforma XP reytingida ko‘rinish' : t(lang, 'privacy')}
           </label>
           <p className="muted">
             {u?.learnerType === 'independent'

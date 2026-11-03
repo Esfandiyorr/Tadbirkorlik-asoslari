@@ -149,6 +149,28 @@ export class Academic {
       )
       .sort((a, b) => b.academicPoints - a.academicPoints || a.name.localeCompare(b.name));
   }
+  async publicBoard() {
+    const source = (await this.read('students')) || {};
+    return Object.entries(source)
+      .filter(
+        ([id, s]: [string, any]) =>
+          /^[a-zA-Z0-9_-]{1,100}$/.test(id) &&
+          s?.name &&
+          s.status === 'ok' &&
+          s.learnerType !== 'independent' &&
+          s.leaderboardVisible !== false,
+      )
+      .map(([id, s]: [string, any]) => ({
+        id: 'legacy_' + id,
+        name: [s.name, s.surname]
+          .filter((v) => typeof v === 'string')
+          .join(' ')
+          .slice(0, 200),
+        classId: String(s.group || '').slice(0, 100),
+        academicPoints: number(s.total),
+      }))
+      .sort((a, b) => b.academicPoints - a.academicPoints || a.name.localeCompare(b.name));
+  }
   async sync(a: Actor) {
     administrator(a);
     const source = (await this.read('students')) || {};

@@ -20,7 +20,7 @@ This command changes live rules. It is a documented deployment step, not part of
 
 ## 2. Initial administrator
 
-Create/sign in to a Firebase Authentication account. Copy its UID from Firebase Console. Set `STUDYQUEST_ADMIN_UIDS` to that UID on the server; multiple UIDs may be comma-separated. This is the simplest initial bootstrap.
+Sign in through Google with the verified owner email `isfandiyor2198@gmail.com`. The server assigns this identity the administrator role and displays Isfandiyor Sayfiddinov. Entering this name or email into a student form grants no privileges. `STUDYQUEST_ADMIN_UIDS` remains an optional server-side UID allowlist for additional owner accounts; multiple UIDs may be comma-separated.
 
 Alternatively, run the included bootstrap script in a securely configured shell:
 
@@ -65,26 +65,35 @@ Original Pages routes redirect to `https://tadbirkorlik-asoslari.vercel.app/`. C
 
 `8 RESOURCE_EXHAUSTED: Quota exceeded` is a Firestore service limit, not an incorrect Google password. Check Firestore → Usage and the relevant Google Cloud quotas to identify whether reads, writes, or another limit was reached. Daily free quotas reset on Firebase's schedule; changing code does not restore an exhausted quota. A paid billing plan is a separate owner decision and is not required or enabled by these fixes.
 
-The server backs off Firestore requests for sixty seconds per instance after a quota failure. The app serves only the existing repository course catalog in limited mode, verifies Google tokens and original RTDB student ownership/status without a Firestore write, and preserves live original academic totals and all fifteen per-topic histories. Separately reverified staff can still read the original academic roster and update its existing status/class/manual marks; Firestore custom role claims alone cannot grant this limited-mode access. The limited lesson endpoint checks original group/access permissions before returning an original presentation. XP, streak and new completion values that cannot be loaded are shown as unavailable; no temporary balances or demo students are written. New XP, private uploads, new quizzes and Firestore management operations return a retryable 503. Rankings fail closed if their Firestore privacy data cannot be loaded.
+The server backs off Firestore requests for sixty seconds per instance after a quota failure. The app serves only the existing repository course catalog in limited mode, verifies Google tokens and original RTDB student ownership/status without a Firestore write, and preserves live original academic totals and all fifteen per-topic histories. Separately reverified staff can still read the original academic roster and update its existing status/class/manual marks; Firestore custom role claims alone cannot grant this limited-mode access. The limited lesson endpoint checks original group/access permissions before returning an original presentation. XP, streak and new completion values that cannot be loaded are shown as unavailable; no temporary balances or demo students are written. New XP, private uploads, new quizzes and Firestore management operations return a retryable 503. Private XP rankings fail closed if their Firestore privacy data cannot be loaded. The public overall academic ranking uses original RTDB scores and an explicit minimal field allowlist, independently of Firestore.
 
 After the quota is available again, refresh the site to return to the full platform. Bulk migration is manual, and unchanged student snapshots are skipped on retries. No old accounts, original grades or learning materials are reset by this fallback.
 
-## Current temporary closure
+## Public access and runtime controls
 
-Access is restricted to `STUDYQUEST_ADMIN_UIDS` by default. This uses the existing
-Vercel Firebase configuration and does not require a new key for standard
-service-account deployments. Google sign-in on the maintenance page remains
-available. All legacy materials and API operations pass the server gate.
-Set `PLATFORM_ADMIN_ONLY=false` and redeploy only when reopening is intended.
-See [administrator access and student recovery](ADMIN-ACCESS.md). Existing
-Firestore quota limitations are unchanged; the live academic roster and password
-recovery use the original RTDB and remain available independently.
+The platform now defaults to open access, public overall academic ranking, and
+`1111` as an additional login method alongside stored personal codes. Previous
+`PLATFORM_ADMIN_ONLY` environment values are ignored. This release does not
+perform a bulk password reset. Students use the new Vercel address, or the old
+Pages link that redirects there. Existing account approval, blocked status and
+lesson/group restrictions still apply.
 
-On the first administrator visit after the initial-password deployment, an
-authenticated POST initializes existing students to 1111 exactly once. Check the
-reported count in **Talabalar va baholar**; incomplete work can be resumed there.
-New registrations receive the same initial code. Students can later set their own
-password in Profile. This does not reopen the administrator-only closure.
+The verified owner opens **Boshqaruv → Platforma** to change maintenance access,
+public academic ranking visibility, and common-code login. Settings are saved in
+`meta/platformPolicy` in the original RTDB, without a Firestore write or redeploy.
+Policy checks cache values for up to five seconds per server instance. The proxy
+reads only these public nonsecret booleans using the existing RTDB metadata read
+permission. Previously cached policy is retained on a read failure; a cold
+instance without available metadata falls back to the public defaults. Role and
+student ownership checks continue independently. Runtime maintenance is an
+availability control, not a substitute for authorization or private storage.
+
+`PLATFORM_MAINTENANCE=true` is an optional server emergency closure, overriding
+the runtime switch and requiring a redeploy when changed. Remove it or set it
+false for the administrator switch to reopen the site. Existing Firebase key
+configuration signs the HTTP-only owner cookie. Owner access is verified even
+while open so enabling maintenance does not require a new sign-in immediately.
+
 FIREBASE_DATABASE_URL is optional for the matching original Firebase project:
 the catalog's original URL is used as a fallback. Other projects require their own
-explicit database URL.
+explicit database URL. See [administrator access and recovery](ADMIN-ACCESS.md).

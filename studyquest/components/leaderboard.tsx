@@ -12,9 +12,7 @@ export function Leaderboard() {
     [rows, setRows] = useState<Entry[]>([]),
     [loading, setLoading] = useState(true),
     [error, setError] = useState('');
-  const [kind, setKind] = useState(
-      data?.user?.role === 'student' && data.user.learnerType === 'independent' ? 'xp' : 'academic',
-    ),
+  const [kind, setKind] = useState('academic'),
     [group, setGroup] = useState('');
   useEffect(() => {
     let live = true;
@@ -52,19 +50,18 @@ export function Leaderboard() {
       <div className="page-heading">
         <div>
           <span className="eyebrow">GROW TOGETHER</span>
-          <h1>{t(lang, 'ranking')}</h1>
+          <h1>{lang === 'uz' ? 'Umumiy reyting' : t(lang, 'ranking')}</h1>
           <p>
-            {data?.user?.classId ||
-              (lang === 'uz'
-                ? 'Universitet talabalari'
-                : lang === 'ru'
-                  ? 'Студенты университета'
-                  : 'University students')}
+            {lang === 'uz'
+              ? 'Universitet talabalari'
+              : lang === 'ru'
+                ? 'Студенты университета'
+                : 'University students'}
           </p>
         </div>
       </div>
       <div className="filter-row">
-        {!(data?.user?.role === 'student' && data.user.learnerType === 'independent') && (
+        {
           <Button
             variant={kind === 'academic' ? 'default' : 'outline'}
             onClick={() => setKind('academic')}
@@ -75,10 +72,12 @@ export function Leaderboard() {
                 ? 'Academic points'
                 : 'Академические баллы'}
           </Button>
+        }
+        {data?.user && (
+          <Button variant={kind === 'xp' ? 'default' : 'outline'} onClick={() => setKind('xp')}>
+            XP
+          </Button>
         )}
-        <Button variant={kind === 'xp' ? 'default' : 'outline'} onClick={() => setKind('xp')}>
-          XP
-        </Button>
         {kind === 'academic' && (
           <select
             className="input"

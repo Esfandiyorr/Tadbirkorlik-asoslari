@@ -66,6 +66,8 @@ async function services(page: Page) {
   });
   await page.route('**/*', async (route) => {
     const u = new URL(route.request().url());
+    if (u.hostname === '127.0.0.1' && u.pathname === '/api/student-login')
+      return route.fulfill({ json: { ok: true } });
     if (u.hostname === '127.0.0.1') return route.continue();
     if (u.hostname === 'identitytoolkit.googleapis.com' && u.pathname.endsWith('accounts:signUp'))
       return route.fulfill({
@@ -387,4 +389,73 @@ test('matching student names require an explicit group/account choice for 1111',
   await expect(page.locator('.stat-card').filter({ hasText: 'Akademik ball' })).toContainText(
     '375.5',
   );
+});
+
+test('a public visitor sees the overall ranking across groups without signing in', async ({
+  page,
+}) => {
+  await services(page);
+  await page.route('**/api/platform*', (route) =>
+    route.fulfill({
+      json:
+        new URL(route.request().url()).searchParams.get('view') === 'academic'
+          ? {
+              leaderboard: [
+                {
+                  id: 'legacy_other',
+                  name: 'Bobur Aliyev',
+                  classId: 'AP-224',
+                  academicPoints: 450,
+                },
+                {
+                  id: 'legacy_test_existing',
+                  name: 'Ali Valiyev',
+                  classId: 'AP-223',
+                  academicPoints: 375.5,
+                },
+              ],
+            }
+          : publicData,
+    }),
+  );
+  await page.goto('/#ranking');
+  await expect(page.getByRole('heading', { name: 'Umumiy reyting', exact: true })).toBeVisible();
+  await expect(page.locator('.ranking-list')).toContainText('AP-224');
+  await expect(page.locator('.ranking-list')).toContainText('AP-223');
+  expect(await page.locator('.native-login').count()).toBe(0);
+});
+
+test('an existing personal code continues to use the original credential verification path', async ({
+  page,
+}) => {
+  await services(page);
+  let sharedRequests = 0;
+  await page.route('**/api/student-login', (route) => {
+    sharedRequests++;
+    return route.fulfill({ status: 403, json: { error: 'Not expected for personal code' } });
+  });
+  await page.route('**/api/platform*', (route) =>
+    route.fulfill({
+      json: route.request().headers()['x-legacy-student'] === student.id ? userData : publicData,
+    }),
+  );
+  await page.goto('/#login');
+  const form = page.locator('.native-login .native-document');
+  await expect(form.locator('#lgN')).toBeVisible();
+  await expect
+    .poll(() =>
+      page
+        .frames()
+        .find((f) => f.url().includes('/legacy/index.html'))!
+        .evaluate(() => (window as any).RT.cloud().on),
+    )
+    .toBe(true);
+  await form.locator('#lgN').fill(student.name);
+  await form.locator('#lgS').fill(student.surname);
+  await form.locator('#lgB').fill('1234');
+  await form.locator('#lgGo').click();
+  await expect(page.locator('.stat-card').filter({ hasText: 'Akademik ball' })).toContainText(
+    '375.5',
+  );
+  expect(sharedRequests).toBe(0);
 });

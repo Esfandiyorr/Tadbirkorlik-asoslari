@@ -106,37 +106,10 @@ export function AcademicRoster() {
         {users.length} ta hisob · {filtered.length} ta natija
       </p>
       {data?.user?.role === 'admin' && (
-        <div className="credential-setup">
-          <p>
-            {data.studentPasswordSetup?.completed
-              ? data.studentPasswordSetup.students +
-                ' ta hisob uchun boshlang‘ich parollar sozlangan. Shaxsiy parollar qayta almashtirilmaydi.'
-              : 'Boshlang‘ich parollar bir marta 1111 qilib sozlanadi. Ballar saqlanadi.'}
-          </p>
-          {!data.studentPasswordSetup?.completed && (
-            <Button
-              variant="outline"
-              onClick={async () => {
-                try {
-                  const result = await call<{ completed: boolean; students: number }>(
-                    'initializeStudentPasswords',
-                    {},
-                  );
-                  toast(
-                    result.completed
-                      ? result.students + ' ta hisob tayyor.'
-                      : 'Sozlash davom etmoqda.',
-                  );
-                  await load();
-                } catch (error) {
-                  toast((error as Error).message);
-                }
-              }}
-            >
-              Boshlang‘ich parollarni sozlash
-            </Button>
-          )}
-        </div>
+        <p className="credential-setup">
+          Avvalgi shaxsiy kodlar saqlanadi. 1111 qo‘shimcha kirish kodi. Kodlar qayta ommaviy
+          almashtirilmaydi.
+        </p>
       )}
       <input
         className="input"
@@ -466,7 +439,8 @@ export function AcademicRoster() {
               foydalanadi.
             </p>
             <p className="muted">
-              1111 bilan tiklash yoki kamida 8 belgili boshqa parol o‘rnatish mumkin.
+              1111 bilan kirishni yoqish shaxsiy kodni saqlaydi. Asosiy parolni almashtirish uchun
+              kamida 8 belgili boshqa parol kiriting.
             </p>
             <label>
               Yangi parol

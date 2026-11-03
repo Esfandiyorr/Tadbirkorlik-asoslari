@@ -8,13 +8,17 @@ const mocks = vi.hoisted(() => ({
   access: vi.fn(),
   original: vi.fn(),
   reset: vi.fn(),
+  write: vi.fn(),
 }));
 vi.mock('../lib/server/repository', () => ({
   configured: () => true,
   demo: () => false,
   repository: async () => ({ list: mocks.list }),
   legacyDb: () => ({
-    ref: (path: string) => ({ get: async () => ({ val: () => mocks.original(path) }) }),
+    ref: (path: string) => ({
+      get: async () => ({ val: () => mocks.original(path) }),
+      set: async (value: unknown) => mocks.write(path, value),
+    }),
   }),
   authAdmin: vi.fn(),
 }));
@@ -76,14 +80,41 @@ it('does not let quota recovery bypass failed identity verification', async () =
   expect(response.status).toBe(401);
 });
 
-it('does not fabricate or expose private rankings when privacy data is unavailable', async () => {
-  const response = await GET(
-    new NextRequest('https://example.test/api/platform?view=academic', {
-      headers: { authorization: 'Bearer valid' },
-    }),
+it('publishes only the explicitly public academic rows without Firestore while keeping XP protected', async () => {
+  mocks.original.mockImplementation((path) =>
+    path === 'students'
+      ? {
+          alice: {
+            name: 'Ali',
+            surname: 'Valiyev',
+            status: 'ok',
+            group: 'AP-223',
+            total: 375.5,
+            email: 'PRIVATE',
+            pk: 'SECRET',
+            topics: { m1: { p: 75 } },
+          },
+        }
+      : {},
   );
-  expect(response.status).toBe(503);
-  expect(await response.json()).toMatchObject({ code: 'QUOTA_EXCEEDED' });
+  const response = await GET(new NextRequest('https://example.test/api/platform?view=academic'));
+  expect(response.status).toBe(200);
+  expect(await response.json()).toEqual({
+    leaderboard: [
+      { id: 'legacy_alice', name: 'Ali Valiyev', classId: 'AP-223', academicPoints: 375.5 },
+    ],
+  });
+  expect(mocks.actor).not.toHaveBeenCalled();
+  expect(mocks.list).not.toHaveBeenCalled();
+  expect(
+    (
+      await GET(
+        new NextRequest('https://example.test/api/platform?view=leaderboard', {
+          headers: { authorization: 'Bearer valid' },
+        }),
+      )
+    ).status,
+  ).toBe(503);
 });
 
 it('retains original lesson access checks in limited mode', async () => {
@@ -167,4 +198,26 @@ it('administrator password reset uses read-only identity without touching exhaus
     password: 'new-test-password',
   });
   expect(mocks.list).not.toHaveBeenCalled();
+});
+
+it('only verified administrators can change platform policy', async () => {
+  const req = () =>
+    new NextRequest('https://example.test/api/platform', {
+      method: 'POST',
+      headers: { origin: 'https://example.test' },
+      body: JSON.stringify({
+        action: 'siteSettings',
+        input: { maintenance: false, publicLeaderboard: true, allowInitialCode: true },
+      }),
+    });
+  mocks.actor.mockResolvedValue(demoUsers[0]);
+  expect((await POST(req())).status).toBe(403);
+  expect(mocks.write).not.toHaveBeenCalled();
+  mocks.actor.mockResolvedValue(demoUsers[2]);
+  expect((await POST(req())).status).toBe(200);
+  expect(mocks.write).toHaveBeenCalledWith('meta/platformPolicy', {
+    maintenance: false,
+    publicLeaderboard: true,
+    allowInitialCode: true,
+  });
 });
