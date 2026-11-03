@@ -68,3 +68,14 @@ Original Pages routes redirect to `https://tadbirkorlik-asoslari.vercel.app/`. C
 The server backs off Firestore requests for sixty seconds per instance after a quota failure. The app serves only the existing repository course catalog in limited mode, verifies Google tokens and original RTDB student ownership/status without a Firestore write, and preserves live original academic totals and all fifteen per-topic histories. Separately reverified staff can still read the original academic roster and update its existing status/class/manual marks; Firestore custom role claims alone cannot grant this limited-mode access. The limited lesson endpoint checks original group/access permissions before returning an original presentation. XP, streak and new completion values that cannot be loaded are shown as unavailable; no temporary balances or demo students are written. New XP, private uploads, new quizzes and Firestore management operations return a retryable 503. Rankings fail closed if their Firestore privacy data cannot be loaded.
 
 After the quota is available again, refresh the site to return to the full platform. Bulk migration is manual, and unchanged student snapshots are skipped on retries. No old accounts, original grades or learning materials are reset by this fallback.
+
+## Current temporary closure
+
+Access is restricted to `STUDYQUEST_ADMIN_UIDS` by default. This uses the existing
+Vercel Firebase configuration and does not require a new key for standard
+service-account deployments. Google sign-in on the maintenance page remains
+available. All legacy materials and API operations pass the server gate.
+Set `PLATFORM_ADMIN_ONLY=false` and redeploy only when reopening is intended.
+See [administrator access and student recovery](ADMIN-ACCESS.md). Existing
+Firestore quota limitations are unchanged; the live academic roster and password
+recovery use the original RTDB and remain available independently.

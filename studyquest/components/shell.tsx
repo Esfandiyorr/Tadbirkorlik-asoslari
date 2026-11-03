@@ -87,6 +87,7 @@ export function StudyQuest() {
         <div className="loading-line" />
       </div>
     );
+  if (data?.adminOnly) return <AuthPanel />;
   if (!data && view.split('/')[0] === 'login') return <AuthPanel />;
   if (!data)
     return (

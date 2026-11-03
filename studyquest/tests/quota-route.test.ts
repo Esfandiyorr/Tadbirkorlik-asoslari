@@ -7,6 +7,7 @@ const mocks = vi.hoisted(() => ({
   actor: vi.fn(),
   access: vi.fn(),
   original: vi.fn(),
+  reset: vi.fn(),
 }));
 vi.mock('../lib/server/repository', () => ({
   configured: () => true,
@@ -21,6 +22,7 @@ vi.mock('../lib/server/auth', async (original) => ({
   ...(await original<typeof import('../lib/server/auth')>()),
   actor: mocks.actor,
 }));
+vi.mock('../lib/server/student-password', () => ({ resetStudentPassword: mocks.reset }));
 vi.mock('../lib/server/legacy-access', () => ({ legacyAccess: mocks.access }));
 import { GET, POST } from '../app/api/platform/route';
 
@@ -136,4 +138,33 @@ it('does not expose the original roster to a student while quota is exhausted', 
   );
   expect(response.status).toBe(403);
   expect(mocks.original).not.toHaveBeenCalled();
+});
+
+it('administrator password reset uses read-only identity without touching exhausted Firestore', async () => {
+  mocks.actor.mockImplementation(async (_req, readOnly) => {
+    if (!readOnly) throw { code: 8 };
+    return demoUsers[2];
+  });
+  mocks.reset.mockResolvedValue({ ok: true, id: 'alice' });
+  const response = await POST(
+    new NextRequest('https://example.test/api/platform', {
+      method: 'POST',
+      headers: {
+        origin: 'https://example.test',
+        authorization: 'Bearer valid',
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({
+        action: 'legacyResetPassword',
+        input: { id: 'alice', password: 'new-test-password' },
+      }),
+    }),
+  );
+  expect(response.status).toBe(200);
+  expect(mocks.actor).toHaveBeenCalledExactlyOnceWith(expect.anything(), true);
+  expect(mocks.reset).toHaveBeenCalledWith(demoUsers[2], {
+    id: 'alice',
+    password: 'new-test-password',
+  });
+  expect(mocks.list).not.toHaveBeenCalled();
 });

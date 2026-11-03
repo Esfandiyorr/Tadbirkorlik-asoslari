@@ -24,6 +24,7 @@ export type User = Actor & {
   readingHistory?: Record<string, ReadingHistory>;
   legacyId?: string;
   legacyStatus?: string;
+  legacyRegisteredAt?: number;
   academicTopics?: Record<string, Record<string, number>>;
   manualMarks?: Record<string, number>;
   xp: number;
@@ -119,6 +120,7 @@ export type Settings = {
 };
 export type Badge = { id: string; name: string; description: string; icon: string };
 export type Data = {
+  adminOnly?: boolean;
   legacyMigration?: { students: number; syncedAt: number } | null;
   courses: Course[];
   modules: Module[];

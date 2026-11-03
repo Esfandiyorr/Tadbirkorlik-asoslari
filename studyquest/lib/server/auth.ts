@@ -4,6 +4,7 @@ import { NextRequest } from 'next/server';
 import { authAdmin, legacyDb, repository, demo, configured } from './repository';
 import { catalog, demoUsers } from '../seed';
 import type { Actor, User } from '../types';
+import { adminOnly, ownerUids } from './admin-access';
 export class ApiError extends Error {
   constructor(
     public status: number,
@@ -69,6 +70,11 @@ export async function actor(req: NextRequest, readOnly = false): Promise<Actor> 
   } catch {
     throw new ApiError(401, 'Seans tugagan. Qayta kiring.');
   }
+  check(
+    !adminOnly() || ownerUids().includes(decoded.uid),
+    403,
+    'Platforma vaqtincha faqat administrator uchun ochiq.',
+  );
   const legacyId = req.headers.get('x-legacy-student');
   check(!legacyId || /^[A-Za-z0-9_-]{1,100}$/.test(legacyId), 400, 'Hisob noto‘g‘ri');
   let academicPoints: number | undefined;

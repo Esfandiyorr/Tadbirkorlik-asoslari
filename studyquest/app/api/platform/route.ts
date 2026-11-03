@@ -9,6 +9,7 @@ import { Academic, academicRecord } from '@/lib/server/academic';
 import { course, modules, lessons, quiz, settings, badges, catalog } from '@/lib/seed';
 import { quotaExceeded } from '@/lib/server/quota';
 import { limitedCatalog } from '@/lib/server/limited';
+import { resetStudentPassword } from '@/lib/server/student-password';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
@@ -141,6 +142,12 @@ export async function POST(req: NextRequest) {
     const input = await req.text();
     check(input.length < 128000, 413, 'So‘rov juda katta');
     const p = z.object({ action: z.string().max(40), input: z.unknown() }).parse(JSON.parse(input));
+    if (p.action === 'legacyResetPassword') {
+      const a = await actor(req, true);
+      administrator(a);
+      check(!demo(), 409, 'Demo muhit jonli parollarni o‘zgartirmaydi.');
+      return NextResponse.json(await resetStudentPassword(a, p.input));
+    }
     let a,
       legacyOnly = false;
     try {

@@ -30,7 +30,7 @@ const blankQuestion = (): Question => ({
 export function Staff({ admin = false }: { admin?: boolean }) {
   const { data, lang, call, toast, request, refresh } = useApp(),
     d = data as Data & { allProgress?: Progress[]; allAttempts?: Attempt[] },
-    [tab, setTab] = useState('overview'),
+    [tab, setTab] = useState(admin ? 'academic' : 'overview'),
     [selected, setSelected] = useState(d.courses[0]?.id || ''),
     [busy, setBusy] = useState(false);
   const [course, setCourse] = useState({

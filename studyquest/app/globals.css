@@ -3041,3 +3041,70 @@ td .input {
   background: var(--surface);
   color: var(--text);
 }
+
+.maintenance-page {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: var(--bg);
+}
+.maintenance-card {
+  width: min(100%, 480px);
+  padding: 40px;
+  display: grid;
+  gap: 20px;
+  text-align: center;
+  justify-items: center;
+}
+.maintenance-card > svg {
+  color: var(--violet);
+}
+.maintenance-card h1 {
+  font-size: 26px;
+  margin: 0;
+}
+.maintenance-card h2 {
+  font-size: 19px;
+  margin: 0;
+}
+.maintenance-card p {
+  color: var(--muted);
+  line-height: 1.7;
+  margin: 0;
+}
+.maintenance-card [role='alert'] {
+  color: var(--danger, #b42318);
+}
+.roster-pagination {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+.roster-detail {
+  width: min(1100px, 96vw);
+  max-height: 90dvh;
+  overflow: auto;
+  padding: 28px;
+}
+.roster-reset {
+  width: min(460px, 94vw);
+  max-height: 90dvh;
+  overflow: auto;
+  padding: 28px;
+  display: grid;
+  gap: 18px;
+}
+.roster-reset label {
+  display: grid;
+  gap: 8px;
+}
+.roster-reset label:has(input[type='checkbox']) {
+  display: flex;
+  align-items: center;
+}
+.academic-table td .btn {
+  margin: 3px;
+}

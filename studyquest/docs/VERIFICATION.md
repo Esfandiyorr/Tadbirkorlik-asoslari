@@ -41,3 +41,30 @@ The seven native browser journeys verify all fifteen presentations in the main d
 The server tests additionally verify all fifteen per-topic histories, unchanged academic totals, credential exclusion, independent-learner history without academic grades, quota-limited original results, and refusal to trust stale role claims for quota-mode staff access. Source comparison confirms identical original `<main>` sections and all 242 resource files. The original source and scoring rules are retained as content/logic inputs, with an isolated nonvisual engine; no original page is displayed as the visible interface. See [NATIVE-DESIGN.md](NATIVE-DESIGN.md).
 
 No live student records were read, imported or changed by local verification. Students' original results are read on authenticated sign-in without requiring a bulk Firestore copy. Real production sign-in, roster totals and multiplayer rooms still require verification in the configured deployed project. Firestore quota is not reset by this design change.
+
+## Administrator-only closure and account recovery (3 November 2026)
+
+The managed environment reconnected and repository commands ran successfully.
+Current change: 58 unit/server tests passed, all seven authentication browser
+regressions passed, three maintenance/roster/password browser journeys passed,
+and four focused existing navigation/staff/academic/chat journeys passed.
+TypeScript, source formatting and the Next.js production build passed. The
+compiled production server also passed loopback checks for default closure,
+protected lesson/Arena/roster/material paths, signed owner access and rejection of
+a forged cookie. This production smoke used a test-only signing key and no live
+Firebase credentials.
+
+Password-reset tests independently derive the original WebCrypto PBKDF2 key,
+verify owner-session removal and unchanged academic data, reject unauthorized
+actors and malformed inputs, and verify a secret-free audit event. The quota
+route test proves recovery uses read-only verified identity without Firestore.
+Roster contact information remains staff-only and is excluded from rankings and
+migration snapshots. The initial owner browser fixture mistakenly used a separate
+API request cookie jar; it was corrected to use the browser context's cookie jar,
+and all three maintenance journeys passed. Local HTTP readiness initially went
+through the managed external proxy; loopback-only NO_PROXY settings resolved it,
+while external proxy and TLS verification remained enabled.
+
+No live import or real student password reset was performed. Actual administrator
+UID configuration and Vercel rollout still require confirmation on the deployed
+site. See [administrator access](ADMIN-ACCESS.md) for the precise scope and steps.

@@ -33,7 +33,9 @@ export function AuthPanel() {
       if (!a) throw new Error('Google orqali kirish hali sozlanmagan.');
       useEmailMode();
       // Keep the popup directly in the click handler, before any network waits.
-      await signInWithPopup(a, new GoogleAuthProvider());
+      const provider = new GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: 'select_account' });
+      await signInWithPopup(a, provider);
       await refresh();
     } catch (e) {
       const code = (e as { code?: string }).code;
@@ -104,6 +106,21 @@ export function AuthPanel() {
       setBusy(false);
     }
   }
+  if (data?.adminOnly)
+    return (
+      <main className="maintenance-page">
+        <section className="panel maintenance-card">
+          <Shield size={36} aria-hidden="true" />
+          <h1>Tadbirkorlik asoslari</h1>
+          <h2>Platforma vaqtincha yopiq</h2>
+          <p>Texnik ishlar olib borilmoqda. Hozir faqat administrator kirishi mumkin.</p>
+          {googleError && <p role="alert">{googleError}</p>}
+          <Button disabled={busy} onClick={googleLogin}>
+            Google orqali administrator kirishi
+          </Button>
+        </section>
+      </main>
+    );
   return (
     <div className="auth-page">
       <div className="auth-story">

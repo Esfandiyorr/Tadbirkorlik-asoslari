@@ -115,10 +115,14 @@ export class Academic {
   ) {}
   async roster(a: Actor) {
     staff(a);
-    const source = (await this.read('students')) || {};
-    return Object.entries(source)
+    const [source, contacts] = await Promise.all([this.read('students'), this.read('priv')]);
+    return Object.entries(source || {})
       .filter(([id, s]: any) => /^[a-zA-Z0-9_-]{1,100}$/.test(id) && s?.name && s?.status)
-      .map(([id, s]) => academicRecord(id, s as Row));
+      .map(([id, s]: [string, any]) => ({
+        ...academicRecord(id, s),
+        email: String(contacts?.[id]?.email || s.email || '').slice(0, 254),
+        legacyRegisteredAt: number(s.at),
+      }));
   }
   async board(a: Actor) {
     check(

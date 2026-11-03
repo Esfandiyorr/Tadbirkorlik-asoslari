@@ -18,6 +18,7 @@ export default defineConfig({
   },
   webServer: {
     command: 'STUDYQUEST_DEMO=true npm run dev -- --port 3200',
+    env: { PLATFORM_ADMIN_ONLY: 'false' },
     url: 'http://127.0.0.1:3200',
     reuseExistingServer: !process.env.CI,
     timeout: 120000,

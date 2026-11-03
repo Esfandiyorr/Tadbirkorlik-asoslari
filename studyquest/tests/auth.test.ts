@@ -89,3 +89,14 @@ it('quota-only legacy administration requires the allowlist or original teacher 
   vi.stubEnv('STUDYQUEST_ADMIN_UIDS', 'test-uid');
   expect((await actor(request(), true)).role).toBe('admin');
 });
+
+it('administrator-only closure denies other users before any profile or original record read', async () => {
+  vi.stubEnv('PLATFORM_ADMIN_ONLY', 'true');
+  vi.stubEnv('STUDYQUEST_ADMIN_UIDS', 'owner');
+  mocks.verify.mockResolvedValue({ uid: 'other', role: 'admin' });
+  await expect(actor(request(), true)).rejects.toMatchObject({ status: 403 });
+  expect(mocks.get).not.toHaveBeenCalled();
+  expect(mocks.original).not.toHaveBeenCalled();
+  mocks.verify.mockResolvedValue({ uid: 'owner' });
+  expect(await actor(request(), true)).toMatchObject({ role: 'admin', uid: 'owner' });
+});

@@ -16,7 +16,8 @@
     "test:auth": "playwright test --config playwright.auth.config.ts",
     "pretypecheck": "node scripts/sync-legacy.mjs",
     "pretest": "node scripts/sync-legacy.mjs",
-    "format:check": "prettier --check app components lib scripts tests *.ts *.json docs README.md public/*.js public/*.html public/*.webmanifest"
+    "format:check": "prettier --check app components lib scripts tests *.ts *.json docs README.md public/*.js public/*.html public/*.webmanifest",
+    "test:maintenance": "playwright test --config playwright.maintenance.config.ts"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.2.0",

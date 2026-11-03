@@ -155,3 +155,18 @@ it('independent reading history contains the saved position without university g
   expect(record.readingHistory.m1).not.toHaveProperty('grade');
   expect(record.readingHistory.m1).not.toHaveProperty('score');
 });
+
+it('staff roster includes contact and registration details without exposing credential data to rankings or migration', async () => {
+  const read = async (path: string) =>
+    path === 'priv'
+      ? { alice: { email: 'contact@example.test', secret: 'NEVER_EXPOSE' } }
+      : structuredClone(source);
+  const records = new Academic(db, read);
+  const roster = await records.roster(admin);
+  expect(roster.find((u) => u.legacyId === 'alice')).toMatchObject({
+    email: 'contact@example.test',
+    legacyRegisteredAt: 1000,
+  });
+  expect(JSON.stringify(roster)).not.toMatch(/NEVER_EXPOSE|DO_NOT_COPY|pwSalt/);
+  expect(JSON.stringify(await records.board(admin))).not.toContain('contact@example.test');
+});

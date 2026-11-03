@@ -65,6 +65,8 @@ export function Provider({
     setTimeout(() => setMessage(''), 4500);
   }, []);
   const receivedSession = useRef('');
+  const ownerAccess = useRef({ token: '', until: 0 });
+  const accessPending = useRef<Promise<void> | null>(null);
   const refreshVersion = useRef(0);
   const request = useCallback(
     async (url: string, init: RequestInit = {}) => {
@@ -83,6 +85,32 @@ export function Provider({
       if (current) {
         h.set('Authorization', 'Bearer ' + current);
         if (old && usingLegacy) h.set('X-Legacy-Student', old.id);
+      }
+      if (
+        !demoMode &&
+        current &&
+        (ownerAccess.current.token !== current || ownerAccess.current.until < Date.now())
+      ) {
+        if (accessPending.current) await accessPending.current;
+        if (ownerAccess.current.token !== current || ownerAccess.current.until < Date.now()) {
+          accessPending.current = (async () => {
+            const access = await fetch('/api/admin-access', {
+              method: 'POST',
+              headers: { Authorization: 'Bearer ' + current },
+              cache: 'no-store',
+            });
+            if (access.ok || access.status === 403)
+              ownerAccess.current = {
+                token: current,
+                until: Date.now() + (access.ok ? 300000 : 10000),
+              };
+          })();
+          try {
+            await accessPending.current;
+          } finally {
+            accessPending.current = null;
+          }
+        }
       }
       return fetch(url, { ...init, headers: h, cache: 'no-store' });
     },
@@ -256,6 +284,9 @@ export function Provider({
   const logout = async () => {
     receivedSession.current = '';
     const a = demoMode ? null : firebaseAuth();
+    if (accessPending.current) await accessPending.current.catch(() => {});
+    await fetch('/api/admin-access', { method: 'DELETE' });
+    ownerAccess.current = { token: '', until: 0 };
     if (a?.currentUser) await signOut(a);
     await fetch('/api/auth/demo', { method: 'DELETE' });
     if (!demoMode) {
@@ -296,7 +327,7 @@ export function Provider({
           {message}
         </div>
       )}
-      {login && (
+      {login && !data?.adminOnly && (
         <div className="modal-backdrop">
           <div className="legacy-modal">
             <button aria-label="Close" className="close-modal" onClick={() => setLogin(false)}>

@@ -2,13 +2,17 @@
 
 The new mobile-first TerDU learning environment. All 15 original presentations, quizzes, exercises, PDF/video materials, accounts, academic scores, teacher controls and game data remain available. Existing Realtime Database records remain authoritative and are never deleted or reset. Approved migration creates private linked profile/progress snapshots in Firestore.
 
+The platform is currently restricted to the configured administrator UIDs. See
+[administrator access and student recovery](docs/ADMIN-ACCESS.md) for deployment,
+reopening, the live student roster and password resets.
+
 ## Run locally
 
 Use Node.js 22 or newer. Run these commands from this folder:
 
 ```bash
 npm ci
-npm run dev:demo
+PLATFORM_ADMIN_ONLY=false npm run dev:demo
 ```
 
 Open http://localhost:3000. The local demo role selector provides separate student, teacher, and administrator accounts. Demo changes are saved in `.studyquest-demo/`; deleting that folder resets only the local demonstration. Demo presentation frames use isolated browser storage and block live Firebase requests. **Demo authentication is disabled in production and on Vercel.**
@@ -57,6 +61,7 @@ npm run test:emulator
 npx playwright install --with-deps chromium
 npm run test:browser
 npm run test:auth
+npm run test:maintenance
 npm run build
 ```
 
@@ -79,3 +84,7 @@ This implementation is ready for a configured staging review. Real Firebase sign
 - Practice mini-games are local exercises and award no XP. Live multiplayer Quiz Battle uses the existing arena rather than a new matchmaking service. Top Student badges are teacher-approved.
 - Payments, subscriptions, marketplace checkout, push delivery, arbitrary file formats, and offline lesson synchronization are future integrations. No billing or purchases are simulated.
 - Original static lesson files remain publicly addressable, as on the existing website. Future paid materials should use the protected API and Storage, rather than public legacy HTML files.
+
+In managed environments that proxy HTTP, run local browser checks with
+`NO_PROXY=127.0.0.1,localhost no_proxy=127.0.0.1,localhost` for loopback traffic.
+Keep the configured HTTPS proxy and CA trust for external destinations.
