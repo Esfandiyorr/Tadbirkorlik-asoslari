@@ -4,7 +4,7 @@ The new mobile-first TerDU learning environment. All 15 original presentations, 
 
 The platform is open to students. Existing personal codes are preserved, with
 `1111` available as an additional login method. The overall academic ranking is
-public by default. The verified owner Google account is
+available only after sign-in. The verified owner Google account is
 `isfandiyor2198@gmail.com` (Isfandiyor Sayfiddinov). See
 [administrator access and student recovery](docs/ADMIN-ACCESS.md) for runtime
 access controls, the live student roster and password recovery.

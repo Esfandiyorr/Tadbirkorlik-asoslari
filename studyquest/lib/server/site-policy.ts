@@ -2,12 +2,13 @@ import 'server-only';
 import { catalog } from '../seed';
 export type SitePolicy = {
   maintenance: boolean;
+  // Kept for older clients; guest rankings are always disabled.
   publicLeaderboard: boolean;
   allowInitialCode: boolean;
 };
 export const defaultSitePolicy: SitePolicy = {
   maintenance: false,
-  publicLeaderboard: true,
+  publicLeaderboard: false,
   allowInitialCode: true,
 };
 let cached: { value: SitePolicy; until: number } | undefined;
@@ -15,7 +16,11 @@ export function normalizePolicy(value: any): SitePolicy {
   return Object.fromEntries(
     Object.entries(defaultSitePolicy).map(([key, fallback]) => [
       key,
-      typeof value?.[key] === 'boolean' ? value[key] : fallback,
+      key === 'publicLeaderboard'
+        ? false
+        : typeof value?.[key] === 'boolean'
+          ? value[key]
+          : fallback,
     ]),
   ) as SitePolicy;
 }

@@ -1,11 +1,13 @@
-# Administrator access, public ranking and student records
+# Administrator access, signed-in ranking and student records
 
 The platform is open by default. Students sign in with their original name,
 surname and stored personal code, or the additional common code `1111`.
 Existing approval, blocked status and lesson/group access checks remain active.
-The overall academic ranking is public by default, including across groups.
+The overall academic ranking requires a verified signed-in account, including
+across groups. Guest visits show login, and direct ranking API requests reject
+missing or invalid sessions before reading any student rows.
 Only name, group, academic points and a record identifier are returned. Contact
-email, credential keys and reading history remain outside the public ranking.
+email, credential keys and reading history remain outside the ranking response.
 Blocked, unapproved, independent and explicitly hidden original accounts are
 excluded. Academic ranking publication is separate from opt-in platform XP
 ranking visibility, which still uses private Firestore settings.
@@ -20,12 +22,13 @@ role. A typed name, unverified email or client-side role grants no permissions.
 Open **Boshqaruv → Platforma** to control:
 
 - Temporary closure to everyone except the verified owner.
-- Public overall academic ranking (turning it off requires sign-in to view it).
 - Additional `1111` login (turning it off prevents new common-code logins;
   existing owned sessions and personal codes remain usable).
 
 Settings are saved to the original RTDB `meta/platformPolicy`, cached for up to
-five seconds per instance. This requires the existing metadata read permission.
+five seconds per instance. Guest ranking access is always disabled, even when
+old metadata contains `publicLeaderboard: true`; that compatibility field is
+normalized to false and no longer has a UI switch. This requires the existing metadata read permission.
 A failed metadata request retains a previously cached policy; a cold instance
 falls back to public defaults if metadata is unavailable. Sensitive API actions
 always enforce identity and role independently. The old `PLATFORM_ADMIN_ONLY`

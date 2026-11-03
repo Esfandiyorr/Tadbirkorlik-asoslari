@@ -166,9 +166,12 @@ test('administrator finds original students, views fifteen histories and resets 
     input: { id: 'alice', confirmation: 'Ali Valiyev' },
   });
   await page.getByRole('button', { name: 'Platforma', exact: true }).click();
-  const publish = page.getByLabel('Umumiy akademik reytingni hammaga ko‘rsatish', { exact: true });
-  await expect(publish).toBeChecked();
-  await publish.uncheck();
+  await expect(
+    page.getByText('Umumiy reyting faqat hisobga kirgan foydalanuvchilarga ko‘rinadi.'),
+  ).toBeVisible();
+  await expect(
+    page.getByLabel('Umumiy akademik reytingni hammaga ko‘rsatish', { exact: true }),
+  ).toHaveCount(0);
   await page.getByRole('button', { name: 'Sozlamalarni saqlash', exact: true }).click();
   await expect
     .poll(() => reset)

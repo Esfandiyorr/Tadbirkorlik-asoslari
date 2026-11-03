@@ -182,11 +182,25 @@ test('1111 code login establishes the legacy session and displays the original a
 }) => {
   await services(page);
   let authenticatedRequests = 0;
-  await page.route('**/api/platform', (route) => {
+  await page.route('**/api/platform*', (route) => {
     const h = route.request().headers();
     const signedIn =
       h['x-legacy-student'] === student.id && h.authorization === 'Bearer test-token';
     if (signedIn) authenticatedRequests++;
+    if (new URL(route.request().url()).searchParams.get('view') === 'academic')
+      return route.fulfill({
+        json: {
+          leaderboard: [
+            { id: 'legacy_other', name: 'Bobur Aliyev', classId: 'AP-224', academicPoints: 450 },
+            {
+              id: userData.user.id,
+              name: userData.user.name,
+              classId: 'AP-223',
+              academicPoints: 375.5,
+            },
+          ],
+        },
+      });
     return route.fulfill({ json: signedIn ? userData : publicData });
   });
   await page.goto('/#login');
@@ -209,6 +223,10 @@ test('1111 code login establishes the legacy session and displays the original a
     '375.5',
   );
   expect(authenticatedRequests).toBeGreaterThan(0);
+  await page.goto('/#ranking');
+  await expect(page.getByRole('heading', { name: 'Umumiy reyting', exact: true })).toBeVisible();
+  await expect(page.locator('.ranking-list')).toContainText('AP-224');
+  await expect(page.locator('.ranking-list')).toContainText('AP-223');
 });
 
 test('a slow guest response cannot replace a restored Google account', async ({ page }) => {
@@ -391,38 +409,19 @@ test('matching student names require an explicit group/account choice for 1111',
   );
 });
 
-test('a public visitor sees the overall ranking across groups without signing in', async ({
+test('a guest visiting ranking sees login without requesting any ranking data', async ({
   page,
 }) => {
   await services(page);
-  await page.route('**/api/platform*', (route) =>
-    route.fulfill({
-      json:
-        new URL(route.request().url()).searchParams.get('view') === 'academic'
-          ? {
-              leaderboard: [
-                {
-                  id: 'legacy_other',
-                  name: 'Bobur Aliyev',
-                  classId: 'AP-224',
-                  academicPoints: 450,
-                },
-                {
-                  id: 'legacy_test_existing',
-                  name: 'Ali Valiyev',
-                  classId: 'AP-223',
-                  academicPoints: 375.5,
-                },
-              ],
-            }
-          : publicData,
-    }),
-  );
+  let rankingRequests = 0;
+  await page.route('**/api/platform*', (route) => {
+    if (new URL(route.request().url()).searchParams.get('view') === 'academic') rankingRequests++;
+    return route.fulfill({ json: publicData });
+  });
   await page.goto('/#ranking');
-  await expect(page.getByRole('heading', { name: 'Umumiy reyting', exact: true })).toBeVisible();
-  await expect(page.locator('.ranking-list')).toContainText('AP-224');
-  await expect(page.locator('.ranking-list')).toContainText('AP-223');
-  expect(await page.locator('.native-login').count()).toBe(0);
+  await expect(page.locator('.native-login #lgN')).toBeVisible();
+  await expect(page.locator('.ranking-list')).toHaveCount(0);
+  expect(rankingRequests).toBe(0);
 });
 
 test('an existing personal code continues to use the original credential verification path', async ({

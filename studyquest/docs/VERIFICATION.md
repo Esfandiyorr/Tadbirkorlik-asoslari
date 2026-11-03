@@ -132,3 +132,18 @@ twelve authentication and three maintenance journeys, 35 browser checks passed.
 No original root lesson source or resource data was modified by this release.
 The deployed Firebase/Google exchange and live Vercel rollout remain unverified
 locally; the production smoke ran only on loopback without service credentials.
+
+## Guest ranking restriction (3 November 2026)
+
+This update supersedes public guest ranking access above. The ranking page shows
+login to guests, and academic ranking API requests always verify identity before
+any original student records are loaded, including in demo and quota fallback
+paths. Older `publicLeaderboard: true` settings are normalized to false and the
+publishing toggle is removed. Signed-in users retain all-group academic scores.
+
+Validation for this restriction: 79 unit/server tests, twelve authentication
+browser journeys and three maintenance/admin browser journeys passed. Coverage
+checks guest deep links without ranking requests, signed-in scores across groups,
+rejected or missing API sessions before student reads, and ignoring an older
+public-ranking setting. TypeScript and the production build passed. Local tests
+used fixtures only; no live student data or Firebase settings were changed.

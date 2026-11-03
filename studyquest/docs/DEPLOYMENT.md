@@ -65,21 +65,22 @@ Original Pages routes redirect to `https://tadbirkorlik-asoslari.vercel.app/`. C
 
 `8 RESOURCE_EXHAUSTED: Quota exceeded` is a Firestore service limit, not an incorrect Google password. Check Firestore → Usage and the relevant Google Cloud quotas to identify whether reads, writes, or another limit was reached. Daily free quotas reset on Firebase's schedule; changing code does not restore an exhausted quota. A paid billing plan is a separate owner decision and is not required or enabled by these fixes.
 
-The server backs off Firestore requests for sixty seconds per instance after a quota failure. The app serves only the existing repository course catalog in limited mode, verifies Google tokens and original RTDB student ownership/status without a Firestore write, and preserves live original academic totals and all fifteen per-topic histories. Separately reverified staff can still read the original academic roster and update its existing status/class/manual marks; Firestore custom role claims alone cannot grant this limited-mode access. The limited lesson endpoint checks original group/access permissions before returning an original presentation. XP, streak and new completion values that cannot be loaded are shown as unavailable; no temporary balances or demo students are written. New XP, private uploads, new quizzes and Firestore management operations return a retryable 503. Private XP rankings fail closed if their Firestore privacy data cannot be loaded. The public overall academic ranking uses original RTDB scores and an explicit minimal field allowlist, independently of Firestore.
+The server backs off Firestore requests for sixty seconds per instance after a quota failure. The app serves only the existing repository course catalog in limited mode, verifies Google tokens and original RTDB student ownership/status without a Firestore write, and preserves live original academic totals and all fifteen per-topic histories. Separately reverified staff can still read the original academic roster and update its existing status/class/manual marks; Firestore custom role claims alone cannot grant this limited-mode access. The limited lesson endpoint checks original group/access permissions before returning an original presentation. XP, streak and new completion values that cannot be loaded are shown as unavailable; no temporary balances or demo students are written. New XP, private uploads, new quizzes and Firestore management operations return a retryable 503. Private XP rankings fail closed if their Firestore privacy data cannot be loaded. The signed-in overall academic ranking uses original RTDB scores and an explicit minimal field allowlist, independently of Firestore.
 
 After the quota is available again, refresh the site to return to the full platform. Bulk migration is manual, and unchanged student snapshots are skipped on retries. No old accounts, original grades or learning materials are reset by this fallback.
 
 ## Public access and runtime controls
 
-The platform now defaults to open access, public overall academic ranking, and
+The platform now defaults to open access, signed-in overall academic ranking, and
 `1111` as an additional login method alongside stored personal codes. Previous
 `PLATFORM_ADMIN_ONLY` environment values are ignored. This release does not
 perform a bulk password reset. Students use the new Vercel address, or the old
 Pages link that redirects there. Existing account approval, blocked status and
 lesson/group restrictions still apply.
 
-The verified owner opens **Boshqaruv → Platforma** to change maintenance access,
-public academic ranking visibility, and common-code login. Settings are saved in
+The verified owner opens **Boshqaruv → Platforma** to change maintenance access
+and common-code login. Rankings always require sign-in, regardless of an older
+`publicLeaderboard` setting. Settings are saved in
 `meta/platformPolicy` in the original RTDB, without a Firestore write or redeploy.
 Policy checks cache values for up to five seconds per server instance. The proxy
 reads only these public nonsecret booleans using the existing RTDB metadata read

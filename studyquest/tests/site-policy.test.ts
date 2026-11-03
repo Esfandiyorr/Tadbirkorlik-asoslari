@@ -20,9 +20,9 @@ afterEach(() => {
 it('defaults to open access and ignores the retired closure flag and malformed policy values', async () => {
   vi.stubEnv('PLATFORM_ADMIN_ONLY', 'true');
   expect(await sitePolicy()).toEqual(defaultSitePolicy);
-  expect(
-    normalizePolicy({ maintenance: 'true', publicLeaderboard: false, secret: 'omit' }),
-  ).toEqual({ ...defaultSitePolicy, publicLeaderboard: false });
+  expect(normalizePolicy({ maintenance: 'true', publicLeaderboard: true, secret: 'omit' })).toEqual(
+    { ...defaultSitePolicy, publicLeaderboard: false },
+  );
 });
 it('loads only public policy metadata, caches it, and retains a known closure on connection failure', async () => {
   vi.stubEnv('FIREBASE_DATABASE_URL', 'https://database.example.test/');

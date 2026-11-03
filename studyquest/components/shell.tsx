@@ -142,7 +142,7 @@ export function StudyQuest() {
         <AuthPanel />
       );
   else if (view === 'badges') content = <Badges />;
-  else if (view === 'ranking') content = <Leaderboard />;
+  else if (view === 'ranking') content = user ? <Leaderboard /> : <AuthPanel />;
   else if (mainView === 'arena') content = <Games live={id === 'live'} />;
   else if (view === 'teacher')
     content = role === 'teacher' || role === 'admin' ? <Staff /> : <AuthPanel />;

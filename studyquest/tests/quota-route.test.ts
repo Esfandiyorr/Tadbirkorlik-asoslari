@@ -80,7 +80,7 @@ it('does not let quota recovery bypass failed identity verification', async () =
   expect(response.status).toBe(401);
 });
 
-it('publishes only the explicitly public academic rows without Firestore while keeping XP protected', async () => {
+it('returns minimal academic rows to verified users without Firestore while keeping XP protected', async () => {
   mocks.original.mockImplementation((path) =>
     path === 'students'
       ? {
@@ -97,14 +97,18 @@ it('publishes only the explicitly public academic rows without Firestore while k
         }
       : {},
   );
-  const response = await GET(new NextRequest('https://example.test/api/platform?view=academic'));
+  const response = await GET(
+    new NextRequest('https://example.test/api/platform?view=academic', {
+      headers: { authorization: 'Bearer valid' },
+    }),
+  );
   expect(response.status).toBe(200);
   expect(await response.json()).toEqual({
     leaderboard: [
       { id: 'legacy_alice', name: 'Ali Valiyev', classId: 'AP-223', academicPoints: 375.5 },
     ],
   });
-  expect(mocks.actor).not.toHaveBeenCalled();
+  expect(mocks.actor).toHaveBeenCalledWith(expect.anything(), true);
   expect(mocks.list).not.toHaveBeenCalled();
   expect(
     (
@@ -115,6 +119,19 @@ it('publishes only the explicitly public academic rows without Firestore while k
       )
     ).status,
   ).toBe(503);
+});
+
+it('rejects guests and revoked sessions before loading any academic ranking records', async () => {
+  mocks.actor.mockRejectedValue(new ApiError(401, 'Hisobingizga kiring'));
+  for (const headers of [undefined, { authorization: 'Bearer revoked' }]) {
+    const response = await GET(
+      new NextRequest('https://example.test/api/platform?view=academic', { headers }),
+    );
+    expect(response.status).toBe(401);
+    expect(await response.json()).not.toHaveProperty('leaderboard');
+  }
+  expect(mocks.original).not.toHaveBeenCalled();
+  expect(mocks.list).not.toHaveBeenCalled();
 });
 
 it('retains original lesson access checks in limited mode', async () => {
@@ -217,7 +234,7 @@ it('only verified administrators can change platform policy', async () => {
   expect((await POST(req())).status).toBe(200);
   expect(mocks.write).toHaveBeenCalledWith('meta/platformPolicy', {
     maintenance: false,
-    publicLeaderboard: true,
+    publicLeaderboard: false,
     allowInitialCode: true,
   });
 });

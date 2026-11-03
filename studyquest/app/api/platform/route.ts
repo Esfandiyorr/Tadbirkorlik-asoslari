@@ -39,6 +39,8 @@ export async function GET(req: NextRequest) {
       );
     }
     if (req.nextUrl.searchParams.get('view') === 'academic') {
+      const a = await actor(req, true);
+      if ((await sitePolicy()).maintenance) administrator(a);
       if (demo())
         return NextResponse.json({
           leaderboard: (await (await repository()).list('users'))
@@ -51,11 +53,6 @@ export async function GET(req: NextRequest) {
             }))
             .sort((a, b) => b.academicPoints - a.academicPoints),
         });
-      const policy = await sitePolicy();
-      if (policy.maintenance) {
-        const a = await actor(req, true);
-        administrator(a);
-      } else if (!policy.publicLeaderboard) await actor(req, true);
       return NextResponse.json(
         { leaderboard: await new Academic(await repository()).publicBoard() },
         { headers: { 'Cache-Control': 'no-store' } },
@@ -202,14 +199,16 @@ export async function POST(req: NextRequest) {
       const a = await actor(req, true);
       administrator(a);
       check(!demo(), 409, 'Demo sozlamalari jonli bazani o‘zgartirmaydi.');
-      const policy = z
-        .object({
-          maintenance: z.boolean(),
-          publicLeaderboard: z.boolean(),
-          allowInitialCode: z.boolean(),
-        })
-        .strict()
-        .parse(p.input);
+      const policy = normalizePolicy(
+        z
+          .object({
+            maintenance: z.boolean(),
+            publicLeaderboard: z.boolean(),
+            allowInitialCode: z.boolean(),
+          })
+          .strict()
+          .parse(p.input),
+      );
       await legacyDb().ref('meta/platformPolicy').set(policy);
       clearPolicyCache();
       return NextResponse.json({ ok: true });

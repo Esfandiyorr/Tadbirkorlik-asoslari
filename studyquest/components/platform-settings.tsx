@@ -13,7 +13,7 @@ export function PlatformSettings() {
       .then(async (r) => {
         const v = await r.json();
         if (!r.ok) throw Error(v.error);
-        setPolicy(v);
+        setPolicy({ ...v, publicLeaderboard: false });
       })
       .catch((e) => setError(e.message));
   }, [request]);
@@ -53,14 +53,7 @@ export function PlatformSettings() {
             />{' '}
             Vaqtincha yopish — faqat administrator kiradi
           </label>
-          <label className="checkbox-label">
-            <input
-              type="checkbox"
-              checked={policy.publicLeaderboard}
-              onChange={(e) => setPolicy({ ...policy, publicLeaderboard: e.target.checked })}
-            />{' '}
-            Umumiy akademik reytingni hammaga ko‘rsatish
-          </label>
+          <p>Umumiy reyting faqat hisobga kirgan foydalanuvchilarga ko‘rinadi.</p>
           <label className="checkbox-label">
             <input
               type="checkbox"
