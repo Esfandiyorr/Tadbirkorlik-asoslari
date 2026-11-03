@@ -10,7 +10,7 @@ Browser sessions on the old GitHub Pages origin cannot automatically become sess
 
 ## Linked records and live grades
 
-The administrator’s first authenticated visit to the deployed version requests `syncLegacy`. The server checks administrator permission before reading the original roster and creating linked Firestore profiles/enrollments/progress. The private `migrations/legacy-v1` marker prevents automatic repeat imports. Teacher/Administration → Academic records → Link existing students supports an explicit retry.
+Use Teacher/Administration → Academic records → Link existing students to request `syncLegacy` explicitly. Login and page refresh never start a bulk import. The server checks administrator permission before reading the original roster and creating linked Firestore profiles/enrollments/progress. The private `migrations/legacy-v1` marker records the completed import. A per-student source fingerprint skips unchanged profiles, enrollments and progress on a retry, including after a partially completed import.
 
 The import uses canonical `legacy_<studentId>` IDs and bounded batches of twenty students, prefetching existing records before transactional writes. Repeating it preserves role assignments, XP, privacy choices, saved progress and completion. It never issues XP. It imports only whitelisted profile fields, existing academic totals, topic summaries/manual marks, and known visited-slide IDs. Password hashes, salts, PIN keys, private contact data and Firebase owner records remain in the original database.
 
@@ -34,4 +34,4 @@ Phone application opens an installation guide for Android, iPhone/iPad and deskt
 
 ## Verification and rollout
 
-Local tests use isolated demo storage, fixtures and emulators; they never import or modify the live roster. After GitHub-triggered Vercel deployment is Ready, an administrator refreshes the new site to trigger the live authorized link. Verify the reported count, a sample student’s old-code sign-in and academic points, one lesson and one original multiplayer room. The migration’s real count can only be confirmed in that authenticated production session.
+Local tests use isolated demo storage, fixtures and emulators; they never import or modify the live roster. After GitHub-triggered Vercel deployment is Ready, an administrator refreshes the new site and starts the authorized link from Academic records, once the Firestore quota is available. Verify the reported count, a sample student’s old-code sign-in and academic points, one lesson and one original multiplayer room. The migration’s real count can only be confirmed in that authenticated production session.

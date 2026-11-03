@@ -25,7 +25,7 @@ For Firebase-backed development, copy `.env.example` to `.env.local`, supply you
 - Transactional XP ledger, achievement levels, badges, daily challenges, learning streaks, course completion rewards, and class/course/calendar-period leaderboards. Independent learners remain outside university rankings.
 - Teacher tools for subjects, courses, modules, lessons, quizzes, material uploads, enrollment, classes, achievements, analytics, and CSV reports. Administrator tools manage roles, blocking, XP settings, and level thresholds.
 - Memory, vocabulary, arithmetic, and typing practice. Quiz Battle opens a server-graded timed quiz; existing multiplayer class games are embedded in the new Game Arena.
-- Student name/surname/existing code entry, live academic rankings, a linked academic grade roster, preserved class chat, and automatic idempotent profile linking on the administrator’s first visit after deployment.
+- Student name/surname/existing code entry, live academic rankings, a linked academic grade roster, preserved class chat, and administrator-triggered, repeat-safe profile linking.
 - Installable Android/iPhone/desktop PWA with an installation guide and an offline notice. Private responses and presentations are not cached by the new worker.
 
 ## Architecture

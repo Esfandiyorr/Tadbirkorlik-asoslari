@@ -6,6 +6,7 @@ import { getFirestore, FieldValue, FieldPath } from 'firebase-admin/firestore';
 import { getAuth } from 'firebase-admin/auth';
 import { getDatabase } from 'firebase-admin/database';
 import { getStorage } from 'firebase-admin/storage';
+import { QuotaGate } from './quota';
 import { course, modules, lessons, quiz, settings, badges, demoUsers } from '../seed';
 export type Row = Record<string, any>; // Repository boundary; service schemas validate every external input.
 export interface Tx {
@@ -17,6 +18,7 @@ export interface Tx {
 export interface Repository {
   get(c: string, id: string): Promise<Row | null>;
   list(c: string): Promise<Row[]>;
+  find(c: string, field: string, value: string): Promise<Row[]>;
   transaction<T>(f: (tx: Tx) => Promise<T>): Promise<T>;
 }
 export const demo = () =>
@@ -105,6 +107,13 @@ export class MemoryRepository implements Repository {
       Object.entries(this.state[c] || {}).map(([id, row]) => ({ ...row, id })),
     );
   }
+  async find(c: string, field: string, value: string): Promise<Row[]> {
+    return structuredClone(
+      Object.entries(this.state[c] || {})
+        .filter(([, row]) => row[field] === value)
+        .map(([id, row]) => ({ ...row, id })),
+    );
+  }
   protected async persist() {}
   async transaction<T>(f: (tx: Tx) => Promise<T>): Promise<T> {
     const run = this.queue.then(async () => {
@@ -155,50 +164,89 @@ class FileRepository extends MemoryRepository {
 }
 class FirebaseRepository implements Repository {
   db = getFirestore(adminApp());
+  gate = new QuotaGate();
+  catalog = new Map<string, { expires: number; value: Promise<Row[]> }>();
   async get(c: string, id: string): Promise<Row | null> {
-    const d = await this.db.collection(c).doc(id).get();
+    const d = await this.gate.run(() => this.db.collection(c).doc(id).get());
     return d.exists ? { ...d.data(), id: d.id } : null;
   }
   async list(c: string): Promise<Row[]> {
+    if (
+      ![
+        'subjects',
+        'courses',
+        'modules',
+        'lessons',
+        'quizzes',
+        'settings',
+        'achievements',
+      ].includes(c)
+    )
+      return this.readRows(c);
+    const old = this.catalog.get(c);
+    if (old && old.expires > Date.now()) return structuredClone(await old.value);
+    const value = this.readRows(c);
+    this.catalog.set(c, { expires: Date.now() + 60000, value });
+    try {
+      return structuredClone(await value);
+    } catch (error) {
+      this.catalog.delete(c);
+      throw error;
+    }
+  }
+  async find(c: string, field: string, value: string): Promise<Row[]> {
+    return this.readRows(c, { field, value });
+  }
+  private async readRows(c: string, filter?: { field: string; value: string }): Promise<Row[]> {
     const rows: Row[] = [];
     let cursor: string | undefined;
     while (true) {
-      const base = this.db.collection(c).orderBy(FieldPath.documentId()).limit(500);
-      const q = await (cursor ? base.startAfter(cursor) : base).get();
+      const collection = this.db.collection(c);
+      const source = filter ? collection.where(filter.field, '==', filter.value) : collection;
+      const base = source.orderBy(FieldPath.documentId()).limit(500);
+      const q = await this.gate.run(() => (cursor ? base.startAfter(cursor) : base).get());
       rows.push(...q.docs.map((d) => ({ ...d.data(), id: d.id })));
       if (q.size < 500) return rows;
       cursor = q.docs[q.docs.length - 1].id;
     }
   }
   async transaction<T>(f: (tx: Tx) => Promise<T>) {
-    return this.db.runTransaction(async (t) => {
-      const writes: (() => void)[] = [],
-        pending = new Map<string, Row | null>();
-      const tx: Tx = {
-        get: async (c, id) => {
-          const key = c + '/' + id;
-          if (pending.has(key)) return structuredClone(pending.get(key)!);
-          const d = await t.get(this.db.collection(c).doc(id));
-          return d.exists ? { ...d.data(), id: d.id } : null;
-        },
-        list: async (c) =>
-          (await t.get(this.db.collection(c).limit(1000))).docs.map((d) => ({
-            ...d.data(),
-            id: d.id,
-          })),
-        set: (c, id, v) => {
-          pending.set(c + '/' + id, structuredClone(v));
-          writes.push(() => t.set(this.db.collection(c).doc(id), JSON.parse(JSON.stringify(v))));
-        },
-        delete: (c, id) => {
-          pending.set(c + '/' + id, null);
-          writes.push(() => t.delete(this.db.collection(c).doc(id)));
-        },
-      };
-      const result = await f(tx);
-      writes.forEach((w) => w());
-      return result;
-    });
+    return this.gate.run(() =>
+      this.db.runTransaction(async (t) => {
+        const writes: (() => void)[] = [],
+          pending = new Map<string, Row | null>();
+        const tx: Tx = {
+          get: async (c, id) => {
+            const key = c + '/' + id;
+            if (pending.has(key)) return structuredClone(pending.get(key)!);
+            const d = await t.get(this.db.collection(c).doc(id));
+            return d.exists ? { ...d.data(), id: d.id } : null;
+          },
+          list: async (c) =>
+            (await t.get(this.db.collection(c).limit(1000))).docs.map((d) => ({
+              ...d.data(),
+              id: d.id,
+            })),
+          set: (c, id, v) => {
+            pending.set(c + '/' + id, structuredClone(v));
+            writes.push(() => {
+              t.set(this.db.collection(c).doc(id), JSON.parse(JSON.stringify(v)));
+              this.catalog.delete(c);
+            });
+          },
+          delete: (c, id) => {
+            pending.set(c + '/' + id, null);
+            writes.push(() => {
+              t.delete(this.db.collection(c).doc(id));
+              this.catalog.delete(c);
+            });
+          },
+        };
+        const result = await f(tx);
+        writes.forEach((w) => w());
+        return result;
+      }),
+    );
   }
 }
 const globalRepo = globalThis as unknown as { studyquestRepository?: Promise<Repository> };

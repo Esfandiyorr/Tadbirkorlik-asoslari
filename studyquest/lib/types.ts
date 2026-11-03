@@ -116,6 +116,8 @@ export type Data = {
   settings: Settings;
   badges: Badge[];
   mode: 'demo' | 'firebase' | 'legacy';
+  limited?: boolean;
+  serviceMessage?: string;
   user?: User;
   progress?: Progress[];
   attempts?: Attempt[];

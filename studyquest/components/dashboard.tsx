@@ -67,14 +67,15 @@ export function Dashboard() {
       d.lessons[0],
     pct = next ? ((xp - level.xp) / (next.xp - level.xp)) * 100 : 100;
   useEffect(() => {
+    if (d.limited) return;
     if (lastLevel.current && lastLevel.current !== level.name) {
       setCelebrate(true);
       setTimeout(() => setCelebrate(false), 3000);
     }
     lastLevel.current = level.name;
-  }, [level.name]);
+  }, [level.name, d.limited]);
   async function openLesson(l: Lesson) {
-    if (d.mode === 'legacy') {
+    if (d.mode === 'legacy' || d.limited) {
       navigate('lesson/' + l.id);
       return;
     }
@@ -171,8 +172,16 @@ export function Dashboard() {
                       ? 'Tadbirkorlik asoslari XP'
                       : 'TOTAL XP'}
                 </small>
-                <strong>{(u?.academicPoints ?? xp).toLocaleString()}</strong>
-                {u?.academicPoints !== undefined && <small>{xp.toLocaleString()} XP</small>}
+                <strong>
+                  {u?.academicPoints !== undefined
+                    ? u.academicPoints.toLocaleString()
+                    : d.limited
+                      ? '—'
+                      : xp.toLocaleString()}
+                </strong>
+                {u?.academicPoints !== undefined && !d.limited && (
+                  <small>{xp.toLocaleString()} XP</small>
+                )}
               </div>
             </div>
             <div className="stat-card">
@@ -182,7 +191,8 @@ export function Dashboard() {
               <div>
                 <small>{t(lang, 'streak')}</small>
                 <strong>
-                  {u?.streak || 0} <em>{lang === 'en' ? 'days' : lang === 'ru' ? 'дн.' : 'kun'}</em>
+                  {d.limited ? '—' : u?.streak || 0}{' '}
+                  <em>{lang === 'en' ? 'days' : lang === 'ru' ? 'дн.' : 'kun'}</em>
                 </strong>
               </div>
             </div>
@@ -199,7 +209,7 @@ export function Dashboard() {
                       : 'Пройдено уроков'}
                 </small>
                 <strong>
-                  {done.length}
+                  {d.limited ? '—' : done.length}
                   <em> / {d.lessons.length}</em>
                 </strong>
               </div>
@@ -225,8 +235,12 @@ export function Dashboard() {
                   </span>
                   <h3>{lesson.title}</h3>
                   <p>
-                    {active ? Math.round((seenCount(active) / lesson.slideCount) * 100) : 0}% ·{' '}
-                    {lesson.slideCount}{' '}
+                    {d.limited
+                      ? '—'
+                      : active
+                        ? Math.round((seenCount(active) / lesson.slideCount) * 100) + '%'
+                        : '0%'}{' '}
+                    · {lesson.slideCount}{' '}
                     {lang === 'en' ? 'slides' : lang === 'ru' ? 'слайдов' : 'slayd'}
                   </p>
                   <ProgressBar value={active ? (seenCount(active) / lesson.slideCount) * 100 : 0} />
@@ -348,16 +362,18 @@ export function Dashboard() {
               </svg>
               <div>
                 <Trophy size={27} />
-                <b>{levelLabel(lang, level.name)}</b>
+                <b>{d.limited ? '—' : levelLabel(lang, level.name)}</b>
               </div>
             </div>
             <small>{t(lang, 'level')}</small>
             <p className="level-note">
-              {next
-                ? `${xp} / ${next.xp} XP`
-                : lang === 'uz'
-                  ? 'Eng yuqori daraja'
-                  : 'Highest level'}
+              {d.limited
+                ? 'XP —'
+                : next
+                  ? `${xp} / ${next.xp} XP`
+                  : lang === 'uz'
+                    ? 'Eng yuqori daraja'
+                    : 'Highest level'}
             </p>
             <div className="profile-divider" />
             <div className="streak-row">
@@ -390,6 +406,7 @@ export function Dashboard() {
             </p>
             <Button
               variant="outline"
+              disabled={d.limited}
               onClick={async () => {
                 try {
                   const r = await call<{ points: number }>('challenge', {});
@@ -428,7 +445,7 @@ export function Dashboard() {
               ))}
             </div>
             <p>
-              {d.earned?.length || 0} / {d.badges.length}{' '}
+              {d.limited ? '—' : d.earned?.length || 0} / {d.badges.length}{' '}
               {lang === 'en' ? 'unlocked' : lang === 'ru' ? 'открыто' : 'ochilgan'}
             </p>
           </section>
@@ -472,7 +489,7 @@ export function CourseList({ search = '', courseId }: { search?: string; courseI
           l.title.toLocaleLowerCase().includes(query)),
     );
   async function open(l: Lesson) {
-    if (d.mode === 'legacy') {
+    if (d.mode === 'legacy' || d.limited) {
       navigate('lesson/' + l.id);
       return;
     }
@@ -539,7 +556,7 @@ export function CourseList({ search = '', courseId }: { search?: string; courseI
                       {lang === 'uz' ? 'ta mavzu' : lang === 'en' ? 'lessons' : 'тем'}
                     </span>
                     <span>
-                      {completed}/{topics.length}
+                      {d.limited ? '—' : completed}/{topics.length}
                     </span>
                   </p>
                   <ProgressBar value={topics.length ? (completed / topics.length) * 100 : 0} />
@@ -640,8 +657,8 @@ export function CourseList({ search = '', courseId }: { search?: string; courseI
               <span className="course-level">{mods.find((m) => m.id === l.moduleId)?.title}</span>
               <h3>{l.title}</h3>
               <p>
-                {l.slideCount} {lang === 'en' ? 'slides' : lang === 'ru' ? 'слайдов' : 'slayd'} · +
-                {d.settings.rewards.lesson} XP
+                {l.slideCount} {lang === 'en' ? 'slides' : lang === 'ru' ? 'слайдов' : 'slayd'}
+                {!d.limited && <> · +{d.settings.rewards.lesson} XP</>}
               </p>
               <ProgressBar value={p ? (seenCount(p) / l.slideCount) * 100 : 0} />
               <span className="lesson-link">
@@ -658,6 +675,7 @@ export function CourseList({ search = '', courseId }: { search?: string; courseI
 }
 export function Badges() {
   const { data, lang } = useApp();
+  if (data?.limited) return <div className="empty-state">{data.serviceMessage}</div>;
   const icons = {
     book: BookOpen,
     trophy: Trophy,

@@ -427,3 +427,41 @@ test('standalone copied lesson and game links return to the new application', as
   expect(new URL(page.url()).searchParams.get('arena')).toBe('#/room/ABCD');
   await expect(page.locator('.embedded-arena iframe')).toBeVisible();
 });
+
+test('quota fallback preserves academic points and opens original slides without XP writes', async ({
+  page,
+}) => {
+  await login(page.request, 'student');
+  const writes: string[] = [];
+  await page.route('**/api/platform*', async (route) => {
+    if (route.request().method() === 'POST') {
+      writes.push(route.request().postDataJSON().action);
+      return route.continue();
+    }
+    if (new URL(route.request().url()).searchParams.get('view') === 'legacyLesson')
+      return route.continue();
+    const response = await route.fetch(),
+      state = await response.json();
+    state.mode = 'firebase';
+    state.limited = true;
+    state.serviceMessage = 'Ma’lumotlar bazasi kvotasi tugagan.';
+    state.user.academicPoints = 375.5;
+    state.progress = [];
+    delete state.user.xp;
+    await route.fulfill({ response, json: state });
+  });
+  await page.goto('/');
+  await expect(
+    page.locator('[role="status"]').filter({ hasText: 'kvotasi tugagan' }),
+  ).toBeVisible();
+  await expect(page.locator('.stat-card').filter({ hasText: 'Akademik ball' })).toContainText(
+    '375.5',
+  );
+  await page.goto('/#course/tad-asoslari');
+  await page.locator('.lesson-card').first().click();
+  const frame = page.frameLocator('.legacy-viewer iframe');
+  await expect(frame.locator('.slide.active')).toBeVisible();
+  await page.getByRole('button', { name: 'Next slide', exact: true }).click();
+  await expect(page.locator('.reader-navigation')).toContainText('2 / 18');
+  expect(writes).toEqual([]);
+});

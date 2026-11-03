@@ -47,9 +47,9 @@ Original browser sessions stored under GitHub Pages do not automatically transfe
 
 Verify real email/Google sign-in and password reset, original name/password login, original group approval/access, independent open lessons, teacher editing, a real PDF upload/download, administrator role changes, and duplicate XP protection on staging. Confirm that existing academic grades are unchanged. Local demo/emulator tests do not verify production credentials or IAM permissions.
 
-On the first authenticated administrator visit after deployment, the client requests the idempotent existing-account import. The administrator can retry through Teacher/Administration → Academic records → Link existing students. See [MIGRATION.md](MIGRATION.md).
+Start the repeat-safe existing-account import explicitly through Teacher/Administration → Academic records → Link existing students. It does not run automatically at login or refresh. See [MIGRATION.md](MIGRATION.md).
 
-No payment provider is connected in this version. Paid enrollment requires a separate reviewed payment/webhook integration before selling courses. Scoped queries and aggregates should replace broad report scans before a larger launch.
+No payment provider is connected in this version. Paid enrollment requires a separate reviewed payment/webhook integration before selling courses. Student dashboards use user-scoped queries, reports load on staff screens, and public catalog lists are cached for up to sixty seconds per server instance. Large deployments still need paginated staff reports and precomputed leaderboard aggregates.
 
 Original Pages routes redirect to `https://tadbirkorlik-asoslari.vercel.app/`. Changing this public origin later requires updating `platform-redirect.js`. The copied `/legacy/` documents redirect standalone visits into the new application but stay embedded for authenticated learning/account/game workflows.
 
@@ -60,3 +60,11 @@ Original Pages routes redirect to `https://tadbirkorlik-asoslari.vercel.app/`. C
 - Staff permission error: check the authenticated account's canonical user ID and private role. Refresh the sign-in after changing custom claims.
 - Upload fails: verify the Storage bucket, service-account IAM, course ownership, file signature, and 4 MiB limit.
 - Build cannot find original files: enable outside-root repository access and preserve the original root files in the checkout.
+
+## Firestore quota exhaustion
+
+`8 RESOURCE_EXHAUSTED: Quota exceeded` is a Firestore service limit, not an incorrect Google password. Check Firestore → Usage and the relevant Google Cloud quotas to identify whether reads, writes, or another limit was reached. Daily free quotas reset on Firebase's schedule; changing code does not restore an exhausted quota. A paid billing plan is a separate owner decision and is not required or enabled by these fixes.
+
+The server backs off Firestore requests for sixty seconds per instance after a quota failure. The app serves only the existing repository course catalog in limited mode, verifies Google tokens and original RTDB student ownership/status without a Firestore write, and preserves live original academic totals. The limited lesson endpoint checks original group/access permissions before returning an original presentation. XP, streak and new completion values that cannot be loaded are shown as unavailable; no temporary balances or demo students are written. New XP, private uploads, new quizzes and Firestore management operations return a retryable 503. Rankings fail closed if their Firestore privacy data cannot be loaded.
+
+After the quota is available again, refresh the site to return to the full platform. Bulk migration is manual, and unchanged student snapshots are skipped on retries. No old accounts, original grades or learning materials are reset by this fallback.

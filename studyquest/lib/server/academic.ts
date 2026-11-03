@@ -1,4 +1,5 @@
 import 'server-only';
+import { createHash } from 'node:crypto';
 import type { Actor } from '../types';
 import type { Repository, Row } from './repository';
 import { administrator, check, staff } from './auth';
@@ -80,28 +81,52 @@ export class Academic {
     const entries = Object.entries(source).filter(
       ([id, s]: any) => /^[a-zA-Z0-9_-]{1,100}$/.test(id) && s?.name && s?.status,
     );
+    const fingerprint = (sid: string, s: Row) =>
+      createHash('sha256')
+        .update(
+          JSON.stringify({
+            record: academicRecord(sid, s),
+            progress: s.prog || {},
+            reading: s.reading || {},
+            at: s.at || 0,
+            updated: s.updated || 0,
+          }),
+        )
+        .digest('hex');
     // At most 20 * (user + enrollment + 15 progress) writes per transaction.
     for (let offset = 0; offset < entries.length; offset += 20) {
       await this.db.transaction(async (tx) => {
-        const batch = entries.slice(offset, offset + 20),
-          reads: [string, string][] = [];
-        for (const [sid, raw] of batch) {
+        const batch = entries.slice(offset, offset + 20);
+        const cached = new Map<string, Row | null>(
+          await Promise.all(
+            batch.flatMap(([sid]) => {
+              const uid = 'legacy_' + sid;
+              return [
+                ['users', uid],
+                ['enrollments', uid + '_' + course.id],
+              ].map(async ([c, id]) => [c + '/' + id, await tx.get(c, id)] as const);
+            }),
+          ),
+        );
+        const changed = batch.filter(
+          ([sid, s]) =>
+            cached.get('users/legacy_' + sid)?.legacySourceHash !== fingerprint(sid, s as Row) ||
+            !cached.get('enrollments/legacy_' + sid + '_' + course.id),
+        );
+        const reads: [string, string][] = [];
+        for (const [sid, raw] of changed) {
           const value = raw as Row,
             userId = 'legacy_' + sid;
-          reads.push(['users', userId], ['enrollments', userId + '_' + course.id]);
           for (const lesson of lessons)
             if (value.prog?.[lesson.id] || value.reading?.[lesson.id] || value.topics?.[lesson.id])
               reads.push(['progress', userId + '_' + lesson.id]);
         }
-        const cached = new Map<string, Row | null>(
-          await Promise.all(
-            reads.map(
-              async ([collection, id]) =>
-                [collection + '/' + id, await tx.get(collection, id)] as const,
-            ),
+        await Promise.all(
+          reads.map(async ([collection, id]) =>
+            cached.set(collection + '/' + id, await tx.get(collection, id)),
           ),
         );
-        for (const [sid, raw] of batch) {
+        for (const [sid, raw] of changed) {
           const s = raw as Row,
             record = academicRecord(sid, s),
             old = cached.get('users/' + record.id);
@@ -115,6 +140,7 @@ export class Academic {
             ...old,
             ...record,
             legacyLinkedAt: this.now(),
+            legacySourceHash: fingerprint(sid, s),
           });
           const enrollment = record.id + '_' + course.id;
           if (!cached.get('enrollments/' + enrollment))

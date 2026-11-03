@@ -7,11 +7,22 @@ import { legacyAccess } from '@/lib/server/legacy-access';
 import { Platform } from '@/lib/server/platform';
 import { Academic, academicRecord } from '@/lib/server/academic';
 import { course, modules, lessons, quiz, settings, badges, catalog } from '@/lib/seed';
+import { quotaExceeded } from '@/lib/server/quota';
+import { limitedCatalog } from '@/lib/server/limited';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
 export async function GET(req: NextRequest) {
   try {
+    // Existing presentations retain the original RTDB group/access checks and
+    // remain available without a Firestore profile or an XP write.
+    if (req.nextUrl.searchParams.get('view') === 'legacyLesson') {
+      const a = await actor(req, true);
+      const lesson = lessons.find((l) => l.id === req.nextUrl.searchParams.get('lesson'));
+      check(lesson?.legacyFile, 404, 'Asl dars topilmadi');
+      await legacyAccess(a, lesson!);
+      return NextResponse.json(lesson);
+    }
     const mode = demo() ? 'demo' : configured() ? 'firebase' : 'legacy';
     if (mode === 'legacy') {
       const { questions, ...q } = quiz;
@@ -52,7 +63,7 @@ export async function GET(req: NextRequest) {
           req.nextUrl.searchParams.get('course') || '',
         ),
       });
-    const state = await service.state(a);
+    const state = await service.state(a, req.nextUrl.searchParams.get('view') === 'staff');
     if (!demo()) {
       const noticeSnapshot = await legacyDb()
         .ref('meta/announcements')
@@ -88,6 +99,20 @@ export async function GET(req: NextRequest) {
         : {}),
     });
   } catch (e) {
+    if (
+      quotaExceeded(e) &&
+      !demo() &&
+      !['academic', 'roster', 'leaderboard', 'legacyLesson'].includes(
+        req.nextUrl.searchParams.get('view') || '',
+      )
+    ) {
+      try {
+        const a = req.headers.get('authorization') ? await actor(req, true) : undefined;
+        return NextResponse.json(limitedCatalog(a), { headers: { 'Cache-Control': 'no-store' } });
+      } catch (authError) {
+        return failure(authError);
+      }
+    }
     return failure(e);
   }
 }

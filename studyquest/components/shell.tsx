@@ -312,6 +312,11 @@ export function StudyQuest() {
             </select>
           </div>
         )}
+        {data.limited && (
+          <div role="status" className="inline-error">
+            {data.serviceMessage}
+          </div>
+        )}
         {error && (
           <div role="alert" className="inline-error">
             {error}

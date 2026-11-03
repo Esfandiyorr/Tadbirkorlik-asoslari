@@ -42,7 +42,7 @@ function readDemo(cookie: string) {
   check(x.exp > Date.now() && demoUsers.some((u) => u.id === x.id), 401, 'Seans tugagan');
   return x.id as string;
 }
-export async function actor(req: NextRequest): Promise<Actor> {
+export async function actor(req: NextRequest, readOnly = false): Promise<Actor> {
   check(
     demo() || configured(),
     503,
@@ -96,7 +96,7 @@ export async function actor(req: NextRequest): Promise<Actor> {
     classId = s.learnerType === 'independent' ? '' : s.group || '';
     learnerType = s.learnerType === 'independent' ? 'independent' : 'university';
   }
-  const stored = await repo.get('users', id);
+  const stored = readOnly ? null : await repo.get('users', id);
   check(!stored?.blocked, 403, 'Hisob bloklangan');
   const admins = (process.env.STUDYQUEST_ADMIN_UIDS || '').split(',').map((x) => x.trim());
   const emailTeacher =
@@ -126,18 +126,28 @@ export async function actor(req: NextRequest): Promise<Actor> {
     leaderboardVisible: stored?.leaderboardVisible !== false,
     createdAt: stored?.createdAt || Date.now(),
   };
-  await repo.transaction(async (tx) => {
-    const current = await tx.get('users', id);
-    tx.set('users', id, {
-      ...u,
-      ...current,
-      uid: decoded.uid,
-      role,
-      classId: u.classId,
-      learnerType: u.learnerType,
+  if (
+    !readOnly &&
+    (!stored ||
+      stored.uid !== decoded.uid ||
+      stored.role !== role ||
+      stored.classId !== u.classId ||
+      stored.learnerType !== u.learnerType ||
+      stored.authLinkedUid !== decoded.uid)
+  )
+    await repo.transaction(async (tx) => {
+      const current = await tx.get('users', id);
+      tx.set('users', id, {
+        ...u,
+        ...current,
+        uid: decoded.uid,
+        role,
+        classId: u.classId,
+        learnerType: u.learnerType,
+        authLinkedUid: decoded.uid,
+      });
+      tx.set('authLinks', decoded.uid, { id: decoded.uid, actorId: id });
     });
-    tx.set('authLinks', decoded.uid, { id: decoded.uid, actorId: id });
-  });
   return { ...u, ...(academicPoints !== undefined ? { academicPoints } : {}) };
 }
 export function staff(a: Actor) {

@@ -1,7 +1,13 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { ApiError } from './auth';
+import { quotaExceeded, quotaMessage } from './quota';
 export function failure(e: unknown) {
+  if (quotaExceeded(e))
+    return NextResponse.json(
+      { error: quotaMessage, code: 'QUOTA_EXCEEDED' },
+      { status: 503, headers: { 'Retry-After': '60' } },
+    );
   if (e instanceof SyntaxError)
     return NextResponse.json({ error: 'So‘rov formati noto‘g‘ri' }, { status: 400 });
   if (e instanceof z.ZodError)

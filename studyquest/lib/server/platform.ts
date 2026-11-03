@@ -168,63 +168,73 @@ export class Platform {
       badges: b.length ? b : badges,
     };
   }
-  async state(a: Actor) {
-    const [catalog, user, progress, attempts, transactions, earned, notifications] =
+  async state(a: Actor, includeStaff = false) {
+    const [catalog, user, progress, attempts, transactions, earned, ownNotices, sharedNotices] =
       await Promise.all([
         this.publicData(),
         this.db.get('users', a.id),
-        this.db.list('progress'),
-        this.db.list('quizAttempts'),
-        this.db.list('xpTransactions'),
-        this.db.list('userAchievements'),
-        this.db.list('notifications'),
+        this.db.find('progress', 'userId', a.id),
+        this.db.find('quizAttempts', 'userId', a.id),
+        this.db.find('xpTransactions', 'userId', a.id),
+        this.db.find('userAchievements', 'userId', a.id),
+        this.db.find('notifications', 'userId', a.id),
+        this.db.find('notifications', 'userId', 'all'),
       ]);
-    const allCourses = await this.db.list('courses'),
-      managed = allCourses.filter(
+    const activity = Array.from({ length: 7 }, (_, i) => {
+      const d = day(this.now() - (6 - i) * 86400000);
+      return {
+        day: d.slice(5),
+        xp: transactions.filter((x) => day(x.createdAt) === d).reduce((s, x) => s + x.points, 0),
+      };
+    });
+    let staffData = {};
+    // Class-wide reports are requested only on the teacher/admin screen.
+    if (includeStaff && a.role !== 'student') {
+      const managed = (await this.db.list('courses')).filter(
         (c) => a.role === 'admin' || c.ownerId === a.id || c.ownerId === 'system',
-      ),
-      courseIds = new Set(managed.map((c) => c.id)),
-      enrollments = await this.db.list('enrollments'),
-      enrolledIds = new Set(
-        enrollments.filter((e) => courseIds.has(e.courseId)).map((e) => e.userId),
       );
-    const mine = transactions.filter((x) => x.userId === a.id),
-      activity = Array.from({ length: 7 }, (_, i) => {
-        const d = day(this.now() - (6 - i) * 86400000);
-        return {
-          day: d.slice(5),
-          xp: mine.filter((x) => day(x.createdAt) === d).reduce((s, x) => s + x.points, 0),
-        };
-      });
+      const ids = new Set(managed.map((c) => c.id));
+      const forCourses = async (collection: string) =>
+        (await Promise.all(managed.map((c) => this.db.find(collection, 'courseId', c.id)))).flat();
+      const [enrollments, allProgress, allAttempts, classes] = await Promise.all([
+        forCourses('enrollments'),
+        forCourses('progress'),
+        forCourses('quizAttempts'),
+        a.role === 'admin' ? this.db.list('classes') : this.db.find('classes', 'teacherId', a.id),
+      ]);
+      const users =
+        a.role === 'admin'
+          ? await this.db.list('users')
+          : (
+              await Promise.all(
+                [...new Set([a.id, ...enrollments.map((e) => e.userId)])].map((id) =>
+                  this.db.get('users', id),
+                ),
+              )
+            ).filter(Boolean);
+      staffData = {
+        classes,
+        users,
+        allProgress,
+        allAttempts: allAttempts.map(({ answers, ...x }) => x),
+        courses: managed,
+        modules: (await this.db.list('modules')).filter((m) => ids.has(m.courseId)),
+        lessons: (await this.db.list('lessons')).filter((l) => ids.has(l.courseId)),
+      };
+    }
     return {
       ...catalog,
       user: {
         ...user,
         ...(a.academicPoints !== undefined ? { academicPoints: a.academicPoints } : {}),
       },
-      progress: progress.filter((x) => x.userId === a.id),
-      attempts: attempts.filter((x) => x.userId === a.id).map(({ answers, ...x }) => x),
-      transactions: mine,
-      earned: earned.filter((x) => x.userId === a.id).map((x) => x.badgeId),
+      progress,
+      attempts: attempts.map(({ answers, ...x }) => x),
+      transactions,
+      earned: earned.map((x) => x.badgeId),
       activity,
-      notifications: notifications.filter((x) => x.userId === a.id || x.userId === 'all'),
-      ...(a.role !== 'student'
-        ? {
-            classes: (await this.db.list('classes')).filter(
-              (c) => a.role === 'admin' || c.teacherId === a.id,
-            ),
-            users: (await this.db.list('users')).filter(
-              (u) => a.role === 'admin' || u.id === a.id || enrolledIds.has(u.id),
-            ),
-            allProgress: progress.filter((p) => courseIds.has(p.courseId)),
-            allAttempts: attempts
-              .filter((p) => courseIds.has(p.courseId))
-              .map(({ answers, ...x }) => x),
-            courses: managed,
-            modules: (await this.db.list('modules')).filter((m) => courseIds.has(m.courseId)),
-            lessons: (await this.db.list('lessons')).filter((l) => courseIds.has(l.courseId)),
-          }
-        : {}),
+      notifications: [...ownNotices, ...sharedNotices],
+      ...staffData,
     };
   }
   async act(a: Actor, action: string, input: unknown): Promise<unknown> {
@@ -238,7 +248,8 @@ export class Platform {
       check(await this.db.get('users', who), 404, 'O‘quvchi topilmadi');
       return this.db.transaction(async (tx) => {
         const key = who + '_' + p.courseId;
-        tx.set('enrollments', key, { id: key, userId: who, courseId: p.courseId, at: n });
+        if (!(await tx.get('enrollments', key)))
+          tx.set('enrollments', key, { id: key, userId: who, courseId: p.courseId, at: n });
         return { ok: true };
       });
     }
@@ -276,6 +287,8 @@ export class Platform {
             };
           if (action === 'slide') {
             check(p.index !== undefined && p.index < l!.slideCount, 400, 'Slayd raqami noto‘g‘ri');
+            if (old && old.last === p.index && old.seen.includes(p.index))
+              return { progress: old, reward: { points: 0, duplicate: false } };
             progress.seen = Array.from(new Set([...progress.seen, p.index]));
             progress.last = p.index;
           }
@@ -395,7 +408,7 @@ export class Platform {
     }
     if (action === 'challenge') {
       const today = day(n),
-        attempts = await this.db.list('quizAttempts');
+        attempts = await this.db.find('quizAttempts', 'userId', a.id);
       check(
         attempts.some(
           (x) =>
@@ -707,7 +720,10 @@ export class Platform {
     throw new Error('UNKNOWN_ACTION');
   }
   async courseReward(a: Actor, courseId: string) {
-    const [ls, progress] = await Promise.all([this.db.list('lessons'), this.db.list('progress')]),
+    const [ls, progress] = await Promise.all([
+        this.db.find('lessons', 'courseId', courseId),
+        this.db.find('progress', 'userId', a.id),
+      ]),
       courseLessons = ls.filter((l) => l.courseId === courseId && l.published),
       mine = progress.filter((x) => x.userId === a.id && x.completed);
     if (courseLessons.length && courseLessons.every((l) => mine.some((x) => x.lessonId === l.id)))

@@ -56,6 +56,15 @@ export function LessonView({ id }: { id: string }) {
     let alive = true;
     (async () => {
       try {
+        if (data?.limited) {
+          const response = await request(
+            '/api/platform?view=legacyLesson&lesson=' + encodeURIComponent(id),
+          );
+          const original = await response.json();
+          if (!response.ok) throw new Error(original.error);
+          if (alive) setDetail(original);
+          return;
+        }
         await call('enroll', { courseId: meta.courseId });
         const lesson = await call<LessonType>('getLesson', { lessonId: id });
         const r = await call<{ progress: { last: number } }>('beginLesson', { lessonId: id });
@@ -72,7 +81,7 @@ export function LessonView({ id }: { id: string }) {
       alive = false;
       loaded.current = '';
     };
-  }, [id, meta?.id, legacyMode, call]);
+  }, [id, meta?.id, legacyMode, data?.limited, call, request]);
   useEffect(() => {
     const handle = (e: MessageEvent) => {
       if (
@@ -85,12 +94,12 @@ export function LessonView({ id }: { id: string }) {
       )
         return;
       setIndex(e.data.index);
-      if (!legacyMode)
+      if (!legacyMode && !data?.limited)
         call('slide', { lessonId: id, index: e.data.index }).catch((e) => toast(e.message));
     };
     window.addEventListener('message', handle);
     return () => window.removeEventListener('message', handle);
-  }, [id, legacyMode, call, toast]);
+  }, [id, legacyMode, data?.limited, call, toast]);
   async function go(n: number) {
     if (!detail || n < 0 || n >= detail.slideCount) return;
     if (detail.legacyFile) {
@@ -274,7 +283,7 @@ export function LessonView({ id }: { id: string }) {
               ? 'Yakunlash uchun kamida 80% slaydni o‘qing. O‘qish vaqti hisobga olinadi.'
               : 'Read at least 80% of the slides and meet the reading time.'}
           </p>
-          {!legacyMode && (
+          {!legacyMode && !data?.limited && (
             <Button disabled={busy || progress?.completed} onClick={complete}>
               <Check size={16} />
               {progress?.completed

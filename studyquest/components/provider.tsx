@@ -63,7 +63,6 @@ export function Provider({
     setMessage(s);
     setTimeout(() => setMessage(''), 4500);
   }, []);
-  const migrated = useRef('');
   const receivedSession = useRef('');
   const refreshVersion = useRef(0);
   const request = useCallback(
@@ -91,7 +90,8 @@ export function Provider({
   const refresh = useCallback(async () => {
     const version = ++refreshVersion.current;
     try {
-      const r = await request('/api/platform');
+      const staffView = /^#(?:admin|teacher)(?:\/|$)/.test(location.hash);
+      const r = await request('/api/platform' + (staffView ? '?view=staff' : ''));
       const d = await r.json();
       if (!r.ok) throw new Error(d.error);
       if (version !== refreshVersion.current) return;
@@ -125,7 +125,16 @@ export function Provider({
       });
       const v = await r.json();
       if (!r.ok) throw new Error(v.error);
-      await refresh();
+      if (['slide', 'beginLesson'].includes(action) && v.progress) {
+        setData((d) =>
+          d
+            ? {
+                ...d,
+                progress: [...(d.progress || []).filter((p) => p.id !== v.progress.id), v.progress],
+              }
+            : d,
+        );
+      } else if (!['getLesson', 'enroll', 'beginQuiz'].includes(action)) await refresh();
       return v as T;
     },
     [refresh, request],
@@ -159,20 +168,19 @@ export function Provider({
   }, []);
   useEffect(() => {
     void refresh();
+    let previous = location.hash;
+    const enterStaff = () => {
+      const next = location.hash;
+      if (
+        /^#(?:admin|teacher)(?:\/|$)/.test(next) ||
+        (previous.startsWith('#lesson/') && !next.startsWith('#lesson/'))
+      )
+        void refresh();
+      previous = next;
+    };
+    window.addEventListener('hashchange', enterStaff);
+    return () => window.removeEventListener('hashchange', enterStaff);
   }, [refresh]);
-  useEffect(() => {
-    if (
-      data?.mode !== 'firebase' ||
-      data.user?.role !== 'admin' ||
-      data.legacyMigration ||
-      migrated.current === data.user.id
-    )
-      return;
-    migrated.current = data.user.id;
-    call<{ students: number }>('syncLegacy', {})
-      .then((r) => toast(r.students + ' ta mavjud hisob ulandi.'))
-      .catch((e) => toast('Talabalar bazasini ulash: ' + e.message));
-  }, [data, call, toast]);
   useEffect(() => {
     const f = (e: MessageEvent) => {
       if (
