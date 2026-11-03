@@ -64,6 +64,8 @@ export function Provider({
     setTimeout(() => setMessage(''), 4500);
   }, []);
   const migrated = useRef('');
+  const receivedSession = useRef('');
+  const refreshVersion = useRef(0);
   const request = useCallback(
     async (url: string, init: RequestInit = {}) => {
       const h = new Headers(init.headers);
@@ -87,16 +89,31 @@ export function Provider({
     [token, demoMode, preferLegacy],
   );
   const refresh = useCallback(async () => {
+    const version = ++refreshVersion.current;
     try {
       const r = await request('/api/platform');
       const d = await r.json();
       if (!r.ok) throw new Error(d.error);
+      if (version !== refreshVersion.current) return;
       setData(d);
       setError('');
     } catch (e) {
+      if (version !== refreshVersion.current) return;
+      // A revoked or expired saved session must not hide the sign-in screen.
+      // Load only public data; keep the account and its academic records intact.
+      try {
+        const publicResponse = await fetch('/api/platform', { cache: 'no-store' });
+        const publicData = publicResponse.ok ? await publicResponse.json() : null;
+        if (version !== refreshVersion.current) return;
+        if (publicData) {
+          setData(publicData);
+          setLegacy(null);
+        }
+      } catch {}
+      if (version !== refreshVersion.current) return;
       setError(e instanceof Error ? e.message : 'Ulanishda xatolik');
     } finally {
-      setLoading(false);
+      if (version === refreshVersion.current) setLoading(false);
     }
   }, [request]);
   const call = useCallback(
@@ -133,7 +150,10 @@ export function Provider({
     const a = demoMode ? null : firebaseAuth();
     if (a)
       return onAuthStateChanged(a, (u) => {
-        if (u) u.getIdToken().then(setToken);
+        if (u)
+          u.getIdToken()
+            .then(setToken)
+            .catch(() => setToken(''));
         else setToken('');
       });
   }, []);
@@ -165,17 +185,26 @@ export function Provider({
       if (!Array.from(frames).some((frame) => e.source === frame.contentWindow)) return;
       const s = e.data.student as Legacy | null;
       if (s && (s.status === 'ok' || s.learnerType === 'independent')) {
+        const identity = JSON.stringify(s) + localStorage.getItem('terdu_sa');
+        if (receivedSession.current === identity) return;
+        receivedSession.current = identity;
         setLegacy(s);
         setPreferLegacy(true);
         localStorage.setItem('sq-session-mode', 'legacy');
-        setLogin(false);
-        if (location.hash === '#login') location.hash = 'home';
         void refresh();
       }
     };
     window.addEventListener('message', f);
     return () => window.removeEventListener('message', f);
   }, [refresh]);
+  useEffect(() => {
+    // Stored names alone are not proof of a successful sign-in.
+    // Keep the form open until the server accepts the account and ownership token.
+    if (!data?.user) return;
+    if (preferLegacy && (!legacy || data.user.id !== 'legacy_' + legacy.id)) return;
+    setLogin(false);
+    if (location.hash === '#login') location.hash = 'home';
+  }, [data, preferLegacy, legacy]);
   useEffect(() => {
     document.documentElement.lang = lang;
     document.documentElement.classList.toggle('dark', dark);
@@ -198,6 +227,7 @@ export function Provider({
     await refresh();
   };
   const useEmailMode = () => {
+    receivedSession.current = '';
     setPreferLegacy(false);
     setLegacy(null);
     localStorage.removeItem('terdu_student');
@@ -212,6 +242,7 @@ export function Provider({
     setLogin(v);
   };
   const logout = async () => {
+    receivedSession.current = '';
     const a = demoMode ? null : firebaseAuth();
     if (a?.currentUser) await signOut(a);
     await fetch('/api/auth/demo', { method: 'DELETE' });

@@ -85,13 +85,14 @@ export function StudyQuest() {
         <div className="loading-line" />
       </div>
     );
+  if (!data && view.split('/')[0] === 'login') return <AuthPanel />;
   if (!data)
     return (
       <div className="error-page">
         <h1>Tadbirkorlik asoslari</h1>
         <p>{error}</p>
         <Button onClick={refresh}>{lang === 'uz' ? 'Qayta urinish' : 'Try again'}</Button>
-        <a href="/legacy/index.html">{lang === 'uz' ? 'Mavjud darslar' : 'Existing lessons'}</a>
+        <a href="#login">{t(lang, 'login')}</a>
       </div>
     );
   const user = data.user,

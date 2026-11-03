@@ -13,6 +13,7 @@
     "test:rules": "vitest run --config vitest.rules.config.ts",
     "test:emulator": "firebase emulators:exec --only firestore --project demo-studyquest \"npm run test:rules\"",
     "test:browser": "playwright test",
+    "test:auth": "playwright test --config playwright.auth.config.ts",
     "pretypecheck": "node scripts/sync-legacy.mjs",
     "pretest": "node scripts/sync-legacy.mjs",
     "format:check": "prettier --check app components lib scripts tests *.ts *.json docs README.md public/*.js public/*.html public/*.webmanifest"

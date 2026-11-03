@@ -21,7 +21,35 @@ export function AuthPanel() {
     [name, setName] = useState(''),
     [email, setEmail] = useState(''),
     [password, setPassword] = useState(''),
-    [busy, setBusy] = useState(false);
+    [busy, setBusy] = useState(false),
+    [googleError, setGoogleError] = useState('');
+  async function googleLogin() {
+    if (busy) return;
+    setBusy(true);
+    setGoogleError('');
+    try {
+      const a = firebaseAuth();
+      if (!a) throw new Error('Google orqali kirish hali sozlanmagan.');
+      useEmailMode();
+      // Keep the popup directly in the click handler, before any network waits.
+      await signInWithPopup(a, new GoogleAuthProvider());
+      await refresh();
+    } catch (e) {
+      const code = (e as { code?: string }).code;
+      if (code === 'auth/popup-closed-by-user') return;
+      setGoogleError(
+        code === 'auth/popup-blocked'
+          ? 'Brauzer Google oynasini blokladi. Manzil qatoridagi belgi orqali pop-up oynalariga ruxsat bering va yana Google tugmasini bosing.'
+          : code === 'auth/unauthorized-domain'
+            ? 'Firebase Authentication → Settings → Authorized domains bo‘limiga ' +
+              location.hostname +
+              ' domenini qo‘shish kerak.'
+            : (e as Error).message,
+      );
+    } finally {
+      setBusy(false);
+    }
+  }
   async function submit(reset = false) {
     setBusy(true);
     if (!reset) useEmailMode();
@@ -107,6 +135,7 @@ export function AuthPanel() {
             : t(lang, 'login')}
         </h2>
         <p className="muted">Tadbirkorlik asoslari</p>
+        {googleError && <p role="alert">{googleError}</p>}
         {data?.mode === 'demo' ? (
           <>
             <p className="demo-explainer">{t(lang, 'demo')}</p>
@@ -149,8 +178,11 @@ export function AuthPanel() {
               title="Talaba hisobiga kirish"
               src="/legacy/index.html?studyquest=login&sqEmbed=login"
             />
-            <Button variant="outline" onClick={() => setStudent(false)}>
-              Google / Email
+            <Button variant="outline" disabled={busy} onClick={googleLogin}>
+              Google
+            </Button>
+            <Button variant="ghost" onClick={() => setStudent(false)}>
+              Email
             </Button>
           </>
         ) : (
@@ -235,20 +267,7 @@ export function AuthPanel() {
                   ? 'Забыли пароль?'
                   : 'Forgot password?'}
             </Button>
-            <Button
-              variant="outline"
-              onClick={async () => {
-                try {
-                  const a = firebaseAuth();
-                  if (!a) throw new Error('Google login is not enabled yet');
-                  useEmailMode();
-                  await signInWithPopup(a, new GoogleAuthProvider());
-                  await refresh();
-                } catch (e) {
-                  toast((e as Error).message);
-                }
-              }}
-            >
+            <Button variant="outline" disabled={busy} onClick={googleLogin}>
               Google
             </Button>
           </>

@@ -56,10 +56,13 @@ npm test
 npm run test:emulator
 npx playwright install --with-deps chromium
 npm run test:browser
+npm run test:auth
 npm run build
 ```
 
 Browser tests launch a local demo server and cover responsive navigation, languages, theme persistence, role escalation rejection, lesson completion and duplicate rewards, preservation of the original viewer, and staff controls. Firebase rules tests use only the `demo-studyquest` emulator project. No live database credentials are required for these tests.
+
+`test:auth` runs the real client session provider outside demo mode, with browser-intercepted Firebase and database responses. It checks the direct Google button, blocked popup feedback, saved Google sessions, expired/revoked session recovery, and original code sign-in with preserved academic points. It never contacts live authentication or modifies student records.
 
 ## Production setup and current boundaries
 
