@@ -16,7 +16,11 @@ export function AcademicRoster() {
     [password, setPassword] = useState(''),
     [resetError, setResetError] = useState(''),
     [resetBusy, setResetBusy] = useState(false),
-    [showPassword, setShowPassword] = useState(false);
+    [showPassword, setShowPassword] = useState(false),
+    [deleteUser, setDeleteUser] = useState<User | null>(null),
+    [deleteConfirmation, setDeleteConfirmation] = useState(''),
+    [deleteBusy, setDeleteBusy] = useState(false),
+    [deleteError, setDeleteError] = useState('');
   const selected = users.find((u) => u.id === selectedId);
   const filtered = users.filter(
     (u) =>
@@ -46,7 +50,7 @@ export function AcademicRoster() {
   }
   useEffect(() => {
     void load();
-  }, [request]);
+  }, [request, data?.studentPasswordSetup?.completed]);
   async function save(input: unknown) {
     try {
       await call('legacyStudent', input);
@@ -101,6 +105,39 @@ export function AcademicRoster() {
       <p className="muted">
         {users.length} ta hisob · {filtered.length} ta natija
       </p>
+      {data?.user?.role === 'admin' && (
+        <div className="credential-setup">
+          <p>
+            {data.studentPasswordSetup?.completed
+              ? data.studentPasswordSetup.students +
+                ' ta hisob uchun boshlang‘ich parollar sozlangan. Shaxsiy parollar qayta almashtirilmaydi.'
+              : 'Boshlang‘ich parollar bir marta 1111 qilib sozlanadi. Ballar saqlanadi.'}
+          </p>
+          {!data.studentPasswordSetup?.completed && (
+            <Button
+              variant="outline"
+              onClick={async () => {
+                try {
+                  const result = await call<{ completed: boolean; students: number }>(
+                    'initializeStudentPasswords',
+                    {},
+                  );
+                  toast(
+                    result.completed
+                      ? result.students + ' ta hisob tayyor.'
+                      : 'Sozlash davom etmoqda.',
+                  );
+                  await load();
+                } catch (error) {
+                  toast((error as Error).message);
+                }
+              }}
+            >
+              Boshlang‘ich parollarni sozlash
+            </Button>
+          )}
+        </div>
+      )}
       <input
         className="input"
         aria-label="Talabani qidirish"
@@ -164,12 +201,24 @@ export function AcademicRoster() {
                         variant="outline"
                         onClick={() => {
                           setResetUser(u);
-                          setPassword('');
+                          setPassword('1111');
                           setResetError('');
                           setShowPassword(false);
                         }}
                       >
                         Parolni tiklash
+                      </Button>
+                    )}
+                    {data?.user?.role === 'admin' && (
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          setDeleteUser(u);
+                          setDeleteConfirmation('');
+                          setDeleteError('');
+                        }}
+                      >
+                        Talabani o‘chirish
                       </Button>
                     )}
                   </td>
@@ -316,6 +365,72 @@ export function AcademicRoster() {
           </section>
         </div>
       )}
+      {deleteUser && (
+        <div className="modal-backdrop">
+          <form
+            className="panel roster-reset"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Talabani o‘chirish"
+            onSubmit={async (event) => {
+              event.preventDefault();
+              if (deleteBusy) return;
+              setDeleteBusy(true);
+              setDeleteError('');
+              try {
+                await call('legacyDeleteStudent', {
+                  id: deleteUser.legacyId,
+                  confirmation: deleteConfirmation,
+                });
+                setDeleteUser(null);
+                setDeleteConfirmation('');
+                toast('Talaba ro‘yxatdan o‘chirildi.');
+                await load();
+              } catch (error) {
+                setDeleteError((error as Error).message);
+              } finally {
+                setDeleteBusy(false);
+              }
+            }}
+          >
+            <h2>Talabani o‘chirish</h2>
+            <p>
+              <strong>{deleteUser.name}</strong> · {deleteUser.classId || 'Mustaqil o‘quvchi'}
+            </p>
+            <p>
+              Hisob ro‘yxatdan olib tashlanadi va unga kirish yopiladi. O‘quv natijalarining arxiv
+              nusxasi saqlanadi.
+            </p>
+            <label>
+              Tasdiqlash uchun ism-familiya
+              <input
+                className="input"
+                required
+                autoComplete="off"
+                value={deleteConfirmation}
+                onChange={(event) => setDeleteConfirmation(event.target.value)}
+              />
+            </label>
+            {deleteError && <p role="alert">{deleteError}</p>}
+            <div className="roster-pagination">
+              <Button
+                type="button"
+                variant="outline"
+                disabled={deleteBusy}
+                onClick={() => setDeleteUser(null)}
+              >
+                Bekor qilish
+              </Button>
+              <Button
+                type="submit"
+                disabled={deleteBusy || deleteConfirmation.trim() !== deleteUser.name.trim()}
+              >
+                Hisobni o‘chirish
+              </Button>
+            </div>
+          </form>
+        </div>
+      )}
       {resetUser && (
         <div className="modal-backdrop">
           <form
@@ -350,13 +465,16 @@ export function AcademicRoster() {
               Ballar va bajarilgan ishlar saqlanadi. Talaba keyingi kirishda yangi paroldan
               foydalanadi.
             </p>
+            <p className="muted">
+              1111 bilan tiklash yoki kamida 8 belgili boshqa parol o‘rnatish mumkin.
+            </p>
             <label>
               Yangi parol
               <input
                 className="input"
                 type={showPassword ? 'text' : 'password'}
                 autoComplete="new-password"
-                minLength={8}
+                minLength={4}
                 maxLength={128}
                 required
                 value={password}

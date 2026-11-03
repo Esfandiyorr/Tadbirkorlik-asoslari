@@ -7,7 +7,7 @@ import { getAuth } from 'firebase-admin/auth';
 import { getDatabase } from 'firebase-admin/database';
 import { getStorage } from 'firebase-admin/storage';
 import { QuotaGate } from './quota';
-import { course, modules, lessons, quiz, settings, badges, demoUsers } from '../seed';
+import { course, modules, lessons, quiz, settings, badges, demoUsers, catalog } from '../seed';
 export type Row = Record<string, any>; // Repository boundary; service schemas validate every external input.
 export interface Tx {
   get(collection: string, id: string): Promise<Row | null>;
@@ -31,6 +31,12 @@ export const configured = () =>
     ((process.env.FIREBASE_CLIENT_EMAIL && process.env.FIREBASE_PRIVATE_KEY) ||
       process.env.GOOGLE_APPLICATION_CREDENTIALS)
   );
+export function legacyDatabaseUrl() {
+  return (
+    process.env.FIREBASE_DATABASE_URL ||
+    (process.env.FIREBASE_PROJECT_ID === catalog.projectId ? catalog.databaseURL : undefined)
+  );
+}
 export function adminApp() {
   if (!configured()) throw new Error('SETUP_REQUIRED');
   return (
@@ -44,7 +50,7 @@ export function adminApp() {
           })
         : applicationDefault(),
       projectId: process.env.FIREBASE_PROJECT_ID,
-      databaseURL: process.env.FIREBASE_DATABASE_URL,
+      databaseURL: legacyDatabaseUrl(),
       storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
     })
   );

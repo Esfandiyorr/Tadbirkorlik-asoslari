@@ -21,6 +21,7 @@ export type Actor = {
   learnerType: 'university' | 'independent';
 };
 export type User = Actor & {
+  mustChangePassword?: boolean;
   readingHistory?: Record<string, ReadingHistory>;
   legacyId?: string;
   legacyStatus?: string;
@@ -121,6 +122,7 @@ export type Settings = {
 export type Badge = { id: string; name: string; description: string; icon: string };
 export type Data = {
   adminOnly?: boolean;
+  studentPasswordSetup?: { completed: boolean; students: number; completedAt?: number };
   legacyMigration?: { students: number; syncedAt: number } | null;
   courses: Course[];
   modules: Module[];

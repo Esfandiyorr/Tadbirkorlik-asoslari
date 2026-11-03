@@ -91,13 +91,18 @@ test('administrator finds original students, views fifteen histories and resets 
     ),
   };
   let reset: unknown;
+  let deleted = false;
   await page.route('**/api/platform*', async (route) => {
     if (route.request().method() === 'POST') {
-      reset = route.request().postDataJSON();
+      const body = route.request().postDataJSON();
+      if (body.action === 'initializeStudentPasswords')
+        return route.fulfill({ json: { completed: true, students: 1 } });
+      reset = body;
+      if (body.action === 'legacyDeleteStudent') deleted = true;
       return route.fulfill({ json: { ok: true } });
     }
     if (new URL(route.request().url()).searchParams.get('view') === 'roster')
-      return route.fulfill({ json: { users: [student] } });
+      return route.fulfill({ json: { users: deleted ? [] : [student] } });
     return route.fulfill({
       json: {
         courses: [course],
@@ -131,6 +136,7 @@ test('administrator finds original students, views fifteen histories and resets 
   await details.getByRole('button', { name: 'Yopish' }).click();
   await row.getByRole('button', { name: 'Parolni tiklash', exact: true }).click();
   const form = page.getByRole('dialog', { name: 'Talaba parolini tiklash', exact: true });
+  await expect(form.getByLabel('Yangi parol', { exact: true })).toHaveValue('1111');
   await form.getByLabel('Yangi parol', { exact: true }).fill('NewPassword-123');
   await form.getByRole('button', { name: 'Yangi parolni saqlash', exact: true }).click();
   await expect(form).toHaveCount(0);
@@ -139,5 +145,22 @@ test('administrator finds original students, views fifteen histories and resets 
     input: { id: 'alice', password: 'NewPassword-123' },
   });
   await expect(row).toContainText('375.5');
+  await expect(page.locator('.credential-setup')).toContainText(
+    'Shaxsiy parollar qayta almashtirilmaydi',
+  );
   await page.screenshot({ path: 'tests/artifacts/admin-student-roster.png', fullPage: true });
+  await row.getByRole('button', { name: 'Talabani o‘chirish', exact: true }).click();
+  const removal = page.getByRole('dialog', { name: 'Talabani o‘chirish', exact: true });
+  await removal.getByLabel('Tasdiqlash uchun ism-familiya', { exact: true }).fill('Ali');
+  await expect(
+    removal.getByRole('button', { name: 'Hisobni o‘chirish', exact: true }),
+  ).toBeDisabled();
+  await removal.getByLabel('Tasdiqlash uchun ism-familiya', { exact: true }).fill('Ali Valiyev');
+  await removal.getByRole('button', { name: 'Hisobni o‘chirish', exact: true }).click();
+  await expect(removal).toHaveCount(0);
+  await expect(page.locator('.academic-table tbody tr')).toHaveCount(0);
+  expect(reset).toEqual({
+    action: 'legacyDeleteStudent',
+    input: { id: 'alice', confirmation: 'Ali Valiyev' },
+  });
 });

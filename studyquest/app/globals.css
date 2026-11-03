@@ -3108,3 +3108,23 @@ td .input {
 .academic-table td .btn {
   margin: 3px;
 }
+.password-editor {
+  display: grid;
+  gap: 14px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 24px;
+  margin: 24px 0;
+}
+.password-editor label {
+  display: grid;
+  gap: 7px;
+}
+.password-editor [role='alert'] {
+  color: var(--danger, #b42318);
+}
+.credential-setup {
+  padding: 15px 0;
+  font-size: 13px;
+  color: var(--muted);
+}

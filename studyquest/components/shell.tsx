@@ -32,6 +32,7 @@ import { Staff } from './staff';
 import { InstallApp } from './install-app';
 import { NativeSurface } from './native-surface';
 import { AcademicHistory } from './academic-history';
+import { ChangePassword } from './change-password';
 import { Button } from './ui/button';
 import { t, type Key } from '@/lib/i18n';
 import type { Lang } from '@/lib/types';
@@ -392,6 +393,7 @@ function Profile() {
             </span>
           </div>
         )}
+        <ChangePassword />
         <AcademicHistory />
         <form
           onSubmit={async (e) => {

@@ -9,10 +9,24 @@ import { Academic, academicRecord } from '@/lib/server/academic';
 import { course, modules, lessons, quiz, settings, badges, catalog } from '@/lib/seed';
 import { quotaExceeded } from '@/lib/server/quota';
 import { limitedCatalog } from '@/lib/server/limited';
-import { resetStudentPassword } from '@/lib/server/student-password';
+import {
+  resetStudentPassword,
+  changeStudentPassword,
+  initializeStudentPasswords,
+  deleteStudent,
+} from '@/lib/server/student-password';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
+async function deletedStudentIds() {
+  if (demo()) return new Set<string>();
+  const records = (await legacyDb().ref('meta/deletedStudentIds').get()).val() || {};
+  return new Set(
+    Object.keys(records)
+      .filter((id) => records[id] === true)
+      .map((id) => 'legacy_' + id),
+  );
+}
 export async function GET(req: NextRequest) {
   try {
     // Existing presentations retain the original RTDB group/access checks and
@@ -56,15 +70,33 @@ export async function GET(req: NextRequest) {
         users: demo() ? [] : await new Academic(await repository()).roster(a),
       });
     }
-    if (req.nextUrl.searchParams.get('view') === 'leaderboard')
-      return NextResponse.json({
-        leaderboard: await service.leaderboard(
+    if (req.nextUrl.searchParams.get('view') === 'leaderboard') {
+      const [leaderboard, deleted] = await Promise.all([
+        service.leaderboard(
           a,
           req.nextUrl.searchParams.get('period') || 'all',
           req.nextUrl.searchParams.get('course') || '',
         ),
+        deletedStudentIds(),
+      ]);
+      return NextResponse.json({
+        leaderboard: leaderboard.filter((user) => !deleted.has(user.id)),
       });
+    }
     const state = await service.state(a, req.nextUrl.searchParams.get('view') === 'staff');
+    const staffState = state as typeof state & {
+      users?: { id: string }[];
+      allProgress?: { userId: string }[];
+      allAttempts?: { userId: string }[];
+    };
+    if (!demo() && staffState.users?.length) {
+      const deleted = await deletedStudentIds();
+      staffState.users = staffState.users.filter((user) => !deleted.has(user.id));
+      if (staffState.allProgress)
+        staffState.allProgress = staffState.allProgress.filter((row) => !deleted.has(row.userId));
+      if (staffState.allAttempts)
+        staffState.allAttempts = staffState.allAttempts.filter((row) => !deleted.has(row.userId));
+    }
     if (!demo()) {
       const noticeSnapshot = await legacyDb()
         .ref('meta/announcements')
@@ -142,6 +174,21 @@ export async function POST(req: NextRequest) {
     const input = await req.text();
     check(input.length < 128000, 413, 'So‘rov juda katta');
     const p = z.object({ action: z.string().max(40), input: z.unknown() }).parse(JSON.parse(input));
+    if (p.action === 'legacyChangePassword') {
+      const a = await actor(req, true);
+      check(!demo(), 409, 'Demo muhit jonli parollarni o‘zgartirmaydi.');
+      return NextResponse.json(await changeStudentPassword(a, p.input));
+    }
+    if (['initializeStudentPasswords', 'legacyDeleteStudent'].includes(p.action)) {
+      const a = await actor(req, true);
+      administrator(a);
+      check(!demo(), 409, 'Demo muhit jonli hisoblarni o‘zgartirmaydi.');
+      return NextResponse.json(
+        p.action === 'initializeStudentPasswords'
+          ? await initializeStudentPasswords(a)
+          : await deleteStudent(a, p.input),
+      );
+    }
     if (p.action === 'legacyResetPassword') {
       const a = await actor(req, true);
       administrator(a);

@@ -79,3 +79,12 @@ Set `PLATFORM_ADMIN_ONLY=false` and redeploy only when reopening is intended.
 See [administrator access and student recovery](ADMIN-ACCESS.md). Existing
 Firestore quota limitations are unchanged; the live academic roster and password
 recovery use the original RTDB and remain available independently.
+
+On the first administrator visit after the initial-password deployment, an
+authenticated POST initializes existing students to 1111 exactly once. Check the
+reported count in **Talabalar va baholar**; incomplete work can be resumed there.
+New registrations receive the same initial code. Students can later set their own
+password in Profile. This does not reopen the administrator-only closure.
+FIREBASE_DATABASE_URL is optional for the matching original Firebase project:
+the catalog's original URL is used as a fallback. Other projects require their own
+explicit database URL.

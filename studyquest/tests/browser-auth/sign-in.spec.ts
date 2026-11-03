@@ -175,7 +175,7 @@ test('sign-in remains available when the platform API is unavailable', async ({ 
   await expect(page.locator('.native-login #lgB')).toBeVisible();
 });
 
-test('existing code login establishes the legacy session and displays the original academic points', async ({
+test('1111 code login establishes the legacy session and displays the original academic points', async ({
   page,
 }) => {
   await services(page);
@@ -200,7 +200,7 @@ test('existing code login establishes the legacy session and displays the origin
     .toBe(true);
   await frame.locator('#lgN').fill(student.name);
   await frame.locator('#lgS').fill(student.surname);
-  await frame.locator('#lgB').fill('1234');
+  await frame.locator('#lgB').fill('1111');
   await frame.locator('#lgGo').click();
   await expect(page.locator('h1')).toContainText('Ali');
   await expect(page.locator('.stat-card').filter({ hasText: 'Akademik ball' })).toContainText(
@@ -286,4 +286,105 @@ test('a slow guest response cannot replace a restored Google account', async ({ 
   await expect(page.locator('.header-profile')).toContainText('Test');
   await page.waitForTimeout(2000);
   await expect(page.locator('.header-profile')).toContainText('Test');
+});
+
+test('student changes the initial password in Profile and returns to sign-in', async ({ page }) => {
+  await services(page);
+  let authenticated = true,
+    changed: unknown;
+  await page.route('**/api/platform*', (route) => {
+    if (route.request().method() === 'POST') {
+      changed = route.request().postDataJSON();
+      authenticated = false;
+      return route.fulfill({ json: { ok: true, reauthenticate: true } });
+    }
+    return route.fulfill({
+      json: authenticated
+        ? { ...userData, user: { ...userData.user, mustChangePassword: true } }
+        : publicData,
+    });
+  });
+  await page.goto('/#profile');
+  const form = page.locator('.password-editor');
+  await expect(form).toContainText('Boshlang‘ich parolingiz 1111');
+  await form.getByLabel('Joriy parol', { exact: true }).fill('1111');
+  await form.getByLabel('Yangi parol', { exact: true }).fill('Personal-Password-123');
+  await form.getByLabel('Yangi parolni takrorlang', { exact: true }).fill('mismatched-password');
+  await form.getByRole('button', { name: 'Parolni o‘zgartirish', exact: true }).click();
+  await expect(form.getByRole('alert')).toContainText('mos kelmadi');
+  expect(changed).toBeUndefined();
+  await form.getByLabel('Yangi parolni takrorlang', { exact: true }).fill('Personal-Password-123');
+  await form.getByRole('button', { name: 'Parolni o‘zgartirish', exact: true }).click();
+  await expect(page).toHaveURL(/#login$/);
+  expect(changed).toEqual({
+    action: 'legacyChangePassword',
+    input: { currentPassword: '1111', newPassword: 'Personal-Password-123' },
+  });
+});
+
+test('new student registration uses the displayed 1111 initial password', async ({ page }) => {
+  await services(page);
+  let created: any;
+  await page.route('**/api/platform*', (route) => route.fulfill({ json: publicData }));
+  await page.route('**/students/*.json*', (route) => {
+    if (route.request().method() === 'PUT') {
+      created = route.request().postDataJSON();
+      return route.fulfill({ json: created });
+    }
+    return route.fallback();
+  });
+  await page.goto('/#login');
+  const surface = page.locator('.native-login .native-document');
+  await expect(surface.locator('#lgN')).toBeVisible();
+  await surface.locator('[data-m="reg"]').click();
+  await expect(surface.locator('#rtB')).toHaveValue('1111');
+  await expect(surface.locator('#rtB')).toHaveAttribute('readonly', '');
+  await surface.locator('#rtN').fill('New');
+  await surface.locator('#rtS').fill('Learner');
+  await surface.locator('#rtGo').click();
+  await expect.poll(() => created?.authVersion).toBe(1);
+  expect(created.mustChangePassword).toBe(true);
+  expect(created.credentialSetupVersion).toBe('default1111-v1');
+  expect(created.total).toBe(0);
+});
+
+test('matching student names require an explicit group/account choice for 1111', async ({
+  page,
+}) => {
+  await services(page);
+  await page.route('**/students.json*', (route) =>
+    route.fulfill({
+      json: {
+        test_other: { ...student, id: 'test_other', group: 'AP-224', total: 999 },
+        [student.id]: student,
+      },
+    }),
+  );
+  await page.route('**/api/platform*', (route) =>
+    route.fulfill({
+      json: route.request().headers()['x-legacy-student'] === student.id ? userData : publicData,
+    }),
+  );
+  await page.goto('/#login');
+  const form = page.locator('.native-login .native-document');
+  await expect(form.locator('#lgN')).toBeVisible();
+  await expect
+    .poll(() =>
+      page
+        .frames()
+        .find((f) => f.url().includes('/legacy/index.html'))!
+        .evaluate(() => (window as any).RT.cloud().on),
+    )
+    .toBe(true);
+  await form.locator('#lgN').fill(student.name);
+  await form.locator('#lgS').fill(student.surname);
+  await form.locator('#lgB').fill('1111');
+  await form.locator('#lgGo').click();
+  await expect(form.locator('#sqNameChoice')).toBeVisible();
+  expect(new URL(page.url()).hash).toBe('#login');
+  await form.locator('#sqNameChoice').selectOption(student.id);
+  await form.locator('#lgGo').click();
+  await expect(page.locator('.stat-card').filter({ hasText: 'Akademik ball' })).toContainText(
+    '375.5',
+  );
 });

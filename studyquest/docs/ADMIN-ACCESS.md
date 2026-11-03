@@ -41,21 +41,53 @@ The live roster and student results do not depend on a bulk Firestore import.
 operation; its button is unavailable during Firestore quota exhaustion. Existing
 students retain their accounts, history and academic totals.
 
-Select **Parolni tiklash** next to the chosen student. Enter a new password of
-8–128 characters, then press **Yangi parolni saqlash**. Give that password to the
-student through your usual channel. Students later sign in with their original
-name/surname and this new password when access is reopened. The application does
-not send messages or expose old passwords.
+## Initial password and student changes
 
-The server independently checks administrator identity, validates the student ID
-and password, and derives the same PBKDF2-SHA256 key as the original login:
-600,000 iterations and a fresh 16-byte salt. A single atomic RTDB multipath update
-replaces the credential key, clears previous owner sessions, sets the original
-password-format metadata, and appends an administrator audit event without the
-password or credential hash. It does not replace student records, edit grades,
-change groups, or award XP. No plaintext password is saved in Firebase or returned
-in the response. This action uses read-only verified identity and RTDB, so it
-remains available when Firestore quota is exhausted.
+On the first authenticated administrator refresh after this deployment, the
+client explicitly POSTs `initializeStudentPasswords`. The server sets existing
+student credentials to `1111` once, using the original name/surname/PIN hash.
+A persistent RTDB completion marker prevents later administrator visits from
+resetting personal passwords. A two-minute distributed lease prevents parallel
+jobs; batches of fifty and per-student version stamps allow interrupted work to
+resume safely. Individual account operations wait while initialization is active.
+The administrator roster shows the outcome and offers a retry control if setup
+is incomplete. No live initialization is performed by local tests.
+
+New registrations in generated platform copies also start with a displayed,
+read-only `1111` password and the same setup version. The archived root source and
+teaching content are unchanged. When identical names match more than one record,
+login asks the student to choose a group/account before claiming ownership;
+it does not silently select the first student's grades.
+
+Students use **Profil → Parolni o‘zgartirish** after access is reopened. They must
+enter the current password and confirm a new password of 8–128 characters.
+The API derives their target ID from verified account ownership, rejects an
+arbitrary target ID and incorrect current password, and writes the same
+PBKDF2-SHA256 format as the original login (600,000 iterations, fresh salt).
+Changing a password revokes existing owner sessions and asks the student to
+sign in again; grades, group and progress remain unchanged. The initial-password
+hint disappears. A resumed setup job skips this personally changed record.
+
+## Administrator reset and deletion
+
+**Parolni tiklash** defaults to `1111`. The administrator can instead choose a
+personal password of at least eight characters. Credential keys are hashed;
+plaintext passwords are not saved or returned. Each reset clears old owner
+sessions and writes a secret-free audit event. Recovery uses verified read-only
+identity and RTDB, so Firestore quota does not block it.
+
+**Talabani o‘chirish** requires typing the displayed full name. One atomic RTDB
+update archives the original learning record without credential fields, removes
+the active student, credential keys, owner sessions and private contact record,
+and writes a deletion marker and audit event. Deleted students disappear from
+the live roster; stale Firestore profiles are excluded from active staff lists,
+reports and XP rankings using the marker. The archive is a separate
+server-managed collection denied by the original client rules. Historical game
+messages and Firestore learning records are not erased. Administrator accounts
+use their separate Google UID and are not part of the legacy student roster.
+
+The temporary administrator-only restriction remains enabled until the owner
+explicitly reopens the platform. Initializing passwords does not reopen access.
 
 Local verification uses isolated fixtures and mocked remote services. Actual
 student counts, configured owner login and a real password reset must be checked

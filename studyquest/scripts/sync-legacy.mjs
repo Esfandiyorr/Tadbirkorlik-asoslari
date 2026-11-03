@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
+import { adaptStudentRegistration } from './legacy-credentials.mjs';
 const app = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..'),
   root = path.resolve(app, '..'),
   out = path.join(app, 'public/legacy');
@@ -50,6 +51,7 @@ for (const entry of fs.readdirSync(root))
             'function pwaAsk($1){ if(document.documentElement.classList.contains("sq-embed"))return;',
           ),
       );
+    if (entry === 'rt-engine.js') data = Buffer.from(adaptStudentRegistration(data.toString()));
     fs.writeFileSync(path.join(out, entry), data);
   }
 fs.cpSync(path.join(root, 'fayllar'), path.join(out, 'fayllar'), { recursive: true });
@@ -89,7 +91,8 @@ const catalog = {
     lim: !!t.lim,
   })),
   teacherH: config.teacherH,
-  databaseURL: config.fbWeb.databaseURL,
+  databaseURL: config.fbWeb.databaseURL || config.firebase.url,
+  projectId: config.fbWeb.projectId,
 };
 fs.writeFileSync(path.join(app, 'lib/catalog.generated.json'), JSON.stringify(catalog, null, 2));
 console.log('Copied existing lessons without changing source content or database records.');

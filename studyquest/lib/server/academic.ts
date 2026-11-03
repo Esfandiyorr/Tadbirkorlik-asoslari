@@ -104,6 +104,7 @@ export function academicRecord(id: string, s: Row) {
     academicTopics: topics,
     manualMarks: manual,
     readingHistory: history,
+    mustChangePassword: s.mustChangePassword === true,
   };
 }
 

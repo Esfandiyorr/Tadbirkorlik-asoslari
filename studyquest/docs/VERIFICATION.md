@@ -68,3 +68,30 @@ while external proxy and TLS verification remained enabled.
 No live import or real student password reset was performed. Actual administrator
 UID configuration and Vercel rollout still require confirmation on the deployed
 site. See [administrator access](ADMIN-ACCESS.md) for the precise scope and steps.
+
+## Initial passwords and account management (3 November 2026)
+
+Local fixture verification covers the original 1111 hash, one-time initialization,
+recovery after an interrupted batch, active-lease exclusion, unchanged academic
+data, subsequent personal-password preservation, current-password checks,
+unauthorized target rejection, 1111 administrator recovery, and exact-name deletion
+with a credential-free archive. Native browser checks cover 1111 login, profile
+password confirmation and reauthentication, new registration with the initial
+password, and group/account choice for identical names. The maintenance browser
+journey now also tests deletion confirmation and removal from the roster. Actual
+cohort initialization is deliberately performed by the deployed server only after
+an authenticated administrator opens the new version; no production student
+credentials were changed by local tools. Administrator-only access remains on.
+
+Final checks for the initial-password change: 64 unit/server tests passed; all
+nine authentication journeys passed, followed by the additional identical-name
+journey and a registration rerun (both passed); all three maintenance/admin
+journeys passed with reset defaults and account deletion. The production build
+and TypeScript check passed. The generated original-engine copy is adapted for
+initial credentials only; teaching HTML and source archive are preserved.
+
+The original RTDB URL is now a fallback only when the configured Firebase project
+matches the original catalog project. An explicit FIREBASE_DATABASE_URL always
+wins; an unrelated project never inherits the original database URL. This avoids
+requiring an extra URL setting for the existing project while preserving project
+separation. No live database credentials are present in local verification.
