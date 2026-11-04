@@ -1019,3 +1019,96 @@
   color: var(--text);
   font-size: 12px;
 }
+
+/* A soft colour study for topic 7; other presentations keep their palette. */
+.lesson-color-m7 {
+  --m7-teal: #14665e;
+  --m7-blue: #285a91;
+  --m7-amber: #835717;
+  --m7-purple: #694a91;
+  --m7-mint: #edf8f3;
+  --m7-sky: #eef5fc;
+  --m7-sand: #fff7e9;
+  --m7-lilac: #f5f0fb;
+  --m7-line: #d6e5df;
+}
+.dark .lesson-color-m7 {
+  --m7-teal: #92d4c5;
+  --m7-blue: #a1c5ee;
+  --m7-amber: #e8c58a;
+  --m7-purple: #cdb5ee;
+  --m7-mint: #1d3431;
+  --m7-sky: #233143;
+  --m7-sand: #393124;
+  --m7-lilac: #322a41;
+  --m7-line: #40534e;
+}
+.reader-viewer .native-surface.lesson-color-m7 {
+  background:
+    radial-gradient(ellipse at top right, var(--m7-sky), transparent 65%),
+    radial-gradient(ellipse at bottom left, var(--m7-mint), transparent 65%), var(--surface);
+}
+.lesson-color-m7 .native-document .kicker {
+  background: var(--m7-mint);
+  color: var(--m7-teal);
+  border: 1px solid var(--m7-line);
+}
+.lesson-color-m7 .native-document h1.grad,
+.lesson-color-m7 .native-document h2 {
+  color: var(--m7-blue);
+}
+.lesson-color-m7 .native-document h2::after {
+  content: '';
+  display: block;
+  width: 64px;
+  height: 4px;
+  margin-top: 16px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--m7-teal), var(--m7-blue));
+}
+.lesson-color-m7 .native-document .card {
+  --card-tint: var(--m7-mint);
+  --card-accent: var(--m7-teal);
+  background: var(--card-tint);
+  border: 1px solid var(--m7-line);
+  border-top: 3px solid var(--card-accent);
+}
+.lesson-color-m7 .native-document .card:nth-child(4n + 2) {
+  --card-tint: var(--m7-sky);
+  --card-accent: var(--m7-blue);
+}
+.lesson-color-m7 .native-document .card:nth-child(4n + 3) {
+  --card-tint: var(--m7-sand);
+  --card-accent: var(--m7-amber);
+}
+.lesson-color-m7 .native-document .card:nth-child(4n + 4) {
+  --card-tint: var(--m7-lilac);
+  --card-accent: var(--m7-purple);
+}
+.lesson-color-m7 .native-document .card h3 {
+  color: var(--card-accent);
+}
+.lesson-color-m7 .native-document .quote {
+  border-color: var(--m7-line);
+  border-left-color: var(--m7-amber);
+  background: var(--m7-sand);
+}
+.lesson-color-m7 .native-document .quote b {
+  color: var(--m7-amber);
+}
+.lesson-color-m7 .native-document .meta > div {
+  border: 1px solid var(--m7-line);
+  border-radius: 10px;
+  background: var(--m7-mint);
+  padding: 8px 12px;
+}
+.lesson-color-m7 .native-document .meta > div:nth-child(even) {
+  background: var(--m7-sky);
+}
+.lesson-color-m7 .native-document th {
+  background: var(--m7-mint);
+  color: var(--m7-teal);
+}
+.lesson-color-m7 .native-document tbody tr:nth-child(even) {
+  background: var(--m7-sky);
+}

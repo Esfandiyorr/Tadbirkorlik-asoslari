@@ -227,3 +227,18 @@ settings, one request reused across analytics/learner tabs and CSV). TypeScript,
 formatting and the production build passed after correcting test-only typed
 assertions. No live Firebase records, quota or billing settings were changed;
 actual production read savings require observation after deployment.
+
+## Soft topic 7 palette (4 November 2026)
+
+Added a topic-ID-scoped theme for the native topic 7 reader: muted mint, blue,
+sand and lavender card surfaces, darker matching headings, warm callouts and
+subtle table/cover accents. Dark mode has its own low-glare palette. The site
+receives small inactive navigation-icon accents; other presentations retain
+their existing theme. Original text, emoji characters, quizzes and grading
+logic are unchanged. No database requests are added.
+
+Manually opened all eighteen topic 7 slides in the isolated local demo, inspected
+desktop, 390px phone and dark-mode screenshots, and checked that topic 6 has no
+new theme class. Production rollout is not checked locally.
+
+Production build (including TypeScript) and source formatting passed.

@@ -3213,3 +3213,35 @@ td .input {
   font-size: 13px;
   color: var(--muted);
 }
+
+/* Small, muted colour cues keep navigation labels easy to read. */
+.sidebar nav a:not(.active)[href='#courses'] svg,
+.bottom-nav a:not(.active)[href='#courses'] svg {
+  color: #3c8a7d;
+}
+.sidebar nav a:not(.active)[href='#arena'] svg,
+.bottom-nav a:not(.active)[href='#arena'] svg {
+  color: #628ab2;
+}
+.sidebar nav a:not(.active)[href='#ranking'] svg,
+.bottom-nav a:not(.active)[href='#ranking'] svg {
+  color: #ab8242;
+}
+.sidebar nav a:not(.active)[href='#badges'] svg {
+  color: #b27789;
+}
+.dark .sidebar nav a:not(.active)[href='#courses'] svg,
+.dark .bottom-nav a:not(.active)[href='#courses'] svg {
+  color: #86bfb1;
+}
+.dark .sidebar nav a:not(.active)[href='#arena'] svg,
+.dark .bottom-nav a:not(.active)[href='#arena'] svg {
+  color: #9ab9dc;
+}
+.dark .sidebar nav a:not(.active)[href='#ranking'] svg,
+.dark .bottom-nav a:not(.active)[href='#ranking'] svg {
+  color: #d8b879;
+}
+.dark .sidebar nav a:not(.active)[href='#badges'] svg {
+  color: #d6a5b5;
+}

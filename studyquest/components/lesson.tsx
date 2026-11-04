@@ -253,6 +253,7 @@ export function LessonView({ id }: { id: string }) {
         >
           {lesson.legacyFile ? (
             <NativeSurface
+              className={lesson.id === 'm7' ? 'lesson-color-m7' : undefined}
               ref={frame}
               fit={fit}
               title={lesson.title}
