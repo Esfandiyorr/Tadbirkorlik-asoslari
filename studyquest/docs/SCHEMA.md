@@ -41,3 +41,28 @@ The original university permissions remain authoritative for imported lessons. E
 `firestore.indexes.json` includes indexes for progress, attempts, and XP queries. Private student dashboard reads use equality queries on `userId`; managed-course reports use `courseId` and load only on staff screens. Public catalog lists have a sixty-second per-instance cache invalidated by metadata edits. Authorization records are never cached. Paginated collection scans remain for explicit administrator reports and rankings; large deployments still require report pagination and leaderboard aggregates.
 
 `readingHistory` is a whitelisted view of the original topic/slide/time/activity records for each of the fifteen lessons. It contains seen/total slide counts, last position, seconds, correct-answer count, status, and university-only academic score/grade. Original credentials and private owner data are excluded. Academic totals remain the original `students/<id>/total`; they are not recalculated or converted into XP.
+
+## CRM reading revision
+
+Topic m7 now displays the uploaded 22-page CRM presentation. Its reading revision
+is `crm-2026-11-04`. Historical `students/<id>/topics/m7`, `prog/m7`, total marks,
+Firestore XP and reward transactions remain untouched. Academic grade derivation
+continues using the archived 18-slide denominator, while displayed reading
+status, seen count and resume position use only the new revision.
+
+Legacy reading is stored at
+`students/<id>/readingRevisions/m7/crm-2026-11-04`; Google/email learners use
+`lessonRevisions/<verified-uid>/m7/crm-2026-11-04` in the original RTDB. The
+server authorizes ownership and lesson access before reads, and accepts only a
+slide index 0–21 on writes. Fields are `seen/<index>: true`, `last` and server
+`updatedAt`. There is no grade/XP update or bulk reset/migration. The native
+reader records a slide after five seconds in a focused visible page. This
+tracks reading visits, not attention or comprehension. Completion requires all
+22 pages. Re-entering a previously seen page updates resume position without
+adding duplicate completion or awarding XP.
+
+Old Firestore m7 completion snapshots are omitted from current UI state.
+CRM reading is independent of Firestore quota and of historical quiz attempts.
+The uploaded PDF and rendered artwork are static `/crm/` assets protected by
+the same maintenance gate as legacy material. The old topic source remains an
+archive; old Pages/standalone links still route into the updated m7 reader.

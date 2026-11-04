@@ -1,3 +1,4 @@
+import { crmMeta } from '../crm';
 import 'server-only';
 import { randomUUID, randomInt } from 'node:crypto';
 import { z } from 'zod';
@@ -162,8 +163,10 @@ export class Platform {
       courses,
       subjects: await this.db.list('subjects'),
       modules: m.filter((x) => ids.has(x.courseId)),
-      lessons: publicLessons.map(({ slides, ...x }) => ({ ...x, slides: [] })),
-      quizzes: q.filter((x) => publicLessons.some((l) => l.id === x.lessonId)),
+      lessons: publicLessons.map(({ slides, ...x }) => crmMeta({ ...x, slides: [] })),
+      quizzes: q.filter(
+        (x) => x.lessonId !== 'm7' && publicLessons.some((l) => l.id === x.lessonId),
+      ),
       settings: cfg.find((x) => x.id === 'platform') || defaults,
       badges: b.length ? b : badges,
     };
@@ -224,7 +227,7 @@ export class Platform {
         allAttempts: allAttempts.map(({ answers, ...x }) => x),
         courses: managed,
         modules: (await this.db.list('modules')).filter((m) => ids.has(m.courseId)),
-        lessons: (await this.db.list('lessons')).filter((l) => ids.has(l.courseId)),
+        lessons: (await this.db.list('lessons')).filter((l) => ids.has(l.courseId)).map(crmMeta),
       };
     }
     return {

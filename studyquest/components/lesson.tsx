@@ -17,8 +17,12 @@ import { Button } from './ui/button';
 import { ProgressBar, navigate } from './dashboard';
 import { t } from '@/lib/i18n';
 import type { Lesson as LessonType, Question } from '@/lib/types';
+import { CrmLesson } from './crm-lesson';
 import { NativeSurface } from './native-surface';
 export function LessonView({ id }: { id: string }) {
+  return id === 'm7' ? <CrmLesson /> : <OriginalLessonView id={id} />;
+}
+function OriginalLessonView({ id }: { id: string }) {
   const { data, lang, setLang, dark, call, toast, request } = useApp(),
     meta = data!.lessons.find((x) => x.id === id),
     [detail, setDetail] = useState<LessonType | null>(null),

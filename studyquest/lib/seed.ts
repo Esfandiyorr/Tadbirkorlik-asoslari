@@ -1,3 +1,4 @@
+import { crmMeta } from './crm';
 import catalog from './catalog.generated.json';
 import type { Course, Module, Lesson, Quiz, Settings, Badge, User } from './types';
 export const settings: Settings = {
@@ -73,19 +74,21 @@ export const modules: Module[] = groups.map(([id, title], i) => ({
   title,
   order: i,
 }));
-export const lessons: Lesson[] = catalog.topics.map((t, i) => ({
-  id: t.id,
-  courseId: course.id,
-  moduleId: groups.find((g) => (g[2] as readonly string[]).includes(t.id))?.[0] || 'intro',
-  title: t.title.replace(/^M\d+\s*·\s*/, ''),
-  order: i,
-  slides: [],
-  slideCount: t.slides,
-  minSeconds: 60,
-  published: true,
-  legacyFile: t.file,
-  ...(t.pdf ? { legacyPdf: t.pdf } : {}),
-}));
+export const lessons: Lesson[] = catalog.topics.map((t, i) =>
+  crmMeta({
+    id: t.id,
+    courseId: course.id,
+    moduleId: groups.find((g) => (g[2] as readonly string[]).includes(t.id))?.[0] || 'intro',
+    title: t.title.replace(/^M\d+\s*·\s*/, ''),
+    order: i,
+    slides: [],
+    slideCount: t.slides,
+    minSeconds: 60,
+    published: true,
+    legacyFile: t.file,
+    ...(t.pdf ? { legacyPdf: t.pdf } : {}),
+  }),
+);
 export const quiz: Quiz = {
   id: 'entrepreneurship-check',
   lessonId: 'm7',

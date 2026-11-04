@@ -663,7 +663,9 @@ export function CourseList({ search = '', courseId }: { search?: string; courseI
                     '0',
                   )}
                 </span>
-                {p?.completed && <Check className="completed-check" />}
+                {(p?.completed || history?.status === 'read') && (
+                  <Check className="completed-check" />
+                )}
               </div>
               <span className="course-level">{mods.find((m) => m.id === l.moduleId)?.title}</span>
               <h3>{l.title}</h3>

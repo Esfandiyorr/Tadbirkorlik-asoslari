@@ -242,3 +242,24 @@ desktop, 390px phone and dark-mode screenshots, and checked that topic 6 has no
 new theme class. Production rollout is not checked locally.
 
 Production build (including TypeScript) and source formatting passed.
+
+## CRM content revision (4 November 2026)
+
+Imported the user's CRM PDF as twenty-two readable native slides, with original
+page artwork and a byte-preserved PDF download. New reading uses a separate RTDB
+revision instead of mutating historical grades or restarting the old grading
+engine. The source presentation and old assessment data remain archived.
+
+All 86 unit/server checks passed, including new regressions proving that an old
+95-point, grade-5 completed topic becomes unread at page one with 22 pages while
+retaining the same total and mark; a completed new reading restores only reading
+status; invalid indices, alternate student IDs and grade injection cannot write
+progress. The revision writer only updates the actor's scoped reading record.
+Three browser journeys passed: full CRM navigation, delayed reading tracking,
+original artwork/PDF, mobile width and guest API rejection; all fifteen lesson
+readers; and full presentation viewports. An original iframe assertion was
+adapted for the new native CRM reader, which intentionally has no compatibility
+iframe. Mobile rendering was visually reviewed. Live student accounts and
+production records were not read or changed by local tools.
+
+TypeScript, source formatting and the Next.js production build passed.

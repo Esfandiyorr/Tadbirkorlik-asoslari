@@ -20,8 +20,11 @@ export async function proxy(req: NextRequest) {
   const protectedPath =
     path === '/legacy' ||
     path.startsWith('/legacy/') ||
+    path === '/crm' ||
+    path.startsWith('/crm/') ||
     path.startsWith('/api/') ||
-    image.includes('/legacy/');
+    image.includes('/legacy/') ||
+    image.includes('/crm/');
   if (!protectedPath || validAccess(req.cookies.get(accessCookie)?.value))
     return NextResponse.next();
   const headers = { 'Cache-Control': 'private, no-store', Vary: 'Cookie, Authorization' };

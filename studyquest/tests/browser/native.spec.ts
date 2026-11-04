@@ -44,8 +44,11 @@ test('all fifteen presentations render in the native document with no visible ol
         .locator('.native-document script, .native-document style, .native-document .topbar')
         .count(),
     ).toBe(0);
-    const engine = await page.locator('iframe[data-native-engine]').boundingBox();
-    expect(engine!.x + engine!.width).toBeLessThan(0);
+    if (n === 7) await expect(page.locator('iframe[data-native-engine]')).toHaveCount(0);
+    else {
+      const engine = await page.locator('iframe[data-native-engine]').boundingBox();
+      expect(engine!.x + engine!.width).toBeLessThan(0);
+    }
   }
   await page.setViewportSize({ width: 390, height: 844 });
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(
