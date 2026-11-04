@@ -148,7 +148,7 @@ export function CrmLesson() {
           {...gestures}
           className="presentation-viewer reader-viewer native-viewer colorful-reader"
         >
-          <div ref={scrollArea} className="native-surface lesson-color-m7 crm-reader">
+          <div ref={scrollArea} className="native-surface crm-reader crm-bright">
             <article
               className="native-document reader-slide-enter"
               key={index}
@@ -156,12 +156,31 @@ export function CrmLesson() {
               data-native-index={index}
             >
               <div className="inner">
-                <span className="kicker">7-mavzu · CRM · {index + 1} / 22</span>
                 {original ? (
                   <img src={`/crm/${index + 1}.webp`} alt={slide.title} />
                 ) : (
                   <>
-                    <h2>{slide.title}</h2>
+                    <div className={'crm-slide-heading' + (index === 0 ? ' crm-cover' : '')}>
+                      <img
+                        className="crm-terdu-logo"
+                        src="/legacy/logo_tersu.png"
+                        alt="Termiz davlat universiteti — TerDU"
+                        width={512}
+                        height={512}
+                      />
+                      <div>
+                        <span className="kicker">7-mavzu · Ma’ruza · CRM</span>
+                        {index === 0 && <p className="crm-cover-title">{crmTitle}</p>}
+                        <h2>{slide.title}</h2>
+                        <div className="crm-slide-meta">
+                          <span>📚 Tadbirkorlik asoslari</span>
+                          <span>🎓 Termiz davlat universiteti</span>
+                          <span>
+                            📑 {index + 1} / {crmCount} slayd
+                          </span>
+                        </div>
+                      </div>
+                    </div>
                     <div className="crm-blocks">
                       {slide.blocks.map((text, i) => (
                         <p key={i}>{text}</p>

@@ -290,3 +290,20 @@ reviewed. Production availability requires the resulting deployment to finish.
 All six selected browser journeys passed. TypeScript, source formatting and the
 Next.js production build passed. The navigation test initially exposed the old
 bridge's single-step behaviour; it passes after the direct destination fix.
+
+## Topic 7 TerDU lecture styling (4 November 2026)
+
+Restored the vivid lecture style requested from the user's reference photograph
+for the CRM reader: the repository's original TerDU crest appears large on the
+cover and smaller on subsequent slides, with green/cyan/violet title gradients,
+a violet lecture badge and green, blue, purple and amber content panels. The
+styles are scoped to `.crm-bright`; all twenty-two CRM slides, original PDF
+artwork/download, reading revision, rewards and historical grades are retained.
+
+The CRM browser journey and responsive reader navigation journey passed, checking
+all twenty-two logos, the actual logo image load, artwork switching, the PDF,
+reading persistence, guest rejection and navigation at 320–1440 pixel widths.
+Cover screenshots on desktop/phone and a dark content screenshot were visually
+reviewed. Checks use the isolated demo; no live student records were changed.
+
+TypeScript, source formatting and the Next.js production build passed.
