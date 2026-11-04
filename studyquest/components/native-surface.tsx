@@ -203,8 +203,18 @@ export const NativeSurface = forwardRef<HTMLIFrameElement, Props>(function Nativ
           return true;
         },
       });
-      if (Number.isInteger(message.index))
-        surface.current.dataset.nativeIndex = String(message.index);
+      if (Number.isInteger(message.index)) {
+        const next = String(message.index);
+        if (src.includes('sqEmbed=lesson') && surface.current.dataset.nativeIndex !== next) {
+          surface.current.parentElement?.scrollTo({ top: 0 });
+          if (!matchMedia('(prefers-reduced-motion: reduce)').matches)
+            surface.current.animate([{ opacity: 0.5 }, { opacity: 1 }], {
+              duration: 180,
+              easing: 'ease-out',
+            });
+        }
+        surface.current.dataset.nativeIndex = next;
+      }
       if (pendingFocus.current) {
         const focus = pendingFocus.current;
         const target = surface.current.querySelector<HTMLInputElement>(

@@ -263,3 +263,30 @@ iframe. Mobile rendering was visually reviewed. Live student accounts and
 production records were not read or changed by local tools.
 
 TypeScript, source formatting and the Next.js production build passed.
+
+## Colour and responsive slide navigation (4 November 2026)
+
+Added soft blue, mint and sand accents to the native lesson cards, with matching
+high-contrast headings and dark palettes. The reader shows the subject, full
+wrapping lesson title, course-specific topic count and current slide. Persistent
+bottom controls provide previous/next buttons and a direct slide selector;
+horizontal reading-area swipes and keyboard arrows also navigate. Vertical
+scrolling, form inputs, quiz controls, text selection and tables keep their usual
+interaction. Changed slides reset the reading scroll position and use a short
+transition, disabled when reduced motion is requested.
+
+The original compatibility bridge now selects the destination's existing dot
+control directly, rather than taking a single step for every requested index.
+This preserves the original lesson navigation and grading hooks and does not
+visit or mark intermediate pages. No educational text, student scores, backend
+reward rules or production records were changed.
+
+Local browser coverage includes all fifteen native readers and full viewports,
+the CRM revision and PDF, timed quiz answer locking, crossword and financial
+exercise controls, plus direct selection, touch and keyboard navigation at 320,
+390, 768 and 1440 pixel widths. Phone and desktop screenshots were visually
+reviewed. Production availability requires the resulting deployment to finish.
+
+All six selected browser journeys passed. TypeScript, source formatting and the
+Next.js production build passed. The navigation test initially exposed the old
+bridge's single-step behaviour; it passes after the direct destination fix.

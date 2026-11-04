@@ -65,7 +65,9 @@
     if (e.data.type === 'navigate' && Number.isInteger(e.data.index)) {
       var current = Number(document.getElementById('cur')?.textContent || 1) - 1;
       var button = document.getElementById(e.data.index > current ? 'btnNext' : 'btnPrev');
-      if (e.data.index !== current && button && !button.disabled) button.click();
+      var dot = document.getElementById('dots')?.children[e.data.index];
+      if (e.data.index !== current && dot instanceof HTMLElement) dot.click();
+      else if (e.data.index !== current && button && !button.disabled) button.click();
     }
     if (e.data.type === 'fit') fit = !!e.data.value;
     if (e.data.type === 'theme')

@@ -1150,3 +1150,62 @@
     padding: 24px 17px;
   }
 }
+
+/* Gentle colour accents shared by learning slides, not the administration UI. */
+.colorful-reader .native-document {
+  --slide-tint: #f0f7fc;
+  --slide-accent: #35658d;
+}
+.colorful-reader .native-document .card {
+  background: var(--slide-tint);
+  border-top: 3px solid var(--slide-accent);
+}
+.colorful-reader .native-document .card:nth-child(3n + 2) {
+  --slide-tint: #eff8f2;
+  --slide-accent: #297263;
+}
+.colorful-reader .native-document .card:nth-child(3n) {
+  --slide-tint: #fff7e9;
+  --slide-accent: #8a6228;
+}
+.colorful-reader .native-document .card h3 {
+  color: var(--slide-accent);
+}
+.colorful-reader .native-document .kicker {
+  background: #eaf4f1;
+  color: #24695b;
+}
+.dark .colorful-reader .native-document {
+  --slide-tint: #243448;
+  --slide-accent: #acd0ee;
+}
+.dark .colorful-reader .native-document .card:nth-child(3n + 2) {
+  --slide-tint: #243c34;
+  --slide-accent: #a3d5bf;
+}
+.dark .colorful-reader .native-document .card:nth-child(3n) {
+  --slide-tint: #3b3225;
+  --slide-accent: #e4c58d;
+}
+.dark .colorful-reader .native-document .kicker {
+  background: #243c34;
+  color: #a3d5bf;
+}
+.reader-slide-enter {
+  animation: reader-appear 180ms ease-out;
+}
+@keyframes reader-appear {
+  from {
+    opacity: 0.5;
+    transform: translateY(7px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .reader-slide-enter {
+    animation: none;
+  }
+}

@@ -1,6 +1,7 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ArrowLeft, ArrowRight, Download, Expand } from 'lucide-react';
+import { ReaderHeading, ReaderControls, useReaderGestures } from './reader-controls';
 import { useApp } from './provider';
 import { Button } from './ui/button';
 import { ProgressBar } from './dashboard';
@@ -8,6 +9,7 @@ import slides from '@/lib/crm-slides.json';
 import { crmCount, crmTitle } from '@/lib/crm';
 export function CrmLesson() {
   const { request, data, refresh } = useApp();
+  const scrollArea = useRef<HTMLDivElement>(null);
   const [index, setIndex] = useState(0),
     [seen, setSeen] = useState<number[]>([]),
     [loaded, setLoaded] = useState(false),
@@ -65,23 +67,11 @@ export function CrmLesson() {
     };
   }, [index, loaded, request, data?.user?.role]);
   useEffect(() => {
-    const key = (event: KeyboardEvent) => {
-      if (
-        !loaded ||
-        (event.target instanceof Element && event.target.closest('input,textarea,select'))
-      )
-        return;
-      if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
-        event.preventDefault();
-        setIndex((n) =>
-          Math.max(0, Math.min(crmCount - 1, n + (event.key === 'ArrowRight' ? 1 : -1))),
-        );
-      }
-    };
-    window.addEventListener('keydown', key);
-    return () => window.removeEventListener('keydown', key);
-  }, [loaded]);
+    scrollArea.current?.scrollTo({ top: 0 });
+  }, [index]);
+  const gestures = useReaderGestures(index, crmCount, loaded, setIndex);
   const slide = slides[index];
+  const courseId = data?.lessons.find((l) => l.id === 'm7')?.courseId;
   return (
     <section className="focus-reader" aria-label={crmTitle}>
       <header className="reader-toolbar">
@@ -93,7 +83,11 @@ export function CrmLesson() {
         >
           <ArrowLeft size={18} />
         </Button>
-        <h1>{crmTitle}</h1>
+        <ReaderHeading
+          title={crmTitle}
+          topic={7}
+          total={data?.lessons.filter((l) => l.courseId === courseId).length || 15}
+        />
         <div className="reader-navigation">
           <Button
             variant="outline"
@@ -150,10 +144,13 @@ export function CrmLesson() {
           <div className="skeleton reader-loading" />
         )
       ) : (
-        <div className="presentation-viewer reader-viewer native-viewer">
-          <div className="native-surface lesson-color-m7 crm-reader">
+        <div
+          {...gestures}
+          className="presentation-viewer reader-viewer native-viewer colorful-reader"
+        >
+          <div ref={scrollArea} className="native-surface lesson-color-m7 crm-reader">
             <article
-              className="native-document"
+              className="native-document reader-slide-enter"
               key={index}
               data-native-content
               data-native-index={index}
@@ -189,6 +186,7 @@ export function CrmLesson() {
           </div>
         </div>
       )}
+      <ReaderControls index={index} count={crmCount} ready={loaded} go={setIndex} />
     </section>
   );
 }

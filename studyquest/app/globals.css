@@ -2992,10 +2992,10 @@ td .input {
 }
 .reader-details {
   position: absolute;
-  top: 65px;
+  bottom: calc(88px + env(safe-area-inset-bottom));
   right: 14px;
   width: min(380px, calc(100% - 28px));
-  max-height: calc(100dvh - 90px);
+  max-height: calc(100dvh - 240px);
   overflow: auto;
   padding: 22px;
   z-index: 5;
@@ -3244,4 +3244,134 @@ td .input {
 }
 .dark .sidebar nav a:not(.active)[href='#badges'] svg {
   color: #d6a5b5;
+}
+
+/* Readable course identity and persistent, thumb-friendly slide controls. */
+.reader-toolbar {
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 10px 16px;
+  background: var(--surface);
+}
+.reader-heading {
+  flex: 1 1 320px;
+  min-width: 0;
+}
+.reader-heading > p {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 5px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+}
+.reader-heading > p > span:first-child {
+  color: #28776d;
+}
+.reader-heading > p > span:last-child {
+  color: var(--violet);
+}
+.reader-toolbar .reader-heading h1 {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  overflow-wrap: break-word;
+  font-size: 16px;
+  line-height: 1.4;
+}
+.reader-navigation > span {
+  background: var(--soft-violet);
+  color: var(--text);
+  border-radius: 9px;
+  padding: 7px 9px;
+  font-weight: 700;
+}
+.reader-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 12px max(18px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom));
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  box-shadow: 0 -4px 18px #25324c06;
+  flex-shrink: 0;
+}
+.reader-controls > button {
+  min-height: 46px;
+  min-width: 126px;
+  font-size: 14px;
+}
+.reader-controls label {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+.reader-controls select {
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  background: var(--surface-soft);
+  font-size: 14px;
+  font-weight: 700;
+}
+.reader-controls .reader-previous {
+  color: #246f65;
+  background: #eff8f5;
+  border-color: #c9e2d9;
+}
+.reader-controls .reader-next {
+  background: #7044c1;
+  color: #fff;
+}
+.reader-controls button:disabled {
+  opacity: 0.45;
+}
+.dark .reader-heading > p > span:first-child {
+  color: #98cebd;
+}
+.dark .reader-controls .reader-previous {
+  background: #243c35;
+  border-color: #416356;
+  color: #a6d6c1;
+}
+@media (max-width: 600px) {
+  .reader-toolbar {
+    padding: 8px 12px;
+    gap: 6px;
+  }
+  .reader-heading {
+    flex-basis: calc(100% - 58px);
+  }
+  .reader-toolbar .reader-heading h1 {
+    font-size: 14px;
+  }
+  .reader-heading > p {
+    font-size: 10px;
+    gap: 6px;
+  }
+  .reader-controls {
+    padding: 10px 12px max(10px, env(safe-area-inset-bottom));
+    gap: 8px;
+  }
+  .reader-controls > button {
+    min-width: 0;
+    flex: 1;
+    padding: 10px;
+    gap: 5px;
+    font-size: 13px;
+  }
+  .reader-controls label > span {
+    display: none;
+  }
+  .reader-controls select {
+    padding: 8px;
+    max-width: 96px;
+  }
 }

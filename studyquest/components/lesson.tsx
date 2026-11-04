@@ -1,4 +1,5 @@
 'use client';
+import { ReaderHeading, ReaderControls, useReaderGestures } from './reader-controls';
 import { useEffect, useRef, useState } from 'react';
 import {
   ArrowLeft,
@@ -121,6 +122,13 @@ function OriginalLessonView({ id }: { id: string }) {
       toast((e as Error).message);
     }
   }
+  const gestures = useReaderGestures(
+    index,
+    meta?.slideCount || 1,
+    !!detail,
+    go,
+    !!meta?.legacyFile,
+  );
   async function complete() {
     setBusy(true);
     try {
@@ -173,7 +181,11 @@ function OriginalLessonView({ id }: { id: string }) {
         >
           <ArrowLeft size={18} />
         </Button>
-        <h1 title={meta.title}>{meta.title}</h1>
+        <ReaderHeading
+          title={meta.title}
+          topic={Number(id.slice(1)) || meta.order + 1}
+          total={data!.lessons.filter((l) => l.courseId === meta.courseId).length}
+        />
         <select
           className="reader-language"
           aria-label="Dars tili"
@@ -251,8 +263,10 @@ function OriginalLessonView({ id }: { id: string }) {
         <div className="skeleton reader-loading" aria-label="Loading lesson" />
       ) : (
         <div
+          {...gestures}
           className={
-            'presentation-viewer reader-viewer ' + (lesson.legacyFile ? 'native-viewer' : '')
+            'presentation-viewer reader-viewer colorful-reader ' +
+            (lesson.legacyFile ? 'native-viewer' : '')
           }
         >
           {lesson.legacyFile ? (
@@ -291,6 +305,7 @@ function OriginalLessonView({ id }: { id: string }) {
           )}
         </div>
       )}
+      <ReaderControls index={index} count={meta.slideCount} ready={!!detail && !error} go={go} />
       {details && (
         <aside className="reader-details panel">
           <h2>{lang === 'uz' ? 'Dars natijalari' : 'Lesson results'}</h2>
