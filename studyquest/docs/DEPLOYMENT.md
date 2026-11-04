@@ -98,3 +98,18 @@ while open so enabling maintenance does not require a new sign-in immediately.
 FIREBASE_DATABASE_URL is optional for the matching original Firebase project:
 the catalog's original URL is used as a fallback. Other projects require their own
 explicit database URL. See [administrator access and recovery](ADMIN-ACCESS.md).
+
+## Reducing routine Firestore report reads
+
+Normal `view=staff` requests load the authorized course editing catalog and
+current user's state, without scanning class-wide users, enrollments, progress,
+attempts or classes. Full reports require an explicit authenticated
+`view=staff&reports=1` request. The staff UI requests this only for Analytics,
+Learners or CSV export, shares the pending request, and reuses its result while
+the underlying session/state is unchanged. Normal mutation refreshes invalidate
+that local reuse; errors show a retry control instead of zero-filled analytics.
+Original RTDB academic roster and score controls remain separate and live.
+This reduces repeated bulk reads, but does not replenish an already exhausted
+quota or guarantee that a busy platform will stay within the free allowance.
+Public catalog caching, fresh authorization and transactional rewards remain
+unchanged. No paid billing plan is enabled by the change.

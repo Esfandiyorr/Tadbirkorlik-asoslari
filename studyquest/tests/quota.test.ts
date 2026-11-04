@@ -77,6 +77,29 @@ it('opening the administrator dashboard does not load class reports until explic
   expect(list.mock.calls.some(([c]) => c === 'users')).toBe(false);
   expect(await service.state(demoUsers[2], true)).toHaveProperty('users');
 });
+it('staff editing and original roster screens skip class-wide histories until reports are requested', async () => {
+  const db = new MemoryRepository(initialState());
+  for (let n = 0; n < 1000; n++) {
+    db.state.users['other' + n] = { id: 'other' + n, role: 'student' };
+    db.state.progress['other' + n] = { userId: 'other' + n, courseId: 'tad-asoslari', seen: [] };
+  }
+  const list = vi.spyOn(db, 'list'),
+    find = vi.spyOn(db, 'find');
+  const service = new Platform(db);
+  const light = await service.state(demoUsers[2], true, false);
+  expect(light).toMatchObject({ users: [], allProgress: [] });
+  expect(
+    list.mock.calls.some(([c]) =>
+      ['users', 'classes', 'enrollments', 'progress', 'quizAttempts'].includes(c),
+    ),
+  ).toBe(false);
+  expect(find.mock.calls.some(([, field]) => field === 'courseId')).toBe(false);
+  expect(light.lessons).toHaveLength(15);
+  expect(await service.state(demoUsers[2], true, true)).toHaveProperty(
+    'users',
+    expect.arrayContaining([expect.objectContaining({ id: 'other999' })]),
+  );
+});
 
 it('unchanged migration retries do not rewrite student profiles, enrollments or progress', async () => {
   const db = new MemoryRepository(initialState()),

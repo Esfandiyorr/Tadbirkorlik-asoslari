@@ -484,3 +484,33 @@ test('quota fallback preserves academic points and opens original slides without
   await expect(page.locator('.reader-navigation')).toContainText('2 / 18');
   expect(writes).toEqual([]);
 });
+
+test('admin reports load only for analytics or CSV and are reused between tabs', async ({
+  page,
+}) => {
+  await login(page.request, 'admin');
+  let reports = 0;
+  page.on('request', (request) => {
+    const url = new URL(request.url());
+    if (url.pathname === '/api/platform' && url.searchParams.get('reports') === '1') reports++;
+  });
+  await page.goto('/#admin');
+  await expect(
+    page.getByRole('button', { name: 'Talabalar va baholar', exact: true }),
+  ).toBeVisible();
+  await page.waitForLoadState('networkidle');
+  expect(reports).toBe(0);
+  await page.getByRole('button', { name: 'Sozlamalar', exact: true }).click();
+  expect(reports).toBe(0);
+  await page.getByRole('button', { name: 'Tahlil', exact: true }).click();
+  await expect(page.locator('.analytics-panel')).toBeVisible();
+  expect(reports).toBe(1);
+  await page.getByRole('button', { name: 'O‘quvchilar', exact: true }).click();
+  await page.getByRole('button', { name: 'Tahlil', exact: true }).click();
+  await expect(page.locator('.analytics-panel')).toBeVisible();
+  expect(reports).toBe(1);
+  const downloaded = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'CSV', exact: true }).click();
+  expect((await downloaded).suggestedFilename()).toBe('tadbirkorlik-asoslari-natijalar.csv');
+  expect(reports).toBe(1);
+});

@@ -104,7 +104,11 @@ export async function GET(req: NextRequest) {
         leaderboard: leaderboard.filter((user) => !deleted.has(user.id)),
       });
     }
-    const state = await service.state(a, req.nextUrl.searchParams.get('view') === 'staff');
+    const state = await service.state(
+      a,
+      req.nextUrl.searchParams.get('view') === 'staff',
+      req.nextUrl.searchParams.get('reports') === '1',
+    );
     const staffState = state as typeof state & {
       users?: { id: string }[];
       allProgress?: { userId: string }[];

@@ -209,3 +209,21 @@ TypeScript, formatting and the production build passed. Screenshots of phone
 and desktop registration were inspected. Remote auth/database responses in the
 sign-in suite are mocked; no live student records or Firebase configuration
 were changed, and live Vercel rollout remains to be confirmed after deployment.
+
+## Deferred class reports (4 November 2026)
+
+Routine staff refreshes previously included class-wide user/history/report
+queries even on the original academic roster and configuration tabs. These
+queries now require the explicit reports flag, with UI loading only for
+analytics, learners or CSV. The client shares and reuses the request within the
+same base data/session, and refetches after mutation refreshes.
+
+All 83 server/domain tests passed. A 1,000-record fixture confirms that light
+staff loads avoid class-wide collections and course-history queries, retain
+all fifteen editable lessons, and still return complete reports when requested.
+Three browser journeys passed: dashboard navigation, teacher/admin editing,
+and measured deferred report loading (zero report requests on normal entry or
+settings, one request reused across analytics/learner tabs and CSV). TypeScript,
+formatting and the production build passed after correcting test-only typed
+assertions. No live Firebase records, quota or billing settings were changed;
+actual production read savings require observation after deployment.

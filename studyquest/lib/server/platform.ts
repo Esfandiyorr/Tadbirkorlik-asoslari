@@ -168,7 +168,7 @@ export class Platform {
       badges: b.length ? b : badges,
     };
   }
-  async state(a: Actor, includeStaff = false) {
+  async state(a: Actor, includeStaff = false, includeReports = true) {
     const [catalog, user, progress, attempts, transactions, earned, ownNotices, sharedNotices] =
       await Promise.all([
         this.publicData(),
@@ -196,14 +196,19 @@ export class Platform {
       const ids = new Set(managed.map((c) => c.id));
       const forCourses = async (collection: string) =>
         (await Promise.all(managed.map((c) => this.db.find(collection, 'courseId', c.id)))).flat();
-      const [enrollments, allProgress, allAttempts, classes] = await Promise.all([
-        forCourses('enrollments'),
-        forCourses('progress'),
-        forCourses('quizAttempts'),
-        a.role === 'admin' ? this.db.list('classes') : this.db.find('classes', 'teacherId', a.id),
-      ]);
-      const users =
-        a.role === 'admin'
+      const [enrollments, allProgress, allAttempts, classes] = includeReports
+        ? await Promise.all([
+            forCourses('enrollments'),
+            forCourses('progress'),
+            forCourses('quizAttempts'),
+            a.role === 'admin'
+              ? this.db.list('classes')
+              : this.db.find('classes', 'teacherId', a.id),
+          ])
+        : [[], [], [], []];
+      const users = !includeReports
+        ? []
+        : a.role === 'admin'
           ? await this.db.list('users')
           : (
               await Promise.all(

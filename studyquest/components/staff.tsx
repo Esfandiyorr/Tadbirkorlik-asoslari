@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip } from 'recharts';
 import {
   Plus,
@@ -29,9 +29,42 @@ const blankQuestion = (): Question => ({
   explanation: '',
 });
 export function Staff({ admin = false }: { admin?: boolean }) {
-  const { data, lang, call, toast, request, refresh } = useApp(),
-    d = data as Data & { allProgress?: Progress[]; allAttempts?: Attempt[] },
-    [tab, setTab] = useState(admin ? 'academic' : 'overview'),
+  const { data, lang, call, toast, request, refresh } = useApp();
+  type Reports = Data & { allProgress?: Progress[]; allAttempts?: Attempt[] };
+  const [report, setReport] = useState<{ base: Data | null; value: Reports } | null>(null);
+  const [reportError, setReportError] = useState('');
+  const pending = useRef<{ base: Data | null; promise: Promise<Reports> } | null>(null);
+  const reportReady = report?.base === data;
+  const d = {
+    ...data,
+    ...(reportReady
+      ? {
+          users: report!.value.users,
+          classes: report!.value.classes,
+          allProgress: report!.value.allProgress,
+          allAttempts: report!.value.allAttempts,
+        }
+      : {}),
+  } as Reports;
+  const loadReport = useCallback(() => {
+    if (pending.current?.base === data) return pending.current.promise;
+    setReportError('');
+    const promise = request('/api/platform?view=staff&reports=1')
+      .then(async (r) => {
+        const value = await r.json();
+        if (!r.ok) throw Error(value.error);
+        setReport({ base: data, value });
+        return value as Reports;
+      })
+      .catch((e) => {
+        if (pending.current?.promise === promise) pending.current = null;
+        setReportError(e.message);
+        throw e;
+      });
+    pending.current = { base: data, promise };
+    return promise;
+  }, [data, request]);
+  const [tab, setTab] = useState(admin ? 'academic' : 'overview'),
     [selected, setSelected] = useState(d.courses[0]?.id || ''),
     [busy, setBusy] = useState(false);
   const [course, setCourse] = useState({
@@ -74,6 +107,9 @@ export function Staff({ admin = false }: { admin?: boolean }) {
     if (!selected && d.courses[0]) setSelected(d.courses[0].id);
     if (!quiz.lessonId && d.lessons[0]) setQuiz((q) => ({ ...q, lessonId: d.lessons[0].id }));
   }, [d.courses, d.lessons, selected, quiz.lessonId]);
+  useEffect(() => {
+    if (['overview', 'students'].includes(tab)) void loadReport().catch(() => {});
+  }, [tab, loadReport]);
   const allowed = admin
     ? d.user?.role === 'admin'
     : d.user?.role === 'teacher' || d.user?.role === 'admin';
@@ -108,37 +144,50 @@ export function Staff({ admin = false }: { admin?: boolean }) {
       title: c.title.slice(0, 23),
       completed: (d.allProgress || []).filter((p) => p.courseId === c.id && p.completed).length,
     }));
-  function exportReport() {
-    const safe = (v: unknown) => {
-      const s = String(v ?? '');
-      return '"' + (/^[=+\-@\t\r]/.test(s) ? "'" : '') + s.replace(/"/g, '""') + '"';
-    };
-    const rows = [
-      ['Name', 'Class', 'Lessons completed', 'Average quiz %'],
-      ...users
-        .filter((u) => u.role === 'student')
-        .map((u) => {
-          const mine = attempts.filter((x) => x.userId === u.id);
-          return [
-            u.name,
-            u.classId,
-            progress.filter((x) => x.userId === u.id && x.completed).length,
-            mine.length
-              ? Math.round(mine.reduce((s, x) => s + (x.score || 0), 0) / mine.length)
-              : '',
-          ];
+  async function exportReport() {
+    setBusy(true);
+    try {
+      const loaded = await loadReport();
+      const users = loaded.users || [];
+      const progress = (loaded.allProgress || []).filter((x) => x.courseId === selected);
+      const attempts = (loaded.allAttempts || []).filter(
+        (x) => x.courseId === selected && x.submittedAt,
+      );
+      const safe = (v: unknown) => {
+        const s = String(v ?? '');
+        return '"' + (/^[=+\-@\t\r]/.test(s) ? "'" : '') + s.replace(/"/g, '""') + '"';
+      };
+      const rows = [
+        ['Name', 'Class', 'Lessons completed', 'Average quiz %'],
+        ...users
+          .filter((u) => u.role === 'student')
+          .map((u) => {
+            const mine = attempts.filter((x) => x.userId === u.id);
+            return [
+              u.name,
+              u.classId,
+              progress.filter((x) => x.userId === u.id && x.completed).length,
+              mine.length
+                ? Math.round(mine.reduce((s, x) => s + (x.score || 0), 0) / mine.length)
+                : '',
+            ];
+          }),
+      ];
+      const url = URL.createObjectURL(
+        new Blob(['\ufeff' + rows.map((row) => row.map(safe).join(',')).join('\r\n')], {
+          type: 'text/csv;charset=utf-8',
         }),
-    ];
-    const url = URL.createObjectURL(
-      new Blob(['\ufeff' + rows.map((row) => row.map(safe).join(',')).join('\r\n')], {
-        type: 'text/csv;charset=utf-8',
-      }),
-    );
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'tadbirkorlik-asoslari-natijalar.csv';
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
+      );
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'tadbirkorlik-asoslari-natijalar.csv';
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    } catch (e) {
+      toast((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
   }
   const updateQuestion = (i: number, patch: Partial<Question>) =>
     setQuiz({
@@ -159,7 +208,7 @@ export function Staff({ admin = false }: { admin?: boolean }) {
             )}
           </p>
         </div>
-        <Button variant="outline" onClick={exportReport}>
+        <Button variant="outline" disabled={busy} onClick={exportReport}>
           <Download size={16} />
           CSV
         </Button>
@@ -190,6 +239,20 @@ export function Staff({ admin = false }: { admin?: boolean }) {
           </Button>
         ))}
       </div>
+      {['overview', 'students'].includes(tab) && !reportReady && (
+        <div className="panel">
+          {reportError ? (
+            <>
+              <p role="alert">{reportError}</p>
+              <Button onClick={() => void loadReport().catch(() => {})}>
+                Hisobotni qayta yuklash
+              </Button>
+            </>
+          ) : (
+            <p role="status">Hisobot yuklanmoqda…</p>
+          )}
+        </div>
+      )}
       {tab === 'academic' && <AcademicRoster />}
       {admin && tab === 'platform' && <PlatformSettings />}
       {tab === 'legacy' && (
@@ -201,7 +264,7 @@ export function Staff({ admin = false }: { admin?: boolean }) {
           />
         </section>
       )}
-      {tab === 'overview' && (
+      {tab === 'overview' && reportReady && (
         <>
           <div className="stats-grid">
             <div className="stat-card">
@@ -880,7 +943,7 @@ export function Staff({ admin = false }: { admin?: boolean }) {
           </form>
         </section>
       )}
-      {tab === 'students' && (
+      {tab === 'students' && reportReady && (
         <>
           <section className="panel editor">
             <h2>{L('Guruhlar', 'Classes', 'Классы')}</h2>
