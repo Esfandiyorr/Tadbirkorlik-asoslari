@@ -185,6 +185,9 @@
             );
         }
       }
+      // Asl taqdimotdagi kartochka rangi (style="--c:var(--green)") — yangi ko'rinishda ham shu rang.
+      var accent = /var\(--([a-z0-9]+)\)/.exec(node.style.getPropertyValue('--c') || '');
+      if (accent) out.setAttribute('data-accent', accent[1]);
       if (Object.keys(layout).length)
         out.setAttribute('data-native-layout', JSON.stringify(layout));
       if (node.tagName === 'INPUT') {

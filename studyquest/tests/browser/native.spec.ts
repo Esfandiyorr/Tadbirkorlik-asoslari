@@ -19,12 +19,12 @@ async function scoredDemo(page: import('@playwright/test').Page) {
 }
 async function lastSlide(page: import('@playwright/test').Page) {
   await expect(page.locator('.native-document > .inner')).toBeVisible();
-  let counter = (await page.locator('.reader-navigation').innerText()).match(/(\d+)\s*\/\s*(\d+)/)!;
+  let counter = (await page.locator('.reader-counter').innerText()).match(/(\d+)\s*\/\s*(\d+)/)!;
   while (Number(counter[1]) < Number(counter[2])) {
     const next = Number(counter[1]) + 1;
-    await page.getByRole('button', { name: 'Next slide', exact: true }).click();
-    await expect(page.locator('.reader-navigation')).toContainText(next + ' / ' + counter[2]);
-    counter = (await page.locator('.reader-navigation').innerText()).match(/(\d+)\s*\/\s*(\d+)/)!;
+    await page.locator('.reader-controls').getByRole('button', { name: 'Keyingi' }).click();
+    await expect(page.locator('.reader-counter')).toContainText(next + ' / ' + counter[2]);
+    counter = (await page.locator('.reader-counter').innerText()).match(/(\d+)\s*\/\s*(\d+)/)!;
   }
 }
 
@@ -118,7 +118,7 @@ test('every original slide remains readable in the native reader', async ({ page
     await expect(page.locator('.native-document > .inner')).toBeVisible();
     await page.waitForFunction(() => {
       const current = Number(
-        document.querySelector('.reader-navigation')?.textContent?.match(/(\d+)\s*\//)?.[1],
+        document.querySelector('.reader-counter')?.textContent?.match(/(\d+)\s*\//)?.[1],
       );
       return (
         current ===
@@ -129,10 +129,10 @@ test('every original slide remains readable in the native reader', async ({ page
       );
     });
     let current = Number(
-      (await page.locator('.reader-navigation').innerText()).match(/(\d+)\s*\//)![1],
+      (await page.locator('.reader-counter').innerText()).match(/(\d+)\s*\//)![1],
     );
     while (current > 1) {
-      await page.getByRole('button', { name: 'Previous slide', exact: true }).click();
+      await page.locator('.reader-controls').getByRole('button', { name: 'Oldingi' }).click();
       current--;
       await expect(page.locator('[data-native-content]')).toHaveAttribute(
         'data-native-index',
@@ -140,11 +140,11 @@ test('every original slide remains readable in the native reader', async ({ page
       );
     }
     const count = Number(
-      (await page.locator('.reader-navigation').innerText()).match(/\/\s*(\d+)/)![1],
+      (await page.locator('.reader-counter').innerText()).match(/\/\s*(\d+)/)![1],
     );
     for (let slide = 2; slide <= count; slide++) {
-      await page.getByRole('button', { name: 'Next slide', exact: true }).click();
-      await expect(page.locator('.reader-navigation')).toContainText(slide + ' / ' + count);
+      await page.locator('.reader-controls').getByRole('button', { name: 'Keyingi' }).click();
+      await expect(page.locator('.reader-counter')).toContainText(slide + ' / ' + count);
       await expect(page.locator('[data-native-content]')).toHaveAttribute(
         'data-native-index',
         String(slide - 1),

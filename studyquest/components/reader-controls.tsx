@@ -45,8 +45,11 @@ export function ReaderControls({
         <ArrowLeft size={19} />
         <span>Oldingi</span>
       </Button>
-      <label>
-        <span>Slayd</span>
+      {/* Bitta hisoblagich: ko'rinadigan «4 / 18», ustida shaffof ro'yxat — bosilsa istalgan slaydni tanlash mumkin */}
+      <label className="reader-picker">
+        <span className="reader-counter" aria-live="polite">
+          {index + 1} / {count}
+        </span>
         <select
           aria-label="Slaydni tanlash"
           disabled={!ready}

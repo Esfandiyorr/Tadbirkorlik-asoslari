@@ -3,15 +3,14 @@ import { ReaderHeading, ReaderControls, useReaderGestures } from './reader-contr
 import { useEffect, useRef, useState } from 'react';
 import {
   ArrowLeft,
-  ArrowRight,
   Expand,
   Check,
   Download,
   Clock,
   Play,
   BookOpen,
-  Minimize,
-  Info,
+  ZoomOut,
+  ChartNoAxesColumn,
 } from 'lucide-react';
 import { useApp } from './provider';
 import { Button } from './ui/button';
@@ -19,6 +18,8 @@ import { ProgressBar, navigate } from './dashboard';
 import { t } from '@/lib/i18n';
 import type { Lesson as LessonType, Question } from '@/lib/types';
 import { CrmLesson } from './crm-lesson';
+import { AccessChip, PointsBreakdown, PointsRing } from './points-ui';
+import { accessOf, dueText, topicPoints, tr } from '@/lib/points';
 import { NativeSurface } from './native-surface';
 export function LessonView({ id }: { id: string }) {
   return id === 'm7' ? <CrmLesson /> : <OriginalLessonView id={id} />;
@@ -169,14 +170,16 @@ function OriginalLessonView({ id }: { id: string }) {
       </div>
     );
   const lesson = detail || meta,
-    related = data!.quizzes.filter((q) => q.lessonId === id);
+    related = data!.quizzes.filter((q) => q.lessonId === id),
+    history = data?.user?.readingHistory?.[id],
+    access = accessOf(data!, id);
   return (
     <section className="focus-reader" ref={viewer} aria-label={meta.title}>
       <header className="reader-toolbar">
         <Button
           variant="ghost"
           size="icon"
-          aria-label={lang === 'uz' ? 'Kursga qaytish' : 'Back to course'}
+          aria-label={tr(lang, 'Kursga qaytish', 'Back to course', 'Назад к курсу')}
           onClick={() => navigate('course/' + meta.courseId)}
         >
           <ArrowLeft size={18} />
@@ -188,7 +191,7 @@ function OriginalLessonView({ id }: { id: string }) {
         />
         <select
           className="reader-language"
-          aria-label="Dars tili"
+          aria-label={tr(lang, 'Til', 'Language', 'Язык')}
           value={lang}
           onChange={(e) => setLang(e.target.value as 'uz' | 'en' | 'ru')}
         >
@@ -196,62 +199,64 @@ function OriginalLessonView({ id }: { id: string }) {
           <option value="en">EN</option>
           <option value="ru">RU</option>
         </select>
-        <div className="reader-navigation">
-          <Button
-            variant="outline"
-            size="icon"
-            aria-label="Previous slide"
-            disabled={!detail || index === 0}
-            onClick={() => go(index - 1)}
-          >
-            <ArrowLeft size={17} />
-          </Button>
-          <span aria-live="polite">
-            {index + 1} / {meta.slideCount}
-          </span>
-          <Button
-            variant="outline"
-            size="icon"
-            aria-label="Next slide"
-            disabled={!detail || index >= meta.slideCount - 1}
-            onClick={() => go(index + 1)}
-          >
-            <ArrowRight size={17} />
-          </Button>
-        </div>
         {lesson.legacyFile && (
           <Button
             variant={fit ? 'secondary' : 'ghost'}
             size="icon"
-            aria-label="Fit slide"
+            aria-label={
+              lang === 'uz'
+                ? 'Slaydni ekranga sig‘dirish'
+                : lang === 'ru'
+                  ? 'Вместить слайд'
+                  : 'Fit slide'
+            }
             aria-pressed={fit}
-            title={lang === 'uz' ? 'Slaydni ekranga sig‘dirish' : 'Fit slide'}
+            title={
+              lang === 'uz'
+                ? 'Slaydni ekranga sig‘dirish'
+                : lang === 'ru'
+                  ? 'Вместить слайд'
+                  : 'Fit slide'
+            }
             onClick={() => setFit(!fit)}
           >
-            <Minimize size={17} />
+            <ZoomOut size={18} />
           </Button>
         )}
         <Button
           variant="ghost"
           size="icon"
-          aria-label="Fullscreen"
+          aria-label={
+            lang === 'uz' ? 'To‘liq ekran' : lang === 'ru' ? 'Во весь экран' : 'Fullscreen'
+          }
+          title={lang === 'uz' ? 'To‘liq ekran' : lang === 'ru' ? 'Во весь экран' : 'Fullscreen'}
           onClick={() => {
             const action = document.fullscreenElement
               ? document.exitFullscreen()
               : viewer.current?.requestFullscreen();
-            action?.catch(() => toast('Fullscreen unavailable'));
+            action?.catch(() =>
+              toast(
+                tr(
+                  lang,
+                  'To‘liq ekran mavjud emas',
+                  'Fullscreen unavailable',
+                  'Полный экран недоступен',
+                ),
+              ),
+            );
           }}
         >
           <Expand size={18} />
         </Button>
         <Button
-          variant={details ? 'secondary' : 'ghost'}
-          size="icon"
-          aria-label={lang === 'uz' ? 'Dars natijalari' : 'Lesson results'}
+          variant={details ? 'secondary' : 'outline'}
+          className="reader-results-button"
+          aria-label={lang === 'uz' ? 'Mening ballim' : lang === 'ru' ? 'Мои баллы' : 'My points'}
           aria-expanded={details}
           onClick={() => setDetails(!details)}
         >
-          <Info size={18} />
+          <ChartNoAxesColumn size={17} />
+          <span>{lang === 'uz' ? 'Ballim' : lang === 'ru' ? 'Баллы' : 'Points'}</span>
         </Button>
       </header>
       <ProgressBar value={((index + 1) / meta.slideCount) * 100} />
@@ -260,7 +265,10 @@ function OriginalLessonView({ id }: { id: string }) {
           {error}
         </div>
       ) : !detail ? (
-        <div className="skeleton reader-loading" aria-label="Loading lesson" />
+        <div
+          className="skeleton reader-loading"
+          aria-label={tr(lang, 'Dars yuklanmoqda', 'Loading lesson', 'Загрузка урока')}
+        />
       ) : (
         <div
           {...gestures}
@@ -308,19 +316,55 @@ function OriginalLessonView({ id }: { id: string }) {
       <ReaderControls index={index} count={meta.slideCount} ready={!!detail && !error} go={go} />
       {details && (
         <aside className="reader-details panel">
-          <h2>{lang === 'uz' ? 'Dars natijalari' : 'Lesson results'}</h2>
-          <p>
-            {lang === 'uz'
-              ? 'Yakunlash uchun kamida 80% slaydni o‘qing. O‘qish vaqti hisobga olinadi.'
-              : 'Read at least 80% of the slides and meet the reading time.'}
-          </p>
+          <div className="reader-details-head">
+            <h2>
+              🎯 {tr(lang, 'Mening ballim', 'My points', 'Мои баллы')}
+              <small>
+                {(Number(id.slice(1)) || meta.order + 1) + '-' + tr(lang, 'mavzu', 'topic', 'тема')}
+              </small>
+            </h2>
+            <AccessChip access={access} lang={lang} />
+          </div>
+          {access?.state === 'score' && access.due && (
+            <p className={'sidebar-due' + (dueText(access.due, lang).urgent ? ' urgent' : '')}>
+              <Clock size={15} />
+              <span>
+                {tr(lang, 'Ball beriladi', 'Points until', 'Баллы до')}:{' '}
+                <b>{dueText(access.due, lang).date}</b>
+                <em>{dueText(access.due, lang).left}</em>
+              </span>
+            </p>
+          )}
+          {access?.state === 'read' && (
+            <p className="muted">
+              {tr(
+                lang,
+                'Bu mavzu o‘qish rejimida: o‘qishingiz mumkin, lekin yangi ball qo‘shilmaydi.',
+                'This topic is in reading mode: you can read it, but no new points are added.',
+                'Тема в режиме чтения: читать можно, новые баллы не начисляются.',
+              )}
+            </p>
+          )}
+          {history ? (
+            <div className="reader-points">
+              <PointsRing value={topicPoints(history).total} size={84} />
+              <PointsBreakdown history={history} lang={lang} hints />
+            </div>
+          ) : (
+            <p className="muted">
+              {tr(
+                lang,
+                'Har mavzu 100 ball: 30 — barcha slaydlarni ochish, 20 — 1 soat o‘qish, 50 — yakuniy test.',
+                'Each topic is worth 100: 30 for opening every slide, 20 for one hour of reading, 50 for the final test.',
+                'Каждая тема — 100 баллов: 30 за все слайды, 20 за час чтения, 50 за итоговый тест.',
+              )}
+            </p>
+          )}
           {!legacyMode && !data?.limited && (
             <Button disabled={busy || progress?.completed} onClick={complete}>
               <Check size={16} />
               {progress?.completed
-                ? lang === 'uz'
-                  ? 'Yakunlangan'
-                  : 'Completed'
+                ? tr(lang, 'Yakunlangan', 'Completed', 'Завершено')
                 : t(lang, 'complete')}
             </Button>
           )}

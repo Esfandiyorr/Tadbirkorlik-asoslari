@@ -1,0 +1,2660 @@
+/* =====================================================================
+   StudyQuest 2-bosqich: bosh sahifa, mehmon sahifasi, kurs va mavzular,
+   100 ballik tizim (30 slayd + 20 vaqt + 50 test), yutuqlar.
+   globals.css dan keyin yuklanadi — shu sababli uning qoidalarini yengadi.
+   ===================================================================== */
+
+/* ---------- Umumiy: o'qishga qulay matn ---------- */
+.page-heading p {
+  font-size: 15px;
+  line-height: 1.6;
+}
+.home-heading h1 {
+  font-size: clamp(26px, 3vw, 34px);
+  letter-spacing: -0.8px;
+  margin: 2px 0 6px;
+}
+.home-heading .eyebrow {
+  letter-spacing: 0.4px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.wave {
+  display: inline-block;
+  transform-origin: 70% 80%;
+  animation: sq-wave 2.6s ease-in-out infinite;
+}
+.section-heading h2 {
+  font-size: 19px;
+  letter-spacing: -0.3px;
+}
+.section-heading h3 {
+  font-size: 16px;
+}
+.section-heading > button {
+  font-size: 14px;
+  font-weight: 650;
+  min-height: 40px;
+  padding: 0 4px;
+  color: #6d3fc4;
+}
+.dark .section-heading > button {
+  color: #c4a8ff;
+}
+.eyebrow {
+  color: #6b5d94;
+}
+.dark .eyebrow {
+  color: #b9a9e6;
+}
+
+/* ---------- Jonli emoji animatsiyalari ---------- */
+@keyframes sq-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-5deg);
+  }
+  50% {
+    transform: translateY(-7px) rotate(5deg);
+  }
+}
+@keyframes sq-wave {
+  0%,
+  60%,
+  100% {
+    transform: rotate(0);
+  }
+  10%,
+  30% {
+    transform: rotate(16deg);
+  }
+  20%,
+  40% {
+    transform: rotate(-10deg);
+  }
+}
+@keyframes sq-pop {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.12);
+  }
+}
+@keyframes sq-pulse {
+  0% {
+    box-shadow: 0 0 0 0 #22c55e88;
+  }
+  70% {
+    box-shadow: 0 0 0 8px #22c55e00;
+  }
+  100% {
+    box-shadow: 0 0 0 0 #22c55e00;
+  }
+}
+@keyframes sq-shine {
+  0% {
+    transform: translateX(-120%) rotate(25deg);
+  }
+  60%,
+  100% {
+    transform: translateX(220%) rotate(25deg);
+  }
+}
+
+/* ---------- Mavzu rasmi (har mavzuning o'z rangi, belgisi, emojisi) ---------- */
+.topic-art {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+  min-height: 132px;
+  border-radius: 18px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+}
+.topic-art.compact {
+  width: 56px;
+  height: 56px;
+  min-height: 0;
+  border-radius: 15px;
+  flex-shrink: 0;
+}
+.topic-art-orb {
+  position: absolute;
+  z-index: -1;
+  border-radius: 50%;
+  aspect-ratio: 1;
+  background: #ffffff2b;
+}
+.topic-art-orb.one {
+  width: 62%;
+  right: -16%;
+  top: -34%;
+}
+.topic-art-orb.two {
+  width: 42%;
+  left: -14%;
+  bottom: -26%;
+  background: #ffffff1c;
+}
+.topic-art-icon {
+  width: 72px;
+  height: 72px;
+  border-radius: 22px;
+  display: grid;
+  place-items: center;
+  background: #ffffff30;
+  border: 1px solid #ffffff5c;
+  box-shadow: 0 12px 26px -14px #0009;
+  backdrop-filter: blur(4px);
+}
+.compact .topic-art-icon {
+  width: 100%;
+  height: 100%;
+  background: none;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+.topic-art-emoji {
+  position: absolute;
+  font-size: 28px;
+  line-height: 1;
+  filter: drop-shadow(0 5px 6px #0004);
+  animation: sq-float 4.2s ease-in-out infinite;
+}
+.topic-art-emoji.a {
+  left: 11%;
+  top: 13%;
+}
+.topic-art-emoji.b {
+  right: 11%;
+  bottom: 13%;
+  animation-delay: -2.1s;
+}
+.compact .topic-art-emoji,
+.compact .topic-art-number {
+  display: none;
+}
+.topic-art-number {
+  position: absolute;
+  left: 13px;
+  bottom: 7px;
+  font-size: 36px;
+  font-weight: 850;
+  letter-spacing: -1.5px;
+  line-height: 1;
+  opacity: 0.4;
+}
+
+/* ---------- Fan (kurs) rasmi: TerDU gerbi va fan nomi ---------- */
+.course-hero-art {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  min-height: 176px;
+  padding: 18px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  color: #fff;
+  background:
+    radial-gradient(circle at 85% 110%, #f472b6aa, transparent 45%),
+    linear-gradient(135deg, #2e1a7a 0%, #6d28d9 52%, #b62bd0 100%);
+}
+.course-hero-glow {
+  position: absolute;
+  z-index: -1;
+  width: 280px;
+  height: 280px;
+  right: -90px;
+  top: -110px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fbbf24a6, transparent 64%);
+}
+.course-hero-logo {
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  background: #fff;
+  padding: 3px;
+  object-fit: contain;
+  box-shadow:
+    0 0 0 4px #ffffff33,
+    0 10px 24px -8px #000a;
+}
+.course-hero-title {
+  font-size: 23px;
+  line-height: 1.15;
+  font-weight: 850;
+  letter-spacing: -0.6px;
+  max-width: 68%;
+  text-shadow: 0 2px 14px #0005;
+  overflow-wrap: break-word;
+}
+.course-hero-emoji {
+  position: absolute;
+  font-size: 28px;
+  line-height: 1;
+  filter: drop-shadow(0 6px 8px #0005);
+  animation: sq-float 5s ease-in-out infinite;
+}
+.course-hero-emoji.e1 {
+  right: 30%;
+  top: 14%;
+}
+.course-hero-emoji.e2 {
+  right: 8%;
+  top: 22%;
+  animation-delay: -1.3s;
+}
+.course-hero-emoji.e3 {
+  right: 20%;
+  bottom: 14%;
+  animation-delay: -2.6s;
+}
+.course-hero-emoji.e4 {
+  right: 4%;
+  bottom: 40%;
+  font-size: 22px;
+  animation-delay: -3.7s;
+}
+
+/* ---------- «Davom eting» bloki ---------- */
+.welcome-hero.continue-hero {
+  display: grid;
+  grid-template-columns: minmax(180px, 230px) minmax(0, 1fr);
+  align-items: stretch;
+  gap: 26px;
+  min-height: 0;
+  padding: 22px;
+  background:
+    radial-gradient(circle at 100% 0%, #c084fc66, transparent 40%),
+    linear-gradient(120deg, #4c1d95, #6d28d9 55%, #8b5cf6);
+}
+.continue-hero > .topic-art {
+  min-height: 220px;
+  box-shadow:
+    0 0 0 4px #ffffff26,
+    0 18px 36px -20px #000;
+}
+.continue-hero-body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+  flex-shrink: 1 !important;
+}
+.continue-hero .hero-tag {
+  font-size: 13px;
+  padding: 6px 11px;
+  border-radius: 999px;
+}
+.welcome-hero.continue-hero h2 {
+  font-size: clamp(21px, 2.2vw, 27px);
+  line-height: 1.25;
+  letter-spacing: -0.5px;
+  margin: 12px 0 10px;
+}
+.continue-hero-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+}
+.continue-hero .access-chip {
+  background: #ffffff24;
+  border-color: #ffffff40;
+  color: #fff;
+}
+.continue-hero .access-chip.score .live-dot {
+  background: #4ade80;
+}
+.hero-due {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: #f3e8ff;
+}
+.continue-hero-points {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  margin: 16px 0;
+  padding: 12px 16px;
+  border-radius: 18px;
+  background: #ffffff17;
+  border: 1px solid #ffffff26;
+}
+.continue-hero-points b {
+  font-size: 16px;
+}
+.continue-hero-points ul {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+}
+.continue-hero-points li {
+  font-size: 14px;
+  color: #f1e8ff;
+}
+.continue-hero-points em {
+  font-style: normal;
+  font-weight: 800;
+  color: #fde68a;
+  margin-left: 4px;
+}
+.continue-hero .points-ring b {
+  color: #fff;
+}
+.continue-hero .points-ring small {
+  color: #e9ddff;
+}
+.continue-hero .points-ring circle:first-child {
+  stroke: #ffffff2e;
+}
+.continue-hero .progress-track {
+  margin: 16px 0;
+  background: #ffffff2e;
+  height: 8px;
+}
+.continue-hero .progress-track > div {
+  background: linear-gradient(90deg, #fde68a, #fbbf24);
+}
+.welcome-hero.continue-hero .hero-button {
+  margin-top: auto;
+  font-size: 15px !important;
+  min-height: 46px !important;
+  padding: 10px 22px !important;
+  border-radius: 14px;
+  color: #5b21b6 !important;
+  font-weight: 750;
+}
+
+/* ---------- Statistika kartochkalari ---------- */
+.stats-grid {
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+}
+.stat-card {
+  padding: 16px;
+  gap: 14px;
+}
+.stat-emoji {
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  border-radius: 15px;
+  display: grid;
+  place-items: center;
+  font-size: 25px;
+  line-height: 1;
+  background: linear-gradient(145deg, #f3e8ff, #e4d4ff);
+  transition: transform 0.2s;
+}
+.stat-card:nth-child(2) .stat-emoji {
+  background: linear-gradient(145deg, #e0f2fe, #c7e6fb);
+}
+.stat-card:nth-child(3) .stat-emoji {
+  background: linear-gradient(145deg, #fef3c7, #fde4a1);
+}
+.stat-card:nth-child(4) .stat-emoji {
+  background: linear-gradient(145deg, #dcfce7, #bff0d0);
+}
+.dark .stat-emoji {
+  background: #3b2a5e;
+}
+.dark .stat-card:nth-child(2) .stat-emoji {
+  background: #12364d;
+}
+.dark .stat-card:nth-child(3) .stat-emoji {
+  background: #4a3812;
+}
+.dark .stat-card:nth-child(4) .stat-emoji {
+  background: #143d26;
+}
+.stat-card:hover .stat-emoji {
+  animation: sq-pop 0.6s ease;
+}
+.stat-card small {
+  font-size: 13px;
+  line-height: 1.35;
+}
+.stat-card strong {
+  font-size: 25px;
+}
+.stat-card strong.stat-text {
+  font-size: 17px;
+  letter-spacing: -0.3px;
+}
+.stat-card em {
+  font-size: 14px;
+}
+
+/* ---------- Muddatli mavzular ro'yxati ---------- */
+.due-list {
+  display: grid;
+  gap: 10px;
+}
+.due-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 12px 14px;
+  text-align: left;
+  color: inherit;
+  border-radius: 18px;
+  transition:
+    transform 0.2s,
+    border-color 0.2s;
+}
+.due-item:hover {
+  transform: translateY(-2px);
+  border-color: #c4b5fd;
+}
+.due-item-body {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+.due-item-body b {
+  font-size: 15px;
+  line-height: 1.35;
+}
+.due-item-body small {
+  font-size: 13px;
+  color: var(--muted);
+}
+.due-item-body small.urgent {
+  color: #b4410b;
+  font-weight: 700;
+}
+.dark .due-item-body small.urgent {
+  color: #fdba74;
+}
+
+/* ---------- Bo'sh holat (yumshoq) ---------- */
+.soft-empty {
+  display: grid;
+  grid-template-columns: 54px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px 16px;
+  padding: 20px 22px;
+}
+.soft-empty > span {
+  font-size: 36px;
+  line-height: 1;
+  grid-row: span 2;
+  animation: sq-float 4s ease-in-out infinite;
+}
+.soft-empty p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+.row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.soft-empty .row-actions {
+  grid-column: 2;
+}
+
+/* ---------- Fan kartochkasi ---------- */
+.course-card {
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+}
+.course-card-body {
+  padding: 18px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.course-card-body h3 {
+  font-size: 19px;
+  margin: 4px 0 6px;
+}
+.course-card-body p {
+  font-size: 14px;
+  gap: 10px;
+}
+.course-card-body p.course-desc {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+.course-level {
+  font-size: 13px;
+  font-weight: 650;
+  color: #6b4fa0;
+}
+.dark .course-level {
+  color: #c4b0ec;
+}
+.course-card .progress-track {
+  height: 8px;
+}
+.course-card .lesson-link {
+  margin-top: 14px;
+}
+.course-grid .course-card:only-child {
+  grid-template-columns: minmax(240px, 34%) 1fr;
+}
+.course-grid .course-card:only-child .course-hero-art {
+  min-height: 210px;
+  height: 100%;
+}
+.course-grid .course-card:only-child .course-card-body {
+  justify-content: center;
+  padding: 24px 28px;
+}
+
+/* ---------- Kurs sahifasi banneri ---------- */
+.back-link {
+  margin: -6px 0 12px -10px;
+  font-size: 15px !important;
+  color: var(--muted) !important;
+}
+.course-banner {
+  display: grid;
+  grid-template-columns: minmax(240px, 330px) minmax(0, 1fr);
+  margin-bottom: 22px;
+  border-radius: 24px;
+  overflow: hidden;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+}
+.course-banner .course-hero-art {
+  min-height: 100%;
+}
+.course-banner-body {
+  padding: 24px 28px;
+  min-width: 0;
+}
+.course-banner-body h1 {
+  font-size: clamp(25px, 2.6vw, 32px);
+  margin: 0 0 8px;
+  letter-spacing: -0.8px;
+}
+.course-banner-body > p {
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--muted);
+  margin: 0 0 14px;
+}
+.course-banner-total {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+.course-banner-total > span {
+  display: grid;
+  font-size: 14px;
+  color: var(--muted);
+}
+.course-banner-total b {
+  font-size: 22px;
+  color: var(--text);
+  letter-spacing: -0.5px;
+}
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* ---------- Mavzu holati belgisi ---------- */
+.access-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font-size: 13px;
+  font-weight: 650;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+.access-chip.score {
+  background: #dcfce7;
+  border-color: #bbf7d0;
+  color: #14532d;
+}
+.access-chip.score.urgent {
+  background: #ffedd5;
+  border-color: #fed7aa;
+  color: #8a2c0d;
+}
+.access-chip.read {
+  background: #e0f2fe;
+  border-color: #bae6fd;
+  color: #0b4a6f;
+}
+.access-chip.locked {
+  background: #eef0f4;
+  border-color: #dfe3ea;
+  color: #3f4a5c;
+}
+.dark .access-chip.score {
+  background: #14532d66;
+  border-color: #166534;
+  color: #a7f3c0;
+}
+.dark .access-chip.score.urgent {
+  background: #7c2d1266;
+  border-color: #9a3412;
+  color: #fdba74;
+}
+.dark .access-chip.read {
+  background: #0c4a6e66;
+  border-color: #075985;
+  color: #a5dcfb;
+}
+.dark .access-chip.locked {
+  background: #33415566;
+  border-color: #475569;
+  color: #d3dae5;
+}
+.live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #16a34a;
+  flex-shrink: 0;
+  animation: sq-pulse 1.8s infinite;
+}
+.urgent .live-dot {
+  background: #ea580c;
+}
+
+/* ---------- Mavzu kartochkasi ---------- */
+.lesson-grid {
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 18px;
+}
+.lesson-card {
+  padding: 14px;
+  color: inherit;
+  border-radius: 22px;
+}
+.lesson-card .mini-cover {
+  height: 148px;
+  margin-bottom: 14px;
+  display: block;
+}
+.lesson-card .mini-cover .topic-art {
+  height: 100%;
+}
+.lesson-card .mini-cover .completed-check {
+  z-index: 2;
+  top: 10px;
+  right: 10px;
+  width: 30px;
+  height: 30px;
+  padding: 5px;
+  border-radius: 50%;
+  background: #16a34a;
+  color: #fff;
+  box-shadow: 0 4px 10px -2px #0005;
+}
+.mini-cover > .lock-veil,
+.lock-veil {
+  position: absolute;
+  inset: 0;
+  opacity: 1;
+  font-size: 15px;
+  font-weight: 750;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  border-radius: 18px;
+  color: #fff;
+  background: #1e1b3a8c;
+  backdrop-filter: grayscale(0.7) blur(1px);
+}
+.lesson-card.is-locked {
+  cursor: not-allowed;
+}
+.lesson-card.is-locked h3,
+.lesson-card.is-locked .lesson-points {
+  opacity: 0.72;
+}
+.lesson-card.is-live {
+  border-color: #86efac;
+  box-shadow:
+    0 0 0 3px #22c55e1f,
+    var(--shadow);
+}
+.dark .lesson-card.is-live {
+  border-color: #166534;
+}
+.lesson-card-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px 8px;
+}
+.lesson-card h3 {
+  font-size: 16px;
+  line-height: 1.45;
+  margin: 10px 0 12px;
+}
+.lesson-card p {
+  font-size: 14px;
+}
+.lesson-link {
+  font-size: 14px;
+  min-height: 24px;
+  color: #6d3fc4;
+}
+.dark .lesson-link {
+  color: #c4a8ff;
+}
+.lesson-points {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 12px;
+  border-radius: 16px;
+  background: var(--surface-soft);
+}
+.filter-row button {
+  font-size: 14px;
+  min-height: 40px;
+}
+
+/* ---------- Ball halqasi ---------- */
+.points-ring {
+  position: relative;
+  flex-shrink: 0;
+  container-type: inline-size;
+}
+.points-ring svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.points-ring svg circle {
+  transition: stroke-dashoffset 0.9s ease;
+}
+.points-ring > span {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  text-align: center;
+  line-height: 1.05;
+}
+.points-ring b {
+  font-size: 26cqw;
+  font-weight: 850;
+  letter-spacing: -0.04em;
+  color: var(--text);
+}
+.points-ring small {
+  font-size: clamp(11px, 13cqw, 15px);
+  color: var(--muted);
+  font-weight: 600;
+}
+@container (max-width: 62px) {
+  .points-ring small {
+    display: none;
+  }
+}
+
+/* ---------- Ball tarkibi: 30 + 20 + 50 ---------- */
+.points-breakdown {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 7px;
+}
+.pb-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 3px 8px;
+  font-size: 13px;
+}
+.pb-label {
+  grid-column: 1;
+  grid-row: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--muted);
+  font-weight: 600;
+}
+.pb-emoji {
+  font-size: 15px;
+}
+.pb-row > b {
+  grid-column: 2;
+  grid-row: 1;
+  font-size: 14px;
+  font-weight: 800;
+}
+.pb-row > b small {
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 12px;
+}
+.pb-bar {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  height: 7px;
+  border-radius: 7px;
+  background: var(--soft-violet);
+  overflow: hidden;
+}
+.pb-bar i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  transition: width 0.8s ease;
+}
+.pb-row.slides .pb-bar i {
+  background: linear-gradient(90deg, #60a5fa, #2563eb);
+}
+.pb-row.time .pb-bar i {
+  background: linear-gradient(90deg, #fbbf24, #ea580c);
+}
+.pb-row.test .pb-bar i {
+  background: linear-gradient(90deg, #c084fc, #7c3aed);
+}
+.pb-hints {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+.pb-hints li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 12px;
+  background: var(--surface-soft);
+  border: 1px solid var(--border);
+  font-size: 14px;
+}
+.pb-hints b {
+  color: #15803d;
+  white-space: nowrap;
+}
+.dark .pb-hints b {
+  color: #86efac;
+}
+.pb-done {
+  margin: 8px 0 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: #15803d;
+}
+.dark .pb-done {
+  color: #86efac;
+}
+
+/* ---------- Yon panel: profil, yutuqlar, maslahat ---------- */
+.profile-summary {
+  padding: 24px 18px 18px;
+}
+.profile-summary .profile-avatar {
+  background: linear-gradient(145deg, #a78bfa, #7c3aed);
+  color: #fff;
+  outline: 0;
+  box-shadow: 0 10px 20px -12px #6d28d9;
+}
+.profile-summary h3 {
+  font-size: 17px;
+}
+.profile-summary > p {
+  font-size: 14px;
+}
+.profile-summary > .points-ring {
+  margin: 12px auto 0;
+}
+.ring-caption {
+  display: block;
+  margin: 8px 0 14px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.profile-quick {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 14px;
+}
+.profile-quick button {
+  display: grid;
+  justify-items: center;
+  gap: 5px;
+  min-height: 64px;
+  padding: 10px 2px;
+  border-radius: 15px;
+  border: 1px solid var(--border);
+  background: var(--surface-soft);
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 650;
+  transition:
+    transform 0.2s,
+    border-color 0.2s;
+}
+.profile-quick button:hover {
+  transform: translateY(-2px);
+  border-color: #c4b5fd;
+}
+.profile-quick svg {
+  color: #7c3aed;
+}
+.dark .profile-quick svg {
+  color: #c4a8ff;
+}
+.badge-preview h3 {
+  font-size: 16px;
+}
+.badge-preview .section-heading > button {
+  min-height: 36px;
+}
+.badge-icons > div {
+  width: 54px;
+  height: 54px;
+  border-radius: 17px;
+}
+.badge-icons > div span {
+  font-size: 27px;
+  line-height: 1;
+  filter: grayscale(1);
+  opacity: 0.5;
+}
+.badge-icons > div.earned {
+  background: linear-gradient(145deg, #fef3c7, #f3e8ff);
+  box-shadow: inset 0 -3px 0 #f59e0b33;
+}
+.badge-icons > div.earned span {
+  filter: none;
+  opacity: 1;
+  animation: sq-float 3.8s ease-in-out infinite;
+}
+.dark .badge-icons > div.earned {
+  background: linear-gradient(145deg, #4a3812, #3b2a5e);
+}
+.badge-preview p {
+  font-size: 14px;
+  line-height: 1.55;
+}
+.study-tip {
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #fef9c3, #fff7ed);
+  border: 1px solid #fde68a;
+}
+.study-tip > span {
+  font-size: 22px;
+  animation: sq-pop 2.8s ease-in-out infinite;
+}
+.study-tip p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #5b4413;
+}
+.dark .study-tip {
+  background: #3a2f1255;
+  border-color: #854d0e88;
+}
+.dark .study-tip p {
+  color: #fde68a;
+}
+
+/* ---------- Yutuqlar sahifasi ---------- */
+.badge-grid {
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 18px;
+}
+.badge-card {
+  padding: 26px 18px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.badge-card h3 {
+  font-size: 17px;
+  margin-bottom: 6px;
+}
+.badge-card p {
+  font-size: 14px;
+  line-height: 1.55;
+  flex: 1;
+}
+.badge-medallion {
+  position: relative;
+  overflow: hidden;
+  width: 92px;
+  height: 92px;
+  border-radius: 30px;
+  background: linear-gradient(145deg, #ede9fe, #ddd6fe);
+}
+.badge-emoji {
+  font-size: 46px;
+  line-height: 1;
+  filter: drop-shadow(0 6px 8px #0003);
+}
+.badge-card.earned .badge-medallion {
+  background: linear-gradient(145deg, #fde68a, #f59e0b);
+  box-shadow:
+    inset 0 -6px 0 #b4530933,
+    0 14px 28px -16px #d97706;
+}
+.badge-card.earned:nth-child(3n + 2) .badge-medallion {
+  background: linear-gradient(145deg, #c4b5fd, #7c3aed);
+  box-shadow:
+    inset 0 -6px 0 #4c1d9533,
+    0 14px 28px -16px #7c3aed;
+}
+.badge-card.earned:nth-child(3n) .badge-medallion {
+  background: linear-gradient(145deg, #86efac, #10b981);
+  box-shadow:
+    inset 0 -6px 0 #04785733,
+    0 14px 28px -16px #059669;
+}
+.badge-card.earned .badge-medallion::after {
+  content: '';
+  position: absolute;
+  top: -40%;
+  left: 0;
+  width: 34%;
+  height: 180%;
+  background: linear-gradient(90deg, transparent, #ffffff99, transparent);
+  animation: sq-shine 3.6s ease-in-out infinite;
+}
+.badge-card.earned .badge-emoji {
+  animation: sq-float 4s ease-in-out infinite;
+}
+.badge-card.locked .badge-medallion {
+  filter: grayscale(0.85);
+  opacity: 0.6;
+}
+.badge-card.earned {
+  border-color: #fcd34d;
+}
+.dark .badge-card.earned {
+  border-color: #a16207;
+}
+.badge-card > .badge-state {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  padding: 6px 13px;
+  border-radius: 999px;
+  background: #dcfce7;
+  color: #14532d;
+  font-size: 14px;
+  font-weight: 750;
+}
+.dark .badge-card > .badge-state {
+  background: #14532d66;
+  color: #a7f3c0;
+}
+.badge-progress {
+  width: 100%;
+  display: grid;
+  gap: 6px;
+  margin-top: 6px;
+}
+.badge-progress .progress-track {
+  height: 8px;
+}
+.badge-progress small {
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 650;
+}
+
+/* ---------- Mehmon sahifasi ---------- */
+.guest-home {
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+}
+.guest-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(260px, 1fr);
+  gap: 26px;
+  align-items: stretch;
+  padding: 30px;
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at 0% 0%, #ede9fe, transparent 55%),
+    radial-gradient(circle at 100% 100%, #fce7f3, transparent 50%), var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+}
+.dark .guest-hero {
+  background:
+    radial-gradient(circle at 0% 0%, #2e1f52, transparent 55%),
+    radial-gradient(circle at 100% 100%, #3a1730, transparent 50%), var(--surface);
+}
+.guest-hero-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  min-width: 0;
+}
+.guest-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 14px 5px 5px;
+  border-radius: 999px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  font-size: 14px;
+  font-weight: 650;
+  box-shadow: var(--shadow);
+}
+.guest-badge img {
+  border-radius: 50%;
+}
+.guest-hero h1 {
+  font-size: clamp(30px, 4vw, 46px);
+  line-height: 1.08;
+  letter-spacing: -1.6px;
+  margin: 18px 0 14px;
+}
+.guest-hero h1 span {
+  display: block;
+  margin-top: 6px;
+  font-size: 0.55em;
+  letter-spacing: -0.4px;
+  background: linear-gradient(90deg, #7c3aed, #db2777);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.dark .guest-hero h1 span {
+  background-image: linear-gradient(90deg, #c4b5fd, #f9a8d4);
+}
+.guest-hero-text > p {
+  font-size: 16px;
+  line-height: 1.65;
+  color: var(--muted);
+  max-width: 560px;
+  margin: 0;
+}
+.guest-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 22px;
+}
+.guest-hero > .course-hero-art {
+  border-radius: 22px;
+  min-height: 280px;
+}
+.guest-hero > .course-hero-art .course-hero-title {
+  font-size: 28px;
+}
+.guest-features {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+.guest-feature {
+  display: grid;
+  align-content: start;
+  gap: 6px;
+  padding: 18px;
+}
+.guest-feature > span {
+  font-size: 32px;
+  line-height: 1;
+  margin-bottom: 6px;
+  display: inline-block;
+  animation: sq-float 5s ease-in-out infinite;
+}
+.guest-feature:nth-child(2) > span {
+  animation-delay: -1.2s;
+}
+.guest-feature:nth-child(3) > span {
+  animation-delay: -2.4s;
+}
+.guest-feature:nth-child(4) > span {
+  animation-delay: -3.6s;
+}
+.guest-feature b {
+  font-size: 16px;
+}
+.guest-feature p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--muted);
+}
+.guest-steps {
+  padding: 22px 26px;
+}
+.guest-steps h2 {
+  font-size: 19px;
+  margin: 0 0 14px;
+}
+.guest-steps ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  counter-reset: step;
+  display: grid;
+  gap: 12px;
+}
+.guest-steps li {
+  counter-increment: step;
+  position: relative;
+  padding-left: 46px;
+  min-height: 32px;
+  display: flex;
+  align-items: center;
+  font-size: 15px;
+  line-height: 1.55;
+}
+.guest-steps li::before {
+  content: counter(step);
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-weight: 850;
+  color: #fff;
+  background: linear-gradient(135deg, #7c3aed, #db2777);
+}
+.guest-topics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+.guest-topic {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  text-align: left;
+  color: inherit;
+  transition: transform 0.2s;
+}
+.guest-topic:hover {
+  transform: translateY(-2px);
+}
+.guest-topic > span {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.guest-topic small {
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 650;
+}
+.guest-topic b {
+  font-size: 15px;
+  line-height: 1.35;
+}
+
+/* ---------- Yon menyu: joriy mavzu va muddati ---------- */
+.sidebar {
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+.sidebar nav a {
+  font-size: 15px;
+  color: #5f5a7a;
+  min-height: 46px;
+}
+.dark .sidebar nav a {
+  color: #b3afcb;
+}
+.sidebar nav a.active {
+  color: #6d28d9;
+}
+.dark .sidebar nav a.active {
+  color: #d1bcff;
+}
+.sidebar-bottom {
+  padding-top: 24px;
+}
+.sidebar-current {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border-radius: 18px;
+  background: linear-gradient(160deg, var(--soft-violet), var(--surface));
+  border: 1px solid var(--border);
+}
+.sidebar-current-label {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: #5e4f8c;
+}
+.dark .sidebar-current-label {
+  color: #c4b5fd;
+}
+.sidebar-current-topic {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  text-align: left;
+}
+.sidebar-current-topic .topic-art.compact {
+  width: 44px;
+  height: 44px;
+  border-radius: 13px;
+}
+.sidebar-current-topic > span {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.sidebar-current-topic small {
+  font-size: 12px;
+  font-weight: 650;
+  color: var(--muted);
+}
+.sidebar-current-topic b {
+  font-size: 13px;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.sidebar-current .access-chip {
+  justify-self: start;
+  white-space: normal;
+}
+.sidebar-due {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  margin: 0;
+  padding: 8px 10px;
+  border-radius: 12px;
+  font-size: 13px;
+  line-height: 1.4;
+  background: #dcfce7;
+  color: #14532d;
+}
+.sidebar-due svg {
+  margin-top: 2px;
+}
+.sidebar-due.urgent {
+  background: #ffedd5;
+  color: #8a2c0d;
+}
+.dark .sidebar-due {
+  background: #14532d66;
+  color: #a7f3c0;
+}
+.dark .sidebar-due.urgent {
+  background: #7c2d1266;
+  color: #fdba74;
+}
+.sidebar-due > span {
+  display: grid;
+}
+.sidebar-due em {
+  font-style: normal;
+  font-weight: 800;
+}
+.sidebar-points {
+  display: grid;
+  gap: 5px;
+}
+.sidebar-points .progress-track {
+  height: 7px;
+}
+.sidebar-points small {
+  font-size: 12px;
+  color: var(--muted);
+}
+.sidebar-points b {
+  color: var(--text);
+}
+.original-link {
+  font-size: 13px;
+  min-height: 40px;
+  margin-top: 12px;
+}
+.sidebar-settings {
+  display: none;
+}
+
+/* ---------- Sarlavha (header) ---------- */
+.search-box input {
+  font-size: 15px;
+}
+.header-profile b {
+  font-size: 14px;
+}
+.header-profile small {
+  font-size: 12px;
+}
+.app-footer {
+  font-size: 13px;
+}
+
+/* ---------- Formalar ---------- */
+.input {
+  font-size: 15px;
+  min-height: 44px;
+}
+.editor label,
+.auth-form label,
+.profile-card label {
+  font-size: 14px;
+}
+.checkbox-label {
+  font-size: 14px !important;
+  min-height: 40px;
+}
+.checkbox-label input {
+  width: 20px;
+  height: 20px;
+}
+
+/* ---------- Profil ---------- */
+.profile-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+  align-items: center;
+  gap: 22px;
+  padding: 24px;
+  margin-bottom: 24px;
+  border-radius: 26px;
+  color: #fff;
+  background:
+    radial-gradient(circle at 100% 0%, #f472b666, transparent 45%),
+    linear-gradient(120deg, #3b1d8f, #6d28d9 55%, #8b5cf6);
+  box-shadow: 0 18px 36px -24px #4c1d95;
+}
+.profile-hero-id {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+}
+.profile-hero-id .profile-avatar {
+  margin: 0;
+  width: 76px;
+  height: 76px;
+  border-radius: 24px;
+  font-size: 27px;
+  flex-shrink: 0;
+  color: #5b21b6;
+  background: linear-gradient(145deg, #fff, #ede9fe);
+  border: 0;
+  outline: 0;
+  box-shadow: 0 0 0 5px #ffffff2e;
+}
+.profile-hero-id h2 {
+  font-size: 23px;
+  margin: 0 0 4px;
+  letter-spacing: -0.4px;
+  overflow-wrap: anywhere;
+}
+.profile-hero-id p {
+  margin: 0 0 4px;
+  font-size: 15px;
+  color: #ede4ff;
+}
+.profile-hero-id small {
+  font-size: 12px;
+  color: #ddd0ff;
+  overflow-wrap: anywhere;
+}
+.profile-hero-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+.profile-hero-stats > * {
+  display: grid;
+  justify-items: start;
+  gap: 2px;
+  padding: 12px 14px;
+  border-radius: 18px;
+  background: #ffffff1c;
+  border: 1px solid #ffffff2e;
+  color: #fff;
+  text-align: left;
+  min-width: 0;
+}
+.profile-hero-stats > button:hover {
+  background: #ffffff2b;
+}
+.profile-hero-stats span {
+  font-size: 22px;
+  line-height: 1.2;
+}
+.profile-hero-stats b {
+  font-size: 19px;
+  line-height: 1.2;
+  letter-spacing: -0.4px;
+}
+.profile-hero-stats small {
+  font-size: 13px;
+  color: #ede4ff;
+}
+.profile-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 22px;
+  align-items: start;
+}
+.profile-main {
+  min-width: 0;
+}
+.profile-side {
+  display: grid;
+  gap: 16px;
+}
+.profile-card {
+  display: grid;
+  gap: 12px;
+  padding: 20px;
+  margin: 0;
+  border-radius: 21px;
+}
+.profile-card h2 {
+  font-size: 17px;
+  margin: 0;
+}
+.profile-card form {
+  display: grid;
+  gap: 12px;
+}
+.profile-card label:not(.checkbox-label) {
+  display: grid;
+  gap: 7px;
+  color: var(--muted);
+}
+.profile-card .muted {
+  font-size: 14px;
+  line-height: 1.55;
+  margin: 0;
+}
+.academic-history .section-heading {
+  align-items: flex-start;
+}
+.academic-history .section-heading .muted {
+  font-size: 14px;
+  margin: 6px 0 0;
+  line-height: 1.55;
+}
+.academic-topic-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 14px;
+}
+.academic-topic-card {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 20px;
+}
+.academic-topic-card.is-full {
+  border-color: #86efac;
+}
+.dark .academic-topic-card.is-full {
+  border-color: #166534;
+}
+.academic-topic-card > header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.academic-topic-card > header > div {
+  min-width: 0;
+}
+.academic-topic-card > header small {
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 650;
+}
+.academic-topic-card h3 {
+  font-size: 15px;
+  line-height: 1.4;
+  margin: 2px 0 0;
+}
+.academic-topic-chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 6px;
+  padding: 0;
+}
+.academic-topic-chips:empty {
+  display: none;
+}
+.grade-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 650;
+  background: #f3e8ff;
+  color: #5b21b6;
+}
+.grade-chip.g5 {
+  background: #dcfce7;
+  color: #14532d;
+}
+.grade-chip.g4 {
+  background: #e0f2fe;
+  color: #0b4a6f;
+}
+.grade-chip.g3 {
+  background: #fef3c7;
+  color: #713f12;
+}
+.grade-chip.g2,
+.grade-chip.g1 {
+  background: #ffe4e6;
+  color: #881337;
+}
+.dark .grade-chip {
+  background: #3b2a5e;
+  color: #ddd0ff;
+}
+.dark .grade-chip.g5 {
+  background: #14532d66;
+  color: #a7f3c0;
+}
+.dark .grade-chip.g4 {
+  background: #0c4a6e66;
+  color: #a5dcfb;
+}
+.dark .grade-chip.g3 {
+  background: #713f1266;
+  color: #fde68a;
+}
+.dark .grade-chip.g2,
+.dark .grade-chip.g1 {
+  background: #88133766;
+  color: #fecdd3;
+}
+.academic-closed {
+  margin: 14px 0 0;
+  padding: 12px 16px;
+  border-radius: 16px;
+  background: var(--surface-soft);
+  border: 1px dashed var(--border);
+  font-size: 14px;
+  color: var(--muted);
+}
+.academic-topic-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 40px;
+  padding: 0 4px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #6d3fc4;
+}
+.dark .academic-topic-link {
+  color: #c4a8ff;
+}
+
+/* ---------- Darsda «Mening ballim» paneli ---------- */
+.reader-details {
+  display: grid;
+  gap: 12px;
+  width: min(400px, calc(100% - 28px));
+}
+.reader-details-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+.reader-details-head {
+  flex-wrap: wrap;
+}
+.reader-details-head h2 {
+  margin: 0;
+  font-size: 18px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 8px;
+}
+.reader-details-head small {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+}
+.reader-details .sidebar-due,
+.reader-details .muted {
+  margin: 0;
+}
+.reader-points {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 14px;
+}
+.reader-points > .points-ring {
+  position: sticky;
+  top: 0;
+}
+
+/* ---------- Kirish oynasi: ikki dizayn (🚀 Biznes start va 💻 Raqamli ta'lim) ---------- */
+.auth-page {
+  display: block;
+  position: relative;
+  isolation: isolate;
+  overflow-x: hidden;
+}
+.auth-shell {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  min-height: 100dvh;
+}
+.auth-close {
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 50% !important;
+  background: var(--surface) !important;
+  box-shadow: 0 6px 18px -8px #2e106588;
+  z-index: 5 !important;
+}
+.auth-form {
+  gap: 12px;
+  justify-content: safe center;
+}
+.auth-form > * {
+  width: 100%;
+  max-width: 400px;
+}
+.auth-form-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 4px;
+}
+.auth-form-head img {
+  border-radius: 50%;
+  box-shadow: 0 6px 16px -8px #0006;
+}
+.auth-form-head h2 {
+  margin: 0;
+  font-size: 25px;
+  letter-spacing: -0.5px;
+}
+.auth-form-head .muted {
+  margin: 2px 0 0;
+  font-size: 14px;
+}
+.auth-form .auth-error {
+  color: #b42318;
+  font-size: 14px;
+}
+.auth-role {
+  justify-content: space-between !important;
+  min-height: 52px !important;
+  font-size: 15px !important;
+}
+.auth-tabs,
+.native-login .native-document .rt-gtabs {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px !important;
+  padding: 4px;
+  margin: 0 0 6px !important;
+  border-radius: 14px;
+  background: var(--surface-soft);
+  border: 1px solid var(--border);
+}
+.auth-tabs button,
+.native-login .native-document .rt-gtabs button {
+  min-height: 42px !important;
+  border-radius: 11px !important;
+  border: 0 !important;
+  background: transparent !important;
+  color: var(--muted) !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  box-shadow: none !important;
+  padding: 0 10px !important;
+}
+.auth-tabs button.on,
+.native-login .native-document .rt-gtabs button.on,
+.native-login .native-document .rt-gtabs button[aria-pressed='true'] {
+  background: var(--surface) !important;
+  color: #6d28d9 !important;
+  box-shadow: 0 3px 10px -4px #4c1d9555 !important;
+}
+.native-login .native-document .rt-auth-content {
+  display: flex;
+  flex-direction: column;
+}
+.native-login .native-document .rt-gtabs {
+  order: -1;
+}
+.native-login .native-document #rtAuthTitle,
+.native-login .native-document .rt-auth-welcome {
+  display: none;
+}
+.native-login .native-document label {
+  font-size: 14px;
+  margin-bottom: 12px;
+}
+.native-login .native-document input {
+  font-weight: 500;
+  min-height: 46px;
+  font-size: 16px;
+}
+.native-login .native-document input::placeholder,
+.auth-form input::placeholder {
+  font-weight: 400;
+  color: #8a85a3;
+}
+.native-login .native-document .rt-tclink {
+  align-self: center;
+  margin-top: 8px;
+  font-size: 14px;
+}
+.auth-hints {
+  display: grid;
+  gap: 6px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: var(--surface-soft);
+  border: 1px solid var(--border);
+}
+.auth-hints p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+.auth-hints b {
+  color: var(--text);
+}
+.auth-or {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 2px 0;
+  font-size: 13px;
+}
+.auth-or::before,
+.auth-or::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+.auth-alt {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.auth-google,
+.auth-email {
+  width: 100%;
+  min-height: 46px !important;
+  font-size: 15px !important;
+}
+.auth-email {
+  border: 1px dashed var(--border) !important;
+  color: var(--text) !important;
+}
+.auth-link {
+  justify-self: end;
+  align-self: flex-end;
+  margin-top: -6px;
+  padding: 4px 0;
+  border: 0;
+  background: none;
+  color: #6d28d9;
+  font-size: 14px;
+  font-weight: 650;
+}
+.auth-link:disabled {
+  color: var(--muted);
+}
+.auth-back {
+  font-size: 14px;
+  font-weight: 650;
+  color: #6d28d9;
+  margin-top: 6px;
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.dark .auth-back,
+.dark .auth-link {
+  color: #c4a8ff;
+}
+.auth-design-switch {
+  position: fixed;
+  left: 18px;
+  bottom: 18px;
+  z-index: 6;
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border);
+  box-shadow: 0 8px 22px -12px #2e106588;
+}
+.auth-design-switch button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 38px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+.auth-design-switch button.on {
+  background: #6d28d9;
+  color: #fff;
+}
+
+/* 💻 Raqamli ta'lim: animatsiya oq fon bilan bir butun bo'lib, katta ko'rinadi */
+.design-workspace .auth-story {
+  /* animatsiya foni bilan aynan bir xil rang — «kartochka ichida kartochka» ko'rinmaydi */
+  background: #f9f8ff;
+  color: #2e1065;
+  gap: 6px;
+}
+.design-workspace .auth-story .hero-tag {
+  background: #fff;
+  border: 1px solid #e9e3fb;
+  color: #5b21b6;
+  font-size: 14px;
+  padding: 5px 14px 5px 5px;
+  border-radius: 999px;
+  gap: 8px;
+  box-shadow: 0 6px 18px -12px #4c1d9566;
+}
+.design-workspace .auth-story .hero-tag img {
+  border-radius: 50%;
+}
+.design-workspace .auth-story h1 {
+  color: #2e1065;
+  margin-top: 16px;
+}
+.design-workspace .auth-story .auth-video {
+  width: min(100%, 640px, 62dvh);
+  margin: 6px 0;
+  background: transparent;
+  border-radius: 0;
+}
+.design-workspace .auth-story > p {
+  color: #5b4f84;
+  font-size: 16px;
+}
+.dark .design-workspace .auth-story {
+  background: #f9f8ff;
+}
+
+/* 🚀 Biznes start: TerDU raketa dizayni */
+.auth-page.design-rocket {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100dvh;
+  padding: 28px;
+  background:
+    radial-gradient(circle at 7% 14%, #d946ef66, transparent 9%),
+    radial-gradient(circle at 18% 78%, #ffffff22, transparent 6%),
+    radial-gradient(2px 2px at 12% 30%, #fff, transparent),
+    radial-gradient(2px 2px at 27% 9%, #fff, transparent),
+    radial-gradient(2px 2px at 6% 62%, #fff, transparent),
+    radial-gradient(2px 2px at 38% 92%, #fff, transparent),
+    radial-gradient(circle at 70% 120%, #ffffffaa, transparent 30%),
+    linear-gradient(100deg, #6b2391 0%, #8336a6 44%, #c8afe3 60%, #e6dbf2 100%);
+}
+.design-rocket .auth-shell {
+  position: relative;
+  width: min(1180px, 100%, calc((100dvh - 56px) * 1.6855));
+  aspect-ratio: 1222 / 725;
+  min-height: 0;
+  grid-template-columns: 59% 41%;
+  border-radius: 26px;
+  overflow: hidden;
+  box-shadow: 0 34px 80px -34px #3b0764cc;
+  background: #fff url('/legacy/fayllar/auth-rocket-background.webp') no-repeat;
+  background-size: 132.9% auto;
+  background-position: 51.7% 51.2%;
+}
+.design-rocket .auth-story {
+  background: none;
+  padding: 9% 0 0 6%;
+  justify-content: flex-start;
+  align-items: flex-start;
+  text-align: center;
+}
+.auth-rocket-title {
+  width: 74%;
+  color: #fff;
+  animation: sq-rise 0.8s ease both;
+}
+.auth-rocket-title h1 {
+  margin: 0;
+  font-size: clamp(28px, 3.3vw, 46px);
+  font-weight: 650;
+  letter-spacing: 0.3px;
+  line-height: 1.15;
+  max-width: none;
+  text-shadow: 0 4px 18px #2e106566;
+}
+.auth-rocket-title p {
+  margin: 8px 0 0;
+  font-size: clamp(15px, 1.5vw, 21px);
+  letter-spacing: 1.5px;
+  color: #f3e8ff;
+}
+.design-rocket .auth-form {
+  padding: 3.2% 8% 3.2% 7%;
+  background: transparent;
+  overflow-y: auto;
+  justify-content: safe center;
+  gap: 9px;
+}
+.design-rocket .auth-form-head .muted {
+  display: none;
+}
+@media (min-width: 901px) {
+  .design-rocket .auth-back {
+    display: none;
+  }
+}
+.design-rocket .auth-form-head img {
+  width: 48px;
+  height: 48px;
+}
+.design-rocket .auth-form-head h2 {
+  font-size: 23px;
+}
+.design-rocket .native-login .native-document label {
+  margin-bottom: 9px;
+}
+.design-rocket .native-login .native-document input {
+  min-height: 44px;
+}
+.design-rocket .auth-form-head h2 {
+  color: #6b21a8;
+}
+.design-rocket .auth-design-switch {
+  background: #ffffffd9;
+}
+@keyframes sq-rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (max-height: 760px) and (min-width: 901px) {
+  .design-rocket .auth-hints {
+    display: none;
+  }
+  .design-rocket .auth-form-head img {
+    width: 44px;
+    height: 44px;
+  }
+}
+@media (max-width: 900px) {
+  .auth-page.design-rocket {
+    display: block;
+    padding: 0;
+    background: var(--surface);
+  }
+  .design-rocket .auth-shell,
+  .design-workspace .auth-shell {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    min-height: 100dvh;
+    aspect-ratio: auto;
+    border-radius: 0;
+    box-shadow: none;
+    background: var(--surface);
+  }
+  .design-rocket .auth-story {
+    min-height: 168px;
+    padding: 56px 20px 22px;
+    justify-content: flex-end;
+    align-items: flex-start;
+    text-align: left;
+    background: #6d28d9 url('/legacy/fayllar/auth-rocket-background.webp') no-repeat;
+    background-size: 250% auto;
+    background-position: 19% 47%;
+    border-radius: 0 0 26px 26px;
+  }
+  .auth-rocket-title {
+    width: auto;
+  }
+  .auth-rocket-title h1 {
+    font-size: 27px;
+  }
+  .auth-rocket-title p {
+    font-size: 15px;
+    letter-spacing: 0.6px;
+  }
+  .design-workspace .auth-story {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 96px;
+    grid-template-areas: 'tag art' 'title art' 'description description';
+    align-items: center;
+    gap: 8px 12px;
+    padding: 60px 20px 18px;
+    text-align: left;
+  }
+  .design-workspace .auth-story .hero-tag {
+    grid-area: tag;
+    justify-self: start;
+    font-size: 13px;
+  }
+  .design-workspace .auth-story h1 {
+    grid-area: title;
+    font-size: 23px;
+    margin: 0;
+  }
+  .design-workspace .auth-story .auth-video {
+    grid-area: art;
+    width: 96px;
+    margin: 0;
+  }
+  .design-workspace .auth-story .auth-video > button {
+    display: none;
+  }
+  .design-workspace .auth-story > p {
+    grid-area: description;
+    font-size: 14px;
+  }
+  .auth-form,
+  .design-rocket .auth-form {
+    flex: 1;
+    padding: 22px 20px 96px;
+    justify-content: flex-start;
+  }
+  .auth-close {
+    top: max(10px, env(safe-area-inset-top)) !important;
+    right: max(10px, env(safe-area-inset-right)) !important;
+  }
+  .auth-design-switch {
+    position: static;
+    width: max-content;
+    margin: -72px auto max(18px, env(safe-area-inset-bottom));
+  }
+  .auth-design-switch button {
+    white-space: nowrap;
+    padding: 0 12px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .auth-rocket-title {
+    animation: none;
+  }
+}
+
+/* ---------- Planshet ---------- */
+@media (max-width: 1250px) {
+  .guest-features {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .guest-topics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .welcome-hero.continue-hero {
+    grid-template-columns: 190px minmax(0, 1fr);
+    gap: 20px;
+  }
+}
+@media (max-width: 1020px) {
+  .profile-hero {
+    grid-template-columns: 1fr;
+  }
+  .profile-layout {
+    grid-template-columns: 1fr;
+  }
+  .welcome-hero.continue-hero h2 {
+    font-size: 24px;
+  }
+  .profile-summary {
+    grid-row: auto;
+  }
+}
+
+/* ---------- Telefon ---------- */
+@media (max-width: 760px) {
+  /* sarlavha: 44 px tugmalar, keng qidiruv; til va tungi rejim — menyuda */
+  .app-header {
+    height: 64px;
+    padding: 0 12px;
+    gap: 6px;
+  }
+  .mobile-menu,
+  .header-actions > .inline-flex,
+  .notification-wrap > button {
+    width: 44px !important;
+    height: 44px !important;
+    min-height: 44px !important;
+  }
+  .header-actions {
+    gap: 2px;
+  }
+  .header-actions > .language-switch,
+  .header-actions > .theme-toggle {
+    display: none !important;
+  }
+  .search-wrap {
+    flex: 1;
+    width: auto;
+    min-width: 0;
+  }
+  .search-box {
+    min-height: 44px;
+    padding: 0 12px;
+    gap: 8px;
+  }
+  .search-box input {
+    font-size: 16px;
+  }
+  .header-profile {
+    display: flex !important;
+    margin-left: 2px;
+    padding: 0;
+    border: 0;
+  }
+  .header-profile > span {
+    width: 42px;
+    height: 42px;
+    border-radius: 13px;
+  }
+  .header-profile > div {
+    display: none;
+  }
+  .sidebar-settings {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 14px;
+    padding: 8px;
+    border-radius: 14px;
+    background: var(--surface-soft);
+    border: 1px solid var(--border);
+  }
+  .lang-seg {
+    flex: 1;
+    display: flex;
+    gap: 4px;
+  }
+  .lang-seg button {
+    flex: 1;
+    min-height: 44px;
+    border-radius: 11px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--muted);
+    font-size: 14px;
+    font-weight: 750;
+  }
+  .lang-seg button.on {
+    background: var(--violet);
+    border-color: var(--violet);
+    color: #fff;
+  }
+  .demo-banner,
+  .demo-banner select {
+    font-size: 13px;
+  }
+  /* pastki menyu: 6 bo'lim, har biri kamida 48 px */
+  .bottom-nav {
+    padding: 6px 4px calc(6px + env(safe-area-inset-bottom));
+    gap: 2px;
+  }
+  .bottom-nav a {
+    min-width: 0;
+    min-height: 54px;
+    justify-content: center;
+    gap: 3px;
+    padding: 4px 2px;
+    border-radius: 14px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #5f5a7a;
+  }
+  .dark .bottom-nav a {
+    color: #b3afcb;
+  }
+  .bottom-nav a span {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .bottom-nav a.active {
+    background: var(--soft-violet);
+    color: #6d28d9;
+    font-weight: 750;
+  }
+  .dark .bottom-nav a.active {
+    color: #d1bcff;
+  }
+  .bottom-nav a.active:before {
+    top: -6px;
+  }
+  .app-main {
+    padding: 22px 16px 100px;
+  }
+  .welcome-hero.continue-hero > div {
+    max-width: none;
+  }
+  .input {
+    font-size: 16px;
+  }
+  .profile-hero {
+    grid-template-columns: 1fr;
+    padding: 18px;
+    gap: 16px;
+  }
+  .profile-hero-id .profile-avatar {
+    width: 62px;
+    height: 62px;
+    font-size: 22px;
+  }
+  .profile-hero-id h2 {
+    font-size: 20px;
+  }
+  .profile-hero-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .profile-hero-stats b {
+    font-size: 18px;
+  }
+  .profile-layout {
+    grid-template-columns: 1fr;
+  }
+  .academic-topic-grid {
+    grid-template-columns: 1fr;
+  }
+  .page-heading p {
+    font-size: 15px;
+  }
+  .page-heading h1 {
+    font-size: 26px;
+  }
+  .section-heading h2 {
+    font-size: 18px;
+  }
+  .section-heading > button {
+    font-size: 14px;
+  }
+  .welcome-hero.continue-hero {
+    grid-template-columns: 1fr;
+    padding: 16px;
+    gap: 16px;
+  }
+  .continue-hero > .topic-art {
+    min-height: 130px;
+  }
+  .welcome-hero.continue-hero h2 {
+    font-size: 21px;
+    margin-top: 10px;
+  }
+  .continue-hero-points {
+    padding: 12px;
+    gap: 12px;
+  }
+  .welcome-hero.continue-hero .hero-button {
+    width: 100%;
+  }
+  .stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .stat-card {
+    flex-direction: row;
+    align-items: center;
+    padding: 13px 12px;
+    gap: 10px;
+  }
+  .stat-emoji {
+    width: 40px;
+    height: 40px;
+    font-size: 21px;
+    border-radius: 13px;
+  }
+  .stat-card small {
+    font-size: 13px;
+  }
+  .stat-card strong {
+    font-size: 22px;
+  }
+  .stat-card strong.stat-text {
+    font-size: 16px;
+  }
+  .stat-card em {
+    font-size: 13px;
+  }
+  .soft-empty {
+    grid-template-columns: 1fr;
+    text-align: left;
+  }
+  .soft-empty > span {
+    grid-row: auto;
+  }
+  .soft-empty .row-actions {
+    grid-column: auto;
+  }
+  .course-grid .course-card:only-child {
+    grid-template-columns: 1fr;
+  }
+  .course-grid .course-card:only-child .course-hero-art {
+    min-height: 168px;
+  }
+  .course-grid .course-card:only-child .course-card-body {
+    padding: 18px;
+  }
+  .course-card-body h3 {
+    font-size: 18px;
+  }
+  .course-level {
+    font-size: 13px;
+  }
+  .course-banner {
+    grid-template-columns: 1fr;
+  }
+  .course-banner .course-hero-art {
+    min-height: 150px;
+  }
+  .course-banner-body {
+    padding: 18px;
+  }
+  .lesson-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .lesson-card {
+    padding: 12px;
+  }
+  .lesson-card h3 {
+    font-size: 16px;
+  }
+  .lesson-card p,
+  .lesson-link {
+    font-size: 14px;
+  }
+  .lesson-card .mini-cover {
+    height: 128px;
+  }
+  .filter-row {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    margin-inline: -16px;
+    padding: 2px 16px 6px;
+    scrollbar-width: none;
+  }
+  .filter-row::-webkit-scrollbar {
+    display: none;
+  }
+  .filter-row button {
+    font-size: 14px;
+    padding: 8px 14px;
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+  .badge-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .badge-card {
+    padding: 20px 12px 16px;
+  }
+  .badge-medallion {
+    width: 74px;
+    height: 74px;
+    border-radius: 24px;
+  }
+  .badge-emoji {
+    font-size: 36px;
+  }
+  .badge-card h3 {
+    font-size: 15px;
+  }
+  .badge-card p {
+    font-size: 13px;
+  }
+  .guest-hero {
+    grid-template-columns: 1fr;
+    padding: 20px;
+    gap: 20px;
+    border-radius: 24px;
+  }
+  .guest-hero > .course-hero-art {
+    min-height: 190px;
+    order: -1;
+  }
+  .guest-actions > button {
+    flex: 1 1 140px;
+  }
+  .guest-features {
+    gap: 10px;
+  }
+  .guest-feature {
+    padding: 14px;
+  }
+  .guest-feature > span {
+    font-size: 28px;
+  }
+  .guest-feature b {
+    font-size: 15px;
+  }
+  .guest-steps {
+    padding: 18px;
+  }
+  .guest-topics {
+    grid-template-columns: 1fr;
+  }
+  .profile-quick button {
+    min-height: 60px;
+  }
+}
+@media (max-width: 359px) {
+  .guest-features {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 390px) {
+  .stats-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .stat-emoji {
+    display: none;
+  }
+  .badge-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .profile-summary {
+    display: block;
+  }
+  .badge-preview {
+    display: block;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wave,
+  .topic-art-emoji,
+  .course-hero-emoji,
+  .soft-empty > span,
+  .badge-icons > div.earned span,
+  .study-tip > span,
+  .badge-card.earned .badge-emoji,
+  .badge-card.earned .badge-medallion::after,
+  .guest-feature > span,
+  .live-dot {
+    animation: none;
+  }
+}

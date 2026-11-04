@@ -6,7 +6,7 @@ test('CRM has 22 readable slides, original PDF artwork and independent reading p
   await page.goto('/#course/tad-asoslari');
   await expect(page.locator('.lesson-card').filter({ hasText: 'CRM' })).toHaveCount(1);
   await page.goto('/#lesson/m7');
-  await expect(page.locator('.reader-navigation')).toContainText('1 / 22');
+  await expect(page.locator('.reader-counter')).toContainText('1 / 22');
   await expect(page.locator('.native-document h2')).toHaveText('CRM nima?');
   await expect(page.locator('.native-reading-note')).toContainText('0 / 22');
   await expect(page.locator('.crm-cover .crm-terdu-logo')).toBeVisible();
@@ -28,8 +28,8 @@ test('CRM has 22 readable slides, original PDF artwork and independent reading p
   expect(await page.locator('iframe[data-native-engine]').count()).toBe(0);
   await expect(page.locator('.native-reading-note')).toContainText('1 / 22', { timeout: 10000 });
   for (let slide = 2; slide <= 22; slide++) {
-    await page.getByRole('button', { name: 'Next slide', exact: true }).click();
-    await expect(page.locator('.reader-navigation')).toContainText(slide + ' / 22');
+    await page.locator('.reader-controls').getByRole('button', { name: 'Keyingi' }).click();
+    await expect(page.locator('.reader-counter')).toContainText(slide + ' / 22');
     await expect(page.locator('.native-document h2')).not.toHaveText('');
     await expect(page.locator('.crm-terdu-logo')).toBeVisible();
   }

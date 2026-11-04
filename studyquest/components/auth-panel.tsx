@@ -8,11 +8,11 @@ import {
   GoogleAuthProvider,
   signInWithPopup,
 } from 'firebase/auth';
-import { BookOpen, GraduationCap, Shield, ArrowRight, X } from 'lucide-react';
+import { BookOpen, GraduationCap, Shield, ArrowRight, X, Mail } from 'lucide-react';
 import { firebaseAuth } from '@/lib/firebase-client';
 import { useApp } from './provider';
 import { Button } from './ui/button';
-import { t } from '@/lib/i18n';
+import { t, roleLabel } from '@/lib/i18n';
 import { NativeSurface } from './native-surface';
 export function AuthPanel({ onClose }: { onClose?: () => void }) {
   const { data, lang, refresh, toast, setLogin, demoLogin, useEmailMode } = useApp(),
@@ -22,7 +22,8 @@ export function AuthPanel({ onClose }: { onClose?: () => void }) {
     [email, setEmail] = useState(''),
     [password, setPassword] = useState(''),
     [busy, setBusy] = useState(false),
-    [googleError, setGoogleError] = useState('');
+    [googleError, setGoogleError] = useState(''),
+    [design, pickDesign] = useLoginDesign();
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -123,9 +124,205 @@ export function AuthPanel({ onClose }: { onClose?: () => void }) {
         </section>
       </main>
     );
+  const L = (uz: string, en: string, ru: string) => (lang === 'en' ? en : lang === 'ru' ? ru : uz);
+  const close = () => (onClose ? onClose() : (location.hash = 'courses'));
+  const googleButton = (
+    <Button variant="outline" className="auth-google" disabled={busy} onClick={googleLogin}>
+      <GoogleMark />
+      Google
+    </Button>
+  );
+  const form = (
+    <div className="auth-form">
+      <div className="auth-form-head">
+        <img src="/terdu-logo.png" alt="TerDU" width="56" height="56" />
+        <div>
+          <h2>{L('Xush kelibsiz!', 'Welcome!', 'Добро пожаловать!')}</h2>
+          <p className="muted">
+            {L(
+              'Tadbirkorlik asoslari · TerDU',
+              'Fundamentals of Entrepreneurship · TerDU',
+              'Основы предпринимательства · ТерГУ',
+            )}
+          </p>
+        </div>
+      </div>
+      {googleError && (
+        <p role="alert" className="auth-error">
+          {googleError}
+        </p>
+      )}
+      {data?.mode === 'demo' ? (
+        <>
+          <p className="demo-explainer">{t(lang, 'demo')}</p>
+          {[
+            ['student', BookOpen],
+            ['teacher', GraduationCap],
+            ['admin', Shield],
+          ].map(([role, Icon]) => {
+            const I = Icon as typeof BookOpen;
+            return (
+              <Button
+                variant="outline"
+                className="w-full auth-role"
+                key={String(role)}
+                onClick={() => demoLogin(role as string).catch((e) => toast(e.message))}
+              >
+                <I size={18} />
+                {roleLabel(lang, role as string)}
+                <ArrowRight size={16} />
+              </Button>
+            );
+          })}
+        </>
+      ) : student ? (
+        <>
+          <NativeSurface
+            id="student-login"
+            className="native-login"
+            title={L('Talaba hisobiga kirish', 'Student sign-in', 'Вход для студента')}
+            src="/legacy/index.html?studyquest=login&sqEmbed=login"
+          />
+          <div className="auth-hints">
+            <p>
+              🔑{' '}
+              {L(
+                'Kod — avvalgi PIN kodingiz yoki o‘zingiz qo‘ygan parol (boshlang‘ich kod — 1111).',
+                'Code — your old PIN or your own password (the starting code is 1111).',
+                'Код — прежний PIN или ваш пароль (начальный код — 1111).',
+              )}
+            </p>
+            <p>
+              ❓ <b>{L('Parolni unutdingizmi?', 'Forgot your password?', 'Забыли пароль?')}</b>{' '}
+              {L(
+                'O‘qituvchingiz yangisini o‘rnatib beradi.',
+                'Your teacher can set a new one.',
+                'Преподаватель установит новый.',
+              )}
+            </p>
+          </div>
+          <div className="auth-or">
+            <span>{L('yoki', 'or', 'или')}</span>
+          </div>
+          <div className="auth-alt">
+            {googleButton}
+            <Button variant="ghost" className="auth-email" onClick={() => setStudent(false)}>
+              <Mail size={18} />
+              {L('Email orqali', 'With email', 'По email')}
+            </Button>
+          </div>
+        </>
+      ) : (
+        <>
+          <div
+            className="auth-tabs"
+            role="group"
+            aria-label={L('Kirish usuli', 'Access', 'Способ входа')}
+          >
+            <button
+              className={!register ? 'on' : ''}
+              aria-pressed={!register}
+              onClick={() => setRegister(false)}
+            >
+              {t(lang, 'login')}
+            </button>
+            <button
+              className={register ? 'on' : ''}
+              aria-pressed={register}
+              onClick={() => setRegister(true)}
+            >
+              {L('Ro‘yxatdan o‘tish', 'Register', 'Регистрация')}
+            </button>
+          </div>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              void submit();
+            }}
+          >
+            {register && (
+              <label>
+                {L('Ism va familiya', 'Full name', 'Имя и фамилия')}
+                <input
+                  required
+                  className="input"
+                  autoComplete="name"
+                  placeholder={L(
+                    'Masalan: Aziz Karimov',
+                    'e.g. Aziz Karimov',
+                    'Например: Азиз Каримов',
+                  )}
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                />
+              </label>
+            )}
+            <label>
+              Email
+              <input
+                required
+                className="input"
+                type="email"
+                autoComplete="email"
+                placeholder="ism@gmail.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </label>
+            <label>
+              {L('Parol', 'Password', 'Пароль')}
+              <input
+                required
+                className="input"
+                type="password"
+                minLength={8}
+                autoComplete={register ? 'new-password' : 'current-password'}
+                placeholder={L('Kamida 8 belgi', 'At least 8 characters', 'Не менее 8 символов')}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </label>
+            {!register && (
+              <button
+                type="button"
+                className="auth-link"
+                disabled={busy || !email}
+                onClick={() => submit(true)}
+              >
+                {L('Parolni unutdingizmi?', 'Forgot password?', 'Забыли пароль?')}
+              </button>
+            )}
+            <Button className="w-full" disabled={busy} type="submit">
+              {register
+                ? L('Hisob yaratish', 'Create account', 'Создать аккаунт')
+                : t(lang, 'login')}
+            </Button>
+          </form>
+          <div className="auth-or">
+            <span>{L('yoki', 'or', 'или')}</span>
+          </div>
+          <div className="auth-alt">
+            {googleButton}
+            <Button variant="ghost" className="auth-email" onClick={() => setStudent(true)}>
+              <BookOpen size={18} />
+              {L('Talaba hisobi', 'Student account', 'Аккаунт студента')}
+            </Button>
+          </div>
+        </>
+      )}
+      <a className="auth-back" href="#courses" onClick={onClose}>
+        {L(
+          'Kirmasdan mavzularni ko‘rish',
+          'Browse topics without signing in',
+          'Смотреть темы без входа',
+        )}{' '}
+        →
+      </a>
+    </div>
+  );
   return (
     <main
-      className="auth-page"
+      className={'auth-page design-' + design}
       onClickCapture={(event) => {
         const tab =
           event.target instanceof Element
@@ -141,193 +338,123 @@ export function AuthPanel({ onClose }: { onClose?: () => void }) {
         variant="ghost"
         size="icon"
         className="auth-close"
-        aria-label="Close"
-        onClick={() => (onClose ? onClose() : (location.hash = 'courses'))}
+        aria-label={L('Yopish', 'Close', 'Закрыть')}
+        onClick={close}
       >
         <X size={20} />
       </Button>
-      <div className="auth-story">
-        <span className="hero-tag">Tadbirkorlik asoslari</span>
-        <h1>
-          {lang === 'uz'
-            ? 'Bilim sizni oldinga boshlaydi.'
-            : lang === 'en'
-              ? 'Your next chapter starts here.'
-              : 'Новая глава начинается здесь.'}
-        </h1>
-        <AuthVideo />
-        <p>
-          {lang === 'uz'
-            ? 'O‘qing, kashf eting va har kuni yangi natijaga erishing.'
-            : lang === 'en'
-              ? 'Learn, discover, and make a little more progress every day.'
-              : 'Учитесь, открывайте новое и продвигайтесь каждый день.'}
-        </p>
-      </div>
-      <div className="auth-form panel">
-        <img src="/legacy/logo_tersu.png" alt="TerDU" width="44" height="44" />
-        <h2>
-          {register
-            ? lang === 'uz'
-              ? 'Hisob yaratish'
-              : lang === 'ru'
-                ? 'Создать аккаунт'
-                : 'Create account'
-            : t(lang, 'login')}
-        </h2>
-        <p className="muted">Tadbirkorlik asoslari</p>
-        {googleError && <p role="alert">{googleError}</p>}
-        {data?.mode === 'demo' ? (
-          <>
-            <p className="demo-explainer">{t(lang, 'demo')}</p>
-            {[
-              ['student', BookOpen, 'student'],
-              ['teacher', GraduationCap, 'teacher'],
-              ['admin', Shield, 'admin'],
-            ].map(([role, Icon, label]) => {
-              const I = Icon as typeof BookOpen;
-              return (
-                <Button
-                  variant="outline"
-                  className="w-full"
-                  key={String(role)}
-                  onClick={() => demoLogin(role as string).catch((e) => toast(e.message))}
-                >
-                  <I size={18} />
-                  {role === 'student'
-                    ? lang === 'uz'
-                      ? 'Talaba'
-                      : lang === 'ru'
-                        ? 'Студент'
-                        : 'Student'
-                    : t(lang, label as 'teacher' | 'admin')}
-                  <ArrowRight size={16} />
-                </Button>
-              );
-            })}
-          </>
-        ) : student ? (
-          <>
-            <NativeSurface
-              id="student-login"
-              className="native-login"
-              title="Talaba hisobiga kirish"
-              src="/legacy/index.html?studyquest=login&sqEmbed=login"
-            />
-            <Button variant="outline" disabled={busy} onClick={googleLogin}>
-              Google
-            </Button>
-            <Button variant="ghost" onClick={() => setStudent(false)}>
-              Email
-            </Button>
-          </>
-        ) : (
-          <>
-            <Button className="w-full" onClick={() => setStudent(true)}>
-              {t(lang, 'legacy')}
-              <ArrowRight size={16} />
-            </Button>
-            <div className="auth-or">
-              {lang === 'uz'
-                ? 'yoki email orqali'
-                : lang === 'ru'
-                  ? 'или по email'
-                  : 'or use email'}
+      <div className="auth-shell">
+        <div className="auth-story">
+          {design === 'rocket' ? (
+            <div className="auth-rocket-title">
+              <h1>Tadbirkorlik asoslari</h1>
+              <p>
+                {L('TerDU o‘quv platformasi', 'TerDU learning platform', 'Учебная платформа ТерГУ')}
+              </p>
             </div>
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                void submit();
-              }}
-            >
-              {register && (
-                <label>
-                  {lang === 'uz'
-                    ? 'Ism va familiya'
-                    : lang === 'ru'
-                      ? 'Имя и фамилия'
-                      : 'Full name'}
-                  <input
-                    required
-                    className="input"
-                    autoComplete="name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                  />
-                </label>
-              )}
-              <label>
-                Email
-                <input
-                  required
-                  className="input"
-                  type="email"
-                  autoComplete="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-              </label>
-              <label>
-                {lang === 'uz' ? 'Parol' : lang === 'ru' ? 'Пароль' : 'Password'}
-                <input
-                  required
-                  className="input"
-                  type="password"
-                  minLength={8}
-                  autoComplete={register ? 'new-password' : 'current-password'}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-              </label>
-              <Button className="w-full" disabled={busy} type="submit">
-                {register
-                  ? lang === 'uz'
-                    ? 'Hisob yaratish'
-                    : 'Create account'
-                  : t(lang, 'login')}
-              </Button>
-            </form>
-            <Button
-              variant="ghost"
-              onClick={() => {
-                setRegister(!register);
-                window.scrollTo(0, 0);
-              }}
-            >
-              {register
-                ? t(lang, 'login')
-                : lang === 'uz'
-                  ? 'Ro‘yxatdan o‘tish'
-                  : lang === 'ru'
-                    ? 'Регистрация'
-                    : 'Register'}
-            </Button>
-            <Button variant="ghost" disabled={busy || !email} onClick={() => submit(true)}>
-              {lang === 'uz'
-                ? 'Parolni unutdingizmi?'
-                : lang === 'ru'
-                  ? 'Забыли пароль?'
-                  : 'Forgot password?'}
-            </Button>
-            <Button variant="outline" disabled={busy} onClick={googleLogin}>
-              Google
-            </Button>
-          </>
-        )}
-        <a className="auth-back" href="#courses" onClick={onClose}>
-          {lang === 'uz'
-            ? 'Kurslarni ko‘rish'
-            : lang === 'ru'
-              ? 'Посмотреть курсы'
-              : 'View courses'}{' '}
-          ↗
-        </a>
+          ) : (
+            <>
+              <span className="hero-tag">
+                <img src="/terdu-logo.png" alt="" width="22" height="22" />
+                Tadbirkorlik asoslari
+              </span>
+              <h1>
+                {L('Bilimdan biznes sari.', 'From learning to building.', 'От знаний — к бизнесу.')}
+              </h1>
+              <AuthVideo />
+              <p>
+                {L(
+                  '15 ta mavzu, testlar, o‘yinlar va reyting — barchasi bitta platformada.',
+                  '15 topics, tests, games and a leaderboard — all in one place.',
+                  '15 тем, тесты, игры и рейтинг — всё на одной платформе.',
+                )}
+              </p>
+            </>
+          )}
+        </div>
+        {form}
+      </div>
+      <div className="auth-design-switch" role="group" aria-label={L('Dizayn', 'Design', 'Дизайн')}>
+        {(
+          [
+            ['rocket', '🚀', L('Biznes start', 'Business start', 'Бизнес-старт')],
+            ['workspace', '💻', L('Raqamli ta’lim', 'Digital learning', 'Цифровое обучение')],
+          ] as const
+        ).map(([id, icon, label]) => (
+          <button
+            key={id}
+            className={design === id ? 'on' : ''}
+            aria-pressed={design === id}
+            title={label}
+            onClick={() => pickDesign(id)}
+          >
+            <span aria-hidden="true">{icon}</span>
+            {label}
+          </button>
+        ))}
       </div>
     </main>
   );
 }
 
+/* Kirish oynasi dizayni: o'qituvchi tanlagani (meta/design) yoki shu brauzerda tanlangani. */
+type LoginDesign = 'rocket' | 'workspace';
+function useLoginDesign() {
+  const [design, setDesign] = useState<LoginDesign>('rocket');
+  useEffect(() => {
+    let saved = '';
+    try {
+      saved = localStorage.getItem('sq-login-design') || '';
+    } catch {}
+    if (saved === 'rocket' || saved === 'workspace') {
+      setDesign(saved);
+      return;
+    }
+    let alive = true;
+    fetch('/api/platform?view=loginDesign')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((v) => {
+        if (alive && (v?.login === 'rocket' || v?.login === 'workspace')) setDesign(v.login);
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, []);
+  const pick = (d: LoginDesign) => {
+    setDesign(d);
+    try {
+      localStorage.setItem('sq-login-design', d);
+    } catch {}
+  };
+  return [design, pick] as const;
+}
+
+function GoogleMark() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
+      <path
+        fill="#FFC107"
+        d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"
+      />
+      <path
+        fill="#FF3D00"
+        d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"
+      />
+      <path
+        fill="#4CAF50"
+        d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"
+      />
+      <path
+        fill="#1976D2"
+        d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"
+      />
+    </svg>
+  );
+}
+
 function AuthVideo() {
+  const { lang } = useApp();
   const video = useRef<HTMLVideoElement>(null),
     [playing, setPlaying] = useState(false),
     [loaded, setLoaded] = useState(false);
@@ -374,7 +501,19 @@ function AuthVideo() {
       </video>
       <button
         type="button"
-        aria-label={playing ? 'Pause animation' : 'Play animation'}
+        aria-label={
+          playing
+            ? lang === 'uz'
+              ? 'Animatsiyani to‘xtatish'
+              : lang === 'ru'
+                ? 'Остановить анимацию'
+                : 'Pause animation'
+            : lang === 'uz'
+              ? 'Animatsiyani boshlash'
+              : lang === 'ru'
+                ? 'Запустить анимацию'
+                : 'Play animation'
+        }
         onClick={() => {
           setLoaded(true);
           setPlaying(!playing);

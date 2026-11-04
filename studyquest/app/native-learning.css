@@ -96,7 +96,7 @@
   background: var(--soft-violet);
   border-radius: 9px;
   padding: 6px 11px;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
   margin: 0 0 19px;
 }
@@ -161,7 +161,7 @@
   color: var(--text);
   border: 1px solid var(--border);
   border-radius: 8px;
-  font-size: 14px;
+  font-size: 15px;
   margin: 3px;
 }
 .native-document ul,
@@ -184,7 +184,7 @@
 .native-document .rt-note,
 .native-document small {
   color: var(--muted);
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.7;
 }
 .native-document .note {
@@ -199,7 +199,7 @@
   border-radius: 14px;
   overflow: hidden;
   margin: 20px 0;
-  font-size: 14px;
+  font-size: 15px;
   text-align: left;
 }
 .native-document th {
@@ -266,7 +266,7 @@
   border: 1px solid var(--border);
   background: var(--surface);
   color: var(--text);
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
   line-height: 1.5;
   text-decoration: none;
@@ -323,7 +323,7 @@
 .native-document label {
   display: grid;
   gap: 7px;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
   margin-bottom: 16px;
 }
@@ -367,7 +367,7 @@
   border-radius: 10px;
   padding: 8px 12px;
   background: var(--surface);
-  font-size: 13px;
+  font-size: 14px;
 }
 .native-document .qt-ic {
   font-size: 30px;
@@ -415,7 +415,7 @@
 }
 .native-document .fb {
   margin: 12px 0 0;
-  font-size: 14px;
+  font-size: 15px;
 }
 .native-document .result {
   padding: 25px;
@@ -482,7 +482,7 @@
   position: absolute;
   top: 0;
   left: 2px;
-  font-size: 8px;
+  font-size: 12px;
   line-height: 1;
   z-index: 1;
   pointer-events: none;
@@ -494,10 +494,10 @@
   border-color: transparent;
 }
 .native-document .xw-clues {
-  font-size: 14px;
+  font-size: 15px;
 }
 .native-document .xw-clues li {
-  font-size: 14px;
+  font-size: 15px;
   cursor: pointer;
 }
 .native-document .xw-list .on {
@@ -517,11 +517,11 @@
   text-align: left;
 }
 .native-login .native-document {
-  font-size: 14px;
+  font-size: 15px;
 }
 .native-login .native-document p,
 .native-login .native-document li {
-  font-size: 13px;
+  font-size: 14px;
 }
 .native-login .native-document .rt-form > .accent {
   width: 100%;
@@ -534,7 +534,7 @@
   margin: 16px 0 0;
 }
 .native-login .native-document .rt-gtabs button {
-  font-size: 12px;
+  font-size: 13px;
   padding: 7px 12px;
   min-height: 35px;
 }
@@ -613,7 +613,7 @@
   flex: 1;
 }
 .native-workspace .native-document .ch-n {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--muted);
   font-weight: 600;
 }
@@ -655,7 +655,7 @@
   gap: 10px;
 }
 .native-arena .native-document .note {
-  font-size: 14px;
+  font-size: 15px;
 }
 .native-arena .native-document #app {
   padding: 0;
@@ -722,7 +722,7 @@
   justify-content: space-between;
   gap: 10px;
   padding: 6px 0;
-  font-size: 13px;
+  font-size: 14px;
   color: var(--muted);
 }
 .academic-topic-card b {
@@ -734,7 +734,7 @@
   color: var(--violet);
   padding: 4px 9px;
   border-radius: 7px;
-  font-size: 11px;
+  font-size: 13px;
   margin-bottom: 10px;
 }
 @media (max-width: 900px) {
@@ -774,7 +774,7 @@
     font-size: 16px;
   }
   .native-document table {
-    font-size: 12px;
+    font-size: 13px;
   }
   .native-document th,
   .native-document td {
@@ -818,7 +818,7 @@
   position: absolute;
   top: 1px;
   left: 2px;
-  font-size: 9px;
+  font-size: 12px;
   line-height: 1;
   pointer-events: none;
   color: var(--muted);
@@ -841,7 +841,7 @@
   min-width: 160px;
 }
 .native-document .tries {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--muted);
 }
 .native-document .native-reading-note {
@@ -849,7 +849,7 @@
   background: var(--soft-violet);
   padding: 12px 16px;
   border-radius: 12px;
-  font-size: 14px;
+  font-size: 15px;
   margin-top: 18px;
 }
 .academic-topic-status {
@@ -862,7 +862,7 @@
   justify-content: space-between;
   margin-top: 16px;
   color: var(--violet);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
 }
 .academic-history {
@@ -876,7 +876,7 @@
   gap: 6px;
   margin: 12px 0;
   color: var(--muted);
-  font-size: 11px;
+  font-size: 13px;
 }
 .lesson-academic-summary b {
   color: var(--text);
@@ -1017,7 +1017,7 @@
   padding: 8px;
   background: var(--surface);
   color: var(--text);
-  font-size: 12px;
+  font-size: 13px;
 }
 
 /* A soft colour study for topic 7; other presentations keep their palette. */
@@ -1151,45 +1151,167 @@
   }
 }
 
-/* Gentle colour accents shared by learning slides, not the administration UI. */
-.colorful-reader .native-document {
-  --slide-tint: #f0f7fc;
-  --slide-accent: #35658d;
+/* Asl TerDU taqdimotlari dizayni — barcha darslarda: rangli kartochkalar (har biri o'z rangida, asl
+   style="--c:..." dan data-accent orqali), gradient sarlavhalar, gradient «kicker» va ta'rif bloklari. */
+.colorful-reader {
+  --tq-green: #0f7a3d;
+  --tq-blue: #1d4ed8;
+  --tq-violet: #6d28d9;
+  --tq-orange: #c2410c;
+  --tq-amber: #b45309;
+  --tq-pink: #be185d;
+  --tq-cyan: #0e7490;
+  --tq-teal: #0f766e;
+  --tq-red: #be123c;
+  --tq-tint: 7%;
 }
-.colorful-reader .native-document .card {
-  background: var(--slide-tint);
-  border-top: 3px solid var(--slide-accent);
+.dark .colorful-reader {
+  --tq-green: #4ade80;
+  --tq-blue: #7aa7ff;
+  --tq-violet: #b9a2ff;
+  --tq-orange: #ffa565;
+  --tq-amber: #fcc44a;
+  --tq-pink: #f58ac1;
+  --tq-cyan: #4fd6ee;
+  --tq-teal: #4fd8c4;
+  --tq-red: #ff8aa0;
+  --tq-tint: 13%;
 }
-.colorful-reader .native-document .card:nth-child(3n + 2) {
-  --slide-tint: #eff8f2;
-  --slide-accent: #297263;
+.reader-viewer.colorful-reader .native-surface {
+  background:
+    radial-gradient(ellipse 60% 40% at 100% 0%, #ede7ff 0%, transparent 70%),
+    radial-gradient(ellipse 50% 35% at 0% 100%, #e3f7ef 0%, transparent 70%), var(--surface);
 }
-.colorful-reader .native-document .card:nth-child(3n) {
-  --slide-tint: #fff7e9;
-  --slide-accent: #8a6228;
+.dark .reader-viewer.colorful-reader .native-surface {
+  background:
+    radial-gradient(ellipse 60% 40% at 100% 0%, #2b2147 0%, transparent 70%),
+    radial-gradient(ellipse 50% 35% at 0% 100%, #16302a 0%, transparent 70%), var(--surface);
 }
-.colorful-reader .native-document .card h3 {
-  color: var(--slide-accent);
+.colorful-reader .native-document .grad {
+  background: linear-gradient(120deg, #12a150, #0891b2 45%, #7c3aed);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+.colorful-reader .native-document .grad-w {
+  background: linear-gradient(120deg, #f97316, #ec4899 55%, #7c3aed);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+.dark .colorful-reader .native-document .grad {
+  background: linear-gradient(120deg, #2ee07f, #22d3ee 45%, #a78bfa);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+.dark .colorful-reader .native-document .grad-w {
+  background: linear-gradient(120deg, #ff9d4d, #f472b6 55%, #a78bfa);
+  -webkit-background-clip: text;
+  background-clip: text;
 }
 .colorful-reader .native-document .kicker {
-  background: #eaf4f1;
-  color: #24695b;
+  color: #fff;
+  background: linear-gradient(135deg, #7c3aed, #db2777);
+  border-radius: 999px;
+  padding: 7px 15px;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  box-shadow: 0 8px 20px -10px #7c3aed99;
 }
-.dark .colorful-reader .native-document {
-  --slide-tint: #243448;
-  --slide-accent: #acd0ee;
+.colorful-reader .native-document h2::after {
+  content: '';
+  display: block;
+  width: 72px;
+  height: 4px;
+  margin-top: 14px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #12a150, #0891b2, #7c3aed);
 }
-.dark .colorful-reader .native-document .card:nth-child(3n + 2) {
-  --slide-tint: #243c34;
-  --slide-accent: #a3d5bf;
+.colorful-reader .native-document .card {
+  --card-accent: var(--tq-violet);
+  background: color-mix(in srgb, var(--card-accent) var(--tq-tint), var(--surface));
+  border: 1px solid color-mix(in srgb, var(--card-accent) 22%, var(--border));
+  border-top: 4px solid var(--card-accent);
+  box-shadow: 0 10px 26px -20px color-mix(in srgb, var(--card-accent) 70%, transparent);
+  transition:
+    transform 0.18s,
+    box-shadow 0.18s;
 }
-.dark .colorful-reader .native-document .card:nth-child(3n) {
-  --slide-tint: #3b3225;
-  --slide-accent: #e4c58d;
+.colorful-reader .native-document .card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 30px -20px color-mix(in srgb, var(--card-accent) 80%, transparent);
 }
-.dark .colorful-reader .native-document .kicker {
-  background: #243c34;
-  color: #a3d5bf;
+.colorful-reader .native-document .card:nth-child(6n + 2) {
+  --card-accent: var(--tq-blue);
+}
+.colorful-reader .native-document .card:nth-child(6n + 3) {
+  --card-accent: var(--tq-green);
+}
+.colorful-reader .native-document .card:nth-child(6n + 4) {
+  --card-accent: var(--tq-orange);
+}
+.colorful-reader .native-document .card:nth-child(6n + 5) {
+  --card-accent: var(--tq-pink);
+}
+.colorful-reader .native-document .card:nth-child(6n) {
+  --card-accent: var(--tq-cyan);
+}
+.colorful-reader .native-document [data-accent='green'] {
+  --card-accent: var(--tq-green);
+}
+.colorful-reader .native-document [data-accent='blue'] {
+  --card-accent: var(--tq-blue);
+}
+.colorful-reader .native-document [data-accent='violet'] {
+  --card-accent: var(--tq-violet);
+}
+.colorful-reader .native-document [data-accent='orange'] {
+  --card-accent: var(--tq-orange);
+}
+.colorful-reader .native-document [data-accent='amber'] {
+  --card-accent: var(--tq-amber);
+}
+.colorful-reader .native-document [data-accent='pink'] {
+  --card-accent: var(--tq-pink);
+}
+.colorful-reader .native-document [data-accent='cyan'] {
+  --card-accent: var(--tq-cyan);
+}
+.colorful-reader .native-document [data-accent='teal'] {
+  --card-accent: var(--tq-teal);
+}
+.colorful-reader .native-document [data-accent='red'] {
+  --card-accent: var(--tq-red);
+}
+.colorful-reader .native-document .card h3 {
+  color: var(--card-accent);
+}
+.colorful-reader .native-document .def {
+  color: #fff;
+  border: 0;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #0b7a3b, #0d8a7f 55%, #0b7f9c);
+  box-shadow: 0 16px 34px -22px #0d7a6a;
+}
+.colorful-reader .native-document .def b,
+.colorful-reader .native-document .def strong {
+  color: #fffbe0;
+}
+.colorful-reader .native-document .quote {
+  border-color: color-mix(in srgb, #f59e0b 30%, var(--border));
+  border-left: 6px solid #f59e0b;
+  background: color-mix(in srgb, #f59e0b 9%, var(--surface));
+}
+.colorful-reader .native-document th {
+  background: color-mix(in srgb, #7c3aed 10%, var(--surface));
+  color: var(--tq-violet);
+}
+.colorful-reader .native-document tbody tr:nth-child(even) {
+  background: color-mix(in srgb, #0891b2 5%, var(--surface));
 }
 .reader-slide-enter {
   animation: reader-appear 180ms ease-out;
@@ -1288,7 +1410,7 @@
   color: #225a51;
   border-radius: 12px;
   padding: 8px 12px;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
 }
 .crm-bright .crm-blocks {
@@ -1375,12 +1497,12 @@
     width: 144px;
   }
   .crm-bright .native-document .kicker {
-    font-size: 10px;
+    font-size: 12px;
     padding: 7px 12px;
     letter-spacing: 0.06em;
   }
   .crm-bright .crm-slide-meta > span {
-    font-size: 11px;
+    font-size: 13px;
     padding: 6px 9px;
   }
 }

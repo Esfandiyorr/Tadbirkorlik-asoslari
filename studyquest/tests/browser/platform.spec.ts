@@ -13,17 +13,17 @@ test('responsive dashboard, search, theme and three interface languages', async 
   await page.goto('/', { waitUntil: 'domcontentloaded' });
   await expect(page.locator('.welcome-hero')).toBeVisible();
   await page.screenshot({ path: 'tests/artifacts/student-desktop.png', fullPage: true });
-  await page.selectOption('[aria-label="Language"]', 'ru');
+  await page.selectOption('.language-switch', 'ru');
   await expect(page.locator('html')).toHaveAttribute('lang', 'ru');
   await expect(page.locator('.sidebar nav').first()).toContainText('Главная');
-  await page.selectOption('[aria-label="Language"]', 'en');
+  await page.selectOption('.language-switch', 'en');
   await expect(page.locator('.sidebar nav')).toContainText('Courses');
   await page.getByRole('button', { name: 'Dark mode', exact: true }).click();
   await expect(page.locator('html')).toHaveClass('dark');
   await page.reload({ waitUntil: 'domcontentloaded' });
   await expect(page.locator('html')).toHaveClass('dark');
   await page.getByRole('button', { name: 'Dark mode', exact: true }).click();
-  await page.selectOption('[aria-label="Language"]', 'uz');
+  await page.selectOption('.language-switch', 'uz');
   await page.setViewportSize({ width: 390, height: 844 });
   await page.waitForTimeout(400);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(
@@ -35,17 +35,18 @@ test('responsive dashboard, search, theme and three interface languages', async 
       (await page.locator('.sidebar').boundingBox())!.width,
   ).toBeLessThanOrEqual(1);
   await page.screenshot({ path: 'tests/artifacts/student-mobile.png', fullPage: true });
+  // Qidiruv natijalari sahifa almashmasdan, ochiladigan ro'yxatda chiqadi.
   await page.locator('.search-box input').fill('Mijoz');
-  const matchingCourse = page.locator('.course-card').filter({ hasText: 'Tadbirkorlik asoslari' });
-  await expect(matchingCourse).toBeVisible();
-  await expect(page.locator('.lesson-card')).toHaveCount(0);
-  await matchingCourse.click();
-  await expect(page.locator('.lesson-card').first()).toBeVisible();
-  expect(
-    (await page.locator('.lesson-card').allTextContents()).every((x) =>
-      x.toLowerCase().includes('mijoz'),
-    ),
-  ).toBe(true);
+  const options = page.locator('.search-results [role="option"]');
+  await expect(options.first()).toBeVisible();
+  expect((await options.allTextContents()).every((x) => x.toLowerCase().includes('mijoz'))).toBe(
+    true,
+  );
+  await page.locator('.search-box input').fill('6-mavzu');
+  await expect(options).toHaveCount(1);
+  await expect(options.first()).toContainText('Biznes-model');
+  await page.locator('.search-box input').press('Escape');
+  await expect(page.locator('.search-results')).toHaveCount(0);
   expect(errors).toEqual([]);
 });
 test('course catalog contains one entrepreneurship course with 15 ordered topics inside', async ({
@@ -75,13 +76,13 @@ test('course catalog contains one entrepreneurship course with 15 ordered topics
   await expect(page.locator('.lesson-card')).toHaveCount(15);
   await expect(page.locator('.lesson-card').nth(1).locator('h3')).toContainText('Mijoz muammosi');
   await expect(page.locator('.lesson-card').nth(9).locator('h3')).toContainText('Savdo jarayonini');
-  expect(await page.locator('.mini-cover > span').allTextContents()).toEqual(
+  expect(await page.locator('.mini-cover .topic-art-number').allTextContents()).toEqual(
     Array.from({ length: 15 }, (_, i) => String(i + 1).padStart(2, '0')),
   );
   await page.screenshot({ path: 'tests/artifacts/course-topics.png', fullPage: true });
   await page.getByRole('button', { name: 'Bozorni o‘rganish', exact: true }).click();
   await expect(page.locator('.lesson-card')).toHaveCount(1);
-  await expect(page.locator('.mini-cover > span')).toHaveText('07');
+  await expect(page.locator('.mini-cover .topic-art-number')).toHaveText('07');
   await page.getByRole('button', { name: 'Hammasi', exact: true }).click();
   await expect(page.locator('.lesson-card')).toHaveCount(15);
   await page.locator('.app-main').getByRole('button', { name: 'Kurslar', exact: true }).click();
@@ -176,7 +177,7 @@ test('teacher can publish a course and lesson; students earn a reward only after
   const before = (await (await page.request.get('/api/platform')).json()).user.xp;
   expect((await act(page.request, 'completeLesson', { lessonId })).status()).toBe(409);
   await page.waitForTimeout(31000);
-  await page.getByRole('button', { name: 'Dars natijalari', exact: true }).click();
+  await page.getByRole('button', { name: 'Mening ballim', exact: true }).click();
   await page.getByRole('button', { name: 'Darsni yakunlash', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Yakunlangan', exact: true })).toBeDisabled();
   const after = await (await page.request.get('/api/platform')).json();
@@ -201,17 +202,15 @@ test('original presentation stays usable and demo never contacts the live databa
   await page.goto('/#lesson/m1', { waitUntil: 'domcontentloaded' });
   const frame = page.locator('.native-viewer .native-document');
   await expect(frame.locator(':scope > .inner')).toBeVisible();
-  await expect(page.locator('.reader-navigation')).toContainText(String(position + 1) + ' / ');
+  await expect(page.locator('.reader-counter')).toContainText(String(position + 1) + ' / ');
   await expect(frame.locator('.topbar')).toBeHidden();
   await expect(frame.locator('.navbar')).toBeHidden();
   await expect(page.locator('.sidebar')).toHaveCount(0);
   await page
-    .getByRole('button', {
-      name: nextPosition > position ? 'Next slide' : 'Previous slide',
-      exact: true,
-    })
+    .locator('.reader-controls')
+    .getByRole('button', { name: nextPosition > position ? 'Keyingi' : 'Oldingi' })
     .click();
-  await expect(page.locator('.reader-navigation')).toContainText(String(nextPosition + 1) + ' / ');
+  await expect(page.locator('.reader-counter')).toContainText(String(nextPosition + 1) + ' / ');
   await expect
     .poll(async () => {
       const d = await (await page.request.get('/api/platform')).json();
@@ -219,7 +218,7 @@ test('original presentation stays usable and demo never contacts the live databa
     })
     .toBe(true);
   expect(liveRequests).toEqual([]);
-  await page.getByRole('button', { name: 'Dars natijalari', exact: true }).click();
+  await page.getByRole('button', { name: 'Mening ballim', exact: true }).click();
   await expect(
     page.locator('.reader-details').getByRole('link', { name: 'PDF', exact: true }),
   ).toHaveAttribute('href', '/legacy/fayllar/M1-mavzu.pdf');
@@ -257,7 +256,7 @@ test('teacher editing, upload validation and administrator controls are real ser
     },
   });
   expect(upload.status()).toBe(400);
-  await page.selectOption('[aria-label="Demo role"]', 'admin');
+  await page.selectOption('.demo-banner select', 'admin');
   await expect(page.locator('.sidebar a[href="#admin"]')).toBeVisible();
   await page.locator('.sidebar a[href="#admin"]').click();
   await expect(page.locator('h1')).toHaveText('Administrator paneli');
@@ -279,7 +278,7 @@ test('all original presentations use a complete viewport with no legacy topbar',
     await expect(frame.locator('.topbar')).toBeHidden();
     await expect(frame.locator('.navbar')).toBeHidden();
     await expect(page.locator('.app-header')).toHaveCount(0);
-    await expect(page.locator('.reader-navigation')).toBeVisible();
+    await expect(page.locator('.reader-counter')).toBeVisible();
     expect(
       await page
         .locator('.focus-reader')
@@ -402,18 +401,21 @@ test('existing academic points remain visible on the dashboard, profile and acad
     await route.fulfill({ response, json: state });
   });
   await page.goto('/', { waitUntil: 'domcontentloaded' });
-  await expect(page.locator('.stats-grid .stat-card').first()).toContainText('Akademik ball');
+  await expect(page.locator('.stats-grid .stat-card').first()).toContainText('Umumiy ball');
   await expect(page.locator('.stats-grid .stat-card').first().locator('strong')).toHaveText(
-    '375.5',
+    '375,5',
   );
   await page.locator('.sidebar a[href="#ranking"]').click();
   await expect(page.locator('.ranking-list')).toContainText('Ali Valiyev');
   await expect(page.locator('.ranking-list')).toContainText('375.5');
   await page.goto('/#profile', { waitUntil: 'domcontentloaded' });
-  await expect(page.locator('.academic-summary b')).toHaveText('375.5');
-  await expect(page.locator('.academic-topic-card')).toHaveCount(15);
+  await expect(page.locator('.profile-hero-stats b').first()).toHaveText('375,5');
+  // Ochilmagan va boshlanmagan mavzular alohida kartochka emas, bitta qatorda sanaladi.
+  const cards = await page.locator('.academic-topic-card').count();
+  const closed = await page.locator('.academic-closed').count();
+  expect(cards + (closed ? 1 : 0)).toBeGreaterThan(1);
   await expect(page.locator('.academic-topic-card').first()).toContainText('75');
-  await expect(page.locator('.academic-topic-card').first()).toContainText('12 / 18');
+  await expect(page.locator('.academic-topic-card').first()).toContainText('Baho: 4');
 });
 
 test('class chat remains in the new navigation and opens the existing chat interface', async ({
@@ -473,15 +475,15 @@ test('quota fallback preserves academic points and opens original slides without
   await expect(
     page.locator('[role="status"]').filter({ hasText: 'kvotasi tugagan' }),
   ).toBeVisible();
-  await expect(page.locator('.stat-card').filter({ hasText: 'Akademik ball' })).toContainText(
-    '375.5',
+  await expect(page.locator('.stat-card').filter({ hasText: 'Umumiy ball' })).toContainText(
+    '375,5',
   );
   await page.goto('/#course/tad-asoslari');
   await page.locator('.lesson-card').first().click();
   const frame = page.locator('.native-viewer .native-document');
   await expect(frame.locator(':scope > .inner')).toBeVisible();
-  await page.getByRole('button', { name: 'Next slide', exact: true }).click();
-  await expect(page.locator('.reader-navigation')).toContainText('2 / 18');
+  await page.locator('.reader-controls').getByRole('button', { name: 'Keyingi' }).click();
+  await expect(page.locator('.reader-counter')).toContainText('2 / 18');
   expect(writes).toEqual([]);
 });
 

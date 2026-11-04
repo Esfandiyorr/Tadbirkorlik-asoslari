@@ -43,6 +43,16 @@ const words = {
   begin: ['Boshlash', 'Start learning', 'Начать обучение'],
   install: ['Ilovani o‘rnatish', 'Install app', 'Установить приложение'],
   settings: ['Sozlamalar', 'Settings', 'Настройки'],
+  navHome: ['Asosiy', 'Home', 'Главная'],
+  navArena: ['O‘yinlar', 'Games', 'Игры'],
+  navBadges: ['Yutuqlar', 'Awards', 'Награды'],
+  navChat: ['Chat', 'Chat', 'Чат'],
+  menu: ['Asosiy menyu', 'Main menu', 'Главное меню'],
+  tagline: [
+    'Maqsad bilan o‘qing, ishonch bilan o‘sing.',
+    'Learn with purpose. Grow with confidence.',
+    'Учитесь с целью, растите с уверенностью.',
+  ],
 } as const;
 export type Key = keyof typeof words;
 export const t = (lang: Lang, key: Key) => words[key][lang === 'en' ? 1 : lang === 'ru' ? 2 : 0];
@@ -93,7 +103,7 @@ export function dateLabel(lang: Lang, time = Date.now()) {
               'November',
               'December',
             ];
-  return d.getUTCDate() + ' ' + months[d.getUTCMonth()];
+  return d.getUTCDate() + (lang === 'uz' ? '-' : ' ') + months[d.getUTCMonth()];
 }
 export function weekdayLabel(lang: Lang, time: number) {
   const n = new Date(time + 18000000).getUTCDay();
@@ -114,4 +124,18 @@ export function levelLabel(lang: Lang, name: string) {
     Master: ['Usta', 'Master', 'Мастер'],
   };
   return labels[name]?.[lang === 'en' ? 1 : lang === 'ru' ? 2 : 0] || name;
+}
+
+/** Rol nomi: student → Talaba, teacher → O‘qituvchi, admin → Administrator. */
+export function roleLabel(lang: Lang, role?: string, learnerType?: string) {
+  if (!role) return '';
+  const i = lang === 'en' ? 1 : lang === 'ru' ? 2 : 0;
+  if (role === 'student' && learnerType === 'independent')
+    return ['Mustaqil o‘quvchi', 'Independent learner', 'Самостоятельный ученик'][i];
+  const names: Record<string, string[]> = {
+    student: ['Talaba', 'Student', 'Студент'],
+    teacher: ['O‘qituvchi', 'Teacher', 'Преподаватель'],
+    admin: ['Administrator', 'Administrator', 'Администратор'],
+  };
+  return names[role]?.[i] || role;
 }

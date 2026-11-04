@@ -47,6 +47,12 @@ export function academicRecord(id: string, s: Row) {
       number(progress.qF) + newer.filter((k) => !k.startsWith('slide')).length,
     );
     const maximum = Number(catalog.topics.find((t) => t.id === lesson.id)?.quiz || 15);
+    // Asl tizimdagi formula: 30 — slaydlar, 20 — faol o'qish vaqti (1 soat), 50 — to'g'ri javoblar.
+    const parts = {
+      slides: Math.round(300 * Math.min(1, count / gradingSlideCount)) / 10,
+      time: Math.round(200 * Math.min(1, seconds / 3600)) / 10,
+      test: Math.round(500 * Math.min(1, correct / maximum)) / 10,
+    };
     const ratio =
       (0.3 * count) / gradingSlideCount +
       0.2 * Math.min(1, seconds / 3600) +
@@ -78,6 +84,8 @@ export function academicRecord(id: string, s: Row) {
       ),
       seconds,
       correctAnswers: correct,
+      quizTotal: maximum,
+      parts,
       status: count >= lesson.slideCount ? 'read' : count || seconds || correct ? 'started' : 'new',
       ...(!independent ? { score, grade } : {}),
     };

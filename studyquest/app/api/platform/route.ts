@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { actor, ApiError, check, sameOrigin, staff, administrator } from '@/lib/server/auth';
 import { repository, demo, configured, legacyDb } from '@/lib/server/repository';
-import { legacyAccess } from '@/lib/server/legacy-access';
+import { legacyAccess, lessonAccessStates } from '@/lib/server/legacy-access';
 import { Platform } from '@/lib/server/platform';
 import { Academic, academicRecord } from '@/lib/server/academic';
 import { course, modules, lessons, quiz, settings, badges, catalog } from '@/lib/seed';
@@ -29,6 +29,38 @@ async function deletedStudentIds() {
       .map((id) => 'legacy_' + id),
   );
 }
+/* Faqat mahalliy demo: talaba ekranlarini ko'rib chiqish uchun namunaviy akademik tarix (jonli bazaga tegmaydi). */
+function demoAcademic(user: { id: string }) {
+  const day = 86400000,
+    now = Date.now();
+  const sample = {
+    name: 'Madina',
+    surname: 'Ergasheva',
+    group: 'AP-223',
+    status: 'ok',
+    total: 186.5,
+    topics: {
+      m1: { p: 100, s: 18, t: 3900, q: 15, b: 5 },
+      m2: { p: 74.2, s: 20, t: 2400, q: 9, b: 3 },
+      m3: { p: 12.3, s: 5, t: 600, q: 0, b: 1 },
+    },
+  };
+  const record = academicRecord(user.id.replace(/^legacy_/, ''), sample);
+  const access = lessonAccessStates(
+    { m3: { lim: true, g: { 'AP-223': now - day }, s: {}, at: 0 } },
+    { id: user.id, group: 'AP-223', independent: false },
+    now,
+  );
+  return {
+    user: {
+      ...user,
+      ...record,
+      id: user.id,
+      name: (user as { name?: string }).name || record.name,
+    },
+    lessonAccess: access,
+  };
+}
 export async function GET(req: NextRequest) {
   try {
     if (req.nextUrl.searchParams.get('view') === 'siteSettings') {
@@ -37,6 +69,21 @@ export async function GET(req: NextRequest) {
       return NextResponse.json(
         normalizePolicy(demo() ? null : (await legacyDb().ref('meta/platformPolicy').get()).val()),
         { headers: { 'Cache-Control': 'private, no-store' } },
+      );
+    }
+    if (req.nextUrl.searchParams.get('view') === 'loginDesign') {
+      // O'qituvchi «Dizayn kutubxonasi»da tanlagan kirish oynasi (meta/design). Tanlanmagan bo'lsa — raketa.
+      const saved = demo()
+        ? null
+        : ((
+            await legacyDb()
+              .ref('meta/design/login')
+              .get()
+              .catch(() => null)
+          )?.val() as unknown);
+      return NextResponse.json(
+        { login: saved === 'workspace' ? 'workspace' : 'rocket' },
+        { headers: { 'Cache-Control': 'public, max-age=60, s-maxage=300' } },
       );
     }
     if (req.nextUrl.searchParams.get('view') === 'academic') {
@@ -166,8 +213,26 @@ export async function GET(req: NextRequest) {
           .ref('students/' + a.id.slice(7))
           .get()
       ).val();
-      if (record) Object.assign(state.user, academicRecord(a.id.slice(7), record));
+      if (record) {
+        Object.assign(state.user, academicRecord(a.id.slice(7), record));
+        if (a.role === 'student')
+          (state as { lessonAccess?: unknown }).lessonAccess = lessonAccessStates(
+            (
+              await legacyDb()
+                .ref('meta/access')
+                .get()
+                .catch(() => null)
+            )?.val(),
+            {
+              id: a.id.slice(7),
+              group: String(record.group || ''),
+              independent: record.learnerType === 'independent',
+            },
+          );
+      }
     }
+    if (demo() && a.role === 'student' && state.user)
+      Object.assign(state, demoAcademic(state.user as { id: string }));
     return NextResponse.json({
       ...state,
       mode,
@@ -201,7 +266,23 @@ export async function GET(req: NextRequest) {
               .ref('students/' + a.id.slice(7))
               .get()
           ).val();
-          if (original) Object.assign(limited.user, academicRecord(a.id.slice(7), original));
+          if (original) {
+            Object.assign(limited.user, academicRecord(a.id.slice(7), original));
+            if (a.role === 'student')
+              (limited as { lessonAccess?: unknown }).lessonAccess = lessonAccessStates(
+                (
+                  await legacyDb()
+                    .ref('meta/access')
+                    .get()
+                    .catch(() => null)
+                )?.val(),
+                {
+                  id: a.id.slice(7),
+                  group: String(original.group || ''),
+                  independent: original.learnerType === 'independent',
+                },
+              );
+          }
         }
         return NextResponse.json(limited, { headers: { 'Cache-Control': 'no-store' } });
       } catch (authError) {

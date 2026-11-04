@@ -6,7 +6,7 @@
   --surface: #fff;
   --surface-soft: #f8f9fc;
   --text: #252638;
-  --muted: #9293a6;
+  --muted: #5f6178;
   --border: #edf0f5;
   --soft-violet: #f2edff;
   --violet: #8054e9;
@@ -39,7 +39,7 @@ body {
     BlinkMacSystemFont,
     'Segoe UI',
     sans-serif;
-  font-size: 14px;
+  font-size: 15px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
 }
@@ -116,15 +116,15 @@ a:focus-visible {
   box-shadow: var(--shadow);
 }
 .eyebrow {
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 750;
   letter-spacing: 1.7px;
-  color: #a8a0c0;
+  color: #786c9d;
   display: block;
   margin-bottom: 9px;
 }
 .tiny-tag {
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: 0.3px;
   font-weight: 650;
   color: var(--violet);
@@ -167,10 +167,41 @@ a:focus-visible {
 }
 .sq-brand small {
   display: block;
-  font-size: 8px;
+  font-size: 12px;
   font-weight: 650;
   letter-spacing: 2.25px;
   color: var(--muted);
+}
+/* TerDU gerbi — platforma logotipi */
+.brand-logo {
+  flex-shrink: 0;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  object-fit: contain;
+  background: #fff;
+  padding: 2px;
+  box-shadow:
+    0 0 0 1px #e6e1f5,
+    0 6px 16px -6px #6d40d355;
+}
+.loading-logo {
+  width: 76px;
+  height: 76px;
+  animation: logo-breathe 1.8s ease-in-out infinite;
+}
+@keyframes logo-breathe {
+  50% {
+    transform: scale(1.06);
+    box-shadow:
+      0 0 0 1px #e6e1f5,
+      0 10px 28px -6px #6d40d377;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .loading-logo {
+    animation: none;
+  }
 }
 .brand-mark {
   flex-shrink: 0;
@@ -192,14 +223,14 @@ a:focus-visible {
   position: absolute;
   right: -4px;
   top: -10px;
-  color: #fbbf24;
+  color: #bb8803;
   text-shadow: 0 2px 2px #7141ca44;
 }
 .nav-label {
-  font-size: 9px;
+  font-size: 12px;
   letter-spacing: 1.5px;
   font-weight: 750;
-  color: #b0aebd;
+  color: #74718a;
   padding: 0 16px;
   margin-bottom: 14px;
 }
@@ -214,9 +245,9 @@ a:focus-visible {
   gap: 13px;
   padding: 12px 15px;
   border-radius: 12px;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 550;
-  color: #9793aa;
+  color: #76718f;
   transition:
     background 0.15s,
     color 0.15s;
@@ -227,7 +258,7 @@ a:focus-visible {
 }
 .sidebar nav a.active {
   background: var(--soft-violet);
-  color: #8b5cf6;
+  color: #8452f5;
   font-weight: 700;
 }
 .nav-badge {
@@ -239,7 +270,7 @@ a:focus-visible {
   background: #9b72ee;
   color: #fff;
   border-radius: 7px;
-  font-size: 10px;
+  font-size: 12px;
 }
 .sidebar-bottom {
   margin-top: auto;
@@ -258,11 +289,11 @@ a:focus-visible {
 }
 .sidebar-note b {
   display: block;
-  font-size: 12px;
+  font-size: 13px;
   margin: 9px 0 6px;
 }
 .sidebar-note p {
-  font-size: 11px;
+  font-size: 13px;
   color: var(--muted);
   line-height: 1.6;
 }
@@ -271,7 +302,7 @@ a:focus-visible {
   align-items: center;
   gap: 8px;
   margin: 23px 3px 0;
-  font-size: 9px;
+  font-size: 12px;
   color: var(--muted);
 }
 .app-workspace {
@@ -297,7 +328,7 @@ a:focus-visible {
   align-items: center;
   gap: 12px;
   background: var(--surface-soft);
-  color: #a9a6ba;
+  color: #746f90;
   border: 1px solid var(--border);
   padding: 11px 15px;
   border-radius: 12px;
@@ -308,18 +339,108 @@ a:focus-visible {
   background: none;
   border: 0;
   outline: 0;
-  font-size: 11px;
+  font-size: 13px;
   color: var(--text);
 }
 .search-box input::placeholder {
-  color: #aaa7bc;
+  color: #757092;
 }
-.search-box kbd {
-  font: 9px system-ui;
-  background: var(--surface);
-  padding: 2px 5px;
-  border: 1px solid var(--border);
-  border-radius: 4px;
+.search-wrap {
+  position: relative;
+  width: min(460px, 48%);
+}
+.search-wrap .search-box {
+  width: 100%;
+}
+.search-box input::-webkit-search-cancel-button {
+  display: none;
+}
+.search-clear {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  margin: -6px -6px -6px 0;
+  border: 0;
+  border-radius: 9px;
+  background: none;
+  color: var(--muted);
+}
+.search-clear:hover {
+  background: var(--soft-violet);
+  color: var(--text);
+}
+.search-results {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  z-index: 60;
+  max-height: min(440px, 70vh);
+  overflow-y: auto;
+  padding: 6px;
+  border-radius: 16px;
+  box-shadow: 0 18px 50px -18px #22223b55;
+}
+.search-results button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 10px;
+  border: 0;
+  border-radius: 12px;
+  background: none;
+  color: var(--text);
+  text-align: left;
+}
+.search-results button.active {
+  background: var(--soft-violet);
+}
+.search-results button > span:nth-child(2) {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.search-results b {
+  font-size: 15px;
+  font-weight: 650;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.search-results small {
+  font-size: 13px;
+  color: var(--muted);
+}
+.search-result-icon {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 11px;
+  background: #efe9ff;
+  color: #6d3fd6;
+  flex-shrink: 0;
+}
+.search-result-icon.course {
+  background: #e3f6ef;
+  color: #17775f;
+}
+.dark .search-result-icon {
+  background: #30234c;
+  color: #c4b1ff;
+}
+.dark .search-result-icon.course {
+  background: #173a31;
+  color: #8fdcc0;
+}
+.search-empty {
+  margin: 0;
+  padding: 14px;
+  font-size: 14px;
+  color: var(--muted);
 }
 .header-actions {
   display: flex;
@@ -330,7 +451,7 @@ a:focus-visible {
   background: transparent;
   border: 0;
   color: var(--muted);
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 650;
   cursor: pointer;
   padding: 7px 0;
@@ -351,18 +472,18 @@ a:focus-visible {
   height: 36px;
   border-radius: 12px;
   background: #f8e5d7;
-  color: #ad8063;
+  color: #94694e;
   display: grid;
   place-items: center;
   font-weight: 700;
   font-size: 15px;
 }
 .header-profile b {
-  font-size: 11px;
+  font-size: 13px;
   display: block;
 }
 .header-profile small {
-  font-size: 9px;
+  font-size: 12px;
   color: var(--muted);
   display: block;
 }
@@ -386,7 +507,7 @@ a:focus-visible {
   padding: 20px;
 }
 .notification-menu p {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--muted);
 }
 .mobile-menu {
@@ -401,7 +522,7 @@ a:focus-visible {
   padding: 5px 36px 25px;
   display: flex;
   justify-content: space-between;
-  font-size: 9px;
+  font-size: 12px;
   color: var(--muted);
 }
 .demo-banner {
@@ -411,14 +532,14 @@ a:focus-visible {
   gap: 12px;
   padding: 8px 36px;
   background: var(--soft-violet);
-  color: #916aca;
-  font-size: 10px;
+  color: #895fc6;
+  font-size: 12px;
 }
 .demo-banner select {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 7px;
-  font-size: 10px;
+  font-size: 12px;
   padding: 3px 7px;
 }
 .inline-error {
@@ -427,7 +548,7 @@ a:focus-visible {
   border-radius: 12px;
   background: #fff1f2;
   color: #be123c;
-  font-size: 12px;
+  font-size: 13px;
   display: flex;
   justify-content: space-between;
 }
@@ -450,12 +571,12 @@ a:focus-visible {
   overflow-wrap: break-word;
 }
 .page-heading p {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--muted);
   margin-bottom: 0;
 }
 .wave {
-  color: #e8b558;
+  color: #c0851a;
   font-size: 26px;
   margin-left: 5px;
 }
@@ -465,7 +586,7 @@ a:focus-visible {
   border-radius: 10px;
   background: var(--surface);
   color: var(--muted);
-  font-size: 10px;
+  font-size: 12px;
   white-space: nowrap;
 }
 .dashboard-grid {
@@ -521,7 +642,7 @@ a:focus-visible {
   font-weight: 700;
 }
 .welcome-hero p {
-  font-size: 10px;
+  font-size: 12px;
   color: #eee0ff;
   margin-bottom: 18px;
 }
@@ -533,7 +654,7 @@ a:focus-visible {
   background: #ffffff18;
   border: 1px solid #ffffff22;
   border-radius: 7px;
-  font-size: 9px;
+  font-size: 12px;
   font-weight: 550;
   letter-spacing: 0.1px;
 }
@@ -542,7 +663,7 @@ a:focus-visible {
   background: white !important;
   color: #7c4cd5 !important;
   box-shadow: none !important;
-  font-size: 10px !important;
+  font-size: 12px !important;
   padding: 9px 14px !important;
   min-height: 36px !important;
 }
@@ -587,14 +708,14 @@ a:focus-visible {
 }
 .coral {
   background: #fff0e9;
-  color: #f5a281;
+  color: #ef6731;
 }
 .blue {
   background: #eaf5ff;
-  color: #82b6ee;
+  color: #4894e6;
 }
 .stat-card small {
-  font-size: 9px;
+  font-size: 12px;
   color: var(--muted);
   display: block;
   margin-bottom: 4px;
@@ -606,7 +727,7 @@ a:focus-visible {
 }
 .stat-card em {
   font-style: normal;
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: 0;
   color: var(--muted);
   font-weight: 450;
@@ -623,8 +744,8 @@ a:focus-visible {
   margin: 0;
 }
 .section-heading > button {
-  color: #a07cdb;
-  font-size: 10px;
+  color: #895cd2;
+  font-size: 12px;
   display: flex;
   align-items: center;
   gap: 4px;
@@ -669,11 +790,11 @@ a:focus-visible {
   min-width: 0;
 }
 .continue-content h3 {
-  font-size: 14px;
+  font-size: 15px;
   margin: 6px 0;
 }
 .continue-content p {
-  font-size: 9px;
+  font-size: 12px;
   color: var(--muted);
   margin: 0 0 12px;
 }
@@ -724,11 +845,11 @@ a:focus-visible {
 }
 .tone-1 {
   background: linear-gradient(135deg, #ffe7d2, #fff2e5);
-  color: #d8a16e;
+  color: #ca7f3a;
 }
 .tone-2 {
   background: linear-gradient(135deg, #dff2ef, #ebf9f5);
-  color: #88beb0;
+  color: #569e8b;
 }
 .dark .tone-0 {
   background: linear-gradient(135deg, #352650, #44305d);
@@ -746,15 +867,15 @@ a:focus-visible {
   padding: 4px 9px;
   border-radius: 7px;
   background: #ffffffb0;
-  font-size: 9px;
+  font-size: 12px;
   color: #8264aa;
 }
 .course-card-body {
   padding: 17px;
 }
 .course-level {
-  font-size: 9px;
-  color: #a38cbe;
+  font-size: 12px;
+  color: #8465a8;
   font-weight: 550;
 }
 .course-card-body h3 {
@@ -762,7 +883,7 @@ a:focus-visible {
   margin: 8px 0 12px;
 }
 .course-card-body p {
-  font-size: 9px;
+  font-size: 12px;
   color: var(--muted);
   display: flex;
   justify-content: space-between;
@@ -796,7 +917,7 @@ a:focus-visible {
   justify-content: center;
   gap: 14px;
   color: var(--muted);
-  font-size: 11px;
+  font-size: 13px;
 }
 .empty-chart > div {
   display: flex;
@@ -819,7 +940,7 @@ a:focus-visible {
   height: 63px;
   border-radius: 21px;
   background: linear-gradient(145deg, #f3e6db, #e9d0b8);
-  color: #9b765e;
+  color: #8e6c56;
   font-weight: 700;
   font-size: 23px;
   display: grid;
@@ -838,22 +959,22 @@ a:focus-visible {
   border-radius: 50%;
   width: 22px;
   height: 22px;
-  font-size: 13px;
+  font-size: 14px;
   display: grid;
   place-items: center;
   border: 2px solid var(--surface);
 }
 .profile-summary h3 {
-  font-size: 14px;
+  font-size: 15px;
   margin-bottom: 4px;
 }
 .profile-summary > p {
-  font-size: 10px;
+  font-size: 12px;
   color: var(--muted);
   margin-bottom: 10px;
 }
 .profile-summary > small {
-  font-size: 10px;
+  font-size: 12px;
   color: var(--muted);
 }
 .level-ring {
@@ -874,18 +995,18 @@ a:focus-visible {
   align-items: center;
   justify-content: center;
   gap: 7px;
-  color: #a484da;
+  color: #875dce;
 }
 .level-ring > div > svg {
   width: 27px;
   height: 27px;
 }
 .level-ring b {
-  font-size: 11px;
+  font-size: 13px;
   color: var(--text);
 }
 .level-note {
-  font-size: 10px !important;
+  font-size: 12px !important;
   margin-top: 7px;
 }
 .profile-divider {
@@ -920,7 +1041,7 @@ a:focus-visible {
   outline-color: #e6d9f7;
 }
 .streak-row small {
-  font-size: 8px;
+  font-size: 12px;
   color: var(--muted);
 }
 .challenge-card {
@@ -940,7 +1061,7 @@ a:focus-visible {
   height: 37px;
   border-radius: 12px;
   background: #ffe9c7;
-  color: #d2a46b;
+  color: #c0843a;
   display: grid;
   place-items: center;
   margin-bottom: 14px;
@@ -949,24 +1070,24 @@ a:focus-visible {
   margin-bottom: 10px;
 }
 .challenge-card h3 {
-  font-size: 12px;
+  font-size: 13px;
 }
 .challenge-card .section-heading > span {
-  font-size: 9px;
-  color: #d3a365;
+  font-size: 12px;
+  color: #9b6b2c;
   white-space: nowrap;
 }
 .challenge-card p {
-  font-size: 11px;
-  color: #b69a79;
+  font-size: 13px;
+  color: #8c6f4c;
   margin-bottom: 15px;
 }
 .challenge-card button {
-  font-size: 10px;
+  font-size: 12px;
   width: 100%;
   background: #fff8ee;
   border-color: #f2e2ca;
-  color: #b8925f;
+  color: #906e40;
 }
 .dark .challenge-card button {
   background: #47382b;
@@ -977,7 +1098,7 @@ a:focus-visible {
   padding: 20px;
 }
 .badge-preview h3 {
-  font-size: 12px;
+  font-size: 13px;
 }
 .badge-icons {
   display: flex;
@@ -998,7 +1119,7 @@ a:focus-visible {
   color: #a77add;
 }
 .badge-preview p {
-  font-size: 9px;
+  font-size: 12px;
   color: var(--muted);
   margin: 15px 0 0;
 }
@@ -1007,13 +1128,13 @@ a:focus-visible {
   align-items: flex-start;
   gap: 9px;
   padding: 0 10px;
-  color: #af9acb;
+  color: #8464af;
 }
 .study-tip > span {
   font-size: 18px;
 }
 .study-tip p {
-  font-size: 10px;
+  font-size: 12px;
   color: var(--muted);
   line-height: 1.8;
 }
@@ -1050,7 +1171,7 @@ a:focus-visible {
   margin-bottom: 25px;
 }
 .filter-row button {
-  font-size: 11px;
+  font-size: 13px;
 }
 .lesson-grid {
   display: grid;
@@ -1086,26 +1207,26 @@ a:focus-visible {
   position: absolute;
   right: 9px;
   top: 9px;
-  color: #51a69a;
+  color: #4e9f94;
   width: 20px;
 }
 .lesson-card h3 {
-  font-size: 14px;
+  font-size: 15px;
   line-height: 1.55;
   margin: 9px 0;
   flex: 1;
 }
 .lesson-card p {
   color: var(--muted);
-  font-size: 10px;
+  font-size: 12px;
 }
 .lesson-link {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  color: #9d73dd;
+  color: #8956d6;
   margin-top: 16px;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 600;
 }
 .badge-grid {
@@ -1125,7 +1246,7 @@ a:focus-visible {
   background: linear-gradient(145deg, #eee5ff, #decdf8);
   display: grid;
   place-items: center;
-  color: #ae85e7;
+  color: #a87ce5;
   margin: 0 auto 20px;
   box-shadow: inset 0 -5px 0 #c3a4e433;
 }
@@ -1133,13 +1254,13 @@ a:focus-visible {
   font-size: 15px;
 }
 .badge-card p {
-  font-size: 11px;
+  font-size: 13px;
   color: var(--muted);
 }
 .badge-card > span {
   display: grid;
   place-items: center;
-  color: #aaa2bd;
+  color: #796c97;
 }
 .badge-card.locked .badge-medallion {
   filter: grayscale(1);
@@ -1180,16 +1301,16 @@ a:focus-visible {
   margin: 0 auto 13px;
   border-radius: 20px;
   background: #f1e9fc;
-  color: #a27bda;
+  color: #8c5bd1;
   font-size: 18px;
   font-weight: 650;
 }
 .podium-place h3 {
-  font-size: 12px;
+  font-size: 13px;
   margin-bottom: 3px;
 }
 .podium-place > small {
-  font-size: 10px;
+  font-size: 12px;
   color: var(--muted);
 }
 .podium-place > div {
@@ -1202,7 +1323,7 @@ a:focus-visible {
   margin-top: 12px;
   background: linear-gradient(#d9c1f5, #f6f0fd);
   border-radius: 13px 13px 0 0;
-  color: #af8bd6;
+  color: #a780d2;
 }
 .podium-place > div > span {
   font-size: 34px;
@@ -1211,12 +1332,12 @@ a:focus-visible {
 .podium-place.place-1 > div {
   height: 150px;
   background: linear-gradient(#ffe4a5, #fff9e9);
-  color: #c9a657;
+  color: #af8b38;
 }
 .podium-place.place-2 > div {
   height: 120px;
   background: linear-gradient(#c5e8f7, #f1faff);
-  color: #86bbd0;
+  color: #4b9ab9;
 }
 .dark .podium-place > div {
   background: linear-gradient(#493163, #1c1c2e);
@@ -1242,7 +1363,7 @@ a:focus-visible {
   flex-shrink: 0;
   width: 18px;
   color: var(--muted);
-  font-size: 12px;
+  font-size: 13px;
 }
 .rank-avatar {
   flex-shrink: 0;
@@ -1252,10 +1373,10 @@ a:focus-visible {
   place-items: center;
   border-radius: 12px;
   background: #f0e6df;
-  color: #ad8f79;
+  color: #8d6e56;
 }
 .ranking-list b {
-  font-size: 12px;
+  font-size: 13px;
   overflow-wrap: anywhere;
 }
 .ranking-list > div > div:not(.rank-avatar) {
@@ -1265,14 +1386,14 @@ a:focus-visible {
 }
 .ranking-list small {
   display: block;
-  font-size: 9px;
+  font-size: 12px;
   color: var(--muted);
 }
 .ranking-list strong {
   flex-shrink: 0;
   margin-left: auto;
-  color: #a381da;
-  font-size: 14px;
+  color: #895ed0;
+  font-size: 15px;
 }
 .ranking-list strong small {
   display: inline;
@@ -1295,7 +1416,7 @@ a:focus-visible {
   max-width: 450px;
 }
 .error-state {
-  color: #b65b73;
+  color: #b45770;
   background: #fff7f8;
   border-color: #f4dce2;
 }
@@ -1305,7 +1426,7 @@ a:focus-visible {
   color: #f0a7ba;
 }
 .empty-state p {
-  font-size: 12px;
+  font-size: 13px;
 }
 .skeleton {
   background: linear-gradient(90deg, var(--surface-soft), var(--border), var(--surface-soft));
@@ -1327,7 +1448,7 @@ a:focus-visible {
 .lesson-toolbar > span {
   margin-left: auto;
   color: var(--muted);
-  font-size: 11px;
+  font-size: 13px;
 }
 .presentation-viewer {
   position: relative;
@@ -1375,7 +1496,7 @@ a:focus-visible {
   max-width: 900px;
 }
 .slide-number {
-  font-size: 11px;
+  font-size: 13px;
   color: var(--muted);
   margin-bottom: 25px;
 }
@@ -1404,11 +1525,11 @@ a:focus-visible {
   color: var(--muted);
 }
 .lesson-footer p {
-  font-size: 11px;
+  font-size: 13px;
   margin: 0;
 }
 .lesson-footer button {
-  font-size: 11px;
+  font-size: 13px;
 }
 .quiz-prompt {
   display: flex;
@@ -1418,14 +1539,14 @@ a:focus-visible {
   text-align: left;
   padding: 25px;
   margin-top: 20px;
-  color: #a17bdc;
+  color: #8a5bd3;
 }
 .quiz-prompt h3 {
   margin: 0 0 4px;
   color: var(--text);
 }
 .quiz-prompt p {
-  font-size: 11px;
+  font-size: 13px;
   color: var(--muted);
   margin: 0;
 }
@@ -1444,22 +1565,22 @@ a:focus-visible {
   padding: 10px 15px;
   border-radius: 12px;
   background: var(--soft-violet);
-  color: #9569d9;
+  color: #8959d5;
 }
 .quiz-clock.urgent {
   background: #fff1f2;
-  color: #e45b78;
+  color: #dc2b50;
 }
 .quiz-start {
   padding: 50px;
   text-align: center;
 }
 .quiz-start > svg {
-  color: #af8bdd;
+  color: #a77fda;
   margin: 0 auto 20px;
 }
 .quiz-start p {
-  font-size: 12px;
+  font-size: 13px;
 }
 .questions {
   display: flex;
@@ -1482,7 +1603,7 @@ a:focus-visible {
   border: 1px solid var(--border);
   border-radius: 12px;
   margin: 10px 0;
-  font-size: 13px;
+  font-size: 14px;
   cursor: pointer;
 }
 .answer-option.selected {
@@ -1507,7 +1628,7 @@ a:focus-visible {
 }
 .quiz-result > h2 {
   font-size: 52px;
-  color: #9c71dc;
+  color: #8b58d6;
   margin: 12px 0;
 }
 .result-icon {
@@ -1518,7 +1639,7 @@ a:focus-visible {
   background: #fff2d4;
   display: grid;
   place-items: center;
-  color: #d8b968;
+  color: #b18d2e;
   font-size: 39px;
 }
 .answer-feedback {
@@ -1529,11 +1650,11 @@ a:focus-visible {
   margin: 12px 0;
 }
 .answer-feedback b {
-  color: #a17bd9;
-  font-size: 12px;
+  color: #8a5bd0;
+  font-size: 13px;
 }
 .answer-feedback p {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--muted);
   margin: 5px 0 0;
 }
@@ -1542,7 +1663,7 @@ a:focus-visible {
   margin-top: 25px;
 }
 .attempt-history p {
-  font-size: 11px;
+  font-size: 13px;
   display: flex;
   justify-content: space-between;
   padding: 12px 0;
@@ -1566,7 +1687,7 @@ a:focus-visible {
 }
 .game-card p {
   color: var(--muted);
-  font-size: 11px;
+  font-size: 13px;
   margin: 0;
 }
 .game-card.selected {
@@ -1580,7 +1701,7 @@ a:focus-visible {
   font-size: 23px;
 }
 .game-play > p {
-  font-size: 14px;
+  font-size: 15px;
   line-height: 1.9;
 }
 .game-play > svg {
@@ -1598,11 +1719,11 @@ a:focus-visible {
   background: var(--soft-violet);
   border-radius: 16px;
   font-size: 28px;
-  color: #ae8adb;
+  color: #a67ed7;
   padding: 15px;
 }
 .memory-grid .flipped {
-  font-size: 12px;
+  font-size: 13px;
   background: var(--surface);
   color: var(--text);
 }
@@ -1612,7 +1733,7 @@ a:focus-visible {
   max-width: 500px;
 }
 .success-text {
-  color: #68a993;
+  color: #477d6b;
 }
 .word-options {
   display: flex;
@@ -1627,17 +1748,17 @@ a:focus-visible {
   letter-spacing: 0.3px;
 }
 .typed-correct {
-  color: #6caa9b;
+  color: #487c70;
 }
 .typed-wrong {
-  color: #d96b83;
+  color: #ce3e5e;
   background: #fce9ed;
 }
 .typing-stats {
   display: flex;
   gap: 30px;
   font-size: 17px;
-  color: #a17cda;
+  color: #8a5cd1;
   margin: 20px 0;
 }
 .game-play textarea {
@@ -1659,7 +1780,7 @@ a:focus-visible {
 }
 .editor label,
 .auth-form label {
-  font-size: 11px;
+  font-size: 13px;
   color: var(--muted);
   display: flex;
   flex-direction: column;
@@ -1673,7 +1794,7 @@ a:focus-visible {
   color: var(--text);
   border-radius: 10px;
   padding: 11px 13px;
-  font-size: 12px;
+  font-size: 13px;
   outline: none;
   line-height: 1.5;
 }
@@ -1682,7 +1803,7 @@ a:focus-visible {
   box-shadow: 0 0 0 3px #a580dc10;
 }
 .input::placeholder {
-  color: #b3afc0;
+  color: #77708f;
 }
 textarea.input {
   min-height: 100px;
@@ -1699,7 +1820,7 @@ textarea.input {
   flex-direction: row !important;
   align-items: center;
   gap: 9px !important;
-  font-size: 12px !important;
+  font-size: 13px !important;
 }
 .checkbox-label input {
   accent-color: #9c75d5;
@@ -1713,17 +1834,17 @@ textarea.input {
   align-items: center;
 }
 .manage-row b {
-  font-size: 12px;
+  font-size: 13px;
   display: block;
 }
 .manage-row small {
-  font-size: 10px;
+  font-size: 12px;
   color: var(--muted);
   display: block;
   margin-top: 5px;
 }
 .manage-row button {
-  font-size: 10px;
+  font-size: 12px;
 }
 .upload-box {
   padding: 32px 22px;
@@ -1731,13 +1852,13 @@ textarea.input {
   border: 1px dashed #ccb7e9;
   border-radius: 15px;
   align-items: center !important;
-  color: #a381d7 !important;
+  color: #8a5ecc !important;
   text-align: center;
   cursor: pointer;
   margin: 20px 0 30px;
 }
 .upload-box input {
-  font-size: 10px;
+  font-size: 12px;
   margin-top: 10px;
   max-width: 100%;
 }
@@ -1766,11 +1887,11 @@ textarea.input {
 table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 12px;
+  font-size: 13px;
 }
 th {
   text-align: left;
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: 0.3px;
   color: var(--muted);
   padding: 13px;
@@ -1782,7 +1903,7 @@ td {
 }
 td small {
   display: block;
-  font-size: 9px;
+  font-size: 12px;
   color: var(--muted);
   margin-top: 5px;
 }
@@ -1802,7 +1923,7 @@ td .input {
 }
 .profile-editor > .muted {
   text-align: center;
-  font-size: 10px;
+  font-size: 12px;
 }
 .auth-page {
   position: relative;
@@ -1846,7 +1967,7 @@ td .input {
   display: block;
 }
 .auth-story > p {
-  font-size: 12px;
+  font-size: 13px;
   color: #ecdcff;
   margin: 0;
 }
@@ -1875,7 +1996,7 @@ td .input {
   margin: 5px 0 0;
 }
 .auth-form > .muted {
-  font-size: 11px;
+  font-size: 13px;
   margin: 0 0 10px;
 }
 .auth-form form {
@@ -1887,18 +2008,18 @@ td .input {
 .auth-or {
   position: relative;
   text-align: center;
-  font-size: 10px;
+  font-size: 12px;
   color: var(--muted);
   padding: 10px;
 }
 .auth-back {
-  font-size: 10px;
-  color: #a081c9;
+  font-size: 12px;
+  color: #8861bb;
   margin-top: 15px;
 }
 .demo-explainer {
-  font-size: 11px;
-  color: #a080c6;
+  font-size: 13px;
+  color: #8860b8;
   text-align: center;
 }
 .modal-backdrop {
@@ -1948,7 +2069,7 @@ td .input {
   padding: 13px 22px;
   border-radius: 14px;
   box-shadow: 0 10px 35px #30203b33;
-  font-size: 12px;
+  font-size: 13px;
   z-index: 250;
   text-align: center;
 }
@@ -1989,10 +2110,10 @@ td .input {
     font-size: 36px;
   }
   .welcome-hero p {
-    font-size: 12px;
+    font-size: 13px;
   }
   .hero-tag {
-    font-size: 11px;
+    font-size: 13px;
   }
   .dashboard-grid {
     grid-template-columns: minmax(0, 1fr) 280px;
@@ -2008,13 +2129,13 @@ td .input {
     margin-bottom: 55px;
   }
   .sidebar nav a {
-    font-size: 13px;
+    font-size: 14px;
   }
   .stat-card {
     padding: 22px;
   }
   .stat-card small {
-    font-size: 10px;
+    font-size: 12px;
   }
   .stat-card strong {
     font-size: 26px;
@@ -2072,14 +2193,14 @@ td .input {
     font-size: 20px;
   }
   .stat-card small {
-    font-size: 8px;
+    font-size: 12px;
   }
   .continue-card {
     gap: 12px;
     padding: 15px;
   }
   .continue-content h3 {
-    font-size: 12px;
+    font-size: 13px;
   }
   .lesson-cover {
     width: 66px;
@@ -2142,7 +2263,7 @@ td .input {
   }
   .welcome-hero p {
     max-width: none;
-    font-size: 11px;
+    font-size: 13px;
   }
   .course-grid .course-card:only-child {
     grid-template-columns: 200px 1fr;
@@ -2210,11 +2331,8 @@ td .input {
     border: 0;
     background: var(--surface-soft);
   }
-  .search-box kbd {
-    display: none;
-  }
   .search-box input {
-    font-size: 10px;
+    font-size: 12px;
     width: 100%;
   }
   .header-profile {
@@ -2231,7 +2349,7 @@ td .input {
     gap: 0;
   }
   .header-actions > .language-switch {
-    font-size: 9px;
+    font-size: 12px;
     padding: 5px 1px;
   }
   .header-actions > .inline-flex {
@@ -2252,10 +2370,10 @@ td .input {
   }
   .demo-banner {
     padding: 7px 20px;
-    font-size: 8px;
+    font-size: 12px;
   }
   .demo-banner select {
-    font-size: 9px;
+    font-size: 12px;
   }
   .page-heading {
     margin-bottom: 23px;
@@ -2266,14 +2384,14 @@ td .input {
     line-height: 1.35;
   }
   .page-heading p {
-    font-size: 11px;
+    font-size: 13px;
   }
   .eyebrow {
-    font-size: 8px;
+    font-size: 12px;
     letter-spacing: 1.6px;
   }
   .date-chip {
-    font-size: 8px;
+    font-size: 12px;
     padding: 7px 8px;
   }
   .welcome-hero {
@@ -2284,7 +2402,7 @@ td .input {
     font-size: 29px;
   }
   .welcome-hero p {
-    font-size: 10px;
+    font-size: 12px;
     max-width: 235px;
   }
   .welcome-hero > svg {
@@ -2303,7 +2421,7 @@ td .input {
     align-items: flex-start;
   }
   .stat-card small {
-    font-size: 8px;
+    font-size: 12px;
   }
   .stat-icon {
     width: 33px;
@@ -2314,7 +2432,7 @@ td .input {
     font-size: 23px;
   }
   .stat-card em {
-    font-size: 9px;
+    font-size: 12px;
   }
   .dashboard-main {
     gap: 25px;
@@ -2323,18 +2441,18 @@ td .input {
     font-size: 17px;
   }
   .section-heading > button {
-    font-size: 9px;
+    font-size: 12px;
   }
   .continue-card {
     gap: 13px;
     padding: 14px;
   }
   .continue-content h3 {
-    font-size: 12px;
+    font-size: 13px;
     line-height: 1.6;
   }
   .continue-content p {
-    font-size: 9px;
+    font-size: 12px;
     margin-bottom: 10px;
   }
   .lesson-cover {
@@ -2347,7 +2465,7 @@ td .input {
     min-height: 34px;
   }
   .tiny-tag {
-    font-size: 8px;
+    font-size: 12px;
   }
   .course-grid .course-card:only-child {
     grid-template-columns: 40% 1fr;
@@ -2365,13 +2483,13 @@ td .input {
     margin: 0 -60px;
   }
   .course-card-body h3 {
-    font-size: 14px;
+    font-size: 15px;
   }
   .course-level {
-    font-size: 9px;
+    font-size: 12px;
   }
   .course-category {
-    font-size: 8px;
+    font-size: 12px;
     left: 10px;
     bottom: 10px;
   }
@@ -2382,17 +2500,17 @@ td .input {
     padding: 17px;
   }
   .challenge-card h3 {
-    font-size: 11px;
+    font-size: 13px;
   }
   .challenge-card .section-heading {
     align-items: flex-start;
     gap: 7px;
   }
   .challenge-card .section-heading > span {
-    font-size: 8px;
+    font-size: 12px;
   }
   .challenge-card p {
-    font-size: 10px;
+    font-size: 12px;
   }
   .badge-preview {
     padding: 17px;
@@ -2412,10 +2530,10 @@ td .input {
     padding: 24px 15px;
   }
   .profile-summary h3 {
-    font-size: 12px;
+    font-size: 13px;
   }
   .profile-summary > p {
-    font-size: 9px;
+    font-size: 12px;
   }
   .level-ring {
     width: 117px;
@@ -2430,7 +2548,7 @@ td .input {
     border-width: 2px;
   }
   .streak-row small {
-    font-size: 7px;
+    font-size: 12px;
   }
   .profile-avatar {
     width: 57px;
@@ -2455,13 +2573,13 @@ td .input {
     flex-direction: column;
     align-items: center;
     gap: 6px;
-    font-size: 8px;
-    color: #aaa6ba;
+    font-size: 12px;
+    color: #766f90;
     position: relative;
     flex: 1;
   }
   .bottom-nav a.active {
-    color: #a16fe6;
+    color: #8d51e1;
     font-weight: 650;
   }
   .bottom-nav a.active:before {
@@ -2487,26 +2605,26 @@ td .input {
     padding: 13px;
   }
   .lesson-card h3 {
-    font-size: 13px;
+    font-size: 14px;
   }
   .lesson-card p {
-    font-size: 9px;
+    font-size: 12px;
   }
   .mini-cover {
     height: 100px;
   }
   .lesson-link {
-    font-size: 9px;
+    font-size: 12px;
   }
   .filter-row {
     gap: 7px;
   }
   .filter-row button {
-    font-size: 9px;
+    font-size: 12px;
     padding: 8px 10px;
   }
   .page-heading > button {
-    font-size: 10px;
+    font-size: 12px;
     max-width: 135px;
   }
   .badge-grid {
@@ -2522,10 +2640,10 @@ td .input {
     border-radius: 23px;
   }
   .badge-card h3 {
-    font-size: 13px;
+    font-size: 14px;
   }
   .badge-card p {
-    font-size: 10px;
+    font-size: 12px;
   }
   .leaderboard-panel {
     padding: 23px 10px;
@@ -2548,10 +2666,10 @@ td .input {
     border-radius: 17px;
   }
   .podium-place h3 {
-    font-size: 10px;
+    font-size: 12px;
   }
   .podium-place > small {
-    font-size: 9px;
+    font-size: 12px;
   }
   .podium-place > div {
     height: 86px;
@@ -2567,10 +2685,10 @@ td .input {
     padding: 15px 8px;
   }
   .ranking-list b {
-    font-size: 11px;
+    font-size: 13px;
   }
   .lesson-toolbar button {
-    font-size: 10px;
+    font-size: 12px;
     padding: 9px 12px;
   }
   .desktop-label {
@@ -2606,26 +2724,26 @@ td .input {
     padding: 35px 25px;
   }
   .quiz-start p {
-    font-size: 11px;
+    font-size: 13px;
   }
   .question-card {
     padding: 22px;
   }
   .question-card h3 {
-    font-size: 14px;
+    font-size: 15px;
   }
   .answer-option {
-    font-size: 12px;
+    font-size: 13px;
     padding: 14px;
   }
   .matching-row {
     gap: 12px;
   }
   .matching-row select {
-    font-size: 10px;
+    font-size: 12px;
   }
   .quiz-clock {
-    font-size: 11px;
+    font-size: 13px;
     padding: 9px 12px;
   }
   .quiz-result {
@@ -2638,10 +2756,10 @@ td .input {
     padding: 20px;
   }
   .game-card h3 {
-    font-size: 13px;
+    font-size: 14px;
   }
   .game-card p {
-    font-size: 10px;
+    font-size: 12px;
   }
   .game-play {
     padding: 23px;
@@ -2654,7 +2772,7 @@ td .input {
     min-height: 95px;
   }
   .memory-grid .flipped {
-    font-size: 11px;
+    font-size: 13px;
   }
   .game-play form {
     flex-wrap: wrap;
@@ -2699,7 +2817,7 @@ td .input {
     grid-area: tag;
     align-self: end;
     justify-self: start;
-    font-size: 10px;
+    font-size: 12px;
   }
   .auth-story .auth-video {
     grid-area: art;
@@ -2715,7 +2833,7 @@ td .input {
   }
   .auth-story > p {
     grid-area: description;
-    font-size: 12px;
+    font-size: 13px;
     line-height: 1.6;
   }
   .auth-story > svg {
@@ -2771,7 +2889,7 @@ td .input {
     max-width: 190px;
   }
   .hero-tag {
-    font-size: 8px;
+    font-size: 12px;
   }
   .date-chip {
     display: none;
@@ -2794,25 +2912,25 @@ td .input {
     gap: 8px;
   }
   .stat-card small {
-    font-size: 7px;
+    font-size: 12px;
   }
   .stat-card strong {
     font-size: 21px;
   }
   .stat-card em {
-    font-size: 8px;
+    font-size: 12px;
   }
   .course-grid .course-card:only-child .course-card-body {
     padding: 14px;
   }
   .course-card-body h3 {
-    font-size: 13px;
+    font-size: 14px;
   }
   .mini-cover {
     height: 85px;
   }
   .lesson-card h3 {
-    font-size: 12px;
+    font-size: 13px;
   }
   .header-profile {
     display: none;
@@ -2821,7 +2939,7 @@ td .input {
     padding: 12px;
   }
   .continue-content h3 {
-    font-size: 11px;
+    font-size: 13px;
   }
   .lesson-cover {
     width: 57px;
@@ -2830,7 +2948,7 @@ td .input {
     font-size: 16px;
   }
   .lesson-card p {
-    font-size: 8px;
+    font-size: 12px;
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -2860,12 +2978,12 @@ td .input {
   right: 12px;
   bottom: 12px;
   background: #ffffffc9;
-  color: #9164cc;
+  color: #8c5cc9;
   border: 1px solid #e6d7f2;
   border-radius: 50%;
   width: 31px;
   height: 31px;
-  font-size: 12px;
+  font-size: 13px;
 }
 .academic-summary {
   border: 1px solid var(--border);
@@ -2879,10 +2997,10 @@ td .input {
 }
 .academic-summary b {
   font-size: 25px;
-  color: #9d78d7;
+  color: #895ccf;
 }
 .academic-summary span {
-  font-size: 11px;
+  font-size: 13px;
   color: var(--muted);
 }
 @media (max-width: 760px) {
@@ -2957,18 +3075,7 @@ td .input {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 14px;
-}
-.reader-navigation {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.reader-navigation span {
-  min-width: 56px;
-  text-align: center;
-  font-size: 12px;
-  font-variant-numeric: tabular-nums;
+  font-size: 15px;
 }
 .reader-viewer.presentation-viewer {
   flex: 1;
@@ -3002,7 +3109,7 @@ td .input {
 }
 .reader-details p {
   color: var(--muted);
-  font-size: 13px;
+  font-size: 14px;
 }
 .reader-details button {
   width: 100%;
@@ -3016,10 +3123,7 @@ td .input {
   }
   .reader-toolbar h1 {
     flex-basis: calc(100% - 55px);
-    font-size: 12px;
-  }
-  .reader-navigation {
-    margin-right: auto;
+    font-size: 13px;
   }
 }
 .student-login-frame {
@@ -3045,7 +3149,7 @@ td .input {
   border-collapse: collapse;
   min-width: 1100px;
   width: 100%;
-  font-size: 12px;
+  font-size: 13px;
 }
 .academic-table th,
 .academic-table td {
@@ -3102,7 +3206,7 @@ td .input {
   margin-top: 14px;
 }
 .install-instructions p {
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.8;
 }
 @media (max-width: 600px) {
@@ -3210,7 +3314,7 @@ td .input {
 }
 .credential-setup {
   padding: 15px 0;
-  font-size: 13px;
+  font-size: 14px;
   color: var(--muted);
 }
 
@@ -3262,7 +3366,7 @@ td .input {
   flex-wrap: wrap;
   gap: 8px;
   margin: 0 0 5px;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
   color: var(--muted);
 }
@@ -3280,13 +3384,6 @@ td .input {
   font-size: 16px;
   line-height: 1.4;
 }
-.reader-navigation > span {
-  background: var(--soft-violet);
-  color: var(--text);
-  border-radius: 9px;
-  padding: 7px 9px;
-  font-weight: 700;
-}
 .reader-controls {
   display: flex;
   align-items: center;
@@ -3301,7 +3398,7 @@ td .input {
 .reader-controls > button {
   min-height: 46px;
   min-width: 126px;
-  font-size: 14px;
+  font-size: 15px;
 }
 .reader-controls label {
   display: flex;
@@ -3309,7 +3406,7 @@ td .input {
   align-items: center;
   margin: 0;
   color: var(--muted);
-  font-size: 12px;
+  font-size: 13px;
 }
 .reader-controls select {
   min-height: 44px;
@@ -3318,8 +3415,44 @@ td .input {
   border-radius: 10px;
   color: var(--text);
   background: var(--surface-soft);
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 700;
+}
+/* yagona hisoblagich: «4 / 18» ko'rinadi, ustidagi shaffof ro'yxat istalgan slaydga o'tkazadi */
+.reader-controls .reader-picker {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 104px;
+  min-height: 46px;
+  padding: 0 18px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface-soft);
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+.reader-controls .reader-picker:focus-within {
+  outline: 2px solid #8b5cf6;
+  outline-offset: 2px;
+}
+.reader-controls .reader-picker select {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.reader-results-button span {
+  font-size: 14px;
 }
 .reader-controls .reader-previous {
   color: #246f65;
@@ -3350,10 +3483,10 @@ td .input {
     flex-basis: calc(100% - 58px);
   }
   .reader-toolbar .reader-heading h1 {
-    font-size: 14px;
+    font-size: 15px;
   }
   .reader-heading > p {
-    font-size: 10px;
+    font-size: 12px;
     gap: 6px;
   }
   .reader-controls {
@@ -3365,13 +3498,10 @@ td .input {
     flex: 1;
     padding: 10px;
     gap: 5px;
-    font-size: 13px;
+    font-size: 14px;
   }
-  .reader-controls label > span {
-    display: none;
-  }
-  .reader-controls select {
-    padding: 8px;
-    max-width: 96px;
+  .reader-controls .reader-picker {
+    min-width: 84px;
+    padding: 0 12px;
   }
 }

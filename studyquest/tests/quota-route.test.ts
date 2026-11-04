@@ -27,7 +27,10 @@ vi.mock('../lib/server/auth', async (original) => ({
   actor: mocks.actor,
 }));
 vi.mock('../lib/server/student-password', () => ({ resetStudentPassword: mocks.reset }));
-vi.mock('../lib/server/legacy-access', () => ({ legacyAccess: mocks.access }));
+vi.mock('../lib/server/legacy-access', async (original) => ({
+  ...(await original<typeof import('../lib/server/legacy-access')>()),
+  legacyAccess: mocks.access,
+}));
 import { GET, POST } from '../app/api/platform/route';
 
 beforeEach(() => {

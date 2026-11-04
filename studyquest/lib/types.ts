@@ -8,8 +8,14 @@ export type ReadingHistory = {
   correctAnswers: number;
   score?: number;
   grade?: number;
+  /** testdagi savollar (yoki krossvord so'zlari, masalalar) soni — 50 ball shunga bo'linadi */
+  quizTotal?: number;
+  /** mavzu bali qismlari: slaydlar (30), o'qish vaqti (20, 1 soat = to'liq), test (50) */
+  parts?: { slides: number; time: number; test: number };
   status: 'new' | 'started' | 'read';
 };
+/** «score» — ball beriladi (due — muddat oxiri), «read» — 📖 o'qish rejimi, «locked» — 🔒 hali yopiq */
+export type LessonAccess = { state: 'score' | 'read' | 'locked'; due?: number };
 export type Actor = {
   id: string;
   uid: string;
@@ -134,6 +140,7 @@ export type Data = {
   limited?: boolean;
   serviceMessage?: string;
   user?: User;
+  lessonAccess?: Record<string, LessonAccess>;
   progress?: Progress[];
   attempts?: Attempt[];
   transactions?: XpTransaction[];

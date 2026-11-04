@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
-import { ArrowLeft, ArrowRight, Download, Expand } from 'lucide-react';
+import { ArrowLeft, Download, Expand } from 'lucide-react';
 import { ReaderHeading, ReaderControls, useReaderGestures } from './reader-controls';
 import { useApp } from './provider';
 import { Button } from './ui/button';
@@ -88,29 +88,6 @@ export function CrmLesson() {
           topic={7}
           total={data?.lessons.filter((l) => l.courseId === courseId).length || 15}
         />
-        <div className="reader-navigation">
-          <Button
-            variant="outline"
-            size="icon"
-            aria-label="Previous slide"
-            disabled={index === 0 || !loaded}
-            onClick={() => setIndex(index - 1)}
-          >
-            <ArrowLeft size={18} />
-          </Button>
-          <span>
-            {index + 1} / {crmCount}
-          </span>
-          <Button
-            variant="outline"
-            size="icon"
-            aria-label="Next slide"
-            disabled={index === crmCount - 1 || !loaded}
-            onClick={() => setIndex(index + 1)}
-          >
-            <ArrowRight size={18} />
-          </Button>
-        </div>
         <Button variant="ghost" onClick={() => setOriginal(!original)}>
           {original ? 'O‘qish ko‘rinishi' : 'Asl slayd'}
         </Button>

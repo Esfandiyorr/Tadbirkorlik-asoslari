@@ -1,6 +1,6 @@
-const CACHE = 'studyquest-shell-v3';
+const CACHE = 'studyquest-shell-v4';
 self.addEventListener('install', (e) => {
-  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(['/offline.html', '/icon.svg'])));
+  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(['/offline.html', '/terdu-logo.png'])));
   self.skipWaiting();
 });
 self.addEventListener('activate', (e) =>

@@ -294,7 +294,7 @@ export function Staff({ admin = false }: { admin?: boolean }) {
             <div style={{ height: 280, width: '100%' }}>
               <ResponsiveContainer>
                 <BarChart data={analytics}>
-                  <XAxis dataKey="title" tick={{ fontSize: 11 }} />
+                  <XAxis dataKey="title" tick={{ fontSize: 12 }} />
                   <YAxis allowDecimals={false} />
                   <Tooltip />
                   <Bar dataKey="completed" fill="#8b5cf6" radius={[8, 8, 0, 0]} />

@@ -16,7 +16,12 @@ const variants = cva(
           'border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200',
         ghost: 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800',
       },
-      size: { default: 'min-h-10', sm: 'min-h-9 px-3 text-xs', icon: 'h-10 w-10 p-0' },
+      size: {
+        default: 'min-h-11',
+        sm: 'min-h-9 px-3 text-xs',
+        lg: 'min-h-12 px-5 text-base',
+        icon: 'h-11 w-11 p-0',
+      },
     },
     defaultVariants: { variant: 'default', size: 'default' },
   },
