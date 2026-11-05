@@ -1,4 +1,3 @@
-import { crmRevision, crmCount, revisionReading } from '../crm';
 import 'server-only';
 import { createHash } from 'node:crypto';
 import type { Actor, ReadingHistory } from '../types';
@@ -15,7 +14,7 @@ export function academicRecord(id: string, s: Row) {
     history: Record<string, ReadingHistory> = {};
   for (const lesson of lessons) {
     // Historical marks were earned against the archived 18-slide topic.
-    const gradingSlideCount = lesson.id === 'm7' ? 18 : lesson.slideCount;
+    const gradingSlideCount = lesson.slideCount;
     const value = s.topics?.[lesson.id] || {},
       progress = s.prog?.[lesson.id] || {},
       reading = s.reading?.[lesson.id] || {};
@@ -89,17 +88,6 @@ export function academicRecord(id: string, s: Row) {
       status: count >= lesson.slideCount ? 'read' : count || seconds || correct ? 'started' : 'new',
       ...(!independent ? { score, grade } : {}),
     };
-    if (lesson.id === 'm7') {
-      const current = revisionReading(s.readingRevisions?.m7?.[crmRevision]);
-      Object.assign(history[lesson.id], {
-        seenSlides: current.seen.length,
-        totalSlides: crmCount,
-        lastSlide: current.last,
-        seconds: 0,
-        correctAnswers: 0,
-        status: current.seen.length === crmCount ? 'read' : current.seen.length ? 'started' : 'new',
-      });
-    }
     if (!independent && (s.topics?.[lesson.id] || s.prog?.[lesson.id]))
       topics[lesson.id] = {
         p: score,

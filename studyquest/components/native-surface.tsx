@@ -3,6 +3,7 @@ import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 're
 import DOMPurify from 'dompurify';
 import morphdom from 'morphdom';
 import { useApp } from './provider';
+import { uzQuotesDom } from '@/lib/uz-text';
 import { Button } from './ui/button';
 
 type Action = Record<string, unknown>;
@@ -60,6 +61,8 @@ export const NativeSurface = forwardRef<HTMLIFrameElement, Props>(function Nativ
     surface = useRef<HTMLDivElement>(null),
     picker = useRef<HTMLInputElement>(null);
   const { lang, dark, toast } = useApp();
+  const langRef = useRef(lang);
+  langRef.current = lang;
   const [loaded, setLoaded] = useState(false),
     [error, setError] = useState(''),
     [dialog, setDialog] = useState<Dialog | null>(null),
@@ -129,7 +132,13 @@ export const NativeSurface = forwardRef<HTMLIFrameElement, Props>(function Nativ
       }
       if (message.type !== 'render' || typeof message.html !== 'string' || !surface.current) return;
       if (message.html.length > 8 * 1024 * 1024) {
-        setError('Bu sahifa juda katta. Qidiruv orqali ro‘yxatni qisqartiring.');
+        setError(
+          langRef.current === 'uz'
+            ? 'Bu sahifa juda katta. Qidiruv orqali ro‘yxatni qisqartiring.'
+            : langRef.current === 'ru'
+              ? 'Страница слишком большая. Сократите список с помощью поиска.'
+              : 'This page is too large. Narrow the list with search.',
+        );
         return;
       }
       const html = DOMPurify.sanitize(message.html, {
@@ -191,6 +200,8 @@ export const NativeSurface = forwardRef<HTMLIFrameElement, Props>(function Nativ
       wrapper.querySelectorAll<HTMLAnchorElement>('a').forEach((node) => {
         if (node.target === '_blank') node.rel = 'noopener noreferrer';
       });
+      // Darslar matnidagi o'/g' interfeysdagi kabi o‘/g‘ ko‘rinishida chiqadi.
+      if (langRef.current === 'uz') uzQuotesDom(wrapper);
       morphdom(surface.current, wrapper, {
         childrenOnly: true,
         getNodeKey: (node) =>
@@ -383,7 +394,12 @@ export const NativeSurface = forwardRef<HTMLIFrameElement, Props>(function Nativ
   return (
     <div className={'native-surface ' + className + (fit ? ' native-fit' : '')} aria-label={title}>
       {!loaded && !error && (
-        <div className="skeleton native-loading" aria-label="Loading content" />
+        <div
+          className="skeleton native-loading"
+          aria-label={
+            lang === 'uz' ? 'Yuklanmoqda' : lang === 'ru' ? 'Загрузка' : 'Loading content'
+          }
+        />
       )}
       {error && <p role="alert">{error}</p>}
       <div ref={surface} className="native-document" data-native-content tabIndex={0} />
@@ -405,7 +421,14 @@ export const NativeSurface = forwardRef<HTMLIFrameElement, Props>(function Nativ
         id={id}
         data-native-engine
         className="native-engine"
-        title={title + ' — ma’lumotlar xizmati'}
+        title={
+          title +
+          (lang === 'uz'
+            ? ' — ma’lumotlar xizmati'
+            : lang === 'ru'
+              ? ' — служба данных'
+              : ' — data service')
+        }
         aria-hidden="true"
         tabIndex={-1}
         src={src
@@ -438,9 +461,11 @@ export const NativeSurface = forwardRef<HTMLIFrameElement, Props>(function Nativ
             )}
             <div>
               <Button type="button" variant="outline" onClick={() => resolveDialog(null)}>
-                {lang === 'uz' ? 'Bekor qilish' : 'Cancel'}
+                {lang === 'uz' ? 'Bekor qilish' : lang === 'ru' ? 'Отмена' : 'Cancel'}
               </Button>
-              <Button type="submit">{lang === 'uz' ? 'Davom etish' : 'Continue'}</Button>
+              <Button type="submit">
+                {lang === 'uz' ? 'Davom etish' : lang === 'ru' ? 'Продолжить' : 'Continue'}
+              </Button>
             </div>
           </form>
         </div>

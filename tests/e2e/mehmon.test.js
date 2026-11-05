@@ -16,7 +16,7 @@ const slideWith=(p,sel)=>p.evaluate(sel=>{ const s=[...document.querySelectorAll
     cards:[...document.querySelectorAll(".hm-card")].map(c=>c.dataset.t+":"+(c.classList.contains("score")?"s":c.classList.contains("read")?"r":"l")+":"+(c.tagName==="A"?"a":"-")).join(" ")}));
   ck("topbarda «🔑 Kirish» (🏆 emas), «Xush kelibsiz» bloki",/Kirish/.test(hs.chip)&&/rt-guestbtn/.test(hs.cls)&&hs.guest,JSON.stringify(hs));
   ck("topbarda «🎓 Ro'yxatdan o'tish» ham bor (Kirish bilan yonma-yon, chapdan birinchi)",await G.evaluate(()=>{ const t=[...document.querySelectorAll(".topbar .tools > *")].map(e=>e.id); return t[0]==="rtChip"&&t[1]==="rtReg"&&/Ro'yxatdan o'tish/.test(document.getElementById("rtReg").innerText); }));
-  ck("1–5 mavzu 📖 bosiladigan, qolganlari 🔒",hs.cards==="m1:r:a m2:r:a m3:r:a m4:r:a m5:r:a m6:l:- m7:l:- m8:l:- m9:l:- m10:l:- m11:l:- m12:l:- m13:l:- m14:l:- m15:l:-",hs.cards);
+  ck("1–7 mavzu 📖 bosiladigan, qolganlari 🔒",hs.cards==="m1:r:a m2:r:a m3:r:a m4:r:a m5:r:a m6:r:a m7:r:a m8:l:- m9:l:- m10:l:- m11:l:- m12:l:- m13:l:- m14:l:- m15:l:-",hs.cards);
   ck("chat va reyting mehmonga ko'rinmaydi",!(await G.$("#chTab"))&&!(await G.$("#hmTop")));
   await G.evaluate(()=>document.getElementById("hmReg").click()); await sleep(500);
   ck("«Ro'yxatdan o'tish» → oyna ro'yxatdan o'tish yorlig'ida, ✕ bor",await G.evaluate(()=>!!document.querySelector("#rtGate.rt-authg")&&document.querySelector(".rt-gt.on").dataset.m==="reg"&&!!document.getElementById("rtGateX")));
@@ -64,13 +64,13 @@ const slideWith=(p,sel)=>p.evaluate(sel=>{ const s=[...document.querySelectorAll
   const mi=await slideWith(M,"#msGo"); await M.evaluate(i=>{ location.hash="#"+i; },mi); await sleep(900);
   await M.click("#msGo"); await sleep(500);
   ck("masalalar «Boshlash» → kirish oynasi",await M.evaluate(()=>!!document.querySelector("#rtGate.rt-authg")));
-  await M.goto(H.SITE+"/mavzu-7.html"); await ready(M);
+  await M.goto(H.SITE+"/mavzu-8.html"); await ready(M);
   const lk=await M.evaluate(()=>{ const a=document.getElementById("rtAcc"); return a?a.innerText.replace(/\s+/g," "):""; });
-  ck("yopiq mavzu (7) mehmonga ochilmaydi: «hali ochilmagan», 🔑 Kirish tugmasi",/7-mavzu hali ochilmagan/.test(lk)&&!/guruhingiz/.test(lk)&&!!(await M.$("#rtAcc [data-auth]")),lk.slice(0,150));
+  ck("yopiq mavzu (8) mehmonga ochilmaydi: «hali ochilmagan», 🔑 Kirish tugmasi",/8-mavzu hali ochilmagan/.test(lk)&&!/guruhingiz/.test(lk)&&!!(await M.$("#rtAcc [data-auth]")),lk.slice(0,150));
   await M.screenshot({path:"mehmon_lock.png"});
-  H.dbSet("meta/access/m7",{lim:false,at:Date.now()-60000});
-  await M.goto(H.SITE+"/mavzu-7.html"); await ready(M);
-  ck("o'qituvchi 7-mavzuni hammaga ochgach — mehmon o'qiy oladi",!(await M.$("#rtAcc"))&&!(await M.$("#rtGate")));
+  H.dbSet("meta/access/m8",{lim:false,at:Date.now()-60000});
+  await M.goto(H.SITE+"/mavzu-8.html"); await ready(M);
+  ck("o'qituvchi 8-mavzuni hammaga ochgach — mehmon o'qiy oladi",!(await M.$("#rtAcc"))&&!(await M.$("#rtGate")));
   /* 5) mehmon bazaga hech narsa yozmadi */
   const after=H.dbGet("students");
   ck("mehmonlar bazaga hech narsa yozmadi (faqat ro'yxatdan o'tgan Zafar qo'shildi, boshqa talabalarga tegilmadi)",Object.keys(after).sort().join()===["sI","sX",ids[0]].sort().join()&&JSON.stringify(after.sX)===JSON.stringify(JSON.parse(before).sX)&&JSON.stringify(after.sI)===JSON.stringify(JSON.parse(before).sI),Object.keys(after).join());

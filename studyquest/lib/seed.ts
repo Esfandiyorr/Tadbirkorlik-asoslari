@@ -1,4 +1,3 @@
-import { crmMeta } from './crm';
 import catalog from './catalog.generated.json';
 import type { Course, Module, Lesson, Quiz, Settings, Badge, User } from './types';
 export const settings: Settings = {
@@ -74,25 +73,23 @@ export const modules: Module[] = groups.map(([id, title], i) => ({
   title,
   order: i,
 }));
-export const lessons: Lesson[] = catalog.topics.map((t, i) =>
-  crmMeta({
-    id: t.id,
-    courseId: course.id,
-    moduleId: groups.find((g) => (g[2] as readonly string[]).includes(t.id))?.[0] || 'intro',
-    title: t.title.replace(/^M\d+\s*·\s*/, ''),
-    order: i,
-    slides: [],
-    slideCount: t.slides,
-    minSeconds: 60,
-    published: true,
-    legacyFile: t.file,
-    ...(t.pdf ? { legacyPdf: t.pdf } : {}),
-  }),
-);
+export const lessons: Lesson[] = catalog.topics.map((t, i) => ({
+  id: t.id,
+  courseId: course.id,
+  moduleId: groups.find((g) => (g[2] as readonly string[]).includes(t.id))?.[0] || 'intro',
+  title: t.title.replace(/^M\d+\s*·\s*/, ''),
+  order: i,
+  slides: [],
+  slideCount: t.slides,
+  minSeconds: 60,
+  published: true,
+  legacyFile: t.file,
+  ...(t.pdf ? { legacyPdf: t.pdf } : {}),
+}));
 export const quiz: Quiz = {
   id: 'entrepreneurship-check',
   lessonId: 'm7',
-  title: 'Mijoz va bozorni tushunish',
+  title: 'CRM asoslari: tezkor tekshiruv',
   passingScore: 70,
   attempts: 3,
   timeLimit: 300,
@@ -101,41 +98,48 @@ export const quiz: Quiz = {
     {
       id: 'q1',
       type: 'choice',
-      prompt: 'Biznes g‘oyani tekshirishda avval nima o‘rganiladi?',
-      options: ['Mijozning haqiqiy muammosi', 'Ofis bezagi', 'Eng qimmat uskuna'],
-      answer: 'Mijozning haqiqiy muammosi',
-      explanation: 'Avval muammo va unga bo‘lgan talab tekshiriladi.',
+      prompt: 'CRM ning asosiy g‘oyasi nima?',
+      options: [
+        'Mijoz haqidagi barcha ma’lumot bitta joyda turadi',
+        'Ofis uchun eng qimmat kompyuterlar sotib olinadi',
+        'Har kuni barcha mijozlarga bir xil reklama yuboriladi',
+      ],
+      answer: 'Mijoz haqidagi barcha ma’lumot bitta joyda turadi',
+      explanation:
+        'CRM — strategiya, jarayon va texnologiya; mijoz tarixi har bir xodimga ko‘rinadi.',
     },
     {
       id: 'q2',
       type: 'boolean',
-      prompt: 'SAM — butun dunyodagi barcha xaridorlar soni.',
+      prompt: 'Lid — bu allaqachon bir necha marta xarid qilgan doimiy mijoz.',
       answer: false,
-      explanation: 'SAM — biznesingiz xizmat ko‘rsata oladigan bozor qismi.',
+      explanation: 'Lid — qiziqish bildirgan, lekin hali tekshirilmagan potensial mijoz.',
     },
     {
       id: 'q3',
       type: 'matching',
-      prompt: 'Atamalarni ularning ma’nosi bilan moslang.',
-      pairs: ['TAM', 'SAM', 'SOM'],
+      prompt: 'Ko‘rsatkichlarni ularning ma’nosi bilan moslang.',
+      pairs: ['LTV', 'CAC', 'NPS'],
       options: [
-        'Umumiy mumkin bo‘lgan bozor',
-        'Xizmat ko‘rsatish mumkin bo‘lgan bozor',
-        'Amalda egallash rejalashtirilgan bozor',
+        'Mijozning butun munosabat davomidagi qiymati',
+        'Bitta yangi mijozni jalb qilish narxi',
+        'Mijozlarning tavsiya qilishga tayyorligi',
       ],
       answer: {
-        TAM: 'Umumiy mumkin bo‘lgan bozor',
-        SAM: 'Xizmat ko‘rsatish mumkin bo‘lgan bozor',
-        SOM: 'Amalda egallash rejalashtirilgan bozor',
+        LTV: 'Mijozning butun munosabat davomidagi qiymati',
+        CAC: 'Bitta yangi mijozni jalb qilish narxi',
+        NPS: 'Mijozlarning tavsiya qilishga tayyorligi',
       },
-      explanation: 'Bozor umumiy imkoniyatdan amaliy rejangizgacha torayadi.',
+      explanation: 'Sog‘lom biznesda odatda LTV ÷ CAC ≥ 3 bo‘ladi.',
     },
     {
       id: 'q4',
       type: 'short',
-      prompt: 'Mijoz bilan muammoni o‘rganish uchun o‘tkaziladigan suhbat qanday ataladi?',
-      accepted: ['intervyu', 'mijoz intervyusi', 'interview'],
-      explanation: 'Mijoz intervyusi haqiqiy ehtiyoj va tajribani bilishga yordam beradi.',
+      prompt:
+        'Lid paydo bo‘lishidan bitim yopilgunicha bo‘lgan bosqichlar qanday ataladi? (ikki so‘z)',
+      accepted: ['sotuv voronkasi', 'savdo voronkasi', 'voronka', 'sales funnel'],
+      explanation:
+        'Sotuv voronkasi har bosqichda qancha mijoz qolishini (konversiyani) ko‘rsatadi.',
     },
   ],
 };

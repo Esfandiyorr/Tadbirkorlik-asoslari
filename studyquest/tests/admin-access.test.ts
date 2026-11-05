@@ -33,8 +33,6 @@ it('enforces maintenance for APIs, original assets and optimized images when ena
     '/api/platform?view=roster',
     '/api/material?id=x',
     '/legacy/mavzu-1.html',
-    '/crm/CRM-taqdimot.pdf',
-    '/crm/1.webp',
     '/%6cegacy/rt-engine.js',
     '/_next/image?url=%2Flegacy%2Flogo_tersu.png&w=640&q=75',
   ])

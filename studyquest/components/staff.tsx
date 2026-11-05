@@ -19,7 +19,7 @@ import { Button } from './ui/button';
 import { AcademicRoster } from './academic-roster';
 import { PlatformSettings } from './platform-settings';
 import { NativeSurface } from './native-surface';
-import { t } from '@/lib/i18n';
+import { t, badgeLabel } from '@/lib/i18n';
 import type { Data, Lesson, Question, Quiz, Progress, Attempt, Settings } from '@/lib/types';
 const blankQuestion = (): Question => ({
   id: crypto.randomUUID(),
@@ -436,8 +436,16 @@ export function Staff({ admin = false }: { admin?: boolean }) {
                   value={course.difficulty}
                   onChange={(e) => setCourse({ ...course, difficulty: e.target.value })}
                 >
-                  {['Boshlang‘ich', 'O‘rta', 'Yuqori'].map((x) => (
-                    <option key={x}>{x}</option>
+                  {(
+                    [
+                      ['Boshlang‘ich', 'Beginner', 'Начальный'],
+                      ['O‘rta', 'Intermediate', 'Средний'],
+                      ['Yuqori', 'Advanced', 'Продвинутый'],
+                    ] as const
+                  ).map(([uz, en, ru]) => (
+                    <option key={uz} value={uz}>
+                      {L(uz, en, ru)}
+                    </option>
                   ))}
                 </select>
               </label>
@@ -468,11 +476,14 @@ export function Staff({ admin = false }: { admin?: boolean }) {
                 <input
                   required
                   className="input"
-                  aria-label="Subject title"
+                  aria-label={L('Fan nomi', 'Subject title', 'Название предмета')}
                   value={subjectTitle}
                   onChange={(e) => setSubjectTitle(e.target.value)}
                 />
-                <Button disabled={busy} aria-label="Create subject">
+                <Button
+                  disabled={busy}
+                  aria-label={L('Fan yaratish', 'Create subject', 'Создать предмет')}
+                >
                   <Plus size={15} />
                 </Button>
               </div>
@@ -554,7 +565,11 @@ export function Staff({ admin = false }: { admin?: boolean }) {
                     value={moduleTitle}
                     onChange={(e) => setModuleTitle(e.target.value)}
                   />
-                  <Button size="icon" aria-label="Add module" disabled={busy}>
+                  <Button
+                    size="icon"
+                    aria-label={L('Bo‘lim qo‘shish', 'Add module', 'Добавить раздел')}
+                    disabled={busy}
+                  >
                     <Plus size={16} />
                   </Button>
                 </div>
@@ -1036,14 +1051,14 @@ export function Staff({ admin = false }: { admin?: boolean }) {
                   required
                   className="input"
                   placeholder="AP-223"
-                  aria-label="Class ID"
+                  aria-label={L('Guruh ID', 'Class ID', 'ID группы')}
                   value={classId}
                   onChange={(e) => setClassId(e.target.value)}
                 />
                 <input
                   required
                   className="input"
-                  aria-label="Class title"
+                  aria-label={L('Guruh nomi', 'Class title', 'Название группы')}
                   value={classTitle}
                   onChange={(e) => setClassTitle(e.target.value)}
                 />
@@ -1055,14 +1070,18 @@ export function Staff({ admin = false }: { admin?: boolean }) {
             <div className="inline-fields">
               <input
                 className="input"
-                aria-label="Learner ID for class"
+                aria-label={L(
+                  'Guruhga qo‘shiladigan o‘quvchi ID',
+                  'Learner ID for class',
+                  'ID ученика для группы',
+                )}
                 placeholder={L('Talaba ID', 'Student ID', 'ID студента')}
                 value={studentId}
                 onChange={(e) => setStudentId(e.target.value)}
               />
               <select
                 className="input"
-                aria-label="Assign class"
+                aria-label={L('Guruhga biriktirish', 'Assign class', 'Назначить группу')}
                 value={classId}
                 onChange={(e) => setClassId(e.target.value)}
               >
@@ -1116,7 +1135,7 @@ export function Staff({ admin = false }: { admin?: boolean }) {
               <select className="input" value={badgeId} onChange={(e) => setBadge(e.target.value)}>
                 {d.badges.map((b) => (
                   <option key={b.id} value={b.id}>
-                    {b.name}
+                    {badgeLabel(lang, b.id, b.name)}
                   </option>
                 ))}
               </select>
@@ -1127,7 +1146,7 @@ export function Staff({ admin = false }: { admin?: boolean }) {
                   <tr>
                     <th>{L('Ism', 'Name', 'Имя')}</th>
                     <th>{L('Darslar', 'Lessons', 'Уроки')}</th>
-                    <th>Quiz %</th>
+                    <th>{L('Test %', 'Quiz %', 'Тест %')}</th>
                     <th>{L('Amal', 'Action', 'Действие')}</th>
                   </tr>
                 </thead>
@@ -1214,7 +1233,7 @@ export function Staff({ admin = false }: { admin?: boolean }) {
               <div className="inline-fields" key={i}>
                 <input
                   className="input"
-                  aria-label="Level name"
+                  aria-label={L('Daraja nomi', 'Level name', 'Название уровня')}
                   value={level.name}
                   onChange={(e) =>
                     setConfig({
@@ -1229,7 +1248,7 @@ export function Staff({ admin = false }: { admin?: boolean }) {
                   className="input"
                   type="number"
                   min={0}
-                  aria-label="Level XP"
+                  aria-label={L('Daraja XP', 'Level XP', 'XP уровня')}
                   value={level.xp}
                   onChange={(e) =>
                     setConfig({

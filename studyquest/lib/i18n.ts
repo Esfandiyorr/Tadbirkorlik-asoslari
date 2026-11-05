@@ -139,3 +139,17 @@ export function roleLabel(lang: Lang, role?: string, learnerType?: string) {
   };
   return names[role]?.[i] || role;
 }
+/** Platforma yutuqlari (bazadagi inglizcha nomlar) — tanlangan tilda. */
+export function badgeLabel(lang: Lang, id: string, fallback: string) {
+  const names: Record<string, string[]> = {
+    first: ['Birinchi dars', 'First lesson', 'Первый урок'],
+    quiz: ['Test chempioni', 'Quiz champion', 'Чемпион тестов'],
+    perfect: ['Mukammal natija', 'Perfect score', 'Идеальный результат'],
+    streak: ['7 kunlik seriya', 'Seven-day streak', 'Серия из 7 дней'],
+    explorer: ['Bilim izlovchi', 'Knowledge explorer', 'Исследователь знаний'],
+    course: ['Kurs ustasi', 'Course master', 'Мастер курса'],
+    top: ['Guruh yetakchisi', 'Top student', 'Лидер группы'],
+    teacher: ['Ustoz e’tirofi', 'Teacher approved', 'Признание преподавателя'],
+  };
+  return names[id]?.[lang === 'en' ? 1 : lang === 'ru' ? 2 : 0] || fallback;
+}

@@ -17,12 +17,11 @@ import { Button } from './ui/button';
 import { ProgressBar, navigate } from './dashboard';
 import { t } from '@/lib/i18n';
 import type { Lesson as LessonType, Question } from '@/lib/types';
-import { CrmLesson } from './crm-lesson';
 import { AccessChip, PointsBreakdown, PointsRing } from './points-ui';
 import { accessOf, dueText, topicPoints, tr } from '@/lib/points';
 import { NativeSurface } from './native-surface';
 export function LessonView({ id }: { id: string }) {
-  return id === 'm7' ? <CrmLesson /> : <OriginalLessonView id={id} />;
+  return <OriginalLessonView id={id} />;
 }
 function OriginalLessonView({ id }: { id: string }) {
   const { data, lang, setLang, dark, call, toast, request } = useApp(),
@@ -139,7 +138,9 @@ function OriginalLessonView({ id }: { id: string }) {
           ? `+${r.reward.points} XP`
           : lang === 'uz'
             ? 'Dars yakunlangan'
-            : 'Lesson completed',
+            : lang === 'ru'
+              ? 'Урок завершён'
+              : 'Lesson completed',
       );
     } catch (e) {
       toast((e as Error).message);
@@ -165,7 +166,7 @@ function OriginalLessonView({ id }: { id: string }) {
   if (!meta)
     return (
       <div className="empty-state">
-        {lang === 'uz' ? 'Dars topilmadi' : 'Lesson not found'}
+        {lang === 'uz' ? 'Dars topilmadi' : lang === 'ru' ? 'Урок не найден' : 'Lesson not found'}
         <Button onClick={() => navigate('courses')}>{t(lang, 'courses')}</Button>
       </div>
     );
@@ -279,7 +280,6 @@ function OriginalLessonView({ id }: { id: string }) {
         >
           {lesson.legacyFile ? (
             <NativeSurface
-              className={lesson.id === 'm7' ? 'lesson-color-m7' : undefined}
               ref={frame}
               fit={fit}
               title={lesson.title}
@@ -472,12 +472,18 @@ export function QuizView({ id }: { id: string }) {
     }
   }
   if (!q)
-    return <div className="empty-state">{lang === 'uz' ? 'Test topilmadi' : 'Quiz not found'}</div>;
+    return (
+      <div className="empty-state">
+        {lang === 'uz' ? 'Test topilmadi' : lang === 'ru' ? 'Тест не найден' : 'Quiz not found'}
+      </div>
+    );
   return (
     <div className="quiz-layout">
       <div className="page-heading">
         <div>
-          <span className="eyebrow">KNOWLEDGE CHECK</span>
+          <span className="eyebrow">
+            {tr(lang, 'BILIMNI TEKSHIRISH', 'KNOWLEDGE CHECK', 'ПРОВЕРКА ЗНАНИЙ')}
+          </span>
           <h1>{q.title}</h1>
         </div>
         {deadline > 0 && (
@@ -513,7 +519,8 @@ export function QuizView({ id }: { id: string }) {
           <p>
             {q.timeLimit / 60} min ·{' '}
             {lang === 'uz' ? 'O‘tish bali' : lang === 'en' ? 'Passing score' : 'Проходной балл'}:{' '}
-            {q.passingScore}% · {q.attempts} {lang === 'uz' ? 'urinish' : 'attempts'}
+            {q.passingScore}% · {q.attempts}{' '}
+            {lang === 'uz' ? 'urinish' : lang === 'ru' ? 'попыток' : 'attempts'}
           </p>
           <p className="muted">
             {lang === 'uz'

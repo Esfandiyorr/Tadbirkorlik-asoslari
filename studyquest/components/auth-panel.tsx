@@ -33,7 +33,14 @@ export function AuthPanel({ onClose }: { onClose?: () => void }) {
     setGoogleError('');
     try {
       const a = firebaseAuth();
-      if (!a) throw new Error('Google orqali kirish hali sozlanmagan.');
+      if (!a)
+        throw new Error(
+          L(
+            'Google orqali kirish hali sozlanmagan.',
+            'Google sign-in is not set up yet.',
+            'Вход через Google ещё не настроен.',
+          ),
+        );
       useEmailMode();
       // Keep the popup directly in the click handler, before any network waits.
       const provider = new GoogleAuthProvider();
@@ -45,11 +52,23 @@ export function AuthPanel({ onClose }: { onClose?: () => void }) {
       if (code === 'auth/popup-closed-by-user') return;
       setGoogleError(
         code === 'auth/popup-blocked'
-          ? 'Brauzer Google oynasini blokladi. Manzil qatoridagi belgi orqali pop-up oynalariga ruxsat bering va yana Google tugmasini bosing.'
+          ? L(
+              'Brauzer Google oynasini blokladi. Manzil qatoridagi belgi orqali pop-up oynalariga ruxsat bering va yana Google tugmasini bosing.',
+              'The browser blocked the Google window. Allow pop-ups using the icon in the address bar and press the Google button again.',
+              'Браузер заблокировал окно Google. Разрешите всплывающие окна через значок в адресной строке и снова нажмите кнопку Google.',
+            )
           : code === 'auth/unauthorized-domain'
-            ? 'Firebase Authentication → Settings → Authorized domains bo‘limiga ' +
-              location.hostname +
-              ' domenini qo‘shish kerak.'
+            ? L(
+                'Firebase Authentication → Settings → Authorized domains bo‘limiga ' +
+                  location.hostname +
+                  ' domenini qo‘shish kerak.',
+                'Add ' +
+                  location.hostname +
+                  ' under Firebase Authentication → Settings → Authorized domains.',
+                'Добавьте домен ' +
+                  location.hostname +
+                  ' в Firebase Authentication → Settings → Authorized domains.',
+              )
             : (e as Error).message,
       );
     } finally {
@@ -65,11 +84,19 @@ export function AuthPanel({ onClose }: { onClose?: () => void }) {
         throw new Error(
           lang === 'uz'
             ? 'Email orqali kirish hali yoqilmagan. Mavjud hisobingizdan foydalaning.'
-            : 'Email login is not enabled yet. Use your existing account.',
+            : lang === 'ru'
+              ? 'Вход по email пока не включён. Используйте существующий аккаунт.'
+              : 'Email login is not enabled yet. Use your existing account.',
         );
       if (reset) {
         await sendPasswordResetEmail(a, email);
-        toast(lang === 'uz' ? 'Parolni tiklash xabari yuborildi.' : 'Password reset email sent.');
+        toast(
+          lang === 'uz'
+            ? 'Parolni tiklash xabari yuborildi.'
+            : lang === 'ru'
+              ? 'Письмо для сброса пароля отправлено.'
+              : 'Password reset email sent.',
+        );
         return;
       }
       if (register) {
@@ -77,7 +104,9 @@ export function AuthPanel({ onClose }: { onClose?: () => void }) {
           throw new Error(
             lang === 'uz'
               ? 'Ism va kamida 8 belgili parol kiriting.'
-              : 'Enter your name and a password of at least 8 characters.',
+              : lang === 'ru'
+                ? 'Введите имя и пароль не короче 8 символов.'
+                : 'Enter your name and a password of at least 8 characters.',
           );
         const u = await createUserWithEmailAndPassword(a, email, password);
         await updateProfile(u.user, { displayName: name.trim() });

@@ -5,6 +5,8 @@ import { Button } from './ui/button';
 import type { User } from '@/lib/types';
 export function AcademicRoster() {
   const { data, lang, request, call, toast } = useApp(),
+    L = (uz: string, en: string, ru: string) => (lang === 'en' ? en : lang === 'ru' ? ru : uz),
+    independent = L('Mustaqil o‘quvchi', 'Independent learner', 'Самостоятельный слушатель'),
     [users, setUsers] = useState<User[]>([]),
     [error, setError] = useState(''),
     [loading, setLoading] = useState(true),
@@ -54,7 +56,7 @@ export function AcademicRoster() {
   async function save(input: unknown) {
     try {
       await call('legacyStudent', input);
-      toast(lang === 'uz' ? 'Saqlandi' : 'Saved');
+      toast(L('Saqlandi', 'Saved', 'Сохранено'));
       await load();
     } catch (e) {
       toast((e as Error).message);
@@ -76,13 +78,15 @@ export function AcademicRoster() {
                 : 'Студенты и академические оценки'}
           </h2>
           <p className="muted">
-            {lang === 'uz'
-              ? 'Asl bazadagi hisoblar, guruhlar va natijalar jonli ko‘rsatiladi. Talabalar qayta ro‘yxatdan o‘tmaydi.'
-              : 'Existing accounts, classes and academic scores.'}
+            {L(
+              'Asl bazadagi hisoblar, guruhlar va natijalar jonli ko‘rsatiladi. Talabalar qayta ro‘yxatdan o‘tmaydi.',
+              'Accounts, groups and results from the original database, shown live. Students do not register again.',
+              'Аккаунты, группы и результаты из исходной базы в реальном времени. Студентам не нужно регистрироваться заново.',
+            )}
           </p>
         </div>
         <Button variant="outline" onClick={load}>
-          {lang === 'uz' ? 'Yangilash' : 'Refresh'}
+          {L('Yangilash', 'Refresh', 'Обновить')}
         </Button>
       </div>
       {data?.user?.role === 'admin' && (
@@ -92,39 +96,60 @@ export function AcademicRoster() {
           onClick={async () => {
             try {
               const r = await call<{ students: number }>('syncLegacy', {});
-              toast(r.students + ' ta hisob ulandi.');
+              toast(
+                L(
+                  r.students + ' ta hisob ulandi.',
+                  r.students + ' accounts linked.',
+                  'Подключено аккаунтов: ' + r.students,
+                ),
+              );
               await load();
             } catch (e) {
               toast((e as Error).message);
             }
           }}
         >
-          {lang === 'uz' ? 'Mavjud talabalarni ulash' : 'Link existing students'}
+          {L(
+            'Mavjud talabalarni ulash',
+            'Link existing students',
+            'Подключить существующих студентов',
+          )}
         </Button>
       )}
       <p className="muted">
-        {users.length} ta hisob · {filtered.length} ta natija
+        {L(
+          `${users.length} ta hisob · ${filtered.length} ta natija`,
+          `${users.length} accounts · ${filtered.length} results`,
+          `${users.length} аккаунтов · ${filtered.length} результатов`,
+        )}
       </p>
       {data?.user?.role === 'admin' && (
         <p className="credential-setup">
-          Avvalgi shaxsiy kodlar saqlanadi. 1111 qo‘shimcha kirish kodi. Kodlar qayta ommaviy
-          almashtirilmaydi.
+          {L(
+            'Avvalgi shaxsiy kodlar saqlanadi. 1111 qo‘shimcha kirish kodi. Kodlar qayta ommaviy almashtirilmaydi.',
+            'Previous personal codes are kept. 1111 is an extra sign-in code. Codes are never reset in bulk.',
+            'Прежние личные коды сохраняются. 1111 — дополнительный код входа. Коды массово не меняются.',
+          )}
         </p>
       )}
       <input
         className="input"
-        aria-label="Talabani qidirish"
-        placeholder="Ism, familiya, guruh yoki email"
+        aria-label={L('Talabani qidirish', 'Search students', 'Поиск студентов')}
+        placeholder={L(
+          'Ism, familiya, guruh yoki email',
+          'Name, surname, group or email',
+          'Имя, фамилия, группа или email',
+        )}
         value={query}
         onChange={(e) => setQuery(e.target.value)}
       />
       <select
         className="input"
-        aria-label="Academic class"
+        aria-label={L('Akademik guruh', 'Academic class', 'Учебная группа')}
         value={group}
         onChange={(e) => setGroup(e.target.value)}
       >
-        <option value="">{lang === 'uz' ? 'Barcha guruhlar' : 'All classes'}</option>
+        <option value="">{L('Barcha guruhlar', 'All groups', 'Все группы')}</option>
         {groups.map((g) => (
           <option key={g}>{g}</option>
         ))}
@@ -138,19 +163,23 @@ export function AcademicRoster() {
       ) : !users.length ? (
         <p className="muted">
           {data?.mode === 'demo'
-            ? 'Demo muhit jonli talabalar bazasiga ulanmaydi.'
-            : 'Talabalar topilmadi.'}
+            ? L(
+                'Demo muhit jonli talabalar bazasiga ulanmaydi.',
+                'The demo does not connect to the live student database.',
+                'Демо не подключается к реальной базе студентов.',
+              )
+            : L('Talabalar topilmadi.', 'No students found.', 'Студенты не найдены.')}
         </p>
       ) : (
         <div className="academic-table">
           <table>
             <thead>
               <tr>
-                <th>{lang === 'uz' ? 'Talaba' : 'Student'}</th>
-                <th>Hisobni boshqarish</th>
-                <th>{lang === 'uz' ? 'Guruh' : 'Class'}</th>
-                <th>{lang === 'uz' ? 'Ball' : 'Points'}</th>
-                <th>{lang === 'uz' ? 'Holat' : 'Status'}</th>
+                <th>{L('Talaba', 'Student', 'Студент')}</th>
+                <th>{L('Hisobni boshqarish', 'Account', 'Управление')}</th>
+                <th>{L('Guruh', 'Group', 'Группа')}</th>
+                <th>{L('Ball', 'Points', 'Баллы')}</th>
+                <th>{L('Holat', 'Status', 'Статус')}</th>
                 {topics.map((l) => (
                   <th key={l.id} title={l.title}>
                     {l.order + 1}
@@ -163,11 +192,11 @@ export function AcademicRoster() {
                 <tr key={u.id}>
                   <td>
                     <b>{u.name}</b>
-                    <small>{u.learnerType === 'independent' ? 'Mustaqil o‘quvchi' : ''}</small>
+                    <small>{u.learnerType === 'independent' ? independent : ''}</small>
                   </td>
                   <td>
                     <Button variant="outline" onClick={() => setSelectedId(u.id)}>
-                      Natijalar
+                      {L('Natijalar', 'Results', 'Результаты')}
                     </Button>
                     {data?.user?.role === 'admin' && (
                       <Button
@@ -179,7 +208,7 @@ export function AcademicRoster() {
                           setShowPassword(false);
                         }}
                       >
-                        Parolni tiklash
+                        {L('Parolni tiklash', 'Reset password', 'Сбросить пароль')}
                       </Button>
                     )}
                     {data?.user?.role === 'admin' && (
@@ -191,13 +220,13 @@ export function AcademicRoster() {
                           setDeleteError('');
                         }}
                       >
-                        Talabani o‘chirish
+                        {L('Talabani o‘chirish', 'Remove student', 'Удалить студента')}
                       </Button>
                     )}
                   </td>
                   <td>
                     <input
-                      aria-label={'Guruh ' + u.name}
+                      aria-label={L('Guruh', 'Group', 'Группа') + ' ' + u.name}
                       defaultValue={u.classId}
                       disabled={u.learnerType === 'independent'}
                       onBlur={(e) => {
@@ -211,20 +240,30 @@ export function AcademicRoster() {
                   </td>
                   <td>
                     <select
-                      aria-label={'Status ' + u.name}
+                      aria-label={L('Holat', 'Status', 'Статус') + ' ' + u.name}
                       value={u.legacyStatus}
                       onChange={(e) => save({ id: u.legacyId, status: e.target.value })}
                     >
-                      <option value="pending">Kutilmoqda</option>
-                      <option value="ok">Tasdiqlangan</option>
-                      <option value="blocked">Bloklangan</option>
+                      <option value="pending">{L('Kutilmoqda', 'Pending', 'Ожидает')}</option>
+                      <option value="ok">{L('Tasdiqlangan', 'Approved', 'Подтверждён')}</option>
+                      <option value="blocked">{L('Bloklangan', 'Blocked', 'Заблокирован')}</option>
                     </select>
                   </td>
                   {topics.map((l) => (
                     <td key={l.id}>
-                      <span title="Avtomatik baho">{u.academicTopics?.[l.id]?.b || '—'}</span>
+                      <span title={L('Avtomatik baho', 'Automatic grade', 'Автоматическая оценка')}>
+                        {u.academicTopics?.[l.id]?.b || '—'}
+                      </span>
                       <select
-                        aria-label={u.name + ' ' + (l.order + 1) + '-mavzu amaliy baho'}
+                        aria-label={
+                          u.name +
+                          ' · ' +
+                          L(
+                            l.order + 1 + '-mavzu amaliy baho',
+                            'Topic ' + (l.order + 1) + ' practical grade',
+                            'Тема ' + (l.order + 1) + ': практическая оценка',
+                          )
+                        }
                         value={u.manualMarks?.[l.id] || 0}
                         onChange={(e) =>
                           save({ id: u.legacyId, topic: l.id, mark: Number(e.target.value) })
@@ -250,7 +289,7 @@ export function AcademicRoster() {
             disabled={currentPage === 0}
             onClick={() => setPage(currentPage - 1)}
           >
-            Oldingi
+            {L('Oldingi', 'Previous', 'Назад')}
           </Button>
           <span>
             {currentPage + 1} / {pages}
@@ -260,7 +299,7 @@ export function AcademicRoster() {
             disabled={currentPage + 1 >= pages}
             onClick={() => setPage(currentPage + 1)}
           >
-            Keyingi
+            {L('Keyingi', 'Next', 'Далее')}
           </Button>
         </div>
       )}
@@ -270,20 +309,23 @@ export function AcademicRoster() {
             className="panel roster-detail"
             role="dialog"
             aria-modal="true"
-            aria-label="Talaba natijalari"
+            aria-label={L('Talaba natijalari', 'Student results', 'Результаты студента')}
           >
             <Button variant="outline" onClick={() => setSelectedId('')}>
-              Yopish
+              {L('Yopish', 'Close', 'Закрыть')}
             </Button>
             <h2>{selected.name}</h2>
             <p>
-              {selected.classId || 'Mustaqil o‘quvchi'} · {selected.academicPoints || 0} ball
+              {selected.classId || independent} · {selected.academicPoints || 0}{' '}
+              {L('ball', 'points', 'баллов')}
             </p>
             {selected.email && <p>{selected.email}</p>}
             {!!selected.legacyRegisteredAt && (
               <p>
-                Ro‘yxatdan o‘tgan:{' '}
-                {new Date(selected.legacyRegisteredAt).toLocaleDateString('uz-UZ')}
+                {L('Ro‘yxatdan o‘tgan', 'Registered', 'Зарегистрирован')}:{' '}
+                {new Date(selected.legacyRegisteredAt).toLocaleDateString(
+                  lang === 'en' ? 'en-GB' : lang === 'ru' ? 'ru-RU' : 'uz-UZ',
+                )}
               </p>
             )}
             <div className="academic-topic-grid">
@@ -296,37 +338,39 @@ export function AcademicRoster() {
                     </h3>
                     <p>
                       {h?.status === 'read'
-                        ? 'O‘qib chiqilgan'
+                        ? L('O‘qib chiqilgan', 'Read', 'Прочитано')
                         : h?.status === 'started'
-                          ? 'Boshlangan'
-                          : 'Boshlanmagan'}
+                          ? L('Boshlangan', 'In progress', 'Начато')
+                          : L('Boshlanmagan', 'Not started', 'Не начато')}
                     </p>
                     <div>
-                      <span>O‘qilgan slaydlar</span>
+                      <span>{L('O‘qilgan slaydlar', 'Slides read', 'Прочитано слайдов')}</span>
                       <b>
                         {h?.seenSlides || 0} / {l.slideCount}
                       </b>
                     </div>
                     <div>
-                      <span>Vaqt</span>
-                      <b>{Math.floor((h?.seconds || 0) / 60)} daq</b>
+                      <span>{L('Vaqt', 'Time', 'Время')}</span>
+                      <b>
+                        {Math.floor((h?.seconds || 0) / 60)} {L('daq', 'min', 'мин')}
+                      </b>
                     </div>
                     <div>
-                      <span>To‘g‘ri javoblar</span>
+                      <span>{L('To‘g‘ri javoblar', 'Correct answers', 'Верные ответы')}</span>
                       <b>{h?.correctAnswers || 0}</b>
                     </div>
                     {selected.learnerType === 'university' && (
                       <>
                         <div>
-                          <span>Ball</span>
+                          <span>{L('Ball', 'Points', 'Баллы')}</span>
                           <b>{h?.score ?? 0}</b>
                         </div>
                         <div>
-                          <span>Baho</span>
+                          <span>{L('Baho', 'Grade', 'Оценка')}</span>
                           <b>{h?.grade || '—'}</b>
                         </div>
                         <div>
-                          <span>Amaliy baho</span>
+                          <span>{L('Amaliy baho', 'Practical grade', 'Практическая оценка')}</span>
                           <b>{selected.manualMarks?.[l.id] || '—'}</b>
                         </div>
                       </>
@@ -344,7 +388,7 @@ export function AcademicRoster() {
             className="panel roster-reset"
             role="dialog"
             aria-modal="true"
-            aria-label="Talabani o‘chirish"
+            aria-label={L('Talabani o‘chirish', 'Remove student', 'Удалить студента')}
             onSubmit={async (event) => {
               event.preventDefault();
               if (deleteBusy) return;
@@ -357,7 +401,13 @@ export function AcademicRoster() {
                 });
                 setDeleteUser(null);
                 setDeleteConfirmation('');
-                toast('Talaba ro‘yxatdan o‘chirildi.');
+                toast(
+                  L(
+                    'Talaba ro‘yxatdan o‘chirildi.',
+                    'The student was removed from the list.',
+                    'Студент удалён из списка.',
+                  ),
+                );
                 await load();
               } catch (error) {
                 setDeleteError((error as Error).message);
@@ -366,16 +416,23 @@ export function AcademicRoster() {
               }
             }}
           >
-            <h2>Talabani o‘chirish</h2>
+            <h2>{L('Talabani o‘chirish', 'Remove student', 'Удалить студента')}</h2>
             <p>
-              <strong>{deleteUser.name}</strong> · {deleteUser.classId || 'Mustaqil o‘quvchi'}
+              <strong>{deleteUser.name}</strong> · {deleteUser.classId || independent}
             </p>
             <p>
-              Hisob ro‘yxatdan olib tashlanadi va unga kirish yopiladi. O‘quv natijalarining arxiv
-              nusxasi saqlanadi.
+              {L(
+                'Hisob ro‘yxatdan olib tashlanadi va unga kirish yopiladi. O‘quv natijalarining arxiv nusxasi saqlanadi.',
+                'The account is removed from the list and can no longer sign in. An archive copy of the results is kept.',
+                'Аккаунт удаляется из списка, вход закрывается. Архивная копия результатов сохраняется.',
+              )}
             </p>
             <label>
-              Tasdiqlash uchun ism-familiya
+              {L(
+                'Tasdiqlash uchun ism-familiya',
+                'Type the full name to confirm',
+                'Для подтверждения введите имя и фамилию',
+              )}
               <input
                 className="input"
                 required
@@ -392,13 +449,13 @@ export function AcademicRoster() {
                 disabled={deleteBusy}
                 onClick={() => setDeleteUser(null)}
               >
-                Bekor qilish
+                {L('Bekor qilish', 'Cancel', 'Отмена')}
               </Button>
               <Button
                 type="submit"
                 disabled={deleteBusy || deleteConfirmation.trim() !== deleteUser.name.trim()}
               >
-                Hisobni o‘chirish
+                {L('Hisobni o‘chirish', 'Delete account', 'Удалить аккаунт')}
               </Button>
             </div>
           </form>
@@ -410,7 +467,11 @@ export function AcademicRoster() {
             className="panel roster-reset"
             role="dialog"
             aria-modal="true"
-            aria-label="Talaba parolini tiklash"
+            aria-label={L(
+              'Talaba parolini tiklash',
+              'Reset the student’s password',
+              'Сброс пароля студента',
+            )}
             onSubmit={async (e) => {
               e.preventDefault();
               if (resetBusy) return;
@@ -421,7 +482,11 @@ export function AcademicRoster() {
                 setPassword('');
                 setResetUser(null);
                 toast(
-                  'Parol yangilandi. Talaba ism-familiyasi va yangi paroli bilan kiradi. Ballari saqlandi.',
+                  L(
+                    'Parol yangilandi. Talaba ism-familiyasi va yangi paroli bilan kiradi. Ballari saqlandi.',
+                    'Password updated. The student signs in with their name and the new password. Points are kept.',
+                    'Пароль обновлён. Студент входит по имени и новому паролю. Баллы сохранены.',
+                  ),
                 );
               } catch (error) {
                 setResetError((error as Error).message);
@@ -430,20 +495,26 @@ export function AcademicRoster() {
               }
             }}
           >
-            <h2>Parolni tiklash</h2>
+            <h2>{L('Parolni tiklash', 'Reset password', 'Сбросить пароль')}</h2>
             <p>
-              <strong>{resetUser.name}</strong> · {resetUser.classId || 'Mustaqil o‘quvchi'}
+              <strong>{resetUser.name}</strong> · {resetUser.classId || independent}
             </p>
             <p>
-              Ballar va bajarilgan ishlar saqlanadi. Talaba keyingi kirishda yangi paroldan
-              foydalanadi.
+              {L(
+                'Ballar va bajarilgan ishlar saqlanadi. Talaba keyingi kirishda yangi paroldan foydalanadi.',
+                'Points and completed work are kept. The student uses the new password next time.',
+                'Баллы и выполненные работы сохраняются. При следующем входе студент использует новый пароль.',
+              )}
             </p>
             <p className="muted">
-              1111 bilan kirishni yoqish shaxsiy kodni saqlaydi. Asosiy parolni almashtirish uchun
-              kamida 8 belgili boshqa parol kiriting.
+              {L(
+                '1111 bilan kirishni yoqish shaxsiy kodni saqlaydi. Asosiy parolni almashtirish uchun kamida 8 belgili boshqa parol kiriting.',
+                'Enabling sign-in with 1111 keeps the personal code. To replace the main password, enter another one with at least 8 characters.',
+                'Вход с кодом 1111 сохраняет личный код. Чтобы заменить основной пароль, введите другой — не короче 8 символов.',
+              )}
             </p>
             <label>
-              Yangi parol
+              {L('Yangi parol', 'New password', 'Новый пароль')}
               <input
                 className="input"
                 type={showPassword ? 'text' : 'password'}
@@ -461,7 +532,7 @@ export function AcademicRoster() {
                 checked={showPassword}
                 onChange={(e) => setShowPassword(e.target.checked)}
               />{' '}
-              Parolni ko‘rsatish
+              {L('Parolni ko‘rsatish', 'Show password', 'Показать пароль')}
             </label>
             {resetError && <p role="alert">{resetError}</p>}
             <div className="roster-pagination">
@@ -474,10 +545,10 @@ export function AcademicRoster() {
                   setResetUser(null);
                 }}
               >
-                Bekor qilish
+                {L('Bekor qilish', 'Cancel', 'Отмена')}
               </Button>
               <Button type="submit" disabled={resetBusy}>
-                Yangi parolni saqlash
+                {L('Yangi parolni saqlash', 'Save new password', 'Сохранить пароль')}
               </Button>
             </div>
           </form>

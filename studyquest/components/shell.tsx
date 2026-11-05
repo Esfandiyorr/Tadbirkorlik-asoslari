@@ -118,7 +118,9 @@ export function StudyQuest() {
       <div className="error-page">
         <h1>Tadbirkorlik asoslari</h1>
         <p>{error}</p>
-        <Button onClick={refresh}>{lang === 'uz' ? 'Qayta urinish' : 'Try again'}</Button>
+        <Button onClick={refresh}>
+          {lang === 'uz' ? 'Qayta urinish' : lang === 'ru' ? 'Повторить' : 'Try again'}
+        </Button>
         <a href="#login">{t(lang, 'login')}</a>
       </div>
     );

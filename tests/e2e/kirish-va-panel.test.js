@@ -18,7 +18,7 @@ const rowCls=(p,re)=>p.evaluate(re=>{ const r=[...document.querySelectorAll("#rt
   const wk=await A.evaluate(()=>{ const w=document.querySelector(".hm-week"); return w?w.innerText.replace(/\s+/g," "):""; });
   ck("eslatma: «Bu hafta ball beradigan mavzu» — 6-mavzu, yakshanba 23:59 gacha",/Bu hafta ball beradigan mavzu/.test(wk)&&/Biznes-model/.test(wk)&&/yakshanba 23:59 gacha/.test(wk)&&/Ishlash/.test(wk),wk.slice(0,200));
   const cards=await A.evaluate(()=>[...document.querySelectorAll(".hm-card")].map(c=>c.dataset.t+":"+(c.classList.contains("score")?"score":c.classList.contains("read")?"read":"lock")+":"+(c.tagName==="A"?c.getAttribute("href"):"-")));
-  ck("kartochkalar: 1–5 📖 o'qish, 6 🟢 ball, 7–15 🔒 (havolasiz)",cards.length===15&&cards.slice(0,5).every((c,i)=>c==="m"+(i+1)+":read:mavzu-"+(i+1)+".html")&&cards[5]==="m6:score:mavzu-6.html"&&cards.slice(6).every(c=>/:lock:-$/.test(c)),JSON.stringify(cards));
+  ck("kartochkalar: 1–5 va 7 📖 o'qish, 6 🟢 ball, 8–15 🔒 (havolasiz)",cards.length===15&&cards.slice(0,5).every((c,i)=>c==="m"+(i+1)+":read:mavzu-"+(i+1)+".html")&&cards[5]==="m6:score:mavzu-6.html"&&cards[6]==="m7:read:mavzu-7.html"&&cards.slice(7).every(c=>/:lock:-$/.test(c)),JSON.stringify(cards));
   await A.screenshot({path:"home.png",fullPage:true});
   /* 📖 o'qish: kartochka → 1-mavzu, oyna emas — qisqa xabar */
   await A.click('.hm-card[data-t="m1"]'); await A.waitForURL(/mavzu-1\.html/); await ready(A);

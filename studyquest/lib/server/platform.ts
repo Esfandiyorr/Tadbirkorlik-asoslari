@@ -1,4 +1,3 @@
-import { crmMeta } from '../crm';
 import 'server-only';
 import { randomUUID, randomInt } from 'node:crypto';
 import { z } from 'zod';
@@ -6,6 +5,21 @@ import type { Actor, Course, Lesson, Quiz, Question, Settings, User } from '../t
 import type { Repository, Tx, Row } from './repository';
 import { check, staff, administrator } from './auth';
 import { settings as defaults, badges, course, modules, lessons, quiz } from '../seed';
+
+/* Taqdimot fayllaridan (katalogdan) olingan darslar uchun nom, slaydlar soni va fayl doim katalogdan olinadi:
+   bazadagi eski yozuv (masalan, 7-mavzuning avvalgi nomi va 18 slaydi) yangilangan taqdimotni buzmasligi uchun. */
+const catalogLessons = new Map(lessons.filter((l) => l.legacyFile).map((l) => [l.id, l]));
+export function withCatalog<T extends Row | null | undefined>(l: T): T {
+  const c = l && catalogLessons.get(l.id);
+  if (!l || !c) return l;
+  return {
+    ...l,
+    title: c.title,
+    slideCount: c.slideCount,
+    legacyFile: c.legacyFile,
+    legacyPdf: c.legacyPdf,
+  } as T;
+}
 const id = z
     .string()
     .regex(/^[a-zA-Z0-9_-]{1,100}$/)
@@ -163,7 +177,7 @@ export class Platform {
       courses,
       subjects: await this.db.list('subjects'),
       modules: m.filter((x) => ids.has(x.courseId)),
-      lessons: publicLessons.map(({ slides, ...x }) => crmMeta({ ...x, slides: [] })),
+      lessons: publicLessons.map(({ slides, ...x }) => withCatalog({ ...x, slides: [] })),
       quizzes: q.filter(
         (x) => x.lessonId !== 'm7' && publicLessons.some((l) => l.id === x.lessonId),
       ),
@@ -227,7 +241,9 @@ export class Platform {
         allAttempts: allAttempts.map(({ answers, ...x }) => x),
         courses: managed,
         modules: (await this.db.list('modules')).filter((m) => ids.has(m.courseId)),
-        lessons: (await this.db.list('lessons')).filter((l) => ids.has(l.courseId)).map(crmMeta),
+        lessons: (await this.db.list('lessons'))
+          .filter((l) => ids.has(l.courseId))
+          .map(withCatalog),
       };
     }
     return {
@@ -263,7 +279,7 @@ export class Platform {
     }
     if (action === 'getLesson') {
       const p = z.object({ lessonId: id }).parse(input),
-        lesson = await this.db.get('lessons', p.lessonId);
+        lesson = withCatalog(await this.db.get('lessons', p.lessonId));
       check(lesson, 404, 'Dars topilmadi');
       check(lesson!.published || a.role !== 'student', 403, 'Dars hali ochilmagan');
       await this.requireCourse(a, lesson!.courseId);
@@ -272,7 +288,7 @@ export class Platform {
     }
     if (['beginLesson', 'slide', 'completeLesson'].includes(action)) {
       const p = z.object({ lessonId: id, index: z.number().int().min(0).optional() }).parse(input),
-        l = await this.db.get('lessons', p.lessonId);
+        l = withCatalog(await this.db.get('lessons', p.lessonId));
       check(l, 404, 'Dars topilmadi');
       check(l!.published || a.role !== 'student', 403, 'Dars hali ochilmagan');
       await this.requireCourse(a, l!.courseId);
@@ -325,7 +341,7 @@ export class Platform {
         q = await this.db.get('quizzes', p.quizId),
         privateQ = await this.db.get('quizKeys', p.quizId);
       check(q && privateQ, 404, 'Test topilmadi');
-      const l = await this.db.get('lessons', q!.lessonId);
+      const l = withCatalog(await this.db.get('lessons', q!.lessonId));
       check(l, 404, 'Dars topilmadi');
       check(l!.published || a.role !== 'student', 403, 'Dars hali ochilmagan');
       await this.requireCourse(a, l!.courseId);
@@ -360,7 +376,8 @@ export class Platform {
       const existing = await this.db.get('quizAttempts', p.attemptId);
       check(existing?.userId === a.id, 403, 'Urinishga ruxsat yo‘q');
       const existingQuiz = await this.db.get('quizzes', existing!.quizId),
-        existingLesson = existingQuiz && (await this.db.get('lessons', existingQuiz.lessonId));
+        existingLesson =
+          existingQuiz && withCatalog(await this.db.get('lessons', existingQuiz.lessonId));
       check(existingLesson, 404, 'Dars topilmadi');
       check(existingLesson!.published || a.role !== 'student', 403, 'Dars hali ochilmagan');
       await this.requireCourse(a, existingLesson!.courseId);
@@ -559,7 +576,7 @@ export class Platform {
       const p = z.object({ quizId: id }).parse(input),
         q = await this.db.get('quizzes', p.quizId);
       check(q, 404, 'Test topilmadi');
-      const l = await this.db.get('lessons', q!.lessonId);
+      const l = withCatalog(await this.db.get('lessons', q!.lessonId));
       check(l, 404, 'Dars topilmadi');
       await this.manage(a, l!.courseId);
       return { ...q, questions: (await this.db.get('quizKeys', p.quizId))?.questions || [] };
@@ -591,7 +608,7 @@ export class Platform {
           .max(100),
       });
       const p = schema.parse(input),
-        l = await this.db.get('lessons', p.lessonId);
+        l = withCatalog(await this.db.get('lessons', p.lessonId));
       check(l, 404, 'Dars topilmadi');
       await this.manage(a, l!.courseId);
       check(
@@ -729,7 +746,7 @@ export class Platform {
   }
   async courseReward(a: Actor, courseId: string) {
     const [ls, progress] = await Promise.all([
-        this.db.find('lessons', 'courseId', courseId),
+        this.db.find('lessons', 'courseId', courseId).then((x) => x.map(withCatalog)),
         this.db.find('progress', 'userId', a.id),
       ]),
       courseLessons = ls.filter((l) => l.courseId === courseId && l.published),

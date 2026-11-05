@@ -49,7 +49,9 @@ export function Leaderboard() {
     <>
       <div className="page-heading">
         <div>
-          <span className="eyebrow">GROW TOGETHER</span>
+          <span className="eyebrow">
+            {lang === 'uz' ? 'BIRGA O‘SAMIZ' : lang === 'ru' ? 'РАСТЁМ ВМЕСТЕ' : 'GROW TOGETHER'}
+          </span>
           <h1>{lang === 'uz' ? 'Umumiy reyting' : t(lang, 'ranking')}</h1>
           <p>
             {lang === 'uz'
@@ -81,11 +83,13 @@ export function Leaderboard() {
         {kind === 'academic' && (
           <select
             className="input"
-            aria-label="Class"
+            aria-label={lang === 'uz' ? 'Guruh' : lang === 'ru' ? 'Группа' : 'Class'}
             value={group}
             onChange={(e) => setGroup(e.target.value)}
           >
-            <option value="">{lang === 'uz' ? 'Barcha guruhlar' : 'All classes'}</option>
+            <option value="">
+              {lang === 'uz' ? 'Barcha guruhlar' : lang === 'ru' ? 'Все группы' : 'All groups'}
+            </option>
             {Array.from(new Set(rows.map((r) => r.classId)))
               .sort()
               .map((g) => (
@@ -109,7 +113,7 @@ export function Leaderboard() {
             ))}
           </div>
           <select
-            aria-label="Subject"
+            aria-label={lang === 'uz' ? 'Fan' : lang === 'ru' ? 'Предмет' : 'Subject'}
             className="input"
             value={subject}
             onChange={(e) => setSubject(e.target.value)}

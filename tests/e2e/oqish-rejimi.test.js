@@ -38,8 +38,8 @@ const next=async(p,n)=>{ for(let i=0;i<n;i++){ await p.keyboard.press("ArrowRigh
   await sleep(600); await A.screenshot({path:"ro_test.png"});
   /* ro'yxat */
   await A.click("#rtNavBtn"); await sleep(300);
-  const nav=await A.evaluate(()=>[...document.querySelectorAll("#rtNavMenu .rt-navi:not(.rt-navhome)")].slice(0,7).map(x=>x.textContent.replace(/\s+/g," ").trim()));
-  ck("menyuda 1–5 📖 «o'qish», 6-mavzu 🔒",nav.slice(1,5).every(t=>/^📖/.test(t)&&/o'qish/.test(t))&&/^🔒/.test(nav[5]),JSON.stringify(nav));
+  const nav=await A.evaluate(()=>[...document.querySelectorAll("#rtNavMenu .rt-navi:not(.rt-navhome)")].slice(0,8).map(x=>x.textContent.replace(/\s+/g," ").trim()));
+  ck("menyuda 2–7 📖 «o'qish», 8-mavzu 🔒",nav.slice(1,7).every(t=>/^📖/.test(t)&&/o'qish/.test(t))&&/^🔒/.test(nav[7]),JSON.stringify(nav));
   await A.screenshot({path:"ro_nav.png"}); await A.keyboard.press("Escape");
   await sleep(4000);
   ck("bazadagi eski ballar o'zgarmadi (m1)",JSON.stringify(H.dbGet("students/sA/prog/m1/sl"))==='{"slide0":1,"slide1":1,"slide2":1}',JSON.stringify(H.dbGet("students/sA/prog/m1")));
@@ -49,9 +49,12 @@ const next=async(p,n)=>{ for(let i=0;i<n;i++){ await p.keyboard.press("ArrowRigh
   await F.click("#rtRoOk"); await sleep(200);
   await go(F,"mavzu-4.html"); await sleep(300);
   ck("4-mavzu: krossvord tugmasi yashirin",await F.evaluate(()=>getComputedStyle(document.getElementById("xwGo")).display==="none"&&/o'qish rejimida/.test(getComputedStyle(document.querySelector(".xw-start"),"::after").content)));
-  /* 2) 6-mavzu: hali yopiq */
+  /* 2) 8-mavzu hali yopiq; 6-mavzu guruhga ochilmaguncha faqat 📖 o'qish rejimida */
+  await go(A,"mavzu-8.html");
+  ck("8-mavzu ochilmaguncha yopiq (🔒 oynasi)",await A.evaluate(()=>!!document.getElementById("rtAcc")&&!document.getElementById("rtRO")));
   await go(A,"mavzu-6.html");
-  ck("6-mavzu ochilmaguncha yopiq (🔒 oynasi)",await A.evaluate(()=>!!document.getElementById("rtAcc")&&!document.getElementById("rtRO")));
+  ck("6-mavzu guruhga ochilmaguncha 📖 o'qish rejimida",await A.evaluate(()=>!document.getElementById("rtAcc")&&!!document.getElementById("rtRoG")));
+  await A.click("#rtRoOk").catch(()=>{});
   /* o'qituvchi 6-mavzuni AP-223 ga ochadi */
   const T=await H.mk(b,H.stu("sI","Isfandiyor","Sayfiddinov","T-123"),{tc:true}); T.on("dialog",x=>x.accept());
   await go(T,"mavzu-6.html"); await T.evaluate(()=>RT.open("tc")); await sleep(3000);
@@ -80,9 +83,10 @@ const next=async(p,n)=>{ for(let i=0;i<n;i++){ await p.keyboard.press("ArrowRigh
   const tp=await A.evaluate(()=>{ RT.open("tp"); return new Promise(r=>setTimeout(()=>r(document.getElementById("rtTp").innerText.replace(/\s+/g," ")),600)); });
   ck("«Mavzular»: 6-mavzu «ball "+DUE+" gacha», 1-mavzu 📖",tp.indexOf("ball "+DUE+" gacha")>=0&&/O'qish rejimi/.test(tp)&&!/📥 PDF/.test(tp.split("M4")[0]),tp.slice(0,400));
   await A.screenshot({path:"ro_tp.png"});
-  /* FIZ hali 6-mavzuni ko'rmaydi */
+  /* FIZ guruhiga 6-mavzu ochilmagan: faqat 📖 o'qish rejimi, ball yo'q */
   await go(F,"mavzu-6.html");
-  ck("FIZ: 6-mavzu hali yopiq (muddat tugamagan)",await F.evaluate(()=>!!document.getElementById("rtAcc")));
+  ck("FIZ: 6-mavzu ochilmagan guruhda faqat o'qish rejimida",await F.evaluate(()=>!document.getElementById("rtAcc")&&document.body.classList.contains("rt-ro")));
+  await F.evaluate(()=>document.getElementById("rtRoG")&&document.getElementById("rtRoOk").click());
   /* 3) yakshanba o'tdi: 8 kun oldin ochilgan */
   H.dbSet("meta/access/m6/g/AP-223",Date.now()-8*DAY);
   await go(A,"mavzu-6.html");

@@ -1,4 +1,3 @@
-import { readCrm } from '@/lib/server/crm';
 import { failure } from '@/lib/server/http';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
@@ -157,22 +156,6 @@ export async function GET(req: NextRequest) {
       req.nextUrl.searchParams.get('view') === 'staff',
       req.nextUrl.searchParams.get('reports') === '1',
     );
-    state.progress = state.progress.filter((p) => p.lessonId !== 'm7');
-    if (!a.id.startsWith('legacy_')) {
-      const current = await readCrm(a);
-      if (current.seen.length)
-        state.progress.push({
-          id: a.id + '_m7_crm',
-          userId: a.id,
-          courseId: course.id,
-          lessonId: 'm7',
-          seen: current.seen,
-          last: current.last,
-          completed: current.seen.length === 22,
-          startedAt: 0,
-          updatedAt: 0,
-        });
-    }
     const staffState = state as typeof state & {
       users?: { id: string }[];
       allProgress?: { userId: string; lessonId?: string }[];

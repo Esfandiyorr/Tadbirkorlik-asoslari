@@ -9,7 +9,8 @@ const deck=async(p,n)=>{ await p.goto(H.SITE+"/mavzu-"+n+".html"); await ready(p
 (async()=>{
   const b=await H.chromium.launch(); const now=Date.now();
   H.addStu("sA","Ali","Valiyev","AP-223"); H.addStu("sX","Xolid","Karimov","FIZ-21"); H.addStu("sZ","Zafar","Olimov","T-123");
-  H.dbSet("meta/access/m6",{lim:true,g:{"AP-223":now-60000}});                       /* faqat AP-223 ga, ball beradi */
+  /* 1–7 mavzu config.json da hammaga o'qish uchun ochiq (read) — guruhga xos misol uchun 11-mavzu olinadi */
+  H.dbSet("meta/access/m11",{lim:true,g:{"AP-223":now-60000}});                      /* faqat AP-223 ga, ball beradi */
   H.dbSet("meta/access/m7",{lim:false,at:now-60000});                                /* hammaga, ball beradi */
   H.dbSet("meta/access/m8",{lim:true,g:{"FIZ-21":now-12*86400000}});                 /* muddati o'tgan → hamma o'qiydi */
   H.dbSet("meta/access/m9",{lim:true,s:{sX:now-60000}});                             /* faqat bitta talabaga */
@@ -20,14 +21,14 @@ const deck=async(p,n)=>{ await p.goto(H.SITE+"/mavzu-"+n+".html"); await ready(p
   const url=H.SITE+"/tadbirkorlik-asoslari.html";
   await G.goto(url); await ready(G); await Z.goto(url); await ready(Z); await A.goto(url); await ready(A); await X.goto(url); await ready(X);
   const [cg,cz,ca,cx]=[await cards(G),await cards(Z),await cards(A),await cards(X)];
-  const grp="m1:ra m2:ra m3:ra m4:ra m5:ra m6:l- m7:ra m8:ra m9:l- m10:l- m11:l- m12:l- m13:l- m14:l- m15:l-";
+  const grp="m1:ra m2:ra m3:ra m4:ra m5:ra m6:ra m7:ra m8:ra m9:l- m10:l- m11:l- m12:l- m13:l- m14:l- m15:l-";
   ck("fan sahifasi: mehmon ko'rgani = hech qaysi guruhga ochilmagan talaba ko'rgani (bir xil kartochkalar)",cg.replace(/:s/g,":r")===cz.replace(/:s/g,":r"),cg+" | "+cz);
-  ck("mehmonda: 1–5 va 8 o'qish, 7 (hammaga ochilgan) bosiladi; 6 (faqat AP-223) va 9 (bitta talaba) yopiq; 10–15 yopiq",cg.replace(/:s/g,":r")===grp,cg);
-  ck("o'z guruhi uchun ochilgan mavzu faqat shu guruhda ko'rinadi: AP-223 da 6 ochiq, FIZ-21 da yopiq",/m6:sa/.test(ca)&&/m6:l-/.test(cx)&&/m6:l-/.test(cz)&&/m6:l-/.test(cg),ca.split(" ")[5]+" "+cx.split(" ")[5]);
+  ck("mehmonda: 1–6 va 8 o'qish, 7 (hammaga ochilgan) bosiladi; 11 (faqat AP-223) va 9 (bitta talaba) yopiq; 10–15 yopiq",cg.replace(/:s/g,":r")===grp,cg);
+  ck("o'z guruhi uchun ochilgan mavzu faqat shu guruhda ko'rinadi: AP-223 da 11 ochiq, FIZ-21 da yopiq",/m11:sa/.test(ca)&&/m11:l-/.test(cx)&&/m11:l-/.test(cz)&&/m11:l-/.test(cg),ca.split(" ")[10]+" "+cx.split(" ")[10]);
   ck("bitta talabaga ochilgan 9-mavzu faqat o'sha talabada ochiq",/m9:sa/.test(cx)&&/m9:l-/.test(cg)&&/m9:l-/.test(ca)&&/m9:l-/.test(cz),cx.split(" ")[8]+" "+cg.split(" ")[8]);
-  ck("yopiq kartochkalar havolasiz (bosib bo'lmaydi)",!/m6:la|m9:la|m1[0-5]:la/.test(cg));
+  ck("yopiq kartochkalar havolasiz (bosib bo'lmaydi)",!/m9:la|m1[0-5]:la/.test(cg));
   /* mavzu sahifasiga to'g'ridan-to'g'ri havola */
-  const exp={2:false,6:true,7:false,8:false,9:true,10:true,15:true};   /* true — yopiq (qulf oynasi) */
+  const exp={2:false,6:false,7:false,8:false,9:true,10:true,11:true,15:true};   /* true — yopiq (qulf oynasi) */
   const out={};
   for(const n of Object.keys(exp)){
     const g=await deck(G,n), z=await deck(Z,n); out[n]=[g.gate,z.gate];
@@ -50,7 +51,7 @@ const deck=async(p,n)=>{ await p.goto(H.SITE+"/mavzu-"+n+".html"); await ready(p
   /* mavzular ro'yxati (topbar): yopiq mavzu 🔒 tugma (havolasiz), ochiqlari havola */
   const N=await H.mk(b,null,{}); await deck(N,2); await N.click("#rtNavBtn"); await sleep(300);
   const nm=await N.evaluate(()=>[...document.querySelectorAll("#rtNavMenu .rt-navi:not(.rt-navhome)")].map(e=>e.classList.contains("cur")?"c":e.tagName==="A"?"o":e.classList.contains("lock")?"L":"?").join(""));
-  ck("topbardagi mavzular ro'yxati mehmonga: ochiqlari havola, yopiqlari 🔒 (havolasiz) — talabadagi bilan bir xil",nm==="ocoooLooLLLLLLL",nm);
+  ck("topbardagi mavzular ro'yxati mehmonga: ochiqlari havola, yopiqlari 🔒 (havolasiz) — talabadagi bilan bir xil",nm==="ocooooooLLLLLLL",nm);
   /* o'qituvchi mavzuni hammaga ochgach — mehmon ham o'qiydi (yopiq qolib ketmaydi) */
   H.dbSet("meta/access/m10",{lim:false,at:now-1000});
   const g10=await deck(L,10);

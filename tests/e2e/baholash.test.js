@@ -25,7 +25,7 @@ const names=(p,sel)=>p.evaluate(sel=>[...document.querySelectorAll(sel)].map(e=>
   L=await names(T,'#mkWrap tbody td.rt-mstk b');
   ck("Baholash: ism bo'yicha alifbo tartibida, raqamlangan",L[0]==="Aziz Toshev"&&L[5]==="Zarina Abdullayeva"&&await T.evaluate(()=>document.querySelector("#mkWrap tbody td.rt-mstk .rt-mno").textContent)==="1",JSON.stringify(L));
   const cols=await T.evaluate(()=>[...document.querySelectorAll("#mkWrap thead th")].map(x=>x.textContent.trim()));
-  ck("faqat ochilgan mavzular (M1–M5, o'qish rejimi 📖)",cols.length===7&&/📖 M1/.test(cols[1])&&/M5/.test(cols[5])&&!cols.some(c=>/M6|M7/.test(c)),JSON.stringify(cols));
+  ck("faqat ochilgan mavzular (M1–M7, o'qish rejimi 📖)",cols.length===9&&/📖 M1/.test(cols[1])&&/M7/.test(cols[7])&&!cols.some(c=>/M8|M9/.test(c)),JSON.stringify(cols));
   const ov=await T.evaluate(()=>{ const w=document.getElementById("mkWrap"); return w.scrollWidth>w.clientWidth; });
   await T.evaluate(()=>{ const w=document.getElementById("mkWrap"); w.scrollLeft=400; }); await sleep(200);
   const st=await T.evaluate(()=>{ const w=document.getElementById("mkWrap").getBoundingClientRect(), c=document.querySelector("#mkWrap tbody td.rt-mstk").getBoundingClientRect(), h=document.querySelector("#mkWrap thead th.rt-mstk").getBoundingClientRect();

@@ -58,8 +58,6 @@ test('reader navigation supports touch, keys and slide selection across phone an
     }
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await select.selectOption('0');
-    if (topic === 7)
-      await expect(page.locator('.reader-slide-enter')).toHaveCSS('animation-name', 'none');
     const last = String((await select.locator('option').count()) - 1);
     await select.selectOption(last);
     await expect(controls.getByRole('button', { name: 'Keyingi' })).toBeDisabled();

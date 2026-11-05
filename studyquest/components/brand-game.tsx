@@ -88,7 +88,9 @@ export function makeQuestions(brands: Brand[], level: Level, rounds = ROUNDS): Q
         rest = shuffle(brands.filter((b) => b.id !== brand.id && b.cat !== brand.cat));
       // Qiyin darajada chalg'ituvchi javoblar shu sohadan tanlanadi (masalan, avtomobillar ichidan).
       const pool = level === 'hard' ? [...same, ...rest] : [...rest.slice(0, 2), ...same, ...rest];
-      return { brand, options: shuffle([brand, ...pool.slice(0, 3)]) };
+      // Bir xil javob ikki marta chiqmasin (oson darajada «rest» ro'yxati ikki marta qo'shiladi).
+      const options = [...new Map(pool.map((b) => [b.id, b])).values()].slice(0, 3);
+      return { brand, options: shuffle([brand, ...options]) };
     });
 }
 

@@ -17,10 +17,10 @@ async function ready(p){await p.waitForFunction(()=>window.RT_ready);await sleep
   ck('independent profile omits group and university marks',await p.locator('#cvG').count()===0&&/Mustaqil o‘quvchi/.test(await p.locator('#rtCv').textContent())&&!/Mening baholarim/.test(await p.locator('#rtCv').textContent()));
   await p.locator('#cvSaveB').click();await sleep(200);
   ck('profile saves without a group or email',H.DBS.students[me.id].group===''&&await p.locator('#cvE').inputValue()==='');await p.locator('#rtClose').click();
-  H.dbSet('meta/access/m6',{lim:false,at:Date.now()});H.dbSet('meta/access/m7',{lim:true,g:{'AP-223':Date.now()},s:{[me.id]:Date.now()}});
+  H.dbSet('meta/access/m6',{lim:false,at:Date.now()});H.dbSet('meta/access/m8',{lim:true,g:{'AP-223':Date.now()},s:{[me.id]:Date.now()}});
   await p.goto(H.SITE+'/tadbirkorlik-asoslari.html');await ready(p);
   ck('public score lessons become independent reading lessons',await p.locator('.hm-card.read[data-t="m6"]').count()===1);
-  ck('university group and personal grants do not expose private lessons',await p.locator('div.hm-card.lock[data-t="m7"]').count()===1);
+  ck('university group and personal grants do not expose private lessons',await p.locator('div.hm-card.lock[data-t="m8"]').count()===1);
   ck('independent home has no deadline or competition links',!/yakshanba|Bu hafta ball/.test(await p.locator('#hmBody').textContent())&&await p.locator('#rtArena,.hm-arena').count()===0);
   await p.goto(H.SITE+'/mavzu-6.html#5');await ready(p);await sleep(1000);await p.keyboard.press('ArrowRight');await p.waitForFunction(()=>RT.points().reading&&RT.points().reading.m6&&RT.points().reading.m6.last===5);await p.keyboard.press('ArrowLeft');await p.waitForFunction(()=>RT.points().reading.m6.last===4);await p.evaluate(()=>RT.award('test0',5));await sleep(250);
   ck('reading saves the visited slide and resume position',H.dbGet('students/'+me.id+'/reading/m6/sl/slide4')===1&&H.dbGet('students/'+me.id+'/reading/m6/last')===4);
@@ -31,7 +31,7 @@ async function ready(p){await p.waitForFunction(()=>window.RT_ready);await sleep
   await sleep(300);await p.screenshot({path:'independent-reading.png'});await p.locator('#rtClose').click();
   await p.goto(H.SITE+'/tadbirkorlik-asoslari.html');await ready(p);
   ck('course card resumes at the last read slide',await p.locator('a.hm-card[data-t="m6"]').getAttribute('href')==='mavzu-6.html#5');
-  await p.goto(H.SITE+'/mavzu-7.html#3');await ready(p);await p.waitForSelector('#rtAcc');ck('direct links cannot bypass university-only access',await p.locator('#rtAcc').isVisible());
+  await p.goto(H.SITE+'/mavzu-8.html#3');await ready(p);await p.waitForSelector('#rtAcc');ck('direct links cannot bypass university-only access',await p.locator('#rtAcc').isVisible());
   const login=await H.mk(b,null,{});await login.goto(H.SITE+'/index.html');await ready(login);await login.locator('#rtChip').click();
   await login.locator('#lgN').fill('Madina');await login.locator('#lgS').fill('Ergasheva');await login.locator('#lgB').fill('Mustaqil2026');await login.locator('#lgGo').click();
   await login.waitForFunction(()=>RT.student()&&RT.student().learnerType==='independent'&&!document.getElementById('rtGate'));
@@ -43,7 +43,7 @@ async function ready(p){await p.waitForFunction(()=>window.RT_ready);await sleep
   await teacher.evaluate(()=>RT.open('top'));await teacher.waitForFunction(()=>document.querySelector('#rtTop table'));
   ck('even approved independent accounts stay out of university ranking',!/Madina/.test(await teacher.locator('#rtTop').textContent())&&/Ali/.test(await teacher.locator('#rtTop').textContent()));
   const uni=await H.mk(b,H.stu('uniLegacy','Ali','Valiyev','AP-223'),{});await uni.goto(H.SITE+'/tadbirkorlik-asoslari.html');await ready(uni);
-  ck('legacy university account keeps its group and scoring access',await uni.locator('.hm-card.score[data-t="m6"]').count()===1&&await uni.locator('.hm-card.score[data-t="m7"]').count()===1&&await uni.evaluate(()=>RT.student().group==='AP-223'&&RT.points().total>0));
+  ck('legacy university account keeps its group and scoring access',await uni.locator('.hm-card.score[data-t="m6"]').count()===1&&await uni.locator('.hm-card.score[data-t="m8"]').count()===1&&await uni.evaluate(()=>RT.student().group==='AP-223'&&RT.points().total>0));
   await uni.evaluate(()=>RT.open('cv'));ck('university profile still offers group selection',await uni.locator('#cvG').isVisible());
   const mobile=await H.mk(b,null,{vp:{width:390,height:844},mobile:true});await mobile.goto(H.SITE+'/index.html');await ready(mobile);await mobile.locator('#rtReg').click();
   ck('both learning paths fit a phone screen',await mobile.locator('.rt-modechoices').evaluate(e=>e.scrollWidth<=e.clientWidth+1)&&await mobile.locator('#rtGate').evaluate(e=>e.scrollWidth<=e.clientWidth+1));await mobile.screenshot({path:'learning-paths-mobile.png'});

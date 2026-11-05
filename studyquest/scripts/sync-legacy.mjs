@@ -76,12 +76,19 @@ for (const file of fs.readdirSync(out).filter((name) => name.endsWith('.html')))
   );
 }
 const config = JSON.parse(fs.readFileSync(path.join(root, '_reyting-manba/config.json'), 'utf8'));
+// Interfeysdagi kabi bitta apostrof uslubi: o‘/g‘ — ‘, tutuq belgisi — ’ (lib/uz-text.ts bilan bir xil).
+const uzQuotes = (text) =>
+  String(text || '')
+    .replace(/([OoGg])['ʻʼ’`´](?![sS]\b)(?=[A-Za-z])/g, '$1‘')
+    // so‘z oxiridagi g‘: «mablag'», «tog'».
+    .replace(/([Gg])['ʻʼ`´](?=[\s.,;:!?)»"]|$)/g, '$1‘')
+    .replace(/([A-Za-z])['ʼ`´](?=[A-Za-z])/g, '$1’');
 const catalog = {
   manualPts: config.manualPts || 2,
   courses: config.courses,
   topics: config.topics.map((t) => ({
     id: t.id,
-    title: t.title,
+    title: uzQuotes(t.title),
     file: t.file,
     slides: t.slides,
     quiz: t.quiz,
