@@ -3,7 +3,7 @@ import vm from 'node:vm';
 import { expect, it } from 'vitest';
 import config from '../../_reyting-manba/config.json';
 import { catalog } from '../lib/seed';
-import { canReadLegacy } from '../lib/server/legacy-access';
+import { canReadLegacy, weekEnd } from '../lib/server/legacy-access';
 const student = {
   id: 'legacy_alice',
   classId: 'AP-223',
@@ -27,7 +27,11 @@ it('opens topics one through seven across groups in both server and original eng
     engine.ACC = { [topic.id]: closed };
     expect(canReadLegacy(topic, closed, student), topic.id).toBe(true);
     expect(canReadLegacy(topic, closed, { ...student, classId: 'AP-224' }), topic.id).toBe(true);
-    expect(engine.accState(topic, { id: 'alice', group: 'AP-223' }), topic.id).toBe('read');
+    // 1–6 — 📖 o'qish rejimi; 7 — 🟢 hammaga ochiq: o'sha hafta ball beradi, keyin o'zi o'qish rejimiga o'tadi.
+    const open = topic.id === 'm7' && Date.now() < weekEnd((topic as { modeAt: number }).modeAt);
+    expect(engine.accState(topic, { id: 'alice', group: 'AP-223' }), topic.id).toBe(
+      open ? 'score' : 'read',
+    );
   }
 });
 it('keeps topics eight through fifteen closed by default and honors administrator openings', () => {

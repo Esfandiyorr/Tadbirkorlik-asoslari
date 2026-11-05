@@ -4295,11 +4295,25 @@ function avEditor(){
    ⏳ Ochilgan paytdan o'sha haftaning yakshanba kuni 23:59 gacha (Toshkent vaqti) ball beriladi. Keyin mavzu
    📖 O'QISH REJIMIGA o'tadi: slaydlarni hamma guruhlar o'qiy oladi, lekin ball berilmaydi va test ishlanmaydi.
    Vaqt o'rniga true turgan eski yozuvlar va config'dagi "read": true mavzular ham o'qish rejimida.
-   Yozuv yo'q bo'lsa config'dagi "lim" ishlatiladi. O'qituvchi uchun hammasi ochiq. */
+   Yozuv yo'q bo'lsa config'dagi "lim" ishlatiladi. O'qituvchi uchun hammasi ochiq.
+   🎚 UMUMIY HOLAT (o'qituvchi bo'limidagi «Mavzular holati»): m = "lock" 🔒 hammaga yopiq · "read" 📖 hammaga o'qish
+   rejimi (ball yo'q) · "open" 🟢 hammaga ochiq (ball o'sha haftaning yakshanbasi 23:59 gacha, keyin 📖). Bazada
+   /meta/access/<mavzu>/{m, mt}, config.json da "mode"/"modeAt" — boshlang'ich holat. Eng oxirgi amal ustun: holat
+   guruh/talaba ochilishidan keyin qo'yilgan bo'lsa — holat, keyin biror guruh ochilsa — guruh qoidalari amal qiladi.
+   DIQQAT: studyquest/lib/server/legacy-access.ts dagi accessMode bilan AYNAN bir xil bo'lishi kerak. */
 var ACC_WT=null, ACC_WAITED=false;
 var ACC=null, LOCKED=false, RO=null, accIv=null, accTo=null, ACC_SEL=null, ACC_FRESH=false, ACC_Q="";
 try{ ACC=JSON.parse(localStorage.getItem("terdu_acc")||"null"); }catch(e){}
 function accRec(x){ var a=ACC&&ACC[x.id]; return a?{lim:!!a.lim,g:a.g||{},s:a.s||{},at:+a.at||0}:{lim:!!x.lim,g:{},s:{},at:0}; }
+function accTs(v){ v=typeof v==="string"?+v:v; return typeof v==="number"&&v>0?v:0; }
+function accMode(x){
+  if(!x) return null;
+  var a=(ACC&&ACC[x.id])||{}, last=accTs(a.at), ok={lock:1,read:1,open:1};
+  ["g","s"].forEach(function(k){ var o=a[k]||{}; Object.keys(o).forEach(function(i){ last=Math.max(last,accTs(o[i])); }); });
+  var mt=accTs(a.mt), db=ok[a.m]&&mt>=last?{m:a.m,t:mt}:null, ct=accTs(x.modeAt);
+  if(ok[x.mode]&&ct&&ct<=Date.now()&&ct>=Math.max(last,mt)) return {m:x.mode,t:ct};
+  return db;
+}
 /* ochilgan payt → ball muddati tugaydigan payt: o'sha haftaning yakshanbasidan keyingi dushanba 00:00 (UTC+5) */
 function accEnd(ts){
   var d=new Date(+ts+18000000), day0=Date.UTC(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate());
@@ -4316,6 +4330,7 @@ function accDue(ts){
 /* talaba uchun hozir ball beradigan ochilish vaqti (bo'lmasa 0) */
 function accLiveAt(x,st){
   if(independent(st)) return 0;
+  var md=accMode(x); if(md) return md.m==="open"&&accLive(md.t)?md.t:0;
   var a=accRec(x);
   if(!a.lim) return accLive(a.at)?a.at:0;
   var v=[st&&st.id&&a.s[st.id],st&&st.group&&a.g[gkey(st.group)]].filter(accLive);
@@ -4323,6 +4338,7 @@ function accLiveAt(x,st){
 }
 /* hamma uchun o'qish rejimi: config "read", muddati o'tgan «hammaga» yoki biror guruh/talaba ochilishi */
 function accAllRead(x,a){
+  var md=accMode(x); if(md) return md.m!=="lock";
   if(x.read) return true;
   if(!a.lim) return !accLive(a.at);
   var ended=function(o){ return Object.keys(o).some(function(k){ return accGone(o[k]); }); };
@@ -4331,6 +4347,8 @@ function accAllRead(x,a){
 /* "score" — ochiq, ball beriladi; "read" — 📖 o'qish rejimi; "" — yopiq */
 function accState(x,st){
   if(!x||!x.open) return "";
+  var md=accMode(x);
+  if(md) return md.m==="lock"?"":md.m==="open"&&!independent(st)&&accLive(md.t)?"score":"read";
   if(independent(st)) return accState(x,null)?"read":"";
   if(accLiveAt(x,st)) return "score";
   var a=accRec(x), own=!a.lim||!!(st&&((st.id&&a.s[st.id])||(st.group&&a.g[gkey(st.group)])));
@@ -4613,7 +4631,7 @@ document.addEventListener("click",function(e){
 /* yopiq mavzu oynasi: o'rtada PDF yuklab olish havolasi (config: pdf, pdfSize) */
 function accBoxHtml(x,here){
   var a=accRec(x), n=(CFG.topics||[]).indexOf(x)+1;
-  var none=!!(ACC&&ACC[x.id])&&a.lim&&!Object.keys(a.g||{}).some(function(k){ return a.g[k]; })&&!Object.keys(a.s||{}).some(function(k){ return a.s[k]; });   /* o'qituvchi hamma guruhga yopgan */
+  var md=accMode(x), none=md?md.m==="lock":!!(ACC&&ACC[x.id])&&a.lim&&!Object.keys(a.g||{}).some(function(k){ return a.g[k]; })&&!Object.keys(a.s||{}).some(function(k){ return a.s[k]; });   /* o'qituvchi hamma guruhga yopgan */
   var other=(CFG.topics||[]).filter(function(y){ return y.id!==CFG.topic&&y.id!==x.id&&topicOpen(y); });
   var grp=S&&S.group?esc(S.group):"";
   return '<div class="rt-box rt-accbox" style="text-align:center">'+
@@ -4659,7 +4677,7 @@ function accTcRender(okl){
   var tops=(CFG.topics||[]).filter(function(x){ return x.open; });
   if(!tops.length){ box.innerHTML=""; return; }
   if(!ACC_SEL||!tops.some(function(x){ return x.id===ACC_SEL; })) ACC_SEL=tops[tops.length-1].id;
-  var t=tops.filter(function(x){ return x.id===ACC_SEL; })[0], a=accRec(t), read=accAllRead(t,a);
+  var t=tops.filter(function(x){ return x.id===ACC_SEL; })[0], a=accRec(t), read=accAllRead(t,a), md=accMode(t);
   var cnt={}; (okl||[]).forEach(function(x){ var k=gkey(x.group); cnt[k]=(cnt[k]||0)+1; });
   var gl=[]; (CFG.groups||[]).concat(Object.keys(cnt)).forEach(function(g){ g=gkey(g); if(g&&gl.indexOf(g)<0) gl.push(g); });
   gl.sort();
@@ -4673,8 +4691,18 @@ function accTcRender(okl){
     '<p class="rt-note" style="margin:0 0 8px">⏳ '+T("Ochilgan mavzu o'sha haftaning <b>yakshanba kuni 23:59</b> gacha ball beradi, keyin <b>📖 o'qish rejimiga</b> o'tadi: slaydlarni hamma guruhlar o'qiy oladi, lekin ball berilmaydi va test ishlanmaydi.",
       "An opened topic gives points until <b>23:59 on Sunday</b> of that week, then switches to <b>📖 reading mode</b>: every group can read the slides, but no points are given and the test is closed.")+'</p>'+
     '<div class="rt-acc-tops">'+tops.map(function(x){ var i=(CFG.topics||[]).indexOf(x)+1, r=accRec(x);
-      return '<button type="button" class="rt-gchip'+(x.id===ACC_SEL?" on":"")+'" data-t="'+x.id+'">'+(anyLive(r)?"🟢":accAllRead(x,r)?"📖":r.lim?"👥":"🌐")+' '+T(i+"-mavzu","Topic "+i)+'</button>'; }).join("")+'</div>'+
+      var m=accMode(x), ic=m?(m.m==="lock"?"🔒":m.m==="open"&&accLive(m.t)?"🟢":"📖"):(anyLive(r)?"🟢":accAllRead(x,r)?"📖":r.lim?"👥":"🌐");
+      return '<button type="button" class="rt-gchip'+(x.id===ACC_SEL?" on":"")+'" data-t="'+x.id+'">'+ic+' '+T(i+"-mavzu","Topic "+i)+'</button>'; }).join("")+'</div>'+
     '<p class="rt-note" style="margin:8px 0">'+esc(t.title)+'</p>'+
+    '<div class="rt-acc-mode3" role="group" aria-label="'+T("Mavzuning umumiy holati","Overall topic state")+'"><b>🎚 '+T("Hammaga:","For everyone:")+'</b>'+
+      [["lock","🔒",T("Yopiq","Closed")],["read","📖",T("O'qish rejimi","Reading mode")],["open","🟢",T("Ochiq (ball bilan)","Open (with points)")]].map(function(o){
+        var on=!!md&&md.m===o[0];
+        return '<button type="button" class="rt-gchip rt-acm'+(on?" on":"")+'" data-m="'+o[0]+'" aria-pressed="'+on+'">'+o[1]+' '+o[2]+'</button>'; }).join("")+'</div>'+
+    (md?'<p class="rt-note" style="margin:6px 0 8px">'+(md.m==="lock"?"🔒 "+T("Mavzu hammaga yopiq.","The topic is closed for everyone."):
+        md.m==="read"?"📖 "+T("Mavzu hammaga o'qish rejimida — ball berilmaydi.","The topic is in reading mode for everyone — no points."):
+        accLive(md.t)?"🟢 "+T("Mavzu hammaga ochiq — ball ","Open for everyone — points until ")+'<b>'+esc(accDue(md.t))+'</b>'+T(" gacha beriladi.","."):
+        "📖 "+T("Ball muddati tugagan — mavzu o'qish rejimida.","The points deadline has passed — the topic is in reading mode."))+
+      ' '+T("Quyidagi guruh tugmalaridan birini bossangiz, umumiy holat bekor bo'ladi.","Using the group buttons below cancels the overall state.")+'</p>':'')+
     (read&&!anyLive(a)?'<p class="rt-acc-ro">📖 '+T("Bu mavzu hozir hammaga <b>o'qish rejimida</b> ochiq — ball berilmaydi.","This topic is open to everyone in <b>reading mode</b> — no points.")+'</p>':'')+
     '<div class="rt-acc-mode"><label><input type="radio" name="accMode" value="all"'+(a.lim?"":" checked")+'> 🌐 '+T("Hammaga ochiq","Open for everyone")+'</label>'+
     '<label><input type="radio" name="accMode" value="lim"'+(a.lim?" checked":"")+'> 👥 '+T("Faqat belgilangan guruhlarga","Only for the selected groups")+'</label></div>'+
@@ -4694,6 +4722,9 @@ function accTcRender(okl){
     '</div>';
   var NOW={".sv":"timestamp"};               /* ochilgan vaqt — server soati bilan */
   box.querySelectorAll("[data-t]").forEach(function(b){ b.onclick=function(){ ACC_SEL=b.dataset.t; accTcRender(okl); }; });
+  box.querySelectorAll(".rt-acm").forEach(function(b){ b.onclick=function(){
+    var m=b.dataset.m; b.disabled=true;
+    accSave(t.id,accModePatch(m),okl,m==="open"?function(){ pushTopicOpen(t,null,T("hammaga","everyone")); }:null,true); }; });
   box.querySelectorAll('input[name="accMode"]').forEach(function(r){ r.onchange=function(){
     accSave(t.id,r.value==="lim"?{lim:true}:{lim:false,at:NOW},okl,r.value==="lim"?null:function(){ pushTopicOpen(t,null,T("hammaga","everyone")); }); }; });
   var ag=document.getElementById("accAllGo"); if(ag) ag.onclick=function(){ ag.disabled=true; accSave(t.id,{lim:false,at:NOW},okl,function(){ pushTopicOpen(t,null,T("hammaga","everyone")); }); };
@@ -4720,8 +4751,14 @@ function accTcRender(okl){
     sq.oninput=drawSt; drawSt();
   }
 }
-function accSave(tid,patch,okl,after){
+/* umumiy holat yozuvi; eski dvigatel nusxalari ham shunga yaqin ishlashi uchun lim/at ham yoziladi, guruhlar tozalanadi */
+function accModePatch(m){
+  var NOW={".sv":"timestamp"};
+  return m==="open"?{m:m,mt:NOW,lim:false,at:NOW,g:null,s:null}:m==="read"?{m:m,mt:NOW,lim:false,at:1,g:null,s:null}:{m:"lock",mt:NOW,lim:true,at:null,g:null,s:null};
+}
+function accSave(tid,patch,okl,after,keepMode){
   if(!cloudOn||!BASE){ toast(T("Baza ulanmagan","No database connected")); return; }
+  if(!keepMode){ patch.m=null; patch.mt={".sv":"timestamp"}; }   /* guruh/talaba amali — umumiy holat bekor bo'ladi */
   fetch(BASE+"/meta/access/"+tid+".json",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify(patch)})
     .then(function(r){ if(!r.ok) throw 0; return r.json(); })
     .then(function(){ accLoad(function(){ accTcRender(okl); toast("✅ "+T("Saqlandi","Saved")); }); if(after) after(); })

@@ -3691,3 +3691,116 @@
     white-space: normal;
   }
 }
+
+/* ---------- O'qituvchi: «Mavzular holati» ---------- */
+.topic-access-legend {
+  display: grid;
+  gap: 6px;
+  margin: 0 0 14px;
+  padding: 12px 14px;
+  list-style: none;
+  border-radius: 14px;
+  background: var(--surface-soft);
+  font-size: 14px;
+  line-height: 1.45;
+}
+.topic-access-summary {
+  margin: 0 0 10px;
+  font-weight: 700;
+  color: var(--muted);
+}
+.topic-access-list {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.topic-access-row {
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface);
+}
+.topic-access-row.is-lock {
+  background: color-mix(in srgb, var(--surface-soft) 70%, transparent);
+}
+.topic-access-row .topic-art.compact {
+  width: 56px;
+  height: 56px;
+  min-height: 0;
+  border-radius: 14px;
+}
+.topic-access-info {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+.topic-access-info b {
+  font-size: 15px;
+  overflow-wrap: anywhere;
+}
+.topic-access-info > div {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+}
+.topic-access-info .access-chip {
+  max-width: 100%;
+  white-space: normal;
+}
+.topic-access-info small {
+  color: var(--muted);
+  font-size: 12px;
+}
+.access-chip.groups {
+  background: #ede9fe;
+  border-color: #ddd6fe;
+  color: #5b21b6;
+  white-space: normal;
+}
+.dark .access-chip.groups {
+  background: #4c1d9566;
+  border-color: #6d28d9;
+  color: #ddd6fe;
+}
+.topic-access-modes {
+  display: flex;
+  gap: 6px;
+}
+.topic-access-modes .mode-lock[aria-pressed='true'] {
+  background: #475569;
+  border-color: #475569;
+}
+.topic-access-modes .mode-read[aria-pressed='true'] {
+  background: #1d4ed8;
+  border-color: #1d4ed8;
+}
+.topic-access-modes .mode-open[aria-pressed='true'] {
+  background: #15803d;
+  border-color: #15803d;
+}
+@media (max-width: 900px) {
+  .topic-access-row {
+    grid-template-columns: 48px minmax(0, 1fr);
+  }
+  .topic-access-row .topic-art.compact {
+    width: 48px;
+    height: 48px;
+  }
+  .topic-access-modes {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .topic-access-modes button {
+    min-height: 44px;
+    white-space: normal;
+    line-height: 1.15;
+  }
+}

@@ -27,16 +27,16 @@ barcha mavzular kartochkalarda (🟢 ball beriladi · 📖 o'qish rejimi · 🔒
 | [`mavzu-3.html`](mavzu-3.html) | **M3** — Mahsulotni kam xarajat bilan sinash (moliya va kredit) | 15 slayd · 15 test | 📖 o'qish rejimi |
 | [`mavzu-4.html`](mavzu-4.html) | **M4** — Biznesni qonuniy rasmiylashtirish | 18 slayd · 🧩 krossvord | 📖 o'qish rejimi |
 | [`mavzu-5.html`](mavzu-5.html) | **M5** — Soliqlar va hujjatlar | 18 slayd · 🧮 3 masala | 📖 o'qish rejimi |
-| [`mavzu-6.html`](mavzu-6.html) | **M6** — Biznes-model qanday ishlaydi | 24 slayd · 20 test (6 tasi ochiq) | 🔒 o'qituvchi ochadi |
-| [`mavzu-7.html`](mavzu-7.html) | **M7** — Mijoz kim va unga nima kerak | 18 slayd · 15 test | 🔒 o'qituvchi ochadi |
-| [`mavzu-8.html`](mavzu-8.html) | **M8** — Mahsulotni reklama qilish va mijozga yetkazish | 18 slayd · 15 test | 🔒 o'qituvchi ochadi |
-| [`mavzu-9.html`](mavzu-9.html) | **M9** — Biznes g'oyani taqdim etish va tadbirkorlik yo'lini boshlash | 18 slayd · 15 test | 🔒 o'qituvchi ochadi |
-| [`mavzu-10.html`](mavzu-10.html) | **M10** — Savdo jarayonini tashkil etish va mijozlar bilan ishlash | 18 slayd · 15 test | 🔒 o'qituvchi ochadi |
-| [`mavzu-11.html`](mavzu-11.html) | **M11** — Mahsulot narxini shakllantirish | 18 slayd · 15 test | 🔒 o'qituvchi ochadi |
-| [`mavzu-12.html`](mavzu-12.html) | **M12** — Biznesda pul oqimini rejalashtirish: kirim, chiqim va mablag' jalb qilish | 18 slayd · 15 test | 🔒 o'qituvchi ochadi |
-| [`mavzu-13.html`](mavzu-13.html) | **M13** — Biznesda foyda va zarar tahlili | 18 slayd · 15 test | 🔒 o'qituvchi ochadi |
-| [`mavzu-14.html`](mavzu-14.html) | **M14** — Biznes-reja tuzish va mahsulotni tashqi bozorga olib chiqish | 18 slayd · 15 test | 🔒 o'qituvchi ochadi |
-| [`mavzu-15.html`](mavzu-15.html) | **M15** — Jamoani shakllantirish, xodimlarni boshqarish va xavflarni aniqlash | 18 slayd · 15 test | 🔒 o'qituvchi ochadi |
+| [`mavzu-6.html`](mavzu-6.html) | **M6** — Biznes-model qanday ishlaydi | 24 slayd · 20 test (6 tasi ochiq) | 📖 o'qish rejimi |
+| [`mavzu-7.html`](mavzu-7.html) | **M7** — CRM nima? | 24 slayd · 20 test (6 tasi ochiq) | 🟢 hammaga ochiq (ball bilan) |
+| [`mavzu-8.html`](mavzu-8.html) | **M8** — Mahsulotni reklama qilish va mijozga yetkazish | 18 slayd · 15 test | 🔒 yopiq |
+| [`mavzu-9.html`](mavzu-9.html) | **M9** — Biznes g'oyani taqdim etish va tadbirkorlik yo'lini boshlash | 18 slayd · 15 test | 🔒 yopiq |
+| [`mavzu-10.html`](mavzu-10.html) | **M10** — Savdo jarayonini tashkil etish va mijozlar bilan ishlash | 18 slayd · 15 test | 🔒 yopiq |
+| [`mavzu-11.html`](mavzu-11.html) | **M11** — Mahsulot narxini shakllantirish | 18 slayd · 15 test | 🔒 yopiq |
+| [`mavzu-12.html`](mavzu-12.html) | **M12** — Biznesda pul oqimini rejalashtirish: kirim, chiqim va mablag' jalb qilish | 18 slayd · 15 test | 🔒 yopiq |
+| [`mavzu-13.html`](mavzu-13.html) | **M13** — Biznesda foyda va zarar tahlili | 18 slayd · 15 test | 🔒 yopiq |
+| [`mavzu-14.html`](mavzu-14.html) | **M14** — Biznes-reja tuzish va mahsulotni tashqi bozorga olib chiqish | 18 slayd · 15 test | 🔒 yopiq |
+| [`mavzu-15.html`](mavzu-15.html) | **M15** — Jamoani shakllantirish, xodimlarni boshqarish va xavflarni aniqlash | 18 slayd · 15 test | 🔒 yopiq |
 
 «Holati» — `config.json` dagi boshlang'ich holat; har bir guruh uchun haqiqiy holatni o'qituvchi panelda belgilaydi
 (pastda «🏆 Reyting tizimi va mavzularni ochish»).
@@ -206,6 +206,15 @@ o'qish rejimida. O'qituvchi panelida (👥 Talabalar → 📂 Mavzuni guruhlarga
 📖 — o'qish rejimi, 🔒 — yopiq; 📖 guruhni bosish unga yana yakshanbagacha ball beradi. Guruhiga yopiq mavzuda ball
 berilmaydi, yopiq mavzuning eski nusxasi bazaga qayta yozilmaydi. **🔒 Yopiq mavzuda ball olganlar** (Baholash va
 reyting) adashib ochilgan mavzudagi ballarni mavzu + guruh bo'yicha bir bosishda o'chiradi.
+
+**🎚 Mavzular holati (umumiy holat).** O'qituvchi bo'limida (yangi platforma → O'qituvchi → «Mavzular holati»; eski
+panelda 👥 Talabalar → 📂 Mavzuni guruhlarga ochish → «Hammaga:») har mavzu bir bosishda **hamma uchun** belgilanadi:
+🔒 **Yopiq** — talaba ham, mehmon ham ocha olmaydi; 📖 **O'qish rejimi** — hamma o'qiydi, ball berilmaydi, test
+ishlanmaydi; 🟢 **Hammaga ochiq** — barcha guruhlar ball oladi (o'sha haftaning yakshanbasi 23:59 gacha, keyin 📖).
+Bazada `meta/access/<mavzu>` = `{m: "lock"|"read"|"open", mt: <server vaqti>}`; `config.json` dagi `"mode"`/`"modeAt"`
+— boshlang'ich holat (hozir M1–M6 📖, M7 🟢, M8–M15 🔒). **Eng oxirgi amal ustun:** umumiy holatdan oldingi guruh
+ochilishlari e'tiborga olinmaydi; holatdan keyin biror guruh yoki talaba ochilsa — guruh qoidalari ishlaydi. Qoida
+dvigatelda (`accMode`) va yangi platformada (`legacy-access.ts` → `accessMode`) bir xil.
 
 **📋 «Menga nima qoldi?»** — ball beriladigan mavzuda topbarda ⏳ qolgan vaqt (masalan «2 kun») turadi. Bosilsa:
 muddat, ko'rilmagan slaydlar (bosib o'tiladi), o'qish vaqti, test holati («Testga o'tish») va boshqa ochiq mavzular.

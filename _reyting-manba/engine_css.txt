@@ -406,6 +406,9 @@
 .rt-khwarn code{display:block;margin-top:6px;font-size:11px;white-space:pre-wrap;word-break:break-all;background:var(--chip);padding:8px;border-radius:9px;max-height:220px;overflow:auto;user-select:all}
 .rt-acc-tops,.rt-acc-gs{display:flex;gap:7px;flex-wrap:wrap}
 .rt-acc-mode{display:flex;gap:16px;flex-wrap:wrap;margin:4px 0 10px;font-weight:700;font-size:13.5px}
+.rt-acc-mode3{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:2px 0 8px;font-size:13.5px}
+.rt-acc-mode3 b{margin-right:2px}
+.rt-acc-mode3 .rt-acm.on{outline:2px solid var(--accent,#7c3aed);outline-offset:1px}
 .rt-acc-mode label{display:flex;gap:6px;align-items:center;cursor:pointer}
 .rt-accg .rt-badge{margin-left:4px}
 .rt-accbox{position:relative;min-width:0;box-sizing:border-box}

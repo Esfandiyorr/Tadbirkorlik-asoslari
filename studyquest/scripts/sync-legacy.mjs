@@ -96,6 +96,8 @@ const catalog = {
     open: t.open,
     read: !!t.read,
     lim: !!t.lim,
+    // O'qituvchi belgilagan boshlang'ich umumiy holat (lock/read/open) — legacy-access.ts accessMode.
+    ...(t.mode ? { mode: t.mode, modeAt: t.modeAt } : {}),
   })),
   teacherH: config.teacherH,
   databaseURL: config.fbWeb.databaseURL || config.firebase.url,

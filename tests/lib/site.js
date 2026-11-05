@@ -32,7 +32,9 @@ function build(){
   fs.writeFileSync(p,s);
   /* config.json da «texnik ishlar» yoqilgan bo'lishi mumkin — oddiy sinovlar uchun nusxada o'chiramiz (alohida sinov uni o'zi yoqadi) */
   for(const n of fs.readdirSync(OUT)) if(/\.html$/i.test(n)){
-    const q=path.join(OUT,n), h=fs.readFileSync(q,"utf8"), h2=h.replace(/"maintenance": \{"on": true/g,'"maintenance": {"on": false');
+    /* o'qituvchi belgilagan boshlang'ich umumiy holat (mode/modeAt) ham olib tashlanadi: eski sinovlar sanaga bog'liq
+       bo'lmasin; umumiy holatlarni umumiy-holat.test.js o'zi sinaydi */
+    const q=path.join(OUT,n), h=fs.readFileSync(q,"utf8"), h2=h.replace(/"maintenance": \{"on": true/g,'"maintenance": {"on": false').replace(/"mode": "(?:lock|read|open)", "modeAt": \d+, /g,"");
     if(h2!==h) fs.writeFileSync(q,h2);
   }
   return OUT;

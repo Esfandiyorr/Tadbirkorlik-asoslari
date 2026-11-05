@@ -19,6 +19,7 @@ import { Button } from './ui/button';
 import { AcademicRoster } from './academic-roster';
 import { PlatformSettings } from './platform-settings';
 import { NativeSurface } from './native-surface';
+import { TopicAccessPanel } from './topic-access';
 import { t, badgeLabel } from '@/lib/i18n';
 import type { Data, Lesson, Question, Quiz, Progress, Attempt, Settings } from '@/lib/types';
 const blankQuestion = (): Question => ({
@@ -247,6 +248,7 @@ export function Staff({ admin = false }: { admin?: boolean }) {
       <div className="filter-row" ref={tabRow}>
         {[
           ['overview', L('Tahlil', 'Analytics', 'Аналитика')],
+          ['access', L('Mavzular holati', 'Topic access', 'Доступ к темам')],
           ['courses', t(lang, 'courses')],
           ['lessons', L('Darslar', 'Lessons', 'Уроки')],
           ['quiz', L('Testlar', 'Quizzes', 'Тесты')],
@@ -287,6 +289,7 @@ export function Staff({ admin = false }: { admin?: boolean }) {
           )}
         </div>
       )}
+      {tab === 'access' && <TopicAccessPanel />}
       {tab === 'academic' && <AcademicRoster />}
       {admin && tab === 'platform' && <PlatformSettings />}
       {tab === 'legacy' && (

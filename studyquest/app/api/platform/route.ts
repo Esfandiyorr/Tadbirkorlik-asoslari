@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { actor, ApiError, check, sameOrigin, staff, administrator } from '@/lib/server/auth';
 import { repository, demo, configured, legacyDb } from '@/lib/server/repository';
 import { legacyAccess, lessonAccessStates } from '@/lib/server/legacy-access';
+import { demoTopicAccess, setTopicMode, topicAccessList } from '@/lib/server/topic-access';
 import { Platform } from '@/lib/server/platform';
 import { Academic, academicRecord } from '@/lib/server/academic';
 import { course, modules, lessons, quiz, settings, badges, catalog } from '@/lib/seed';
@@ -30,8 +31,7 @@ async function deletedStudentIds() {
 }
 /* Faqat mahalliy demo: talaba ekranlarini ko'rib chiqish uchun namunaviy akademik tarix (jonli bazaga tegmaydi). */
 function demoAcademic(user: { id: string }) {
-  const day = 86400000,
-    now = Date.now();
+  const now = Date.now();
   const sample = {
     name: 'Madina',
     surname: 'Ergasheva',
@@ -46,7 +46,8 @@ function demoAcademic(user: { id: string }) {
   };
   const record = academicRecord(user.id.replace(/^legacy_/, ''), sample);
   const access = lessonAccessStates(
-    { m3: { lim: true, g: { 'AP-223': now - day }, s: {}, at: 0 } },
+    // namunaviy guruh ochilishi (bir daqiqa oldin) + demo o'qituvchi «Mavzular holati»da tanlaganlari
+    { m3: { lim: true, g: { 'AP-223': now - 60000 }, s: {}, at: 0 }, ...demoTopicAccess() },
     { id: user.id, group: 'AP-223', independent: false },
     now,
   );
@@ -62,6 +63,13 @@ function demoAcademic(user: { id: string }) {
 }
 export async function GET(req: NextRequest) {
   try {
+    if (req.nextUrl.searchParams.get('view') === 'topicAccess') {
+      const a = await actor(req, true);
+      staff(a);
+      return NextResponse.json(await topicAccessList(), {
+        headers: { 'Cache-Control': 'private, no-store' },
+      });
+    }
     if (req.nextUrl.searchParams.get('view') === 'siteSettings') {
       const a = await actor(req, true);
       administrator(a);
@@ -299,6 +307,11 @@ export async function POST(req: NextRequest) {
       await legacyDb().ref('meta/platformPolicy').set(policy);
       clearPolicyCache();
       return NextResponse.json({ ok: true });
+    }
+    if (p.action === 'topicMode') {
+      const a = await actor(req, true);
+      staff(a);
+      return NextResponse.json(await setTopicMode(p.input));
     }
     if (p.action === 'legacyChangePassword') {
       const a = await actor(req, true);

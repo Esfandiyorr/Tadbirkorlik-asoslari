@@ -3,14 +3,43 @@ import { catalog } from '../seed';
 import type { Actor, Lesson, LessonAccess } from '../types';
 import { legacyDb, demo } from './repository';
 import { check } from './auth';
+
+/* 🎚 Mavzuning umumiy holati (o'qituvchi bo'limidagi «Mavzular holati»): «lock» 🔒 hammaga yopiq, «read» 📖 hammaga
+   o'qish rejimi, «open» 🟢 hammaga ochiq (ball o'sha haftaning yakshanbasi 23:59 gacha, keyin 📖).
+   Bazada meta/access/<mavzu>/{m, mt}, config.json da mode/modeAt — boshlang'ich holat. Eng oxirgi amal ustun.
+   DIQQAT: _reyting-manba/engine_js.txt dagi accMode bilan AYNAN bir xil bo'lishi kerak. */
+export type TopicMode = 'lock' | 'read' | 'open';
+const stamp = (v: unknown) => {
+  const n = typeof v === 'string' ? Number(v) : v;
+  return typeof n === 'number' && n > 0 ? n : 0;
+};
+const isMode = (m: unknown): m is TopicMode => m === 'lock' || m === 'read' || m === 'open';
+export function accessMode(
+  topic: { mode?: unknown; modeAt?: unknown },
+  raw: any,
+  now = Date.now(),
+): { m: TopicMode; t: number; initial: boolean } | null {
+  const a = raw || {};
+  let last = stamp(a.at);
+  for (const k of ['g', 's'])
+    for (const v of Object.values((a[k] || {}) as Record<string, unknown>))
+      last = Math.max(last, stamp(v));
+  const mt = stamp(a.mt),
+    ct = stamp(topic.modeAt);
+  if (isMode(topic.mode) && ct && ct <= now && ct >= Math.max(last, mt))
+    return { m: topic.mode, t: ct, initial: true };
+  return isMode(a.m) && mt >= last ? { m: a.m, t: mt, initial: false } : null;
+}
 export function canReadLegacy(
-  topic: { open?: boolean; read?: boolean; lim?: boolean },
+  topic: { open?: boolean; read?: boolean; lim?: boolean; mode?: string; modeAt?: number },
   grant: any,
   a: Pick<Actor, 'id' | 'classId' | 'learnerType' | 'role'>,
   now = Date.now(),
 ) {
   if (a.role !== 'student') return true;
   if (!topic.open) return false;
+  const mode = accessMode(topic as { mode?: unknown; modeAt?: unknown }, grant, now);
+  if (mode) return mode.m !== 'lock';
   const g = grant
     ? { lim: !!grant.lim, g: grant.g || {}, s: grant.s || {}, at: +grant.at || 0 }
     : { lim: !!topic.lim, g: {}, s: {}, at: 0 };
@@ -63,7 +92,7 @@ export async function legacyAccess(a: Actor, l: Lesson) {
 
 /* Asl tizimdagi accState ning aynan nusxasi (_reyting-manba/engine_js.txt): har mavzu talaba uchun
    «score» — ball beriladi (ochilgan haftaning yakshanbasi 23:59 gacha), «read» — 📖 o'qish rejimi, «locked» — yopiq. */
-const weekEnd = (v: number) => {
+export const weekEnd = (v: number) => {
   const d = new Date(v + 18000000),
     day = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
   return day + (((7 - d.getUTCDay()) % 7) + 1) * 86400000 - 18000000;
@@ -86,8 +115,20 @@ export function lessonAccessStates(
     open?: boolean;
     read?: boolean;
     lim?: boolean;
+    mode?: string;
+    modeAt?: number;
   }[]) {
     const raw = access?.[topic.id];
+    const mode = topic.open ? accessMode(topic, raw, now) : null;
+    if (mode) {
+      out[topic.id] =
+        mode.m === 'lock'
+          ? { state: 'locked' }
+          : mode.m === 'open' && !student.independent && live(mode.t)
+            ? { state: 'score', due: weekEnd(mode.t) - 60000 }
+            : { state: 'read' };
+      continue;
+    }
     const a = raw
       ? { lim: !!raw.lim, g: raw.g || {}, s: raw.s || {}, at: +raw.at || 0 }
       : {
