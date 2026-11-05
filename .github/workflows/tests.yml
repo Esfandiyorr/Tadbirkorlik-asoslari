@@ -12,7 +12,7 @@ concurrency:
 
 jobs:
   sinovlar:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04   # Playwright 1.56 Ubuntu 26.04 ni qo‘llamaydi
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
