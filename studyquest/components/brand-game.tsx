@@ -6,8 +6,10 @@ import { Button } from './ui/button';
 import { tr } from '@/lib/points';
 import type { Lang } from '@/lib/types';
 
-/* «Brendni top»: dunyo brendlarining belgisi chiqadi — kompaniya nomini topish kerak.
-   Logotiplar: Simple Icons (CC0). Brend nomlari va belgilari egalariga tegishli; o'yin ta'lim maqsadida. */
+/* «Brendni top»: dunyo brendlarining belgisi chiqadi — kompaniya nomini topish kerak. Logotipida nomi yozilgan
+   brendlarda (text) esa «Bu kompaniya qaysi davlatda tashkil topgan?» deb so'raladi.
+   Logotiplar: Simple Icons, CoreUI Brands, SVG Logos (CC0). Brend nomlari va belgilari egalariga tegishli;
+   o'yin ta'lim maqsadida. */
 type Brand = {
   id: string;
   name: string;
@@ -17,9 +19,17 @@ type Brand = {
   country: string;
   year: number;
   fact: [string, string, string];
+  /** logotipda kompaniya nomi yozilgan */
+  text?: boolean;
+  /** 24×24 dan boshqa o'lcham (CoreUI, SVG Logos) */
+  vb?: string;
+  /** ko'p rangli logotipning SVG ichki qismi (o'zimiz tuzgan statik fayldan) */
+  body?: string;
 };
 type Level = 'easy' | 'hard';
-type Question = { brand: Brand; options: Brand[] };
+/** name — javoblar brend id lari; country — javoblar davlat kodlari */
+type Question = { brand: Brand; kind: 'name' | 'country'; options: string[] };
+const rightOf = (q: Question) => (q.kind === 'country' ? q.brand.country : q.brand.id);
 
 const ROUNDS = 10;
 const cats: Record<string, [string, string, string]> = {
@@ -41,6 +51,14 @@ const cats: Record<string, [string, string, string]> = {
   stream: ['Video va musiqa', 'Streaming', 'Стриминг'],
   browser: ['Brauzer', 'Web browser', 'Браузер'],
   engineering: ['Muhandislik', 'Engineering', 'Инженерия'],
+  photo: ['Fotografiya', 'Photography', 'Фотография'],
+  hotel: ['Mehmonxonalar', 'Hotels', 'Отели'],
+  telecom: ['Aloqa (telekom)', 'Telecom', 'Телеком'],
+  motorsport: ['Avtosport', 'Motorsport', 'Автоспорт'],
+  media: ['Televideniye', 'Television', 'Телевидение'],
+  retail: ['Chakana savdo', 'Retail', 'Розничная торговля'],
+  logistics: ['Yetkazib berish', 'Delivery and logistics', 'Доставка и логистика'],
+  industry: ['Sanoat', 'Manufacturing', 'Промышленность'],
 };
 const countries: Record<string, [string, string, string, string]> = {
   us: ['🇺🇸', 'AQSh', 'USA', 'США'],
@@ -57,6 +75,10 @@ const countries: Record<string, [string, string, string, string]> = {
   no: ['🇳🇴', 'Norvegiya', 'Norway', 'Норвегия'],
   qa: ['🇶🇦', 'Qatar', 'Qatar', 'Катар'],
   tr: ['🇹🇷', 'Turkiya', 'Türkiye', 'Турция'],
+  lu: ['🇱🇺', 'Lyuksemburg', 'Luxembourg', 'Люксембург'],
+  ch: ['🇨🇭', 'Shveytsariya', 'Switzerland', 'Швейцария'],
+  ca: ['🇨🇦', 'Kanada', 'Canada', 'Канада'],
+  nl: ['🇳🇱', 'Niderlandiya', 'Netherlands', 'Нидерланды'],
 };
 const pick3 = (x: [string, string, string], lang: Lang) =>
   lang === 'en' ? x[1] : lang === 'ru' ? x[2] : x[0];
@@ -81,27 +103,41 @@ const light = (hex: string) => {
   return (0.299 * r + 0.587 * g + 0.114 * b) / 255 > 0.72;
 };
 export function makeQuestions(brands: Brand[], level: Level, rounds = ROUNDS): Question[] {
+  const allCountries = Object.keys(countries);
   return shuffle(brands)
     .slice(0, rounds)
-    .map((brand) => {
+    .map((brand): Question => {
+      if (brand.text) {
+        // Nomi logotipda yozilgan — kompaniya qaysi davlatda tashkil topganini topish kerak.
+        const others = shuffle(allCountries.filter((c) => c !== brand.country)).slice(0, 3);
+        return { brand, kind: 'country', options: shuffle([brand.country, ...others]) };
+      }
       const same = shuffle(brands.filter((b) => b.id !== brand.id && b.cat === brand.cat)),
         rest = shuffle(brands.filter((b) => b.id !== brand.id && b.cat !== brand.cat));
       // Qiyin darajada chalg'ituvchi javoblar shu sohadan tanlanadi (masalan, avtomobillar ichidan).
       const pool = level === 'hard' ? [...same, ...rest] : [...rest.slice(0, 2), ...same, ...rest];
       // Bir xil javob ikki marta chiqmasin (oson darajada «rest» ro'yxati ikki marta qo'shiladi).
       const options = [...new Map(pool.map((b) => [b.id, b])).values()].slice(0, 3);
-      return { brand, options: shuffle([brand, ...options]) };
+      return { brand, kind: 'name', options: shuffle([brand, ...options]).map((b) => b.id) };
     });
 }
 
 function Logo({ brand, silhouette }: { brand: Brand; silhouette: boolean }) {
   return (
     <div
-      className={'brand-logo-tile' + (!silhouette && light(brand.hex) ? ' on-dark' : '')}
+      className={
+        'brand-logo-tile' +
+        (!silhouette && light(brand.hex) ? ' on-dark' : '') +
+        (silhouette ? ' silhouette' : '')
+      }
       aria-hidden="true"
     >
-      <svg viewBox="0 0 24 24" role="img">
-        <path d={brand.path} fill={silhouette ? 'currentColor' : '#' + brand.hex} />
+      <svg viewBox={brand.vb || '0 0 24 24'} role="img">
+        {brand.body ? (
+          <g dangerouslySetInnerHTML={{ __html: brand.body }} />
+        ) : (
+          <path d={brand.path} fill={silhouette ? 'currentColor' : '#' + brand.hex} />
+        )}
       </svg>
     </div>
   );
@@ -143,7 +179,7 @@ export function BrandGame({ onExit }: { onExit: () => void }) {
   const answer = useCallback(
     (id: string | null) => {
       if (!q || choice !== null) return;
-      const ok = id === q.brand.id;
+      const ok = id === rightOf(q);
       const remaining = Math.max(0, Math.ceil((deadline.current - Date.now()) / 1000));
       setChoice(id ?? '');
       setResults((r) => [...r, { id: q.brand.id, ok }]);
@@ -197,7 +233,7 @@ export function BrandGame({ onExit }: { onExit: () => void }) {
     if (phase !== 'play') return;
     const key = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
-      if (choice === null && /^[1-4]$/.test(e.key)) answer(q.options[Number(e.key) - 1]?.id);
+      if (choice === null && /^[1-4]$/.test(e.key)) answer(q.options[Number(e.key) - 1]);
       else if (choice !== null && e.key === 'Enter') next();
     };
     window.addEventListener('keydown', key);
@@ -249,9 +285,9 @@ export function BrandGame({ onExit }: { onExit: () => void }) {
             <p>
               {tr(
                 lang,
-                `Ekranda dunyoga mashhur brend belgisi chiqadi — kompaniya nomini to‘rtta javobdan toping. ${ROUNDS} ta savol, har biri uchun vaqt cheklangan. Tez va ketma-ket to‘g‘ri javob — ko‘proq ball!`,
-                `A famous brand’s logo appears — pick the company name from four answers. ${ROUNDS} questions, each against the clock. Fast answers and streaks earn more points!`,
-                `Появляется логотип известного бренда — выберите название компании из четырёх вариантов. ${ROUNDS} вопросов на время. Быстрые ответы и серии дают больше баллов!`,
+                `Ekranda dunyoga mashhur ${brands ? brands.length : ''} ta brenddan birining belgisi chiqadi — kompaniya nomini to‘rtta javobdan toping. Logotipida nomi yozilgan bo‘lsa — kompaniya qaysi davlatda tashkil topganini toping. ${ROUNDS} ta savol, har biri uchun vaqt cheklangan. Tez va ketma-ket to‘g‘ri javob — ko‘proq ball!`,
+                `A logo of one of ${brands ? brands.length : ''} famous brands appears — pick the company name from four answers. If the logo shows the name, pick the country where the company was founded. ${ROUNDS} questions, each against the clock. Fast answers and streaks earn more points!`,
+                `Появляется логотип одного из ${brands ? brands.length : ''} известных брендов — выберите название компании из четырёх вариантов. Если название написано на логотипе — выберите страну, где основана компания. ${ROUNDS} вопросов на время. Быстрые ответы и серии дают больше баллов!`,
               )}
             </p>
             <div
@@ -315,9 +351,9 @@ export function BrandGame({ onExit }: { onExit: () => void }) {
         <p className="bg-credit">
           {tr(
             lang,
-            'Logotiplar: Simple Icons (CC0). Brend nomlari va belgilari egalariga tegishli; o‘yin faqat ta’lim maqsadida.',
-            'Logos: Simple Icons (CC0). Brand names and marks belong to their owners; for education only.',
-            'Логотипы: Simple Icons (CC0). Названия и знаки принадлежат владельцам; только для обучения.',
+            'Logotiplar: Simple Icons, CoreUI Brands, SVG Logos (CC0). Brend nomlari va belgilari egalariga tegishli; o‘yin faqat ta’lim maqsadida.',
+            'Logos: Simple Icons, CoreUI Brands, SVG Logos (CC0). Brand names and marks belong to their owners; for education only.',
+            'Логотипы: Simple Icons, CoreUI Brands, SVG Logos (CC0). Названия и знаки принадлежат владельцам; только для обучения.',
           )}
         </p>
       </section>
@@ -366,7 +402,9 @@ export function BrandGame({ onExit }: { onExit: () => void }) {
     );
   const b = q.brand,
     answered = choice !== null,
-    won = choice === b.id;
+    right = rightOf(q),
+    won = choice === right,
+    nameOf = (id: string) => brands?.find((x) => x.id === id)?.name || id;
   return (
     <section className="panel brand-game">
       {header}
@@ -399,7 +437,7 @@ export function BrandGame({ onExit }: { onExit: () => void }) {
           <Button variant="ghost" className="bg-hint" disabled={hint} onClick={() => setHint(true)}>
             <Lightbulb size={16} />
             {hint
-              ? `${pick3(cats[b.cat] || [b.cat, b.cat, b.cat], lang)} · ${countryOf(b.country, lang)} · ${b.year}`
+              ? `${pick3(cats[b.cat] || [b.cat, b.cat, b.cat], lang)}${q.kind === 'name' ? ' · ' + countryOf(b.country, lang) : ''} · ${b.year}`
               : tr(
                   lang,
                   'Yordam (ball yarmiga kamayadi)',
@@ -408,18 +446,26 @@ export function BrandGame({ onExit }: { onExit: () => void }) {
                 )}
           </Button>
         )}
+        <p className="bg-ask">
+          {q.kind === 'country'
+            ? tr(
+                lang,
+                'Bu kompaniya qaysi davlatda tashkil topgan?',
+                'In which country was this company founded?',
+                'В какой стране основана эта компания?',
+              )
+            : tr(lang, 'Bu qaysi brend?', 'Which brand is this?', 'Что это за бренд?')}
+        </p>
         <div className="bg-options">
           {q.options.map((o, i) => (
             <button
-              key={o.id}
+              key={o}
               disabled={answered}
-              className={
-                answered ? (o.id === b.id ? 'right' : o.id === choice ? 'wrong' : 'dim') : ''
-              }
-              onClick={() => answer(o.id)}
+              className={answered ? (o === right ? 'right' : o === choice ? 'wrong' : 'dim') : ''}
+              onClick={() => answer(o)}
             >
               <kbd>{i + 1}</kbd>
-              {o.name}
+              {q.kind === 'country' ? countryOf(o, lang) : nameOf(o)}
             </button>
           ))}
         </div>

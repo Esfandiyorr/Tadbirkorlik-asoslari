@@ -1,3 +1,4 @@
-Brendni top o‘yini logotiplari: Simple Icons (https://simpleicons.org), CC0 1.0 litsenziyasi.
+Brendni top o‘yini logotiplari: Simple Icons (https://simpleicons.org), CoreUI Brands (https://github.com/coreui/coreui-icons)
+va SVG Logos (https://github.com/gilbarbara/logos) — barchasi CC0 1.0 litsenziyasida.
 Brend nomlari va belgilari ularning egalariga tegishli; o‘yin faqat ta’lim maqsadida ishlatiladi.
-Logos: Simple Icons, CC0 1.0. Brand names and marks belong to their owners; used for education only.
+Logos: Simple Icons, CoreUI Brands and SVG Logos, all CC0 1.0. Brand names and marks belong to their owners; used for education only.
