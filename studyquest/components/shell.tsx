@@ -40,6 +40,7 @@ import { Games } from './games';
 import { Staff } from './staff';
 import { InstallApp } from './install-app';
 import { NativeSurface } from './native-surface';
+import { ChatPage } from './chat-page';
 import { AcademicHistory } from './academic-history';
 import { ChangePassword } from './change-password';
 import { Button } from './ui/button';
@@ -131,9 +132,7 @@ export function StudyQuest() {
     { id: 'arena', key: 'arena', icon: Gamepad2 },
     { id: 'ranking', key: 'ranking', icon: Trophy },
     { id: 'badges', key: 'badges', icon: Medal },
-    ...(user && (role !== 'student' || user.learnerType === 'university')
-      ? [{ id: 'chat', key: 'chat' as Key, icon: MessageSquare }]
-      : []),
+    ...(user ? [{ id: 'chat', key: 'chat' as Key, icon: MessageSquare }] : []),
   ];
   const signedIn = !!user || !!legacy;
   let content;
@@ -149,20 +148,7 @@ export function StudyQuest() {
     content = user ? <QuizView key={id + user.id} id={id} /> : <AuthPanel />;
   else if (mainView === 'course' || mainView === 'courses')
     content = <CourseList courseId={mainView === 'course' ? id : undefined} />;
-  else if (view === 'chat')
-    content =
-      user && (role !== 'student' || user.learnerType === 'university') ? (
-        <section className="panel">
-          <h1>{t(lang, 'chat')}</h1>
-          <NativeSurface
-            className="native-workspace"
-            title={t(lang, 'chat')}
-            src={'/legacy/index.html?sqEmbed=chat' + (data.mode === 'demo' ? '&sqDemo=1' : '')}
-          />
-        </section>
-      ) : (
-        <AuthPanel />
-      );
+  else if (mainView === 'chat') content = user ? <ChatPage sub={id || ''} /> : <AuthPanel />;
   else if (view === 'badges') content = <Badges />;
   else if (view === 'ranking') content = user ? <Leaderboard /> : <AuthPanel />;
   else if (mainView === 'arena') content = <Games sub={view.split('/').slice(1).join('/')} />;

@@ -6233,7 +6233,7 @@ function build(){
       '<u>🗓 '+T("Videolar 1 kundan, boshqa xabarlar 1 haftadan keyin avtomatik o\'chiriladi.",
         "Videos are deleted after one day, other messages after one week.")+'</u>'+
       '<u>👨‍🏫 '+T("O\'qituvchi chatni ko\'rib boradi: qoidabuzar bloklanadi.","The teacher monitors the chat: rule-breakers are blocked.")+'</u></div>'+
-    '<div class="ch-list" id="chList"></div>'+
+    '<div class="ch-list" id="chList"><p class="ch-empty">⏳ '+T("Xabarlar yuklanmoqda…","Loading messages…")+'</p></div>'+
     '<p class="ch-hint" id="chHint">🔒 '+T("Rasm, video va havola yuborish faqat o\'qituvchi ruxsat bergan talabalarga ochiq.",
         "Sending images, videos and links is open only to students the teacher has allowed.")+'</p>'+
     '<p class="ch-att" id="chAtt"></p>'+
@@ -6273,7 +6273,11 @@ function build(){
   document.addEventListener("visibilitychange",function(){ if(!document.hidden) refresh(); });
 }
 function refresh(){
-  pull(function(ok){ if(ok) draw(); });
+  pull(function(ok){
+    if(ok){ draw(); return; }
+    /* ulanib bo'lmasa — bo'sh kulrang blok emas, tushunarli yozuv (keyingi urinish avtomatik) */
+    var l=$("chList"); if(l&&!msgs.length) l.innerHTML='<p class="ch-empty">🔌 '+T("Chatga ulanib bo\'lmadi. Internetni tekshiring — bir necha soniyadan keyin qayta uriniladi.","Could not reach the chat. Check the connection — it retries in a few seconds.")+'</p>';
+  });
   mediaRight(function(v){ if(v!==canMedia){ canMedia=v; tools(); } });
 }
 function tick(){

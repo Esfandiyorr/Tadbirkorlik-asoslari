@@ -12,6 +12,7 @@ import {
   Users,
   Trash2,
   ArrowRight,
+  Inbox,
 } from 'lucide-react';
 import { useApp } from './provider';
 import { Button } from './ui/button';
@@ -230,10 +231,18 @@ export function Staff({ admin = false }: { admin?: boolean }) {
             )}
           </p>
         </div>
-        <Button variant="outline" disabled={busy} onClick={exportReport}>
-          <Download size={16} />
-          CSV
-        </Button>
+        <div className="row-actions">
+          <Button variant="outline" asChild>
+            <a href="#chat/admin">
+              <Inbox size={16} />
+              {L('Kelgan xabarlar', 'Inbox', 'Входящие')}
+            </a>
+          </Button>
+          <Button variant="outline" disabled={busy} onClick={exportReport}>
+            <Download size={16} />
+            CSV
+          </Button>
+        </div>
       </div>
       <div className="filter-row" ref={tabRow}>
         {[

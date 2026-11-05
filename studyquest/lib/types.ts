@@ -153,3 +153,16 @@ export type Data = {
   leaderboard?: { id: string; name: string; xp: number; classId: string }[];
   error?: string;
 };
+/** «Adminga xabar»: murojaat va administrator javobi. */
+export type SupportMessage = {
+  id: string;
+  uid: string;
+  name: string;
+  role: string;
+  group: string;
+  cat: 'tech' | 'grade' | 'account' | 'idea' | 'other';
+  text: string;
+  at: number;
+  status: 'new' | 'read' | 'answered' | 'closed';
+  reply?: { text: string; at: number; by: string };
+};

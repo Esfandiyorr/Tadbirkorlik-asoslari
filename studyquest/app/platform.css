@@ -2862,6 +2862,330 @@
   box-shadow: 0 0 0 3px #16a34a;
 }
 
+/* ---------- Talabalar chati va «Adminga xabar» ---------- */
+.chat-tabs {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  margin-bottom: 18px;
+  border-radius: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  max-width: 100%;
+  overflow-x: auto;
+}
+.chat-tabs button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 18px;
+  border-radius: 12px;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: 15px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.chat-tabs button.on {
+  background: #6d28d9;
+  color: #fff;
+}
+.chat-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 20px;
+  align-items: start;
+}
+.chat-card {
+  position: relative;
+  padding: 0;
+  overflow: hidden;
+  min-height: 420px;
+}
+.chat-card .native-workspace {
+  padding: 0;
+}
+.chat-card.is-stuck .native-loading {
+  display: none;
+}
+.chat-card .native-loading {
+  min-height: 420px;
+  border-radius: 0;
+}
+.chat-stuck {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 10px 16px;
+  margin: 16px;
+  padding: 16px 18px;
+  border-radius: 18px;
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  color: #7c2d12;
+}
+.chat-stuck > span {
+  font-size: 30px;
+  grid-row: span 2;
+}
+.chat-stuck p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.55;
+}
+.chat-stuck b {
+  display: block;
+  font-size: 16px;
+  margin-bottom: 2px;
+}
+.chat-stuck button {
+  justify-self: start;
+}
+.dark .chat-stuck {
+  background: #7c2d1233;
+  border-color: #9a3412;
+  color: #fed7aa;
+}
+.chat-side {
+  display: grid;
+  gap: 14px;
+}
+.chat-rules {
+  padding: 18px 18px 8px;
+}
+.chat-rules h2 {
+  margin: 0 0 8px;
+  font-size: 17px;
+}
+.chat-rules ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 10px;
+}
+.chat-rules li {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--muted);
+  padding-bottom: 10px;
+  border-bottom: 1px dashed var(--border);
+}
+.chat-rules li:last-child {
+  border-bottom: 0;
+}
+.chat-help {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  text-align: left;
+  color: inherit;
+  transition: transform 0.2s;
+}
+.chat-help:hover {
+  transform: translateY(-2px);
+}
+.chat-help > span:first-child {
+  font-size: 30px;
+}
+.chat-help b {
+  display: block;
+  font-size: 15px;
+}
+.chat-help small {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+.support-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+.support-form {
+  padding: 20px 22px;
+}
+.support-form h2 {
+  margin: 0 0 6px;
+  font-size: 19px;
+}
+.support-form > .muted {
+  margin: 0 0 14px;
+  font-size: 14px;
+  line-height: 1.55;
+}
+.support-form form {
+  display: grid;
+  gap: 14px;
+}
+.support-form label {
+  display: grid;
+  gap: 7px;
+  font-size: 14px;
+  color: var(--muted);
+}
+.support-cats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.support-cats legend {
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: var(--muted);
+}
+.support-cats label {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.support-cats label.on {
+  border-color: #7c3aed;
+  background: var(--soft-violet);
+  color: #5b21b6;
+}
+.dark .support-cats label.on {
+  color: #ddd0ff;
+}
+.support-cats input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+.support-cats label:has(input:focus-visible) {
+  outline: 2px solid #8b5cf6;
+  outline-offset: 2px;
+}
+.support-count {
+  justify-self: end;
+  font-size: 12px;
+  color: var(--muted);
+}
+.support-history {
+  display: grid;
+  gap: 12px;
+}
+.support-history .section-heading {
+  margin-bottom: 0;
+}
+.support-history .section-heading h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.support-badge {
+  display: inline-grid;
+  place-items: center;
+  min-width: 26px;
+  height: 26px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: #dc2626;
+  color: #fff;
+  font-size: 13px;
+}
+.support-item {
+  display: grid;
+  gap: 8px;
+  padding: 16px 18px;
+}
+.support-item.new {
+  border-color: #c4b5fd;
+  box-shadow:
+    0 0 0 3px #8b5cf61a,
+    var(--shadow);
+}
+.support-item header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px 10px;
+  font-size: 14px;
+  color: var(--muted);
+}
+.support-item header b {
+  color: var(--text);
+}
+.support-item > p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.support-item > small {
+  font-size: 12px;
+  color: var(--muted);
+}
+.support-status {
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  background: var(--soft-violet);
+  color: #5b21b6;
+}
+.support-status.answered {
+  background: #dcfce7;
+  color: #14532d;
+}
+.support-status.read {
+  background: #e0f2fe;
+  color: #0b4a6f;
+}
+.dark .support-status {
+  color: #ddd0ff;
+}
+.dark .support-status.answered {
+  background: #14532d66;
+  color: #a7f3c0;
+}
+.dark .support-status.read {
+  background: #0c4a6e66;
+  color: #a5dcfb;
+}
+.support-reply {
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: var(--surface-soft);
+  border-left: 4px solid #16a34a;
+}
+.support-reply b {
+  font-size: 13px;
+  color: var(--muted);
+}
+.support-reply p {
+  margin: 4px 0 0;
+  font-size: 15px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+.support-answer {
+  display: grid;
+  gap: 8px;
+}
+.support-error {
+  color: #b42318;
+  font-size: 14px;
+}
+
 /* ---------- Planshet ---------- */
 @media (max-width: 1250px) {
   .guest-features {
@@ -2876,6 +3200,10 @@
   }
 }
 @media (max-width: 1020px) {
+  .chat-layout,
+  .support-layout {
+    grid-template-columns: 1fr;
+  }
   .profile-hero {
     grid-template-columns: 1fr;
   }
