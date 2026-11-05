@@ -25,11 +25,27 @@ type Brand = {
   vb?: string;
   /** ko'p rangli logotipning SVG ichki qismi (o'zimiz tuzgan statik fayldan) */
   body?: string;
+  /** rastr logotip (o'qituvchi bergan rasmlardan qirqilgan, shaffof fonli) */
+  img?: string;
+  /** 1 — hamma biladi, 2 — taniqli, 3 — mutaxassislar biladi */
+  tier?: number;
 };
-type Level = 'easy' | 'hard';
-/** name — javoblar brend id lari; country — javoblar davlat kodlari */
-type Question = { brand: Brand; kind: 'name' | 'country'; options: string[] };
-const rightOf = (q: Question) => (q.kind === 'country' ? q.brand.country : q.brand.id);
+type Level = 'easy' | 'medium' | 'hard';
+/** name — javoblar brend id lari; country — davlat kodlari; cat — soha kodlari */
+type Question = { brand: Brand; kind: 'name' | 'country' | 'cat'; options: string[] };
+const rightOf = (q: Question) =>
+  q.kind === 'country' ? q.brand.country : q.kind === 'cat' ? q.brand.cat : q.brand.id;
+/** Daraja: qaysi brendlar, vaqt, siluet va bir sohadan variantlar */
+export const levels: Record<
+  Level,
+  { tier: number; time: number; silhouette: boolean; sameCat: boolean }
+> = {
+  easy: { tier: 1, time: 15, silhouette: false, sameCat: false },
+  medium: { tier: 2, time: 12, silhouette: false, sameCat: true },
+  hard: { tier: 3, time: 10, silhouette: true, sameCat: true },
+};
+export const poolOf = (brands: Brand[], level: Level) =>
+  brands.filter((b) => (b.tier || 2) <= levels[level].tier);
 
 const ROUNDS = 10;
 const cats: Record<string, [string, string, string]> = {
@@ -59,6 +75,32 @@ const cats: Record<string, [string, string, string]> = {
   retail: ['Chakana savdo', 'Retail', 'Розничная торговля'],
   logistics: ['Yetkazib berish', 'Delivery and logistics', 'Доставка и логистика'],
   industry: ['Sanoat', 'Manufacturing', 'Промышленность'],
+  transport: ['Transport xizmati', 'Ride hailing', 'Транспортный сервис'],
+  software: ['Dasturiy ta’minot', 'Software', 'Программное обеспечение'],
+  ai: ['Sun’iy intellekt', 'Artificial intelligence', 'Искусственный интеллект'],
+  aerospace: ['Aviatsiya va kosmos', 'Aerospace', 'Авиация и космос'],
+  film: ['Kino va animatsiya', 'Film and animation', 'Кино и анимация'],
+  consumer: ['Maishiy tovarlar', 'Consumer goods', 'Потребительские товары'],
+  ar: [
+    'AR/VR — kengaytirilgan va virtual reallik',
+    'AR/VR',
+    'AR/VR — дополненная и виртуальная реальность',
+  ],
+  bank: ['Bank va moliya', 'Banking and finance', 'Банки и финансы'],
+  research: ['Ilm-fan va standartlar', 'Science and standards', 'Наука и стандарты'],
+  consulting: ['Konsalting va audit', 'Consulting and audit', 'Консалтинг и аудит'],
+  snack: ['Shirinlik va gazaklar', 'Snacks and sweets', 'Снеки и сладости'],
+  toys: ['O‘yinchoqlar', 'Toys', 'Игрушки'],
+  fashion: ['Moda', 'Fashion', 'Мода'],
+  pharmacy: ['Dorixonalar', 'Pharmacies', 'Аптеки'],
+  insurance: ['Tibbiy sug‘urta', 'Health insurance', 'Медицинское страхование'],
+  petfood: ['Uy hayvonlari ozuqasi', 'Pet food', 'Корм для животных'],
+  tobacco: ['Tamaki', 'Tobacco', 'Табак'],
+  eyewear: ['Ko‘zoynaklar', 'Eyewear', 'Очки'],
+  agriculture: ['Qishloq xo‘jaligi texnikasi', 'Farm machinery', 'Сельхозтехника'],
+  defense: ['Mudofaa va aerokosmik', 'Defence and aerospace', 'Оборона и аэрокосмос'],
+  architecture: ['Arxitektura', 'Architecture', 'Архитектура'],
+  education: ['Ta’lim', 'Education', 'Образование'],
 };
 const countries: Record<string, [string, string, string, string]> = {
   us: ['🇺🇸', 'AQSh', 'USA', 'США'],
@@ -79,6 +121,10 @@ const countries: Record<string, [string, string, string, string]> = {
   ch: ['🇨🇭', 'Shveytsariya', 'Switzerland', 'Швейцария'],
   ca: ['🇨🇦', 'Kanada', 'Canada', 'Канада'],
   nl: ['🇳🇱', 'Niderlandiya', 'Netherlands', 'Нидерланды'],
+  dk: ['🇩🇰', 'Daniya', 'Denmark', 'Дания'],
+  ie: ['🇮🇪', 'Irlandiya', 'Ireland', 'Ирландия'],
+  be: ['🇧🇪', 'Belgiya', 'Belgium', 'Бельгия'],
+  il: ['🇮🇱', 'Isroil', 'Israel', 'Израиль'],
 };
 const pick3 = (x: [string, string, string], lang: Lang) =>
   lang === 'en' ? x[1] : lang === 'ru' ? x[2] : x[0];
@@ -102,20 +148,30 @@ const light = (hex: string) => {
     b = n & 255;
   return (0.299 * r + 0.587 * g + 0.114 * b) / 255 > 0.72;
 };
-export function makeQuestions(brands: Brand[], level: Level, rounds = ROUNDS): Question[] {
-  const allCountries = Object.keys(countries);
+export function makeQuestions(all: Brand[], level: Level, rounds = ROUNDS): Question[] {
+  const allCountries = Object.keys(countries),
+    allCats = Object.keys(cats),
+    brands = poolOf(all, level);
   return shuffle(brands)
     .slice(0, rounds)
     .map((brand): Question => {
       if (brand.text) {
-        // Nomi logotipda yozilgan — kompaniya qaysi davlatda tashkil topganini topish kerak.
-        const others = shuffle(allCountries.filter((c) => c !== brand.country)).slice(0, 3);
+        // Nomi logotipda yozilgan — kompaniya qaysi davlatda tashkil topgani yoki qaysi sohada ishlashi so'raladi.
+        if (Math.random() < 0.5 && cats[brand.cat]) {
+          const others = shuffle(allCats.filter((c) => c !== brand.cat)).slice(0, 3);
+          return { brand, kind: 'cat', options: shuffle([brand.cat, ...others]) };
+        }
+        // AQSh har doim variantlar orasida — «hammasi AQSh» deb taxmin qilib bo'lmasin.
+        const rest = shuffle(allCountries.filter((c) => c !== brand.country && c !== 'us'));
+        const others = (brand.country === 'us' ? rest : ['us', ...rest]).slice(0, 3);
         return { brand, kind: 'country', options: shuffle([brand.country, ...others]) };
       }
       const same = shuffle(brands.filter((b) => b.id !== brand.id && b.cat === brand.cat)),
         rest = shuffle(brands.filter((b) => b.id !== brand.id && b.cat !== brand.cat));
       // Qiyin darajada chalg'ituvchi javoblar shu sohadan tanlanadi (masalan, avtomobillar ichidan).
-      const pool = level === 'hard' ? [...same, ...rest] : [...rest.slice(0, 2), ...same, ...rest];
+      const pool = levels[level].sameCat
+        ? [...same, ...rest]
+        : [...rest.slice(0, 2), ...same, ...rest];
       // Bir xil javob ikki marta chiqmasin (oson darajada «rest» ro'yxati ikki marta qo'shiladi).
       const options = [...new Map(pool.map((b) => [b.id, b])).values()].slice(0, 3);
       return { brand, kind: 'name', options: shuffle([brand, ...options]).map((b) => b.id) };
@@ -127,18 +183,23 @@ function Logo({ brand, silhouette }: { brand: Brand; silhouette: boolean }) {
     <div
       className={
         'brand-logo-tile' +
-        (!silhouette && light(brand.hex) ? ' on-dark' : '') +
+        (!silhouette && !brand.img && light(brand.hex) ? ' on-dark' : '') +
         (silhouette ? ' silhouette' : '')
       }
       aria-hidden="true"
     >
-      <svg viewBox={brand.vb || '0 0 24 24'} role="img">
-        {brand.body ? (
-          <g dangerouslySetInnerHTML={{ __html: brand.body }} />
-        ) : (
-          <path d={brand.path} fill={silhouette ? 'currentColor' : '#' + brand.hex} />
-        )}
-      </svg>
+      {brand.img ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={brand.img} alt="" draggable={false} />
+      ) : (
+        <svg viewBox={brand.vb || '0 0 24 24'} role="img">
+          {brand.body ? (
+            <g dangerouslySetInnerHTML={{ __html: brand.body }} />
+          ) : (
+            <path d={brand.path} fill={silhouette ? 'currentColor' : '#' + brand.hex} />
+          )}
+        </svg>
+      )}
     </div>
   );
 }
@@ -158,7 +219,7 @@ export function BrandGame({ onExit }: { onExit: () => void }) {
     [results, setResults] = useState<{ id: string; ok: boolean }[]>([]),
     [left, setLeft] = useState(15),
     [best, setBest] = useState(0);
-  const limit = level === 'hard' ? 12 : 15,
+  const limit = levels[level].time,
     deadline = useRef(0);
   useEffect(() => {
     let alive = true;
@@ -191,7 +252,7 @@ export function BrandGame({ onExit }: { onExit: () => void }) {
     },
     [q, choice, streak, hint],
   );
-  // Har savolga vaqt: oson — 15 s, qiyin — 12 s.
+  // Har savolga vaqt: oson — 15 s, o'rta — 12 s, qiyin — 10 s.
   useEffect(() => {
     if (phase !== 'play' || choice !== null) return;
     deadline.current = Date.now() + limit * 1000;
@@ -285,9 +346,9 @@ export function BrandGame({ onExit }: { onExit: () => void }) {
             <p>
               {tr(
                 lang,
-                `Ekranda dunyoga mashhur ${brands ? brands.length : ''} ta brenddan birining belgisi chiqadi — kompaniya nomini to‘rtta javobdan toping. Logotipida nomi yozilgan bo‘lsa — kompaniya qaysi davlatda tashkil topganini toping. ${ROUNDS} ta savol, har biri uchun vaqt cheklangan. Tez va ketma-ket to‘g‘ri javob — ko‘proq ball!`,
-                `A logo of one of ${brands ? brands.length : ''} famous brands appears — pick the company name from four answers. If the logo shows the name, pick the country where the company was founded. ${ROUNDS} questions, each against the clock. Fast answers and streaks earn more points!`,
-                `Появляется логотип одного из ${brands ? brands.length : ''} известных брендов — выберите название компании из четырёх вариантов. Если название написано на логотипе — выберите страну, где основана компания. ${ROUNDS} вопросов на время. Быстрые ответы и серии дают больше баллов!`,
+                `Ekranda dunyoga mashhur ${brands ? brands.length : ''} ta brenddan birining belgisi chiqadi — kompaniya nomini to‘rtta javobdan toping. Logotipida nomi yozilgan bo‘lsa — kompaniya qaysi davlatda tashkil topgani yoki qaysi sohada ishlashini toping. ${ROUNDS} ta savol, har biri uchun vaqt cheklangan. Tez va ketma-ket to‘g‘ri javob — ko‘proq ball!`,
+                `A logo of one of ${brands ? brands.length : ''} famous brands appears — pick the company name from four answers. If the logo shows the name, pick the company’s home country or industry. ${ROUNDS} questions, each against the clock. Fast answers and streaks earn more points!`,
+                `Появляется логотип одного из ${brands ? brands.length : ''} известных брендов — выберите название компании из четырёх вариантов. Если название написано на логотипе — выберите страну или сферу компании. ${ROUNDS} вопросов на время. Быстрые ответы и серии дают больше баллов!`,
               )}
             </p>
             <div
@@ -303,9 +364,20 @@ export function BrandGame({ onExit }: { onExit: () => void }) {
                     tr(lang, 'Oson', 'Easy', 'Легко'),
                     tr(
                       lang,
-                      'Rangli logotip · 15 soniya',
-                      'Colour logo · 15 s',
-                      'Цветной логотип · 15 с',
+                      'Hamma biladigan brendlar · rangli · 15 soniya',
+                      'Brands everyone knows · colour · 15 s',
+                      'Бренды, которые знают все · цвет · 15 с',
+                    ),
+                  ],
+                  [
+                    'medium',
+                    '🟡',
+                    tr(lang, 'O‘rta', 'Medium', 'Средне'),
+                    tr(
+                      lang,
+                      'Taniqli brendlar · bir sohadan variantlar · 12 soniya',
+                      'Well-known brands · same-industry options · 12 s',
+                      'Известные бренды · варианты из одной сферы · 12 с',
                     ),
                   ],
                   [
@@ -314,9 +386,9 @@ export function BrandGame({ onExit }: { onExit: () => void }) {
                     tr(lang, 'Qiyin', 'Hard', 'Сложно'),
                     tr(
                       lang,
-                      'Rangsiz siluet · bir sohadan variantlar · 12 soniya',
-                      'Silhouette · same-industry options · 12 s',
-                      'Силуэт · варианты из одной сферы · 12 с',
+                      'Barcha brendlar, AR/VR kompaniyalari ham · siluet · 10 soniya',
+                      'All brands incl. AR/VR companies · silhouette · 10 s',
+                      'Все бренды, включая AR/VR · силуэт · 10 с',
                     ),
                   ],
                 ] as const
@@ -329,7 +401,10 @@ export function BrandGame({ onExit }: { onExit: () => void }) {
                   onClick={() => setLevel(id)}
                 >
                   <span>{icon}</span>
-                  <b>{label}</b>
+                  <b>
+                    {label}
+                    {brands ? ` · ${poolOf(brands, id).length}` : ''}
+                  </b>
                   <small>{sub}</small>
                 </button>
               ))}
@@ -351,9 +426,9 @@ export function BrandGame({ onExit }: { onExit: () => void }) {
         <p className="bg-credit">
           {tr(
             lang,
-            'Logotiplar: Simple Icons, CoreUI Brands, SVG Logos (CC0). Brend nomlari va belgilari egalariga tegishli; o‘yin faqat ta’lim maqsadida.',
-            'Logos: Simple Icons, CoreUI Brands, SVG Logos (CC0). Brand names and marks belong to their owners; for education only.',
-            'Логотипы: Simple Icons, CoreUI Brands, SVG Logos (CC0). Названия и знаки принадлежат владельцам; только для обучения.',
+            'Logotiplar: Simple Icons, CoreUI Brands, SVG Logos (CC0) va o‘qituvchi bergan rasmlar. Brend nomlari va belgilari egalariga tegishli; o‘yin faqat ta’lim maqsadida.',
+            'Logos: Simple Icons, CoreUI Brands, SVG Logos (CC0) and images provided by the teacher. Brand names and marks belong to their owners; for education only.',
+            'Логотипы: Simple Icons, CoreUI Brands, SVG Logos (CC0) и изображения преподавателя. Названия и знаки принадлежат владельцам; только для обучения.',
           )}
         </p>
       </section>
@@ -426,7 +501,7 @@ export function BrandGame({ onExit }: { onExit: () => void }) {
       </div>
       <div className="bg-stage">
         <div className={'bg-logo-wrap' + (answered ? (won ? ' won' : ' lost') : '')}>
-          <Logo brand={b} silhouette={level === 'hard' && !answered} />
+          <Logo brand={b} silhouette={levels[level].silhouette && !answered} />
           {!answered && (
             <div className="bg-timer" style={{ ['--p' as string]: left / limit }}>
               <span>{left}</span>
@@ -437,7 +512,13 @@ export function BrandGame({ onExit }: { onExit: () => void }) {
           <Button variant="ghost" className="bg-hint" disabled={hint} onClick={() => setHint(true)}>
             <Lightbulb size={16} />
             {hint
-              ? `${pick3(cats[b.cat] || [b.cat, b.cat, b.cat], lang)}${q.kind === 'name' ? ' · ' + countryOf(b.country, lang) : ''} · ${b.year}`
+              ? [
+                  q.kind !== 'cat' && pick3(cats[b.cat] || [b.cat, b.cat, b.cat], lang),
+                  q.kind !== 'country' && countryOf(b.country, lang),
+                  b.year,
+                ]
+                  .filter(Boolean)
+                  .join(' · ')
               : tr(
                   lang,
                   'Yordam (ball yarmiga kamayadi)',
@@ -454,7 +535,14 @@ export function BrandGame({ onExit }: { onExit: () => void }) {
                 'In which country was this company founded?',
                 'В какой стране основана эта компания?',
               )
-            : tr(lang, 'Bu qaysi brend?', 'Which brand is this?', 'Что это за бренд?')}
+            : q.kind === 'cat'
+              ? tr(
+                  lang,
+                  'Bu kompaniya qaysi sohada ishlaydi?',
+                  'What industry is this company in?',
+                  'В какой сфере работает эта компания?',
+                )
+              : tr(lang, 'Bu qaysi brend?', 'Which brand is this?', 'Что это за бренд?')}
         </p>
         <div className="bg-options">
           {q.options.map((o, i) => (
@@ -465,7 +553,11 @@ export function BrandGame({ onExit }: { onExit: () => void }) {
               onClick={() => answer(o)}
             >
               <kbd>{i + 1}</kbd>
-              {q.kind === 'country' ? countryOf(o, lang) : nameOf(o)}
+              {q.kind === 'country'
+                ? countryOf(o, lang)
+                : q.kind === 'cat'
+                  ? pick3(cats[o] || [o, o, o], lang)
+                  : nameOf(o)}
             </button>
           ))}
         </div>

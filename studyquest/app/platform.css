@@ -2625,7 +2625,7 @@
 }
 .bg-levels {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr);
   gap: 10px;
   width: 100%;
 }
@@ -3815,4 +3815,16 @@
 }
 .brand-logo-tile.silhouette svg * {
   fill: currentColor;
+}
+.brand-logo-tile img {
+  width: 78%;
+  height: 78%;
+  object-fit: contain;
+  user-select: none;
+}
+.brand-logo-tile.silhouette img {
+  filter: brightness(0) opacity(0.82);
+}
+.dark .brand-logo-tile.silhouette img {
+  filter: brightness(0) invert(1) opacity(0.85);
 }

@@ -2,3 +2,7 @@ Brendni top o‘yini logotiplari: Simple Icons (https://simpleicons.org), CoreUI
 va SVG Logos (https://github.com/gilbarbara/logos) — barchasi CC0 1.0 litsenziyasida.
 Brend nomlari va belgilari ularning egalariga tegishli; o‘yin faqat ta’lim maqsadida ishlatiladi.
 Logos: Simple Icons, CoreUI Brands and SVG Logos, all CC0 1.0. Brand names and marks belong to their owners; used for education only.
+
+img/ papkasidagi rastr logotiplar o‘qituvchi bergan logotiplar to‘plami rasmlaridan qirqib olingan (fon shaffof qilingan);
+ular ham faqat ta’lim maqsadida — brendni tanib olish o‘yinida ishlatiladi.
+Raster logos in img/ were cropped from logo collages provided by the teacher; used only for this educational quiz.
