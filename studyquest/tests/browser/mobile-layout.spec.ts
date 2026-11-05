@@ -105,3 +105,45 @@ for (const width of [320, 390, 768, 1280]) {
     }
   });
 }
+
+test('home cards stay inside a phone screen with enlarged text and long unbroken words', async ({
+  browser,
+}) => {
+  for (const id of ['demo-admin', 'demo-student'])
+    for (const width of [360, 412]) {
+      const page = await (
+        await browser.newContext({
+          viewport: { width, height: 860 },
+          isMobile: true,
+          hasTouch: true,
+        })
+      ).newPage();
+      await page.request.post('/api/auth/demo', { data: { id } });
+      await page.goto('/#home');
+      await expect(page.locator('.dashboard-main')).toBeVisible();
+      await expect(page.locator('.skeleton')).toHaveCount(0);
+      const result = await page.evaluate(() => {
+        // Android'dagi «shrift o‘lchami» sozlamasiga o‘xshab barcha yozuvlar 1,3 marta kattalashtiriladi,
+        // har bir matnga esa bo‘sh joysiz uzun so‘z qo‘shiladi.
+        const all = [...document.querySelectorAll<HTMLElement>('.app-main *')];
+        const sizes = all.map((e) => parseFloat(getComputedStyle(e).fontSize));
+        all.forEach((e, i) => (e.style.fontSize = sizes[i] * 1.3 + 'px'));
+        const walker = document.createTreeWalker(document.querySelector('.dashboard-grid')!, 4);
+        for (let n = walker.nextNode(); n; n = walker.nextNode())
+          if ((n.nodeValue || '').trim().length > 2)
+            n.nodeValue += 'Mahsulotnikamxarajatbilansinash';
+        const main = document.querySelector('.dashboard-main')!.getBoundingClientRect();
+        const nav = document.querySelector('.bottom-nav')!.getBoundingClientRect();
+        return {
+          page: document.documentElement.scrollWidth,
+          main: Math.round(main.right),
+          navBottom: Math.round(nav.bottom),
+        };
+      });
+      expect(result.page, `${id} ${width}`).toBeLessThanOrEqual(width);
+      expect(result.main, `${id} ${width}`).toBeLessThanOrEqual(width);
+      // The fixed bottom menu stays on screen (an overflowing page pushes it out of view on Android).
+      expect(result.navBottom, `${id} ${width}`).toBeLessThanOrEqual(860);
+      await page.context().close();
+    }
+});

@@ -797,10 +797,10 @@
   }
   .native-arena .native-document .games,
   .native-arena .native-document .game-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
   .academic-topic-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 @media (max-width: 360px) {

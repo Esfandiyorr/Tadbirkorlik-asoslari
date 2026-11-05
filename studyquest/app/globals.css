@@ -890,7 +890,7 @@ a:focus-visible {
   margin: 0 0 10px;
 }
 .course-grid:has(.course-card:only-child) {
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr);
 }
 .course-grid .course-card:only-child {
   display: grid;
@@ -1766,7 +1766,7 @@ a:focus-visible {
 }
 .editor-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 23px;
 }
 .editor {
@@ -1878,7 +1878,7 @@ textarea.input {
 }
 .form-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 17px;
 }
 .table-scroll {
@@ -2240,11 +2240,11 @@ td .input {
 }
 @media (max-width: 1020px) {
   .dashboard-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
   .dashboard-aside {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     align-items: start;
   }
   .profile-summary {
@@ -2275,7 +2275,7 @@ td .input {
     width: 50%;
   }
   .editor-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
   .sidebar-note {
     padding: 15px 11px;
@@ -2899,7 +2899,7 @@ td .input {
     padding: 10px 9px;
   }
   .dashboard-aside {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
   .profile-summary {
     grid-row: auto;

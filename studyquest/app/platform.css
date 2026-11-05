@@ -1852,7 +1852,7 @@
 .auth-tabs,
 .native-login .native-document .rt-gtabs {
   display: grid !important;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 4px !important;
   padding: 4px;
   margin: 0 0 6px !important;
@@ -1942,7 +1942,7 @@
 }
 .auth-alt {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
 }
 .auth-google,
@@ -2625,7 +2625,7 @@
 }
 .bg-levels {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
   width: 100%;
 }
@@ -2748,7 +2748,7 @@
 }
 .bg-options {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
   width: min(640px, 100%);
 }
@@ -3202,13 +3202,13 @@
 @media (max-width: 1020px) {
   .chat-layout,
   .support-layout {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
   .profile-hero {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
   .profile-layout {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
   .welcome-hero.continue-hero h2 {
     font-size: 24px;
@@ -3344,21 +3344,21 @@
     max-width: none;
   }
   .arena-feature {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     padding: 20px;
   }
   .arena-feature-art {
     display: none;
   }
   .arena-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: 10px;
   }
   .brand-game {
     padding: 14px;
   }
   .bg-menu {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
   .bg-head h2 {
     font-size: 18px;
@@ -3374,10 +3374,10 @@
     gap: 6px;
   }
   .bg-levels {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
   .bg-options {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
   .bg-review {
     grid-template-columns: repeat(5, minmax(0, 1fr));
@@ -3387,7 +3387,7 @@
     font-size: 16px;
   }
   .profile-hero {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     padding: 18px;
     gap: 16px;
   }
@@ -3406,10 +3406,10 @@
     font-size: 18px;
   }
   .profile-layout {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
   .academic-topic-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
   .page-heading p {
     font-size: 15px;
@@ -3424,7 +3424,7 @@
     font-size: 14px;
   }
   .welcome-hero.continue-hero {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     padding: 16px;
     gap: 16px;
   }
@@ -3470,7 +3470,7 @@
     font-size: 13px;
   }
   .soft-empty {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     text-align: left;
   }
   .soft-empty > span {
@@ -3480,7 +3480,7 @@
     grid-column: auto;
   }
   .course-grid .course-card:only-child {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
   .course-grid .course-card:only-child .course-hero-art {
     min-height: 168px;
@@ -3495,7 +3495,7 @@
     font-size: 13px;
   }
   .course-banner {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
   .course-banner .course-hero-art {
     min-height: 150px;
@@ -3504,7 +3504,7 @@
     padding: 18px;
   }
   .lesson-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: 14px;
   }
   .lesson-card {
@@ -3565,7 +3565,7 @@
     font-size: 13px;
   }
   .guest-hero {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     padding: 20px;
     gap: 20px;
     border-radius: 24px;
@@ -3593,7 +3593,7 @@
     padding: 18px;
   }
   .guest-topics {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
   .profile-quick button {
     min-height: 60px;
@@ -3601,19 +3601,19 @@
 }
 @media (max-width: 359px) {
   .guest-features {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 @media (max-width: 390px) {
   .stats-grid {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 8px;
   }
   .stat-emoji {
     display: none;
   }
   .badge-grid {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .profile-summary {
     display: block;
@@ -3638,5 +3638,56 @@
   .bg-done-medal,
   .live-dot {
     animation: none;
+  }
+}
+
+/* ---------- Telefon: hech bir yozuv sahifani ekrandan kengaytirmasin ----------
+   Grid ustunlari kontentning eng uzun so‘ziga qarab kengaymasin (minmax(0, …)), uzun so‘zlar bo‘linsin.
+   Aks holda (masalan, telefonda shrift kattalashtirilganda) bosh sahifa kartasi o‘ngdan kesiladi va
+   Chrome sahifani kengaytirib, pastki menyuni ekrandan chiqarib yuboradi. */
+.app-main {
+  overflow-x: clip;
+}
+.dashboard-main > *,
+.dashboard-aside > *,
+.welcome-hero.continue-hero > *,
+.course-grid > *,
+.course-card > * {
+  min-width: 0;
+}
+.home-heading :is(h1, p),
+.dashboard-grid :is(h2, h3, p, li, small, strong, b) {
+  overflow-wrap: anywhere;
+}
+.section-heading > :first-child {
+  min-width: 0;
+}
+.section-heading > button {
+  flex-shrink: 0;
+}
+.stats-grid > .stat-card:only-child {
+  grid-column: 1 / -1;
+}
+@media (max-width: 1020px) {
+  .dashboard-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .dashboard-aside {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 760px) {
+  .dashboard-aside,
+  .welcome-hero.continue-hero,
+  .course-grid,
+  .course-grid:has(.course-card:only-child),
+  .course-grid .course-card:only-child {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .continue-hero-meta .access-chip,
+  .continue-hero-meta .hero-due,
+  .due-item .access-chip {
+    max-width: 100%;
+    white-space: normal;
   }
 }
