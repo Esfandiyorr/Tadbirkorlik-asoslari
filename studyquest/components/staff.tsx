@@ -64,6 +64,7 @@ export function Staff({ admin = false }: { admin?: boolean }) {
     pending.current = { base: data, promise };
     return promise;
   }, [data, request]);
+  const tabRow = useRef<HTMLDivElement>(null);
   const [tab, setTab] = useState(admin ? 'academic' : 'overview'),
     [selected, setSelected] = useState(d.courses[0]?.id || ''),
     [busy, setBusy] = useState(false);
@@ -140,10 +141,19 @@ export function Staff({ admin = false }: { admin?: boolean }) {
   const progress = (d.allProgress || []).filter((x) => x.courseId === selected),
     attempts = (d.allAttempts || []).filter((x) => x.courseId === selected && x.submittedAt),
     users = d.users || [],
-    analytics = d.courses.map((c) => ({
-      title: c.title.slice(0, 23),
-      completed: (d.allProgress || []).filter((p) => p.courseId === c.id && p.completed).length,
-    }));
+    // Har mavzu bo'yicha: nechta o'quvchi ochgan va nechtasi yakunlagan (bitta ustun emas — 15 ta mavzu).
+    analytics = d.lessons
+      .filter((l) => l.courseId === (selected || d.courses[0]?.id))
+      .sort((a, b) => a.order - b.order)
+      .map((l) => {
+        const rows = (d.allProgress || []).filter((p) => p.lessonId === l.id);
+        return {
+          topic: String(l.order + 1),
+          title: l.order + 1 + '. ' + l.title,
+          opened: rows.length,
+          completed: rows.filter((p) => p.completed).length,
+        };
+      });
   async function exportReport() {
     setBusy(true);
     try {
@@ -189,6 +199,14 @@ export function Staff({ admin = false }: { admin?: boolean }) {
       setBusy(false);
     }
   }
+  useEffect(() => {
+    // Telefonda bo'limlar bitta suriladigan qatorda: tanlangan bo'lim doim ko'rinib tursin
+    // (faqat qator gorizontal suriladi, sahifa joyidan qimirlamaydi).
+    const row = tabRow.current,
+      on = row?.querySelector<HTMLElement>('[aria-pressed="true"]');
+    if (row && on && row.scrollWidth > row.clientWidth)
+      row.scrollTo({ left: on.offsetLeft - row.clientWidth / 2 + on.clientWidth / 2 });
+  }, [tab]);
   const updateQuestion = (i: number, patch: Partial<Question>) =>
     setQuiz({
       ...quiz,
@@ -198,7 +216,11 @@ export function Staff({ admin = false }: { admin?: boolean }) {
     <>
       <div className="page-heading">
         <div>
-          <span className="eyebrow">{admin ? 'PLATFORM CONTROL' : 'TEACH. INSPIRE. SUPPORT.'}</span>
+          <span className="eyebrow">
+            {admin
+              ? L('PLATFORMA BOSHQARUVI', 'PLATFORM CONTROL', 'УПРАВЛЕНИЕ ПЛАТФОРМОЙ')
+              : L('O‘RGATING. ILHOMLANTIRING.', 'TEACH. INSPIRE. SUPPORT.', 'УЧИТЕ. ВДОХНОВЛЯЙТЕ.')}
+          </span>
           <h1>{t(lang, admin ? 'adminPanel' : 'teacherPanel')}</h1>
           <p>
             {L(
@@ -213,7 +235,7 @@ export function Staff({ admin = false }: { admin?: boolean }) {
           CSV
         </Button>
       </div>
-      <div className="filter-row">
+      <div className="filter-row" ref={tabRow}>
         {[
           ['overview', L('Tahlil', 'Analytics', 'Аналитика')],
           ['courses', t(lang, 'courses')],
@@ -233,6 +255,7 @@ export function Staff({ admin = false }: { admin?: boolean }) {
             key={id}
             size="sm"
             variant={tab === id ? 'default' : 'outline'}
+            aria-pressed={tab === id}
             onClick={() => setTab(id)}
           >
             {label}
@@ -245,11 +268,13 @@ export function Staff({ admin = false }: { admin?: boolean }) {
             <>
               <p role="alert">{reportError}</p>
               <Button onClick={() => void loadReport().catch(() => {})}>
-                Hisobotni qayta yuklash
+                {L('Hisobotni qayta yuklash', 'Reload the report', 'Перезагрузить отчёт')}
               </Button>
             </>
           ) : (
-            <p role="status">Hisobot yuklanmoqda…</p>
+            <p role="status">
+              {L('Hisobot yuklanmoqda…', 'Loading the report…', 'Загрузка отчёта…')}
+            </p>
           )}
         </div>
       )}
@@ -259,7 +284,11 @@ export function Staff({ admin = false }: { admin?: boolean }) {
         <section className="panel">
           <NativeSurface
             className="native-workspace"
-            title="Fan bo‘yicha barcha boshqaruvlar"
+            title={L(
+              'Fan bo‘yicha barcha boshqaruvlar',
+              'All course controls',
+              'Все настройки курса',
+            )}
             src="/legacy/index.html?sqEmbed=teacher"
           />
         </section>
@@ -290,17 +319,57 @@ export function Staff({ admin = false }: { admin?: boolean }) {
             </div>
           </div>
           <section className="panel analytics-panel">
-            <h2>{t(lang, 'progress')}</h2>
-            <div style={{ height: 280, width: '100%' }}>
+            <div className="analytics-head">
+              <h2>
+                📊 {L('Mavzular bo‘yicha faollik', 'Activity by topic', 'Активность по темам')}
+              </h2>
+              <div className="chart-legend">
+                <span>
+                  <i style={{ background: '#c4b5fd' }} />
+                  {L('Ochgan', 'Opened', 'Открыли')}
+                </span>
+                <span>
+                  <i style={{ background: '#16a34a' }} />
+                  {L('Yakunlagan', 'Completed', 'Завершили')}
+                </span>
+              </div>
+            </div>
+            <div className="analytics-chart">
               <ResponsiveContainer>
-                <BarChart data={analytics}>
-                  <XAxis dataKey="title" tick={{ fontSize: 12 }} />
-                  <YAxis allowDecimals={false} />
-                  <Tooltip />
-                  <Bar dataKey="completed" fill="#8b5cf6" radius={[8, 8, 0, 0]} />
+                <BarChart
+                  data={analytics}
+                  barGap={2}
+                  margin={{ top: 8, right: 8, left: -18, bottom: 0 }}
+                >
+                  <XAxis dataKey="topic" tick={{ fontSize: 13 }} interval={0} tickLine={false} />
+                  <YAxis
+                    allowDecimals={false}
+                    tick={{ fontSize: 13 }}
+                    tickLine={false}
+                    axisLine={false}
+                  />
+                  <Tooltip
+                    cursor={{ fill: '#8b5cf611' }}
+                    labelFormatter={(_, p) => (p?.[0]?.payload as { title?: string })?.title || ''}
+                    formatter={(v, name) => [
+                      v as number,
+                      name === 'opened'
+                        ? L('Ochgan', 'Opened', 'Открыли')
+                        : L('Yakunlagan', 'Completed', 'Завершили'),
+                    ]}
+                  />
+                  <Bar dataKey="opened" fill="#c4b5fd" radius={[6, 6, 0, 0]} />
+                  <Bar dataKey="completed" fill="#16a34a" radius={[6, 6, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
+            <p className="muted analytics-note">
+              {L(
+                'Ustun ostidagi raqam — mavzu raqami. Sichqonchani ustun ustiga olib boring — mavzu nomi chiqadi.',
+                'The number under each bar is the topic number. Hover a bar to see the topic title.',
+                'Число под столбцом — номер темы. Наведите курсор, чтобы увидеть название.',
+              )}
+            </p>
           </section>
           {admin && (
             <Button onClick={() => run('importCatalog', {})}>

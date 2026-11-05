@@ -15,6 +15,15 @@
       at: Date.now(),
     }),
   );
+  // Demo: o'qituvchi/administrator arenaga o'z o'yinchi hisobi bilan kiradi (talaba hisobi o'rniga).
+  if (/[?&]sqStaff=1(&|$)/.test(location.search)) {
+    var staffPlayer = null;
+    try {
+      staffPlayer = window.localStorage.getItem('terdu_staff_player');
+    } catch (_) {}
+    memory.delete('terdu_student');
+    if (staffPlayer) memory.set('terdu_staff_player', staffPlayer);
+  }
   var storage = {
     getItem: function (k) {
       return memory.has(k) ? memory.get(k) : null;

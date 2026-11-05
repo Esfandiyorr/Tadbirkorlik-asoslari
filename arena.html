@@ -3441,6 +3441,13 @@ function unwatchAll(){ WATCH.forEach(function(h){ h.stop=true; clearTimeout(h.t)
 var ME=null;
 function loadMe(){
   try{ var v=localStorage.getItem("terdu_student"); ME=v?JSON.parse(v):null; }catch(e){ ME=null; }
+  /* O'qituvchi/administrator yangi ilovadan kirsa (sqStaff=1) va talaba hisobi bo'lmasa — alohida o'yinchi hisobi.
+     U faqat arena xonalarida o'ynaydi; talabalar ro'yxati va reytingga yozilmaydi. */
+  if(!ME&&/[?&]sqStaff=1(&|$)/.test(location.search)){
+    try{ var w=JSON.parse(localStorage.getItem("terdu_staff_player")||"null");
+      if(w&&/^tc_[A-Za-z0-9_-]{1,60}$/.test(w.id||"")) ME={id:w.id,name:String(w.name||"O'qituvchi").slice(0,40),surname:String(w.surname||"").slice(0,40),group:"O'QITUVCHI",status:"ok",learnerType:"university",staff:true};
+    }catch(e){ ME=null; }
+  }
   return ME;
 }
 function initials(n,s){ return ((n||"?").charAt(0)+(s||"").charAt(0)).toUpperCase(); }
@@ -5109,8 +5116,8 @@ function cleanup(){
 }
 
 /* ---------- yaratish ---------- */
-function vCreate(){
-  var sel=["word","memory"];
+function vCreate(pre){
+  var sel=(pre&&GAMES[pre]&&GLIST.indexOf(pre)>=0)?[pre]:["word","memory"];
   APP.innerHTML='<h2>➕ '+L("Xona ochish","Open a room")+'</h2>'+
    '<div class="card" style="margin-top:12px">'+
      '<h3>🎯 '+L("Qaysi o\'yinlar?","Which games?")+'</h3><p class="note" id="cc"></p>'+
@@ -6558,6 +6565,12 @@ function route(){
   socialStart();
   if(h.indexOf("#/room/")===0) return vRoom(h.slice(7).toUpperCase().slice(0,4));
   setSt("idle");
+  /* yangi ilovadagi o'yin kartochkalaridan to'g'ridan-to'g'ri: #/solo/<o'yin> — darhol yolg'iz o'yin, #/create/<o'yin> — shu o'yin tanlangan xona */
+  if(h.indexOf("#/solo/")===0&&["word","memory","sudoku"].indexOf(h.slice(7))>=0){
+    APP.innerHTML=card('<div class="center"><div style="font-size:44px">'+GAMES[h.slice(7)].ic+'</div><p class="note">'+L("O'yin tayyorlanmoqda…","Preparing the game…")+'</p></div>');
+    return soloStart(h.slice(7));
+  }
+  if(h.indexOf("#/create/")===0) return vCreate(h.slice(9));
   if(h==="#/create") return vCreate();
   if(h==="#/join") return vJoin();
   return vHome();
