@@ -21,7 +21,7 @@ import { PlatformSettings } from './platform-settings';
 import { NativeSurface } from './native-surface';
 import { TopicAccessPanel } from './topic-access';
 import { t, badgeLabel } from '@/lib/i18n';
-import type { Data, Lesson, Question, Quiz, Progress, Attempt, Settings } from '@/lib/types';
+import type { Data, Lesson, Question, Quiz, Progress, Attempt } from '@/lib/types';
 const blankQuestion = (): Question => ({
   id: crypto.randomUUID(),
   type: 'choice',
@@ -104,8 +104,7 @@ export function Staff({ admin = false }: { admin?: boolean }) {
     [subjectTitle, setSubjectTitle] = useState(''),
     [classTitle, setClassTitle] = useState(''),
     [classId, setClassId] = useState(''),
-    [uploaded, setUploaded] = useState(''),
-    [config, setConfig] = useState<Settings>(d.settings);
+    [uploaded, setUploaded] = useState('');
   useEffect(() => {
     if (!selected && d.courses[0]) setSelected(d.courses[0].id);
     if (!quiz.lessonId && d.lessons[0]) setQuiz((q) => ({ ...q, lessonId: d.lessons[0].id }));
@@ -255,12 +254,7 @@ export function Staff({ admin = false }: { admin?: boolean }) {
           ['students', L('O‘quvchilar', 'Learners', 'Ученики')],
           ['academic', L('Talabalar va baholar', 'Academic records', 'Студенты и оценки')],
           ['legacy', L('Kursni boshqarish', 'Course controls', 'Управление предметом')],
-          ...(admin
-            ? [
-                ['platform', L('Platforma', 'Platform', 'Платформа')],
-                ['settings', t(lang, 'settings')],
-              ]
-            : []),
+          ...(admin ? [['platform', L('Platforma', 'Platform', 'Платформа')]] : []),
         ].map(([id, label]) => (
           <Button
             key={id}
@@ -1201,72 +1195,6 @@ export function Staff({ admin = false }: { admin?: boolean }) {
             </div>
           </section>
         </>
-      )}
-      {tab === 'settings' && admin && (
-        <section className="panel editor">
-          <h2>XP · {t(lang, 'settings')}</h2>
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              run('settings', config);
-            }}
-          >
-            <div className="form-grid">
-              {Object.entries(config.rewards).map(([key, value]) => (
-                <label key={key}>
-                  {key}
-                  <input
-                    className="input"
-                    type="number"
-                    min={0}
-                    max={key === 'course' ? 10000 : 1000}
-                    value={value}
-                    onChange={(e) =>
-                      setConfig({
-                        ...config,
-                        rewards: { ...config.rewards, [key]: Number(e.target.value) },
-                      })
-                    }
-                  />
-                </label>
-              ))}
-            </div>
-            <h3>{L('Platforma darajalari', 'Platform levels', 'Уровни платформы')}</h3>
-            {config.levels.map((level, i) => (
-              <div className="inline-fields" key={i}>
-                <input
-                  className="input"
-                  aria-label={L('Daraja nomi', 'Level name', 'Название уровня')}
-                  value={level.name}
-                  onChange={(e) =>
-                    setConfig({
-                      ...config,
-                      levels: config.levels.map((x, j) =>
-                        j === i ? { ...x, name: e.target.value } : x,
-                      ),
-                    })
-                  }
-                />
-                <input
-                  className="input"
-                  type="number"
-                  min={0}
-                  aria-label={L('Daraja XP', 'Level XP', 'XP уровня')}
-                  value={level.xp}
-                  onChange={(e) =>
-                    setConfig({
-                      ...config,
-                      levels: config.levels.map((x, j) =>
-                        j === i ? { ...x, xp: Number(e.target.value) } : x,
-                      ),
-                    })
-                  }
-                />
-              </div>
-            ))}
-            <Button disabled={busy}>{t(lang, 'save')}</Button>
-          </form>
-        </section>
       )}
     </>
   );

@@ -132,15 +132,13 @@ function OriginalLessonView({ id }: { id: string }) {
   async function complete() {
     setBusy(true);
     try {
-      const r = await call<{ reward: { points: number } }>('completeLesson', { lessonId: id });
+      await call('completeLesson', { lessonId: id });
       toast(
-        r.reward.points
-          ? `+${r.reward.points} XP`
-          : lang === 'uz'
-            ? 'Dars yakunlangan'
-            : lang === 'ru'
-              ? 'Урок завершён'
-              : 'Lesson completed',
+        lang === 'uz'
+          ? '✅ Dars yakunlandi'
+          : lang === 'ru'
+            ? '✅ Урок завершён'
+            : '✅ Lesson completed',
       );
     } catch (e) {
       toast((e as Error).message);
@@ -498,7 +496,7 @@ export function QuizView({ id }: { id: string }) {
           <TrophyResult />
           <h2>{result.score}%</h2>
           <p>
-            {result.correct} / {result.total} · +{result.points} XP
+            {result.correct} / {result.total}
           </p>
           {result.feedback.map((f: any, i: number) => (
             <div className="answer-feedback" key={f.id}>
@@ -524,10 +522,10 @@ export function QuizView({ id }: { id: string }) {
           </p>
           <p className="muted">
             {lang === 'uz'
-              ? 'Javoblar serverda tekshiriladi. Takroriy muvaffaqiyat uchun XP qayta berilmaydi.'
+              ? 'Javoblar serverda tekshiriladi.'
               : lang === 'en'
-                ? 'Answers are graded on the server. Repeating a reward never earns duplicate XP.'
-                : 'Ответы проверяются сервером. Повторные награды не дают лишних XP.'}
+                ? 'Answers are graded on the server.'
+                : 'Ответы проверяются сервером.'}
           </p>
           <Button onClick={start} disabled={busy}>
             {t(lang, 'begin')}

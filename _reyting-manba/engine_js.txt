@@ -228,17 +228,31 @@ function cloudInit(done){
     });
   })();
 }
+/* 📅 kunlik reyting: dd — bugungi sana (Toshkent), d0 — shu kun boshidagi umumiy ball. Kunlik ball = total − d0.
+   Kun boshi — bazadagi kechagi oxirgi ball (boshqa qurilmada bugun allaqachon yozilgan bo'lsa — o'sha kun boshi). */
+function dayMark(){
+  var today=khDay(Date.now()), tot=+P.total||0;
+  if(P.dd!==today){
+    P.dd=today;
+    P.d0=(P.cDd===today&&P.cD0!=null)?+P.cD0:Math.max(+P.cT||0,+P.ct||0);
+  }
+  P.d0=Math.min(+P.d0||0,tot);
+  return {dd:P.dd,d0:Math.round(P.d0*10)/10};
+}
 function rec(){
   /* guruh bu yerda yo'q: uni o'qituvchi o'zgartiradi, talabaning eski nusxasi ustidan yozib yubormasin */
   /* PIN izi va email bu yerda yo'q: ular faqat ro'yxatdan o'tishda (yoki alohida) yoziladi */
+  var dm=dayMark();
   return {id:S.id,name:S.name,surname:S.surname,
           total:P.total||0,topics:topicSummary(),at:S.at||Date.now(),updated:Date.now(),
+          dd:dm.dd,d0:dm.d0,
           authVersion:S.authVersion||1,pwSalt:S.pwSalt||""};
 }
 function cloudSave(withGroup){   /* status maydoniga tegmaydi — uni faqat o'qituvchi o'zgartiradi */
   if(!cloudOn||!BASE||!S||DEAD) return;   /* o'chirilgan hisob qayta tiklanmasin */
   if(staleTab()){ acctSwitched(); return; }
   var r=rec(); if(withGroup) r.group=S.group;   /* guruh faqat talaba o'zi profilini tahrirlaganda yuboriladi */
+  P.ct=r.total;                                  /* shu qurilma bazaga yozgan oxirgi ball (kunlik reyting kun boshi uchun) */
   var pp=progPaths(); for(var k in pp) r[k]=pp[k];
   try{
     fetch(BASE+"/students/"+S.id+".json",{method:"PATCH",headers:{"Content-Type":"application/json"},
@@ -715,6 +729,7 @@ function mergeCloud(v){
     FSYNC=true; recalc(); return;
   }
   P.man=v.manual||{};                    /* o'qituvchi qo'ygan baholar — faqat bazadan olinadi */
+  P.cT=+v.total||0; P.cDd=v.dd||""; P.cD0=v.d0;   /* kunlik reyting: bazadagi oxirgi umumiy ball va kun boshi */
   var pr=v.prog||{}, sm=v.topics||{}, ids={}, k, x;
   for(k in pr) ids[k]=1; for(k in sm) ids[k]=1;
   for(k in ids){

@@ -260,7 +260,7 @@ test('teacher editing, upload validation and administrator controls are real ser
   await expect(page.locator('.sidebar a[href="#admin"]')).toBeVisible();
   await page.locator('.sidebar a[href="#admin"]').click();
   await expect(page.locator('h1')).toHaveText('Administrator paneli');
-  await page.getByRole('button', { name: 'Sozlamalar', exact: true }).click();
+  await page.getByRole('button', { name: 'Platforma', exact: true }).click();
   await expect(page.locator('form')).toBeVisible();
 });
 
@@ -407,7 +407,7 @@ test('existing academic points remain visible on the dashboard, profile and acad
   );
   await page.locator('.sidebar a[href="#ranking"]').click();
   await expect(page.locator('.ranking-list')).toContainText('Ali Valiyev');
-  await expect(page.locator('.ranking-list')).toContainText('375.5');
+  await expect(page.locator('.ranking-list')).toContainText('375,5');
   await page.goto('/#profile', { waitUntil: 'domcontentloaded' });
   await expect(page.locator('.profile-hero-stats b').first()).toHaveText('375,5');
   // Ochilmagan va boshlanmagan mavzular alohida kartochka emas, bitta qatorda sanaladi.
@@ -502,7 +502,7 @@ test('admin reports load only for analytics or CSV and are reused between tabs',
   ).toBeVisible();
   await page.waitForLoadState('networkidle');
   expect(reports).toBe(0);
-  await page.getByRole('button', { name: 'Sozlamalar', exact: true }).click();
+  await page.getByRole('button', { name: 'Platforma', exact: true }).click();
   expect(reports).toBe(0);
   await page.getByRole('button', { name: 'Tahlil', exact: true }).click();
   await expect(page.locator('.analytics-panel')).toBeVisible();

@@ -159,8 +159,10 @@ export class Academic {
       )
       .sort((a, b) => b.academicPoints - a.academicPoints || a.name.localeCompare(b.name));
   }
-  async publicBoard() {
+  async publicBoard(now = Date.now()) {
     const source = (await this.read('students')) || {};
+    // 📅 Kunlik reyting: dvigatel yozadigan dd (bugungi sana, Toshkent) va d0 (kun boshidagi ball).
+    const today = new Date(now + 18000000).toISOString().slice(0, 10);
     return Object.entries(source)
       .filter(
         ([id, s]: [string, any]) =>
@@ -178,6 +180,8 @@ export class Academic {
           .slice(0, 200),
         classId: String(s.group || '').slice(0, 100),
         academicPoints: number(s.total),
+        today:
+          s.dd === today ? Math.round(Math.max(0, number(s.total) - number(s.d0)) * 10) / 10 : 0,
       }))
       .sort((a, b) => b.academicPoints - a.academicPoints || a.name.localeCompare(b.name));
   }

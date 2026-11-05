@@ -108,7 +108,14 @@ it('returns minimal academic rows to verified users without Firestore while keep
   expect(response.status).toBe(200);
   expect(await response.json()).toEqual({
     leaderboard: [
-      { id: 'legacy_alice', name: 'Ali Valiyev', classId: 'AP-223', academicPoints: 375.5 },
+      {
+        id: 'legacy_alice',
+        name: 'Ali Valiyev',
+        classId: 'AP-223',
+        academicPoints: 375.5,
+        // kunlik ball: bugungi kun boshidagi yozuv (dd/d0) bo'lmasa — 0
+        today: 0,
+      },
     ],
   });
   expect(mocks.actor).toHaveBeenCalledWith(expect.anything(), true);

@@ -7,6 +7,7 @@ import { navigate } from './dashboard';
 import { t } from '@/lib/i18n';
 import { NativeSurface } from './native-surface';
 import { BrandGame } from './brand-game';
+import { ArenaOnline, ROOM_CODE, staffIdentity, staffPlayer, type ArenaMe } from './arena-online';
 const pairs: [Tri, Tri][] = [
   [
     ['TAM', 'TAM', 'TAM'],
@@ -284,21 +285,6 @@ const LEGACY =
   /^(create\/(dama|chess|c4|pzl|pzt|sudoku|word|memory)|solo\/(word|memory|sudoku)|puzzle|yozuv|live|kross)$/;
 const T3 = (lang: string, x: Tri) => (lang === 'en' ? x[1] : lang === 'ru' ? x[2] : x[0]);
 
-/** O'qituvchi/administrator arenada o'z nomi bilan o'ynashi uchun alohida o'yinchi hisobi (talaba hisobi bo'lmasa). */
-function staffPlayer(user: { id: string; name: string }) {
-  try {
-    const [name, ...rest] = (user.name || 'O‘qituvchi').trim().split(/\s+/);
-    localStorage.setItem(
-      'terdu_staff_player',
-      JSON.stringify({
-        id: 'tc_' + user.id.replace(/[^A-Za-z0-9_-]/g, '_').slice(0, 60),
-        name,
-        surname: rest.join(' '),
-      }),
-    );
-  } catch {}
-}
-
 export function Games({ sub = '' }: { sub?: string }) {
   const { data, lang, legacy, setLogin } = useApp();
   const user = data?.user,
@@ -316,13 +302,41 @@ export function Games({ sub = '' }: { sub?: string }) {
     }
     navigate('arena/' + c.to);
   };
+  // Onlayn ro'yxat va takliflar uchun arenadagi o'yinchi (eski arena kabi: talaba hisobi yoki o'qituvchi o'yinchisi).
+  // Eski arena tasdiqlanmagan va mustaqil o'quvchilarni o'yinga kiritmaydi — ular ro'yxatga ham yozilmaydi.
+  const legacyPlayer =
+    !!legacy && legacy.learnerType !== 'independent' && (!legacy.status || legacy.status === 'ok');
+  const me: ArenaMe | null = !canArena
+    ? null
+    : legacyPlayer
+      ? {
+          id: legacy!.id,
+          name: legacy!.name || '',
+          surname: legacy!.surname || '',
+          group: legacy!.group || '',
+        }
+      : legacy
+        ? null
+        : staff && user
+          ? staffIdentity(user)
+          : data?.mode === 'demo' && user
+            ? {
+                id: user.id,
+                name: user.name.split(' ')[0],
+                surname: user.name.split(' ').slice(1).join(' '),
+                group: user.classId || '',
+              }
+            : null;
   // ---- eski arena (guruh o'yinlari) sahifa ichida ----
   const playPath = sub.startsWith('play/') ? sub.slice(5) : '';
-  if (sub === 'live' || (playPath && LEGACY.test(playPath))) {
+  const room = sub.startsWith('room/') ? sub.slice(5).toUpperCase() : '';
+  const isRoom = ROOM_CODE.test(room);
+  if (sub === 'live' || isRoom || (playPath && LEGACY.test(playPath))) {
     if (staff && user) staffPlayer(user);
     const card = [...online, ...solo].find((c) => c.to === 'play/' + playPath);
-    const hash =
-      sub === 'live'
+    const hash = isRoom
+      ? '#/room/' + room
+      : sub === 'live'
         ? new URLSearchParams(typeof window === 'undefined' ? '' : location.search).get('arena') ||
           '#/'
         : '#/' + playPath;
@@ -341,7 +355,9 @@ export function Games({ sub = '' }: { sub?: string }) {
           <h1>
             {card
               ? card.emoji + ' ' + T3(lang, card.title)
-              : '⚔️ ' + L('Guruh arenasi', 'Class arena', 'Арена группы')}
+              : isRoom
+                ? '⚔️ ' + L('Juftlik o‘yini', 'Duel', 'Дуэль')
+                : '⚔️ ' + L('Guruh arenasi', 'Class arena', 'Арена группы')}
           </h1>
           {sub !== 'live' && (
             <Button variant="outline" asChild>
@@ -437,6 +453,7 @@ export function Games({ sub = '' }: { sub?: string }) {
           </a>
         </Button>
       </div>
+      {me && <ArenaOnline me={me} />}
       <button className="arena-feature" onClick={() => navigate('arena/brand')}>
         <span className="arena-feature-text">
           <span className="arena-feature-new">{L('YANGI O‘YIN', 'NEW GAME', 'НОВАЯ ИГРА')}</span>

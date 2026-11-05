@@ -132,12 +132,6 @@ export class Platform {
       createdAt: this.now(),
       classId: a.classId,
     });
-    tx.set('notifications', key, {
-      id: key,
-      userId: a.id,
-      title: '+' + points + ' XP · ' + kind,
-      createdAt: this.now(),
-    });
     const badge =
       kind === 'lesson'
         ? 'first'
@@ -186,24 +180,17 @@ export class Platform {
     };
   }
   async state(a: Actor, includeStaff = false, includeReports = true) {
-    const [catalog, user, progress, attempts, transactions, earned, ownNotices, sharedNotices] =
+    // XP ko'rsatilmaydi: XP tarixi har sahifa ochilganda o'qilmaydi (Firestore kvotasi tejaladi).
+    const [catalog, user, progress, attempts, earned, ownNotices, sharedNotices] =
       await Promise.all([
         this.publicData(),
         this.db.get('users', a.id),
         this.db.find('progress', 'userId', a.id),
         this.db.find('quizAttempts', 'userId', a.id),
-        this.db.find('xpTransactions', 'userId', a.id),
         this.db.find('userAchievements', 'userId', a.id),
         this.db.find('notifications', 'userId', a.id),
         this.db.find('notifications', 'userId', 'all'),
       ]);
-    const activity = Array.from({ length: 7 }, (_, i) => {
-      const d = day(this.now() - (6 - i) * 86400000);
-      return {
-        day: d.slice(5),
-        xp: transactions.filter((x) => day(x.createdAt) === d).reduce((s, x) => s + x.points, 0),
-      };
-    });
     let staffData = {};
     // Class-wide reports are requested only on the teacher/admin screen.
     if (includeStaff && a.role !== 'student') {
@@ -254,9 +241,7 @@ export class Platform {
       },
       progress,
       attempts: attempts.map(({ answers, ...x }) => x),
-      transactions,
       earned: earned.map((x) => x.badgeId),
-      activity,
       notifications: [...ownNotices, ...sharedNotices],
       ...staffData,
     };

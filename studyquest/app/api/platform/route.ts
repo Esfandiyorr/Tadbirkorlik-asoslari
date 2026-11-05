@@ -29,6 +29,11 @@ async function deletedStudentIds() {
       .map((id) => 'legacy_' + id),
   );
 }
+function demoToday(id: string, total: number) {
+  let h = 0;
+  for (const c of String(id)) h = (h * 31 + c.charCodeAt(0)) >>> 0;
+  return total > 0 && h % 3 ? Math.min(total, (h % 26) + 4) : 0;
+}
 /* Faqat mahalliy demo: talaba ekranlarini ko'rib chiqish uchun namunaviy akademik tarix (jonli bazaga tegmaydi). */
 function demoAcademic(user: { id: string }) {
   const now = Date.now();
@@ -105,6 +110,8 @@ export async function GET(req: NextRequest) {
               name: u.name,
               classId: u.classId,
               academicPoints: u.academicPoints || 0,
+              // Faqat demo: kunlik reyting bo'sh ko'rinmasligi uchun barqaror namunaviy kunlik ball.
+              today: demoToday(u.id, u.academicPoints || 0),
             }))
             .sort((a, b) => b.academicPoints - a.academicPoints),
         });

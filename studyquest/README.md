@@ -20,7 +20,7 @@ npm run dev:demo
 
 Open http://localhost:3000. The local demo role selector provides separate student, teacher, and administrator accounts. Demo changes are saved in `.studyquest-demo/`; deleting that folder resets only the local demonstration. Demo presentation frames use isolated browser storage and block live Firebase requests. **Demo authentication is disabled in production and on Vercel.**
 
-For Firebase-backed development, copy `.env.example` to `.env.local`, supply your own configuration, and run `npm run dev`. Without backend credentials the application exposes the existing presentation site and clearly disables the new XP services.
+For Firebase-backed development, copy `.env.example` to `.env.local`, supply your own configuration, and run `npm run dev`. Without backend credentials the application exposes the existing presentation site and clearly disables the new platform services.
 
 ## Included
 
@@ -29,9 +29,11 @@ For Firebase-backed development, copy `.env.example` to `.env.local`, supply you
 - Native presentation reader with slide navigation, fullscreen, saved position, and restyled original learning activities/video. New teacher-authored slide lessons and protected material downloads are supported too.
 - Email/password, password reset, Google sign-in, and a bridge to existing TerDU accounts. University students retain the original approval and lesson-access checks. New email accounts are independent learners by default.
 - Server-graded choice, true/false, matching, and accepted-answer quizzes; randomized question order, attempt limits, time limits, feedback settings, and history.
-- Transactional XP ledger, achievement levels, badges, daily challenges, learning streaks, course completion rewards, and class/course/calendar-period leaderboards. Independent learners remain outside university rankings.
-- Teacher tools for subjects, courses, modules, lessons, quizzes, material uploads, enrollment, classes, achievements, analytics, and CSV reports. Administrator tools manage roles, blocking, XP settings, and level thresholds.
+- **Points come only from presentations and extra tasks** — no XP is shown or awarded. Each topic gives up to 100 points (30 slides + 20 reading time + 50 test); teacher marks and live-quiz prizes add extra points. Badges and learning streaks remain as encouragement.
+- **Daily and overall rankings** with a top-three podium, laurel place badges, a "my place" card and a my-group filter. The daily ranking counts points earned since 00:00 Tashkent time: the original engine records each student's day-start total (`students/<id>/dd`, `d0`). Independent learners remain outside university rankings.
+- Teacher tools for subjects, courses, modules, lessons, quizzes, material uploads, enrollment, classes, achievements, analytics, and CSV reports. Administrator tools manage roles, blocking and platform settings.
 - Memory, vocabulary, arithmetic, and typing practice. Quiz Battle opens a server-graded timed quiz; existing multiplayer class games use the new native Game Arena surface.
+- **Online now in the arena:** the Games page lists classmates who are in the arena (free or playing). Press _Invite_, pick Draughts, Chess, Connect Four or Puzzle duel, and the classmate gets an accept/decline window; once accepted, the game starts for both. It shares the original arena's records (`arena/on`, `arena/inv`, `arena/rooms`), so players on the new page and in the original arena see and invite each other.
 - Student name/surname/existing code entry, live academic rankings, all 15 per-topic reading/grade histories, a linked academic roster, preserved class chat, and administrator-triggered, repeat-safe profile linking.
 - Installable Android/iPhone/desktop PWA with an installation guide and an offline notice. Private responses and presentations are not cached by the new worker.
 
@@ -78,13 +80,14 @@ See [deployment instructions](docs/DEPLOYMENT.md), [database schema](docs/SCHEMA
 
 This implementation is ready for a configured staging review. Real Firebase sign-in, Storage, and production deployment need your Firebase/Vercel setup; local tests do not prove those external integrations are configured.
 
-- New Tadbirkorlik asoslari XP is separate from original academic grades; it is never converted into university marks. Levels are platform achievements, not academic qualifications.
-- Lesson rewards require at least 80% unique slides and the configured server-measured elapsed time. This checks coverage/time, not learner attention. Repeated reward events cannot generate additional XP.
+- Points shown in the rankings are the original academic points (presentations + teacher marks + live-quiz prizes). New-platform lessons and quizzes record completion and results but award no separate XP.
+- The daily ranking starts counting once a student opens a presentation with the current engine that day; students on an older cached copy show 0 until they reload.
+- Lesson completion requires at least 80% unique slides and the configured server-measured elapsed time. This checks coverage/time, not learner attention.
 - Starting a quiz consumes an attempt. Refreshing an in-progress new quiz does not restore its unsent answers. Short answers use teacher-defined accepted variants, not AI grading. Publish quiz edits between assessment sessions.
 - Collection reads fetch successive 500-document pages, so migrated student records are not silently truncated. Before opening a large paid service, replace broad report scans with scoped queries and materialized leaderboard aggregates. Index definitions are included.
 - Original learning content remains Uzbek. Interface navigation and key learning flows support three languages; teacher-created content and the small practice activities retain their authored language.
 - Uploads currently support PDF, PNG, and JPEG up to 4 MiB. Uploaded files download through an authorized API; original PDFs/video remain in their existing presentation viewer.
-- Practice mini-games are local exercises and award no XP. Live multiplayer Quiz Battle uses the existing arena rather than a new matchmaking service. Top Student badges are teacher-approved.
+- Practice mini-games are local exercises and award no points. Live multiplayer Quiz Battle uses the existing arena rather than a new matchmaking service. Top Student badges are teacher-approved.
 - Payments, subscriptions, marketplace checkout, push delivery, arbitrary file formats, and offline lesson synchronization are future integrations. No billing or purchases are simulated.
 - Original static lesson files remain publicly addressable, as on the existing website. Future paid materials should use the protected API and Storage, rather than public legacy HTML files.
 

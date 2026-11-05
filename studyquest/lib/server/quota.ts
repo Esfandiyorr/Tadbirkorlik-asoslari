@@ -1,7 +1,7 @@
 import 'server-only';
 
 export const quotaMessage =
-  'Ma’lumotlar bazasi kvotasi tugagan. Mavjud darslardan foydalanishingiz mumkin; yangi XP va boshqaruv amallari vaqtincha ishlamaydi.';
+  'Ma’lumotlar bazasi kvotasi tugagan. Mavjud darslardan foydalanishingiz mumkin; boshqaruv amallari vaqtincha ishlamaydi.';
 
 export function quotaExceeded(error: unknown): boolean {
   const e = error as { code?: number | string; message?: string } | null;

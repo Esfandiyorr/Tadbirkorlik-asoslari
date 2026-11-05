@@ -171,9 +171,52 @@ it('staff roster includes contact and registration details without exposing cred
   expect(JSON.stringify(await records.board(admin))).not.toContain('contact@example.test');
 });
 
-it('public academic ranking includes all groups with an explicit four-field allowlist', async () => {
+it('public academic ranking includes all groups with an explicit five-field allowlist', async () => {
   const board = await service.publicBoard();
   expect(board.map((u) => u.classId)).toEqual(['AP-224', 'AP-223']);
-  expect(Object.keys(board[0]).sort()).toEqual(['academicPoints', 'classId', 'id', 'name']);
+  expect(Object.keys(board[0]).sort()).toEqual([
+    'academicPoints',
+    'classId',
+    'id',
+    'name',
+    'today',
+  ]);
   expect(JSON.stringify(board)).not.toMatch(/PRIVATE|email|topics|readingHistory|pwSalt/);
+});
+
+it('daily ranking counts only points earned since the start of today in Tashkent', async () => {
+  const now = Date.UTC(2026, 10, 5, 10, 0); // 5-noyabr 15:00 (UTC+5)
+  const students = {
+    a: {
+      name: 'Ali',
+      surname: 'V',
+      group: 'AP-223',
+      status: 'ok',
+      total: 150,
+      dd: '2026-11-05',
+      d0: 120,
+    },
+    b: {
+      name: 'Bek',
+      surname: 'S',
+      group: 'AP-223',
+      status: 'ok',
+      total: 300,
+      dd: '2026-11-04',
+      d0: 250,
+    },
+    c: {
+      name: 'Cho',
+      surname: 'R',
+      group: 'AP-224',
+      status: 'ok',
+      total: 40,
+      dd: '2026-11-05',
+      d0: 90,
+    },
+  };
+  const board = await new Academic(db, async () => structuredClone(students)).publicBoard(now);
+  const today = Object.fromEntries(board.map((u) => [u.id, u.today]));
+  // Ali bugun 30 ball oldi; Bekning yozuvi kechagi — bugun 0; noto'g'ri kun boshi manfiy ball bermaydi.
+  expect(today).toEqual({ legacy_a: 30, legacy_b: 0, legacy_c: 0 });
 });
