@@ -192,7 +192,9 @@ class FirebaseRepository implements Repository {
     const old = this.catalog.get(c);
     if (old && old.expires > Date.now()) return structuredClone(await old.value);
     const value = this.readRows(c);
-    this.catalog.set(c, { expires: Date.now() + 60000, value });
+    // Kurslar/darslar kam o'zgaradi: 5 daqiqa keshlanadi (o'zgartirilganda shu nusxada darhol tozalanadi) —
+    // Firestore kunlik bepul o'qish kvotasini tejaydi.
+    this.catalog.set(c, { expires: Date.now() + 300000, value });
     try {
       return structuredClone(await value);
     } catch (error) {

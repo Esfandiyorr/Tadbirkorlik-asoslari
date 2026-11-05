@@ -1,5 +1,6 @@
 import { it, expect, vi } from 'vitest';
 import { legacySessionToken } from '../lib/legacy-session';
+import { freshIdToken, isNetworkError, networkMessage } from '../lib/firebase-client';
 
 function store(exp: number) {
   let value = JSON.stringify({ uid: 'original-owner', tok: 'old', ref: 'refresh', exp });
@@ -54,4 +55,18 @@ it('rejects failed or mismatched refreshes without replacing the stored account'
   ).rejects.toThrow();
   expect(storage.getItem()).toBe(original);
   await expect(legacySessionToken(undefined, storage, vi.fn(), 2000)).rejects.toThrow();
+});
+
+it('retries a token once after a network failure and then explains it in Uzbek', async () => {
+  const fail = Object.assign(new Error('Firebase: Error (auth/network-request-failed).'), {
+    code: 'auth/network-request-failed',
+  });
+  let calls = 0;
+  const flaky = { getIdToken: async () => (++calls === 1 ? Promise.reject(fail) : 'tok') };
+  expect(await freshIdToken(flaky, 'uz')).toBe('tok');
+  expect(calls).toBe(2);
+  const down = { getIdToken: () => Promise.reject(fail) };
+  await expect(freshIdToken(down, 'uz')).rejects.toThrow(networkMessage('uz'));
+  expect(isNetworkError(fail)).toBe(true);
+  expect(networkMessage('uz')).toMatch(/internet/i);
 });

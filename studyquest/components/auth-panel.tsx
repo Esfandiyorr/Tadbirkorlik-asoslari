@@ -9,7 +9,7 @@ import {
   signInWithPopup,
 } from 'firebase/auth';
 import { BookOpen, GraduationCap, Shield, ArrowRight, X, Mail } from 'lucide-react';
-import { firebaseAuth } from '@/lib/firebase-client';
+import { firebaseAuth, isNetworkError, networkMessage } from '@/lib/firebase-client';
 import { useApp } from './provider';
 import { Button } from './ui/button';
 import { t, roleLabel } from '@/lib/i18n';
@@ -51,25 +51,27 @@ export function AuthPanel({ onClose }: { onClose?: () => void }) {
       const code = (e as { code?: string }).code;
       if (code === 'auth/popup-closed-by-user') return;
       setGoogleError(
-        code === 'auth/popup-blocked'
-          ? L(
-              'Brauzer Google oynasini blokladi. Manzil qatoridagi belgi orqali pop-up oynalariga ruxsat bering va yana Google tugmasini bosing.',
-              'The browser blocked the Google window. Allow pop-ups using the icon in the address bar and press the Google button again.',
-              'Браузер заблокировал окно Google. Разрешите всплывающие окна через значок в адресной строке и снова нажмите кнопку Google.',
-            )
-          : code === 'auth/unauthorized-domain'
+        isNetworkError(e)
+          ? networkMessage(lang)
+          : code === 'auth/popup-blocked'
             ? L(
-                'Firebase Authentication → Settings → Authorized domains bo‘limiga ' +
-                  location.hostname +
-                  ' domenini qo‘shish kerak.',
-                'Add ' +
-                  location.hostname +
-                  ' under Firebase Authentication → Settings → Authorized domains.',
-                'Добавьте домен ' +
-                  location.hostname +
-                  ' в Firebase Authentication → Settings → Authorized domains.',
+                'Brauzer Google oynasini blokladi. Manzil qatoridagi belgi orqali pop-up oynalariga ruxsat bering va yana Google tugmasini bosing.',
+                'The browser blocked the Google window. Allow pop-ups using the icon in the address bar and press the Google button again.',
+                'Браузер заблокировал окно Google. Разрешите всплывающие окна через значок в адресной строке и снова нажмите кнопку Google.',
               )
-            : (e as Error).message,
+            : code === 'auth/unauthorized-domain'
+              ? L(
+                  'Firebase Authentication → Settings → Authorized domains bo‘limiga ' +
+                    location.hostname +
+                    ' domenini qo‘shish kerak.',
+                  'Add ' +
+                    location.hostname +
+                    ' under Firebase Authentication → Settings → Authorized domains.',
+                  'Добавьте домен ' +
+                    location.hostname +
+                    ' в Firebase Authentication → Settings → Authorized domains.',
+                )
+              : (e as Error).message,
       );
     } finally {
       setBusy(false);
@@ -126,13 +128,15 @@ export function AuthPanel({ onClose }: { onClose?: () => void }) {
     } catch (e) {
       const code = (e as { code?: string }).code;
       toast(
-        code
-          ? lang === 'uz'
-            ? 'Kirish bajarilmadi. Email, parol va kirish usulini tekshiring.'
-            : lang === 'en'
-              ? 'Sign-in failed. Check your email, password and enabled sign-in method.'
-              : 'Вход не выполнен. Проверьте email, пароль и способ входа.'
-          : (e as Error).message,
+        isNetworkError(e)
+          ? networkMessage(lang)
+          : code
+            ? lang === 'uz'
+              ? 'Kirish bajarilmadi. Email, parol va kirish usulini tekshiring.'
+              : lang === 'en'
+                ? 'Sign-in failed. Check your email, password and enabled sign-in method.'
+                : 'Вход не выполнен. Проверьте email, пароль и способ входа.'
+            : (e as Error).message,
       );
     } finally {
       setBusy(false);

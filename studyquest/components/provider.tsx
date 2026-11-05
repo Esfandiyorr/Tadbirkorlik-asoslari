@@ -9,7 +9,7 @@ import {
   type ReactNode,
 } from 'react';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
-import { firebaseAuth } from '@/lib/firebase-client';
+import { firebaseAuth, freshIdToken } from '@/lib/firebase-client';
 import { legacySessionToken } from '@/lib/legacy-session';
 import type { Data, Lang, Actor } from '@/lib/types';
 type Legacy = {
@@ -80,7 +80,7 @@ export function Provider({
       if (!demoMode && preferLegacy && old && process.env.NEXT_PUBLIC_FIREBASE_API_KEY) {
         current = await legacySessionToken(process.env.NEXT_PUBLIC_FIREBASE_API_KEY);
         usingLegacy = true;
-      } else if (auth?.currentUser) current = await auth.currentUser.getIdToken();
+      } else if (auth?.currentUser) current = await freshIdToken(auth.currentUser, lang);
       if (current) {
         h.set('Authorization', 'Bearer ' + current);
         if (old && usingLegacy) h.set('X-Legacy-Student', old.id);
@@ -113,7 +113,7 @@ export function Provider({
       }
       return fetch(url, { ...init, headers: h, cache: 'no-store' });
     },
-    [token, demoMode, preferLegacy],
+    [token, demoMode, preferLegacy, lang],
   );
   const refresh = useCallback(async () => {
     const version = ++refreshVersion.current;
