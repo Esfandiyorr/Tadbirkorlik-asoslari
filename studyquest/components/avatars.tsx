@@ -4,7 +4,7 @@ import { createPortal } from 'react-dom';
 import { Check, Lock, Send, Sparkles, X } from 'lucide-react';
 import { useApp } from './provider';
 import { Button } from './ui/button';
-import { AVATAR_IDS, AVATAR_TOP, AVATARS, avatarSrc, isAvatar, type AvatarId } from '@/lib/avatars';
+import { AVATAR_TOP, BUILTIN_AVATARS, type AvatarItem } from '@/lib/avatars';
 import { tr } from '@/lib/points';
 import type { Lang } from '@/lib/types';
 
@@ -25,8 +25,19 @@ export type AvatarMe = {
   can: boolean;
   avatar: string | null;
 };
-type AvatarState = { owners: Record<string, string>; me: AvatarMe | null };
+type AvatarState = { owners: Record<string, string>; me: AvatarMe | null; catalog?: AvatarItem[] };
 type BoardResponse = { leaderboard?: BoardEntry[]; avatars?: AvatarState; error?: string };
+
+/* Kutubxona ro'yxati (asl qahramonlar + administrator yuklaganlari) serverdan reyting bilan birga keladi.
+   Kelguncha — asl 10 tasi. */
+let catalog = new Map<string, AvatarItem>(BUILTIN_AVATARS.map((a) => [a.id, a]));
+let catalogList: AvatarItem[] = BUILTIN_AVATARS;
+export function setAvatarCatalog(list?: AvatarItem[]) {
+  if (!list?.length) return;
+  catalogList = list;
+  catalog = new Map(list.map((a) => [a.id, a]));
+}
+export const avatarList = () => catalogList;
 
 /** Umumiy reyting va avatarlar holati (reyting sahifasi va bosh sahifa uchun). */
 export function useAcademicBoard(enabled = true) {
@@ -36,6 +47,7 @@ export function useAcademicBoard(enabled = true) {
     [loading, setLoading] = useState(enabled),
     [error, setError] = useState('');
   const apply = useCallback((v: BoardResponse) => {
+    setAvatarCatalog(v.avatars?.catalog);
     setRows(v.leaderboard || []);
     setAvatars(v.avatars || { owners: {}, me: null });
   }, []);
@@ -63,10 +75,11 @@ export type AcademicBoard = ReturnType<typeof useAcademicBoard>;
 
 /** Avatar rasmi yoki rangsiz soya (avatar hali yo'q). */
 export function AvatarFigure({ id, className = '' }: { id?: string | null; className?: string }) {
-  if (isAvatar(id))
+  const item = id ? catalog.get(id) : undefined;
+  if (item)
     return (
       // eslint-disable-next-line @next/next/no-img-element
-      <img className={'av-figure ' + className} src={avatarSrc(id)} alt="" draggable={false} />
+      <img className={'av-figure ' + className} src={item.src} alt="" draggable={false} />
     );
   return (
     <svg className={'av-figure av-empty ' + className} viewBox="0 0 64 80" aria-hidden="true">
@@ -76,8 +89,10 @@ export function AvatarFigure({ id, className = '' }: { id?: string | null; class
   );
 }
 
-export const avatarName = (id: string, lang: Lang) =>
-  isAvatar(id) ? tr(lang, ...AVATARS[id].name) : '';
+export const avatarName = (id: string, lang: Lang) => {
+  const item = catalog.get(id);
+  return item ? tr(lang, ...item.name) : '';
+};
 
 /** Talaba holatiga qarab izoh: nega tanlay oladi yoki ololmaydi. */
 function eligibility(me: AvatarMe | null, lang: Lang) {
@@ -122,7 +137,7 @@ export function AvatarPicker({ board, onClose }: { board: AcademicBoard; onClose
     window.addEventListener('keydown', key);
     return () => window.removeEventListener('keydown', key);
   }, [onClose]);
-  async function choose(id: AvatarId | null) {
+  async function choose(id: string | null) {
     setBusy(id || 'none');
     try {
       const r = await request('/api/platform', {
@@ -214,7 +229,7 @@ export function AvatarPicker({ board, onClose }: { board: AcademicBoard; onClose
           </button>
         </header>
         <ul className="av-grid">
-          {AVATAR_IDS.map((id) => {
+          {(board.avatars.catalog || avatarList()).map(({ id }) => {
             const owner = owners[id],
               mine = me?.avatar === id,
               taken = !!owner && !mine;

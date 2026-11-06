@@ -28,6 +28,11 @@ test.afterEach(async ({ page }) => {
   for (const t of c.texts || []) await site({ op: 'remove', o: t.o });
   for (const i of c.images || []) await site({ op: 'removeImage', o: i.o });
   await site({ op: 'reset', t: 'm1' }, 'topicQuiz');
+  const lib =
+    (await (await page.request.get('/api/platform?view=avatarAdmin')).json()).catalog || [];
+  for (const a of lib as { id: string; custom?: boolean; off?: boolean }[])
+    if (a.custom) await site({ op: 'delete', id: a.id }, 'avatarLibrary');
+    else if (a.off) await site({ op: 'hide', id: a.id, off: false }, 'avatarLibrary');
 });
 
 test('the site manager opens with clear cards and leads to every admin task', async ({ page }) => {
@@ -311,4 +316,45 @@ test('in edit mode the administrator clicks any text or picture and everyone see
   await expect(page.locator('.bo-images li')).toHaveCount(0);
   await expect(page.locator('.sidebar a[href="#ranking"]')).toHaveText('Reyting');
   await expect(page.locator('.sidebar img').first()).toHaveAttribute('src', '/terdu-logo.png');
+});
+
+test('the administrator adds a new avatar and hides another; top students see the library change', async ({
+  page,
+}) => {
+  await as(page, 'demo-student');
+  await page.request.post('/api/platform', {
+    data: { action: 'avatarPick', input: { avatar: null } },
+  });
+  await as(page, 'demo-admin');
+  await page.goto('/#admin', { waitUntil: 'domcontentloaded' });
+  await page.locator('.bo-card-btn').filter({ hasText: 'Avatarlar' }).click();
+  const grid = page.locator('.bo-avatar-grid li');
+  await expect(grid).toHaveCount(10);
+  await page.getByLabel('Avatar rasmi').setInputFiles('public/icon-192.png');
+  await page.locator('.bo-avatar-new').getByLabel('Nomi (o‘zbekcha)').fill('Termiz Burguti');
+  await page.getByLabel(/Qaysi multfilm/).fill('TerDU');
+  await page.getByRole('button', { name: /Kutubxonaga qo‘shish/ }).click();
+  await expect(grid).toHaveCount(11);
+  await expect(grid.last()).toContainText('Termiz Burguti');
+  await expect(grid.last()).toContainText('siz qo‘shgan');
+  await page.getByRole('button', { name: 'Yashirish: Sonik' }).click();
+  await expect(grid.first()).toContainText('yashirilgan');
+  // Pastdagi «kimda qaysi avatar» ro'yxati ham yangilanadi.
+  await expect(page.locator('.avatar-admin-grid li')).toHaveCount(10);
+  await expect(page.locator('.avatar-admin-grid')).toContainText('Termiz Burguti');
+
+  // Top-10 talaba: kutubxonada yangi avatar bor, yashirilgani yo'q.
+  await as(page, 'demo-student');
+  await page.goto('/#home', { waitUntil: 'domcontentloaded' });
+  await page.reload({ waitUntil: 'domcontentloaded' });
+  await page.locator('.hero-avatar').click();
+  const dialog = page.getByRole('dialog', { name: /Avatarlar kutubxonasi/ });
+  await expect(dialog.locator('.av-card')).toHaveCount(10);
+  await expect(dialog).not.toContainText('Sonik');
+  await dialog.getByRole('button', { name: /Termiz Burguti — tanlash/ }).click();
+  await expect(dialog).toBeHidden();
+  await expect(page.locator('.hero-avatar img')).toHaveAttribute('src', /^\/api\/site\/img\/av-c/);
+  await page.request.post('/api/platform', {
+    data: { action: 'avatarPick', input: { avatar: null } },
+  });
 });

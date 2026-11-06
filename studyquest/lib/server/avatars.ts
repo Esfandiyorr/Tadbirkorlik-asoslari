@@ -1,7 +1,7 @@
 import 'server-only';
 import { z } from 'zod';
 import type { Actor } from '../types';
-import { AVATAR_IDS, AVATAR_TOP } from '../avatars';
+import { AVATAR_ID, AVATAR_TOP, type AvatarItem } from '../avatars';
 import { administrator, ApiError, check } from './auth';
 import { demo, legacyDb } from './repository';
 
@@ -27,12 +27,13 @@ export async function readAvatars(): Promise<AvatarStore> {
   return { own: v.own || {}, allow: v.allow || {} };
 }
 
-function rules(board: BoardRow[], store: AvatarStore) {
+function rules(board: BoardRow[], store: AvatarStore, catalog: AvatarItem[]) {
   const top = new Set(board.slice(0, AVATAR_TOP).map((r) => r.id));
   const eligible = (id: string) => top.has(id) || !!store.allow[id];
-  // Faqat hozir huquqi bor egalar hisobga olinadi; qolganlari bo'sh.
+  // Faqat hozir huquqi bor egalar hisobga olinadi; qolganlari bo'sh. Yashirilgan avatar hech kimda ko'rinmaydi.
   const owners: Record<string, string> = {};
-  for (const id of AVATAR_IDS) {
+  for (const { id, off } of catalog) {
+    if (off) continue;
     const c = store.own[id];
     if (c?.s && eligible(c.s)) owners[id] = c.s;
   }
@@ -40,13 +41,19 @@ function rules(board: BoardRow[], store: AvatarStore) {
 }
 
 /** Reyting qatorlariga amaldagi avatarni qo'shadi va talabaning o'z holatini qaytaradi. */
-export function avatarView(board: BoardRow[], store: AvatarStore, me?: string) {
-  const { top, eligible, owners } = rules(board, store);
+export function avatarView(
+  board: BoardRow[],
+  store: AvatarStore,
+  me: string | undefined,
+  catalog: AvatarItem[],
+) {
+  const { top, eligible, owners } = rules(board, store, catalog);
   const byOwner = Object.fromEntries(Object.entries(owners).map(([a, s]) => [s, a]));
   return {
     leaderboard: board.map((r) => (byOwner[r.id] ? { ...r, avatar: byOwner[r.id] } : r)),
     avatars: {
       owners,
+      catalog: catalog.filter((a) => !a.off),
       me: me
         ? {
             place: board.findIndex((r) => r.id === me) + 1,
@@ -60,14 +67,25 @@ export function avatarView(board: BoardRow[], store: AvatarStore, me?: string) {
   };
 }
 
-const pickInput = z.object({ avatar: z.enum(AVATAR_IDS).nullable() }).strict();
+const pickInput = z.object({ avatar: z.string().regex(AVATAR_ID).nullable() }).strict();
 
 /** Talaba avatar tanlaydi (yoki null — olib tashlaydi). Egallash tranzaksiya bilan: ikkitasi bir vaqtda ololmaydi. */
-export async function pickAvatar(a: Actor, board: BoardRow[], raw: unknown, now = Date.now()) {
+export async function pickAvatar(
+  a: Actor,
+  board: BoardRow[],
+  raw: unknown,
+  catalog: AvatarItem[],
+  now = Date.now(),
+) {
   check(a.role === 'student', 403, 'Avatarni faqat talabalar tanlaydi.');
   const { avatar } = pickInput.parse(raw);
+  check(
+    !avatar || catalog.some((x) => x.id === avatar && !x.off),
+    404,
+    'Bu avatar kutubxonada yo‘q.',
+  );
   const store = await readAvatars();
-  const { eligible } = rules(board, store);
+  const { eligible } = rules(board, store, catalog);
   check(
     eligible(a.id),
     403,
@@ -96,18 +114,24 @@ export async function pickAvatar(a: Actor, board: BoardRow[], raw: unknown, now 
       });
     check(!conflict && result.committed, 409, TAKEN);
   }
-  return avatarView(board, await readAvatars(), a.id);
+  return avatarView(board, await readAvatars(), a.id, catalog);
 }
 
 const adminInput = z.discriminatedUnion('op', [
   z
     .object({ op: z.literal('allow'), student: z.string().regex(STUDENT), allow: z.boolean() })
     .strict(),
-  z.object({ op: z.literal('release'), avatar: z.enum(AVATAR_IDS) }).strict(),
+  z.object({ op: z.literal('release'), avatar: z.string().regex(AVATAR_ID) }).strict(),
 ]);
 
 /** Administrator: talabaga avatar ruxsati berish/olish yoki avatarni bo'shatish. */
-export async function manageAvatars(a: Actor, board: BoardRow[], raw: unknown, now = Date.now()) {
+export async function manageAvatars(
+  a: Actor,
+  board: BoardRow[],
+  raw: unknown,
+  catalog: AvatarItem[],
+  now = Date.now(),
+) {
   administrator(a);
   const v = adminInput.parse(raw);
   if (demo()) {
@@ -123,12 +147,12 @@ export async function manageAvatars(a: Actor, board: BoardRow[], raw: unknown, n
     await legacyDb()
       .ref('meta/avatars/own/' + v.avatar)
       .remove();
-  return avatarAdminView(board, await readAvatars());
+  return avatarAdminView(board, await readAvatars(), catalog);
 }
 
 /** Administrator ko'rinishi: har avatar egasi, ruxsat berilganlar va reytingdagi talabalar. */
-export function avatarAdminView(board: BoardRow[], store: AvatarStore) {
-  const { top, eligible } = rules(board, store);
+export function avatarAdminView(board: BoardRow[], store: AvatarStore, catalog: AvatarItem[]) {
+  const { top, eligible } = rules(board, store, catalog);
   const who = (id: string) => {
     const i = board.findIndex((r) => r.id === id);
     return {
@@ -139,10 +163,13 @@ export function avatarAdminView(board: BoardRow[], store: AvatarStore) {
     };
   };
   return {
-    avatars: AVATAR_IDS.map((id) => {
-      const c = store.own[id];
-      return { id, owner: c?.s ? { ...who(c.s), active: eligible(c.s), at: c.at } : null };
-    }),
+    catalog,
+    avatars: catalog
+      .filter((x) => !x.off)
+      .map(({ id }) => {
+        const c = store.own[id];
+        return { id, owner: c?.s ? { ...who(c.s), active: eligible(c.s), at: c.at } : null };
+      }),
     allowed: Object.keys(store.allow)
       .filter((id) => store.allow[id])
       .map((id) => ({ ...who(id), top: top.has(id) })),

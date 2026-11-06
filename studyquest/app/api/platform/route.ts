@@ -20,6 +20,7 @@ import { limitedCatalog } from '@/lib/server/limited';
 import { sitePolicy, clearPolicyCache, normalizePolicy } from '@/lib/server/site-policy';
 import { liveGame, manageNews, readNews } from '@/lib/server/news';
 import { liveAdmin, liveTopUp, manageLive } from '@/lib/server/live-admin';
+import { avatarLibrary, manageLibrary } from '@/lib/server/avatar-library';
 import {
   manageSiteText,
   manageTopicQuiz,
@@ -143,10 +144,14 @@ export async function GET(req: NextRequest) {
     if (req.nextUrl.searchParams.get('view') === 'academic') {
       const a = await actor(req, true);
       if ((await sitePolicy()).maintenance) administrator(a);
-      const [board, avatars] = await Promise.all([academicBoard(), readAvatars()]);
-      // Reyting qatorlarida amaldagi avatar; talabaga — o'rni va avatar tanlash huquqi.
+      const [board, avatars, catalog] = await Promise.all([
+        academicBoard(),
+        readAvatars(),
+        avatarLibrary(),
+      ]);
+      // Reyting qatorlarida amaldagi avatar; talabaga — o'rni va avatar tanlash huquqi; kutubxona ro'yxati.
       return NextResponse.json(
-        avatarView(board, avatars, a.role === 'student' ? a.id : undefined),
+        avatarView(board, avatars, a.role === 'student' ? a.id : undefined, catalog),
         { headers: { 'Cache-Control': 'no-store' } },
       );
     }
@@ -174,8 +179,12 @@ export async function GET(req: NextRequest) {
     if (req.nextUrl.searchParams.get('view') === 'avatarAdmin') {
       const a = await actor(req, true);
       administrator(a);
-      const [board, avatars] = await Promise.all([academicBoard(), readAvatars()]);
-      return NextResponse.json(avatarAdminView(board, avatars), {
+      const [board, avatars, catalog] = await Promise.all([
+        academicBoard(),
+        readAvatars(),
+        avatarLibrary(),
+      ]);
+      return NextResponse.json(avatarAdminView(board, avatars, catalog), {
         headers: { 'Cache-Control': 'private, no-store' },
       });
     }
@@ -418,6 +427,9 @@ export async function POST(req: NextRequest) {
       const a = await actor(req, true);
       return NextResponse.json(await manageNews(a, p.input));
     }
+    if (p.action === 'avatarLibrary') {
+      return NextResponse.json({ catalog: await manageLibrary(await actor(req, true), p.input) });
+    }
     if (p.action === 'siteText') {
       return NextResponse.json(await manageSiteText(await actor(req, true), p.input));
     }
@@ -430,11 +442,11 @@ export async function POST(req: NextRequest) {
     if (p.action === 'avatarPick' || p.action === 'avatarAdmin') {
       const a = await actor(req, true);
       if ((await sitePolicy()).maintenance) administrator(a);
-      const board = await academicBoard();
+      const [board, catalog] = await Promise.all([academicBoard(), avatarLibrary()]);
       return NextResponse.json(
         p.action === 'avatarPick'
-          ? await pickAvatar(a, board, p.input)
-          : await manageAvatars(a, board, p.input),
+          ? await pickAvatar(a, board, p.input, catalog)
+          : await manageAvatars(a, board, p.input, catalog),
       );
     }
     if (p.action === 'topicMode') {

@@ -8,6 +8,7 @@ import { useL } from './common';
 import { LiveAdmin } from './live-admin';
 import { TopicQuizAdmin } from './topic-quiz-admin';
 import { ContentAdmin } from './content-admin';
+import { AvatarLibraryAdmin } from './avatar-library-admin';
 import { startEditMode } from '../site-content';
 
 /* 🛠 Sayt boshqaruvi (administrator): saytdagi matn, rasm, avatar, test va jonli testni dasturchiga yozmasdan
@@ -144,7 +145,7 @@ export function BackOffice({ openTab }: { openTab: (tab: string) => void }) {
     if (section === 'live') body = <LiveAdmin />;
     else if (section === 'quiz') body = <TopicQuizAdmin />;
     else if (section === 'content') body = <ContentAdmin />;
-    else if (section === 'avatars') body = <AvatarAdmin />;
+    else if (section === 'avatars') body = <AvatarsSection />;
     else if (section === 'news') body = <NewsAdmin openCourseControls={() => setSection('live')} />;
     return (
       <section className="bo-section" aria-labelledby="bo-title" data-se-ui>
@@ -206,4 +207,15 @@ export function openBackOffice(section: BoSection) {
     sessionStorage.setItem(KEY, section);
     sessionStorage.setItem('sq-staff-tab', 'site');
   } catch {}
+}
+
+/** Avatarlar: kutubxona (qo'shish, nom, rasm, yashirish) va kimda qaysi avatar (ruxsat, bo'shatish). */
+function AvatarsSection() {
+  const [rev, setRev] = useState(0);
+  return (
+    <>
+      <AvatarLibraryAdmin onChange={() => setRev((r) => r + 1)} />
+      <AvatarAdmin key={rev} />
+    </>
+  );
 }

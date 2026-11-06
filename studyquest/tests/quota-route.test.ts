@@ -1,6 +1,7 @@
 import { it, expect, vi, beforeEach } from 'vitest';
 import { NextRequest } from 'next/server';
 import { demoUsers } from '../lib/seed';
+import { AVATAR_IDS } from '../lib/avatars';
 import { ApiError } from '../lib/server/auth';
 const mocks = vi.hoisted(() => ({
   list: vi.fn(),
@@ -106,7 +107,11 @@ it('returns minimal academic rows to verified users without Firestore while keep
     }),
   );
   expect(response.status).toBe(200);
-  expect(await response.json()).toEqual({
+  const body = await response.json();
+  // Avatarlar kutubxonasi ham asl bazadan (site/avatars): bu yerda — faqat asl 10 ta qahramon.
+  expect(body.avatars.catalog.map((a: { id: string }) => a.id)).toEqual([...AVATAR_IDS]);
+  delete body.avatars.catalog;
+  expect(body).toEqual({
     leaderboard: [
       {
         id: 'legacy_alice',

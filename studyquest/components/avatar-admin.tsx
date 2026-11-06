@@ -3,12 +3,13 @@ import { useCallback, useEffect, useState } from 'react';
 import { Search, ShieldCheck, Unlock } from 'lucide-react';
 import { useApp } from './provider';
 import { Button } from './ui/button';
-import { AvatarFigure, avatarName } from './avatars';
-import { AVATAR_TOP } from '@/lib/avatars';
+import { AvatarFigure, avatarName, setAvatarCatalog } from './avatars';
+import { AVATAR_TOP, type AvatarItem } from '@/lib/avatars';
 import { tr } from '@/lib/points';
 
 type Person = { id: string; name: string; classId: string; place: number };
 type View = {
+  catalog?: AvatarItem[];
   avatars: { id: string; owner: (Person & { active: boolean; at: number }) | null }[];
   allowed: (Person & { top: boolean })[];
   students: (Person & { allowed: boolean })[];
@@ -27,6 +28,7 @@ export function AvatarAdmin() {
       const r = await request('/api/platform?view=avatarAdmin'),
         v = await r.json();
       if (!r.ok) throw new Error(v.error);
+      setAvatarCatalog(v.catalog);
       setView(v);
       setError('');
     } catch (e) {
@@ -46,6 +48,7 @@ export function AvatarAdmin() {
         }),
         v = await r.json();
       if (!r.ok) throw new Error(v.error);
+      setAvatarCatalog(v.catalog);
       setView(v);
       toast(done);
     } catch (e) {

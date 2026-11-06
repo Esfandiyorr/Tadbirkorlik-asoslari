@@ -35,3 +35,21 @@ export const AVATARS: Record<AvatarId, { name: Tri; from: string }> = {
 export const avatarSrc = (id: string) => '/avatars/' + id + '.webp';
 export const isAvatar = (id: unknown): id is AvatarId =>
   typeof id === 'string' && (AVATAR_IDS as readonly string[]).includes(id);
+
+/** Kutubxonadagi avatar (asl 10 tasi va administrator yuklaganlari): nomi uch tilda, manbasi va rasm manzili. */
+export type AvatarItem = {
+  id: string;
+  name: [string, string, string];
+  from: string;
+  src: string;
+  custom?: boolean;
+  off?: boolean;
+};
+export const BUILTIN_AVATARS: AvatarItem[] = AVATAR_IDS.map((id) => ({
+  id,
+  name: [...AVATARS[id].name] as [string, string, string],
+  from: AVATARS[id].from,
+  src: avatarSrc(id),
+}));
+/** Avatar kaliti: asl nomlar yoki administrator qo'shgani (c + raqam/harf). */
+export const AVATAR_ID = /^[a-z][a-z0-9-]{1,39}$/;

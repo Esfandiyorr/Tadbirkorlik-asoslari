@@ -1,5 +1,6 @@
 import { beforeEach, expect, it, vi } from 'vitest';
 import type { Actor } from '../lib/types';
+import { BUILTIN_AVATARS as CAT } from '../lib/avatars';
 
 /* Avatar egallash asl bazada tranzaksiya bilan: soxta RTDB (birinchi chaqiruv null bilan — haqiqiy SDK kabi). */
 const tree: { meta?: any } = {};
@@ -47,13 +48,13 @@ const ranked = Array.from({ length: 12 }, (_, i) => ({
 const student = (n: number) => ({ id: 'legacy_s' + n, role: 'student' }) as unknown as Actor;
 
 it('claims avatars in the original database without overwriting other students', async () => {
-  await pickAvatar(student(1), ranked, { avatar: 'mario' }, 111);
-  await pickAvatar(student(2), ranked, { avatar: 'sonic' }, 222);
+  await pickAvatar(student(1), ranked, { avatar: 'mario' }, CAT, 111);
+  await pickAvatar(student(2), ranked, { avatar: 'sonic' }, CAT, 222);
   expect(get('meta/avatars/own')).toEqual({
     mario: { s: 'legacy_s1', at: 111 },
     sonic: { s: 'legacy_s2', at: 222 },
   });
-  await expect(pickAvatar(student(3), ranked, { avatar: 'mario' })).rejects.toMatchObject({
+  await expect(pickAvatar(student(3), ranked, { avatar: 'mario' }, CAT)).rejects.toMatchObject({
     status: 409,
   });
   expect(get('meta/avatars/own/mario')).toEqual({ s: 'legacy_s1', at: 111 });
@@ -61,14 +62,15 @@ it('claims avatars in the original database without overwriting other students',
     { id: 'owner', role: 'admin' } as unknown as Actor,
     ranked,
     { op: 'allow', student: 'legacy_s12', allow: true },
+    CAT,
     333,
   );
   expect(get('meta/avatars/allow')).toEqual({ legacy_s12: 333 });
   // Ruxsat berilgan 12-o'rin ham band avatarni ololmaydi, bo'shini oladi.
-  await expect(pickAvatar(student(12), ranked, { avatar: 'mario' })).rejects.toMatchObject({
+  await expect(pickAvatar(student(12), ranked, { avatar: 'mario' }, CAT)).rejects.toMatchObject({
     status: 409,
   });
-  const view = await pickAvatar(student(12), ranked, { avatar: 'po' });
+  const view = await pickAvatar(student(12), ranked, { avatar: 'po' }, CAT);
   expect(view.avatars.me).toMatchObject({ place: 12, allowed: true, can: true, avatar: 'po' });
   expect(Object.keys(get('meta/avatars/own'))).toEqual(['mario', 'sonic', 'po']);
 });
