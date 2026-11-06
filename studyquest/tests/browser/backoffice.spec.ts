@@ -21,6 +21,13 @@ test.afterEach(async ({ page }) => {
   for (const g of v.games || []) await live(page, { op: 'cancel', d: g.d });
   if (v.bank?.length)
     await live(page, { op: 'delete', ids: v.bank.map((x: { id: string }) => x.id) });
+  // Matn, rasm va mavzu testi o'zgarishlari ham tozalanadi.
+  const site = (input: unknown, action = 'siteText') =>
+    page.request.post('/api/platform', { data: { action, input } });
+  const c = await (await page.request.get('/api/platform?view=siteContent')).json();
+  for (const t of c.texts || []) await site({ op: 'remove', o: t.o });
+  for (const i of c.images || []) await site({ op: 'removeImage', o: i.o });
+  await site({ op: 'reset', t: 'm1' }, 'topicQuiz');
 });
 
 test('the site manager opens with clear cards and leads to every admin task', async ({ page }) => {
@@ -206,4 +213,102 @@ test('the administrator edits a topic test and the presentation uses the new que
   await expect(
     page.locator('.bo-question').first().getByRole('textbox', { name: '1-savol matni' }),
   ).not.toHaveValue(/yangilangan/);
+});
+
+test('in edit mode the administrator clicks any text or picture and everyone sees the change', async ({
+  page,
+}) => {
+  test.setTimeout(120000);
+  await page.route('**/api/site/content', (route) => route.continue()); // brauzer keshisiz
+  await as(page, 'demo-admin');
+  await page.goto('/#admin', { waitUntil: 'domcontentloaded' });
+  await page
+    .locator('.bo-cards li')
+    .filter({ hasText: 'Matnlar va rasmlar' })
+    .getByRole('button', { name: /Tahrirlashni boshlash/ })
+    .click();
+  const bar = page.locator('.se-bar');
+  await expect(bar).toBeVisible();
+  await expect.poll(() => new URL(page.url()).hash).toBe('#home');
+  // Havola bosilganda sahifa almashmaydi — tahrirlash oynasi ochiladi.
+  const ranking = page.locator('.sidebar a[href="#ranking"]');
+  await ranking.click();
+  const dialog = page.getByRole('dialog', { name: /Matnni o‘zgartirish/ });
+  await expect(dialog.locator('.se-original')).toHaveText('Reyting');
+  await dialog.getByLabel('Yangi matn').fill('Reyting jadvali');
+  await dialog.getByRole('button', { name: 'Saqlash' }).click();
+  await expect(dialog).toBeHidden();
+  await expect(ranking).toHaveText('Reyting jadvali');
+  expect(new URL(page.url()).hash).toBe('#home');
+  // Sonni o'zgartirib bo'lmaydi.
+  // «Sahifalar bo'ylab yurish» — oddiy bosish qaytadi.
+  await bar.getByRole('button', { name: /Sahifalar bo‘ylab yurish/ }).click();
+  await page.locator('.sidebar a[href="#badges"]').click();
+  await expect.poll(() => new URL(page.url()).hash).toBe('#badges');
+  await bar.getByRole('button', { name: /Tahrirlashga qaytish/ }).click();
+  // 🖼 Logotip.
+  const logo = page.locator('.sidebar img').first();
+  await logo.click();
+  const pic = page.getByRole('dialog', { name: /Rasmni almashtirish/ });
+  await pic.locator('input[type="file"]').setInputFiles('public/icon-192.png');
+  await expect(pic.getByText('Yangi rasm', { exact: true })).toBeVisible();
+  await pic.getByRole('button', { name: 'Saqlash' }).click();
+  await expect(pic).toBeHidden();
+  await expect(logo).toHaveAttribute('src', /^\/api\/site\/img\/i[0-9a-f]{16}\?v=/);
+  const logoSrc = (await logo.getAttribute('src'))!;
+  expect((await page.request.get(logoSrc)).headers()['content-type']).toBe('image/png');
+  // Taqdimot ichidagi yozuv ham shu yo'l bilan o'zgaradi.
+  await bar.getByRole('button', { name: /Sahifalar bo‘ylab yurish/ }).click();
+  await page.goto('/#lesson/m1', { waitUntil: 'domcontentloaded' });
+  const title = page
+    .locator('.native-document')
+    .getByText('TADBIRKORLIK TAFAKKURI VA BIZNES IMKONIYATLARNI ANIQLASH', { exact: true });
+  await expect(title).toBeVisible();
+  await bar.getByRole('button', { name: /Tahrirlashga qaytish/ }).click();
+  await title.click();
+  await dialog.getByLabel('Yangi matn').fill('TADBIRKORLIK TAFAKKURI VA IMKONIYATLAR');
+  await dialog.getByRole('button', { name: 'Saqlash' }).click();
+  const renamed = page
+    .locator('.native-document')
+    .getByText('TADBIRKORLIK TAFAKKURI VA IMKONIYATLAR', { exact: true });
+  await expect(renamed).toBeVisible();
+  await bar.getByRole('button', { name: 'Tayyor' }).click();
+  // Slayd asl taqdimotdan qayta chizilganda ham yangi matn qoladi.
+  await page.locator('.reader-controls').getByRole('button', { name: 'Keyingi' }).click();
+  await expect(page.locator('.reader-counter')).toHaveText('2 / 18');
+  await page.locator('.reader-controls').getByRole('button', { name: 'Oldingi' }).click();
+  await expect(renamed).toBeVisible();
+  await expect(bar).toBeHidden();
+
+  // Talaba: yangi matn va rasm, tahrirlash paneli yo'q.
+  await as(page, 'demo-student');
+  await page.evaluate(() => sessionStorage.setItem('sq-edit', '1'));
+  await page.goto('/#home', { waitUntil: 'domcontentloaded' });
+  await page.reload({ waitUntil: 'domcontentloaded' });
+  await expect(page.locator('.sidebar a[href="#ranking"]')).toHaveText('Reyting jadvali');
+  await expect(page.locator('.sidebar img').first()).toHaveAttribute('src', logoSrc);
+  await expect(page.locator('.se-bar')).toHaveCount(0);
+
+  // Administrator ro'yxatdan asl holiga qaytaradi.
+  await as(page, 'demo-admin');
+  await page.goto('/#admin', { waitUntil: 'domcontentloaded' });
+  await page.reload({ waitUntil: 'domcontentloaded' });
+  await page.locator('.bo-card-btn').filter({ hasText: 'Matnlar va rasmlar' }).click();
+  const texts = page.locator('.bo-texts li');
+  await expect(texts).toHaveCount(2);
+  await expect(page.locator('.bo-images li')).toHaveCount(1);
+  for (let i = 2; i > 0; i--) {
+    await texts
+      .first()
+      .getByRole('button', { name: /Asl holiga/ })
+      .click();
+    await expect(texts).toHaveCount(i - 1);
+  }
+  await page
+    .locator('.bo-images li')
+    .getByRole('button', { name: /Asl holiga/ })
+    .click();
+  await expect(page.locator('.bo-images li')).toHaveCount(0);
+  await expect(page.locator('.sidebar a[href="#ranking"]')).toHaveText('Reyting');
+  await expect(page.locator('.sidebar img').first()).toHaveAttribute('src', '/terdu-logo.png');
 });

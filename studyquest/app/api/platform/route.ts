@@ -20,7 +20,13 @@ import { limitedCatalog } from '@/lib/server/limited';
 import { sitePolicy, clearPolicyCache, normalizePolicy } from '@/lib/server/site-policy';
 import { liveGame, manageNews, readNews } from '@/lib/server/news';
 import { liveAdmin, liveTopUp, manageLive } from '@/lib/server/live-admin';
-import { manageTopicQuiz, topicQuiz, topicQuizList } from '@/lib/server/site-content';
+import {
+  manageSiteText,
+  manageTopicQuiz,
+  siteContentAdmin,
+  topicQuiz,
+  topicQuizList,
+} from '@/lib/server/site-content';
 import {
   resetStudentPassword,
   changeStudentPassword,
@@ -159,6 +165,11 @@ export async function GET(req: NextRequest) {
           headers: { 'Cache-Control': 'private, no-store' },
         },
       );
+    }
+    if (req.nextUrl.searchParams.get('view') === 'siteContent') {
+      return NextResponse.json(await siteContentAdmin(await actor(req, true)), {
+        headers: { 'Cache-Control': 'private, no-store' },
+      });
     }
     if (req.nextUrl.searchParams.get('view') === 'avatarAdmin') {
       const a = await actor(req, true);
@@ -406,6 +417,9 @@ export async function POST(req: NextRequest) {
     if (p.action === 'news') {
       const a = await actor(req, true);
       return NextResponse.json(await manageNews(a, p.input));
+    }
+    if (p.action === 'siteText') {
+      return NextResponse.json(await manageSiteText(await actor(req, true), p.input));
     }
     if (p.action === 'topicQuiz') {
       return NextResponse.json(await manageTopicQuiz(await actor(req, true), p.input));

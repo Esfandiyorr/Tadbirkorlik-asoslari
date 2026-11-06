@@ -7,6 +7,8 @@ import { NewsAdmin } from '../announcements';
 import { useL } from './common';
 import { LiveAdmin } from './live-admin';
 import { TopicQuizAdmin } from './topic-quiz-admin';
+import { ContentAdmin } from './content-admin';
+import { startEditMode } from '../site-content';
 
 /* 🛠 Sayt boshqaruvi (administrator): saytdagi matn, rasm, avatar, test va jonli testni dasturchiga yozmasdan
    o'zgartirish uchun yagona joy. Har bir ish — alohida kartochka; ichida qisqa izoh va oddiy shakllar. */
@@ -39,6 +41,18 @@ export function BackOffice({ openTab }: { openTab: (tab: string) => void }) {
     action?: () => void;
     actionLabel?: string;
   }[] = [
+    {
+      id: 'content',
+      icon: '✏️',
+      title: L('Matnlar va rasmlar', 'Texts and images', 'Тексты и картинки'),
+      text: L(
+        'Saytdagi istalgan yozuv yoki rasm ustiga bosib o‘zgartirasiz: sarlavhalar, tugmalar, izohlar, logotip.',
+        'Click any text or picture on the site to change it: headings, buttons, notes, the logo.',
+        'Нажмите на любой текст или картинку на сайте, чтобы изменить: заголовки, кнопки, подписи, логотип.',
+      ),
+      action: startEditMode,
+      actionLabel: L('✏️ Tahrirlashni boshlash', '✏️ Start editing', '✏️ Начать правку'),
+    },
     {
       id: 'quiz',
       icon: '📝',
@@ -129,10 +143,11 @@ export function BackOffice({ openTab }: { openTab: (tab: string) => void }) {
     let body: ReactNode = null;
     if (section === 'live') body = <LiveAdmin />;
     else if (section === 'quiz') body = <TopicQuizAdmin />;
+    else if (section === 'content') body = <ContentAdmin />;
     else if (section === 'avatars') body = <AvatarAdmin />;
     else if (section === 'news') body = <NewsAdmin openCourseControls={() => setSection('live')} />;
     return (
-      <section className="bo-section" aria-labelledby="bo-title">
+      <section className="bo-section" aria-labelledby="bo-title" data-se-ui>
         <div className="bo-head">
           <Button variant="outline" size="sm" onClick={() => setSection(null)}>
             <ArrowLeft size={15} />
@@ -148,7 +163,7 @@ export function BackOffice({ openTab }: { openTab: (tab: string) => void }) {
     );
   }
   return (
-    <section className="bo-hub" aria-labelledby="bo-hub-title">
+    <section className="bo-hub" aria-labelledby="bo-hub-title" data-se-ui>
       <div className="bo-hub-head">
         <h2 id="bo-hub-title">🛠 {L('Sayt boshqaruvi', 'Site manager', 'Управление сайтом')}</h2>
         <p>

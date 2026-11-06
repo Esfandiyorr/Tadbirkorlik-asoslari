@@ -18,7 +18,13 @@ const config: NextConfig = {
           { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
         ],
       },
-      { source: '/api/:path*', headers: [{ key: 'Cache-Control', value: 'private, no-store' }] },
+      // API javoblari odatda shaxsiy — keshlanmaydi. Istisno: ochiq va o'zi qisqa kesh belgilaydiganlar
+      // (Sayt boshqaruvi: /api/site/*; e'lonlar oynasi va kirish dizayni: /api/platform?view=news|loginDesign).
+      {
+        source: '/api/:path((?!site/).*)',
+        missing: [{ type: 'query', key: 'view', value: '(?:news|loginDesign)' }],
+        headers: [{ key: 'Cache-Control', value: 'private, no-store' }],
+      },
     ];
   },
 };

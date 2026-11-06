@@ -4,6 +4,7 @@ import DOMPurify from 'dompurify';
 import morphdom from 'morphdom';
 import { useApp } from './provider';
 import { uzQuotesDom } from '@/lib/uz-text';
+import { applySiteContent } from './site-content';
 import { Button } from './ui/button';
 
 type Action = Record<string, unknown>;
@@ -202,6 +203,8 @@ export const NativeSurface = forwardRef<HTMLIFrameElement, Props>(function Nativ
       });
       // Darslar matnidagi o'/g' interfeysdagi kabi o‘/g‘ ko‘rinishida chiqadi.
       if (langRef.current === 'uz') uzQuotesDom(wrapper);
+      // Administrator «Sayt boshqaruvi»da o'zgartirgan matn va rasmlar (morphdom'dan oldin — ortiqcha qayta chizishsiz).
+      applySiteContent(wrapper);
       // Dvigatel blokni noldan qayta yaratsa (masalan, test har javobdan keyin barcha savollarni qayta chizadi),
       // morphdom eski tugunlarni olib tashlab yangisini qo'yadi. O'sha lahzada hujjat qisqarib, aylantirish
       // tepaga «qisilib» qolardi. Shuning uchun holat saqlanadi va qayta chizilgandan keyin qaytariladi.

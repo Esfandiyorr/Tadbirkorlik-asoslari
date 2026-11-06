@@ -94,3 +94,65 @@ it('keeps simple formatting but turns any other markup into plain text', async (
     manageTopicQuiz(admin, { op: 'save', t: 'm6', questions: edited }),
   ).rejects.toThrow();
 });
+
+it('replaces site texts and pictures for everyone, only by the administrator', async () => {
+  const { manageSiteText, siteContent, siteContentAdmin, replaceSiteImage, readImage, contentKey } =
+    await import('../lib/server/site-content');
+  const { GET: content } = await import('../app/api/site/content/route');
+  const { GET: image } = await import('../app/api/site/img/[key]/route');
+  await expect(
+    manageSiteText(teacher, { op: 'set', o: 'Reyting', n: 'Reyting jadvali' }),
+  ).rejects.toMatchObject({ status: 403 });
+  const now = Date.UTC(2026, 10, 6, 12);
+  // Bo'shliqlar bitta qilinadi: sahifadagi yozuv bilan aynan mos kelishi uchun.
+  let v = await manageSiteText(admin, { op: 'set', o: '  Reyting \n', n: 'Reyting  jadvali' }, now);
+  expect(v.texts).toEqual({ Reyting: 'Reyting jadvali' });
+  expect(v.rev).toBe(now);
+  await expect(manageSiteText(admin, { op: 'set', o: '15', n: '20' })).rejects.toMatchObject({
+    status: 400,
+  });
+  await expect(manageSiteText(admin, { op: 'set', o: 'Kurslar', n: '   ' })).rejects.toMatchObject({
+    status: 400,
+  });
+  // Ochiq API: hamma ko'radi, CDN qisqa keshlaydi.
+  const r = await content();
+  expect(r.headers.get('cache-control')).toContain('s-maxage=30');
+  expect(await r.json()).toMatchObject({ texts: { Reyting: 'Reyting jadvali' } });
+
+  // Rasm: faqat haqiqiy rasm baytlari, SVG va boshqa fayllar yo'q.
+  const png = fs.readFileSync(path.join(__dirname, '../public/icon-192.png'));
+  await expect(replaceSiteImage(teacher, '/terdu-logo.png', png)).rejects.toMatchObject({
+    status: 403,
+  });
+  await expect(
+    replaceSiteImage(admin, '/terdu-logo.png', Buffer.from('<svg onload=alert(1)>')),
+  ).rejects.toMatchObject({ status: 400 });
+  await expect(replaceSiteImage(admin, '/api/site/img/x', png)).rejects.toThrow();
+  await expect(replaceSiteImage(admin, '/avatars/sonic.webp', png)).rejects.toThrow();
+  v = await replaceSiteImage(admin, '/terdu-logo.png', png, now + 1000);
+  const key = contentKey('i', '/terdu-logo.png');
+  expect(v.images['/terdu-logo.png']).toBe(
+    '/api/site/img/' + key + '?v=' + (now + 1000).toString(36),
+  );
+  expect((await readImage(key))!.bytes.equals(png)).toBe(true);
+  const served = await image(new NextRequest('http://localhost/api/site/img/' + key), {
+    params: Promise.resolve({ key }),
+  });
+  expect(served.headers.get('content-type')).toBe('image/png');
+  expect(served.headers.get('cache-control')).toContain('immutable');
+  expect(Buffer.from(await served.arrayBuffer()).equals(png)).toBe(true);
+  const bad = await image(new NextRequest('http://localhost/api/site/img/..%2Fx'), {
+    params: Promise.resolve({ key: '../x' }),
+  });
+  expect(bad.status).toBe(404);
+
+  const list = await siteContentAdmin(admin);
+  expect(list.texts[0]).toMatchObject({ o: 'Reyting', n: 'Reyting jadvali', by: 'Administrator' });
+  expect(list.images[0]).toMatchObject({ o: '/terdu-logo.png', size: png.length });
+  // Asl holiga qaytarish.
+  await manageSiteText(admin, { op: 'remove', o: 'Reyting' });
+  v = await manageSiteText(admin, { op: 'removeImage', o: '/terdu-logo.png' });
+  expect(v).toEqual({ texts: {}, images: {}, rev: 0 });
+  expect(await readImage(key)).toBeNull();
+  expect((await siteContent()).texts).toEqual({});
+});

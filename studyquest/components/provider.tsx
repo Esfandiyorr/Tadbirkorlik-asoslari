@@ -1,4 +1,5 @@
 'use client';
+import { SiteContentLayer } from './site-content';
 import {
   createContext,
   useContext,
@@ -358,6 +359,7 @@ export function Provider({
       }}
     >
       {children}
+      <SiteContentLayer />
       {message && (
         <div role="status" className="toast">
           {message}
