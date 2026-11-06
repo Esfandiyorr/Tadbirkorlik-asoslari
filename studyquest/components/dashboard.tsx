@@ -22,6 +22,7 @@ import { useApp } from './provider';
 import { Button } from './ui/button';
 import { TopicArt, CourseArt } from './topic-art';
 import { HeroAvatar, useAcademicBoard } from './avatars';
+import { NewsBox } from './announcements';
 import { AccessChip, PointsRing, PointsBreakdown } from './points-ui';
 import { t, dateLabel } from '@/lib/i18n';
 import {
@@ -178,6 +179,8 @@ function LearnerHome() {
           </p>
         </div>
       </div>
+      {/* Telefonda yon menyu yashirin — e'lonlar oynasi bosh sahifada ham ko'rinadi. */}
+      <NewsBox className="home-news" />
       <div className="dashboard-grid">
         <div className="dashboard-main">
           {lesson && (

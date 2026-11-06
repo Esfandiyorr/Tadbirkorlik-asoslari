@@ -21,6 +21,7 @@ import { PlatformSettings } from './platform-settings';
 import { NativeSurface } from './native-surface';
 import { TopicAccessPanel } from './topic-access';
 import { AvatarAdmin } from './avatar-admin';
+import { NewsAdmin } from './announcements';
 import { t, badgeLabel } from '@/lib/i18n';
 import type { Data, Lesson, Question, Quiz, Progress, Attempt } from '@/lib/types';
 const blankQuestion = (): Question => ({
@@ -68,7 +69,16 @@ export function Staff({ admin = false }: { admin?: boolean }) {
     return promise;
   }, [data, request]);
   const tabRow = useRef<HTMLDivElement>(null);
-  const [tab, setTab] = useState(admin ? 'academic' : 'overview'),
+  const [tab, setTab] = useState(() => {
+      // Yon menyudagi «📢 E'lonlar» oynasidagi «+» — to'g'ridan-to'g'ri «E'lonlar» tabiga.
+      if (admin && typeof window !== 'undefined')
+        try {
+          const wanted = sessionStorage.getItem('sq-staff-tab');
+          sessionStorage.removeItem('sq-staff-tab');
+          if (wanted === 'news') return wanted;
+        } catch {}
+      return admin ? 'academic' : 'overview';
+    }),
     [selected, setSelected] = useState(d.courses[0]?.id || ''),
     [busy, setBusy] = useState(false);
   const [course, setCourse] = useState({
@@ -259,6 +269,7 @@ export function Staff({ admin = false }: { admin?: boolean }) {
             ? [
                 ['platform', L('Platforma', 'Platform', 'Платформа')],
                 ['avatars', L('Avatarlar', 'Avatars', 'Аватары')],
+                ['news', L('E’lonlar', 'Announcements', 'Объявления')],
               ]
             : []),
         ].map(([id, label]) => (
@@ -293,6 +304,7 @@ export function Staff({ admin = false }: { admin?: boolean }) {
       {tab === 'academic' && <AcademicRoster />}
       {admin && tab === 'platform' && <PlatformSettings />}
       {admin && tab === 'avatars' && <AvatarAdmin />}
+      {admin && tab === 'news' && <NewsAdmin openCourseControls={() => setTab('legacy')} />}
       {tab === 'legacy' && (
         <section className="panel">
           <NativeSurface

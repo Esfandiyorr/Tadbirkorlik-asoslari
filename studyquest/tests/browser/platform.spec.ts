@@ -362,7 +362,10 @@ test('existing academic points remain visible on the dashboard, profile and acad
   await login(page.request, 'student');
   await page.route('**/api/platform*', async (route) => {
     if (route.request().method() !== 'GET') return route.continue();
-    if (new URL(route.request().url()).searchParams.get('view') === 'academic')
+    const view = new URL(route.request().url()).searchParams.get('view');
+    // E'lonlar va boshqa ko'rinishlar o'zgarmaydi; faqat reyting va asosiy holat soxtalashtiriladi.
+    if (view && view !== 'academic') return route.continue();
+    if (view === 'academic')
       return route.fulfill({
         json: {
           leaderboard: [

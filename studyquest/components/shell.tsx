@@ -24,6 +24,7 @@ import {
   LogIn,
 } from 'lucide-react';
 import { Provider, useApp } from './provider';
+import { LiveGate, NewsBox } from './announcements';
 import {
   Dashboard,
   CourseList,
@@ -164,9 +165,15 @@ export function StudyQuest() {
   else content = <Dashboard />;
   if (content.type === AuthPanel) return content;
   if (mainView === 'lesson' && (user || data.mode === 'legacy'))
-    return <main className="focus-learning">{content}</main>;
+    return (
+      <main className="focus-learning">
+        {content}
+        <LiveGate />
+      </main>
+    );
   return (
     <div className="app-shell">
+      <LiveGate />
       {menu && (
         <button
           className="sidebar-scrim"
@@ -210,6 +217,7 @@ export function StudyQuest() {
             </a>
           )}
         </nav>
+        <NewsBox className="sidebar-news" />
         <div className="sidebar-bottom">
           <SidebarCurrent />
           <div className="sidebar-settings">

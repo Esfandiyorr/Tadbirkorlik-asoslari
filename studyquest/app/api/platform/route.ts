@@ -18,6 +18,7 @@ import { course, modules, lessons, quiz, settings, badges, catalog } from '@/lib
 import { quotaExceeded } from '@/lib/server/quota';
 import { limitedCatalog } from '@/lib/server/limited';
 import { sitePolicy, clearPolicyCache, normalizePolicy } from '@/lib/server/site-policy';
+import { liveGame, manageNews, readNews } from '@/lib/server/news';
 import {
   resetStudentPassword,
   changeStudentPassword,
@@ -119,6 +120,14 @@ export async function GET(req: NextRequest) {
       return NextResponse.json(
         { login: saved === 'workspace' ? 'workspace' : 'rocket' },
         { headers: { 'Cache-Control': 'public, max-age=60, s-maxage=300' } },
+      );
+    }
+    if (req.nextUrl.searchParams.get('view') === 'news') {
+      // 📢 E'lonlar oynasi va ⚡ keyingi jonli test — ochiq ma'lumot, qisqa muddat keshlanadi.
+      const [news, live] = await Promise.all([readNews(), liveGame()]);
+      return NextResponse.json(
+        { news, live, now: Date.now() },
+        { headers: { 'Cache-Control': 'public, max-age=20, s-maxage=20' } },
       );
     }
     if (req.nextUrl.searchParams.get('view') === 'academic') {
@@ -333,6 +342,10 @@ export async function POST(req: NextRequest) {
       await legacyDb().ref('meta/platformPolicy').set(policy);
       clearPolicyCache();
       return NextResponse.json({ ok: true });
+    }
+    if (p.action === 'news') {
+      const a = await actor(req, true);
+      return NextResponse.json(await manageNews(a, p.input));
     }
     if (p.action === 'avatarPick' || p.action === 'avatarAdmin') {
       const a = await actor(req, true);
