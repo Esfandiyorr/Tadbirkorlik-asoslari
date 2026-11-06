@@ -20,6 +20,7 @@ import { AcademicRoster } from './academic-roster';
 import { PlatformSettings } from './platform-settings';
 import { NativeSurface } from './native-surface';
 import { TopicAccessPanel } from './topic-access';
+import { AvatarAdmin } from './avatar-admin';
 import { t, badgeLabel } from '@/lib/i18n';
 import type { Data, Lesson, Question, Quiz, Progress, Attempt } from '@/lib/types';
 const blankQuestion = (): Question => ({
@@ -254,7 +255,12 @@ export function Staff({ admin = false }: { admin?: boolean }) {
           ['students', L('O‘quvchilar', 'Learners', 'Ученики')],
           ['academic', L('Talabalar va baholar', 'Academic records', 'Студенты и оценки')],
           ['legacy', L('Kursni boshqarish', 'Course controls', 'Управление предметом')],
-          ...(admin ? [['platform', L('Platforma', 'Platform', 'Платформа')]] : []),
+          ...(admin
+            ? [
+                ['platform', L('Platforma', 'Platform', 'Платформа')],
+                ['avatars', L('Avatarlar', 'Avatars', 'Аватары')],
+              ]
+            : []),
         ].map(([id, label]) => (
           <Button
             key={id}
@@ -286,6 +292,7 @@ export function Staff({ admin = false }: { admin?: boolean }) {
       {tab === 'access' && <TopicAccessPanel />}
       {tab === 'academic' && <AcademicRoster />}
       {admin && tab === 'platform' && <PlatformSettings />}
+      {admin && tab === 'avatars' && <AvatarAdmin />}
       {tab === 'legacy' && (
         <section className="panel">
           <NativeSurface

@@ -6,7 +6,7 @@ import type { SupportMessage } from '../types';
 
 /* «Adminga xabar»: talaba yoki o'qituvchi administratorga murojaat yozadi, administrator javob beradi.
    Asosiy (Realtime) bazada saqlanadi: support/<foydalanuvchi>/<xabar>. Demo muhitda — xotirada. */
-export const supportCategories = ['tech', 'grade', 'account', 'idea', 'other'] as const;
+export const supportCategories = ['tech', 'grade', 'account', 'idea', 'avatar', 'other'] as const;
 type Who = { id: string; name: string; role: string; classId?: string };
 
 const memory = ((

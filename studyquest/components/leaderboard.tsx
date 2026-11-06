@@ -1,10 +1,17 @@
 'use client';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { CalendarDays, Trophy, Users } from 'lucide-react';
 import { useApp } from './provider';
+import {
+  AvatarFigure,
+  AvatarPicker,
+  avatarName,
+  useAcademicBoard,
+  type BoardEntry,
+} from './avatars';
 import { num, tr } from '@/lib/points';
 
-type Entry = { id: string; name: string; academicPoints?: number; today?: number; classId: string };
+type Entry = BoardEntry;
 type Period = 'day' | 'all';
 
 const initials = (name: string) =>
@@ -39,44 +46,29 @@ export function Avatar({ e, size }: { e: { id: string; name: string }; size: num
     </span>
   );
 }
-/** Avatar o'rni: hozircha rangsiz soya. Avatarlar keyinchalik mukofot sifatida birma-bir beriladi. */
-function AvatarSlot() {
+/** Avatar o'rni: talaba tanlagan qahramon yoki rangsiz soya. O'z qatorida bosilsa — avatarlar kutubxonasi. */
+function AvatarSlot({ id, label, onOpen }: { id?: string; label: string; onOpen?: () => void }) {
+  if (onOpen)
+    return (
+      <button type="button" className="rk-slot is-mine" onClick={onOpen} aria-label={label}>
+        <AvatarFigure id={id} />
+      </button>
+    );
   return (
-    <span className="rk-slot" aria-hidden="true">
-      <svg viewBox="0 0 64 80" focusable="false">
-        <circle cx="32" cy="21" r="14" />
-        <path d="M5 80c0-21 11.5-33 27-33s27 12 27 33z" />
-      </svg>
+    <span className="rk-slot" title={label || undefined}>
+      <AvatarFigure id={id} />
     </span>
   );
 }
 
 export function Leaderboard() {
-  const { data, lang, request } = useApp(),
+  const { data, lang } = useApp(),
     L = (uz: string, en: string, ru: string) => tr(lang, uz, en, ru);
-  const [rows, setRows] = useState<Entry[]>([]),
-    [loading, setLoading] = useState(true),
-    [error, setError] = useState(''),
-    [period, setPeriod] = useState<Period>('all'),
-    [group, setGroup] = useState('');
-  useEffect(() => {
-    let live = true;
-    setLoading(true);
-    request('/api/platform?view=academic')
-      .then(async (r) => {
-        const d = await r.json();
-        if (!r.ok) throw new Error(d.error);
-        if (live) {
-          setRows(d.leaderboard || []);
-          setError('');
-        }
-      })
-      .catch((e) => live && setError(e.message))
-      .finally(() => live && setLoading(false));
-    return () => {
-      live = false;
-    };
-  }, [request]);
+  const board = useAcademicBoard(),
+    { rows, loading, error } = board;
+  const [period, setPeriod] = useState<Period>('all'),
+    [group, setGroup] = useState(''),
+    [picking, setPicking] = useState(false);
   const myId = data?.user?.id,
     myGroup = data?.user?.classId || '';
   const score = (r: Entry) => (period === 'day' ? r.today || 0 : r.academicPoints || 0);
@@ -119,6 +111,14 @@ export function Leaderboard() {
 
       {amStudent && !loading && !error && (
         <section className="rk-mine" aria-label={L('Mening natijam', 'My result', 'Мой результат')}>
+          <button
+            type="button"
+            className={'rk-mine-avatar' + (board.avatars.me?.avatar ? ' has' : '')}
+            onClick={() => setPicking(true)}
+            aria-label={L('Avatarlar kutubxonasi', 'Avatar library', 'Библиотека аватаров')}
+          >
+            <AvatarFigure id={board.avatars.me?.avatar} />
+          </button>
           <div className="rk-mine-place">
             <small>{L('O‘rningiz', 'Your place', 'Ваше место')}</small>
             <b>{mine ? myIndex + 1 : '—'}</b>
@@ -257,12 +257,23 @@ export function Leaderboard() {
                 <span className="rk-score">
                   {num(score(r))} <small>{unit}</small>
                 </span>
-                <AvatarSlot />
+                <AvatarSlot
+                  id={r.avatar}
+                  label={
+                    r.id === myId
+                      ? L('Avatarlar kutubxonasi', 'Avatar library', 'Библиотека аватаров')
+                      : r.avatar
+                        ? avatarName(r.avatar, lang)
+                        : ''
+                  }
+                  onOpen={r.id === myId && amStudent ? () => setPicking(true) : undefined}
+                />
               </li>
             ))}
           </ol>
         )}
       </section>
+      {picking && <AvatarPicker board={board} onClose={() => setPicking(false)} />}
     </div>
   );
 }

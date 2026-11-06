@@ -15,6 +15,7 @@ const cats: Record<SupportMessage['cat'], [string, string, string, string]> = {
   grade: ['📊', 'Baho yoki ball bo‘yicha', 'About grades or points', 'Об оценках и баллах'],
   account: ['🔑', 'Hisob, parol, guruh', 'Account, password, group', 'Аккаунт, пароль, группа'],
   idea: ['💡', 'Taklif yoki g‘oya', 'Suggestion or idea', 'Предложение или идея'],
+  avatar: ['🎭', 'Avatar taklifi', 'Avatar suggestion', 'Предложение аватара'],
   other: ['✉️', 'Boshqa savol', 'Other question', 'Другой вопрос'],
 };
 const catLabel = (c: SupportMessage['cat'], lang: Lang) =>

@@ -21,6 +21,7 @@ import { useState } from 'react';
 import { useApp } from './provider';
 import { Button } from './ui/button';
 import { TopicArt, CourseArt } from './topic-art';
+import { HeroAvatar, useAcademicBoard } from './avatars';
 import { AccessChip, PointsRing, PointsBreakdown } from './points-ui';
 import { t, dateLabel } from '@/lib/i18n';
 import {
@@ -135,6 +136,9 @@ function LearnerHome() {
     totals = courseTotals(d),
     lessons = sortedLessons(d);
   const active = lessons.filter((l) => accessOf(d, l.id)?.state === 'score');
+  // Talabada mavzu rasmi o'rnida avatar (top-10 yoki administrator ruxsati bilan tanlanadi).
+  const avatarHome = !staff && university && hasAcademic && u?.role === 'student',
+    board = useAcademicBoard(avatarHome);
   const progressFor = (l: Lesson) => {
     const p = d.progress?.find((x) => x.lessonId === l.id);
     return (
@@ -182,7 +186,11 @@ function LearnerHome() {
               animate={{ opacity: 1, y: 0 }}
               className="welcome-hero continue-hero"
             >
-              <TopicArt id={lesson.id} number={lesson.order + 1} />
+              {avatarHome ? (
+                <HeroAvatar board={board} />
+              ) : (
+                <TopicArt id={lesson.id} number={lesson.order + 1} />
+              )}
               <div className="continue-hero-body">
                 <span className="hero-tag">
                   <Sparkles size={14} />

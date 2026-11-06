@@ -459,8 +459,8 @@ test('quota fallback preserves academic points and opens original slides without
       writes.push(route.request().postDataJSON().action);
       return route.continue();
     }
-    if (new URL(route.request().url()).searchParams.get('view') === 'legacyLesson')
-      return route.continue();
+    // Faqat asosiy holat javobi kvota rejimiga o'tkaziladi; boshqa ko'rinishlar (dars, reyting/avatar) o'zgarmaydi.
+    if (new URL(route.request().url()).searchParams.has('view')) return route.continue();
     const response = await route.fetch(),
       state = await response.json();
     state.mode = 'firebase';

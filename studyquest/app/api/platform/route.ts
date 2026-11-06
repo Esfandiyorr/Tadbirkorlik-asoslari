@@ -7,6 +7,13 @@ import { legacyAccess, lessonAccessStates } from '@/lib/server/legacy-access';
 import { demoTopicAccess, setTopicMode, topicAccessList } from '@/lib/server/topic-access';
 import { Platform } from '@/lib/server/platform';
 import { Academic, academicRecord } from '@/lib/server/academic';
+import {
+  avatarAdminView,
+  avatarView,
+  manageAvatars,
+  pickAvatar,
+  readAvatars,
+} from '@/lib/server/avatars';
 import { course, modules, lessons, quiz, settings, badges, catalog } from '@/lib/seed';
 import { quotaExceeded } from '@/lib/server/quota';
 import { limitedCatalog } from '@/lib/server/limited';
@@ -66,6 +73,22 @@ function demoAcademic(user: { id: string }) {
     lessonAccess: access,
   };
 }
+/** Umumiy reyting (barcha guruhlar): demo — namunaviy foydalanuvchilar, aks holda asl bazadagi talabalar. */
+async function academicBoard() {
+  if (demo())
+    return (await (await repository()).list('users'))
+      .filter((u) => u.role === 'student' && u.learnerType === 'university' && !u.blocked)
+      .map((u) => ({
+        id: u.id,
+        name: u.name,
+        classId: u.classId,
+        academicPoints: u.academicPoints || 0,
+        // Faqat demo: kunlik reyting bo'sh ko'rinmasligi uchun barqaror namunaviy kunlik ball.
+        today: demoToday(u.id, u.academicPoints || 0),
+      }))
+      .sort((a, b) => b.academicPoints - a.academicPoints || a.name.localeCompare(b.name));
+  return new Academic(await repository()).publicBoard();
+}
 export async function GET(req: NextRequest) {
   try {
     if (req.nextUrl.searchParams.get('view') === 'topicAccess') {
@@ -101,24 +124,20 @@ export async function GET(req: NextRequest) {
     if (req.nextUrl.searchParams.get('view') === 'academic') {
       const a = await actor(req, true);
       if ((await sitePolicy()).maintenance) administrator(a);
-      if (demo())
-        return NextResponse.json({
-          leaderboard: (await (await repository()).list('users'))
-            .filter((u) => u.role === 'student' && u.learnerType === 'university' && !u.blocked)
-            .map((u) => ({
-              id: u.id,
-              name: u.name,
-              classId: u.classId,
-              academicPoints: u.academicPoints || 0,
-              // Faqat demo: kunlik reyting bo'sh ko'rinmasligi uchun barqaror namunaviy kunlik ball.
-              today: demoToday(u.id, u.academicPoints || 0),
-            }))
-            .sort((a, b) => b.academicPoints - a.academicPoints),
-        });
+      const [board, avatars] = await Promise.all([academicBoard(), readAvatars()]);
+      // Reyting qatorlarida amaldagi avatar; talabaga — o'rni va avatar tanlash huquqi.
       return NextResponse.json(
-        { leaderboard: await new Academic(await repository()).publicBoard() },
+        avatarView(board, avatars, a.role === 'student' ? a.id : undefined),
         { headers: { 'Cache-Control': 'no-store' } },
       );
+    }
+    if (req.nextUrl.searchParams.get('view') === 'avatarAdmin') {
+      const a = await actor(req, true);
+      administrator(a);
+      const [board, avatars] = await Promise.all([academicBoard(), readAvatars()]);
+      return NextResponse.json(avatarAdminView(board, avatars), {
+        headers: { 'Cache-Control': 'private, no-store' },
+      });
     }
     // Existing presentations retain the original RTDB group/access checks and
     // remain available without a Firestore profile or an XP write.
@@ -314,6 +333,16 @@ export async function POST(req: NextRequest) {
       await legacyDb().ref('meta/platformPolicy').set(policy);
       clearPolicyCache();
       return NextResponse.json({ ok: true });
+    }
+    if (p.action === 'avatarPick' || p.action === 'avatarAdmin') {
+      const a = await actor(req, true);
+      if ((await sitePolicy()).maintenance) administrator(a);
+      const board = await academicBoard();
+      return NextResponse.json(
+        p.action === 'avatarPick'
+          ? await pickAvatar(a, board, p.input)
+          : await manageAvatars(a, board, p.input),
+      );
     }
     if (p.action === 'topicMode') {
       const a = await actor(req, true);

@@ -3832,7 +3832,7 @@
 /* ---------- Reyting: rangli qatorlar (1–10), avatar o'rni — rangsiz soya (keyin mukofot) ---------- */
 .rk-mine {
   display: grid;
-  grid-template-columns: auto auto minmax(0, 1fr);
+  grid-template-columns: auto auto auto minmax(0, 1fr);
   align-items: center;
   gap: 8px 28px;
   margin-bottom: 18px;
@@ -4110,11 +4110,49 @@
   height: 108px;
   margin: -46px 0 -12px;
 }
-.rk-slot svg {
+.rk-slot .av-figure {
   display: block;
   width: 100%;
   height: 100%;
+  object-fit: contain;
+  object-position: 50% 100%;
   fill: currentColor;
+}
+/* talabaning o'z qatoridagi avatar — tugma (kutubxonani ochadi) */
+button.rk-slot {
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  transition: transform 0.18s;
+}
+button.rk-slot:hover {
+  transform: translateY(-3px) scale(1.04);
+}
+button.rk-slot:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 2px;
+  border-radius: 12px;
+}
+button.rk-slot:has(.av-empty)::after {
+  content: '+';
+  position: absolute;
+  right: 4px;
+  bottom: 6px;
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  color: #6d28d9;
+  font-weight: 900;
+  font-size: 15px;
+  line-height: 1;
+  box-shadow: 0 2px 6px #0004;
+}
+.rk-slot {
+  position: relative;
 }
 .rk-row.plain {
   background: var(--surface);
@@ -4162,8 +4200,12 @@
 }
 @media (max-width: 760px) {
   .rk-mine {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 56px 1fr 1fr;
     padding: 14px 16px;
+  }
+  .rk-mine-avatar {
+    width: 56px;
+    height: 64px;
   }
   .rk-mine b {
     font-size: 28px;
@@ -4415,5 +4457,426 @@
   .arena-pick,
   .arena-invite {
     animation: none;
+  }
+}
+
+/* ---------- 🎭 Avatarlar: kutubxona, bosh sahifa kartochkasi, admin ---------- */
+.av-figure {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  object-position: 50% 100%;
+  user-select: none;
+}
+.av-empty {
+  fill: #1a123659;
+}
+.dark .av-empty {
+  fill: #ffffff2e;
+}
+.rk-mine-avatar {
+  position: relative;
+  display: grid;
+  grid-template: minmax(0, 1fr) / minmax(0, 1fr);
+  place-items: end center;
+  width: 64px;
+  height: 72px;
+  padding: 0;
+  border: 0;
+  border-radius: 16px;
+  background: radial-gradient(circle at 50% 80%, #ffffffb3, transparent 70%);
+  cursor: pointer;
+}
+.rk-mine-avatar .av-figure {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 6px 6px #0003);
+}
+.rk-mine-avatar:not(.has)::after {
+  content: '+';
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--violet);
+  color: #fff;
+  font-weight: 900;
+}
+.rk-mine-avatar:focus-visible {
+  outline: 3px solid var(--violet);
+  outline-offset: 3px;
+}
+/* kutubxona oynasi */
+.av-backdrop {
+  padding: 16px;
+}
+.av-picker {
+  width: min(960px, 100%);
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+  padding: 20px 22px 18px;
+  border-radius: 24px;
+}
+.av-picker-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.av-picker-head h2 {
+  margin: 0;
+  font-size: 22px;
+}
+.av-picker-head p {
+  margin: 6px 0 0;
+  font-size: 14px;
+  color: var(--muted);
+}
+.av-picker-head p.ok {
+  color: #15803d;
+  font-weight: 700;
+}
+.dark .av-picker-head p.ok {
+  color: #86efac;
+}
+.av-close {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+}
+.av-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.av-card button {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  width: 100%;
+  height: 100%;
+  padding: 10px 8px 12px;
+  border: 2px solid var(--border);
+  border-radius: 18px;
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  transition:
+    transform 0.18s,
+    border-color 0.18s,
+    box-shadow 0.18s;
+}
+.av-card.is-free button:hover {
+  transform: translateY(-4px);
+  border-color: var(--violet);
+  box-shadow: 0 14px 26px -18px var(--violet);
+}
+.av-card button:disabled {
+  cursor: default;
+}
+.av-stage {
+  display: grid;
+  /* aniq qator: rasmning height: 100% shu balandlikka nisbatan hisoblansin */
+  grid-template: minmax(0, 1fr) / minmax(0, 1fr);
+  place-items: end center;
+  width: 100%;
+  height: 128px;
+  padding: 6px 6px 0;
+  border-radius: 14px;
+  background:
+    radial-gradient(circle at 50% 85%, #ffffff, transparent 70%),
+    linear-gradient(160deg, #ede9fe, #fce7f3);
+  overflow: hidden;
+}
+.dark .av-stage {
+  background:
+    radial-gradient(circle at 50% 85%, #ffffff22, transparent 70%),
+    linear-gradient(160deg, #2e2756, #3b2240);
+}
+.av-stage .av-figure {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 8px 8px #0000002e);
+}
+.av-card b {
+  font-size: 14px;
+  line-height: 1.25;
+  text-align: center;
+}
+.av-card small {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--violet);
+  text-align: center;
+}
+.dark .av-card small {
+  color: #c4b5fd;
+}
+.av-card.is-mine button {
+  border-color: #16a34a;
+  box-shadow: 0 0 0 3px #16a34a33;
+}
+.av-card.is-mine small {
+  color: #15803d;
+}
+.av-card.is-taken .av-figure {
+  filter: grayscale(0.85) opacity(0.55);
+}
+.av-card.is-taken small,
+.av-card.is-locked small {
+  color: var(--muted);
+}
+.av-card.is-locked .av-figure {
+  filter: saturate(0.6) opacity(0.75);
+}
+.av-remove {
+  display: flex;
+  justify-content: center;
+  margin-top: 12px;
+}
+.av-idea {
+  display: grid;
+  gap: 8px;
+  margin-top: 18px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: var(--surface-soft);
+  border: 1px solid var(--border);
+}
+.av-idea h3 {
+  margin: 0;
+  font-size: 16px;
+}
+.av-idea p {
+  margin: 0 0 4px;
+  font-size: 13.5px;
+  color: var(--muted);
+}
+.av-idea button[type='submit'] {
+  justify-self: start;
+}
+.av-sent {
+  font-size: 13px;
+  color: #15803d;
+}
+.av-notice {
+  margin: 12px 0 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+/* bosh sahifa: mavzu rasmi o'rnidagi avatar kartochkasi */
+.hero-avatar {
+  position: relative;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  min-height: 220px;
+  padding: 14px 12px 12px;
+  border: 0;
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at 50% 78%, #ffffffcc, transparent 62%),
+    linear-gradient(165deg, #f5f3ff, #fbcfe8);
+  color: #2e1065;
+  cursor: pointer;
+  overflow: hidden;
+  box-shadow:
+    0 0 0 4px #ffffff26,
+    0 18px 36px -20px #000;
+  transition: transform 0.2s;
+}
+.hero-avatar:hover {
+  transform: translateY(-3px);
+}
+.hero-avatar:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 3px;
+}
+.hero-avatar-stage {
+  display: grid;
+  grid-template: minmax(0, 1fr) / minmax(0, 1fr);
+  place-items: end center;
+  min-height: 0;
+}
+.hero-avatar-stage .av-figure {
+  width: 100%;
+  height: 100%;
+  max-height: 210px;
+  filter: drop-shadow(0 12px 12px #0000003b);
+}
+.hero-avatar:not(.has) .hero-avatar-stage .av-figure {
+  width: 62%;
+  fill: #2e10654d;
+}
+.hero-avatar-label {
+  display: grid;
+  gap: 2px;
+  margin-top: 8px;
+  padding: 8px 10px;
+  border-radius: 14px;
+  background: #ffffffd9;
+  text-align: center;
+}
+.hero-avatar-label b {
+  font-size: 15px;
+}
+.hero-avatar-label small {
+  font-size: 12.5px;
+  font-weight: 650;
+  color: #6d28d9;
+}
+.continue-hero > .hero-avatar {
+  align-self: stretch;
+}
+/* admin */
+.avatar-admin {
+  padding: 20px 22px 22px;
+}
+.avatar-admin-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0 0 20px;
+  padding: 0;
+  list-style: none;
+}
+.avatar-admin-grid li {
+  display: grid;
+  align-content: start;
+  justify-items: center;
+  gap: 4px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface);
+  text-align: center;
+}
+.avatar-admin-grid .av-stage {
+  height: 96px;
+}
+.avatar-admin-grid small {
+  font-size: 12.5px;
+  color: var(--muted);
+}
+.avatar-admin-grid small.ok {
+  color: #15803d;
+  font-weight: 700;
+}
+.avatar-admin-grid small.off {
+  color: #b45309;
+  font-weight: 700;
+}
+.avatar-admin-grid small.free {
+  color: var(--violet);
+  font-weight: 700;
+}
+.avatar-admin-allow {
+  display: grid;
+  gap: 10px;
+}
+.avatar-admin-allow h3 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-size: 17px;
+}
+.avatar-admin-allow ul {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.avatar-admin-allow li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface-soft);
+}
+.avatar-admin-allow li span {
+  display: grid;
+  min-width: 0;
+}
+.avatar-admin-allow li small {
+  color: var(--muted);
+}
+.avatar-admin-allow li small.ok {
+  color: #15803d;
+  font-weight: 700;
+}
+.avatar-admin-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 460px;
+}
+@media (max-width: 900px) {
+  .av-grid,
+  .avatar-admin-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (max-width: 760px) {
+  .av-grid,
+  .avatar-admin-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .av-picker {
+    padding: 16px 14px;
+    border-radius: 20px;
+  }
+  .av-stage {
+    height: 112px;
+  }
+  /* telefonda bosh blok bir ustun: avatar kartochkasi gorizontal — chapda qahramon, o'ngda yozuv */
+  .hero-avatar {
+    grid-template-columns: 112px minmax(0, 1fr);
+    grid-template-rows: auto;
+    align-items: center;
+    gap: 12px;
+    min-height: 136px;
+    padding: 8px 14px 0 8px;
+    text-align: left;
+  }
+  .hero-avatar-stage {
+    align-self: end;
+    height: 128px;
+  }
+  .hero-avatar-stage .av-figure {
+    max-height: 128px;
+  }
+  .hero-avatar-label {
+    margin: 0 0 8px;
+    text-align: left;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-avatar,
+  .av-card button,
+  button.rk-slot {
+    transition: none;
   }
 }

@@ -160,7 +160,7 @@ export type SupportMessage = {
   name: string;
   role: string;
   group: string;
-  cat: 'tech' | 'grade' | 'account' | 'idea' | 'other';
+  cat: 'tech' | 'grade' | 'account' | 'idea' | 'avatar' | 'other';
   text: string;
   at: number;
   status: 'new' | 'read' | 'answered' | 'closed';

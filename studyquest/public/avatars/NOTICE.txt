@@ -1,0 +1,19 @@
+Avatarlar kutubxonasi (reytingdagi mukofot avatarlari)
+=====================================================
+
+Bu papkadagi qahramonlar tasvirlari ularning mualliflik huquqi egalariga tegishli:
+
+  sonic.webp    Sonic the Hedgehog      — Sega
+  ralph.webp    Wreck-It Ralph          — Disney
+  po.webp       Kung Fu Panda (Po)      — DreamWorks Animation
+  mcqueen.webp  Cars (Lightning McQueen)— Disney/Pixar
+  walle.webp    WALL-E                  — Disney/Pixar
+  minion.webp   Minions (King Bob)      — Illumination
+  judy.webp     Zootopia (Judy Hopps)   — Disney
+  bogo.webp     Zootopia (Chief Bogo)   — Disney
+  joy.webp      Inside Out (Joy)        — Disney/Pixar
+  mario.webp    Super Mario (Mario)     — Nintendo
+
+Rasmlarni sayt egasi taqdim etgan; fon olib tashlangan va hajmi kichraytirilgan (WebP, shaffof).
+Saytda faqat o'quv maqsadida, talabalarni rag'batlantirish uchun ishlatiladi; tijorat maqsadida foydalanilmaydi.
+Huquq egasi talab qilsa, tegishli rasm olib tashlanadi.
