@@ -6,6 +6,7 @@ import { AvatarAdmin } from '../avatar-admin';
 import { NewsAdmin } from '../announcements';
 import { useL } from './common';
 import { LiveAdmin } from './live-admin';
+import { TopicQuizAdmin } from './topic-quiz-admin';
 
 /* 🛠 Sayt boshqaruvi (administrator): saytdagi matn, rasm, avatar, test va jonli testni dasturchiga yozmasdan
    o'zgartirish uchun yagona joy. Har bir ish — alohida kartochka; ichida qisqa izoh va oddiy shakllar. */
@@ -38,6 +39,16 @@ export function BackOffice({ openTab }: { openTab: (tab: string) => void }) {
     action?: () => void;
     actionLabel?: string;
   }[] = [
+    {
+      id: 'quiz',
+      icon: '📝',
+      title: L('Mavzu testlari', 'Topic tests', 'Тесты по темам'),
+      text: L(
+        'Mavzular oxiridagi test: savol, javoblar, to‘g‘ri javob va izohni o‘zgartirish yoki savolni boshqasiga almashtirish.',
+        'The test at the end of each topic: change questions, answers, the correct answer and explanations, or replace a question.',
+        'Тест в конце каждой темы: вопросы, ответы, правильный ответ и пояснения; замена вопроса.',
+      ),
+    },
     {
       id: 'live',
       icon: '⚡',
@@ -117,6 +128,7 @@ export function BackOffice({ openTab }: { openTab: (tab: string) => void }) {
   if (section && current) {
     let body: ReactNode = null;
     if (section === 'live') body = <LiveAdmin />;
+    else if (section === 'quiz') body = <TopicQuizAdmin />;
     else if (section === 'avatars') body = <AvatarAdmin />;
     else if (section === 'news') body = <NewsAdmin openCourseControls={() => setSection('live')} />;
     return (

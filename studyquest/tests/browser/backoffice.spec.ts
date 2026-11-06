@@ -132,3 +132,78 @@ test('the administrator fills the question bank, schedules daily games and creat
   await page.locator('.bo-list li').first().getByRole('button', { name: 'Bekor qilish' }).click();
   await expect(page.locator('.bo-list')).not.toContainText('Siz tuzgan o‘yin');
 });
+
+test('the administrator edits a topic test and the presentation uses the new questions', async ({
+  page,
+}) => {
+  await as(page, 'demo-admin');
+  await page.goto('/#admin', { waitUntil: 'domcontentloaded' });
+  await page.locator('.bo-card-btn').filter({ hasText: 'Mavzu testlari' }).click();
+  const topics = page.locator('.bo-topic');
+  await expect(topics.filter({ hasText: 'krossvord' })).toHaveCount(2); // 4 va 5-mavzu
+  await topics.filter({ hasText: 'M1 ·' }).click();
+  const first = page.locator('.bo-question').first();
+  await expect(page.locator('.bo-question')).toHaveCount(15);
+  await first
+    .getByRole('textbox', { name: '1-savol matni' })
+    .fill('Tadbirkorlikning to‘rtta ustuni qaysi qatorda to‘g‘ri berilgan? (yangilangan)');
+  await first
+    .getByRole('textbox', { name: '1-savol, 2-javob' })
+    .fill('Tashabbus, xavf, qiymat va daromad');
+  await first.getByRole('radio', { name: '2-javob to‘g‘ri' }).check();
+  await expect(page.locator('.bo-warn')).toContainText('Saqlanmagan');
+  await page.getByRole('button', { name: 'Saqlash', exact: true }).first().click();
+  await expect(page.locator('.bo-warn')).toHaveCount(0);
+  await expect(topics.filter({ hasText: 'M1 ·' })).toContainText('o‘zgartirilgan');
+
+  // Talaba: taqdimotdagi test yangi savollar bilan boshlanadi (inglizcha nusxa o'chadi).
+  await as(page, 'demo-student');
+  await page.route('**/legacy/demo-guard.js', async (route) => {
+    const response = await route.fetch();
+    const body = (await response.text())
+      .replace(
+        'var memory = new Map();',
+        'var memory = new Map(); memory.set("terdu_acc",JSON.stringify(Object.fromEntries(Array.from({length:15},(_,i)=>["m"+(i+1),{lim:false,at:Date.now()}]))));',
+      )
+      .replace("learnerType: 'independent'", "learnerType: 'university'")
+      .replace("status: 'pending'", "status: 'ok'")
+      .replace('t.read = true', 't.read = false');
+    await route.fulfill({ response, body });
+  });
+  await page.goto('/#lesson/m1', { waitUntil: 'domcontentloaded' });
+  await page.reload({ waitUntil: 'domcontentloaded' });
+  await expect(page.locator('.native-document > .inner')).toBeVisible();
+  let counter = (await page.locator('.reader-counter').innerText()).match(/(\d+)\s*\/\s*(\d+)/)!;
+  while (Number(counter[1]) < Number(counter[2])) {
+    const next = Number(counter[1]) + 1;
+    await page.locator('.reader-controls').getByRole('button', { name: 'Keyingi' }).click();
+    await expect(page.locator('.reader-counter')).toContainText(next + ' / ' + counter[2]);
+    counter = (await page.locator('.reader-counter').innerText()).match(/(\d+)\s*\/\s*(\d+)/)!;
+  }
+  await page.locator('.native-document #qtGo').click();
+  await page
+    .locator('.native-dialog')
+    .getByRole('button', { name: 'Davom etish', exact: true })
+    .click();
+  await expect(page.locator('.native-document .qbox')).toHaveCount(15);
+  const mine = page.locator('.native-document .qbox').filter({ hasText: '(yangilangan)' });
+  await expect(mine).toHaveCount(1);
+  await mine
+    .locator('button.opt')
+    .filter({ hasText: 'Tashabbus, xavf, qiymat va daromad' })
+    .click();
+  await expect(mine.locator('.fb')).toContainText('To‘g‘ri');
+  await page.unroute('**/legacy/demo-guard.js');
+
+  // Asl holiga qaytarish.
+  await as(page, 'demo-admin');
+  await page.goto('/#admin', { waitUntil: 'domcontentloaded' });
+  await page.reload({ waitUntil: 'domcontentloaded' });
+  await page.locator('.bo-topic').filter({ hasText: 'M1 ·' }).click();
+  page.once('dialog', (d) => d.accept());
+  await page.getByRole('button', { name: /Asl holiga qaytarish/ }).click();
+  await expect(page.locator('.bo-topic').filter({ hasText: 'M1 ·' })).toContainText('asl holida');
+  await expect(
+    page.locator('.bo-question').first().getByRole('textbox', { name: '1-savol matni' }),
+  ).not.toHaveValue(/yangilangan/);
+});
