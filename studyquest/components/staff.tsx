@@ -20,8 +20,7 @@ import { AcademicRoster } from './academic-roster';
 import { PlatformSettings } from './platform-settings';
 import { NativeSurface } from './native-surface';
 import { TopicAccessPanel } from './topic-access';
-import { AvatarAdmin } from './avatar-admin';
-import { NewsAdmin } from './announcements';
+import { BackOffice } from './backoffice';
 import { t, badgeLabel } from '@/lib/i18n';
 import type { Data, Lesson, Question, Quiz, Progress, Attempt } from '@/lib/types';
 const blankQuestion = (): Question => ({
@@ -76,16 +75,17 @@ export function Staff({ admin = false }: { admin?: boolean }) {
     return promise;
   }, [data, request]);
   const tabRow = useRef<HTMLDivElement>(null);
-  // Standart tab — «Talabalar va baholar» (asl bazadan, Firestore kvotasini sarflamaydi).
+  // Standart tab: administratorga — «🛠 Sayt boshqaruvi», o'qituvchiga — «Talabalar va baholar»
+  // (ikkalasi ham asl bazadan, Firestore kvotasini sarflamaydi).
   const [tab, setTab] = useState(() => {
-      // Yon menyudagi «📢 E'lonlar» oynasidagi «+» — to'g'ridan-to'g'ri «E'lonlar» tabiga.
       if (admin && typeof window !== 'undefined')
         try {
+          // Yon menyudagi «📢 E'lonlar» oynasidagi «+» — Sayt boshqaruvining «E'lonlar» bo'limiga.
           const wanted = sessionStorage.getItem('sq-staff-tab');
           sessionStorage.removeItem('sq-staff-tab');
-          if (wanted === 'news') return wanted;
+          if (wanted === 'news') sessionStorage.setItem('sq-bo-section', 'news');
         } catch {}
-      return 'academic';
+      return admin ? 'site' : 'academic';
     }),
     [selected, setSelected] = useState(d.courses[0]?.id || ''),
     [busy, setBusy] = useState(false);
@@ -262,6 +262,9 @@ export function Staff({ admin = false }: { admin?: boolean }) {
       </div>
       <div className="filter-row" ref={tabRow}>
         {[
+          ...(admin
+            ? [['site', L('🛠 Sayt boshqaruvi', '🛠 Site manager', '🛠 Управление сайтом')]]
+            : []),
           ['overview', L('Tahlil', 'Analytics', 'Аналитика')],
           ['access', L('Mavzular holati', 'Topic access', 'Доступ к темам')],
           ['courses', t(lang, 'courses')],
@@ -270,13 +273,7 @@ export function Staff({ admin = false }: { admin?: boolean }) {
           ['students', L('O‘quvchilar', 'Learners', 'Ученики')],
           ['academic', L('Talabalar va baholar', 'Academic records', 'Студенты и оценки')],
           ['legacy', L('Kursni boshqarish', 'Course controls', 'Управление предметом')],
-          ...(admin
-            ? [
-                ['platform', L('Platforma', 'Platform', 'Платформа')],
-                ['avatars', L('Avatarlar', 'Avatars', 'Аватары')],
-                ['news', L('E’lonlar', 'Announcements', 'Объявления')],
-              ]
-            : []),
+          ...(admin ? [['platform', L('Platforma', 'Platform', 'Платформа')]] : []),
         ].map(([id, label]) => (
           <Button
             key={id}
@@ -331,8 +328,7 @@ export function Staff({ admin = false }: { admin?: boolean }) {
       {tab === 'access' && <TopicAccessPanel />}
       {tab === 'academic' && <AcademicRoster />}
       {admin && tab === 'platform' && <PlatformSettings />}
-      {admin && tab === 'avatars' && <AvatarAdmin />}
-      {admin && tab === 'news' && <NewsAdmin openCourseControls={() => setTab('legacy')} />}
+      {admin && tab === 'site' && <BackOffice openTab={setTab} />}
       {tab === 'legacy' && (
         <section className="panel">
           <NativeSurface

@@ -4,10 +4,12 @@ import { z } from 'zod';
 import type { Actor } from '../types';
 import { administrator } from './auth';
 import { demo, legacyDb } from './repository';
+import { demoKahoot } from './live-admin';
 
 /* 📢 E'lonlar oynasi (yon menyuda, har 5 soniyada almashadi) va ⚡ jonli test jadvali.
    E'lonlar: meta/news/<id> = {h?, t, link?, until?, at} — faqat administrator (server orqali) yozadi, hamma o'qiydi.
-   Jonli test: asl tizimdagi kahoot/cfg va kahoot/idx (o'qituvchi «Kursni boshqarish → ⚡ Jonli test»da rejalashtiradi). */
+   Jonli test: asl tizimdagi kahoot/cfg va kahoot/idx (administrator «Sayt boshqaruvi → ⚡ Jonli test»da yoki eski
+   «Kursni boshqarish → ⚡ Jonli test» panelida rejalashtiradi). */
 
 export type NewsItem = {
   id: string;
@@ -30,10 +32,6 @@ export type LiveGame = {
 
 const memory = ((globalThis as { __sqNews?: { news: Record<string, NewsItem> } }).__sqNews ??= {
   news: {},
-});
-/** Faqat demo/sinov: keyingi jonli test (jonli bazaga ulanmaydi). */
-export const demoLive = ((globalThis as { __sqLive?: { game: LiveGame | null } }).__sqLive ??= {
-  game: null,
 });
 
 const tashkentDay = (ms: number) => new Date(ms + 18000000).toISOString().slice(0, 10);
@@ -78,7 +76,13 @@ export function nextGame(
 }
 
 export async function liveGame(now = Date.now()): Promise<LiveGame | null> {
-  if (demo()) return demoLive.game && demoLive.game.end > now ? demoLive.game : null;
+  // Demo/sinov: «Sayt boshqaruvi → Jonli test»da tuzilgan xotiradagi jadval (jonli bazaga ulanmaydi).
+  if (demo())
+    return nextGame(
+      demoKahoot.cfg,
+      demoKahoot.idx as unknown as Record<string, Record<string, unknown>>,
+      now,
+    );
   const db = legacyDb();
   const [cfg, idx] = await Promise.all([
     db

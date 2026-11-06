@@ -1,5 +1,5 @@
 import { failure } from '@/lib/server/http';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse, after } from 'next/server';
 import { z } from 'zod';
 import { actor, ApiError, check, sameOrigin, staff, administrator } from '@/lib/server/auth';
 import { repository, demo, configured, legacyDb } from '@/lib/server/repository';
@@ -19,6 +19,7 @@ import { quotaExceeded } from '@/lib/server/quota';
 import { limitedCatalog } from '@/lib/server/limited';
 import { sitePolicy, clearPolicyCache, normalizePolicy } from '@/lib/server/site-policy';
 import { liveGame, manageNews, readNews } from '@/lib/server/news';
+import { liveAdmin, liveTopUp, manageLive } from '@/lib/server/live-admin';
 import {
   resetStudentPassword,
   changeStudentPassword,
@@ -125,6 +126,8 @@ export async function GET(req: NextRequest) {
     if (req.nextUrl.searchParams.get('view') === 'news') {
       // 📢 E'lonlar oynasi va ⚡ keyingi jonli test — ochiq ma'lumot, qisqa muddat keshlanadi.
       const [news, live] = await Promise.all([readNews(), liveGame()]);
+      // Jonli test jadvali o'z-o'zidan to'lib tursin (6 soatda ko'pi bilan bir marta, javobdan keyin).
+      if (!demo()) after(() => liveTopUp().catch(() => {}));
       return NextResponse.json(
         { news, live, now: Date.now() },
         { headers: { 'Cache-Control': 'public, max-age=20, s-maxage=20' } },
@@ -139,6 +142,11 @@ export async function GET(req: NextRequest) {
         avatarView(board, avatars, a.role === 'student' ? a.id : undefined),
         { headers: { 'Cache-Control': 'no-store' } },
       );
+    }
+    if (req.nextUrl.searchParams.get('view') === 'liveAdmin') {
+      return NextResponse.json(await liveAdmin(await actor(req, true)), {
+        headers: { 'Cache-Control': 'private, no-store' },
+      });
     }
     if (req.nextUrl.searchParams.get('view') === 'avatarAdmin') {
       const a = await actor(req, true);
@@ -386,6 +394,9 @@ export async function POST(req: NextRequest) {
     if (p.action === 'news') {
       const a = await actor(req, true);
       return NextResponse.json(await manageNews(a, p.input));
+    }
+    if (p.action === 'liveAdmin') {
+      return NextResponse.json(await manageLive(await actor(req, true), p.input));
     }
     if (p.action === 'avatarPick' || p.action === 'avatarAdmin') {
       const a = await actor(req, true);

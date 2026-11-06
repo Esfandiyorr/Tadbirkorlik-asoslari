@@ -5262,3 +5262,336 @@ body:has(.focus-learning) .kh-pop {
 .report-gate.is-loaded {
   padding: 10px 16px;
 }
+
+/* ---------- 🛠 Sayt boshqaruvi (administrator) ---------- */
+.bo-hub,
+.bo-section {
+  display: grid;
+  gap: 16px;
+}
+.bo-hub-head h2,
+.bo-head h2 {
+  margin: 0;
+  font-size: 22px;
+}
+.bo-hub-head p,
+.bo-lead {
+  max-width: 78ch;
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 14.5px;
+  line-height: 1.55;
+}
+.bo-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.bo-cards li {
+  display: grid;
+  grid-template-rows: 1fr auto;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.bo-card-btn {
+  display: grid;
+  align-content: start;
+  gap: 6px;
+  padding: 18px 18px 16px;
+  border: 0;
+  background: none;
+  color: inherit;
+  text-align: left;
+}
+.bo-card-btn:hover {
+  background: var(--soft-violet);
+}
+.bo-card-btn:focus-visible {
+  outline: 2px solid var(--violet);
+  outline-offset: -3px;
+}
+.bo-card-icon {
+  font-size: 30px;
+  line-height: 1;
+}
+.bo-card-btn b {
+  font-size: 16.5px;
+}
+.bo-card-btn small {
+  color: var(--muted);
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+.bo-card-action {
+  margin: 0 18px 16px;
+  justify-self: start;
+}
+.bo-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+.bo-section input:not([type='checkbox']):not([type='radio']):not([type='file']),
+.bo-section select,
+.bo-section textarea {
+  width: 100%;
+  min-width: 0;
+  min-height: 42px;
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 14.5px;
+  line-height: 1.45;
+}
+.bo-section textarea {
+  resize: vertical;
+}
+.bo-section input:focus-visible,
+.bo-section select:focus-visible,
+.bo-section textarea:focus-visible {
+  outline: 2px solid #b08be7;
+  outline-offset: 1px;
+}
+.bo-section label {
+  display: grid;
+  gap: 5px;
+  font-size: 13.5px;
+  color: var(--muted);
+}
+.bo-section label.bo-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text);
+  font-size: 14px;
+}
+.bo-check input {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  accent-color: var(--violet);
+}
+.bo-live {
+  display: grid;
+  gap: 14px;
+}
+.bo-status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  padding: 12px 16px;
+  border-radius: 14px;
+  background: var(--soft-violet);
+  font-size: 14.5px;
+}
+.bo-pill {
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+}
+.bo-pill.on {
+  background: #dcfce7;
+  color: #166534;
+}
+.bo-pill.off {
+  background: #fee2e2;
+  color: #991b1b;
+}
+.bo-warn {
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: #fff7ed;
+  color: #9a3412;
+  font-size: 14px;
+}
+.dark .bo-warn {
+  background: #3b2412;
+  color: #fdba74;
+}
+.bo-subtabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 4px;
+  border-radius: 14px;
+  background: var(--surface-soft);
+  border: 1px solid var(--border);
+  justify-self: start;
+  max-width: 100%;
+}
+.bo-subtabs button {
+  padding: 8px 14px;
+  border: 0;
+  border-radius: 10px;
+  background: none;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 650;
+}
+.bo-subtabs button.is-on {
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow);
+}
+.bo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 14px;
+  align-items: start;
+}
+.bo-card,
+.bo-form {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--surface);
+}
+.bo-form {
+  background: var(--surface-soft);
+}
+.bo-card h3,
+.bo-form h3 {
+  margin: 0;
+  font-size: 16px;
+}
+.bo-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+  align-items: end;
+}
+.bo-filter {
+  grid-template-columns: minmax(150px, 220px) minmax(160px, 1fr) auto auto;
+}
+.bo-sections {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px dashed var(--border);
+  border-radius: 12px;
+}
+.bo-sections legend {
+  padding: 0 4px;
+  font-size: 13.5px;
+  color: var(--muted);
+}
+.bo-hint {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+.bo-hint.bo-bad {
+  color: #b91c1c;
+}
+.bo-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+.bo-list,
+.bo-qlist {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.bo-list li,
+.bo-qlist li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface-soft);
+}
+.bo-list li > span,
+.bo-qlist li span {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.bo-list small,
+.bo-qlist small {
+  color: var(--muted);
+  font-size: 13px;
+}
+.bo-qlist {
+  max-height: 460px;
+  overflow: auto;
+}
+.bo-section .bo-qlist label {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+  color: var(--text);
+  font-size: 14px;
+  cursor: pointer;
+}
+.bo-qlist input[type='checkbox'] {
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  flex: none;
+  accent-color: var(--violet);
+}
+.bo-qlist em {
+  margin-left: auto;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--violet);
+  color: #fff;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 700;
+}
+.bo-row-btns {
+  display: flex !important;
+  gap: 2px;
+  flex: none;
+}
+.bo-ok input {
+  border-color: #86efac !important;
+}
+.bo-race {
+  display: grid;
+  justify-items: start;
+  gap: 6px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+@media (max-width: 760px) {
+  .bo-filter {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .bo-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .bo-cards {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

@@ -99,9 +99,9 @@ test('the administrator allows students and frees avatars', async ({ page }) => 
     data: { action: 'avatarPick', input: { avatar: 'po' } },
   });
   await as(page, 'demo-admin');
-  // «Boshqaruv» (administrator) sahifasi → «Avatarlar» tabi
+  // «Boshqaruv» → 🛠 Sayt boshqaruvi → «🎭 Avatarlar» kartochkasi
   await page.goto('/#admin', { waitUntil: 'domcontentloaded' });
-  await page.getByRole('button', { name: 'Avatarlar', exact: true }).click();
+  await page.locator('.bo-card-btn').filter({ hasText: 'Avatarlar' }).click();
   const panel = page.locator('.avatar-admin');
   const po = panel.locator('.avatar-admin-grid li').filter({ hasText: 'Po' });
   await expect(po).toContainText('Madina Ergasheva');

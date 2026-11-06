@@ -292,8 +292,10 @@ export function NewsBox({ className = '' }: { className?: string }) {
             type="button"
             className="news-admin"
             onClick={() => {
+              // Boshqaruv → 🛠 Sayt boshqaruvi → 📢 E'lonlar.
               try {
-                sessionStorage.setItem('sq-staff-tab', 'news');
+                sessionStorage.setItem('sq-staff-tab', 'site');
+                sessionStorage.setItem('sq-bo-section', 'news');
               } catch {}
               navigate('admin');
             }}

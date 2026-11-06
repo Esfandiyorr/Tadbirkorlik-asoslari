@@ -28,7 +28,8 @@ test('the administrator posts announcements and the side box rotates them every 
 }) => {
   await as(page, 'demo-admin');
   await page.goto('/#admin', { waitUntil: 'domcontentloaded' });
-  await page.getByRole('button', { name: 'E’lonlar', exact: true }).click();
+  // Boshqaruv → 🛠 Sayt boshqaruvi → «📢 E'lonlar» kartochkasi.
+  await page.locator('.bo-card-btn').filter({ hasText: 'E’lonlar' }).click();
   const panel = page.locator('.news-manage');
   for (const [h, t] of [
     ['Amaliy mashg‘ulot', 'Seshanba kuni 3-mavzu bo‘yicha amaliy mashg‘ulot bo‘ladi.'],
