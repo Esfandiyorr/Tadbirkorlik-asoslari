@@ -4,7 +4,7 @@ import path from 'node:path';
 import { getApps, initializeApp, cert, applicationDefault } from 'firebase-admin/app';
 import { getFirestore, FieldValue, FieldPath } from 'firebase-admin/firestore';
 import { getAuth } from 'firebase-admin/auth';
-import { getDatabase } from 'firebase-admin/database';
+import { getDatabase, ServerValue } from 'firebase-admin/database';
 import { getStorage } from 'firebase-admin/storage';
 import { QuotaGate } from './quota';
 import { course, modules, lessons, quiz, settings, badges, demoUsers, catalog } from '../seed';
@@ -168,33 +168,58 @@ class FileRepository extends MemoryRepository {
     await fs.rename(temp, FileRepository.file);
   }
 }
+/** Kam o'zgaradigan katalog to'plamlari: uzoq keshlanadi, o'zgarganda versiya belgisi bilan yangilanadi. */
+const CATALOG = [
+  'subjects',
+  'courses',
+  'modules',
+  'lessons',
+  'quizzes',
+  'settings',
+  'achievements',
+];
 class FirebaseRepository implements Repository {
   db = getFirestore(adminApp());
   gate = new QuotaGate();
-  catalog = new Map<string, { expires: number; value: Promise<Row[]> }>();
+  catalog = new Map<string, { version: number; expires: number; value: Promise<Row[]> }>();
+  private stamp: { at: number; value: Promise<number> } | null = null;
+  /** Katalog versiyasi — asl bazada meta/catalogVersion (o'qituvchi kurs/dars/testni o'zgartirganda yangilanadi).
+      Har server nusxasi uni 30 soniyada bir tekshiradi; o'qib bo'lmasa -1 (eski 5 daqiqalik qoida). */
+  private catalogVersion(): Promise<number> {
+    if (this.stamp && Date.now() - this.stamp.at < 30000) return this.stamp.value;
+    const value = legacyDb()
+      .ref('meta/catalogVersion')
+      .get()
+      .then((s) => Number(s.val()) || 0)
+      .catch(() => -1);
+    this.stamp = { at: Date.now(), value };
+    return value;
+  }
+  private async bumpCatalog() {
+    this.stamp = null;
+    await legacyDb()
+      .ref('meta/catalogVersion')
+      .set(ServerValue.TIMESTAMP)
+      .catch(() => {});
+  }
   async get(c: string, id: string): Promise<Row | null> {
     const d = await this.gate.run(() => this.db.collection(c).doc(id).get());
     return d.exists ? { ...d.data(), id: d.id } : null;
   }
   async list(c: string): Promise<Row[]> {
-    if (
-      ![
-        'subjects',
-        'courses',
-        'modules',
-        'lessons',
-        'quizzes',
-        'settings',
-        'achievements',
-      ].includes(c)
-    )
-      return this.readRows(c);
-    const old = this.catalog.get(c);
-    if (old && old.expires > Date.now()) return structuredClone(await old.value);
+    if (!CATALOG.includes(c)) return this.readRows(c);
+    const version = await this.catalogVersion(),
+      old = this.catalog.get(c);
+    if (old && old.expires > Date.now() && (version === -1 || old.version === version))
+      return structuredClone(await old.value);
     const value = this.readRows(c);
-    // Kurslar/darslar kam o'zgaradi: 5 daqiqa keshlanadi (o'zgartirilganda shu nusxada darhol tozalanadi) —
-    // Firestore kunlik bepul o'qish kvotasini tejaydi.
-    this.catalog.set(c, { expires: Date.now() + 300000, value });
+    // Kurslar/darslar kam o'zgaradi: 6 soat keshlanadi, o'zgartirilsa versiya belgisi orqali barcha nusxalarda
+    // 30 soniya ichida yangilanadi — Firestore kunlik bepul o'qish kvotasini tejaydi.
+    this.catalog.set(c, {
+      version,
+      expires: Date.now() + (version === -1 ? 300000 : 6 * 3600000),
+      value,
+    });
     try {
       return structuredClone(await value);
     } catch (error) {
@@ -219,8 +244,10 @@ class FirebaseRepository implements Repository {
     }
   }
   async transaction<T>(f: (tx: Tx) => Promise<T>) {
-    return this.gate.run(() =>
+    const touched = new Set<string>();
+    const result = await this.gate.run(() =>
       this.db.runTransaction(async (t) => {
+        touched.clear();
         const writes: (() => void)[] = [],
           pending = new Map<string, Row | null>();
         const tx: Tx = {
@@ -240,6 +267,7 @@ class FirebaseRepository implements Repository {
             writes.push(() => {
               t.set(this.db.collection(c).doc(id), JSON.parse(JSON.stringify(v)));
               this.catalog.delete(c);
+              if (CATALOG.includes(c)) touched.add(c);
             });
           },
           delete: (c, id) => {
@@ -247,6 +275,7 @@ class FirebaseRepository implements Repository {
             writes.push(() => {
               t.delete(this.db.collection(c).doc(id));
               this.catalog.delete(c);
+              if (CATALOG.includes(c)) touched.add(c);
             });
           },
         };
@@ -255,6 +284,9 @@ class FirebaseRepository implements Repository {
         return result;
       }),
     );
+    // Katalog o'zgardi — boshqa server nusxalari ham keshni yangilasin.
+    if (touched.size) await this.bumpCatalog();
+    return result;
   }
 }
 const globalRepo = globalThis as unknown as { studyquestRepository?: Promise<Repository> };

@@ -189,10 +189,13 @@ test('teacher can publish a course and lesson; students earn a reward only after
 test('original presentation stays usable and demo never contacts the live database', async ({
   page,
 }) => {
-  const liveRequests: string[] = [];
+  const liveRequests: string[] = [],
+    firestoreWrites: string[] = [];
   page.on('request', (r) => {
     if (/firebasedatabase|firebaseio|identitytoolkit|securetoken/.test(r.url()))
       liveRequests.push(r.url());
+    if (r.method() === 'POST' && new URL(r.url()).pathname === '/api/platform')
+      firestoreWrites.push(r.postDataJSON()?.action);
   });
   await login(page.request, 'student');
   const before = await (await page.request.get('/api/platform')).json();
@@ -211,12 +214,9 @@ test('original presentation stays usable and demo never contacts the live databa
     .getByRole('button', { name: nextPosition > position ? 'Keyingi' : 'Oldingi' })
     .click();
   await expect(page.locator('.reader-counter')).toContainText(String(nextPosition + 1) + ' / ');
-  await expect
-    .poll(async () => {
-      const d = await (await page.request.get('/api/platform')).json();
-      return d.progress.find((p: any) => p.lessonId === 'm1')?.last === nextPosition;
-    })
-    .toBe(true);
+  // Asl taqdimot Firestore'ga yozmaydi (kunlik kvota): o'qish joyi va ballar asl dvigatelda saqlanadi.
+  await page.waitForTimeout(800);
+  expect(firestoreWrites).toEqual([]);
   expect(liveRequests).toEqual([]);
   await page.getByRole('button', { name: 'Mening ballim', exact: true }).click();
   await expect(
@@ -490,7 +490,7 @@ test('quota fallback preserves academic points and opens original slides without
   expect(writes).toEqual([]);
 });
 
-test('admin reports load only for analytics or CSV and are reused between tabs', async ({
+test('class reports load only on request or for CSV and are reused between tabs', async ({
   page,
 }) => {
   await login(page.request, 'admin');
@@ -507,7 +507,12 @@ test('admin reports load only for analytics or CSV and are reused between tabs',
   expect(reports).toBe(0);
   await page.getByRole('button', { name: 'Platforma', exact: true }).click();
   expect(reports).toBe(0);
+  // «Tahlil» ochilganda hisobot o'zi yuklanmaydi (Firestore kvotasi) — faqat tugma bilan.
   await page.getByRole('button', { name: 'Tahlil', exact: true }).click();
+  await expect(page.locator('.report-gate')).toContainText('kvotasidan');
+  await page.waitForLoadState('networkidle');
+  expect(reports).toBe(0);
+  await page.getByRole('button', { name: /Hisobotni yuklash/ }).click();
   await expect(page.locator('.analytics-panel')).toBeVisible();
   expect(reports).toBe(1);
   await page.getByRole('button', { name: 'O‘quvchilar', exact: true }).click();

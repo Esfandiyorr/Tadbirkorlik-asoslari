@@ -207,20 +207,44 @@ export function Provider({
         else setToken('');
       });
   }, []);
+  const dataRef = useRef<Data | null>(null);
+  dataRef.current = data;
+  /** Asl taqdimotdan chiqqanda: faqat akademik yozuv va mavzular holati (RTDB) — butun holat qayta o'qilmaydi. */
+  const refreshAcademic = useCallback(async () => {
+    try {
+      const r = await request('/api/platform?view=me'),
+        v = await r.json();
+      if (!r.ok) throw new Error(v.error);
+      setData((d) =>
+        d?.user && v.user
+          ? {
+              ...d,
+              user: { ...d.user, ...v.user, id: d.user.id, role: d.user.role },
+              ...(v.lessonAccess ? { lessonAccess: v.lessonAccess } : {}),
+            }
+          : d,
+      );
+    } catch {
+      void refresh();
+    }
+  }, [request, refresh]);
   useEffect(() => {
     void refresh();
     let previous = location.hash;
     const enterStaff = () => {
       const next = location.hash;
-      if (
-        /^#(?:admin|teacher)(?:\/|$)/.test(next) ||
-        (previous.startsWith('#lesson/') && !next.startsWith('#lesson/'))
-      )
-        void refresh();
+      if (/^#(?:admin|teacher)(?:\/|$)/.test(next)) void refresh();
+      else if (previous.startsWith('#lesson/') && !next.startsWith('#lesson/')) {
+        const left = decodeURIComponent(previous.slice(8).split(/[/?]/)[0]);
+        const lesson = dataRef.current?.lessons.find((l) => l.id === left);
+        if (lesson?.legacyFile && dataRef.current?.user) void refreshAcademic();
+        else void refresh();
+      }
       previous = next;
     };
     window.addEventListener('hashchange', enterStaff);
     return () => window.removeEventListener('hashchange', enterStaff);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refresh]);
   useEffect(() => {
     const f = (e: MessageEvent) => {

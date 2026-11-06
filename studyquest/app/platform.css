@@ -5241,3 +5241,24 @@ body:has(.focus-learning) .kh-pop {
     animation: none !important;
   }
 }
+
+/* O'qituvchi paneli: sinf hisoboti faqat so'ralganda yuklanadi (Firestore kvotasi) */
+.report-gate {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 16px;
+  margin-bottom: 16px;
+  padding: 14px 18px;
+}
+.report-gate p {
+  max-width: 72ch;
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+.report-gate.is-loaded {
+  padding: 10px 16px;
+}

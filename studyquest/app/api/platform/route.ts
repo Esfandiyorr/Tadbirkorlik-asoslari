@@ -157,6 +157,46 @@ export async function GET(req: NextRequest) {
       await legacyAccess(a, lesson!);
       return NextResponse.json(lesson);
     }
+    // Asl taqdimotdan chiqqanda: faqat talabaning asl bazadagi akademik yozuvi (Firestore'siz, kvota sarflanmaydi).
+    if (req.nextUrl.searchParams.get('view') === 'me') {
+      const a = await actor(req, true);
+      const headers = { 'Cache-Control': 'private, no-store' };
+      if (demo())
+        return NextResponse.json(
+          a.role === 'student' ? demoAcademic(a as unknown as { id: string }) : {},
+          { headers },
+        );
+      if (!a.id.startsWith('legacy_')) return NextResponse.json({}, { headers });
+      const record = (
+        await legacyDb()
+          .ref('students/' + a.id.slice(7))
+          .get()
+      ).val();
+      if (!record) return NextResponse.json({}, { headers });
+      return NextResponse.json(
+        {
+          user: academicRecord(a.id.slice(7), record),
+          ...(a.role === 'student'
+            ? {
+                lessonAccess: lessonAccessStates(
+                  (
+                    await legacyDb()
+                      .ref('meta/access')
+                      .get()
+                      .catch(() => null)
+                  )?.val(),
+                  {
+                    id: a.id.slice(7),
+                    group: String(record.group || ''),
+                    independent: record.learnerType === 'independent',
+                  },
+                ),
+              }
+            : {}),
+        },
+        { headers },
+      );
+    }
     const mode = demo() ? 'demo' : configured() ? 'firebase' : 'legacy';
     if (mode === 'legacy') {
       const { questions, ...q } = quiz;

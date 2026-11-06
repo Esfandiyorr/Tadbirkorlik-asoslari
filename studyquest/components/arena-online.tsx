@@ -85,6 +85,9 @@ async function rt<T = unknown>(base: string, method: string, path: string, body?
 }
 const fullName = (n?: string, s?: string) => [n, s].filter(Boolean).join(' ').trim() || '—';
 
+// «Oflayn» yozuvi biroz kechiktiriladi: panel darhol qayta ochilsa (sahifalar orasida o'tish, React qayta
+// ulanishi) o'chirish bekor qilinadi — aks holda kech yetgan DELETE yangi «onlayn» yozuvini o'chirib yuborardi.
+let pendingBye: ReturnType<typeof setTimeout> | null = null;
 export function ArenaOnline({ me }: { me: ArenaMe }) {
   const { lang, data, toast } = useApp();
   const L = (uz: string, en: string, ru: string) => tr(lang, uz, en, ru);
@@ -136,6 +139,10 @@ export function ArenaOnline({ me }: { me: ArenaMe }) {
     const visible = () => {
       if (!document.hidden) void beat();
     };
+    if (pendingBye) {
+      clearTimeout(pendingBye);
+      pendingBye = null;
+    }
     void beat();
     const timer = setInterval(beat, 15000);
     document.addEventListener('visibilitychange', visible);
@@ -145,7 +152,10 @@ export function ArenaOnline({ me }: { me: ArenaMe }) {
       clearInterval(timer);
       document.removeEventListener('visibilitychange', visible);
       window.removeEventListener('pagehide', bye);
-      bye();
+      pendingBye = setTimeout(() => {
+        pendingBye = null;
+        bye();
+      }, 400);
     };
   }, [base, me.id, me.name, me.surname, me.group]);
 

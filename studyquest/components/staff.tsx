@@ -35,10 +35,15 @@ const blankQuestion = (): Question => ({
 export function Staff({ admin = false }: { admin?: boolean }) {
   const { data, lang, call, toast, request, refresh } = useApp();
   type Reports = Data & { allProgress?: Progress[]; allAttempts?: Attempt[] };
-  const [report, setReport] = useState<{ base: Data | null; value: Reports } | null>(null);
+  const [report, setReport] = useState<{ base: Data | null; value: Reports; at: number } | null>(
+    null,
+  );
+  const [reportLoading, setReportLoading] = useState(false);
   const [reportError, setReportError] = useState('');
   const pending = useRef<{ base: Data | null; promise: Promise<Reports> } | null>(null);
-  const reportReady = report?.base === data;
+  // Sinf hisoboti (barcha talabalar progressi) Firestore kvotasidan ko'p o'qiydi — faqat so'ralganda yuklanadi
+  // va keyingi yangilanishlarda ham oxirgi yuklangan nusxa ko'rsatiladi («Yangilash» tugmasi bilan qayta olinadi).
+  const reportReady = !!report;
   const d = {
     ...data,
     ...(reportReady
@@ -53,22 +58,25 @@ export function Staff({ admin = false }: { admin?: boolean }) {
   const loadReport = useCallback(() => {
     if (pending.current?.base === data) return pending.current.promise;
     setReportError('');
+    setReportLoading(true);
     const promise = request('/api/platform?view=staff&reports=1')
       .then(async (r) => {
         const value = await r.json();
         if (!r.ok) throw Error(value.error);
-        setReport({ base: data, value });
+        setReport({ base: data, value, at: Date.now() });
         return value as Reports;
       })
       .catch((e) => {
         if (pending.current?.promise === promise) pending.current = null;
         setReportError(e.message);
         throw e;
-      });
+      })
+      .finally(() => setReportLoading(false));
     pending.current = { base: data, promise };
     return promise;
   }, [data, request]);
   const tabRow = useRef<HTMLDivElement>(null);
+  // Standart tab — «Talabalar va baholar» (asl bazadan, Firestore kvotasini sarflamaydi).
   const [tab, setTab] = useState(() => {
       // Yon menyudagi «📢 E'lonlar» oynasidagi «+» — to'g'ridan-to'g'ri «E'lonlar» tabiga.
       if (admin && typeof window !== 'undefined')
@@ -77,7 +85,7 @@ export function Staff({ admin = false }: { admin?: boolean }) {
           sessionStorage.removeItem('sq-staff-tab');
           if (wanted === 'news') return wanted;
         } catch {}
-      return admin ? 'academic' : 'overview';
+      return 'academic';
     }),
     [selected, setSelected] = useState(d.courses[0]?.id || ''),
     [busy, setBusy] = useState(false);
@@ -120,9 +128,6 @@ export function Staff({ admin = false }: { admin?: boolean }) {
     if (!selected && d.courses[0]) setSelected(d.courses[0].id);
     if (!quiz.lessonId && d.lessons[0]) setQuiz((q) => ({ ...q, lessonId: d.lessons[0].id }));
   }, [d.courses, d.lessons, selected, quiz.lessonId]);
-  useEffect(() => {
-    if (['overview', 'students'].includes(tab)) void loadReport().catch(() => {});
-  }, [tab, loadReport]);
   const allowed = admin
     ? d.user?.role === 'admin'
     : d.user?.role === 'teacher' || d.user?.role === 'admin';
@@ -284,19 +289,42 @@ export function Staff({ admin = false }: { admin?: boolean }) {
           </Button>
         ))}
       </div>
-      {['overview', 'students'].includes(tab) && !reportReady && (
-        <div className="panel">
-          {reportError ? (
-            <>
-              <p role="alert">{reportError}</p>
-              <Button onClick={() => void loadReport().catch(() => {})}>
-                {L('Hisobotni qayta yuklash', 'Reload the report', 'Перезагрузить отчёт')}
-              </Button>
-            </>
-          ) : (
+      {['overview', 'students'].includes(tab) && (
+        <div className={'panel report-gate' + (reportReady ? ' is-loaded' : '')}>
+          {reportError && <p role="alert">{reportError}</p>}
+          {reportLoading ? (
             <p role="status">
               {L('Hisobot yuklanmoqda…', 'Loading the report…', 'Загрузка отчёта…')}
             </p>
+          ) : reportReady ? (
+            <p>
+              📊 {L('Hisobot holati', 'Report as of', 'Отчёт на')}{' '}
+              {new Date(report!.at).toLocaleTimeString(
+                lang === 'en' ? 'en-GB' : lang === 'ru' ? 'ru-RU' : 'uz-UZ',
+                { hour: '2-digit', minute: '2-digit' },
+              )}
+            </p>
+          ) : (
+            <p>
+              {L(
+                'Bu hisobot barcha talabalarning progressi va test natijalarini o‘qiydi — ma’lumotlar bazasining kunlik bepul kvotasidan ko‘p sarflaydi. Kerak bo‘lganda yuklang.',
+                'This report reads every student’s progress and quiz results and uses a lot of the database’s free daily quota. Load it when you need it.',
+                'Отчёт читает прогресс и результаты всех студентов и расходует много бесплатной дневной квоты базы. Загружайте его по необходимости.',
+              )}
+            </p>
+          )}
+          {!reportLoading && (
+            <Button
+              variant={reportReady ? 'outline' : 'default'}
+              onClick={() => {
+                pending.current = null;
+                void loadReport().catch(() => {});
+              }}
+            >
+              {reportReady
+                ? L('Hisobotni yangilash', 'Refresh the report', 'Обновить отчёт')
+                : L('📊 Hisobotni yuklash', '📊 Load the report', '📊 Загрузить отчёт')}
+            </Button>
           )}
         </div>
       )}

@@ -181,11 +181,17 @@ export class Platform {
   }
   async state(a: Actor, includeStaff = false, includeReports = true) {
     // XP ko'rsatilmaydi: XP tarixi har sahifa ochilganda o'qilmaydi (Firestore kvotasi tejaladi).
+    // Asl taqdimotli talabaning o'qish tarixi asl bazadan (readingHistory) keladi: katalogda faqat asl taqdimotlar
+    // bo'lsa, uning Firestore'dagi progress hujjatlari (~15 ta) har sahifa ochilganda o'qilmaydi.
+    const catalogFirst = await this.publicData();
+    const needProgress =
+      !a.id.startsWith('legacy_') ||
+      catalogFirst.lessons.some((l) => !(l as { legacyFile?: string }).legacyFile);
     const [catalog, user, progress, attempts, earned, ownNotices, sharedNotices] =
       await Promise.all([
-        this.publicData(),
+        catalogFirst,
         this.db.get('users', a.id),
-        this.db.find('progress', 'userId', a.id),
+        needProgress ? this.db.find('progress', 'userId', a.id) : [],
         this.db.find('quizAttempts', 'userId', a.id),
         this.db.find('userAchievements', 'userId', a.id),
         this.db.find('notifications', 'userId', a.id),

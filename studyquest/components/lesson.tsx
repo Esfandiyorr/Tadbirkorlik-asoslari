@@ -62,7 +62,9 @@ function OriginalLessonView({ id }: { id: string }) {
     let alive = true;
     (async () => {
       try {
-        if (data?.limited) {
+        // Asl taqdimotlar (15 mavzu) Firestore'ga tegmaydi: o'qish tarixi va ballar asl dvigatelda (RTDB)
+        // yuritiladi; har slaydga Firestore yozuvi kunlik bepul kvotani tez tugatardi.
+        if (data?.limited || meta.legacyFile) {
           const response = await request(
             '/api/platform?view=legacyLesson&lesson=' + encodeURIComponent(id),
           );
@@ -100,12 +102,12 @@ function OriginalLessonView({ id }: { id: string }) {
       )
         return;
       setIndex(e.data.index);
-      if (!legacyMode && !data?.limited)
+      if (!legacyMode && !data?.limited && !meta?.legacyFile)
         call('slide', { lessonId: id, index: e.data.index }).catch((e) => toast(e.message));
     };
     window.addEventListener('message', handle);
     return () => window.removeEventListener('message', handle);
-  }, [id, legacyMode, data?.limited, call, toast]);
+  }, [id, legacyMode, data?.limited, meta?.legacyFile, call, toast]);
   async function go(n: number) {
     if (!detail || n < 0 || n >= detail.slideCount) return;
     if (detail.legacyFile) {
