@@ -293,7 +293,7 @@ test('1111 code login establishes the legacy session and displays the original a
   );
   expect(authenticatedRequests).toBeGreaterThan(0);
   await page.goto('/#ranking');
-  await expect(page.getByRole('heading', { name: 'Umumiy reyting', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Reyting', exact: true })).toBeVisible();
   await expect(page.locator('.ranking-list')).toContainText('AP-224');
   await expect(page.locator('.ranking-list')).toContainText('AP-223');
 });
