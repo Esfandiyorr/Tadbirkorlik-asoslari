@@ -202,6 +202,13 @@ export const NativeSurface = forwardRef<HTMLIFrameElement, Props>(function Nativ
       });
       // Darslar matnidagi o'/g' interfeysdagi kabi o‘/g‘ ko‘rinishida chiqadi.
       if (langRef.current === 'uz') uzQuotesDom(wrapper);
+      // Dvigatel blokni noldan qayta yaratsa (masalan, test har javobdan keyin barcha savollarni qayta chizadi),
+      // morphdom eski tugunlarni olib tashlab yangisini qo'yadi. O'sha lahzada hujjat qisqarib, aylantirish
+      // tepaga «qisilib» qolardi. Shuning uchun holat saqlanadi va qayta chizilgandan keyin qaytariladi.
+      const scrollers: [Element, number][] = [];
+      for (let el = surface.current.parentElement; el; el = el.parentElement)
+        if (el.scrollTop > 0) scrollers.push([el, el.scrollTop]);
+      const hadFocus = surface.current.contains(document.activeElement);
       morphdom(surface.current, wrapper, {
         childrenOnly: true,
         getNodeKey: (node) =>
@@ -214,6 +221,11 @@ export const NativeSurface = forwardRef<HTMLIFrameElement, Props>(function Nativ
           return true;
         },
       });
+      for (const [el, top] of scrollers)
+        if (el.scrollTop !== top) el.scrollTo({ top, behavior: 'instant' });
+      // Bosilgan tugma almashtirilgan bo'lsa, fokus sahifa boshiga emas, hujjat ichida qoladi.
+      if (hadFocus && !surface.current.contains(document.activeElement))
+        surface.current.focus({ preventScroll: true });
       if (Number.isInteger(message.index)) {
         const next = String(message.index);
         if (src.includes('sqEmbed=lesson') && surface.current.dataset.nativeIndex !== next) {

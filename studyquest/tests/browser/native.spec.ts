@@ -77,6 +77,36 @@ test('original timed quiz runs through native controls and preserves answer lock
   await page.screenshot({ path: 'tests/artifacts/native-quiz-desktop.png', fullPage: true });
 });
 
+test('answering a question lower in the quiz keeps the page where it was', async ({ page }) => {
+  await student(page);
+  await scoredDemo(page);
+  await page.goto('/#lesson/m1');
+  await lastSlide(page);
+  await page.locator('.native-document #qtGo').click();
+  await page
+    .locator('.native-dialog')
+    .getByRole('button', { name: 'Davom etish', exact: true })
+    .click();
+  const scroller = page.locator('.native-surface').first();
+  // Test har javobdan keyin barcha savollarni qayta chizadi — sahifa tepaga sakramasligi kerak.
+  for (const n of [5, 12]) {
+    const question = page.locator('.native-document .qbox').nth(n - 1);
+    await question.scrollIntoViewIfNeeded();
+    const top = await scroller.evaluate((el) => el.scrollTop);
+    const y = (await question.boundingBox())!.y;
+    expect(top).toBeGreaterThan(500);
+    await question.locator('button.opt').nth(1).click();
+    await expect(question.locator('button.opt').nth(1)).toBeDisabled();
+    await expect(question.locator('.fb')).toBeVisible();
+    expect(Math.abs((await scroller.evaluate((el) => el.scrollTop)) - top)).toBeLessThan(4);
+    expect(Math.abs((await question.boundingBox())!.y - y)).toBeLessThan(4);
+  }
+  // Fokus hujjat ichida qoladi (sahifa boshiga qaytmaydi).
+  expect(await page.evaluate(() => !!document.activeElement?.closest('.native-document'))).toBe(
+    true,
+  );
+});
+
 test('class arena is rendered in the new native design', async ({ page }) => {
   await student(page);
   await page.goto('/#arena/live');
