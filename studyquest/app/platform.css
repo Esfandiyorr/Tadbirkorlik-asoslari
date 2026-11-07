@@ -6970,3 +6970,499 @@ body:has(.focus-learning) .kh-pop {
     grid-column: span 2;
   }
 }
+
+/* ---------- 💼 «Biznes» 2.0: biznes-reja, segmentlar, investitsiyalar ---------- */
+.bz-stack {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+}
+.bz-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  width: fit-content;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--surface-soft);
+  border: 1px solid var(--border);
+  font-size: 12.5px;
+  font-weight: 650;
+}
+.bz-intro h3 {
+  font-size: 19px;
+  line-height: 1.35;
+}
+.bz-intro p {
+  margin: 0;
+  line-height: 1.5;
+}
+.bz-topic {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: fit-content;
+  margin-top: 4px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--soft-violet);
+  color: var(--violet);
+  font-size: 12.5px;
+  font-weight: 700;
+  text-decoration: none;
+}
+.bz-topic:hover {
+  text-decoration: underline;
+}
+/* biznes-reja: joy va uskuna kartochkalari */
+.bz-choice {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+.bz-choice button {
+  display: grid;
+  align-content: start;
+  gap: 5px;
+  padding: 12px;
+  border: 2px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface-soft);
+  color: inherit;
+  text-align: left;
+}
+.bz-choice button.is-on {
+  border-color: var(--violet);
+  background: var(--soft-violet);
+}
+.bz-choice small {
+  font-size: 12.5px;
+  line-height: 1.4;
+}
+.bz-choice-icon {
+  font-size: 26px;
+}
+.bz-aff {
+  display: grid;
+  gap: 2px;
+  font-size: 12px;
+  letter-spacing: 1px;
+  color: var(--violet);
+}
+.bz-aff i {
+  font-style: normal;
+  color: var(--border);
+}
+.bz-budget {
+  display: flex;
+  height: 14px;
+  overflow: hidden;
+  border-radius: 7px;
+  background: var(--border);
+}
+.bz-budget i {
+  display: block;
+  height: 100%;
+  transition: width 0.3s;
+}
+.bz-b-eq {
+  background: #64748b;
+}
+.bz-b-rent {
+  background: #f59e0b;
+}
+.bz-b-hire {
+  background: #0ea5e9;
+}
+.bz-b-ads {
+  background: #ec4899;
+}
+.bz-b-left {
+  background: #22c55e;
+}
+.bz-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-right: 4px;
+  border-radius: 3px;
+  vertical-align: -1px;
+}
+/* jamoa: − son + */
+.bz-stepper {
+  display: grid;
+  gap: 6px;
+}
+.bz-stepper-label {
+  font-size: 14px;
+  font-weight: 650;
+}
+.bz-stepper-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.bz-stepper-row button {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface-soft);
+  color: inherit;
+}
+.bz-stepper-row button:disabled {
+  opacity: 0.4;
+}
+.bz-stepper-row output {
+  min-width: 34px;
+  font-size: 22px;
+  font-weight: 800;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.bz-stepper small {
+  color: var(--muted);
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+/* mahsulot darajasi */
+.bz-grade {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.bz-grade button {
+  display: grid;
+  gap: 2px;
+  padding: 10px;
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface-soft);
+  color: inherit;
+  text-align: left;
+}
+.bz-grade button.is-on {
+  border-color: var(--violet);
+  background: var(--soft-violet);
+}
+.bz-grade small {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.35;
+}
+/* reklama kanallari va tanilganlik */
+.bz-channel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 190px;
+  gap: 12px;
+  align-items: end;
+  padding: 8px 0;
+  border-bottom: 1px dashed var(--border);
+}
+.bz-channel:last-of-type {
+  border-bottom: 0;
+}
+.bz-aw {
+  display: grid;
+  gap: 3px;
+  font-size: 12.5px;
+}
+.bz-aw > div {
+  height: 7px;
+  overflow: hidden;
+  border-radius: 4px;
+  background: var(--border);
+}
+.bz-aw i {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #f472b6, #db2777);
+  transition: width 0.3s;
+}
+.bz-aw small {
+  color: var(--muted);
+}
+/* investitsiya kartochkalari */
+.bz-invest {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 10px;
+}
+.bz-inv {
+  display: grid;
+  align-content: start;
+  gap: 5px;
+  padding: 11px;
+  border: 2px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface-soft);
+  color: inherit;
+  text-align: left;
+}
+.bz-inv.is-on {
+  border-color: var(--violet);
+  background: var(--soft-violet);
+}
+.bz-inv:disabled {
+  opacity: 0.6;
+}
+.bz-inv.is-owned {
+  border-style: dashed;
+}
+.bz-inv-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+.bz-inv-top span {
+  font-size: 20px;
+}
+.bz-inv small {
+  color: var(--muted);
+  font-size: 12.5px;
+  line-height: 1.4;
+}
+.bz-inv-cost {
+  font-size: 13px;
+  font-weight: 800;
+}
+.bz-inv-eff {
+  padding: 4px 8px;
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.35;
+}
+.bz-inv-eff.up {
+  color: var(--bz-up);
+}
+.bz-inv-pick {
+  justify-self: start;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  font-size: 12px;
+  font-weight: 700;
+}
+.bz-inv.is-on .bz-inv-pick {
+  background: var(--violet);
+  border-color: var(--violet);
+  color: #fff;
+}
+/* raqib qayerda ochildi */
+.bz-rivalsetup {
+  margin: 0;
+  padding: 12px 16px;
+  font-size: 14px;
+  line-height: 1.5;
+  background: #fff7ed;
+}
+.dark .bz-rivalsetup {
+  background: #3a2410;
+}
+/* hisobot: bozor, jadval tablari, mijozlar fikri */
+.bz-market {
+  display: grid;
+  gap: 8px;
+}
+.bz-market h4,
+.bz-reviews h4 {
+  margin: 0;
+  font-size: 15px;
+}
+.bz-seg {
+  display: grid;
+  grid-template-columns: 170px minmax(0, 1fr);
+  gap: 4px 12px;
+  align-items: center;
+}
+.bz-seg-name {
+  font-size: 13.5px;
+  font-weight: 650;
+}
+.bz-seg-bar {
+  display: flex;
+  height: 14px;
+  overflow: hidden;
+  border-radius: 7px;
+  background: var(--border);
+}
+.bz-seg-bar i {
+  display: block;
+  height: 100%;
+}
+.bz-seg-bar i.me {
+  background: var(--bz-me);
+}
+.bz-seg-bar i.rv {
+  background: var(--bz-rv);
+}
+.bz-seg small {
+  grid-column: 2;
+  color: var(--muted);
+  font-size: 12px;
+}
+.bz-tabs {
+  display: inline-flex;
+  gap: 4px;
+  width: fit-content;
+  padding: 4px;
+  border-radius: 12px;
+  background: var(--surface-soft);
+}
+.bz-tabs button {
+  padding: 6px 12px;
+  border: 0;
+  border-radius: 9px;
+  background: none;
+  color: var(--muted);
+  font-size: 13.5px;
+  font-weight: 700;
+}
+.bz-tabs button.is-on {
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow);
+}
+.bz-reviews {
+  display: grid;
+  gap: 6px;
+}
+.bz-reviews q {
+  display: block;
+  padding: 8px 12px;
+  border-radius: 12px 12px 12px 2px;
+  background: var(--surface-soft);
+  font-size: 13.5px;
+  font-style: italic;
+}
+.bz-reviews small {
+  color: var(--muted);
+}
+/* yakun: yutuq nishonlari */
+.bz-badges {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.bz-badges li {
+  display: grid;
+  gap: 3px;
+  justify-items: start;
+  padding: 12px;
+  border-radius: 14px;
+  background: linear-gradient(160deg, #fef3c7, var(--surface));
+}
+.dark .bz-badges li {
+  background: linear-gradient(160deg, #3a2a0a, var(--surface));
+}
+.bz-badges span {
+  font-size: 28px;
+}
+.bz-badges small {
+  color: var(--muted);
+  font-size: 12.5px;
+}
+.bz-lessons li > div {
+  display: grid;
+  gap: 4px;
+}
+.bz-lessons li p {
+  margin: 0;
+}
+/* bosh sahifa: botlar */
+.bz-bots {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+.bz-bot {
+  display: grid;
+  align-content: start;
+  justify-items: start;
+  gap: 5px;
+  padding: 12px;
+  border: 2px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface-soft);
+  color: inherit;
+  text-align: left;
+}
+.bz-bot:hover {
+  border-color: var(--violet);
+}
+.bz-bot-icon {
+  font-size: 30px;
+}
+.bz-bot small {
+  color: var(--muted);
+  font-size: 12.5px;
+  line-height: 1.4;
+}
+.bz-level {
+  padding: 2px 9px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+.bz-level-0 {
+  background: #dcfce7;
+  color: #166534;
+}
+.bz-level-1,
+.bz-level-2 {
+  background: #fef3c7;
+  color: #92400e;
+}
+.bz-level-3 {
+  background: #fee2e2;
+  color: #991b1b;
+}
+.bz-join-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+.bz-join-row .bz-join {
+  flex: 1;
+  min-width: 240px;
+}
+.bz-home .bz-rival {
+  margin-top: 12px;
+}
+@media (max-width: 900px) {
+  .bz-bots {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .bz-choice {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 600px) {
+  .bz-grade {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .bz-channel {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .bz-seg {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .bz-seg small {
+    grid-column: 1;
+  }
+  .bz-bots {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

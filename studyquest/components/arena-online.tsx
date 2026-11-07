@@ -226,7 +226,7 @@ export function ArenaOnline({ me }: { me: ArenaMe }) {
     setSending(peer.id);
     try {
       const { createBizRoom } = await import('./biznes');
-      const code = await createBizRoom(base, me, 'kofe', {
+      const code = await createBizRoom(base, me, 'somsa', {
         id: peer.id,
         name: fullName(peer.n, peer.s),
       });

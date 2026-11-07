@@ -476,17 +476,17 @@ export function Games({ sub = '' }: { sub?: string }) {
           <b>💼 {L('Biznes', 'Business', 'Бизнес')}</b>
           <span>
             {L(
-              'Bot yoki kursdoshingiz bilan bir xil kapital va bir xil biznes: 12 oy davomida narx, xarid, reklama, kredit va kengayish bo‘yicha qaror qiling. Kim ko‘proq pul ishlab topsa — o‘sha g‘olib.',
-              'Same capital, same business as a bot or a classmate: for 12 months decide on price, purchases, ads, loans and growth. Whoever earns more wins.',
-              'Одинаковый капитал и бизнес с ботом или однокурсником: 12 месяцев решайте цену, закупки, рекламу, кредиты и рост. Кто заработает больше — побеждает.',
+              'Bot yoki kursdoshingiz bilan bir xil 100 mln so‘m va bir xil biznes: avval biznes-reja, so‘ng 12 oy davomida narx, sifat, mijozlar guruhlari, reklama, jamoa va investitsiyalar bo‘yicha qaror qiling. Kim ko‘proq pul ishlab topsa — o‘sha g‘olib.',
+              'The same 100 mln so‘m and the same business as a bot or a classmate: first a business plan, then 12 months of decisions on price, quality, customer groups, ads, team and investments. Whoever earns more wins.',
+              'Одинаковые 100 млн сум и один бизнес с ботом или однокурсником: сначала бизнес-план, затем 12 месяцев решений о цене, качестве, клиентах, рекламе, команде и инвестициях. Кто заработает больше — побеждает.',
             )}
           </span>
           <span className="arena-feature-go">▶ {L('O‘ynash', 'Play', 'Играть')}</span>
         </span>
         <span className="arena-feature-art" aria-hidden="true">
-          <i>☕</i>
-          <i>🍔</i>
-          <i>👕</i>
+          <i>🥟</i>
+          <i>📱</i>
+          <i>🎓</i>
           <i>📈</i>
           <i>💰</i>
           <i>🏦</i>

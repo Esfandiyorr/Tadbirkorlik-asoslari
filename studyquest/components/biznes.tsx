@@ -1,35 +1,42 @@
 'use client';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowLeft, Bot, Copy, LogIn, Users } from 'lucide-react';
+import { ArrowLeft, Copy, LogIn, Users } from 'lucide-react';
 import { useApp } from './provider';
 import { Button } from './ui/button';
 import { navigate } from './dashboard';
 import { arenaBase, newCode, ROOM_CODE, rt, seg, type ArenaMe } from './arena-online';
-import { DecisionForm, FinalReport, MonthReport, BizHeader, mln } from './biznes-play';
+import { BizHeader, DecisionForm, FinalReport, MonthReport, SetupForm, mln } from './biznes-play';
 import {
-  BOT_NAMES,
+  BOTS,
   BUSINESSES,
   RULES,
   bizOf,
   botDecision,
+  botSetup,
   clampDecision,
+  clampSetup,
   earned,
+  newGame,
   replay,
   tx,
   type BizId,
-  type BotLevel,
+  type BotId,
   type Decision,
   type Lang,
+  type Setup,
 } from '@/lib/biznes';
 
-/* 💼 «Biznes» — O'yin maydonidagi tadbirkorlik bellashuvi: bot bilan yoki kursdosh bilan (12 oy, 12 raund).
-   Kursdoshlar o'yini asl arena bazasida: arena/biz/<KOD> = {meta: {biz, seed, host}, p: {o'yinchilar}, d: {m<oy>: {id: qaror}},
-   s: {id: so'nggi faollik}}; taklif — arena/binv/<kimga>/<kimdan>. Har kim faqat o'z qarorini yozadi, natijani ikkalasi
-   ham bir xil hisoblaydi (lib/biznes.ts deterministik). Natija reytingga qo'shilmaydi — bu mashq o'yini. */
+/* 💼 «Biznes» — O'yin maydonidagi 12 oylik tadbirkorlik bellashuvi: bot bilan yoki kursdosh bilan.
+   0-raund — biznes-reja, so'ng 12 oy. Kursdoshlar o'yini asl arena bazasida: arena/biz/<KOD> = {meta: {v, biz, seed, host},
+   p: {o'yinchilar}, d: {m0: {id: biznes-reja}, m<oy>: {id: qaror}}, s: {id: so'nggi faollik}}; taklif — arena/binv/<kimga>/<kimdan>.
+   Har kim faqat o'z qarorini yozadi, natijani ikkalasi ham bir xil hisoblaydi (lib/biznes.ts deterministik).
+   Natija reytingga qo'shilmaydi — bu mashq o'yini. */
 
-const SAVE = 'biz_bot_v1',
-  BEST = 'biz_best_v1',
-  TURN_SECONDS = 150;
+const SAVE = 'biz_bot_v2',
+  BEST = 'biz_best_v2',
+  ROOM_VERSION = 2,
+  TURN_SECONDS = 180,
+  SETUP_SECONDS = 240;
 const useLang = () => useApp().lang as Lang;
 const useT = () => {
   const lang = useLang();
@@ -37,8 +44,9 @@ const useT = () => {
 };
 type BotSave = {
   biz: BizId;
-  level: BotLevel;
+  bot: BotId;
   seed: number;
+  setup: [Setup, Setup] | null;
   months: [Decision, Decision][];
   seen: number;
 };
@@ -57,6 +65,15 @@ function store(key: string, v: unknown) {
   } catch {}
 }
 const fullName = (m: ArenaMe | null) => (m ? [m.name, m.surname].filter(Boolean).join(' ') : '');
+const KIND: Record<string, [string, string, string]> = {
+  perishable: [
+    'Ishlab chiqarish · tez buziladi',
+    'Production · perishable',
+    'Производство · скоропортящееся',
+  ],
+  stock: ['Savdo · zaxira eskiradi', 'Retail · stock ages', 'Торговля · запас устаревает'],
+  service: ['Xizmat · oylik obuna', 'Service · monthly fees', 'Услуги · абонемент'],
+};
 
 /** Kursdosh bilan o'yin uchun xona ochish (taklif yuborilsa — `to` bilan). Xona kodini qaytaradi. */
 export async function createBizRoom(
@@ -70,7 +87,7 @@ export async function createBizRoom(
   const now = { '.sv': 'timestamp' };
   await rt(base, 'PUT', seg('biz', code), {
     meta: {
-      v: 1,
+      v: ROOM_VERSION,
       biz,
       seed: randomSeed(),
       host: me.id,
@@ -108,15 +125,17 @@ export function BiznesGame({ code, me }: { code?: string; me: ArenaMe | null }) 
         </Button>
         <h1>💼 {L('Biznes', 'Business', 'Бизнес')}</h1>
       </div>
-      {code ? <RoomGame code={code} me={me} /> : <BotOrHome me={me} />}
+      {code ? <RoomGame key={code} code={code} me={me} /> : <BotOrHome me={me} />}
     </div>
   );
 }
 
 function BotOrHome({ me }: { me: ArenaMe | null }) {
-  const [game, setGame] = useState<BotSave | null>(() =>
-    typeof window === 'undefined' ? null : load<BotSave>(SAVE),
-  );
+  const [game, setGame] = useState<BotSave | null>(() => {
+    if (typeof window === 'undefined') return null;
+    const s = load<BotSave>(SAVE);
+    return s && typeof s.bot === 'number' && Array.isArray(s.months) ? s : null;
+  });
   const [home, setHome] = useState(true);
   if (game && !home)
     return <BotGame save={game} me={me} onChange={setGame} onQuit={() => setHome(true)} />;
@@ -125,8 +144,8 @@ function BotOrHome({ me }: { me: ArenaMe | null }) {
       me={me}
       saved={game}
       onContinue={() => setHome(false)}
-      onBot={(biz, level) => {
-        const s: BotSave = { biz, level, seed: randomSeed(), months: [], seen: 0 };
+      onBot={(biz, bot) => {
+        const s: BotSave = { biz, bot, seed: randomSeed(), setup: null, months: [], seen: 0 };
         store(SAVE, s);
         setGame(s);
         setHome(false);
@@ -144,18 +163,18 @@ function Home({
   me: ArenaMe | null;
   saved: BotSave | null;
   onContinue: () => void;
-  onBot: (biz: BizId, level: BotLevel) => void;
+  onBot: (biz: BizId, bot: BotId) => void;
 }) {
   const lang = useLang(),
     L = useT(),
     { data, toast } = useApp();
-  const [biz, setBiz] = useState<BizId>('kofe'),
+  const [biz, setBiz] = useState<BizId>('somsa'),
     [joinCode, setJoinCode] = useState(''),
     [busy, setBusy] = useState(false);
   const base = useMemo(() => arenaBase(data?.mode === 'demo'), [data?.mode]);
   const best = typeof window === 'undefined' ? null : load<Record<string, number>>(BEST);
   const savedGame = useMemo(
-    () => (saved ? replay(saved.biz, saved.seed, saved.months) : null),
+    () => (saved?.setup ? replay(saved.biz, saved.seed, saved.setup, saved.months) : null),
     [saved],
   );
   const canDuel = !!me && !!base;
@@ -185,16 +204,16 @@ function Home({
           </span>
           <h2>
             {L(
-              '12 oy — 12 raund. Kim ko‘proq pul ishlab topadi?',
-              '12 months — 12 rounds. Who earns more?',
-              '12 месяцев — 12 раундов. Кто заработает больше?',
+              '100 mln so‘m, bitta shahar, ikki tadbirkor. 12 oyda kim ko‘proq pul ishlab topadi?',
+              '100 mln so‘m, one town, two entrepreneurs. Who earns more in 12 months?',
+              '100 млн сум, один город, два предпринимателя. Кто заработает больше за 12 месяцев?',
             )}
           </h2>
           <p>
             {L(
-              `Siz va raqibingiz bir xil biznesni ${RULES.startCash} mln so‘m kapital bilan boshlaysiz. Har oy narxni, xaridni, reklama va sifatga sarflanadigan pulni, kredit va kengayishni o‘zingiz hal qilasiz. Har oy yangi vaziyat chiqadi — kurs ko‘tariladi, xodim ish haqi so‘raydi, bloger reklama taklif qiladi… 12-oy oxirida sof kapitali ko‘p bo‘lgan yutadi.`,
-              `You and your rival start the same business with ${RULES.startCash} mln so‘m. Each month you set the price, the purchase, ad and quality budgets, loans and growth. Every month brings a new situation — the dollar rises, staff ask for a raise, a blogger offers an ad… After month 12, the higher net worth wins.`,
-              `Вы и соперник начинаете одинаковый бизнес с капиталом ${RULES.startCash} млн сум. Каждый месяц вы решаете цену, закупку, бюджеты на рекламу и качество, кредиты и рост. Каждый месяц — новая ситуация. После 12-го месяца побеждает тот, у кого больше капитал.`,
+              'Siz va raqibingiz bir xil biznesni bir xil pul bilan ochasiz. Avval biznes-reja: joy, uskuna, jamoa. Keyin har oy — mahsulot darajasi, narx, hajm, qaysi mijozlarga reklama, jamoa va investitsiyalar. Talabalar, ishchilar va oilalar turlicha xarid qiladi: raqibingiz bilan bitta mijozga kurashasizmi yoki bo‘sh joyni egallaysizmi? Har oy yangi vaziyat, har qarorning oqibati bor.',
+              'You and your rival open the same business with the same money. First a business plan: location, equipment, team. Then every month — product level, price, volume, which customers to advertise to, team and investments. Students, workers and families buy differently: fight for the same customers or take the empty niche? Every month brings a new situation.',
+              'Вы и соперник открываете одинаковый бизнес с одинаковыми деньгами. Сначала бизнес-план, затем каждый месяц — уровень продукта, цена, объём, реклама для нужных клиентов, команда и инвестиции.',
             )}
           </p>
           <ul
@@ -202,33 +221,34 @@ function Home({
             aria-label={L('Nimani o‘rganasiz', 'What you learn', 'Чему научитесь')}
           >
             {[
-              L('narx belgilash', 'pricing', 'ценообразование'),
-              L('talabni prognozlash', 'demand forecasting', 'прогноз спроса'),
+              L('biznes-reja', 'business plan', 'бизнес-план'),
               L('pulni taqsimlash', 'allocating money', 'распределение денег'),
-              L('kredit va foiz', 'loans and interest', 'кредиты и проценты'),
-              L('investitsiya', 'investment', 'инвестиции'),
+              L('narx belgilash', 'pricing', 'ценообразование'),
+              L('mijozlar guruhlari', 'customer segments', 'сегменты'),
+              L('talab prognozi', 'forecasting', 'прогноз спроса'),
+              L('investitsiya qoplanishi', 'payback', 'окупаемость'),
+              L('foyda va kassa', 'profit vs cash', 'прибыль и касса'),
               L('raqobat strategiyasi', 'competitive strategy', 'конкуренция'),
-              L('xavfni boshqarish', 'risk management', 'управление рисками'),
             ].map((x) => (
               <li key={x}>{x}</li>
             ))}
           </ul>
         </div>
         <span className="bz-hero-art" aria-hidden="true">
-          <i>☕</i>
-          <i>📈</i>
+          <i>🥟</i>
+          <i>📱</i>
+          <i>🎓</i>
           <i>💰</i>
-          <i>🏦</i>
         </span>
       </section>
-      {saved && savedGame && !savedGame.over && (
+      {saved && (
         <div className="bz-card bz-continue">
           <span>
             {bizOf(saved.biz).icon}{' '}
             {L(
-              `Tugallanmagan o‘yin: ${tx(lang, bizOf(saved.biz).name)}, ${savedGame.month}-oy, raqib ${tx(lang, BOT_NAMES[saved.level])}`,
-              `Unfinished game: ${tx(lang, bizOf(saved.biz).name)}, month ${savedGame.month}, rival ${tx(lang, BOT_NAMES[saved.level])}`,
-              `Незаконченная игра: ${tx(lang, bizOf(saved.biz).name)}, месяц ${savedGame.month}`,
+              `Tugallanmagan o‘yin: ${tx(lang, bizOf(saved.biz).name)}, ${savedGame && !savedGame.over ? savedGame.month + '-oy' : savedGame?.over ? 'yakuniy natija' : 'biznes-reja'}, raqib ${tx(lang, BOTS[saved.bot].name)}`,
+              `Unfinished game: ${tx(lang, bizOf(saved.biz).name)}, ${savedGame && !savedGame.over ? 'month ' + savedGame.month : savedGame?.over ? 'final result' : 'business plan'}, rival ${tx(lang, BOTS[saved.bot].name)}`,
+              `Незаконченная игра: ${tx(lang, bizOf(saved.biz).name)}, соперник ${tx(lang, BOTS[saved.bot].name)}`,
             )}
           </span>
           <Button onClick={onContinue}>▶ {L('Davom ettirish', 'Continue', 'Продолжить')}</Button>
@@ -250,8 +270,11 @@ function Home({
                 {x.icon}
               </span>
               <b>{tx(lang, x.name)}</b>
+              <span className="bz-chip">{tx(lang, KIND[x.kind])}</span>
               <small>{tx(lang, x.about)}</small>
-              <small className="bz-biz-season">📅 {tx(lang, x.seasonNote)}</small>
+              <small className="bz-biz-season">
+                👥 {x.segs.map((s) => s.icon + ' ' + tx(lang, s.name)).join(' · ')}
+              </small>
               {best?.[x.id] != null && (
                 <small className="bz-best">
                   🏅 {L('Eng yaxshi natijangiz', 'Your best', 'Ваш рекорд')}:{' '}
@@ -264,41 +287,32 @@ function Home({
       </section>
       <section className="bz-card" aria-labelledby="bz-h2">
         <h3 id="bz-h2">2. {L('Raqibni tanlang', 'Choose your rival', 'Выберите соперника')}</h3>
-        <div className="bz-rivals">
-          <div className="bz-rival">
-            <h4>
-              <Bot size={18} /> {L('Bot bilan', 'Against a bot', 'С ботом')}
-            </h4>
-            <p className="muted">
-              {L(
-                'Istalgan payt, vaqt cheklanmagan.',
-                'Any time, no time limit.',
-                'В любое время, без ограничения.',
-              )}
-            </p>
-            {([0, 1, 2] as BotLevel[]).map((lv) => (
-              <Button
-                key={lv}
-                variant={lv === 1 ? 'default' : 'outline'}
-                onClick={() => onBot(biz, lv)}
-              >
-                {tx(lang, BOT_NAMES[lv])}
-              </Button>
-            ))}
-          </div>
-          <div className="bz-rival">
-            <h4>
-              <Users size={18} /> {L('Kursdosh bilan', 'Against a classmate', 'С однокурсником')}
-            </h4>
-            {canDuel ? (
-              <>
-                <p className="muted">
-                  {L(
-                    `Xona oching va kodni do‘stingizga ayting yoki «O‘yin maydoni»dagi «Hozir onlayn» ro‘yxatidan taklif yuboring. Har oyga ${Math.round((TURN_SECONDS / 60) * 10) / 10} daqiqa.`,
-                    `Open a room and share the code, or invite someone from “Online now” on the Arena page. ${Math.round((TURN_SECONDS / 60) * 10) / 10} minutes per month.`,
-                    `Откройте комнату и сообщите код или пригласите из списка «Сейчас онлайн». ${Math.round((TURN_SECONDS / 60) * 10) / 10} мин. на месяц.`,
-                  )}
-                </p>
+        <div className="bz-bots">
+          {BOTS.map((x, k) => (
+            <button key={k} type="button" className="bz-bot" onClick={() => onBot(biz, k as BotId)}>
+              <span className="bz-bot-icon" aria-hidden="true">
+                {x.icon}
+              </span>
+              <b>{tx(lang, x.name)}</b>
+              <span className={'bz-level bz-level-' + k}>{tx(lang, x.level)}</span>
+              <small>{tx(lang, x.style)}</small>
+            </button>
+          ))}
+        </div>
+        <div className="bz-rival">
+          <h4>
+            <Users size={18} /> {L('Kursdosh bilan', 'Against a classmate', 'С однокурсником')}
+          </h4>
+          {canDuel ? (
+            <>
+              <p className="muted">
+                {L(
+                  `Xona oching va kodni do‘stingizga ayting yoki «O‘yin maydoni»dagi «Hozir onlayn» ro‘yxatidan taklif yuboring. Biznes-rejaga ${SETUP_SECONDS / 60} daqiqa, har oyga ${TURN_SECONDS / 60} daqiqa.`,
+                  `Open a room and share the code, or invite someone from “Online now” on the Arena page. ${SETUP_SECONDS / 60} minutes for the plan, ${TURN_SECONDS / 60} per month.`,
+                  `Откройте комнату и сообщите код или пригласите из «Сейчас онлайн». ${SETUP_SECONDS / 60} мин. на план, ${TURN_SECONDS / 60} на месяц.`,
+                )}
+              </p>
+              <div className="bz-join-row">
                 <Button disabled={busy} onClick={() => void openRoom()}>
                   ➕ {L('Xona ochish', 'Open a room', 'Открыть комнату')}
                 </Button>
@@ -330,23 +344,23 @@ function Home({
                     {L('Qo‘shilish', 'Join', 'Войти')}
                   </Button>
                 </form>
-              </>
-            ) : (
-              <p className="muted">
-                {me
-                  ? L(
-                      'Kursdosh bilan onlayn o‘yin bu (demo) muhitda o‘chirilgan.',
-                      'Online games with classmates are off in this (demo) environment.',
-                      'Онлайн-игра с однокурсником в этой (демо) среде отключена.',
-                    )
-                  : L(
-                      'Kursdosh bilan o‘ynash uchun guruh arenasiga talaba hisobingiz bilan kiring.',
-                      'Sign in with your student account to play against classmates.',
-                      'Чтобы играть с однокурсником, войдите под студенческим аккаунтом.',
-                    )}
-              </p>
-            )}
-          </div>
+              </div>
+            </>
+          ) : (
+            <p className="muted">
+              {me
+                ? L(
+                    'Kursdosh bilan onlayn o‘yin bu (demo) muhitda o‘chirilgan.',
+                    'Online games with classmates are off in this (demo) environment.',
+                    'Онлайн-игра с однокурсником в этой (демо) среде отключена.',
+                  )
+                : L(
+                    'Kursdosh bilan o‘ynash uchun guruh arenasiga talaba hisobingiz bilan kiring.',
+                    'Sign in with your student account to play against classmates.',
+                    'Чтобы играть с однокурсником, войдите под студенческим аккаунтом.',
+                  )}
+            </p>
+          )}
         </div>
       </section>
       <details className="bz-card bz-rules">
@@ -354,37 +368,44 @@ function Home({
         <ul>
           <li>
             {L(
-              'Har oy: avval vaziyat (agar bo‘lsa) bo‘yicha qaror, so‘ng narx, xarid, reklama, sifat, kredit va filial.',
-              'Each month: decide on the situation (if any), then price, purchase, ads, quality, loans and branches.',
-              'Каждый месяц: решение по ситуации, затем цена, закупка, реклама, качество, кредит и филиал.',
+              `Ikkalangizga ${RULES.startCash} mln so‘m beriladi. 0-raundda biznes-reja tuzasiz: joy (ijara va qaysi mijozlarga yaqinlik), uskuna (yangi, ishlatilgan yoki lizing), jamoa va ochilish reklamasi. Qolgan pul — aylanma mablag‘.`,
+              `You both get ${RULES.startCash} mln so‘m. In round 0 you make a business plan: location, equipment (new, used or leased), team and launch ads. The rest is working capital.`,
+              `Оба получают ${RULES.startCash} млн. В раунде 0 — бизнес-план: место, оборудование, команда и реклама открытия.`,
             )}
           </li>
           <li>
             {L(
-              'Bozor ikkala korxonani bir vaqtda solishtiradi: arzonroq narx, yuqori sifat va obro‘ ko‘proq mijoz olib keladi.',
-              'The market compares both businesses at once: lower price, higher quality and brand win more customers.',
-              'Рынок сравнивает обе компании сразу: ниже цена, выше качество и бренд — больше клиентов.',
+              'Har oy: mahsulot darajasi (arzon, standart, premium), narx, hajm, uch kanal bo‘yicha reklama, jamoa soni, investitsiyalar, kredit. Oy vaziyati (agar bo‘lsa) bo‘yicha ham qaror qilasiz.',
+              'Every month: product level, price, volume, ads in three channels, team size, investments, loans — and a decision on the month’s situation.',
+              'Каждый месяц: уровень продукта, цена, объём, реклама в трёх каналах, команда, инвестиции, кредит и решение по ситуации.',
             )}
           </li>
           <li>
             {L(
-              'Zaxira yetmasa — mijoz raqibga ketadi; ortib qolsa — bir qismi buziladi. Sig‘im (filiallar) ham chegaralangan.',
-              'Run out of stock and customers go to your rival; leftovers partly spoil. Capacity (branches) is limited too.',
-              'Не хватит товара — клиент уйдёт; остатки портятся. Мощность ограничена.',
+              'Bozor uch mijoz guruhidan iborat. Reklama — sizni bilishlari uchun, narx, sifat, obro‘ va qulaylik — sizni tanlashlari uchun. Qoniqqan mijoz keyingi oy o‘zi qaytadi.',
+              'The market has three customer groups. Ads make them know you; price, quality, reputation and convenience make them choose you. Happy customers come back.',
+              'Рынок — три группы клиентов. Реклама — чтобы знали, цена, качество и репутация — чтобы выбрали.',
             )}
           </li>
           <li>
             {L(
-              'Tushumdan 4% aylanma solig‘i olinadi. Kredit — oyiga 2%. Kassa minusga tushsa, bank favqulodda qarz beradi (+10% jarima); qarz 220 mln dan oshsa — bankrot.',
-              '4% turnover tax on revenue. Loans cost 2% a month. If cash goes negative the bank lends in an emergency (+10% fee); debt above 220 mln means bankruptcy.',
-              'Налог с оборота 4%. Кредит — 2% в месяц. При минусе банк даёт экстренный кредит (+10%); долг выше 220 млн — банкротство.',
+              'Sig‘im — jamoa va uskunaning kichigi. Mahsulot yoki joy yetmasa, mijoz raqibga ketadi; ortiqcha ishlab chiqarilgan narsa isrof bo‘ladi yoki eskiradi.',
+              'Capacity is the smaller of team and equipment. Run short and customers go to your rival; overproduce and it is wasted.',
+              'Мощность — меньшее из команды и оборудования. Не хватило — клиент уйдёт; лишнее — пропадёт.',
             )}
           </li>
           <li>
             {L(
-              'G‘olib — 12-oy oxirida sof kapitali (kassa − qarz + zaxira + filiallar) ko‘p bo‘lgan o‘yinchi.',
-              'The winner has the higher net worth (cash − debt + stock + branches) after month 12.',
-              'Побеждает тот, у кого больше капитал (касса − долг + запас + филиалы) после 12-го месяца.',
+              `Tushumdan 4% aylanma solig‘i olinadi. Kredit — oyiga 2%. Kassa minusga tushsa, bank favqulodda qarz beradi (+10%); qarz ${RULES.debtLimit} mln dan oshsa — bankrot.`,
+              `4% turnover tax. Loans cost 2% a month. If cash goes negative the bank lends in an emergency (+10%); debt above ${RULES.debtLimit} mln means bankruptcy.`,
+              `Налог 4%, кредит 2%/мес., экстренный кредит +10%, долг выше ${RULES.debtLimit} млн — банкротство.`,
+            )}
+          </li>
+          <li>
+            {L(
+              'G‘olib — 12-oy oxirida o‘ziga tegishli puli (kassa − qarz + mulk + zaxira, investor ulushisiz) ko‘p bo‘lgan o‘yinchi.',
+              'The winner has more money of their own after month 12 (cash − debt + assets + stock, minus the investor’s share).',
+              'Побеждает тот, у кого после 12-го месяца больше собственных денег.',
             )}
           </li>
           <li>
@@ -419,21 +440,32 @@ function BotGame({
 }) {
   const lang = useLang(),
     L = useT();
-  const g = useMemo(() => replay(save.biz, save.seed, save.months), [save]);
-  const rival = tx(lang, BOT_NAMES[save.level]),
+  const g = useMemo(() => replay(save.biz, save.seed, save.setup, save.months), [save]);
+  const rival = tx(lang, BOTS[save.bot].name),
     myName = fullName(me) || L('Siz', 'You', 'Вы');
   const update = (s: BotSave) => {
     store(SAVE, s);
     onChange(s);
   };
   useEffect(() => {
-    if (g.over && save.seen >= g.history.length) saveBest(save.biz, earned(g, g.players[0]));
+    if (g.over && save.seen >= g.history.length) saveBest(save.biz, earned(g.players[0]));
   }, [g, save.seen, save.biz]);
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [save.seen, save.months.length]);
+  }, [save.seen, save.months.length, !!save.setup]);
   let body;
-  if (save.seen < g.history.length)
+  if (!save.setup)
+    body = (
+      <SetupForm
+        g={g}
+        submitLabel={L('Biznesni ochish', 'Open the business', 'Открыть бизнес')}
+        onSubmit={(s) => {
+          const g0 = newGame(save.biz, save.seed);
+          update({ ...save, setup: [clampSetup(bizOf(save.biz), s), botSetup(g0, 1, save.bot)] });
+        }}
+      />
+    );
+  else if (save.seen < g.history.length)
     body = (
       <MonthReport
         g={g}
@@ -473,7 +505,7 @@ function BotGame({
         onSubmit={(d) =>
           update({
             ...save,
-            months: [...save.months, [clampDecision(g, 0, d), botDecision(g, 1, save.level)]],
+            months: [...save.months, [clampDecision(g, 0, d), botDecision(g, 1, save.bot)]],
           })
         }
       />
@@ -481,6 +513,10 @@ function BotGame({
   return (
     <>
       <BizHeader g={g} i={0} rivalName={rival} />
+      <p className="bz-vs">
+        {BOTS[save.bot].icon} {L('Raqib', 'Rival', 'Соперник')}: <b>{rival}</b> (
+        {tx(lang, BOTS[save.bot].level)}) — {tx(lang, BOTS[save.bot].style)}
+      </p>
       {body}
       {!g.over && (
         <p className="bz-quit">
@@ -520,7 +556,7 @@ type RoomData = {
     dec?: string;
   };
   p?: Record<string, { n?: string; s?: string; g?: string; at?: number }>;
-  d?: Record<string, Record<string, Decision>>;
+  d?: Record<string, Record<string, Decision | Setup>>;
   s?: Record<string, number>;
 };
 function RoomGame({ code, me }: { code: string; me: ArenaMe | null }) {
@@ -588,7 +624,7 @@ function RoomGame({ code, me }: { code: string; me: ArenaMe | null }) {
       joined.current = true;
       return;
     }
-    if (players.length >= 2 || room.meta.dec) return;
+    if (players.length >= 2 || room.meta.dec || room.meta.v !== ROOM_VERSION) return;
     joined.current = true;
     void rt(base, 'PUT', seg('biz', code, 'p', me.id), {
       n: me.name,
@@ -599,41 +635,49 @@ function RoomGame({ code, me }: { code: string; me: ArenaMe | null }) {
       .then(poll)
       .catch(() => (joined.current = false));
   }, [base, me, room, players, code, poll]);
+  const setups = useMemo(() => {
+    const x = room?.d?.m0;
+    if (order.length < 2 || !x?.[order[0]] || !x?.[order[1]]) return null;
+    return [x[order[0]], x[order[1]]] as [Setup, Setup];
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [room?.d?.m0, order.join()]);
   const months = useMemo(() => {
     const out: [Decision, Decision][] = [];
-    if (order.length < 2) return out;
+    if (order.length < 2 || !setups) return out;
     for (let m = 1; m <= RULES.months; m++) {
       const x = room?.d?.['m' + m];
       if (!x?.[order[0]] || !x?.[order[1]]) break;
-      out.push([x[order[0]], x[order[1]]]);
+      out.push([x[order[0]] as Decision, x[order[1]] as Decision]);
     }
     return out;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [room?.d, order.join()]);
+  }, [room?.d, order.join(), setups]);
   const g = useMemo(
-    () => (room?.meta ? replay(room.meta.biz, room.meta.seed, months) : null),
+    () => (room?.meta ? replay(room.meta.biz, room.meta.seed, setups, months) : null),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [room?.meta?.biz, room?.meta?.seed, months],
+    [room?.meta?.biz, room?.meta?.seed, setups, months],
   );
   const opp = mine >= 0 ? order[1 - mine] : '';
   const oppInfo = opp ? room?.p?.[opp] : undefined;
   const rivalName =
     [oppInfo?.n, oppInfo?.s].filter(Boolean).join(' ') || L('Raqib', 'Rival', 'Соперник');
-  const myMove = g && me && !g.over ? room?.d?.['m' + g.month]?.[me.id] : undefined;
-  const oppMove = g && opp && !g.over ? room?.d?.['m' + g.month]?.[opp] : undefined;
+  const round = g ? (g.month === 0 ? 'm0' : 'm' + g.month) : '';
+  const myMove = g && me && !g.over ? room?.d?.[round]?.[me.id] : undefined;
+  const oppMove = g && opp && !g.over ? room?.d?.[round]?.[opp] : undefined;
   const oppAge = opp && room?.s?.[opp] ? Date.now() + skew.current - room.s[opp] : Infinity;
   const oppGone = oppAge > 45000;
-  // har oyga vaqt (faqat qaror ekrani ochiq turganda)
-  const turnKey = g && !g.over && seen >= g.history.length && !myMove ? g.month : 0;
+  // har bir raundga vaqt (faqat qaror ekrani ochiq turganda)
+  const turnKey = g && full && !g.over && seen >= g.history.length && !myMove ? round : '';
   useEffect(() => {
     if (!turnKey) {
       setTimer(null);
       return;
     }
+    const total = turnKey === 'm0' ? SETUP_SECONDS : TURN_SECONDS;
     const t0 = Date.now();
-    setTimer(TURN_SECONDS);
+    setTimer(total);
     const t = setInterval(
-      () => setTimer(Math.max(0, TURN_SECONDS - Math.round((Date.now() - t0) / 1000))),
+      () => setTimer(Math.max(0, total - Math.round((Date.now() - t0) / 1000))),
       1000,
     );
     return () => clearInterval(t);
@@ -661,11 +705,11 @@ function RoomGame({ code, me }: { code: string; me: ArenaMe | null }) {
     }
     void poll();
   }
-  async function submit(d: Decision) {
+  async function send(value: Decision | Setup) {
     if (!g || !me || !base) return;
     setBusy(true);
     try {
-      await rt(base, 'PUT', seg('biz', code, 'd', 'm' + g.month, me.id), clampDecision(g, mine, d));
+      await rt(base, 'PUT', seg('biz', code, 'd', round, me.id), value);
       await poll();
     } catch {
       toast(
@@ -682,11 +726,14 @@ function RoomGame({ code, me }: { code: string; me: ArenaMe | null }) {
   // raqib chiqib ketgan bo'lsa (va o'yinchi rozi bo'lsa) — uning o'rniga bot qaror qiladi
   useEffect(() => {
     if (!replace || !g || g.over || !base || !opp || oppMove || !oppGone) return;
-    const d = { ...botDecision(g, 1 - mine, 1), bot: true };
-    void rt(base, 'PUT', seg('biz', code, 'd', 'm' + g.month, opp), d)
+    const value =
+      g.month === 0
+        ? { ...botSetup(g, 1 - mine, 1), bot: true }
+        : { ...botDecision(g, 1 - mine, 1), bot: true };
+    void rt(base, 'PUT', seg('biz', code, 'd', round, opp), value)
       .then(poll)
       .catch(() => {});
-  }, [replace, g, base, opp, oppMove, oppGone, mine, code, poll]);
+  }, [replace, g, base, opp, oppMove, oppGone, mine, code, round, poll]);
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [seen, g?.month]);
@@ -714,7 +761,7 @@ function RoomGame({ code, me }: { code: string; me: ArenaMe | null }) {
       </p>
     );
   if (room === undefined) return <div className="skeleton h-64" />;
-  if (!room?.meta)
+  if (!room?.meta || room.meta.v !== ROOM_VERSION)
     return (
       <div className="bz-card">
         <p>
@@ -724,11 +771,17 @@ function RoomGame({ code, me }: { code: string; me: ArenaMe | null }) {
                 'No connection — retrying…',
                 'Нет связи — повторяем…',
               )
-            : L(
-                'Bunday xona topilmadi yoki o‘yin tugagan.',
-                'Room not found or the game is over.',
-                'Комната не найдена или игра окончена.',
-              )}
+            : room?.meta
+              ? L(
+                  'Bu xona o‘yinning eski versiyasida ochilgan. Yangi xona oching.',
+                  'This room was opened in an old version of the game. Open a new one.',
+                  'Комната открыта в старой версии игры.',
+                )
+              : L(
+                  'Bunday xona topilmadi yoki o‘yin tugagan.',
+                  'Room not found or the game is over.',
+                  'Комната не найдена или игра окончена.',
+                )}
         </p>
         <Button variant="outline" onClick={() => navigate('arena/biznes')}>
           {L('Ortga', 'Back', 'Назад')}
@@ -829,7 +882,7 @@ function RoomGame({ code, me }: { code: string; me: ArenaMe | null }) {
   if (!g) return null;
   const myName = fullName(me) || L('Siz', 'You', 'Вы');
   let body;
-  if (seen < g.history.length)
+  if (g.month > 0 && seen < g.history.length)
     body = (
       <MonthReport
         g={g}
@@ -860,17 +913,23 @@ function RoomGame({ code, me }: { code: string; me: ArenaMe | null }) {
       <div className="bz-card bz-wait" role="status">
         <span className="bz-spinner" aria-hidden="true" />
         <h3>
-          {L(
-            `${rivalName} qaror qilmoqda…`,
-            `${rivalName} is deciding…`,
-            `${rivalName} принимает решение…`,
-          )}
+          {g.month === 0
+            ? L(
+                `${rivalName} biznes-reja tuzmoqda…`,
+                `${rivalName} is making a business plan…`,
+                `${rivalName} составляет бизнес-план…`,
+              )
+            : L(
+                `${rivalName} qaror qilmoqda…`,
+                `${rivalName} is deciding…`,
+                `${rivalName} принимает решение…`,
+              )}
         </h3>
         <p className="muted">
           {L(
-            `Sizning qaroringiz yuborildi: narx ${myMove.price}, xarid ${myMove.buy}, reklama ${myMove.ads} mln, sifat ${myMove.quality} mln.`,
-            `Your decision was sent: price ${myMove.price}, purchase ${myMove.buy}, ads ${myMove.ads} mln, quality ${myMove.quality} mln.`,
-            `Решение отправлено: цена ${myMove.price}, закупка ${myMove.buy}, реклама ${myMove.ads} млн, качество ${myMove.quality} млн.`,
+            'Sizning qaroringiz yuborildi. Ikkalangiz ham tayyor bo‘lganda bozor natijasi hisoblanadi.',
+            'Your decision was sent. The market result is computed once you are both ready.',
+            'Ваше решение отправлено. Результат рынка посчитается, когда оба будут готовы.',
           )}
         </p>
         {oppGone && !replace && (
@@ -892,6 +951,16 @@ function RoomGame({ code, me }: { code: string; me: ArenaMe | null }) {
         )}
       </div>
     );
+  else if (g.month === 0)
+    body = (
+      <SetupForm
+        g={g}
+        busy={busy}
+        timer={timer}
+        submitLabel={L('Biznes-rejani yuborish', 'Send my business plan', 'Отправить бизнес-план')}
+        onSubmit={(s) => void send(clampSetup(b, s))}
+      />
+    );
   else
     body = (
       <DecisionForm
@@ -901,7 +970,7 @@ function RoomGame({ code, me }: { code: string; me: ArenaMe | null }) {
         busy={busy}
         timer={timer}
         submitLabel={L('Qarorni yuborish', 'Send my decision', 'Отправить решение')}
-        onSubmit={(d) => void submit(d)}
+        onSubmit={(d) => void send(clampDecision(g, mine, d))}
       />
     );
   return (
