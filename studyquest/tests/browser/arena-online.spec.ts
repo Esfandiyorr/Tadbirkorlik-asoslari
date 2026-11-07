@@ -85,6 +85,7 @@ test('students see who is online in the arena and invite one of them to a duel',
     .click();
   const pick = rows.nth(0).getByRole('group', { name: 'O‘yinni tanlang' });
   await expect(pick.getByRole('button')).toHaveText([
+    /Biznes/,
     /Shashka/,
     /Shaxmat/,
     /To‘rttalik/,

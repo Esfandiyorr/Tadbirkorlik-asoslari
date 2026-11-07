@@ -7,6 +7,7 @@ test('the game page shows every original arena game as its own card', async ({ p
   await expect(cards.first()).toBeVisible();
   const names = (await page.locator('.arena-card-body b').allTextContents()).join(' | ');
   for (const name of [
+    'Biznes',
     'Shashka',
     'Shaxmat',
     'To‘rttalik',
@@ -20,13 +21,14 @@ test('the game page shows every original arena game as its own card', async ({ p
     'Krossvord yasash',
   ])
     expect(names).toContain(name);
-  await expect(page.locator('.arena-feature')).toContainText('Brendni top');
+  await expect(page.locator('.arena-feature-biz')).toContainText('Biznes');
+  await expect(page.locator('.arena-feature-brand')).toContainText('Brendni top');
   // Each card opens its own game inside the page.
   await cards.filter({ hasText: 'Krossvord yasash' }).click();
   await expect.poll(() => new URL(page.url()).hash).toBe('#arena/play/kross');
   await expect(page.locator('.native-arena .native-document')).toBeVisible();
   await page.getByRole('button', { name: 'Barcha o‘yinlar' }).click();
-  await expect(page.locator('.arena-feature')).toBeVisible();
+  await expect(page.locator('.arena-feature-brand')).toBeVisible();
 });
 
 test('teachers and administrators enter the arena with their own player account', async ({

@@ -20,6 +20,8 @@ type Invite = {
   from: string;
   g: string;
   code: string;
+  /** 'biz' — «Biznes» o'yini (arena/binv), aks holda eski arena juftlik o'yini */
+  kind?: 'biz';
   n?: string;
   s?: string;
   gr?: string;
@@ -37,7 +39,7 @@ export const DUEL_GAMES: readonly { id: string; ic: string; nm: Tri }[] = [
 const ABC = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 /** Xona kodi: 4 belgi, arena.html newCode bilan bir xil alifbo. */
 export const ROOM_CODE = /^[A-HJ-NP-Z2-9]{4}$/;
-const newCode = () =>
+export const newCode = () =>
   Array.from(crypto.getRandomValues(new Uint8Array(4)), (b) => ABC[b % ABC.length]).join('');
 const ONLINE_MS = 45000,
   INVITE_MS = 65000;
@@ -61,7 +63,7 @@ export function staffPlayer(user: { id: string; name: string }) {
 
 const DB_URL = /^https:\/\/[a-z0-9-]+(\.[a-z0-9-]+)*\.(firebaseio\.com|firebasedatabase\.app)$/;
 /** Arena bazasi: eski arena topgan manzil (terdu_base) yoki loyiha sozlamasidagi manzil. Demo rejimida jonli bazaga yozilmaydi. */
-function arenaBase(demo: boolean) {
+export function arenaBase(demo: boolean) {
   if (typeof window === 'undefined') return '';
   if (demo) return (window as { __sqArenaBase?: string }).__sqArenaBase || '';
   try {
@@ -70,8 +72,8 @@ function arenaBase(demo: boolean) {
   } catch {}
   return String(catalog.databaseURL || '').replace(/\/+$/, '');
 }
-const seg = (...parts: string[]) => parts.map(encodeURIComponent).join('/');
-async function rt<T = unknown>(base: string, method: string, path: string, body?: unknown) {
+export const seg = (...parts: string[]) => parts.map(encodeURIComponent).join('/');
+export async function rt<T = unknown>(base: string, method: string, path: string, body?: unknown) {
   const r = await fetch(base + '/arena/' + path + '.json', {
     method,
     cache: 'no-store',
@@ -188,19 +190,27 @@ export function ArenaOnline({ me }: { me: ArenaMe }) {
       }
     });
     loop(3000, async () => {
-      const v = await rt<Record<string, Omit<Invite, 'from'>>>(base, 'GET', seg('inv', me.id));
+      // eski arena takliflari (inv) va «Biznes» takliflari (binv — eski arena ularni ko'rmaydi)
+      const [v, w] = await Promise.all([
+        rt<Record<string, Omit<Invite, 'from'>>>(base, 'GET', seg('inv', me.id)),
+        rt<Record<string, Omit<Invite, 'from'>>>(base, 'GET', seg('binv', me.id)).catch(() => null),
+      ]);
       if (!live) return;
       const now = serverNow();
-      for (const [from, x] of Object.entries(v || {})) {
-        if (!x?.code || !ROOM_CODE.test(x.code)) continue;
-        if (typeof x.at === 'number' && now - x.at > INVITE_MS) {
-          void rt(base, 'DELETE', seg('inv', me.id, from)).catch(() => {});
-          continue;
+      for (const [sec, list] of [
+        ['inv', v],
+        ['binv', w],
+      ] as const)
+        for (const [from, x] of Object.entries(list || {})) {
+          if (!x?.code || !ROOM_CODE.test(x.code)) continue;
+          if (typeof x.at === 'number' && now - x.at > INVITE_MS) {
+            void rt(base, 'DELETE', seg(sec, me.id, from)).catch(() => {});
+            continue;
+          }
+          if (shown.current.has(x.code)) continue;
+          shown.current.add(x.code);
+          queue.current.push({ ...x, from, ...(sec === 'binv' ? { kind: 'biz' as const } : {}) });
         }
-        if (shown.current.has(x.code)) continue;
-        shown.current.add(x.code);
-        queue.current.push({ ...x, from });
-      }
       if (!showing.current && queue.current.length) show(queue.current.shift()!);
     });
     return () => {
@@ -210,7 +220,40 @@ export function ArenaOnline({ me }: { me: ArenaMe }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [base, me.id]);
 
+  /** «Biznes»: xona arena/biz da ochiladi, taklif — arena/binv da (eski arena bu taklifni ko'rmaydi). */
+  async function sendBiz(peer: Peer) {
+    setPicking('');
+    setSending(peer.id);
+    try {
+      const { createBizRoom } = await import('./biznes');
+      const code = await createBizRoom(base, me, 'kofe', {
+        id: peer.id,
+        name: fullName(peer.n, peer.s),
+      });
+      await rt(base, 'PUT', seg('binv', peer.id, me.id), {
+        g: 'biz',
+        code,
+        n: me.name,
+        s: me.surname,
+        gr: me.group,
+        at: { '.sv': 'timestamp' },
+      });
+      toast('📨 ' + L('Taklif yuborildi', 'Invite sent', 'Приглашение отправлено'));
+      navigate('arena/biznes/' + code);
+    } catch {
+      toast(
+        L(
+          'Taklif yuborilmadi — internetni tekshiring',
+          'The invite was not sent — check the connection',
+          'Приглашение не отправлено — проверьте интернет',
+        ),
+      );
+    } finally {
+      setSending('');
+    }
+  }
   async function send(peer: Peer, gameId: string) {
+    if (gameId === 'biz') return sendBiz(peer);
     const game = DUEL_GAMES.find((g) => g.id === gameId)!;
     setPicking('');
     setSending(peer.id);
@@ -268,13 +311,14 @@ export function ArenaOnline({ me }: { me: ArenaMe }) {
   const nextInvite = () => show(queue.current.shift() || null);
   async function answer(x: Invite, yes: boolean) {
     nextInvite();
-    await rt(base, 'DELETE', seg('inv', me.id, x.from)).catch(() => {});
-    if (yes) navigate('arena/room/' + x.code);
+    const biz = x.kind === 'biz';
+    await rt(base, 'DELETE', seg(biz ? 'binv' : 'inv', me.id, x.from)).catch(() => {});
+    if (yes) navigate((biz ? 'arena/biznes/' : 'arena/room/') + x.code);
     else
       await rt(
         base,
         'PUT',
-        seg('rooms', x.code, 'meta', 'dec'),
+        seg(biz ? 'biz' : 'rooms', x.code, 'meta', 'dec'),
         (me.name + ' ' + me.surname).trim(),
       ).catch(() => {});
   }
@@ -362,7 +406,10 @@ export function ArenaOnline({ me }: { me: ArenaMe }) {
                     role="group"
                     aria-label={L('O‘yinni tanlang', 'Pick a game', 'Выберите игру')}
                   >
-                    {DUEL_GAMES.map((g) => (
+                    {[
+                      { id: 'biz', ic: '💼', nm: ['Biznes', 'Business', 'Бизнес'] as Tri },
+                      ...DUEL_GAMES,
+                    ].map((g) => (
                       <button key={g.id} type="button" onClick={() => void send(p, g.id)}>
                         <span aria-hidden="true">{g.ic}</span>
                         {T3(g.nm)}
@@ -388,6 +435,7 @@ export function ArenaOnline({ me }: { me: ArenaMe }) {
           key={invite.code}
           x={invite}
           gameName={(id) => {
+            if (id === 'biz') return '💼 ' + L('Biznes', 'Business', 'Бизнес');
             const g = DUEL_GAMES.find((d) => d.id === id);
             return g ? g.ic + ' ' + T3(g.nm) : '🎮 ' + L('O‘yin', 'Game', 'Игра');
           }}

@@ -8,6 +8,7 @@ import { t } from '@/lib/i18n';
 import { NativeSurface } from './native-surface';
 import { BrandGame } from './brand-game';
 import { ArenaOnline, ROOM_CODE, staffIdentity, staffPlayer, type ArenaMe } from './arena-online';
+import { BiznesGame } from './biznes';
 const pairs: [Tri, Tri][] = [
   [
     ['TAM', 'TAM', 'TAM'],
@@ -50,6 +51,19 @@ type GameCard = {
   tone: string;
 };
 const online: GameCard[] = [
+  {
+    id: 'biznes',
+    emoji: '💼',
+    tone: 'green',
+    title: ['Biznes', 'Business', 'Бизнес'],
+    desc: [
+      '12 oylik tadbirkorlik bellashuvi: kim ko‘proq pul ishlab topadi?',
+      'A 12-month business duel: who earns more money?',
+      '12-месячная бизнес-дуэль: кто заработает больше?',
+    ],
+    tag: ['Bot yoki kursdosh', 'Bot or classmate', 'Бот или однокурсник'],
+    to: 'biznes',
+  },
   {
     id: 'dama',
     emoji: '🔴',
@@ -389,6 +403,8 @@ export function Games({ sub = '' }: { sub?: string }) {
       </>
     );
   }
+  if (sub === 'biznes' || sub.startsWith('biznes/'))
+    return <BiznesGame code={sub.split('/')[1]?.toUpperCase() || undefined} me={me} />;
   if (sub === 'brand') return <BrandGame onExit={() => navigate('arena')} />;
   if (sub === 'terms' || sub === 'math')
     return (
@@ -454,9 +470,31 @@ export function Games({ sub = '' }: { sub?: string }) {
         </Button>
       </div>
       {me && <ArenaOnline me={me} />}
-      <button className="arena-feature" onClick={() => navigate('arena/brand')}>
+      <button className="arena-feature arena-feature-biz" onClick={() => navigate('arena/biznes')}>
         <span className="arena-feature-text">
           <span className="arena-feature-new">{L('YANGI O‘YIN', 'NEW GAME', 'НОВАЯ ИГРА')}</span>
+          <b>💼 {L('Biznes', 'Business', 'Бизнес')}</b>
+          <span>
+            {L(
+              'Bot yoki kursdoshingiz bilan bir xil kapital va bir xil biznes: 12 oy davomida narx, xarid, reklama, kredit va kengayish bo‘yicha qaror qiling. Kim ko‘proq pul ishlab topsa — o‘sha g‘olib.',
+              'Same capital, same business as a bot or a classmate: for 12 months decide on price, purchases, ads, loans and growth. Whoever earns more wins.',
+              'Одинаковый капитал и бизнес с ботом или однокурсником: 12 месяцев решайте цену, закупки, рекламу, кредиты и рост. Кто заработает больше — побеждает.',
+            )}
+          </span>
+          <span className="arena-feature-go">▶ {L('O‘ynash', 'Play', 'Играть')}</span>
+        </span>
+        <span className="arena-feature-art" aria-hidden="true">
+          <i>☕</i>
+          <i>🍔</i>
+          <i>👕</i>
+          <i>📈</i>
+          <i>💰</i>
+          <i>🏦</i>
+        </span>
+      </button>
+      <button className="arena-feature arena-feature-brand" onClick={() => navigate('arena/brand')}>
+        <span className="arena-feature-text">
+          <span className="arena-feature-new">{L('O‘YIN', 'GAME', 'ИГРА')}</span>
           <b>🏷️ {L('Brendni top', 'Guess the brand', 'Угадай бренд')}</b>
           <span>
             {L(
@@ -480,9 +518,9 @@ export function Games({ sub = '' }: { sub?: string }) {
         <p className="arena-note">
           ℹ️{' '}
           {L(
-            'Guruh arenasi universitet talabalari uchun. Mustaqil o‘quvchilar «Brendni top», «Atama va ta’rif» va «Foyda hisobi» o‘yinlarini o‘ynay oladi.',
-            'The class arena is for university students. Independent learners can play “Guess the brand”, “Term and meaning” and “Profit maths”.',
-            'Арена группы — для студентов университета. Самостоятельным ученикам доступны «Угадай бренд», «Термин и смысл» и «Расчёт прибыли».',
+            'Guruh arenasi universitet talabalari uchun. Mustaqil o‘quvchilar «Biznes» (bot bilan), «Brendni top», «Atama va ta’rif» va «Foyda hisobi» o‘yinlarini o‘ynay oladi.',
+            'The class arena is for university students. Independent learners can play “Business” (against a bot), “Guess the brand”, “Term and meaning” and “Profit maths”.',
+            'Арена группы — для студентов университета. Самостоятельным ученикам доступны «Бизнес» (с ботом), «Угадай бренд», «Термин и смысл» и «Расчёт прибыли».',
           )}
         </p>
       )}
