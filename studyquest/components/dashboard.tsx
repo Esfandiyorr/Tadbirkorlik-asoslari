@@ -22,7 +22,7 @@ import { useApp } from './provider';
 import { Button } from './ui/button';
 import { TopicArt, CourseArt } from './topic-art';
 import { HeroAvatar, useAcademicBoard } from './avatars';
-import { NewsBox } from './announcements';
+import { NewsBox, NewsChip } from './announcements';
 import { PromoBox } from './promo';
 import { AccessChip, PointsRing, PointsBreakdown } from './points-ui';
 import { t, dateLabel } from '@/lib/i18n';
@@ -180,9 +180,9 @@ function LearnerHome() {
           </p>
         </div>
       </div>
-      {/* Telefonda yon menyu yashirin — e'lonlar oynasi bosh sahifada ham ko'rinadi. */}
-      <NewsBox className="home-news" />
-      <PromoBox className="home-promo" />
+      {/* Telefonda yon menyu yashirin: e'lonlar — joriy mavzu yonida kichik tugma (mavzu bo'lmasa — oyna),
+          2-e'lon oynasi — mavzu blokidan keyin. Yangi e'lon saytga kirganda katta oynada chiqadi. */}
+      {!lesson && <NewsBox className="home-news" />}
       <div className="dashboard-grid">
         <div className="dashboard-main">
           {lesson && (
@@ -197,12 +197,15 @@ function LearnerHome() {
                 <TopicArt id={lesson.id} number={lesson.order + 1} />
               )}
               <div className="continue-hero-body">
-                <span className="hero-tag">
-                  <Sparkles size={14} />
-                  {history?.status === 'started'
-                    ? tr(lang, 'Davom eting', 'Keep going', 'Продолжайте')
-                    : tr(lang, 'Joriy mavzu', 'Current topic', 'Текущая тема')}
-                </span>
+                <div className="hero-tag-row">
+                  <span className="hero-tag">
+                    <Sparkles size={14} />
+                    {history?.status === 'started'
+                      ? tr(lang, 'Davom eting', 'Keep going', 'Продолжайте')
+                      : tr(lang, 'Joriy mavzu', 'Current topic', 'Текущая тема')}
+                  </span>
+                  <NewsChip className="home-news-chip" />
+                </div>
                 <h2>
                   {lesson.order + 1}-{tr(lang, 'mavzu', 'topic', 'тема')}: {lesson.title}
                 </h2>
@@ -261,6 +264,7 @@ function LearnerHome() {
               </div>
             </motion.section>
           )}
+          <PromoBox className="home-promo" />
           <section className="stats-grid">
             {hasAcademic && university ? (
               <div className="stat-card">

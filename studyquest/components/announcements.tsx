@@ -462,6 +462,163 @@ export function NewsBox({ className = '' }: { className?: string }) {
   );
 }
 
+/** 📢 Bosh sahifadagi kichik e'lonlar tugmasi (telefonda — joriy mavzu yonida): eng so'nggi e'lon yoki yaqin jonli
+   test sarlavhasi (har 10 soniyada almashadi) va e'lonlar soni. Bosilsa — hamma e'lonlar to'liq matni bilan. */
+export function NewsChip({ className = '' }: { className?: string }) {
+  const { lang } = useApp();
+  const L = (uz: string, en: string, ru: string) => tr(lang, uz, en, ru);
+  const { data: d, now } = useNews();
+  const [index, setIndex] = useState(0),
+    [open, setOpen] = useState(false);
+  const n = now();
+  const g = d?.live && d.live.end > n && d.live.start - n < 86400000 ? d.live : null;
+  const news = d?.news || [];
+  const entries = [
+    ...(g
+      ? [
+          {
+            key: 'live',
+            text:
+              (g.type === 'yz' ? '⌨️ ' : '⚡ ') +
+              gameName(g, lang) +
+              ' · ' +
+              (liveState(g, n) === 'live' ? L('hozir', 'now', 'сейчас') : when(g.start, lang, n)),
+          },
+        ]
+      : []),
+    ...news.map((x) => ({ key: x.id, text: '📢 ' + (x.h || x.t) })),
+  ];
+  const count = entries.length;
+  useEffect(() => {
+    if (count < 2 || open) return;
+    const t = setInterval(() => setIndex((i) => (i + 1) % count), ROTATE_MS);
+    return () => clearInterval(t);
+  }, [count, open]);
+  if (!count) return null;
+  const cur = entries[index % count];
+  const fresh = news.some((x) => n - x.at < FRESH_MS);
+  return (
+    <>
+      <button
+        type="button"
+        className={'news-chip ' + className}
+        aria-haspopup="dialog"
+        aria-label={L('E’lonlar', 'Announcements', 'Объявления') + ': ' + count}
+        onClick={() => setOpen(true)}
+      >
+        {fresh && <i className="news-ping" aria-hidden="true" />}
+        <span className="news-chip-text" key={cur.key}>
+          {cur.text}
+        </span>
+        {count > 1 && <em>{count}</em>}
+      </button>
+      {open &&
+        createPortal(
+          <NewsList g={g} news={news} now={n} onClose={() => setOpen(false)} />,
+          document.body,
+        )}
+    </>
+  );
+}
+/** Hamma e'lonlar (va yaqin jonli test) — bitta oynada, to'liq matni bilan. */
+function NewsList({
+  g,
+  news,
+  now,
+  onClose,
+}: {
+  g: LiveGame | null;
+  news: NewsItem[];
+  now: number;
+  onClose: () => void;
+}) {
+  const { lang } = useApp();
+  const L = (uz: string, en: string, ru: string) => tr(lang, uz, en, ru);
+  const closeRef = useRef<HTMLButtonElement>(null),
+    done = useRef(onClose);
+  done.current = onClose;
+  useEffect(() => {
+    const before = document.activeElement as HTMLElement | null;
+    closeRef.current?.focus();
+    const key = (e: KeyboardEvent) => e.key === 'Escape' && done.current();
+    window.addEventListener('keydown', key);
+    return () => {
+      window.removeEventListener('keydown', key);
+      before?.focus?.();
+    };
+  }, []);
+  const st = g ? liveState(g, now) : 'wait';
+  return (
+    <div
+      className="modal-backdrop news-reader-backdrop"
+      onClick={(e) => e.target === e.currentTarget && onClose()}
+    >
+      <section
+        className="panel news-reader news-list"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="news-list-h"
+      >
+        <header>
+          <h2 id="news-list-h" className="news-reader-kicker">
+            📢 {L('E’LONLAR', 'ANNOUNCEMENTS', 'ОБЪЯВЛЕНИЯ')}
+          </h2>
+          <button
+            ref={closeRef}
+            type="button"
+            className="av-close"
+            aria-label={L('Yopish', 'Close', 'Закрыть')}
+            onClick={onClose}
+          >
+            <X size={20} />
+          </button>
+        </header>
+        {g && (
+          <article className="news-list-item is-live">
+            <h3>
+              {g.type === 'yz' ? '⌨️' : '⚡'} {gameName(g, lang)} · {when(g.start, lang, now)}
+            </h3>
+            <p>
+              {st === 'live'
+                ? L('Hozir ketmoqda!', 'On now!', 'Идёт сейчас!')
+                : st === 'lobby'
+                  ? L('Lobbi ochiq — qo‘shiling!', 'Lobby open — join now!', 'Лобби открыто!')
+                  : L('Boshlanishiga', 'Starts in', 'До старта') + ' ' + left(g.start - now, lang)}
+            </p>
+            {st !== 'wait' && (
+              <a className="news-reader-cta" href={'#' + gamePath(g)} onClick={onClose}>
+                🎮 {L('O‘yinga kirish', 'Join the game', 'Войти в игру')}
+              </a>
+            )}
+          </article>
+        )}
+        {news.map((x) => (
+          <article key={x.id} className="news-list-item">
+            {x.h && <h3>{x.h}</h3>}
+            <p className="news-reader-text">{x.t}</p>
+            <small className="news-reader-meta">
+              {now - x.at < FRESH_MS ? '🆕 ' : ''}
+              {dueText(x.at, lang, now).date}
+            </small>
+            {x.link && (
+              <a
+                className="news-reader-cta"
+                href={x.link}
+                onClick={() => !x.link!.startsWith('http') && onClose()}
+                {...(x.link.startsWith('http')
+                  ? { target: '_blank', rel: 'noopener noreferrer' }
+                  : {})}
+              >
+                {L('Batafsil', 'Learn more', 'Подробнее')} →
+              </a>
+            )}
+          </article>
+        ))}
+      </section>
+    </div>
+  );
+}
+
 const SEEN_KEY = 'sq-news-seen';
 const localSeen = (): string[] => {
   try {

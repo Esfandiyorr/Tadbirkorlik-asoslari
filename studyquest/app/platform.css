@@ -5539,7 +5539,87 @@ button.rk-slot:has(.av-empty)::after {
 .home-news {
   display: none;
 }
+/* bosh sahifa (telefon): e'lonlar — joriy mavzu yonida kichik tugma */
+.hero-tag-row {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+}
+.news-chip {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  max-width: 100%;
+  padding: 6px 10px;
+  border: 1px solid #fde68a80;
+  border-radius: 999px;
+  background: #ffffff1f;
+  color: #fff;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.news-chip:focus-visible {
+  outline: 2px solid #fde68a;
+  outline-offset: 2px;
+}
+.news-chip-text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  animation: news-in 0.45s ease;
+}
+.news-chip em {
+  flex: none;
+  min-width: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: #fbbf24;
+  color: #3b0764;
+  font-size: 11px;
+  font-style: normal;
+  text-align: center;
+}
+.news-chip .news-ping {
+  flex: none;
+}
+.news-list {
+  gap: 10px;
+}
+.news-reader h2.news-reader-kicker {
+  font-size: 12.5px;
+  line-height: 1.4;
+}
+.news-list-item {
+  display: grid;
+  gap: 6px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+}
+.news-list-item.is-live {
+  border-color: #c4b5fd;
+  background: var(--soft-violet);
+}
+.news-list-item h3 {
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+.news-list-item p {
+  margin: 0;
+}
 @media (max-width: 760px) {
+  .news-chip {
+    display: inline-flex;
+  }
   .home-news {
     display: grid;
     aspect-ratio: auto;

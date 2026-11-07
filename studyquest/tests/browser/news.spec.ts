@@ -333,3 +333,51 @@ test('the administrator fills the second box with offers and students see them u
   }
   await expect(side).toContainText('2-E’LON OYNASI');
 });
+
+test('on phones the home page starts with the current topic and shows news as a small chip beside it', async ({
+  page,
+  browser,
+}) => {
+  await as(page, 'demo-admin');
+  await page.goto('/#admin', { waitUntil: 'domcontentloaded' });
+  const panel = page.locator('.news-manage');
+  if (!(await panel.isVisible()))
+    await page.locator('.bo-card-btn').filter({ hasText: 'E’lonlar' }).click();
+  await panel.getByLabel('Sarlavha').fill('1-ma’ruza topshirig‘i');
+  await panel
+    .getByLabel('E’lon matni')
+    .fill('Topshiriqlar baholandi. Baho qo‘yilmagan bo‘lsa, dushanba 9:00 da 321-xonaga keling.');
+  await panel.getByRole('checkbox', { name: /katta oynada ko‘rsatish/ }).uncheck();
+  await panel.getByRole('button', { name: /E’lon joylash/ }).click();
+  await expect(panel.locator('.news-admin-list')).toContainText('1-ma’ruza topshirig‘i');
+
+  const phone = await (
+    await browser.newContext({
+      baseURL: test.info().project.use.baseURL,
+      viewport: { width: 390, height: 844 },
+    })
+  ).newPage();
+  await as(phone, 'demo-student');
+  await phone.goto('/#home', { waitUntil: 'domcontentloaded' });
+  const hero = phone.locator('.continue-hero');
+  await expect(hero).toBeVisible();
+  // tepada — mavzu bloki; katta e'lonlar oynasi yo'q, e'lon — mavzu yonida kichik tugma
+  await expect(phone.locator('.home-news')).toHaveCount(0);
+  const chip = hero.locator('.hero-tag-row').getByRole('button', { name: /^E’lonlar/ });
+  await expect(chip).toBeVisible();
+  await expect(chip).toContainText('1-ma’ruza topshirig‘i');
+  const box = await chip.boundingBox();
+  expect(box!.height).toBeLessThan(40);
+  await chip.click();
+  const list = phone.getByRole('dialog', { name: /E’LONLAR/ });
+  await expect(list).toContainText('dushanba 9:00 da 321-xonaga keling');
+  await phone.keyboard.press('Escape');
+  await expect(list).toHaveCount(0);
+  await phone.context().close();
+
+  await panel
+    .getByRole('button', { name: /O‘chirish/ })
+    .first()
+    .click();
+  await expect(panel.locator('.news-admin-list li:not(.muted)')).toHaveCount(0);
+});
