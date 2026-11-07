@@ -25,14 +25,8 @@ import {
 } from 'lucide-react';
 import { Provider, useApp } from './provider';
 import { LiveGate, NewsBox } from './announcements';
-import {
-  Dashboard,
-  CourseList,
-  Badges,
-  SidebarCurrent,
-  achievementsOf,
-  navigate,
-} from './dashboard';
+import { PromoBox } from './promo';
+import { Dashboard, CourseList, Badges, achievementsOf, navigate } from './dashboard';
 import { courseTotals, durationText, num, tr } from '@/lib/points';
 import { LessonView, QuizView } from './lesson';
 import { AuthPanel } from './auth-panel';
@@ -219,7 +213,7 @@ export function StudyQuest() {
         </nav>
         <NewsBox className="sidebar-news" />
         <div className="sidebar-bottom">
-          <SidebarCurrent />
+          <PromoBox className="sidebar-promo" />
           <div className="sidebar-settings">
             <div className="lang-seg" role="group" aria-label="Til / Language">
               {(['uz', 'en', 'ru'] as Lang[]).map((l) => (

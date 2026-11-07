@@ -6,6 +6,7 @@ import { useApp } from './provider';
 import { Button } from './ui/button';
 import { dueText, tr } from '@/lib/points';
 import type { Lang } from '@/lib/types';
+import { FRESH_MS, type PromoItem } from '@/lib/promo';
 
 /* 📢 E'lonlar oynasi (yon menyuda «Talabalar chati» ostida, har 5 soniyada almashadi) va ⚡ jonli test oynasi.
    Ma'lumot: GET /api/platform?view=news → {news, live, now}. Jonli testni o'qituvchi asl panelda rejalashtiradi
@@ -29,7 +30,7 @@ export type LiveGame = {
   qsec?: number;
   note?: string;
 };
-type NewsData = { news: NewsItem[]; live: LiveGame | null; now: number };
+type NewsData = { news: NewsItem[]; live: LiveGame | null; promo: PromoItem[]; now: number };
 
 /** Boshlanishidan necha daqiqa oldin jonli test oynasi chiqadi (asl dvigatel: KH_GATE_MS). */
 export const GATE_MS = 20 * 60000;
@@ -56,7 +57,7 @@ async function load() {
     if (r.ok) {
       const v = (await r.json()) as NewsData;
       if (Number.isFinite(v.now)) skew = v.now - Date.now();
-      shared = { news: v.news || [], live: v.live || null, now: v.now };
+      shared = { news: v.news || [], live: v.live || null, promo: v.promo || [], now: v.now };
       listeners.forEach((f) => f());
     }
   } catch {}
@@ -77,10 +78,14 @@ export function useNews() {
     };
   }, []);
   const setNews = useCallback((news: NewsItem[]) => {
-    shared = { ...(shared || { live: null, now: Date.now() }), news };
+    shared = { ...(shared || { live: null, promo: [], now: Date.now() }), news };
     listeners.forEach((f) => f());
   }, []);
-  return { data: shared, now: serverNow, setNews };
+  const setPromo = useCallback((promo: PromoItem[]) => {
+    shared = { ...(shared || { live: null, news: [], now: Date.now() }), promo };
+    listeners.forEach((f) => f());
+  }, []);
+  return { data: shared, now: serverNow, setNews, setPromo };
 }
 /** Har soniyada qayta chizish (teskari sanoq uchun). */
 function useTick(on: boolean) {
@@ -156,6 +161,7 @@ export function NewsBox({ className = '' }: { className?: string }) {
       node: (
         <div className={'news-slide news-live is-' + st}>
           <span className="news-kicker">
+            <i className="news-ping" aria-hidden="true" />
             {g.type === 'yz' ? '⌨️' : '⚡'} {gameName(g, lang).toUpperCase()}
           </span>
           <b>
@@ -200,7 +206,13 @@ export function NewsBox({ className = '' }: { className?: string }) {
       key: item.id,
       node: (
         <div className="news-slide">
-          <span className="news-kicker">📢 {L('E’LON', 'NEWS', 'ОБЪЯВЛЕНИЕ')}</span>
+          <span className="news-kicker">
+            <i className="news-ping" aria-hidden="true" />
+            📢 {L('E’LON', 'NEWS', 'ОБЪЯВЛЕНИЕ')}
+            {now() - item.at < FRESH_MS && (
+              <em className="news-new">{L('YANGI', 'NEW', 'НОВОЕ')}</em>
+            )}
+          </span>
           {item.h && <b>{item.h}</b>}
           <p>{item.t}</p>
           {item.link && (

@@ -4,6 +4,7 @@ import { ArrowLeft } from 'lucide-react';
 import { Button } from '../ui/button';
 import { AvatarAdmin } from '../avatar-admin';
 import { NewsAdmin } from '../announcements';
+import { PromoAdmin } from '../promo';
 import { useL } from './common';
 import { LiveAdmin } from './live-admin';
 import { TopicQuizAdmin } from './topic-quiz-admin';
@@ -14,7 +15,7 @@ import { startEditMode } from '../site-content';
 /* 🛠 Sayt boshqaruvi (administrator): saytdagi matn, rasm, avatar, test va jonli testni dasturchiga yozmasdan
    o'zgartirish uchun yagona joy. Har bir ish — alohida kartochka; ichida qisqa izoh va oddiy shakllar. */
 
-export type BoSection = 'live' | 'quiz' | 'content' | 'avatars' | 'news';
+export type BoSection = 'live' | 'quiz' | 'content' | 'avatars' | 'news' | 'promo';
 const KEY = 'sq-bo-section';
 
 export function BackOffice({ openTab }: { openTab: (tab: string) => void }) {
@@ -95,6 +96,16 @@ export function BackOffice({ openTab }: { openTab: (tab: string) => void }) {
       ),
     },
     {
+      id: 'promo',
+      icon: '🛍️',
+      title: L('2-e’lon oynasi (reklama)', 'Second box (offers)', '2-е окно (реклама)'),
+      text: L(
+        'Yon menyu pastidagi ikkinchi oyna: mahsulotlar, kurslar va grant dasturlari reklamasi — rasm, havola va muddat bilan.',
+        'The second box at the bottom of the side menu: ads for products, courses and grant programmes — with a picture, link and end date.',
+        'Второе окно внизу бокового меню: реклама товаров, курсов и грантов — с картинкой, ссылкой и сроком.',
+      ),
+    },
+    {
       id: 'access',
       icon: '🔓',
       title: L('Mavzular holati', 'Topic access', 'Доступ к темам'),
@@ -147,6 +158,7 @@ export function BackOffice({ openTab }: { openTab: (tab: string) => void }) {
     else if (section === 'content') body = <ContentAdmin />;
     else if (section === 'avatars') body = <AvatarsSection />;
     else if (section === 'news') body = <NewsAdmin openCourseControls={() => setSection('live')} />;
+    else if (section === 'promo') body = <PromoAdmin />;
     return (
       <section className="bo-section" aria-labelledby="bo-title" data-se-ui>
         <div className="bo-head">

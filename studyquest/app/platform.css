@@ -1356,62 +1356,7 @@
   color: #d1bcff;
 }
 .sidebar-bottom {
-  padding-top: 24px;
-}
-.sidebar-current {
-  display: grid;
-  gap: 10px;
-  padding: 14px;
-  border-radius: 18px;
-  background: linear-gradient(160deg, var(--soft-violet), var(--surface));
-  border: 1px solid var(--border);
-}
-.sidebar-current-label {
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  color: #5e4f8c;
-}
-.dark .sidebar-current-label {
-  color: #c4b5fd;
-}
-.sidebar-current-topic {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 0;
-  border: 0;
-  background: none;
-  color: inherit;
-  text-align: left;
-}
-.sidebar-current-topic .topic-art.compact {
-  width: 44px;
-  height: 44px;
-  border-radius: 13px;
-}
-.sidebar-current-topic > span {
-  display: grid;
-  gap: 2px;
-  min-width: 0;
-}
-.sidebar-current-topic small {
-  font-size: 12px;
-  font-weight: 650;
-  color: var(--muted);
-}
-.sidebar-current-topic b {
-  font-size: 13px;
-  line-height: 1.35;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-.sidebar-current .access-chip {
-  justify-self: start;
-  white-space: normal;
+  padding-top: 4px;
 }
 .sidebar-due {
   display: flex;
@@ -1446,20 +1391,6 @@
 .sidebar-due em {
   font-style: normal;
   font-weight: 800;
-}
-.sidebar-points {
-  display: grid;
-  gap: 5px;
-}
-.sidebar-points .progress-track {
-  height: 7px;
-}
-.sidebar-points small {
-  font-size: 12px;
-  color: var(--muted);
-}
-.sidebar-points b {
-  color: var(--text);
 }
 .original-link {
   font-size: 13px;
@@ -4890,14 +4821,77 @@ button.rk-slot:has(.av-empty)::after {
   gap: 8px;
   aspect-ratio: 1;
   margin-top: 16px;
-  padding: 14px 14px 10px;
-  border-radius: 20px;
+  padding: 13px 13px 9px;
+  border: 3px solid transparent;
+  border-radius: 22px;
+  /* ichi — binafsha, ramkasi — oltin-pushti-binafsha tovlanuvchi */
   background:
-    radial-gradient(circle at 100% 0%, #f0abfc66, transparent 46%),
-    linear-gradient(155deg, #4c1d95, #6d28d9 58%, #a855f7);
+    radial-gradient(circle at 100% 0%, #f0abfc80, transparent 46%) padding-box,
+    linear-gradient(155deg, #3b0f86, #6d28d9 55%, #c026d3) padding-box,
+    linear-gradient(115deg, #fbbf24, #fb7185, #c084fc, #38bdf8, #fbbf24) border-box;
+  background-size:
+    auto,
+    auto,
+    300% 100%;
   color: #fff;
   overflow: hidden;
-  box-shadow: 0 16px 30px -22px #4c1d95;
+  box-shadow:
+    0 20px 38px -20px #7c3aed,
+    0 0 0 5px #a855f71a;
+  animation:
+    news-pop 0.9s cubic-bezier(0.2, 0.9, 0.3, 1.25) both,
+    news-border 5s ease-in-out infinite alternate,
+    news-glow 2.4s ease-in-out 0.9s 3;
+}
+@keyframes news-pop {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes news-border {
+  from {
+    background-position:
+      0 0,
+      0 0,
+      0% 50%;
+  }
+  to {
+    background-position:
+      0 0,
+      0 0,
+      100% 50%;
+  }
+}
+@keyframes news-glow {
+  50% {
+    box-shadow:
+      0 22px 44px -16px #a21caf,
+      0 0 0 9px #e879f933;
+  }
+}
+/* yaltirash: har 7 soniyada oynadan yorug' chiziq o'tadi */
+.news-box::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 38%, #ffffff3d 50%, transparent 62%);
+  transform: translateX(-130%);
+  animation: news-shine 7s ease-in-out 1.6s infinite;
+  pointer-events: none;
+}
+@keyframes news-shine {
+  0%,
+  72% {
+    transform: translateX(-130%);
+  }
+  100% {
+    transform: translateX(130%);
+  }
 }
 .news-box::after {
   content: '';
@@ -4911,6 +4905,8 @@ button.rk-slot:has(.av-empty)::after {
   pointer-events: none;
 }
 .news-stage {
+  position: relative;
+  z-index: 1;
   min-height: 0;
   animation: news-in 0.45s ease;
 }
@@ -4932,10 +4928,48 @@ button.rk-slot:has(.av-empty)::after {
   min-height: 0;
 }
 .news-kicker {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+  justify-self: start;
+  padding: 3px 9px 3px 7px;
+  border-radius: 999px;
+  background: #ffffff24;
   font-size: 11px;
   font-weight: 800;
   letter-spacing: 0.6px;
-  opacity: 0.85;
+}
+.news-ping {
+  position: relative;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #fbbf24;
+}
+.news-ping::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: #fbbf24;
+  animation: news-ping 1.6s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+@keyframes news-ping {
+  75%,
+  100% {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}
+.news-new {
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: #fbbf24;
+  color: #3b0764;
+  font-size: 10px;
+  font-style: normal;
+  letter-spacing: 0.4px;
 }
 .news-slide b {
   font-size: 17px;
@@ -5036,6 +5070,330 @@ button.rk-slot:has(.av-empty)::after {
     aspect-ratio: auto;
     min-height: 150px;
     margin: 0 0 16px;
+  }
+}
+/* ---------- 🛍 2-e'lon oynasi (yon menyu pastida): mahsulot, kurs, grant reklamasi ---------- */
+.promo-box {
+  position: relative;
+  display: grid;
+  gap: 8px;
+  margin-top: 14px;
+  padding: 12px;
+  border: 1px solid #fed7aa;
+  border-radius: 20px;
+  background: linear-gradient(165deg, #fff7ed, #fffdf9 62%);
+  color: #1c1917;
+  overflow: hidden;
+  box-shadow: 0 16px 30px -26px #c2410c;
+}
+.dark .promo-box {
+  border-color: #7c2d1299;
+  background: linear-gradient(165deg, #3a2414, #1d1714 64%);
+  color: #fef3c7;
+}
+.promo-stage {
+  min-height: 0;
+  animation: news-in 0.45s ease;
+}
+.promo-slide {
+  --kind-bg: #ede9fe;
+  --kind-fg: #5b21b6;
+  display: grid;
+  align-content: start;
+  gap: 6px;
+}
+.promo-slide.is-product {
+  --kind-bg: #d1fae5;
+  --kind-fg: #065f46;
+}
+.promo-slide.is-course {
+  --kind-bg: #dbeafe;
+  --kind-fg: #1e40af;
+}
+.promo-slide.is-grant {
+  --kind-bg: #fef3c7;
+  --kind-fg: #92400e;
+}
+.dark .promo-slide {
+  --kind-bg: #4c1d95;
+  --kind-fg: #ddd6fe;
+}
+.dark .promo-slide.is-product {
+  --kind-bg: #064e3b;
+  --kind-fg: #a7f3d0;
+}
+.dark .promo-slide.is-course {
+  --kind-bg: #1e3a8a;
+  --kind-fg: #bfdbfe;
+}
+.dark .promo-slide.is-grant {
+  --kind-bg: #78350f;
+  --kind-fg: #fde68a;
+}
+.promo-img {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 12px;
+  background: #fde68a33;
+}
+.promo-kind {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  justify-self: start;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: var(--kind-bg);
+  color: var(--kind-fg);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+}
+.promo-kind em {
+  padding: 0 5px;
+  border-radius: 5px;
+  background: #ea580c;
+  color: #fff;
+  font-size: 10px;
+  font-style: normal;
+}
+.promo-slide b {
+  font-size: 15.5px;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+.promo-slide p {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+  line-clamp: 4;
+  margin: 0;
+  overflow: hidden;
+  color: #57534e;
+  font-size: 13px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+.dark .promo-slide p {
+  color: #e7d9c4;
+}
+.promo-slide.has-img p {
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+.promo-cta {
+  justify-self: start;
+  margin-top: 2px;
+  padding: 7px 12px;
+  border-radius: 11px;
+  background: #c2410c;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 800;
+  text-decoration: none;
+}
+.promo-cta:hover {
+  background: #9a3412;
+}
+.promo-foot {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 22px;
+}
+.promo-dots {
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.promo-dots button {
+  width: 7px;
+  height: 7px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: #fdba74;
+  cursor: pointer;
+  transition: width 0.2s;
+}
+.promo-dots button.on {
+  width: 18px;
+  background: #c2410c;
+}
+.promo-btn {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  margin-left: auto;
+  border: 0;
+  border-radius: 8px;
+  background: #fed7aa80;
+  color: #9a3412;
+  cursor: pointer;
+}
+.promo-btn + .promo-btn {
+  margin-left: 0;
+}
+.dark .promo-btn {
+  background: #7c2d1280;
+  color: #fed7aa;
+}
+.promo-box :focus-visible {
+  outline: 2px solid #c2410c;
+  outline-offset: 2px;
+}
+.promo-empty p {
+  color: #78716c;
+}
+.home-promo {
+  display: none;
+}
+@media (max-width: 760px) {
+  .home-promo {
+    display: grid;
+    margin: 0 0 16px;
+  }
+}
+.promo-manage {
+  display: grid;
+  gap: 14px;
+}
+.promo-manage > p {
+  margin: 0;
+}
+.promo-admin-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 250px;
+  gap: 18px;
+  align-items: start;
+}
+.promo-admin-form {
+  display: grid;
+  gap: 10px;
+}
+.promo-admin-form button[type='submit'] {
+  justify-self: start;
+}
+.promo-kinds {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.promo-kinds button {
+  padding: 7px 12px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.promo-kinds button.on {
+  border-color: #6d28d9;
+  background: #6d28d9;
+  color: #fff;
+}
+.promo-admin-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.promo-admin-row > .input {
+  flex: 1 1 200px;
+}
+.promo-file {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border: 1px dashed var(--border);
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 650;
+  cursor: pointer;
+}
+.bo-section label.promo-file {
+  display: inline-flex;
+  color: var(--text);
+}
+.promo-file:focus-within {
+  outline: 2px solid #6d28d9;
+  outline-offset: 2px;
+}
+.promo-file input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+.promo-until {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  font-size: 13px;
+}
+.promo-preview {
+  display: grid;
+  gap: 6px;
+}
+.promo-preview .promo-box {
+  margin-top: 0;
+}
+.promo-admin-list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.promo-admin-list li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}
+.promo-admin-list img,
+.promo-thumb {
+  flex-shrink: 0;
+  width: 64px;
+  height: 40px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+.promo-thumb {
+  display: grid;
+  place-items: center;
+  background: var(--soft-violet);
+  font-size: 20px;
+}
+.promo-admin-list li > span {
+  display: grid;
+  flex: 1;
+  gap: 2px;
+  min-width: 0;
+}
+.promo-admin-list li > span span,
+.promo-admin-list small {
+  color: var(--muted);
+  font-size: 12.5px;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 860px) {
+  .promo-admin-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .promo-until {
+    margin-left: 0;
   }
 }
 /* jonli test: ekran burchagidagi kichik kartochka (arenadan tashqari) — har kim yopa oladi */
@@ -5234,6 +5592,10 @@ body:has(.focus-learning) .kh-pop {
   }
 }
 @media (prefers-reduced-motion: reduce) {
+  .news-box,
+  .news-box::before,
+  .news-ping::after,
+  .promo-stage,
   .news-stage,
   .kh-pop,
   .kh-pop.is-lobby .kh-pop-btn,

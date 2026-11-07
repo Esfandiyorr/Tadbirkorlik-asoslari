@@ -100,7 +100,8 @@ export async function liveGame(now = Date.now()): Promise<LiveGame | null> {
   return nextGame(cfg, idx, now);
 }
 
-const link = z
+/** E'lon havolasi: https://… yoki sayt ichidagi #bo'lim (javascript: va boshqalar — yo'q). */
+export const newsLink = z
   .string()
   .trim()
   .max(300)
@@ -113,7 +114,7 @@ const input = z.discriminatedUnion('op', [
       op: z.literal('add'),
       h: z.string().trim().max(60).optional(),
       t: z.string().trim().min(2).max(300),
-      link: link.optional(),
+      link: newsLink.optional(),
       until: z.number().int().positive().optional(),
     })
     .strict(),

@@ -19,6 +19,7 @@ import { quotaExceeded } from '@/lib/server/quota';
 import { limitedCatalog } from '@/lib/server/limited';
 import { sitePolicy, clearPolicyCache, normalizePolicy } from '@/lib/server/site-policy';
 import { liveGame, manageNews, readNews } from '@/lib/server/news';
+import { managePromo, readPromo } from '@/lib/server/promo';
 import { liveAdmin, liveTopUp, manageLive } from '@/lib/server/live-admin';
 import { avatarLibrary, manageLibrary } from '@/lib/server/avatar-library';
 import {
@@ -133,11 +134,15 @@ export async function GET(req: NextRequest) {
     }
     if (req.nextUrl.searchParams.get('view') === 'news') {
       // 📢 E'lonlar oynasi va ⚡ keyingi jonli test — ochiq ma'lumot, qisqa muddat keshlanadi.
-      const [news, live] = await Promise.all([readNews(), liveGame()]);
+      const [news, live, promo] = await Promise.all([
+        readNews(),
+        liveGame(),
+        readPromo().catch(() => []),
+      ]);
       // Jonli test jadvali o'z-o'zidan to'lib tursin (6 soatda ko'pi bilan bir marta, javobdan keyin).
       if (!demo()) after(() => liveTopUp().catch(() => {}));
       return NextResponse.json(
-        { news, live, now: Date.now() },
+        { news, live, promo, now: Date.now() },
         { headers: { 'Cache-Control': 'public, max-age=20, s-maxage=20' } },
       );
     }
@@ -426,6 +431,9 @@ export async function POST(req: NextRequest) {
     if (p.action === 'news') {
       const a = await actor(req, true);
       return NextResponse.json(await manageNews(a, p.input));
+    }
+    if (p.action === 'promo') {
+      return NextResponse.json(await managePromo(await actor(req, true), p.input));
     }
     if (p.action === 'avatarLibrary') {
       return NextResponse.json({ catalog: await manageLibrary(await actor(req, true), p.input) });

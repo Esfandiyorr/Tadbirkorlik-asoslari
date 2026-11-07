@@ -23,6 +23,7 @@ import { Button } from './ui/button';
 import { TopicArt, CourseArt } from './topic-art';
 import { HeroAvatar, useAcademicBoard } from './avatars';
 import { NewsBox } from './announcements';
+import { PromoBox } from './promo';
 import { AccessChip, PointsRing, PointsBreakdown } from './points-ui';
 import { t, dateLabel } from '@/lib/i18n';
 import {
@@ -181,6 +182,7 @@ function LearnerHome() {
       </div>
       {/* Telefonda yon menyu yashirin — e'lonlar oynasi bosh sahifada ham ko'rinadi. */}
       <NewsBox className="home-news" />
+      <PromoBox className="home-promo" />
       <div className="dashboard-grid">
         <div className="dashboard-main">
           {lesson && (
@@ -1134,54 +1136,5 @@ export function Badges() {
         })}
       </div>
     </>
-  );
-}
-
-/* ============================== YON MENYU: JORIY MAVZU ============================== */
-/** Yon menyu pastidagi blok: joriy mavzu, uning muddati va to'plangan ball. */
-export function SidebarCurrent() {
-  const { data, lang } = useApp(),
-    open = useOpenLesson();
-  const d = data!,
-    lesson = currentLesson(d);
-  if (!lesson) return null;
-  const access = accessOf(d, lesson.id),
-    h = d.user?.readingHistory?.[lesson.id],
-    pts = topicPoints(h),
-    due = access?.state === 'score' && access.due ? dueText(access.due, lang) : null;
-  return (
-    <div className="sidebar-current">
-      <span className="sidebar-current-label">
-        📌 {tr(lang, 'Joriy mavzu', 'Current topic', 'Текущая тема')}
-      </span>
-      <button className="sidebar-current-topic" onClick={() => open(lesson)}>
-        <TopicArt id={lesson.id} compact />
-        <span>
-          <small>
-            {lesson.order + 1}-{tr(lang, 'mavzu', 'topic', 'тема')}
-          </small>
-          <b>{lesson.title}</b>
-        </span>
-      </button>
-      {due ? (
-        <p className={'sidebar-due' + (due.urgent ? ' urgent' : '')}>
-          <Clock3 size={15} />
-          <span>
-            {tr(lang, 'Muddat', 'Due', 'Срок')}: <b>{due.date}</b>
-            <em>{due.left}</em>
-          </span>
-        </p>
-      ) : (
-        <AccessChip access={access} lang={lang} />
-      )}
-      {d.user?.readingHistory && (
-        <div className="sidebar-points">
-          <ProgressBar value={pts.total} />
-          <small>
-            <b>{num(pts.total)}</b> / 100 {tr(lang, 'ball', 'points', 'баллов')}
-          </small>
-        </div>
-      )}
-    </div>
   );
 }

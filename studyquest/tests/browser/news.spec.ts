@@ -118,3 +118,88 @@ test('teachers close the card too, and a later game only shows its time', async 
   await expect(slide).toContainText('boshlanishiga');
   await expect(later.locator('.kh-pop')).toHaveCount(0);
 });
+
+test('the administrator fills the second box with offers and students see them under the menu', async ({
+  page,
+  browser,
+}) => {
+  const student = async () => {
+    const p = await (
+      await browser.newContext({ baseURL: test.info().project.use.baseURL })
+    ).newPage();
+    await as(p, 'demo-student');
+    await p.goto('/#home', { waitUntil: 'domcontentloaded' });
+    await expect(p.locator('.sidebar-news')).toBeVisible();
+    return p;
+  };
+  // Bo'sh 2-e'lon oynasini talaba ko'rmaydi; «Joriy mavzu» bloki endi yon menyuda yo'q.
+  const s1 = await student();
+  await expect(s1.locator('.sidebar-promo')).toHaveCount(0);
+  await expect(s1.locator('.sidebar-current')).toHaveCount(0);
+  await s1.context().close();
+
+  // Administrator bo'sh oynada izohni va «+» tugmasini ko'radi — u «Sayt boshqaruvi → 2-e'lon oynasi»ni ochadi.
+  await as(page, 'demo-admin');
+  await page.goto('/#home', { waitUntil: 'domcontentloaded' });
+  const side = page.locator('.sidebar-promo');
+  await expect(side).toContainText('2-E’LON OYNASI');
+  await side.getByRole('button', { name: 'Reklama qo‘shish' }).click();
+  await expect.poll(() => new URL(page.url()).hash).toBe('#admin');
+  const panel = page.locator('.promo-manage');
+  await expect(panel).toBeVisible();
+  await panel.getByRole('radio', { name: /Grant dasturi/ }).click();
+  await panel.getByLabel('Sarlavha').fill('Yoshlar grant dasturi');
+  await panel
+    .getByLabel('Qisqa matn')
+    .fill('Startaplar uchun 50 mln so‘mgacha grant. Ariza 1-dekabrgacha.');
+  await panel.getByLabel('Havola').fill('https://example.uz/grant');
+  await panel.getByLabel('Tugma yozuvi').fill('Ariza topshirish');
+  await panel.getByLabel('Rasm', { exact: true }).setInputFiles('public/terdu-logo.png');
+  // Ko'rinishi: joylashdan oldin qanday chiqishi.
+  const preview = panel.locator('.promo-preview');
+  await expect(preview).toContainText('Yoshlar grant dasturi');
+  await expect(preview.locator('img.promo-img')).toBeVisible();
+  await panel.getByRole('button', { name: /E’lonni joylash/ }).click();
+  await expect(panel.locator('.promo-admin-list')).toContainText('Yoshlar grant dasturi');
+  await expect(panel.locator('.promo-admin-list img')).toHaveAttribute(
+    'src',
+    /^\/api\/site\/img\/pr-/,
+  );
+  await panel.getByRole('radio', { name: /Kurs/ }).click();
+  await panel.getByLabel('Sarlavha').fill('Excel bo‘yicha bepul kurs');
+  await panel.getByLabel('Havola').fill('#courses');
+  await panel.getByRole('button', { name: /E’lonni joylash/ }).click();
+  await expect(panel.locator('.promo-admin-list li')).toHaveCount(2);
+  await expect(side.locator('.promo-dots button')).toHaveCount(2);
+
+  // Talaba ikkala taklifni yon menyuda ko'radi (har 6 soniyada almashadi), «+» tugmasi yo'q.
+  const s2 = await student();
+  const box = s2.locator('.sidebar-promo');
+  await expect(box.locator('.promo-dots button')).toHaveCount(2);
+  await expect(box.getByRole('button', { name: 'Reklama qo‘shish' })).toHaveCount(0);
+  await box.locator('.promo-dots button').nth(1).click();
+  await expect(box.locator('.promo-kind')).toContainText('Grant dasturi');
+  await expect(box.locator('.promo-kind')).toContainText('YANGI');
+  const cta = box.getByRole('link', { name: /Ariza topshirish/ });
+  await expect(cta).toHaveAttribute('href', 'https://example.uz/grant');
+  await expect(cta).toHaveAttribute('target', '_blank');
+  const img = box.locator('img.promo-img');
+  await expect(img).toHaveAttribute('src', /^\/api\/site\/img\/pr-[a-z0-9-]+\?v=/);
+  expect(
+    (await s2.request.get((await img.getAttribute('src'))!)).headers()['content-type'],
+  ).toMatch(/^image\//);
+  await box.locator('.promo-dots button').nth(0).click();
+  await expect(box).toContainText('Excel bo‘yicha bepul kurs');
+  await expect(box.getByRole('link', { name: /Batafsil/ })).toHaveAttribute('href', '#courses');
+  await s2.context().close();
+
+  // Tozalash.
+  for (let i = 0; i < 2; i++) {
+    await panel
+      .getByRole('button', { name: /O‘chirish/ })
+      .first()
+      .click();
+    await expect(panel.locator('.promo-admin-list li:not(.muted)')).toHaveCount(1 - i);
+  }
+  await expect(side).toContainText('2-E’LON OYNASI');
+});
