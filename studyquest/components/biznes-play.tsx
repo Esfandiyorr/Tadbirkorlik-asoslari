@@ -1298,15 +1298,15 @@ export function MonthReport({
   const news: Tri[] = [];
   if (prevRv && rv.price < prevRv.price)
     news.push([
-      `Narxni ${prevRv.price} dan ${rv.price} ga tushirdi.`,
-      `Cut the price from ${prevRv.price} to ${rv.price}.`,
-      `Снизил цену с ${prevRv.price} до ${rv.price}.`,
+      `Narxni ${price(prevRv.price, 'uz')} dan ${price(rv.price, 'uz')} ga tushirdi.`,
+      `Cut the price from ${price(prevRv.price, 'en')} to ${price(rv.price, 'en')}.`,
+      `Снизил цену с ${price(prevRv.price, 'ru')} до ${price(rv.price, 'ru')}.`,
     ]);
   else if (prevRv && rv.price > prevRv.price)
     news.push([
-      `Narxni ${rv.price} ga ko‘tardi.`,
-      `Raised the price to ${rv.price}.`,
-      `Поднял цену до ${rv.price}.`,
+      `Narxni ${price(rv.price, 'uz')} ga ko‘tardi.`,
+      `Raised the price to ${price(rv.price, 'en')}.`,
+      `Поднял цену до ${price(rv.price, 'ru')}.`,
     ]);
   if (!prevRv || rv.grade !== prevRv.grade) {
     const n = b.grades[rv.grade].name;

@@ -31,6 +31,8 @@ export const mix = (...n: number[]) =>
 export const r2 = (x: number) => Math.round(x * 100) / 100;
 const r4 = (x: number) => Math.round(x * 10000) / 10000;
 const cl = (x: number, a: number, b: number) => Math.max(a, Math.min(b, x));
+/** O'zbek va rus matnlari uchun bir xonali o'nlik son (vergul bilan): 3,5 */
+const dc = (x: number) => x.toFixed(1).replace('.', ',');
 const sum = (xs: number[]) => xs.reduce((a, x) => a + x, 0);
 const three = <X>(f: (s: number) => X): Three<X> => [f(0), f(1), f(2)];
 /** e^x faqat +, −, ×, ÷ bilan: Math.exp natijasi brauzerlarda oxirgi raqamda farq qilishi mumkin. */
@@ -3118,9 +3120,9 @@ export function playMonth(g: Game, raw: [Partial<Decision>, Partial<Decision>]):
       st.emergency = r2(st.emergency + emergency);
       notes[i].push(
         T(
-          `Kassa yetmadi: bank ${emergency.toFixed(1)} mln favqulodda qarz berdi (+10% jarima).`,
+          `Kassa yetmadi: bank ${dc(emergency)} mln favqulodda qarz berdi (+10% jarima).`,
           `You ran out of cash: the bank lent ${emergency.toFixed(1)} mln as an emergency loan (+10% fee).`,
-          `Не хватило денег: банк выдал ${emergency.toFixed(1)} млн экстренно (+10%).`,
+          `Не хватило денег: банк выдал ${dc(emergency)} млн экстренно (+10%).`,
         ),
       );
     }
@@ -3232,12 +3234,12 @@ export function playMonth(g: Game, raw: [Partial<Decision>, Partial<Decision>]):
       notes[i].push(
         b.kind === 'perishable'
           ? T(
-              `${r.wasteUnits.toLocaleString('ru-RU')} ${b.unit[0]} sotilmay qoldi va isrof bo‘ldi (−${r.wasteCost.toFixed(1)} mln).`,
+              `${r.wasteUnits.toLocaleString('ru-RU')} ${b.unit[0]} sotilmay qoldi va isrof bo‘ldi (−${dc(r.wasteCost)} mln).`,
               `${r.wasteUnits.toLocaleString('en-US')} ${b.unit[1]} were not sold and wasted (−${r.wasteCost.toFixed(1)} mln).`,
               `${r.wasteUnits.toLocaleString('ru-RU')} ${b.unit[2]} не продано и выброшено.`,
             )
           : T(
-              `${r.wasteUnits.toLocaleString('ru-RU')} ${b.unit[0]} eskirdi (−${r.wasteCost.toFixed(1)} mln). Omborda ${p.stock.toLocaleString('ru-RU')} qoldi.`,
+              `${r.wasteUnits.toLocaleString('ru-RU')} ${b.unit[0]} eskirdi (−${dc(r.wasteCost)} mln). Omborda ${p.stock.toLocaleString('ru-RU')} qoldi.`,
               `${r.wasteUnits.toLocaleString('en-US')} ${b.unit[1]} became outdated (−${r.wasteCost.toFixed(1)} mln). ${p.stock.toLocaleString('en-US')} left in stock.`,
               `${r.wasteUnits.toLocaleString('ru-RU')} ${b.unit[2]} устарело. На складе ${p.stock.toLocaleString('ru-RU')}.`,
             ),
@@ -3245,9 +3247,9 @@ export function playMonth(g: Game, raw: [Partial<Decision>, Partial<Decision>]):
     if (r.returns > 0 && r.refund >= 0.5)
       notes[i].push(
         T(
-          `${r.returns.toLocaleString('ru-RU')} ${b.unit[0]} nuqsonli chiqib qaytarildi — pul mijozlarga qaytarildi (−${r.refund.toFixed(1)} mln).`,
+          `${r.returns.toLocaleString('ru-RU')} ${b.unit[0]} nuqsonli chiqib qaytarildi — pul mijozlarga qaytarildi (−${dc(r.refund)} mln).`,
           `${r.returns.toLocaleString('en-US')} ${b.unit[1]} were faulty and refunded (−${r.refund.toFixed(1)} mln).`,
-          `${r.returns.toLocaleString('ru-RU')} ${b.unit[2]} вернули как брак (−${r.refund.toFixed(1)} млн).`,
+          `${r.returns.toLocaleString('ru-RU')} ${b.unit[2]} вернули как брак (−${dc(r.refund)} млн).`,
         ),
       );
     if (r.spill > 0)
@@ -3285,17 +3287,17 @@ export function playMonth(g: Game, raw: [Partial<Decision>, Partial<Decision>]):
     if (leak)
       notes[i].push(
         T(
-          `Nazoratsiz kassadan ${leak.toFixed(1)} mln yo‘qoldi.`,
+          `Nazoratsiz kassadan ${dc(leak)} mln yo‘qoldi.`,
           `${leak.toFixed(1)} mln vanished from the uncontrolled till.`,
-          `Из кассы пропало ${leak.toFixed(1)} млн.`,
+          `Из кассы пропало ${dc(leak)} млн.`,
         ),
       );
     if (credit)
       notes[i].push(
         T(
-          `${credit.toFixed(1)} mln nasiyaga sotildi — keyingi oy keladi.`,
+          `${dc(credit)} mln nasiyaga sotildi — keyingi oy keladi.`,
           `${credit.toFixed(1)} mln sold on credit — arrives next month.`,
-          `${credit.toFixed(1)} млн в долг — придут позже.`,
+          `${dc(credit)} млн в долг — придут позже.`,
         ),
       );
     if (repay)
