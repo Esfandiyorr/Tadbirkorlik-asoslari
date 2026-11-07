@@ -5899,6 +5899,148 @@ button.promo-open:hover b {
     margin-left: 0;
   }
 }
+/* 📣 yangi e'lon — saytga kirganda katta oyna («O'qildi» bosilguncha) */
+.modal-backdrop.news-pop-backdrop {
+  z-index: 260;
+  padding: 16px;
+}
+.news-pop {
+  position: relative;
+  display: grid;
+  gap: 12px;
+  width: min(620px, 100%);
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+  padding: 22px 24px 20px;
+  border: 3px solid transparent;
+  border-radius: 26px;
+  background:
+    radial-gradient(circle at 100% 0%, #f0abfc80, transparent 45%) padding-box,
+    linear-gradient(155deg, #3b0f86, #6d28d9 55%, #c026d3) padding-box,
+    linear-gradient(115deg, #fbbf24, #fb7185, #c084fc, #38bdf8, #fbbf24) border-box;
+  color: #fff;
+  box-shadow: 0 30px 80px -30px #000;
+  animation: news-pop-in 0.45s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+}
+@keyframes news-pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.news-pop header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.news-pop-kicker {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px 5px 9px;
+  border-radius: 999px;
+  background: #ffffff24;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+}
+.news-pop-kicker em {
+  padding: 1px 7px;
+  border-radius: 6px;
+  background: #fbbf24;
+  color: #3b0764;
+  font-size: 11.5px;
+  font-style: normal;
+}
+.news-pop-x {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border: 0;
+  border-radius: 12px;
+  background: #ffffff24;
+  color: #fff;
+  cursor: pointer;
+}
+.news-pop h2 {
+  margin: 0;
+  font-size: clamp(22px, 4vw, 28px);
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+.news-pop-text {
+  margin: 0;
+  font-size: 16.5px;
+  line-height: 1.6;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+.news-pop-date,
+.news-pop-hint {
+  font-size: 13px;
+  opacity: 0.85;
+}
+.news-pop-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-top: 4px;
+}
+.news-pop-ok {
+  padding: 12px 22px;
+  border: 0;
+  border-radius: 14px;
+  background: #fff;
+  color: #5b21b6;
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 8px 20px -10px #000;
+}
+.news-pop-ok:disabled {
+  opacity: 0.7;
+}
+.news-pop-link {
+  padding: 11px 18px;
+  border: 1px solid #ffffff80;
+  border-radius: 14px;
+  color: #fff;
+  font-weight: 700;
+  text-decoration: none;
+}
+.news-pop :focus-visible {
+  outline: 3px solid #fde68a;
+  outline-offset: 2px;
+}
+.news-manage label.news-admin-pop {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.45;
+}
+.news-admin-pop input {
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  flex: none;
+  accent-color: #6d28d9;
+}
+@media (prefers-reduced-motion: reduce) {
+  .news-pop {
+    animation: none;
+  }
+}
 /* e'lonning to'liq matni — alohida oyna */
 .modal-backdrop.news-reader-backdrop {
   padding: 16px;

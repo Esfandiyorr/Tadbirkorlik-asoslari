@@ -20,6 +20,8 @@ export type NewsItem = {
   link?: string;
   until?: number;
   at: number;
+  /** saytga kirganda katta oynada chiqadi (foydalanuvchi «O'qildi» bosguncha) */
+  pop?: boolean;
 };
 export type LiveGame = {
   d: string;
@@ -460,6 +462,153 @@ export function NewsBox({ className = '' }: { className?: string }) {
   );
 }
 
+const SEEN_KEY = 'sq-news-seen';
+const localSeen = (): string[] => {
+  try {
+    return JSON.parse(localStorage.getItem(SEEN_KEY) || '[]');
+  } catch {
+    return [];
+  }
+};
+/** E'lonni shu brauzerda «o'qildi» deb belgilaydi va ochiq katta oynaga xabar beradi. */
+function markLocalSeen(id: string) {
+  try {
+    localStorage.setItem(SEEN_KEY, JSON.stringify([...localSeen(), id].slice(-50)));
+  } catch {}
+  window.dispatchEvent(new CustomEvent('sq-news-seen', { detail: id }));
+}
+/** 📣 Yangi e'lon — saytga kirganda katta oynada (har bir foydalanuvchiga, u «O'qildi» bosguncha).
+   O'qilganlar serverda saqlanadi (kirgan foydalanuvchi uchun; boshqa qurilmada ham chiqmaydi), mehmonda — brauzerda.
+   Bir nechta bo'lsa — navbat bilan, eng yangisi birinchi. «×» yoki Esc — shu safar yopiladi, keyingi kirishda yana chiqadi.
+   O'yin ichida (#arena…) chiqmaydi. */
+export function NewsPopup() {
+  const { data, lang, request } = useApp();
+  const L = (uz: string, en: string, ru: string) => tr(lang, uz, en, ru);
+  const { data: d, now } = useNews();
+  const hash = useHash();
+  const signedIn = !!data?.user;
+  const [seen, setSeen] = useState<Set<string> | null>(null),
+    [later, setLater] = useState<Set<string>>(() => new Set()),
+    [busy, setBusy] = useState(false);
+  const okRef = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    let live = true;
+    (async () => {
+      const mine = new Set(localSeen());
+      if (signedIn)
+        try {
+          const r = await request('/api/platform?view=newsSeen');
+          if (r.ok) for (const id of ((await r.json()).seen || []) as string[]) mine.add(id);
+        } catch {}
+      if (live) setSeen(mine);
+    })();
+    return () => {
+      live = false;
+    };
+  }, [signedIn, request]);
+  useEffect(() => {
+    const on = (e: Event) => {
+      const id = (e as CustomEvent<string>).detail;
+      setSeen((s) => new Set(s || []).add(id));
+    };
+    window.addEventListener('sq-news-seen', on);
+    return () => window.removeEventListener('sq-news-seen', on);
+  }, []);
+  const queue = (d?.news || [])
+    .filter((x) => x.pop && seen && !seen.has(x.id) && !later.has(x.id))
+    .sort((a, b) => b.at - a.at);
+  const item = queue[0];
+  useEffect(() => {
+    if (item) okRef.current?.focus();
+  }, [item?.id]);
+  useEffect(() => {
+    if (!item) return;
+    const key = (e: KeyboardEvent) =>
+      e.key === 'Escape' && setLater((s) => new Set(s).add(item.id));
+    window.addEventListener('keydown', key);
+    return () => window.removeEventListener('keydown', key);
+  }, [item]);
+  if (!item || hash.startsWith('#arena')) return null;
+  async function read() {
+    if (!item) return;
+    setBusy(true);
+    markLocalSeen(item.id);
+    if (signedIn)
+      await request('/api/platform', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'newsSeen', input: { id: item.id } }),
+      }).catch(() => {});
+    setSeen((s) => new Set(s).add(item.id));
+    setBusy(false);
+  }
+  const external = item.link?.startsWith('http');
+  return createPortal(
+    <div className="modal-backdrop news-pop-backdrop">
+      <section
+        className="news-pop"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="news-pop-h"
+        aria-describedby="news-pop-t"
+      >
+        <header>
+          <span className="news-pop-kicker">
+            <i className="news-ping" aria-hidden="true" />
+            📢 {L('YANGI E’LON', 'NEW ANNOUNCEMENT', 'НОВОЕ ОБЪЯВЛЕНИЕ')}
+            {queue.length > 1 && <em>1 / {queue.length}</em>}
+          </span>
+          <button
+            type="button"
+            className="news-pop-x"
+            aria-label={L('Keyinroq o‘qiyman', 'Read later', 'Прочитаю позже')}
+            title={L('Keyinroq o‘qiyman', 'Read later', 'Прочитаю позже')}
+            onClick={() => setLater((s) => new Set(s).add(item.id))}
+          >
+            <X size={20} />
+          </button>
+        </header>
+        <h2 id="news-pop-h">{item.h || L('E’lon', 'Announcement', 'Объявление')}</h2>
+        <p id="news-pop-t" className="news-pop-text">
+          {item.t}
+        </p>
+        <small className="news-pop-date">
+          {L('Joylangan', 'Posted', 'Опубликовано')}: {dueText(item.at, lang, now()).date}
+        </small>
+        <div className="news-pop-actions">
+          <button
+            ref={okRef}
+            type="button"
+            className="news-pop-ok"
+            disabled={busy}
+            onClick={() => void read()}
+          >
+            ✓ {L('O‘qildi', 'Read', 'Прочитано')}
+          </button>
+          {item.link && (
+            <a
+              className="news-pop-link"
+              href={item.link}
+              onClick={() => void read()}
+              {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+            >
+              {L('Batafsil', 'Learn more', 'Подробнее')} →
+            </a>
+          )}
+        </div>
+        <small className="news-pop-hint">
+          {L(
+            '«O‘qildi» bosilgach, e’lon e’lonlar oynasida qoladi va katta bo‘lib boshqa chiqmaydi.',
+            'After “Read”, the announcement stays in the announcements box and will not pop up again.',
+            'После «Прочитано» объявление останется в окне объявлений и больше не всплывёт.',
+          )}
+        </small>
+      </section>
+    </div>,
+    document.body,
+  );
+}
+
 /** Jonli test boshlanishidan 20 daqiqa oldin — tugaguncha: ekran burchagida kichik «⚡ Jonli test» kartochkasi
    (arenadan tashqari). Talaba ham, o'qituvchi ham istalgan payt yopadi — shu o'yin uchun boshqa chiqmaydi;
    keyin kirmoqchi bo'lsa, yon menyudagi e'lonlar oynasida «O'yinga kirish» tugmasi bor. */
@@ -563,7 +712,7 @@ export function NewsAdmin({ openCourseControls }: { openCourseControls?: () => v
   const { request, lang, toast } = useApp();
   const L = (uz: string, en: string, ru: string) => tr(lang, uz, en, ru);
   const { data: d, now, setNews } = useNews();
-  const [form, setForm] = useState({ h: '', t: '', link: '', until: '' }),
+  const [form, setForm] = useState({ h: '', t: '', link: '', until: '', pop: true }),
     [busy, setBusy] = useState('');
   async function send(input: Record<string, unknown>, key: string, done: string) {
     setBusy(key);
@@ -575,6 +724,8 @@ export function NewsAdmin({ openCourseControls }: { openCourseControls?: () => v
         }),
         v = await r.json();
       if (!r.ok) throw new Error(v.error || v.issues?.[0]?.message);
+      // o'zi joylagan e'lon administratorning o'ziga katta oynada chiqmasin
+      if (v.id) markLocalSeen(v.id);
       setNews(v.news || []);
       toast(done);
       return true;
@@ -596,11 +747,12 @@ export function NewsAdmin({ openCourseControls }: { openCourseControls?: () => v
         ...(form.h.trim() ? { h: form.h.trim() } : {}),
         ...(form.link.trim() ? { link: form.link.trim() } : {}),
         ...(until ? { until } : {}),
+        ...(form.pop ? { pop: true } : {}),
       },
       'add',
       '📢 ' + L('E’lon joylandi', 'Announcement posted', 'Объявление опубликовано'),
     );
-    if (ok) setForm({ h: '', t: '', link: '', until: '' });
+    if (ok) setForm({ h: '', t: '', link: '', until: '', pop: form.pop });
   }
   const g = d?.live,
     n = now();
@@ -691,6 +843,21 @@ export function NewsAdmin({ openCourseControls }: { openCourseControls?: () => v
             />
           </label>
         </div>
+        <label className="news-admin-pop">
+          <input
+            type="checkbox"
+            checked={form.pop}
+            onChange={(e) => setForm({ ...form, pop: e.target.checked })}
+          />
+          <span>
+            📣{' '}
+            {L(
+              'Saytga kirganda hammaga katta oynada ko‘rsatish — «O‘qildi» bosilgach boshqa chiqmaydi',
+              'Show it to everyone in a big window when they open the site — it stops after they press “Read”',
+              'Показать всем в большом окне при входе — после «Прочитано» больше не появится',
+            )}
+          </span>
+        </label>
         <Button type="submit" disabled={busy === 'add' || form.t.trim().length < 2}>
           <Plus size={15} /> {L('E’lon joylash', 'Post', 'Опубликовать')}
         </Button>
@@ -702,6 +869,7 @@ export function NewsAdmin({ openCourseControls }: { openCourseControls?: () => v
               {x.h && <b>{x.h}</b>}
               <span>{x.t}</span>
               <small>
+                {x.pop ? '📣 ' : ''}
                 {dueText(x.at, lang, n).date}
                 {x.until ? ' → ' + dueText(x.until, lang, n).date : ''}
                 {x.link ? ' · ' + x.link : ''}

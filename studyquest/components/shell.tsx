@@ -24,7 +24,7 @@ import {
   LogIn,
 } from 'lucide-react';
 import { Provider, useApp } from './provider';
-import { LiveGate, NewsBox } from './announcements';
+import { LiveGate, NewsBox, NewsPopup } from './announcements';
 import { PromoBox } from './promo';
 import { Dashboard, CourseList, Badges, achievementsOf, navigate } from './dashboard';
 import { courseTotals, durationText, num, tr } from '@/lib/points';
@@ -163,11 +163,13 @@ export function StudyQuest() {
       <main className="focus-learning">
         {content}
         <LiveGate />
+        <NewsPopup />
       </main>
     );
   return (
     <div className="app-shell">
       <LiveGate />
+      <NewsPopup />
       {menu && (
         <button
           className="sidebar-scrim"

@@ -79,6 +79,8 @@ test('a long announcement is shortened in the box and opens in full when the stu
     '\nOxirgi qator: biznes-model kanvasini olib keling.';
   await panel.getByLabel('Sarlavha').fill('Muhim e’lon');
   await panel.getByLabel('E’lon matni').fill(long);
+  // bu e'lon faqat oynada (katta oynasiz)
+  await panel.getByRole('checkbox', { name: /katta oynada ko‘rsatish/ }).uncheck();
   await panel.getByRole('button', { name: /E’lon joylash/ }).click();
   await expect(panel.locator('.news-admin-list')).toContainText('Oxirgi qator');
 
@@ -105,6 +107,72 @@ test('a long announcement is shortened in the box and opens in full when the stu
   await expect(dialog).toHaveCount(0);
   await s.context().close();
 
+  await panel
+    .getByRole('button', { name: /O‘chirish/ })
+    .first()
+    .click();
+  await expect(panel.locator('.news-admin-list li:not(.muted)')).toHaveCount(0);
+});
+
+test('a new announcement opens big for everyone until they press “Read”', async ({
+  page,
+  browser,
+}) => {
+  await as(page, 'demo-admin');
+  await page.goto('/#admin', { waitUntil: 'domcontentloaded' });
+  await page.locator('.bo-card-btn').filter({ hasText: 'E’lonlar' }).click();
+  const panel = page.locator('.news-manage');
+  await expect(panel.getByRole('checkbox', { name: /katta oynada ko‘rsatish/ })).toBeChecked();
+  await panel.getByLabel('Sarlavha').fill('Dars ko‘chirildi');
+  await panel
+    .getByLabel('E’lon matni')
+    .fill('Seshanba kungi dars chorshanba 10:00 ga ko‘chirildi.');
+  await panel.getByRole('button', { name: /E’lon joylash/ }).click();
+  await expect(panel.locator('.news-admin-list')).toContainText('📣');
+  // e'lonni yozgan administratorga katta oyna chiqmaydi
+  await page.goto('/#home', { waitUntil: 'domcontentloaded' });
+  await expect(page.locator('.sidebar-news')).toContainText('Dars ko‘chirildi');
+  await expect(page.locator('.news-pop')).toHaveCount(0);
+
+  const open = async (id: string) => {
+    const p = await (
+      await browser.newContext({ baseURL: test.info().project.use.baseURL })
+    ).newPage();
+    await as(p, id);
+    await p.goto('/#home', { waitUntil: 'domcontentloaded' });
+    return p;
+  };
+  const student = await open('demo-student');
+  const pop = student.getByRole('dialog', { name: 'Dars ko‘chirildi' });
+  await expect(pop).toBeVisible();
+  await expect(pop).toContainText('YANGI E’LON');
+  await expect(pop).toContainText('chorshanba 10:00');
+  await expect(pop.getByRole('button', { name: /O‘qildi/ })).toBeFocused();
+  // «×» — keyinroq: hozir yopiladi, keyingi kirishda yana chiqadi
+  await pop.getByRole('button', { name: 'Keyinroq o‘qiyman' }).click();
+  await expect(pop).toHaveCount(0);
+  await student.reload({ waitUntil: 'domcontentloaded' });
+  await expect(pop).toBeVisible();
+  // «O'qildi» — boshqa chiqmaydi, e'lon oynada qoladi (boshqa qurilmada ham)
+  await pop.getByRole('button', { name: /O‘qildi/ }).click();
+  await expect(pop).toHaveCount(0);
+  await expect(student.locator('.sidebar-news')).toContainText('Dars ko‘chirildi');
+  await student.reload({ waitUntil: 'domcontentloaded' });
+  await expect(student.locator('.sidebar-news')).toContainText('Dars ko‘chirildi');
+  await expect(student.locator('.news-pop')).toHaveCount(0);
+  await student.context().close();
+  const again = await open('demo-student');
+  await expect(again.locator('.sidebar-news')).toContainText('Dars ko‘chirildi');
+  await expect(again.locator('.news-pop')).toHaveCount(0);
+  await again.context().close();
+  // boshqa foydalanuvchiga hali chiqadi
+  const teacher = await open('demo-teacher');
+  await expect(teacher.getByRole('dialog', { name: 'Dars ko‘chirildi' })).toBeVisible();
+  await teacher.context().close();
+
+  // Tozalash: «Sayt boshqaruvi» oxirgi ochilgan bo'limni eslab qoladi — e'lonlar bo'limi darhol ochiladi.
+  await page.goto('/#admin', { waitUntil: 'domcontentloaded' });
+  await expect(panel).toBeVisible();
   await panel
     .getByRole('button', { name: /O‘chirish/ })
     .first()

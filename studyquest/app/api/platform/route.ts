@@ -18,7 +18,7 @@ import { course, modules, lessons, quiz, settings, badges, catalog } from '@/lib
 import { quotaExceeded } from '@/lib/server/quota';
 import { limitedCatalog } from '@/lib/server/limited';
 import { sitePolicy, clearPolicyCache, normalizePolicy } from '@/lib/server/site-policy';
-import { liveGame, manageNews, readNews } from '@/lib/server/news';
+import { liveGame, manageNews, markNewsSeen, newsSeen, readNews } from '@/lib/server/news';
 import { managePromo, readPromo } from '@/lib/server/promo';
 import { liveAdmin, liveTopUp, manageLive } from '@/lib/server/live-admin';
 import { avatarLibrary, manageLibrary } from '@/lib/server/avatar-library';
@@ -145,6 +145,12 @@ export async function GET(req: NextRequest) {
         { news, live, promo, now: Date.now() },
         { headers: { 'Cache-Control': 'public, max-age=20, s-maxage=20' } },
       );
+    }
+    if (req.nextUrl.searchParams.get('view') === 'newsSeen') {
+      // 📣 qaysi katta e'lonlarni o'qigan — shaxsiy ma'lumot, keshlanmaydi
+      return NextResponse.json(await newsSeen(await actor(req, true)), {
+        headers: { 'Cache-Control': 'private, no-store' },
+      });
     }
     if (req.nextUrl.searchParams.get('view') === 'academic') {
       const a = await actor(req, true);
@@ -431,6 +437,9 @@ export async function POST(req: NextRequest) {
     if (p.action === 'news') {
       const a = await actor(req, true);
       return NextResponse.json(await manageNews(a, p.input));
+    }
+    if (p.action === 'newsSeen') {
+      return NextResponse.json(await markNewsSeen(await actor(req, true), p.input));
     }
     if (p.action === 'promo') {
       return NextResponse.json(await managePromo(await actor(req, true), p.input));

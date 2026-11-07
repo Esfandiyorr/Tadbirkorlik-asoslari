@@ -5,6 +5,7 @@ import type { Actor } from '../types';
 import { administrator } from './auth';
 import { demo, legacyDb } from './repository';
 import { demoKahoot } from './live-admin';
+import { siteGet, siteUpdate } from './site-content';
 
 /* 📢 E'lonlar oynasi (yon menyuda, har 10 soniyada almashadi) va ⚡ jonli test jadvali.
    E'lonlar: meta/news/<id> = {h?, t, link?, until?, at} — faqat administrator (server orqali) yozadi, hamma o'qiydi.
@@ -18,6 +19,8 @@ export type NewsItem = {
   link?: string;
   until?: number;
   at: number;
+  /** saytga kirganda katta oynada ko'rsatiladi (foydalanuvchi «O'qildi» bosguncha) */
+  pop?: boolean;
 };
 export type LiveGame = {
   d: string;
@@ -116,6 +119,7 @@ const input = z.discriminatedUnion('op', [
       t: z.string().trim().min(2).max(1500),
       link: newsLink.optional(),
       until: z.number().int().positive().optional(),
+      pop: z.boolean().optional(),
     })
     .strict(),
   z.object({ op: z.literal('remove'), id: z.string().regex(/^[A-Za-z0-9_-]{1,64}$/) }).strict(),
@@ -133,16 +137,51 @@ export async function manageNews(a: Actor, raw: unknown, now = Date.now()) {
       ...(v.h ? { h: v.h } : {}),
       ...(v.link ? { link: v.link } : {}),
       ...(v.until ? { until: v.until } : {}),
+      ...(v.pop ? { pop: true } : {}),
     };
     if (demo()) memory.news[id] = { ...item, id };
     else
       await legacyDb()
         .ref('meta/news/' + id)
         .set(item);
+    // e'lonni yozgan administratorga katta oyna chiqmaydi
+    if (v.pop) await markSeen(a, id, now).catch(() => {});
+    return { id, news: await readNews(now) };
   } else if (demo()) delete memory.news[v.id];
   else
     await legacyDb()
       .ref('meta/news/' + v.id)
       .remove();
   return { news: await readNews(now) };
+}
+
+/* 📣 Katta oynadagi e'lonlar: kim qaysi e'lonni «O'qildi» deb belgilagan — site/newsSeen/<foydalanuvchi>/<e'lon> = vaqt.
+   site/* bo'limiga brauzerlar tegolmaydi; faqat server o'qiydi va yozadi. Har qurilmada bir xil ishlaydi. */
+const seenKey = (id: string) => id.replace(/[^A-Za-z0-9_-]/g, '_').slice(0, 120);
+const newsId = z.string().regex(/^[A-Za-z0-9_-]{1,64}$/);
+
+/** Foydalanuvchi o'qigan (amaldagi) e'lonlar ro'yxati. */
+export async function newsSeen(a: Actor, now = Date.now()) {
+  const [raw, news] = await Promise.all([
+    siteGet<Record<string, number>>('newsSeen/' + seenKey(a.id)),
+    readNews(now),
+  ]);
+  const live = new Set(news.map((n) => n.id));
+  return { seen: Object.keys(raw || {}).filter((id) => live.has(id)) };
+}
+async function markSeen(a: Actor, id: string, now: number) {
+  const key = 'newsSeen/' + seenKey(a.id);
+  const [cur, news] = await Promise.all([siteGet<Record<string, number>>(key), readNews(now)]);
+  const live = new Set(news.map((n) => n.id));
+  const patch: Record<string, unknown> = { [key + '/' + id]: now };
+  // o'chirilgan yoki muddati o'tgan e'lonlar belgisi tozalanadi
+  for (const old of Object.keys(cur || {}))
+    if (old !== id && !live.has(old)) patch[key + '/' + old] = null;
+  await siteUpdate(patch);
+}
+/** Foydalanuvchi katta oynadagi e'lonni «O'qildi» deb belgilaydi. */
+export async function markNewsSeen(a: Actor, raw: unknown, now = Date.now()) {
+  const { id } = z.object({ id: newsId }).strict().parse(raw);
+  await markSeen(a, id, now);
+  return newsSeen(a, now);
 }

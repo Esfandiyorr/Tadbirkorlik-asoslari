@@ -86,3 +86,27 @@ it('lets only the administrator post and remove announcements, and hides expired
   await manageNews(admin, { op: 'remove', id: removed.news[0].id }, now + 3000);
   expect(await readNews(now)).toEqual([]);
 });
+
+it('big-window announcements are remembered per user once read', async () => {
+  const { markNewsSeen, newsSeen } = await import('../lib/server/news');
+  const t = Date.UTC(2026, 10, 7, 9, 0);
+  const pop = await manageNews(
+    admin,
+    { op: 'add', h: 'Muhim', t: 'Ertaga dars bo‘lmaydi', pop: true },
+    t,
+  );
+  const id = pop.news.find((x) => x.t === 'Ertaga dars bo‘lmaydi')!.id;
+  expect(pop.news.find((x) => x.id === id)).toMatchObject({ pop: true });
+  // e'lonni yozgan administrator uchun allaqachon «o'qildi»
+  expect((await newsSeen(admin, t + 1)).seen).toContain(id);
+  const ali = { id: 'legacy_ali.1', role: 'student', name: 'Ali' } as unknown as Actor;
+  expect((await newsSeen(ali, t + 1)).seen).not.toContain(id);
+  expect((await markNewsSeen(ali, { id }, t + 2)).seen).toContain(id);
+  expect((await newsSeen(ali, t + 3)).seen).toContain(id);
+  // boshqa talabaga hali chiqadi
+  expect((await newsSeen({ ...ali, id: 'legacy_bob' } as Actor, t + 3)).seen).not.toContain(id);
+  await expect(markNewsSeen(ali, { id: '../x' }, t + 4)).rejects.toThrow();
+  // e'lon o'chirilsa — ro'yxatdan ham ketadi
+  await manageNews(admin, { op: 'remove', id }, t + 5);
+  expect((await newsSeen(ali, t + 6)).seen).not.toContain(id);
+});
