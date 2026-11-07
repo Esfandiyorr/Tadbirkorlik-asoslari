@@ -1,12 +1,12 @@
 'use client';
 import { useCallback, useEffect, useReducer, useRef, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
-import { Megaphone, Pause, Play, Plus, Trash2, X } from 'lucide-react';
+import { Mail, Megaphone, Pause, Play, Plus, Trash2, X } from 'lucide-react';
 import { useApp } from './provider';
 import { Button } from './ui/button';
 import { dueText, tr } from '@/lib/points';
 import type { Lang } from '@/lib/types';
-import { FRESH_MS, type PromoItem } from '@/lib/promo';
+import { FRESH_MS, PROMO_KIND, type PromoItem } from '@/lib/promo';
 
 /* 📢 E'lonlar oynasi (yon menyuda «Talabalar chati» ostida, har 10 soniyada almashadi) va ⚡ jonli test oynasi.
    Matni uzun e'lon ustiga bosilsa — to'liq matn alohida oynada ochiladi.
@@ -462,17 +462,27 @@ export function NewsBox({ className = '' }: { className?: string }) {
   );
 }
 
-/** 📢 Bosh sahifadagi kichik e'lonlar tugmasi (telefonda — joriy mavzu yonida): eng so'nggi e'lon yoki yaqin jonli
-   test sarlavhasi (har 10 soniyada almashadi) va e'lonlar soni. Bosilsa — hamma e'lonlar to'liq matni bilan. */
+/** ✉️ Bosh sahifadagi kichik «xat» tugmasi (telefonda — joriy mavzu yonida): ikkala e'lon oynasi (e'lonlar va
+   takliflar) bitta joyda. Yonida — yangi (hali ochilmagan) e'lonlar soni qizil raqamda, hammasi ko'rilgach — umumiy
+   soni kulrangda. Eng so'nggi sarlavha har 10 soniyada almashadi. Bosilsa — hammasi to'liq matni bilan. */
 export function NewsChip({ className = '' }: { className?: string }) {
-  const { lang } = useApp();
+  const { lang, data, request } = useApp();
   const L = (uz: string, en: string, ru: string) => tr(lang, uz, en, ru);
   const { data: d, now } = useNews();
   const [index, setIndex] = useState(0),
-    [open, setOpen] = useState(false);
+    // ochilgan paytdagi «ko'rilganlar» (oynada yangilarini belgilash uchun); null — yopiq
+    [open, setOpen] = useState<Set<string> | null>(null),
+    [seen, setSeen] = useState<Set<string>>(() => new Set());
+  useEffect(() => {
+    setSeen(new Set(localSeen()));
+    const on = (e: Event) => setSeen((x) => new Set(x).add((e as CustomEvent<string>).detail));
+    window.addEventListener('sq-news-seen', on);
+    return () => window.removeEventListener('sq-news-seen', on);
+  }, []);
   const n = now();
   const g = d?.live && d.live.end > n && d.live.start - n < 86400000 ? d.live : null;
-  const news = d?.news || [];
+  const news = d?.news || [],
+    promo = d?.promo || [];
   const entries = [
     ...(g
       ? [
@@ -486,8 +496,11 @@ export function NewsChip({ className = '' }: { className?: string }) {
           },
         ]
       : []),
-    ...news.map((x) => ({ key: x.id, text: '📢 ' + (x.h || x.t) })),
+    ...news.map((x) => ({ key: x.id, text: x.h || x.t })),
+    ...promo.map((x) => ({ key: x.id, text: x.h })),
   ];
+  const ids = [...news.map((x) => x.id), ...promo.map((x) => x.id)];
+  const unread = ids.filter((id) => !seen.has(id)).length;
   const count = entries.length;
   useEffect(() => {
     if (count < 2 || open) return;
@@ -496,58 +509,96 @@ export function NewsChip({ className = '' }: { className?: string }) {
   }, [count, open]);
   if (!count) return null;
   const cur = entries[index % count];
-  const fresh = news.some((x) => n - x.at < FRESH_MS);
+  const total = ids.length || count;
+  function show() {
+    setOpen(new Set(seen));
+    // ochib ko'rildi — yangi deb sanalmaydi; katta oynadagi e'lonlar ham «o'qildi»
+    for (const x of news)
+      if (!seen.has(x.id)) {
+        markLocalSeen(x.id);
+        if (x.pop && data?.user)
+          void request('/api/platform', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'newsSeen', input: { id: x.id } }),
+          }).catch(() => {});
+      }
+    for (const x of promo) if (!seen.has(x.id)) markLocalSeen(x.id);
+  }
   return (
     <>
       <button
         type="button"
-        className={'news-chip ' + className}
+        className={'news-chip ' + (unread ? 'has-new ' : '') + className}
         aria-haspopup="dialog"
-        aria-label={L('E’lonlar', 'Announcements', 'Объявления') + ': ' + count}
-        onClick={() => setOpen(true)}
+        aria-label={
+          L('E’lonlar', 'Announcements', 'Объявления') +
+          ': ' +
+          total +
+          (unread ? ', ' + L('yangi', 'new', 'новых') + ': ' + unread : '')
+        }
+        onClick={show}
       >
-        {fresh && <i className="news-ping" aria-hidden="true" />}
+        <span className="news-chip-env" aria-hidden="true">
+          <Mail size={17} />
+        </span>
+        <em className={'news-chip-count' + (unread ? ' is-new' : '')}>{unread || total}</em>
         <span className="news-chip-text" key={cur.key}>
           {cur.text}
         </span>
-        {count > 1 && <em>{count}</em>}
       </button>
       {open &&
         createPortal(
-          <NewsList g={g} news={news} now={n} onClose={() => setOpen(false)} />,
+          <NewsList
+            g={g}
+            news={news}
+            promo={promo}
+            fresh={open}
+            now={n}
+            onClose={() => setOpen(null)}
+          />,
           document.body,
         )}
     </>
   );
 }
-/** Hamma e'lonlar (va yaqin jonli test) — bitta oynada, to'liq matni bilan. */
+/** Hamma e'lonlar, takliflar (2-oyna) va yaqin jonli test — bitta oynada, to'liq matni bilan. */
 function NewsList({
   g,
   news,
+  promo,
+  fresh,
   now,
   onClose,
 }: {
   g: LiveGame | null;
   news: NewsItem[];
+  promo: PromoItem[];
+  /** ochilishdan oldin ko'rilgan e'lonlar — qolganlari «YANGI» */
+  fresh: Set<string>;
   now: number;
   onClose: () => void;
 }) {
   const { lang } = useApp();
   const L = (uz: string, en: string, ru: string) => tr(lang, uz, en, ru);
   const closeRef = useRef<HTMLButtonElement>(null),
-    done = useRef(onClose);
+    done = useRef(onClose),
+    [before] = useState(() => new Set(fresh));
   done.current = onClose;
   useEffect(() => {
-    const before = document.activeElement as HTMLElement | null;
+    const prev = document.activeElement as HTMLElement | null;
     closeRef.current?.focus();
     const key = (e: KeyboardEvent) => e.key === 'Escape' && done.current();
     window.addEventListener('keydown', key);
     return () => {
       window.removeEventListener('keydown', key);
-      before?.focus?.();
+      prev?.focus?.();
     };
   }, []);
   const st = g ? liveState(g, now) : 'wait';
+  const isNew = (id: string) => !before.has(id);
+  const ext = (link: string) =>
+    link.startsWith('http') ? { target: '_blank', rel: 'noopener noreferrer' } : {};
   return (
     <div
       className="modal-backdrop news-reader-backdrop"
@@ -561,7 +612,7 @@ function NewsList({
       >
         <header>
           <h2 id="news-list-h" className="news-reader-kicker">
-            📢 {L('E’LONLAR', 'ANNOUNCEMENTS', 'ОБЪЯВЛЕНИЯ')}
+            ✉️ {L('E’LONLAR', 'ANNOUNCEMENTS', 'ОБЪЯВЛЕНИЯ')}
           </h2>
           <button
             ref={closeRef}
@@ -593,27 +644,53 @@ function NewsList({
           </article>
         )}
         {news.map((x) => (
-          <article key={x.id} className="news-list-item">
+          <article key={x.id} className={'news-list-item' + (isNew(x.id) ? ' is-new' : '')}>
+            <span className="news-list-kind">
+              📢 {L('E’lon', 'Announcement', 'Объявление')}
+              {isNew(x.id) && <em>{L('YANGI', 'NEW', 'НОВОЕ')}</em>}
+            </span>
             {x.h && <h3>{x.h}</h3>}
             <p className="news-reader-text">{x.t}</p>
-            <small className="news-reader-meta">
-              {now - x.at < FRESH_MS ? '🆕 ' : ''}
-              {dueText(x.at, lang, now).date}
-            </small>
+            <small className="news-reader-meta">{dueText(x.at, lang, now).date}</small>
             {x.link && (
               <a
                 className="news-reader-cta"
                 href={x.link}
                 onClick={() => !x.link!.startsWith('http') && onClose()}
-                {...(x.link.startsWith('http')
-                  ? { target: '_blank', rel: 'noopener noreferrer' }
-                  : {})}
+                {...ext(x.link)}
               >
                 {L('Batafsil', 'Learn more', 'Подробнее')} →
               </a>
             )}
           </article>
         ))}
+        {promo.map((x) => {
+          const k = PROMO_KIND[x.kind] || PROMO_KIND.other;
+          return (
+            <article
+              key={x.id}
+              className={'news-list-item is-promo' + (isNew(x.id) ? ' is-new' : '')}
+            >
+              {x.img && <img className="news-reader-img" src={x.img} alt="" loading="lazy" />}
+              <span className="news-list-kind">
+                {k.icon} {tr(lang, ...k.name)}
+                {isNew(x.id) && <em>{L('YANGI', 'NEW', 'НОВОЕ')}</em>}
+              </span>
+              <h3>{x.h}</h3>
+              {x.t && <p className="news-reader-text">{x.t}</p>}
+              {x.link && (
+                <a
+                  className="news-reader-cta is-promo"
+                  href={x.link}
+                  onClick={() => !x.link!.startsWith('http') && onClose()}
+                  {...ext(x.link)}
+                >
+                  {x.cta || L('Batafsil', 'Learn more', 'Подробнее')} →
+                </a>
+              )}
+            </article>
+          );
+        })}
       </section>
     </div>
   );

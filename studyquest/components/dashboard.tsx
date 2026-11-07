@@ -180,9 +180,14 @@ function LearnerHome() {
           </p>
         </div>
       </div>
-      {/* Telefonda yon menyu yashirin: e'lonlar — joriy mavzu yonida kichik tugma (mavzu bo'lmasa — oyna),
-          2-e'lon oynasi — mavzu blokidan keyin. Yangi e'lon saytga kirganda katta oynada chiqadi. */}
-      {!lesson && <NewsBox className="home-news" />}
+      {/* Telefonda yon menyu yashirin: ikkala e'lon oynasi — joriy mavzu yonidagi ✉️ tugmada (mavzu bo'lmasa —
+          oynalar). Yangi e'lon saytga kirganda katta oynada chiqadi. */}
+      {!lesson && (
+        <>
+          <NewsBox className="home-news" />
+          <PromoBox className="home-promo" />
+        </>
+      )}
       <div className="dashboard-grid">
         <div className="dashboard-main">
           {lesson && (
@@ -264,7 +269,6 @@ function LearnerHome() {
               </div>
             </motion.section>
           )}
-          <PromoBox className="home-promo" />
           <section className="stats-grid">
             {hasAcademic && university ? (
               <div className="stat-card">

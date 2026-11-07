@@ -5575,19 +5575,54 @@ button.rk-slot:has(.av-empty)::after {
   white-space: nowrap;
   animation: news-in 0.45s ease;
 }
-.news-chip em {
+.news-chip-env {
+  display: grid;
   flex: none;
-  min-width: 18px;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  background: #fff;
+  color: #6d28d9;
+}
+.news-chip.has-new .news-chip-env {
+  animation: news-env 2.4s ease-in-out infinite;
+}
+@keyframes news-env {
+  0%,
+  70%,
+  100% {
+    transform: none;
+  }
+  76% {
+    transform: rotate(-12deg);
+  }
+  82% {
+    transform: rotate(10deg);
+  }
+  88% {
+    transform: rotate(-6deg);
+  }
+}
+.news-chip-count {
+  display: grid;
+  flex: none;
+  place-items: center;
+  min-width: 20px;
+  height: 20px;
+  margin-left: -10px;
+  margin-top: -14px;
   padding: 0 5px;
+  border: 2px solid #6d28d9;
   border-radius: 999px;
-  background: #fbbf24;
-  color: #3b0764;
+  background: #a78bfa;
+  color: #fff;
   font-size: 11px;
   font-style: normal;
-  text-align: center;
+  font-weight: 800;
 }
-.news-chip .news-ping {
-  flex: none;
+.news-chip-count.is-new {
+  background: #ef4444;
 }
 .news-list {
   gap: 10px;
@@ -5606,6 +5641,36 @@ button.rk-slot:has(.av-empty)::after {
 .news-list-item.is-live {
   border-color: #c4b5fd;
   background: var(--soft-violet);
+}
+.news-list-item.is-new {
+  border-color: #c4b5fd;
+  box-shadow: 0 0 0 3px #a78bfa26;
+}
+.news-list-item.is-promo {
+  background: linear-gradient(165deg, #fff7ed, transparent 70%);
+}
+.dark .news-list-item.is-promo {
+  background: linear-gradient(165deg, #3a241433, transparent 70%);
+}
+.news-list-kind {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 12.5px;
+  font-weight: 700;
+}
+.news-list-kind em {
+  padding: 0 6px;
+  border-radius: 6px;
+  background: #ef4444;
+  color: #fff;
+  font-size: 10.5px;
+  font-style: normal;
+}
+.news-reader-cta.is-promo {
+  background: #c2410c;
 }
 .news-list-item h3 {
   margin: 0;
@@ -6395,6 +6460,7 @@ body:has(.focus-learning) .kh-pop {
   }
 }
 @media (prefers-reduced-motion: reduce) {
+  .news-chip-env,
   .news-box,
   .news-box::before,
   .news-ping::after,

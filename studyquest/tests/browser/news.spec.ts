@@ -334,7 +334,7 @@ test('the administrator fills the second box with offers and students see them u
   await expect(side).toContainText('2-E’LON OYNASI');
 });
 
-test('on phones the home page starts with the current topic and shows news as a small chip beside it', async ({
+test('on phones the home page starts with the current topic and shows both boxes as a small envelope beside it', async ({
   page,
   browser,
 }) => {
@@ -350,6 +350,18 @@ test('on phones the home page starts with the current topic and shows news as a 
   await panel.getByRole('checkbox', { name: /katta oynada ko‘rsatish/ }).uncheck();
   await panel.getByRole('button', { name: /E’lon joylash/ }).click();
   await expect(panel.locator('.news-admin-list')).toContainText('1-ma’ruza topshirig‘i');
+  // 2-e'lon oynasi (taklif) ham xat tugmasiga qo'shiladi
+  const promoId = await page.evaluate(async () => {
+    const r = await fetch('/api/platform', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'promo',
+        input: { op: 'add', kind: 'grant', h: 'Yoshlar grant dasturi', t: '50 mln so‘mgacha.' },
+      }),
+    });
+    return (await r.json()).id as string;
+  });
 
   const phone = await (
     await browser.newContext({
@@ -361,18 +373,29 @@ test('on phones the home page starts with the current topic and shows news as a 
   await phone.goto('/#home', { waitUntil: 'domcontentloaded' });
   const hero = phone.locator('.continue-hero');
   await expect(hero).toBeVisible();
-  // tepada — mavzu bloki; katta e'lonlar oynasi yo'q, e'lon — mavzu yonida kichik tugma
+  // tepada — mavzu bloki; e'lon oynalari yo'q, ikkalasi — mavzu yonidagi ✉️ tugmada
   await expect(phone.locator('.home-news')).toHaveCount(0);
-  const chip = hero.locator('.hero-tag-row').getByRole('button', { name: /^E’lonlar/ });
+  await expect(phone.locator('.home-promo')).toHaveCount(0);
+  const chip = hero
+    .locator('.hero-tag-row')
+    .getByRole('button', { name: /^E’lonlar: 2, yangi: 2/ });
   await expect(chip).toBeVisible();
-  await expect(chip).toContainText('1-ma’ruza topshirig‘i');
+  await expect(chip.locator('.news-chip-count.is-new')).toHaveText('2');
   const box = await chip.boundingBox();
-  expect(box!.height).toBeLessThan(40);
+  expect(box!.height).toBeLessThan(44);
   await chip.click();
   const list = phone.getByRole('dialog', { name: /E’LONLAR/ });
   await expect(list).toContainText('dushanba 9:00 da 321-xonaga keling');
+  await expect(list.locator('.news-list-item.is-promo')).toContainText('Yoshlar grant dasturi');
+  await expect(list.locator('.news-list-item.is-new')).toHaveCount(2);
   await phone.keyboard.press('Escape');
   await expect(list).toHaveCount(0);
+  // ko'rilgach — raqam kulrang (umumiy soni), qizil emas; sahifa yangilansa ham
+  await expect(hero.locator('.news-chip-count')).toHaveText('2');
+  await expect(hero.locator('.news-chip-count.is-new')).toHaveCount(0);
+  await phone.reload({ waitUntil: 'domcontentloaded' });
+  await expect(hero.locator('.news-chip-count')).toHaveText('2');
+  await expect(hero.locator('.news-chip-count.is-new')).toHaveCount(0);
   await phone.context().close();
 
   await panel
@@ -380,4 +403,11 @@ test('on phones the home page starts with the current topic and shows news as a 
     .first()
     .click();
   await expect(panel.locator('.news-admin-list li:not(.muted)')).toHaveCount(0);
+  await page.evaluate(async (id) => {
+    await fetch('/api/platform', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'promo', input: { op: 'remove', id } }),
+    });
+  }, promoId);
 });
