@@ -154,15 +154,39 @@ export type Data = {
   error?: string;
 };
 /** «Adminga xabar»: murojaat va administrator javobi. */
+/** «Adminga xabar» suhbatidagi bitta xabar (talabaniki yoki administratorniki). */
 export type SupportMessage = {
   id: string;
+  /** suhbat egasi (talaba yoki o'qituvchi) */
   uid: string;
+  /** kim yozgan: suhbat egasi yoki administrator/o'qituvchi (eski yozuvlarda yo'q — 'user') */
+  from?: 'user' | 'staff';
+  /** yozgan odamning ismi */
   name: string;
   role: string;
+  /** suhbat egasining guruhi */
   group: string;
   cat: 'tech' | 'grade' | 'account' | 'idea' | 'avatar' | 'other';
   text: string;
   at: number;
+  /** suhbat egasining xabari: yuborildi → o'qildi → javob berildi */
   status: 'new' | 'read' | 'answered' | 'closed';
+  /** qaysi xabarga javob (iqtibos) */
+  re?: { id: string; text: string; name: string };
+  /** administrator xabarida — suhbat egasining ismi */
+  to?: string;
+  /** eski ko'rinish: javob xabar ichida edi (o'qishda alohida xabarga aylantiriladi) */
   reply?: { text: string; at: number; by: string };
+};
+/** Administrator ro'yxatidagi bitta suhbat. */
+export type SupportThread = {
+  uid: string;
+  name: string;
+  group: string;
+  role: string;
+  last: SupportMessage;
+  /** o'qilmagan xabarlar soni */
+  unread: number;
+  /** oxirgi xabar suhbat egasidan — javob kutyapti */
+  waiting: boolean;
 };

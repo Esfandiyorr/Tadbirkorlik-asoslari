@@ -11,7 +11,8 @@ export async function GET(req: NextRequest) {
     // Kelgan xabarlar (administrator) uchun to'liq rol tekshiruvi; o'z murojaatlari — yengil (faqat o'qish).
     const inbox = req.nextUrl.searchParams.get('view') === 'inbox';
     const a = await actor(req, !inbox);
-    return NextResponse.json(await supportList(a, inbox), {
+    const uid = req.nextUrl.searchParams.get('uid') || undefined;
+    return NextResponse.json(await supportList(a, inbox, uid), {
       headers: { 'Cache-Control': 'private, no-store' },
     });
   } catch (e) {
@@ -24,7 +25,7 @@ export async function POST(req: NextRequest) {
     const body = await req.text();
     check(body.length < 6000, 413, 'Xabar juda uzun.');
     const p = z
-      .object({ action: z.enum(['send', 'reply']), input: z.unknown() })
+      .object({ action: z.enum(['send', 'reply', 'read']), input: z.unknown() })
       .strict()
       .parse(JSON.parse(body));
     const a = await actor(req, p.action === 'send');

@@ -89,8 +89,8 @@ test('taken avatars are locked, places 11+ only browse, and students can suggest
   await dialog.getByRole('button', { name: /Taklif yuborish/ }).click();
   await expect(dialog.locator('.av-sent')).toBeVisible();
   const mine = await (await page.request.get('/api/support')).json();
-  expect(mine.messages[0]).toMatchObject({ cat: 'avatar' });
-  expect(mine.messages[0].text).toContain('Shrek (Shrek multfilmi)');
+  const idea = mine.messages.find((m: { cat: string }) => m.cat === 'avatar');
+  expect(idea.text).toContain('Shrek (Shrek multfilmi)');
   await page.keyboard.press('Escape');
   await expect(dialog).toBeHidden();
 });
