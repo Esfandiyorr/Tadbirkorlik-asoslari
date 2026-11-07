@@ -6,7 +6,7 @@ import { administrator } from './auth';
 import { demo, legacyDb } from './repository';
 import { demoKahoot } from './live-admin';
 
-/* 📢 E'lonlar oynasi (yon menyuda, har 5 soniyada almashadi) va ⚡ jonli test jadvali.
+/* 📢 E'lonlar oynasi (yon menyuda, har 10 soniyada almashadi) va ⚡ jonli test jadvali.
    E'lonlar: meta/news/<id> = {h?, t, link?, until?, at} — faqat administrator (server orqali) yozadi, hamma o'qiydi.
    Jonli test: asl tizimdagi kahoot/cfg va kahoot/idx (administrator «Sayt boshqaruvi → ⚡ Jonli test»da yoki eski
    «Kursni boshqarish → ⚡ Jonli test» panelida rejalashtiradi). */
@@ -113,7 +113,7 @@ const input = z.discriminatedUnion('op', [
     .object({
       op: z.literal('add'),
       h: z.string().trim().max(60).optional(),
-      t: z.string().trim().min(2).max(300),
+      t: z.string().trim().min(2).max(1500),
       link: newsLink.optional(),
       until: z.number().int().positive().optional(),
     })

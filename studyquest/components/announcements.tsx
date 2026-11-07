@@ -1,5 +1,5 @@
 'use client';
-import { useCallback, useEffect, useReducer, useState } from 'react';
+import { useCallback, useEffect, useReducer, useRef, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { Megaphone, Pause, Play, Plus, Trash2, X } from 'lucide-react';
 import { useApp } from './provider';
@@ -8,7 +8,8 @@ import { dueText, tr } from '@/lib/points';
 import type { Lang } from '@/lib/types';
 import { FRESH_MS, type PromoItem } from '@/lib/promo';
 
-/* 📢 E'lonlar oynasi (yon menyuda «Talabalar chati» ostida, har 5 soniyada almashadi) va ⚡ jonli test oynasi.
+/* 📢 E'lonlar oynasi (yon menyuda «Talabalar chati» ostida, har 10 soniyada almashadi) va ⚡ jonli test oynasi.
+   Matni uzun e'lon ustiga bosilsa — to'liq matn alohida oynada ochiladi.
    Ma'lumot: GET /api/platform?view=news → {news, live, now}. Jonli testni o'qituvchi asl panelda rejalashtiradi
    (Kursni boshqarish → 🔑 O'qituvchi → ⚡ Jonli test); o'yinning o'zi arenada (#/live, #/yozuv). */
 
@@ -34,7 +35,8 @@ type NewsData = { news: NewsItem[]; live: LiveGame | null; promo: PromoItem[]; n
 
 /** Boshlanishidan necha daqiqa oldin jonli test oynasi chiqadi (asl dvigatel: KH_GATE_MS). */
 export const GATE_MS = 20 * 60000;
-const ROTATE_MS = 5000;
+/** E'lonlar oynalari (1- va 2-oyna) shuncha vaqtda almashadi. */
+export const ROTATE_MS = 10000;
 const navigate = (view: string) => {
   location.hash = view;
 };
@@ -142,7 +144,145 @@ const gameName = (g: LiveGame, lang: Lang) =>
 
 type Slide = { key: string; node: React.ReactNode };
 
-/** Yon menyudagi doimiy e'lonlar oynasi: jonli test + administrator e'lonlari, har 5 soniyada almashadi. */
+/** Matn o'z joyiga sig'madimi (qisqartirib ko'rsatilyaptimi) — «To'liq o'qish» belgisi uchun. */
+export function useClamped<T extends HTMLElement>() {
+  const ref = useRef<T>(null);
+  const [clamped, setClamped] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const check = () => setClamped(el.scrollHeight > el.clientHeight + 1);
+    check();
+    const ro = new ResizeObserver(check);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  return [ref, clamped] as const;
+}
+
+/** E'lonning to'liq matni — alohida oynada (Esc, «×» yoki tashqariga bosish bilan yopiladi). */
+export function NewsReader({
+  kicker,
+  title,
+  text,
+  img,
+  link,
+  cta,
+  meta,
+  tone = 'news',
+  onClose,
+}: {
+  kicker: ReactNode;
+  title?: string;
+  text?: string;
+  img?: string;
+  link?: string;
+  cta?: string;
+  meta?: string;
+  tone?: 'news' | 'promo';
+  onClose: () => void;
+}) {
+  const { lang } = useApp();
+  const closeRef = useRef<HTMLButtonElement>(null),
+    done = useRef(onClose);
+  done.current = onClose;
+  useEffect(() => {
+    const before = document.activeElement as HTMLElement | null;
+    closeRef.current?.focus();
+    const key = (e: KeyboardEvent) => e.key === 'Escape' && done.current();
+    window.addEventListener('keydown', key);
+    return () => {
+      window.removeEventListener('keydown', key);
+      before?.focus?.();
+    };
+  }, []);
+  return createPortal(
+    <div
+      className="modal-backdrop news-reader-backdrop"
+      onClick={(e) => e.target === e.currentTarget && onClose()}
+    >
+      <section
+        className={'panel news-reader is-' + tone}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="news-reader-h"
+      >
+        <header>
+          <span className="news-reader-kicker">{kicker}</span>
+          <button
+            ref={closeRef}
+            type="button"
+            className="av-close"
+            aria-label={tr(lang, 'Yopish', 'Close', 'Закрыть')}
+            onClick={onClose}
+          >
+            <X size={20} />
+          </button>
+        </header>
+        {img && <img className="news-reader-img" src={img} alt="" />}
+        <h2 id="news-reader-h">{title || tr(lang, 'E’lon', 'Announcement', 'Объявление')}</h2>
+        {text && <p className="news-reader-text">{text}</p>}
+        {meta && <small className="news-reader-meta">{meta}</small>}
+        {link && (
+          <a
+            className="news-reader-cta"
+            href={link}
+            onClick={() => !link.startsWith('http') && onClose()}
+            {...(link.startsWith('http') ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+          >
+            {cta || tr(lang, 'Batafsil', 'Learn more', 'Подробнее')} →
+          </a>
+        )}
+      </section>
+    </div>,
+    document.body,
+  );
+}
+
+/** Administrator e'loni (oynadagi bitta slayd): sarlavha va matnga bosilsa — to'liq matn ochiladi. */
+function NewsSlide({ item, now, onOpen }: { item: NewsItem; now: number; onOpen: () => void }) {
+  const { lang } = useApp();
+  const L = (uz: string, en: string, ru: string) => tr(lang, uz, en, ru);
+  const [ref, clamped] = useClamped<HTMLSpanElement>();
+  // Uzun e'londa «Batafsil» tugmasi to'liq matn oynasida (kichik oynada matnga joy qolsin).
+  const long = item.t.length > 140 || item.t.includes('\n');
+  return (
+    <div className="news-slide is-item">
+      <span className="news-kicker">
+        <i className="news-ping" aria-hidden="true" />
+        📢 {L('E’LON', 'NEWS', 'ОБЪЯВЛЕНИЕ')}
+        {now - item.at < FRESH_MS && <em className="news-new">{L('YANGI', 'NEW', 'НОВОЕ')}</em>}
+      </span>
+      <button
+        type="button"
+        className={'news-open' + (clamped ? ' is-clamped' : '')}
+        aria-haspopup="dialog"
+        onClick={onOpen}
+      >
+        {item.h && <b>{item.h}</b>}
+        <span className="news-text" ref={ref}>
+          {item.t}
+        </span>
+        {clamped && (
+          <span className="news-more">{L('To‘liq o‘qish', 'Read all', 'Читать полностью')} →</span>
+        )}
+      </button>
+      {item.link && !long && (
+        <a
+          className="news-cta"
+          href={item.link}
+          {...(item.link.startsWith('http')
+            ? { target: '_blank', rel: 'noopener noreferrer' }
+            : {})}
+        >
+          {L('Batafsil', 'More', 'Подробнее')} →
+        </a>
+      )}
+    </div>
+  );
+}
+
+/** Yon menyudagi doimiy e'lonlar oynasi: jonli test + administrator e'lonlari, har 10 soniyada almashadi. */
 export function NewsBox({ className = '' }: { className?: string }) {
   const { lang, data } = useApp();
   const L = (uz: string, en: string, ru: string) => tr(lang, uz, en, ru);
@@ -151,7 +291,8 @@ export function NewsBox({ className = '' }: { className?: string }) {
   useTick(!!g && g.start - now() < 86400000);
   const [index, setIndex] = useState(0),
     [hover, setHover] = useState(false),
-    [paused, setPaused] = useState(false);
+    [paused, setPaused] = useState(false),
+    [reading, setReading] = useState<NewsItem | null>(null);
   const slides: Slide[] = [];
   if (g) {
     const n = now(),
@@ -204,30 +345,7 @@ export function NewsBox({ className = '' }: { className?: string }) {
   for (const item of d?.news || [])
     slides.push({
       key: item.id,
-      node: (
-        <div className="news-slide">
-          <span className="news-kicker">
-            <i className="news-ping" aria-hidden="true" />
-            📢 {L('E’LON', 'NEWS', 'ОБЪЯВЛЕНИЕ')}
-            {now() - item.at < FRESH_MS && (
-              <em className="news-new">{L('YANGI', 'NEW', 'НОВОЕ')}</em>
-            )}
-          </span>
-          {item.h && <b>{item.h}</b>}
-          <p>{item.t}</p>
-          {item.link && (
-            <a
-              className="news-cta"
-              href={item.link}
-              {...(item.link.startsWith('http')
-                ? { target: '_blank', rel: 'noopener noreferrer' }
-                : {})}
-            >
-              {L('Batafsil', 'More', 'Подробнее')} →
-            </a>
-          )}
-        </div>
-      ),
+      node: <NewsSlide item={item} now={now()} onOpen={() => setReading(item)} />,
     });
   if (!slides.length)
     slides.push({
@@ -248,10 +366,10 @@ export function NewsBox({ className = '' }: { className?: string }) {
   const count = slides.length,
     current = index % count;
   useEffect(() => {
-    if (count < 2 || hover || paused) return;
+    if (count < 2 || hover || paused || reading) return;
     const t = setInterval(() => setIndex((i) => (i + 1) % count), ROTATE_MS);
     return () => clearInterval(t);
-  }, [count, hover, paused]);
+  }, [count, hover, paused, reading]);
   return (
     <section
       className={'news-box ' + className}
@@ -318,6 +436,26 @@ export function NewsBox({ className = '' }: { className?: string }) {
           </button>
         )}
       </div>
+      {reading && (
+        <NewsReader
+          kicker={<>📢 {L('E’LON', 'NEWS', 'ОБЪЯВЛЕНИЕ')}</>}
+          title={reading.h}
+          text={reading.t}
+          link={reading.link}
+          meta={
+            L('Joylangan', 'Posted', 'Опубликовано') +
+            ': ' +
+            dueText(reading.at, lang, now()).date +
+            (reading.until
+              ? ' · ' +
+                L('ko‘rinadi', 'visible until', 'до') +
+                ' ' +
+                dueText(reading.until, lang, now()).date
+              : '')
+          }
+          onClose={() => setReading(null)}
+        />
+      )}
     </section>
   );
 }
@@ -475,9 +613,9 @@ export function NewsAdmin({ openCourseControls }: { openCourseControls?: () => v
           </h2>
           <p className="muted">
             {L(
-              'E’lonlar yon menyudagi «📢 E’lonlar» oynasida chiqadi va har 5 soniyada almashadi. Keyingi jonli test u yerda o‘zi ko‘rinadi.',
-              'Announcements appear in the “📢 News” box in the side menu and change every 5 seconds. The next live quiz is shown there automatically.',
-              'Объявления показываются в окне «📢 Объявления» в боковом меню и меняются каждые 5 секунд. Ближайший живой тест показывается там автоматически.',
+              'E’lonlar yon menyudagi «📢 E’lonlar» oynasida chiqadi va har 10 soniyada almashadi. Matn uzun bo‘lsa, oynada qisqartirib ko‘rsatiladi — talaba e’lonni bosib to‘liq o‘qiydi. Keyingi jonli test u yerda o‘zi ko‘rinadi.',
+              'Announcements appear in the “📢 News” box in the side menu and change every 10 seconds. Long texts are shortened there — students click an announcement to read all of it. The next live quiz is shown there automatically.',
+              'Объявления показываются в окне «📢 Объявления» в боковом меню и меняются каждые 10 секунд. Длинный текст студент открывает нажатием. Ближайший живой тест показывается там автоматически.',
             )}
           </p>
         </div>
@@ -518,15 +656,15 @@ export function NewsAdmin({ openCourseControls }: { openCourseControls?: () => v
           className="input"
           required
           minLength={2}
-          maxLength={300}
-          rows={3}
+          maxLength={1500}
+          rows={4}
           value={form.t}
           onChange={(e) => setForm({ ...form, t: e.target.value })}
           aria-label={L('E’lon matni', 'Announcement text', 'Текст объявления')}
           placeholder={L(
-            'E’lon matni (300 belgigacha)',
-            'Announcement text (up to 300 characters)',
-            'Текст объявления (до 300 символов)',
+            'E’lon matni (1500 belgigacha; uzun matnni talaba bosib to‘liq o‘qiydi)',
+            'Announcement text (up to 1500 characters; students click to read long texts)',
+            'Текст объявления (до 1500 символов)',
           )}
         />
         <div className="news-admin-row">

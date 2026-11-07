@@ -1,15 +1,17 @@
 'use client';
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
-import { Eye, EyeOff, ImageUp, Plus, RotateCcw, Save, Trash2 } from 'lucide-react';
+import { Eye, EyeOff, ImageUp, Plus, RotateCcw, Save, Trash2, Wand2 } from 'lucide-react';
 import { useApp } from '../provider';
 import { Button } from '../ui/button';
-import { shrink } from '../site-content';
+import { prepareAvatar, type PrepReason } from '../avatar-prep';
 import { setAvatarCatalog } from '../avatars';
 import type { AvatarItem } from '@/lib/avatars';
 import { useL } from './common';
 
 /* 🎭 Sayt boshqaruvi → Avatarlar → Kutubxona: yangi avatar qo'shish (rasm + nom), nomini va rasmini almashtirish,
-   yashirish/ko'rsatish, o'zingiz qo'shganini o'chirish. Kim qaysi avatarni olgani — pastdagi bo'limda. */
+   yashirish/ko'rsatish, o'zingiz qo'shganini o'chirish. Kim qaysi avatarni olgani — pastdagi bo'limda.
+   Yuklanayotgan rasmning oq (bir xil rangli) foni avtomatik olib tashlanadi va qahramon asl avatarlardek kesiladi;
+   avval yuklangan rasmni «🪄 Fonni tozalash» bilan shu holga keltirish mumkin. */
 
 type Draft = { id: string; uz: string; en: string; ru: string; from: string };
 
@@ -21,7 +23,13 @@ export function AvatarLibraryAdmin({ onChange }: { onChange?: () => void }) {
     [busy, setBusy] = useState(''),
     [edit, setEdit] = useState<Draft | null>(null),
     [form, setForm] = useState({ uz: '', en: '', ru: '', from: '' }),
-    [file, setFile] = useState<{ blob: Blob; url: string } | null>(null);
+    [file, setFile] = useState<{
+      blob: Blob;
+      url: string;
+      src: File;
+      reason: PrepReason;
+    } | null>(null),
+    [clean, setClean] = useState(true);
   const load = useCallback(async () => {
     try {
       const r = await request('/api/platform?view=avatarAdmin'),
@@ -78,15 +86,68 @@ export function AvatarLibraryAdmin({ onChange }: { onChange?: () => void }) {
       setBusy('');
     }
   }
-  const pick = async (f: File | undefined) => {
+  const pick = async (f: File | Blob | undefined, removeBg = clean) => {
     if (!f) return null;
     try {
-      return await shrink(f, 512);
+      return await prepareAvatar(f, removeBg);
     } catch (e) {
       toast((e as Error).message);
       return null;
     }
   };
+  const status = (reason: PrepReason) =>
+    reason === 'removed'
+      ? L(
+          '✅ Fon olib tashlandi — qahramon asl avatarlardek kesildi.',
+          '✅ Background removed — the character is cut out like the original avatars.',
+          '✅ Фон удалён — герой вырезан как исходные аватары.',
+        )
+      : reason === 'transparent'
+        ? L(
+            '✅ Rasm foni allaqachon shaffof — chetlari kesildi.',
+            '✅ The background is already transparent — edges trimmed.',
+            '✅ Фон уже прозрачный — края обрезаны.',
+          )
+        : reason === 'off'
+          ? L(
+              'Fon olib tashlanmadi (sozlama o‘chiq).',
+              'Background kept (option off).',
+              'Фон сохранён (опция выключена).',
+            )
+          : L(
+              '⚠️ Fon bir xil rangli emas — rasm o‘zgarishsiz qoldi. Oq yoki bir xil rangli fonli rasm yoki shaffof PNG tanlang.',
+              '⚠️ The background is not a single colour — the picture is unchanged. Choose one on a plain background or a transparent PNG.',
+              '⚠️ Фон не однотонный — картинка не изменена. Выберите картинку на однотонном фоне или прозрачный PNG.',
+            );
+  const choose = async (f: File | undefined, removeBg = clean) => {
+    if (!f) return;
+    const r = await pick(f, removeBg);
+    if (r) setFile({ blob: r.blob, url: URL.createObjectURL(r.blob), src: f, reason: r.reason });
+  };
+  /** Avval yuklangan avatar rasmining oq fonini tozalash (rasm brauzerda qayta ishlanib, o'rniga yuklanadi). */
+  async function cleanUp(a: AvatarItem) {
+    setBusy('clean' + a.id);
+    try {
+      const res = await fetch(a.src);
+      if (!res.ok) throw new Error('Rasm ochilmadi');
+      const r = await prepareAvatar(await res.blob(), true);
+      if (r.reason !== 'removed') {
+        toast(status(r.reason));
+        return;
+      }
+      setBusy('');
+      await upload(
+        { id: a.id },
+        r.blob,
+        'img' + a.id,
+        L('Fon tozalandi ✅', 'Background cleaned ✅', 'Фон очищен ✅'),
+      );
+    } catch (e) {
+      toast((e as Error).message);
+    } finally {
+      setBusy('');
+    }
+  }
   async function add(e: FormEvent) {
     e.preventDefault();
     if (!file)
@@ -133,9 +194,9 @@ export function AvatarLibraryAdmin({ onChange }: { onChange?: () => void }) {
               accept="image/png,image/webp,image/jpeg,image/gif"
               aria-label={L('Avatar rasmi', 'Avatar picture', 'Картинка аватара')}
               onChange={async (e) => {
-                const blob = await pick(e.target.files?.[0]);
+                const f = e.target.files?.[0];
                 e.target.value = '';
-                if (blob) setFile({ blob, url: URL.createObjectURL(blob) });
+                await choose(f);
               }}
             />
           </label>
@@ -179,11 +240,36 @@ export function AvatarLibraryAdmin({ onChange }: { onChange?: () => void }) {
             </label>
           </div>
         </div>
+        <label className="bo-check">
+          <input
+            type="checkbox"
+            checked={clean}
+            onChange={(e) => {
+              setClean(e.target.checked);
+              if (file) void choose(file.src, e.target.checked);
+            }}
+          />
+          🪄{' '}
+          {L(
+            'Oq (bir xil rangli) fonni avtomatik olib tashlash — qahramon asl avatarlardek kesiladi',
+            'Remove a white (plain) background automatically — the character is cut out like the original avatars',
+            'Автоматически убирать белый (однотонный) фон — герой вырезается как исходные аватары',
+          )}
+        </label>
+        {file && (
+          <p
+            className={
+              'bo-hint' + (file.reason === 'busy' || file.reason === 'failed' ? ' bo-bad' : '')
+            }
+          >
+            {status(file.reason)}
+          </p>
+        )}
         <p className="bo-hint">
           {L(
-            'Foni yo‘q (shaffof) PNG yoki WEBP rasm eng chiroyli chiqadi. Rasm avtomatik kichraytiriladi.',
-            'A PNG or WEBP with a transparent background looks best. The picture is shrunk automatically.',
-            'Лучше всего — PNG или WEBP с прозрачным фоном. Картинка уменьшается автоматически.',
+            'Oq yoki bir xil rangli fondagi rasm ham bo‘ladi: fon olib tashlanadi, qahramon chetigacha kesiladi va 480 px gacha kichraytiriladi. Murakkab fonli suratlar uchun foni yo‘q (shaffof) PNG yuklang.',
+            'A picture on a white or plain background works too: the background is removed, the character is trimmed and shrunk to 480 px. For photos with a busy background upload a transparent PNG.',
+            'Подойдёт и картинка на белом или однотонном фоне: фон убирается, герой обрезается и уменьшается до 480 px. Для фото со сложным фоном загрузите прозрачный PNG.',
           )}
         </p>
         <Button type="submit" disabled={busy === 'add'}>
@@ -196,9 +282,9 @@ export function AvatarLibraryAdmin({ onChange }: { onChange?: () => void }) {
       {list && (
         <p className="bo-hint">
           {L(
-            'Har bir avatar ostidagi tugmalar: ✏️ — nomini o‘zgartirish, 🖼 — rasmini almashtirish, 🙈 — yashirish (yoki qayta ko‘rsatish), ↩️ — asl rasmini qaytarish, 🗑 — o‘zingiz qo‘shganini o‘chirish.',
-            'Buttons under each avatar: ✏️ rename, 🖼 replace the picture, 🙈 hide (or show again), ↩️ restore the original picture, 🗑 delete one you added.',
-            'Кнопки под аватаром: ✏️ — переименовать, 🖼 — заменить картинку, 🙈 — скрыть (или показать), ↩️ — вернуть исходную картинку, 🗑 — удалить добавленный вами.',
+            'Har bir avatar ostidagi tugmalar: ✏️ — nomini o‘zgartirish, 🖼 — rasmini almashtirish, 🪄 — yuklangan rasmning oq fonini tozalash, 🙈 — yashirish (yoki qayta ko‘rsatish), ↩️ — asl rasmini qaytarish, 🗑 — o‘zingiz qo‘shganini o‘chirish.',
+            'Buttons under each avatar: ✏️ rename, 🖼 replace the picture, 🪄 clean the white background of an uploaded picture, 🙈 hide (or show again), ↩️ restore the original picture, 🗑 delete one you added.',
+            'Кнопки под аватаром: ✏️ — переименовать, 🖼 — заменить картинку, 🪄 — очистить белый фон загруженной картинки, 🙈 — скрыть (или показать), ↩️ — вернуть исходную картинку, 🗑 — удалить добавленный вами.',
           )}
         </p>
       )}
@@ -310,12 +396,14 @@ export function AvatarLibraryAdmin({ onChange }: { onChange?: () => void }) {
                           a.name[0]
                         }
                         onChange={async (e) => {
-                          const blob = await pick(e.target.files?.[0]);
+                          const r = await pick(e.target.files?.[0]);
                           e.target.value = '';
-                          if (blob)
+                          if (r && (r.reason === 'busy' || r.reason === 'failed'))
+                            toast(status(r.reason));
+                          if (r)
                             await upload(
                               { id: a.id },
-                              blob,
+                              r.blob,
                               'img' + a.id,
                               L(
                                 'Rasm almashtirildi ✅',
@@ -354,6 +442,26 @@ export function AvatarLibraryAdmin({ onChange }: { onChange?: () => void }) {
                     >
                       {a.off ? <Eye size={15} /> : <EyeOff size={15} />}
                     </Button>
+                    {!a.src.startsWith('/avatars/') && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        disabled={busy === 'clean' + a.id || busy === 'img' + a.id}
+                        aria-label={
+                          L('Fonni tozalash', 'Clean the background', 'Очистить фон') +
+                          ': ' +
+                          a.name[0]
+                        }
+                        title={L(
+                          'Fonni tozalash (oq fonni olib tashlash)',
+                          'Clean the background (remove white)',
+                          'Очистить фон (убрать белый)',
+                        )}
+                        onClick={() => void cleanUp(a)}
+                      >
+                        <Wand2 size={15} />
+                      </Button>
+                    )}
                     {!a.custom && !a.src.startsWith('/avatars/') && (
                       <Button
                         size="sm"

@@ -1,6 +1,6 @@
 import { test, expect, type Page } from '@playwright/test';
 
-/* 📢 E'lonlar oynasi (yon menyu, har 5 soniyada almashadi) va ⚡ jonli test oynasi (boshlanishidan 20 daqiqa oldin). */
+/* 📢 E'lonlar oynasi (yon menyu, har 10 soniyada almashadi; uzun e'lon bosilsa — to'liq matn) va ⚡ jonli test oynasi (boshlanishidan 20 daqiqa oldin). */
 async function as(page: Page, id: string) {
   await page.request.post('/api/auth/demo', { data: { id } });
 }
@@ -23,7 +23,7 @@ async function withLive(page: Page, inMinutes: number, type: 'quiz' | 'yz' = 'qu
   });
 }
 
-test('the administrator posts announcements and the side box rotates them every five seconds', async ({
+test('the administrator posts announcements and the side box rotates them every ten seconds', async ({
   page,
 }) => {
   await as(page, 'demo-admin');
@@ -44,14 +44,16 @@ test('the administrator posts announcements and the side box rotates them every 
   await expect(box.locator('.news-dots button')).toHaveCount(2);
   const text = () => box.locator('.news-slide').textContent();
   const first = await text();
-  // 5 soniyadan keyin keyingi e'lon.
+  // 10 soniyadan keyin keyingi e'lon (undan oldin almashmaydi).
+  await page.waitForTimeout(6000);
+  expect(await text()).toBe(first);
   await expect.poll(text, { timeout: 8000 }).not.toBe(first);
   await expect(box.getByRole('button', { name: 'E’lon qo‘shish' })).toBeVisible();
   // To'xtatish tugmasi almashishni to'xtatadi.
   await box.getByRole('button', { name: 'To‘xtatish' }).click();
   await page.mouse.move(800, 800);
   const held = await text();
-  await page.waitForTimeout(6000);
+  await page.waitForTimeout(11000);
   expect(await text()).toBe(held);
   // Tozalash: e'lonlarni o'chirish.
   for (let i = 0; i < 2; i++) {
@@ -61,6 +63,53 @@ test('the administrator posts announcements and the side box rotates them every 
       .click();
     await expect(panel.locator('.news-admin-list li:not(.muted)')).toHaveCount(1 - i);
   }
+});
+
+test('a long announcement is shortened in the box and opens in full when the student clicks it', async ({
+  page,
+  browser,
+}) => {
+  await as(page, 'demo-admin');
+  await page.goto('/#admin', { waitUntil: 'domcontentloaded' });
+  await page.locator('.bo-card-btn').filter({ hasText: 'E’lonlar' }).click();
+  const panel = page.locator('.news-manage');
+  const long =
+    'Hurmatli talabalar! ' +
+    'Seshanba kuni soat 14:00 da 7-mavzu bo‘yicha amaliy mashg‘ulot bo‘ladi. '.repeat(6) +
+    '\nOxirgi qator: biznes-model kanvasini olib keling.';
+  await panel.getByLabel('Sarlavha').fill('Muhim e’lon');
+  await panel.getByLabel('E’lon matni').fill(long);
+  await panel.getByRole('button', { name: /E’lon joylash/ }).click();
+  await expect(panel.locator('.news-admin-list')).toContainText('Oxirgi qator');
+
+  const s = await (
+    await browser.newContext({ baseURL: test.info().project.use.baseURL })
+  ).newPage();
+  await as(s, 'demo-student');
+  await s.goto('/#home', { waitUntil: 'domcontentloaded' });
+  const box = s.locator('.sidebar-news');
+  // Oynada matn qisqartirilgan — «To'liq o'qish» belgisi chiqadi.
+  await expect(box.locator('.news-more')).toHaveText(/To‘liq o‘qish/);
+  const open = box.getByRole('button', { name: /Muhim e’lon/ });
+  await open.click();
+  const dialog = s.getByRole('dialog');
+  await expect(dialog.getByRole('heading', { name: 'Muhim e’lon' })).toBeVisible();
+  await expect(dialog).toContainText('Oxirgi qator: biznes-model kanvasini olib keling.');
+  await expect(dialog).toContainText('Joylangan:');
+  await s.keyboard.press('Escape');
+  await expect(dialog).toHaveCount(0);
+  await expect(open).toBeFocused();
+  // Tashqariga bosilsa ham yopiladi.
+  await open.click();
+  await s.mouse.click(5, 5);
+  await expect(dialog).toHaveCount(0);
+  await s.context().close();
+
+  await panel
+    .getByRole('button', { name: /O‘chirish/ })
+    .first()
+    .click();
+  await expect(panel.locator('.news-admin-list li:not(.muted)')).toHaveCount(0);
 });
 
 test('students see a small live quiz card twenty minutes before the start and may close it', async ({
@@ -150,7 +199,7 @@ test('the administrator fills the second box with offers and students see them u
   await panel.getByRole('radio', { name: /Grant dasturi/ }).click();
   await panel.getByLabel('Sarlavha').fill('Yoshlar grant dasturi');
   await panel
-    .getByLabel('Qisqa matn')
+    .getByLabel('Matn', { exact: true })
     .fill('Startaplar uchun 50 mln so‘mgacha grant. Ariza 1-dekabrgacha.');
   await panel.getByLabel('Havola').fill('https://example.uz/grant');
   await panel.getByLabel('Tugma yozuvi').fill('Ariza topshirish');
@@ -172,7 +221,7 @@ test('the administrator fills the second box with offers and students see them u
   await expect(panel.locator('.promo-admin-list li')).toHaveCount(2);
   await expect(side.locator('.promo-dots button')).toHaveCount(2);
 
-  // Talaba ikkala taklifni yon menyuda ko'radi (har 6 soniyada almashadi), «+» tugmasi yo'q.
+  // Talaba ikkala taklifni yon menyuda ko'radi (har 10 soniyada almashadi), «+» tugmasi yo'q.
   const s2 = await student();
   const box = s2.locator('.sidebar-promo');
   await expect(box.locator('.promo-dots button')).toHaveCount(2);
@@ -188,6 +237,19 @@ test('the administrator fills the second box with offers and students see them u
   expect(
     (await s2.request.get((await img.getAttribute('src'))!)).headers()['content-type'],
   ).toMatch(/^image\//);
+  // E'lon bosilsa — to'liq matni rasm va tugma bilan alohida oynada ochiladi.
+  await box.getByRole('button', { name: /Yoshlar grant dasturi/ }).click();
+  const dialog = s2.getByRole('dialog');
+  await expect(dialog).toContainText(
+    'Startaplar uchun 50 mln so‘mgacha grant. Ariza 1-dekabrgacha.',
+  );
+  await expect(dialog.locator('img.news-reader-img')).toBeVisible();
+  await expect(dialog.getByRole('link', { name: /Ariza topshirish/ })).toHaveAttribute(
+    'href',
+    'https://example.uz/grant',
+  );
+  await dialog.getByRole('button', { name: 'Yopish' }).click();
+  await expect(dialog).toHaveCount(0);
   await box.locator('.promo-dots button').nth(0).click();
   await expect(box).toContainText('Excel bo‘yicha bepul kurs');
   await expect(box.getByRole('link', { name: /Batafsil/ })).toHaveAttribute('href', '#courses');

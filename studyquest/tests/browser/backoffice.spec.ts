@@ -330,13 +330,42 @@ test('the administrator adds a new avatar and hides another; top students see th
   await page.locator('.bo-card-btn').filter({ hasText: 'Avatarlar' }).click();
   const grid = page.locator('.bo-avatar-grid li');
   await expect(grid).toHaveCount(10);
+  // Oq fonli rasm: fon avtomatik olib tashlanadi (asl avatarlardek shaffof), qahramon chetigacha kesiladi.
+  const cornerAlpha = (src: string) =>
+    page.evaluate(async (src) => {
+      const img = new Image();
+      img.src = src;
+      await img.decode();
+      const c = document.createElement('canvas');
+      c.width = img.naturalWidth;
+      c.height = img.naturalHeight;
+      const x = c.getContext('2d')!;
+      x.drawImage(img, 0, 0);
+      return { a: x.getImageData(0, 0, 1, 1).data[3], w: c.width, h: c.height };
+    }, src);
   await page.getByLabel('Avatar rasmi').setInputFiles('public/icon-192.png');
+  await expect(page.locator('.bo-avatar-new')).toContainText('Fon olib tashlandi');
   await page.locator('.bo-avatar-new').getByLabel('Nomi (o‘zbekcha)').fill('Termiz Burguti');
   await page.getByLabel(/Qaysi multfilm/).fill('TerDU');
   await page.getByRole('button', { name: /Kutubxonaga qo‘shish/ }).click();
   await expect(grid).toHaveCount(11);
   await expect(grid.last()).toContainText('Termiz Burguti');
   await expect(grid.last()).toContainText('siz qo‘shgan');
+  const src = () => grid.last().locator('img').getAttribute('src') as Promise<string>;
+  expect((await cornerAlpha(await src())).a).toBe(0);
+  // Sozlama o'chiq bo'lsa — rasm foni bilan yuklanadi; «🪄 Fonni tozalash» uni keyin tozalaydi.
+  await page.getByRole('checkbox', { name: /fonni avtomatik olib tashlash/ }).uncheck();
+  const before = await src();
+  await page
+    .getByLabel('Rasmini almashtirish: Termiz Burguti')
+    .setInputFiles('public/icon-192.png');
+  await expect.poll(src).not.toBe(before);
+  expect(await cornerAlpha(await src())).toEqual({ a: 255, w: 192, h: 192 });
+  const white = await src();
+  await page.getByRole('button', { name: 'Fonni tozalash: Termiz Burguti' }).click();
+  await expect.poll(src).not.toBe(white);
+  expect((await cornerAlpha(await src())).a).toBe(0);
+  await page.getByRole('checkbox', { name: /fonni avtomatik olib tashlash/ }).check();
   await page.getByRole('button', { name: 'Yashirish: Sonik' }).click();
   await expect(grid.first()).toContainText('yashirilgan');
   // Pastdagi «kimda qaysi avatar» ro'yxati ham yangilanadi.

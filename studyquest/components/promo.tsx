@@ -3,31 +3,63 @@ import { useEffect, useMemo, useState } from 'react';
 import { ImagePlus, Pause, Play, Plus, Trash2, X } from 'lucide-react';
 import { useApp } from './provider';
 import { Button } from './ui/button';
-import { useNews } from './announcements';
+import { NewsReader, ROTATE_MS, useClamped, useNews } from './announcements';
 import { shrink } from './site-content';
 import { dueText, tr } from '@/lib/points';
 import { FRESH_MS, PROMO_KIND, PROMO_KINDS, type PromoItem, type PromoKind } from '@/lib/promo';
 import type { Lang } from '@/lib/types';
 
 /* 🛍 2-e'lon oynasi — yon menyu pastida (telefonda bosh sahifada): mahsulotlar, kurslar va grant dasturlari
-   reklamasi. Har 6 soniyada almashadi. Ma'lumot e'lonlar bilan bitta so'rovda keladi (useNews → promo).
+   reklamasi. Har 10 soniyada almashadi; e'lon ustiga bosilsa — to'liq matni ochiladi. Ma'lumot e'lonlar bilan bitta
+   so'rovda keladi (useNews → promo).
    Administrator «Sayt boshqaruvi → 🛍 2-e'lon oynasi»da qo'shadi va o'chiradi. */
 
-const ROTATE_MS = 6000;
 const external = (link: string) =>
   link.startsWith('http') ? { target: '_blank', rel: 'noopener noreferrer' } : {};
 
-export function PromoSlide({ item, lang, now }: { item: PromoItem; lang: Lang; now: number }) {
+export function PromoSlide({
+  item,
+  lang,
+  now,
+  onOpen,
+}: {
+  item: PromoItem;
+  lang: Lang;
+  now: number;
+  /** bosilganda to'liq matn (bo'lmasa — oddiy ko'rinish, masalan boshqaruvdagi namuna) */
+  onOpen?: () => void;
+}) {
   const k = PROMO_KIND[item.kind] || PROMO_KIND.other;
-  return (
-    <div className={'promo-slide is-' + item.kind + (item.img ? ' has-img' : '')}>
+  const [ref, clamped] = useClamped<HTMLSpanElement>();
+  const body = (
+    <>
       {item.img && <img className="promo-img" src={item.img} alt="" loading="lazy" />}
       <span className="promo-kind">
         <span aria-hidden="true">{k.icon}</span> {tr(lang, ...k.name)}
         {now - item.at < FRESH_MS && <em>{tr(lang, 'YANGI', 'NEW', 'НОВОЕ')}</em>}
       </span>
       <b>{item.h}</b>
-      {item.t && <p>{item.t}</p>}
+      {item.t && (
+        <span className="promo-text" ref={ref}>
+          {item.t}
+        </span>
+      )}
+      {clamped && onOpen && (
+        <span className="promo-more">
+          {tr(lang, 'To‘liq o‘qish', 'Read all', 'Читать полностью')} →
+        </span>
+      )}
+    </>
+  );
+  return (
+    <div className={'promo-slide is-' + item.kind + (item.img ? ' has-img' : '')}>
+      {onOpen ? (
+        <button type="button" className="promo-open" aria-haspopup="dialog" onClick={onOpen}>
+          {body}
+        </button>
+      ) : (
+        <div className="promo-open">{body}</div>
+      )}
       {item.link && (
         <a className="promo-cta" href={item.link} {...external(item.link)}>
           {item.cta || tr(lang, 'Batafsil', 'Learn more', 'Подробнее')} →
@@ -46,14 +78,15 @@ export function PromoBox({ className = '' }: { className?: string }) {
   const admin = data?.user?.role === 'admin';
   const [index, setIndex] = useState(0),
     [hover, setHover] = useState(false),
-    [paused, setPaused] = useState(false);
+    [paused, setPaused] = useState(false),
+    [reading, setReading] = useState<PromoItem | null>(null);
   const count = items.length,
     current = count ? index % count : 0;
   useEffect(() => {
-    if (count < 2 || hover || paused) return;
+    if (count < 2 || hover || paused || reading) return;
     const t = setInterval(() => setIndex((i) => (i + 1) % count), ROTATE_MS);
     return () => clearInterval(t);
-  }, [count, hover, paused]);
+  }, [count, hover, paused, reading]);
   if (!count && !admin) return null;
   return (
     <section
@@ -67,7 +100,12 @@ export function PromoBox({ className = '' }: { className?: string }) {
     >
       <div className="promo-stage" key={count ? items[current].id : 'empty'}>
         {count ? (
-          <PromoSlide item={items[current]} lang={lang} now={now()} />
+          <PromoSlide
+            item={items[current]}
+            lang={lang}
+            now={now()}
+            onOpen={() => setReading(items[current])}
+          />
         ) : (
           <div className="promo-slide promo-empty">
             <span className="promo-kind">🛍️ {L('2-E’LON OYNASI', 'SECOND BOX', '2-Е ОКНО')}</span>
@@ -135,6 +173,29 @@ export function PromoBox({ className = '' }: { className?: string }) {
             </button>
           )}
         </div>
+      )}
+      {reading && (
+        <NewsReader
+          tone="promo"
+          kicker={
+            <>
+              {PROMO_KIND[reading.kind].icon} {tr(lang, ...PROMO_KIND[reading.kind].name)}
+            </>
+          }
+          title={reading.h}
+          text={reading.t}
+          img={reading.img}
+          link={reading.link}
+          cta={reading.cta}
+          meta={
+            reading.until
+              ? L('Amal qiladi', 'Valid until', 'Действует до') +
+                ': ' +
+                dueText(reading.until, lang, now()).date
+              : undefined
+          }
+          onClose={() => setReading(null)}
+        />
       )}
     </section>
   );
@@ -225,9 +286,9 @@ export function PromoAdmin() {
     <section className="panel promo-manage">
       <p className="muted">
         {L(
-          'Bu oyna yon menyuning pastida (telefonda — bosh sahifada) chiqadi va har 6 soniyada almashadi. Bir vaqtda 10 tagacha e’lon ko‘rinadi; muddati o‘tgani o‘zi yo‘qoladi. E’lon bo‘lmasa, talabalar oynani ko‘rmaydi.',
-          'This box appears at the bottom of the side menu (on phones — on the home page) and changes every 6 seconds. Up to 10 offers are shown; expired ones disappear by themselves. With no offers, students do not see the box.',
-          'Окно внизу бокового меню (на телефоне — на главной), меняется каждые 6 секунд. Показывается до 10 предложений; просроченные исчезают сами.',
+          'Bu oyna yon menyuning pastida (telefonda — bosh sahifada) chiqadi va har 10 soniyada almashadi. Matn uzun bo‘lsa, talaba e’lonni bosib to‘liq o‘qiydi. Bir vaqtda 10 tagacha e’lon ko‘rinadi; muddati o‘tgani o‘zi yo‘qoladi. E’lon bo‘lmasa, talabalar oynani ko‘rmaydi.',
+          'This box appears at the bottom of the side menu (on phones — on the home page) and changes every 10 seconds. Students click an offer to read its full text. Up to 10 offers are shown; expired ones disappear by themselves. With no offers, students do not see the box.',
+          'Окно внизу бокового меню (на телефоне — на главной), меняется каждые 10 секунд; полный текст открывается нажатием. Показывается до 10 предложений; просроченные исчезают сами.',
         )}
       </p>
       <div className="promo-admin-grid">
@@ -266,15 +327,15 @@ export function PromoAdmin() {
           />
           <textarea
             className="input"
-            maxLength={240}
-            rows={3}
+            maxLength={1000}
+            rows={4}
             value={form.t}
             onChange={(e) => set({ t: e.target.value })}
-            aria-label={L('Qisqa matn', 'Short text', 'Короткий текст')}
+            aria-label={L('Matn', 'Text', 'Текст')}
             placeholder={L(
-              'Qisqa matn: kimlar uchun, muddati, afzalligi (240 belgigacha, ixtiyoriy)',
-              'Short text: who it is for, deadline, benefit (up to 240 characters, optional)',
-              'Короткий текст (до 240 символов, необязательно)',
+              'Matn: kimlar uchun, muddati, shartlari (1000 belgigacha, ixtiyoriy; uzun matnni talaba bosib o‘qiydi)',
+              'Text: who it is for, deadline, conditions (up to 1000 characters, optional)',
+              'Текст (до 1000 символов, необязательно)',
             )}
           />
           <div className="promo-admin-row">

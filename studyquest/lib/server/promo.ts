@@ -49,7 +49,7 @@ const input = z.discriminatedUnion('op', [
       op: z.literal('add'),
       kind: z.enum(PROMO_KINDS),
       h: z.string().trim().min(2).max(70),
-      t: z.string().trim().max(240).optional(),
+      t: z.string().trim().max(1000).optional(),
       link: newsLink.optional(),
       cta: z.string().trim().max(24).optional(),
       until: z.number().int().positive().optional(),
