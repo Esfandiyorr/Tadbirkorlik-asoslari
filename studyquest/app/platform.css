@@ -4677,6 +4677,43 @@ button.rk-slot:has(.av-empty)::after {
 .continue-hero > .hero-avatar {
   align-self: stretch;
 }
+/* avatar tanlangan: yozuvsiz, qahramon butun kartochkani egallaydi va kattaroq ko'rinadi */
+@media (min-width: 761px) {
+  .welcome-hero.continue-hero:has(> .hero-avatar.has) {
+    grid-template-columns: minmax(220px, 290px) minmax(0, 1fr);
+    align-items: center;
+  }
+  .continue-hero > .hero-avatar.has {
+    align-self: center;
+    aspect-ratio: 4 / 5;
+  }
+}
+.hero-avatar.has {
+  grid-template-rows: minmax(0, 1fr);
+  min-height: 0;
+  padding: 16px 12px 0;
+}
+.hero-avatar.has .hero-avatar-stage .av-figure {
+  max-height: none;
+}
+.hero-avatar-swap {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #ffffffb3;
+  color: #6d28d9;
+  opacity: 0.75;
+  transition: opacity 0.2s;
+}
+.hero-avatar:hover .hero-avatar-swap,
+.hero-avatar:focus-visible .hero-avatar-swap {
+  opacity: 1;
+}
 /* admin */
 .avatar-admin {
   padding: 20px 22px 22px;
@@ -4802,6 +4839,17 @@ button.rk-slot:has(.av-empty)::after {
   .hero-avatar-label {
     margin: 0 0 8px;
     text-align: left;
+  }
+  .hero-avatar.has {
+    grid-template-columns: minmax(0, 1fr);
+    min-height: 0;
+    padding: 12px 12px 0;
+  }
+  .hero-avatar.has .hero-avatar-stage {
+    height: 200px;
+  }
+  .hero-avatar.has .hero-avatar-stage .av-figure {
+    max-height: 200px;
   }
 }
 @media (prefers-reduced-motion: reduce) {

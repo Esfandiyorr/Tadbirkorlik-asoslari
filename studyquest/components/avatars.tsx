@@ -1,7 +1,7 @@
 'use client';
 import { useCallback, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Check, Lock, Send, Sparkles, X } from 'lucide-react';
+import { Check, Lock, RefreshCw, Send, Sparkles, X } from 'lucide-react';
 import { useApp } from './provider';
 import { Button } from './ui/button';
 import { AVATAR_TOP, BUILTIN_AVATARS, type AvatarItem } from '@/lib/avatars';
@@ -366,7 +366,8 @@ export function AvatarPicker({ board, onClose }: { board: AcademicBoard; onClose
   );
 }
 
-/** Bosh sahifadagi avatar kartochkasi (mavzu rasmi o'rnida). Bosilsa — kutubxona ochiladi. */
+/** Bosh sahifadagi avatar kartochkasi (mavzu rasmi o'rnida). Bosilsa — kutubxona ochiladi.
+   Avatar tanlangan bo'lsa — faqat qahramonning o'zi (yozuvsiz, kattaroq); almashtirish uchun ustiga bosiladi. */
 export function HeroAvatar({ board }: { board: AcademicBoard }) {
   const { lang } = useApp();
   const L = (uz: string, en: string, ru: string) => tr(lang, uz, en, ru);
@@ -381,44 +382,48 @@ export function HeroAvatar({ board }: { board: AcademicBoard }) {
         onClick={() => setOpen(true)}
         aria-label={
           id
-            ? L('Avatarim', 'My avatar', 'Мой аватар') + ': ' + avatarName(id, lang)
+            ? L('Avatarim', 'My avatar', 'Мой аватар') +
+              ': ' +
+              avatarName(id, lang) +
+              ' — ' +
+              L('almashtirish', 'change', 'сменить')
             : L('Avatarlar kutubxonasi', 'Avatar library', 'Библиотека аватаров')
         }
       >
         <span className="hero-avatar-stage">
           <AvatarFigure id={id} />
         </span>
-        <span className="hero-avatar-label">
-          {id ? (
-            <>
-              <b>{avatarName(id, lang)}</b>
-              <small>
-                {L('Avatarim · almashtirish', 'My avatar · change', 'Мой аватар · сменить')}
-              </small>
-            </>
-          ) : me?.can ? (
-            <>
-              <b>{L('Avatar tanlang', 'Choose an avatar', 'Выберите аватар')}</b>
-              <small>
-                {L('Siz top-10 dasiz! 🎉', 'You are in the top 10! 🎉', 'Вы в топ-10! 🎉')}
-              </small>
-            </>
-          ) : (
-            <>
-              <b>{L('Avatar — mukofot', 'Avatar — a reward', 'Аватар — награда')}</b>
-              <small>
-                {L(
-                  `Umumiy reytingda 1–${AVATAR_TOP}-o‘ringa chiqing`,
-                  `Reach places 1–${AVATAR_TOP} overall`,
-                  `Поднимитесь на 1–${AVATAR_TOP}-е место`,
-                )}
-                {me?.place
-                  ? ' · ' + L(`hozir ${me.place}-o‘rin`, `now #${me.place}`, `сейчас ${me.place}-е`)
-                  : ''}
-              </small>
-            </>
-          )}
-        </span>
+        {id ? (
+          <span className="hero-avatar-swap" aria-hidden="true">
+            <RefreshCw size={15} />
+          </span>
+        ) : (
+          <span className="hero-avatar-label">
+            {me?.can ? (
+              <>
+                <b>{L('Avatar tanlang', 'Choose an avatar', 'Выберите аватар')}</b>
+                <small>
+                  {L('Siz top-10 dasiz! 🎉', 'You are in the top 10! 🎉', 'Вы в топ-10! 🎉')}
+                </small>
+              </>
+            ) : (
+              <>
+                <b>{L('Avatar — mukofot', 'Avatar — a reward', 'Аватар — награда')}</b>
+                <small>
+                  {L(
+                    `Umumiy reytingda 1–${AVATAR_TOP}-o‘ringa chiqing`,
+                    `Reach places 1–${AVATAR_TOP} overall`,
+                    `Поднимитесь на 1–${AVATAR_TOP}-е место`,
+                  )}
+                  {me?.place
+                    ? ' · ' +
+                      L(`hozir ${me.place}-o‘rin`, `now #${me.place}`, `сейчас ${me.place}-е`)
+                    : ''}
+                </small>
+              </>
+            )}
+          </span>
+        )}
       </button>
       {open && <AvatarPicker board={board} onClose={() => setOpen(false)} />}
     </>

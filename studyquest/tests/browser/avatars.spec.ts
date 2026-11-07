@@ -29,7 +29,9 @@ test('a top-ten student picks an avatar from the home card and sees it in the ra
   await dialog.getByRole('button', { name: /Mario — tanlash/ }).click();
   await expect(dialog).toBeHidden();
   await expect(page.locator('.toast')).toContainText('Mario');
-  await expect(card).toContainText('Mario');
+  // Avatar tanlangach kartochkada yozuv yo'q — faqat qahramon; bosilsa almashtiriladi.
+  await expect(card).toHaveAttribute('aria-label', /Mario — almashtirish/);
+  await expect(card.locator('.hero-avatar-label')).toHaveCount(0);
   await expect(card.locator('img')).toHaveAttribute('src', '/avatars/mario.webp');
 
   await page.goto('/#ranking', { waitUntil: 'domcontentloaded' });
