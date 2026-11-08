@@ -4,6 +4,7 @@ import DOMPurify from 'dompurify';
 import morphdom from 'morphdom';
 import { useApp } from './provider';
 import { uzQuotesDom } from '@/lib/uz-text';
+import { YT_ID, ytEmbed } from '@/lib/youtube';
 import { applySiteContent } from './site-content';
 import { Button } from './ui/button';
 
@@ -179,6 +180,11 @@ export const NativeSurface = forwardRef<HTMLIFrameElement, Props>(function Nativ
       });
       wrapper.querySelectorAll('iframe').forEach((node) => {
         try {
+          // 📺 Taqdimotdagi video slaydi: yashirin dvigatelda iframe manbasiz turadi (video ikki marta yuklanmasin),
+          // shu yerda esa data-yt dagi ID bo'yicha youtube-nocookie pleyeri qo'yiladi.
+          const yt = node.dataset.yt;
+          if (yt && YT_ID.test(yt))
+            node.src = ytEmbed(yt, Math.max(0, Math.floor(Number(node.dataset.ytStart) || 0)));
           const u = new URL(node.src, location.origin);
           if (
             ![

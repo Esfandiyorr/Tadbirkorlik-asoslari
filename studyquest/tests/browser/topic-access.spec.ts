@@ -15,11 +15,26 @@ test('the teacher closes, opens or switches each topic to reading mode for every
       'aria-pressed',
       'true',
     );
-  await expect(rows.nth(6).getByRole('button', { name: 'Hammaga ochiq' })).toHaveAttribute(
-    'aria-pressed',
-    'true',
-  );
-  await expect(rows.nth(6)).toContainText('Ball beriladi');
+  // 7-mavzu boshlang'ich holatda hammaga ochiq; ball muddati (ochilgan haftaning oxiri) o'tgach o'zi o'qish
+  // rejimiga o'tadi — sinov qaysi kuni ishlashidan qat'i nazar, ekran server holatini ko'rsatishi tekshiriladi.
+  const m7 = (
+    (await (await teacher.request.get('/api/platform?view=topicAccess')).json()).topics as {
+      id: string;
+      state: string;
+    }[]
+  ).find((t) => t.id === 'm7')!;
+  expect(['open', 'read']).toContain(m7.state);
+  if (m7.state === 'open') {
+    await expect(rows.nth(6).getByRole('button', { name: 'Hammaga ochiq' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+    await expect(rows.nth(6)).toContainText('Ball beriladi');
+  } else
+    await expect(rows.nth(6).getByRole('button', { name: 'O‘qish rejimi' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
   for (let i = 7; i < 15; i++)
     await expect(rows.nth(i).getByRole('button', { name: 'Yopiq' })).toHaveAttribute(
       'aria-pressed',

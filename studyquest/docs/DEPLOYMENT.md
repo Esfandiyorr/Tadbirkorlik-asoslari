@@ -39,7 +39,8 @@ Existing verified teacher email sign-in is recognized by the configured original
 2. Enable access to files outside the root directory in Vercel project settings. The build copies original lesson files from the repository root; build from a full checkout, not an isolated copy of `studyquest/`.
 3. Add the Firebase environment values for Preview and Production separately. Set `STUDYQUEST_DEMO=false`. The configured function region is Singapore (`sin1`), matching the existing Firebase databases. Demo role authentication is additionally disabled by code on Vercel and in production.
 4. Build a preview deployment first. Add that exact stable preview domain to Firebase authorized domains. Rebuild after changing `NEXT_PUBLIC_*` values because they are embedded at build time.
-5. Sign in as the administrator and use **Administrator → Import catalog** to add the original lessons and sample assessment to the new Firestore collections. Import is additive; it never replaces existing records or original content.
+5. Optional — AI grading of the topic 8 logo assignment: create an API key at console.anthropic.com and add it as `ANTHROPIC_API_KEY` (server-only, never `NEXT_PUBLIC_*`) for Production, then redeploy. Without it, students' logos are saved as «queued» and teachers grade them by hand; after adding the key, **Teacher → 🎨 Logos → Grade the queue** grades the waiting work.
+6. Sign in as the administrator and use **Administrator → Import catalog** to add the original lessons and sample assessment to the new Firestore collections. Import is additive; it never replaces existing records or original content.
 
 Original browser sessions stored under GitHub Pages do not automatically transfer to a different domain. Students sign in with their existing credentials on the new domain; the backend verifies ownership against the same original Firebase project. Their original scores stay in RTDB.
 

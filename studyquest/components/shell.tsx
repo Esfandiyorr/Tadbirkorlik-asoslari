@@ -32,6 +32,8 @@ import { LessonView, QuizView } from './lesson';
 import { AuthPanel } from './auth-panel';
 import { Leaderboard } from './leaderboard';
 import { Games } from './games';
+import { LogoTaskPage } from './logo-task';
+import { LOGO_TOPIC } from '@/lib/logo-task';
 import { Staff } from './staff';
 import { InstallApp } from './install-app';
 import { NativeSurface } from './native-surface';
@@ -146,6 +148,8 @@ export function StudyQuest() {
   else if (mainView === 'course' || mainView === 'courses')
     content = <CourseList courseId={mainView === 'course' ? id : undefined} />;
   else if (mainView === 'chat') content = user ? <ChatPage sub={id || ''} /> : <AuthPanel />;
+  else if (mainView === 'topshiriq')
+    content = signedIn ? <LogoTaskPage id={id || LOGO_TOPIC} /> : <AuthPanel />;
   else if (view === 'badges') content = <Badges />;
   else if (view === 'ranking') content = user ? <Leaderboard /> : <AuthPanel />;
   else if (mainView === 'arena') content = <Games sub={view.split('/').slice(1).join('/')} />;

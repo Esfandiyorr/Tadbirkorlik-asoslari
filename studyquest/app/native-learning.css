@@ -1200,3 +1200,24 @@
     animation: none;
   }
 }
+/* 📺 8-mavzudagi video slaydi (administrator qo'ygan YouTube videolari) */
+.native-document figure.video-wrap {
+  display: grid;
+  gap: 8px;
+  margin: 18px auto;
+}
+.native-document .video-wrap figcaption {
+  color: var(--muted, #5f6178);
+  font-size: 14px;
+  font-weight: 700;
+  text-align: center;
+}
+/* 🎨 8-mavzu: topshiriqni ochish tugmasi */
+.native-document a.btn.sq-cta {
+  min-height: 52px;
+  padding: 12px 26px;
+  border-radius: 999px;
+  font-size: 17px;
+  font-weight: 800;
+  box-shadow: 0 12px 28px -14px #7044c1;
+}

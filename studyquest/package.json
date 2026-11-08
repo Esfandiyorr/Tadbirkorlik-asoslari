@@ -20,6 +20,7 @@
     "test:maintenance": "playwright test --config playwright.maintenance.config.ts"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^1.6.0",
     "@radix-ui/react-slot": "^1.2.0",
     "@tailwindcss/postcss": "^4.1.0",
     "class-variance-authority": "^0.7.1",

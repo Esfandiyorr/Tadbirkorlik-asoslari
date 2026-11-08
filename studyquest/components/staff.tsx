@@ -21,6 +21,7 @@ import { PlatformSettings } from './platform-settings';
 import { NativeSurface } from './native-surface';
 import { TopicAccessPanel } from './topic-access';
 import { BackOffice } from './backoffice';
+import { LogoTaskAdmin } from './backoffice/logo-task-admin';
 import { t, badgeLabel } from '@/lib/i18n';
 import type { Data, Lesson, Question, Quiz, Progress, Attempt } from '@/lib/types';
 const blankQuestion = (): Question => ({
@@ -267,6 +268,7 @@ export function Staff({ admin = false }: { admin?: boolean }) {
             : []),
           ['overview', L('Tahlil', 'Analytics', 'Аналитика')],
           ['access', L('Mavzular holati', 'Topic access', 'Доступ к темам')],
+          ['logo', L('🎨 Logotiplar', '🎨 Logos', '🎨 Логотипы')],
           ['courses', t(lang, 'courses')],
           ['lessons', L('Darslar', 'Lessons', 'Уроки')],
           ['quiz', L('Testlar', 'Quizzes', 'Тесты')],
@@ -326,6 +328,7 @@ export function Staff({ admin = false }: { admin?: boolean }) {
         </div>
       )}
       {tab === 'access' && <TopicAccessPanel />}
+      {tab === 'logo' && <LogoTaskAdmin />}
       {tab === 'academic' && <AcademicRoster />}
       {admin && tab === 'platform' && <PlatformSettings />}
       {admin && tab === 'site' && <BackOffice openTab={setTab} />}

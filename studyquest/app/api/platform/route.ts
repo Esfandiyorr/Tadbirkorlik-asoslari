@@ -20,6 +20,7 @@ import { limitedCatalog } from '@/lib/server/limited';
 import { sitePolicy, clearPolicyCache, normalizePolicy } from '@/lib/server/site-policy';
 import { liveGame, manageNews, markNewsSeen, newsSeen, readNews } from '@/lib/server/news';
 import { managePromo, readPromo } from '@/lib/server/promo';
+import { allVideos, manageVideos } from '@/lib/server/videos';
 import { liveAdmin, liveTopUp, manageLive } from '@/lib/server/live-admin';
 import { avatarLibrary, manageLibrary } from '@/lib/server/avatar-library';
 import {
@@ -181,6 +182,12 @@ export async function GET(req: NextRequest) {
           headers: { 'Cache-Control': 'private, no-store' },
         },
       );
+    }
+    if (req.nextUrl.searchParams.get('view') === 'videos') {
+      administrator(await actor(req, true));
+      return NextResponse.json(await allVideos(), {
+        headers: { 'Cache-Control': 'private, no-store' },
+      });
     }
     if (req.nextUrl.searchParams.get('view') === 'siteContent') {
       return NextResponse.json(await siteContentAdmin(await actor(req, true)), {
@@ -443,6 +450,9 @@ export async function POST(req: NextRequest) {
     }
     if (p.action === 'promo') {
       return NextResponse.json(await managePromo(await actor(req, true), p.input));
+    }
+    if (p.action === 'videos') {
+      return NextResponse.json(await manageVideos(await actor(req, true), p.input));
     }
     if (p.action === 'avatarLibrary') {
       return NextResponse.json({ catalog: await manageLibrary(await actor(req, true), p.input) });

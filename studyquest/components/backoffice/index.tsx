@@ -10,12 +10,15 @@ import { LiveAdmin } from './live-admin';
 import { TopicQuizAdmin } from './topic-quiz-admin';
 import { ContentAdmin } from './content-admin';
 import { AvatarLibraryAdmin } from './avatar-library-admin';
+import { VideoAdmin } from './video-admin';
+import { LogoTaskAdmin } from './logo-task-admin';
 import { startEditMode } from '../site-content';
 
 /* 🛠 Sayt boshqaruvi (administrator): saytdagi matn, rasm, avatar, test va jonli testni dasturchiga yozmasdan
    o'zgartirish uchun yagona joy. Har bir ish — alohida kartochka; ichida qisqa izoh va oddiy shakllar. */
 
-export type BoSection = 'live' | 'quiz' | 'content' | 'avatars' | 'news' | 'promo';
+export type BoSection =
+  'live' | 'quiz' | 'content' | 'avatars' | 'news' | 'promo' | 'video' | 'logo';
 const KEY = 'sq-bo-section';
 
 export function BackOffice({ openTab }: { openTab: (tab: string) => void }) {
@@ -63,6 +66,30 @@ export function BackOffice({ openTab }: { openTab: (tab: string) => void }) {
         'Mavzular oxiridagi test: savol, javoblar, to‘g‘ri javob va izohni o‘zgartirish yoki savolni boshqasiga almashtirish.',
         'The test at the end of each topic: change questions, answers, the correct answer and explanations, or replace a question.',
         'Тест в конце каждой темы: вопросы, ответы, правильный ответ и пояснения; замена вопроса.',
+      ),
+    },
+    {
+      id: 'video',
+      icon: '📺',
+      title: L('Mavzu videolari', 'Topic videos', 'Видео по темам'),
+      text: L(
+        'Mavzuga YouTube havolasini qo‘ying — talabalar videoni sayt ichidagi pleyerda ko‘radi (8-mavzuda alohida slaydda ham).',
+        'Add a YouTube link to a topic — students watch it in the player on the site (in topic 8 also on its own slide).',
+        'Добавьте ссылку YouTube к теме — студенты смотрят видео в плеере на сайте (в теме 8 — и на отдельном слайде).',
+      ),
+    },
+    {
+      id: 'logo',
+      icon: '🎨',
+      title: L(
+        'Logotip topshirig‘i (AI baholaydi)',
+        'Logo assignment (AI-graded)',
+        'Задание «Логотип» (оценивает ИИ)',
+      ),
+      text: L(
+        '8-mavzu topshirig‘i: har talabaga berilgan biznes, yuklangan logotiplar, sun’iy intellekt bahosi va maslahati; bahoni tasdiqlash yoki o‘zgartirish.',
+        'Topic 8 assignment: each student’s business, uploaded logos, the AI mark and advice; confirm or change the mark.',
+        'Задание темы 8: бизнес каждого студента, загруженные логотипы, оценка и советы ИИ; подтвердить или изменить оценку.',
       ),
     },
     {
@@ -159,6 +186,8 @@ export function BackOffice({ openTab }: { openTab: (tab: string) => void }) {
     else if (section === 'avatars') body = <AvatarsSection />;
     else if (section === 'news') body = <NewsAdmin openCourseControls={() => setSection('live')} />;
     else if (section === 'promo') body = <PromoAdmin />;
+    else if (section === 'video') body = <VideoAdmin />;
+    else if (section === 'logo') body = <LogoTaskAdmin />;
     return (
       <section className="bo-section" aria-labelledby="bo-title" data-se-ui>
         <div className="bo-head">

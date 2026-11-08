@@ -1,24 +1,37 @@
 import { NextRequest } from 'next/server';
 import { quizTopics, topicQuiz } from '@/lib/server/site-content';
+import { topicVideos } from '@/lib/server/videos';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 /* Taqdimot (public/legacy/mavzu-N.html) <head> ida bloklovchi skript: administrator «Sayt boshqaruvi → Mavzu testlari»da
    saqlagan savollarni window.SQ_Q ga qo'yadi (SQ_QV — versiya: boshlangan urinish eski savollar bilan aralashmaydi).
-   O'zgartirilmagan mavzuda — bo'sh skript, asl savollar ishlaydi. Har qanday xatoda ham asl savollar qoladi. */
+   O'zgartirilmagan mavzuda — bo'sh skript, asl savollar ishlaydi. Har qanday xatoda ham asl savollar qoladi.
+   Saqlangan savollar soni mavzudagi joriy son bilan bir xil bo'lmasa (mavzu qayta yozilgan), asl savollar ishlaydi.
+   📺 «Mavzu videolari»da qo'yilgan YouTube videolari — window.SQ_VIDEO (taqdimotdagi video slaydi o'qiydi). */
 export async function GET(req: NextRequest) {
   const t = req.nextUrl.searchParams.get('t') || '';
   let body = '/* asl savollar */';
-  if (quizTopics().some((x) => x.id === t && x.count))
+  const topic = quizTopics().find((x) => x.id === t);
+  if (topic?.count)
     try {
       const saved = await topicQuiz(t);
-      if (saved?.q?.length)
+      if (saved?.q?.length === topic.count)
         body =
           'window.SQ_Q=' +
           JSON.stringify(saved.q) +
           ';window.SQ_QV=' +
           JSON.stringify(saved.v) +
+          ';';
+    } catch {}
+  if (topic)
+    try {
+      const videos = await topicVideos(t);
+      if (videos.length)
+        body +=
+          'window.SQ_VIDEO=' +
+          JSON.stringify(videos.map(({ id, t, s }) => ({ id, t, s }))).replace(/</g, '\\u003c') +
           ';';
     } catch {}
   return new Response(body, {

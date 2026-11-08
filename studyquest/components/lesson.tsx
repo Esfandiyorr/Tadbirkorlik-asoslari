@@ -11,6 +11,7 @@ import {
   BookOpen,
   ZoomOut,
   ChartNoAxesColumn,
+  Palette,
 } from 'lucide-react';
 import { useApp } from './provider';
 import { Button } from './ui/button';
@@ -20,6 +21,8 @@ import type { Lesson as LessonType, Question } from '@/lib/types';
 import { AccessChip, PointsBreakdown, PointsRing } from './points-ui';
 import { accessOf, dueText, topicPoints, tr } from '@/lib/points';
 import { NativeSurface } from './native-surface';
+import { TopicVideoButton } from './topic-video';
+import { LOGO_TOPIC } from '@/lib/logo-task';
 export function LessonView({ id }: { id: string }) {
   return <OriginalLessonView id={id} />;
 }
@@ -200,6 +203,18 @@ function OriginalLessonView({ id }: { id: string }) {
           <option value="en">EN</option>
           <option value="ru">RU</option>
         </select>
+        <TopicVideoButton id={id} />
+        {id === LOGO_TOPIC && (
+          <Button
+            variant="outline"
+            className="reader-task-button"
+            aria-label={tr(lang, 'Logotip topshirig‘i', 'Logo assignment', 'Задание «Логотип»')}
+            onClick={() => navigate('topshiriq/' + id)}
+          >
+            <Palette size={17} />
+            <span>{tr(lang, 'Topshiriq', 'Assignment', 'Задание')}</span>
+          </Button>
+        )}
         {lesson.legacyFile && (
           <Button
             variant={fit ? 'secondary' : 'ghost'}
