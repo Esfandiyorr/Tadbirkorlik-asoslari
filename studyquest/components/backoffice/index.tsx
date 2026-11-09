@@ -11,7 +11,6 @@ import { TopicQuizAdmin } from './topic-quiz-admin';
 import { ContentAdmin } from './content-admin';
 import { AvatarLibraryAdmin } from './avatar-library-admin';
 import { VideoAdmin } from './video-admin';
-import { LectureAdmin } from './lecture-admin';
 import { LogoTaskAdmin } from './logo-task-admin';
 import { startEditMode } from '../site-content';
 
@@ -19,7 +18,7 @@ import { startEditMode } from '../site-content';
    o'zgartirish uchun yagona joy. Har bir ish — alohida kartochka; ichida qisqa izoh va oddiy shakllar. */
 
 export type BoSection =
-  'live' | 'quiz' | 'content' | 'avatars' | 'news' | 'promo' | 'video' | 'logo' | 'lectures';
+  'live' | 'quiz' | 'content' | 'avatars' | 'news' | 'promo' | 'video' | 'logo';
 const KEY = 'sq-bo-section';
 
 export function BackOffice({ openTab }: { openTab: (tab: string) => void }) {
@@ -67,16 +66,6 @@ export function BackOffice({ openTab }: { openTab: (tab: string) => void }) {
         'Mavzular oxiridagi test: savol, javoblar, to‘g‘ri javob va izohni o‘zgartirish yoki savolni boshqasiga almashtirish.',
         'The test at the end of each topic: change questions, answers, the correct answer and explanations, or replace a question.',
         'Тест в конце каждой темы: вопросы, ответы, правильный ответ и пояснения; замена вопроса.',
-      ),
-    },
-    {
-      id: 'lectures',
-      icon: '📄',
-      title: L('Ma’ruzalar', 'Lecture files', 'Лекции'),
-      text: L(
-        'Har bir mavzuga ma’ruza faylini yuklang (PDF, Word, PowerPoint, 30 MB gacha) — talabalar uni dars oynasidagi «📄 Ma’ruza» tugmasidan yuklab oladi.',
-        'Upload lecture files to each topic (PDF, Word, PowerPoint, up to 30 MB) — students download them with the “📄 Lecture” button in the lesson.',
-        'Загружайте файлы лекций к темам (PDF, Word, PowerPoint, до 30 МБ) — студенты скачают их кнопкой «📄 Лекция».',
       ),
     },
     {
@@ -198,7 +187,6 @@ export function BackOffice({ openTab }: { openTab: (tab: string) => void }) {
     else if (section === 'news') body = <NewsAdmin openCourseControls={() => setSection('live')} />;
     else if (section === 'promo') body = <PromoAdmin />;
     else if (section === 'video') body = <VideoAdmin />;
-    else if (section === 'lectures') body = <LectureAdmin />;
     else if (section === 'logo') body = <LogoTaskAdmin />;
     return (
       <section className="bo-section" aria-labelledby="bo-title" data-se-ui>
