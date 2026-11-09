@@ -1,4 +1,5 @@
 import type { Data, Lang, LessonAccess, ReadingHistory } from './types';
+import catalog from './catalog.generated.json';
 
 /** Uch tilli matn: o'zbekcha, inglizcha, ruscha. */
 export const tr = (lang: Lang, uz: string, en: string, ru: string) =>
@@ -208,3 +209,51 @@ export function durationText(seconds: number, lang: Lang) {
   if (h) return tr(lang, `${h} soat ${m} daq`, `${h} h ${m} min`, `${h} ч ${m} мин`);
   return tr(lang, `${m} daq`, `${m} min`, `${m} мин`);
 }
+
+/** Joriy slayd qancha ball beradi (dars oynasidagi «ball qatori» uchun). Slaydlar jami 30 ball (har biri 30 ÷ slaydlar
+ *  soni), o'qish vaqti 20 ball (1 soat), test 50 ball — o'qituvchi baholaydigan topshirig'i bor mavzuda (8-mavzu)
+ *  test (50 − task) va topshiriq task ball. Slayd turi taqdimotdagi nomidan aniqlanadi. */
+export type SlidePoints = {
+  kind: 'slide' | 'test' | 'task';
+  /** bitta yangi slaydni ochish uchun */
+  slide: number;
+  /** testning (krossvord, masalalar) jami bali, bitta to'g'ri javob bali va savollar soni */
+  test: number;
+  perAnswer: number;
+  questions: number;
+  /** o'qituvchi baholaydigan topshiriq bali (bo'lmasa 0) */
+  task: number;
+  /** test o'rnida krossvord yoki masalalar */
+  testKind: 'test' | 'crossword' | 'tasks';
+};
+export function slidePoints(topic: string, title: string, slideCount: number): SlidePoints {
+  const t = (catalog.topics as { id: string; quiz?: number; task?: number }[]).find(
+    (x) => x.id === topic,
+  );
+  const task = Math.max(0, Math.min(50, Number(t?.task) || 0)),
+    test = 50 - task,
+    questions = Math.max(1, Number(t?.quiz) || 15),
+    name = title.trim();
+  const testKind: SlidePoints['testKind'] = /KROSSVORD/i.test(name)
+    ? 'crossword'
+    : /MASALALAR/i.test(name)
+      ? 'tasks'
+      : 'test';
+  return {
+    kind:
+      task && /topshiriq: logotip/i.test(name)
+        ? 'task'
+        : /^TEST\b|KROSSVORD|MASALALAR/i.test(name)
+          ? 'test'
+          : 'slide',
+    slide: Math.round(3000 / Math.max(1, slideCount)) / 100,
+    test,
+    perAnswer: Math.round((test / questions) * 100) / 100,
+    questions,
+    task,
+    testKind,
+  };
+}
+
+/** 1.25 → «1,25», 2 → «2», 1.6667 → «1,67» (ball qatori uchun, 2 xonagacha). */
+export const num2 = (n: number) => String(Math.round(n * 100) / 100).replace('.', ',');

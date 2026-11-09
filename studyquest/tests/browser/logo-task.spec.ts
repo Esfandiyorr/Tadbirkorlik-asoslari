@@ -153,3 +153,38 @@ test('the teacher downloads topic 8 as a PDF from the lesson toolbar; students d
   await expect(page.locator('.native-document > .inner')).toBeVisible();
   await expect(page.locator('.reader-toolbar a', { hasText: 'PDF' })).toHaveCount(0);
 });
+
+test('while reading, the lesson shows how many points the slide, the test and the logo give', async ({
+  page,
+}) => {
+  await as(page, 'demo-teacher');
+  await page.goto('/#lesson/m8');
+  await expect(page.locator('.native-document > .inner')).toBeVisible();
+  const strip = page.locator('.reader-points');
+  await expect(strip).toContainText('Bu slayd: +1,25 ball');
+  await expect(strip).toContainText('🎨 logotip 25');
+  const select = page.locator('.reader-controls').getByRole('combobox');
+  await select.selectOption('23');
+  await expect(strip).toContainText('Test: 25 ball · har to‘g‘ri javob +1,25');
+  await select.selectOption('21');
+  await expect(strip).toContainText('Logotip topshirig‘i: 25 ball');
+  await strip.getByRole('button', { name: 'Ochish →' }).click();
+  await expect(page).toHaveURL(/#topshiriq\/m8$/);
+  await expect(page.locator('.logo-points')).toContainText('25');
+
+  // boshqa mavzu: test 50 ball
+  await page.goto('/#lesson/m7');
+  await expect(page.locator('.native-document > .inner')).toBeVisible();
+  await page.locator('.reader-controls').getByRole('combobox').selectOption('23');
+  await expect(page.locator('.reader-points')).toContainText(
+    'Test: 50 ball · har to‘g‘ri javob +2,5',
+  );
+
+  // talaba: o'qish rejimidagi mavzuda ball berilmasligi aytiladi
+  // (faqat # o'zgarsa ilova qayta yuklanmaydi — yangi foydalanuvchi ma'lumotlari uchun sahifa yangilanadi)
+  await as(page, 'demo-student');
+  await page.goto('/#lesson/m2');
+  await page.reload();
+  await expect(page.locator('.native-document > .inner')).toBeVisible();
+  await expect(page.locator('.reader-points')).toContainText('O‘qish rejimi');
+});

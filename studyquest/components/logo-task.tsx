@@ -144,6 +144,20 @@ export function LogoTaskPage({ id = LOGO_TOPIC }: { id?: string }) {
           {L('Biznesingiz uchun logotip', 'A logo for your business', 'Логотип для вашего бизнеса')}
         </h1>
       </div>
+      <p
+        className="logo-points"
+        title={L(
+          '8-mavzu: slaydlar 30 + o‘qish vaqti 20 + test 25 + logotip 25 = 100 ball',
+          'Topic 8: slides 30 + reading time 20 + test 25 + logo 25 = 100 points',
+          'Тема 8: слайды 30 + время 20 + тест 25 + логотип 25 = 100 баллов',
+        )}
+      >
+        <b>🎯 {LOGO_MAX_SCORE}</b>
+        <span>
+          {L('ball', 'points', 'баллов')}
+          <small>{L('8-mavzu 100 balidan', 'of topic 8’s 100', 'из 100 баллов темы 8')}</small>
+        </span>
+      </p>
     </header>
   );
   if (error)
@@ -396,6 +410,14 @@ export function LogoTaskPage({ id = LOGO_TOPIC }: { id?: string }) {
               </small>
             </label>
           </div>
+          <p className="logo-form-points">
+            🎯{' '}
+            {L(
+              `O‘qituvchi ishingizni ko‘rib, 0–${LOGO_MAX_SCORE} ball qo‘yadi — bu ball 8-mavzu baliga va reytingga qo‘shiladi.`,
+              `The teacher reviews your work and gives 0–${LOGO_MAX_SCORE} points — they count towards topic 8 and the ranking.`,
+              `Преподаватель оценит работу на 0–${LOGO_MAX_SCORE} баллов — они идут в баллы темы 8 и рейтинг.`,
+            )}
+          </p>
           <div className="logo-actions">
             <Button type="submit" disabled={busy || !file || !descOk}>
               {busy ? <Loader2 size={16} className="spin" /> : <Send size={16} />}

@@ -1,5 +1,13 @@
 import { it, expect } from 'vitest';
-import { topicPoints, pointHints, dueText, num, courseTotals } from '../lib/points';
+import {
+  topicPoints,
+  pointHints,
+  dueText,
+  num,
+  num2,
+  courseTotals,
+  slidePoints,
+} from '../lib/points';
 import { lessonAccessStates } from '../lib/server/legacy-access';
 import { academicRecord } from '../lib/server/academic';
 import type { Data, ReadingHistory } from '../lib/types';
@@ -107,4 +115,28 @@ it('course totals add up the topic points', () => {
   } as unknown as Data;
   const t = courseTotals(d);
   expect(t).toMatchObject({ points: 140, max: 200, read: 1, started: 2, perfect: 1, fullTest: 1 });
+});
+
+it('tells how many points the current slide, test or assignment gives', () => {
+  const m8 = slidePoints('m8', 'Reklama nima sotadi?', 24);
+  expect(m8).toMatchObject({ kind: 'slide', slide: 1.25, test: 25, perAnswer: 1.25, task: 25 });
+  expect(slidePoints('m8', '🎨 Topshiriq: logotip', 24).kind).toBe('task');
+  expect(slidePoints('m8', 'TEST · Bilimni tekshirish', 24)).toMatchObject({
+    kind: 'test',
+    test: 25,
+    questions: 20,
+  });
+  // boshqa mavzularda test 50 ball, logotip yo'q
+  expect(slidePoints('m7', 'TEST · Bilimni tekshirish', 24)).toMatchObject({
+    kind: 'test',
+    test: 50,
+    perAnswer: 2.5,
+    task: 0,
+  });
+  expect(slidePoints('m7', '🎨 Topshiriq: logotip', 24).kind).toBe('slide');
+  expect(slidePoints('m1', 'Muqova', 18).slide).toBe(1.67);
+  expect(slidePoints('m4', 'KROSSVORD', 18)).toMatchObject({ kind: 'test', testKind: 'crossword' });
+  expect(slidePoints('m5', 'MASALALAR', 18)).toMatchObject({ kind: 'test', testKind: 'tasks' });
+  expect(num2(1.25)).toBe('1,25');
+  expect(num2(2)).toBe('2');
 });

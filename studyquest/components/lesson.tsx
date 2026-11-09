@@ -17,9 +17,17 @@ import { useApp } from './provider';
 import { Button } from './ui/button';
 import { ProgressBar, navigate } from './dashboard';
 import { t } from '@/lib/i18n';
-import type { Lesson as LessonType, Question } from '@/lib/types';
+import type { Lang, Lesson as LessonType, LessonAccess, Question } from '@/lib/types';
 import { AccessChip, PointsBreakdown, PointsRing } from './points-ui';
-import { accessOf, dueText, topicPoints, tr } from '@/lib/points';
+import {
+  accessOf,
+  dueText,
+  num2,
+  slidePoints,
+  topicPoints,
+  tr,
+  type SlidePoints,
+} from '@/lib/points';
 import { NativeSurface } from './native-surface';
 import { TopicVideoButton } from './topic-video';
 import { LOGO_TOPIC } from '@/lib/logo-task';
@@ -40,6 +48,8 @@ function OriginalLessonView({ id }: { id: string }) {
     frame = useRef<HTMLIFrameElement>(null),
     viewer = useRef<HTMLDivElement>(null),
     loaded = useRef('');
+  // faol slayd nomi (taqdimotdan) — «ball qatori» test va topshiriq slaydlarini shundan taniydi
+  const [slideTitle, setSlideTitle] = useState('');
   const progress = data?.progress?.find((p) => p.lessonId === id),
     legacyMode = data?.mode === 'legacy',
     initialPosition = useRef(progress?.last ?? data?.user?.readingHistory?.[id]?.lastSlide ?? 0);
@@ -327,6 +337,7 @@ function OriginalLessonView({ id }: { id: string }) {
                 '#' +
                 (initialPosition.current + 1)
               }
+              onTitle={setSlideTitle}
               onLoad={() => {
                 frame.current?.contentWindow?.postMessage(
                   { source: 'studyquest-parent', type: 'fit', value: fit },
@@ -348,6 +359,14 @@ function OriginalLessonView({ id }: { id: string }) {
             </div>
           )}
         </div>
+      )}
+      {lesson.legacyFile && detail && !error && (
+        <ReaderPoints
+          sp={slidePoints(id, slideTitle, meta.slideCount)}
+          mode={access?.state}
+          lang={lang}
+          openTask={() => navigate('topshiriq/' + id)}
+        />
       )}
       <ReaderControls index={index} count={meta.slideCount} ready={!!detail && !error} go={go} />
       {details && (
@@ -688,4 +707,81 @@ export function QuizView({ id }: { id: string }) {
 }
 function TrophyResult() {
   return <div className="result-icon">✦</div>;
+}
+
+/** 🎯 Ball qatori: hozirgi slayd (test, topshiriq) qancha ball berishi doim ko'rinib turadi. */
+function ReaderPoints({
+  sp,
+  mode,
+  lang,
+  openTask,
+}: {
+  sp: SlidePoints;
+  mode?: LessonAccess['state'];
+  lang: Lang;
+  openTask: () => void;
+}) {
+  const L = (uz: string, en: string, ru: string) => tr(lang, uz, en, ru);
+  if (mode === 'read' || mode === 'locked')
+    return (
+      <p className="reader-points is-read" role="note">
+        📖{' '}
+        {L(
+          'O‘qish rejimi — bu mavzuda endi ball berilmaydi.',
+          'Reading mode — this topic no longer gives points.',
+          'Режим чтения — баллы по этой теме больше не начисляются.',
+        )}
+      </p>
+    );
+  const ball = L('ball', 'pts', 'б.');
+  const testName =
+    sp.testKind === 'crossword'
+      ? L('Krossvord', 'Crossword', 'Кроссворд')
+      : sp.testKind === 'tasks'
+        ? L('Masalalar', 'Problems', 'Задачи')
+        : L('Test', 'Test', 'Тест');
+  const unit =
+    sp.testKind === 'crossword'
+      ? L('har topilgan so‘z', 'each word found', 'каждое слово')
+      : sp.testKind === 'tasks'
+        ? L('har yechilgan masala', 'each problem solved', 'каждая задача')
+        : L('har to‘g‘ri javob', 'each correct answer', 'каждый верный ответ');
+  return (
+    <div
+      className={'reader-points is-' + sp.kind}
+      role="note"
+      aria-label={L('Ballar', 'Points', 'Баллы')}
+    >
+      {sp.kind === 'test' ? (
+        <b className="rp-main">
+          🧪 {testName}: {sp.test} {ball} · {unit} +{num2(sp.perAnswer)}
+        </b>
+      ) : sp.kind === 'task' ? (
+        <b className="rp-main">
+          🎨 {L('Logotip topshirig‘i', 'Logo assignment', 'Задание «Логотип»')}: {sp.task} {ball} ·{' '}
+          {L('o‘qituvchi baholaydi', 'graded by the teacher', 'оценивает преподаватель')}
+          <button type="button" onClick={openTask}>
+            {L('Ochish →', 'Open →', 'Открыть →')}
+          </button>
+        </b>
+      ) : (
+        <b className="rp-main">
+          📑 {L('Bu slayd', 'This slide', 'Этот слайд')}: +{num2(sp.slide)} {ball}
+        </b>
+      )}
+      <span className="rp-all">
+        <span>📑 {L('slaydlar', 'slides', 'слайды')} 30</span>
+        <span>⏱ {L('1 soat o‘qish', '1 hour reading', '1 час чтения')} 20</span>
+        <span>
+          🧪 {testName.toLowerCase()} {sp.test}
+        </span>
+        {sp.task > 0 && (
+          <span>
+            🎨 {L('logotip', 'logo', 'логотип')} {sp.task}
+          </span>
+        )}
+        <span>= 100</span>
+      </span>
+    </div>
+  );
 }

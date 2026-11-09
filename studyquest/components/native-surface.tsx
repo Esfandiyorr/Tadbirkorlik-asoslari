@@ -17,6 +17,8 @@ type Props = {
   className?: string;
   onLoad?: () => void;
   fit?: boolean;
+  /** faol slayd nomi (taqdimotdagi data-title) — dars oynasidagi «ball qatori» uchun */
+  onTitle?: (title: string) => void;
 };
 const layoutProperties = new Set([
   'width',
@@ -56,7 +58,7 @@ const layoutProperties = new Set([
 ]);
 
 export const NativeSurface = forwardRef<HTMLIFrameElement, Props>(function NativeSurface(
-  { src, title, id, className = '', onLoad, fit = false },
+  { src, title, id, className = '', onLoad, fit = false, onTitle },
   forwardedRef,
 ) {
   const frame = useRef<HTMLIFrameElement>(null),
@@ -65,6 +67,8 @@ export const NativeSurface = forwardRef<HTMLIFrameElement, Props>(function Nativ
   const { lang, dark, toast } = useApp();
   const langRef = useRef(lang);
   langRef.current = lang;
+  const onTitleRef = useRef(onTitle);
+  onTitleRef.current = onTitle;
   const [loaded, setLoaded] = useState(false),
     [error, setError] = useState(''),
     [dialog, setDialog] = useState<Dialog | null>(null),
@@ -133,6 +137,7 @@ export const NativeSurface = forwardRef<HTMLIFrameElement, Props>(function Nativ
         picker.current.click();
       }
       if (message.type !== 'render' || typeof message.html !== 'string' || !surface.current) return;
+      if (typeof message.title === 'string') onTitleRef.current?.(message.title);
       if (message.html.length > 8 * 1024 * 1024) {
         setError(
           langRef.current === 'uz'
