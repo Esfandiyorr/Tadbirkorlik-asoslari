@@ -22,6 +22,7 @@ import { AccessChip, PointsBreakdown, PointsRing } from './points-ui';
 import { accessOf, dueText, topicPoints, tr } from '@/lib/points';
 import { NativeSurface } from './native-surface';
 import { TopicVideoButton } from './topic-video';
+import { TopicLectureButton } from './lectures';
 import { LOGO_TOPIC } from '@/lib/logo-task';
 export function LessonView({ id }: { id: string }) {
   return <OriginalLessonView id={id} />;
@@ -203,6 +204,7 @@ function OriginalLessonView({ id }: { id: string }) {
           <option value="en">EN</option>
           <option value="ru">RU</option>
         </select>
+        <TopicLectureButton id={id} />
         <TopicVideoButton id={id} />
         {id === LOGO_TOPIC && (
           <Button
