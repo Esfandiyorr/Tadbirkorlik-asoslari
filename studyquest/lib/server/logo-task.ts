@@ -6,46 +6,41 @@ import {
   LOGO_DESC_MAX,
   LOGO_DESC_MIN,
   LOGO_MAX_SCORE,
-  LOGO_MAX_TRIES,
+  LOGO_TOPIC,
   briefOf,
   pickBrief,
-  type LogoAi,
+  type LogoMark,
   type LogoTaskRow,
-  type LogoTaskStatus,
   type LogoTaskView,
 } from '../logo-task';
 import { ApiError, administrator, check, staff } from './auth';
-import { imageUrl, readImage, siteGet, siteUpdate, storeBlob } from './site-content';
-import { LogoAiError, aiConfigured, gradeLogo } from './logo-ai';
+import { demo, legacyDb } from './repository';
+import { imageUrl, siteGet, siteUpdate, storeBlob } from './site-content';
 
 /* 🎨 Logotip topshirig'i (8-mavzu). Asl bazaning site/logoTask bo'limida (brauzerlar tegolmaydi, faqat server):
      b/<talaba>  = {c: biznes kodi, g: guruh}       — kimga qaysi biznes berilgani (yangi biznes tanlashda o'qiladi)
-     s/<talaba>  = yozuv: biznes, ta'rif, AI bahosi, urinishlar, o'qituvchi bahosi
+     s/<talaba>  = yozuv: biznes, ta'rif, yuborilgan vaqt, o'qituvchi bahosi
      cfg         = {open}                             — topshiriq qabul qilinadimi (administrator)
    Rasm — site/blob/lg-<xesh> (talabaning oxirgi yuklagani; manzil versiya bilan, /api/site/img orqali).
-   Har urinishda sun'iy intellekt baholaydi; 3 ta muvaffaqiyatli baholash (o'qituvchi qo'shimcha berishi mumkin),
-   eng yaxshi natija hisobga olinadi, o'qituvchi bahosi esa undan ustun. */
+   Talaba ishini o'qituvchi baholaguncha almashtira oladi; baholangandan keyin — faqat o'qituvchi ruxsat bersa
+   (yangi variant kelgunicha va qayta baholanguncha eski baho turadi).
+   🎯 Ball: o'qituvchi qo'ygan 0–25 ball 8-mavzuning 100 baliga kiradi (slaydlar 30 + vaqt 20 + test 25 + logotip 25).
+   Shuning uchun baho talabaning asl yozuviga ham yoziladi: students/<id>/task/m8 (dvigatel va reyting o'qiydi),
+   umumiy ball (students/<id>/total) esa farq miqdoricha darhol o'zgaradi. */
 
-type Lang = 'uz' | 'en' | 'ru';
 type Stored = {
   name: string;
   group: string;
   code: string;
   at: number;
-  status: LogoTaskStatus;
   img?: string;
   desc?: string;
   sentAt?: number;
-  lang?: Lang;
-  ai?: LogoAi;
-  tries?: { at: number; score: number }[];
-  final?: { score: number; by: string; at: number; note?: string };
-  extra?: number;
-  error?: string;
-  lock?: number;
+  final?: LogoMark;
+  again?: boolean;
+  resent?: boolean;
 };
 
-const LOCK_MS = 90_000;
 const keyOf = (id: string) => id.replace(/[^A-Za-z0-9_-]/g, '_').slice(0, 120);
 const blobKey = (uid: string) =>
   'lg-' + createHash('sha256').update(uid).digest('hex').slice(0, 16);
@@ -56,47 +51,20 @@ async function config() {
   return { open: c?.open !== false };
 }
 
-const ERRORS: Record<string, string> = {
-  'not-configured':
-    'Sun’iy intellekt hali ulanmagan — ishingiz saqlandi, o‘qituvchi baholaydi (yoki AI ulangach avtomatik baholanadi).',
-  auth: 'Sun’iy intellekt kaliti noto‘g‘ri — ishingiz saqlandi, o‘qituvchiga xabar berildi.',
-  busy: 'Sun’iy intellekt hozir band — ishingiz saqlandi. Bir necha daqiqadan keyin «Qayta baholash»ni bosing.',
-  timeout: 'Baholash juda uzoq davom etdi — ishingiz saqlandi. «Qayta baholash»ni bosing.',
-  refusal:
-    'Sun’iy intellekt bu rasmni baholay olmadi — ishingiz saqlandi, o‘qituvchi ko‘rib chiqadi.',
-  format: 'Baholash natijasi tushunarsiz keldi — ishingiz saqlandi. «Qayta baholash»ni bosing.',
-};
-const errorText = (e: unknown) =>
-  e instanceof LogoAiError
-    ? ERRORS[e.message] ||
-      'Baholashda xatolik bo‘ldi — ishingiz saqlandi. Birozdan keyin «Qayta baholash»ni bosing.'
-    : 'Baholashda xatolik bo‘ldi — ishingiz saqlandi. Birozdan keyin «Qayta baholash»ni bosing.';
-
-function bestOf(s: Stored) {
-  const list = s.tries || [];
-  return list.length ? Math.max(...list.map((t) => t.score)) : undefined;
-}
-function left(s: Stored) {
-  return Math.max(0, LOGO_MAX_TRIES + (s.extra || 0) - (s.tries?.length || 0));
-}
-/** Baholash boshlanib, javobsiz qolgan (masalan, funksiya vaqti tugagan) ish. */
-const stale = (s: Stored) => s.status === 'pending' && Date.now() - (s.lock || 0) > LOCK_MS;
-function view(uid: string, s: Stored, open: boolean): LogoTaskView {
+function fields(uid: string, s: Stored): Omit<LogoTaskView, 'open' | 'canSend'> {
   return {
     brief: briefOf(s.code)!,
-    status: stale(s) ? 'failed' : s.status,
+    status: s.final && !s.resent ? 'graded' : s.img && s.desc ? 'sent' : 'new',
     ...(s.img ? { img: imageUrl(blobKey(uid), s.img) } : {}),
     ...(s.desc ? { desc: s.desc } : {}),
     ...(s.sentAt ? { sentAt: s.sentAt } : {}),
-    ...(s.ai ? { ai: s.ai } : {}),
-    tries: s.tries || [],
-    left: left(s),
-    ...(bestOf(s) !== undefined ? { best: bestOf(s) } : {}),
     ...(s.final ? { final: s.final } : {}),
-    ...(s.error || stale(s) ? { error: s.error || ERRORS.timeout } : {}),
-    open,
-    aiReady: aiConfigured(),
+    ...(s.again ? { again: true } : {}),
+    ...(s.resent ? { resent: true } : {}),
   };
+}
+function view(uid: string, s: Stored, open: boolean): LogoTaskView {
+  return { ...fields(uid, s), canSend: open && (!s.final || !!s.again), open };
 }
 
 /** Talabaning yozuvi; birinchi marta ochganda unga biznes beriladi. */
@@ -111,7 +79,7 @@ async function ensure(a: Actor, now: number): Promise<{ uid: string; s: Stored }
     .map((x) => ({ code: x.c, group: x.g || '' }));
   const group = (a.classId || '').slice(0, 40);
   const code = pickBrief(used, group);
-  const fresh: Stored = { name: a.name.slice(0, 80), group, code, at: now, status: 'new' };
+  const fresh: Stored = { name: a.name.slice(0, 80), group, code, at: now };
   await siteUpdate({
     ['logoTask/b/' + uid]: { c: code, g: group },
     ['logoTask/s/' + uid]: fresh,
@@ -124,43 +92,8 @@ export async function logoTaskFor(a: Actor, now = Date.now()) {
   return { task: view(uid, s, cfg.open) };
 }
 
-/** AI bilan baholash va natijani saqlash. counted — muvaffaqiyatli baho urinish sifatida yoziladimi. */
-async function runGrade(uid: string, s: Stored, now: number, replaceLast = false): Promise<Stored> {
-  const img = await readImage(blobKey(uid));
-  check(img && s.desc, 409, 'Avval logotip va ta’rifni yuboring.');
-  const brief = briefOf(s.code)!;
-  // Ish (yangi rasm va ta'rif) baholashdan oldin to'liq saqlanadi: funksiya vaqti tugab qolsa ham rasm va ta'rif
-  // mos keladi, «Qayta baholash» esa aynan shu ishni baholaydi.
-  const pending: Stored = { ...s, status: 'pending', lock: now };
-  delete pending.error;
-  await siteUpdate({ ['logoTask/s/' + uid]: pending });
-  let next: Stored;
-  try {
-    const ai = await gradeLogo(img!, brief, s.desc!, s.lang || 'uz', now);
-    const tries = [...(s.tries || [])];
-    if (replaceLast && tries.length) tries[tries.length - 1] = { at: now, score: ai.score };
-    else tries.push({ at: now, score: ai.score });
-    next = { ...s, ai, tries, status: 'graded' };
-    delete next.error;
-    delete next.lock;
-  } catch (e) {
-    const queued = e instanceof LogoAiError && e.message === 'not-configured';
-    next = { ...s, status: queued ? 'queued' : 'failed', error: errorText(e) };
-    delete next.lock;
-    if (!(e instanceof LogoAiError)) console.error('logo-ai', e);
-  }
-  await siteUpdate({ ['logoTask/s/' + uid]: next });
-  return next;
-}
-
-/** Talaba: logotip rasmi va ta'rifini yuboradi; sun'iy intellekt darhol baholaydi. */
-export async function submitLogo(
-  a: Actor,
-  bytes: Buffer,
-  rawDesc: string,
-  lang: Lang,
-  now = Date.now(),
-) {
+/** Talaba: logotip rasmi va ta'rifini yuboradi (baholanmagan bo'lsa — avvalgisi almashtiriladi). */
+export async function submitLogo(a: Actor, bytes: Buffer, rawDesc: string, now = Date.now()) {
   const desc = rawDesc.replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g, '').trim();
   check(
     desc.length >= LOGO_DESC_MIN,
@@ -171,43 +104,56 @@ export async function submitLogo(
   const [{ uid, s }, cfg] = await Promise.all([ensure(a, now), config()]);
   check(cfg.open, 403, 'Topshiriq qabul qilish yopilgan.');
   check(
-    !(s.status === 'pending' && now - (s.lock || 0) < LOCK_MS),
+    !s.final || s.again,
     409,
-    'Oldingi yuborilgan ish hali baholanmoqda — biroz kuting.',
-  );
-  check(
-    left(s) > 0,
-    429,
-    'Urinishlar tugadi. Qo‘shimcha urinish kerak bo‘lsa, o‘qituvchiga yozing.',
+    'Ishingiz baholangan. Qayta yuborish kerak bo‘lsa, o‘qituvchiga yozing.',
   );
   const saved = await storeBlob(blobKey(uid), bytes, now);
-  const sent: Stored = {
+  const next: Stored = {
     ...s,
     name: a.name.slice(0, 80),
     group: (a.classId || s.group || '').slice(0, 40),
     img: saved.v,
     desc,
-    lang,
     sentAt: now,
   };
-  delete sent.ai;
-  const next = await runGrade(uid, sent, now);
+  // Qayta yuborishga ruxsat bilan yuborilgan yangi variant: eski baho turadi, o'qituvchi uni qaytadan baholaydi.
+  if (s.final) next.resent = true;
+  delete next.again;
+  await siteUpdate({ ['logoTask/s/' + uid]: next });
   return { task: view(uid, next, cfg.open) };
 }
 
-/** Talaba: AI ulanmagan yoki xato bo'lgan holda joriy ishni qayta baholatish (yangi urinish sarflanmaydi). */
-export async function retryLogo(a: Actor, now = Date.now()) {
-  const [{ uid, s }, cfg] = await Promise.all([ensure(a, now), config()]);
-  check(
-    s.status === 'failed' ||
-      s.status === 'queued' ||
-      (s.status === 'pending' && now - (s.lock || 0) > LOCK_MS),
-    409,
-    'Ish allaqachon baholangan.',
-  );
-  check(left(s) > 0, 429, 'Urinishlar tugadi.');
-  const next = await runGrade(uid, s, now);
-  return { task: view(uid, next, cfg.open) };
+/* ---------- 🎯 Baho → mavzu bali va reyting ---------- */
+
+const demoMarks = ((globalThis as { __sqTaskMarks?: Map<string, number> }).__sqTaskMarks ??=
+  new Map());
+/** Demo/sinov: talabaning asl yozuviga yozilgan logotip bahosi. */
+export const demoTaskMark = (uid: string) => demoMarks.get(uid);
+
+/** O'qituvchi bahosini talabaning asl yozuviga yozadi (students/<id>/task/m8) va umumiy ballni farq miqdoricha
+ *  o'zgartiradi — reyting darhol yangilanadi, dvigatel ham keyingi ochilishda shu bahoni hisobga oladi. */
+async function syncTopicMark(uid: string, score: number | null) {
+  if (!uid.startsWith('legacy_')) return; // asl bazada yozuvi yo'q (mustaqil o'quvchi) — reyting bali yo'q
+  if (demo()) {
+    if (score === null) demoMarks.delete(uid);
+    else demoMarks.set(uid, score);
+    return;
+  }
+  const ref = legacyDb().ref('students/' + uid.slice(7));
+  const [name, kind, old] = await Promise.all([
+    ref.child('name').get(),
+    ref.child('learnerType').get(),
+    ref.child('task/' + LOGO_TOPIC).get(),
+  ]);
+  if (!name.exists()) return;
+  const prev = Number(old.val()) || 0,
+    next = score ?? 0;
+  await ref.child('task/' + LOGO_TOPIC).set(score);
+  if (kind.val() === 'independent' || prev === next) return;
+  await ref
+    .child('total')
+    .transaction((t) => Math.max(0, Math.round(((Number(t) || 0) - prev + next) * 10) / 10));
 }
 
 /* ---------- O'qituvchi va administrator ---------- */
@@ -217,17 +163,14 @@ export async function logoTaskList(a: Actor) {
   const [all, cfg] = await Promise.all([siteGet<Record<string, Stored>>('logoTask/s'), config()]);
   const rows: LogoTaskRow[] = Object.entries(all || {})
     .filter(([, s]) => s?.code && briefOf(s.code))
-    .map(([uid, s]) => {
-      const { open: _o, aiReady: _r, ...v } = view(uid, s, cfg.open);
-      return { ...v, uid, name: s.name, group: s.group, extra: s.extra || 0 };
-    })
+    .map(([uid, s]) => ({ ...fields(uid, s), uid, name: s.name, group: s.group }))
     .sort(
       (x, y) =>
         x.group.localeCompare(y.group) ||
         x.name.localeCompare(y.name, 'uz') ||
         x.uid.localeCompare(y.uid),
     );
-  return { rows, open: cfg.open, aiReady: aiConfigured() };
+  return { rows, open: cfg.open };
 }
 
 const adminInput = z.discriminatedUnion('op', [
@@ -240,9 +183,7 @@ const adminInput = z.discriminatedUnion('op', [
     })
     .strict(),
   z.object({ op: z.literal('clearGrade'), uid: UID }).strict(),
-  z.object({ op: z.literal('extra'), uid: UID }).strict(),
-  z.object({ op: z.literal('regrade'), uid: UID }).strict(),
-  z.object({ op: z.literal('gradeQueued') }).strict(),
+  z.object({ op: z.literal('again'), uid: UID }).strict(),
   z.object({ op: z.literal('settings'), open: z.boolean() }).strict(),
 ]);
 
@@ -254,45 +195,33 @@ export async function manageLogoTask(a: Actor, raw: unknown, now = Date.now()) {
     await siteUpdate({ 'logoTask/cfg': { open: v.open } });
     return logoTaskList(a);
   }
-  if (v.op === 'gradeQueued') {
-    check(aiConfigured(), 409, 'Sun’iy intellekt kaliti (ANTHROPIC_API_KEY) hali qo‘yilmagan.');
-    const all = (await siteGet<Record<string, Stored>>('logoTask/s')) || {};
-    const waiting = Object.entries(all)
-      .filter(
-        ([, s]) =>
-          s?.desc &&
-          s.img &&
-          (s.status === 'queued' ||
-            s.status === 'failed' ||
-            (s.status === 'pending' && now - (s.lock || 0) > LOCK_MS)),
-      )
-      .slice(0, 3);
-    await Promise.all(waiting.map(([uid, s]) => runGrade(uid, s, Date.now())));
-    return { ...(await logoTaskList(a)), graded: waiting.length };
-  }
   const path = 'logoTask/s/' + v.uid;
   const s = await siteGet<Stored>(path);
   if (!s?.code) throw new ApiError(404, 'Talaba yozuvi topilmadi.');
-  if (v.op === 'grade')
+  if (v.op === 'grade') {
+    check(s.img && s.desc, 409, 'Talaba hali ish yubormagan.');
+    const mark: LogoMark = {
+      score: v.score,
+      by: (a.name || a.id).slice(0, 80),
+      at: now,
+      ...(v.note ? { note: v.note } : {}),
+    };
     await siteUpdate({
-      [path + '/final']: {
-        score: v.score,
-        by: (a.name || a.id).slice(0, 80),
-        at: now,
-        ...(v.note ? { note: v.note } : {}),
-      },
+      [path + '/final']: mark,
+      [path + '/again']: null,
+      [path + '/resent']: null,
     });
-  else if (v.op === 'clearGrade') await siteUpdate({ [path + '/final']: null });
-  else if (v.op === 'extra') await siteUpdate({ [path + '/extra']: (s.extra || 0) + 1 });
-  else if (v.op === 'regrade') {
-    check(aiConfigured(), 409, 'Sun’iy intellekt kaliti (ANTHROPIC_API_KEY) hali qo‘yilmagan.');
-    check(s.desc && s.img, 409, 'Talaba hali ish yubormagan.');
-    check(
-      !(s.status === 'pending' && now - (s.lock || 0) < LOCK_MS),
-      409,
-      'Ish hozir baholanmoqda.',
-    );
-    await runGrade(v.uid, s, now, s.status === 'graded');
+    await syncTopicMark(v.uid, v.score);
+  } else if (v.op === 'clearGrade') {
+    await siteUpdate({
+      [path + '/final']: null,
+      [path + '/again']: null,
+      [path + '/resent']: null,
+    });
+    await syncTopicMark(v.uid, null);
+  } else {
+    check(s.final, 409, 'Ish hali baholanmagan — talaba uni o‘zi almashtira oladi.');
+    await siteUpdate({ [path + '/again']: true });
   }
   return logoTaskList(a);
 }

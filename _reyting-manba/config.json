@@ -123,6 +123,7 @@
       "open": true,
       "slides": 24,
       "quiz": 20,
+      "task": 25,
       "lim": true
     },
     {

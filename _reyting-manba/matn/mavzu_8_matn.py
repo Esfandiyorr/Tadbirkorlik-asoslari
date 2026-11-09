@@ -3,7 +3,8 @@
 Markazda: reklama mijoz psixologiyasiga qanday ta'sir qiladi — dunyo tajribasi, ilmiy tajribalar va halollik chegarasi.
 T, d, slide — yangi_mavzu.py beradi. Test: 20 savol, ulardan 6 tasi ochiq (bitta so'z yoki son bilan javob, o=[...]).
 21-slayd — 📺 video (administrator «Sayt boshqaruvi → 📺 Mavzu videolari»da YouTube havolasini qo'yadi; /api/site/quiz
-skripti window.SQ_VIDEO ni beradi), 22-slayd — 🎨 logotip topshirig'i (har talabaga alohida biznes, sun'iy intellekt baholaydi).
+skripti window.SQ_VIDEO ni beradi), 22-slayd — 🎨 logotip topshirig'i (har talabaga alohida biznes, o'qituvchi 0–25 ball qo'yadi: 8-mavzuda
+slaydlar 30 + vaqt 20 + test 25 + logotip 25 — config.json dagi "task": 25).
 Ishlatish (shablon — mavzu-7.html: ochiq savollarni ham ko'taradigan test dvigateli shu yerda):
   python3 _reyting-manba/yangi_mavzu.py _reyting-manba/matn/mavzu_8_matn.py mavzu-8.html "Mahsulotni reklama qilish va mijozga yetkazish" 8 "<tavsif>" mavzu-7.html
   python3 _reyting-manba/inject.py
@@ -444,28 +445,28 @@ slide("📺 Video dars", "📺 Video lesson",
 
 # ============================ 22. LOGOTIP TOPSHIRIG'I ============================
 slide("🎨 Topshiriq: logotip", "🎨 Assignment: a logo",
- E("span", "Amaliy topshiriq · sun'iy intellekt baholaydi", "Practical assignment · graded by AI", 'class="kicker"') +
+ E("span", "Amaliy topshiriq · o'qituvchi baholaydi · 25 ball", "Practical assignment · graded by the teacher · 25 points", 'class="kicker"') +
  E("h2", "🎨 O'z <span class=\"grad\">biznesingiz uchun logotip</span> yarating", "🎨 Create <span class=\"grad\">a logo for your business</span>") +
- E("div", "Har bir talabaga platforma <b>alohida biznes</b> beradi: nomi, faoliyati, mijozlari, xarakteri va logotip qayerda ishlatilishi. Siz shu biznes uchun <b>logotip chizasiz</b> (qog'ozda yoki telefon/kompyuter ilovasida), rasmini yuklaysiz va <b>ta'rif</b> yozasiz: g'oya, ramz, rang va shrift nimani anglatadi. Ishni <b>sun'iy intellekt</b> darhol baholaydi va maslahat beradi, o'qituvchi esa yakuniy bahoni tasdiqlaydi.",
-   "The platform gives each student <b>a different business</b>: its name, activity, customers, character and where the logo will be used. You <b>draw a logo</b> for it (on paper or in a phone/computer app), upload a picture and write a <b>description</b>: what the idea, symbol, colours and typeface mean. <b>Artificial intelligence</b> grades the work at once and gives advice, and the teacher confirms the final mark.", 'class="def"') +
+ E("div", "Har bir talabaga platforma <b>alohida biznes</b> beradi: nomi, faoliyati, mijozlari, xarakteri va logotip qayerda ishlatilishi. Siz shu biznes uchun <b>logotip chizasiz</b> (qog'ozda yoki telefon/kompyuter ilovasida), rasmini yuklaysiz va <b>ta'rif</b> yozasiz: g'oya, ramz, rang va shrift nimani anglatadi. Ishni <b>o'qituvchi</b> ko'rib chiqadi va <b>0–25 ball</b> qo'yadi — bu 8-mavzu 100 balining bir qismi.",
+   "The platform gives each student <b>a different business</b>: its name, activity, customers, character and where the logo will be used. You <b>draw a logo</b> for it (on paper or in a phone/computer app), upload a picture and write a <b>description</b>: what the idea, symbol, colours and typeface mean. The <b>teacher</b> reviews the work and gives <b>0–25 points</b> — part of topic 8's 100 points.", 'class="def"') +
  '<div class="grid g2" style="margin-top:16px">' +
  card_ul("blue", "📋", "Talablar", "Requirements",
          [("Logotip <b>o'zingiz chizgan</b> bo'lsin; boshqa brendni ko'chirish — 0 ball.", "The logo must be <b>your own drawing</b>; copying another brand scores 0."),
           ("Biznes nomi yoki bosh harfi o'qilishi kerak; 1–3 ta rang.", "The business name or initial must be readable; one to three colours."),
           ("Rasm: PNG, JPG yoki WEBP, aniq va tekis suratga olingan.", "Picture: PNG, JPG or WEBP, sharp and photographed straight on."),
           ("Ta'rif: kamida 4–5 jumla — ramz, rang, shrift va mijozga mosligi.", "Description: at least four or five sentences — symbol, colours, type and fit with the customers."),
-          ("3 marta yuborish mumkin — eng yaxshi natija hisobga olinadi.", "You may submit three times — the best result counts.")]) +
- card_ul("violet", "🏅", "Baholash (10 ball)", "Grading (10 points)",
-         [("<b>3</b> — biznesga, mijozlarga va brend xarakteriga mosligi", "<b>3</b> — fit with the business, customers and brand character"),
-          ("<b>2</b> — soddalik va esda qolishi", "<b>2</b> — simplicity and memorability"),
-          ("<b>2</b> — o'qilishi va kichik o'lchamda / oq-qorada ishlashi", "<b>2</b> — legibility and working small / in black and white"),
-          ("<b>1</b> — rang va kompozitsiya", "<b>1</b> — colour and composition"),
-          ("<b>2</b> — ta'rif sifati: g'oya aniq va asosli tushuntirilgan", "<b>2</b> — the description: a clear, well-argued idea")]) +
+          ("O'qituvchi baholaguncha ishingizni yangisiga almashtirishingiz mumkin.", "Until the teacher grades it, you can replace your work with a new version.")]) +
+ card_ul("violet", "🏅", "Baholash (25 ball)", "Grading (25 points)",
+         [("<b>8</b> — biznesga, mijozlarga va brend xarakteriga mosligi", "<b>8</b> — fit with the business, customers and brand character"),
+          ("<b>5</b> — soddalik va esda qolishi", "<b>5</b> — simplicity and memorability"),
+          ("<b>5</b> — o'qilishi va kichik o'lchamda / oq-qorada ishlashi", "<b>5</b> — legibility and working small / in black and white"),
+          ("<b>2</b> — rang va kompozitsiya", "<b>2</b> — colour and composition"),
+          ("<b>5</b> — ta'rif sifati: g'oya aniq va asosli tushuntirilgan", "<b>5</b> — the description: a clear, well-argued idea")]) +
  '</div>' +
  '<p style="text-align:center;margin-top:18px">' +
  E("a", "🎨 Topshiriqni ochish — biznesingizni ko'ring", "🎨 Open the assignment — see your business", 'class="btn accent sq-cta" href="/#topshiriq/m8"') + '</p>' +
- E("small", "🤖 Sun'iy intellekt — yordamchi baholovchi: u xato qilishi mumkin, shuning uchun har bir bahoni o'qituvchi ko'rib chiqadi va o'zgartira oladi.",
-   "🤖 The AI is an assistant grader and can make mistakes, so the teacher reviews every mark and can change it.", 'class="note"'))
+ E("small", "🎯 8-mavzuda ball: slaydlar <b>30</b> + o'qish vaqti <b>20</b> + test <b>25</b> + logotip <b>25</b> = <b>100</b>. Logotip bahosi mavzu baliga va reytingga qo'shiladi.",
+   "🎯 Topic 8 points: slides <b>30</b> + reading time <b>20</b> + test <b>25</b> + logo <b>25</b> = <b>100</b>. The logo mark counts towards the topic points and the ranking.", 'class="note"'))
 
 # ============================ 23. XULOSA ============================
 slide("Xulosa va resurslar", "Summary and resources",

@@ -1,6 +1,6 @@
 'use client';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ArrowLeft, ImagePlus, Loader2, RefreshCw, Send, Sparkles } from 'lucide-react';
+import { ArrowLeft, ImagePlus, Loader2, Send } from 'lucide-react';
 import { useApp } from './provider';
 import { Button } from './ui/button';
 import { navigate } from './dashboard';
@@ -11,12 +11,11 @@ import {
   LOGO_DESC_MIN,
   LOGO_MAX_SCORE,
   LOGO_TOPIC,
-  type LogoAi,
   type LogoTaskView,
 } from '@/lib/logo-task';
 
 /* 🎨 «Biznesingiz uchun logotip» (8-mavzu topshirig'i): talaba o'ziga berilgan biznesni ko'radi, logotip rasmini
-   yuklaydi va ta'rif yozadi; sun'iy intellekt 10 ballik baho va maslahat beradi, o'qituvchi yakuniy bahoni qo'yadi. */
+   yuklaydi va ta'rif yozadi; o'qituvchi ishni ko'rib, 0–25 ball va izoh qo'yadi (8-mavzu balining logotip qismi). */
 
 /** Rasmni brauzerda tayyorlash: eng uzun tomoni 1024 px gacha, shaffof joylar oq fon bilan (WEBP yoki JPEG). */
 async function prepare(file: File): Promise<Blob> {
@@ -42,7 +41,7 @@ async function prepare(file: File): Promise<Blob> {
 }
 
 /** Toshkent vaqti bo'yicha «09.11, 14:05». */
-const when = (ms: number) => {
+export const when = (ms: number) => {
   const d = new Date(ms + 5 * 3600000),
     p = (n: number) => String(n).padStart(2, '0');
   return `${p(d.getUTCDate())}.${p(d.getUTCMonth() + 1)}, ${p(d.getUTCHours())}:${p(d.getUTCMinutes())}`;
@@ -55,67 +54,6 @@ export function ScoreBadge({ score, max = LOGO_MAX_SCORE }: { score: number; max
       <b>{score}</b>
       <small>/{max}</small>
     </span>
-  );
-}
-
-export function AiResult({ ai, lang }: { ai: LogoAi; lang: 'uz' | 'en' | 'ru' }) {
-  return (
-    <div className="logo-ai">
-      {(ai.notLogo || ai.copied) && (
-        <p className="logo-flag" role="note">
-          ⚠️{' '}
-          {ai.copied
-            ? tr(
-                lang,
-                `Bu logotip «${ai.copied}» brendining logotipiga juda o‘xshaydi — ko‘chirilgan ish baholanmaydi. O‘zingiz yangi g‘oya o‘ylab toping.`,
-                `This logo looks like the “${ai.copied}” brand logo — copied work is not graded. Create your own idea.`,
-                `Логотип очень похож на логотип «${ai.copied}» — скопированная работа не оценивается.`,
-              )
-            : tr(
-                lang,
-                'Rasmda logotip topilmadi. Logotipingizni aniq va to‘g‘ridan-to‘g‘ri suratga oling.',
-                'No logo was found in the picture. Photograph your logo clearly and straight on.',
-                'На изображении не найден логотип. Сфотографируйте логотип чётко и прямо.',
-              )}
-        </p>
-      )}
-      <ul className="logo-parts">
-        {LOGO_CRITERIA.map((c) => (
-          <li key={c.key}>
-            <span>{tr(lang, c.uz, c.en, c.ru)}</span>
-            <span className="logo-bar" aria-hidden="true">
-              <i style={{ width: (ai.parts[c.key] / c.max) * 100 + '%' }} />
-            </span>
-            <b>
-              {ai.parts[c.key]}/{c.max}
-            </b>
-          </li>
-        ))}
-      </ul>
-      {ai.summary && <p className="logo-summary">{ai.summary}</p>}
-      <div className="logo-advice">
-        {!!ai.good.length && (
-          <div>
-            <h4>✅ {tr(lang, 'Yaxshi chiqqan', 'What works', 'Что получилось')}</h4>
-            <ul>
-              {ai.good.map((x, i) => (
-                <li key={i}>{x}</li>
-              ))}
-            </ul>
-          </div>
-        )}
-        {!!ai.fix.length && (
-          <div>
-            <h4>💡 {tr(lang, 'Yaxshilash uchun', 'To improve', 'Что улучшить')}</h4>
-            <ul>
-              {ai.fix.map((x, i) => (
-                <li key={i}>{x}</li>
-              ))}
-            </ul>
-          </div>
-        )}
-      </div>
-    </div>
   );
 }
 
@@ -144,12 +82,6 @@ export function LogoTaskPage({ id = LOGO_TOPIC }: { id?: string }) {
     void load();
   }, [load]);
   useEffect(() => () => void (preview && URL.revokeObjectURL(preview)), [preview]);
-  // Boshqa oynada baholanayotgan bo'lsa — holatni yangilab turish
-  useEffect(() => {
-    if (task?.status !== 'pending' || busy) return;
-    const t = setTimeout(() => void load(), 5000);
-    return () => clearTimeout(t);
-  }, [task, busy, load]);
 
   async function choose(f: File | undefined) {
     if (!f) return;
@@ -168,40 +100,20 @@ export function LogoTaskPage({ id = LOGO_TOPIC }: { id?: string }) {
       const form = new FormData();
       form.append('file', file, 'logo.' + (file.type === 'image/webp' ? 'webp' : 'jpg'));
       form.append('desc', desc.trim());
-      form.append('lang', lang);
       const r = await request('/api/task', { method: 'POST', body: form }),
         v = await r.json();
       if (!r.ok) throw new Error(v.error);
       setTask(v.task);
-      if (v.task.status === 'graded') {
-        setFile(null);
-        setPreview('');
-        setDesc('');
-        toast(
-          L(
-            `🤖 Baho: ${v.task.ai.score}/${LOGO_MAX_SCORE}`,
-            `🤖 Mark: ${v.task.ai.score}/${LOGO_MAX_SCORE}`,
-            `🤖 Оценка: ${v.task.ai.score}/${LOGO_MAX_SCORE}`,
-          ),
-        );
-      }
-    } catch (e) {
-      toast((e as Error).message);
-    } finally {
-      setBusy(false);
-    }
-  }
-  async function retry() {
-    setBusy(true);
-    try {
-      const r = await request('/api/task', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action: 'retry' }),
-        }),
-        v = await r.json();
-      if (!r.ok) throw new Error(v.error);
-      setTask(v.task);
+      setFile(null);
+      setPreview('');
+      setDesc('');
+      toast(
+        L(
+          '✅ Ishingiz yuborildi — o‘qituvchi baholaydi',
+          '✅ Your work was sent — the teacher will grade it',
+          '✅ Работа отправлена — преподаватель оценит её',
+        ),
+      );
     } catch (e) {
       toast((e as Error).message);
     } finally {
@@ -251,8 +163,6 @@ export function LogoTaskPage({ id = LOGO_TOPIC }: { id?: string }) {
       </section>
     );
   const b = task.brief;
-  const mark = task.final?.score ?? task.best;
-  const canSend = task.open && task.left > 0 && task.status !== 'pending';
   const descOk = desc.trim().length >= LOGO_DESC_MIN;
   return (
     <section className="logo-task" aria-labelledby="logo-title">
@@ -293,9 +203,9 @@ export function LogoTaskPage({ id = LOGO_TOPIC }: { id?: string }) {
             <summary>
               📋{' '}
               {L(
-                'Talablar va baholash (10 ball)',
-                'Requirements and grading (10 points)',
-                'Требования и оценка (10 баллов)',
+                `Talablar va baholash (${LOGO_MAX_SCORE} ball)`,
+                `Requirements and grading (${LOGO_MAX_SCORE} points)`,
+                `Требования и оценка (${LOGO_MAX_SCORE} баллов)`,
               )}
             </summary>
             <ul>
@@ -320,10 +230,17 @@ export function LogoTaskPage({ id = LOGO_TOPIC }: { id?: string }) {
                   `Описание (не менее ${LOGO_DESC_MIN} символов): идея, символ, цвета, шрифт и почему это подходит клиентам.`,
                 )}
               </li>
+              <li>
+                {L(
+                  'O‘qituvchi baholaguncha ishingizni yangisiga almashtirishingiz mumkin.',
+                  'Until the teacher grades it, you can replace your work with a new version.',
+                  'Пока преподаватель не оценил работу, её можно заменить.',
+                )}
+              </li>
             </ul>
             <ol className="logo-criteria">
               {LOGO_CRITERIA.map((c) => (
-                <li key={c.key}>
+                <li key={c.en}>
                   <b>{c.max}</b> — {tr(lang, c.uz, c.en, c.ru)}
                 </li>
               ))}
@@ -334,8 +251,27 @@ export function LogoTaskPage({ id = LOGO_TOPIC }: { id?: string }) {
         <article className="panel logo-result" aria-live="polite">
           <div className="logo-result-head">
             <h2>{L('Natija', 'Result', 'Результат')}</h2>
-            {mark !== undefined && <ScoreBadge score={mark} />}
+            {task.final && <ScoreBadge score={task.final.score} />}
           </div>
+          {task.status === 'new' && (
+            <p className="muted">
+              {L(
+                'Hali ish yuborilmagan. Logotipingizni chizing, rasmini yuklang va ta’rif yozing — o‘qituvchi ko‘rib baholaydi.',
+                'Nothing sent yet. Draw your logo, upload a picture and write a description — the teacher will grade it.',
+                'Работа ещё не отправлена. Нарисуйте логотип, загрузите фото и напишите описание — преподаватель оценит.',
+              )}
+            </p>
+          )}
+          {task.status === 'sent' && (
+            <p className="logo-sent-note">
+              ✅{' '}
+              {L(
+                'Ishingiz yuborildi. O‘qituvchi ko‘rib chiqib baholaydi — baho shu sahifada chiqadi.',
+                'Your work was sent. The teacher will review and grade it — the mark appears on this page.',
+                'Работа отправлена. Преподаватель проверит её — оценка появится на этой странице.',
+              )}
+            </p>
+          )}
           {task.final && (
             <p className="logo-final">
               👩‍🏫{' '}
@@ -347,35 +283,15 @@ export function LogoTaskPage({ id = LOGO_TOPIC }: { id?: string }) {
               {task.final.note && <span> — {task.final.note}</span>}
             </p>
           )}
-          {task.status === 'new' && (
-            <p className="muted">
+          {task.final && task.again && (
+            <p className="logo-sent-note">
+              🔁{' '}
               {L(
-                'Hali ish yuborilmagan. Logotipingizni chizing, rasmini yuklang va ta’rif yozing — sun’iy intellekt bir daqiqa ichida baholaydi.',
-                'Nothing sent yet. Draw your logo, upload a picture and write a description — the AI grades it within a minute.',
-                'Работа ещё не отправлена. Нарисуйте логотип, загрузите фото и напишите описание — ИИ оценит за минуту.',
+                'O‘qituvchi qayta yuborishga ruxsat berdi — yangi variant yuborsangiz, u qaytadan baholanadi.',
+                'The teacher allowed a new version — if you send one, it will be graded again.',
+                'Преподаватель разрешил отправить новый вариант — он будет оценён заново.',
               )}
             </p>
-          )}
-          {(task.status === 'pending' || busy) && (
-            <p className="logo-wait">
-              <Loader2 size={18} className="spin" aria-hidden="true" />
-              {L(
-                'Sun’iy intellekt logotipingizni ko‘rib chiqmoqda… (odatda 10–30 soniya)',
-                'The AI is looking at your logo… (usually 10–30 seconds)',
-                'ИИ изучает ваш логотип… (обычно 10–30 секунд)',
-              )}
-            </p>
-          )}
-          {(task.status === 'failed' || task.status === 'queued') && !busy && (
-            <div className="logo-flag">
-              <p>⏳ {task.error}</p>
-              {task.aiReady && task.left > 0 && (
-                <Button variant="outline" size="sm" onClick={() => void retry()}>
-                  <RefreshCw size={15} />
-                  {L('Qayta baholash', 'Grade again', 'Оценить снова')}
-                </Button>
-              )}
-            </div>
           )}
           {task.img && (
             <figure className="logo-sent">
@@ -384,49 +300,19 @@ export function LogoTaskPage({ id = LOGO_TOPIC }: { id?: string }) {
                 alt={L('Yuborilgan logotip', 'Submitted logo', 'Отправленный логотип')}
               />
               <figcaption>
-                {task.sentAt && <small>{when(task.sentAt)}</small>}
+                {task.sentAt && (
+                  <small>
+                    {L('Yuborilgan', 'Sent', 'Отправлено')}: {when(task.sentAt)}
+                  </small>
+                )}
                 {task.desc && <span>{task.desc}</span>}
               </figcaption>
             </figure>
           )}
-          {task.ai && task.status === 'graded' && (
-            <>
-              <h3 className="logo-ai-title">
-                <Sparkles size={16} aria-hidden="true" />{' '}
-                {L('Sun’iy intellekt bahosi', 'AI assessment', 'Оценка ИИ')}: {task.ai.score}/
-                {LOGO_MAX_SCORE}
-              </h3>
-              <AiResult ai={task.ai} lang={lang} />
-            </>
-          )}
-          {task.tries.length > 0 && (
-            <p className="logo-tries">
-              {L('Urinishlar', 'Attempts', 'Попытки')}:{' '}
-              {task.tries.map((t, i) => (
-                <span key={i}>
-                  {i + 1}) <b>{t.score}</b>
-                </span>
-              ))}
-              {task.best !== undefined && (
-                <em>
-                  {' '}
-                  · {L('hisobga olinadi', 'counted', 'учитывается')}: <b>{task.best}</b>
-                </em>
-              )}
-            </p>
-          )}
-          <p className="logo-note">
-            🤖{' '}
-            {L(
-              'Sun’iy intellekt — yordamchi baholovchi. U adashishi mumkin, shuning uchun o‘qituvchi har bir ishni ko‘rib chiqadi va bahoni o‘zgartira oladi.',
-              'The AI is an assistant grader and can be wrong, so the teacher reviews every piece of work and can change the mark.',
-              'ИИ — помощник в оценке и может ошибаться, поэтому преподаватель проверяет каждую работу и может изменить оценку.',
-            )}
-          </p>
         </article>
       </div>
 
-      {canSend ? (
+      {task.canSend ? (
         <form
           className="panel logo-form"
           onSubmit={(e) => {
@@ -435,16 +321,18 @@ export function LogoTaskPage({ id = LOGO_TOPIC }: { id?: string }) {
           }}
         >
           <h2>
-            {task.tries.length
+            {task.img
               ? L('Yangi variant yuborish', 'Send a new version', 'Отправить новый вариант')
               : L('Ishni yuborish', 'Submit your work', 'Отправить работу')}
-            <small>
-              {L(
-                `${task.left} ta urinish qoldi`,
-                `${task.left} attempt(s) left`,
-                `осталось попыток: ${task.left}`,
-              )}
-            </small>
+            {task.img && (
+              <small>
+                {L(
+                  'avvalgisi almashtiriladi',
+                  'it replaces the previous one',
+                  'заменит предыдущий',
+                )}
+              </small>
+            )}
           </h2>
           <div className="logo-form-grid">
             <button
@@ -511,7 +399,7 @@ export function LogoTaskPage({ id = LOGO_TOPIC }: { id?: string }) {
           <div className="logo-actions">
             <Button type="submit" disabled={busy || !file || !descOk}>
               {busy ? <Loader2 size={16} className="spin" /> : <Send size={16} />}
-              {L('Yuborish va baholatish', 'Send for grading', 'Отправить на оценку')}
+              {L('O‘qituvchiga yuborish', 'Send to the teacher', 'Отправить преподавателю')}
             </Button>
             {!file && (
               <span className="muted">
@@ -521,23 +409,19 @@ export function LogoTaskPage({ id = LOGO_TOPIC }: { id?: string }) {
           </div>
         </form>
       ) : (
-        (!task.open || task.left <= 0) && (
-          <p className="panel logo-closed">
-            {!task.open
-              ? L(
-                  'Topshiriq qabul qilish yopilgan.',
-                  'Submissions are closed.',
-                  'Приём работ закрыт.',
-                )
-              : task.left <= 0
-                ? L(
-                    'Barcha urinishlar ishlatildi. Qo‘shimcha urinish kerak bo‘lsa, «Chat» orqali o‘qituvchiga yozing.',
-                    'All attempts are used. If you need another one, message the teacher in Chat.',
-                    'Все попытки использованы. Если нужна ещё одна, напишите преподавателю в чат.',
-                  )
-                : null}
-          </p>
-        )
+        <p className="panel logo-closed">
+          {!task.open
+            ? L(
+                'Topshiriq qabul qilish yopilgan.',
+                'Submissions are closed.',
+                'Приём работ закрыт.',
+              )
+            : L(
+                'Ishingiz baholandi. Qayta yuborish kerak bo‘lsa, «Chat» orqali o‘qituvchiga yozing.',
+                'Your work has been graded. If you need to send it again, message the teacher in Chat.',
+                'Работа оценена. Если нужно отправить заново, напишите преподавателю в чат.',
+              )}
+        </p>
       )}
     </section>
   );

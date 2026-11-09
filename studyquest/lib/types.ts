@@ -10,8 +10,11 @@ export type ReadingHistory = {
   grade?: number;
   /** testdagi savollar (yoki krossvord so'zlari, masalalar) soni — 50 ball shunga bo'linadi */
   quizTotal?: number;
-  /** mavzu bali qismlari: slaydlar (30), o'qish vaqti (20, 1 soat = to'liq), test (50) */
-  parts?: { slides: number; time: number; test: number };
+  /** mavzu bali qismlari: slaydlar (30), o'qish vaqti (20, 1 soat = to'liq), test (50);
+   *  o'qituvchi baholaydigan topshirig'i bor mavzuda (8-mavzu) test testMax, topshiriq taskMax ball */
+  parts?: { slides: number; time: number; test: number; task?: number };
+  testMax?: number;
+  taskMax?: number;
   status: 'new' | 'started' | 'read';
 };
 /** «score» — ball beriladi (due — muddat oxiri), «read» — 📖 o'qish rejimi, «locked» — 🔒 hali yopiq */

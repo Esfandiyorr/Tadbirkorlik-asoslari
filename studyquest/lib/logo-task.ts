@@ -1,13 +1,14 @@
 /* 🎨 8-mavzu topshirig'i «Biznesingiz uchun logotip»: har bir talabaga alohida biznes beriladi (nomi, faoliyati,
-   mijozlari, xarakteri va logotip qayerda ishlatilishi). Talaba logotip chizib yuklaydi va ta'rif yozadi; sun'iy
-   intellekt 5 mezon bo'yicha 10 ballik baho va maslahat beradi, o'qituvchi yakuniy bahoni tasdiqlaydi yoki o'zgartiradi.
+   mijozlari, xarakteri va logotip qayerda ishlatilishi). Talaba logotip chizib rasmini yuklaydi va ta'rif yozadi;
+   o'qituvchi yuklaganlar ro'yxatida har bir ishni ko'rib, 0–25 ball va izoh qo'yadi — bu ball 8-mavzuning
+   100 baliga (slaydlar 30 + vaqt 20 + test 25 + logotip 25) va reytingga qo'shiladi.
    Havza: 42 biznes × 3 nom × 2 mijoz guruhi × 3 xarakter = 756 xil topshiriq — bir guruhda biznes takrorlanmaydi. */
 
 export const LOGO_TOPIC = 'm8';
-export const LOGO_MAX_TRIES = 3;
 export const LOGO_DESC_MIN = 80;
 export const LOGO_DESC_MAX = 1500;
-export const LOGO_MAX_SCORE = 10;
+/** Logotip — 8-mavzu 100 balining 25 bali (test 25, slaydlar 30, vaqt 20); o'qituvchi 0–25 ball qo'yadi. */
+export const LOGO_MAX_SCORE = 25;
 
 export type Character = { uz: string; en: string };
 export const CHARACTERS: Character[] = [
@@ -510,69 +511,38 @@ export function pickBrief(
   return list[Math.floor(rnd() * list.length) % list.length];
 }
 
-export type LogoParts = {
-  fit: number;
-  simple: number;
-  legible: number;
-  color: number;
-  desc: number;
-};
-export const LOGO_CRITERIA: {
-  key: keyof LogoParts;
-  max: number;
-  uz: string;
-  en: string;
-  ru: string;
-}[] = [
+/** Baholash mezonlari (talabaga talab sifatida, o'qituvchiga yo'riqnoma sifatida ko'rsatiladi). */
+export const LOGO_CRITERIA: { max: number; uz: string; en: string; ru: string }[] = [
   {
-    key: 'fit',
-    max: 3,
+    max: 8,
     uz: 'Biznesga, mijozlarga va xarakterga mosligi',
     en: 'Fit with the business, customers and character',
     ru: 'Соответствие бизнесу, клиентам и характеру',
   },
   {
-    key: 'simple',
-    max: 2,
+    max: 5,
     uz: 'Soddalik va esda qolishi',
     en: 'Simplicity and memorability',
     ru: 'Простота и запоминаемость',
   },
   {
-    key: 'legible',
-    max: 2,
+    max: 5,
     uz: 'O‘qilishi, kichik o‘lchamda va oq-qorada ishlashi',
     en: 'Legibility, working small and in black and white',
     ru: 'Читаемость, работа в малом размере и в ч/б',
   },
+  { max: 2, uz: 'Rang va kompozitsiya', en: 'Colour and composition', ru: 'Цвет и композиция' },
   {
-    key: 'color',
-    max: 1,
-    uz: 'Rang va kompozitsiya',
-    en: 'Colour and composition',
-    ru: 'Цвет и композиция',
-  },
-  {
-    key: 'desc',
-    max: 2,
+    max: 5,
     uz: 'Ta’rif: g‘oya aniq va asosli tushuntirilgan',
     en: 'Description: a clear, well-argued idea',
     ru: 'Описание: ясная и обоснованная идея',
   },
 ];
 
-export type LogoAi = {
-  score: number;
-  parts: LogoParts;
-  summary: string;
-  good: string[];
-  fix: string[];
-  notLogo?: boolean;
-  copied?: string;
-  model: string;
-  at: number;
-};
-export type LogoTaskStatus = 'new' | 'pending' | 'graded' | 'queued' | 'failed';
+/** new — hali yubormagan · sent — yuborgan, baho kutmoqda · graded — o'qituvchi baholagan. */
+export type LogoTaskStatus = 'new' | 'sent' | 'graded';
+export type LogoMark = { score: number; by: string; at: number; note?: string };
 /** Talaba ko'radigan holat. */
 export type LogoTaskView = {
   brief: Brief;
@@ -580,19 +550,18 @@ export type LogoTaskView = {
   img?: string;
   desc?: string;
   sentAt?: number;
-  ai?: LogoAi;
-  tries: { at: number; score: number }[];
-  left: number;
-  best?: number;
-  final?: { score: number; by: string; at: number; note?: string };
-  error?: string;
+  final?: LogoMark;
+  /** O'qituvchi baholagan ishni qayta yuborishga ruxsat berganmi. */
+  again?: boolean;
+  /** Baholangandan keyin yangi variant yuborilgan — o'qituvchi qaytadan baholaydi (eski baho turadi). */
+  resent?: boolean;
+  /** Hozir yuborish (yoki almashtirish) mumkinmi. */
+  canSend: boolean;
   open: boolean;
-  aiReady: boolean;
 };
 /** O'qituvchi ro'yxatidagi qator. */
-export type LogoTaskRow = Omit<LogoTaskView, 'open' | 'aiReady'> & {
+export type LogoTaskRow = Omit<LogoTaskView, 'open' | 'canSend'> & {
   uid: string;
   name: string;
   group: string;
-  extra: number;
 };

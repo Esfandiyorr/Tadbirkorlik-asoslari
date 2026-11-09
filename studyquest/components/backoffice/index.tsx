@@ -82,14 +82,14 @@ export function BackOffice({ openTab }: { openTab: (tab: string) => void }) {
       id: 'logo',
       icon: '🎨',
       title: L(
-        'Logotip topshirig‘i (AI baholaydi)',
-        'Logo assignment (AI-graded)',
-        'Задание «Логотип» (оценивает ИИ)',
+        'Logotip topshirig‘i (8-mavzu)',
+        'Logo assignment (topic 8)',
+        'Задание «Логотип» (тема 8)',
       ),
       text: L(
-        '8-mavzu topshirig‘i: har talabaga berilgan biznes, yuklangan logotiplar, sun’iy intellekt bahosi va maslahati; bahoni tasdiqlash yoki o‘zgartirish.',
-        'Topic 8 assignment: each student’s business, uploaded logos, the AI mark and advice; confirm or change the mark.',
-        'Задание темы 8: бизнес каждого студента, загруженные логотипы, оценка и советы ИИ; подтвердить или изменить оценку.',
+        'Yuklaganlar ro‘yxati: har talabaga berilgan biznes, yuklangan logotip va ta’rif; 0–25 ball qo‘yasiz — u 8-mavzu baliga va reytingga qo‘shiladi.',
+        'The list of submissions: each student’s business, uploaded logo and description; give 0–25 points — they count towards topic 8 and the ranking.',
+        'Список работ: бизнес каждого студента, логотип и описание; 0–25 баллов идут в баллы темы 8 и рейтинг.',
       ),
     },
     {

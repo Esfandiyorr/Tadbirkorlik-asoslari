@@ -1,34 +1,29 @@
 'use client';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Download, Plus, RefreshCw, Save, Sparkles, X } from 'lucide-react';
+import { Download, RefreshCw, RotateCcw, Save, X } from 'lucide-react';
 import { useApp } from '../provider';
 import { Button } from '../ui/button';
 import { useL } from './common';
-import { AiResult, ScoreBadge } from '../logo-task';
-import { LOGO_MAX_SCORE, LOGO_MAX_TRIES, type LogoTaskRow } from '@/lib/logo-task';
+import { ScoreBadge, when } from '../logo-task';
+import { LOGO_CRITERIA, LOGO_MAX_SCORE, type LogoTaskRow } from '@/lib/logo-task';
+import { tr } from '@/lib/points';
 
-/* 🎨 Sayt boshqaruvi → Logotip topshirig'i: har talabaga berilgan biznes, yuklangan logotip va ta'rif, sun'iy
-   intellekt bahosi; o'qituvchi bahoni tasdiqlaydi yoki o'zgartiradi, qo'shimcha urinish beradi, CSV yuklab oladi. */
+/* 🎨 Logotip topshirig'i — yuklaganlar ro'yxati: har bir talaba nima yuklagani (rasm, ta'rif, berilgan biznes) va
+   o'qituvchi bahosi (0–25 ball — 8-mavzu 100 balining logotip qismi, reytingga qo'shiladi). O'qituvchi bahoni
+   qo'yadi, o'zgartiradi yoki olib tashlaydi, kerak bo'lsa qayta yuborishga ruxsat beradi va CSV yuklab oladi. */
 
-type View = { rows: LogoTaskRow[]; open: boolean; aiReady: boolean; graded?: number };
-
-const STATUS: Record<LogoTaskRow['status'], [string, string, string]> = {
-  new: ['⚪ yubormagan', '⚪ not sent', '⚪ не отправлено'],
-  pending: ['⏳ baholanmoqda', '⏳ grading', '⏳ оценивается'],
-  graded: ['🤖 AI baholagan', '🤖 AI-graded', '🤖 оценено ИИ'],
-  queued: ['🕓 navbatda', '🕓 queued', '🕓 в очереди'],
-  failed: ['⚠️ xato', '⚠️ error', '⚠️ ошибка'],
-};
+type View = { rows: LogoTaskRow[]; open: boolean };
+type Filter = 'sent' | 'todo' | 'graded' | 'none';
 
 export function LogoTaskAdmin() {
-  const { request, toast, data: app } = useApp();
+  const { request, toast, data: app, lang } = useApp();
   const L = useL();
   const [data, setData] = useState<View | null>(null),
     [error, setError] = useState(''),
     [busy, setBusy] = useState(''),
     [group, setGroup] = useState(''),
+    [filter, setFilter] = useState<Filter>('sent'),
     [query, setQuery] = useState(''),
-    [openRow, setOpenRow] = useState(''),
     [mark, setMark] = useState<Record<string, { score: string; note: string }>>({});
   const isAdmin = app?.user?.role === 'admin';
   const load = useCallback(async () => {
@@ -57,9 +52,10 @@ export function LogoTaskAdmin() {
       if (!r.ok) throw new Error(v.error);
       setData(v);
       if (done) toast(done);
-      return v as View;
+      return true;
     } catch (e) {
       toast((e as Error).message);
+      return false;
     } finally {
       setBusy('');
     }
@@ -69,45 +65,34 @@ export function LogoTaskAdmin() {
     () => [...new Set(rows.map((r) => r.group).filter(Boolean))].sort(),
     [rows],
   );
-  const shown = rows.filter(
-    (r) =>
-      (!group || r.group === group) &&
-      (!query.trim() ||
-        (r.name + ' ' + r.brief.name + ' ' + r.brief.kind)
-          .toLowerCase()
-          .includes(query.trim().toLowerCase())),
-  );
   if (error) return <p className="error-state">{error}</p>;
   if (!data) return <div className="skeleton h-64" />;
-  const sent = rows.filter((r) => r.img).length,
-    graded = rows.filter((r) => r.best !== undefined || r.final).length,
-    waiting = rows.filter((r) => r.img && (r.status === 'queued' || r.status === 'failed')).length;
-  const marks = rows
-    .map((r) => r.final?.score ?? r.best)
-    .filter((x): x is number => x !== undefined);
+  const inGroup = rows.filter((r) => !group || r.group === group);
+  const sent = inGroup.filter((r) => r.img),
+    todo = inGroup.filter((r) => r.status === 'sent'),
+    graded = inGroup.filter((r) => r.final),
+    none = inGroup.filter((r) => !r.img);
+  const list = { sent, todo, graded, none }[filter].filter(
+    (r) =>
+      !query.trim() ||
+      (r.name + ' ' + r.brief.name + ' ' + r.brief.kind)
+        .toLowerCase()
+        .includes(query.trim().toLowerCase()),
+  );
+  const marks = graded.map((r) => r.final!.score);
   const avg = marks.length ? (marks.reduce((s, n) => s + n, 0) / marks.length).toFixed(1) : '—';
   function csv() {
     const esc = (v: unknown) => '"' + String(v ?? '').replace(/"/g, '""') + '"';
     const lines = [
-      [
-        'Guruh',
-        'Talaba',
-        'Biznes',
-        'Faoliyat',
-        'AI (eng yaxshi)',
-        'O‘qituvchi',
-        'Yakuniy',
-        'Urinishlar',
-      ],
-      ...shown.map((r) => [
+      ['Guruh', 'Talaba', 'Biznes', 'Faoliyat', 'Yuborilgan', `Baho (0–${LOGO_MAX_SCORE})`, 'Izoh'],
+      ...inGroup.map((r) => [
         r.group,
         r.name,
         r.brief.name,
         r.brief.kind,
-        r.best ?? '',
+        r.sentAt ? when(r.sentAt) : 'yubormagan',
         r.final?.score ?? '',
-        r.final?.score ?? r.best ?? '',
-        r.tries.length,
+        r.final?.note ?? '',
       ]),
     ].map((row) => row.map(esc).join(','));
     const url = URL.createObjectURL(
@@ -119,36 +104,44 @@ export function LogoTaskAdmin() {
     a.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
+  const tabs: [Filter, string, number][] = [
+    ['sent', L('Yuklaganlar', 'Submitted', 'Загрузили'), sent.length],
+    ['todo', L('Baho kutayotganlar', 'Awaiting a mark', 'Ждут оценки'), todo.length],
+    ['graded', L('Baholanganlar', 'Graded', 'Оценённые'), graded.length],
+    ['none', L('Hali yubormaganlar', 'Not sent yet', 'Ещё не отправили'), none.length],
+  ];
   return (
     <div className="logo-admin">
-      {!data.aiReady && (
-        <div className="bo-warn" role="note">
-          <b>
-            🔑{' '}
-            {L(
-              'Sun’iy intellekt hali ulanmagan',
-              'The AI is not connected yet',
-              'ИИ ещё не подключён',
-            )}
-          </b>
-          <p>
-            {L(
-              'Talabalar ishlari saqlanadi va «navbatda» turadi. Ulash uchun: console.anthropic.com da API kalit oling, so‘ng Vercel → loyiha → Settings → Environment Variables ga ANTHROPIC_API_KEY nomi bilan qo‘ying va saytni qayta joylang (Redeploy). Keyin shu yerda «Navbatdagilarni baholash»ni bosing.',
-              'Students’ work is saved and queued. To connect: get an API key at console.anthropic.com, add it in Vercel → project → Settings → Environment Variables as ANTHROPIC_API_KEY and redeploy. Then press “Grade the queue” here.',
-              'Работы сохраняются и ждут в очереди. Получите ключ API на console.anthropic.com, добавьте его в Vercel → Settings → Environment Variables как ANTHROPIC_API_KEY и сделайте Redeploy.',
-            )}
-          </p>
-        </div>
-      )}
+      <p className="bo-hint">
+        🎯{' '}
+        {L(
+          `Logotip — 8-mavzu 100 balining ${LOGO_MAX_SCORE} bali (slaydlar 30 + vaqt 20 + test 25 + logotip 25). Qo‘ygan balingiz talabaning mavzu baliga va reytingiga darhol qo‘shiladi.`,
+          `The logo is ${LOGO_MAX_SCORE} of topic 8’s 100 points (slides 30 + time 20 + test 25 + logo 25). Your mark is added to the student’s topic points and ranking at once.`,
+          `Логотип — ${LOGO_MAX_SCORE} из 100 баллов темы 8 (слайды 30 + время 20 + тест 25 + логотип 25). Оценка сразу добавляется к баллам и рейтингу.`,
+        )}
+      </p>
+      <details className="logo-admin-guide">
+        <summary>
+          📋 {L('Baholash yo‘riqnomasi', 'Grading guide', 'Критерии оценки')} ({LOGO_MAX_SCORE}{' '}
+          {L('ball', 'points', 'баллов')})
+        </summary>
+        <ol>
+          {LOGO_CRITERIA.map((c) => (
+            <li key={c.en}>
+              <b>{c.max}</b> — {tr(lang, c.uz, c.en, c.ru)}
+            </li>
+          ))}
+        </ol>
+      </details>
       <div className="logo-admin-stats">
         <span>
-          👥 {L('Biznes berilgan', 'Assigned', 'Выдано')}: <b>{rows.length}</b>
+          📤 {L('Yuklagan', 'Submitted', 'Загрузили')}: <b>{sent.length}</b>
         </span>
         <span>
-          📤 {L('Yuborgan', 'Submitted', 'Отправили')}: <b>{sent}</b>
+          ⏳ {L('Baho kutmoqda', 'Awaiting', 'Ждут')}: <b>{todo.length}</b>
         </span>
         <span>
-          ✅ {L('Baholangan', 'Graded', 'Оценено')}: <b>{graded}</b>
+          ✅ {L('Baholangan', 'Graded', 'Оценено')}: <b>{graded.length}</b>
         </span>
         <span>
           📊 {L('O‘rtacha', 'Average', 'Средний')}: <b>{avg}</b>
@@ -166,27 +159,7 @@ export function LogoTaskAdmin() {
             {L('Topshiriq qabul qilinmoqda', 'Accepting submissions', 'Приём работ открыт')}
           </label>
         )}
-        {data.aiReady && waiting > 0 && (
-          <Button
-            variant="outline"
-            disabled={!!busy}
-            onClick={() =>
-              void act(
-                { op: 'gradeQueued' },
-                'queue',
-                L('Navbatdagi ishlar baholandi', 'Queued work graded', 'Очередь оценена'),
-              )
-            }
-          >
-            <Sparkles size={16} />
-            {L(
-              `Navbatdagilarni baholash (${waiting})`,
-              `Grade the queue (${waiting})`,
-              `Оценить очередь (${waiting})`,
-            )}
-          </Button>
-        )}
-        <Button variant="outline" disabled={!shown.length} onClick={csv}>
+        <Button variant="outline" disabled={!inGroup.length} onClick={csv}>
           <Download size={16} />
           CSV
         </Button>
@@ -215,85 +188,148 @@ export function LogoTaskAdmin() {
           aria-label={L('Qidirish', 'Search', 'Поиск')}
         />
       </div>
-      {!shown.length && (
+      <div className="bo-subtabs" role="tablist">
+        {tabs.map(([id, label, n]) => (
+          <button
+            key={id}
+            type="button"
+            role="tab"
+            aria-selected={filter === id}
+            className={filter === id ? 'is-on' : ''}
+            onClick={() => setFilter(id)}
+          >
+            {label} <em>{n}</em>
+          </button>
+        ))}
+      </div>
+      {!list.length && (
         <p className="bo-hint">
-          {L(
-            'Hali hech kim topshiriqni ochmagan. Talaba 8-mavzudagi «🎨 Topshiriq» tugmasini bosganda unga biznes beriladi.',
-            'Nobody has opened the assignment yet. A student gets a business when they press “🎨 Assignment” in topic 8.',
-            'Задание ещё никто не открывал. Студент получает бизнес, нажав «🎨 Задание» в теме 8.',
-          )}
+          {filter === 'none'
+            ? L(
+                'Topshiriqni ochgan hamma talaba ishini yuborgan.',
+                'Everyone who opened the assignment has sent their work.',
+                'Все, кто открыл задание, отправили работу.',
+              )
+            : L(
+                'Hali bu ro‘yxatda hech kim yo‘q. Talaba 8-mavzudagi «🎨 Topshiriq» orqali logotip yuklaganda shu yerda chiqadi.',
+                'Nobody here yet. Students appear here after uploading a logo via “🎨 Assignment” in topic 8.',
+                'Пока никого нет. Студенты появятся здесь после загрузки логотипа в теме 8.',
+              )}
         </p>
       )}
       <ul className="logo-admin-list">
-        {shown.map((r) => {
-          const on = openRow === r.uid;
+        {list.map((r) => {
           const m = mark[r.uid] || {
-            score: String(r.final?.score ?? r.best ?? ''),
+            score: r.final ? String(r.final.score) : '',
             note: r.final?.note || '',
           };
           const score = Number(m.score);
           const valid =
-            m.score !== '' && Number.isInteger(score) && score >= 0 && score <= LOGO_MAX_SCORE;
+            m.score.trim() !== '' &&
+            Number.isInteger(score) &&
+            score >= 0 &&
+            score <= LOGO_MAX_SCORE;
+          const set = (patch: Partial<typeof m>) =>
+            setMark({ ...mark, [r.uid]: { ...m, ...patch } });
           return (
-            <li key={r.uid} className={on ? 'is-open' : ''}>
-              <button
-                type="button"
-                className="logo-admin-row"
-                aria-expanded={on}
-                onClick={() => setOpenRow(on ? '' : r.uid)}
-              >
-                {r.img ? (
-                  <img src={r.img} alt="" loading="lazy" />
-                ) : (
-                  <span className="logo-admin-empty">{r.brief.icon}</span>
-                )}
-                <span className="logo-admin-who">
+            <li key={r.uid} className={'logo-admin-card is-' + r.status}>
+              {r.img ? (
+                <a
+                  className="logo-admin-img"
+                  href={r.img}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title={L('To‘liq o‘lchamda ochish', 'Open full size', 'Открыть полностью')}
+                >
+                  <img
+                    src={r.img}
+                    alt={L('Logotip: ', 'Logo: ', 'Логотип: ') + r.name}
+                    loading="lazy"
+                  />
+                </a>
+              ) : (
+                <span className="logo-admin-img is-empty" aria-hidden="true">
+                  {r.brief.icon}
+                </span>
+              )}
+              <div className="logo-admin-main">
+                <div className="logo-admin-top">
                   <b>{r.name}</b>
-                  <small>
-                    {r.group || '—'} · {r.brief.icon} «{r.brief.name}» — {r.brief.kind}
-                  </small>
-                </span>
-                <span className="logo-admin-state">
-                  <small>{L(...STATUS[r.status])}</small>
-                  {r.final ? (
-                    <ScoreBadge score={r.final.score} />
-                  ) : r.best !== undefined ? (
-                    <ScoreBadge score={r.best} />
-                  ) : null}
-                </span>
-              </button>
-              {on && (
-                <div className="logo-admin-body">
-                  {r.desc && (
-                    <p className="logo-admin-desc">
-                      <b>{L('Ta’rif', 'Description', 'Описание')}:</b> {r.desc}
-                    </p>
+                  <small>{r.group || '—'}</small>
+                  {r.final && !r.resent && <ScoreBadge score={r.final.score} />}
+                  {r.resent && (
+                    <em className="logo-admin-tag">
+                      🔁 {L('yangi variant', 'new version', 'новый вариант')}
+                      {r.final &&
+                        ' · ' +
+                          L('avvalgi baho', 'previous mark', 'прежняя оценка') +
+                          ' ' +
+                          r.final.score}
+                    </em>
                   )}
-                  {r.error && <p className="bo-hint bo-bad">{r.error}</p>}
-                  {r.ai && <AiResult ai={r.ai} lang="uz" />}
+                  {r.status === 'sent' && !r.resent && (
+                    <em className="logo-admin-tag">
+                      ⏳ {L('baho kutmoqda', 'awaiting a mark', 'ждёт оценки')}
+                    </em>
+                  )}
+                </div>
+                <p className="logo-admin-biz">
+                  {r.brief.icon} «{r.brief.name}» — {r.brief.kind} · 👥 {r.brief.aud} · 🎭{' '}
+                  {r.brief.character.uz} · 📍 {r.brief.use}
+                </p>
+                {r.desc ? (
+                  <details className="logo-admin-desc">
+                    <summary>
+                      {r.sentAt && <small>{when(r.sentAt)} · </small>}
+                      {r.desc.length > 160 ? r.desc.slice(0, 160) + '…' : r.desc}
+                    </summary>
+                    {r.desc.length > 160 && <p>{r.desc}</p>}
+                  </details>
+                ) : (
                   <p className="bo-hint">
-                    {L('Urinishlar', 'Attempts', 'Попытки')}:{' '}
-                    {r.tries.map((t) => t.score).join(', ') || '—'} · {L('limit', 'limit', 'лимит')}{' '}
-                    {LOGO_MAX_TRIES + r.extra}
-                    {r.final &&
-                      ' · ' + L('baho qo‘ygan', 'marked by', 'оценил') + ': ' + r.final.by}
+                    {L('Hali ish yubormagan.', 'Nothing sent yet.', 'Ещё ничего не отправил.')}
                   </p>
-                  <div className="logo-admin-mark">
+                )}
+                {r.img && (
+                  <form
+                    className="logo-admin-mark"
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      if (!valid) return;
+                      void act(
+                        {
+                          op: 'grade',
+                          uid: r.uid,
+                          score,
+                          ...(m.note.trim() ? { note: m.note.trim() } : {}),
+                        },
+                        'grade' + r.uid,
+                        L(
+                          `${r.name}: ${score}/${LOGO_MAX_SCORE} ✅`,
+                          `${r.name}: ${score}/${LOGO_MAX_SCORE} ✅`,
+                          `${r.name}: ${score}/${LOGO_MAX_SCORE} ✅`,
+                        ),
+                      ).then((ok) => {
+                        if (!ok) return;
+                        const rest = { ...mark };
+                        delete rest[r.uid];
+                        setMark(rest);
+                      });
+                    }}
+                  >
                     <label>
                       <span>
-                        {L('O‘qituvchi bahosi', 'Teacher’s mark', 'Оценка преподавателя')} (0–
-                        {LOGO_MAX_SCORE})
+                        {L('Baho', 'Mark', 'Оценка')} (0–{LOGO_MAX_SCORE})
                       </span>
                       <input
                         className="input"
                         type="number"
+                        inputMode="numeric"
                         min={0}
                         max={LOGO_MAX_SCORE}
                         step={1}
                         value={m.score}
-                        onChange={(e) =>
-                          setMark({ ...mark, [r.uid]: { ...m, score: e.target.value } })
-                        }
+                        onChange={(e) => set({ score: e.target.value })}
                       />
                     </label>
                     <label>
@@ -302,86 +338,74 @@ export function LogoTaskAdmin() {
                         className="input"
                         maxLength={600}
                         value={m.note}
-                        onChange={(e) =>
-                          setMark({ ...mark, [r.uid]: { ...m, note: e.target.value } })
-                        }
+                        onChange={(e) => set({ note: e.target.value })}
                       />
                     </label>
-                  </div>
-                  <div className="bo-actions">
-                    <Button
-                      size="sm"
-                      disabled={!!busy || !valid}
-                      onClick={() =>
-                        void act(
-                          {
-                            op: 'grade',
-                            uid: r.uid,
-                            score,
-                            ...(m.note.trim() ? { note: m.note.trim() } : {}),
-                          },
-                          'grade' + r.uid,
-                          L('Baho saqlandi ✅', 'Mark saved ✅', 'Оценка сохранена ✅'),
-                        )
-                      }
-                    >
+                    <Button type="submit" size="sm" disabled={!!busy || !valid}>
                       <Save size={15} />
-                      {r.final
-                        ? L('Bahoni yangilash', 'Update mark', 'Обновить')
-                        : L('Bahoni tasdiqlash', 'Confirm mark', 'Подтвердить')}
+                      {r.final && !r.resent
+                        ? L('Yangilash', 'Update', 'Обновить')
+                        : L('Baholash', 'Grade', 'Оценить')}
                     </Button>
-                    {r.final && (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        disabled={!!busy}
-                        onClick={() => void act({ op: 'clearGrade', uid: r.uid }, 'clear' + r.uid)}
-                      >
-                        <X size={15} />
-                        {L(
-                          'O‘qituvchi bahosini olib tashlash',
-                          'Remove teacher’s mark',
-                          'Убрать оценку',
-                        )}
-                      </Button>
-                    )}
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      disabled={!!busy}
-                      onClick={() =>
-                        void act(
-                          { op: 'extra', uid: r.uid },
-                          'extra' + r.uid,
-                          L('+1 urinish berildi', '+1 attempt given', '+1 попытка'),
-                        )
-                      }
-                    >
-                      <Plus size={15} />
-                      {L('+1 urinish', '+1 attempt', '+1 попытка')}
-                    </Button>
-                    {data.aiReady && r.img && (
+                  </form>
+                )}
+                {r.final && (
+                  <div className="bo-actions">
+                    {!r.again && !r.resent && (
                       <Button
                         size="sm"
                         variant="outline"
                         disabled={!!busy}
                         onClick={() =>
                           void act(
-                            { op: 'regrade', uid: r.uid },
-                            'regrade' + r.uid,
-                            L('Qayta baholandi', 'Re-graded', 'Переоценено'),
+                            { op: 'again', uid: r.uid },
+                            'again' + r.uid,
+                            L(
+                              'Talaba yangi variant yubora oladi',
+                              'The student may send a new version',
+                              'Студент может отправить новый вариант',
+                            ),
                           )
                         }
                       >
-                        <Sparkles size={15} />
-                        {busy === 'regrade' + r.uid
-                          ? L('Baholanmoqda…', 'Grading…', 'Оценивается…')
-                          : L('AI bilan qayta baholash', 'Re-grade with AI', 'Переоценить ИИ')}
+                        <RotateCcw size={15} />
+                        {L(
+                          'Qayta yuborishga ruxsat',
+                          'Allow a new version',
+                          'Разрешить новый вариант',
+                        )}
                       </Button>
                     )}
+                    {r.again && (
+                      <span className="bo-hint">
+                        🔁{' '}
+                        {L(
+                          'Qayta yuborishga ruxsat berilgan',
+                          'A new version is allowed',
+                          'Новый вариант разрешён',
+                        )}
+                      </span>
+                    )}
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      disabled={!!busy}
+                      onClick={() =>
+                        confirm(
+                          L(
+                            `${r.name} bahosi olib tashlansinmi? Mavzu bali ham kamayadi.`,
+                            `Remove ${r.name}’s mark? Their topic points go down too.`,
+                            `Убрать оценку ${r.name}? Баллы темы тоже уменьшатся.`,
+                          ),
+                        ) && void act({ op: 'clearGrade', uid: r.uid }, 'clear' + r.uid)
+                      }
+                    >
+                      <X size={15} />
+                      {L('Bahoni olib tashlash', 'Remove mark', 'Убрать оценку')}
+                    </Button>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
             </li>
           );
         })}

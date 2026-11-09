@@ -367,12 +367,19 @@ function OriginalLessonView({ id }: { id: string }) {
             </div>
           ) : (
             <p className="muted">
-              {tr(
-                lang,
-                'Har mavzu 100 ball: 30 — barcha slaydlarni ochish, 20 — 1 soat o‘qish, 50 — yakuniy test.',
-                'Each topic is worth 100: 30 for opening every slide, 20 for one hour of reading, 50 for the final test.',
-                'Каждая тема — 100 баллов: 30 за все слайды, 20 за час чтения, 50 за итоговый тест.',
-              )}
+              {id === LOGO_TOPIC
+                ? tr(
+                    lang,
+                    'Bu mavzu 100 ball: 30 — barcha slaydlarni ochish, 20 — 1 soat o‘qish, 25 — yakuniy test, 25 — 🎨 logotip topshirig‘i (o‘qituvchi baholaydi).',
+                    'This topic is worth 100: 30 for every slide, 20 for one hour of reading, 25 for the final test, 25 for the 🎨 logo assignment (graded by the teacher).',
+                    'Тема — 100 баллов: 30 за слайды, 20 за час чтения, 25 за тест, 25 за 🎨 логотип (оценивает преподаватель).',
+                  )
+                : tr(
+                    lang,
+                    'Har mavzu 100 ball: 30 — barcha slaydlarni ochish, 20 — 1 soat o‘qish, 50 — yakuniy test.',
+                    'Each topic is worth 100: 30 for opening every slide, 20 for one hour of reading, 50 for the final test.',
+                    'Каждая тема — 100 баллов: 30 за все слайды, 20 за час чтения, 50 за итоговый тест.',
+                  )}
             </p>
           )}
           {!legacyMode && !data?.limited && (

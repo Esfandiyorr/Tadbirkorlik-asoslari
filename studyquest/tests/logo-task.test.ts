@@ -1,20 +1,21 @@
 import { beforeAll, beforeEach, expect, it } from 'vitest';
 import type { Actor } from '../lib/types';
-import { BUSINESSES, LOGO_MAX_TRIES, briefOf, pickBrief } from '../lib/logo-task';
+import { BUSINESSES, LOGO_MAX_SCORE, briefOf, pickBrief } from '../lib/logo-task';
 import { parseYouTube } from '../lib/youtube';
 import {
+  demoTaskMark,
   logoTaskFor,
   logoTaskList,
   manageLogoTask,
-  retryLogo,
   submitLogo,
 } from '../lib/server/logo-task';
-import { toLogoAi } from '../lib/server/logo-ai';
+import { academicRecord } from '../lib/server/academic';
+import { topicPoints } from '../lib/points';
 import { allVideos, manageVideos, topicVideos } from '../lib/server/videos';
-import { resetSiteMemory, siteUpdate } from '../lib/server/site-content';
+import { resetSiteMemory } from '../lib/server/site-content';
 
-/* 🎨 8-mavzu logotip topshirig'i (har talabaga alohida biznes, sun'iy intellekt bahosi, o'qituvchi bahosi) va
-   📺 mavzu videolari (YouTube havolalari). Demo rejimida — xotirada va tarmoqsiz «sinov baholovchisi» bilan. */
+/* 🎨 8-mavzu logotip topshirig'i (har talabaga alohida biznes, o'qituvchi 0–25 ball qo'yadi — mavzu balining
+   logotip qismi) va 📺 mavzu videolari (YouTube havolalari). Demo rejimida — xotirada. */
 beforeAll(() => {
   process.env.STUDYQUEST_DEMO = 'true';
 });
@@ -84,59 +85,82 @@ it('gives every student in a group a different business and keeps it', async () 
   expect(many.every((u) => briefOf(u.code))).toBe(true);
 
   const first = (await logoTaskFor(student('legacy_a'))).task;
-  expect(first).toMatchObject({ status: 'new', left: LOGO_MAX_TRIES, open: true, aiReady: true });
+  expect(first).toMatchObject({ status: 'new', canSend: true, open: true });
   expect(first.brief.name).toBeTruthy();
   expect((await logoTaskFor(student('legacy_a'))).task.brief.code).toBe(first.brief.code);
   expect((await logoTaskFor(student('legacy_b'))).task.brief.k).not.toBe(first.brief.k);
 });
 
-it('grades a submitted logo, limits attempts and lets the teacher decide', async () => {
+it('the student sends a logo, the teacher grades it out of 25 and the mark reaches the topic points', async () => {
   const s = student('legacy_c');
-  await expect(submitLogo(s, png, 'qisqa', 'uz')).rejects.toMatchObject({ status: 400 });
-  await expect(submitLogo(s, Buffer.from('not an image at all'), desc, 'uz')).rejects.toMatchObject(
-    { status: 400 },
-  );
-  const one = (await submitLogo(s, png, desc, 'uz')).task;
-  expect(one.status).toBe('graded');
-  expect(one.ai!.score).toBeGreaterThan(0);
-  expect(one.ai!.score).toBeLessThanOrEqual(10);
+  await expect(submitLogo(s, png, 'qisqa')).rejects.toMatchObject({ status: 400 });
+  await expect(submitLogo(s, Buffer.from('not an image at all'), desc)).rejects.toMatchObject({
+    status: 400,
+  });
+  // yuborilmagan ishni baholab bo'lmaydi
+  await expect(
+    manageLogoTask(teacher, { op: 'grade', uid: 'legacy_c', score: 20 }),
+  ).rejects.toMatchObject({ status: 409 });
+  await expect(
+    manageLogoTask(teacher, { op: 'grade', uid: 'legacy_zz', score: 20 }),
+  ).rejects.toMatchObject({ status: 404 });
+  const one = (await submitLogo(s, png, desc)).task;
+  expect(one).toMatchObject({ status: 'sent', canSend: true, desc });
   expect(one.img).toMatch(/^\/api\/site\/img\/lg-[0-9a-f]{16}\?v=/);
-  expect(one).toMatchObject({ left: LOGO_MAX_TRIES - 1, best: one.ai!.score, desc });
-  await submitLogo(s, png, desc, 'uz');
-  await submitLogo(s, png, desc + ' Nike', 'uz');
-  const third = (await logoTaskFor(s)).task;
-  expect(third.ai).toMatchObject({ score: 0, copied: 'Nike' });
-  expect(third.best).toBe(one.ai!.score);
-  expect(third.left).toBe(0);
-  await expect(submitLogo(s, png, desc, 'uz')).rejects.toMatchObject({ status: 429 });
-  await expect(retryLogo(s)).rejects.toMatchObject({ status: 409 });
+  // baholanguncha almashtirish mumkin
+  expect((await submitLogo(s, png, desc + ' Yangi variant.')).task.desc).toMatch(/Yangi variant/);
 
-  // talaba o'qituvchi amallarini bajara olmaydi
-  await expect(manageLogoTask(s, { op: 'extra', uid: 'legacy_c' })).rejects.toMatchObject({
-    status: 403,
-  });
-  // o'qituvchi: qo'shimcha urinish va yakuniy baho
-  await manageLogoTask(teacher, { op: 'extra', uid: 'legacy_c' });
-  expect((await logoTaskFor(s)).task.left).toBe(1);
-  const list = await manageLogoTask(teacher, {
-    op: 'grade',
-    uid: 'legacy_c',
-    score: 9,
-    note: 'Zo‘r g‘oya',
-  });
-  expect(list.rows.find((r) => r.uid === 'legacy_c')).toMatchObject({
+  // o'qituvchi ro'yxati: kim nima yukladi
+  const list = (await logoTaskList(teacher)).rows;
+  expect(list.find((r) => r.uid === 'legacy_c')).toMatchObject({
     name: 'Talaba legacy_c',
     group: 'AP-223',
-    extra: 1,
-    final: { score: 9, by: 'Ustoz', note: 'Zo‘r g‘oya' },
+    status: 'sent',
   });
-  expect((await logoTaskFor(s)).task.final?.score).toBe(9);
-  await expect(
-    manageLogoTask(teacher, { op: 'grade', uid: 'legacy_c', score: 11 }),
-  ).rejects.toThrow();
-  await manageLogoTask(teacher, { op: 'clearGrade', uid: 'legacy_c' });
-  expect((await logoTaskFor(s)).task.final).toBeUndefined();
+  await expect(manageLogoTask(s, { op: 'grade', uid: 'legacy_c', score: 9 })).rejects.toMatchObject(
+    {
+      status: 403,
+    },
+  );
   await expect(logoTaskList(s)).rejects.toMatchObject({ status: 403 });
+  await expect(
+    manageLogoTask(teacher, { op: 'grade', uid: 'legacy_c', score: LOGO_MAX_SCORE + 1 }),
+  ).rejects.toThrow();
+
+  const graded = await manageLogoTask(teacher, {
+    op: 'grade',
+    uid: 'legacy_c',
+    score: 21,
+    note: 'Zo‘r g‘oya',
+  });
+  expect(graded.rows.find((r) => r.uid === 'legacy_c')).toMatchObject({
+    status: 'graded',
+    final: { score: 21, by: 'Ustoz', note: 'Zo‘r g‘oya' },
+  });
+  expect(demoTaskMark('legacy_c')).toBe(21);
+  const mine = (await logoTaskFor(s)).task;
+  expect(mine).toMatchObject({ status: 'graded', canSend: false, final: { score: 21 } });
+  await expect(submitLogo(s, png, desc)).rejects.toMatchObject({ status: 409 });
+
+  // qayta yuborishga ruxsat: yangi variant kelguncha va qayta baholanguncha eski baho turadi
+  await manageLogoTask(teacher, { op: 'again', uid: 'legacy_c' });
+  expect((await logoTaskFor(s)).task).toMatchObject({ canSend: true, again: true });
+  const resent = (await submitLogo(s, png, desc + ' Ikkinchi variant.')).task;
+  expect(resent).toMatchObject({
+    status: 'sent',
+    resent: true,
+    final: { score: 21 },
+    canSend: false,
+  });
+  expect(demoTaskMark('legacy_c')).toBe(21);
+  await manageLogoTask(teacher, { op: 'grade', uid: 'legacy_c', score: 24 });
+  expect((await logoTaskFor(s)).task).toMatchObject({ status: 'graded', final: { score: 24 } });
+  expect((await logoTaskFor(s)).task.resent).toBeUndefined();
+  expect(demoTaskMark('legacy_c')).toBe(24);
+
+  await manageLogoTask(teacher, { op: 'clearGrade', uid: 'legacy_c' });
+  expect((await logoTaskFor(s)).task).toMatchObject({ status: 'sent', canSend: true });
+  expect(demoTaskMark('legacy_c')).toBeUndefined();
 });
 
 it('only the administrator closes submissions', async () => {
@@ -145,47 +169,44 @@ it('only the administrator closes submissions', async () => {
   });
   await manageLogoTask(admin, { op: 'settings', open: false });
   const s = student('legacy_d');
-  expect((await logoTaskFor(s)).task.open).toBe(false);
-  await expect(submitLogo(s, png, desc, 'uz')).rejects.toMatchObject({ status: 403 });
+  expect((await logoTaskFor(s)).task).toMatchObject({ open: false, canSend: false });
+  await expect(submitLogo(s, png, desc)).rejects.toMatchObject({ status: 403 });
   await manageLogoTask(admin, { op: 'settings', open: true });
-  expect((await submitLogo(s, png, desc, 'uz')).task.status).toBe('graded');
+  expect((await submitLogo(s, png, desc)).task.status).toBe('sent');
 });
 
-it('keeps AI marks inside the rubric and zeroes non-logos', () => {
-  const base = {
-    is_logo: true,
-    copied_brand: null,
-    scores: { fit: 7, simplicity: -2, legibility: 1.6, color: 1, description: 2 },
-    summary: 'Yaxshi',
-    strengths: ['a', 'b', 'c', 'd'],
-    improvements: ['x'],
-  };
-  const ai = toLogoAi(base, 'm', 1);
-  expect(ai.parts).toEqual({ fit: 3, simple: 0, legible: 2, color: 1, desc: 2 });
-  expect(ai.score).toBe(8);
-  expect(ai.good).toHaveLength(3);
-  const none = toLogoAi({ ...base, is_logo: false }, 'm', 1);
-  expect(none).toMatchObject({ score: 0, notLogo: true });
-  expect(toLogoAi({ ...base, copied_brand: 'Apple' }, 'm', 1)).toMatchObject({
-    score: 0,
-    copied: 'Apple',
+it('topic 8 is worth 100 points: slides 30, time 20, test 25 and the teacher’s logo mark 25', () => {
+  const base = { name: 'Ali', surname: 'Valiyev', group: 'AP-223', status: 'ok', total: 0 };
+  const sl = Object.fromEntries(Array.from({ length: 24 }, (_, i) => ['slide' + i, 1]));
+  const ac = Object.fromEntries(Array.from({ length: 20 }, (_, i) => ['test' + i, 1]));
+  // hammasi bajarilgan, logotip hali baholanmagan — 75 ball
+  const done = academicRecord('ali', {
+    ...base,
+    prog: { m8: { sl, ac, tm: { d: 3600 } } },
+  }).readingHistory.m8;
+  expect(done).toMatchObject({
+    testMax: 25,
+    taskMax: 25,
+    parts: { slides: 30, time: 20, test: 25 },
+    score: 75,
   });
-});
-
-it('work left «pending» by a timed-out grading can be graded again without losing an attempt', async () => {
-  const s = student('legacy_e');
-  const t = Date.now();
-  await submitLogo(s, png, desc, 'uz', t);
-  // Funksiya baholash paytida to'xtab qolgandek: holat «pending», qulf eskirgan.
-  await siteUpdate({
-    'logoTask/s/legacy_e/status': 'pending',
-    'logoTask/s/legacy_e/lock': t - 120_000,
+  expect(done.parts!.task).toBeUndefined();
+  // o'qituvchi 21 ball qo'ydi — 96 ball (dvigatel yozgan eski p e'tiborga olinmaydi)
+  const graded = academicRecord('ali', {
+    ...base,
+    topics: { m8: { p: 75 } },
+    prog: { m8: { sl, ac, tm: { d: 3600 } } },
+    task: { m8: 21 },
   });
-  const stuck = (await logoTaskFor(s)).task;
-  expect(stuck.status).toBe('failed');
-  expect(stuck.error).toMatch(/Qayta baholash/);
-  expect(stuck.desc).toBe(desc);
-  const again = (await retryLogo(s)).task;
-  expect(again.status).toBe('graded');
-  expect(again.tries).toHaveLength(2);
+  expect(graded.readingHistory.m8).toMatchObject({ parts: { task: 21 }, score: 96 });
+  expect(topicPoints(graded.readingHistory.m8)).toMatchObject({ test: 25, task: 21, total: 96 });
+  // faqat logotip bahosi bor — mavzu yozuvi baribir paydo bo'ladi
+  const only = academicRecord('ali', { ...base, task: { m8: 30 } });
+  expect(only.readingHistory.m8.score).toBe(25);
+  expect(only.academicTopics.m8).toMatchObject({ p: 25 });
+  // boshqa mavzular o'zgarmaydi: test 50
+  expect(academicRecord('ali', { ...base, prog: { m7: { ac } } }).readingHistory.m7).toMatchObject({
+    parts: { test: 50 },
+  });
+  expect(academicRecord('ali', base).readingHistory.m7.taskMax).toBeUndefined();
 });

@@ -83,7 +83,7 @@ export function PointsRing({
   );
 }
 
-/** Uch qism: slaydlar 30, vaqt 20, test 50 — har biri o'z rangida */
+/** Qismlar: slaydlar 30, vaqt 20, test 50 (8-mavzuda test 25 + 🎨 logotip 25) — har biri o'z rangida */
 export function PointsBreakdown({
   history,
   lang,
@@ -109,7 +109,24 @@ export function PointsBreakdown({
         max: 20,
         emoji: '⏱️',
       },
-      { key: 'test', label: tr(lang, 'Test', 'Test', 'Тест'), value: p.test, max: 50, emoji: '🧪' },
+      {
+        key: 'test',
+        label: tr(lang, 'Test', 'Test', 'Тест'),
+        value: p.test,
+        max: history?.testMax ?? 50,
+        emoji: '🧪',
+      },
+      ...(history?.taskMax
+        ? [
+            {
+              key: 'task',
+              label: tr(lang, 'Logotip (o‘qituvchi)', 'Logo (teacher)', 'Логотип (преподаватель)'),
+              value: p.task || 0,
+              max: history.taskMax,
+              emoji: '🎨',
+            },
+          ]
+        : []),
     ],
     tips = hints ? pointHints(history, lang) : [];
   return (

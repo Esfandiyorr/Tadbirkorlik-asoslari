@@ -612,7 +612,13 @@ function topicSummary(){
 /* --- dars bahosi: slayd + vaqt + test --- */
 function metaOf(id){
   var a=(CFG.topics||[]).filter(function(x){ return x.id===id; })[0]||{};
-  return {slides:a.slides||CFG.slides||18, quiz:a.quiz||CFG.quiz||15};
+  return {slides:a.slides||CFG.slides||18, quiz:a.quiz||CFG.quiz||15, task:Math.max(0,Math.min(50,+a.task||0))};
+}
+/* 🎨 o'qituvchi baholaydigan topshiriq (masalan, 8-mavzu logotipi): ball bazada students/<id>/task/<mavzu> da,
+   faqat server (o'qituvchi) yozadi. Mavzuda task bo'lsa, test 50 o'rniga (50 − task) ball beradi. */
+function taskOf(id,x){
+  if(x&&x.tk!=null) return Math.max(0,+x.tk||0);
+  return (P&&P.task&&x&&P.topics&&x===P.topics[id])?Math.max(0,+P.task[id]||0):0;
 }
 /* test o'rnidagi mashqlar ham hisoblanadi: krossvord so'zlari (xw) va masalalar (task) */
 function testCount(x){
@@ -668,14 +674,15 @@ function markOf(id,x){
   var rd=Math.min(1,seen/Math.max(1,M.slides));                      /* o'qilgan slayd ulushi */
   var tm=Math.min(1,(x.t||0)/ACTIVE_SEC);                            /* faol vaqt ulushi (1 soat = 100%) */
   var ts=Math.min(1,qn/Math.max(1,M.quiz));                          /* to'g'ri javob ulushi */
-  var z=0.30*rd+0.20*tm+0.50*ts;
+  var tkp=M.task?Math.min(M.task,taskOf(id,x)):0;                  /* topshiriq bahosi (ball) */
+  var z=0.30*rd+0.20*tm+((50-M.task)/100)*ts+tkp/100;
   var pc=Math.round(z*100);            /* baho ko'rsatilgan foizdan chiqadi */
   var b=0;
-  if(seen||x.t||qn){
+  if(seen||x.t||qn||tkp){
     b=(pc>=90)?5:((pc>=75)?4:((pc>=60)?3:((pc>=40)?2:1)));
   }
   return {z:z,b:b,rd:rd,tm:tm,ts:ts,seen:seen,sec:Math.round(x.t||0),
-          q:qn,qn:M.quiz,sn:M.slides};
+          q:qn,qn:M.quiz,sn:M.slides,tw:M.task,qw:50-M.task,tkp:tkp};
 }
 function fmtP(v){ return String(Math.round((v||0)*10)/10); }
 /* o'qituvchining qo'lda qo'ygan bahosi umumiy ballga qo'shiladi: har bir birlik — MAN_PTS ball (5 = +10) */
@@ -685,7 +692,8 @@ function manPts(man){ var s=0; for(var k in (man||{})){ var v=+man[k]; if(v>0) s
 function recalc(){
   if(independent(S)){ P.total=0; return; }
   var sum=0;
-  for(var k in P.topics){ var x=P.topics[k]; x.p=Math.round(markOf(k,x).z*1000)/10; sum+=x.p; }
+  for(var j in (P.task||{})) if(!P.topics[j]&&metaOf(j).task) P.topics[j]={p:0,slides:{},acts:{}};
+  for(var k in P.topics){ var x=P.topics[k]; x.tk=(P.task||{})[k]; x.p=Math.round(markOf(k,x).z*1000)/10; sum+=x.p; }
   P.total=Math.round((sum+manPts(P.man)+(+P.kh||0))*10)/10;     /* + jonli test sovrinlari */
 }
 /* bazadagi bitta mavzu yozuvidan (prog + eski qisqa yozuv) hisoblash uchun ob'ekt */
@@ -704,10 +712,11 @@ function topicFromCloud(c,s){
 }
 /* o'qituvchi va reyting uchun: ball bazadagi birlashgan ro'yxatdan hisoblanadi */
 function normRec(x){
-  var ids={}, k, pr=x.prog||{}, sm=x.topics||{}, tops={}, tot=0;
-  for(k in pr) ids[k]=1; for(k in sm) ids[k]=1;
+  var ids={}, k, pr=x.prog||{}, sm=x.topics||{}, tk=x.task||{}, tops={}, tot=0;
+  for(k in pr) ids[k]=1; for(k in sm) ids[k]=1; for(k in tk) ids[k]=1;
   for(k in ids){
-    var y=topicFromCloud(pr[k],sm[k]), m=markOf(k,y), pts=Math.round(m.z*1000)/10;
+    var y=topicFromCloud(pr[k],sm[k]); y.tk=tk[k];
+    var m=markOf(k,y), pts=Math.round(m.z*1000)/10;
     tops[k]={p:pts,s:m.seen,t:Math.round(y.t),q:m.q,b:m.b,z:Math.round(m.z*100)}; tot+=pts;
   }
   x.topics=tops; x.autoTotal=Math.round(tot*10)/10;
@@ -729,6 +738,7 @@ function mergeCloud(v){
     FSYNC=true; recalc(); return;
   }
   P.man=v.manual||{};                    /* o'qituvchi qo'ygan baholar — faqat bazadan olinadi */
+  P.task=v.task||{};                     /* 🎨 o'qituvchi baholagan topshiriqlar (8-mavzu logotipi) — faqat bazadan */
   P.cT=+v.total||0; P.cDd=v.dd||""; P.cD0=v.d0;   /* kunlik reyting: bazadagi oxirgi umumiy ball va kun boshi */
   var pr=v.prog||{}, sm=v.topics||{}, ids={}, k, x;
   for(k in pr) ids[k]=1; for(k in sm) ids[k]=1;
@@ -1935,19 +1945,22 @@ function renderMe(){
     '<h3 style="margin:18px 0 8px;font-size:15px">'+T("Baho nimalardan chiqadi?","How is the mark made up?")+'</h3>'+
     part(T("Slaydlarni ko\'rish","Slides viewed"),m.rd,30)+
     part(T("O\'qishga sarflangan vaqt","Time spent reading"),m.tm,20)+
-    part(T("Test natijasi","Test result"),m.ts,50)+
+    part(T("Test natijasi","Test result"),m.ts,m.qw)+
+    (m.tw?part(T("🎨 Logotip topshirig\'i (o\'qituvchi bahosi)","🎨 Logo assignment (teacher\'s mark)"),m.tkp/m.tw,m.tw):'')+
     '<div class="rt-sec" style="margin-top:10px"><h4>📏 '+T("Ball qoidalari (har mavzu — 100 ball)","Scoring rules (each topic — 100 points)")+'</h4>'+
     '<p class="rt-note" style="margin:0;line-height:1.7">'+T(
       "🕐 <b>20 ball</b> — taqdimotni faol o\'qish vaqti: <b>1 soat</b> va undan ko\'p = to\'liq 20 ball, kamroq bo\'lsa ulushiga qarab (30 daqiqa = 10 ball). Vaqt faqat sahifa ekranda ochiq turganda va siz so\'nggi 5 daqiqada biror harakat qilgan bo\'lsangiz sanaladi.<br>"+
       "📑 <b>30 ball</b> — ko\'rilgan slaydlar ulushi (hammasi ko\'rilsa — 30 ball).<br>"+
-      "📝 <b>50 ball</b> — testdagi to\'g\'ri javoblar ulushi. Test faqat dastlabki 2 urinishda ball beradi.<br>"+
+      "📝 <b>"+m.qw+" ball</b> — testdagi to\'g\'ri javoblar ulushi. Test faqat dastlabki 2 urinishda ball beradi.<br>"+
+      (m.tw?"🎨 <b>"+m.tw+" ball</b> — logotip topshirig\'i: o\'qituvchi ishingizni ko\'rib, 0–"+m.tw+" ball qo\'yadi.<br>":"")+
       "✍️ O\'qituvchi amaliy darsda qo\'ygan baho umumiy reytingga qo\'shimcha ball beradi (o\'rtacha bahoga kirmaydi): har bir baho × "+MAN_PTS+" ball (masalan, 5 = +"+(5*MAN_PTS)+" ball).<br>"+
       "⚡ Kundalik <b>jonli testda</b> 1–3-o\'rin (20 kishidan ko\'p bo\'lsa 1–5-o\'rin) egallasangiz, umumiy reytingga +5, +4, +3 (+2, +1) ball qo\'shiladi.<br>"+
       "📂 Ball o\'qituvchi mavzuni ochgan haftaning <b>yakshanba kuni 23:59</b> gacha beriladi; keyin mavzu 📖 o\'qish rejimida (o\'qish mumkin, ball berilmaydi).<br>"+
       "🔒 Har bir slayd va savol <b>faqat bir marta</b> hisoblanadi: nechta brauzer yoki telefondan kirsangiz ham ballaringiz bitta hisobda jamlanadi, qayta berilmaydi va yo\'qolmaydi.",
       "🕐 <b>20 points</b> — active reading time: <b>1 hour</b> or more = the full 20, less gives a proportional share (30 minutes = 10). Time counts only while the page is on screen and you have done something in the last 5 minutes.<br>"+
       "📑 <b>30 points</b> — the share of slides viewed (all slides = 30).<br>"+
-      "📝 <b>50 points</b> — the share of correct test answers. The test gives points only in the first 2 attempts.<br>"+
+      "📝 <b>"+m.qw+" points</b> — the share of correct test answers. The test gives points only in the first 2 attempts.<br>"+
+      (m.tw?"🎨 <b>"+m.tw+" points</b> — the logo assignment: the teacher reviews your work and gives 0–"+m.tw+" points.<br>":"")+
       "✍️ Marks the teacher gives in the practical class add bonus points to the overall rating (they do not count in the average mark): each mark × "+MAN_PTS+" points (e.g. 5 = +"+(5*MAN_PTS)+").<br>"+
       "⚡ Taking 1st–3rd place in the daily <b>live quiz</b> (1st–5th with more than 20 players) adds +5, +4, +3 (+2, +1) points to your overall rating.<br>"+
       "📂 Points are given until <b>23:59 on Sunday</b> of the week the teacher opens the topic; after that the topic is in 📖 reading mode (you can read, no points).<br>"+
@@ -2397,12 +2410,13 @@ function fixLocked(list){
     fetch(BASE+"/students/"+vid+".json").then(function(r){ return r.ok?r.json():null; }).catch(function(){ return null; }).then(function(V){
       if(!V||FIX.v!==vid) return;
       V.id=vid;
-      var pr=V.prog||{}, sm=V.topics||{}, ids={}, out=[];
-      for(var k in pr) ids[k]=1; for(k in sm) ids[k]=1;
+      var pr=V.prog||{}, sm=V.topics||{}, tkv=V.task||{}, ids={}, out=[];
+      for(var k in pr) ids[k]=1; for(k in sm) ids[k]=1; for(k in tkv) ids[k]=1;
       Object.keys(ids).sort(function(a,b){ return (+a.slice(1)||0)-(+b.slice(1)||0); }).forEach(function(k){
         var t=(CFG.topics||[]).filter(function(x){ return x.id===k; })[0];
         if(!t) return;
-        var y=topicFromCloud(pr[k],sm[k]), m=markOf(k,y), pts=Math.round(m.z*1000)/10, op=topicOpenFor(t,V);
+        var y=topicFromCloud(pr[k],sm[k]); y.tk=tkv[k];
+        var m=markOf(k,y), pts=Math.round(m.z*1000)/10, op=topicOpenFor(t,V);
         if(pts>0||m.b>0) out.push({k:k,p:pts,open:op,on:!op});
       });
       var was={}; (FIX.lkOld||[]).forEach(function(x){ was[x.k]=x.on; }); FIX.lkOld=null;
@@ -4508,7 +4522,7 @@ function todoDraw(){
     row(!o.unN,'📑',T("Slaydlar: ","Slides: ")+M.seen+' / '+M.sn,o.unN?T("Ko'rilmagan slaydlar (bosing):","Unseen slides (click):"):'',bar(M.rd)+
       (o.un.length?'<div class="rt-todo-sl">'+o.un.slice(0,40).map(function(i){ return '<button type="button" data-s="'+i+'">'+(i+1)+'</button>'; }).join("")+(o.un.length>40?'<span>+'+(o.un.length-40)+'</span>':'')+'</div>':''))+
     row(!o.tmLeft,'⏱',T("O'qish vaqti: ","Reading time: ")+Math.floor(M.sec/60)+' / 60 '+T("daq","min"),o.tmLeft?T("Yana "+o.tmLeft+" daqiqa o'qisangiz, vaqt bo'yicha to'liq ball.","Read "+o.tmLeft+" more minutes for full time points."):'',bar(M.tm))+
-    row(!o.qLeft,'📝',T("Test: ","Test: ")+M.q+' / '+M.qn+T(" to'g'ri"," correct"),o.qLeft?T("Test ballning yarmini beradi (50 ball).","The test gives half of the points (50).")+'':'',bar(M.ts)+
+    row(!o.qLeft,'📝',T("Test: ","Test: ")+M.q+' / '+M.qn+T(" to'g'ri"," correct"),o.qLeft?(M.tw?T("Test "+M.qw+" ball beradi.","The test gives "+M.qw+" points."):T("Test ballning yarmini beradi (50 ball).","The test gives half of the points (50).")):'',bar(M.ts)+
       (o.qLeft&&tIdx>=0?'<button type="button" class="btn accent sm rt-todo-go" data-s="'+tIdx+'">'+T("Testga o'tish →","Go to the test →")+'</button>':''))+
     (others.length?'<div class="rt-todo-o"><b>'+T("Boshqa ochiq mavzular:","Other open topics:")+'</b>'+others.map(function(z){ var k=(CFG.topics||[]).indexOf(z.t)+1;
       return '<a href="'+esc(z.t.file)+'">📗 '+T(k+"-mavzu","Topic "+k)+' · '+fmtP(z.pts)+' / 100 · ⏳ '+todoLeft(z.end-Date.now())+'</a>'; }).join("")+'</div>':'');

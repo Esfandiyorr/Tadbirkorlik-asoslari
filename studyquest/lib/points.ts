@@ -8,14 +8,15 @@ export type TopicPoints = {
   slides: number;
   time: number;
   test: number;
+  task?: number;
   total: number;
   remaining: number;
 };
 
-/** Mavzu bali: 30 — slaydlar, 20 — o'qish vaqti (1 soat), 50 — test. Jami 100. */
+/** Mavzu bali: 30 — slaydlar, 20 — o'qish vaqti (1 soat), 50 — test (8-mavzuda: test 25 + logotip 25). Jami 100. */
 export function topicPoints(h?: ReadingHistory): TopicPoints {
   const p = h?.parts || { slides: 0, time: 0, test: 0 };
-  const sum = Math.round((p.slides + p.time + p.test) * 10) / 10;
+  const sum = Math.round((p.slides + p.time + p.test + (p.task || 0)) * 10) / 10;
   const total = Math.min(100, h?.score !== undefined ? h.score : sum);
   return { ...p, total, remaining: Math.max(0, Math.round((100 - total) * 10) / 10) };
 }
@@ -101,7 +102,7 @@ export function dueText(due: number, lang: Lang, now = Date.now()) {
   return { date, left, urgent: ms < 2 * 86400000 };
 }
 
-export type Hint = { key: 'slides' | 'time' | 'test'; text: string; points: number };
+export type Hint = { key: 'slides' | 'time' | 'test' | 'task'; text: string; points: number };
 /** Qolgan ballni qanday olish mumkin — aniq qadamlar. */
 export function pointHints(h: ReadingHistory | undefined, lang: Lang): Hint[] {
   if (!h) return [];
@@ -132,8 +133,9 @@ export function pointHints(h: ReadingHistory | undefined, lang: Lang): Hint[] {
       points: Math.round((20 - p.time) * 10) / 10,
     });
   const total = h.quizTotal || 15,
-    missing = Math.max(0, total - h.correctAnswers);
-  if (p.test < 50 && missing > 0)
+    missing = Math.max(0, total - h.correctAnswers),
+    testMax = h.testMax ?? 50;
+  if (p.test < testMax && missing > 0)
     out.push({
       key: 'test',
       text: h.correctAnswers
@@ -144,7 +146,18 @@ export function pointHints(h: ReadingHistory | undefined, lang: Lang): Hint[] {
             `Ещё ${missing} верных ответов в тесте`,
           )
         : tr(lang, 'Yakuniy testni ishlang', 'Take the final test', 'Пройдите итоговый тест'),
-      points: Math.round((50 - p.test) * 10) / 10,
+      points: Math.round((testMax - p.test) * 10) / 10,
+    });
+  if (h.taskMax && p.task === undefined)
+    out.push({
+      key: 'task',
+      text: tr(
+        lang,
+        'Logotip topshirig‘ini yuboring — o‘qituvchi baholaydi',
+        'Send the logo assignment — the teacher grades it',
+        'Отправьте задание «Логотип» — его оценит преподаватель',
+      ),
+      points: h.taskMax,
     });
   return out;
 }

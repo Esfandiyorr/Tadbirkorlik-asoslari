@@ -75,7 +75,7 @@ test('the administrator adds a YouTube video and it plays inside topic 8 and fro
   await expect(page.locator('.video-admin-list')).toHaveCount(0);
 });
 
-test('a student gets a business, uploads a logo, the AI grades it and the teacher confirms the mark', async ({
+test('a student gets a business and uploads a logo; the teacher sees it in the list and gives up to 25 points', async ({
   page,
 }) => {
   await as(page, 'demo-student');
@@ -85,7 +85,7 @@ test('a student gets a business, uploads a logo, the AI grades it and the teache
   const business = (await brief.locator('h2').textContent())!.replace(/[^«]*«|».*/g, '');
   await expect(brief).toContainText('Asosiy mijozlar');
   await expect(page.locator('.logo-result')).toContainText('Hali ish yuborilmagan');
-  const send = page.getByRole('button', { name: 'Yuborish va baholatish' });
+  const send = page.getByRole('button', { name: 'O‘qituvchiga yuborish' });
   await expect(send).toBeDisabled();
   await page
     .locator('input[type=file]')
@@ -99,27 +99,37 @@ test('a student gets a business, uploads a logo, the AI grades it and the teache
   await expect(send).toBeEnabled();
   await send.click();
   const result = page.locator('.logo-result');
-  await expect(result.locator('.logo-ai-title')).toContainText('Sun’iy intellekt bahosi');
-  await expect(result.locator('.logo-parts li')).toHaveCount(5);
+  await expect(result.locator('.logo-sent-note')).toContainText('Ishingiz yuborildi');
   await expect(result.locator('.logo-sent img')).toBeVisible();
-  await expect(result.locator('.logo-tries')).toContainText('1)');
-  await expect(page.locator('.logo-form h2')).toContainText('2 ta urinish qoldi');
+  // Baholanguncha yangi variant yuborish mumkin.
+  await expect(page.locator('.logo-form h2')).toContainText('Yangi variant yuborish');
 
-  // O'qituvchi: panel → «🎨 Logotiplar» → talabaning ishi → baho 9.
+  // O'qituvchi: panel → «🎨 Logotiplar» → yuklaganlar ro'yxati → 21 ball.
   await as(page, 'demo-teacher');
   await page.goto('/#teacher', { waitUntil: 'domcontentloaded' });
   await page.getByRole('button', { name: '🎨 Logotiplar' }).click();
-  const row = page.locator('.logo-admin-list > li').filter({ hasText: business });
-  await row.locator('.logo-admin-row').click();
-  await expect(row.locator('.logo-admin-desc')).toContainText('Ramz — biznesimiz');
-  await row.getByLabel(/O‘qituvchi bahosi/).fill('9');
-  await row.getByLabel(/Izoh/).fill('Zo‘r g‘oya');
-  await row.getByRole('button', { name: 'Bahoni tasdiqlash' }).click();
-  await expect(row.locator('.logo-admin-state .logo-score')).toContainText('9');
+  await expect(page.getByRole('tab', { name: /Yuklaganlar/ })).toHaveAttribute(
+    'aria-selected',
+    'true',
+  );
+  const card = page.locator('.logo-admin-card').filter({ hasText: business });
+  await expect(card.locator('.logo-admin-img img')).toBeVisible();
+  await expect(card).toContainText('Ramz — biznesimiz');
+  await expect(card.locator('.logo-admin-tag')).toContainText('baho kutmoqda');
+  await card.getByLabel(/Baho \(0–25\)/).fill('26');
+  await expect(card.getByRole('button', { name: 'Baholash' })).toBeDisabled();
+  await card.getByLabel(/Baho \(0–25\)/).fill('21');
+  await card.getByLabel(/Izoh/).fill('Zo‘r g‘oya');
+  await card.getByRole('button', { name: 'Baholash' }).click();
+  await expect(card.locator('.logo-score')).toContainText('21');
+  await page.getByRole('tab', { name: /Baholanganlar/ }).click();
+  await expect(page.locator('.logo-admin-card').filter({ hasText: business })).toBeVisible();
 
-  // Talaba o'qituvchi bahosini ko'radi.
+  // Talaba o'qituvchi bahosini ko'radi; endi qayta yubora olmaydi.
   await as(page, 'demo-student');
   await page.goto('/#topshiriq/m8', { waitUntil: 'domcontentloaded' });
-  await expect(page.locator('.logo-final')).toContainText('O‘qituvchi bahosi: 9/10');
+  await expect(page.locator('.logo-final')).toContainText('O‘qituvchi bahosi: 21/25');
   await expect(page.locator('.logo-final')).toContainText('Zo‘r g‘oya');
+  await expect(page.locator('.logo-form')).toHaveCount(0);
+  await expect(page.locator('.logo-closed')).toContainText('Ishingiz baholandi');
 });

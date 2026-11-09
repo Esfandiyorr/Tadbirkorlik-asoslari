@@ -150,6 +150,8 @@ const catalog = {
     file: t.file,
     slides: t.slides,
     quiz: t.quiz,
+    // 🎨 O'qituvchi baholaydigan topshiriq ulushi (8-mavzu logotipi — 25): test 50 o'rniga (50 − task) ball beradi.
+    ...(t.task ? { task: t.task } : {}),
     // Taqdimotdagi test savollari soni (0 — test o'rniga krossvord yoki masala).
     test: testCount[t.id] || 0,
     pdf: t.pdf,

@@ -45,19 +45,34 @@ export function academicRecord(id: string, s: Row) {
       acts.length,
       number(progress.qF) + newer.filter((k) => !k.startsWith('slide')).length,
     );
-    const maximum = Number(catalog.topics.find((t) => t.id === lesson.id)?.quiz || 15);
+    const meta = catalog.topics.find((t) => t.id === lesson.id) as
+      { quiz?: number; task?: number } | undefined;
+    const maximum = Number(meta?.quiz || 15);
+    // 🎨 O'qituvchi baholaydigan topshiriq (8-mavzu logotipi): test 50 o'rniga (50 − task) ball beradi,
+    // qolgan task ball — o'qituvchi qo'ygan baho (students/<id>/task/<mavzu>, faqat server yozadi).
+    const taskMax = Math.max(0, Math.min(50, Number(meta?.task) || 0)),
+      testMax = 50 - taskMax,
+      taskRaw = s.task?.[lesson.id],
+      taskMark =
+        taskMax && taskRaw !== undefined && taskRaw !== null
+          ? Math.min(taskMax, number(taskRaw))
+          : undefined;
     // Asl tizimdagi formula: 30 — slaydlar, 20 — faol o'qish vaqti (1 soat), 50 — to'g'ri javoblar.
     const parts = {
       slides: Math.round(300 * Math.min(1, count / gradingSlideCount)) / 10,
       time: Math.round(200 * Math.min(1, seconds / 3600)) / 10,
-      test: Math.round(500 * Math.min(1, correct / maximum)) / 10,
+      test: Math.round(testMax * 10 * Math.min(1, correct / maximum)) / 10,
+      ...(taskMark !== undefined ? { task: taskMark } : {}),
     };
     const ratio =
       (0.3 * count) / gradingSlideCount +
       0.2 * Math.min(1, seconds / 3600) +
-      0.5 * Math.min(1, correct / maximum);
+      (testMax / 100) * Math.min(1, correct / maximum) +
+      (taskMark || 0) / 100;
+    // Topshirig'i bor mavzuda ball doim qismlardan hisoblanadi (dvigatel yozgan p da o'qituvchi bahosi
+    // hali bo'lmasligi mumkin).
     const score =
-      value.p !== undefined && value.p !== null && Number.isFinite(Number(value.p))
+      !taskMax && value.p !== undefined && value.p !== null && Number.isFinite(Number(value.p))
         ? number(value.p)
         : Math.round(ratio * 1000) / 10;
     const pc = Math.round(ratio * 100),
@@ -84,11 +99,12 @@ export function academicRecord(id: string, s: Row) {
       seconds,
       correctAnswers: correct,
       quizTotal: maximum,
+      ...(taskMax ? { testMax, taskMax } : {}),
       parts,
       status: count >= lesson.slideCount ? 'read' : count || seconds || correct ? 'started' : 'new',
       ...(!independent ? { score, grade } : {}),
     };
-    if (!independent && (s.topics?.[lesson.id] || s.prog?.[lesson.id]))
+    if (!independent && (s.topics?.[lesson.id] || s.prog?.[lesson.id] || taskMark !== undefined))
       topics[lesson.id] = {
         p: score,
         s: count,
