@@ -1,12 +1,18 @@
-/* Slaydlarni PDF qilish: NODE_PATH=$(npm root -g) node slaydlar.js mavzu-2.html m2.pdf  →  python3 yigish.py m2_img fayllar/M2-mavzu.pdf "M2 · ..." (pymupdf kerak) */
+/* Slaydlarni PDF qilish: NODE_PATH=studyquest/node_modules node slaydlar.js mavzu-2.html m2.pdf  →  python3 yigish.py m2_img fayllar/M2-mavzu.pdf "M2 · ..." (pymupdf kerak) */
 /* node mkpdf2.js <deck.html> <out.pdf> — har bir slaydni ekrandagidek rasmga olib, PDF yig'adi */
 const { chromium } = require('playwright'); const fs=require('fs');
 (async()=>{ const [file,out]=process.argv.slice(2);
   const W=1280,H=720,DSF=1.3;
-  const b=await chromium.launch(); const p=await b.newPage({viewport:{width:W,height:H},deviceScaleFactor:DSF});
+  /* SQ_BROWSER_EXECUTABLE=/opt/pw-browsers/chromium — o'rnatilgan Chromium (Playwright o'zinikini topmasa) */
+  const b=await chromium.launch(process.env.SQ_BROWSER_EXECUTABLE?{executablePath:process.env.SQ_BROWSER_EXECUTABLE}:{});
+  const p=await b.newPage({viewport:{width:W,height:H},deviceScaleFactor:DSF});
   await p.addInitScript(()=>{ try{ localStorage.setItem("terdu_lang","uz"); localStorage.setItem("terdu_theme","light"); }catch(e){} });
   await p.goto("file:///home/user/Tadbirkorlik-asoslari/"+file); await p.waitForTimeout(2500);
   await p.addStyleTag({content:".topbar,.navbar,.progress-wrap,.hint,.overlay,.rt-gate,.rt-ov,.rt-toast,#khBan,#mzTab,#mzPanel,.ch-tab,.ch-panel,.rt-ask,.tb-toggle,#rtAcc{display:none!important} #app,#deck{height:100vh!important} *{animation-duration:0s!important;animation-delay:0s!important;transition:none!important}"});
+  /* o'zbekcha apostroflar saytdagidek: o'/g' → o‘/g‘, tutuq belgisi → ’ (studyquest/lib/uz-text.ts bilan bir xil) */
+  await p.evaluate(()=>{ const q=t=>!/['ʻʼ’`´]/.test(t)?t:t.replace(/([OoGg])['ʻʼ’`´](?![sS]\b)(?=[A-Za-z])/g,"$1‘").replace(/([Gg])['ʻʼ`´](?=[\s.,;:!?)»"]|$)/g,"$1‘").replace(/([A-Za-z])['ʼ`´](?=[A-Za-z])/g,"$1’");
+    const w=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT,{acceptNode:n=>n.parentElement&&!/SCRIPT|STYLE|TEXTAREA/.test(n.parentElement.tagName)?1:2});
+    for(let n=w.nextNode();n;n=w.nextNode()){ const v=q(n.nodeValue||""); if(v!==n.nodeValue) n.nodeValue=v; } });
   const n=await p.evaluate(()=>document.querySelectorAll(".slide").length);
   const imgs=[];
   for(let i=0;i<n;i++){

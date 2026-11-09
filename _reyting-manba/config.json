@@ -124,7 +124,9 @@
       "slides": 24,
       "quiz": 20,
       "task": 25,
-      "lim": true
+      "lim": true,
+      "pdf": "fayllar/M8-mavzu.pdf",
+      "pdfSize": "3,3 MB"
     },
     {
       "id": "m9",

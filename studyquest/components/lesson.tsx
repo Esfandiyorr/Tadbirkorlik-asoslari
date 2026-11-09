@@ -23,6 +23,8 @@ import { accessOf, dueText, topicPoints, tr } from '@/lib/points';
 import { NativeSurface } from './native-surface';
 import { TopicVideoButton } from './topic-video';
 import { LOGO_TOPIC } from '@/lib/logo-task';
+/** Taqdimotning PDF nusxasi: to'liq havola yoki asl fayllar (public/legacy/fayllar). */
+const pdfHref = (pdf: string) => (pdf.startsWith('https://') ? pdf : '/legacy/' + pdf);
 export function LessonView({ id }: { id: string }) {
   return <OriginalLessonView id={id} />;
 }
@@ -204,6 +206,25 @@ function OriginalLessonView({ id }: { id: string }) {
           <option value="ru">RU</option>
         </select>
         <TopicVideoButton id={id} />
+        {lesson.legacyPdf && (data?.user?.role === 'teacher' || data?.user?.role === 'admin') && (
+          // 📥 O'qituvchi va administrator taqdimotning PDF nusxasini bir bosishda yuklab oladi.
+          <Button
+            variant="outline"
+            className="reader-video-button"
+            asChild
+            title={tr(
+              lang,
+              'Taqdimotni PDF qilib yuklab olish',
+              'Download the presentation as PDF',
+              'Скачать презентацию в PDF',
+            )}
+          >
+            <a href={pdfHref(lesson.legacyPdf)} download>
+              <Download size={17} />
+              <span>PDF</span>
+            </a>
+          </Button>
+        )}
         {id === LOGO_TOPIC && (
           <Button
             variant="outline"
@@ -399,11 +420,7 @@ function OriginalLessonView({ id }: { id: string }) {
           {lesson.legacyPdf && (
             <Button variant="outline" asChild>
               <a
-                href={
-                  lesson.legacyPdf.startsWith('https://')
-                    ? lesson.legacyPdf
-                    : '/legacy/' + lesson.legacyPdf
-                }
+                href={pdfHref(lesson.legacyPdf)}
                 target="_blank"
                 rel="noopener noreferrer"
                 download

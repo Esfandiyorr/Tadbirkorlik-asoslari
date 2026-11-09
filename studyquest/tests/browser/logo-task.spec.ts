@@ -133,3 +133,23 @@ test('a student gets a business and uploads a logo; the teacher sees it in the l
   await expect(page.locator('.logo-form')).toHaveCount(0);
   await expect(page.locator('.logo-closed')).toContainText('Ishingiz baholandi');
 });
+
+test('the teacher downloads topic 8 as a PDF from the lesson toolbar; students do not see the button', async ({
+  page,
+}) => {
+  await as(page, 'demo-teacher');
+  await page.goto('/#lesson/m8');
+  await expect(page.locator('.native-document > .inner')).toBeVisible();
+  const pdf = page.locator('.reader-toolbar a', { hasText: 'PDF' });
+  await expect(pdf).toHaveAttribute('href', '/legacy/fayllar/M8-mavzu.pdf');
+  const [download] = await Promise.all([page.waitForEvent('download'), pdf.click()]);
+  expect(download.suggestedFilename()).toBe('M8-mavzu.pdf');
+  const res = await page.request.get('/legacy/fayllar/M8-mavzu.pdf');
+  expect(res.status()).toBe(200);
+  expect((await res.body()).subarray(0, 5).toString()).toBe('%PDF-');
+
+  await as(page, 'demo-student');
+  await page.goto('/#lesson/m7');
+  await expect(page.locator('.native-document > .inner')).toBeVisible();
+  await expect(page.locator('.reader-toolbar a', { hasText: 'PDF' })).toHaveCount(0);
+});
