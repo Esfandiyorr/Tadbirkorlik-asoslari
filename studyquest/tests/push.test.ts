@@ -388,16 +388,23 @@ it('the admin sends to everyone, a group or only to themselves, and sees app and
   await expect(
     managePush(admin, { op: 'send', msg: { t: 'Sinov', b: '', u: '', self: true } }),
   ).rejects.toMatchObject({ status: 404 });
-  const g = await managePush(admin, {
-    op: 'send',
-    msg: { t: '👥 AP-223 ga', b: 'Ertaga 2-bino', u: '/#courses', aud: 'g:AP-223' },
-  });
+  // ikkala xabar bir millisekundda — tarixda baribir yuborilgan tartibda turishi kerak
+  const same = Date.UTC(2026, 10, 11, 9, 0);
+  const g = await managePush(
+    admin,
+    {
+      op: 'send',
+      msg: { t: '👥 AP-223 ga', b: 'Ertaga 2-bino', u: '/#courses', aud: 'g:AP-223' },
+    },
+    same,
+  );
   expect(g.result).toMatchObject({ total: 2, sent: 2 });
   expect(demoOutbox.map((x) => x.sub.uid).sort()).toEqual(['legacy_ali', 'legacy_vali']);
-  const st = await managePush(admin, {
-    op: 'send',
-    msg: { t: 'O‘qituvchilarga', b: '', u: '', aud: 'staff' },
-  });
+  const st = await managePush(
+    admin,
+    { op: 'send', msg: { t: 'O‘qituvchilarga', b: '', u: '', aud: 'staff' } },
+    same,
+  );
   expect(st.result).toMatchObject({ total: 1 });
   expect(demoOutbox.at(-1)!.sub.uid).toBe('tc');
   await subscribePush(admin, (await device()).sub);

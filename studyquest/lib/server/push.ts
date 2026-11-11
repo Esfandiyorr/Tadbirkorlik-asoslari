@@ -374,8 +374,15 @@ export type PushLog = {
   by?: string;
 };
 const LOG_KEEP = 50;
+/** bir millisekundda bir nechta yozuv bo'lsa ham tartibi saqlansin (kalit bo'yicha saralanadi) */
+let logSeq = 0;
 async function logPush(e: PushLog) {
-  const key = e.at.toString(36).padStart(9, '0') + '-' + Math.random().toString(36).slice(2, 6);
+  logSeq = (logSeq + 1) % 1296;
+  const key =
+    e.at.toString(36).padStart(9, '0') +
+    '-' +
+    logSeq.toString(36).padStart(2, '0') +
+    Math.random().toString(36).slice(2, 6);
   await siteUpdate({ ['push/log/' + key]: e });
   const all = Object.keys((await siteGet<Record<string, PushLog>>('push/log')) || {}).sort();
   if (all.length > LOG_KEEP)
