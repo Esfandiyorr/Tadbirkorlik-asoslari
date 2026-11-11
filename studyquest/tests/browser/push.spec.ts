@@ -3,6 +3,10 @@ import { test, expect, type Page } from '@playwright/test';
 /* 🔔 Bildirishnomalar: talaba bosh sahifadagi taklifdan yoqadi, qo'ng'iroqcha menyusida holatni ko'radi, sinab ko'radi
    va o'chiradi. Haqiqiy push xizmati (Google) sinovda yo'q — brauzer obunasi taqlid qilinadi (to'g'ri ko'rinishdagi
    kalitlar bilan); server uni qabul qilib saqlaydi va o'qituvchi qurilmalar sonini ko'radi. */
+const PNG = Buffer.from(
+  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
+  'base64',
+);
 async function as(page: Page, id: string) {
   await page.request.post('/api/auth/demo', { data: { id } });
 }
@@ -102,9 +106,21 @@ test('the administrator can send an announcement to phones as well', async ({ pa
   // katta oyna kerak emas — u keyingi sinovlarda boshqa foydalanuvchilarning ekranini to'sib qo'yadi
   await page.getByRole('checkbox', { name: /katta oynada ko‘rsatish/ }).uncheck();
   await page.getByLabel('E’lon matni').fill('Ertaga jonli test 09:30 da bo‘ladi.');
+  // 🖼 rasm biriktiriladi — ro'yxatda kichik ko'rinishi chiqadi, rasm saytdan ochiladi
+  await page.getByLabel('Rasm', { exact: true }).setInputFiles({
+    name: 'elon.png',
+    mimeType: 'image/png',
+    buffer: PNG,
+  });
+  await expect(page.locator('.image-pick-thumb img')).toBeVisible();
   await page.getByRole('button', { name: 'E’lon joylash' }).click();
   const list = page.locator('.news-admin-list');
   await expect(list).toContainText('Ertaga jonli test 09:30 da');
+  const img = list.locator('li', { hasText: 'Ertaga jonli test' }).locator('img.news-admin-img');
+  await expect(img).toHaveAttribute('src', /^\/api\/site\/img\/nw-/);
+  const res = await page.request.get((await img.getAttribute('src'))!);
+  expect(res.headers()['content-type']).toBe('image/png');
+  await expect(page.locator('.image-pick-thumb')).toHaveCount(0);
   // tozalash
   await list.getByRole('button', { name: /O‘chirish: .*Ertaga jonli test/ }).click();
   await expect(list).not.toContainText('Ertaga jonli test 09:30 da');
@@ -125,6 +141,12 @@ test('the administrator sends a notification from its own section and controls a
   await page.reload({ waitUntil: 'domcontentloaded' });
   await sec.getByLabel('Sarlavha').fill('📢 Ertaga dars 2-binoda');
   await sec.getByLabel('Matn').fill('Soat 9:30 da, 214-xona.');
+  await sec.getByLabel('Rasm', { exact: true }).setInputFiles({
+    name: 'xabar.png',
+    mimeType: 'image/png',
+    buffer: PNG,
+  });
+  await expect(sec.locator('.bo-push-preview-img')).toBeVisible();
   await expect(sec.locator('.bo-push-preview')).toContainText('Ertaga dars 2-binoda');
   await sec.getByRole('button', { name: /Avval o‘zimga/ }).click();
   await expect(page.getByText(/🧪 1 ta qurilmaga yetkazildi/)).toBeVisible();
@@ -134,6 +156,10 @@ test('the administrator sends a notification from its own section and controls a
   await sec.getByRole('tab', { name: /Tarix/ }).click();
   await expect(sec.locator('.bo-push-log li').first()).toContainText('Ertaga dars 2-binoda');
   await expect(sec.locator('.bo-push-log li').first()).toContainText('hammaga');
+  await expect(sec.locator('.bo-push-log li').first().locator('img')).toHaveAttribute(
+    'src',
+    /^\/api\/site\/img\/ps-/,
+  );
 
   // avtomatik xabarlar: «Yangi e'lon» o'chirilsa — E'lonlar bo'limida belgi odatda o'chiq
   await sec.getByRole('tab', { name: /Avtomatik/ }).click();

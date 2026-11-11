@@ -30,7 +30,8 @@ self.addEventListener('fetch', (e) => {
     e.respondWith(fetch(e.request).catch(() => caches.match('/offline.html')));
 });
 
-/* 🔔 Bildirishnoma (Web Push, lib/server/push.ts): {t: sarlavha, b: matn, u: ochiladigan manzil, g: belgi}.
+/* 🔔 Bildirishnoma (Web Push, lib/server/push.ts): {t: sarlavha, b: matn, u: ochiladigan manzil, g: belgi,
+   i: rasm (ixtiyoriy, saytning o'z rasmi — Android va kompyuterda katta bo'lib chiqadi)}.
    Ilova o'rnatilgan bo'lsa ham, sayt brauzerda ochilgan bo'lsa ham shu yerga keladi. */
 self.addEventListener('push', (e) => {
   let d = {};
@@ -40,6 +41,10 @@ self.addEventListener('push', (e) => {
     d = { b: e.data ? e.data.text() : '' };
   }
   const url = new URL(d.u || '/', self.location.origin);
+  const img =
+    typeof d.i === 'string' && d.i.startsWith('/api/site/img/')
+      ? new URL(d.i, self.location.origin).href
+      : undefined;
   e.waitUntil(
     self.registration.showNotification(d.t || 'TerDU · Tadbirkorlik asoslari', {
       body: d.b || '',
@@ -47,6 +52,7 @@ self.addEventListener('push', (e) => {
       renotify: true,
       icon: '/icon-192.png',
       badge: '/icon-192.png',
+      ...(img ? { image: img } : {}),
       data: { u: url.origin === self.location.origin ? url.href : self.location.origin + '/' },
     }),
   );

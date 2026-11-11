@@ -27,10 +27,10 @@ import {
   managePush,
   newsPush,
   pushAdmin,
-  pushAuto,
   pushTick,
   topicPush,
   videoPush,
+  wantNewsPush,
 } from '@/lib/server/push';
 import { avatarLibrary, manageLibrary } from '@/lib/server/avatar-library';
 import {
@@ -466,9 +466,7 @@ export async function POST(req: NextRequest) {
       // (belgi yuborilmagan bo'lsa — «🔔 Bildirishnomalar»dagi «Yangi e'lon» sozlamasi hal qiladi)
       const raw = (p.input || {}) as Record<string, unknown>;
       const { push: wantPush, ...input } = raw;
-      const push =
-        raw.op === 'add' &&
-        (wantPush === true || (wantPush === undefined && (await pushAuto()).news));
+      const push = raw.op === 'add' && (await wantNewsPush(wantPush));
       const r = await manageNews(a, input);
       if (push && 'id' in r && r.id)
         after(() => newsPush(a, String(raw.h || ''), String(raw.t || '')).catch(() => {}));

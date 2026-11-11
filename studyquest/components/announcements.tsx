@@ -7,6 +7,7 @@ import { Button } from './ui/button';
 import { dueText, tr } from '@/lib/points';
 import type { Lang } from '@/lib/types';
 import { FRESH_MS, PROMO_KIND, type PromoItem } from '@/lib/promo';
+import { ImagePick } from './image-pick';
 
 /* 📢 E'lonlar oynasi (yon menyuda «Talabalar chati» ostida, har 10 soniyada almashadi) va ⚡ jonli test oynasi.
    Matni uzun e'lon ustiga bosilsa — to'liq matn alohida oynada ochiladi.
@@ -22,6 +23,8 @@ export type NewsItem = {
   at: number;
   /** saytga kirganda katta oynada chiqadi (foydalanuvchi «O'qildi» bosguncha) */
   pop?: boolean;
+  /** rasm (administrator biriktirgan) */
+  img?: string;
 };
 export type LiveGame = {
   d: string;
@@ -261,6 +264,7 @@ function NewsSlide({ item, now, onOpen }: { item: NewsItem; now: number; onOpen:
         aria-haspopup="dialog"
         onClick={onOpen}
       >
+        {item.img && <img className="news-slide-img" src={item.img} alt="" loading="lazy" />}
         {item.h && <b>{item.h}</b>}
         <span className="news-text" ref={ref}>
           {item.t}
@@ -443,6 +447,7 @@ export function NewsBox({ className = '' }: { className?: string }) {
           kicker={<>📢 {L('E’LON', 'NEWS', 'ОБЪЯВЛЕНИЕ')}</>}
           title={reading.h}
           text={reading.t}
+          img={reading.img}
           link={reading.link}
           meta={
             L('Joylangan', 'Posted', 'Опубликовано') +
@@ -649,6 +654,7 @@ function NewsList({
               📢 {L('E’lon', 'Announcement', 'Объявление')}
               {isNew(x.id) && <em>{L('YANGI', 'NEW', 'НОВОЕ')}</em>}
             </span>
+            {x.img && <img className="news-reader-img" src={x.img} alt="" loading="lazy" />}
             {x.h && <h3>{x.h}</h3>}
             <p className="news-reader-text">{x.t}</p>
             <small className="news-reader-meta">{dueText(x.at, lang, now).date}</small>
@@ -802,6 +808,7 @@ export function NewsPopup() {
             <X size={20} />
           </button>
         </header>
+        {item.img && <img className="news-pop-img" src={item.img} alt="" />}
         <h2 id="news-pop-h">{item.h || L('E’lon', 'Announcement', 'Объявление')}</h2>
         <p id="news-pop-t" className="news-pop-text">
           {item.t}
@@ -947,6 +954,7 @@ export function NewsAdmin({ openCourseControls }: { openCourseControls?: () => v
   const L = (uz: string, en: string, ru: string) => tr(lang, uz, en, ru);
   const { data: d, now, setNews } = useNews();
   const [form, setForm] = useState({ h: '', t: '', link: '', until: '', pop: true, push: true }),
+    [image, setImage] = useState<Blob | null>(null),
     [busy, setBusy] = useState('');
   // 📲 belgining boshlang'ich holati — «🔔 Bildirishnomalar» bo'limidagi «Yangi e'lon» sozlamasidan
   useEffect(() => {
@@ -984,24 +992,46 @@ export function NewsAdmin({ openCourseControls }: { openCourseControls?: () => v
       setBusy('');
     }
   }
+  /** Rasmli e'lon — bitta so'rovda (e'lon + rasm; bildirishnoma ham rasm bilan ketadi). */
+  async function sendWithImage(input: Record<string, unknown>, img: Blob, done: string) {
+    setBusy('add');
+    try {
+      const body = new FormData();
+      body.set('input', JSON.stringify(input));
+      body.set('file', img, 'elon.' + (img.type.split('/')[1] || 'png'));
+      const r = await request('/api/site/news', { method: 'POST', body }),
+        v = await r.json();
+      if (!r.ok) throw new Error(v.error || v.issues?.[0]?.message || 'Rasm yuklanmadi');
+      if (v.id) markLocalSeen(v.id);
+      setNews(v.news || []);
+      toast(done);
+      return true;
+    } catch (e) {
+      toast((e as Error).message);
+      return false;
+    } finally {
+      setBusy('');
+    }
+  }
   async function add(e: React.FormEvent) {
     e.preventDefault();
     // «Muddat» — shu kun oxirigacha (Toshkent vaqti).
     const until = form.until ? Date.parse(form.until + 'T23:59:59+05:00') : undefined;
-    const ok = await send(
-      {
-        op: 'add',
-        t: form.t.trim(),
-        ...(form.h.trim() ? { h: form.h.trim() } : {}),
-        ...(form.link.trim() ? { link: form.link.trim() } : {}),
-        ...(until ? { until } : {}),
-        ...(form.pop ? { pop: true } : {}),
-        push: form.push,
-      },
-      'add',
-      '📢 ' + L('E’lon joylandi', 'Announcement posted', 'Объявление опубликовано'),
-    );
-    if (ok) setForm({ h: '', t: '', link: '', until: '', pop: form.pop, push: form.push });
+    const input = {
+      op: 'add',
+      t: form.t.trim(),
+      ...(form.h.trim() ? { h: form.h.trim() } : {}),
+      ...(form.link.trim() ? { link: form.link.trim() } : {}),
+      ...(until ? { until } : {}),
+      ...(form.pop ? { pop: true } : {}),
+      push: form.push,
+    };
+    const done = '📢 ' + L('E’lon joylandi', 'Announcement posted', 'Объявление опубликовано');
+    const ok = image ? await sendWithImage(input, image, done) : await send(input, 'add', done);
+    if (ok) {
+      setForm({ h: '', t: '', link: '', until: '', pop: form.pop, push: form.push });
+      setImage(null);
+    }
   }
   const g = d?.live,
     n = now();
@@ -1092,6 +1122,15 @@ export function NewsAdmin({ openCourseControls }: { openCourseControls?: () => v
             />
           </label>
         </div>
+        <ImagePick
+          value={image}
+          onChange={setImage}
+          hint={L(
+            'Rasm e’lonlar oynasida, katta oynada va telefondagi bildirishnomada (Android, kompyuter) chiqadi.',
+            'The picture appears in the news box, the big window and in phone notifications (Android, desktop).',
+            'Картинка видна в окне объявлений, в большом окне и в уведомлении на телефоне (Android, компьютер).',
+          )}
+        />
         <label className="news-admin-pop">
           <input
             type="checkbox"
@@ -1129,6 +1168,7 @@ export function NewsAdmin({ openCourseControls }: { openCourseControls?: () => v
       <ul className="news-admin-list">
         {(d?.news || []).map((x) => (
           <li key={x.id}>
+            {x.img && <img className="news-admin-img" src={x.img} alt="" loading="lazy" />}
             <span>
               {x.h && <b>{x.h}</b>}
               <span>{x.t}</span>

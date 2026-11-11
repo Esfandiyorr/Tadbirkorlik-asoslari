@@ -2,13 +2,14 @@ import 'server-only';
 import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
 import type { Actor } from '../types';
-import { administrator } from './auth';
+import { administrator, check } from './auth';
 import { demo, legacyDb } from './repository';
 import { demoKahoot } from './live-admin';
-import { siteGet, siteUpdate } from './site-content';
+import { imageUrl, siteGet, siteUpdate, storeBlob } from './site-content';
 
 /* 📢 E'lonlar oynasi (yon menyuda, har 10 soniyada almashadi) va ⚡ jonli test jadvali.
-   E'lonlar: meta/news/<id> = {h?, t, link?, until?, at} — faqat administrator (server orqali) yozadi, hamma o'qiydi.
+   E'lonlar: meta/news/<id> = {h?, t, link?, until?, at, pop?, img?} — faqat administrator (server orqali) yozadi,
+   hamma o'qiydi. Rasm (ixtiyoriy) baytlari site/blob/nw-<id> da, img — uning versiyasi (saytga manzil bo'lib boradi).
    Jonli test: asl tizimdagi kahoot/cfg va kahoot/idx (administrator «Sayt boshqaruvi → ⚡ Jonli test»da yoki eski
    «Kursni boshqarish → ⚡ Jonli test» panelida rejalashtiradi). */
 
@@ -21,6 +22,8 @@ export type NewsItem = {
   at: number;
   /** saytga kirganda katta oynada ko'rsatiladi (foydalanuvchi «O'qildi» bosguncha) */
   pop?: boolean;
+  /** rasm manzili (/api/site/img/nw-<id>?v=…) */
+  img?: string;
 };
 export type LiveGame = {
   d: string;
@@ -44,7 +47,16 @@ export async function readNews(now = Date.now()): Promise<NewsItem[]> {
     ? memory.news
     : (((await legacyDb().ref('meta/news').get()).val() || {}) as Record<string, NewsItem>);
   return Object.entries(raw)
-    .map(([id, v]) => ({ ...v, id }))
+    .map(([id, v]) => {
+      const { img, ...rest } = v;
+      return {
+        ...rest,
+        id,
+        ...(typeof img === 'string' && /^[a-z0-9]{1,16}$/.test(img)
+          ? { img: imageUrl('nw-' + id.toLowerCase(), img) }
+          : {}),
+      };
+    })
     .filter((v) => typeof v.t === 'string' && v.t && (!v.until || v.until > now))
     .sort((a, b) => (b.at || 0) - (a.at || 0))
     .slice(0, 12);
@@ -152,7 +164,29 @@ export async function manageNews(a: Actor, raw: unknown, now = Date.now()) {
     await legacyDb()
       .ref('meta/news/' + v.id)
       .remove();
+  if (/^[a-z0-9-]{2,40}$/.test(v.id)) await siteUpdate({ ['blob/nw-' + v.id]: null });
   return { news: await readNews(now) };
+}
+
+/** Administrator: e'longa rasm qo'shish yoki almashtirish (baytlar turi serverda tekshiriladi). */
+export async function newsImage(a: Actor, id: string, bytes: Buffer, now = Date.now()) {
+  administrator(a);
+  check(/^[a-z0-9-]{2,40}$/.test(id), 400, 'E’lon topilmadi.');
+  const cur = demo()
+    ? memory.news[id]
+    : ((await legacyDb()
+        .ref('meta/news/' + id)
+        .get()
+        .then((s) => s.val())) as NewsItem | null);
+  check(cur, 404, 'E’lon topilmadi.');
+  const saved = await storeBlob('nw-' + id, bytes, now);
+  if (demo()) memory.news[id] = { ...memory.news[id], img: saved.v };
+  else
+    await legacyDb()
+      .ref('meta/news/' + id + '/img')
+      .set(saved.v);
+  const news = await readNews(now);
+  return { id, news, img: news.find((x) => x.id === id)?.img };
 }
 
 /* 📣 Katta oynadagi e'lonlar: kim qaysi e'lonni «O'qildi» deb belgilagan — site/newsSeen/<foydalanuvchi>/<e'lon> = vaqt.

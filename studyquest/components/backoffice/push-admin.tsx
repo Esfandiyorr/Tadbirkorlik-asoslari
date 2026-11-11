@@ -1,9 +1,10 @@
 'use client';
-import { useState, type FormEvent } from 'react';
+import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { Send, TestTube } from 'lucide-react';
 import { useApp } from '../provider';
 import { Button } from '../ui/button';
 import { PushToggle } from '../push-toggle';
+import { ImagePick } from '../image-pick';
 import { useAdminView, useL } from './common';
 import type { PushAdminView, PushAuto, PushKind } from '@/lib/server/push';
 
@@ -84,8 +85,14 @@ type Act = ReturnType<typeof useAdminView<PushAdminView>>['act'];
 
 function SendForm({ data, busy, act }: { data: PushAdminView; busy: string; act: Act }) {
   const L = useL();
-  const { lang, toast } = useApp();
+  const { lang, toast, request } = useApp();
   const [f, setF] = useState({ t: '', b: '', u: '/#home', custom: '', aud: 'all' });
+  // 🖼 rasm: bir marta yuklanadi (avval o'ziga sinab, keyin hammaga yuborilsa ham)
+  const [image, setImage] = useState<Blob | null>(null),
+    [uploaded, setUploaded] = useState<{ blob: Blob; url: string } | null>(null),
+    [uploading, setUploading] = useState(false);
+  const preview = useMemo(() => (image ? URL.createObjectURL(image) : ''), [image]);
+  useEffect(() => () => void (preview && URL.revokeObjectURL(preview)), [preview]);
   const s = data.stats;
   const count =
     f.aud === 'all'
@@ -98,12 +105,30 @@ function SendForm({ data, busy, act }: { data: PushAdminView; busy: string; act:
   const url = f.u === 'custom' ? f.custom.trim() : f.u;
   const urlOk = !url || /^https:\/\/\S+$/.test(url) || /^\/#[a-z][a-z0-9/_-]*$/i.test(url);
   const ready = f.t.trim().length >= 2 && urlOk;
-  const msg = (self: boolean) => ({
+  const msg = (self: boolean, i?: string) => ({
     t: f.t.trim(),
     b: f.b.trim(),
     u: url,
+    ...(i ? { i } : {}),
     ...(self ? { self: true } : { aud: f.aud }),
   });
+  /** Rasm manzili: tanlangan bo'lsa — yuklanadi (avval yuklangan bo'lsa — o'sha). */
+  async function imageUrl(): Promise<string | undefined> {
+    if (!image) return undefined;
+    if (uploaded?.blob === image) return uploaded.url;
+    setUploading(true);
+    try {
+      const body = new FormData();
+      body.set('file', image, 'xabar.' + (image.type.split('/')[1] || 'png'));
+      const r = await request('/api/push/image', { method: 'POST', body }),
+        v = await r.json();
+      if (!r.ok || !v.url) throw new Error(v.error || 'Rasm yuklanmadi');
+      setUploaded({ blob: image, url: v.url });
+      return v.url as string;
+    } finally {
+      setUploading(false);
+    }
+  }
   const report = (r: Sent | undefined, self: boolean) => {
     if (!r) return;
     toast(
@@ -128,21 +153,35 @@ function SendForm({ data, busy, act }: { data: PushAdminView; busy: string; act:
       )
     )
       return;
+    const i = await imageOrStop();
+    if (i === false) return;
     try {
-      const v = (await act({ op: 'send', msg: msg(false) }, 'send')) as PushAdminView & {
+      const v = (await act({ op: 'send', msg: msg(false, i) }, 'send')) as PushAdminView & {
         result?: Sent;
       };
       report(v.result, false);
       setF((x) => ({ ...x, t: '', b: '' }));
-    } catch {}
+      setImage(null);
+    } catch {} // xato xabarini act o'zi ko'rsatadi
   }
   async function selfTest() {
+    const i = await imageOrStop();
+    if (i === false) return;
     try {
-      const v = (await act({ op: 'send', msg: msg(true) }, 'self')) as PushAdminView & {
+      const v = (await act({ op: 'send', msg: msg(true, i) }, 'self')) as PushAdminView & {
         result?: Sent;
       };
       report(v.result, true);
     } catch {}
+  }
+  /** Rasm yuklanmasa — xabar yuborilmaydi (false), sababi ko'rsatiladi. */
+  async function imageOrStop(): Promise<string | undefined | false> {
+    try {
+      return await imageUrl();
+    } catch (err) {
+      toast((err as Error).message);
+      return false;
+    }
   }
   return (
     <form className="bo-form" onSubmit={submit}>
@@ -235,6 +274,15 @@ function SendForm({ data, busy, act }: { data: PushAdminView; busy: string; act:
           )}
         </p>
       )}
+      <ImagePick
+        value={image}
+        onChange={setImage}
+        hint={L(
+          'Rasm Android telefonlarda va kompyuterda bildirishnoma ichida katta bo‘lib chiqadi (iPhone’da faqat matn).',
+          'The picture shows large inside the notification on Android and desktop (iPhone shows text only).',
+          'Картинка видна в уведомлении на Android и компьютере (на iPhone — только текст).',
+        )}
+      />
       <div className="bo-push-preview" aria-label={L('Ko‘rinishi', 'Preview', 'Предпросмотр')}>
         <img src="/icon-192.png" alt="" width={36} height={36} />
         <div>
@@ -242,17 +290,18 @@ function SendForm({ data, busy, act }: { data: PushAdminView; busy: string; act:
           <span>
             {f.b.trim() || L('Matn shu yerda chiqadi', 'Text appears here', 'Здесь текст')}
           </span>
+          {preview && <img className="bo-push-preview-img" src={preview} alt="" />}
         </div>
       </div>
       <div className="bo-actions">
-        <Button type="submit" disabled={!ready || !!busy || !count}>
+        <Button type="submit" disabled={!ready || !!busy || uploading || !count}>
           <Send size={15} />
           {L(`Yuborish (${count})`, `Send (${count})`, `Отправить (${count})`)}
         </Button>
         <Button
           type="button"
           variant="outline"
-          disabled={!ready || !!busy || !s.mine}
+          disabled={!ready || !!busy || uploading || !s.mine}
           onClick={() => void selfTest()}
           title={
             s.mine
@@ -492,6 +541,7 @@ function History({ data }: { data: PushAdminView }) {
             </small>
             <b>{x.t}</b>
             {x.b && <span>{x.b}</span>}
+            {x.i && <img className="bo-push-log-img" src={x.i} alt="" loading="lazy" />}
           </div>
           <span
             className={'bo-pill ' + (x.s ? 'on' : 'off')}

@@ -1,10 +1,10 @@
 import 'server-only';
-import { createHash } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { z } from 'zod';
 import type { Actor } from '../types';
 import { administrator, check } from './auth';
 import { demo, legacyDb } from './repository';
-import { siteGet, siteUpdate } from './site-content';
+import { siteGet, siteUpdate, storeBlob } from './site-content';
 import { liveGame, type LiveGame } from './news';
 
 /* 🔔 Telefonga (va kompyuterga) bildirishnoma — yangi sayt ilovasining o'z Web Push xizmati.
@@ -54,7 +54,10 @@ export type PushSub = {
   app?: boolean;
   at: number;
 };
-export type PushPayload = { t: string; b: string; u: string; g: string };
+/** i — rasm (sayt ichidagi /api/site/img/… manzili; Android va kompyuterdagi Chrome/Edge katta qilib ko'rsatadi) */
+export type PushPayload = { t: string; b: string; u: string; g: string; i?: string };
+/** Bildirishnomadagi rasm faqat saytning o'z rasmi bo'ladi (administrator yuklagan e'lon yoki xabar rasmi). */
+export const PUSH_IMAGE = /^\/api\/site\/img\/(?:nw|ps|pr)-[a-z0-9-]{2,40}\?v=[a-z0-9]{1,16}$/;
 
 /* ---------- 🔐 kalitlar ---------- */
 export async function newVapid(now = Date.now()): Promise<Vapid> {
@@ -270,6 +273,7 @@ export async function sendPush(
     b: payload.b.slice(0, 300),
     u: payload.u.slice(0, 300),
     g: payload.g.slice(0, 40),
+    ...(payload.i && PUSH_IMAGE.test(payload.i) ? { i: payload.i } : {}),
   });
   let sent = 0,
     failed = 0;
@@ -372,6 +376,8 @@ export type PushLog = {
   s: number;
   f: number;
   by?: string;
+  /** rasm manzili (bo'lsa) */
+  i?: string;
 };
 const LOG_KEEP = 50;
 /** bir millisekundda bir nechta yozuv bo'lsa ham tartibi saqlansin (kalit bo'yicha saralanadi) */
@@ -432,6 +438,7 @@ async function deliver(
     s: r.sent,
     f: r.failed,
     ...(by ? { by: by.slice(0, 60) } : {}),
+    ...(payload.i && PUSH_IMAGE.test(payload.i) ? { i: payload.i } : {}),
   }).catch(() => {});
   return r;
 }
@@ -462,6 +469,8 @@ const message = z
     t: z.string().trim().min(2).max(80),
     b: z.string().trim().max(300),
     u: link,
+    /** rasm: avval /api/push/image ga yuklangan (yoki e'lon rasmi) */
+    i: z.string().regex(PUSH_IMAGE).optional(),
     aud: audience.optional(),
     /** faqat o'z qurilmalarimga (sinab ko'rish) */
     self: z.boolean().optional(),
@@ -472,7 +481,7 @@ const message = z
 export async function broadcastPush(a: Actor, raw: unknown, now = Date.now()) {
   administrator(a);
   const v = message.parse(raw);
-  const payload = { t: v.t, b: v.b, u: v.u || '/#home', g: 'sq-news' };
+  const payload = { t: v.t, b: v.b, u: v.u || '/#home', g: 'sq-news', ...(v.i ? { i: v.i } : {}) };
   if (v.self) {
     const r = await sendPush(payload, (s) => s.uid === a.id, now);
     check(
@@ -486,7 +495,7 @@ export async function broadcastPush(a: Actor, raw: unknown, now = Date.now()) {
 }
 
 /** 📢 Yangi e'lon (E'lonlar bo'limidan) — hammaga. */
-export async function newsPush(a: Actor, h: string, text: string, now = Date.now()) {
+export async function newsPush(a: Actor, h: string, text: string, now = Date.now(), img?: string) {
   administrator(a);
   return deliver(
     'news',
@@ -495,11 +504,36 @@ export async function newsPush(a: Actor, h: string, text: string, now = Date.now
       b: text.replace(/\s+/g, ' ').trim().slice(0, 280),
       u: '/#home',
       g: 'sq-news',
+      ...(img ? { i: img } : {}),
     },
     'all',
     now,
     a.name || a.id,
   );
+}
+
+/** E'lon joylanganda telefonlarga ham yuborilsinmi: belgi berilgan bo'lsa — o'sha, aks holda sozlama. */
+export async function wantNewsPush(flag: unknown) {
+  return flag === true || (flag === undefined && (await pushAuto()).news);
+}
+
+/* Qo'lda yoziladigan xabar rasmi: site/blob/ps-<id>; ro'yxati site/push/imgs/<id> = vaqt. 30 kundan eskilari
+   (bildirishnoma allaqachon o'qilgan) yangi rasm yuklanganda o'chiriladi — bazada ortiqcha joy egallamasin. */
+const PUSH_IMG_DAYS = 30;
+/** Administrator: bildirishnoma uchun rasm yuklash. Manzilini qaytaradi (keyin xabar bilan yuboriladi). */
+export async function pushImage(a: Actor, bytes: Buffer, now = Date.now()) {
+  administrator(a);
+  const id = now.toString(36) + '-' + randomUUID().slice(0, 8);
+  const saved = await storeBlob('ps-' + id, bytes, now);
+  const list = (await siteGet<Record<string, number>>('push/imgs')) || {};
+  const o: Record<string, unknown> = { ['push/imgs/' + id]: now };
+  for (const [k, at] of Object.entries(list))
+    if (!(+at > now - PUSH_IMG_DAYS * 86400000)) {
+      o['push/imgs/' + k] = null;
+      if (/^[a-z0-9-]{2,40}$/.test(k)) o['blob/ps-' + k] = null;
+    }
+  await siteUpdate(o);
+  return { url: '/api/site/img/ps-' + id + '?v=' + saved.v };
 }
 
 /* ---------- ⚡ jonli test: e'lon va eslatma ---------- */

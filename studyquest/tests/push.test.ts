@@ -13,7 +13,10 @@ import {
   managePush,
   pushAdmin,
   pushAuto,
+  PUSH_IMAGE,
+  newsPush,
   pushHostOk,
+  pushImage,
   pushTick,
   pushStats,
   pushSubs,
@@ -28,7 +31,8 @@ import {
   videoPush,
 } from '../lib/server/push';
 import { demoKahoot, manageLive } from '../lib/server/live-admin';
-import { resetSiteMemory } from '../lib/server/site-content';
+import { readImage, resetSiteMemory } from '../lib/server/site-content';
+import { manageNews, newsImage, readNews } from '../lib/server/news';
 
 /* 🔔 Bildirishnomalar: shifr (RFC 8291) va imzo (RFC 8292) haqiqiy brauzer ochadigan ko'rinishda, obuna faqat ma'lum
    push xizmatlariga, jonli test eslatmasi o'yin boshiga bir marta va mustaqil o'quvchilarga emas. */
@@ -469,4 +473,62 @@ it('tells students when a topic opens or a video is added, unless switched off',
   expect(await topicPush({ id: 'm7', order: 6, title: 'x', state: 'open' }, now)).toBeNull();
   expect(await videoPush({ id: 'm8', title: 'M8 · x' }, undefined, now)).toBeNull();
   expect(demoOutbox).toHaveLength(3);
+});
+
+const PNG = Buffer.from(
+  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
+  'base64',
+);
+
+it('attaches a picture to an announcement and to a notification', async () => {
+  const admin = who('owner', 'admin');
+  const now = Date.UTC(2026, 10, 11, 10, 0);
+  await subscribePush(who('legacy_ali'), (await device()).sub);
+
+  // e'longa rasm: saytda manzil bo'lib chiqadi, bildirishnomada ham shu rasm
+  const { id } = (await manageNews(admin, { op: 'add', t: 'Ertaga ochiq eshiklar kuni' }, now)) as {
+    id: string;
+  };
+  await expect(newsImage(who('legacy_ali'), id, PNG, now)).rejects.toMatchObject({ status: 403 });
+  await expect(newsImage(admin, 'yoq-elon', PNG, now)).rejects.toMatchObject({ status: 404 });
+  await expect(newsImage(admin, id, Buffer.from('<svg/>'), now)).rejects.toMatchObject({
+    status: 400,
+  });
+  const r = await newsImage(admin, id, PNG, now);
+  expect(r.img).toMatch(PUSH_IMAGE);
+  expect((await readNews(now)).find((x) => x.id === id)?.img).toBe(r.img);
+  const key = r.img!.slice('/api/site/img/'.length).split('?')[0];
+  expect((await readImage(key))?.type).toBe('image/png');
+  await newsPush(admin, 'Ochiq eshiklar', 'Ertaga', now, r.img);
+  expect(demoOutbox.at(-1)!.payload).toMatchObject({ t: '📢 Ochiq eshiklar', i: r.img });
+  // e'lon o'chirilsa — rasmi ham
+  await manageNews(admin, { op: 'remove', id }, now);
+  expect(await readImage(key)).toBeNull();
+
+  // qo'lda yoziladigan xabar rasmi: yuklanadi, xabar bilan ketadi, tarixda ko'rinadi
+  const up = await pushImage(admin, PNG, now);
+  expect(up.url).toMatch(PUSH_IMAGE);
+  const sent = await managePush(admin, {
+    op: 'send',
+    msg: { t: 'Rasmli xabar', b: '', u: '', i: up.url, aud: 'all' },
+  });
+  expect(sent.result).toMatchObject({ total: 1 });
+  expect(demoOutbox.at(-1)!.payload.i).toBe(up.url);
+  expect(sent.log[0].i).toBe(up.url);
+  // boshqa joydagi rasm manzili qabul qilinmaydi
+  await expect(
+    managePush(admin, {
+      op: 'send',
+      msg: { t: 'x', b: '', u: '', i: 'https://evil.example/a.png', aud: 'all' },
+    }),
+  ).rejects.toThrow();
+  await expect(pushImage(who('legacy_ali'), PNG, now)).rejects.toMatchObject({ status: 403 });
+  // 30 kundan eski xabar rasmlari yangisi yuklanganda o'chadi
+  const later = now + 31 * 86400000;
+  const next = await pushImage(admin, PNG, later);
+  expect(await readImage(up.url.slice('/api/site/img/'.length).split('?')[0])).toBeNull();
+  expect(await readImage(next.url.slice('/api/site/img/'.length).split('?')[0])).not.toBeNull();
+  // yuboruvchi baribir faqat saytning o'z rasmini o'tkazadi
+  await sendPush({ t: 'x', b: '', u: '/', g: 'x', i: 'https://evil.example/a.png' });
+  expect(demoOutbox.at(-1)!.payload).not.toHaveProperty('i');
 });
