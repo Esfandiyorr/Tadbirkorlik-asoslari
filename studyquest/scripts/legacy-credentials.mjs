@@ -63,3 +63,53 @@ export function adaptStudentRegistration(source) {
   }
   return source;
 }
+
+/* ⚡ Jonli test (arena.html): talaba umumiy «1111» kod bilan kirgan bo'lsa (yangi platformada eng ko'p uchraydigan
+   holat), uning brauzer egaligi server orqali tasdiqlangan — bazada owners/<id>/<uid> = "shared1111:…", brauzerda esa
+   kalit o'rnida "shared1111" belgisi turadi. Asl claimMe bu belgini kalit deb bazaga yozmoqchi bo'lardi, qoida rad
+   etardi va «Qo'shilish» tugmasi «Hisobingiz shu brauzerda tasdiqlanmagan» deb to'xtardi — talabalar jonli testga
+   (va Yozuv marafoniga) kira olmasdi. Endi:
+   1) "shared1111" holatida egalik /api/student-login orqali tekshiriladi (taqdimotlardagi claimOwn bilan bir xil);
+   2) tekshiruv baribir o'tmasa ham qo'shilishga urinib ko'riladi — asl hakam bazadagi qoida (egalik, tasdiqlangan
+      hisob, lobbi vaqti); rad etilsagina tushunarli xabar chiqadi;
+   3) xabardagi havola yangi platformadagi kirish sahifasiga olib boradi. */
+export function adaptArenaLiveJoin(source) {
+  const relogin =
+    '"Hisobingiz shu brauzerda tasdiqlanmagan. Saytdan chiqib, ism, familiya va kodingiz bilan qayta kiring, so\'ng shu sahifaga qayting."';
+  const patches = [
+    [
+      'function claimMe(cb){\n  if(!ME||!ME.id||!ME.pk){ cb(false); return; }',
+      'function claimMe(cb){\n  if(ME&&ME.id&&ME.pk==="shared1111"){ saToken(true,function(t){ if(!t){ cb(false); return; } tmo(fetch("/api/student-login",{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+t},body:JSON.stringify({id:ME.id,session:true})}),9000).then(function(r){ cb(r.ok); }).catch(function(){ cb(false); }); }); return; }\n  if(!ME||!ME.id||!ME.pk){ cb(false); return; }',
+    ],
+    [
+      // jonli test: egalik tasdiqlanmagan bo'lsa ham qo'shilishga urinamiz (hakam — bazadagi qoida)
+      'function lvJoin(btn){\n  KS.unlock();\n  if(!LV.own){',
+      'function lvJoin(btn){\n  KS.unlock();\n  if(!ME||!ME.id){',
+    ],
+    [
+      'L("Hisobingiz shu brauzerda tasdiqlanmagan. Avval istalgan mavzu taqdimotini ochib, hisobingizga kiring, so\'ng qaytib keling.",\n      "Your account is not confirmed in this browser. Open any lesson, log in, then come back.")+\' <a href="tadbirkorlik-asoslari.html">📚 \'+L("Darsga o\'tish","Go to the lesson")+\'</a>\';',
+      'L(' +
+        relogin +
+        ',\n      "Your account is not confirmed in this browser. Sign out, sign in again with your name and code, then come back.")+\' <a href="/#login" target="_top">🔐 \'+L("Kirish","Sign in")+\'</a>\';',
+    ],
+    [
+      '? L("Qo\'shilib bo\'lmadi: vaqt tugagan, hisob tasdiqlanmagan yoki siz allaqachon qo\'shilgansiz.","Could not join: time is up, the account is not approved, or you have already joined.")',
+      '? (snow()>=LV.meta.start?L("Qo\'shilish vaqti tugadi — o\'yin boshlanib bo\'lgan. Keyingi jonli testga lobbi ochilishi bilan qo\'shiling.","Joining has closed — the game has already started. Join the next live quiz as soon as its lobby opens."):(!LV.own?L(' +
+        relogin +
+        ',"Your account is not confirmed in this browser. Sign out, sign in again with your name and code, then come back."):L("Qo\'shilib bo\'lmadi: hisobingiz o\'qituvchi tomonidan hali tasdiqlanmagan yoki siz allaqachon qo\'shilgansiz.","Could not join: your account is not approved yet, or you have already joined.")))',
+    ],
+    [
+      // Yozuv marafoni (jonli rejim): xuddi shunday — egalik tasdiqlanmasa ham qo'shilishga urinadi
+      '      if(!own){ fail(L("Hisobingiz shu brauzerda tasdiqlanmagan. Avval istalgan mavzu taqdimotini ochib, hisobingizga kiring, so\'ng qaytib keling.","Your account is not confirmed in this browser. Open any lesson, sign in, then come back.")+\' <a href="tadbirkorlik-asoslari.html">📚 \'+L("Darsga o\'tish","Go to the lesson")+\'</a>\'); return; }',
+      '      if(!own&&!(me&&me.id)){ fail(L(' +
+        relogin +
+        ',"Your account is not confirmed in this browser. Sign out, sign in again, then come back.")+\' <a href="/#login" target="_top">🔐 \'+L("Kirish","Sign in")+\'</a>\'); return; }',
+    ],
+  ];
+  for (const [before, after] of patches) {
+    if (!source.includes(before))
+      throw Error('Arena jonli test moslamasi yangilanishi kerak: ' + before.slice(0, 60));
+    source = source.replace(before, after);
+  }
+  return source;
+}

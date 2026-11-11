@@ -3,7 +3,7 @@ import path from 'node:path';
 import vm from 'node:vm';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
-import { adaptStudentRegistration } from './legacy-credentials.mjs';
+import { adaptArenaLiveJoin, adaptStudentRegistration } from './legacy-credentials.mjs';
 const app = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..'),
   root = path.resolve(app, '..'),
   out = path.join(app, 'public/legacy');
@@ -89,6 +89,7 @@ for (const entry of fs.readdirSync(root))
           ),
       );
     if (entry.endsWith('.html')) data = Buffer.from(topicQuiz(entry, data.toString()));
+    if (entry === 'arena.html') data = Buffer.from(adaptArenaLiveJoin(data.toString()));
     if (entry === 'rt-engine.js')
       data = Buffer.from(
         data
