@@ -137,7 +137,7 @@ it('builds games in the original format: shuffled answers with a matching key', 
     step: 27000,
     qsec: 20,
     nq: 6,
-    min: 7,
+    min: 3,
     end: start + 10000 + 6 * 27000,
     pr: { big: 20, a: [5, 4, 3], b: [5, 4, 3, 2, 1] },
   });
@@ -184,7 +184,7 @@ it('lets only the administrator manage the bank and schedules 14 daily games whe
     time: '20:00',
     nq: 5,
     qsec: 20,
-    min: 7,
+    min: 3,
     lobby: 10,
   });
   // Har kuni 5 tadan savol; kam ishlatilgani oldin tanlanadi — hammasi deyarli teng.
@@ -325,6 +325,38 @@ it('moves a scheduled game to another time the same day, keeping its questions',
     seeded(),
   );
   expect(demoKahoot.idx['2026-11-07'].open).toBe(Date.UTC(2026, 10, 7, 15, 0) + 15000);
+});
+
+it('needs only 3 players now and lowers the minimum of games already scheduled with 7', async () => {
+  await manageLive(admin, { op: 'import', questions }, now, seeded());
+  await manageLive(
+    admin,
+    { op: 'settings', on: true, time: '21:00', nq: 5, qsec: 20, off: [] },
+    now,
+    seeded(),
+  );
+  expect(demoKahoot.cfg!.min).toBe(3);
+  expect(demoKahoot.games['2026-11-06'].meta.min).toBe(3);
+  // avvalgi versiyada tuzilgan o'yinlar (kamida 7 kishi) va sozlama
+  demoKahoot.cfg!.min = 7;
+  for (const d of ['2026-11-06', '2026-11-07']) {
+    demoKahoot.games[d].meta.min = 7;
+    delete demoKahoot.idx[d].min;
+  }
+  const v = await liveAdmin(admin, now);
+  expect(v.cfg.min).toBe(3);
+  expect(demoKahoot.cfg!.min).toBe(3);
+  for (const d of ['2026-11-06', '2026-11-07']) {
+    expect(demoKahoot.games[d].meta.min).toBe(3);
+    expect(demoKahoot.idx[d].min).toBe(3);
+  }
+  // 3 kishi qatnashsa — o'yin o'tadi va sovrinlar beriladi
+  const g = demoKahoot.games['2026-11-06'];
+  const t0 = g.meta.start;
+  g.p = { a: { n: 'Ali', at: t0 - 1 }, b: { n: 'Vali', at: t0 - 1 }, c: { n: 'Gani', at: t0 - 1 } };
+  expect(scoreQuiz(g as Game, g.meta.nq).valid).toBe(true);
+  g.p = { a: { n: 'Ali', at: t0 - 1 }, b: { n: 'Vali', at: t0 - 1 } };
+  expect(scoreQuiz(g as Game, g.meta.nq).valid).toBe(false);
 });
 
 it('finalizes finished games so prizes reach the rating, keeping an earlier result of the same day', async () => {

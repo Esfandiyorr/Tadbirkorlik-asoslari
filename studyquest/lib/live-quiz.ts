@@ -129,6 +129,9 @@ function shuffle<T>(a: T[], rnd: () => number) {
 }
 
 /** Bir kunlik o'yin: savollar vaqti va (yopilgandan keyin ochiladigan) to'g'ri javob kalitlari. */
+/** ⚡ Jonli test o'tishi (ball berilishi) uchun kamida shuncha ishtirokchi kerak (avval 7 edi). */
+export const LIVE_MIN = 3;
+
 export function makeGame(
   d: string,
   cfg: LiveCfg,
@@ -147,7 +150,7 @@ export function makeGame(
     step,
     qsec,
     nq: qs.length,
-    min: +(cfg.min ?? 0) || 7,
+    min: LIVE_MIN,
     end: start + intro + qs.length * step,
     pr: { big: 20, a: [5, 4, 3], b: [5, 4, 3, 2, 1] },
   };

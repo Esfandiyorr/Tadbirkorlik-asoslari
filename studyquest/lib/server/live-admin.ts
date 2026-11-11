@@ -4,6 +4,7 @@ import type { Actor } from '../types';
 import { administrator, check } from './auth';
 import { demo, legacyDb } from './repository';
 import {
+  LIVE_MIN,
   LIVE_SECTIONS,
   QSEC_CHOICES,
   khDay,
@@ -230,7 +231,23 @@ async function schedule(s: Store, st: State, now: number, rnd: () => number) {
   await s.patch(o);
   return '';
 }
+/** Kamida ishtirokchi soni 3 ga tushirildi: sozlama va hali tugamagan o'yinlar (lobbisi ochiq bo'lsa ham) yangilanadi.
+    Arena va asl dvigatel «yana N kishi kerak» va ball berilishini o'yinning meta.min idan o'qiydi. */
+async function lowerMin(s: Store, st: State, now: number) {
+  const o: Patch = {};
+  if (st.cfg && +(st.cfg.min ?? 0) !== LIVE_MIN) o['cfg/min'] = LIVE_MIN;
+  for (const [d, e] of Object.entries(st.idx))
+    if (e && !e.x && e.type !== 'yz' && +(e.end ?? 0) > now && +(e.min ?? 0) !== LIVE_MIN) {
+      o['games/' + d + '/meta/min'] = LIVE_MIN;
+      o['idx/' + d + '/min'] = LIVE_MIN;
+    }
+  if (!Object.keys(o).length) return;
+  await s.patch(o);
+  if (o['cfg/min'] && st.cfg) st.cfg.min = LIVE_MIN;
+  for (const [d, e] of Object.entries(st.idx)) if (o['idx/' + d + '/min']) e.min = LIVE_MIN;
+}
 async function auto(s: Store, st: State, now: number, rnd: () => number) {
+  await lowerMin(s, st, now);
   await finalize(s, st, now);
   return schedule(s, st, now, rnd);
 }
@@ -312,7 +329,7 @@ function view(st: State, now: number, msg: string) {
       time: String(c.time || '20:00'),
       nq: +(c.nq ?? 0) || 10,
       qsec: +(c.qsec ?? 0) || 15,
-      min: +(c.min ?? 0) || 7,
+      min: LIVE_MIN,
       lobby: +(c.lobby ?? 0) || 10,
       race: c.yz === true,
       off: Object.keys(c.tpx || {}).filter((k) => c.tpx![k]),
@@ -399,7 +416,7 @@ export async function manageLive(
       time: p.time,
       nq: p.nq,
       qsec: p.qsec,
-      min: 7,
+      min: LIVE_MIN,
       lobby: 10,
       yz: prev.yz === true,
       tpx: off.length ? Object.fromEntries(off.map((k) => [k, true])) : null,
@@ -455,7 +472,7 @@ export async function manageLive(
     const cfg = st.cfg || {},
       g = makeGame(
         p.date,
-        { time: p.time, qsec: p.qsec, min: +(cfg.min ?? 0) || 7, lobby: +(cfg.lobby ?? 0) || 10 },
+        { time: p.time, qsec: p.qsec, min: LIVE_MIN, lobby: +(cfg.lobby ?? 0) || 10 },
         picks,
         rnd,
       );
@@ -527,7 +544,7 @@ export async function manageLive(
         {
           time: p.time,
           qsec: +(e.qsec ?? 0) || +(cfg.qsec ?? 0) || 15,
-          min: +(cfg.min ?? 0) || 7,
+          min: LIVE_MIN,
           lobby: +(cfg.lobby ?? 0) || 10,
         },
         picks,
@@ -568,8 +585,14 @@ export async function manageLive(
 
 /** Jadval o'z-o'zidan to'lib tursin: sayt ochilganda (6 soatda ko'pi bilan bir marta) — avval o'qituvchi paneli
     ochilgandagina to'ldirilar edi. Qulf: site/locks/liveAuto (faqat server yozadi). */
+let minChecked = false;
 export async function liveTopUp(now = Date.now(), rnd: () => number = Math.random) {
   if (demo()) return;
+  // har server nusxasida bir marta: kamida ishtirokchi soni (3) jadvaldagi o'yinlarga ham yetib borsin
+  if (!minChecked) {
+    minChecked = true;
+    await lowerMin(rtdbStore, await rtdbStore.load(now), now).catch(() => (minChecked = false));
+  }
   const lock = await legacyDb()
     .ref('site/locks/liveAuto')
     .transaction((cur) => (Number(cur) > now - 6 * 3600000 ? undefined : now));
