@@ -51,7 +51,14 @@ jobs:
       - run: npm test
       - name: Firestore rules against local demo emulator
         run: npm run test:emulator
-      - run: npx playwright install --with-deps chromium
+      # Ubuntu paket oynalari (apt) ba'zan runner'dan topilmaydi — shunda faqat brauzerning o'zi o'rnatiladi:
+      # --with-deps qo'shadigan narsa asosan qo'shimcha shriftlar, sinovlar ularsiz ham ishlaydi.
+      - name: Install Chromium for Playwright
+        run: |
+          timeout 300 npx playwright install --with-deps chromium || {
+            echo "::warning::Playwright system packages could not be installed (Ubuntu mirror unreachable); installing the browser only"
+            npx playwright install chromium
+          }
       - name: Browser workflows in isolated local demo
         run: npm run test:browser
       - name: Production build without demo authentication

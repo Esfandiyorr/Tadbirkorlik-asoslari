@@ -42,7 +42,12 @@ jobs:
         working-directory: tests
         run: |
           npm install --no-audit --no-fund
-          npx playwright install --with-deps chromium
+          # Ubuntu paket oynalari (apt) ba'zan runner'dan topilmaydi — shunda faqat brauzerning o'zi o'rnatiladi
+          # (--with-deps qo'shadigan narsa asosan qo'shimcha shriftlar, sinovlar ularsiz ham ishlaydi)
+          timeout 300 npx playwright install --with-deps chromium || {
+            echo "::warning::Playwright tizim paketlari o'rnatilmadi (Ubuntu oynasi topilmadi) — faqat brauzer o'rnatiladi"
+            npx playwright install chromium
+          }
 
       - name: Sinovlar
         working-directory: tests
