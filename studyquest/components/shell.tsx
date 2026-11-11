@@ -40,6 +40,7 @@ import { NativeSurface } from './native-surface';
 import { ChatPage } from './chat-page';
 import { AcademicHistory } from './academic-history';
 import { ChangePassword } from './change-password';
+import { PushToggle } from './push-toggle';
 import { Button } from './ui/button';
 import { t, roleLabel, type Key } from '@/lib/i18n';
 import type { Lang } from '@/lib/types';
@@ -292,6 +293,7 @@ export function StudyQuest() {
               {notifications && (
                 <div className="notification-menu panel">
                   <h3>{t(lang, 'notifications')}</h3>
+                  <PushToggle compact />
                   {data.notifications?.length ? (
                     data.notifications.map((n: any) => <p key={n.id}>{n.title || n.message}</p>)
                   ) : (
@@ -522,6 +524,9 @@ function Profile() {
             </form>
           </section>
           <ChangePassword />
+          <section className="panel profile-card">
+            <PushToggle />
+          </section>
           <section className="panel profile-card">
             <h2>👥 {tr(lang, 'Hisob va guruh', 'Account and group', 'Аккаунт и группа')}</h2>
             <p className="muted">

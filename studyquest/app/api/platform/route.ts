@@ -22,6 +22,7 @@ import { liveGame, manageNews, markNewsSeen, newsSeen, readNews } from '@/lib/se
 import { managePromo, readPromo } from '@/lib/server/promo';
 import { allVideos, manageVideos } from '@/lib/server/videos';
 import { liveAdmin, liveTopUp, manageLive } from '@/lib/server/live-admin';
+import { LIVE_REMIND_MS, broadcastPush, liveReminder } from '@/lib/server/push';
 import { avatarLibrary, manageLibrary } from '@/lib/server/avatar-library';
 import {
   manageSiteText,
@@ -142,6 +143,9 @@ export async function GET(req: NextRequest) {
       ]);
       // Jonli test jadvali o'z-o'zidan to'lib tursin (6 soatda ko'pi bilan bir marta, javobdan keyin).
       if (!demo()) after(() => liveTopUp().catch(() => {}));
+      // 🔔 Jonli test boshlanishidan 15 daqiqa oldin — obuna bo'lganlarga bildirishnoma (o'yin boshiga bir marta).
+      if (live && live.start - Date.now() < LIVE_REMIND_MS && live.start > Date.now())
+        after(() => liveReminder().catch(() => {}));
       return NextResponse.json(
         { news, live, promo, now: Date.now() },
         { headers: { 'Cache-Control': 'public, max-age=20, s-maxage=20' } },
@@ -443,7 +447,23 @@ export async function POST(req: NextRequest) {
     }
     if (p.action === 'news') {
       const a = await actor(req, true);
-      return NextResponse.json(await manageNews(a, p.input));
+      // 📲 «Telefonlarga ham yuborilsin» — e'lon yozilgach, javobni kutmasdan obuna bo'lganlarga bildirishnoma
+      const raw = (p.input || {}) as Record<string, unknown>;
+      const { push: wantPush, ...input } = raw;
+      const push = raw.op === 'add' && wantPush === true;
+      const r = await manageNews(a, input);
+      if (push && 'id' in r && r.id)
+        after(() =>
+          broadcastPush(a, {
+            t: ('📢 ' + (String(raw.h || '').trim() || 'Yangi e’lon')).slice(0, 80),
+            b: String(raw.t || '')
+              .replace(/\s+/g, ' ')
+              .trim()
+              .slice(0, 280),
+            u: '/#home',
+          }).catch(() => {}),
+        );
+      return NextResponse.json(r);
     }
     if (p.action === 'newsSeen') {
       return NextResponse.json(await markNewsSeen(await actor(req, true), p.input));

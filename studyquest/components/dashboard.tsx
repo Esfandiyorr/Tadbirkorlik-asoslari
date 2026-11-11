@@ -21,6 +21,7 @@ import { useState } from 'react';
 import { useApp } from './provider';
 import { Button } from './ui/button';
 import { TopicArt, CourseArt } from './topic-art';
+import { PushInvite } from './push-toggle';
 import { HeroAvatar, useAcademicBoard } from './avatars';
 import { NewsBox, NewsChip } from './announcements';
 import { PromoBox } from './promo';
@@ -188,6 +189,7 @@ function LearnerHome() {
           <PromoBox className="home-promo" />
         </>
       )}
+      <PushInvite />
       <div className="dashboard-grid">
         <div className="dashboard-main">
           {lesson && (

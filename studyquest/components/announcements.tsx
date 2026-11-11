@@ -946,7 +946,7 @@ export function NewsAdmin({ openCourseControls }: { openCourseControls?: () => v
   const { request, lang, toast } = useApp();
   const L = (uz: string, en: string, ru: string) => tr(lang, uz, en, ru);
   const { data: d, now, setNews } = useNews();
-  const [form, setForm] = useState({ h: '', t: '', link: '', until: '', pop: true }),
+  const [form, setForm] = useState({ h: '', t: '', link: '', until: '', pop: true, push: true }),
     [busy, setBusy] = useState('');
   async function send(input: Record<string, unknown>, key: string, done: string) {
     setBusy(key);
@@ -982,11 +982,12 @@ export function NewsAdmin({ openCourseControls }: { openCourseControls?: () => v
         ...(form.link.trim() ? { link: form.link.trim() } : {}),
         ...(until ? { until } : {}),
         ...(form.pop ? { pop: true } : {}),
+        ...(form.push ? { push: true } : {}),
       },
       'add',
       '📢 ' + L('E’lon joylandi', 'Announcement posted', 'Объявление опубликовано'),
     );
-    if (ok) setForm({ h: '', t: '', link: '', until: '', pop: form.pop });
+    if (ok) setForm({ h: '', t: '', link: '', until: '', pop: form.pop, push: form.push });
   }
   const g = d?.live,
     n = now();
@@ -1089,6 +1090,21 @@ export function NewsAdmin({ openCourseControls }: { openCourseControls?: () => v
               'Saytga kirganda hammaga katta oynada ko‘rsatish — «O‘qildi» bosilgach boshqa chiqmaydi',
               'Show it to everyone in a big window when they open the site — it stops after they press “Read”',
               'Показать всем в большом окне при входе — после «Прочитано» больше не появится',
+            )}
+          </span>
+        </label>
+        <label className="news-admin-pop">
+          <input
+            type="checkbox"
+            checked={form.push}
+            onChange={(e) => setForm({ ...form, push: e.target.checked })}
+          />
+          <span>
+            📲{' '}
+            {L(
+              'Telefonlarga ham yuborilsin — bildirishnomani yoqqan talabalar va o‘qituvchilarga',
+              'Also send to phones — to students and teachers who turned notifications on',
+              'Отправить и на телефоны — тем, кто включил уведомления',
             )}
           </span>
         </label>

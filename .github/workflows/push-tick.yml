@@ -1,0 +1,29 @@
+name: Jonli test eslatmasi
+
+# 🔔 Jonli test boshlanishidan 15 daqiqa oldin bildirishnomani yoqqanlarga eslatma ketishi uchun saytni har 5 daqiqada
+# «turtib» turadi (studyquest/lib/server/push.ts → liveReminder). Eslatma har o'yinga bir marta ketadi — so'rov
+# takrorlansa ham hech narsa qayta yuborilmaydi. Sayt ochiq bo'lsa, sahifalarning e'lonlar so'rovi ham shu ishni qiladi;
+# bu jadval sayt hech kimda ochiq bo'lmagan paytlar uchun. GitHub jadvali ba'zan bir necha daqiqa kechikishi mumkin.
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: push-tick
+  cancel-in-progress: false
+
+jobs:
+  tick:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Jonli test eslatmasini tekshirish
+        run: |
+          code=$(curl -sS -o out.json -w '%{http_code}' --max-time 40 \
+            'https://tadbirkorlik-asoslari.vercel.app/api/push?view=tick' || echo 000)
+          echo "HTTP $code"; cat out.json 2>/dev/null || true; echo
+          # sayt texnik ishlar uchun yopiq bo'lsa (403) yoki vaqtincha javob bermasa — xato hisoblanmaydi
+          exit 0
