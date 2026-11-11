@@ -294,6 +294,8 @@ const input = z.discriminatedUnion('op', [
     })
     .strict(),
   z.object({ op: z.literal('cancel'), d: z.string().regex(/^[0-9a-z-]{10,20}$/) }).strict(),
+  // ⏰ Rejalashtirilgan o'yinning vaqtini o'zgartirish (shu kun ichida, savollari o'zgarmaydi)
+  z.object({ op: z.literal('move'), d: day, time: hhmm }).strict(),
   z.object({ op: z.literal('rebuild') }).strict(),
 ]);
 
@@ -498,6 +500,61 @@ export async function manageLive(
     await s.patch(o);
     st.idx[p.date] = o['idx/' + p.date] as IdxEntry;
     if (prev) delete st.res[p.date];
+  } else if (p.op === 'move') {
+    // ⏰ Shu kungi o'yin boshqa soatga ko'chiriladi: savollar, savol vaqti va izoh saqlanadi. Lobbisi ochilgan o'yin
+    // ko'chirilmaydi (qo'shilganlar yo'qolmasin). Ko'chirilgan o'yin «siz tuzgan» bo'ladi — kunlik vaqt sozlamasi
+    // o'zgartirilganda avtomatik qayta tuzilmaydi.
+    const e = st.idx[p.d];
+    check(e && !e.x && e.type !== 'yz' && +(e.end ?? 0) > now, 404, 'O‘yin topilmadi.');
+    check(
+      +(e.open ?? 0) > now,
+      409,
+      'Lobbisi ochilgan yoki boshlangan o‘yinning vaqtini o‘zgartirib bo‘lmaydi. To‘xtatib, yangisini tuzing.',
+    );
+    const picks = (e.qs || [])
+      .map((k) => st.bank[k] as BankQuestion | undefined)
+      .filter((x): x is BankQuestion => !!x?.t && Array.isArray(x.o))
+      .map((x) => ({ t: x.t, o: x.o.slice(), c: +x.c || 0 }));
+    check(
+      picks.length >= 4 && picks.length === (e.qs || []).length,
+      409,
+      'Bu o‘yinning savollari bankdan o‘chirilgan — «O‘yin tuzish» bilan yangisini tuzing.',
+    );
+    const cfg = st.cfg || {},
+      old = await s.game(p.d),
+      g = makeGame(
+        p.d,
+        {
+          time: p.time,
+          qsec: +(e.qsec ?? 0) || +(cfg.qsec ?? 0) || 15,
+          min: +(cfg.min ?? 0) || 7,
+          lobby: +(cfg.lobby ?? 0) || 10,
+        },
+        picks,
+        rnd,
+      );
+    const note = old?.meta?.note || (typeof e.note === 'string' ? e.note : '');
+    if (note) g.meta.note = note;
+    check(
+      g.meta.start > now + 60000,
+      400,
+      'Bu vaqt o‘tib ketgan yoki 1 daqiqadan kam qolgan — kechroq vaqt tanlang.',
+    );
+    if (g.meta.open <= now + 15000) g.meta.open = now + 15000; // lobbi darhol ochiladi
+    const o: Patch = {};
+    o['games/' + p.d] = g;
+    o['idx/' + p.d] = {
+      start: g.meta.start,
+      open: g.meta.open,
+      end: g.meta.end,
+      nq: g.meta.nq,
+      qsec: g.meta.qsec,
+      sp: true,
+      ...(note ? { note } : {}),
+      qs: e.qs,
+    };
+    await s.patch(o);
+    st.idx[p.d] = o['idx/' + p.d] as IdxEntry;
   } else if (p.op === 'cancel') {
     const e = st.idx[p.d];
     check(e && !e.x && +(e.end ?? 0) > now, 404, 'O‘yin topilmadi yoki allaqachon tugagan.');

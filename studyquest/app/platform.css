@@ -9417,3 +9417,27 @@ body:has(.focus-learning) .kh-pop {
 .dark .logo-form-points {
   color: #fdba74;
 }
+
+/* ⚡ Jonli test → «Yaqin o'yinlar»: vaqtni o'zgartirish va to'xtatish tugmalari */
+.bo-live-actions {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+}
+.bo-live-move {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+.bo-live-move input[type='time'] {
+  min-height: 34px;
+  padding: 4px 8px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  color: inherit;
+  font: inherit;
+}

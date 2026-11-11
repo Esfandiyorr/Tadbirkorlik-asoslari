@@ -125,6 +125,17 @@ test('the administrator fills the question bank, schedules daily games and creat
   await expect(first).toContainText(own.t);
   await expect(first).toContainText('Iqtisod bo‘yicha');
 
+  // ⏰ Vaqtini o'zgartirish: shu kunning o'zida boshqa soatga (savollar va eslatma saqlanadi).
+  const moved = tashkent(Date.now() + 55 * 60000);
+  if (moved.d === own.d) {
+    await first.getByRole('button', { name: /Vaqtini o‘zgartirish/ }).click();
+    await first.getByLabel('Yangi vaqt').fill(moved.t);
+    await first.getByRole('button', { name: 'Ko‘chirish' }).click();
+    await expect(page.locator('.bo-list li').first()).toContainText(moved.t);
+    await expect(page.locator('.bo-list li').first()).toContainText('Iqtisod bo‘yicha');
+    own.t = moved.t;
+  }
+
   // Talaba keyingi o'yinni yon menyudagi e'lonlar oynasida ko'radi (20 daqiqadan uzoq — katta oyna yo'q).
   // (Faqat xesh o'zgargani uchun goto sahifani qayta yuklamaydi — reload kerak.)
   await as(page, 'demo-student');

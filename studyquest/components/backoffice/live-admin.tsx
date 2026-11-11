@@ -162,6 +162,23 @@ function Plan({ data, busy, act }: Props) {
       L('O‘yin to‘xtatildi ⛔', 'Game stopped ⛔', 'Игра остановлена ⛔'),
     ).catch(() => {});
   };
+  // ⏰ yaqin o'yinning vaqtini o'zgartirish: qaysi o'yin ochiq va qanday vaqt tanlangan
+  const [moving, setMoving] = useState<{ d: string; time: string } | null>(null);
+  const move = (e: FormEvent) => {
+    e.preventDefault();
+    if (!moving) return;
+    void act(
+      { op: 'move', d: moving.d, time: moving.time },
+      'move' + moving.d,
+      L(
+        `O‘yin ${moving.time} ga ko‘chirildi ⏰`,
+        `The game was moved to ${moving.time} ⏰`,
+        `Игра перенесена на ${moving.time} ⏰`,
+      ),
+    )
+      .then(() => setMoving(null))
+      .catch(() => {});
+  };
   return (
     <div className="bo-grid">
       <form className="bo-card" onSubmit={save}>
@@ -303,16 +320,56 @@ function Plan({ data, busy, act }: Props) {
                     {g.note && ' · ' + g.note}
                   </small>
                 </span>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  disabled={busy === 'cancel' + g.d}
-                  onClick={() => stop(g)}
-                >
-                  {g.state === 'wait'
-                    ? L('Bekor qilish', 'Cancel', 'Отменить')
-                    : L('⛔ To‘xtatish', '⛔ Stop', '⛔ Стоп')}
-                </Button>
+                <span className="bo-live-actions">
+                  {g.type === 'quiz' &&
+                    g.state === 'wait' &&
+                    /^\d{4}-\d\d-\d\d$/.test(g.d) &&
+                    (moving?.d === g.d ? (
+                      <form className="bo-live-move" onSubmit={move}>
+                        <input
+                          type="time"
+                          required
+                          aria-label={L('Yangi vaqt', 'New time', 'Новое время')}
+                          value={moving.time}
+                          onChange={(e) => setMoving({ d: g.d, time: e.target.value })}
+                        />
+                        <Button size="sm" type="submit" disabled={busy === 'move' + g.d}>
+                          {L('Ko‘chirish', 'Move', 'Перенести')}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          type="button"
+                          onClick={() => setMoving(null)}
+                        >
+                          {L('Bekor', 'Cancel', 'Отмена')}
+                        </Button>
+                      </form>
+                    ) : (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        title={L(
+                          'Shu kungi o‘yinni boshqa soatga ko‘chirish (savollar o‘zgarmaydi)',
+                          'Move this game to another time the same day (questions stay)',
+                          'Перенести игру на другое время в тот же день (вопросы те же)',
+                        )}
+                        onClick={() => setMoving({ d: g.d, time: khHM(g.start) })}
+                      >
+                        ⏰ {L('Vaqtini o‘zgartirish', 'Change time', 'Изменить время')}
+                      </Button>
+                    ))}
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={busy === 'cancel' + g.d}
+                    onClick={() => stop(g)}
+                  >
+                    {g.state === 'wait'
+                      ? L('Bekor qilish', 'Cancel', 'Отменить')
+                      : L('⛔ To‘xtatish', '⛔ Stop', '⛔ Стоп')}
+                  </Button>
+                </span>
               </li>
             ))}
             {data.games.length > 8 && (

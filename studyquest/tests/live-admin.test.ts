@@ -269,6 +269,64 @@ it('creates a hand-picked game, replaces that day’s automatic one and can stop
   expect(await liveGame(now + 120000)).toMatchObject({ d: '2026-11-07' });
 });
 
+it('moves a scheduled game to another time the same day, keeping its questions', async () => {
+  await manageLive(admin, { op: 'import', questions }, now, seeded());
+  await manageLive(
+    admin,
+    { op: 'settings', on: true, time: '21:00', nq: 5, qsec: 20, off: [] },
+    now,
+    seeded(),
+  );
+  const before = structuredClone(demoKahoot.idx['2026-11-06']);
+  const texts = Object.values(demoKahoot.games['2026-11-06'].q).map((q) => q.t);
+  const uses = () => Object.values(demoKahoot.bank).map((x) => (x as { u?: number }).u);
+  const usesBefore = uses();
+  expect(before.sp).toBeUndefined();
+  // talaba yoki o'qituvchi ko'chira olmaydi
+  await expect(
+    manageLive(teacher, { op: 'move', d: '2026-11-06', time: '21:30' }, now),
+  ).rejects.toMatchObject({ status: 403 });
+  // o'tib ketgan vaqtga ko'chirib bo'lmaydi
+  await expect(
+    manageLive(admin, { op: 'move', d: '2026-11-06', time: '19:30' }, now),
+  ).rejects.toMatchObject({ status: 400 });
+  // 21:00 → 21:30: o'sha savollar, o'sha savol vaqti; endi «siz tuzgan» o'yin
+  let v = await manageLive(admin, { op: 'move', d: '2026-11-06', time: '21:30' }, now, seeded());
+  const moved = demoKahoot.idx['2026-11-06'];
+  expect(moved).toMatchObject({ sp: true, qs: before.qs, nq: 5, qsec: 20 });
+  expect(moved.start).toBe(Date.UTC(2026, 10, 6, 16, 30)); // 21:30 Toshkent
+  expect(moved.open).toBe(moved.start - 10 * 60000);
+  expect(demoKahoot.games['2026-11-06'].meta.start).toBe(moved.start);
+  expect(Object.values(demoKahoot.games['2026-11-06'].q).map((q) => q.t)).toEqual(texts);
+  expect(v.games[0]).toMatchObject({ d: '2026-11-06', own: true, state: 'wait' });
+  // ko'chirish — yangi o'yin emas: savollarning ishlatilish hisobi o'zgarmaydi
+  expect(uses()).toEqual(usesBefore);
+  expect(await liveGame(now)).toMatchObject({ d: '2026-11-06', start: moved.start });
+  // ko'chirilgan o'yin kunlik vaqt sozlamasi o'zgarganda qayta tuzilmaydi
+  v = await manageLive(
+    admin,
+    { op: 'settings', on: true, time: '22:00', nq: 5, qsec: 20, off: [] },
+    now,
+    seeded(),
+  );
+  expect(demoKahoot.idx['2026-11-06'].start).toBe(moved.start);
+  // lobbi ochilgach ko'chirib bo'lmaydi; yo'q kun — topilmadi
+  await expect(
+    manageLive(admin, { op: 'move', d: '2026-11-06', time: '22:30' }, moved.open! + 1000),
+  ).rejects.toMatchObject({ status: 409 });
+  await expect(
+    manageLive(admin, { op: 'move', d: '2026-12-30', time: '10:00' }, now),
+  ).rejects.toMatchObject({ status: 404 });
+  // juda yaqin vaqt (lobbi muddatidan kam) — lobbi darhol ochiladi
+  v = await manageLive(
+    admin,
+    { op: 'move', d: '2026-11-07', time: '20:03' },
+    Date.UTC(2026, 10, 7, 15, 0),
+    seeded(),
+  );
+  expect(demoKahoot.idx['2026-11-07'].open).toBe(Date.UTC(2026, 10, 7, 15, 0) + 15000);
+});
+
 it('finalizes finished games so prizes reach the rating, keeping an earlier result of the same day', async () => {
   await manageLive(admin, { op: 'import', questions }, now, seeded());
   const d = khDay(now - 86400000);
