@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { ImagePlus, Pause, Play, Plus, Trash2, X } from 'lucide-react';
 import { useApp } from './provider';
 import { Button } from './ui/button';
-import { NewsReader, ROTATE_MS, useClamped, useNews } from './announcements';
+import { NewsReader, ROTATE_MS, markLocalSeen, useClamped, useNews } from './announcements';
 import { shrink } from './site-content';
 import { dueText, tr } from '@/lib/points';
 import { FRESH_MS, PROMO_KIND, PROMO_KINDS, type PromoItem, type PromoKind } from '@/lib/promo';
@@ -201,8 +201,16 @@ export function PromoBox({ className = '' }: { className?: string }) {
   );
 }
 
-type Form = { kind: PromoKind; h: string; t: string; link: string; cta: string; until: string };
-const EMPTY: Form = { kind: 'course', h: '', t: '', link: '', cta: '', until: '' };
+type Form = {
+  kind: PromoKind;
+  h: string;
+  t: string;
+  link: string;
+  cta: string;
+  until: string;
+  pop: boolean;
+};
+const EMPTY: Form = { kind: 'course', h: '', t: '', link: '', cta: '', until: '', pop: true };
 
 /** Administrator → «🛍 2-e'lon oynasi»: reklama e'lonini (rasm bilan) qo'shish va o'chirish. */
 export function PromoAdmin() {
@@ -240,7 +248,10 @@ export function PromoAdmin() {
         ...(form.link.trim() ? { link: form.link.trim() } : {}),
         ...(form.cta.trim() ? { cta: form.cta.trim() } : {}),
         ...(until ? { until } : {}),
+        ...(form.pop ? { pop: true } : {}),
       });
+      // o'zi joylagan e'lon administratorning o'ziga katta oynada chiqmasin
+      if (v.id && form.pop) markLocalSeen(v.id);
       if (image && v.id) {
         const body = new FormData();
         body.set('id', v.id);
@@ -251,7 +262,7 @@ export function PromoAdmin() {
         setPromo(x.promo || []);
       }
       toast('🛍️ ' + L('E’lon joylandi', 'Posted', 'Опубликовано'));
-      setForm({ ...EMPTY, kind: form.kind });
+      setForm({ ...EMPTY, kind: form.kind, pop: form.pop });
       setImage(null);
     } catch (err) {
       toast((err as Error).message);
@@ -410,6 +421,21 @@ export function PromoAdmin() {
               />
             </label>
           </div>
+          <label className="news-admin-pop">
+            <input
+              type="checkbox"
+              checked={form.pop}
+              onChange={(e) => set({ pop: e.target.checked })}
+            />
+            <span>
+              📣{' '}
+              {L(
+                'Saytga kirganda hammaga bir marta katta oynada ko‘rsatish',
+                'Show it once to everyone in a big window when they open the site',
+                'Показать всем один раз в большом окне при входе на сайт',
+              )}
+            </span>
+          </label>
           <Button type="submit" disabled={busy === 'add' || form.h.trim().length < 2}>
             <Plus size={15} /> {L('E’lonni joylash', 'Post', 'Опубликовать')}
           </Button>

@@ -110,3 +110,27 @@ it('big-window announcements are remembered per user once read', async () => {
   await manageNews(admin, { op: 'remove', id }, t + 5);
   expect((await newsSeen(ali, t + 6)).seen).not.toContain(id);
 });
+
+it('a second-box offer can pop up once and counts as seen like an announcement', async () => {
+  const { managePromo, readPromo } = await import('../lib/server/promo');
+  const { markNewsSeen, newsSeen } = await import('../lib/server/news');
+  const student = { id: 'legacy_ali', role: 'student', name: 'Ali' } as unknown as Actor;
+  const t = Date.now();
+  const r = await managePromo(
+    admin,
+    { op: 'add', kind: 'grant', h: 'Yoshlar granti', pop: true },
+    t,
+  );
+  expect(r.id).toBeTruthy();
+  const item = (await readPromo(t)).find((x) => x.id === r.id)!;
+  expect(item.pop).toBe(true);
+  // joylagan administratorga chiqmaydi, talabaga — bir marta
+  expect((await newsSeen(admin, t)).seen).toContain(r.id);
+  expect((await newsSeen(student, t)).seen).not.toContain(r.id);
+  expect((await markNewsSeen(student, { id: r.id }, t)).seen).toContain(r.id);
+  // belgisiz taklif katta oynaga chiqmaydi
+  const plain = await managePromo(admin, { op: 'add', kind: 'course', h: 'Kurs' }, t);
+  expect((await readPromo(t)).find((x) => x.id === plain.id)?.pop).toBeUndefined();
+  await managePromo(admin, { op: 'remove', id: r.id! }, t);
+  await managePromo(admin, { op: 'remove', id: plain.id! }, t);
+});

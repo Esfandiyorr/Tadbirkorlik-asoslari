@@ -4,7 +4,7 @@ import { z } from 'zod';
 import type { Actor } from '../types';
 import { PROMO_KINDS, type PromoItem, type PromoKind } from '../promo';
 import { administrator, check } from './auth';
-import { newsLink } from './news';
+import { markPopSeen, newsLink } from './news';
 import { imageUrl, siteGet, siteUpdate, storeBlob } from './site-content';
 
 /* 🛍 2-e'lon oynasi (yon menyu pastida): mahsulot, kurs va grant dasturlari reklamasi. Faqat administrator
@@ -40,6 +40,7 @@ export async function readPromo(now = Date.now()): Promise<PromoItem[]> {
       ...(v.cta ? { cta: v.cta } : {}),
       ...(v.until ? { until: v.until } : {}),
       ...(v.img ? { img: imageUrl('pr-' + id, v.img) } : {}),
+      ...(v.pop ? { pop: true } : {}),
     }));
 }
 
@@ -53,6 +54,7 @@ const input = z.discriminatedUnion('op', [
       link: newsLink.optional(),
       cta: z.string().trim().max(24).optional(),
       until: z.number().int().positive().optional(),
+      pop: z.boolean().optional(),
     })
     .strict(),
   z.object({ op: z.literal('remove'), id: z.string().regex(ID) }).strict(),
@@ -78,8 +80,11 @@ export async function managePromo(a: Actor, raw: unknown, now = Date.now()) {
       ...(v.link ? { link: v.link } : {}),
       ...(v.cta ? { cta: v.cta } : {}),
       ...(v.until ? { until: v.until } : {}),
+      ...(v.pop ? { pop: true } : {}),
     };
     await siteUpdate({ ['promo/' + id]: item });
+    // e'lonni joylagan administratorga katta oyna chiqmaydi
+    if (v.pop) await markPopSeen(a, id, now).catch(() => {});
     return { id, promo: await readPromo(now) };
   }
   await siteUpdate({ ['promo/' + v.id]: null, ['blob/pr-' + v.id]: null });

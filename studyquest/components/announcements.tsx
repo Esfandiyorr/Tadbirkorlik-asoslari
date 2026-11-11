@@ -711,16 +711,29 @@ const localSeen = (): string[] => {
   }
 };
 /** E'lonni shu brauzerda «o'qildi» deb belgilaydi va ochiq katta oynaga xabar beradi. */
-function markLocalSeen(id: string) {
+export function markLocalSeen(id: string) {
   try {
     localStorage.setItem(SEEN_KEY, JSON.stringify([...localSeen(), id].slice(-50)));
   } catch {}
   window.dispatchEvent(new CustomEvent('sq-news-seen', { detail: id }));
 }
 /** 📣 Yangi e'lon — saytga kirganda katta oynada (har bir foydalanuvchiga, u «O'qildi» bosguncha).
+   2-oynaning (🛍 reklama) «katta oynada ko'rsatish» belgili e'loni ham shu yerda chiqadi — u faqat bir marta: «×» yoki Esc
+   bosilsa ham ko'rilgan hisoblanadi (keyin yon menyudagi 2-oynada turadi).
    O'qilganlar serverda saqlanadi (kirgan foydalanuvchi uchun; boshqa qurilmada ham chiqmaydi), mehmonda — brauzerda.
-   Bir nechta bo'lsa — navbat bilan, eng yangisi birinchi. «×» yoki Esc — shu safar yopiladi, keyingi kirishda yana chiqadi.
-   O'yin ichida (#arena…) chiqmaydi. */
+   Bir nechta bo'lsa — navbat bilan, eng yangisi birinchi. 1-oyna e'lonida «×» yoki Esc — shu safar yopiladi, keyingi
+   kirishda yana chiqadi. O'yin ichida (#arena…) chiqmaydi. */
+type Pop = {
+  id: string;
+  at: number;
+  promo?: PromoItem;
+  h?: string;
+  t?: string;
+  img?: string;
+  link?: string;
+  cta?: string;
+  until?: number;
+};
 export function NewsPopup() {
   const { data, lang, request } = useApp();
   const L = (uz: string, en: string, ru: string) => tr(lang, uz, en, ru);
@@ -754,8 +767,26 @@ export function NewsPopup() {
     window.addEventListener('sq-news-seen', on);
     return () => window.removeEventListener('sq-news-seen', on);
   }, []);
-  const queue = (d?.news || [])
-    .filter((x) => x.pop && seen && !seen.has(x.id) && !later.has(x.id))
+  /** Ko'rildi: shu brauzerda va (kirgan bo'lsa) serverda — boshqa qurilmada ham chiqmaydi. */
+  const markRead = useCallback(
+    async (id: string) => {
+      markLocalSeen(id);
+      if (signedIn)
+        await request('/api/platform', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'newsSeen', input: { id } }),
+        }).catch(() => {});
+      setSeen((s) => new Set(s).add(id));
+    },
+    [signedIn, request],
+  );
+  const pops: Pop[] = [
+    ...(d?.news || []).filter((x) => x.pop),
+    ...(d?.promo || []).filter((x) => x.pop).map((x) => ({ ...x, promo: x })),
+  ];
+  const queue = pops
+    .filter((x) => seen && !seen.has(x.id) && !later.has(x.id))
     .sort((a, b) => b.at - a.at);
   const item = queue[0];
   useEffect(() => {
@@ -763,30 +794,27 @@ export function NewsPopup() {
   }, [item?.id]);
   useEffect(() => {
     if (!item) return;
-    const key = (e: KeyboardEvent) =>
-      e.key === 'Escape' && setLater((s) => new Set(s).add(item.id));
+    const key = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return;
+      if (item.promo) void markRead(item.id);
+      else setLater((s) => new Set(s).add(item.id));
+    };
     window.addEventListener('keydown', key);
     return () => window.removeEventListener('keydown', key);
-  }, [item]);
+  }, [item, markRead]);
   if (!item || hash.startsWith('#arena')) return null;
   async function read() {
     if (!item) return;
     setBusy(true);
-    markLocalSeen(item.id);
-    if (signedIn)
-      await request('/api/platform', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'newsSeen', input: { id: item.id } }),
-      }).catch(() => {});
-    setSeen((s) => new Set(s).add(item.id));
+    await markRead(item.id);
     setBusy(false);
   }
   const external = item.link?.startsWith('http');
+  const kind = item.promo ? PROMO_KIND[item.promo.kind] || PROMO_KIND.other : null;
   return createPortal(
     <div className="modal-backdrop news-pop-backdrop">
       <section
-        className="news-pop"
+        className={'news-pop' + (item.promo ? ' is-promo' : '')}
         role="dialog"
         aria-modal="true"
         aria-labelledby="news-pop-h"
@@ -795,26 +823,45 @@ export function NewsPopup() {
         <header>
           <span className="news-pop-kicker">
             <i className="news-ping" aria-hidden="true" />
-            📢 {L('YANGI E’LON', 'NEW ANNOUNCEMENT', 'НОВОЕ ОБЪЯВЛЕНИЕ')}
+            {kind
+              ? kind.icon +
+                ' ' +
+                L('YANGI TAKLIF', 'NEW OFFER', 'НОВОЕ ПРЕДЛОЖЕНИЕ') +
+                ' · ' +
+                tr(lang, ...kind.name)
+              : '📢 ' + L('YANGI E’LON', 'NEW ANNOUNCEMENT', 'НОВОЕ ОБЪЯВЛЕНИЕ')}
             {queue.length > 1 && <em>1 / {queue.length}</em>}
           </span>
           <button
             type="button"
             className="news-pop-x"
-            aria-label={L('Keyinroq o‘qiyman', 'Read later', 'Прочитаю позже')}
-            title={L('Keyinroq o‘qiyman', 'Read later', 'Прочитаю позже')}
-            onClick={() => setLater((s) => new Set(s).add(item.id))}
+            aria-label={
+              item.promo
+                ? L('Yopish', 'Close', 'Закрыть')
+                : L('Keyinroq o‘qiyman', 'Read later', 'Прочитаю позже')
+            }
+            title={
+              item.promo
+                ? L('Yopish', 'Close', 'Закрыть')
+                : L('Keyinroq o‘qiyman', 'Read later', 'Прочитаю позже')
+            }
+            onClick={() => (item.promo ? void read() : setLater((s) => new Set(s).add(item.id)))}
           >
             <X size={20} />
           </button>
         </header>
         {item.img && <img className="news-pop-img" src={item.img} alt="" />}
         <h2 id="news-pop-h">{item.h || L('E’lon', 'Announcement', 'Объявление')}</h2>
-        <p id="news-pop-t" className="news-pop-text">
-          {item.t}
-        </p>
+        {item.t && (
+          <p id="news-pop-t" className="news-pop-text">
+            {item.t}
+          </p>
+        )}
         <small className="news-pop-date">
           {L('Joylangan', 'Posted', 'Опубликовано')}: {dueText(item.at, lang, now()).date}
+          {item.promo && item.until
+            ? ' · ' + dueText(item.until, lang, now()).date + L(' gacha', ' until', ' до')
+            : ''}
         </small>
         <div className="news-pop-actions">
           <button
@@ -824,7 +871,7 @@ export function NewsPopup() {
             disabled={busy}
             onClick={() => void read()}
           >
-            ✓ {L('O‘qildi', 'Read', 'Прочитано')}
+            ✓ {item.promo ? L('Ko‘rdim', 'Got it', 'Понятно') : L('O‘qildi', 'Read', 'Прочитано')}
           </button>
           {item.link && (
             <a
@@ -833,16 +880,22 @@ export function NewsPopup() {
               onClick={() => void read()}
               {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
             >
-              {L('Batafsil', 'Learn more', 'Подробнее')} →
+              {item.cta || L('Batafsil', 'Learn more', 'Подробнее')} →
             </a>
           )}
         </div>
         <small className="news-pop-hint">
-          {L(
-            '«O‘qildi» bosilgach, e’lon e’lonlar oynasida qoladi va katta bo‘lib boshqa chiqmaydi.',
-            'After “Read”, the announcement stays in the announcements box and will not pop up again.',
-            'После «Прочитано» объявление останется в окне объявлений и больше не всплывёт.',
-          )}
+          {item.promo
+            ? L(
+                'Bu taklif katta bo‘lib faqat bir marta chiqadi — keyin yon menyudagi 2-e’lon oynasida turadi.',
+                'This offer pops up only once — then it stays in the second box of the side menu.',
+                'Это предложение всплывает только один раз — затем оно остаётся во втором окне бокового меню.',
+              )
+            : L(
+                '«O‘qildi» bosilgach, e’lon e’lonlar oynasida qoladi va katta bo‘lib boshqa chiqmaydi.',
+                'After “Read”, the announcement stays in the announcements box and will not pop up again.',
+                'После «Прочитано» объявление останется в окне объявлений и больше не всплывёт.',
+              )}
         </small>
       </section>
     </div>,

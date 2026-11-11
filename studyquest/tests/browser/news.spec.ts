@@ -285,12 +285,35 @@ test('the administrator fills the second box with offers and students see them u
   await panel.getByRole('radio', { name: /Kurs/ }).click();
   await panel.getByLabel('Sarlavha').fill('Excel bo‘yicha bepul kurs');
   await panel.getByLabel('Havola').fill('#courses');
+  // 📣 «katta oynada» belgisi odatda yoqilgan — bu taklif uchun o'chiriladi (faqat yon oynada turadi)
+  const pop = panel.getByRole('checkbox', { name: /bir marta katta oynada/ });
+  await expect(pop).toBeChecked();
+  await pop.uncheck();
   await panel.getByRole('button', { name: /E’lonni joylash/ }).click();
   await expect(panel.locator('.promo-admin-list li')).toHaveCount(2);
   await expect(side.locator('.promo-dots button')).toHaveCount(2);
+  // joylagan administratorning o'ziga katta oyna chiqmaydi
+  await expect(page.locator('.news-pop')).toHaveCount(0);
+
+  // Talabaga grant taklifi saytga kirganda bir marta katta oynada chiqadi: rasm, matn va tugma bilan.
+  const s2 = await student();
+  const big = s2.getByRole('dialog', { name: 'Yoshlar grant dasturi' });
+  await expect(big).toBeVisible();
+  await expect(big).toContainText('YANGI TAKLIF · Grant dasturi');
+  await expect(big.locator('img.news-pop-img')).toBeVisible();
+  await expect(big.getByRole('link', { name: /Ariza topshirish/ })).toHaveAttribute(
+    'href',
+    'https://example.uz/grant',
+  );
+  // «×» bilan yopilsa ham — boshqa chiqmaydi (kurs taklifi esa katta oynaga umuman chiqmaydi)
+  await big.getByRole('button', { name: 'Yopish' }).click();
+  await expect(s2.locator('.news-pop')).toHaveCount(0);
+  await s2.reload({ waitUntil: 'domcontentloaded' });
+  await expect(s2.locator('.sidebar-news')).toBeVisible();
+  await s2.waitForTimeout(1500);
+  await expect(s2.locator('.news-pop')).toHaveCount(0);
 
   // Talaba ikkala taklifni yon menyuda ko'radi (har 10 soniyada almashadi), «+» tugmasi yo'q.
-  const s2 = await student();
   const box = s2.locator('.sidebar-promo');
   await expect(box.locator('.promo-dots button')).toHaveCount(2);
   await expect(box.getByRole('button', { name: 'Reklama qo‘shish' })).toHaveCount(0);

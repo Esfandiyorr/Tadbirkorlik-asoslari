@@ -6169,7 +6169,8 @@ button.promo-open:hover b {
   outline: 3px solid #fde68a;
   outline-offset: 2px;
 }
-.news-manage label.news-admin-pop {
+.news-manage label.news-admin-pop,
+.promo-manage label.news-admin-pop {
   display: flex;
   align-items: flex-start;
   gap: 8px;
@@ -9704,4 +9705,12 @@ body:has(.focus-learning) .kh-pop {
   margin-bottom: 4px;
   border-radius: 10px;
   object-fit: cover;
+}
+
+/* 🛍 2-oyna (reklama) taklifi katta oynada — 1-oyna e'lonidan rangi bilan ajralib tursin */
+.news-pop.is-promo {
+  background:
+    radial-gradient(circle at 100% 0%, #fde68a70, transparent 45%) padding-box,
+    linear-gradient(155deg, #0b3b3c, #0f766e 55%, #b45309) padding-box,
+    linear-gradient(115deg, #fbbf24, #fb7185, #c084fc, #38bdf8, #fbbf24) border-box;
 }

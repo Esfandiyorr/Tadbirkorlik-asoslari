@@ -19,6 +19,8 @@ export type PromoItem = {
   at: number;
   /** rasm manzili (/api/site/img/pr-<id>?v=…) */
   img?: string;
+  /** saytga kirganda har kimga bir marta katta oynada chiqadi */
+  pop?: boolean;
 };
 export const PROMO_KIND: Record<PromoKind, { icon: string; name: [string, string, string] }> = {
   product: { icon: '🛍️', name: ['Mahsulot', 'Product', 'Товар'] },

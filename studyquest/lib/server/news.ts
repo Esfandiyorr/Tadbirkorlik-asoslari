@@ -157,7 +157,7 @@ export async function manageNews(a: Actor, raw: unknown, now = Date.now()) {
         .ref('meta/news/' + id)
         .set(item);
     // e'lonni yozgan administratorga katta oyna chiqmaydi
-    if (v.pop) await markSeen(a, id, now).catch(() => {});
+    if (v.pop) await markPopSeen(a, id, now).catch(() => {});
     return { id, news: await readNews(now) };
   } else if (demo()) delete memory.news[v.id];
   else
@@ -189,24 +189,30 @@ export async function newsImage(a: Actor, id: string, bytes: Buffer, now = Date.
   return { id, news, img: news.find((x) => x.id === id)?.img };
 }
 
-/* 📣 Katta oynadagi e'lonlar: kim qaysi e'lonni «O'qildi» deb belgilagan — site/newsSeen/<foydalanuvchi>/<e'lon> = vaqt.
-   site/* bo'limiga brauzerlar tegolmaydi; faqat server o'qiydi va yozadi. Har qurilmada bir xil ishlaydi. */
+/* 📣 Katta oynadagi e'lonlar (1-oyna e'lonlari va 2-oyna reklamasi): kim qaysi birini ko'rgan/«O'qildi» deb
+   belgilagan — site/newsSeen/<foydalanuvchi>/<e'lon> = vaqt. site/* bo'limiga brauzerlar tegolmaydi; faqat server
+   o'qiydi va yozadi. Har qurilmada bir xil ishlaydi. */
 const seenKey = (id: string) => id.replace(/[^A-Za-z0-9_-]/g, '_').slice(0, 120);
 const newsId = z.string().regex(/^[A-Za-z0-9_-]{1,64}$/);
 
+/** Amaldagi e'lonlar va reklamalar id lari (promo.ts news.ts ni import qiladi — shuning uchun bu yerda kechiktirib). */
+async function liveIds(now: number) {
+  const { readPromo } = await import('./promo');
+  const [news, promo] = await Promise.all([readNews(now), readPromo(now).catch(() => [])]);
+  return new Set([...news.map((n) => n.id), ...promo.map((p) => p.id)]);
+}
 /** Foydalanuvchi o'qigan (amaldagi) e'lonlar ro'yxati. */
 export async function newsSeen(a: Actor, now = Date.now()) {
-  const [raw, news] = await Promise.all([
+  const [raw, live] = await Promise.all([
     siteGet<Record<string, number>>('newsSeen/' + seenKey(a.id)),
-    readNews(now),
+    liveIds(now),
   ]);
-  const live = new Set(news.map((n) => n.id));
   return { seen: Object.keys(raw || {}).filter((id) => live.has(id)) };
 }
-async function markSeen(a: Actor, id: string, now: number) {
+/** Katta oynadagi e'lonni (yoki reklamani) ko'rilgan deb belgilash. */
+export async function markPopSeen(a: Actor, id: string, now = Date.now()) {
   const key = 'newsSeen/' + seenKey(a.id);
-  const [cur, news] = await Promise.all([siteGet<Record<string, number>>(key), readNews(now)]);
-  const live = new Set(news.map((n) => n.id));
+  const [cur, live] = await Promise.all([siteGet<Record<string, number>>(key), liveIds(now)]);
   const patch: Record<string, unknown> = { [key + '/' + id]: now };
   // o'chirilgan yoki muddati o'tgan e'lonlar belgisi tozalanadi
   for (const old of Object.keys(cur || {}))
@@ -216,6 +222,6 @@ async function markSeen(a: Actor, id: string, now: number) {
 /** Foydalanuvchi katta oynadagi e'lonni «O'qildi» deb belgilaydi. */
 export async function markNewsSeen(a: Actor, raw: unknown, now = Date.now()) {
   const { id } = z.object({ id: newsId }).strict().parse(raw);
-  await markSeen(a, id, now);
+  await markPopSeen(a, id, now);
   return newsSeen(a, now);
 }
