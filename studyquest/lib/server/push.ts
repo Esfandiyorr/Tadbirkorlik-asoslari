@@ -13,12 +13,17 @@ import { liveGame, type LiveGame } from './news';
    Kalitlar (VAPID) birinchi marta kerak bo'lganda server o'zi yaratadi va site/push/vapid da saqlaydi — sozlash shart emas.
    Shifrlash va imzo — RFC 8291 (aes128gcm) va RFC 8292 (VAPID), eski Cloudflare Worker'dagi (fayllar/push-worker.js)
    bilan bir xil, faqat qo'shimcha kutubxonasiz Node'ning WebCrypto'sida.
-   Nima yuboriladi:
-   ⚡ jonli test (va Yozuv marafoni) boshlanishidan 15 daqiqa oldin — «… da boshlanadi, qo'shilish … da ochiladi»;
-      har o'yin uchun bir marta (site/push/sent/<o'yin>). Tekshiruvni har ochiq sahifaning e'lonlar so'rovi va
-      /api/push?view=tick (GitHub Actions har 5 daqiqada) ishga tushiradi;
+   Nima yuboriladi («Sayt boshqaruvi → 🔔 Bildirishnomalar»da har birini yoqish/o'chirish mumkin — site/push/auto):
+   📅 jonli test e'loni — o'yindan 14 soat oldin yoki u tuzilganda («Bugun/Ertaga 21:30 da jonli test»);
+   ⚡ jonli test (va Yozuv marafoni) boshlanishidan 15 daqiqa (sozlanadi) oldin — «… da boshlanadi»;
+      ikkalasi ham har o'yin uchun bir marta (site/push/sent/<o'yin>). Tekshiruvni har ochiq sahifaning e'lonlar
+      so'rovi, administratorning jonli test amallari va /api/push?view=tick (GitHub Actions har 5 daqiqada) qiladi;
+   🟢 «Mavzular holati»da mavzu ochilganda — talabalarga;
    📢 administrator yangi e'lon qo'shganda («Telefonlarga ham yuborilsin» belgisi bilan);
-   🧪 foydalanuvchining o'zi «Sinab ko'rish» ni bosganda — faqat o'z qurilmalariga. */
+   📺 mavzuga yangi video qo'shilganda;
+   ✉️ administrator o'zi yozgan xabar — hammaga, talabalarga, o'qituvchilarga yoki bitta guruhga;
+   🧪 foydalanuvchining o'zi «Sinab ko'rish» ni bosganda — faqat o'z qurilmalariga.
+   Har yuborish tarixga yoziladi (site/push/log, oxirgi 50 ta). */
 
 const { subtle } = globalThis.crypto;
 const te = new TextEncoder();
@@ -45,6 +50,8 @@ export type PushSub = {
   role: string;
   lt?: string;
   g?: string;
+  /** o'rnatilgan ilovadan (bosh ekrandagi) yoqilgan */
+  app?: boolean;
   at: number;
 };
 export type PushPayload = { t: string; b: string; u: string; g: string };
@@ -79,9 +86,11 @@ export async function vapidKeys(): Promise<Vapid> {
   vapidCache = v;
   return v;
 }
-/** Sinovlar uchun: keshlangan kalitni unutish. */
+/** Sinovlar uchun: keshlangan kalit, sozlama va «yuborildi» belgilarini unutish. */
 export function forgetVapid() {
   vapidCache = null;
+  autoCache = null;
+  claimed.clear();
 }
 
 /** VAPID (RFC 8292): push xizmatiga «bu xabar shu sayt egasidan» degan imzo. */
@@ -201,7 +210,7 @@ export async function pushSubs(): Promise<Record<string, PushSub>> {
   return (await siteGet<Record<string, PushSub>>('push/subs')) || {};
 }
 /** Foydalanuvchi qurilmasini obuna qilish (har qurilma — alohida yozuv; eski egasi bo'lsa almashtiriladi). */
-export async function subscribePush(a: Actor, raw: unknown, now = Date.now()) {
+export async function subscribePush(a: Actor, raw: unknown, now = Date.now(), app = false) {
   const s = subscription.parse(raw);
   const rec: PushSub = {
     e: s.endpoint,
@@ -211,6 +220,7 @@ export async function subscribePush(a: Actor, raw: unknown, now = Date.now()) {
     role: a.role,
     ...(a.learnerType ? { lt: a.learnerType } : {}),
     ...(a.classId ? { g: String(a.classId).slice(0, 40) } : {}),
+    ...(app ? { app: true } : {}),
     at: now,
   };
   await siteUpdate({ ['push/subs/' + subKey(s.endpoint)]: rec });
@@ -299,6 +309,126 @@ export async function sendPush(
   return { total: subs.length, sent, failed, removed: Object.keys(gone).length };
 }
 
+/* ---------- ⚙️ avtomatik xabarlar sozlamasi ---------- */
+export type PushAuto = {
+  /** ⚡ jonli test boshlanishidan oldin eslatma */
+  live: boolean;
+  /** necha daqiqa oldin (5–60) */
+  liveMin: number;
+  /** 📅 jonli test e'loni (14 soat oldin yoki tuzilganda) */
+  liveNew: boolean;
+  /** 🟢 mavzu ochilganda */
+  topics: boolean;
+  /** 📢 yangi e'lon — «Telefonlarga ham yuborilsin» belgisi odatda yoqilgan */
+  news: boolean;
+  /** 📺 mavzuga yangi video qo'shilganda */
+  videos: boolean;
+};
+export const PUSH_AUTO_DEFAULT: PushAuto = {
+  live: true,
+  liveMin: 15,
+  liveNew: true,
+  topics: true,
+  news: true,
+  videos: true,
+};
+const autoInput = z
+  .object({
+    live: z.boolean(),
+    liveMin: z.number().int().min(5).max(60),
+    liveNew: z.boolean(),
+    topics: z.boolean(),
+    news: z.boolean(),
+    videos: z.boolean(),
+  })
+  .strict();
+let autoCache: { v: PushAuto; at: number } | null = null;
+function normalizeAuto(raw: Partial<PushAuto> | null): PushAuto {
+  const v = { ...PUSH_AUTO_DEFAULT };
+  for (const k of ['live', 'liveNew', 'topics', 'news', 'videos'] as const)
+    if (typeof raw?.[k] === 'boolean') v[k] = raw[k];
+  const m = Math.round(Number(raw?.liveMin));
+  if (m >= 5 && m <= 60) v.liveMin = m;
+  return v;
+}
+/** Avtomatik xabarlar sozlamasi (bir daqiqa xotirada saqlanadi — tez-tez tekshiriladi). */
+export async function pushAuto(): Promise<PushAuto> {
+  if (autoCache && Date.now() - autoCache.at < 60000) return autoCache.v;
+  const v = normalizeAuto(await siteGet<Partial<PushAuto>>('push/auto'));
+  autoCache = { v, at: Date.now() };
+  return v;
+}
+
+/* ---------- 🕘 tarix ---------- */
+export type PushKind = 'manual' | 'test' | 'live' | 'ann' | 'topic' | 'news' | 'video';
+export type PushLog = {
+  at: number;
+  k: PushKind;
+  t: string;
+  b: string;
+  /** kimga: all · students · staff · g:<guruh> · live (mustaqil o'quvchilardan boshqa hamma) · self */
+  aud: string;
+  n: number;
+  s: number;
+  f: number;
+  by?: string;
+};
+const LOG_KEEP = 50;
+async function logPush(e: PushLog) {
+  const key = e.at.toString(36).padStart(9, '0') + '-' + Math.random().toString(36).slice(2, 6);
+  await siteUpdate({ ['push/log/' + key]: e });
+  const all = Object.keys((await siteGet<Record<string, PushLog>>('push/log')) || {}).sort();
+  if (all.length > LOG_KEEP)
+    await siteUpdate(
+      Object.fromEntries(all.slice(0, all.length - LOG_KEEP).map((k) => ['push/log/' + k, null])),
+    );
+}
+export async function pushLog(): Promise<PushLog[]> {
+  const raw = (await siteGet<Record<string, PushLog>>('push/log')) || {};
+  return Object.keys(raw)
+    .sort()
+    .reverse()
+    .map((k) => raw[k])
+    .filter(Boolean);
+}
+
+/* ---------- 🎯 kimga ---------- */
+const audience = z.union([
+  z.enum(['all', 'students', 'staff']),
+  z.string().regex(/^g:[^\s/.#$[\]]{1,40}$/),
+]);
+export type Audience = z.infer<typeof audience>;
+export function audienceFilter(aud: string): (s: PushSub) => boolean {
+  if (aud === 'students') return (s) => s.role === 'student';
+  if (aud === 'staff') return (s) => s.role === 'teacher' || s.role === 'admin';
+  if (aud === 'live') return (s) => s.lt !== 'independent';
+  if (aud.startsWith('g:')) return (s) => s.role === 'student' && s.g === aud.slice(2);
+  return () => true;
+}
+/** Yuborish va tarixga yozish. */
+async function deliver(
+  k: PushKind,
+  payload: PushPayload,
+  aud: string,
+  now: number,
+  by?: string,
+  who = audienceFilter(aud),
+) {
+  const r = await sendPush(payload, who, now);
+  await logPush({
+    at: now,
+    k,
+    t: payload.t.slice(0, 80),
+    b: payload.b.slice(0, 300),
+    aud,
+    n: r.total,
+    s: r.sent,
+    f: r.failed,
+    ...(by ? { by: by.slice(0, 60) } : {}),
+  }).catch(() => {});
+  return r;
+}
+
 /** Foydalanuvchining o'z qurilmalariga sinov xabari. */
 export async function testPush(a: Actor, now = Date.now()) {
   const r = await sendPush(
@@ -315,27 +445,62 @@ export async function testPush(a: Actor, now = Date.now()) {
   return r;
 }
 
-/** Administrator: e'lonni hammaga yuborish. */
+const link = z
+  .string()
+  .trim()
+  .max(300)
+  .refine((x) => !x || /^https:\/\/\S+$/.test(x) || /^\/#[a-z][a-z0-9/_-]*$/i.test(x));
+const message = z
+  .object({
+    t: z.string().trim().min(2).max(80),
+    b: z.string().trim().max(300),
+    u: link,
+    aud: audience.optional(),
+    /** faqat o'z qurilmalarimga (sinab ko'rish) */
+    self: z.boolean().optional(),
+  })
+  .strict();
+
+/** Administrator: xabarni yuborish — hammaga yoki tanlanganlarga (self — faqat o'ziga, sinov uchun). */
 export async function broadcastPush(a: Actor, raw: unknown, now = Date.now()) {
   administrator(a);
-  const v = z
-    .object({
-      t: z.string().trim().min(2).max(80),
-      b: z.string().trim().max(300),
-      u: z
-        .string()
-        .trim()
-        .max(300)
-        .refine((x) => !x || /^https:\/\/\S+$/.test(x) || /^\/#[a-z][a-z0-9/_-]*$/i.test(x)),
-    })
-    .strict()
-    .parse(raw);
-  return sendPush({ t: v.t, b: v.b, u: v.u || '/#home', g: 'sq-news' }, () => true, now);
+  const v = message.parse(raw);
+  const payload = { t: v.t, b: v.b, u: v.u || '/#home', g: 'sq-news' };
+  if (v.self) {
+    const r = await sendPush(payload, (s) => s.uid === a.id, now);
+    check(
+      r.total > 0,
+      404,
+      'Sizning hisobingizda yoqilgan qurilma yo‘q — avval «🔔 Yoqish» ni bosing.',
+    );
+    return r;
+  }
+  return deliver('manual', payload, v.aud || 'all', now, a.name || a.id);
 }
 
-/* ---------- ⚡ jonli test eslatmasi ---------- */
+/** 📢 Yangi e'lon (E'lonlar bo'limidan) — hammaga. */
+export async function newsPush(a: Actor, h: string, text: string, now = Date.now()) {
+  administrator(a);
+  return deliver(
+    'news',
+    {
+      t: ('📢 ' + (h.trim() || 'Yangi e’lon')).slice(0, 80),
+      b: text.replace(/\s+/g, ' ').trim().slice(0, 280),
+      u: '/#home',
+      g: 'sq-news',
+    },
+    'all',
+    now,
+    a.name || a.id,
+  );
+}
+
+/* ---------- ⚡ jonli test: e'lon va eslatma ---------- */
 export const LIVE_REMIND_MS = 15 * 60000;
+/** 📅 e'lon o'yindan shuncha oldin ketadi (21:30 dagi o'yin — 07:30 da, 09:30 dagi — kechqurun 19:30 da). */
+export const LIVE_ANNOUNCE_MS = 14 * 3600000;
 const hm = (ms: number) => new Date(ms + 18000000).toISOString().slice(11, 16);
+const tDay = (ms: number) => new Date(ms + 18000000).toISOString().slice(0, 10);
 export function liveReminderText(g: LiveGame): PushPayload {
   const yz = g.type === 'yz';
   return {
@@ -351,29 +516,136 @@ export function liveReminderText(g: LiveGame): PushPayload {
     g: 'sq-live',
   };
 }
-/** Bir marta bajariladigan amal belgisi (bir vaqtda bir necha server tekshirsa ham faqat bittasi yuboradi). */
-async function claimOnce(key: string, now: number) {
-  const path = 'push/sent/' + key.replace(/[^0-9A-Za-z_-]/g, '_').slice(0, 80);
-  if (demo()) {
-    if (await siteGet(path)) return false;
-    await siteUpdate({ [path]: now });
-    return true;
-  }
-  const r = await legacyDb()
-    .ref('site/' + path)
-    .transaction((cur) => (cur ? undefined : now));
-  return r.committed;
-}
-/** Jonli test boshlanishidan 15 daqiqa oldin (boshlanguncha) — bir marta, mustaqil o'quvchilardan boshqa hammaga. */
-export async function liveReminder(now = Date.now()) {
-  const g = await liveGame(now);
-  if (!g || now < g.start - LIVE_REMIND_MS || now >= g.start) return null;
-  if (!(await claimOnce('live-' + g.d + '-' + g.start, now))) return null;
+export function liveAnnounceText(g: LiveGame, now: number, remindMin = 0): PushPayload {
+  const yz = g.type === 'yz';
+  const day =
+    tDay(g.start) === tDay(now)
+      ? 'Bugun'
+      : tDay(g.start) === tDay(now + 86400000)
+        ? 'Ertaga'
+        : tDay(g.start).slice(8, 10) + '.' + tDay(g.start).slice(5, 7) + ' kuni';
   return {
-    game: g.d,
-    ...(await sendPush(liveReminderText(g), (s) => s.lt !== 'independent', now)),
+    t: '📅 ' + day + ' ' + hm(g.start) + ' da ' + (yz ? 'Yozuv marafoni' : 'jonli test'),
+    b:
+      'Qo‘shilish ' +
+      hm(g.open) +
+      ' da ochiladi' +
+      (!yz && g.nq ? ' · ' + g.nq + ' ta savol' : '') +
+      '.' +
+      (remindMin ? ' Boshlanishidan ' + remindMin + ' daqiqa oldin yana eslatamiz.' : '') +
+      (g.note ? ' ' + g.note : ''),
+    u: '/#arena/play/' + (yz ? 'yozuv' : 'live'),
+    g: 'sq-live-new',
   };
 }
+/** Bir marta bajariladigan amal belgisi (bir vaqtda bir necha server tekshirsa ham faqat bittasi yuboradi). */
+const claimed = new Set<string>();
+async function claimOnce(key: string, now: number) {
+  const path = 'push/sent/' + key.replace(/[^0-9A-Za-z_-]/g, '_').slice(0, 80);
+  if (claimed.has(path)) return false;
+  let ok: boolean;
+  if (demo()) {
+    ok = !(await siteGet(path));
+    if (ok) await siteUpdate({ [path]: now });
+  } else {
+    const r = await legacyDb()
+      .ref('site/' + path)
+      .transaction((cur) => (cur ? undefined : now));
+    ok = r.committed;
+  }
+  claimed.add(path);
+  return ok;
+}
+/** Eslatma oynasi: o'yindan shuncha oldin (sozlamaga ko'ra; o'chirilgan bo'lsa — 0). */
+const remindMs = (auto: PushAuto) => (auto.live ? auto.liveMin * 60000 : 0);
+/** ⚡ Boshlanishidan N daqiqa oldin (boshlanguncha) — bir marta, mustaqil o'quvchilardan boshqa hammaga. */
+export async function liveReminder(now = Date.now(), game?: LiveGame | null) {
+  const auto = await pushAuto();
+  if (!auto.live) return null;
+  const g = game === undefined ? await liveGame(now) : game;
+  if (!g || now < g.start - remindMs(auto) || now >= g.start) return null;
+  if (!(await claimOnce('live-' + g.d + '-' + g.start, now))) return null;
+  return { game: g.d, ...(await deliver('live', liveReminderText(g), 'live', now)) };
+}
+/** 📅 O'yindan 14 soat oldin (yoki tuzilgan zahoti) — bir marta. Eslatma 10 daqiqadan kam qolgan bo'lsa, faqat
+    eslatma ketadi (ikki xabar ketma-ket kelmasin). */
+export async function liveAnnounce(now = Date.now(), game?: LiveGame | null) {
+  const auto = await pushAuto();
+  if (!auto.liveNew) return null;
+  const g = game === undefined ? await liveGame(now) : game;
+  if (!g) return null;
+  const cut = g.start - (auto.live ? remindMs(auto) + 10 * 60000 : 0);
+  if (now < g.start - LIVE_ANNOUNCE_MS || now >= cut) return null;
+  if (!(await claimOnce('ann-' + g.d + '-' + g.start, now))) return null;
+  return {
+    game: g.d,
+    ...(await deliver('ann', liveAnnounceText(g, now, auto.live ? auto.liveMin : 0), 'live', now)),
+  };
+}
+/** Hammasini bir tekshiruvda: e'lon va eslatma (vaqti kelmagan bo'lsa — hech narsa, bazaga ham yozilmaydi). */
+export async function pushTick(now = Date.now(), game?: LiveGame | null) {
+  const g = game === undefined ? await liveGame(now) : game;
+  const ann = await liveAnnounce(now, g);
+  const rem = await liveReminder(now, g);
+  return { ann, rem };
+}
+
+/* ---------- 🟢 mavzu, 📺 video ---------- */
+const dm = (ms: number) => {
+  const d = new Date(ms + 18000000).toISOString();
+  return d.slice(8, 10) + '.' + d.slice(5, 7) + ' ' + d.slice(11, 16);
+};
+/** Mavzu ochilganda (🟢 ball bilan yoki 📖 o'qish uchun) — talabalarga, bir soatda bir marta. */
+export async function topicPush(
+  t: { id: string; order: number; title: string; state: string; due?: number },
+  now = Date.now(),
+) {
+  if (!(await pushAuto()).topics) return null;
+  if (t.state !== 'open' && t.state !== 'read') return null;
+  if (!(await claimOnce('topic-' + t.id + '-' + t.state + '-' + Math.floor(now / 3600000), now)))
+    return null;
+  const n = t.order + 1;
+  return deliver(
+    'topic',
+    t.state === 'open'
+      ? {
+          t: '🟢 ' + n + '-mavzu ochildi',
+          b: t.title + (t.due ? ' · Ball yig‘ish muddati: ' + dm(t.due) + ' gacha.' : ''),
+          u: '/#lesson/' + t.id,
+          g: 'sq-topic-' + t.id,
+        }
+      : {
+          t: '📖 ' + n + '-mavzu o‘qish uchun ochildi',
+          b: t.title,
+          u: '/#lesson/' + t.id,
+          g: 'sq-topic-' + t.id,
+        },
+    'students',
+    now,
+  );
+}
+/** Mavzuga yangi video qo'shilganda — talabalarga. */
+export async function videoPush(
+  topic: { id: string; title: string },
+  title: string | undefined,
+  now = Date.now(),
+) {
+  if (!(await pushAuto()).videos) return null;
+  const name = topic.title.replace(/^M(\d+)\s*·\s*/, '$1-mavzu: ');
+  return deliver(
+    'video',
+    {
+      t: '📺 Yangi video: ' + (title || name).slice(0, 60),
+      b: title ? name : 'Videoni sayt ichida ko‘rasiz.',
+      u: '/#lesson/' + topic.id,
+      g: 'sq-video',
+    },
+    'students',
+    now,
+  );
+}
+
+/* ---------- 🛠 administrator bo'limi ---------- */
 /** Administrator ko'radigan holat: nechta qurilma yoqilgan. */
 export async function pushStats(a: Actor) {
   check(a.role === 'admin' || a.role === 'teacher', 403, 'Faqat o‘qituvchi va administrator.');
@@ -383,4 +655,78 @@ export async function pushStats(a: Actor) {
     users: new Set(subs.map((s) => s.uid)).size,
     students: new Set(subs.filter((s) => s.role === 'student').map((s) => s.uid)).size,
   };
+}
+
+/** «🔔 Bildirishnomalar» bo'limi: qurilmalar, guruhlar, sozlama, navbatdagi jonli test xabarlari va tarix. */
+export async function pushAdmin(a: Actor, now = Date.now()) {
+  administrator(a);
+  const [subsRaw, auto, log, g] = await Promise.all([
+    pushSubs(),
+    pushAuto(),
+    pushLog(),
+    liveGame(now).catch(() => null),
+  ]);
+  const subs = Object.values(subsRaw).filter(Boolean);
+  const users = (f: (s: PushSub) => boolean) => new Set(subs.filter(f).map((s) => s.uid)).size;
+  const groups: Record<string, { devices: number; users: Set<string> }> = {};
+  for (const s of subs)
+    if (s.role === 'student' && s.g) {
+      const x = (groups[s.g] ||= { devices: 0, users: new Set() });
+      x.devices++;
+      x.users.add(s.uid);
+    }
+  const rm = remindMs(auto);
+  return {
+    stats: {
+      devices: subs.length,
+      app: subs.filter((s) => s.app).length,
+      browser: subs.filter((s) => !s.app).length,
+      users: users(() => true),
+      students: users((s) => s.role === 'student'),
+      staff: users((s) => s.role === 'teacher' || s.role === 'admin'),
+      studentDevices: subs.filter((s) => s.role === 'student').length,
+      staffDevices: subs.filter((s) => s.role === 'teacher' || s.role === 'admin').length,
+      mine: subs.filter((s) => s.uid === a.id).length,
+    },
+    groups: Object.entries(groups)
+      .map(([g, x]) => ({ g, devices: x.devices, users: x.users.size }))
+      .sort((x, y) => x.g.localeCompare(y.g)),
+    auto,
+    next: g
+      ? {
+          d: g.d,
+          type: g.type,
+          start: g.start,
+          ...(auto.liveNew && now < g.start - (auto.live ? rm + 10 * 60000 : 0)
+            ? { announceAt: Math.max(g.start - LIVE_ANNOUNCE_MS, now) }
+            : {}),
+          ...(auto.live && now < g.start ? { remindAt: Math.max(g.start - rm, now) } : {}),
+          sentAnn: !!(await siteGet('push/sent/ann-' + g.d + '-' + g.start)),
+          sentRem: !!(await siteGet('push/sent/live-' + g.d + '-' + g.start)),
+        }
+      : null,
+    log,
+    now,
+  };
+}
+export type PushAdminView = Awaited<ReturnType<typeof pushAdmin>>;
+const adminInput = z.discriminatedUnion('op', [
+  z.object({ op: z.literal('settings'), auto: autoInput }).strict(),
+  z.object({ op: z.literal('send'), msg: z.unknown() }).strict(),
+]);
+/** Administrator amallari: sozlamani saqlash yoki xabar yuborish. Yangi holat (+ yuborish natijasi) qaytadi. */
+export async function managePush(
+  a: Actor,
+  raw: unknown,
+  now = Date.now(),
+): Promise<PushAdminView & { result?: Awaited<ReturnType<typeof sendPush>> }> {
+  administrator(a);
+  const p = adminInput.parse(raw);
+  if (p.op === 'settings') {
+    await siteUpdate({ 'push/auto': p.auto });
+    autoCache = { v: normalizeAuto(p.auto), at: Date.now() };
+    return pushAdmin(a, now);
+  }
+  const result = await broadcastPush(a, p.msg, now);
+  return { ...(await pushAdmin(a, now)), result };
 }

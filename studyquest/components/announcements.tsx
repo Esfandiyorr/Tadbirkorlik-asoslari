@@ -948,6 +948,20 @@ export function NewsAdmin({ openCourseControls }: { openCourseControls?: () => v
   const { data: d, now, setNews } = useNews();
   const [form, setForm] = useState({ h: '', t: '', link: '', until: '', pop: true, push: true }),
     [busy, setBusy] = useState('');
+  // 📲 belgining boshlang'ich holati — «🔔 Bildirishnomalar» bo'limidagi «Yangi e'lon» sozlamasidan
+  useEffect(() => {
+    let live = true;
+    request('/api/platform?view=pushAdmin')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((v) => {
+        if (live && v?.auto && typeof v.auto.news === 'boolean')
+          setForm((f) => ({ ...f, push: v.auto.news }));
+      })
+      .catch(() => {});
+    return () => {
+      live = false;
+    };
+  }, [request]);
   async function send(input: Record<string, unknown>, key: string, done: string) {
     setBusy(key);
     try {
@@ -982,7 +996,7 @@ export function NewsAdmin({ openCourseControls }: { openCourseControls?: () => v
         ...(form.link.trim() ? { link: form.link.trim() } : {}),
         ...(until ? { until } : {}),
         ...(form.pop ? { pop: true } : {}),
-        ...(form.push ? { push: true } : {}),
+        push: form.push,
       },
       'add',
       '📢 ' + L('E’lon joylandi', 'Announcement posted', 'Объявление опубликовано'),

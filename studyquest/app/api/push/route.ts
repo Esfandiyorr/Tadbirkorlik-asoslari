@@ -4,8 +4,8 @@ import { actor, sameOrigin } from '@/lib/server/auth';
 import { failure } from '@/lib/server/http';
 import {
   broadcastPush,
-  liveReminder,
   pushStats,
+  pushTick,
   subscribePush,
   testPush,
   unsubscribePush,
@@ -17,7 +17,7 @@ export const dynamic = 'force-dynamic';
 
 /* 🔔 Bildirishnomalar (lib/server/push.ts).
    GET ?view=key   — ochiq kalit (brauzer obunasi uchun)
-   GET ?view=tick  — jonli test eslatmasini tekshirish (ochiq; o'yin boshiga bir marta yuboriladi). GitHub Actions
+   GET ?view=tick  — jonli test e'loni va eslatmasini tekshirish (ochiq; har o'yinga bir martadan). GitHub Actions
                      har 5 daqiqada chaqiradi, sayt ochiq bo'lsa e'lonlar so'rovi ham chaqiradi
    GET ?view=stats — o'qituvchi/administrator: nechta qurilma yoqilgan
    POST {op}       — subscribe | unsubscribe | test (o'z qurilmalariga) | send (administrator: hammaga) */
@@ -30,10 +30,14 @@ export async function GET(req: NextRequest) {
         { headers: { 'Cache-Control': 'public, max-age=300, s-maxage=300' } },
       );
     if (view === 'tick') {
-      const r = await liveReminder();
+      const { ann, rem } = await pushTick();
       return NextResponse.json(
-        { ok: true, sent: r ? r.sent : 0, ...(r ? { game: r.game } : {}) },
-        // CDN 1 daqiqa saqlaydi: tez-tez so'ralsa ham bazaga ortiqcha yuk tushmaydi (eslatma oynasi — 15 daqiqa)
+        {
+          ok: true,
+          sent: (ann ? ann.sent : 0) + (rem ? rem.sent : 0),
+          ...(ann || rem ? { game: (ann || rem)!.game } : {}),
+        },
+        // CDN 1 daqiqa saqlaydi: tez-tez so'ralsa ham bazaga ortiqcha yuk tushmaydi (eslatma oynasi — 5–60 daqiqa)
         { headers: { 'Cache-Control': 'public, max-age=0, s-maxage=60' } },
       );
     }
@@ -48,7 +52,7 @@ export async function GET(req: NextRequest) {
 }
 
 const body = z.discriminatedUnion('op', [
-  z.object({ op: z.literal('subscribe'), sub: z.unknown() }).strict(),
+  z.object({ op: z.literal('subscribe'), sub: z.unknown(), app: z.boolean().optional() }).strict(),
   z.object({ op: z.literal('unsubscribe'), endpoint: z.string().max(1000) }).strict(),
   z.object({ op: z.literal('test') }).strict(),
   z.object({ op: z.literal('send'), input: z.unknown() }).strict(),
@@ -64,9 +68,9 @@ export async function POST(req: NextRequest) {
     const a = await actor(req, true);
     const headers = { 'Cache-Control': 'private, no-store' };
     if (p.op === 'subscribe') {
-      const r = await subscribePush(a, p.sub);
+      const r = await subscribePush(a, p.sub, Date.now(), p.app === true);
       // obuna paytida jonli test vaqti kelgan bo'lsa — eslatma kechikmasin
-      after(() => liveReminder().catch(() => {}));
+      after(() => pushTick().catch(() => {}));
       return NextResponse.json(r, { headers });
     }
     if (p.op === 'unsubscribe')

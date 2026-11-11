@@ -12,13 +12,14 @@ import { ContentAdmin } from './content-admin';
 import { AvatarLibraryAdmin } from './avatar-library-admin';
 import { VideoAdmin } from './video-admin';
 import { LogoTaskAdmin } from './logo-task-admin';
+import { PushAdmin } from './push-admin';
 import { startEditMode } from '../site-content';
 
 /* 🛠 Sayt boshqaruvi (administrator): saytdagi matn, rasm, avatar, test va jonli testni dasturchiga yozmasdan
    o'zgartirish uchun yagona joy. Har bir ish — alohida kartochka; ichida qisqa izoh va oddiy shakllar. */
 
 export type BoSection =
-  'live' | 'quiz' | 'content' | 'avatars' | 'news' | 'promo' | 'video' | 'logo';
+  'live' | 'quiz' | 'content' | 'avatars' | 'news' | 'push' | 'promo' | 'video' | 'logo';
 const KEY = 'sq-bo-section';
 
 export function BackOffice({ openTab }: { openTab: (tab: string) => void }) {
@@ -123,6 +124,16 @@ export function BackOffice({ openTab }: { openTab: (tab: string) => void }) {
       ),
     },
     {
+      id: 'push',
+      icon: '🔔',
+      title: L('Bildirishnomalar', 'Notifications', 'Уведомления'),
+      text: L(
+        'Ilovani o‘rnatgan va saytda bildirishnomani yoqqanlarga telefon xabari yuborish; avtomatik xabarlar — o‘yin e’loni va eslatmasi, mavzu ochilishi, e’lon, video; tarix.',
+        'Send phone notifications to app and browser users; automatic messages — game announcement and reminder, opened topics, announcements, videos; history.',
+        'Отправка уведомлений пользователям приложения и браузера; управление автоматическими сообщениями о тесте, темах, объявлениях и видео; история.',
+      ),
+    },
+    {
       id: 'promo',
       icon: '🛍️',
       title: L('2-e’lon oynasi (reklama)', 'Second box (offers)', '2-е окно (реклама)'),
@@ -185,6 +196,7 @@ export function BackOffice({ openTab }: { openTab: (tab: string) => void }) {
     else if (section === 'content') body = <ContentAdmin />;
     else if (section === 'avatars') body = <AvatarsSection />;
     else if (section === 'news') body = <NewsAdmin openCourseControls={() => setSection('live')} />;
+    else if (section === 'push') body = <PushAdmin />;
     else if (section === 'promo') body = <PromoAdmin />;
     else if (section === 'video') body = <VideoAdmin />;
     else if (section === 'logo') body = <LogoTaskAdmin />;

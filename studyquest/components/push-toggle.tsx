@@ -96,7 +96,7 @@ export function usePush() {
         userVisibleOnly: true,
         applicationServerKey: ub64(pub),
       });
-      await post({ op: 'subscribe', sub: sub.toJSON() });
+      await post({ op: 'subscribe', sub: sub.toJSON(), app: standalone() });
       setState('on');
       return true;
     } finally {
@@ -130,7 +130,7 @@ export function usePush() {
       const reg = await navigator.serviceWorker.getRegistration('/');
       const sub = await reg?.pushManager.getSubscription();
       if (!sub) return;
-      await post({ op: 'subscribe', sub: sub.toJSON() });
+      await post({ op: 'subscribe', sub: sub.toJSON(), app: standalone() });
       try {
         localStorage.setItem('sq-push-sync', String(Date.now()));
       } catch {}
@@ -174,9 +174,9 @@ export function PushToggle({ compact = false }: { compact?: boolean }) {
       <p>
         {state === 'on'
           ? L(
-              'Jonli test boshlanishidan 15 daqiqa oldin va yangi e’lonlarda shu qurilmaga xabar keladi.',
-              'This device is notified 15 minutes before a live quiz and about new announcements.',
-              'Это устройство получит сообщение за 15 минут до живого теста и о новых объявлениях.',
+              'Jonli test oldidan, mavzu ochilganda va yangi e’lonlarda shu qurilmaga xabar keladi.',
+              'This device is notified before a live quiz, when a topic opens and about new announcements.',
+              'Это устройство получит сообщение перед живым тестом, при открытии темы и о новых объявлениях.',
             )
           : state === 'ios'
             ? L(

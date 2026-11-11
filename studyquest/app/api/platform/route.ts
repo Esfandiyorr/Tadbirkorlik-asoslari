@@ -20,9 +20,18 @@ import { limitedCatalog } from '@/lib/server/limited';
 import { sitePolicy, clearPolicyCache, normalizePolicy } from '@/lib/server/site-policy';
 import { liveGame, manageNews, markNewsSeen, newsSeen, readNews } from '@/lib/server/news';
 import { managePromo, readPromo } from '@/lib/server/promo';
-import { allVideos, manageVideos } from '@/lib/server/videos';
+import { allVideos, manageVideos, videoTopics } from '@/lib/server/videos';
 import { liveAdmin, liveTopUp, manageLive } from '@/lib/server/live-admin';
-import { LIVE_REMIND_MS, broadcastPush, liveReminder } from '@/lib/server/push';
+import {
+  LIVE_ANNOUNCE_MS,
+  managePush,
+  newsPush,
+  pushAdmin,
+  pushAuto,
+  pushTick,
+  topicPush,
+  videoPush,
+} from '@/lib/server/push';
 import { avatarLibrary, manageLibrary } from '@/lib/server/avatar-library';
 import {
   manageSiteText,
@@ -143,9 +152,10 @@ export async function GET(req: NextRequest) {
       ]);
       // Jonli test jadvali o'z-o'zidan to'lib tursin (6 soatda ko'pi bilan bir marta, javobdan keyin).
       if (!demo()) after(() => liveTopUp().catch(() => {}));
-      // 🔔 Jonli test boshlanishidan 15 daqiqa oldin — obuna bo'lganlarga bildirishnoma (o'yin boshiga bir marta).
-      if (live && live.start - Date.now() < LIVE_REMIND_MS && live.start > Date.now())
-        after(() => liveReminder().catch(() => {}));
+      // 🔔 Jonli test e'loni (14 soat oldin) va eslatmasi (boshlanishidan oldin) — obuna bo'lganlarga, har o'yinga
+      // bir martadan (vaqti kelmagan bo'lsa pushTick bazaga ham tegmaydi).
+      if (live && live.start - Date.now() < LIVE_ANNOUNCE_MS && live.start > Date.now())
+        after(() => pushTick(Date.now(), live).catch(() => {}));
       return NextResponse.json(
         { news, live, promo, now: Date.now() },
         { headers: { 'Cache-Control': 'public, max-age=20, s-maxage=20' } },
@@ -186,6 +196,11 @@ export async function GET(req: NextRequest) {
           headers: { 'Cache-Control': 'private, no-store' },
         },
       );
+    }
+    if (req.nextUrl.searchParams.get('view') === 'pushAdmin') {
+      return NextResponse.json(await pushAdmin(await actor(req, true)), {
+        headers: { 'Cache-Control': 'private, no-store' },
+      });
     }
     if (req.nextUrl.searchParams.get('view') === 'videos') {
       administrator(await actor(req, true));
@@ -448,21 +463,15 @@ export async function POST(req: NextRequest) {
     if (p.action === 'news') {
       const a = await actor(req, true);
       // 📲 «Telefonlarga ham yuborilsin» — e'lon yozilgach, javobni kutmasdan obuna bo'lganlarga bildirishnoma
+      // (belgi yuborilmagan bo'lsa — «🔔 Bildirishnomalar»dagi «Yangi e'lon» sozlamasi hal qiladi)
       const raw = (p.input || {}) as Record<string, unknown>;
       const { push: wantPush, ...input } = raw;
-      const push = raw.op === 'add' && wantPush === true;
+      const push =
+        raw.op === 'add' &&
+        (wantPush === true || (wantPush === undefined && (await pushAuto()).news));
       const r = await manageNews(a, input);
       if (push && 'id' in r && r.id)
-        after(() =>
-          broadcastPush(a, {
-            t: ('📢 ' + (String(raw.h || '').trim() || 'Yangi e’lon')).slice(0, 80),
-            b: String(raw.t || '')
-              .replace(/\s+/g, ' ')
-              .trim()
-              .slice(0, 280),
-            u: '/#home',
-          }).catch(() => {}),
-        );
+        after(() => newsPush(a, String(raw.h || ''), String(raw.t || '')).catch(() => {}));
       return NextResponse.json(r);
     }
     if (p.action === 'newsSeen') {
@@ -472,7 +481,21 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(await managePromo(await actor(req, true), p.input));
     }
     if (p.action === 'videos') {
-      return NextResponse.json(await manageVideos(await actor(req, true), p.input));
+      const a = await actor(req, true);
+      const r = await manageVideos(a, p.input);
+      // 📺 yangi video — talabalarga bildirishnoma (sozlamada yoqilgan bo'lsa)
+      const v = (p.input || {}) as { op?: string; t?: string; title?: string };
+      const topic = v.op === 'add' ? videoTopics().find((x) => x.id === v.t) : undefined;
+      if (topic)
+        after(() =>
+          videoPush(topic, typeof v.title === 'string' ? v.title.trim() : undefined).catch(
+            () => {},
+          ),
+        );
+      return NextResponse.json(r);
+    }
+    if (p.action === 'pushAdmin') {
+      return NextResponse.json(await managePush(await actor(req, true), p.input));
     }
     if (p.action === 'avatarLibrary') {
       return NextResponse.json({ catalog: await manageLibrary(await actor(req, true), p.input) });
@@ -484,7 +507,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(await manageTopicQuiz(await actor(req, true), p.input));
     }
     if (p.action === 'liveAdmin') {
-      return NextResponse.json(await manageLive(await actor(req, true), p.input));
+      const r = await manageLive(await actor(req, true), p.input);
+      // 📅 o'yin tuzilsa yoki ko'chirilsa — e'lon (vaqti kelgan bo'lsa) darhol ketadi
+      after(() => pushTick().catch(() => {}));
+      return NextResponse.json(r);
     }
     if (p.action === 'avatarPick' || p.action === 'avatarAdmin') {
       const a = await actor(req, true);
@@ -499,7 +525,19 @@ export async function POST(req: NextRequest) {
     if (p.action === 'topicMode') {
       const a = await actor(req, true);
       staff(a);
-      return NextResponse.json(await setTopicMode(p.input));
+      const id = String((p.input as { topic?: unknown } | null)?.topic ?? '');
+      const before = (await topicAccessList()).topics.find((x) => x.id === id);
+      const r = await setTopicMode(p.input);
+      // 🟢 mavzu ochildi (yoki yopiqdan o'qish rejimiga o'tdi) — talabalarga bildirishnoma
+      const after_ = r.topics.find((x) => x.id === id);
+      if (
+        before &&
+        after_ &&
+        before.state !== after_.state &&
+        (after_.state === 'open' || (after_.state === 'read' && before.state === 'lock'))
+      )
+        after(() => topicPush(after_).catch(() => {}));
+      return NextResponse.json(r);
     }
     if (p.action === 'legacyChangePassword') {
       const a = await actor(req, true);

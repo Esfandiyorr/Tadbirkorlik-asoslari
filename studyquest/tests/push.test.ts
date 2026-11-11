@@ -1,23 +1,31 @@
 import { afterEach, beforeAll, beforeEach, expect, it } from 'vitest';
 import type { Actor } from '../lib/types';
 import {
+  LIVE_ANNOUNCE_MS,
   LIVE_REMIND_MS,
   broadcastPush,
   demoOutbox,
   encryptPush,
   forgetVapid,
+  liveAnnounce,
   liveReminder,
   liveReminderText,
+  managePush,
+  pushAdmin,
+  pushAuto,
   pushHostOk,
+  pushTick,
   pushStats,
   pushSubs,
   sendPush,
   setPushSender,
   subscribePush,
   testPush,
+  topicPush,
   unsubscribePush,
   vapidAuth,
   vapidKeys,
+  videoPush,
 } from '../lib/server/push';
 import { demoKahoot, manageLive } from '../lib/server/live-admin';
 import { resetSiteMemory } from '../lib/server/site-content';
@@ -265,4 +273,193 @@ it('reminds about a live quiz once, 15 minutes before the start, but not indepen
     liveReminderText({ d: 'x', open: 0, start: 4 * 3600000, end: 1, type: 'yz' }),
   ).toMatchObject({ t: '⌨️ Yozuv marafoni 09:00 da boshlanadi', u: '/#arena/play/yozuv' });
   await sendPush({ t: 'x', b: '', u: '/', g: 'x' }, () => false);
+});
+
+const questions = Array.from({ length: 5 }, (_, i) => ({
+  t: `Jonli test savoli ${i + 1}: to‘g‘ri javobni toping`,
+  o: ['To‘g‘ri', 'Xato 1', 'Xato 2', 'Xato 3'],
+  c: 0,
+}));
+async function dailyAt(time: string, now: number) {
+  const admin = who('owner', 'admin');
+  await manageLive(admin, { op: 'import', questions }, now);
+  await manageLive(admin, { op: 'settings', on: true, time, nq: 5, qsec: 20, off: [] }, now);
+}
+
+it('announces a live quiz once 14 hours before, then reminds, and lets the admin switch each off', async () => {
+  const admin = who('owner', 'admin');
+  const early = Date.UTC(2026, 10, 11, 1, 0); // 06:00 Toshkent
+  await dailyAt('21:30', early);
+  const start = Date.UTC(2026, 10, 11, 16, 30);
+  await subscribePush(who('legacy_ali'), (await device()).sub);
+  await subscribePush(who('u_free', 'student', 'independent'), (await device()).sub);
+
+  expect(await liveAnnounce(start - LIVE_ANNOUNCE_MS - 60000)).toBeNull(); // hali erta
+  const a = await pushTick(start - LIVE_ANNOUNCE_MS + 1000);
+  expect(a.ann).toMatchObject({ game: '2026-11-11', total: 1, sent: 1 });
+  expect(a.rem).toBeNull();
+  expect(demoOutbox.map((x) => x.payload)).toEqual([
+    {
+      t: '📅 Bugun 21:30 da jonli test',
+      b: 'Qo‘shilish 21:20 da ochiladi · 5 ta savol. Boshlanishidan 15 daqiqa oldin yana eslatamiz.',
+      u: '/#arena/play/live',
+      g: 'sq-live-new',
+    },
+  ]);
+  expect((await pushTick(start - 3600000)).ann).toBeNull(); // bir marta
+  const r = await pushTick(start - 10 * 60000);
+  expect(r.rem).toMatchObject({ sent: 1 });
+  expect(demoOutbox).toHaveLength(2);
+
+  // tarix: yangisi tepada, kimga ketgani bilan
+  const v = await pushAdmin(admin, start - 5 * 60000);
+  expect(v.log.map((x) => [x.k, x.aud, x.s, x.n])).toEqual([
+    ['live', 'live', 1, 1],
+    ['ann', 'live', 1, 1],
+  ]);
+  expect(v.next).toMatchObject({ d: '2026-11-11', sentAnn: true, sentRem: true });
+
+  // ertangi 09:30 dagi o'yin — kechqurun «Ertaga …»; eslatma 30 daqiqa oldin
+  await manageLive(admin, { op: 'move', d: '2026-11-12', time: '09:30' }, early);
+  const next = Date.UTC(2026, 10, 12, 4, 30);
+  await managePush(admin, {
+    op: 'settings',
+    auto: { live: true, liveMin: 30, liveNew: true, topics: true, news: true, videos: true },
+  });
+  expect((await pushAuto()).liveMin).toBe(30);
+  const evening = Date.UTC(2026, 10, 11, 17, 0); // 22:00 — bugungi o'yin tugagan
+  expect((await pushTick(evening)).ann).toMatchObject({ game: '2026-11-12' });
+  expect(demoOutbox.at(-1)!.payload.t).toBe('📅 Ertaga 09:30 da jonli test');
+  expect(demoOutbox.at(-1)!.payload.b).toContain('30 daqiqa oldin yana eslatamiz');
+  expect((await pushTick(next - 25 * 60000)).rem).toMatchObject({ sent: 1 });
+
+  // o'chirilgan bo'lsa — hech narsa ketmaydi
+  await managePush(admin, {
+    op: 'settings',
+    auto: { live: false, liveMin: 15, liveNew: false, topics: true, news: true, videos: true },
+  });
+  await manageLive(admin, { op: 'move', d: '2026-11-12', time: '10:30' }, early);
+  const later = Date.UTC(2026, 10, 12, 5, 30);
+  expect(await pushTick(later - 5 * 3600000)).toEqual({ ann: null, rem: null });
+  expect(await pushTick(later - 5 * 60000)).toEqual({ ann: null, rem: null });
+  await expect(managePush(who('legacy_ali'), { op: 'settings', auto: {} })).rejects.toMatchObject({
+    status: 403,
+  });
+  await expect(
+    managePush(admin, { op: 'settings', auto: { live: true, liveMin: 2 } }),
+  ).rejects.toThrow();
+});
+
+it('a game created late is announced at once, but not right before its reminder', async () => {
+  const now = Date.UTC(2026, 10, 11, 14, 0); // 19:00
+  await dailyAt('21:30', now);
+  await subscribePush(who('legacy_ali'), (await device()).sub);
+  expect((await pushTick(now)).ann).toMatchObject({ sent: 1 });
+  resetSiteMemory();
+  forgetVapid();
+  Object.assign(demoKahoot, { cfg: null, bank: {}, idx: {}, games: {}, res: {} });
+  const close = Date.UTC(2026, 10, 11, 16, 8); // 21:08 — eslatmaga 7 daqiqa qoldi
+  await dailyAt('21:30', close);
+  await subscribePush(who('legacy_ali'), (await device()).sub);
+  expect(await pushTick(close)).toEqual({ ann: null, rem: null });
+});
+
+it('the admin sends to everyone, a group or only to themselves, and sees app and browser devices', async () => {
+  const admin = who('owner', 'admin');
+  await subscribePush(who('legacy_ali'), (await device()).sub, Date.now(), true);
+  await subscribePush(who('legacy_vali'), (await device()).sub);
+  await subscribePush({ ...who('legacy_sobir'), classId: 'BM-101' } as Actor, (await device()).sub);
+  await subscribePush(who('tc', 'teacher'), (await device()).sub);
+  let v = await pushAdmin(admin);
+  expect(v.stats).toMatchObject({
+    devices: 4,
+    app: 1,
+    browser: 3,
+    students: 3,
+    staff: 1,
+    studentDevices: 3,
+    staffDevices: 1,
+    mine: 0,
+  });
+  expect(v.groups).toEqual([
+    { g: 'AP-223', devices: 2, users: 2 },
+    { g: 'BM-101', devices: 1, users: 1 },
+  ]);
+  await expect(
+    managePush(admin, { op: 'send', msg: { t: 'Sinov', b: '', u: '', self: true } }),
+  ).rejects.toMatchObject({ status: 404 });
+  const g = await managePush(admin, {
+    op: 'send',
+    msg: { t: '👥 AP-223 ga', b: 'Ertaga 2-bino', u: '/#courses', aud: 'g:AP-223' },
+  });
+  expect(g.result).toMatchObject({ total: 2, sent: 2 });
+  expect(demoOutbox.map((x) => x.sub.uid).sort()).toEqual(['legacy_ali', 'legacy_vali']);
+  const st = await managePush(admin, {
+    op: 'send',
+    msg: { t: 'O‘qituvchilarga', b: '', u: '', aud: 'staff' },
+  });
+  expect(st.result).toMatchObject({ total: 1 });
+  expect(demoOutbox.at(-1)!.sub.uid).toBe('tc');
+  await subscribePush(admin, (await device()).sub);
+  const me = await managePush(admin, {
+    op: 'send',
+    msg: { t: 'Sinov', b: '', u: '', self: true },
+  });
+  expect(me.result).toMatchObject({ total: 1 });
+  expect(demoOutbox.at(-1)!.sub.uid).toBe('owner');
+  v = await pushAdmin(admin);
+  // sinov tarixga yozilmaydi; qo'lda yuborilganlar — kim yuborgani bilan
+  expect(v.log.map((x) => [x.k, x.aud, x.n, x.by])).toEqual([
+    ['manual', 'staff', 1, 'owner'],
+    ['manual', 'g:AP-223', 2, 'owner'],
+  ]);
+  await expect(
+    managePush(admin, { op: 'send', msg: { t: 'x', b: '', u: '', aud: 'g:../x' } }),
+  ).rejects.toThrow();
+  await expect(pushAdmin(who('tc', 'teacher'))).rejects.toMatchObject({ status: 403 });
+});
+
+it('tells students when a topic opens or a video is added, unless switched off', async () => {
+  await subscribePush(who('legacy_ali'), (await device()).sub);
+  await subscribePush(who('tc', 'teacher'), (await device()).sub);
+  const due = Date.UTC(2026, 10, 15, 18, 59);
+  const now = Date.UTC(2026, 10, 11, 10, 0);
+  const t = await topicPush({ id: 'm5', order: 4, title: 'Biznes reja', state: 'open', due }, now);
+  expect(t).toMatchObject({ total: 1, sent: 1 });
+  expect(demoOutbox[0]).toMatchObject({
+    sub: { uid: 'legacy_ali' },
+    payload: {
+      t: '🟢 5-mavzu ochildi',
+      b: 'Biznes reja · Ball yig‘ish muddati: 15.11 23:59 gacha.',
+      u: '/#lesson/m5',
+    },
+  });
+  // ikki marta bosilsa — bir soat ichida qayta ketmaydi; yopilganda — umuman
+  expect(
+    await topicPush({ id: 'm5', order: 4, title: 'x', state: 'open' }, now + 60000),
+  ).toBeNull();
+  expect(await topicPush({ id: 'm6', order: 5, title: 'x', state: 'lock' }, now)).toBeNull();
+  expect(
+    await topicPush({ id: 'm6', order: 5, title: 'Marketing', state: 'read' }, now),
+  ).toMatchObject({ sent: 1 });
+  expect(demoOutbox.at(-1)!.payload.t).toBe('📖 6-mavzu o‘qish uchun ochildi');
+  expect(
+    await videoPush(
+      { id: 'm8', title: 'M8 · Reklama psixologiyasi' },
+      'Reklama — 12 daqiqada',
+      now,
+    ),
+  ).toMatchObject({ sent: 1 });
+  expect(demoOutbox.at(-1)!.payload).toMatchObject({
+    t: '📺 Yangi video: Reklama — 12 daqiqada',
+    b: '8-mavzu: Reklama psixologiyasi',
+    u: '/#lesson/m8',
+  });
+  await managePush(who('owner', 'admin'), {
+    op: 'settings',
+    auto: { live: true, liveMin: 15, liveNew: true, topics: false, news: true, videos: false },
+  });
+  expect(await topicPush({ id: 'm7', order: 6, title: 'x', state: 'open' }, now)).toBeNull();
+  expect(await videoPush({ id: 'm8', title: 'M8 · x' }, undefined, now)).toBeNull();
+  expect(demoOutbox).toHaveLength(3);
 });

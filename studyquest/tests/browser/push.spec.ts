@@ -99,7 +99,66 @@ test('the administrator can send an announcement to phones as well', async ({ pa
   await page.locator('.bo-card-btn').filter({ hasText: 'E’lonlar' }).click();
   const push = page.getByLabel(/Telefonlarga ham yuborilsin/);
   await expect(push).toBeChecked();
+  // katta oyna kerak emas — u keyingi sinovlarda boshqa foydalanuvchilarning ekranini to'sib qo'yadi
+  await page.getByRole('checkbox', { name: /katta oynada ko‘rsatish/ }).uncheck();
   await page.getByLabel('E’lon matni').fill('Ertaga jonli test 09:30 da bo‘ladi.');
   await page.getByRole('button', { name: 'E’lon joylash' }).click();
-  await expect(page.locator('.news-admin-list')).toContainText('Ertaga jonli test 09:30 da');
+  const list = page.locator('.news-admin-list');
+  await expect(list).toContainText('Ertaga jonli test 09:30 da');
+  // tozalash
+  await list.getByRole('button', { name: /O‘chirish: .*Ertaga jonli test/ }).click();
+  await expect(list).not.toContainText('Ertaga jonli test 09:30 da');
+});
+
+test('the administrator sends a notification from its own section and controls automatic ones', async ({
+  page,
+}) => {
+  await page.addInitScript(FAKE_PUSH);
+  await as(page, 'demo-admin');
+  await page.goto('/#admin', { waitUntil: 'domcontentloaded' });
+  await page.locator('.bo-card-btn').filter({ hasText: 'Bildirishnomalar' }).click();
+  const sec = page.locator('.bo-push');
+  await expect(sec.locator('.bo-status').first()).toContainText('ilovada');
+  // o'z qurilmasida yoqadi — «Avval o'zimga» ochiladi
+  await sec.locator('.push-box').getByRole('button', { name: 'Yoqish' }).click();
+  await expect(sec.locator('.push-box')).toContainText('Bildirishnomalar yoqilgan');
+  await page.reload({ waitUntil: 'domcontentloaded' });
+  await sec.getByLabel('Sarlavha').fill('📢 Ertaga dars 2-binoda');
+  await sec.getByLabel('Matn').fill('Soat 9:30 da, 214-xona.');
+  await expect(sec.locator('.bo-push-preview')).toContainText('Ertaga dars 2-binoda');
+  await sec.getByRole('button', { name: /Avval o‘zimga/ }).click();
+  await expect(page.getByText(/🧪 1 ta qurilmaga yetkazildi/)).toBeVisible();
+  page.once('dialog', (d) => void d.accept());
+  await sec.getByRole('button', { name: /^Yuborish/ }).click();
+  await expect(page.getByText(/✅ \d+ ta qurilmaga yetkazildi/)).toBeVisible();
+  await sec.getByRole('tab', { name: /Tarix/ }).click();
+  await expect(sec.locator('.bo-push-log li').first()).toContainText('Ertaga dars 2-binoda');
+  await expect(sec.locator('.bo-push-log li').first()).toContainText('hammaga');
+
+  // avtomatik xabarlar: «Yangi e'lon» o'chirilsa — E'lonlar bo'limida belgi odatda o'chiq
+  await sec.getByRole('tab', { name: /Avtomatik/ }).click();
+  const news = sec.getByRole('checkbox', { name: /Yangi e’lon/ });
+  await expect(news).toBeChecked();
+  await expect(sec.getByRole('checkbox', { name: /Jonli test e’loni/ })).toBeChecked();
+  await sec.getByLabel('Necha daqiqa oldin').selectOption('30');
+  await expect(page.getByText('💾 Saqlandi').first()).toBeVisible();
+  await news.uncheck();
+  await expect(news).not.toBeChecked();
+  await page.locator('.bo-head').getByRole('button', { name: 'Sayt boshqaruvi' }).click();
+  await page.locator('.bo-card-btn').filter({ hasText: 'E’lonlar' }).click();
+  await expect(page.getByLabel(/Telefonlarga ham yuborilsin/)).not.toBeChecked();
+  // asl holiga qaytariladi (boshqa sinovlar uchun)
+  const res = await page.request.post('/api/platform', {
+    data: {
+      action: 'pushAdmin',
+      input: {
+        op: 'settings',
+        auto: { live: true, liveMin: 15, liveNew: true, topics: true, news: true, videos: true },
+      },
+    },
+  });
+  expect(res.ok()).toBe(true);
+  // talaba bu bo'limni ko'ra olmaydi
+  await as(page, 'demo-student');
+  expect((await page.request.get('/api/platform?view=pushAdmin')).status()).toBe(403);
 });
