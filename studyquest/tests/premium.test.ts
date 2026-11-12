@@ -192,17 +192,29 @@ it('builds a presentation within the free trial, then asks for Premium, and keep
   await expect(readDeck(who('legacy_vali'), made.deck.id)).rejects.toMatchObject({ status: 404 });
   expect((await readDeck(ali, made.deck.id)).deck.slides).toHaveLength(6);
 
-  // obuna bilan — kuniga 10 tagacha; 12 tadan eskilari o'chadi
-  await managePremium(admin, { op: 'grant', uid: 'legacy_ali', name: 'Ali', days: 30 }, now);
-  // (bugungi bepul taqdimot ham hisobga kiradi — yana 9 ta)
-  for (let i = 0; i < 9; i++) await makeDeck(ali, input, now + 2000 + i);
+  // obuna bilan — kuniga 5, oyiga 40 tagacha; 12 tadan eskilari o'chadi
+  await managePremium(admin, { op: 'grant', uid: 'legacy_ali', name: 'Ali', days: 60 }, now);
+  // (bugungi bepul taqdimot ham hisobga kiradi — yana 4 ta)
+  for (let i = 0; i < 4; i++) await makeDeck(ali, input, now + 2000 + i);
   await expect(makeDeck(ali, input, now + 5000)).rejects.toMatchObject({ status: 429 });
-  for (let i = 0; i < 3; i++) await makeDeck(ali, input, now + DAY + i); // ertasiga yana mumkin
-  v = await slidesView(ali, now + DAY + 10);
+  for (let d = 1; d <= 2; d++)
+    for (let i = 0; i < 5; i++) await makeDeck(ali, input, now + d * DAY + i); // ertasiga yana mumkin
+  v = await slidesView(ali, now + 2 * DAY + 10);
   expect(v.decks).toHaveLength(12);
-  expect(v.todayLeft).toBe(7);
-  v = await removeDeck(ali, v.decks[0].id, now + DAY + 10);
+  expect(v).toMatchObject({ todayLeft: 0, monthLeft: 25, can: false });
+  v = await removeDeck(ali, v.decks[0].id, now + 2 * DAY + 10);
   expect(v.decks).toHaveLength(11);
+  // oylik chegara: 40 taga yetgach — keyingi oygacha to'xtaydi, yangi oyda yana ochiladi
+  for (let d = 3; d <= 7; d++)
+    for (let i = 0; i < 5; i++) await makeDeck(ali, input, now + d * DAY + i);
+  await expect(makeDeck(ali, input, now + 8 * DAY)).rejects.toMatchObject({ status: 429 });
+  expect(await slidesView(ali, now + 8 * DAY)).toMatchObject({ todayLeft: 0, monthLeft: 0 });
+  const nextMonth = Date.UTC(2026, 11, 1, 9, 0);
+  expect(await slidesView(ali, nextMonth)).toMatchObject({
+    todayLeft: 5,
+    monthLeft: 40,
+    can: true,
+  });
 
   // generator xato qilsa — sinov sarflanmaydi va «band» belgisi qolmaydi
   const vali = who('legacy_vali');

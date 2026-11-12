@@ -227,9 +227,9 @@ export function SlidesMaker() {
               <p className="sm-access is-on" role="status">
                 💎{' '}
                 {L(
-                  `Bugun yana ${view.todayLeft} ta taqdimot tuzishingiz mumkin.`,
-                  `You can build ${view.todayLeft} more presentations today.`,
-                  `Сегодня можно создать ещё ${view.todayLeft}.`,
+                  `Bugun yana ${view.todayLeft} ta taqdimot tuzishingiz mumkin (bu oyda — ${view.monthLeft} ta).`,
+                  `You can build ${view.todayLeft} more presentations today (${view.monthLeft} left this month).`,
+                  `Сегодня можно создать ещё ${view.todayLeft} (в этом месяце — ${view.monthLeft}).`,
                 )}
               </p>
             ) : view.freeLeft > 0 ? (

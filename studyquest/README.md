@@ -45,7 +45,8 @@ For Firebase-backed development, copy `.env.example` to `.env.local`, supply you
   (`claude-opus-5-5`, structured output, server-side refusal fallback) writes the deck — slides, bullets and speaker
   notes. It is viewed in the app (five themes, full screen) and downloaded as `.pptx` (built in the browser with
   `pptxgenjs`). Needs `ANTHROPIC_API_KEY` in the server environment; only the topic text is sent to the model.
-  Without Premium a student gets the configured number of free decks; with Premium up to 10 a day.
+  Without Premium a student gets the configured number of free decks; with Premium up to 5 a day and 40 a month
+  (every deck costs API money, so the caps keep the bill predictable).
 - **Premium** (`lib/server/premium.ts`): until a payment provider is connected the administrator grants a timed
   subscription by hand and writes the price and payment instructions. Inside the Play Store app (`/?src=play`) the
   offer shows no price or payment instructions (`lib/play-app.ts`) — Google Play does not allow steering to external

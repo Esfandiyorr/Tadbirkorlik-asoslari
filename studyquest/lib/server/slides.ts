@@ -21,15 +21,19 @@ import { premiumInfo, premiumKey, premiumState } from './premium';
 
 /* 🎞 Taqdimot: sun'iy intellekt (Claude) talaba yozgan mavzu bo'yicha tayyor taqdimot tuzadi — sarlavha, slaydlar
    (har birida qisqa bandlar) va ma'ruzachi uchun izohlar. Talaba uni sayt ichida ko'radi va PowerPoint qilib yuklaydi.
-   Pullik imkoniyat: obunachi (lib/server/premium.ts) kuniga DAILY tagacha tuzadi; obunasiz foydalanuvchiga
+   Pullik imkoniyat: obunachi (lib/server/premium.ts) kuniga DAILY, oyiga MONTHLY tagacha tuzadi (har bir taqdimot
+   sun'iy intellekt xizmatiga pul sarflaydi — chegara xarajatni oldindan ma'lum qiladi); obunasiz foydalanuvchiga
    administrator belgilagan miqdorda bepul sinov (site/premiumInfo.free).
    Kalit — serverdagi ANTHROPIC_API_KEY (Vercel → Environment Variables); brauzerga hech qachon berilmaydi.
    Sun'iy intellektga faqat mavzu va talabning matni yuboriladi — ism, guruh yoki boshqa shaxsiy ma'lumot emas.
-   site/slides/<foydalanuvchi> = {used: bepul ishlatilgani, day: {<kun>: soni}, busy: vaqt, decks: {<id>: taqdimot}}. */
+   site/slides/<foydalanuvchi> = {used: bepul ishlatilgani, day: {<kun>: soni}, mon: {<oy>: soni}, busy: vaqt,
+   decks: {<id>: taqdimot}}. */
 
 export const SLIDES_MODEL = 'claude-opus-5-5';
-const DAILY = 10;
+const DAILY = 5;
+const MONTHLY = 40;
 const DAILY_STAFF = 30;
+const MONTHLY_STAFF = 300;
 const KEEP = 12;
 const BUSY_MS = 3 * 60000;
 const day = (ms: number) => new Date(ms + 18000000).toISOString().slice(0, 10);
@@ -37,6 +41,7 @@ const day = (ms: number) => new Date(ms + 18000000).toISOString().slice(0, 10);
 type Stored = {
   used?: number;
   day?: Record<string, number>;
+  mon?: Record<string, number>;
   busy?: number;
   decks?: Record<string, SavedDeck>;
 };
@@ -249,16 +254,20 @@ export async function slidesView(a: Actor, now = Date.now()) {
     premiumState(a, now),
     premiumInfo(),
   ]);
-  const today = Number(st?.day?.[day(now)]) || 0;
-  const cap = premium.staff ? DAILY_STAFF : DAILY;
+  const today = Number(st?.day?.[day(now)]) || 0,
+    month = Number(st?.mon?.[day(now).slice(0, 7)]) || 0;
+  const cap = premium.staff ? DAILY_STAFF : DAILY,
+    monthCap = premium.staff ? MONTHLY_STAFF : MONTHLY;
   const freeLeft = premium.active ? 0 : Math.max(0, info.free - (Number(st?.used) || 0));
+  const todayLeft = Math.max(0, Math.min(cap - today, monthCap - month));
   return {
     configured: slidesConfigured(),
     premium,
     info,
     freeLeft,
-    todayLeft: Math.max(0, cap - today),
-    can: premium.active ? today < cap : freeLeft > 0,
+    todayLeft,
+    monthLeft: Math.max(0, monthCap - month),
+    can: premium.active ? todayLeft > 0 : freeLeft > 0,
     decks: Object.values(st?.decks || {})
       .filter((d) => d && d.deck)
       .sort((x, y) => y.at - x.at)
@@ -284,14 +293,21 @@ export async function makeDeck(a: Actor, raw: unknown, now = Date.now()) {
     premiumInfo(),
   ]);
   const used = Number(st?.used) || 0,
-    today = Number(st?.day?.[day(now)]) || 0;
-  if (premium.active)
+    today = Number(st?.day?.[day(now)]) || 0,
+    ym = day(now).slice(0, 7),
+    month = Number(st?.mon?.[ym]) || 0;
+  if (premium.active) {
+    check(
+      month < (premium.staff ? MONTHLY_STAFF : MONTHLY),
+      429,
+      'Bu oydagi limit tugadi. Keyingi oy boshida yana taqdimot tuzishingiz mumkin.',
+    );
     check(
       today < (premium.staff ? DAILY_STAFF : DAILY),
       429,
       'Bugungi limit tugadi. Ertaga yana taqdimot tuzishingiz mumkin.',
     );
-  else check(used < info.free, 402, 'Bepul taqdimotlar tugadi. Davom etish uchun obuna bo‘ling.');
+  } else check(used < info.free, 402, 'Bepul taqdimotlar tugadi. Davom etish uchun obuna bo‘ling.');
   check(
     !(Number(st?.busy) > now - BUSY_MS),
     409,
@@ -324,6 +340,7 @@ export async function makeDeck(a: Actor, raw: unknown, now = Date.now()) {
     [path + '/busy']: null,
     [path + '/decks/' + id]: saved,
     [path + '/day']: { [day(now)]: today + 1 },
+    [path + '/mon']: { [ym]: month + 1 },
     ...(premium.active ? {} : { [path + '/used']: used + 1 }),
     ...Object.fromEntries(old.map((d) => [path + '/decks/' + d.id, null])),
   });

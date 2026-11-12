@@ -9998,7 +9998,7 @@ button.danger,
   padding: 26px 24px 22px;
   border-radius: 24px;
   text-align: left;
-  animation: sq-pop 0.22s ease-out;
+  animation: fx-pop 0.22s ease-out;
 }
 .premium-offer .av-close {
   position: absolute;
@@ -10042,7 +10042,7 @@ button.danger,
   flex-wrap: wrap;
   gap: 8px;
 }
-@keyframes sq-pop {
+@keyframes fx-pop {
   from {
     opacity: 0;
     transform: translateY(10px) scale(0.97);
@@ -10124,9 +10124,9 @@ button.danger,
 }
 .lib-grid li {
   display: flex;
-  animation: sq-rise 0.4s both ease-out;
+  animation: fx-rise 0.4s both ease-out;
 }
-@keyframes sq-rise {
+@keyframes fx-rise {
   from {
     opacity: 0;
     transform: translateY(14px);
@@ -10436,7 +10436,7 @@ button.danger,
 }
 .sm-wait b {
   font-size: 17px;
-  animation: sq-rise 0.4s both;
+  animation: fx-rise 0.4s both;
 }
 .sm-wait-deck {
   position: relative;
@@ -10560,7 +10560,7 @@ button.danger,
   font-size: clamp(8.5px, 2.9cqw, 44px);
   line-height: 1.35;
   overflow-wrap: anywhere;
-  animation: sq-rise 0.4s both ease-out;
+  animation: fx-rise 0.4s both ease-out;
 }
 .sm-slide li::marker {
   color: var(--dk-bg2);
@@ -10735,7 +10735,7 @@ html {
 .bo-cards > li,
 .badge-grid > *,
 .quick-links > * {
-  animation: sq-rise 0.45s both cubic-bezier(0.2, 0.7, 0.2, 1);
+  animation: fx-rise 0.45s both cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 .course-grid > :nth-child(2),
 .lesson-grid > :nth-child(2),
@@ -10777,10 +10777,10 @@ html {
   animation-delay: 300ms;
 }
 .page-heading h1 {
-  animation: sq-rise 0.4s both ease-out;
+  animation: fx-rise 0.4s both ease-out;
 }
 .page-heading p {
-  animation: sq-rise 0.4s 60ms both ease-out;
+  animation: fx-rise 0.4s 60ms both ease-out;
 }
 /* kartochkalar: ko'tarilish va yumshoq soya */
 .course-card,
@@ -10835,9 +10835,9 @@ html {
   width: 4px;
   border-radius: 4px;
   background: linear-gradient(#7c3aed, #c026d3);
-  animation: sq-grow 0.28s ease-out;
+  animation: fx-grow 0.28s ease-out;
 }
-@keyframes sq-grow {
+@keyframes fx-grow {
   from {
     transform: scaleY(0);
     opacity: 0;
@@ -10864,12 +10864,12 @@ html {
   transition: transform 0.22s cubic-bezier(0.3, 1.6, 0.5, 1);
 }
 .bottom-nav a.active svg {
-  animation: sq-bounce 0.45s cubic-bezier(0.3, 1.6, 0.5, 1);
+  animation: fx-bounce 0.45s cubic-bezier(0.3, 1.6, 0.5, 1);
 }
 .bottom-nav a:active svg {
   transform: scale(0.88);
 }
-@keyframes sq-bounce {
+@keyframes fx-bounce {
   0% {
     transform: translateY(0) scale(1);
   }
@@ -10883,9 +10883,9 @@ html {
 /* bosh sahifa: jonli gradient va tezkor o'tishlar */
 .welcome-hero {
   background-size: 190% 190%;
-  animation: sq-pan 16s ease-in-out infinite alternate;
+  animation: fx-pan 16s ease-in-out infinite alternate;
 }
-@keyframes sq-pan {
+@keyframes fx-pan {
   from {
     background-position: 0% 40%;
   }
@@ -10894,9 +10894,9 @@ html {
   }
 }
 .welcome-hero:after {
-  animation: sq-float 9s ease-in-out infinite alternate;
+  animation: fx-float 9s ease-in-out infinite alternate;
 }
-@keyframes sq-float {
+@keyframes fx-float {
   to {
     transform: translate(-18px, 22px) scale(1.08);
   }
@@ -10985,26 +10985,26 @@ html {
 }
 /* xabarcha (toast) va oynalar yumshoq chiqadi */
 .toast {
-  animation: sq-toast 0.3s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+  animation: fx-toast 0.3s cubic-bezier(0.2, 0.9, 0.3, 1.2);
 }
-@keyframes sq-toast {
+@keyframes fx-toast {
   from {
     opacity: 0;
     transform: translate(-50%, 16px) scale(0.96);
   }
 }
 .modal-backdrop {
-  animation: sq-fade 0.2s ease-out;
+  animation: fx-fade 0.2s ease-out;
 }
-@keyframes sq-fade {
+@keyframes fx-fade {
   from {
     opacity: 0;
   }
 }
 .nav-badge {
-  animation: sq-pulse 2.4s ease-in-out infinite;
+  animation: fx-pulse 2.4s ease-in-out infinite;
 }
-@keyframes sq-pulse {
+@keyframes fx-pulse {
   50% {
     transform: scale(1.12);
   }
