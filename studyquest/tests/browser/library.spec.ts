@@ -169,3 +169,43 @@ test('a student builds a free presentation, views it, downloads PowerPoint and t
   await expect(page.locator('.sm-mine')).toHaveCount(0);
   await expect(page.locator('.sm-viewer')).toHaveCount(0);
 });
+
+test('inside the Play Market app the offer shows no price or payment instructions', async ({
+  page,
+}) => {
+  await as(page, 'demo-admin');
+  expect(
+    (
+      await act(page, 'premiumAdmin', {
+        op: 'info',
+        price: '25 000 so‘m / oy',
+        how: 'Click orqali 8600 … kartaga o‘tkazing',
+        free: 0,
+      })
+    ).ok(),
+  ).toBe(true);
+  await as(page, 'demo-student');
+  // brauzerda: narx va to'lov yo'riqnomasi ko'rinadi
+  await page.goto('/#slides', { waitUntil: 'domcontentloaded' });
+  await page.getByRole('button', { name: /Obuna haqida/ }).click();
+  const offer = page.getByRole('dialog', { name: /Obuna bilan ko‘proq imkoniyat/ });
+  await expect(offer).toContainText('25 000 so‘m / oy');
+  await expect(offer).toContainText('Click orqali');
+  await expect(offer.getByRole('button', { name: 'Administratorga yozish' })).toBeVisible();
+  await offer.getByRole('button', { name: 'Keyinroq' }).click();
+  // Play Market ilovasi saytni /?src=play bilan ochadi — narx ham, to'lov yo'riqnomasi ham yo'q (Google qoidasi)
+  await page.goto('/?src=play#slides', { waitUntil: 'domcontentloaded' });
+  await expect(page.locator('.sm-access.is-off')).toContainText('obunachilar uchun');
+  await page.getByRole('button', { name: /Obuna haqida/ }).click();
+  await expect(offer).toContainText('Bu imkoniyatlar obunachilar uchun');
+  await expect(offer).not.toContainText('25 000');
+  await expect(offer).not.toContainText('Click orqali');
+  await expect(offer.getByRole('button', { name: 'Administratorga yozish' })).toHaveCount(0);
+  await offer.getByRole('button', { name: 'Tushunarli' }).click();
+  // belgi shu oynada saqlanadi: ilova ichida boshqa bo'limga o'tilganda ham
+  await page.goto('/#library', { waitUntil: 'domcontentloaded' });
+  expect(await page.evaluate(() => sessionStorage.getItem('sq-play'))).toBe('1');
+  // asl holiga qaytarish
+  await as(page, 'demo-admin');
+  await act(page, 'premiumAdmin', { op: 'info', price: '', how: '', free: 1 });
+});

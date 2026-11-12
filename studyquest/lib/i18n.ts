@@ -49,6 +49,7 @@ const words = {
   navChat: ['Chat', 'Chat', 'Чат'],
   library: ['Kutubxona', 'Library', 'Библиотека'],
   navLibrary: ['Kitoblar', 'Library', 'Книги'],
+  navSlides: ['Slayd', 'Slides', 'Слайды'],
   slides: ['Taqdimot', 'Slides', 'Презентация'],
   menu: ['Asosiy menyu', 'Main menu', 'Главное меню'],
   tagline: [

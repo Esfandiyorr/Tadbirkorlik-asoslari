@@ -7,6 +7,7 @@ import { Button } from './ui/button';
 import { navigate } from './dashboard';
 import { dueText, tr } from '@/lib/points';
 import type { PremiumInfo, PremiumState } from '@/lib/library';
+import { isPlayApp } from '@/lib/play-app';
 
 /* 💎 Obuna (premium): holatini o'qish, «obuna bo'lish» oynasi va kichik belgi. Obunani hozircha administrator beradi
    (lib/server/premium.ts) — oynada narx va to'lov yo'riqnomasi ko'rsatiladi. */
@@ -63,6 +64,9 @@ export function PremiumOffer({
     return () => window.removeEventListener('keydown', key);
   }, [onClose]);
   const signedIn = !!data?.user;
+  // Play Market ilovasida narx va to'lov yo'riqnomasi ko'rsatilmaydi (Google qoidasi) — lib/play-app.ts
+  const [play, setPlay] = useState(false);
+  useEffect(() => setPlay(isPlayApp()), []);
   return createPortal(
     <div className="modal-backdrop" onClick={(e) => e.target === e.currentTarget && onClose()}>
       <section
@@ -112,32 +116,50 @@ export function PremiumOffer({
             )}
           </li>
         </ul>
-        {info?.price && (
-          <p className="premium-offer-price">
-            <b>{info.price}</b>
-          </p>
-        )}
-        <p className="premium-offer-how">
-          {info?.how ||
-            L(
-              'Obuna bo‘lish uchun administratorga yozing — u to‘lov usulini aytadi va obunani yoqib beradi.',
-              'To subscribe, write to the administrator — they will explain how to pay and turn Premium on.',
-              'Чтобы оформить подписку, напишите администратору — он объяснит оплату и включит подписку.',
+        {play ? (
+          <p className="premium-offer-how">
+            {L(
+              'Bu imkoniyatlar obunachilar uchun. Obunangiz bo‘lsa, shu hisob bilan kirganingizda hammasi o‘zi ochiladi.',
+              'These features are for subscribers. If you have Premium, everything opens once you sign in with that account.',
+              'Эти возможности доступны подписчикам. Если у вас есть подписка, всё откроется после входа в этот аккаунт.',
             )}
-        </p>
+          </p>
+        ) : (
+          <>
+            {info?.price && (
+              <p className="premium-offer-price">
+                <b>{info.price}</b>
+              </p>
+            )}
+            <p className="premium-offer-how">
+              {info?.how ||
+                L(
+                  'Obuna bo‘lish uchun administratorga yozing — u to‘lov usulini aytadi va obunani yoqib beradi.',
+                  'To subscribe, write to the administrator — they will explain how to pay and turn Premium on.',
+                  'Чтобы оформить подписку, напишите администратору — он объяснит оплату и включит подписку.',
+                )}
+            </p>
+          </>
+        )}
         <div className="premium-offer-actions">
-          <Button
-            onClick={() => {
-              onClose();
-              navigate(signedIn ? 'chat/admin' : 'login');
-            }}
-          >
-            {signedIn
-              ? L('Administratorga yozish', 'Write to the administrator', 'Написать администратору')
-              : L('Kirish', 'Sign in', 'Войти')}
-          </Button>
+          {(!play || !signedIn) && (
+            <Button
+              onClick={() => {
+                onClose();
+                navigate(signedIn ? 'chat/admin' : 'login');
+              }}
+            >
+              {signedIn
+                ? L(
+                    'Administratorga yozish',
+                    'Write to the administrator',
+                    'Написать администратору',
+                  )
+                : L('Kirish', 'Sign in', 'Войти')}
+            </Button>
+          )}
           <Button variant="outline" onClick={onClose}>
-            {L('Keyinroq', 'Later', 'Позже')}
+            {play ? L('Tushunarli', 'OK', 'Понятно') : L('Keyinroq', 'Later', 'Позже')}
           </Button>
         </div>
       </section>

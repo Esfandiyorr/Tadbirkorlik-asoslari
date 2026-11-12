@@ -123,6 +123,51 @@ export function Dashboard() {
   return <LearnerHome />;
 }
 
+/** Bosh sahifadagi tezkor o'tishlar: asosiy bo'limlar bitta bosishda. */
+function QuickLinks() {
+  const { lang } = useApp();
+  const items: [string, string, [string, string, string], [string, string, string]][] = [
+    [
+      'courses',
+      '📚',
+      ['Mavzular', 'Topics', 'Темы'],
+      ['Fanni ketma-ket o‘rganish', 'Study the course step by step', 'Изучать курс по порядку'],
+    ],
+    [
+      'slides',
+      '🎞',
+      ['Taqdimot', 'Presentation', 'Презентация'],
+      ['Sun’iy intellekt tuzib beradi', 'Built for you by AI', 'Подготовит ИИ'],
+    ],
+    [
+      'library',
+      '📖',
+      ['Kutubxona', 'Library', 'Библиотека'],
+      ['Kitob, qo‘llanma va namunalar', 'Books, guides and templates', 'Книги, пособия и шаблоны'],
+    ],
+    [
+      'arena',
+      '🎮',
+      ['O‘yin maydoni', 'Game arena', 'Игровая арена'],
+      ['Jonli test va bellashuvlar', 'Live quiz and contests', 'Живой тест и соревнования'],
+    ],
+  ];
+  return (
+    <nav
+      className="quick-links"
+      aria-label={tr(lang, 'Tezkor o‘tish', 'Quick links', 'Быстрые ссылки')}
+    >
+      {items.map(([id, icon, name, hint]) => (
+        <a key={id} href={'#' + id} className={'quick-link is-' + id}>
+          <span aria-hidden="true">{icon}</span>
+          <b>{tr(lang, ...name)}</b>
+          <small>{tr(lang, ...hint)}</small>
+        </a>
+      ))}
+    </nav>
+  );
+}
+
 function LearnerHome() {
   const { data, lang, legacy } = useApp(),
     reduce = useReducedMotion(),
@@ -272,6 +317,7 @@ function LearnerHome() {
               </div>
             </motion.section>
           )}
+          <QuickLinks />
           <section className="stats-grid">
             {hasAcademic && university ? (
               <div className="stat-card">

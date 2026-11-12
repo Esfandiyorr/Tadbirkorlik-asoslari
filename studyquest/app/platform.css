@@ -10537,13 +10537,13 @@ button.danger,
 }
 .sm-slide header h2 {
   margin: 0;
-  font-size: clamp(15px, 4cqw, 58px);
+  font-size: clamp(10.5px, 4cqw, 58px);
   line-height: 1.2;
   overflow-wrap: anywhere;
 }
 .sm-slide header em {
   font-style: normal;
-  font-size: clamp(11px, 1.8cqw, 26px);
+  font-size: clamp(8px, 1.8cqw, 26px);
   color: var(--dk-soft);
 }
 .sm-slide ul {
@@ -10557,7 +10557,7 @@ button.danger,
   list-style: disc;
 }
 .sm-slide li {
-  font-size: clamp(12px, 3cqw, 44px);
+  font-size: clamp(8.5px, 2.9cqw, 44px);
   line-height: 1.35;
   overflow-wrap: anywhere;
   animation: sq-rise 0.4s both ease-out;
@@ -10577,48 +10577,45 @@ button.danger,
 }
 .sm-slide.is-cover h2 {
   margin: 0;
-  font-size: clamp(20px, 5.4cqw, 84px);
+  font-size: clamp(15px, 5.4cqw, 84px);
   line-height: 1.12;
   overflow-wrap: anywhere;
 }
 .sm-slide.is-cover p {
   margin: 0;
-  font-size: clamp(13px, 2.4cqw, 36px);
+  font-size: clamp(9px, 2.4cqw, 36px);
   color: var(--dk-soft);
 }
-.sm-nav {
-  position: absolute;
-  top: 50%;
+.sm-stage {
+  cursor: pointer;
+}
+.sm-step {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.sm-step button {
   display: grid;
   place-items: center;
-  width: 40px;
-  height: 40px;
-  margin-top: -20px;
-  border: 0;
-  border-radius: 999px;
-  background: #00000055;
-  color: #fff;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--text);
   cursor: pointer;
-  opacity: 0;
-  transition: opacity 0.2s;
+  transition: background 0.15s;
 }
-.sm-stage:hover .sm-nav,
-.sm-nav:focus-visible {
-  opacity: 1;
+.sm-step button:hover:not(:disabled) {
+  background: var(--soft-violet);
 }
-.sm-nav:disabled {
-  display: none;
+.sm-step button:disabled {
+  opacity: 0.4;
+  cursor: default;
 }
-.sm-nav.is-prev {
-  left: 10px;
-}
-.sm-nav.is-next {
-  right: 10px;
-}
-@media (hover: none) {
-  .sm-nav {
-    opacity: 0.85;
-  }
+.sm-step .sm-pos {
+  min-width: 52px;
+  text-align: center;
 }
 .sm-bar {
   display: flex;
@@ -10725,5 +10722,327 @@ button.danger,
   .sm-wait b,
   .sm-wait-deck i {
     animation: none;
+  }
+}
+
+/* ✨ Jonli interfeys: kirish animatsiyalari, hover va bosish javoblari (prefers-reduced-motion — o'chiq) */
+html {
+  scroll-behavior: smooth;
+}
+.course-grid > *,
+.lesson-grid > *,
+.stats-grid > *,
+.bo-cards > li,
+.badge-grid > *,
+.quick-links > * {
+  animation: sq-rise 0.45s both cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.course-grid > :nth-child(2),
+.lesson-grid > :nth-child(2),
+.stats-grid > :nth-child(2),
+.bo-cards > li:nth-child(2),
+.badge-grid > :nth-child(2),
+.quick-links > :nth-child(2) {
+  animation-delay: 50ms;
+}
+.course-grid > :nth-child(3),
+.lesson-grid > :nth-child(3),
+.stats-grid > :nth-child(3),
+.bo-cards > li:nth-child(3),
+.badge-grid > :nth-child(3),
+.quick-links > :nth-child(3) {
+  animation-delay: 100ms;
+}
+.course-grid > :nth-child(4),
+.lesson-grid > :nth-child(4),
+.stats-grid > :nth-child(4),
+.bo-cards > li:nth-child(4),
+.badge-grid > :nth-child(4),
+.quick-links > :nth-child(4) {
+  animation-delay: 150ms;
+}
+.lesson-grid > :nth-child(5),
+.bo-cards > li:nth-child(5),
+.badge-grid > :nth-child(5) {
+  animation-delay: 200ms;
+}
+.lesson-grid > :nth-child(6),
+.bo-cards > li:nth-child(6),
+.badge-grid > :nth-child(6) {
+  animation-delay: 250ms;
+}
+.lesson-grid > :nth-child(n + 7),
+.bo-cards > li:nth-child(n + 7),
+.badge-grid > :nth-child(n + 7) {
+  animation-delay: 300ms;
+}
+.page-heading h1 {
+  animation: sq-rise 0.4s both ease-out;
+}
+.page-heading p {
+  animation: sq-rise 0.4s 60ms both ease-out;
+}
+/* kartochkalar: ko'tarilish va yumshoq soya */
+.course-card,
+.lesson-card,
+.stat-card,
+.badge-card,
+.bo-card-btn {
+  transition:
+    transform 0.22s cubic-bezier(0.2, 0.7, 0.2, 1),
+    box-shadow 0.22s ease,
+    border-color 0.22s ease;
+}
+.course-card:hover,
+.lesson-card:hover,
+.stat-card:hover,
+.bo-card-btn:hover {
+  transform: translateY(-4px);
+  border-color: #c4b5fd;
+  box-shadow: 0 18px 40px -24px #4c1d95aa;
+}
+.course-card:active,
+.lesson-card:active,
+.bo-card-btn:active,
+.lib-card:active,
+.quick-link:active {
+  transform: translateY(-1px) scale(0.99);
+}
+/* yon menyu: faol bo'lim chizig'i, belgilar jonlanadi */
+.sidebar nav a {
+  position: relative;
+  transition:
+    background 0.18s,
+    color 0.18s,
+    transform 0.18s;
+}
+.sidebar nav a:hover {
+  transform: translateX(3px);
+}
+.sidebar nav a svg {
+  transition: transform 0.22s cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+.sidebar nav a:hover svg,
+.sidebar nav a.active svg {
+  transform: scale(1.12);
+}
+.sidebar nav a.active::before {
+  content: '';
+  position: absolute;
+  left: -6px;
+  top: 24%;
+  bottom: 24%;
+  width: 4px;
+  border-radius: 4px;
+  background: linear-gradient(#7c3aed, #c026d3);
+  animation: sq-grow 0.28s ease-out;
+}
+@keyframes sq-grow {
+  from {
+    transform: scaleY(0);
+    opacity: 0;
+  }
+}
+.sidebar nav a:not(.active)[href='#library'] svg,
+.bottom-nav a:not(.active)[href='#library'] svg {
+  color: #ab8242;
+}
+.sidebar nav a:not(.active)[href='#slides'] svg,
+.bottom-nav a:not(.active)[href='#slides'] svg {
+  color: #c2578f;
+}
+.dark .sidebar nav a:not(.active)[href='#library'] svg,
+.dark .bottom-nav a:not(.active)[href='#library'] svg {
+  color: #d8b879;
+}
+.dark .sidebar nav a:not(.active)[href='#slides'] svg,
+.dark .bottom-nav a:not(.active)[href='#slides'] svg {
+  color: #f0a3c8;
+}
+/* pastki menyu (telefon): faol belgi sakraydi */
+.bottom-nav a svg {
+  transition: transform 0.22s cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+.bottom-nav a.active svg {
+  animation: sq-bounce 0.45s cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+.bottom-nav a:active svg {
+  transform: scale(0.88);
+}
+@keyframes sq-bounce {
+  0% {
+    transform: translateY(0) scale(1);
+  }
+  45% {
+    transform: translateY(-5px) scale(1.14);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+  }
+}
+/* bosh sahifa: jonli gradient va tezkor o'tishlar */
+.welcome-hero {
+  background-size: 190% 190%;
+  animation: sq-pan 16s ease-in-out infinite alternate;
+}
+@keyframes sq-pan {
+  from {
+    background-position: 0% 40%;
+  }
+  to {
+    background-position: 100% 60%;
+  }
+}
+.welcome-hero:after {
+  animation: sq-float 9s ease-in-out infinite alternate;
+}
+@keyframes sq-float {
+  to {
+    transform: translate(-18px, 22px) scale(1.08);
+  }
+}
+.quick-links {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin: 16px 0;
+}
+.quick-link {
+  position: relative;
+  display: grid;
+  gap: 2px;
+  padding: 14px 14px 13px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--surface);
+  color: var(--text);
+  text-decoration: none;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  transition:
+    transform 0.22s cubic-bezier(0.2, 0.7, 0.2, 1),
+    box-shadow 0.22s ease,
+    border-color 0.22s ease;
+}
+.quick-link::after {
+  content: '';
+  position: absolute;
+  right: -26px;
+  top: -26px;
+  width: 78px;
+  height: 78px;
+  border-radius: 50%;
+  background: var(--ql, #ede9fe);
+  opacity: 0.55;
+  transition: transform 0.35s ease;
+}
+.quick-link:hover {
+  transform: translateY(-4px);
+  border-color: #c4b5fd;
+  box-shadow: 0 18px 40px -24px #4c1d95aa;
+}
+.quick-link:hover::after {
+  transform: scale(1.5);
+}
+.quick-link span {
+  position: relative;
+  z-index: 1;
+  font-size: 26px;
+  line-height: 1.2;
+}
+.quick-link b {
+  position: relative;
+  z-index: 1;
+  font-size: 15px;
+}
+.quick-link small {
+  position: relative;
+  z-index: 1;
+  color: var(--muted);
+  font-size: 12.5px;
+  line-height: 1.35;
+}
+.quick-link.is-courses {
+  --ql: #d1fae5;
+}
+.quick-link.is-slides {
+  --ql: #fce7f3;
+}
+.quick-link.is-library {
+  --ql: #fef3c7;
+}
+.quick-link.is-arena {
+  --ql: #dbeafe;
+}
+.dark .quick-link::after {
+  opacity: 0.16;
+}
+@media (max-width: 720px) {
+  .quick-links {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+}
+/* xabarcha (toast) va oynalar yumshoq chiqadi */
+.toast {
+  animation: sq-toast 0.3s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+}
+@keyframes sq-toast {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 16px) scale(0.96);
+  }
+}
+.modal-backdrop {
+  animation: sq-fade 0.2s ease-out;
+}
+@keyframes sq-fade {
+  from {
+    opacity: 0;
+  }
+}
+.nav-badge {
+  animation: sq-pulse 2.4s ease-in-out infinite;
+}
+@keyframes sq-pulse {
+  50% {
+    transform: scale(1.12);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .course-grid > *,
+  .lesson-grid > *,
+  .stats-grid > *,
+  .bo-cards > li,
+  .badge-grid > *,
+  .quick-links > *,
+  .page-heading h1,
+  .page-heading p,
+  .welcome-hero,
+  .welcome-hero:after,
+  .sidebar nav a.active::before,
+  .bottom-nav a.active svg,
+  .toast,
+  .modal-backdrop,
+  .nav-badge {
+    animation: none;
+  }
+  .course-card,
+  .lesson-card,
+  .stat-card,
+  .badge-card,
+  .bo-card-btn,
+  .quick-link,
+  .quick-link::after,
+  .sidebar nav a,
+  .sidebar nav a svg,
+  .bottom-nav a svg {
+    transition: none;
+  }
+  .sidebar nav a:hover {
+    transform: none;
   }
 }

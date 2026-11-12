@@ -34,6 +34,7 @@ import {
   type SlideLevel,
 } from '@/lib/slides';
 import type { SlidesView } from '@/lib/server/slides';
+import { isPlayApp } from '@/lib/play-app';
 
 /* 🎞 Taqdimot: talaba mavzuni yozadi — sun'iy intellekt tayyor taqdimot tuzadi (lib/server/slides.ts). Natija sayt
    ichida slaydma-slayd ko'rinadi (5 xil rang mavzusi, to'liq ekran, ma'ruzachi izohlari) va PowerPoint (.pptx) fayli
@@ -68,7 +69,9 @@ export function SlidesMaker() {
     [busy, setBusy] = useState(false),
     [step, setStep] = useState(0),
     [deck, setDeck] = useState<SavedDeck | null>(null),
-    [offer, setOffer] = useState(false);
+    [offer, setOffer] = useState(false),
+    [play, setPlay] = useState(false);
+  useEffect(() => setPlay(isPlayApp()), []);
   const uid = user?.id;
   useEffect(() => {
     if (!uid) return;
@@ -241,11 +244,17 @@ export function SlidesMaker() {
             ) : (
               <p className="sm-access is-off" role="status">
                 💎{' '}
-                {L(
-                  'Bepul taqdimotlar tugadi. Davom etish uchun obuna bo‘ling.',
-                  'Your free presentations are used up. Subscribe to continue.',
-                  'Бесплатные презентации закончились. Оформите подписку.',
-                )}{' '}
+                {play
+                  ? L(
+                      'Bepul taqdimotlar tugadi. Bu bo‘lim obunachilar uchun.',
+                      'Your free presentations are used up. This section is for subscribers.',
+                      'Бесплатные презентации закончились. Раздел доступен подписчикам.',
+                    )
+                  : L(
+                      'Bepul taqdimotlar tugadi. Davom etish uchun obuna bo‘ling.',
+                      'Your free presentations are used up. Subscribe to continue.',
+                      'Бесплатные презентации закончились. Оформите подписку.',
+                    )}{' '}
                 <button type="button" className="sm-link" onClick={() => setOffer(true)}>
                   {L('Obuna haqida', 'About Premium', 'О подписке')} →
                 </button>
@@ -590,7 +599,15 @@ function DeckViewer({ saved, onRemove }: { saved: SavedDeck; onRemove: () => voi
           />
         ))}
       </div>
-      <div className="sm-stage" ref={stage}>
+      {/* slaydning o'ng yarmi bosilsa — keyingisi, chap yarmi — oldingisi (tugmalar pastdagi qatorda) */}
+      <div
+        className="sm-stage"
+        ref={stage}
+        onClick={(e) => {
+          const r = e.currentTarget.getBoundingClientRect();
+          go(e.clientX - r.left > r.width / 2 ? 1 : -1);
+        }}
+      >
         <div className={'sm-slide' + (slide ? '' : ' is-cover')} key={i} aria-live="polite">
           {slide ? (
             <>
@@ -613,29 +630,29 @@ function DeckViewer({ saved, onRemove }: { saved: SavedDeck; onRemove: () => voi
             </>
           )}
         </div>
-        <button
-          type="button"
-          className="sm-nav is-prev"
-          disabled={i === 0}
-          onClick={() => go(-1)}
-          aria-label={L('Oldingi slayd', 'Previous slide', 'Предыдущий слайд')}
-        >
-          <ChevronLeft size={22} />
-        </button>
-        <button
-          type="button"
-          className="sm-nav is-next"
-          disabled={i === total - 1}
-          onClick={() => go(1)}
-          aria-label={L('Keyingi slayd', 'Next slide', 'Следующий слайд')}
-        >
-          <ChevronRight size={22} />
-        </button>
       </div>
       <div className="sm-bar">
-        <span className="sm-pos">
-          {i + 1} / {total}
-        </span>
+        <div className="sm-step">
+          <button
+            type="button"
+            disabled={i === 0}
+            onClick={() => go(-1)}
+            aria-label={L('Oldingi slayd', 'Previous slide', 'Предыдущий слайд')}
+          >
+            <ChevronLeft size={20} />
+          </button>
+          <span className="sm-pos">
+            {i + 1} / {total}
+          </span>
+          <button
+            type="button"
+            disabled={i === total - 1}
+            onClick={() => go(1)}
+            aria-label={L('Keyingi slayd', 'Next slide', 'Следующий слайд')}
+          >
+            <ChevronRight size={20} />
+          </button>
+        </div>
         <div className="sm-dots" aria-hidden="true">
           {Array.from({ length: total }, (_, k) => (
             <button

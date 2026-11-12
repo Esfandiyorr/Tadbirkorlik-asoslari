@@ -386,7 +386,7 @@ export function StudyQuest() {
           { id: 'courses', label: t(lang, 'courses'), icon: BookOpen },
           { id: 'arena', label: t(lang, 'navArena'), icon: Gamepad2 },
           { id: 'library', label: t(lang, 'navLibrary'), icon: LibraryBig },
-          { id: 'slides', label: t(lang, 'slides'), icon: Presentation },
+          { id: 'slides', label: t(lang, 'navSlides'), icon: Presentation },
           ...(nav.some((n) => n.id === 'chat')
             ? [{ id: 'chat', label: t(lang, 'navChat'), icon: MessageSquare }]
             : signedIn
