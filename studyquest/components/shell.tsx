@@ -22,6 +22,8 @@ import {
   Download,
   ChevronRight,
   LogIn,
+  LibraryBig,
+  Presentation,
 } from 'lucide-react';
 import { Provider, useApp } from './provider';
 import { LiveGate, NewsBox, NewsPopup } from './announcements';
@@ -40,6 +42,8 @@ import { NativeSurface } from './native-surface';
 import { ChatPage } from './chat-page';
 import { AcademicHistory } from './academic-history';
 import { ChangePassword } from './change-password';
+import { Library } from './library';
+import { SlidesMaker } from './slides-maker';
 import { AccountDelete } from './account-delete';
 import { PushToggle } from './push-toggle';
 import { Button } from './ui/button';
@@ -131,7 +135,8 @@ export function StudyQuest() {
     { id: 'home', key: 'home', icon: LayoutDashboard },
     { id: 'courses', key: 'courses', icon: BookOpen },
     { id: 'arena', key: 'arena', icon: Gamepad2 },
-    { id: 'ranking', key: 'ranking', icon: Trophy },
+    { id: 'library', key: 'library', icon: LibraryBig },
+    { id: 'slides', key: 'slides', icon: Presentation },
     { id: 'badges', key: 'badges', icon: Medal },
     ...(user ? [{ id: 'chat', key: 'chat' as Key, icon: MessageSquare }] : []),
   ];
@@ -148,12 +153,27 @@ export function StudyQuest() {
   else if (mainView === 'quiz')
     content = user ? <QuizView key={id + user.id} id={id} /> : <AuthPanel />;
   else if (mainView === 'course' || mainView === 'courses')
-    content = <CourseList courseId={mainView === 'course' ? id : undefined} />;
+    content = (
+      <CourseList
+        courseId={mainView === 'course' ? id : undefined}
+        sub={mainView === 'course' ? view.split('/')[2] : undefined}
+      />
+    );
   else if (mainView === 'chat') content = user ? <ChatPage sub={id || ''} /> : <AuthPanel />;
   else if (mainView === 'topshiriq')
     content = signedIn ? <LogoTaskPage id={id || LOGO_TOPIC} /> : <AuthPanel />;
   else if (view === 'badges') content = <Badges />;
-  else if (view === 'ranking') content = user ? <Leaderboard /> : <AuthPanel />;
+  // 🏆 Reyting endi kurs ichida (#course/<id>/ranking); eski #ranking havolalari o'sha yerga olib boradi
+  else if (view === 'ranking')
+    content = data.courses[0] ? (
+      <CourseList courseId={data.courses[0].id} sub="ranking" />
+    ) : user ? (
+      <Leaderboard />
+    ) : (
+      <AuthPanel />
+    );
+  else if (mainView === 'library') content = <Library />;
+  else if (mainView === 'slides') content = <SlidesMaker />;
   else if (mainView === 'arena') content = <Games sub={view.split('/').slice(1).join('/')} />;
   else if (view === 'teacher')
     content = role === 'teacher' || role === 'admin' ? <Staff /> : <AuthPanel />;
@@ -365,8 +385,8 @@ export function StudyQuest() {
           { id: 'home', label: t(lang, 'navHome'), icon: LayoutDashboard },
           { id: 'courses', label: t(lang, 'courses'), icon: BookOpen },
           { id: 'arena', label: t(lang, 'navArena'), icon: Gamepad2 },
-          { id: 'ranking', label: t(lang, 'ranking'), icon: Trophy },
-          { id: 'badges', label: t(lang, 'navBadges'), icon: Medal },
+          { id: 'library', label: t(lang, 'navLibrary'), icon: LibraryBig },
+          { id: 'slides', label: t(lang, 'slides'), icon: Presentation },
           ...(nav.some((n) => n.id === 'chat')
             ? [{ id: 'chat', label: t(lang, 'navChat'), icon: MessageSquare }]
             : signedIn

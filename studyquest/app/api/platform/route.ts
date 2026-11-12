@@ -33,6 +33,8 @@ import {
   wantNewsPush,
 } from '@/lib/server/push';
 import { avatarLibrary, manageLibrary } from '@/lib/server/avatar-library';
+import { manageLibraryItems, readLibrary } from '@/lib/server/library';
+import { managePremium, premiumAdmin, premiumView } from '@/lib/server/premium';
 import {
   appAdmin,
   cancelDeletion,
@@ -203,6 +205,29 @@ export async function GET(req: NextRequest) {
           headers: { 'Cache-Control': 'private, no-store' },
         },
       );
+    }
+    if (req.nextUrl.searchParams.get('view') === 'library') {
+      // 📚 Kutubxona: hamma ko'radi; 💎 manbalarning havolasi faqat obunachiga (mehmon — obunasiz)
+      const a = await actor(req, true).catch(() => null);
+      const p = a ? await premiumView(a) : null;
+      return NextResponse.json(
+        {
+          items: await readLibrary(!!p?.state.active),
+          premium: p?.state || null,
+          info: p?.info || null,
+        },
+        { headers: { 'Cache-Control': 'private, no-store' } },
+      );
+    }
+    if (req.nextUrl.searchParams.get('view') === 'premium') {
+      return NextResponse.json(await premiumView(await actor(req, true)), {
+        headers: { 'Cache-Control': 'private, no-store' },
+      });
+    }
+    if (req.nextUrl.searchParams.get('view') === 'premiumAdmin') {
+      return NextResponse.json(await premiumAdmin(await actor(req, true)), {
+        headers: { 'Cache-Control': 'private, no-store' },
+      });
     }
     if (req.nextUrl.searchParams.get('view') === 'appAdmin') {
       return NextResponse.json(await appAdmin(await actor(req, true)), {
@@ -509,6 +534,12 @@ export async function POST(req: NextRequest) {
           ),
         );
       return NextResponse.json(r);
+    }
+    if (p.action === 'library') {
+      return NextResponse.json(await manageLibraryItems(await actor(req, true), p.input));
+    }
+    if (p.action === 'premiumAdmin') {
+      return NextResponse.json(await managePremium(await actor(req, true), p.input));
     }
     if (p.action === 'appAdmin') {
       return NextResponse.json(await manageApp(await actor(req, true), p.input));

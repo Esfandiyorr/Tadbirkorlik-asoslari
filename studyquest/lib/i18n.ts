@@ -47,6 +47,9 @@ const words = {
   navArena: ['O‘yinlar', 'Games', 'Игры'],
   navBadges: ['Yutuqlar', 'Awards', 'Награды'],
   navChat: ['Chat', 'Chat', 'Чат'],
+  library: ['Kutubxona', 'Library', 'Библиотека'],
+  navLibrary: ['Kitoblar', 'Library', 'Книги'],
+  slides: ['Taqdimot', 'Slides', 'Презентация'],
   menu: ['Asosiy menyu', 'Main menu', 'Главное меню'],
   tagline: [
     'Maqsad bilan o‘qing, ishonch bilan o‘sing.',

@@ -53,6 +53,7 @@ export function privacyDoc(l: LegalLang, w: Who): LegalDoc {
             'Учебные данные: какие темы и слайды вы прочитали, время чтения, ответы на тесты и задания, баллы, оценки, достижения и место в рейтинге.',
             'Содержимое, которое вы создаёте: сообщения в чате группы и в переписке с администратором, загруженные работы (например, логотип для задания), выбранный аватар.',
             'Игры и живой тест: участие, ответы и результаты.',
+            'Презентации и подписка: темы, которые вы ввели в разделе «Презентация», созданные презентации (хранятся последние 12) и срок действия подписки.',
             'Уведомления: если вы включили уведомления — технический адрес вашего браузера или устройства (push-подписка), чтобы доставлять сообщения.',
             'Технические данные: время входа и сведения, необходимые для защиты аккаунта. На устройстве хранятся настройки (язык, тема, прочитанные объявления).',
           ],
@@ -81,6 +82,7 @@ export function privacyDoc(l: LegalLang, w: Who): LegalDoc {
             'Vercel Inc. — размещение сайта;',
             'службы push-уведомлений вашего браузера или устройства (Google, Apple, Mozilla, Microsoft) — доставка уведомлений;',
             'YouTube (Google LLC) — если вы открываете встроенное учебное видео.',
+            'Anthropic (сервис ИИ Claude) — в разделе «Презентация» туда отправляется только текст темы и пожеланий, которые вы ввели; имя, группа и другие личные данные не передаются.',
           ],
         },
         {
@@ -127,6 +129,7 @@ export function privacyDoc(l: LegalLang, w: Who): LegalDoc {
             'Learning data: topics and slides you read, reading time, answers to tests and assignments, points, grades, achievements and leaderboard position.',
             'Content you create: messages in the group chat and in the conversation with the administrator, uploaded work (for example a logo for an assignment), your chosen avatar.',
             'Games and the live quiz: participation, answers and results.',
+            'Presentations and Premium: the topics you typed in the “Presentation” section, the presentations created (the latest 12 are kept) and the period of your Premium.',
             'Notifications: if you turn notifications on — the technical address of your browser or device (push subscription) used to deliver messages.',
             'Technical data: sign-in time and information needed to protect the account. Settings (language, theme, announcements you have read) are stored on your device.',
           ],
@@ -155,6 +158,7 @@ export function privacyDoc(l: LegalLang, w: Who): LegalDoc {
             'Vercel Inc. — website hosting;',
             'the push services of your browser or device (Google, Apple, Mozilla, Microsoft) — delivering notifications;',
             'YouTube (Google LLC) — when you open an embedded lesson video.',
+            'Anthropic (the Claude AI service) — in the “Presentation” section only the topic and wishes you typed are sent there; your name, group and other personal data are not.',
           ],
         },
         {
@@ -200,6 +204,7 @@ export function privacyDoc(l: LegalLang, w: Who): LegalDoc {
           'O‘qish ma’lumotlari: qaysi mavzu va slaydlarni o‘qiganingiz, o‘qish vaqti, test va topshiriq javoblari, ballar, baholar, yutuqlar va reytingdagi o‘rningiz.',
           'Siz yaratgan kontent: guruh chatidagi va administrator bilan yozishmadagi xabarlar, yuklagan ishlaringiz (masalan, topshiriq uchun logotip), tanlagan avataringiz.',
           'O‘yinlar va jonli test: ishtirok, javoblar va natijalar.',
+          'Taqdimotlar va obuna: «Taqdimot» bo‘limida yozgan mavzularingiz, tuzilgan taqdimotlar (oxirgi 12 tasi saqlanadi) va obunangiz muddati.',
           'Bildirishnomalar: yoqqan bo‘lsangiz — xabar yetkazish uchun brauzeringiz yoki qurilmangizning texnik manzili (push obunasi).',
           'Texnik ma’lumotlar: kirish vaqti va hisobni himoya qilish uchun zarur ma’lumotlar. Sozlamalar (til, mavzu, o‘qilgan e’lonlar) qurilmangizning o‘zida saqlanadi.',
         ],
@@ -228,6 +233,7 @@ export function privacyDoc(l: LegalLang, w: Who): LegalDoc {
           'Vercel Inc. — saytni joylashtirish;',
           'brauzeringiz yoki qurilmangizning bildirishnoma xizmatlari (Google, Apple, Mozilla, Microsoft) — bildirishnomalarni yetkazish;',
           'YouTube (Google LLC) — sayt ichidagi dars videosini ochganingizda.',
+          'Anthropic (Claude sun’iy intellekt xizmati) — «Taqdimot» bo‘limida u yerga faqat siz yozgan mavzu va talab matni yuboriladi; ism, guruh va boshqa shaxsiy ma’lumotlar yuborilmaydi.',
         ],
       },
       {

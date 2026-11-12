@@ -14,13 +14,26 @@ import { VideoAdmin } from './video-admin';
 import { LogoTaskAdmin } from './logo-task-admin';
 import { PushAdmin } from './push-admin';
 import { AppAdmin } from './app-admin';
+import { LibraryAdmin } from './library-admin';
+import { PremiumAdmin } from './premium-admin';
 import { startEditMode } from '../site-content';
 
 /* 🛠 Sayt boshqaruvi (administrator): saytdagi matn, rasm, avatar, test va jonli testni dasturchiga yozmasdan
    o'zgartirish uchun yagona joy. Har bir ish — alohida kartochka; ichida qisqa izoh va oddiy shakllar. */
 
 export type BoSection =
-  'live' | 'quiz' | 'content' | 'avatars' | 'news' | 'push' | 'promo' | 'video' | 'logo' | 'app';
+  | 'live'
+  | 'quiz'
+  | 'content'
+  | 'avatars'
+  | 'news'
+  | 'push'
+  | 'promo'
+  | 'video'
+  | 'logo'
+  | 'app'
+  | 'library'
+  | 'premium';
 const KEY = 'sq-bo-section';
 
 export function BackOffice({ openTab }: { openTab: (tab: string) => void }) {
@@ -145,6 +158,30 @@ export function BackOffice({ openTab }: { openTab: (tab: string) => void }) {
       ),
     },
     {
+      id: 'library',
+      icon: '📚',
+      title: L('Kutubxona', 'Library', 'Библиотека'),
+      text: L(
+        'Kitob, qo‘llanma, maqola, video va namunalar: nom, muallif, havola va muqova bilan qo‘shish; 💎 belgisi — faqat obunachilarga.',
+        'Books, guides, articles, videos and templates: add with a title, author, link and cover; 💎 marks premium-only items.',
+        'Книги, пособия, статьи, видео и шаблоны: название, автор, ссылка и обложка; 💎 — только подписчикам.',
+      ),
+    },
+    {
+      id: 'premium',
+      icon: '💎',
+      title: L(
+        'Obuna (pullik imkoniyatlar)',
+        'Premium (paid features)',
+        'Подписка (платные функции)',
+      ),
+      text: L(
+        'Narx va to‘lov yo‘riqnomasi, talabaga obuna berish yoki bekor qilish. Obuna sun’iy intellekt taqdimotlari va 💎 manbalarni ochadi.',
+        'Price and payment instructions, giving or removing Premium. Premium unlocks AI presentations and 💎 resources.',
+        'Цена и инструкция по оплате, выдача и отмена подписки. Подписка открывает ИИ-презентации и материалы 💎.',
+      ),
+    },
+    {
       id: 'app',
       icon: '📱',
       title: L('Ilova (Play Market)', 'App (Play Market)', 'Приложение (Play Market)'),
@@ -209,6 +246,8 @@ export function BackOffice({ openTab }: { openTab: (tab: string) => void }) {
     else if (section === 'news') body = <NewsAdmin openCourseControls={() => setSection('live')} />;
     else if (section === 'push') body = <PushAdmin />;
     else if (section === 'app') body = <AppAdmin />;
+    else if (section === 'library') body = <LibraryAdmin />;
+    else if (section === 'premium') body = <PremiumAdmin />;
     else if (section === 'promo') body = <PromoAdmin />;
     else if (section === 'video') body = <VideoAdmin />;
     else if (section === 'logo') body = <LogoTaskAdmin />;

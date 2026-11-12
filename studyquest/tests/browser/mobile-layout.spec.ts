@@ -81,6 +81,8 @@ for (const width of [320, 390, 768, 1280]) {
         'course/tad-asoslari',
         'arena',
         'ranking',
+        'library',
+        'slides',
         'badges',
         'profile',
         'admin',

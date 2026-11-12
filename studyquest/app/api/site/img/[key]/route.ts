@@ -13,7 +13,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ key
       status: 404,
       headers: { 'Cache-Control': 'public, max-age=60' },
     });
-  if (!/^(?:i[0-9a-f]{16}|(?:av|pr|nw|ps)-[a-z0-9-]{2,40}|lg-[0-9a-f]{16})$/.test(key))
+  if (!/^(?:i[0-9a-f]{16}|(?:av|pr|nw|ps|lb)-[a-z0-9-]{2,40}|lg-[0-9a-f]{16})$/.test(key))
     return missing();
   const img = await readImage(key).catch(() => null);
   if (!img) return missing();

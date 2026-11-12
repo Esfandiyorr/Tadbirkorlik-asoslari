@@ -25,6 +25,7 @@ import { PushInvite } from './push-toggle';
 import { HeroAvatar, useAcademicBoard } from './avatars';
 import { NewsBox, NewsChip } from './announcements';
 import { PromoBox } from './promo';
+import { Leaderboard } from './leaderboard';
 import { AccessChip, PointsRing, PointsBreakdown } from './points-ui';
 import { t, dateLabel } from '@/lib/i18n';
 import {
@@ -665,7 +666,15 @@ function GuestHome() {
 }
 
 /* ============================== KURSLAR VA MAVZULAR ============================== */
-export function CourseList({ courseId }: { search?: string; courseId?: string }) {
+export function CourseList({
+  courseId,
+  sub,
+}: {
+  search?: string;
+  courseId?: string;
+  /** kurs ichidagi bo'lim: (bo'sh) — mavzular, 'ranking' — reyting */
+  sub?: string;
+}) {
   const { data, lang } = useApp(),
     d = data!,
     u = d.user,
@@ -679,7 +688,8 @@ export function CourseList({ courseId }: { search?: string; courseId?: string })
     list = courseLessons.filter((l) => !moduleId || l.moduleId === moduleId),
     totals = courseTotals(d),
     hasAcademic = !!u?.readingHistory,
-    university = u?.learnerType !== 'independent';
+    university = u?.learnerType !== 'independent',
+    ranking = sub === 'ranking';
   if (!courseId) {
     return (
       <>
@@ -804,89 +814,142 @@ export function CourseList({ courseId }: { search?: string; courseId?: string })
           </div>
         </div>
       </section>
-      <div className="filter-row">
-        <Button variant={!moduleId ? 'default' : 'outline'} size="sm" onClick={() => setModule('')}>
-          {tr(lang, 'Hammasi', 'All', 'Все')}
-        </Button>
-        {mods.map((m) => (
-          <Button
-            size="sm"
-            variant={moduleId === m.id ? 'default' : 'outline'}
-            key={m.id}
-            onClick={() => setModule(m.id)}
-          >
-            {m.title}
-          </Button>
-        ))}
+      <div className="course-tabs" role="tablist" aria-label={course.title}>
+        <button
+          role="tab"
+          aria-selected={!ranking}
+          className={!ranking ? 'on' : ''}
+          onClick={() => navigate('course/' + course.id)}
+        >
+          <BookOpen size={17} />
+          {tr(lang, 'Mavzular', 'Topics', 'Темы')}
+        </button>
+        <button
+          role="tab"
+          aria-selected={ranking}
+          className={ranking ? 'on' : ''}
+          onClick={() => navigate('course/' + course.id + '/ranking')}
+        >
+          <Trophy size={17} />
+          {t(lang, 'ranking')}
+        </button>
       </div>
-      <div className="lesson-grid">
-        {list.map((l) => {
-          const p = d.progress?.find((x) => x.lessonId === l.id),
-            history = u?.readingHistory?.[l.id],
-            access = accessOf(d, l.id),
-            locked = access?.state === 'locked',
-            number = courseLessons.findIndex((topic) => topic.id === l.id) + 1,
-            pts = topicPoints(history),
-            seen = Math.max(p ? seenCount(p) : 0, history?.seenSlides || 0);
-          return (
-            <button
-              key={l.id}
-              className={
-                'lesson-card panel' +
-                (locked ? ' is-locked' : '') +
-                (access?.state === 'score' ? ' is-live' : '')
-              }
-              onClick={() => open(l)}
-              aria-disabled={locked}
-            >
-              <div className="mini-cover">
-                <TopicArt id={l.id} number={number} />
-                {(p?.completed || history?.status === 'read') && (
-                  <Check className="completed-check" />
-                )}
-                {locked && (
-                  <span className="lock-veil">
-                    <Lock size={26} />
-                  </span>
-                )}
-              </div>
-              <div className="lesson-card-top">
-                <span className="course-level">{mods.find((m) => m.id === l.moduleId)?.title}</span>
-                <AccessChip access={access} lang={lang} />
-              </div>
-              <h3>
-                {number}. {l.title}
-              </h3>
-              {hasAcademic ? (
-                <div className="lesson-points">
-                  <PointsRing value={pts.total} size={58} />
-                  <PointsBreakdown history={history} lang={lang} />
-                </div>
-              ) : (
-                <>
-                  <p>
-                    {seen}/{l.slideCount} {tr(lang, 'slayd', 'slides', 'слайдов')}
-                  </p>
-                  <ProgressBar value={(seen / l.slideCount) * 100} />
-                </>
+      {ranking ? (
+        u ? (
+          <Leaderboard embedded />
+        ) : (
+          <div className="soft-empty panel">
+            <span>🏆</span>
+            <p>
+              {tr(
+                lang,
+                'Reytingni ko‘rish uchun hisobingizga kiring.',
+                'Sign in to see the leaderboard.',
+                'Войдите, чтобы увидеть рейтинг.',
               )}
-              <span className="lesson-link">
-                {locked
-                  ? tr(lang, 'Hali ochilmagan', 'Not open yet', 'Ещё не открыта')
-                  : access?.state === 'score' && access.due
-                    ? `⏳ ${dueText(access.due, lang).date} ${tr(lang, 'gacha', '', 'до')}`
-                    : history && history.status !== 'new'
-                      ? tr(lang, 'Davom etish', 'Continue', 'Продолжить')
-                      : tr(lang, 'Boshlash', 'Start', 'Начать')}
-                {!locked && <ChevronRight size={16} />}
-              </span>
-            </button>
-          );
-        })}
-      </div>
-      {!list.length && <div className="empty-state">{t(lang, 'empty')}</div>}
+            </p>
+            <Button onClick={() => navigate('login')}>{t(lang, 'login')}</Button>
+          </div>
+        )
+      ) : (
+        courseTopics()
+      )}
     </>
   );
+  /** Mavzular ro'yxati (komponent emas — oddiy funksiya: har chizishda qayta o'rnatilmasin). */
+  function courseTopics() {
+    return (
+      <>
+        <div className="filter-row">
+          <Button
+            variant={!moduleId ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setModule('')}
+          >
+            {tr(lang, 'Hammasi', 'All', 'Все')}
+          </Button>
+          {mods.map((m) => (
+            <Button
+              size="sm"
+              variant={moduleId === m.id ? 'default' : 'outline'}
+              key={m.id}
+              onClick={() => setModule(m.id)}
+            >
+              {m.title}
+            </Button>
+          ))}
+        </div>
+        <div className="lesson-grid">
+          {list.map((l) => {
+            const p = d.progress?.find((x) => x.lessonId === l.id),
+              history = u?.readingHistory?.[l.id],
+              access = accessOf(d, l.id),
+              locked = access?.state === 'locked',
+              number = courseLessons.findIndex((topic) => topic.id === l.id) + 1,
+              pts = topicPoints(history),
+              seen = Math.max(p ? seenCount(p) : 0, history?.seenSlides || 0);
+            return (
+              <button
+                key={l.id}
+                className={
+                  'lesson-card panel' +
+                  (locked ? ' is-locked' : '') +
+                  (access?.state === 'score' ? ' is-live' : '')
+                }
+                onClick={() => open(l)}
+                aria-disabled={locked}
+              >
+                <div className="mini-cover">
+                  <TopicArt id={l.id} number={number} />
+                  {(p?.completed || history?.status === 'read') && (
+                    <Check className="completed-check" />
+                  )}
+                  {locked && (
+                    <span className="lock-veil">
+                      <Lock size={26} />
+                    </span>
+                  )}
+                </div>
+                <div className="lesson-card-top">
+                  <span className="course-level">
+                    {mods.find((m) => m.id === l.moduleId)?.title}
+                  </span>
+                  <AccessChip access={access} lang={lang} />
+                </div>
+                <h3>
+                  {number}. {l.title}
+                </h3>
+                {hasAcademic ? (
+                  <div className="lesson-points">
+                    <PointsRing value={pts.total} size={58} />
+                    <PointsBreakdown history={history} lang={lang} />
+                  </div>
+                ) : (
+                  <>
+                    <p>
+                      {seen}/{l.slideCount} {tr(lang, 'slayd', 'slides', 'слайдов')}
+                    </p>
+                    <ProgressBar value={(seen / l.slideCount) * 100} />
+                  </>
+                )}
+                <span className="lesson-link">
+                  {locked
+                    ? tr(lang, 'Hali ochilmagan', 'Not open yet', 'Ещё не открыта')
+                    : access?.state === 'score' && access.due
+                      ? `⏳ ${dueText(access.due, lang).date} ${tr(lang, 'gacha', '', 'до')}`
+                      : history && history.status !== 'new'
+                        ? tr(lang, 'Davom etish', 'Continue', 'Продолжить')
+                        : tr(lang, 'Boshlash', 'Start', 'Начать')}
+                  {!locked && <ChevronRight size={16} />}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+        {!list.length && <div className="empty-state">{t(lang, 'empty')}</div>}
+      </>
+    );
+  }
 }
 
 /* ============================== YUTUQLAR ============================== */

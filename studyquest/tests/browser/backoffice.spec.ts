@@ -247,14 +247,14 @@ test('in edit mode the administrator clicks any text or picture and everyone see
   await expect(bar).toBeVisible();
   await expect.poll(() => new URL(page.url()).hash).toBe('#home');
   // Havola bosilganda sahifa almashmaydi — tahrirlash oynasi ochiladi.
-  const ranking = page.locator('.sidebar a[href="#ranking"]');
+  const ranking = page.locator('.sidebar a[href="#library"]');
   await ranking.click();
   const dialog = page.getByRole('dialog', { name: /Matnni o‘zgartirish/ });
-  await expect(dialog.locator('.se-original')).toHaveText('Reyting');
-  await dialog.getByLabel('Yangi matn').fill('Reyting jadvali');
+  await expect(dialog.locator('.se-original')).toHaveText('Kutubxona');
+  await dialog.getByLabel('Yangi matn').fill('Kitoblar javoni');
   await dialog.getByRole('button', { name: 'Saqlash' }).click();
   await expect(dialog).toBeHidden();
-  await expect(ranking).toHaveText('Reyting jadvali');
+  await expect(ranking).toHaveText('Kitoblar javoni');
   expect(new URL(page.url()).hash).toBe('#home');
   // Sonni o'zgartirib bo'lmaydi.
   // «Sahifalar bo'ylab yurish» — oddiy bosish qaytadi.
@@ -301,7 +301,7 @@ test('in edit mode the administrator clicks any text or picture and everyone see
   await page.evaluate(() => sessionStorage.setItem('sq-edit', '1'));
   await page.goto('/#home', { waitUntil: 'domcontentloaded' });
   await page.reload({ waitUntil: 'domcontentloaded' });
-  await expect(page.locator('.sidebar a[href="#ranking"]')).toHaveText('Reyting jadvali');
+  await expect(page.locator('.sidebar a[href="#library"]')).toHaveText('Kitoblar javoni');
   await expect(page.locator('.sidebar img').first()).toHaveAttribute('src', logoSrc);
   await expect(page.locator('.se-bar')).toHaveCount(0);
 
@@ -325,7 +325,7 @@ test('in edit mode the administrator clicks any text or picture and everyone see
     .getByRole('button', { name: /Asl holiga/ })
     .click();
   await expect(page.locator('.bo-images li')).toHaveCount(0);
-  await expect(page.locator('.sidebar a[href="#ranking"]')).toHaveText('Reyting');
+  await expect(page.locator('.sidebar a[href="#library"]')).toHaveText('Kutubxona');
   await expect(page.locator('.sidebar img').first()).toHaveAttribute('src', '/terdu-logo.png');
 });
 

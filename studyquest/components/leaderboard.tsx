@@ -61,7 +61,7 @@ function AvatarSlot({ id, label, onOpen }: { id?: string; label: string; onOpen?
   );
 }
 
-export function Leaderboard() {
+export function Leaderboard({ embedded = false }: { embedded?: boolean }) {
   const { data, lang } = useApp(),
     L = (uz: string, en: string, ru: string) => tr(lang, uz, en, ru);
   const board = useAcademicBoard(),
@@ -94,11 +94,15 @@ export function Leaderboard() {
     ['all', Trophy, L('Umumiy', 'Overall', 'Общий')],
   ];
   return (
-    <div className="rk-page">
+    <div className={'rk-page' + (embedded ? ' is-embedded' : '')}>
       <div className="page-heading">
         <div>
           <span className="eyebrow">{L('BIRGA O‘SAMIZ', 'GROW TOGETHER', 'РАСТЁМ ВМЕСТЕ')}</span>
-          <h1>{L('Reyting', 'Leaderboard', 'Рейтинг')}</h1>
+          {embedded ? (
+            <h2 className="rk-title">{L('Reyting', 'Leaderboard', 'Рейтинг')}</h2>
+          ) : (
+            <h1>{L('Reyting', 'Leaderboard', 'Рейтинг')}</h1>
+          )}
           <p>
             {L(
               'Ball faqat taqdimotlardan (har mavzu 100 ball) va o‘qituvchi beradigan qo‘shimcha topshiriqlardan to‘planadi.',

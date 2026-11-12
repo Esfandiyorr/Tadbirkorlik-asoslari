@@ -408,7 +408,10 @@ test('existing academic points remain visible on the dashboard, profile and acad
   await expect(page.locator('.stats-grid .stat-card').first().locator('strong')).toHaveText(
     '375,5',
   );
-  await page.locator('.sidebar a[href="#ranking"]').click();
+  // Reyting endi kurs ichida: «Kurslar → fan → Reyting»
+  await page.locator('.sidebar a[href="#courses"]').click();
+  await page.locator('.course-card').first().click();
+  await page.getByRole('tab', { name: 'Reyting' }).click();
   await expect(page.locator('.ranking-list')).toContainText('Ali Valiyev');
   await expect(page.locator('.ranking-list')).toContainText('375,5');
   await page.goto('/#profile', { waitUntil: 'domcontentloaded' });
