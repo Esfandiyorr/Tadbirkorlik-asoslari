@@ -169,7 +169,7 @@ export type SupportMessage = {
   role: string;
   /** suhbat egasining guruhi */
   group: string;
-  cat: 'tech' | 'grade' | 'account' | 'idea' | 'avatar' | 'other';
+  cat: 'tech' | 'grade' | 'account' | 'idea' | 'avatar' | 'report' | 'other';
   text: string;
   at: number;
   /** suhbat egasining xabari: yuborildi → o'qildi → javob berildi */

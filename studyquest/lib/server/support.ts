@@ -9,7 +9,15 @@ import type { SupportMessage, SupportThread } from '../types';
    har bir xabar — alohida yozuv, «from» — kim yozgani. Xabarlar 7 kundan keyin avtomatik o'chiriladi (o'qishda
    eskilari bazadan ham olib tashlanadi). Eski yozuvlardagi «reply» (xabar ichidagi javob) alohida xabar bo'lib
    ko'rsatiladi. Demo muhitda — xotirada. */
-export const supportCategories = ['tech', 'grade', 'account', 'idea', 'avatar', 'other'] as const;
+export const supportCategories = [
+  'tech',
+  'grade',
+  'account',
+  'idea',
+  'avatar',
+  'report', // 🚩 chatdagi xabar yoki foydalanuvchi ustidan shikoyat
+  'other',
+] as const;
 export const SUPPORT_KEEP_MS = 7 * 86400000;
 type Who = { id: string; name: string; role: string; classId?: string };
 type Raw = Record<string, SupportMessage>;

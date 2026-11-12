@@ -351,6 +351,17 @@ export function AuthPanel({ onClose }: { onClose?: () => void }) {
         )}{' '}
         →
       </a>
+      <p className="auth-legal">
+        {L(
+          'Kirish yoki ro‘yxatdan o‘tish orqali',
+          'By signing in or registering you accept the',
+          'Входя или регистрируясь, вы принимаете',
+        )}{' '}
+        <a href={'/privacy?lang=' + lang} target="_blank" rel="noopener">
+          {L('Maxfiylik siyosati', 'Privacy Policy', 'Политику конфиденциальности')}
+        </a>
+        {L('ga rozilik bildirasiz.', '.', '.')}
+      </p>
     </div>
   );
   return (

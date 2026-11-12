@@ -13,13 +13,14 @@ import { AvatarLibraryAdmin } from './avatar-library-admin';
 import { VideoAdmin } from './video-admin';
 import { LogoTaskAdmin } from './logo-task-admin';
 import { PushAdmin } from './push-admin';
+import { AppAdmin } from './app-admin';
 import { startEditMode } from '../site-content';
 
 /* 🛠 Sayt boshqaruvi (administrator): saytdagi matn, rasm, avatar, test va jonli testni dasturchiga yozmasdan
    o'zgartirish uchun yagona joy. Har bir ish — alohida kartochka; ichida qisqa izoh va oddiy shakllar. */
 
 export type BoSection =
-  'live' | 'quiz' | 'content' | 'avatars' | 'news' | 'push' | 'promo' | 'video' | 'logo';
+  'live' | 'quiz' | 'content' | 'avatars' | 'news' | 'push' | 'promo' | 'video' | 'logo' | 'app';
 const KEY = 'sq-bo-section';
 
 export function BackOffice({ openTab }: { openTab: (tab: string) => void }) {
@@ -144,6 +145,16 @@ export function BackOffice({ openTab }: { openTab: (tab: string) => void }) {
       ),
     },
     {
+      id: 'app',
+      icon: '📱',
+      title: L('Ilova (Play Market)', 'App (Play Market)', 'Приложение (Play Market)'),
+      text: L(
+        'Google Play talablari: maxfiylik siyosati ma’lumotlari, ilova imzosi (SHA-256), hisobni o‘chirish so‘rovlari va Play Console uchun havolalar.',
+        'Google Play requirements: privacy policy details, app signature (SHA-256), account deletion requests and links for Play Console.',
+        'Требования Google Play: данные для политики конфиденциальности, подпись приложения (SHA-256), запросы на удаление аккаунта и ссылки для Play Console.',
+      ),
+    },
+    {
       id: 'access',
       icon: '🔓',
       title: L('Mavzular holati', 'Topic access', 'Доступ к темам'),
@@ -197,6 +208,7 @@ export function BackOffice({ openTab }: { openTab: (tab: string) => void }) {
     else if (section === 'avatars') body = <AvatarsSection />;
     else if (section === 'news') body = <NewsAdmin openCourseControls={() => setSection('live')} />;
     else if (section === 'push') body = <PushAdmin />;
+    else if (section === 'app') body = <AppAdmin />;
     else if (section === 'promo') body = <PromoAdmin />;
     else if (section === 'video') body = <VideoAdmin />;
     else if (section === 'logo') body = <LogoTaskAdmin />;

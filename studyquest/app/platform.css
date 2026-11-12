@@ -9714,3 +9714,217 @@ body:has(.focus-learning) .kh-pop {
     linear-gradient(155deg, #0b3b3c, #0f766e 55%, #b45309) padding-box,
     linear-gradient(115deg, #fbbf24, #fb7185, #c084fc, #38bdf8, #fbbf24) border-box;
 }
+
+/* 📄 Ochiq huquqiy sahifalar (/privacy, /delete-account) */
+.legal {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 20px 20px 60px;
+  color: var(--text);
+}
+.legal-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+.legal-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: inherit;
+  text-decoration: none;
+  font-size: 17px;
+}
+.legal-brand img {
+  border-radius: 50%;
+}
+.legal-langs {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 12px;
+  background: var(--surface-soft);
+  border: 1px solid var(--border);
+}
+.legal-langs a {
+  padding: 6px 12px;
+  border-radius: 9px;
+  color: var(--muted);
+  font-size: 13.5px;
+  font-weight: 650;
+  text-decoration: none;
+}
+.legal-langs a[aria-current='page'] {
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow);
+}
+.legal-doc h1 {
+  margin: 28px 0 10px;
+  font-size: clamp(26px, 5vw, 36px);
+  line-height: 1.15;
+}
+.legal-lead {
+  margin: 0 0 6px;
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+.legal-date {
+  color: var(--muted);
+}
+.legal-doc h2 {
+  margin: 28px 0 8px;
+  font-size: 19px;
+}
+.legal-doc p,
+.legal-doc li {
+  font-size: 15.5px;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+.legal-doc p {
+  margin: 0 0 10px;
+}
+.legal-doc ul {
+  margin: 0 0 10px;
+  padding-left: 22px;
+  display: grid;
+  gap: 4px;
+}
+.legal-foot {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 36px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+.legal-foot a {
+  color: var(--violet);
+  font-weight: 650;
+}
+
+/* 🗑 Profil → Hisobni o'chirish; 🚩 chatda shikoyat */
+.account-delete form {
+  display: grid;
+  gap: 10px;
+}
+.account-delete-pending {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #fff7ed;
+  color: #9a3412;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.dark .account-delete-pending {
+  background: #3b2412;
+  color: #fdba74;
+}
+.account-delete-actions,
+.chat-report-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+button.danger,
+.danger {
+  color: #b91c1c;
+  border-color: #fecaca;
+}
+.dark .danger {
+  color: #fca5a5;
+  border-color: #7f1d1d;
+}
+.chat-report {
+  display: grid;
+  gap: 10px;
+  padding: 16px;
+}
+.chat-report h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 16px;
+}
+.chat-report label {
+  display: grid;
+  gap: 5px;
+  font-size: 13.5px;
+  color: var(--muted);
+}
+
+/* 📱 Sayt boshqaruvi → Ilova (Play Market) */
+.bo-app-steps {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 12px 16px;
+  list-style: none;
+  border-radius: 14px;
+  background: var(--soft-violet);
+}
+.bo-app-steps li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14.5px;
+}
+.bo-app-steps li.is-ok svg {
+  color: #15803d;
+}
+.bo-app-steps li.is-todo svg {
+  color: #b45309;
+}
+.bo-mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12.5px;
+}
+.bo-app-links li > div,
+.bo-app-requests li > div {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.bo-app-links code {
+  font-size: 12.5px;
+  overflow-wrap: anywhere;
+  color: var(--violet);
+}
+.bo-app-links small,
+.bo-app-requests small {
+  color: var(--muted);
+  font-size: 12.5px;
+}
+.bo-app-requests span {
+  font-size: 13.5px;
+  overflow-wrap: anywhere;
+}
+.bo-app-open {
+  display: inline-grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+}
+.auth-legal {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 12.5px;
+  line-height: 1.5;
+  text-align: center;
+}
+.auth-legal a {
+  color: inherit;
+  text-decoration: underline;
+}

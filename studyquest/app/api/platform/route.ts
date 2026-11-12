@@ -34,6 +34,13 @@ import {
 } from '@/lib/server/push';
 import { avatarLibrary, manageLibrary } from '@/lib/server/avatar-library';
 import {
+  appAdmin,
+  cancelDeletion,
+  deletionStatus,
+  manageApp,
+  requestDeletion,
+} from '@/lib/server/app-store';
+import {
   manageSiteText,
   manageTopicQuiz,
   siteContentAdmin,
@@ -196,6 +203,17 @@ export async function GET(req: NextRequest) {
           headers: { 'Cache-Control': 'private, no-store' },
         },
       );
+    }
+    if (req.nextUrl.searchParams.get('view') === 'appAdmin') {
+      return NextResponse.json(await appAdmin(await actor(req, true)), {
+        headers: { 'Cache-Control': 'private, no-store' },
+      });
+    }
+    if (req.nextUrl.searchParams.get('view') === 'deletion') {
+      // 🗑 hisobni o'chirish so'rovi holati (profil sahifasi)
+      return NextResponse.json(await deletionStatus(await actor(req, true)), {
+        headers: { 'Cache-Control': 'private, no-store' },
+      });
     }
     if (req.nextUrl.searchParams.get('view') === 'pushAdmin') {
       return NextResponse.json(await pushAdmin(await actor(req, true)), {
@@ -491,6 +509,22 @@ export async function POST(req: NextRequest) {
           ),
         );
       return NextResponse.json(r);
+    }
+    if (p.action === 'appAdmin') {
+      return NextResponse.json(await manageApp(await actor(req, true), p.input));
+    }
+    if (p.action === 'deletion') {
+      // 🗑 foydalanuvchi hisobini o'chirishni so'raydi yoki so'rovni bekor qiladi
+      const a = await actor(req, true);
+      const v = (p.input || {}) as { op?: unknown; reason?: unknown };
+      return NextResponse.json(
+        v.op === 'cancel'
+          ? await cancelDeletion(a)
+          : await requestDeletion(a, {
+              confirm: v.op === 'request' ? true : undefined,
+              ...(typeof v.reason === 'string' && v.reason.trim() ? { reason: v.reason } : {}),
+            }),
+      );
     }
     if (p.action === 'pushAdmin') {
       return NextResponse.json(await managePush(await actor(req, true), p.input));

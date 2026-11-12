@@ -7,6 +7,7 @@ import { NativeSurface } from './native-surface';
 import { navigate } from './dashboard';
 import { tr } from '@/lib/points';
 import { SupportChat, SupportInbox } from './support-chat';
+import { ChatReport } from './chat-report';
 
 /* «Talabalar chati» sahifasi: ikki bo'lim — guruh chati va «Adminga xabar» (Telegramdek suhbat).
    Administrator/o'qituvchi ikkinchi bo'limda suhbatlar ro'yxatini ko'radi va javob yozadi (components/support-chat.tsx). */
@@ -137,6 +138,15 @@ function GroupChat() {
               )}
             </li>
             <li>
+              🚩{' '}
+              {tr(
+                lang,
+                'Nojo‘ya xabarni ko‘rsangiz — pastdagi «Shikoyat qilish» orqali bildiring; qoidabuzar chatdan chetlatiladi.',
+                'If you see an inappropriate message, use “Report a message” below; offenders are removed from the chat.',
+                'Увидели неуместное сообщение — нажмите «Пожаловаться» ниже; нарушителей отключают от чата.',
+              )}
+            </li>
+            <li>
               🗓️{' '}
               {tr(
                 lang,
@@ -147,6 +157,7 @@ function GroupChat() {
             </li>
           </ul>
         </section>
+        {data?.user?.role === 'student' && <ChatReport />}
         <button className="panel chat-help" onClick={() => navigate('chat/admin')}>
           <span aria-hidden="true">🙋</span>
           <span>

@@ -118,6 +118,23 @@ export function InstallApp({
               ? 'Ваш аккаунт и баллы сохраняются. Для уроков, рейтинга и соревнований нужен интернет.'
               : 'Your existing account and points are preserved. Lessons, rankings and competitions require an internet connection.'}
         </p>
+        <p className="muted">
+          <a href={'/privacy?lang=' + lang} target="_blank" rel="noopener">
+            {lang === 'uz'
+              ? 'Maxfiylik siyosati'
+              : lang === 'ru'
+                ? 'Политика конфиденциальности'
+                : 'Privacy Policy'}
+          </a>
+          {' · '}
+          <a href={'/delete-account?lang=' + lang} target="_blank" rel="noopener">
+            {lang === 'uz'
+              ? 'Hisobni o‘chirish'
+              : lang === 'ru'
+                ? 'Удаление аккаунта'
+                : 'Delete account'}
+          </a>
+        </p>
       </div>
     </section>
   );

@@ -19,6 +19,7 @@ export const supportCats: Record<Msg['cat'], [string, string, string, string]> =
   account: ['🔑', 'Hisob, parol, guruh', 'Account, password, group', 'Аккаунт, пароль, группа'],
   idea: ['💡', 'Taklif yoki g‘oya', 'Suggestion or idea', 'Предложение или идея'],
   avatar: ['🎭', 'Avatar taklifi', 'Avatar suggestion', 'Предложение аватара'],
+  report: ['🚩', 'Shikoyat', 'Report', 'Жалоба'],
   other: ['✉️', 'Boshqa savol', 'Other question', 'Другой вопрос'],
 };
 const catLabel = (c: Msg['cat'], lang: Lang) =>

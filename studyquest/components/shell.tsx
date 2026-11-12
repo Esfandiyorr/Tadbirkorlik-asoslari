@@ -40,6 +40,7 @@ import { NativeSurface } from './native-surface';
 import { ChatPage } from './chat-page';
 import { AcademicHistory } from './academic-history';
 import { ChangePassword } from './change-password';
+import { AccountDelete } from './account-delete';
 import { PushToggle } from './push-toggle';
 import { Button } from './ui/button';
 import { t, roleLabel, type Key } from '@/lib/i18n';
@@ -552,6 +553,7 @@ function Profile() {
               <ArrowUpRight size={16} />
             </Button>
           </section>
+          <AccountDelete />
         </aside>
       </div>
       {advanced && (
