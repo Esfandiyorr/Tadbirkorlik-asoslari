@@ -5,16 +5,20 @@ import { useApp } from './provider';
 import { shrink } from './site-content';
 import { tr } from '@/lib/points';
 
-/* 🖼 Rasm biriktirish (e'lon va bildirishnoma uchun): rasm tanlanadi, brauzerda kichraytiriladi (eng uzun tomoni
-   1200 px), kichik ko'rinishi va «olib tashlash» tugmasi chiqadi. Yuklash — chaqiruvchining ishi. */
+/* 🖼 Rasm biriktirish (e'lon, bildirishnoma, kutubxona muqovasi): rasm tanlanadi, brauzerda kichraytiriladi (eng uzun
+   tomoni `max` px — odatda 1200; kichik kartochkada ko'rinadigan muqova uchun 600, shunda bazada ~4 baravar kam joy
+   oladi), kichik ko'rinishi va «olib tashlash» tugmasi chiqadi. Yuklash — chaqiruvchining ishi. */
 export function ImagePick({
   value,
   onChange,
   hint,
+  max = 1200,
 }: {
   value: Blob | null;
   onChange: (b: Blob | null) => void;
   hint?: string;
+  /** eng uzun tomoni (px) */
+  max?: number;
 }) {
   const { lang, toast } = useApp();
   const L = (uz: string, en: string, ru: string) => tr(lang, uz, en, ru);
@@ -51,7 +55,7 @@ export function ImagePick({
             e.target.value = '';
             if (!f) return;
             try {
-              onChange(await shrink(f, 1200));
+              onChange(await shrink(f, max));
             } catch (err) {
               toast((err as Error).message);
             }

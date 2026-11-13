@@ -179,6 +179,7 @@ export function LibraryAdmin() {
         <ImagePick
           value={cover}
           onChange={setCover}
+          max={600}
           hint={L(
             'Muqova rasmi (ixtiyoriy). Bo‘lmasa — rangli belgi chiqadi.',
             'Cover picture (optional). Without it a coloured icon is shown.',
@@ -208,9 +209,9 @@ export function LibraryAdmin() {
         </div>
         <p className="bo-hint">
           {L(
-            'Faylning o‘zi saytga yuklanmaydi — havola beriladi: Google Drive, Telegram kanal posti, lex.uz, YouTube va boshqalar. Faqat tarqatishga ruxsati bor (ochiq yoki o‘zingizniki) materiallarni joylang.',
-            'The file itself is not uploaded — you give a link: Google Drive, a Telegram post, lex.uz, YouTube and so on. Post only materials you are allowed to share.',
-            'Сам файл не загружается — указывается ссылка: Google Drive, пост в Telegram, lex.uz, YouTube и т. д. Размещайте только материалы, которыми можно делиться.',
+            'Faylning o‘zi saytga yuklanmaydi — havola beriladi: Google Drive, Telegram kanal posti, lex.uz, YouTube va boshqalar. Shuning uchun kitoblar sayt xotirasini to‘ldirmaydi; faqat muqova rasmi saqlanadi (kichraytirilgan, taxminan 30–40 KB). Faqat tarqatishga ruxsati bor (ochiq yoki o‘zingizniki) materiallarni joylang.',
+            'The file itself is not uploaded — you give a link: Google Drive, a Telegram post, lex.uz, YouTube and so on. So books do not fill the site’s storage; only the cover is kept (shrunk, about 30–40 KB). Post only materials you are allowed to share.',
+            'Сам файл не загружается — указывается ссылка: Google Drive, пост в Telegram, lex.uz, YouTube и т. д. Поэтому книги не занимают память сайта; хранится только обложка (уменьшенная, около 30–40 КБ). Размещайте только материалы, которыми можно делиться.',
           )}
         </p>
       </form>
