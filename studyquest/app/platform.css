@@ -11046,3 +11046,11 @@ html {
     transform: none;
   }
 }
+.logo-need {
+  color: #b45309;
+  font-size: 13.5px;
+  font-weight: 600;
+}
+.dark .logo-need {
+  color: #fdba74;
+}

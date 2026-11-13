@@ -1,5 +1,6 @@
 import { test, expect, type Page } from '@playwright/test';
 import path from 'node:path';
+import { readFileSync } from 'node:fs';
 
 /* 8-mavzu: 📺 administrator qo'ygan YouTube video taqdimot slaydida va dars oynasidagi «Video» tugmasida ochiladi;
    🎨 talabaga alohida biznes beriladi, u logotip yuklab ta'rif yozadi, sun'iy intellekt (demo — sinov baholovchisi)
@@ -187,4 +188,80 @@ test('while reading, the lesson shows how many points the slide, the test and th
   await page.reload();
   await expect(page.locator('.native-document > .inner')).toBeVisible();
   await expect(page.locator('.reader-points')).toContainText('O‘qish rejimi');
+});
+
+test('a logo uploads whatever type the phone reports, and a blocked send says why', async ({
+  page,
+}) => {
+  const jpg = readFileSync('public/legacy/fayllar/logo-isfandiyor.png');
+  // oldingi sinovda talabaning ishi baholangan bo'lishi mumkin — baho olib tashlanadi, forma yana ochiladi
+  await page.request.post('/api/auth/demo', { data: { id: 'demo-student' } });
+  const me = (await (await page.request.get('/api/platform')).json()).user;
+  await page.request.post('/api/auth/demo', { data: { id: 'demo-admin' } });
+  const rows = (await (await page.request.get('/api/task?view=list')).json()).rows as {
+    uid: string;
+    final?: unknown;
+  }[];
+  for (const r of rows.filter((x) => x.final && x.uid === me.id))
+    await page.request.post('/api/task', {
+      data: { action: 'admin', input: { op: 'clearGrade', uid: r.uid } },
+    });
+  await page.request.post('/api/auth/demo', { data: { id: 'demo-student' } });
+  await page.goto('/#topshiriq/m8', { waitUntil: 'domcontentloaded' });
+  const input = page.locator('input[type=file][aria-label="Logotip rasmi"]');
+  // galereyada barcha rasmlar ko'rinsin (HEIC ham — iPhone uni o'zi JPG qilib beradi)
+  await expect(input).toHaveAttribute('accept', 'image/*');
+  const chosen = page.locator('.logo-drop.has-img');
+  const toast = page.locator('.toast');
+  // telefon turni noto'g'ri yoki umuman aytmasa ham rasm qabul qilinadi
+  for (const [name, mimeType] of [
+    ['logo.jpg', 'image/jpg'],
+    ['logo', ''],
+    ['logo.png', 'application/octet-stream'],
+  ] as const) {
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await input.setInputFiles({ name, mimeType, buffer: jpg });
+    await expect(chosen, name + ' ' + mimeType).toBeVisible();
+  }
+  // HEIC bo'lib, brauzer ocha olmasa — nima qilish kerakligi aytiladi
+  const heic = Buffer.concat([
+    Buffer.from([0, 0, 0, 24]),
+    Buffer.from('ftypheic'),
+    Buffer.alloc(64),
+  ]);
+  await page.reload({ waitUntil: 'domcontentloaded' });
+  await input.setInputFiles({ name: 'IMG_0001.HEIC', mimeType: 'image/heic', buffer: heic });
+  await expect(toast).toContainText('HEIC');
+  await expect(toast).toContainText('skrinshot');
+  await expect(chosen).toHaveCount(0);
+  // rasm bo'lmagan fayl
+  await page.reload({ waitUntil: 'domcontentloaded' });
+  await input.setInputFiles({
+    name: 'x.pdf',
+    mimeType: 'application/pdf',
+    buffer: Buffer.from('%PDF-1.4'),
+  });
+  await expect(toast).toContainText('rasm sifatida ochib bo‘lmadi');
+
+  // eski iPhone (createImageBitmap yo'q) — boshqa usulda ochiladi
+  await page.addInitScript(() => {
+    (window as unknown as { createImageBitmap?: unknown }).createImageBitmap = undefined;
+  });
+  await page.reload({ waitUntil: 'domcontentloaded' });
+  await input.setInputFiles({ name: 'logo.png', mimeType: 'image/png', buffer: jpg });
+  await expect(chosen).toBeVisible();
+  // ta'rif qisqa — tugma o'chiq va sababi yozilgan
+  const send = page.getByRole('button', { name: /O‘qituvchiga yuborish/ });
+  await page.locator('.logo-desc textarea').fill('Ramz — non va bug‘.');
+  await expect(send).toBeDisabled();
+  await expect(page.locator('.logo-need')).toContainText('Ta’rif juda qisqa — yana');
+  await page
+    .locator('.logo-desc textarea')
+    .fill(
+      'Ramz — tandir va undan chiqayotgan bug‘: issiq non va oila iliqligi. Ranglar: to‘q sariq va jigarrang. Shrift qalin va yumaloq — do‘stona.',
+    );
+  await expect(page.locator('.logo-need')).toHaveCount(0);
+  await send.click();
+  await expect(toast).toContainText('Ishingiz yuborildi');
+  await expect(page.locator('.logo-sent img')).toHaveAttribute('src', /^\/api\/site\/img\/lg-/);
 });

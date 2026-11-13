@@ -17,27 +17,95 @@ import {
 /* 🎨 «Biznesingiz uchun logotip» (8-mavzu topshirig'i): talaba o'ziga berilgan biznesni ko'radi, logotip rasmini
    yuklaydi va ta'rif yozadi; o'qituvchi ishni ko'rib, 0–25 ball va izoh qo'yadi (8-mavzu balining logotip qismi). */
 
-/** Rasmni brauzerda tayyorlash: eng uzun tomoni 1024 px gacha, shaffof joylar oq fon bilan (WEBP yoki JPEG). */
+/* Rasmni brauzerda tayyorlash: eng uzun tomoni 1024 px gacha, shaffof joylar oq fon bilan (WEBP yoki JPEG).
+   Telefonlar fayl turini turlicha aytadi («image/jpg», bo'sh, HEIC), shuning uchun turiga emas, rasm ochilishiga
+   qaraladi: avval createImageBitmap, bo'lmasa (eski iPhone) — <img>. Ochilmasa, lekin fayl o'zi JPG/PNG/WEBP/GIF va
+   3 MB gacha bo'lsa — o'zgartirmasdan yuboriladi (server baytlarini baribir tekshiradi). */
+type PrepError = 'heic' | 'decode' | 'big';
+const fail = (code: PrepError) => Object.assign(new Error(code), { code });
+/** Fayl boshidagi baytlardan haqiqiy turi (telefon aytgan turga ishonilmaydi). */
+async function sniff(file: Blob): Promise<string> {
+  const b = new Uint8Array(await file.slice(0, 16).arrayBuffer());
+  const s = (i: number, n: number) => String.fromCharCode(...b.slice(i, i + n));
+  if (b[0] === 0x89 && s(1, 3) === 'PNG') return 'image/png';
+  if (b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff) return 'image/jpeg';
+  if (s(0, 4) === 'RIFF' && s(8, 4) === 'WEBP') return 'image/webp';
+  if (s(0, 4) === 'GIF8') return 'image/gif';
+  if (s(4, 4) === 'ftyp' && /^(heic|heix|hevc|heim|heis|mif1|msf1|avif)/.test(s(8, 4)))
+    return 'image/heic';
+  return '';
+}
+async function decode(
+  file: Blob,
+): Promise<{ img: CanvasImageSource; w: number; h: number; done: () => void }> {
+  if (typeof createImageBitmap === 'function') {
+    try {
+      const b = await createImageBitmap(file);
+      return { img: b, w: b.width, h: b.height, done: () => b.close?.() };
+    } catch {}
+  }
+  const url = URL.createObjectURL(file);
+  try {
+    const el = new Image();
+    el.src = url;
+    await (el.decode
+      ? el.decode()
+      : new Promise((ok, no) => {
+          el.onload = ok;
+          el.onerror = no;
+        }));
+    if (!el.naturalWidth) throw new Error('empty');
+    return {
+      img: el,
+      w: el.naturalWidth,
+      h: el.naturalHeight,
+      done: () => URL.revokeObjectURL(url),
+    };
+  } catch (e) {
+    URL.revokeObjectURL(url);
+    throw e;
+  }
+}
 async function prepare(file: File): Promise<Blob> {
-  if (!/^image\/(png|jpeg|webp|gif)$/.test(file.type))
-    throw new Error('PNG, JPG, WEBP yoki GIF rasm tanlang.');
-  const bitmap = await createImageBitmap(file);
-  const k = Math.min(1, 1024 / Math.max(bitmap.width, bitmap.height));
-  const c = document.createElement('canvas');
-  c.width = Math.max(1, Math.round(bitmap.width * k));
-  c.height = Math.max(1, Math.round(bitmap.height * k));
-  const ctx = c.getContext('2d')!;
-  ctx.fillStyle = '#fff';
-  ctx.fillRect(0, 0, c.width, c.height);
-  ctx.imageSmoothingQuality = 'high';
-  ctx.drawImage(bitmap, 0, 0, c.width, c.height);
-  bitmap.close?.();
-  const out = (type: string) => new Promise<Blob | null>((ok) => c.toBlob(ok, type, 0.9));
-  let blob = await out('image/webp');
-  if (!blob || blob.type !== 'image/webp') blob = await out('image/jpeg');
-  if (!blob) throw new Error('Rasmni tayyorlab bo‘lmadi.');
-  if (blob.size > 3 * 1024 * 1024) throw new Error('Rasm juda katta — kichikroq rasm tanlang.');
-  return blob;
+  const real = await sniff(file);
+  const asIs = () => {
+    if (!real || real === 'image/heic') throw fail(real === 'image/heic' ? 'heic' : 'decode');
+    if (file.size > 3 * 1024 * 1024) throw fail('big');
+    return file.type === real ? file : new Blob([file], { type: real });
+  };
+  let pic;
+  try {
+    pic = await decode(file);
+  } catch {
+    return asIs();
+  }
+  try {
+    const k = Math.min(1, 1024 / Math.max(pic.w, pic.h));
+    const c = document.createElement('canvas');
+    c.width = Math.max(1, Math.round(pic.w * k));
+    c.height = Math.max(1, Math.round(pic.h * k));
+    const ctx = c.getContext('2d');
+    if (!ctx) return asIs();
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(0, 0, c.width, c.height);
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(pic.img, 0, 0, c.width, c.height);
+    const out = (type: string) =>
+      new Promise<Blob | null>((ok) => {
+        try {
+          c.toBlob(ok, type, 0.9);
+        } catch {
+          ok(null);
+        }
+      });
+    let blob = await out('image/webp');
+    if (!blob || blob.type !== 'image/webp') blob = await out('image/jpeg');
+    if (!blob || !blob.size) return asIs();
+    if (blob.size > 3 * 1024 * 1024) throw fail('big');
+    return blob;
+  } finally {
+    pic.done();
+  }
 }
 
 /** Toshkent vaqti bo'yicha «09.11, 14:05». */
@@ -90,7 +158,26 @@ export function LogoTaskPage({ id = LOGO_TOPIC }: { id?: string }) {
       setFile(blob);
       setPreview(URL.createObjectURL(blob));
     } catch (e) {
-      toast((e as Error).message);
+      const code = (e as { code?: PrepError }).code;
+      toast(
+        code === 'heic'
+          ? L(
+              'Bu rasm HEIC turida — telefoningiz uni ocha olmadi. Logotipni skrinshot qilib (ekran rasmi), o‘sha rasmni tanlang yoki kamera sozlamasida «HEIF / Yuqori samarali» ni o‘chiring.',
+              'This picture is HEIC and your phone could not open it. Take a screenshot of the logo and choose that, or turn off “HEIF / High efficiency” in the camera settings.',
+              'Это фото в формате HEIC — телефон не смог его открыть. Сделайте скриншот логотипа и выберите его или отключите «HEIF / Высокая эффективность» в настройках камеры.',
+            )
+          : code === 'big'
+            ? L(
+                'Rasm juda katta (3 MB dan ortiq). Logotipni skrinshot qilib, o‘sha rasmni tanlang.',
+                'The picture is too large (over 3 MB). Take a screenshot of the logo and choose that.',
+                'Изображение слишком большое (более 3 МБ). Сделайте скриншот логотипа и выберите его.',
+              )
+            : L(
+                'Bu faylni rasm sifatida ochib bo‘lmadi. JPG yoki PNG rasm tanlang — eng osoni: logotipni skrinshot qilib, o‘shani yuklang.',
+                'This file could not be opened as a picture. Choose a JPG or PNG — the easiest way is to take a screenshot of the logo and upload that.',
+                'Этот файл не открывается как изображение. Выберите JPG или PNG — проще всего сделать скриншот логотипа.',
+              ),
+      );
     }
   }
   async function send() {
@@ -100,9 +187,28 @@ export function LogoTaskPage({ id = LOGO_TOPIC }: { id?: string }) {
       const form = new FormData();
       form.append('file', file, 'logo.' + (file.type === 'image/webp' ? 'webp' : 'jpg'));
       form.append('desc', desc.trim());
-      const r = await request('/api/task', { method: 'POST', body: form }),
-        v = await r.json();
-      if (!r.ok) throw new Error(v.error);
+      let r: Response;
+      try {
+        r = await request('/api/task', { method: 'POST', body: form });
+      } catch {
+        throw new Error(
+          L(
+            'Internet aloqasi uzildi — rasm yetib bormadi. Aloqani tekshirib, qayta yuboring.',
+            'The connection dropped and the picture did not arrive. Check your internet and send again.',
+            'Соединение прервалось — изображение не дошло. Проверьте интернет и отправьте снова.',
+          ),
+        );
+      }
+      const v = await r.json().catch(() => ({}));
+      if (!r.ok)
+        throw new Error(
+          v.error ||
+            L(
+              'Yuborib bo‘lmadi. Birozdan keyin qayta urinib ko‘ring.',
+              'Could not send. Please try again in a moment.',
+              'Не удалось отправить. Попробуйте ещё раз чуть позже.',
+            ),
+        );
       setTask(v.task);
       setFile(null);
       setPreview('');
@@ -374,14 +480,20 @@ export function LogoTaskPage({ id = LOGO_TOPIC }: { id?: string }) {
                       'Выберите изображение',
                     )}
                   </b>
-                  <small>PNG · JPG · WEBP</small>
+                  <small>
+                    {L(
+                      'Galereyadan rasm yoki skrinshot',
+                      'A photo or screenshot from the gallery',
+                      'Фото или скриншот из галереи',
+                    )}
+                  </small>
                 </span>
               )}
             </button>
             <input
               ref={picker}
               type="file"
-              accept="image/png,image/jpeg,image/webp,image/gif"
+              accept="image/*"
               hidden
               aria-label={L('Logotip rasmi', 'Logo picture', 'Изображение логотипа')}
               onChange={(e) => void choose(e.target.files?.[0])}
@@ -423,10 +535,21 @@ export function LogoTaskPage({ id = LOGO_TOPIC }: { id?: string }) {
               {busy ? <Loader2 size={16} className="spin" /> : <Send size={16} />}
               {L('O‘qituvchiga yuborish', 'Send to the teacher', 'Отправить преподавателю')}
             </Button>
-            {!file && (
+            {!file ? (
               <span className="muted">
                 {L('Avval rasm tanlang', 'Choose a picture first', 'Сначала выберите изображение')}
               </span>
+            ) : (
+              !descOk && (
+                <span className="logo-need" role="status">
+                  ✍️{' '}
+                  {L(
+                    `Ta’rif juda qisqa — yana ${LOGO_DESC_MIN - desc.trim().length} ta belgi yozing (kamida ${LOGO_DESC_MIN}).`,
+                    `The description is too short — write ${LOGO_DESC_MIN - desc.trim().length} more characters (at least ${LOGO_DESC_MIN}).`,
+                    `Описание слишком короткое — допишите ещё ${LOGO_DESC_MIN - desc.trim().length} символов (минимум ${LOGO_DESC_MIN}).`,
+                  )}
+                </span>
+              )
             )}
           </div>
         </form>
