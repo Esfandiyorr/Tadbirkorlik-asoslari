@@ -26,6 +26,7 @@ import { HeroAvatar, useAcademicBoard } from './avatars';
 import { NewsBox, NewsChip } from './announcements';
 import { PromoBox } from './promo';
 import { Leaderboard } from './leaderboard';
+import { CourseGate } from './course-gate';
 import { AccessChip, PointsRing, PointsBreakdown } from './points-ui';
 import { t, dateLabel } from '@/lib/i18n';
 import {
@@ -236,6 +237,7 @@ function LearnerHome() {
         </>
       )}
       <PushInvite />
+      <CourseGate compact />
       <div className="dashboard-grid">
         <div className="dashboard-main">
           {lesson && (
@@ -898,7 +900,10 @@ export function CourseList({
           </div>
         )
       ) : (
-        courseTopics()
+        <>
+          <CourseGate />
+          {courseTopics()}
+        </>
       )}
     </>
   );

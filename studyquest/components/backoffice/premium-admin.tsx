@@ -26,10 +26,28 @@ export function PremiumAdmin() {
   }, [saved]);
   useEffect(() => {
     let live = true;
-    request('/api/platform?view=academic')
-      .then((r) => (r.ok ? r.json() : { leaderboard: [] }))
-      .then((v) => live && setStudents(v.leaderboard || []))
-      .catch(() => {});
+    // TerDU talabalari (reyting) + talaba bo'lmaganlar: kursga ruxsat so'raganlar va ruxsat berilganlar (email bilan)
+    type Row = { uid: string; name: string; email?: string };
+    type Lists = { leaderboard?: Student[]; requests?: Row[]; grants?: Row[] };
+    const json = (url: string): Promise<Lists> =>
+      request(url)
+        .then((r) => (r.ok ? r.json() : {}))
+        .catch(() => ({}));
+    void Promise.all([
+      json('/api/platform?view=academic'),
+      json('/api/platform?view=courseAccessAdmin'),
+    ]).then(([board, access]) => {
+      if (!live) return;
+      const seen = new Set<string>();
+      const others = [...(access.requests || []), ...(access.grants || [])]
+        .filter((x) => !seen.has(x.uid) && !!seen.add(x.uid))
+        .map((x) => ({
+          id: x.uid,
+          name: x.name,
+          classId: x.email || '',
+        }));
+      setStudents([...(board.leaderboard || []), ...others]);
+    });
     return () => {
       live = false;
     };
@@ -72,9 +90,9 @@ export function PremiumAdmin() {
         </span>
         <span>
           {L(
-            'ta talabada obuna amalda. Obuna: sun’iy intellekt taqdimotlari va kutubxonadagi 💎 manbalar.',
-            'students have Premium. Premium unlocks AI presentations and 💎 library resources.',
-            'студентов с подпиской. Подписка открывает ИИ-презентации и материалы 💎 в библиотеке.',
+            'ta foydalanuvchida obuna amalda. Obuna: kurs darslari (talaba bo‘lmaganlarga), sun’iy intellekt taqdimotlari va kutubxonadagi 💎 manbalar.',
+            'users have Premium. Premium unlocks course lessons (for non-students), AI presentations and 💎 library resources.',
+            'пользователей с подпиской. Подписка открывает уроки курса (для не-студентов), ИИ-презентации и материалы 💎 в библиотеке.',
           )}
         </span>
       </div>
@@ -92,7 +110,11 @@ export function PremiumAdmin() {
                 setPick(null);
                 setQ(e.target.value);
               }}
-              placeholder={L('Ism yoki guruh', 'Name or group', 'Имя или группа')}
+              placeholder={L(
+                'Ism, guruh yoki email',
+                'Name, group or email',
+                'Имя, группа или email',
+              )}
             />
           </label>
           {!pick && !!found.length && (

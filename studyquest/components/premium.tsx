@@ -92,6 +92,14 @@ export function PremiumOffer({
         </h2>
         <ul>
           <li>
+            📖{' '}
+            {L(
+              '«Tadbirkorlik asoslari» kursining barcha ochiq darslari (talaba bo‘lmaganlar uchun)',
+              'All open lessons of the “Fundamentals of Entrepreneurship” course (for non-students)',
+              'Все открытые уроки курса «Основы предпринимательства» (для не-студентов)',
+            )}
+          </li>
+          <li>
             🎞{' '}
             {L(
               'Sun’iy intellekt istalgan mavzuda tayyor taqdimot tuzib beradi — PowerPoint faylini yuklab olasiz',

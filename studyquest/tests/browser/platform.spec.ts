@@ -344,6 +344,8 @@ test('student entry asks for the existing first name, surname and code', async (
     await route.fulfill({ response, body });
   });
   await page.goto('/#login', { waitUntil: 'domcontentloaded' });
+  // 🎓 birinchi savol: «Talabamisiz?» → talaba bo'limi
+  await page.getByRole('button', { name: /Ha, TerDU talabasiman/ }).click();
   const frame = page.locator('.native-login .native-document');
   await expect(frame.locator('#lgN')).toBeVisible();
   await expect(frame.locator('#lgS')).toBeVisible();

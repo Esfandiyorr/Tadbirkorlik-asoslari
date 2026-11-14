@@ -31,6 +31,7 @@ import {
 import { NativeSurface } from './native-surface';
 import { TopicVideoButton } from './topic-video';
 import { LOGO_TOPIC } from '@/lib/logo-task';
+import { CourseGate, useCourseLocked } from './course-gate';
 /** Taqdimotning PDF nusxasi: to'liq havola yoki asl fayllar (public/legacy/fayllar). */
 const pdfHref = (pdf: string) => (pdf.startsWith('https://') ? pdf : '/legacy/' + pdf);
 export function LessonView({ id }: { id: string }) {
@@ -38,6 +39,7 @@ export function LessonView({ id }: { id: string }) {
 }
 function OriginalLessonView({ id }: { id: string }) {
   const { data, lang, setLang, dark, call, toast, request } = useApp(),
+    courseLocked = useCourseLocked(),
     meta = data!.lessons.find((x) => x.id === id),
     [detail, setDetail] = useState<LessonType | null>(null),
     [index, setIndex] = useState(0),
@@ -67,7 +69,7 @@ function OriginalLessonView({ id }: { id: string }) {
     );
   }, [fit, dark, detail]);
   useEffect(() => {
-    if (!meta || loaded.current === id) return;
+    if (!meta || courseLocked || loaded.current === id) return;
     loaded.current = id;
     setError('');
     if (legacyMode) {
@@ -104,7 +106,7 @@ function OriginalLessonView({ id }: { id: string }) {
       alive = false;
       loaded.current = '';
     };
-  }, [id, meta?.id, legacyMode, data?.limited, call, request]);
+  }, [id, meta?.id, legacyMode, data?.limited, courseLocked, call, request]);
   useEffect(() => {
     const handle = (e: MessageEvent) => {
       if (
@@ -184,6 +186,28 @@ function OriginalLessonView({ id }: { id: string }) {
         {lang === 'uz' ? 'Dars topilmadi' : lang === 'ru' ? 'Урок не найден' : 'Lesson not found'}
         <Button onClick={() => navigate('courses')}>{t(lang, 'courses')}</Button>
       </div>
+    );
+  // 🔑 talaba bo'lmagan foydalanuvchida obuna ham, ruxsat ham yo'q — dars o'rniga «obuna bo'ling / ruxsat so'rang»
+  if (courseLocked)
+    return (
+      <section className="focus-reader course-gate-page" aria-label={meta.title}>
+        <header className="reader-toolbar">
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label={tr(lang, 'Kursga qaytish', 'Back to course', 'Назад к курсу')}
+            onClick={() => navigate('course/' + meta.courseId)}
+          >
+            <ArrowLeft size={18} />
+          </Button>
+          <ReaderHeading
+            title={meta.title}
+            topic={Number(id.slice(1)) || meta.order + 1}
+            total={data!.lessons.filter((l) => l.courseId === meta.courseId).length}
+          />
+        </header>
+        <CourseGate />
+      </section>
     );
   const lesson = detail || meta,
     related = data!.quizzes.filter((q) => q.lessonId === id),

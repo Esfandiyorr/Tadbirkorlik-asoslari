@@ -3,6 +3,7 @@ import { catalog } from '../seed';
 import type { Actor, Lesson, LessonAccess } from '../types';
 import { legacyDb, demo } from './repository';
 import { check } from './auth';
+import { requireCourse } from './course-access';
 
 /* 🎚 Mavzuning umumiy holati (o'qituvchi bo'limidagi «Mavzular holati»): «lock» 🔒 hammaga yopiq, «read» 📖 hammaga
    o'qish rejimi, «open» 🟢 hammaga ochiq (ball o'sha haftaning yakshanbasi 23:59 gacha, keyin 📖).
@@ -64,7 +65,10 @@ export function canReadLegacy(
   );
 }
 export async function legacyAccess(a: Actor, l: Lesson) {
-  if (demo() || !l.legacyFile || a.role !== 'student') return;
+  if (a.role !== 'student') return;
+  // 🔑 talaba bo'lmaganlar (email/Google, mustaqil o'quvchi) — faqat 💎 obuna yoki administrator ruxsati bilan
+  await requireCourse(a);
+  if (demo() || !l.legacyFile) return;
   const topic = catalog.topics.find((x) => x.id === l.id);
   check(topic, 404, 'Asl dars topilmadi');
   const grant = (

@@ -1,3 +1,4 @@
+import type { CourseEntry } from './course-access';
 export type Role = 'student' | 'teacher' | 'admin';
 export type Lang = 'uz' | 'en' | 'ru';
 export type ReadingHistory = {
@@ -144,6 +145,8 @@ export type Data = {
   serviceMessage?: string;
   user?: User;
   lessonAccess?: Record<string, LessonAccess>;
+  /** 🔑 kursga kirish (talaba bo'lmaganlar uchun: obuna yoki administrator ruxsati) — lib/server/course-access.ts */
+  course?: CourseEntry;
   progress?: Progress[];
   attempts?: Attempt[];
   transactions?: XpTransaction[];

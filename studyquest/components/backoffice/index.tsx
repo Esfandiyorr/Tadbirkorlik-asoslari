@@ -16,6 +16,7 @@ import { PushAdmin } from './push-admin';
 import { AppAdmin } from './app-admin';
 import { LibraryAdmin } from './library-admin';
 import { PremiumAdmin } from './premium-admin';
+import { CourseAccessAdmin } from './course-access-admin';
 import { startEditMode } from '../site-content';
 
 /* 🛠 Sayt boshqaruvi (administrator): saytdagi matn, rasm, avatar, test va jonli testni dasturchiga yozmasdan
@@ -33,7 +34,8 @@ export type BoSection =
   | 'logo'
   | 'app'
   | 'library'
-  | 'premium';
+  | 'premium'
+  | 'courseAccess';
 const KEY = 'sq-bo-section';
 
 export function BackOffice({ openTab }: { openTab: (tab: string) => void }) {
@@ -168,6 +170,16 @@ export function BackOffice({ openTab }: { openTab: (tab: string) => void }) {
       ),
     },
     {
+      id: 'courseAccess',
+      icon: '🔑',
+      title: L('Kursga ruxsat', 'Course access', 'Доступ к курсу'),
+      text: L(
+        'Talaba bo‘lmaganlar kursga faqat obuna yoki sizning ruxsatingiz bilan kiradi: so‘rovlar, email bo‘yicha ruxsat, ruxsatlar ro‘yxati.',
+        'Non-students enter the course only with Premium or your permission: requests, access by email, the list of grants.',
+        'Не-студенты входят в курс только по подписке или вашему разрешению: запросы, доступ по email, список.',
+      ),
+    },
+    {
       id: 'premium',
       icon: '💎',
       title: L(
@@ -176,9 +188,9 @@ export function BackOffice({ openTab }: { openTab: (tab: string) => void }) {
         'Подписка (платные функции)',
       ),
       text: L(
-        'Narx va to‘lov yo‘riqnomasi, talabaga obuna berish yoki bekor qilish. Obuna sun’iy intellekt taqdimotlari va 💎 manbalarni ochadi.',
-        'Price and payment instructions, giving or removing Premium. Premium unlocks AI presentations and 💎 resources.',
-        'Цена и инструкция по оплате, выдача и отмена подписки. Подписка открывает ИИ-презентации и материалы 💎.',
+        'Narx va to‘lov yo‘riqnomasi, obuna berish yoki bekor qilish. Obuna kurs darslarini (talaba bo‘lmaganlarga), sun’iy intellekt taqdimotlari va 💎 manbalarni ochadi.',
+        'Price and payment instructions, giving or removing Premium. Premium unlocks course lessons (for non-students), AI presentations and 💎 resources.',
+        'Цена и инструкция по оплате, выдача и отмена подписки. Подписка открывает уроки курса (для не-студентов), ИИ-презентации и материалы 💎.',
       ),
     },
     {
@@ -248,6 +260,7 @@ export function BackOffice({ openTab }: { openTab: (tab: string) => void }) {
     else if (section === 'app') body = <AppAdmin />;
     else if (section === 'library') body = <LibraryAdmin />;
     else if (section === 'premium') body = <PremiumAdmin />;
+    else if (section === 'courseAccess') body = <CourseAccessAdmin />;
     else if (section === 'promo') body = <PromoAdmin />;
     else if (section === 'video') body = <VideoAdmin />;
     else if (section === 'logo') body = <LogoTaskAdmin />;

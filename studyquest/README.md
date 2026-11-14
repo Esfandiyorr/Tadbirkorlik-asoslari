@@ -51,6 +51,11 @@ For Firebase-backed development, copy `.env.example` to `.env.local`, supply you
   subscription by hand and writes the price and payment instructions. Inside the Play Store app (`/?src=play`) the
   offer shows no price or payment instructions (`lib/play-app.ts`) — Google Play does not allow steering to external
   payment for digital goods.
+- **Course access** (`lib/server/course-access.ts`): sign-in starts with «Talabamisiz?». TerDU students use the
+  student section (group + teacher approval) and keep full access with points. Everyone else registers with email or
+  Google and opens course lessons only with Premium or the administrator's permission («🔑 Kursga ruxsat»: access
+  requests, grant by email, revoke, and a switch to open the course to everyone for a while). Checked on the server
+  before a lesson opens (`legacyAccess`), and the course, home and lesson pages show a subscribe / request-access card.
 - **Google Play readiness** (`lib/server/app-store.ts`, `play-market/`): public `/privacy` and `/delete-account` pages
   (uz/ru/en), in-app account deletion requests approved by the administrator, `/.well-known/assetlinks.json` filled
   from the back office, a report form for the group chat, store texts, screenshots and a step-by-step guide.

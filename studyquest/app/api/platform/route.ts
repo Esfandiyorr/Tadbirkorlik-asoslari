@@ -4,6 +4,15 @@ import { z } from 'zod';
 import { actor, ApiError, check, sameOrigin, staff, administrator } from '@/lib/server/auth';
 import { repository, demo, configured, legacyDb } from '@/lib/server/repository';
 import { legacyAccess, lessonAccessStates } from '@/lib/server/legacy-access';
+import {
+  cancelCourseRequest,
+  courseAccessAdmin,
+  courseEntry,
+  manageCourseAccess,
+  requestCourseAccess,
+  terduStudent,
+} from '@/lib/server/course-access';
+import type { Actor } from '@/lib/types';
 import { demoTopicAccess, setTopicMode, topicAccessList } from '@/lib/server/topic-access';
 import { Platform } from '@/lib/server/platform';
 import { Academic, academicRecord } from '@/lib/server/academic';
@@ -58,6 +67,30 @@ import {
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
+/* 🔑 Talaba bo'lmaganlar (email/Google, mustaqil o'quvchi): kursga kirish holati va mavzular holati. Obuna yoki
+   administrator ruxsati bo'lmasa — hamma mavzu 🔒 (ekranda «obuna bo'ling / ruxsat so'rang» oynasi chiqadi). */
+async function withCourse(a: Actor, target: { course?: unknown; lessonAccess?: unknown }) {
+  if (a.role !== 'student') return;
+  const course = await courseEntry(a);
+  target.course = course;
+  if (terduStudent(a)) return;
+  if (!course.ok) {
+    target.lessonAccess = Object.fromEntries(
+      catalog.topics.map((t: { id: string }) => [t.id, { state: 'locked' }]),
+    );
+    return;
+  }
+  if (!a.id.startsWith('legacy_') && !demo())
+    target.lessonAccess = lessonAccessStates(
+      (
+        await legacyDb()
+          .ref('meta/access')
+          .get()
+          .catch(() => null)
+      )?.val(),
+      { id: a.id, group: '', independent: true },
+    );
+}
 async function deletedStudentIds() {
   if (demo()) return new Set<string>();
   const records = (await legacyDb().ref('meta/deletedStudentIds').get()).val() || {};
@@ -224,6 +257,11 @@ export async function GET(req: NextRequest) {
         headers: { 'Cache-Control': 'private, no-store' },
       });
     }
+    if (req.nextUrl.searchParams.get('view') === 'courseAccessAdmin') {
+      return NextResponse.json(await courseAccessAdmin(await actor(req, true)), {
+        headers: { 'Cache-Control': 'private, no-store' },
+      });
+    }
     if (req.nextUrl.searchParams.get('view') === 'premiumAdmin') {
       return NextResponse.json(await premiumAdmin(await actor(req, true)), {
         headers: { 'Cache-Control': 'private, no-store' },
@@ -293,29 +331,26 @@ export async function GET(req: NextRequest) {
           .get()
       ).val();
       if (!record) return NextResponse.json({}, { headers });
-      return NextResponse.json(
-        {
-          user: academicRecord(a.id.slice(7), record),
-          ...(a.role === 'student'
-            ? {
-                lessonAccess: lessonAccessStates(
-                  (
-                    await legacyDb()
-                      .ref('meta/access')
-                      .get()
-                      .catch(() => null)
-                  )?.val(),
-                  {
-                    id: a.id.slice(7),
-                    group: String(record.group || ''),
-                    independent: record.learnerType === 'independent',
-                  },
-                ),
-              }
-            : {}),
-        },
-        { headers },
-      );
+      const out: { user: unknown; lessonAccess?: unknown; course?: unknown } = {
+        user: academicRecord(a.id.slice(7), record),
+      };
+      if (a.role === 'student') {
+        out.lessonAccess = lessonAccessStates(
+          (
+            await legacyDb()
+              .ref('meta/access')
+              .get()
+              .catch(() => null)
+          )?.val(),
+          {
+            id: a.id.slice(7),
+            group: String(record.group || ''),
+            independent: record.learnerType === 'independent',
+          },
+        );
+        await withCourse(a, out);
+      }
+      return NextResponse.json(out, { headers });
     }
     const mode = demo() ? 'demo' : configured() ? 'firebase' : 'legacy';
     if (mode === 'legacy') {
@@ -419,6 +454,8 @@ export async function GET(req: NextRequest) {
     }
     if (demo() && a.role === 'student' && state.user)
       Object.assign(state, demoAcademic(state.user as { id: string }));
+    // baza vaqtincha javob bermasa ham sahifa ochilsin — darsni server baribir tekshiradi (legacyAccess)
+    await withCourse(a, state as { course?: unknown; lessonAccess?: unknown }).catch(() => {});
     return NextResponse.json({
       ...state,
       mode,
@@ -470,6 +507,10 @@ export async function GET(req: NextRequest) {
               );
           }
         }
+        if (a && limited.user)
+          await withCourse(a, limited as { course?: unknown; lessonAccess?: unknown }).catch(
+            () => {},
+          );
         return NextResponse.json(limited, { headers: { 'Cache-Control': 'no-store' } });
       } catch (authError) {
         return failure(authError);
@@ -540,6 +581,22 @@ export async function POST(req: NextRequest) {
     }
     if (p.action === 'premiumAdmin') {
       return NextResponse.json(await managePremium(await actor(req, true), p.input));
+    }
+    if (p.action === 'courseAccessAdmin') {
+      return NextResponse.json(await manageCourseAccess(await actor(req, true), p.input));
+    }
+    if (p.action === 'courseRequest') {
+      // 🔑 talaba bo'lmagan foydalanuvchi: «Kursga ruxsat so'rash» yoki so'rovni bekor qilish
+      const a = await actor(req, true);
+      const v = (p.input || {}) as { op?: unknown; note?: unknown };
+      return NextResponse.json(
+        v.op === 'cancel'
+          ? await cancelCourseRequest(a)
+          : await requestCourseAccess(
+              a,
+              typeof v.note === 'string' && v.note.trim() ? { note: v.note } : {},
+            ),
+      );
     }
     if (p.action === 'appAdmin') {
       return NextResponse.json(await manageApp(await actor(req, true), p.input));

@@ -222,6 +222,7 @@ export function Provider({
               ...d,
               user: { ...d.user, ...v.user, id: d.user.id, role: d.user.role },
               ...(v.lessonAccess ? { lessonAccess: v.lessonAccess } : {}),
+              ...(v.course ? { course: v.course } : {}),
             }
           : d,
       );
