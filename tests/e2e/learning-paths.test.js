@@ -5,14 +5,21 @@ async function ready(p){await p.waitForFunction(()=>window.RT_ready);await sleep
  try{
   H.addStu('uniLegacy','Ali','Valiyev','AP-223');H.dbSet('students/uniLegacy/prog/m6',{sl:{slide0:1,slide1:1},ac:{test0:1}});
   H.dbSet('students/uniPending',{id:'uniPending',name:'Dilnoza',surname:'Rahimova',group:'AP-223',status:'pending',at:Date.now(),learnerType:'university'});
-  const p=await H.mk(b,null,{});await p.goto(H.SITE+'/index.html');await ready(p);
-  ck('portal explains both learning paths',await p.locator('#hmIndependent').isVisible()&&/Universitet talabasi/.test(await p.locator('#hmReg').textContent()));
-  await p.locator('#hmIndependent').click();
-  ck('independent path is preselected with three identity inputs',await p.locator('[data-learner="independent"]').getAttribute('aria-pressed')==='true'&&await p.locator('#rtGateBody input').count()===3);
-  await p.locator('#rtN').fill('Madina');await p.locator('#rtS').fill('Ergasheva');await p.locator('#rtB').fill('Mustaqil2026');await p.locator('#rtGo').click();
-  await p.waitForFunction(()=>RT.student()&&document.body.classList.contains('rt-independent')&&!document.getElementById('rtGate'));
+  const p0=await H.mk(b,null,{});await p0.goto(H.SITE+'/index.html');await ready(p0);
+  ck('portal offers only the student path (non-students use email/Google on the platform)',await p0.locator('#hmIndependent').count()===0&&/Universitet talabasi/.test(await p0.locator('#hmReg').textContent()));
+  await p0.locator('#hmReg').click();await p0.waitForSelector('#rtGo');
+  ck('student registration has no learner choice and explains teacher approval',await p0.locator('[data-learner]').count()===0&&await p0.locator('.rt-regnote').isVisible()&&await p0.locator('#rtGateBody input').count()===3);
+  await p0.locator('#rtN').fill('Madina');await p0.locator('#rtS').fill('Ergasheva');await p0.locator('#rtB').fill('Mustaqil2026');await p0.locator('#rtGo').click();
+  await p0.waitForSelector('#rtWait');
+  const reg=await p0.evaluate(()=>RT.student());
+  ck('a new student account waits for teacher approval',reg.learnerType==='university'&&H.DBS.students[reg.id].status==='pending'&&H.DBS.students[reg.id].learnerType==='university'&&await p0.evaluate(()=>!RT.ok()));
+  /* avvaldan mavjud mustaqil o'quvchi hisobi (yangi ro'yxatdan o'tishda bu yo'l yo'q) */
+  H.dbSet('students/'+reg.id+'/learnerType','independent');H.dbSet('students/'+reg.id+'/group','');
+  const p=await H.mk(b,null,{});await p.goto(H.SITE+'/index.html');await ready(p);await p.locator('#rtChip').click();
+  await p.locator('#lgN').fill('Madina');await p.locator('#lgS').fill('Ergasheva');await p.locator('#lgB').fill('Mustaqil2026');await p.locator('#lgGo').click();
+  await p.waitForFunction(()=>RT.student()&&RT.student().learnerType==='independent'&&!document.getElementById('rtGate'));
   const me=await p.evaluate(()=>RT.student());
-  ck('independent account opens without group or teacher approval',me.learnerType==='independent'&&me.group===''&&await p.locator('#rtWait').count()===0&&H.DBS.students[me.id].learnerType==='independent');
+  ck('an existing independent account still opens without group or teacher approval',me.learnerType==='independent'&&me.group===''&&await p.locator('#rtWait').count()===0&&H.DBS.students[me.id].learnerType==='independent');
   await p.evaluate(()=>RT.open('cv'));
   ck('independent profile omits group and university marks',await p.locator('#cvG').count()===0&&/Mustaqil o‘quvchi/.test(await p.locator('#rtCv').textContent())&&!/Mening baholarim/.test(await p.locator('#rtCv').textContent()));
   await p.locator('#cvSaveB').click();await sleep(200);
@@ -46,7 +53,7 @@ async function ready(p){await p.waitForFunction(()=>window.RT_ready);await sleep
   ck('legacy university account keeps its group and scoring access',await uni.locator('.hm-card.score[data-t="m6"]').count()===1&&await uni.locator('.hm-card.score[data-t="m8"]').count()===1&&await uni.evaluate(()=>RT.student().group==='AP-223'&&RT.points().total>0));
   await uni.evaluate(()=>RT.open('cv'));ck('university profile still offers group selection',await uni.locator('#cvG').isVisible());
   const mobile=await H.mk(b,null,{vp:{width:390,height:844},mobile:true});await mobile.goto(H.SITE+'/index.html');await ready(mobile);await mobile.locator('#rtReg').click();
-  ck('both learning paths fit a phone screen',await mobile.locator('.rt-modechoices').evaluate(e=>e.scrollWidth<=e.clientWidth+1)&&await mobile.locator('#rtGate').evaluate(e=>e.scrollWidth<=e.clientWidth+1));await mobile.screenshot({path:'learning-paths-mobile.png'});
+  ck('student registration fits a phone screen',await mobile.locator('.rt-regnote').isVisible()&&await mobile.locator('#rtGate').evaluate(e=>e.scrollWidth<=e.clientWidth+1));await mobile.screenshot({path:'learning-paths-mobile.png'});
   H.dbSet('students/'+me.id+'/status','blocked');const blocked=await H.mk(b,me,{});await blocked.goto(H.SITE+'/index.html');await blocked.waitForSelector('#rtWait');
   ck('blocked independent accounts cannot bypass account checks',/bloklangan/.test(await blocked.locator('#rtWait h2').textContent())&&await blocked.evaluate(()=>!RT.ok()));
   H.dbSet('students/'+me.id+'/status','pending');await blocked.locator('#rtChk').click();await blocked.waitForFunction(()=>!document.getElementById('rtWait'));
@@ -56,7 +63,7 @@ async function ready(p){await p.waitForFunction(()=>window.RT_ready);await sleep
   teacher.on('dialog',d=>d.type()==='prompt'?d.accept("O'CHIR"):d.accept());
   await teacher.locator('#rtWipe').click();await teacher.waitForFunction(()=>document.getElementById('rtWipe')&&!document.getElementById('rtWipe').disabled);
   ck('clearing university students preserves independent accounts, credentials and reading',!H.dbGet('students/uniLegacy')&&!!H.dbGet('students/'+me.id)&&!!H.dbGet('keys/'+me.id)&&H.dbGet('students/'+me.id+'/reading/m6/sl/slide4')===1&&H.dbGet('meta/reset')===resetBefore);
-  const errors=[...p._errs,...login._errs,...teacher._errs,...uni._errs,...mobile._errs,...blocked._errs].filter(e=>!/^console:/.test(e));ck('no JavaScript exceptions',errors.length===0,JSON.stringify(errors));
+  const errors=[...p0._errs,...p._errs,...login._errs,...teacher._errs,...uni._errs,...mobile._errs,...blocked._errs].filter(e=>!/^console:/.test(e));ck('no JavaScript exceptions',errors.length===0,JSON.stringify(errors));
  }finally{await b.close();}
  console.log('FAILS:',H.fails());process.exitCode=H.fails()?1:0;
 })().catch(e=>{console.error(e);console.log('FAILS: 1');process.exit(1);});

@@ -38,6 +38,8 @@ export type User = Actor & {
   legacyRegisteredAt?: number;
   academicTopics?: Record<string, Record<string, number>>;
   manualMarks?: Record<string, number>;
+  /** 🔁 testga ikkinchi urinish berilgan mavzular → berilgan vaqt */
+  reopened?: Record<string, number>;
   xp: number;
   streak: number;
   lastStudyDay?: string;

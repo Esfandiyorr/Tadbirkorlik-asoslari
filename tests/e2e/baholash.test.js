@@ -32,6 +32,7 @@ const names=(p,sel)=>p.evaluate(sel=>[...document.querySelectorAll(sel)].map(e=>
     return {d:Math.round(c.left-w.left),h:Math.round(h.left-w.left),sl:document.getElementById("mkWrap").scrollLeft}; });
   ck("kompyuter: jadval sig'masa ism ustuni qotirilgan",!ov||st.sl>0&&Math.abs(st.d)<=2&&Math.abs(st.h)<=2,JSON.stringify(st)+" ov="+ov);
   await T.screenshot({path:"mk_all.png"});
+  ck("🔓 (testni qayta ochish) bu jadvalda yo'q — «Talabalar va baholar» bo'limiga ko'chgan",await T.evaluate(()=>document.querySelectorAll("#mkWrap .rt-unlock").length===0&&/Talabalar va baholar/.test(document.querySelector('.rt-tcpane[data-p="mk"]').textContent)));
   /* ➕ → tanlov → 4 */
   const sl0=await T.evaluate(()=>document.getElementById("mkWrap").scrollLeft);
   await T.evaluate(()=>[...document.querySelectorAll("#mkWrap .rt-manual:not(.rt-unlock)")].find(b=>b.dataset.id==="s4"&&b.dataset.t==="m2").click()); await sleep(300);
@@ -43,7 +44,7 @@ const names=(p,sel)=>p.evaluate(sel=>[...document.querySelectorAll(sel)].map(e=>
   /* bitta mavzu */
   await T.evaluate(()=>document.querySelector('.rt-mkt[data-mt="m3"]').click()); await sleep(600);
   const c3=await T.evaluate(()=>[...document.querySelectorAll("#mkWrap thead th")].map(x=>x.textContent.trim()));
-  ck("M3 tanlandi: keng jadval (baho, slayd, test, vaqt, amaliy baho)",c3.length===7&&/Amaliy dars bahosi/.test(c3[5])&&await T.evaluate(()=>document.querySelectorAll("#mkWrap .rt-mkpick").length)===6,JSON.stringify(c3));
+  ck("M3 tanlandi: keng jadval (baho, slayd, test, vaqt, amaliy baho; 🔓 ustuni yo‘q)",c3.length===6&&/Amaliy dars bahosi/.test(c3[5])&&await T.evaluate(()=>document.querySelectorAll("#mkWrap .rt-mkpick").length)===6,JSON.stringify(c3));
   await T.evaluate(()=>document.querySelector('#mkWrap .rt-mkpick[data-id="s5"] .rt-mkb[data-v="5"]').click()); await sleep(1200);
   ck("bir bosishda 5: bazada va tugma yashil",H.dbGet("students/s5/manual/m3")===5&&await T.evaluate(()=>document.querySelector('#mkWrap .rt-mkpick[data-id="s5"] .rt-mkb.on').dataset.v==="5"));
   await T.screenshot({path:"mk_one.png"});

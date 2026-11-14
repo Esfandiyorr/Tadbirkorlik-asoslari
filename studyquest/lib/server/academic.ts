@@ -116,6 +116,10 @@ export function academicRecord(id: string, s: Row) {
     if (number(s.manual?.[lesson.id]) <= 5 && number(s.manual?.[lesson.id]) > 0)
       manual[lesson.id] = number(s.manual[lesson.id]);
   }
+  // 🔁 testga ikkinchi urinish berilgan mavzular: ochilgan vaqt (fx — ochilgan vaqt + 3 kun)
+  const reopened: Record<string, number> = {};
+  for (const [t, v] of Object.entries((s.prog || {}) as Record<string, { fx?: unknown }>))
+    if (/^m\d+$/.test(t) && Number(v?.fx) > 259200000) reopened[t] = Number(v!.fx) - 259200000;
   return {
     id: 'legacy_' + id,
     legacyId: id,
@@ -129,6 +133,7 @@ export function academicRecord(id: string, s: Row) {
     academicPoints: number(s.total),
     academicTopics: topics,
     manualMarks: manual,
+    ...(Object.keys(reopened).length ? { reopened } : {}),
     readingHistory: history,
     mustChangePassword: s.mustChangePassword === true,
   };

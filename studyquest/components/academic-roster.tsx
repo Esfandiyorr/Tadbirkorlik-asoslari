@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useApp } from './provider';
 import { Button } from './ui/button';
 import type { User } from '@/lib/types';
+import { dueText } from '@/lib/points';
 export function AcademicRoster() {
   const { data, lang, request, call, toast } = useApp(),
     L = (uz: string, en: string, ru: string) => (lang === 'en' ? en : lang === 'ru' ? ru : uz),
@@ -62,6 +63,36 @@ export function AcademicRoster() {
       toast((e as Error).message);
     }
   }
+  /** 🔁 testga ikkinchi urinish: shu mavzu testidan 2 ta yangi ball beriladigan urinish (talaba sahifani yangilaydi) */
+  async function reopen(u: User, l: { id: string; order: number }) {
+    const n = l.order + 1;
+    if (
+      !confirm(
+        L(
+          `${u.name}: ${n}-mavzu testiga ikkinchi urinish berilsinmi?\n(2 ta yangi ball beriladigan urinish)`,
+          `${u.name}: give a second attempt at the topic ${n} test?\n(2 new scored attempts)`,
+          `${u.name}: дать вторую попытку по тесту темы ${n}?\n(2 новые попытки с баллами)`,
+        ),
+      )
+    )
+      return;
+    try {
+      await call('legacyStudent', { id: u.legacyId, reopen: l.id });
+      toast(
+        '🔁 ' +
+          L(
+            'Ikkinchi urinish berildi — talaba sahifasini yangilasin',
+            'Second attempt given — the student should reload the page',
+            'Вторая попытка выдана — студенту нужно обновить страницу',
+          ),
+      );
+      await load();
+    } catch (e) {
+      toast((e as Error).message);
+    }
+  }
+  const reopenedAt = (u: User, id: string) => u.reopened?.[id];
+  const dateText = (t: number) => dueText(t, lang, Date.now()).date;
   const topics = data!.lessons
       .filter((l) => l.courseId === 'tad-asoslari')
       .sort((a, b) => a.order - b.order),
@@ -82,6 +113,14 @@ export function AcademicRoster() {
               'Asl bazadagi hisoblar, guruhlar va natijalar jonli ko‘rsatiladi. Talabalar qayta ro‘yxatdan o‘tmaydi.',
               'Accounts, groups and results from the original database, shown live. Students do not register again.',
               'Аккаунты, группы и результаты из исходной базы в реальном времени. Студентам не нужно регистрироваться заново.',
+            )}
+          </p>
+          <p className="muted roster-reopen-hint">
+            🔁{' '}
+            {L(
+              'Testga ikkinchi urinish: jadvaldagi mavzu katagida 🔁 ni yoki «Natijalar» oynasidagi tugmani bosing — talabaga shu mavzu testidan 2 ta yangi ball beriladigan urinish ochiladi.',
+              'Second test attempt: press 🔁 in the topic cell or the button in “Results” — the student gets 2 new scored attempts at that topic’s test.',
+              'Вторая попытка: нажмите 🔁 в ячейке темы или кнопку в «Результатах» — студент получит 2 новые попытки с баллами по тесту темы.',
             )}
           </p>
         </div>
@@ -274,6 +313,34 @@ export function AcademicRoster() {
                           <option key={n}>{n}</option>
                         ))}
                       </select>
+                      {u.learnerType !== 'independent' && (
+                        <button
+                          type="button"
+                          className={'roster-reopen' + (reopenedAt(u, l.id) ? ' is-on' : '')}
+                          aria-label={
+                            u.name +
+                            ' · ' +
+                            L(
+                              l.order + 1 + '-mavzu testiga ikkinchi urinish',
+                              'Second attempt at the topic ' + (l.order + 1) + ' test',
+                              'Вторая попытка по тесту темы ' + (l.order + 1),
+                            )
+                          }
+                          title={
+                            reopenedAt(u, l.id)
+                              ? L('Berilgan: ', 'Given: ', 'Выдано: ') +
+                                dateText(reopenedAt(u, l.id)!)
+                              : L(
+                                  'Testga ikkinchi urinish berish',
+                                  'Give a second test attempt',
+                                  'Дать вторую попытку',
+                                )
+                          }
+                          onClick={() => void reopen(u, l)}
+                        >
+                          🔁
+                        </button>
+                      )}
                     </td>
                   ))}
                 </tr>
@@ -372,6 +439,22 @@ export function AcademicRoster() {
                         <div>
                           <span>{L('Amaliy baho', 'Practical grade', 'Практическая оценка')}</span>
                           <b>{selected.manualMarks?.[l.id] || '—'}</b>
+                        </div>
+                        <div className="roster-reopen-row">
+                          {reopenedAt(selected, l.id) && (
+                            <small>
+                              🔁 {L('berilgan:', 'given:', 'выдано:')}{' '}
+                              {dateText(reopenedAt(selected, l.id)!)}
+                            </small>
+                          )}
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => void reopen(selected, l)}
+                          >
+                            🔁{' '}
+                            {L('Testga ikkinchi urinish', 'Second test attempt', 'Вторая попытка')}
+                          </Button>
                         </div>
                       </>
                     )}

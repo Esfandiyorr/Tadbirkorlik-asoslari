@@ -549,15 +549,6 @@ function cloudSetMedia(id,v,cb){
     body:JSON.stringify(!!v)}).then(function(r){ cb&&cb(r.ok); }).catch(function(){ cb&&cb(false); });
 }
 /* o'qituvchi qo'lda qo'ygan baho (masalan darsdagi topshiriq uchun) — talabaning o'z sinxronlanishiga bog'liq emas */
-/* o'qituvchi: talabaga shu mavzu testini qayta ochish — 2 ta yangi ball beriladigan urinish (fx — eski muddat belgisi, endi faqat ma'lumot) */
-function cloudUnlockTest(id,topicId,cb){
-  if(!cloudOn||!BASE){ cb&&cb(false); return; }
-  var u=BASE+"/students/"+id+"/prog/"+topicId;
-  fetch(u+"/qa.json").then(function(r){ return r.ok?r.json():null; }).then(function(qa){
-    return fetch(u+".json",{method:"PATCH",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({qx:+qa||0,fx:Date.now()+3*86400000})});
-  }).then(function(r){ cb&&cb(!!(r&&r.ok)); }).catch(function(){ cb&&cb(false); });
-}
 /* 🔓 olgan talabalar: eski sahifa qx/fx ni ham yuborgani uchun ularning saqlashi rad etilgan va ballari
    🔓 bosilgan paytda qotib qolgan bo'lishi mumkin. Belgi: 🔓 dan keyin yozuv bir marta ham yangilanmagan */
 function stuckList(list){
@@ -1182,7 +1173,7 @@ function designLibraryRender(){
   }; });
 }
 function gate(opts){
-  var guest=!!(opts&&opts.guest),regType=opts&&opts.learnerType==="independent"?"independent":"university";
+  var guest=!!(opts&&opts.guest),regType="university";   /* talaba bo'limi: faqat universitet talabasi — o'qituvchi/administrator tasdiqlagach ochiladi (talaba bo'lmaganlar — email/Google yo'li) */
   if(S&&!guest){
     if(!cloudOn||accountReady(S.status)){ start(); return; }
     cloudStatusOf(S.id,function(st){
@@ -1246,7 +1237,7 @@ function gate(opts){
     g.dataset.mode=mode;
     b.innerHTML='<h2 id="rtAuthTitle">'+T(reg?"Ro\'yxatdan o\'tish":"Kirish",reg?"Register":"Log in")+'</h2>'+
       '<p class="rt-auth-welcome">'+T("Xush kelibsiz!","Welcome!")+'</p>'+
-      (reg?'<div class="rt-modechoices" role="group" aria-label="'+T("O‘qish yo‘li","Learning path")+'">'+["university","independent"].map(function(type){return '<button type="button" data-learner="'+type+'" aria-pressed="'+(regType===type)+'">'+esc(learnerLabel({learnerType:type}))+'</button>';}).join("")+'</div>':'')+
+      (reg?'<p class="rt-note rt-regnote">🎓 '+T("Talaba sifatida ro‘yxatdan o‘tasiz. O‘qituvchi tasdiqlagach hisobingiz ochiladi.","You register as a student. Your account opens once the teacher approves it.")+'</p>':'')+
       '<div class="rt-form">'+fields(pre)+'<p role="alert" id="'+pre+'Err" style="color:var(--red);display:none;margin:0"></p>'+
       '<button class="btn accent" id="'+(reg?"rtGo":"lgGo")+'" style="justify-content:center">'+T(reg?"Hisob yaratish":"Kirish",reg?"Create account":"Log in")+'</button></div>';
     document.getElementById(reg?"rtGo":"lgGo").onclick=reg?doReg:doLog;
@@ -2737,17 +2728,6 @@ function tcDraw(){
       tcFixGroup(s.from,s.to,s.list,b);
     };
   });
-  out.querySelectorAll(".rt-unlock").forEach(function(b){
-    b.onclick=function(){
-      if(!confirm(T(b.dataset.n+" uchun "+b.dataset.t.toUpperCase()+" testini qayta ochaymi?\n(2 ta yangi ball beriladigan urinish)",
-        "Reopen the "+b.dataset.t.toUpperCase()+" test for "+b.dataset.n+"?\n(2 new scored attempts)"))) return;
-      b.disabled=true;
-      cloudUnlockTest(b.dataset.id,b.dataset.t,function(ok){
-        b.disabled=false;
-        toast(ok?T("Ochildi ✅ — talaba sahifani yangilasin","Reopened ✅ — the student should reload the page"):T("Saqlanmadi","Not saved"));
-      });
-    };
-  });
   out.querySelectorAll(".rt-manual:not(.rt-unlock)").forEach(function(b){ b.onclick=function(){ mkPop(b); }; });
   out.querySelectorAll(".rt-mkpick .rt-mkb").forEach(function(x){
     x.onclick=function(){ var w=x.parentNode; mkSave(w.dataset.id,w.dataset.t,x.dataset.v?+x.dataset.v:null,x); };
@@ -2915,16 +2895,14 @@ function marksTable(okl){
   if(openGs.length&&one){
     var M=metaOf(one.id);
     tbl='<tr><th class="rt-mstk">№ · '+T("Talaba","Student")+'</th><th class="rt-mc">'+T("Baho","Mark")+'</th><th class="rt-mc">'+T("Slaydlar","Slides")+'</th><th class="rt-mc">'+T("Test","Test")+
-      '</th><th class="rt-mc">'+T("Vaqt","Time")+'</th><th class="rt-mc">'+T("Amaliy dars bahosi","Practical-class mark")+'</th><th class="rt-mc">🔓</th></tr>';
+      '</th><th class="rt-mc">'+T("Vaqt","Time")+'</th><th class="rt-mc">'+T("Amaliy dars bahosi","Practical-class mark")+'</th></tr>';
     tbl='<thead>'+tbl+'</thead><tbody>'+openGs.map(function(G){
-      return '<tr class="rt-grow"><td colspan="7"><span class="rt-gl">👥 '+esc(G.g)+' <span class="rt-badge">'+G.list.length+'</span></span></td></tr>'+
+      return '<tr class="rt-grow"><td colspan="6"><span class="rt-gl">👥 '+esc(G.g)+' <span class="rt-badge">'+G.list.length+'</span></span></td></tr>'+
         G.list.map(function(x){
           var tp=(x.topics||{})[one.id]||{};
           return '<tr><td class="rt-mstk"><span class="rt-mno">'+(++n)+'</span><b>'+esc(nmFull(x))+'</b></td>'+
             '<td class="rt-mc">'+mkTag(tp.b||0)+'</td><td class="rt-mc">'+(+tp.s||0)+' / '+M.slides+'</td><td class="rt-mc">'+(+tp.q||0)+' / '+M.quiz+'</td>'+
-            '<td class="rt-mc">'+(tp.t?hms(+tp.t):'—')+'</td><td class="rt-mc">'+mkPick(x,one)+'</td>'+
-            '<td class="rt-mc"><button type="button" class="rt-manual rt-unlock" data-id="'+esc(x.id)+'" data-t="'+esc(one.id)+'" data-n="'+esc(nmFull(x))+
-              '" title="'+T("Testni qayta ochish: 2 ta yangi ball beriladigan urinish","Reopen the test: 2 new scored attempts")+'">🔓</button></td></tr>';
+            '<td class="rt-mc">'+(tp.t?hms(+tp.t):'—')+'</td><td class="rt-mc">'+mkPick(x,one)+'</td></tr>';
         }).join("");
     }).join("")+'</tbody>';
   } else if(openGs.length){
@@ -2944,8 +2922,6 @@ function marksTable(okl){
                 '<div class="rt-mkcell">'+mkTag(b)+'<span class="rt-mksub">'+esc(sub)+'</span>'+
                 '<button type="button" class="rt-manual'+(man?' on':'')+'" data-id="'+esc(x.id)+'" data-t="'+esc(t.id)+'" data-n="'+esc(nmFull(x))+
                   '" title="'+T("Amaliy dars bahosi (1–5)","Practical-class mark (1–5)")+'">'+(man?('✅ '+man):'➕')+'</button>'+
-                '<button type="button" class="rt-manual rt-unlock" data-id="'+esc(x.id)+'" data-t="'+esc(t.id)+'" data-n="'+esc(nmFull(x))+
-                  '" title="'+T("Testni qayta ochish: 2 ta yangi ball beriladigan urinish","Reopen the test: 2 new scored attempts")+'">🔓</button>'+
                 '</div></td>';
             }).join("")+
             '<td class="rt-mc">'+mkTag(av.a?+av.a.toFixed(1):0)+'</td></tr>';
@@ -2956,6 +2932,7 @@ function marksTable(okl){
     '<p class="rt-note" style="margin:0 0 8px">'+T(
       "Har bir mavzu uchun alohida baho: slaydlar 30% + o'qish vaqti 20% + test 50%. Qo'lda qo'ygan amaliy dars bahongiz (➕) o'rtacha bahoga kirmaydi — faqat umumiy reytingga qo'shimcha ball beradi: har bir baho × "+MAN_PTS+" ball (5 = +"+(5*MAN_PTS)+"). Guruh ustiga bosing — o'sha guruh baholari ochiladi.",
       "A separate mark for each topic: slides 30% + reading time 20% + test 50%. Your manual practical-class mark (➕) does not count in the average — it only adds bonus points to the overall rating: each mark × "+MAN_PTS+" points (5 = +"+(5*MAN_PTS)+"). Click a group — that group's marks will open.")+'</p>'+
+    '<p class="rt-note" style="margin:0 0 8px">🔁 '+T("Testga ikkinchi urinish berish endi «Talabalar va baholar» bo'limida.","Giving a second test attempt is now in “Students and grades”.")+'</p>'+
     groupTiles(gs,TC_OPEN_MARKS,"marks")+
     (openGs.length?nmSortHtml()+
       '<div class="rt-mktops"><span>📚 '+T("Mavzu:","Topic:")+'</span><button type="button" class="rt-gchip rt-mkt'+(one?"":" on")+'" data-mt="all">'+T("Hammasi","All")+'</button>'+
@@ -4338,7 +4315,7 @@ function homeArena(){
 function learningPathsHtml(){
   return '<div class="hm-week hm-guest hm-cta"><b class="hm-wk-h">'+T("O‘qish yo‘lingizni tanlang","Choose your learning path")+'</b><div class="rt-path-choices">'+
     '<button type="button" id="hmReg"><b>'+T("Universitet talabasi","University student")+'</b><span>'+T("Guruh bilan o‘qish, topshiriqlar va baholash","Group learning, assignments and marks")+'</span></button>'+
-    '<button type="button" id="hmIndependent"><b>'+T("Mustaqil o‘quvchi","Independent learner")+'</b><span>'+T("Ochiq darslar, o‘z tezligingizda, guruhsiz","Open lessons at your own pace, no group needed")+'</span></button></div>'+
+    '</div>'+
     '<div class="hm-gbtn"><button type="button" class="btn" id="hmLog">'+T("Hisobim bor — Kirish","I have an account — Log in")+'</button></div></div>';
 }
 function learningPathsBind(){

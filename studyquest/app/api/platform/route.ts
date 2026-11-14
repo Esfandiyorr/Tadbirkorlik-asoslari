@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { actor, ApiError, check, sameOrigin, staff, administrator } from '@/lib/server/auth';
 import { repository, demo, configured, legacyDb } from '@/lib/server/repository';
 import { legacyAccess, lessonAccessStates } from '@/lib/server/legacy-access';
+import { applyLegacyUpdate } from '@/lib/server/legacy-student';
 import {
   cancelCourseRequest,
   courseAccessAdmin,
@@ -703,34 +704,25 @@ export async function POST(req: NextRequest) {
             .regex(/^m(?:[1-9]|1[0-5])$/)
             .optional(),
           mark: z.number().int().min(0).max(5).optional(),
+          // 🔁 testga ikkinchi urinish (shu mavzu testidan 2 ta yangi ball beriladigan urinish)
+          reopen: z
+            .string()
+            .regex(/^m(?:[1-9]|1[0-5])$/)
+            .optional(),
         })
         .parse(p.input);
       check(
-        update.status !== undefined || update.group !== undefined || update.topic !== undefined,
+        update.status !== undefined ||
+          update.group !== undefined ||
+          update.topic !== undefined ||
+          update.reopen !== undefined,
         400,
         'O‘zgarishni kiriting.',
       );
       check(update.topic === undefined || update.mark !== undefined, 400, 'Bahoni kiriting.');
       const result = await legacyDb()
         .ref('students/' + update.id)
-        .transaction((value) => {
-          if (!value?.name || !value?.status) return;
-          if (update.status) value.status = update.status;
-          if (update.group !== undefined && value.learnerType !== 'independent')
-            value.group = update.group;
-          if (update.topic && update.mark !== undefined) {
-            const previous = Number(value.manual?.[update.topic] || 0);
-            value.manual = { ...value.manual, [update.topic]: update.mark || null };
-            value.total = Math.max(
-              0,
-              Math.round(
-                (Number(value.total || 0) + (update.mark - previous) * catalog.manualPts) * 10,
-              ) / 10,
-            );
-          }
-          value.updated = Date.now();
-          return value;
-        });
+        .transaction((value) => applyLegacyUpdate(value, update, Date.now(), catalog.manualPts));
       check(result.committed, 404, 'Hisob topilmadi.');
       return NextResponse.json({ ok: true });
     }
