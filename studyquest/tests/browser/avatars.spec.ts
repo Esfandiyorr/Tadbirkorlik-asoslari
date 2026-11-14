@@ -113,3 +113,106 @@ test('the administrator allows students and frees avatars', async ({ page }) => 
   await po.getByRole('button', { name: /Bo‘shatish/ }).click();
   await expect(po).toContainText('Bo‘sh');
 });
+
+test('places 11+ see why the avatar was freed and the ways to get one: Premium or buying it', async ({
+  page,
+}) => {
+  await reset(page);
+  const now = Date.now();
+  const rows = Array.from({ length: 12 }, (_, i) => ({
+    id: i === 10 ? 'demo-student' : 'x' + i,
+    name: i === 10 ? 'Madina Ergasheva' : 'Talaba ' + (i + 1),
+    classId: 'AP-223',
+    academicPoints: 600 - i * 20,
+    today: 0,
+  }));
+  const shop = { on: true, price: '10 000 so‘m', days: 30, how: 'Click orqali 8600 … kartaga.' };
+  const state = (order: number | null) => ({
+    leaderboard: rows,
+    avatars: {
+      owners: {},
+      shop,
+      me: {
+        place: 11,
+        top: false,
+        allowed: false,
+        can: false,
+        avatar: null,
+        lost: { a: 'po', at: now - 3600000 },
+        order,
+        canBuy: true,
+      },
+    },
+  });
+  const sent: unknown[] = [];
+  await page.route('**/api/platform?view=academic', (route) =>
+    route.fulfill({ json: state(null) }),
+  );
+  await page.route('**/api/platform', async (route) => {
+    const body = route.request().postDataJSON();
+    if (route.request().method() !== 'POST' || body?.action !== 'avatarOrder')
+      return route.continue();
+    sent.push(body.input);
+    await route.fulfill({ json: state(body.input.op === 'order' ? Date.now() : null) });
+  });
+  await page.goto('/#ranking', { waitUntil: 'domcontentloaded' });
+  await page.locator('.rk-mine-avatar').click();
+  const dialog = page.getByRole('dialog', { name: /Avatarlar kutubxonasi/ });
+  await expect(dialog.locator('.av-lost')).toContainText('«Po» avatari bo‘shatildi');
+  const ways = dialog.locator('.av-ways');
+  await expect(ways).toContainText('hozir 11-o‘rindasiz');
+  await expect(ways).toContainText('10 000 so‘m · 30 kunga');
+  // 💎 obuna oynasida avatar ham sanaladi
+  await ways.getByRole('button', { name: 'Obuna', exact: true }).click();
+  const offer = page.getByRole('dialog', { name: /Obuna bilan/ });
+  await expect(offer).toContainText('Avatar — top-10 ga kirmasangiz ham');
+  await offer.getByRole('button', { name: 'Keyinroq' }).click();
+  // 💳 sotib olish: yo'riqnoma → «To'lov qildim» so'rovi → kutilmoqda → bekor qilish
+  await ways.getByRole('button', { name: 'Sotib olish' }).click();
+  await expect(ways.locator('.av-buy')).toContainText('Click orqali 8600');
+  await ways.getByLabel(/Izoh/).fill('Chek №123');
+  await ways.getByRole('button', { name: /To‘lov qildim/ }).click();
+  await expect(ways.locator('.av-buy.is-pending')).toContainText('So‘rovingiz yuborilgan');
+  await ways.getByRole('button', { name: 'Bekor qilish' }).click();
+  await expect(ways.getByRole('button', { name: 'Sotib olish' })).toBeVisible();
+  expect(sent).toEqual([{ op: 'order', note: 'Chek №123' }, { op: 'cancel' }]);
+  await page.keyboard.press('Escape');
+  // bosh sahifa kartochkasida ham: avatar bo'shatildi
+  await page.goto('/#home', { waitUntil: 'domcontentloaded' });
+  await expect(page.locator('.hero-avatar')).toContainText('Avatar bo‘shatildi');
+  // Play Market ilovasida sotib olish (tashqi to'lov) ko'rsatilmaydi
+  await page.goto('/?src=play#ranking', { waitUntil: 'domcontentloaded' });
+  await page.locator('.rk-mine-avatar').click();
+  await expect(dialog.locator('.av-ways')).toContainText('Obuna bo‘ling');
+  await expect(dialog.getByRole('button', { name: 'Sotib olish' })).toHaveCount(0);
+});
+
+test('the administrator sets the avatar price and manages bought passes', async ({ page }) => {
+  await reset(page);
+  await as(page, 'demo-admin');
+  await page.goto('/#admin', { waitUntil: 'domcontentloaded' });
+  await page.locator('.bo-card-btn').filter({ hasText: 'Avatarlar' }).click();
+  const shop = page.locator('.avatar-admin-shop');
+  await expect(shop).toContainText('Yangi so‘rov yo‘q.');
+  await shop.getByLabel('Narx (talabaga ko‘rinadi)').fill('10 000 so‘m');
+  await shop.locator('.avatar-admin-shopform select').selectOption('14');
+  await shop.getByLabel('Qanday to‘lanadi').fill('Click orqali to‘lang.');
+  await shop.getByRole('button', { name: 'Saqlash' }).click();
+  await expect(page.locator('.toast')).toContainText('Saqlandi');
+  // sotib olingan muddat (to'lov tasdiqlangandek) — ro'yxatda chiqadi va olib tashlanadi
+  const r = await page.request.post('/api/platform', {
+    data: { action: 'avatarAdmin', input: { op: 'grantPass', student: 'demo-student', days: 14 } },
+  });
+  expect(r.ok()).toBe(true);
+  await page.reload({ waitUntil: 'domcontentloaded' });
+  const passes = page.locator('.avatar-admin-shop');
+  await expect(passes).toContainText('Sotib olganlar');
+  await expect(passes.getByLabel('Narx (talabaga ko‘rinadi)')).toHaveValue('10 000 so‘m');
+  await expect(passes.locator('.avatar-admin-shopform select')).toHaveValue('14');
+  await passes.getByRole('button', { name: 'Muddatni olib tashlash: Madina Ergasheva' }).click();
+  await expect(passes).not.toContainText('Sotib olganlar');
+  // asl holatga qaytarish (boshqa sinovlar uchun)
+  await page.request.post('/api/platform', {
+    data: { action: 'avatarAdmin', input: { op: 'shop', on: true, price: '', days: 30, how: '' } },
+  });
+});

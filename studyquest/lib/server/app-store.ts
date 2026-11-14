@@ -130,6 +130,9 @@ async function eraseAccount(by: Actor, r: DeleteRequest, read: Read, update: Upd
     ['premium/' + key]: null,
     ['courseAccess/' + key]: null,
     ['courseRequests/' + key]: null,
+    ['avatarPass/' + key]: null,
+    ['avatarOrders/' + key]: null,
+    ['avatarGone/' + key]: null,
   };
   const subs = (await siteGet<Record<string, { uid?: string }>>('push/subs')) || {};
   for (const [k, s] of Object.entries(subs)) if (s?.uid === r.uid) site['push/subs/' + k] = null;

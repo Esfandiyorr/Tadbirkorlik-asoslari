@@ -21,8 +21,10 @@ import {
   avatarAdminView,
   avatarView,
   manageAvatars,
+  orderAvatar,
   pickAvatar,
   readAvatars,
+  releaseStale,
 } from '@/lib/server/avatars';
 import { course, modules, lessons, quiz, settings, badges, catalog } from '@/lib/seed';
 import { quotaExceeded } from '@/lib/server/quota';
@@ -213,11 +215,13 @@ export async function GET(req: NextRequest) {
     if (req.nextUrl.searchParams.get('view') === 'academic') {
       const a = await actor(req, true);
       if ((await sitePolicy()).maintenance) administrator(a);
-      const [board, avatars, catalog] = await Promise.all([
+      const [board, stored, catalog] = await Promise.all([
         academicBoard(),
         readAvatars(),
         avatarLibrary(),
       ]);
+      // 🔄 huquqi tugaganlarning (top-10 dan tushgan, obuna/sotib olingan muddati tugagan) avatari bo'shatiladi
+      const avatars = await releaseStale(board, stored, catalog).catch(() => stored);
       // Reyting qatorlarida amaldagi avatar; talabaga — o'rni va avatar tanlash huquqi; kutubxona ro'yxati.
       return NextResponse.json(
         avatarView(board, avatars, a.role === 'student' ? a.id : undefined, catalog),
@@ -298,11 +302,12 @@ export async function GET(req: NextRequest) {
     if (req.nextUrl.searchParams.get('view') === 'avatarAdmin') {
       const a = await actor(req, true);
       administrator(a);
-      const [board, avatars, catalog] = await Promise.all([
+      const [board, stored, catalog] = await Promise.all([
         academicBoard(),
         readAvatars(),
         avatarLibrary(),
       ]);
+      const avatars = await releaseStale(board, stored, catalog).catch(() => stored);
       return NextResponse.json(avatarAdminView(board, avatars, catalog), {
         headers: { 'Cache-Control': 'private, no-store' },
       });
@@ -633,14 +638,16 @@ export async function POST(req: NextRequest) {
       after(() => pushTick().catch(() => {}));
       return NextResponse.json(r);
     }
-    if (p.action === 'avatarPick' || p.action === 'avatarAdmin') {
+    if (p.action === 'avatarPick' || p.action === 'avatarAdmin' || p.action === 'avatarOrder') {
       const a = await actor(req, true);
       if ((await sitePolicy()).maintenance) administrator(a);
       const [board, catalog] = await Promise.all([academicBoard(), avatarLibrary()]);
       return NextResponse.json(
         p.action === 'avatarPick'
           ? await pickAvatar(a, board, p.input, catalog)
-          : await manageAvatars(a, board, p.input, catalog),
+          : p.action === 'avatarOrder'
+            ? await orderAvatar(a, board, p.input, catalog)
+            : await manageAvatars(a, board, p.input, catalog),
       );
     }
     if (p.action === 'topicMode') {

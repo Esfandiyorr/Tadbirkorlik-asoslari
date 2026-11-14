@@ -1,11 +1,13 @@
 'use client';
 import { useCallback, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Check, Lock, RefreshCw, Send, Sparkles, X } from 'lucide-react';
+import { Check, Crown, CreditCard, Lock, RefreshCw, Send, Sparkles, Trophy, X } from 'lucide-react';
 import { useApp } from './provider';
 import { Button } from './ui/button';
-import { AVATAR_TOP, BUILTIN_AVATARS, type AvatarItem } from '@/lib/avatars';
-import { tr } from '@/lib/points';
+import { AVATAR_TOP, BUILTIN_AVATARS, type AvatarItem, type AvatarShop } from '@/lib/avatars';
+import { dueText, tr } from '@/lib/points';
+import { isPlayApp } from '@/lib/play-app';
+import { PremiumOffer, usePremium } from './premium';
 import type { Lang } from '@/lib/types';
 
 /* 🎭 Avatarlar: kutubxona (tanlash oynasi), bosh sahifadagi avatar kartochkasi va umumiy reyting ma'lumoti. */
@@ -24,8 +26,23 @@ export type AvatarMe = {
   allowed: boolean;
   can: boolean;
   avatar: string | null;
+  /** 💎 obuna orqali */
+  premium?: boolean;
+  /** 💳 sotib olingan muddat tugash vaqti */
+  pass?: number | null;
+  via?: 'top' | 'allow' | 'premium' | 'pass' | null;
+  /** huquq tugagani uchun bo'shatilgan avatar (bir marta ko'rsatiladi) */
+  lost?: { a: string; at: number } | null;
+  /** «to'lov qildim» so'rovi yuborilgan vaqt */
+  order?: number | null;
+  canBuy?: boolean;
 };
-type AvatarState = { owners: Record<string, string>; me: AvatarMe | null; catalog?: AvatarItem[] };
+type AvatarState = {
+  owners: Record<string, string>;
+  me: AvatarMe | null;
+  catalog?: AvatarItem[];
+  shop?: AvatarShop;
+};
 type BoardResponse = { leaderboard?: BoardEntry[]; avatars?: AvatarState; error?: string };
 
 /* Kutubxona ro'yxati (asl qahramonlar + administrator yuklaganlari) serverdan reyting bilan birga keladi.
@@ -97,6 +114,20 @@ export const avatarName = (id: string, lang: Lang) => {
 /** Talaba holatiga qarab izoh: nega tanlay oladi yoki ololmaydi. */
 function eligibility(me: AvatarMe | null, lang: Lang) {
   if (!me) return '';
+  if (me.can && (me.via === 'premium' || me.via === 'pass'))
+    return me.via === 'premium'
+      ? tr(
+          lang,
+          '💎 Obunangiz bor — avatar tanlashingiz mumkin! Obuna tugasa, avatar bo‘shatiladi.',
+          '💎 You have Premium — pick your avatar! When Premium ends, the avatar is freed.',
+          '💎 У вас подписка — выберите аватар! Когда подписка закончится, аватар освободится.',
+        )
+      : tr(
+          lang,
+          `💳 Avatar huquqingiz ${dueText(me.pass || 0, lang, Date.now()).date} gacha. Muddat tugasa, avatar bo‘shatiladi.`,
+          `💳 Your avatar pass lasts until ${dueText(me.pass || 0, lang, Date.now()).date}. Then the avatar is freed.`,
+          `💳 Право на аватар до ${dueText(me.pass || 0, lang, Date.now()).date}. Потом аватар освободится.`,
+        );
   if (me.can)
     return me.top
       ? tr(
@@ -228,6 +259,17 @@ export function AvatarPicker({ board, onClose }: { board: AcademicBoard; onClose
             <X size={20} />
           </button>
         </header>
+        {me?.lost && (
+          <p className="av-lost" role="status">
+            📉{' '}
+            {L(
+              `Avatar olish huquqingiz tugadi (top-${AVATAR_TOP} dan tushdingiz yoki obuna/sotib olingan muddat tugadi), shuning uchun «${avatarName(me.lost.a, lang)}» avatari bo‘shatildi.`,
+              `Your avatar right ended (you left the top ${AVATAR_TOP} or Premium/your pass expired), so “${avatarName(me.lost.a, lang)}” was freed.`,
+              `Право на аватар закончилось (вы вышли из топ-${AVATAR_TOP} или закончилась подписка/оплаченный срок), поэтому «${avatarName(me.lost.a, lang)}» освобождён.`,
+            )}
+          </p>
+        )}
+        {me && !me.can && <AvatarWays board={board} />}
         <ul className="av-grid">
           {(board.avatars.catalog || avatarList()).map(({ id }) => {
             const owner = owners[id],
@@ -366,6 +408,185 @@ export function AvatarPicker({ board, onClose }: { board: AcademicBoard; onClose
   );
 }
 
+/** 🎁 Avatar olish yo'llari: 🏆 top-10 (bepul), 💎 obuna, 💳 sotib olish (to'lovni hozircha administrator tasdiqlaydi;
+   Click ulanganda — avtomatik). Play Market ilovasida narx va to'lov yo'riqnomasi ko'rsatilmaydi (Google qoidasi). */
+function AvatarWays({ board }: { board: AcademicBoard }) {
+  const { request, lang, toast } = useApp();
+  const L = (uz: string, en: string, ru: string) => tr(lang, uz, en, ru);
+  const me = board.avatars.me!,
+    shop = board.avatars.shop;
+  const { premium } = usePremium();
+  const [offer, setOffer] = useState(false),
+    [buy, setBuy] = useState(false),
+    [note, setNote] = useState(''),
+    [busy, setBusy] = useState(false),
+    [play, setPlay] = useState(false);
+  useEffect(() => setPlay(isPlayApp()), []);
+  async function order(op: 'order' | 'cancel') {
+    setBusy(true);
+    try {
+      const r = await request('/api/platform', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'avatarOrder',
+            input: { op, ...(op === 'order' && note.trim() ? { note: note.trim() } : {}) },
+          }),
+        }),
+        v = (await r.json()) as BoardResponse;
+      if (!r.ok) throw new Error(v.error);
+      board.apply(v);
+      setNote('');
+      setBuy(false);
+      toast(
+        op === 'order'
+          ? '📨 ' +
+              L(
+                'So‘rov yuborildi. Administrator to‘lovni tekshirib avatarni ochadi.',
+                'Request sent. The administrator will check the payment and unlock the avatar.',
+                'Запрос отправлен. Администратор проверит оплату и откроет аватар.',
+              )
+          : L('So‘rov bekor qilindi.', 'Request cancelled.', 'Запрос отменён.'),
+      );
+    } catch (e) {
+      toast((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  }
+  const buyable = !!me.canBuy && !play;
+  return (
+    <div className="av-ways">
+      <h3>🎁 {L('Avatar olish yo‘llari', 'Ways to get an avatar', 'Как получить аватар')}</h3>
+      <div className="av-way">
+        <span className="av-way-ico" aria-hidden="true">
+          <Trophy size={18} />
+        </span>
+        <div>
+          <b>
+            {L(
+              `Umumiy reytingda top-${AVATAR_TOP} ga chiqing`,
+              `Reach the overall top ${AVATAR_TOP}`,
+              `Войдите в топ-${AVATAR_TOP} общего рейтинга`,
+            )}
+          </b>
+          <small>
+            {L('Bepul', 'Free', 'Бесплатно')}
+            {me.place
+              ? ' · ' +
+                L(
+                  `hozir ${me.place}-o‘rindasiz`,
+                  `you are #${me.place} now`,
+                  `сейчас ${me.place}-е место`,
+                )
+              : ''}
+          </small>
+        </div>
+      </div>
+      <div className="av-way">
+        <span className="av-way-ico" aria-hidden="true">
+          <Crown size={18} />
+        </span>
+        <div>
+          <b>{L('💎 Obuna bo‘ling', '💎 Get Premium', '💎 Оформите подписку')}</b>
+          <small>
+            {L(
+              'Obuna davomida avatar sizda turadi (taqdimot, kutubxona va boshqalar ham ochiladi)',
+              'You keep an avatar while subscribed (plus presentations, the library and more)',
+              'Аватар ваш, пока действует подписка (а ещё презентации, библиотека и другое)',
+            )}
+          </small>
+        </div>
+        <Button size="sm" variant="outline" onClick={() => setOffer(true)}>
+          {L('Obuna', 'Premium', 'Подписка')}
+        </Button>
+      </div>
+      {buyable && (
+        <div className="av-way">
+          <span className="av-way-ico" aria-hidden="true">
+            <CreditCard size={18} />
+          </span>
+          <div>
+            <b>{L('💳 Avatarni sotib oling', '💳 Buy an avatar', '💳 Купите аватар')}</b>
+            <small>
+              {(shop?.price ? shop.price + ' · ' : '') +
+                L(
+                  `${shop?.days || 30} kunga`,
+                  `for ${shop?.days || 30} days`,
+                  `на ${shop?.days || 30} дней`,
+                )}
+            </small>
+          </div>
+          {!me.order && !buy && (
+            <Button size="sm" onClick={() => setBuy(true)}>
+              {L('Sotib olish', 'Buy', 'Купить')}
+            </Button>
+          )}
+        </div>
+      )}
+      {buyable && me.order ? (
+        <div className="av-buy is-pending" role="status">
+          <span>
+            ⏳{' '}
+            {L(
+              `So‘rovingiz yuborilgan (${dueText(me.order, lang, Date.now()).date}). Administrator to‘lovni tekshirib avatarni ochadi.`,
+              `Request sent (${dueText(me.order, lang, Date.now()).date}). The administrator will check the payment and unlock the avatar.`,
+              `Запрос отправлен (${dueText(me.order, lang, Date.now()).date}). Администратор проверит оплату и откроет аватар.`,
+            )}
+          </span>
+          <Button size="sm" variant="ghost" disabled={busy} onClick={() => void order('cancel')}>
+            {L('Bekor qilish', 'Cancel', 'Отменить')}
+          </Button>
+        </div>
+      ) : buyable && buy ? (
+        <form
+          className="av-buy"
+          onSubmit={(e) => {
+            e.preventDefault();
+            void order('order');
+          }}
+        >
+          <p>
+            {shop?.how ||
+              L(
+                'To‘lov usulini bilish uchun «Talabalar chati → Adminga xabar» orqali administratorga yozing. To‘lagach, shu yerdan so‘rov yuboring.',
+                'Write to the administrator in “Chat → Message the admin” to learn how to pay. After paying, send the request here.',
+                'Напишите администратору в «Чат → Сообщение администратору», чтобы узнать способ оплаты. После оплаты отправьте запрос здесь.',
+              )}
+          </p>
+          <label>
+            {L(
+              'Izoh (ixtiyoriy): chek raqami, to‘lov vaqti',
+              'Note (optional): receipt number, payment time',
+              'Комментарий (необязательно): номер чека, время оплаты',
+            )}
+            <input
+              className="input"
+              maxLength={300}
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+            />
+          </label>
+          <div className="av-buy-actions">
+            <Button type="submit" disabled={busy}>
+              ✅{' '}
+              {L(
+                'To‘lov qildim — so‘rov yuborish',
+                'I paid — send request',
+                'Я оплатил — отправить',
+              )}
+            </Button>
+            <Button type="button" variant="ghost" onClick={() => setBuy(false)}>
+              {L('Orqaga', 'Back', 'Назад')}
+            </Button>
+          </div>
+        </form>
+      ) : null}
+      {offer && <PremiumOffer info={premium?.info} onClose={() => setOffer(false)} />}
+    </div>
+  );
+}
+
 /** Bosh sahifadagi avatar kartochkasi (mavzu rasmi o'rnida). Bosilsa — kutubxona ochiladi.
    Avatar tanlangan bo'lsa — faqat qahramonning o'zi (yozuvsiz, kattaroq); almashtirish uchun ustiga bosiladi. */
 export function HeroAvatar({ board }: { board: AcademicBoard }) {
@@ -403,17 +624,35 @@ export function HeroAvatar({ board }: { board: AcademicBoard }) {
               <>
                 <b>{L('Avatar tanlang', 'Choose an avatar', 'Выберите аватар')}</b>
                 <small>
-                  {L('Siz top-10 dasiz! 🎉', 'You are in the top 10! 🎉', 'Вы в топ-10! 🎉')}
+                  {me.via === 'premium'
+                    ? L('💎 Obunangiz bor!', '💎 You have Premium!', '💎 У вас подписка!')
+                    : me.via === 'pass'
+                      ? L(
+                          '💳 Avatar huquqingiz bor!',
+                          '💳 You have an avatar pass!',
+                          '💳 У вас есть право на аватар!',
+                        )
+                      : me.via === 'allow'
+                        ? L(
+                            'Administrator ruxsat bergan 🎉',
+                            'Allowed by the administrator 🎉',
+                            'Разрешено администратором 🎉',
+                          )
+                        : L('Siz top-10 dasiz! 🎉', 'You are in the top 10! 🎉', 'Вы в топ-10! 🎉')}
                 </small>
               </>
             ) : (
               <>
-                <b>{L('Avatar — mukofot', 'Avatar — a reward', 'Аватар — награда')}</b>
+                <b>
+                  {me?.lost
+                    ? L('📉 Avatar bo‘shatildi', '📉 Avatar freed', '📉 Аватар освобождён')
+                    : L('Avatar — mukofot', 'Avatar — a reward', 'Аватар — награда')}
+                </b>
                 <small>
                   {L(
-                    `Umumiy reytingda 1–${AVATAR_TOP}-o‘ringa chiqing`,
-                    `Reach places 1–${AVATAR_TOP} overall`,
-                    `Поднимитесь на 1–${AVATAR_TOP}-е место`,
+                    `Top-${AVATAR_TOP} ga chiqing yoki obuna bilan oling`,
+                    `Reach the top ${AVATAR_TOP} or get it with Premium`,
+                    `Войдите в топ-${AVATAR_TOP} или получите по подписке`,
                   )}
                   {me?.place
                     ? ' · ' +

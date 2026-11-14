@@ -116,6 +116,14 @@ export function PremiumOffer({
             )}
           </li>
           <li>
+            🎭{' '}
+            {L(
+              'Avatar — top-10 ga kirmasangiz ham (obuna davomida)',
+              'An avatar — even outside the top 10 (while subscribed)',
+              'Аватар — даже вне топ-10 (пока действует подписка)',
+            )}
+          </li>
+          <li>
             🚀{' '}
             {L(
               'Yangi pullik imkoniyatlar qo‘shilganda — birinchilardan bo‘lib',

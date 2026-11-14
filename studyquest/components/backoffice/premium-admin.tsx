@@ -90,9 +90,9 @@ export function PremiumAdmin() {
         </span>
         <span>
           {L(
-            'ta foydalanuvchida obuna amalda. Obuna: kurs darslari (talaba bo‘lmaganlarga), sun’iy intellekt taqdimotlari va kutubxonadagi 💎 manbalar.',
-            'users have Premium. Premium unlocks course lessons (for non-students), AI presentations and 💎 library resources.',
-            'пользователей с подпиской. Подписка открывает уроки курса (для не-студентов), ИИ-презентации и материалы 💎 в библиотеке.',
+            'ta foydalanuvchida obuna amalda. Obuna: kurs darslari (talaba bo‘lmaganlarga), sun’iy intellekt taqdimotlari, kutubxonadagi 💎 manbalar va 🎭 avatar (top-10 dan tashqarida ham).',
+            'users have Premium. Premium unlocks course lessons (for non-students), AI presentations, 💎 library resources and 🎭 an avatar (even outside the top 10).',
+            'пользователей с подпиской. Подписка открывает уроки курса (для не-студентов), ИИ-презентации, материалы 💎 в библиотеке и 🎭 аватар (даже вне топ-10).',
           )}
         </span>
       </div>

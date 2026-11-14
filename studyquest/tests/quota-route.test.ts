@@ -125,7 +125,20 @@ it('returns minimal academic rows to verified users without Firestore while keep
     // avatarlar holati ham Firestore'siz, asl bazadan (meta/avatars); bu foydalanuvchi reytingda yo'q
     avatars: {
       owners: {},
-      me: { place: 0, top: false, allowed: false, can: false, avatar: null },
+      shop: { on: true, price: '', days: 30, how: '' },
+      me: {
+        place: 0,
+        top: false,
+        allowed: false,
+        premium: false,
+        pass: null,
+        can: false,
+        via: null,
+        avatar: null,
+        lost: null,
+        order: null,
+        canBuy: false,
+      },
     },
   });
   expect(mocks.actor).toHaveBeenCalledWith(expect.anything(), true);

@@ -91,19 +91,36 @@ export async function managePremium(a: Actor, raw: unknown, now = Date.now()) {
   if (p.op === 'info')
     await siteUpdate({ premiumInfo: { price: p.price, how: p.how, free: p.free } });
   else if (p.op === 'revoke') await siteUpdate({ ['premium/' + keyOf(p.uid)]: null });
-  else {
-    const key = keyOf(p.uid),
-      cur = await siteGet<Grant>('premium/' + key);
-    const from = Math.max(now, Number(cur?.until) || 0);
-    const g: Grant = {
-      uid: p.uid,
-      name: p.name,
-      group: p.group || '',
-      until: from + p.days * 86400000,
-      at: now,
-      by: (a.name || a.id).slice(0, 60),
-    };
-    await siteUpdate({ ['premium/' + key]: g });
-  }
+  else await grantPremium(p.uid, p.name, p.group || '', p.days, (a.name || a.id).slice(0, 60), now);
   return premiumAdmin(a, now);
+}
+/** Obuna berish (muddat mavjud obunaning ustiga qo'shiladi). Administrator ham, to'lov tizimi (Click) ham shuni chaqiradi. */
+export async function grantPremium(
+  uid: string,
+  name: string,
+  group: string,
+  days: number,
+  by: string,
+  now = Date.now(),
+) {
+  const key = keyOf(uid),
+    cur = await siteGet<Grant>('premium/' + key);
+  const from = Math.max(now, Number(cur?.until) || 0);
+  const g: Grant = {
+    uid,
+    name: name.slice(0, 120),
+    group: group.slice(0, 40),
+    until: from + days * 86400000,
+    at: now,
+    by: by.slice(0, 60),
+  };
+  await siteUpdate({ ['premium/' + key]: g });
+  return g;
+}
+/** Barcha amaldagi obunalar: foydalanuvchi id → tugash vaqti (avatar huquqi uchun). */
+export async function activePremium(now = Date.now()) {
+  const raw = (await siteGet<Record<string, Grant>>('premium')) || {};
+  const out: Record<string, number> = {};
+  for (const g of Object.values(raw)) if (g?.uid && Number(g.until) > now) out[g.uid] = g.until;
+  return out;
 }

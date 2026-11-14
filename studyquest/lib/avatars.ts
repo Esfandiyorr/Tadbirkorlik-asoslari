@@ -53,3 +53,9 @@ export const BUILTIN_AVATARS: AvatarItem[] = AVATAR_IDS.map((id) => ({
 }));
 /** Avatar kaliti: asl nomlar yoki administrator qo'shgani (c + raqam/harf). */
 export const AVATAR_ID = /^[a-z][a-z0-9-]{1,39}$/;
+
+/** 💳 Avatar sotuvi sozlamasi (administrator «🎭 Avatarlar» bo'limida o'zgartiradi). */
+export type AvatarShop = { on: boolean; price: string; days: number; how: string };
+export const AVATAR_SHOP_DEFAULT: AvatarShop = { on: true, price: '', days: 30, how: '' };
+/** «To'lov qildim — avatarni oching» so'rovi. */
+export type AvatarOrder = { uid: string; name: string; group: string; at: number; note?: string };
