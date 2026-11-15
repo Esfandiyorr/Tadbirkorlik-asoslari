@@ -331,6 +331,8 @@ export type AdminOrder = ServiceOrder & {
 };
 
 export type ServicesView = {
+  /** bo'lim ishga tushganmi; yo'q bo'lsa — «tez orada» oynasi va taklif yuborish, buyurtma qabul qilinmaydi */
+  open: boolean;
   catalog: ServiceCard[];
   /** to'lov yo'riqnomasi (faqat kirgan foydalanuvchiga) */
   how?: string;
@@ -338,6 +340,7 @@ export type ServicesView = {
   signedIn: boolean;
 };
 export type ServicesAdminView = {
+  open: boolean;
   catalog: ServiceCard[];
   how: string;
   orders: AdminOrder[];

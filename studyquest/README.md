@@ -42,7 +42,10 @@ For Firebase-backed development, copy `.env.example` to `.env.local`, supply you
 - **Library** (`lib/server/library.ts`): the administrator adds books, guides, articles, videos, laws and templates as
   links with an optional cover; 💎 items hide their link from people without Premium.
 - **💼 Paid services** (`lib/services.ts`, `lib/server/services.ts`, `app/api/services`, `components/services.tsx`):
-  replaces the old AI presentation section (`#slides` now opens it). The page explains the four steps (describe →
+  replaces the old AI presentation section (`#slides` now opens it). Until the administrator presses **🚀 Launch**
+  (`site/serviceInfo/open`), students see a «🚀 Launching soon» window on entering: they tick the services they need
+  and write a suggestion, which arrives in «Message the admin» as a 💡 idea; orders are refused (the administrator can
+  still place test orders). The page explains the four steps (describe →
   the team quotes → pay → download) and shows a catalog of 13 directions (presentation, course paper, graduation
   thesis, essay, article, book publishing, business plan, website, design, translation, documents, video, other).
   Course papers, theses, essays and articles are **assistance only** (outline, sources, editing, formatting,

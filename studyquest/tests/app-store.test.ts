@@ -11,7 +11,7 @@ import {
   normalizeSha,
   requestDeletion,
 } from '../lib/server/app-store';
-import { manageServices } from '../lib/server/services';
+import { adminServices, manageServices } from '../lib/server/services';
 import { resetSiteMemory, siteGet } from '../lib/server/site-content';
 import { subscribePush, pushSubs } from '../lib/server/push';
 import { deleteDoc, privacyDoc } from '../lib/legal';
@@ -110,6 +110,7 @@ it('a student asks to delete the account, may cancel, and the administrator eras
     },
   };
   await subscribePush(ali, dev);
+  await adminServices(admin, { op: 'launch', open: true });
   await manageServices(
     ali,
     { op: 'order', kind: 'taqdimot', title: 'Sinov', text: 'Sinov buyurtmasining matni' },

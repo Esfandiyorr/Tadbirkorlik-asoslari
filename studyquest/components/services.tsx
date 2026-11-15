@@ -1,7 +1,16 @@
 'use client';
 import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
 import { createPortal } from 'react-dom';
-import { Download, ExternalLink, Paperclip, Send, Settings2, Trash2, X } from 'lucide-react';
+import {
+  Download,
+  ExternalLink,
+  Lightbulb,
+  Paperclip,
+  Send,
+  Settings2,
+  Trash2,
+  X,
+} from 'lucide-react';
 import { useApp } from './provider';
 import { Button } from './ui/button';
 import { navigate } from './dashboard';
@@ -26,7 +35,10 @@ import {
 import type { Lang } from '@/lib/types';
 
 /* 💼 Pullik xizmatlar: qanday ishlashi (4 qadam), yo'nalishlar katalogi, buyurtma shakli va «Mening buyurtmalarim»
-   (holat, narx, to'lov, yozishma, fayllar, tayyor ishni yuklab olish). Server — lib/server/services.ts. */
+   (holat, narx, to'lov, yozishma, fayllar, tayyor ishni yuklab olish). Server — lib/server/services.ts.
+   Administrator bo'limni ishga tushirguncha (view.open = false) talaba kirganda «🚀 Tez orada ishga tushadi» oynasi
+   chiqadi: qaysi xizmatlar kerakligini belgilab, taklif yozadi — taklif «Adminga xabar»ga 💡 belgisi bilan tushadi. */
+const IDEA_KEY = 'sq-svc-idea';
 
 const STEPS: [string, Tri, Tri][] = [
   [
@@ -80,7 +92,11 @@ export function Services() {
   const L = (uz: string, en: string, ru: string) => tr(lang, uz, en, ru);
   const [view, setView] = useState<ServicesView | null>(null),
     [error, setError] = useState(''),
-    [pick, setPick] = useState<ServiceCard | null>(null);
+    [pick, setPick] = useState<ServiceCard | null>(null),
+    // «tez orada» oynasi: null — yopiq, massiv — oldindan belgilangan yo'nalishlar
+    [soon, setSoon] = useState<string[] | null>(null),
+    [sent, setSent] = useState(false);
+  const shown = useRef(false);
   const uid = data?.user?.id;
   const load = useCallback(async () => {
     try {
@@ -99,6 +115,19 @@ export function Services() {
   const admin = data?.user?.role === 'admin';
   const orders = view?.orders || [];
   const open = orders.filter((o) => isActive(o.status)).length;
+  // bo'lim hali ishga tushmagan: talaba buyurtma o'rniga taklif yuboradi (administrator sinab ko'rishi mumkin)
+  const waiting = !!view && !view.open && !admin;
+  useEffect(() => {
+    if (!waiting || shown.current) return;
+    shown.current = true;
+    let before = false;
+    try {
+      before = !!localStorage.getItem(IDEA_KEY);
+    } catch {}
+    setSent(before);
+    // kirganda oyna chiqadi (taklif allaqachon yuborilgan bo'lsa — faqat sahifadagi tugma orqali)
+    if (!before) setSoon([]);
+  }, [waiting]);
   return (
     <>
       <div className="page-heading">
@@ -133,6 +162,43 @@ export function Services() {
           )}
         </div>
       </div>
+
+      {waiting && (
+        <div className="svc-soon" role="status">
+          <span className="svc-soon-icon" aria-hidden="true">
+            🚀
+          </span>
+          <div>
+            <b>{L('Tez orada ishga tushadi!', 'Launching soon!', 'Скоро запуск!')}</b>
+            <p>
+              {sent
+                ? L(
+                    'Taklifingiz administratorga yetib bordi — rahmat! Bo‘lim ishga tushganda shu yerda buyurtma bera olasiz.',
+                    'Your suggestion reached the administrator — thank you! You will be able to order here once the section opens.',
+                    'Ваше предложение получено — спасибо! Когда раздел заработает, заказывать можно будет здесь.',
+                  )
+                : L(
+                    'Jamoa tayyorgarlik ko‘ryapti. Sizga qaysi xizmat kerakligini yozing — eng ko‘p so‘ralganlardan boshlaymiz.',
+                    'The team is getting ready. Tell us which services you need — we will start with the most requested.',
+                    'Команда готовится. Напишите, какие услуги вам нужны, — начнём с самых востребованных.',
+                  )}
+            </p>
+          </div>
+          <Button onClick={() => setSoon([])}>
+            <Lightbulb size={16} /> {L('Taklif yuborish', 'Send a suggestion', 'Отправить идею')}
+          </Button>
+        </div>
+      )}
+      {admin && view && !view.open && (
+        <p className="svc-soon is-admin">
+          ⏸{' '}
+          {L(
+            'Bo‘lim hali ishga tushmagan: talabalar «Tez orada» oynasini ko‘radi va taklif yuboradi. Siz sinab ko‘rish uchun buyurtma bera olasiz. Ishga tushirish — «Boshqarish» tugmasi orqali.',
+            'The section is not launched: students see “Launching soon” and send suggestions. You can place test orders. Launch it via “Manage”.',
+            'Раздел ещё не запущен: студенты видят «Скоро запуск» и отправляют идеи. Вы можете оформить тестовый заказ. Запуск — через «Управление».',
+          )}
+        </p>
+      )}
 
       <section className="svc-how" aria-labelledby="svc-how-h">
         <h2 id="svc-how-h">{L('Qanday ishlaydi?', 'How it works', 'Как это работает')}</h2>
@@ -173,7 +239,9 @@ export function Services() {
               <button
                 type="button"
                 className="svc-card"
-                onClick={() => (view.signedIn ? setPick(k) : setLogin(true))}
+                onClick={() =>
+                  waiting ? setSoon([k.id]) : view.signedIn ? setPick(k) : setLogin(true)
+                }
               >
                 <span className="svc-card-icon" aria-hidden="true">
                   {k.icon}
@@ -185,12 +253,16 @@ export function Services() {
                   {k.price && <em>💰 {k.price}</em>}
                   {k.days && <em>⏱ {k.days}</em>}
                 </span>
-                <span className="svc-card-go">{L('Buyurtma berish', 'Order', 'Заказать')} →</span>
+                <span className="svc-card-go">
+                  {waiting
+                    ? '🚀 ' + L('Tez orada', 'Coming soon', 'Скоро')
+                    : L('Buyurtma berish', 'Order', 'Заказать') + ' →'}
+                </span>
               </button>
             </li>
           ))}
         </ul>
-        {view && !view.signedIn && (
+        {view && !view.signedIn && !waiting && (
           <p className="svc-signin muted">
             {L(
               'Buyurtma berish uchun hisobingizga kiring.',
@@ -223,6 +295,20 @@ export function Services() {
           </ul>
         </section>
       )}
+      {soon && view && (
+        <SoonModal
+          catalog={view.catalog}
+          initial={soon}
+          signedIn={view.signedIn}
+          onClose={() => setSoon(null)}
+          onSent={() => {
+            setSent(true);
+            try {
+              localStorage.setItem(IDEA_KEY, String(Date.now()));
+            } catch {}
+          }}
+        />
+      )}
       {pick && (
         <OrderForm
           card={pick}
@@ -243,6 +329,187 @@ function jumpToMine(e?: { preventDefault: () => void }) {
 }
 const kindTitle = (lang: Lang, card?: ServiceCard, id = '') =>
   card ? card.icon + ' ' + tr(lang, ...card.name) : id;
+
+/* ---------- 🚀 «tez orada» oynasi: taklif yuborish ---------- */
+function SoonModal({
+  catalog,
+  initial,
+  signedIn,
+  onClose,
+  onSent,
+}: {
+  catalog: ServiceCard[];
+  initial: string[];
+  signedIn: boolean;
+  onClose: () => void;
+  onSent: () => void;
+}) {
+  const { lang, request, toast, setLogin } = useApp();
+  const L = (uz: string, en: string, ru: string) => tr(lang, uz, en, ru);
+  const [kinds, setKinds] = useState<string[]>(initial),
+    [text, setText] = useState(''),
+    [busy, setBusy] = useState(false);
+  const closeRef = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    closeRef.current?.focus();
+    const key = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
+    window.addEventListener('keydown', key);
+    return () => window.removeEventListener('keydown', key);
+  }, [onClose]);
+  const ready = kinds.length > 0 || text.trim().length >= 3;
+  async function send(e: FormEvent) {
+    e.preventDefault();
+    setBusy(true);
+    try {
+      // administrator o'qiydi — yo'nalish nomlari o'zbekcha
+      const names = catalog.filter((k) => kinds.includes(k.id)).map((k) => k.name[0]);
+      const body =
+        '💡 PULLIK XIZMATLAR — TAKLIF' +
+        (names.length ? '\nKerakli xizmatlar: ' + names.join(', ') : '') +
+        (text.trim() ? '\nTaklif: ' + text.trim() : '');
+      const r = await request('/api/support', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'send', input: { text: body.slice(0, 1500), cat: 'idea' } }),
+      });
+      if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || 'Xatolik');
+      toast(
+        '💡 ' +
+          L(
+            'Rahmat! Taklifingiz administratorga yuborildi.',
+            'Thank you! Your suggestion was sent to the administrator.',
+            'Спасибо! Ваше предложение отправлено администратору.',
+          ),
+      );
+      onSent();
+      onClose();
+    } catch (err) {
+      toast((err as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  }
+  return createPortal(
+    <div className="modal-backdrop" onClick={(e) => e.target === e.currentTarget && onClose()}>
+      <form
+        className="panel svc-form svc-soon-form"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="svc-soon-h"
+        onSubmit={(e) => void send(e)}
+      >
+        <button
+          ref={closeRef}
+          type="button"
+          className="av-close"
+          aria-label={L('Yopish', 'Close', 'Закрыть')}
+          onClick={onClose}
+        >
+          <X size={20} />
+        </button>
+        <span className="svc-soon-rocket" aria-hidden="true">
+          🚀
+        </span>
+        <h2 id="svc-soon-h">
+          {L(
+            'Pullik xizmatlar tez orada ishga tushadi',
+            'Paid services are launching soon',
+            'Платные услуги скоро заработают',
+          )}
+        </h2>
+        <p className="muted">
+          {L(
+            'Taqdimot, kurs ishi bo‘yicha yordam, sayt, dizayn va boshqa ishlarni buyurtma qilish mumkin bo‘ladi. Hozir sizning fikringiz kerak: qaysi xizmatlar kerak va nimani xohlaysiz?',
+            'You will be able to order presentations, help with papers, websites, design and more. Right now we need your opinion: which services do you need and what would you like?',
+            'Можно будет заказать презентации, помощь с курсовой, сайт, дизайн и многое другое. Сейчас нам нужно ваше мнение: какие услуги нужны и чего бы вам хотелось?',
+          )}
+        </p>
+        {signedIn ? (
+          <>
+            <fieldset className="svc-soon-kinds">
+              <legend>
+                {L(
+                  'Qaysi xizmatlar kerak? (bir nechtasini tanlang)',
+                  'Which services do you need? (pick any)',
+                  'Какие услуги нужны? (можно несколько)',
+                )}
+              </legend>
+              {catalog.map((k) => {
+                const on = kinds.includes(k.id);
+                return (
+                  <button
+                    key={k.id}
+                    type="button"
+                    aria-pressed={on}
+                    className={on ? 'on' : ''}
+                    onClick={() =>
+                      setKinds(on ? kinds.filter((x) => x !== k.id) : [...kinds, k.id])
+                    }
+                  >
+                    {k.icon} {tr(lang, ...k.name)}
+                  </button>
+                );
+              })}
+            </fieldset>
+            <label>
+              {L(
+                'Taklifingiz yoki istagingiz',
+                'Your suggestion or wish',
+                'Ваше предложение или пожелание',
+              )}
+              <textarea
+                className="input"
+                rows={4}
+                maxLength={1200}
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+                placeholder={L(
+                  'Masalan: diplom himoyasi uchun taqdimot va narxi talabaga mos bo‘lsin',
+                  'E.g. presentations for the thesis defence at a student-friendly price',
+                  'Например: презентация к защите диплома по доступной цене',
+                )}
+              />
+            </label>
+            <div className="svc-form-actions">
+              <Button type="submit" disabled={busy || !ready}>
+                <Send size={16} />{' '}
+                {busy
+                  ? L('Yuborilmoqda…', 'Sending…', 'Отправка…')
+                  : L('Taklif yuborish', 'Send the suggestion', 'Отправить предложение')}
+              </Button>
+              <Button type="button" variant="outline" onClick={onClose}>
+                {L('Keyinroq', 'Later', 'Позже')}
+              </Button>
+            </div>
+            <small className="muted">
+              {L(
+                'Taklifingiz «Adminga xabar» orqali administratorga boradi — javobni o‘sha yerda ko‘rasiz.',
+                'Your suggestion goes to the administrator through “Message the admin” — you will see the reply there.',
+                'Предложение придёт администратору через «Написать админу» — ответ увидите там же.',
+              )}
+            </small>
+          </>
+        ) : (
+          <div className="svc-form-actions">
+            <Button
+              type="button"
+              onClick={() => {
+                onClose();
+                setLogin(true);
+              }}
+            >
+              {L('Kirib taklif yuborish', 'Sign in to send a suggestion', 'Войти и отправить идею')}
+            </Button>
+            <Button type="button" variant="outline" onClick={onClose}>
+              {L('Keyinroq', 'Later', 'Позже')}
+            </Button>
+          </div>
+        )}
+      </form>
+    </div>,
+    document.body,
+  );
+}
 
 /* ---------- 📝 buyurtma shakli ---------- */
 function OrderForm({

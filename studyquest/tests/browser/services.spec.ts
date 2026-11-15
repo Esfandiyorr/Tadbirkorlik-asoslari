@@ -1,7 +1,8 @@
 import { test, expect, type Page } from '@playwright/test';
 
-/* 💼 Pullik xizmatlar: talaba buyurtma beradi → jamoa narx aytadi → talaba «To'lov qildim» → jamoa to'lovni
-   tasdiqlab tayyor ishni yuklaydi → talaba yuklab oladi va tuzatish so'raydi. Play Market ilovasida bo'lim yo'q. */
+/* 💼 Pullik xizmatlar: ishga tushguncha talaba «🚀 Tez orada» oynasida taklif yuboradi («Adminga xabar»ga tushadi);
+   ishga tushgach talaba buyurtma beradi → jamoa narx aytadi → talaba «To'lov qildim» → jamoa to'lovni tasdiqlab
+   tayyor ishni yuklaydi → talaba yuklab oladi va tuzatish so'raydi. Play Market ilovasida bo'lim yo'q. */
 async function as(page: Page, id: string) {
   await page.request.post('/api/auth/demo', { data: { id } });
 }
@@ -21,6 +22,7 @@ test('a student orders, the team quotes and delivers, the student pays and downl
 }) => {
   await as(page, 'demo-admin');
   await clearOrders(page);
+  expect((await svc(page, 'admin', { op: 'launch', open: true })).ok()).toBe(true);
   expect(
     (await svc(page, 'admin', { op: 'info', how: 'Click orqali 8600 … kartaga o‘tkazing' })).ok(),
   ).toBe(true);
@@ -136,6 +138,7 @@ test('a student orders, the team quotes and delivers, the student pays and downl
   // tozalash
   await clearOrders(page);
   await svc(page, 'admin', { op: 'info', how: '' });
+  await svc(page, 'admin', { op: 'launch', open: false });
   await svc(page, 'admin', { op: 'catalog', kind: 'taqdimot', price: '', days: '', off: false });
 });
 
@@ -144,15 +147,17 @@ test('guests see the guide and catalog; the Play Market app has no paid services
 }) => {
   await page.context().clearCookies();
   await page.goto('/#services', { waitUntil: 'domcontentloaded' });
+  // bo'lim hali ishga tushmagan: mehmonga ham «tez orada» oynasi, taklif uchun — kirish
+  const soon = page.getByRole('dialog', { name: /tez orada ishga tushadi/ });
+  await expect(soon).toBeVisible();
+  await expect(soon.getByRole('button', { name: 'Kirib taklif yuborish' })).toBeVisible();
+  await soon.getByRole('button', { name: 'Keyinroq' }).click();
   await expect(page.locator('.svc-steps li')).toHaveCount(4);
-  await expect(page.locator('.svc-card').first()).toBeVisible();
-  await expect(page.locator('.svc-signin')).toContainText(
-    'Buyurtma berish uchun hisobingizga kiring',
-  );
+  await expect(page.locator('.svc-card').first()).toContainText('Tez orada');
   // eski AI taqdimot havolasi ham shu bo'limga olib keladi
   await as(page, 'demo-student');
   await page.goto('/#slides', { waitUntil: 'domcontentloaded' });
-  await expect(page.getByRole('heading', { name: /Pullik xizmatlar/ })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /Pullik xizmatlar/, level: 1 })).toBeVisible();
   // Play Market ilovasi saytni /?src=play bilan ochadi — menyu ham, bosh sahifadagi havola ham, bo'lim ham yo'q
   await page.goto('/?src=play#home', { waitUntil: 'domcontentloaded' });
   await expect(page.locator('.quick-link.is-courses')).toBeVisible();
@@ -161,4 +166,80 @@ test('guests see the guide and catalog; the Play Market app has no paid services
   await expect(page.locator('.bottom-nav a[href="#services"]')).toHaveCount(0);
   await page.goto('/#services', { waitUntil: 'domcontentloaded' });
   await expect(page.locator('.svc-grid')).toHaveCount(0);
+});
+
+test('before the launch a student sees «Launching soon» and sends a suggestion to the administrator', async ({
+  page,
+  browser,
+}) => {
+  await as(page, 'demo-admin');
+  await svc(page, 'admin', { op: 'launch', open: false });
+  const student = await (
+    await browser.newContext({ baseURL: test.info().project.use.baseURL })
+  ).newPage();
+  await as(student, 'demo-student');
+  await student.goto('/#services', { waitUntil: 'domcontentloaded' });
+  // kirganda oyna o'zi chiqadi
+  const soon = student.getByRole('dialog', { name: /tez orada ishga tushadi/ });
+  await expect(soon).toBeVisible();
+  const send = soon.getByRole('button', { name: 'Taklif yuborish' });
+  await expect(send).toBeDisabled();
+  await soon.getByRole('button', { name: /Taqdimot/ }).click();
+  await soon.getByRole('button', { name: /Sayt yaratish/ }).click();
+  await expect(soon.getByRole('button', { name: /Taqdimot/ })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
+  await soon.getByLabel('Taklifingiz yoki istagingiz').fill('Diplom himoyasi uchun taqdimot kerak');
+  await send.click();
+  await expect(student.getByText(/Taklifingiz administratorga yuborildi/)).toBeVisible();
+  await expect(soon).toHaveCount(0);
+  await expect(student.locator('.svc-soon')).toContainText('yetib bordi');
+  // taklif «Adminga xabar»ga 💡 bilan tushdi
+  const mine = await (await student.request.get('/api/support')).json();
+  const idea = (mine.messages as { text: string; cat: string }[]).at(-1)!;
+  expect(idea.cat).toBe('idea');
+  expect(idea.text).toContain('💡 PULLIK XIZMATLAR — TAKLIF');
+  expect(idea.text).toContain('Kerakli xizmatlar: Taqdimot, Sayt yaratish');
+  expect(idea.text).toContain('Diplom himoyasi uchun taqdimot kerak');
+  const inbox = await (await page.request.get('/api/support?view=inbox')).json();
+  expect(JSON.stringify(inbox)).toContain('PULLIK XIZMATLAR');
+  // buyurtma hali qabul qilinmaydi
+  const refused = await svc(student, 'me', {
+    op: 'order',
+    kind: 'taqdimot',
+    title: 'Sinov',
+    text: 'Sinov buyurtmasining matni',
+  });
+  expect(refused.status()).toBe(409);
+  // qayta kirganda oyna o'zi chiqmaydi (taklif yuborilgan), lekin tugma bilan ochiladi
+  await student.reload({ waitUntil: 'domcontentloaded' });
+  await expect(student.locator('.svc-soon')).toBeVisible();
+  await expect(soon).toHaveCount(0);
+  // katalog kartasi ham shu oynani ochadi — yo'nalish oldindan belgilangan
+  await student
+    .locator('.svc-card')
+    .filter({ has: student.getByText('Dizayn', { exact: true }) })
+    .click();
+  await expect(soon.getByRole('button', { name: /Dizayn/ })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
+  await soon.getByRole('button', { name: 'Keyinroq' }).click();
+
+  // administrator ishga tushiradi — talaba buyurtma bera oladi
+  await page.goto('/#services', { waitUntil: 'domcontentloaded' });
+  await expect(page.locator('.svc-soon.is-admin')).toContainText('hali ishga tushmagan');
+  await page.getByRole('button', { name: 'Boshqarish' }).click();
+  page.once('dialog', (d) => void d.accept());
+  await page.getByRole('button', { name: /Ishga tushirish/ }).click();
+  await expect(page.locator('.svc-launch')).toContainText('Ishlayapti');
+  await student.reload({ waitUntil: 'domcontentloaded' });
+  await expect(student.locator('.svc-soon')).toHaveCount(0);
+  await expect(student.locator('.svc-card').first()).toContainText('Buyurtma berish');
+  await student.context().close();
+  // asl holiga qaytarish
+  page.once('dialog', (d) => void d.accept());
+  await page.getByRole('button', { name: /Tez orada.*qaytarish/ }).click();
+  await expect(page.locator('.svc-launch')).toContainText('Tez orada');
 });

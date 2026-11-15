@@ -30,7 +30,8 @@ import { siteGet, siteUpdate } from './site-content';
 import { sendPush } from './push';
 
 /* 💼 Pullik xizmatlar. Asl bazaning site/ bo'limida (brauzerlar tegolmaydi, faqat server):
-     serviceInfo                       = {how}                 — to'lov yo'riqnomasi (administrator yozadi)
+     serviceInfo                       = {how, open}           — to'lov yo'riqnomasi; open — bo'lim ishga tushganmi
+                                                                 (yo'q bo'lsa talabaga «tez orada» oynasi, buyurtma yo'q)
      serviceCatalog/<yo'nalish>        = {price, days, off}    — narx, muddat, yopiq/ochiq
      serviceOrders/<foydalanuvchi>/<id> = buyurtma (matn, holat, narx, yozishma, fayllar ro'yxati)
      serviceFiles/<foydalanuvchi>/<fayl>/<n> = faylning n-bo'lagi (base64, ≤ 2,5 MB)
@@ -101,8 +102,22 @@ async function readCatalog(all: boolean): Promise<ServiceCard[]> {
     };
   }).filter((k) => all || !k.off);
 }
-async function readHow() {
-  return (await siteGet<{ how?: string }>('serviceInfo'))?.how || '';
+async function readInfo() {
+  const v = await siteGet<{ how?: string; open?: boolean }>('serviceInfo');
+  return { how: v?.how || '', open: v?.open === true };
+}
+/** Bo'lim hali ishga tushmagan bo'lsa buyurtmani faqat administrator (sinab ko'rish uchun) bera oladi. */
+async function canOrder(a: Actor) {
+  if ((await readInfo()).open || a.role === 'admin') return;
+  // tejamkor (readOnly) so'rovda Firestore'dagi administrator roli ko'rinmaydi — bir marta tekshiriladi
+  const stored = await repository()
+    .then((r) => r.get('users', a.id))
+    .catch(() => null);
+  check(
+    stored?.role === 'admin',
+    409,
+    'Pullik xizmatlar hali ishga tushmagan. Taklifingizni yozib qoldiring — ishga tushganda xabar beramiz.',
+  );
 }
 
 function toOrder(uk: string, id: string, s: Stored): ServiceOrder {
@@ -176,13 +191,11 @@ function sweep(uk: string, orders: Record<string, Stored>, now: number) {
 
 /** Foydalanuvchi (yoki mehmon): katalog, to'lov yo'riqnomasi va o'z buyurtmalari. */
 export async function servicesView(a: Actor | null, now = Date.now()): Promise<ServicesView> {
-  const catalog = await readCatalog(false);
-  if (!a) return { catalog, signedIn: false };
+  const [catalog, info] = await Promise.all([readCatalog(false), readInfo()]);
+  if (!a) return { open: info.open, catalog, signedIn: false };
   const uk = keyOf(a.id);
-  const [raw, how] = await Promise.all([
-    siteGet<Record<string, Stored>>('serviceOrders/' + uk),
-    readHow(),
-  ]);
+  const raw = await siteGet<Record<string, Stored>>('serviceOrders/' + uk);
+  const how = info.how;
   const own = raw || {};
   const patch = sweep(uk, own, now);
   if (Object.keys(patch).length) await siteUpdate(patch);
@@ -190,7 +203,7 @@ export async function servicesView(a: Actor | null, now = Date.now()): Promise<S
     .filter(([id, s]) => ID.test(id) && s?.kind)
     .map(([id, s]) => toOrder(uk, id, s))
     .sort((x, y) => y.at - x.at);
-  return { catalog, how, orders, signedIn: true };
+  return { open: info.open, catalog, how, orders, signedIn: true };
 }
 
 const STATUS_ORDER: Record<ServiceStatus, number> = {
@@ -204,10 +217,10 @@ const STATUS_ORDER: Record<ServiceStatus, number> = {
 /** Administrator: hamma buyurtmalar (buyurtmachi ma'lumotlari bilan), katalog sozlamalari va to'lov yo'riqnomasi. */
 export async function servicesAdmin(a: Actor, now = Date.now()): Promise<ServicesAdminView> {
   administrator(a);
-  const [all, catalog, how] = await Promise.all([
+  const [all, catalog, { how, open }] = await Promise.all([
     siteGet<Record<string, Record<string, Stored>>>('serviceOrders'),
     readCatalog(true),
-    readHow(),
+    readInfo(),
   ]);
   const orders: AdminOrder[] = [];
   const patch: Record<string, unknown> = {};
@@ -229,7 +242,7 @@ export async function servicesAdmin(a: Actor, now = Date.now()): Promise<Service
   }
   if (Object.keys(patch).length) await siteUpdate(patch);
   orders.sort((x, y) => STATUS_ORDER[x.status] - STATUS_ORDER[y.status] || y.upd - x.upd);
-  return { catalog, how, orders, used };
+  return { open, catalog, how, orders, used };
 }
 
 /* ---------- 🔔 bildirishnomalar (xatosi buyurtmani to'xtatmaydi) ---------- */
@@ -299,6 +312,7 @@ export async function manageServices(a: Actor, raw: unknown, now = Date.now()) {
   const v = userInput.parse(raw);
   const uk = keyOf(a.id);
   if (v.op === 'order') {
+    await canOrder(a);
     const kind = (await readCatalog(false)).find((k) => k.id === v.kind);
     check(kind, 400, 'Bu yo‘nalish hozir yopiq. Boshqasini tanlang.');
     const mine = (await siteGet<Record<string, Stored>>('serviceOrders/' + uk)) || {};
@@ -431,6 +445,7 @@ const adminInput = z.discriminatedUnion('op', [
     })
     .strict(),
   z.object({ op: z.literal('info'), how: z.string().trim().max(1500) }).strict(),
+  z.object({ op: z.literal('launch'), open: z.boolean() }).strict(),
 ]);
 
 /** Administrator amallari: narx aytish, to'lovni tasdiqlash, natija yuklash, topshirish, bekor qilish, katalog. */
@@ -451,8 +466,12 @@ export async function adminServices(a: Actor, raw: unknown, now = Date.now()) {
     });
     return { admin: await servicesAdmin(a, now) };
   }
+  if (v.op === 'launch') {
+    await siteUpdate({ 'serviceInfo/open': v.open || null });
+    return { admin: await servicesAdmin(a, now) };
+  }
   if (v.op === 'info') {
-    await siteUpdate({ serviceInfo: v.how ? { how: v.how } : null });
+    await siteUpdate({ 'serviceInfo/how': v.how || null });
     return { admin: await servicesAdmin(a, now) };
   }
   const s = await load(v.uk, v.id);

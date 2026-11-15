@@ -16,7 +16,11 @@ import { resetSiteMemory, siteGet } from '../lib/server/site-content';
 beforeAll(() => {
   process.env.STUDYQUEST_DEMO = 'true';
 });
-beforeEach(() => resetSiteMemory());
+beforeEach(async () => {
+  resetSiteMemory();
+  // bo'lim ishga tushirilgan holat (ishga tushmagan holat — alohida sinovda)
+  await adminServices(admin, { op: 'launch', open: true });
+});
 const who = (id: string, role = 'student') =>
   ({
     id,
@@ -203,4 +207,22 @@ it(`result files are deleted ${KEEP_DAYS} days after delivery`, async () => {
   await expect(
     manageServices(ali, { op: 'revise', id, text: 'yana bir bor' }, now + (KEEP_DAYS + 2) * DAY),
   ).rejects.toThrow('muddati tugagan');
+});
+
+it('until the administrator launches the section only the administrator can order', async () => {
+  await adminServices(admin, { op: 'launch', open: false });
+  expect((await servicesView(null)).open).toBe(false);
+  expect((await servicesView(ali)).open).toBe(false);
+  await expect(order(ali, Date.now())).rejects.toThrow('hali ishga tushmagan');
+  // administrator sinab ko'rishi mumkin
+  await order(admin, Date.now());
+  // to'lov yo'riqnomasini saqlash holatni o'zgartirmaydi
+  await adminServices(admin, { op: 'info', how: 'Karta: 8600 …' });
+  expect(await servicesAdmin(admin)).toMatchObject({ open: false, how: 'Karta: 8600 …' });
+  // talaba ishga tushira olmaydi
+  await expect(adminServices(ali, { op: 'launch', open: true })).rejects.toThrow('Administrator');
+  await adminServices(admin, { op: 'launch', open: true });
+  expect((await servicesView(ali)).open).toBe(true);
+  await order(ali, Date.now());
+  expect((await servicesAdmin(admin)).how).toBe('Karta: 8600 …');
 });

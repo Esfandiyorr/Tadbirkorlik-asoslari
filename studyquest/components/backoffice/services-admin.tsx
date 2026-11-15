@@ -27,10 +27,11 @@ type Filter = 'open' | ServiceStatus | 'all';
 
 export function ServicesAdmin() {
   const L = useL();
-  const { request } = useApp();
+  const { request, toast } = useApp();
   const [view, setView] = useState<ServicesAdminView | null>(null),
     [error, setError] = useState(''),
-    [tab, setTab] = useState<Tab>('orders');
+    [tab, setTab] = useState<Tab>('orders'),
+    [busy, setBusy] = useState(false);
   const load = useCallback(async () => {
     try {
       const r = await request('/api/services?admin=1'),
@@ -48,8 +49,75 @@ export function ServicesAdmin() {
   if (error) return <p className="error-state">{error}</p>;
   if (!view) return <div className="skeleton" style={{ height: 220 }} />;
   const waiting = view.orders.filter((o) => o.status === 'new' || o.status === 'paid').length;
+  /** Bo'limni ishga tushirish yoki yana «tez orada» rejimiga qaytarish. */
+  async function launch(open: boolean) {
+    if (
+      !window.confirm(
+        open
+          ? L(
+              'Bo‘lim ishga tushirilsinmi? Talabalar buyurtma bera boshlaydi. Avval narxlar va to‘lov yo‘riqnomasini tekshiring.',
+              'Launch the section? Students will start ordering. Check prices and payment instructions first.',
+              'Запустить раздел? Студенты начнут оформлять заказы. Сначала проверьте цены и инструкцию по оплате.',
+            )
+          : L(
+              'Bo‘lim «Tez orada» rejimiga qaytarilsinmi? Yangi buyurtma qabul qilinmaydi, ochiq buyurtmalar davom etadi.',
+              'Switch back to “Launching soon”? New orders stop; open orders continue.',
+              'Вернуть режим «Скоро запуск»? Новые заказы не принимаются, открытые продолжаются.',
+            ),
+      )
+    )
+      return;
+    setBusy(true);
+    try {
+      const r = await servicesAct<{ admin: ServicesAdminView }>(request, 'admin', {
+        op: 'launch',
+        open,
+      });
+      setView(r.admin);
+      toast(
+        open
+          ? L('🚀 Bo‘lim ishga tushdi!', '🚀 The section is live!', '🚀 Раздел запущен!')
+          : L(
+              '⏸ «Tez orada» rejimi yoqildi.',
+              '⏸ “Launching soon” is on.',
+              '⏸ Режим «Скоро запуск».',
+            ),
+      );
+    } catch (e) {
+      toast((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  }
   return (
     <div className="svc-admin">
+      <div className={'svc-launch' + (view.open ? ' is-open' : '')}>
+        <span className={'bo-pill ' + (view.open ? 'on' : 'off')}>
+          {view.open ? L('Ishlayapti', 'Live', 'Работает') : L('Tez orada', 'Coming soon', 'Скоро')}
+        </span>
+        <p>
+          {view.open
+            ? L(
+                'Talabalar buyurtma beryapti.',
+                'Students can place orders.',
+                'Студенты оформляют заказы.',
+              )
+            : L(
+                'Bo‘lim hali ishga tushmagan: talaba kirganda «🚀 Tez orada ishga tushadi» oynasi chiqadi va u taklif yuboradi. Takliflar «Kelgan xabarlar»ga 💡 belgisi bilan tushadi.',
+                'Not launched yet: students see “🚀 Launching soon” and send suggestions. Suggestions arrive in the inbox marked 💡.',
+                'Ещё не запущен: студенты видят «🚀 Скоро запуск» и отправляют идеи. Идеи приходят во «Входящие» со значком 💡.',
+              )}
+        </p>
+        {view.open ? (
+          <Button size="sm" variant="outline" disabled={busy} onClick={() => void launch(false)}>
+            ⏸ {L('«Tez orada»ga qaytarish', 'Back to “coming soon”', 'Вернуть «Скоро»')}
+          </Button>
+        ) : (
+          <Button size="sm" disabled={busy} onClick={() => void launch(true)}>
+            🚀 {L('Ishga tushirish', 'Launch', 'Запустить')}
+          </Button>
+        )}
+      </div>
       <div className="bo-subtabs" role="tablist">
         {(
           [
