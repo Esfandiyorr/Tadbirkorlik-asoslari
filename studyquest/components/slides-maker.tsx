@@ -11,6 +11,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Download,
+  Flag,
   Maximize2,
   Sparkles,
   StickyNote,
@@ -35,6 +36,7 @@ import {
 } from '@/lib/slides';
 import type { SlidesView } from '@/lib/server/slides';
 import { isPlayApp } from '@/lib/play-app';
+import { AiReport } from './ai-report';
 
 /* 🎞 Taqdimot: talaba mavzuni yozadi — sun'iy intellekt tayyor taqdimot tuzadi (lib/server/slides.ts). Natija sayt
    ichida slaydma-slayd ko'rinadi (5 xil rang mavzusi, to'liq ekran, ma'ruzachi izohlari) va PowerPoint (.pptx) fayli
@@ -530,7 +532,8 @@ function DeckViewer({ saved, onRemove }: { saved: SavedDeck; onRemove: () => voi
       }
     }),
     [notes, setNotes] = useState(true),
-    [saving, setSaving] = useState(false);
+    [saving, setSaving] = useState(false),
+    [report, setReport] = useState(false);
   const stage = useRef<HTMLDivElement>(null);
   const go = useCallback(
     (d: number) => setI((x) => Math.max(0, Math.min(total - 1, x + d))),
@@ -557,6 +560,20 @@ function DeckViewer({ saved, onRemove }: { saved: SavedDeck; onRemove: () => voi
     '--dk-page': th.page,
   } as CSSProperties;
   const slide = i > 0 ? deck.slides[i - 1] : null;
+  /** Shikoyat matni: administrator taqdimotni ko'ra olmaydi — nima yozilgani xabarning o'zida boradi. */
+  const reportSubject =
+    'Taqdimot: ' +
+    deck.title +
+    ' (' +
+    saved.id +
+    ')\nSlayd: ' +
+    (i + 1) +
+    ' / ' +
+    total +
+    '\n' +
+    (slide
+      ? slide.title + '\n' + slide.bullets.map((b) => '• ' + b).join('\n')
+      : deck.subtitle || '');
   async function save() {
     setSaving(true);
     try {
@@ -693,6 +710,21 @@ function DeckViewer({ saved, onRemove }: { saved: SavedDeck; onRemove: () => voi
           <Button
             size="sm"
             variant="outline"
+            onClick={() => setReport(!report)}
+            aria-expanded={report}
+            aria-label={L('Shikoyat qilish', 'Report', 'Пожаловаться')}
+            title={L(
+              'Sun’iy intellekt natijasi ustidan shikoyat',
+              'Report this AI result',
+              'Пожаловаться на результат ИИ',
+            )}
+          >
+            <Flag size={15} />
+            <span>{L('Shikoyat', 'Report', 'Жалоба')}</span>
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
             onClick={onRemove}
             aria-label={L('Taqdimotni o‘chirish', 'Delete the presentation', 'Удалить презентацию')}
           >
@@ -700,6 +732,7 @@ function DeckViewer({ saved, onRemove }: { saved: SavedDeck; onRemove: () => voi
           </Button>
         </div>
       </div>
+      {report && <AiReport subject={reportSubject} onClose={() => setReport(false)} />}
       {notes && slide?.notes && (
         <p className="sm-notes">
           <b>🎤 {L('Gapirib berish uchun', 'What to say', 'Что сказать')}:</b> {slide.notes}

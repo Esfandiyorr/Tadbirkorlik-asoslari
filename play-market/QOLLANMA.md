@@ -5,14 +5,33 @@ Saytga kiritilgan har bir o'zgarish ilovada ham darhol ko'rinadi — Play Market
 
 Saytning o'zida tayyor bo'lgan narsalar (kod tomoni):
 
-| Talab | Holati | Qayerda |
-|---|---|---|
-| Maxfiylik siyosati (ochiq sahifa) | ✅ | `https://<sayt>/privacy` |
-| Hisobni o'chirish sahifasi | ✅ | `https://<sayt>/delete-account` |
-| Ilova ichidan hisobni o'chirishni so'rash | ✅ | Profil → «🗑 Hisobni o'chirish» |
-| Chatda shikoyat qilish | ✅ | Talabalar chati → «🚩 Shikoyat qilish» |
-| Ilova va sayt bog'lanishi (`assetlinks.json`) | ⏳ SHA-256 kiritilgach | Sayt boshqaruvi → 📱 Ilova |
-| Manifest, ikonkalar, oflayn sahifa | ✅ | — |
+| Talab                                                                        | Holati                 | Qayerda                                    |
+| ---------------------------------------------------------------------------- | ---------------------- | ------------------------------------------ |
+| Maxfiylik siyosati (ochiq sahifa)                                            | ✅                     | `https://<sayt>/privacy`                   |
+| Hisobni o'chirish sahifasi                                                   | ✅                     | `https://<sayt>/delete-account`            |
+| Ilova ichidan hisobni o'chirishni so'rash                                    | ✅                     | Profil → «🗑 Hisobni o'chirish»             |
+| Chatda shikoyat qilish                                                       | ✅                     | Talabalar chati → «🚩 Shikoyat qilish»     |
+| Sun'iy intellekt natijasi ustidan shikoyat (Google'ning AI qoidasi)          | ✅                     | 🎞 Taqdimot → taqdimot ostida «🚩 Shikoyat» |
+| Sun'iy intellekt nojo'ya (18+, haqorat, zararli yo'riqnoma) matn yozmaydi    | ✅                     | Taqdimot so'rovidagi qoida                 |
+| Ilovada narx va to'lov yo'riqnomasi ko'rinmaydi (obuna, avatar, pullik kurs) | ✅                     | 7-qadamga qarang                           |
+| Ilova va sayt bog'lanishi (`assetlinks.json`)                                | ⏳ SHA-256 kiritilgach | Sayt boshqaruvi → 📱 Ilova                 |
+| Manifest, ikonkalar, oflayn sahifa                                           | ✅                     | —                                          |
+| Do'kon matni va rasmlari                                                     | ✅                     | `dokon-matni.md`, `rasmlar/`               |
+
+Shikoyatlar (chatdan ham, taqdimotdan ham) **«Adminga xabar» → Kelgan xabarlar**ga 🚩 belgisi bilan tushadi.
+Google talabi — ularni o'z vaqtida ko'rib chiqish (odatda 24 soat ichida).
+
+### Qisqa ro'yxat: sizdan nima kerak
+
+1. ☐ TerDU logotipi uchun ruxsatnoma **yoki** tashkilot hisobi (0-qadam).
+2. ☐ Domen bo'yicha qaror (0-qadam).
+3. ☐ Saytda 📱 Ilova: operator va murojaat emaili (1-qadam).
+4. ☐ Play Console hisobi, 25 $, shaxsni tasdiqlash (2-qadam).
+5. ☐ PWABuilder'da `.aab` yasash, kalitni xavfsiz saqlash (3-qadam).
+6. ☐ Ilovani yaratish, App signing SHA-256 → saytdagi 📱 Ilova (4-qadam).
+7. ☐ Do'kon sahifasi, «App content» shakllari (5–6-qadamlar).
+8. ☐ Google tekshiruvchisi uchun sinov hisobi (6-qadam).
+9. ☐ 12 sinovchi × 14 kun yopiq sinov (shaxsiy hisob bo'lsa), keyin Production (8-qadam).
 
 Quyidagi qadamlarni **siz** bajarasiz (Google hisobi, to'lov va shaxsni tasdiqlash kerak bo'lgani uchun).
 
@@ -91,9 +110,16 @@ Bu ikkalasi maxfiylik siyosati sahifasida ko'rinadi. Paket nomi va SHA-256 ni 4-
 - **Ads**, **Content rating**, **Target audience** (18+), **Data safety**
 - **Data safety → Delete account URL** — `https://<sayt>/delete-account`
 
-**Google tekshiruvchisi uchun sinov hisobi.** Saytda oddiy talaba hisobi oching (masalan, ism: `Google`,
-familiya: `Tekshiruvchi`, guruh: istalgan), o'qituvchi sifatida uni tasdiqlang va unga obuna bering
-(Sayt boshqaruvi → 💎 Obuna). Login va parolni «App access» bo'limiga yozing.
+**Google tekshiruvchisi uchun sinov hisobi.** Tekshiruvchi ilovaning hamma qismini ochib ko'ra olishi kerak —
+biror bo'lim yopiq qolsa, ilova rad etilishi mumkin:
+
+1. Saytda talaba sifatida ro'yxatdan o'ting (masalan, ism: `Google`, familiya: `Tekshiruvchi`, guruh: istalgan)
+   va administrator sifatida hisobni **tasdiqlang**.
+2. Unga **💎 obuna** bering (Sayt boshqaruvi → 💎 Obuna) — sun'iy intellekt taqdimoti va 💎 manbalar ochiladi.
+3. **🔑 Kursga ruxsat → pullik kurs (Restoran) yorlig'i** → shu talabaga ruxsat bering — pullik kurs ham ochiladi.
+4. Login va parolni «App access» bo'limiga yozing (`play-console-javoblari.md` dagi izoh bilan).
+
+Tekshiruv tugagach (ilova chiqqach) bu hisobni o'chirmang — Google keyingi yangilanishlarda ham tekshiradi.
 
 ## 7-qadam. Pullik obuna va Google qoidalari — muhim
 
@@ -107,6 +133,11 @@ Shuning uchun sayt shunday ishlaydi:
 - **Play Market ilovasida** (Start URL `/?src=play` bo'lgani uchun) — narx va to'lov yo'riqnomasi
   **ko'rsatilmaydi**; faqat «bu imkoniyat obunachilar uchun» deyiladi. Obunasi bor talaba ilovada ham
   hamma narsadan foydalanadi.
+- Xuddi shunday ilovada **avatar sotib olish** («To'lov qildim») va **pullik kurs** (restoran) narxi hamda
+  to'lov yo'riqnomasi yashiriladi: pullik kursda faqat «administrator ruxsat bergandan keyin ochiladi» deyiladi
+  va ruxsat so'rash tugmasi qoladi.
+- Click ulanganda ham to'lov **faqat saytda** bo'ladi; ilovada Click/Payme havolasi yoki karta raqami
+  ko'rsatilmasligi kerak (bu kodda hisobga olingan).
 
 Ya'ni obuna **saytda** rasmiylashtiriladi, ilova esa undan foydalanish uchun. Keyinchalik ilova ichida ham
 sotmoqchi bo'lsangiz, Google Play Billing ulash kerak bo'ladi (Google 15–30 % komissiya oladi; O'zbekistonda

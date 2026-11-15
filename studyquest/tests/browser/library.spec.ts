@@ -150,6 +150,14 @@ test('a student builds a free presentation, views it, downloads PowerPoint and t
   await viewer.getByRole('button', { name: /PowerPoint/ }).click();
   const file = await download;
   expect(file.suggestedFilename()).toBe('Kichik biznesda marketing.pptx');
+  // 🚩 sun'iy intellekt natijasi ustidan shikoyat (Google Play talabi) — ilovadan chiqmasdan
+  await viewer.getByRole('button', { name: 'Shikoyat qilish' }).click();
+  const report = viewer.locator('.ai-report');
+  await report.getByLabel('Sabab').selectOption('false');
+  await report.getByLabel(/Izoh/).fill('Raqamlar noto‘g‘ri');
+  await report.getByRole('button', { name: 'Yuborish' }).click();
+  await expect(page.getByText(/Shikoyat yuborildi/)).toBeVisible();
+  await expect(report).toHaveCount(0);
   // ro'yxatda saqlangan; bepul sinov tugadi — ikkinchisi obuna so'raydi
   await expect(page.locator('.sm-mine li')).toHaveCount(1);
   await expect(page.locator('.sm-access.is-off')).toContainText('Bepul taqdimotlar tugadi');

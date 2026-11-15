@@ -9861,6 +9861,16 @@ button.danger,
   font-size: 13.5px;
   color: var(--muted);
 }
+/* 🚩 sun'iy intellekt taqdimoti ustidan shikoyat (taqdimot ko'rsatkichi ichida) */
+.ai-report {
+  border: 1px solid #fecaca;
+  border-radius: 14px;
+  background: #fff7f7;
+}
+.dark .ai-report {
+  border-color: #7f1d1d;
+  background: #2a1414;
+}
 
 /* 📱 Sayt boshqaruvi → Ilova (Play Market) */
 .bo-app-steps {

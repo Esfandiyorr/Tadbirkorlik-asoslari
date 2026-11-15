@@ -123,6 +123,8 @@ function instructions(r: DeckRequest) {
     'The deck title is short and specific; the subtitle is one line saying what the listener will learn.',
     'Use only facts you are confident about. Where a precise figure, date or name is uncertain, describe the point in general terms instead of inventing a number. Do not include links, images, or placeholders.',
     'Plain text only: no markdown, no emoji in titles, no bullet symbols at the start of a bullet.',
+    // Google Play «AI-generated content» qoidasi: ilova haqoratli, 18+ yoki zararli matn yaratmasligi kerak.
+    'This is a classroom tool, so keep every deck fit to show in a university lecture. If the topic or the wishes ask for sexual content, hate or harassment of a person or group, or instructions for violence, weapons, drugs or other illegal activity, do not write that material: build the deck on the closest legitimate educational angle instead (for example the risks, the law, or prevention), in a neutral and respectful tone.',
   ].join('\n\n');
 }
 
