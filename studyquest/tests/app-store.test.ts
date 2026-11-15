@@ -117,6 +117,7 @@ it('a student asks to delete the account, may cancel, and the administrator eras
     now,
   );
   expect(await siteGet('serviceOrders/legacy_ali')).toBeTruthy();
+  expect(await siteGet('serviceStats/taqdimot/legacy_ali')).toBeTruthy();
   expect((await appAdmin(admin)).requests.map((r) => r.uid)).toEqual(['legacy_ali', 'legacy_vali']);
   await expect(appAdmin(who('tc', 'teacher'))).rejects.toMatchObject({ status: 403 });
 
@@ -160,6 +161,7 @@ it('a student asks to delete the account, may cancel, and the administrator eras
   });
   expect(await pushSubs()).toEqual({}); // bildirishnoma obunasi ham o'chdi
   expect(await siteGet('serviceOrders/legacy_ali')).toBeNull(); // 💼 buyurtmalar ham
+  expect(await siteGet('serviceStats/taqdimot/legacy_ali')).toBeNull(); // va kartadagi sanoqdan
   expect(await siteGet('deleteRequests/legacy_ali')).toBeNull();
 
   // rad etilsa — hech narsa o'chmaydi, faqat so'rov olib tashlanadi

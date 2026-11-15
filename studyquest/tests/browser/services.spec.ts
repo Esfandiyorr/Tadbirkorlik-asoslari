@@ -195,6 +195,11 @@ test('before the launch a student sees «Launching soon» and sends a suggestion
   await expect(student.getByText(/Taklifingiz administratorga yuborildi/)).toBeVisible();
   await expect(soon).toHaveCount(0);
   await expect(student.locator('.svc-soon')).toContainText('yetib bordi');
+  // kartada — nechta odam shu xizmatni kutayotgani
+  await expect(
+    student.locator('.svc-card').filter({ has: student.getByText('Taqdimot', { exact: true }) }),
+  ).toContainText(/\d+ kishi kutmoqda/);
+  await expect(student.locator('.svc-hero-stats')).toContainText('kishi kutmoqda');
   // taklif «Adminga xabar»ga 💡 bilan tushdi
   const mine = await (await student.request.get('/api/support')).json();
   const idea = (mine.messages as { text: string; cat: string }[]).at(-1)!;

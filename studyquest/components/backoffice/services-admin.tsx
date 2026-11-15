@@ -682,6 +682,9 @@ function Catalog({
             <li key={k.id} className={r.off ? 'is-off' : ''}>
               <b>
                 {k.icon} {tr(lang, ...k.name)}
+                <small className="svc-cat-count">
+                  👥 {k.used} · 🙋 {k.wants}
+                </small>
               </b>
               <input
                 className="input"

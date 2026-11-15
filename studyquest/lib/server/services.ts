@@ -28,6 +28,7 @@ import { ApiError, administrator, check } from './auth';
 import { repository } from './repository';
 import { siteGet, siteUpdate } from './site-content';
 import { sendPush } from './push';
+import { supportAct } from './support';
 
 /* 💼 Pullik xizmatlar. Asl bazaning site/ bo'limida (brauzerlar tegolmaydi, faqat server):
      serviceInfo                       = {how, open}           — to'lov yo'riqnomasi; open — bo'lim ishga tushganmi
@@ -35,6 +36,9 @@ import { sendPush } from './push';
      serviceCatalog/<yo'nalish>        = {price, days, off}    — narx, muddat, yopiq/ochiq
      serviceOrders/<foydalanuvchi>/<id> = buyurtma (matn, holat, narx, yozishma, fayllar ro'yxati)
      serviceFiles/<foydalanuvchi>/<fayl>/<n> = faylning n-bo'lagi (base64, ≤ 2,5 MB)
+     serviceStats/<yo'nalish>/<foydalanuvchi>    = vaqt — shu xizmatga buyurtma bergan (kartadagi «N kishi foydalandi»)
+     serviceInterest/<yo'nalish>/<foydalanuvchi> = vaqt — «tez orada» paytida kutayotganini bildirgan («N kishi kutmoqda»)
+     (har bir odam bir marta sanaladi; administratorning sinov buyurtmalari sanalmaydi)
    Holatlar: new (jamoa ko'rib chiqadi) → quoted (narx aytildi) → paid (talaba «To'lov qildim» bosdi) → work (to'lov
    tasdiqlandi, ish bajarilmoqda) → done (natija yuklandi); istalgan paytda cancel. Fayllar bekor qilinganda darhol,
    topshirilgandan KEEP_DAYS kun keyin o'chiriladi. Hisob o'chirilganda foydalanuvchining ikkala bo'limi ham
@@ -90,17 +94,36 @@ const dataPath = (uk: string, fid: string) => 'serviceFiles/' + uk + '/' + fid;
 const kindName = (kind: string) => serviceKind(kind)?.name[0] || kind;
 
 /* ---------- 📖 o'qish ---------- */
-async function readCatalog(all: boolean): Promise<ServiceCard[]> {
-  const set = (await siteGet<Record<string, ServiceSetting>>('serviceCatalog')) || {};
-  return SERVICE_KINDS.map((k) => {
+type Marks = Record<string, Record<string, number>>;
+/** Har bir xizmat bo'yicha nechta odam (va jami nechta turli odam). */
+function tally(raw: Marks | null) {
+  const per: Record<string, number> = {};
+  const all = new Set<string>();
+  for (const k of SERVICE_KINDS) {
+    const who = Object.keys(raw?.[k.id] || {}).filter((u) => UK.test(u));
+    per[k.id] = who.length;
+    who.forEach((u) => all.add(u));
+  }
+  return { per, total: all.size };
+}
+async function readCatalog(all: boolean) {
+  const [set, used, wants] = await Promise.all([
+    siteGet<Record<string, ServiceSetting>>('serviceCatalog').then((v) => v || {}),
+    siteGet<Marks>('serviceStats').then(tally),
+    siteGet<Marks>('serviceInterest').then(tally),
+  ]);
+  const catalog: ServiceCard[] = SERVICE_KINDS.map((k) => {
     const s = set[k.id] || {};
     return {
       ...k,
+      used: used.per[k.id] || 0,
+      wants: wants.per[k.id] || 0,
       ...(s.price ? { price: String(s.price) } : {}),
       ...(s.days ? { days: String(s.days) } : {}),
       ...(s.off ? { off: true } : {}),
     };
   }).filter((k) => all || !k.off);
+  return { catalog, people: used.total, fans: wants.total };
 }
 async function readInfo() {
   const v = await siteGet<{ how?: string; open?: boolean }>('serviceInfo');
@@ -191,8 +214,9 @@ function sweep(uk: string, orders: Record<string, Stored>, now: number) {
 
 /** Foydalanuvchi (yoki mehmon): katalog, to'lov yo'riqnomasi va o'z buyurtmalari. */
 export async function servicesView(a: Actor | null, now = Date.now()): Promise<ServicesView> {
-  const [catalog, info] = await Promise.all([readCatalog(false), readInfo()]);
-  if (!a) return { open: info.open, catalog, signedIn: false };
+  const [{ catalog, people, fans }, info] = await Promise.all([readCatalog(false), readInfo()]);
+  const head = { open: info.open, catalog, people, fans };
+  if (!a) return { ...head, signedIn: false };
   const uk = keyOf(a.id);
   const raw = await siteGet<Record<string, Stored>>('serviceOrders/' + uk);
   const how = info.how;
@@ -203,7 +227,7 @@ export async function servicesView(a: Actor | null, now = Date.now()): Promise<S
     .filter(([id, s]) => ID.test(id) && s?.kind)
     .map(([id, s]) => toOrder(uk, id, s))
     .sort((x, y) => y.at - x.at);
-  return { open: info.open, catalog, how, orders, signedIn: true };
+  return { ...head, how, orders, signedIn: true };
 }
 
 const STATUS_ORDER: Record<ServiceStatus, number> = {
@@ -217,7 +241,7 @@ const STATUS_ORDER: Record<ServiceStatus, number> = {
 /** Administrator: hamma buyurtmalar (buyurtmachi ma'lumotlari bilan), katalog sozlamalari va to'lov yo'riqnomasi. */
 export async function servicesAdmin(a: Actor, now = Date.now()): Promise<ServicesAdminView> {
   administrator(a);
-  const [all, catalog, { how, open }] = await Promise.all([
+  const [all, { catalog, people, fans }, { how, open }] = await Promise.all([
     siteGet<Record<string, Record<string, Stored>>>('serviceOrders'),
     readCatalog(true),
     readInfo(),
@@ -242,7 +266,7 @@ export async function servicesAdmin(a: Actor, now = Date.now()): Promise<Service
   }
   if (Object.keys(patch).length) await siteUpdate(patch);
   orders.sort((x, y) => STATUS_ORDER[x.status] - STATUS_ORDER[y.status] || y.upd - x.upd);
-  return { open, catalog, how, orders, used };
+  return { open, catalog, people, fans, how, orders, used };
 }
 
 /* ---------- 🔔 bildirishnomalar (xatosi buyurtmani to'xtatmaydi) ---------- */
@@ -289,6 +313,13 @@ const fileBegin = { name: text(3, 180), size: z.number().int().positive() };
 const userInput = z.discriminatedUnion('op', [
   z
     .object({
+      op: z.literal('idea'),
+      kinds: z.array(z.string().max(40)).max(SERVICE_KINDS.length),
+      text: z.string().trim().max(1200),
+    })
+    .strict(),
+  z
+    .object({
       op: z.literal('order'),
       kind: z.string().max(40),
       title: text(3, 160),
@@ -311,9 +342,28 @@ const userInput = z.discriminatedUnion('op', [
 export async function manageServices(a: Actor, raw: unknown, now = Date.now()) {
   const v = userInput.parse(raw);
   const uk = keyOf(a.id);
+  if (v.op === 'idea') {
+    // 💡 «tez orada» oynasidagi taklif: «Adminga xabar»ga tushadi va kartalardagi «N kishi kutmoqda» ni oshiradi
+    const kinds = SERVICE_KINDS.filter((k) => v.kinds.includes(k.id));
+    check(
+      kinds.length || v.text.length >= 3,
+      400,
+      'Kerakli xizmatni belgilang yoki taklifingizni yozing.',
+    );
+    const body =
+      '💡 PULLIK XIZMATLAR — TAKLIF' +
+      (kinds.length ? '\nKerakli xizmatlar: ' + kinds.map((k) => k.name[0]).join(', ') : '') +
+      (v.text ? '\nTaklif: ' + v.text : '');
+    await supportAct(a, 'send', { text: body, cat: 'idea' }, now);
+    if (kinds.length && a.role !== 'admin')
+      await siteUpdate(
+        Object.fromEntries(kinds.map((k) => ['serviceInterest/' + k.id + '/' + uk, now])),
+      );
+    return { view: await servicesView(a, now) };
+  }
   if (v.op === 'order') {
     await canOrder(a);
-    const kind = (await readCatalog(false)).find((k) => k.id === v.kind);
+    const kind = (await readCatalog(false)).catalog.find((k) => k.id === v.kind);
     check(kind, 400, 'Bu yo‘nalish hozir yopiq. Boshqasini tanlang.');
     const mine = (await siteGet<Record<string, Stored>>('serviceOrders/' + uk)) || {};
     const list = Object.values(mine).filter((s) => s?.kind);
@@ -343,7 +393,11 @@ export async function manageServices(a: Actor, raw: unknown, now = Date.now()) {
       at: now,
       upd: now,
     };
-    await siteUpdate({ [orderPath(uk, id)]: order });
+    await siteUpdate({
+      [orderPath(uk, id)]: order,
+      // kartadagi «N kishi foydalandi» (administratorning sinov buyurtmasi sanalmaydi)
+      ...(a.role !== 'admin' ? { ['serviceStats/' + kind!.id + '/' + uk]: now } : {}),
+    });
     await notifyTeam('💼 Yangi buyurtma', kindName(kind!.id) + ': ' + v.title);
     return { id, view: await servicesView(a, now) };
   }
