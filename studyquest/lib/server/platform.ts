@@ -300,6 +300,13 @@ export class Platform {
     if (action === 'enroll') {
       const p = z.object({ courseId: id, userId: id.optional() }).parse(input),
         who = p.userId || a.id;
+      // 📚 Katalogdagi qo'shimcha fan (restoran kursi) bazada yo'q va alohida yozilishni talab qilmaydi:
+      // ko'ra oladigan foydalanuvchiga (yopiq fan — o'qituvchi va administrator) shunchaki «ok».
+      const extra = extraCourses.find((c) => c.id === p.courseId);
+      if (extra) {
+        check(seesCourse(extra, a.role) && who === a.id, 403, 'Bu fan hali ochilmagan.');
+        return { ok: true };
+      }
       if (who !== a.id) await this.manage(a, p.courseId);
       const c = await this.db.get('courses', p.courseId);
       check(c && (a.role !== 'student' || c.published), 403, 'Kursga ruxsat yo‘q');

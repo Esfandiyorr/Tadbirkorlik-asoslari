@@ -127,3 +127,16 @@ it('shows the closed course only to the teacher and the administrator', async ()
   expect(ids(limitedCatalog().lessons)).not.toContain('r1');
   expect(ids(limitedCatalog(teacher).lessons)).toContain('r1');
 });
+
+it('enrolling in the catalog course is a no-op for staff and refused for students', async () => {
+  // eski sahifa (keshdagi) yoki qidiruv «enroll» yuborsa ham, administrator va o'qituvchi darsni ochadi
+  for (const a of [teacher, admin])
+    await expect(service.act(a, 'enroll', { courseId: 'restoran' })).resolves.toEqual({ ok: true });
+  await expect(service.act(student, 'enroll', { courseId: 'restoran' })).rejects.toMatchObject({
+    status: 403,
+  });
+  // boshqa foydalanuvchini yopiq fanga yozib bo'lmaydi
+  await expect(
+    service.act(teacher, 'enroll', { courseId: 'restoran', userId: student.id }),
+  ).rejects.toMatchObject({ status: 403 });
+});

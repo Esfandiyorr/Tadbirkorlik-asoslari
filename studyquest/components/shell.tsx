@@ -647,6 +647,9 @@ function SearchBox() {
     setOpen(false);
     if (r.kind === 'course') return navigate('course/' + r.id);
     const l = data.lessons.find((x) => x.id === r.id)!;
+    // ⏳ tayyorlanayotgan dars yoki katalogdagi qo'shimcha fan — «enroll» shart emas
+    if (l.draft || data.courses.find((c) => c.id === l.courseId)?.extra)
+      return navigate('lesson/' + l.id);
     if (data.mode === 'legacy' || data.limited) return navigate('lesson/' + l.id);
     if (!data.user) {
       if (data.mode === 'demo') navigate('login');

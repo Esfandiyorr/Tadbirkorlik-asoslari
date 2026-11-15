@@ -135,3 +135,24 @@ test('the whole course is laid out: 12 sessions in 4 blocks, unfinished ones sho
   await page.getByRole('button', { name: 'Kursga qaytish' }).click();
   await expect(page).toHaveURL(/#course\/restoran$/);
 });
+
+test('the administrator opens a restaurant lesson from search and the server accepts enroll', async ({
+  page,
+}) => {
+  await as(page, 'demo-admin');
+  // eski (keshdagi) sahifa ham «enroll» yuboradi — server endi rad etmaydi
+  const r = await page.request.post('/api/platform', {
+    data: { action: 'enroll', input: { courseId: 'restoran' } },
+  });
+  expect(r.status()).toBe(200);
+  await page.goto('/#home', { waitUntil: 'domcontentloaded' });
+  const search = page.getByRole('combobox').first();
+  await search.fill('Kasbiy etika');
+  await page
+    .getByRole('option', { name: /Kasbiy etika va xizmat sikli/ })
+    .first()
+    .click();
+  await expect(page).toHaveURL(/#lesson\/r1$/);
+  await expect(page.locator('.native-document')).toContainText('KASBIY ETIKA VA XIZMAT SIKLI');
+  await expect(page.locator('.toast')).toHaveCount(0);
+});

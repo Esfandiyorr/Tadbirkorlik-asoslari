@@ -332,8 +332,17 @@ export async function GET(req: NextRequest) {
       const extra = extraLessons.find((l) => l.id === wanted);
       if (extra) {
         const owner = extraCourses.find((c) => c.id === extra.courseId);
-        check(owner && seesCourse(owner, a.role), 403, 'Bu fan hali ochilmagan.');
-        check(a.role !== 'student', 403, 'Bu fan hali ochilmagan.');
+        // Tejamkor (readOnly) so'rovda Firestore'dagi o'qituvchi/administrator roli ko'rinmaydi — bir marta tekshiriladi
+        let role = a.role;
+        if (role === 'student')
+          role =
+            (
+              (await (await repository()).get('users', a.id).catch(() => null)) as {
+                role?: typeof role;
+              } | null
+            )?.role || role;
+        check(owner && seesCourse(owner, role), 403, 'Bu fan hali ochilmagan.');
+        check(role !== 'student', 403, 'Bu fan hali ochilmagan.');
         return NextResponse.json(extra);
       }
       const lesson = lessons.find((l) => l.id === wanted);
