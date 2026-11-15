@@ -45,7 +45,11 @@ For Firebase-backed development, copy `.env.example` to `.env.local`, supply you
   replaces the old AI presentation section (`#slides` now opens it). Until the administrator presses **🚀 Launch**
   (`site/serviceInfo/open`), students see a «🚀 Launching soon» window on entering: they tick the services they need
   and write a suggestion, which arrives in «Message the admin» as a 💡 idea; orders are refused (the administrator can
-  still place test orders). The page explains the four steps (describe →
+  still place test orders). The catalog is a grid of colourful cards (group tag, name, how many people used the
+  service — or, before the launch, how many are waiting — a short description, price and a large picture) with group
+  filters and search. People are counted once per service in `site/serviceStats/<kind>/<user>` (orders) and
+  `site/serviceInterest/<kind>/<user>` (suggestions); the administrator's test orders are not counted and account
+  deletion removes the user from both. The page explains the four steps (describe →
   the team quotes → pay → download) and shows a catalog of 13 directions (presentation, course paper, graduation
   thesis, essay, article, book publishing, business plan, website, design, translation, documents, video, other).
   Course papers, theses, essays and articles are **assistance only** (outline, sources, editing, formatting,

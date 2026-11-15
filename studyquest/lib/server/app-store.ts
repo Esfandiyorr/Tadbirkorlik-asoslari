@@ -6,6 +6,7 @@ import { administrator, check } from './auth';
 import { authAdmin, demo, legacyDb, repository } from './repository';
 import { siteGet, siteUpdate } from './site-content';
 import { extraCourses } from '../seed';
+import { SERVICE_KINDS } from '../services';
 
 /* 📱 Play Market (Google Play) talablari uchun server qismi.
    1) Ilova ma'lumotlari — site/app = {operator, email, pkg, sha[]}: administrator «Sayt boshqaruvi → 📱 Ilova»da
@@ -138,6 +139,11 @@ async function eraseAccount(by: Actor, r: DeleteRequest, read: Read, update: Upd
     ['serviceOrders/' + key]: null,
     ['serviceFiles/' + key]: null,
   };
+  // 💼 pullik xizmatlar kartalaridagi «foydalandi / kutmoqda» sanog'idan ham chiqariladi
+  for (const k of SERVICE_KINDS) {
+    site['serviceStats/' + k.id + '/' + key] = null;
+    site['serviceInterest/' + k.id + '/' + key] = null;
+  }
   // 💳 pullik kurslar bo'yicha ruxsat va so'rovlar
   for (const c of extraCourses.filter((x) => x.paid)) {
     site['courseAccess_' + c.id + '/' + key] = null;

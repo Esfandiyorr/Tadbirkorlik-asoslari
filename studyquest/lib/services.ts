@@ -4,10 +4,24 @@
 
 export type Tri = [string, string, string];
 
+/** Katalogdagi guruh (kartadagi kichik yorliq va saralash tugmalari). */
+export const SERVICE_GROUPS = {
+  study: ['O‘qish', 'Study', 'Учёба'],
+  create: ['Ijod', 'Creative', 'Творчество'],
+  tech: ['Texnologiya', 'Tech', 'Технологии'],
+  business: ['Biznes', 'Business', 'Бизнес'],
+} satisfies Record<string, Tri>;
+export type ServiceGroup = keyof typeof SERVICE_GROUPS;
+
 /** Yo'nalish. help — ilmiy ish: jamoa yozib bermaydi, yordam beradi (reja, manbalar, tahrir, rasmiylashtirish). */
 export type ServiceKind = {
   id: string;
   icon: string;
+  /** katalog kartasidagi katta rasm (emoji) */
+  art: string;
+  group: ServiceGroup;
+  /** kartaning rang o'tishi: [to'q (matn ostida), och] */
+  tone: [string, string];
   name: Tri;
   text: Tri;
   /** buyurtma shaklidagi «Nima kerak?» maydoni uchun misol */
@@ -19,6 +33,9 @@ export const SERVICE_KINDS: ServiceKind[] = [
   {
     id: 'taqdimot',
     icon: '🎞',
+    art: '📊',
+    group: 'study',
+    tone: ['#c2410c', '#fb923c'],
     name: ['Taqdimot', 'Presentation', 'Презентация'],
     text: [
       'Mavzuingiz bo‘yicha chiroyli dizayndagi PowerPoint taqdimot',
@@ -34,6 +51,9 @@ export const SERVICE_KINDS: ServiceKind[] = [
   {
     id: 'kurs-ishi',
     icon: '📘',
+    art: '📘',
+    group: 'study',
+    tone: ['#1d4ed8', '#60a5fa'],
     name: ['Kurs ishi', 'Course paper', 'Курсовая работа'],
     text: [
       'Reja, manbalar, tahrir, GOST bo‘yicha rasmiylashtirish va antiplagiat tekshiruvi',
@@ -50,6 +70,9 @@ export const SERVICE_KINDS: ServiceKind[] = [
   {
     id: 'bmi',
     icon: '🎓',
+    art: '🎓',
+    group: 'study',
+    tone: ['#6d28d9', '#c084fc'],
     name: ['BMI (bitiruv malakaviy ishi)', 'Graduation thesis', 'ВКР (выпускная работа)'],
     text: [
       'Reja va tuzilma, manbalar, ilmiy tahrir, rasmiylashtirish, himoya taqdimoti',
@@ -66,6 +89,9 @@ export const SERVICE_KINDS: ServiceKind[] = [
   {
     id: 'referat',
     icon: '📄',
+    art: '📝',
+    group: 'study',
+    tone: ['#0f766e', '#2dd4bf'],
     name: ['Referat va mustaqil ish', 'Essay and assignment', 'Реферат и самостоятельная'],
     text: [
       'Reja, adabiyotlar ro‘yxati, tahrir va to‘g‘ri rasmiylashtirish',
@@ -82,6 +108,9 @@ export const SERVICE_KINDS: ServiceKind[] = [
   {
     id: 'maqola',
     icon: '📰',
+    art: '🔬',
+    group: 'study',
+    tone: ['#0369a1', '#38bdf8'],
     name: ['Ilmiy maqola', 'Research article', 'Научная статья'],
     text: [
       'Tahrir, annotatsiya va tarjima, jurnal talablariga moslab rasmiylashtirish',
@@ -98,6 +127,9 @@ export const SERVICE_KINDS: ServiceKind[] = [
   {
     id: 'kitob',
     icon: '📚',
+    art: '📚',
+    group: 'create',
+    tone: ['#be185d', '#f472b6'],
     name: ['Kitob chiqarish', 'Book publishing', 'Издание книги'],
     text: [
       'Sahifalash, muqova dizayni, tahrir va nashrga (bosmaxonaga) tayyorlash',
@@ -113,6 +145,9 @@ export const SERVICE_KINDS: ServiceKind[] = [
   {
     id: 'biznes-reja',
     icon: '💼',
+    art: '💼',
+    group: 'business',
+    tone: ['#15803d', '#4ade80'],
     name: ['Biznes-reja', 'Business plan', 'Бизнес-план'],
     text: [
       'G‘oyangiz uchun hisob-kitobli biznes-reja: bozor, xarajat, daromad',
@@ -128,6 +163,9 @@ export const SERVICE_KINDS: ServiceKind[] = [
   {
     id: 'sayt',
     icon: '🌐',
+    art: '🌐',
+    group: 'tech',
+    tone: ['#4338ca', '#818cf8'],
     name: ['Sayt yaratish', 'Website', 'Создание сайта'],
     text: [
       'Vizitka sayt, portfolio yoki kichik onlayn do‘kon',
@@ -143,6 +181,9 @@ export const SERVICE_KINDS: ServiceKind[] = [
   {
     id: 'dizayn',
     icon: '🎨',
+    art: '🎨',
+    group: 'create',
+    tone: ['#a21caf', '#e879f9'],
     name: ['Dizayn', 'Design', 'Дизайн'],
     text: [
       'Logotip, banner, poster, vizitka va ijtimoiy tarmoq uchun rasmlar',
@@ -158,6 +199,9 @@ export const SERVICE_KINDS: ServiceKind[] = [
   {
     id: 'tarjima',
     icon: '🌍',
+    art: '🌍',
+    group: 'study',
+    tone: ['#0e7490', '#22d3ee'],
     name: ['Tarjima', 'Translation', 'Перевод'],
     text: [
       'O‘zbek, rus va ingliz tillari o‘rtasida matn va hujjat tarjimasi',
@@ -173,6 +217,9 @@ export const SERVICE_KINDS: ServiceKind[] = [
   {
     id: 'hujjat',
     icon: '📝',
+    art: '🗂️',
+    group: 'business',
+    tone: ['#b45309', '#fbbf24'],
     name: ['Hujjat va rasmiylashtirish', 'Documents and formatting', 'Документы и оформление'],
     text: [
       'Word va Excel’da matnni tartiblash, jadval, rezyume, ariza va xatlar',
@@ -188,6 +235,9 @@ export const SERVICE_KINDS: ServiceKind[] = [
   {
     id: 'video',
     icon: '🎬',
+    art: '🎬',
+    group: 'create',
+    tone: ['#be123c', '#fb7185'],
     name: ['Video montaj', 'Video editing', 'Видеомонтаж'],
     text: [
       'Taqdimot videosi, reklama roligi, subtitr va musiqa qo‘shish',
@@ -203,6 +253,9 @@ export const SERVICE_KINDS: ServiceKind[] = [
   {
     id: 'boshqa',
     icon: '✨',
+    art: '🚀',
+    group: 'business',
+    tone: ['#334155', '#94a3b8'],
     name: ['Boshqa xizmat', 'Something else', 'Другая услуга'],
     text: [
       'Ro‘yxatda yo‘q ishni yozing — imkoni bo‘lsa, tayyorlab beramiz',
@@ -220,8 +273,14 @@ export const serviceKind = (id: string) => SERVICE_KINDS.find((k) => k.id === id
 
 /** Administrator yo'nalish uchun yozadigan narx («50 000 so'mdan») va muddat («3–5 kun»), yoki yo'nalishni yopadi. */
 export type ServiceSetting = { price?: string; days?: string; off?: boolean };
-/** Katalogdagi yo'nalish: asosiy ma'lumot + administrator sozlamasi. */
-export type ServiceCard = ServiceKind & ServiceSetting;
+/** Katalogdagi yo'nalish: asosiy ma'lumot + administrator sozlamasi + nechta odam foydalangani / kutayotgani. */
+export type ServiceCard = ServiceKind &
+  ServiceSetting & {
+    /** shu xizmatga buyurtma bergan foydalanuvchilar soni */
+    used: number;
+    /** «tez orada» paytida shu xizmatni kutayotganini bildirganlar soni */
+    wants: number;
+  };
 
 /** Buyurtma holati. */
 export const SERVICE_STATUSES = ['new', 'quoted', 'paid', 'work', 'done', 'cancel'] as const;
@@ -334,6 +393,9 @@ export type ServicesView = {
   /** bo'lim ishga tushganmi; yo'q bo'lsa — «tez orada» oynasi va taklif yuborish, buyurtma qabul qilinmaydi */
   open: boolean;
   catalog: ServiceCard[];
+  /** xizmatlardan foydalangan / kutayotgan odamlar soni (har biri bir marta sanaladi) */
+  people: number;
+  fans: number;
   /** to'lov yo'riqnomasi (faqat kirgan foydalanuvchiga) */
   how?: string;
   orders?: ServiceOrder[];
@@ -342,6 +404,8 @@ export type ServicesView = {
 export type ServicesAdminView = {
   open: boolean;
   catalog: ServiceCard[];
+  people: number;
+  fans: number;
   how: string;
   orders: AdminOrder[];
   /** saqlangan fayllarning umumiy hajmi */

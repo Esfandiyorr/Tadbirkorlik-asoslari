@@ -11,6 +11,7 @@ import {
   servicesView,
 } from '../lib/server/services';
 import { resetSiteMemory, siteGet } from '../lib/server/site-content';
+import { supportList } from '../lib/server/support';
 
 /* 💼 Pullik xizmatlar: buyurtma → narx → to'lov → ish → natija, fayllar va kim nimani ko'ra oladi. */
 beforeAll(() => {
@@ -225,4 +226,44 @@ it('until the administrator launches the section only the administrator can orde
   expect((await servicesView(ali)).open).toBe(true);
   await order(ali, Date.now());
   expect((await servicesAdmin(admin)).how).toBe('Karta: 8600 …');
+});
+
+it('cards count the people who ordered and who wait; suggestions reach «Message the admin»', async () => {
+  const now = Date.UTC(2026, 10, 15, 9, 0);
+  const card = async (a: Actor | null, id: string) =>
+    (await servicesView(a, now)).catalog.find((k) => k.id === id)!;
+  // «tez orada» paytida: taklif — kutayotganlar sanog'i
+  await adminServices(admin, { op: 'launch', open: false });
+  await expect(manageServices(ali, { op: 'idea', kinds: [], text: '' }, now)).rejects.toThrow(
+    'belgilang',
+  );
+  await manageServices(
+    ali,
+    { op: 'idea', kinds: ['taqdimot', 'sayt', 'nomalum'], text: 'Arzonroq bo‘lsin' },
+    now,
+  );
+  await manageServices(vali, { op: 'idea', kinds: ['taqdimot'], text: '' }, now);
+  await manageServices(ali, { op: 'idea', kinds: ['taqdimot'], text: '' }, now + 1000);
+  await manageServices(admin, { op: 'idea', kinds: ['taqdimot'], text: '' }, now); // sanalmaydi
+  expect(await card(null, 'taqdimot')).toMatchObject({ wants: 2, used: 0 });
+  expect(await card(null, 'sayt')).toMatchObject({ wants: 1 });
+  expect(await servicesView(null, now)).toMatchObject({ fans: 2, people: 0 });
+  const msgs = (await supportList(ali, false, undefined, now)).messages!;
+  expect(msgs[0]).toMatchObject({ cat: 'idea' });
+  expect(msgs[0].text).toBe(
+    '💡 PULLIK XIZMATLAR — TAKLIF\nKerakli xizmatlar: Taqdimot, Sayt yaratish\nTaklif: Arzonroq bo‘lsin',
+  );
+  // ishga tushgach: buyurtma bergan har bir odam bir marta sanaladi
+  await adminServices(admin, { op: 'launch', open: true });
+  await order(ali, now);
+  await order(ali, now + 1);
+  await order(vali, now, 'sayt');
+  await order(admin, now); // administratorning sinov buyurtmasi sanalmaydi
+  expect(await card(ali, 'taqdimot')).toMatchObject({ used: 1 });
+  expect(await card(ali, 'sayt')).toMatchObject({ used: 1 });
+  expect(await servicesView(ali, now)).toMatchObject({ people: 2 });
+  expect((await servicesAdmin(admin, now)).catalog.find((k) => k.id === 'taqdimot')).toMatchObject({
+    used: 1,
+    wants: 2,
+  });
 });

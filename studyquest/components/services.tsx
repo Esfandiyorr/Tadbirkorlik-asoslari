@@ -1,11 +1,19 @@
 'use client';
-import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type FormEvent,
+} from 'react';
 import { createPortal } from 'react-dom';
 import {
   Download,
   ExternalLink,
   Lightbulb,
   Paperclip,
+  Search,
   Send,
   Settings2,
   Trash2,
@@ -23,11 +31,13 @@ import {
   FILES_PER_ORDER,
   FILE_TYPES,
   KEEP_DAYS,
+  SERVICE_GROUPS,
   STATUS_LABEL,
   fileSize,
   isActive,
   type OrderFile,
   type ServiceCard,
+  type ServiceGroup,
   type ServiceOrder,
   type ServicesView,
   type Tri,
@@ -95,7 +105,9 @@ export function Services() {
     [pick, setPick] = useState<ServiceCard | null>(null),
     // «tez orada» oynasi: null — yopiq, massiv — oldindan belgilangan yo'nalishlar
     [soon, setSoon] = useState<string[] | null>(null),
-    [sent, setSent] = useState(false);
+    [sent, setSent] = useState(false),
+    [group, setGroup] = useState<ServiceGroup | ''>(''),
+    [q, setQ] = useState('');
   const shown = useRef(false);
   const uid = data?.user?.id;
   const load = useCallback(async () => {
@@ -128,10 +140,20 @@ export function Services() {
     // kirganda oyna chiqadi (taklif allaqachon yuborilgan bo'lsa — faqat sahifadagi tugma orqali)
     if (!before) setSoon([]);
   }, [waiting]);
+  const groups = (Object.keys(SERVICE_GROUPS) as ServiceGroup[]).filter((g) =>
+    view?.catalog.some((k) => k.group === g),
+  );
+  const needle = q.trim().toLowerCase();
+  const list = (view?.catalog || []).filter(
+    (k) =>
+      (!group || k.group === group) &&
+      (!needle || (tr(lang, ...k.name) + ' ' + tr(lang, ...k.text)).toLowerCase().includes(needle)),
+  );
+  const soonMode = !!view && !view.open;
   return (
     <>
-      <div className="page-heading">
-        <div>
+      <header className="page-heading svc-hero">
+        <div className="svc-hero-text">
           <span className="eyebrow">{L('BUYURTMA ASOSIDA', 'MADE TO ORDER', 'НА ЗАКАЗ')}</span>
           <h1>💼 {L('Pullik xizmatlar', 'Paid services', 'Платные услуги')}</h1>
           <p>
@@ -141,27 +163,57 @@ export function Services() {
               'Опишите, что нужно, — наша команда подготовит, а вы скачаете здесь же.',
             )}
           </p>
-        </div>
-        <div className="page-heading-side">
-          {!!orders.length && (
-            <a className="svc-mine-chip" href="#services" onClick={jumpToMine}>
-              📦 {L('Buyurtmalarim', 'My orders', 'Мои заказы')} <em>{orders.length}</em>
-              {!!open && <small>{L(`${open} ochiq`, `${open} open`, `${open} откр.`)}</small>}
-            </a>
+          <ul className="svc-hero-stats" aria-label={L('Ko‘rsatkichlar', 'Figures', 'Показатели')}>
+            <li>
+              <b>{view ? view.catalog.length : '…'}</b>
+              <span>{L('ta xizmat', 'services', 'услуг')}</span>
+            </li>
+            <li>
+              <b>{soonMode ? view.fans : (view?.people ?? 0)}</b>
+              <span>
+                {soonMode
+                  ? L('kishi kutmoqda', 'people waiting', 'ждут запуска')
+                  : L('kishi foydalandi', 'people served', 'клиентов')}
+              </span>
+            </li>
+            <li>
+              <b>{soonMode ? '🚀' : '✅'}</b>
+              <span>
+                {soonMode
+                  ? L('tez orada', 'coming soon', 'скоро')
+                  : L('buyurtma ochiq', 'orders open', 'приём заказов')}
+              </span>
+            </li>
+          </ul>
+          {(!!orders.length || admin) && (
+            <div className="page-heading-side">
+              {!!orders.length && (
+                <a className="svc-mine-chip" href="#services" onClick={jumpToMine}>
+                  📦 {L('Buyurtmalarim', 'My orders', 'Мои заказы')} <em>{orders.length}</em>
+                  {!!open && <small>{L(`${open} ochiq`, `${open} open`, `${open} откр.`)}</small>}
+                </a>
+              )}
+              {admin && (
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    openBackOffice('services');
+                    navigate('admin');
+                  }}
+                >
+                  <Settings2 size={16} /> {L('Boshqarish', 'Manage', 'Управление')}
+                </Button>
+              )}
+            </div>
           )}
-          {admin && (
-            <Button
-              variant="outline"
-              onClick={() => {
-                openBackOffice('services');
-                navigate('admin');
-              }}
-            >
-              <Settings2 size={16} /> {L('Boshqarish', 'Manage', 'Управление')}
-            </Button>
-          )}
         </div>
-      </div>
+        <div className="svc-hero-art" aria-hidden="true">
+          <span>📊</span>
+          <span>🎨</span>
+          <span>🌐</span>
+          <span>🎓</span>
+        </div>
+      </header>
 
       {waiting && (
         <div className="svc-soon" role="status">
@@ -189,7 +241,7 @@ export function Services() {
           </Button>
         </div>
       )}
-      {admin && view && !view.open && (
+      {admin && soonMode && (
         <p className="svc-soon is-admin">
           ⏸{' '}
           {L(
@@ -200,63 +252,93 @@ export function Services() {
         </p>
       )}
 
-      <section className="svc-how" aria-labelledby="svc-how-h">
-        <h2 id="svc-how-h">{L('Qanday ishlaydi?', 'How it works', 'Как это работает')}</h2>
-        <ol className="svc-steps">
-          {STEPS.map(([icon, name, text], i) => (
-            <li key={i}>
-              <span className="svc-step-n" aria-hidden="true">
-                {icon}
-              </span>
-              <b>
-                {i + 1}. {tr(lang, ...name)}
-              </b>
-              <small>{tr(lang, ...text)}</small>
-            </li>
+      <section aria-labelledby="svc-cat-h" className="svc-catalog">
+        <div className="svc-cat-head">
+          <div>
+            <h2 id="svc-cat-h" className="svc-h2">
+              {L('Xizmatlar katalogi', 'Service catalog', 'Каталог услуг')}
+            </h2>
+            <p className="muted">
+              {soonMode && !admin
+                ? L(
+                    'Kartani bosing — shu xizmatni kutayotganingizni bildiring.',
+                    'Tap a card to say you are waiting for that service.',
+                    'Нажмите на карточку, чтобы сообщить, что ждёте эту услугу.',
+                  )
+                : L(
+                    'Kartani bosing — buyurtma oynasi ochiladi.',
+                    'Tap a card to open the order form.',
+                    'Нажмите на карточку, чтобы открыть форму заказа.',
+                  )}
+            </p>
+          </div>
+          <label className="lib-search svc-search">
+            <Search size={17} aria-hidden="true" />
+            <input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder={L('Xizmatni qidirish', 'Search services', 'Поиск услуги')}
+              aria-label={L('Xizmatlardan qidirish', 'Search services', 'Поиск по услугам')}
+            />
+          </label>
+        </div>
+        <div
+          className="lib-kinds svc-groups"
+          role="group"
+          aria-label={L('Guruh', 'Group', 'Группа')}
+        >
+          <button className={!group ? 'on' : ''} onClick={() => setGroup('')}>
+            {L('Hammasi', 'All', 'Все')} <em>{view?.catalog.length ?? 0}</em>
+          </button>
+          {groups.map((g) => (
+            <button key={g} className={group === g ? 'on' : ''} onClick={() => setGroup(g)}>
+              {tr(lang, ...SERVICE_GROUPS[g])}{' '}
+              <em>{view?.catalog.filter((k) => k.group === g).length}</em>
+            </button>
           ))}
-        </ol>
-        <p className="svc-honest">
-          <span aria-hidden="true">🤝</span>
-          <span>
-            {L(
-              'Kurs ishi, BMI, referat va maqolada ishni o‘zingiz yozasiz — jamoa reja tuzish, manba topish, tahrir, rasmiylashtirish va antiplagiat tekshiruvida yordam beradi. Birov yozgan ishni o‘zinikidek topshirish universitet qoidalariga zid.',
-              'For course papers, theses, essays and articles you write the text yourself — the team helps with the outline, sources, editing, formatting and the plagiarism check. Submitting someone else’s work as your own breaks university rules.',
-              'Курсовую, ВКР, реферат и статью вы пишете сами — команда помогает с планом, источниками, редактурой, оформлением и проверкой на антиплагиат. Сдавать чужую работу как свою запрещено правилами университета.',
-            )}
-          </span>
-        </p>
-      </section>
-
-      <section aria-labelledby="svc-cat-h">
-        <h2 id="svc-cat-h" className="svc-h2">
-          {L('Yo‘nalishlar', 'What we do', 'Направления')}
-        </h2>
+        </div>
         {error && <p className="error-state">{error}</p>}
         {!view && !error && <div className="skeleton svc-skeleton" />}
+        {view && !list.length && (
+          <p className="muted svc-empty">
+            {L('Hech narsa topilmadi.', 'Nothing found.', 'Ничего не найдено.')}
+          </p>
+        )}
         <ul className="svc-grid">
-          {view?.catalog.map((k) => (
-            <li key={k.id}>
+          {list.map((k, i) => (
+            <li key={k.id} style={{ animationDelay: Math.min(i, 12) * 45 + 'ms' }}>
               <button
                 type="button"
                 className="svc-card"
+                style={{ '--c1': k.tone[0], '--c2': k.tone[1] } as CSSProperties}
                 onClick={() =>
-                  waiting ? setSoon([k.id]) : view.signedIn ? setPick(k) : setLogin(true)
+                  waiting ? setSoon([k.id]) : view?.signedIn ? setPick(k) : setLogin(true)
                 }
               >
-                <span className="svc-card-icon" aria-hidden="true">
-                  {k.icon}
+                <span className="svc-card-tag">
+                  {tr(lang, ...SERVICE_GROUPS[k.group])}
+                  {k.help && (
+                    <em className="svc-help"> · 🤝 {L('Yordam', 'Assistance', 'Помощь')}</em>
+                  )}
                 </span>
-                <b>{tr(lang, ...k.name)}</b>
-                <small>{tr(lang, ...k.text)}</small>
-                <span className="svc-card-meta">
-                  {k.help && <em className="svc-help">🤝 {L('Yordam', 'Assistance', 'Помощь')}</em>}
-                  {k.price && <em>💰 {k.price}</em>}
-                  {k.days && <em>⏱ {k.days}</em>}
+                <b className="svc-card-name">{tr(lang, ...k.name)}</b>
+                <span className="svc-card-users">
+                  <UserCount card={k} soon={soonMode} />
                 </span>
+                <small className="svc-card-text">{tr(lang, ...k.text)}</small>
+                {(k.price || k.days) && (
+                  <span className="svc-card-meta">
+                    {k.price && <em>💰 {k.price}</em>}
+                    {k.days && <em>⏱ {k.days}</em>}
+                  </span>
+                )}
                 <span className="svc-card-go">
                   {waiting
                     ? '🚀 ' + L('Tez orada', 'Coming soon', 'Скоро')
                     : L('Buyurtma berish', 'Order', 'Заказать') + ' →'}
+                </span>
+                <span className="svc-card-art" aria-hidden="true">
+                  {k.art}
                 </span>
               </button>
             </li>
@@ -274,6 +356,34 @@ export function Services() {
             </Button>
           </p>
         )}
+      </section>
+
+      <section className="svc-how" aria-labelledby="svc-how-h">
+        <h2 id="svc-how-h" className="svc-h2">
+          {L('Qanday ishlaydi?', 'How it works', 'Как это работает')}
+        </h2>
+        <ol className="svc-steps">
+          {STEPS.map(([icon, name, text], i) => (
+            <li key={i}>
+              <span className="svc-step-n" aria-hidden="true">
+                {icon}
+                <em>{i + 1}</em>
+              </span>
+              <b>{tr(lang, ...name)}</b>
+              <small>{tr(lang, ...text)}</small>
+            </li>
+          ))}
+        </ol>
+        <p className="svc-honest">
+          <span aria-hidden="true">🤝</span>
+          <span>
+            {L(
+              'Kurs ishi, BMI, referat va maqolada ishni o‘zingiz yozasiz — jamoa reja tuzish, manba topish, tahrir, rasmiylashtirish va antiplagiat tekshiruvida yordam beradi. Birov yozgan ishni o‘zinikidek topshirish universitet qoidalariga zid.',
+              'For course papers, theses, essays and articles you write the text yourself — the team helps with the outline, sources, editing, formatting and the plagiarism check. Submitting someone else’s work as your own breaks university rules.',
+              'Курсовую, ВКР, реферат и статью вы пишете сами — команда помогает с планом, источниками, редактурой, оформлением и проверкой на антиплагиат. Сдавать чужую работу как свою запрещено правилами университета.',
+            )}
+          </span>
+        </p>
       </section>
 
       {!!orders.length && (
@@ -301,7 +411,8 @@ export function Services() {
           initial={soon}
           signedIn={view.signedIn}
           onClose={() => setSoon(null)}
-          onSent={() => {
+          onSent={(v) => {
+            setView(v);
             setSent(true);
             try {
               localStorage.setItem(IDEA_KEY, String(Date.now()));
@@ -327,6 +438,17 @@ function jumpToMine(e?: { preventDefault: () => void }) {
   e?.preventDefault();
   document.getElementById('svc-mine')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
+/** Kartadagi sanoq: ishga tushgach — nechta odam foydalangani, «tez orada» paytida — nechta odam kutayotgani. */
+function UserCount({ card: k, soon }: { card: ServiceCard; soon: boolean }) {
+  const { lang } = useApp();
+  const n = soon ? k.wants : k.used;
+  if (!n) return <>✨ {tr(lang, 'Birinchi bo‘ling', 'Be the first', 'Будьте первым')}</>;
+  return soon ? (
+    <>🙋 {tr(lang, `${n} kishi kutmoqda`, `${n} waiting`, `ждут: ${n}`)}</>
+  ) : (
+    <>👥 {tr(lang, `${n} kishi foydalandi`, `${n} people used it`, `воспользовались: ${n}`)}</>
+  );
+}
 const kindTitle = (lang: Lang, card?: ServiceCard, id = '') =>
   card ? card.icon + ' ' + tr(lang, ...card.name) : id;
 
@@ -342,7 +464,7 @@ function SoonModal({
   initial: string[];
   signedIn: boolean;
   onClose: () => void;
-  onSent: () => void;
+  onSent: (v: ServicesView) => void;
 }) {
   const { lang, request, toast, setLogin } = useApp();
   const L = (uz: string, en: string, ru: string) => tr(lang, uz, en, ru);
@@ -361,18 +483,12 @@ function SoonModal({
     e.preventDefault();
     setBusy(true);
     try {
-      // administrator o'qiydi — yo'nalish nomlari o'zbekcha
-      const names = catalog.filter((k) => kinds.includes(k.id)).map((k) => k.name[0]);
-      const body =
-        '💡 PULLIK XIZMATLAR — TAKLIF' +
-        (names.length ? '\nKerakli xizmatlar: ' + names.join(', ') : '') +
-        (text.trim() ? '\nTaklif: ' + text.trim() : '');
-      const r = await request('/api/support', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'send', input: { text: body.slice(0, 1500), cat: 'idea' } }),
+      // server taklifni «Adminga xabar»ga yozadi va kartalardagi «kutmoqda» sanog'ini oshiradi
+      const r = await servicesAct<{ view: ServicesView }>(request, 'me', {
+        op: 'idea',
+        kinds,
+        text: text.trim(),
       });
-      if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || 'Xatolik');
       toast(
         '💡 ' +
           L(
@@ -381,7 +497,7 @@ function SoonModal({
             'Спасибо! Ваше предложение отправлено администратору.',
           ),
       );
-      onSent();
+      onSent(r.view);
       onClose();
     } catch (err) {
       toast((err as Error).message);
