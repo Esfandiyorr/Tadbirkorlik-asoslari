@@ -43,7 +43,8 @@ test('responsive dashboard, search, theme and three interface languages', async 
     true,
   );
   await page.locator('.search-box input').fill('6-mavzu');
-  await expect(options).toHaveCount(1);
+  // asosiy fanning 6-mavzusi birinchi (pullik restoran kursining 6-mashg'uloti ham topilishi mumkin)
+  await expect(options.filter({ hasText: 'Biznes-model' })).toHaveCount(1);
   await expect(options.first()).toContainText('Biznes-model');
   await page.locator('.search-box input').press('Escape');
   await expect(page.locator('.search-results')).toHaveCount(0);
