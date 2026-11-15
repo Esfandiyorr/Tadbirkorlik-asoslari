@@ -59,6 +59,17 @@ For Firebase-backed development, copy `.env.example` to `.env.local`, supply you
 - **Google Play readiness** (`lib/server/app-store.ts`, `play-market/`): public `/privacy` and `/delete-account` pages
   (uz/ru/en), in-app account deletion requests approved by the administrator, `/.well-known/assetlinks.json` filled
   from the back office, a report form for the group chat, store texts, screenshots and a step-by-step guide.
+- A second course, **Restoran xodimlari malakasini oshirish** (RS 24, restaurant staff training), served straight from
+  the catalog (`catalog.more`, `lib/seed.ts` `extraCourses`) and currently **closed to everyone**: students never
+  receive it, only the teacher and the administrator see it under «Kurslar» with a «Hammaga yopiq» chip. Each lesson
+  has slides, a 15-question test and a silent **animated video with Uzbek subtitles** (`fayllar/video/R<N>.mp4` +
+  `.vtt`), played on the «🎬 Video dars» slide and from the lesson toolbar. The main course's topics, points and
+  rating are unaffected. The **whole programme is laid out**: 10 modules and 2 final exams (r1–r12) in the four
+  blocks of the programme, each with its plan from the official RS 24 document (hours, content, practical exercise,
+  evidence of result; for the exams — rules, grading and pass mark). Sessions whose slides are not written yet are
+  marked «⏳ Tayyorlanmoqda» (`draft` — a topic in `config.json` without `file`): the course page shows how many are
+  ready, and opening one shows its plan instead of a presentation. The course has no ranking tab (its points are
+  not part of the main course).
 - Native presentation reader with slide navigation, fullscreen, saved position, and restyled original learning activities/video. New teacher-authored slide lessons and protected material downloads are supported too.
 - Email/password, password reset, Google sign-in, and a bridge to existing TerDU accounts. University students retain the original approval and lesson-access checks. New email accounts are independent learners by default.
 - Server-graded choice, true/false, matching, and accepted-answer quizzes; randomized question order, attempt limits, time limits, feedback settings, and history.

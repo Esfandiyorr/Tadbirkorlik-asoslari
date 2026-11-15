@@ -33,6 +33,10 @@ DECKS={
  'mavzu-14.html': dict(id='m14',slides=18,quiz=15),
  'mavzu-15.html': dict(id='m15',slides=18,quiz=15),
 }
+# 📚 boshqa fanlar mavzulari (config.json da "course" maydoni bor) — ro'yxatga o'zi qo'shiladi
+for _t in CONF['topics']:
+    if _t.get('course') and _t.get('file') and _t['file'] not in DECKS:   # fayli yo'q (tayyorlanayotgan) dars — o'tkaziladi
+        DECKS[_t['file']]=dict(id=_t['id'],slides=_t.get('slides',18),quiz=_t.get('quiz',15))
 B,E='/* RT:BEGIN */','/* RT:END */'
 PB,PE='<!-- PWA:BEGIN -->','<!-- PWA:END -->'
 PWA=(PB+'\n<link rel="manifest" href="manifest.webmanifest">\n'
@@ -75,6 +79,10 @@ def topic_desc(meta):
     if meta.get('home'): return "Tadbirkorlik asoslari fani: 15 ta interaktiv mavzu, testlar, reyting va o'yin arenasi · Termiz davlat universiteti"
     for i,t in enumerate(CONF['topics']):
         if t['id']==meta['id']:
+            if t.get('course'):      # boshqa fan: tartib raqami shu fan ichida, nom — fan nomi
+                fan=[c for c in CONF.get('courses',[]) if c['id']==t['course']]
+                n=[x['id'] for x in CONF['topics'] if x.get('course')==t['course']].index(t['id'])+1
+                return "%d-mavzu: %s · %s"%(n,re.sub(r'^[A-Z]+\d+\s*·\s*','',t.get('title','')),fan[0]['title'] if fan else '')
             return "%d-mavzu: %s · Tadbirkorlik asoslari · TerDU"%(i+1,re.sub(r'^M\d+\s*·\s*','',t.get('title','')))
     return "Tadbirkorlik asoslari · TerDU"
 
@@ -146,7 +154,7 @@ def inject(fn,meta):
     cfg=dict(topic=meta['id'],home=meta.get('home') or '',slides=meta['slides'],quiz=meta.get('quiz',15),pSlide=CONF['pSlide'],pAll=CONF['pAll'],
              # Google orqali kirish yoqilgan bo'lsa, parol sahifaga umuman yozilmaydi
              teacher='' if google else CONF.get('teacher',''),
-             firebase=CONF.get('firebase'),topics=CONF['topics'],
+             firebase=CONF.get('firebase'),topics=[t for t in CONF['topics'] if t.get('file')],   # tayyorlanayotgan (fayli yo'q) darslar dvigatelga kirmaydi
              teacherTg=CONF.get('teacherTg',''),teacherName=CONF.get('teacherName',''),reopen=CONF.get('reopen',{}),pwaMsg=CONF.get('pwaMsg',''),courses=CONF.get('courses',[]),maintenance=CONF.get('maintenance') or None,groups=CONF.get('groups',[]),groupRenames=CONF.get('groupRenames',{}),hideRating=CONF.get('hideRating',[]),
              tracks=CONF.get('tracks',[]),fbWeb=fbWeb if google else None,teacherH=teacherH if google else '')
     block=(HB+'\n<script>var RT_CFG='+json.dumps(cfg,ensure_ascii=False)+';if(RT_CFG.maintenance&&RT_CFG.maintenance.on)document.documentElement.className+=" rt-maint-pre";</script>\n'

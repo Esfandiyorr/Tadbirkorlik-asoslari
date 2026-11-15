@@ -6,15 +6,18 @@ export function ReaderHeading({
   title,
   topic,
   total,
+  course = 'Tadbirkorlik asoslari',
 }: {
   title: string;
   topic: number;
   total: number;
+  /** fan nomi (qo'shimcha fan darslarida — o'sha fanniki) */
+  course?: string;
 }) {
   return (
     <div className="reader-heading">
       <p>
-        <span>Tadbirkorlik asoslari</span>
+        <span>{course}</span>
         <span>
           {topic}-mavzu / {total}
         </span>

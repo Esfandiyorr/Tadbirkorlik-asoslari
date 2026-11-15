@@ -26,7 +26,7 @@ function readingProgress(id){
   return {seen:count,max:max,pct:Math.min(100,Math.round(count/Math.max(1,max)*100)),last:+r.last||0};
 }
 function readingHtml(){
-  return '<p class="rt-note">'+T("Ochiq darslarni o‘z tezligingizda o‘qing. O‘qigan joyingiz saqlanadi.","Read open lessons at your own pace. Your place is saved.")+'</p>'+ (CFG.topics||[]).map(function(t){
+  return '<p class="rt-note">'+T("Ochiq darslarni o‘z tezligingizda o‘qing. O‘qigan joyingiz saqlanadi.","Read open lessons at your own pace. Your place is saved.")+'</p>'+ liveTopics().map(function(t){
     var r=readingProgress(t.id),open=topicOpen(t);
     return '<div class="rt-topic"><div class="t"><b>'+esc(t.title)+'</b><span>'+ (open?T("O‘qilgan slaydlar","Slides read")+": "+r.seen+" / "+r.max:T("Hozircha ochiq emas","Not open yet"))+'</span></div>'+
       (open?'<a class="btn" href="'+esc(t.file)+'#'+(r.last+1)+'">'+T(r.seen?"Davom etish":"O‘qish",r.seen?"Continue":"Read")+'</a>':'🔒')+'</div>';
@@ -1011,6 +1011,10 @@ function T(uz,en){ var l=(document.documentElement.getAttribute("lang")||"uz"); 
 /* 📚 fanlar: CFG.courses — [{id,icon,title,desc,first}], mavzuda ixtiyoriy «course» (fan id si; berilmasa — birinchi fan) */
 function courseOf(x){ var cs=CFG.courses||[]; return cs.filter(function(c){ return x&&c.id===x.course; })[0]||cs[0]||null; }
 function courseTopics(c){ return (CFG.topics||[]).filter(function(x){ return courseOf(x)===c; }); }
+/* 🔒 yopiq fan (courses[].closed — hali tayyorlanayotgan fan): fanlar ro'yxatida va talaba jadvallarida ko'rinmaydi,
+   mavzulari o'rtacha baho hisobiga kirmaydi. Mavzularining o'zi ham yopiq (open:false) turadi. */
+function courseClosed(x){ var c=courseOf(x); return !!(c&&c.closed&&x&&x.course===c.id); }
+function liveTopics(){ return (CFG.topics||[]).filter(function(x){ return !courseClosed(x); }); }
 function curTopicObj(){ return (CFG.topics||[]).filter(function(x){ return x.id===CFG.topic; })[0]||null; }
 function pageCourse(){        /* shu sahifa qaysi fanga tegishli (mavzu sahifasi yoki fan sahifasi) */
   var here=location.pathname.split("/").pop()||"index.html", cs=CFG.courses||[];
@@ -1072,7 +1076,7 @@ function groupField(id,cur){
   return '<select id="'+id+'" class="rt-gsel"><option value="">'+T("— tanlang —","— choose —")+'</option>'+opts+'</select>';
 }
 function courseGate(next){
-  var list=CFG.courses||[];
+  var list=(CFG.courses||[]).filter(function(c){ return !c.closed; });
   if(!list.length){ next(); return; }
   var here=(location.pathname.split("/").pop()||"index.html");
   var g=el('<div class="rt-gate" id="rtCourseGate"><div class="rt-box">'+
@@ -1544,7 +1548,7 @@ function profOpen(x,rank){
       tile("📚",T("Taqdimotlardan","From presentations"),fmtP(auto),ids.length+" "+T("ta mavzu","topics"))+
       tile("✍️",T("Amaliy dars","Practical class"),"+"+fmtP(x.manPts||0))+
       tile("⚡",T("Jonli test","Live quiz"),"+"+fmtP(x.khPts||0))+
-      tile("🎓",T("O\'rtacha baho","Average mark"),av.a?(Math.round(av.a*10)/10):"—",av.n+" / "+((CFG.topics||[]).length||15)+" "+T("dars","lessons"))+'</div>'+
+      tile("🎓",T("O\'rtacha baho","Average mark"),av.a?(Math.round(av.a*10)/10):"—",av.n+" / "+(liveTopics().length||15)+" "+T("dars","lessons"))+'</div>'+
     (ids.length?'<div class="tw"><table class="rt-table rt-pft-t"><thead><tr><th>'+T("Taqdimot","Presentation")+'</th><th>'+T("Ball (100 dan)","Points (of 100)")+'</th><th>'+
       T("Slaydlar","Slides")+'</th><th>'+T("Vaqt","Time")+'</th><th>'+T("Test","Test")+'</th><th>'+T("Baho","Mark")+'</th><th>'+T("Amaliy","Practical")+'</th></tr></thead><tbody>'+rows+'</tbody></table></div>'
       :'<p class="rt-note" style="text-align:center;margin:14px 0">'+T("Hali taqdimotlardan ball olinmagan.","No points from presentations yet.")+'</p>')+
@@ -1864,7 +1868,7 @@ function renderTop(){
       gChips.map(function(g){ return '<button type="button" class="rt-gchip rt-topg'+(gsel===g?" on":"")+'" data-g="'+esc(g)+'">👥 '+(isTc?"":T("Mening guruhim · ","My group · "))+esc(g)+' <span class="rt-badge">'+gcnt[g]+'</span></button>'; }).join("")+'</div>':'';
     var rows=view.map(function(x,j){
       var i=rk[x.id]-1, m=gsel?'<span class="rt-rank">'+(j+1)+'</span><small class="rt-rk-all">'+T("umumiy ","overall ")+(i+1)+'</small>':prizeCell(i), pc=gsel?null:PRIZES[i];
-      var av=avgMark(x), nt=(CFG.topics||[]).length||15;
+      var av=avgMark(x), nt=liveTopics().length||15;
       var me=S&&x.id===S.id, bc=(me?"me ":"")+(pc?"rt-ptop rt-p"+(i+1):""), bs=pc?"--pc:"+pc.c+";":"";
       return '<tr class="'+bc+' '+nsRow(nsOf(x),i+1)+'"'+(bs?' style="'+bs+'"':'')+(me&&!isTc?' data-nkme="1" data-bc="'+bc+'" data-rk="'+(i+1)+'"':'')+'><td class="rt-medal">'+m+'</td><td><span class="rt-tav">'+avHtml(x,{size:28,name:nkDisp(x)})+'</span>'+nkName(x,me)+
         '</td><td>'+esc(x.group)+'</td><td><button type="button" class="rt-pts" data-i="'+i+'" title="'+T("Mavzular bo\'yicha ballari","Points by topic")+'">'+(x.total||0)+' <span>›</span></button></td>'+
@@ -1974,7 +1978,7 @@ function part(name,v,w){
 }
 function myTopics(){
   /* barcha mavzular ko'rsatiladi — hozir yopilgan mavzular ham (natija saqlanib qoladi, 🔒 belgisi bilan) */
-  var list=(CFG.topics||[]).slice();
+  var list=liveTopics();
   if(!list.length) return '<p class="rt-note">'+T("Hozircha mavzu yo\'q.","No topics yet.")+'</p>';
   var rows=list.map(function(x){
     var d=P.topics[x.id]||{}, m=markOf(x.id,d), lk=!topicOpen(x), ro=!lk&&topicRead(x);
@@ -1990,7 +1994,7 @@ function myTopics(){
 function renderTp(){
   var box=document.getElementById("rtTp");
   if(independent(S)){ box.innerHTML=readingHtml(); return; }
-  var list=(CFG.topics||[]).map(function(x){
+  var list=liveTopics().map(function(x){
     var mine=(P.topics[x.id]||{}), p=mine.p||0;
     var open=topicOpen(x), cur=(x.id===CFG.topic), ro=open&&topicRead(x), at=open&&!ro&&S?accLiveAt(x,S):0;
     return '<div class="rt-topic'+(open?"":" locked")+(ro?" ro":"")+'"><div style="font-size:22px">'+(ro?"📖":open?"📗":"🔒")+'</div>'+
@@ -2977,7 +2981,7 @@ document.addEventListener("click",function(e){ var p=document.getElementById("rt
 document.addEventListener("keydown",function(e){ if(e.key==="Escape"){ var p=document.getElementById("rtMkPop"); if(p) p.remove(); } });
 document.addEventListener("scroll",function(e){ var p=document.getElementById("rtMkPop"); if(p&&!p.contains(e.target)) p.remove(); },true);
 function marksCsv(okl){
-  var tops=(CFG.topics||[]);
+  var tops=liveTopics();
   var head="#;Familiya;Ism;Guruh;"+tops.map(function(t){ return t.id.toUpperCase(); }).join(";")+";O'rtacha";
   var rows=[], i=0;
   groupsOf(okl).forEach(function(G){
@@ -4324,7 +4328,7 @@ function learningPathsBind(){
 }
 function portalRender(){
   var au=document.getElementById("hmAuth"), cb=document.getElementById("hmCourses"), cta=document.getElementById("hmCta"); if(!au||!cb) return;
-  var cs=CFG.courses||[], tcv=tcHere()&&!S, now=Date.now(), gst=!S&&!tcv;
+  var tcv=tcHere()&&!S, cs=(CFG.courses||[]).filter(function(c){ return !c.closed||tcv; }), now=Date.now(), gst=!S&&!tcv;
   document.documentElement.classList.toggle("pt-mini",!gst);      /* hisobi bor talaba (va o'qituvchi): sayt haqida ma'lumot yo'q, faqat fan nomi; hisobsizga — hammasi */
   au.innerHTML=tcv?'<div class="hm-week tc hm-auth">👨‍🏫 '+T("O'qituvchi ko'rinishi. Fanni tanlab, mavzularni talabalar uchun ochishingiz mumkin.","Teacher view. Choose a course to open its topics for students.")+'</div>'
     :independent(S)?'<div class="hm-week hm-auth">📖 '+T("Mustaqil ta’lim · Ochiq darslarni o‘z tezligingizda o‘qing.","Independent learning · Read open lessons at your own pace.")+'</div>':'';

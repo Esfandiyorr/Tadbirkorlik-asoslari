@@ -16,6 +16,16 @@ import {
   Ship,
   ShieldCheck,
   BookOpen,
+  ConciergeBell,
+  SprayCan,
+  UtensilsCrossed,
+  Languages,
+  Salad,
+  Globe,
+  ClipboardList,
+  CreditCard,
+  MessageCircleHeart,
+  Clock,
 } from 'lucide-react';
 
 /* Har mavzuning o'z rangi, belgisi va ikkita «jonli» emojisi — kartochka va dars sarlavhasida ishlatiladi. */
@@ -38,6 +48,17 @@ export const topicThemes: Record<
   m13: { icon: ChartLine, from: '#b91c1c', to: '#f2792b', emoji: ['📈', '📉'] },
   m14: { icon: Ship, from: '#0369a1', to: '#6d4bd8', emoji: ['🗺️', '🚢'] },
   m15: { icon: ShieldCheck, from: '#4338ca', to: '#14a89a', emoji: ['👥', '🛡️'] },
+  // 🍽️ Restoran xodimlari malakasini oshirish (RS 24)
+  r1: { icon: ConciergeBell, from: '#9a3412', to: '#f59e0b', emoji: ['🤵', '👋'] },
+  r2: { icon: SprayCan, from: '#0f766e', to: '#34d399', emoji: ['🧼', '⚠️'] },
+  r3: { icon: UtensilsCrossed, from: '#7c2d12', to: '#fb7185', emoji: ['🍽️', '🥂'] },
+  r4: { icon: Languages, from: '#1d4ed8', to: '#38bdf8', emoji: ['🌍', '💬'] },
+  r5: { icon: Salad, from: '#15803d', to: '#a3e635', emoji: ['🥜', '📋'] },
+  r6: { icon: Globe, from: '#6d28d9', to: '#f472b6', emoji: ['🏅', '🍱'] },
+  r7: { icon: ClipboardList, from: '#b45309', to: '#fbbf24', emoji: ['🧾', '👨‍🍳'] },
+  r8: { icon: CreditCard, from: '#0369a1', to: '#22d3ee', emoji: ['☕', '💳'] },
+  r9: { icon: MessageCircleHeart, from: '#be123c', to: '#fb923c', emoji: ['🙏', '♿'] },
+  r10: { icon: Clock, from: '#4338ca', to: '#10b981', emoji: ['🔁', '⭐'] },
 };
 export const themeOf = (id: string) =>
   topicThemes[id] || {
@@ -79,15 +100,23 @@ export function TopicArt({
 }
 
 /* Fan (kurs) rasmi: TerDU gerbi va tadbirkorlik belgilari bilan ajralib turadi. */
-export function CourseArt({ title }: { title: string }) {
+export function CourseArt({ title, kind }: { title: string; kind?: string }) {
+  // «service» — restoran xizmati kursi: o'z rangi va belgilari bilan (TerDU gerbisiz).
+  const service = kind === 'service',
+    emoji = service ? ['🤵', '🥗', '☕', '🧾'] : ['🚀', '💡', '📈', '💼'];
   return (
-    <div className="course-hero-art" aria-hidden="true">
+    <div className={'course-hero-art' + (service ? ' is-service' : '')} aria-hidden="true">
       <span className="course-hero-glow" />
-      <img src="/terdu-logo.png" alt="" className="course-hero-logo" width="64" height="64" />
-      <span className="course-hero-emoji e1">🚀</span>
-      <span className="course-hero-emoji e2">💡</span>
-      <span className="course-hero-emoji e3">📈</span>
-      <span className="course-hero-emoji e4">💼</span>
+      {service ? (
+        <span className="course-hero-logo course-hero-mark">🍽️</span>
+      ) : (
+        <img src="/terdu-logo.png" alt="" className="course-hero-logo" width="64" height="64" />
+      )}
+      {emoji.map((e, i) => (
+        <span className={'course-hero-emoji e' + (i + 1)} key={e}>
+          {e}
+        </span>
+      ))}
       <b className="course-hero-title">{title}</b>
     </div>
   );

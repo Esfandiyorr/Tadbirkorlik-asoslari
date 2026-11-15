@@ -94,7 +94,10 @@ it('staff editing and original roster screens skip class-wide histories until re
     ),
   ).toBe(false);
   expect(find.mock.calls.some(([, field]) => field === 'courseId')).toBe(false);
-  expect(light.lessons).toHaveLength(15);
+  // asosiy fanning 15 mavzusi (administratorga yopiq qo'shimcha fan — restoran kursi — ham qo'shiladi)
+  expect(
+    (light.lessons as { id?: string }[]).filter((l) => !/^r\d/.test(String(l.id))),
+  ).toHaveLength(15);
   expect(await service.state(demoUsers[2], true, true)).toHaveProperty(
     'users',
     expect.arrayContaining([expect.objectContaining({ id: 'other999' })]),

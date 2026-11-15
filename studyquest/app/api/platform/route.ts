@@ -26,7 +26,18 @@ import {
   readAvatars,
   releaseStale,
 } from '@/lib/server/avatars';
-import { course, modules, lessons, quiz, settings, badges, catalog } from '@/lib/seed';
+import {
+  course,
+  modules,
+  lessons,
+  quiz,
+  settings,
+  badges,
+  catalog,
+  extraCourses,
+  extraLessons,
+  seesCourse,
+} from '@/lib/seed';
 import { quotaExceeded } from '@/lib/server/quota';
 import { limitedCatalog } from '@/lib/server/limited';
 import { sitePolicy, clearPolicyCache, normalizePolicy } from '@/lib/server/site-policy';
@@ -316,7 +327,16 @@ export async function GET(req: NextRequest) {
     // remain available without a Firestore profile or an XP write.
     if (req.nextUrl.searchParams.get('view') === 'legacyLesson') {
       const a = await actor(req, true);
-      const lesson = lessons.find((l) => l.id === req.nextUrl.searchParams.get('lesson'));
+      const wanted = req.nextUrl.searchParams.get('lesson');
+      // 📚 Qo'shimcha fan (restoran kursi): yopiq bo'lsa, faqat o'qituvchi va administrator ochadi.
+      const extra = extraLessons.find((l) => l.id === wanted);
+      if (extra) {
+        const owner = extraCourses.find((c) => c.id === extra.courseId);
+        check(owner && seesCourse(owner, a.role), 403, 'Bu fan hali ochilmagan.');
+        check(a.role !== 'student', 403, 'Bu fan hali ochilmagan.');
+        return NextResponse.json(extra);
+      }
+      const lesson = lessons.find((l) => l.id === wanted);
       check(lesson?.legacyFile, 404, 'Asl dars topilmadi');
       await legacyAccess(a, lesson!);
       return NextResponse.json(lesson);

@@ -142,10 +142,56 @@ const uzQuotes = (text) =>
     // so‘z oxiridagi g‘: «mablag'», «tog'».
     .replace(/([Gg])['ʻʼ`´](?=[\s.,;:!?)»"]|$)/g, '$1‘')
     .replace(/([A-Za-z])['ʼ`´](?=[A-Za-z])/g, '$1’');
+/* 📚 Fanlar: config.json «courses» dagi birinchi fan — asosiy (Tadbirkorlik asoslari): uning mavzulari «topics» da,
+   ball, reyting va «Mavzular holati» shu ro'yxat bilan ishlaydi. Qolgan fanlar («course» maydoni bor mavzular) —
+   «more» da: ular asosiy fan hisob-kitoblariga aralashmaydi. closed: true — fan hali tayyorlanmoqda: talabalarga
+   ko'rinmaydi, faqat o'qituvchi va administrator ko'radi (lib/seed.ts extraCourses). */
+const mainCourse = config.courses?.[0]?.id;
+const ofMain = (t) => !t.course || t.course === mainCourse;
+const stripNo = (title) => uzQuotes(title).replace(/^[A-Z]+\d+\s*·\s*/, '');
 const catalog = {
   manualPts: config.manualPts || 2,
   courses: config.courses,
-  topics: config.topics.map((t) => ({
+  more: (config.courses || []).slice(1).map((c) => ({
+    id: c.id,
+    icon: c.icon || '📘',
+    title: uzQuotes(c.title),
+    description: uzQuotes(c.desc || ''),
+    category: uzQuotes(c.category || 'Kurs'),
+    closed: !!c.closed,
+    ...(c.entry ? { entry: uzQuotes(c.entry) } : {}),
+    blocks: (c.blocks || []).map(([title, ids], i) => ({
+      id: c.id + '-' + (i + 1),
+      title: uzQuotes(title),
+      topics: ids,
+    })),
+    topics: config.topics
+      .filter((t) => t.course === c.id)
+      .map((t) => ({
+        id: t.id,
+        title: stripNo(t.title),
+        file: t.file,
+        slides: t.slides,
+        quiz: t.quiz,
+        test: testCount[t.id] || 0,
+        ...(t.video ? { video: t.video } : {}),
+        ...(t.pdf ? { pdf: t.pdf } : {}),
+        // ⏳ fayli hali yo'q — dars tayyorlanmoqda (ro'yxatda rejasi bilan ko'rinadi, ochilmaydi)
+        ...(t.file ? {} : { draft: true }),
+        ...(t.kind === 'exam' ? { exam: true } : {}),
+        ...(t.plan
+          ? {
+              plan: {
+                hours: uzQuotes(t.plan.hours || ''),
+                about: uzQuotes(t.plan.about || ''),
+                task: uzQuotes(t.plan.task || ''),
+                result: uzQuotes(t.plan.result || ''),
+              },
+            }
+          : {}),
+      })),
+  })),
+  topics: config.topics.filter(ofMain).map((t) => ({
     id: t.id,
     title: uzQuotes(t.title),
     file: t.file,

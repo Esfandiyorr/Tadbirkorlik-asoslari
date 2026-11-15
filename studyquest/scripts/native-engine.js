@@ -214,15 +214,16 @@
           out.appendChild(note);
         }
       }
-      if (['IMG', 'VIDEO', 'SOURCE', 'IFRAME', 'AUDIO'].includes(node.tagName)) {
+      if (['IMG', 'VIDEO', 'SOURCE', 'IFRAME', 'AUDIO', 'TRACK'].includes(node.tagName)) {
         if (node.getAttribute('src')) out.setAttribute('src', asset(node.getAttribute('src')));
         if (node.getAttribute('poster'))
           out.setAttribute('poster', asset(node.getAttribute('poster')));
       }
       if (node.tagName === 'A' && node.getAttribute('href')) {
         var href = node.getAttribute('href'),
-          topic = /(?:^|\/)mavzu-(\d+)\.html/.exec(href);
-        if (topic) out.setAttribute('href', '/#lesson/m' + topic[1]);
+          topic = /(?:^|\/)(mavzu|restoran)-(\d+)\.html/.exec(href);
+        if (topic)
+          out.setAttribute('href', '/#lesson/' + (topic[1] === 'mavzu' ? 'm' : 'r') + topic[2]);
         else if (href[0] !== '#') out.setAttribute('href', asset(href));
       }
       if (node.tagName === 'CANVAS') {

@@ -11528,3 +11528,249 @@ html {
 .avatar-admin-shopform button[type='submit'] {
   justify-self: start;
 }
+
+/* 🍽️ Qo'shimcha fan (restoran kursi): o'z rangi, «hammaga yopiq» belgisi va animatsion video pleyeri */
+.course-hero-art.is-service {
+  background:
+    radial-gradient(circle at 85% 110%, #fbbf24aa, transparent 45%),
+    linear-gradient(135deg, #5b1d0f 0%, #b45309 52%, #e0791b 100%);
+}
+.course-hero-mark {
+  display: grid;
+  place-items: center;
+  font-size: 32px;
+  line-height: 1;
+}
+.course-closed-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: #fee2e2;
+  color: #991b1b;
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+  text-transform: none;
+  white-space: nowrap;
+}
+.dark .course-closed-chip {
+  background: #4c1d1d;
+  color: #fecaca;
+}
+.course-closed-note {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0 0;
+  padding: 10px 12px;
+  border: 1px dashed #f3b4b4;
+  border-radius: 12px;
+  background: #fff5f5;
+  color: #7f1d1d;
+  font-size: 13.5px;
+  line-height: 1.45;
+}
+.dark .course-closed-note {
+  border-color: #7f1d1d;
+  background: #2a1414;
+  color: #fecaca;
+}
+.topic-video-frame video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background: #000;
+}
+.topic-video-frame video::cue,
+.native-document video::cue {
+  font-family: inherit;
+  font-size: clamp(14px, 2.4vw, 22px);
+  line-height: 1.35;
+  background: #000000c7;
+  color: #fff;
+}
+.topic-film-note {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+.topic-film-files {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+}
+.topic-film-files a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface-soft);
+  color: inherit;
+  font-size: 13.5px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+/* ⏳ Tayyorlanayotgan darslar (qo'shimcha fan): kartochka, «Tayyorlanmoqda» belgisi va dars rejasi sahifasi */
+.lesson-card.is-draft .mini-cover {
+  filter: saturate(0.55);
+}
+.mini-cover > .draft-veil,
+.draft-veil {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  border-radius: 18px;
+  font-size: 34px;
+  background: #ffffff59;
+  opacity: 1;
+}
+.dark .draft-veil {
+  background: #00000055;
+}
+.draft-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: #fef3c7;
+  color: #92400e;
+  font-size: 11.5px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.draft-chip.is-exam,
+.lesson-card.is-exam .draft-chip {
+  background: #e0e7ff;
+  color: #3730a3;
+}
+.dark .draft-chip {
+  background: #3a2a12;
+  color: #fcd9a6;
+}
+.dark .draft-chip.is-exam,
+.dark .lesson-card.is-exam .draft-chip {
+  background: #23264d;
+  color: #c7d2fe;
+}
+.draft-hours {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+.course-build {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin: 10px 0 0;
+  font-size: 13.5px;
+  font-weight: 700;
+}
+.course-build > span {
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+.course-build-ready {
+  background: #dcfce7;
+  color: #166534;
+}
+.course-build-wait {
+  background: #fef3c7;
+  color: #92400e;
+}
+.dark .course-build-ready {
+  background: #14351f;
+  color: #bbf7d0;
+}
+.dark .course-build-wait {
+  background: #3a2a12;
+  color: #fcd9a6;
+}
+.course-build small {
+  flex-basis: 100%;
+  color: var(--muted);
+  font-weight: 600;
+  line-height: 1.45;
+}
+.lesson-plan {
+  display: grid;
+  align-content: start;
+  gap: 18px;
+}
+.lesson-plan-body {
+  display: grid;
+  gap: 12px;
+  width: 100%;
+  max-width: 920px;
+  margin: 18px auto;
+  padding: 24px;
+  animation: fx-rise 0.4s both ease-out;
+}
+.lesson-plan-body > .draft-chip {
+  justify-self: start;
+  font-size: 12.5px;
+}
+.lesson-plan-body h1 {
+  margin: 0;
+  font-size: clamp(22px, 3.4vw, 30px);
+  line-height: 1.2;
+}
+.lesson-plan-meta {
+  margin: -4px 0 4px;
+  color: var(--muted);
+  font-weight: 600;
+}
+.lesson-plan-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+.lesson-plan-grid article {
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface-soft);
+}
+.lesson-plan-grid h2 {
+  margin: 0 0 6px;
+  font-size: 15px;
+}
+.lesson-plan-grid p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.55;
+}
+.lesson-plan-note {
+  margin: 4px 0 0;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: #fef3c7;
+  color: #92400e;
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+.dark .lesson-plan-note {
+  background: #3a2a12;
+  color: #fcd9a6;
+}
+@media (max-width: 860px) {
+  .lesson-plan-grid {
+    grid-template-columns: 1fr;
+  }
+  .lesson-plan-body {
+    padding: 18px;
+    margin: 12px auto;
+  }
+}

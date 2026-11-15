@@ -13,8 +13,9 @@ import json,re,sys,os,subprocess
 BASE=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))+'/'
 SHABLON=BASE+'mavzu-3.html'          # test dvigateli bor namuna (15 savol)
 
-def yig(matn_fayl,chiqish,sarlavha,raqam,tavsif="",shablon=None):
-    ns={'UZ':[],'EN':[],'S':[]}
+def yig(matn_fayl,chiqish,sarlavha,raqam,tavsif="",shablon=None,fan=None):
+    """fan — boshqa fan mavzusi uchun («O'zbekcha nom|English name»): topbardagi yozuv «<fan> · N-mavzu» bo'ladi."""
+    ns={'UZ':[],'EN':[],'S':[],'MATN_DIR':os.path.dirname(os.path.abspath(matn_fayl))+'/'}
     def T(uz,en): ns['UZ'].append(uz); ns['EN'].append(en); return len(ns['UZ'])-1
     def d(uz,en): return 'data-i="%d"'%T(uz,en)
     def slide(t,te,body): ns['S'].append('  <section class="slide" data-title="%s" data-title-en="%s">\n    <div class="inner">\n%s\n    </div>\n  </section>'%(t,te,body))
@@ -31,8 +32,13 @@ def yig(matn_fayl,chiqish,sarlavha,raqam,tavsif="",shablon=None):
         if b in s: i=s.index(b); j=s.index(e)+len(e); s=s[:i]+s[j:]
     s=re.sub(r'<title>.*?</title>','<title>%s — TerDU</title>'%sarlavha,s,count=1,flags=re.S)
     if tavsif: s=re.sub(r'(<meta name="description" content=")[^"]*(")',r'\1%s\2'%tavsif,s,count=1)
-    s=re.sub(r'(<span data-ui="subj">)[^<]*(</span>)',r'\1Tadbirkorlik asoslari · M%d-mavzu\2'%raqam,s,count=1)
-    s=re.sub(r' subj:\[[^\]]*\]',' subj:["Tadbirkorlik asoslari · M%d-mavzu", "Fundamentals of Entrepreneurship · Topic %d"]'%(raqam,raqam),s,count=1)
+    if fan:
+        fu,fe=(fan.split('|')+[fan])[:2]
+        su,se='%s · %d-mavzu'%(fu,raqam),'%s · Topic %d'%(fe,raqam)
+    else:
+        su,se='Tadbirkorlik asoslari · M%d-mavzu'%raqam,'Fundamentals of Entrepreneurship · Topic %d'%raqam
+    s=re.sub(r'(<span data-ui="subj">)[^<]*(</span>)',lambda m:m.group(1)+su+m.group(2),s,count=1)
+    s=re.sub(r' subj:\[[^\]]*\]',lambda m:' subj:'+json.dumps([su,se],ensure_ascii=False),s,count=1)
     a=s.index('  <section class="slide"'); b=s.index('  </main>')
     s=s[:a]+"\n\n".join(S)+"\n\n"+s[b:]
     def qjs(it):
@@ -83,4 +89,5 @@ def tekshir(Q,chek=4):
 if __name__=="__main__":
     print(yig(sys.argv[1],BASE+sys.argv[2],sys.argv[3],int(sys.argv[4]),
               sys.argv[5] if len(sys.argv)>5 else "",
-              (BASE+sys.argv[6]) if len(sys.argv)>6 else None))   # 6-argument: boshqa shablon (masalan, ochiq savolli test dvigateli bor taqdimot)
+              (BASE+sys.argv[6]) if len(sys.argv)>6 else None,    # 6-argument: boshqa shablon (masalan, ochiq savolli test dvigateli bor taqdimot)
+              sys.argv[7] if len(sys.argv)>7 else None))           # 7-argument: boshqa fan nomi «O'zbekcha|English»

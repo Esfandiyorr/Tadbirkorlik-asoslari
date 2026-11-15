@@ -4,7 +4,18 @@ import { z } from 'zod';
 import type { Actor, Course, Lesson, Quiz, Question, Settings, User } from '../types';
 import type { Repository, Tx, Row } from './repository';
 import { check, staff, administrator } from './auth';
-import { settings as defaults, badges, course, modules, lessons, quiz } from '../seed';
+import {
+  settings as defaults,
+  badges,
+  course,
+  modules,
+  lessons,
+  quiz,
+  extraCourses,
+  extraModules,
+  extraLessons,
+  seesCourse,
+} from '../seed';
 
 /* Taqdimot fayllaridan (katalogdan) olingan darslar uchun nom, slaydlar soni va fayl doim katalogdan olinadi:
    bazadagi eski yozuv (masalan, 7-mavzuning avvalgi nomi va 18 slaydi) yangilangan taqdimotni buzmasligi uchun. */
@@ -19,6 +30,34 @@ export function withCatalog<T extends Row | null | undefined>(l: T): T {
     legacyFile: c.legacyFile,
     legacyPdf: c.legacyPdf,
   } as T;
+}
+/** 📚 Katalogdagi qo'shimcha fanlar (masalan, restoran kursi): bazada bo'lmasa ham ro'yxatga qo'shiladi.
+    Yopiq fan faqat o'qituvchi va administratorga beriladi — talaba va mehmon ma'lumotida umuman bo'lmaydi. */
+export function withExtraCourses<T extends { courses: Row[]; modules: Row[]; lessons: Row[] }>(
+  data: T,
+  role?: string,
+): T {
+  const add = extraCourses.filter(
+    (c) => seesCourse(c, role) && !data.courses.some((x) => x.id === c.id),
+  );
+  if (!add.length) return data;
+  const ids = new Set(add.map((c) => c.id));
+  return {
+    ...data,
+    courses: [...data.courses, ...add],
+    modules: [
+      ...data.modules,
+      ...extraModules.filter(
+        (m) => ids.has(m.courseId) && !data.modules.some((x) => x.id === m.id),
+      ),
+    ],
+    lessons: [
+      ...data.lessons,
+      ...extraLessons.filter(
+        (l) => ids.has(l.courseId) && !data.lessons.some((x) => x.id === l.id),
+      ),
+    ],
+  };
 }
 const id = z
     .string()
@@ -167,7 +206,8 @@ export class Platform {
     const courses = c.filter((x) => x.published),
       ids = new Set(courses.map((x) => x.id)),
       publicLessons = l.filter((x) => x.published && ids.has(x.courseId));
-    return {
+    // Yopiq bo'lmagan qo'shimcha fanlar hammaga; yopiqlari keyin state() da faqat xodimlarga qo'shiladi.
+    return withExtraCourses({
       courses,
       subjects: await this.db.list('subjects'),
       modules: m.filter((x) => ids.has(x.courseId)),
@@ -177,7 +217,7 @@ export class Platform {
       ),
       settings: cfg.find((x) => x.id === 'platform') || defaults,
       badges: b.length ? b : badges,
-    };
+    });
   }
   async state(a: Actor, includeStaff = false, includeReports = true) {
     // XP ko'rsatilmaydi: XP tarixi har sahifa ochilganda o'qilmaydi (Firestore kvotasi tejaladi).
@@ -239,18 +279,21 @@ export class Platform {
           .map(withCatalog),
       };
     }
-    return {
-      ...catalog,
-      user: {
-        ...user,
-        ...(a.academicPoints !== undefined ? { academicPoints: a.academicPoints } : {}),
+    return withExtraCourses(
+      {
+        ...catalog,
+        user: {
+          ...user,
+          ...(a.academicPoints !== undefined ? { academicPoints: a.academicPoints } : {}),
+        },
+        progress,
+        attempts: attempts.map(({ answers, ...x }) => x),
+        earned: earned.map((x) => x.badgeId),
+        notifications: [...ownNotices, ...sharedNotices],
+        ...staffData,
       },
-      progress,
-      attempts: attempts.map(({ answers, ...x }) => x),
-      earned: earned.map((x) => x.badgeId),
-      notifications: [...ownNotices, ...sharedNotices],
-      ...staffData,
-    };
+      a.role,
+    );
   }
   async act(a: Actor, action: string, input: unknown): Promise<unknown> {
     const n = this.now();

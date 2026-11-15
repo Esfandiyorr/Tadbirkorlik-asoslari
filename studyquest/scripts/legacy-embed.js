@@ -2,10 +2,10 @@
 (function () {
   if (parent === window && location.pathname.startsWith('/legacy/')) {
     var file = location.pathname.split('/').pop(),
-      lesson = /^mavzu-(\d+)\.html$/.exec(file);
+      lesson = /^(mavzu|restoran)-(\d+)\.html$/.exec(file);
     var target = new URL('/', location.origin);
     target.hash = lesson
-      ? 'lesson/m' + lesson[1]
+      ? 'lesson/' + (lesson[1] === 'mavzu' ? 'm' : 'r') + lesson[2]
       : file === 'arena.html'
         ? 'arena/live'
         : file === 'tadbirkorlik-asoslari.html'

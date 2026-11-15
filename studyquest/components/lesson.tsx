@@ -29,13 +29,92 @@ import {
   type SlidePoints,
 } from '@/lib/points';
 import { NativeSurface } from './native-surface';
-import { TopicVideoButton } from './topic-video';
+import { LessonFilmButton, TopicVideoButton } from './topic-video';
 import { LOGO_TOPIC } from '@/lib/logo-task';
 import { CourseGate, useCourseLocked } from './course-gate';
 /** Taqdimotning PDF nusxasi: to'liq havola yoki asl fayllar (public/legacy/fayllar). */
 const pdfHref = (pdf: string) => (pdf.startsWith('https://') ? pdf : '/legacy/' + pdf);
 export function LessonView({ id }: { id: string }) {
+  const { data } = useApp(),
+    meta = data?.lessons.find((x) => x.id === id);
+  // ⏳ hali tayyorlanayotgan dars (taqdimoti yo'q) — o'quv dasturidagi rejasi ko'rsatiladi
+  if (meta?.draft) return <LessonPlanView lesson={meta} />;
   return <OriginalLessonView id={id} />;
+}
+
+/** 📋 Tayyorlanayotgan dars yoki imtihon: o'quv dasturidagi reja (soatlar, mazmun, amaliy mashq, natija dalili). */
+function LessonPlanView({ lesson }: { lesson: LessonType }) {
+  const { data, lang } = useApp(),
+    L = (uz: string, en: string, ru: string) => tr(lang, uz, en, ru),
+    course = data!.courses.find((c) => c.id === lesson.courseId),
+    total = data!.lessons.filter((l) => l.courseId === lesson.courseId).length,
+    plan = lesson.plan;
+  return (
+    <section className="focus-reader lesson-plan" aria-label={lesson.title}>
+      <header className="reader-toolbar">
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label={L('Kursga qaytish', 'Back to course', 'Назад к курсу')}
+          onClick={() => navigate('course/' + lesson.courseId)}
+        >
+          <ArrowLeft size={18} />
+        </Button>
+        <ReaderHeading
+          title={lesson.title}
+          topic={lesson.order + 1}
+          total={total}
+          course={course?.title}
+        />
+      </header>
+      <div className="lesson-plan-body panel">
+        <span className={'draft-chip' + (lesson.exam ? ' is-exam' : '')}>
+          {lesson.exam
+            ? '🎓 ' + L('Yakuniy imtihon', 'Final exam', 'Итоговый экзамен') + ' · '
+            : '⏳ '}
+          {L('Tayyorlanmoqda', 'In preparation', 'Готовится')}
+        </span>
+        <h1>
+          {lesson.order + 1}. {lesson.title}
+        </h1>
+        <p className="lesson-plan-meta">
+          {course?.title}
+          {plan?.hours ? ' · 🕒 ' + plan.hours : ''}
+        </p>
+        {plan && (
+          <div className="lesson-plan-grid">
+            <article>
+              <h2>📚 {L('Mazmuni', 'Content', 'Содержание')}</h2>
+              <p>{plan.about}</p>
+            </article>
+            <article>
+              <h2>
+                {lesson.exam
+                  ? '📝 ' + L('Shartlar va baholash', 'Rules and grading', 'Условия и оценка')
+                  : '🛠 ' + L('Amaliy mashq', 'Practical exercise', 'Практическое задание')}
+              </h2>
+              <p>{plan.task}</p>
+            </article>
+            <article>
+              <h2>
+                {lesson.exam
+                  ? '🎯 ' + L('O‘tish sharti', 'Pass mark', 'Проходной балл')
+                  : '✅ ' + L('Natija dalili', 'Evidence of result', 'Подтверждение результата')}
+              </h2>
+              <p>{plan.result}</p>
+            </article>
+          </div>
+        )}
+        <p className="lesson-plan-note">
+          {L(
+            'Bu mashg‘ulot hali tayyorlanmoqda: taqdimot, test va animatsion video tayyor bo‘lgach shu yerda ochiladi.',
+            'This session is still being prepared: the slides, test and animated video will open here when ready.',
+            'Занятие ещё готовится: презентация, тест и анимационное видео появятся здесь, когда будут готовы.',
+          )}
+        </p>
+      </div>
+    </section>
+  );
 }
 function OriginalLessonView({ id }: { id: string }) {
   const { data, lang, setLang, dark, call, toast, request } = useApp(),
@@ -204,6 +283,7 @@ function OriginalLessonView({ id }: { id: string }) {
             title={meta.title}
             topic={Number(id.slice(1)) || meta.order + 1}
             total={data!.lessons.filter((l) => l.courseId === meta.courseId).length}
+            course={data!.courses.find((c) => c.id === meta.courseId)?.title}
           />
         </header>
         <CourseGate />
@@ -228,6 +308,7 @@ function OriginalLessonView({ id }: { id: string }) {
           title={meta.title}
           topic={Number(id.slice(1)) || meta.order + 1}
           total={data!.lessons.filter((l) => l.courseId === meta.courseId).length}
+          course={data!.courses.find((c) => c.id === meta.courseId)?.title}
         />
         <select
           className="reader-language"
@@ -240,6 +321,13 @@ function OriginalLessonView({ id }: { id: string }) {
           <option value="ru">RU</option>
         </select>
         <TopicVideoButton id={id} />
+        {lesson.legacyVideo && (
+          <LessonFilmButton
+            video={lesson.legacyVideo}
+            title={lesson.title}
+            download={data?.user?.role === 'teacher' || data?.user?.role === 'admin'}
+          />
+        )}
         {lesson.legacyPdf && (data?.user?.role === 'teacher' || data?.user?.role === 'admin') && (
           // 📥 O'qituvchi va administrator taqdimotning PDF nusxasini bir bosishda yuklab oladi.
           <Button

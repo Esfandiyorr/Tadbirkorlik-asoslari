@@ -55,7 +55,14 @@ export type Course = {
   difficulty: string;
   category: string;
   illustration: string;
+  /** fan hali tayyorlanmoqda: talabalarga ko'rinmaydi — faqat o'qituvchi va administrator ko'radi */
+  closed?: boolean;
+  /** fan bo'yicha umumiy eslatma (masalan, imtihonga kirish sharti) */
+  entry?: string;
+  /** katalogdan beriladigan qo'shimcha fan (bazada yozuvi yo'q — «enroll» shart emas) */
+  extra?: boolean;
 };
+export type LessonPlan = { hours: string; about: string; task: string; result: string };
 export type Module = { id: string; courseId: string; title: string; order: number };
 export type Slide = { title: string; body: string; image?: string; video?: string };
 export type Lesson = {
@@ -70,6 +77,14 @@ export type Lesson = {
   published: boolean;
   legacyFile?: string;
   legacyPdf?: string;
+  /** 🎬 mavzuning animatsion videosi (public/legacy ichidagi .mp4; yonida shu nomli .vtt subtitr va .jpg muqova) */
+  legacyVideo?: string;
+  /** ⏳ dars hali tayyorlanmoqda (taqdimoti yo'q): ro'yxatda rejasi bilan ko'rinadi, ochilmaydi */
+  draft?: boolean;
+  /** 🎓 yakuniy imtihon mashg'uloti */
+  exam?: boolean;
+  /** 📋 o'quv dasturidagi reja: soatlar, mazmun, amaliy mashq, natija dalili */
+  plan?: LessonPlan;
   materialId?: string;
 };
 export type Question = {

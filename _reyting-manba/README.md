@@ -89,6 +89,35 @@ shablondan o'zgarishsiz o'tadi.
    qayta o'rnatilgan `index.html` asosiy shoxchaga commit qilinadi.
 
 
+## Ikkinchi fan: «Restoran xodimlari malakasini oshirish» (RS 24)
+
+Dastur — 24 akademik soatlik qisqa kurs (10 modul). Fan `config.json` → `courses` da ikkinchi bo'lib turadi
+(`"id": "restoran"`), mavzulari `topics` da `"course": "restoran"` bilan: `r1` … `r10`, fayllari `restoran-<N>.html`.
+
+- **Hammaga yopiq.** Fanda `"closed": true`, mavzularida `"open": false`. Talaba fanni ham, mavzularini ham ko'rmaydi
+  (sayt ma'lumotida umuman yo'q; dvigatel ro'yxatlarida ham chiqmaydi — `courseClosed`/`liveTopics`). Faqat o'qituvchi va
+  administrator ko'radi: «Kurslar» → 🔒 «Hammaga yopiq» belgili kartochka. Asosiy fanning 15 mavzusi, ball va reyting
+  hisob-kitobi o'zgarmaydi (saytda asosiy fan — `catalog.topics`, qo'shimcha fanlar — `catalog.more`).
+- **To'liq tuzilma.** `config.json` da 12 ta mashg'ulot bor: `r1`–`r10` modullar, `r11`–`r12` yakuniy imtihonlar
+  (`"kind": "exam"`), to'rt blokda (`courses[].blocks`). Har birida `plan` — dasturdagi reja: `hours`, `about` (mazmun),
+  `task` (amaliy mashq yoki imtihon shartlari), `result` (natija dalili yoki o'tish sharti). Taqdimoti hali yozilmagan
+  mashg'ulotda `file` bo'lmaydi (`"draft": true`): saytda «⏳ Tayyorlanmoqda» belgisi va rejasi ko'rinadi, dvigatelga
+  (`rt-engine`) kirmaydi. Taqdimot tayyor bo'lgach `file`, `slides`, `quiz` (va `video`) qo'shiladi, `draft` olib tashlanadi.
+- **Mavzu yozish.** `matn/restoran_<N>_matn.py` (matn faqat o'zbekcha; umumiy qoliplar — `matn/restoran_umumiy.py`:
+  `cover`, `card`, `card_ul`, `table`, `dialog`, `video_slide`, `test_slide`, savollar — `SV` (4 variant) va `SO` (ochiq)).
+  Yig'ish:
+  `python3 _reyting-manba/yangi_mavzu.py _reyting-manba/matn/restoran_<N>_matn.py restoran-<N>.html "Sarlavha" <N> "tavsif" mavzu-7.html "Restoran xizmati|Restaurant service"`
+  → `config.json` ga mavzuni qo'shing (`id`, `course`, `file`, `title`, `open:false`, `slides`, `quiz`, `video`) →
+  `python3 _reyting-manba/inject.py` (boshqa fan mavzulari `DECKS` ga o'zi qo'shiladi).
+- **🎬 Animatsion video.** Har mavzuda `fayllar/video/R<N>.mp4` (ovozsiz, 1080p), yonida `R<N>.vtt` (subtitr) va
+  `R<N>.jpg` (muqova). Manba — `video/ssenariy/r<N>.js` (sahnalar va subtitr satrlari), sahna — `video/sahna.html`
+  (SVG qahramonlar, restoran zali; sahna turlari: `title`, `list`, `steps`, `rule`, `dialog`, `compare`, `outro`).
+  Yig'ish: `NODE_PATH=studyquest/node_modules node _reyting-manba/video/film.js r<N>` (kadrma-kadr, ~6–8 daqiqa).
+  Brauzerda ko'rish: `video/sahna.html?s=r<N>`. Video taqdimotning «🎬 Video dars» slaydida va dars oynasidagi «Video»
+  tugmasida ochiladi; o'qituvchi MP4 va subtitr faylini yuklab olishi mumkin.
+- **Fanni ochish** (kelajakda): `courses` dagi `"closed"` ni olib tashlash yetarli emas — talabalar uchun kirish
+  (`legacy-access.ts`), ball va reytingni fanlar bo'yicha ajratish alohida hal qilinadi.
+
 ## O'yin arenasi (`arena.html`)
 
 Talabalar o'rtasidagi 2–4 kishilik musobaqa: xona yaratiladi, kod yoki havola

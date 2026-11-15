@@ -1,5 +1,5 @@
 import catalog from './catalog.generated.json';
-import type { Course, Module, Lesson, Quiz, Settings, Badge, User } from './types';
+import type { Course, Module, Lesson, LessonPlan, Quiz, Settings, Badge, User } from './types';
 export const settings: Settings = {
   rewards: { lesson: 20, quiz: 50, perfect: 30, challenge: 25, course: 200 },
   levels: [
@@ -86,6 +86,73 @@ export const lessons: Lesson[] = catalog.topics.map((t, i) => ({
   legacyFile: t.file,
   ...(t.pdf ? { legacyPdf: t.pdf } : {}),
 }));
+/* 📚 Qo'shimcha fanlar (config.json «courses» dagi ikkinchi va keyingi fanlar) — sync-legacy.mjs «more» ga chiqaradi.
+   Ular Firestore'ga yozilmaydi: katalogdan to'g'ridan-to'g'ri beriladi (Platform.publicData). Asosiy fanning ball,
+   reyting va «Mavzular holati» hisob-kitoblariga aralashmaydi. closed — faqat o'qituvchi va administrator ko'radi. */
+type MoreCourse = {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  closed: boolean;
+  entry?: string;
+  blocks: { id: string; title: string; topics: string[] }[];
+  topics: {
+    id: string;
+    title: string;
+    file?: string;
+    slides: number;
+    video?: string;
+    pdf?: string;
+    draft?: boolean;
+    exam?: boolean;
+    plan?: LessonPlan;
+  }[];
+};
+const more = ((catalog as { more?: MoreCourse[] }).more || []) as MoreCourse[];
+export const extraCourses: Course[] = more.map((c) => ({
+  id: c.id,
+  title: c.title,
+  description: c.description,
+  published: true,
+  ownerId: 'system',
+  difficulty: 'Malaka oshirish',
+  category: c.category,
+  illustration: 'service',
+  ...(c.closed ? { closed: true } : {}),
+  ...(c.entry ? { entry: c.entry } : {}),
+  extra: true,
+}));
+export const extraModules: Module[] = more.flatMap((c) =>
+  (c.blocks.length ? c.blocks : [{ id: c.id + '-1', title: c.title, topics: [] }]).map((b, i) => ({
+    id: b.id,
+    courseId: c.id,
+    title: b.title,
+    order: i,
+  })),
+);
+export const extraLessons: Lesson[] = more.flatMap((c) =>
+  c.topics.map((t, i) => ({
+    id: t.id,
+    courseId: c.id,
+    moduleId: c.blocks.find((b) => b.topics.includes(t.id))?.id || c.blocks[0]?.id || c.id + '-1',
+    title: t.title,
+    order: i,
+    slides: [],
+    slideCount: t.slides || 0,
+    minSeconds: 60,
+    published: true,
+    ...(t.file ? { legacyFile: t.file } : {}),
+    ...(t.pdf ? { legacyPdf: t.pdf } : {}),
+    ...(t.video ? { legacyVideo: t.video } : {}),
+    ...(t.draft || !t.file ? { draft: true } : {}),
+    ...(t.exam ? { exam: true } : {}),
+    ...(t.plan ? { plan: t.plan } : {}),
+  })),
+);
+/** Foydalanuvchi qo'shimcha fanni ko'ra oladimi: yopiq fan — faqat o'qituvchi va administratorga. */
+export const seesCourse = (c: Course, role?: string) =>
+  !c.closed || role === 'teacher' || role === 'admin';
 export const quiz: Quiz = {
   id: 'entrepreneurship-check',
   lessonId: 'm7',

@@ -39,7 +39,7 @@ import {
   topicPoints,
   tr,
 } from '@/lib/points';
-import type { Data, Lesson, Progress } from '@/lib/types';
+import type { Data, Lang, Lesson, Progress } from '@/lib/types';
 
 const seenCount = (p: Progress) => Math.max(p.seen.length, p.legacySeen || 0);
 export const navigate = (view: string) => {
@@ -80,6 +80,9 @@ function useOpenLesson() {
       );
       return;
     }
+    // ⏳ tayyorlanayotgan dars — reja sahifasi; 📚 katalogdagi qo'shimcha fan bazada yo'q — «enroll» shart emas
+    if (l.draft || d.courses.find((c) => c.id === l.courseId)?.extra)
+      return navigate('lesson/' + l.id);
     if (d.mode === 'legacy' || d.limited) return navigate('lesson/' + l.id);
     if (!d.user) {
       if (d.mode === 'demo') navigate('login');
@@ -443,9 +446,11 @@ function LearnerHome() {
                     key={c.id}
                     onClick={() => navigate('course/' + c.id)}
                   >
-                    <CourseArt title={c.title} />
+                    <CourseArt title={c.title} kind={c.illustration} />
                     <div className="course-card-body">
-                      <span className="course-level">TerDU · {c.difficulty}</span>
+                      <span className="course-level">
+                        {c.closed ? <ClosedCourseChip lang={lang} /> : 'TerDU · ' + c.difficulty}
+                      </span>
                       <h3>{c.title}</h3>
                       <p>
                         {topics.length} {tr(lang, 'ta mavzu', 'topics', 'тем')}
@@ -714,6 +719,15 @@ function GuestHome() {
 }
 
 /* ============================== KURSLAR VA MAVZULAR ============================== */
+/** 🔒 Yopiq fan belgisi: fan hali tayyorlanmoqda — faqat o'qituvchi va administrator ko'radi. */
+function ClosedCourseChip({ lang }: { lang: Lang }) {
+  return (
+    <span className="course-closed-chip">
+      <Lock size={12} />
+      {tr(lang, 'Hammaga yopiq', 'Closed to everyone', 'Закрыт для всех')}
+    </span>
+  );
+}
 export function CourseList({
   courseId,
   sub,
@@ -763,9 +777,11 @@ export function CourseList({
               done = topics.filter((l) => u?.readingHistory?.[l.id]?.status === 'read').length;
             return (
               <button key={c.id} className="course-card" onClick={() => navigate('course/' + c.id)}>
-                <CourseArt title={c.title} />
+                <CourseArt title={c.title} kind={c.illustration} />
                 <div className="course-card-body">
-                  <span className="course-level">TerDU · {c.category}</span>
+                  <span className="course-level">
+                    {c.closed ? <ClosedCourseChip lang={lang} /> : 'TerDU · ' + c.category}
+                  </span>
                   <h3>{c.title}</h3>
                   <p className="course-desc">{c.description}</p>
                   <p>
@@ -812,16 +828,40 @@ export function CourseList({
         {t(lang, 'courses')}
       </Button>
       <section className="course-banner">
-        <CourseArt title={course.title} />
+        <CourseArt title={course.title} kind={course.illustration} />
         <div className="course-banner-body">
           <span className="eyebrow">
             {tr(lang, 'FAN MAVZULARI', 'COURSE TOPICS', 'ТЕМЫ КУРСА')}
           </span>
           <h1>{course.title}</h1>
+          {course.closed && (
+            <p className="course-closed-note" role="note">
+              <ClosedCourseChip lang={lang} />
+              {tr(
+                lang,
+                'Bu fan hali tayyorlanmoqda: talabalar uni ko‘rmaydi va ocha olmaydi. Mavzular faqat o‘qituvchi va administratorga ko‘rinadi.',
+                'This course is still being prepared: students cannot see or open it. Its topics are visible only to the teacher and the administrator.',
+                'Курс ещё готовится: студенты его не видят и не могут открыть. Темы видны только преподавателю и администратору.',
+              )}
+            </p>
+          )}
           <p>
             {courseLessons.length} {tr(lang, 'ta mavzu', 'topics', 'тем')} · {course.description}
           </p>
-          {hasAcademic && university && (
+          {course.extra && (
+            <div className="course-build" role="status">
+              <span className="course-build-ready">
+                ✅ {courseLessons.filter((l) => !l.draft).length}{' '}
+                {tr(lang, 'ta dars tayyor', 'lessons ready', 'занятий готово')}
+              </span>
+              <span className="course-build-wait">
+                ⏳ {courseLessons.filter((l) => l.draft).length}{' '}
+                {tr(lang, 'tasi tayyorlanmoqda', 'in preparation', 'готовится')}
+              </span>
+              {course.entry && <small>🎓 {course.entry}</small>}
+            </div>
+          )}
+          {hasAcademic && university && !course.extra && (
             <div className="course-banner-total">
               <PointsRing
                 value={(totals.points / Math.max(1, totals.max)) * 100}
@@ -836,7 +876,7 @@ export function CourseList({
               </span>
             </div>
           )}
-          <div className="legend">
+          <div className="legend" hidden={course.extra}>
             <span className="access-chip score">
               <span className="live-dot" />
               {tr(
@@ -872,15 +912,18 @@ export function CourseList({
           <BookOpen size={17} />
           {tr(lang, 'Mavzular', 'Topics', 'Темы')}
         </button>
-        <button
-          role="tab"
-          aria-selected={ranking}
-          className={ranking ? 'on' : ''}
-          onClick={() => navigate('course/' + course.id + '/ranking')}
-        >
-          <Trophy size={17} />
-          {t(lang, 'ranking')}
-        </button>
+        {!course.extra && (
+          // 🏆 reyting — asosiy fanniki; qo'shimcha fanda (restoran kursi) hozircha ball va reyting yo'q
+          <button
+            role="tab"
+            aria-selected={ranking}
+            className={ranking ? 'on' : ''}
+            onClick={() => navigate('course/' + course.id + '/ranking')}
+          >
+            <Trophy size={17} />
+            {t(lang, 'ranking')}
+          </button>
+        )}
       </div>
       {ranking ? (
         u ? (
@@ -939,6 +982,37 @@ export function CourseList({
               number = courseLessons.findIndex((topic) => topic.id === l.id) + 1,
               pts = topicPoints(history),
               seen = Math.max(p ? seenCount(p) : 0, history?.seenSlides || 0);
+            if (l.draft)
+              return (
+                <button
+                  key={l.id}
+                  className={'lesson-card panel is-draft' + (l.exam ? ' is-exam' : '')}
+                  onClick={() => open(l)}
+                >
+                  <div className="mini-cover">
+                    <TopicArt id={l.id} number={number} />
+                    <span className="draft-veil" aria-hidden="true">
+                      {l.exam ? '🎓' : '⏳'}
+                    </span>
+                  </div>
+                  <div className="lesson-card-top">
+                    <span className="course-level">
+                      {mods.find((m) => m.id === l.moduleId)?.title}
+                    </span>
+                    <span className="draft-chip">
+                      {tr(lang, 'Tayyorlanmoqda', 'In preparation', 'Готовится')}
+                    </span>
+                  </div>
+                  <h3>
+                    {number}. {l.title}
+                  </h3>
+                  {l.plan && <p className="draft-hours">🕒 {l.plan.hours}</p>}
+                  <span className="lesson-link">
+                    {tr(lang, 'Dars rejasi', 'Lesson plan', 'План занятия')}
+                    <ChevronRight size={16} />
+                  </span>
+                </button>
+              );
             return (
               <button
                 key={l.id}

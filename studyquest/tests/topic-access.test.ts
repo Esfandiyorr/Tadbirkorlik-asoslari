@@ -47,11 +47,17 @@ it('keeps topics eight through fifteen closed by default and honors administrato
 });
 it('keeps the generated server catalog and every embedded presentation access configuration aligned', () => {
   expect(catalog.topics).toHaveLength(15);
-  for (const topic of config.topics) {
-    const generated = catalog.topics.find((t) => t.id === topic.id)!;
-    expect(generated.read).toBe(!!('read' in topic && topic.read));
+  // taqdimoti bor mavzular (tayyorlanayotgan — fayli yo'q — darslar dvigatelga kirmaydi)
+  const withFile = config.topics.filter((t) => 'file' in t && t.file) as {
+    id: string;
+    file: string;
+    read?: boolean;
+  }[];
+  for (const topic of withFile) {
+    const generated = catalog.topics.find((t) => t.id === topic.id);
+    if (generated) expect(generated.read).toBe(!!topic.read);
     const html = readFileSync('../' + topic.file, 'utf8');
     const embedded = JSON.parse(html.match(/var RT_CFG=(\{[^\n]*\});if\(RT_CFG/)![1]);
-    expect(embedded.topics).toEqual(config.topics);
+    expect(embedded.topics).toEqual(withFile);
   }
 });
