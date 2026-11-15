@@ -101,7 +101,7 @@ const tools=p=>p.evaluate(()=>[...document.querySelectorAll(".topbar .tools > *"
   const X=await H.mk(b,H.stu("sI","Isfandiyor","Sayfiddinov","T-123"),{});
   await X.context().addInitScript(()=>{ let v; Object.defineProperty(window,"RT_CFG",{configurable:true,get(){ return v; },set(x){
     if(x&&x.courses&&x.topics){ x.courses=x.courses.concat([{id:"biznes-reja",icon:"📊",title:"Biznes rejalashtirish",desc:"Yangi fan (sinov)",first:"mavzu-3.html"}]);
-      x.topics.forEach(function(t,i){ if(i>=2) t.course="biznes-reja"; }); }
+      x.topics.forEach(function(t,i){ if(i>=2&&!t.course) t.course="biznes-reja"; }); }   /* faqat asosiy fan mavzulari (restoran fani o'zgarmaydi) */
     v=x; }}); });
   await X.goto(H.SITE+"/index.html"); await ready(X);
   const xc=await X.evaluate(()=>[...document.querySelectorAll(".pt-course")].map(c=>c.querySelector("b").innerText+"|"+c.getAttribute("href")+"|"+(c.textContent.match(/(\d+) ta mavzu/)||[])[1]));
