@@ -1,8 +1,14 @@
 import 'server-only';
 import { z } from 'zod';
 import type { Actor } from '../types';
-import type { CourseEntry, CourseGrant, CourseRequest } from '../course-access';
-import { demoUsers } from '../seed';
+import type {
+  CourseEntry,
+  CourseGrant,
+  CourseRequest,
+  CourseShop,
+  PaidCourseState,
+} from '../course-access';
+import { course as mainCourse, demoUsers, extraCourses } from '../seed';
 import { administrator, ApiError, check } from './auth';
 import { authAdmin, demo, repository } from './repository';
 import { siteGet, siteUpdate } from './site-content';
@@ -48,12 +54,85 @@ export async function courseGate(): Promise<{ off: boolean }> {
   return { off };
 }
 
-async function grantOf(a: Pick<Actor, 'id' | 'uid'>) {
+async function grantOf(a: Pick<Actor, 'id' | 'uid'>, base = 'courseAccess') {
   const ids = [...new Set([a.id, a.uid].filter(Boolean))];
-  const found = await Promise.all(
-    ids.map((id) => siteGet<CourseGrant>('courseAccess/' + keyOf(id))),
-  );
+  const found = await Promise.all(ids.map((id) => siteGet<CourseGrant>(base + '/' + keyOf(id))));
   return found.find((g, i) => g && g.uid === ids[i]) || null;
+}
+
+/* ---------- 💳 pullik kurslar (masalan, restoran kursi) ----------
+   Kurs hammaga ko'rinadi, darslarini faqat ADMINISTRATOR va u ruxsat bergan foydalanuvchilar ochadi (o'qituvchi ham
+   ruxsat bilan). Har kursning yozuvlari alohida:
+     site/courseAccess_<kurs>/<foydalanuvchi>   — ruxsat;  site/courseRequests_<kurs>/<foydalanuvchi> — so'rov;
+     site/courseShop/<kurs> = {price, how}      — narx va to'lov yo'riqnomasi (talabaga ko'rsatiladi). */
+export const MAIN_COURSE = mainCourse.id; // = MAIN_COURSE_ID (lib/course-access.ts)
+export const PAID_LOCKED =
+  'Bu kurs pullik: darslarni faqat administrator ruxsat bergan qatnashchilar ochadi.';
+export const paidCourse = (id?: string) => extraCourses.find((c) => c.id === id && c.paid);
+/** Kurs bo'yicha yozuvlar joyi: asosiy fan — avvalgi yo'llar, pullik fan — o'z yo'llari. */
+function where(course?: string) {
+  if (!course || course === MAIN_COURSE)
+    return { course: MAIN_COURSE, grants: 'courseAccess', requests: 'courseRequests', paid: false };
+  const c = paidCourse(course);
+  check(c, 404, 'Kurs topilmadi');
+  return {
+    course: c!.id,
+    grants: 'courseAccess_' + c!.id,
+    requests: 'courseRequests_' + c!.id,
+    paid: true,
+  };
+}
+const shopMem = ((
+  globalThis as { __sqCourseShop?: Map<string, { v: CourseShop; at: number }> }
+).__sqCourseShop ??= new Map());
+function normalizeShop(raw: Partial<CourseShop> | null): CourseShop {
+  const s = (v: unknown, n: number) => (typeof v === 'string' ? v.trim().slice(0, n) : '');
+  return { price: s(raw?.price, 80), how: s(raw?.how, 600) };
+}
+async function courseShop(course: string): Promise<CourseShop> {
+  const c = shopMem.get(course);
+  if (c && Date.now() - c.at < 30000) return c.v;
+  let v: CourseShop = { price: '', how: '' };
+  try {
+    v = normalizeShop(await siteGet<Partial<CourseShop>>('courseShop/' + course));
+  } catch {}
+  shopMem.set(course, { v, at: Date.now() });
+  return v;
+}
+/** Foydalanuvchi pullik kursga kira oladimi: administrator — doim; qolganlar — faqat ruxsat bilan. */
+export async function paidEntry(a: Actor, course: string): Promise<CourseEntry> {
+  if (a.role === 'admin') return { ok: true, via: 'staff' };
+  const w = where(course);
+  const [grant, request] = await Promise.all([
+    grantOf(a, w.grants),
+    siteGet<CourseRequest>(w.requests + '/' + keyOf(a.id)),
+  ]);
+  if (grant) return { ok: true, via: 'grant' };
+  return { ok: false, pending: request?.uid === a.id ? Number(request.at) || null : null };
+}
+/** Barcha pullik kurslar bo'yicha holat va narx (mehmonga — faqat narx, «kira olmaydi»). */
+export async function paidView(a?: Actor): Promise<Record<string, PaidCourseState>> {
+  const list = extraCourses.filter((c) => c.paid);
+  const rows = await Promise.all(
+    list.map(async (c) => {
+      const [shop, entry] = await Promise.all([
+        courseShop(c.id),
+        a ? paidEntry(a, c.id) : Promise.resolve<CourseEntry>({ ok: false, pending: null }),
+      ]);
+      return [c.id, { ...entry, ...shop }] as const;
+    }),
+  );
+  return Object.fromEntries(rows);
+}
+/** Server tekshiruvi: pullik kurs darsi ochilishidan oldin. */
+export async function requirePaidCourse(a: Actor, course: string) {
+  if ((await paidEntry(a, course)).ok) return;
+  // Tejamkor (readOnly) so'rovda Firestore'dagi administrator roli ko'rinmaydi — rad etishdan oldin bir marta tekshiriladi
+  const stored = await repository()
+    .then((r) => r.get('users', a.id))
+    .catch(() => null);
+  if (stored?.role === 'admin') return;
+  throw new ApiError(403, PAID_LOCKED);
 }
 
 /** Foydalanuvchi kurs darslariga kira oladimi va nima sababdan (obuna, ruxsat, talaba …). */
@@ -87,12 +166,16 @@ const MAX_REQUESTS = 1000;
 /** Foydalanuvchi: «Kursga ruxsat so'rash» (administrator «Sayt boshqaruvi → 🔑 Kursga ruxsat»da ko'radi). */
 export async function requestCourseAccess(a: Actor, raw: unknown, now = Date.now()) {
   const v = z
-    .object({ note: z.string().trim().max(300).optional() })
+    .object({
+      note: z.string().trim().max(300).optional(),
+      course: z.string().max(40).optional(),
+    })
     .strict()
     .parse(raw ?? {});
-  const entry = await courseEntry(a, now);
+  const w = where(v.course);
+  const entry = w.paid ? await paidEntry(a, w.course) : await courseEntry(a, now);
   if (entry.ok) return entry;
-  const all = (await siteGet<Record<string, unknown>>('courseRequests')) || {};
+  const all = (await siteGet<Record<string, unknown>>(w.requests)) || {};
   check(
     Object.keys(all).length < MAX_REQUESTS || !!all[keyOf(a.id)],
     429,
@@ -105,25 +188,34 @@ export async function requestCourseAccess(a: Actor, raw: unknown, now = Date.now
     at: now,
     ...(v.note ? { note: v.note } : {}),
   };
-  await siteUpdate({ ['courseRequests/' + keyOf(a.id)]: rec });
+  await siteUpdate({ [w.requests + '/' + keyOf(a.id)]: rec });
   return { ok: false, pending: now } satisfies CourseEntry;
 }
-export async function cancelCourseRequest(a: Actor) {
-  await siteUpdate({ ['courseRequests/' + keyOf(a.id)]: null });
+export async function cancelCourseRequest(a: Actor, course?: string) {
+  await siteUpdate({ [where(course).requests + '/' + keyOf(a.id)]: null });
   return { ok: false, pending: null } satisfies CourseEntry;
 }
 
 /* ---------- 🛠 administrator bo'limi ---------- */
-export async function courseAccessAdmin(a: Actor) {
+export async function courseAccessAdmin(a: Actor, course?: string) {
   administrator(a);
-  const [grants, requests, gate] = await Promise.all([
-    siteGet<Record<string, CourseGrant>>('courseAccess'),
-    siteGet<Record<string, CourseRequest>>('courseRequests'),
+  const w = where(course);
+  const [grants, requests, gate, shop] = await Promise.all([
+    siteGet<Record<string, CourseGrant>>(w.grants),
+    siteGet<Record<string, CourseRequest>>(w.requests),
     siteGet<{ off?: boolean }>('courseGate'),
+    w.paid ? courseShop(w.course) : Promise.resolve(null),
   ]);
   const valid = <T extends { uid?: unknown; at?: unknown }>(x: T | null | undefined): x is T =>
     !!x && typeof x.uid === 'string' && typeof x.at === 'number';
   return {
+    course: w.course,
+    paid: w.paid,
+    courses: [
+      { id: MAIN_COURSE, title: mainCourse.title, paid: false },
+      ...extraCourses.filter((c) => c.paid).map((c) => ({ id: c.id, title: c.title, paid: true })),
+    ],
+    shop,
     gate: { off: gate?.off === true },
     grants: Object.values(grants || {})
       .filter(valid)
@@ -137,18 +229,37 @@ export async function courseAccessAdmin(a: Actor) {
 export type CourseAccessAdminView = Awaited<ReturnType<typeof courseAccessAdmin>>;
 
 const uid = z.string().min(1).max(140);
+const courseId = z.string().max(40).optional();
 const input = z.discriminatedUnion('op', [
-  z.object({ op: z.literal('approve'), uid }).strict(),
-  z.object({ op: z.literal('reject'), uid }).strict(),
-  z.object({ op: z.literal('revoke'), uid }).strict(),
+  z.object({ op: z.literal('approve'), uid, course: courseId }).strict(),
+  z.object({ op: z.literal('reject'), uid, course: courseId }).strict(),
+  z.object({ op: z.literal('revoke'), uid, course: courseId }).strict(),
   z
     .object({
       op: z.literal('grant'),
+      course: courseId,
       email: z
         .string()
         .trim()
         .max(120)
         .refine((v) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v), 'Email manzil noto‘g‘ri.'),
+    })
+    .strict(),
+  // reytingdagi (TerDU) talabaga yoki boshqa ma'lum foydalanuvchiga to'g'ridan-to'g'ri ruxsat
+  z
+    .object({
+      op: z.literal('grantUser'),
+      course: courseId,
+      uid: z.string().regex(/^[A-Za-z0-9_-]{1,120}$/),
+      name: z.string().trim().min(1).max(120),
+    })
+    .strict(),
+  z
+    .object({
+      op: z.literal('shop'),
+      course: z.string().max(40),
+      price: z.string().trim().max(80),
+      how: z.string().trim().max(600),
     })
     .strict(),
   z.object({ op: z.literal('gate'), off: z.boolean() }).strict(),
@@ -176,9 +287,28 @@ export async function manageCourseAccess(
     mem.c = null;
     return courseAccessAdmin(a);
   }
+  const w = where(p.course);
+  if (p.op === 'shop') {
+    check(w.paid, 400, 'Narx faqat pullik kurs uchun.');
+    await siteUpdate({ ['courseShop/' + w.course]: normalizeShop(p) });
+    shopMem.delete(w.course);
+    return courseAccessAdmin(a, w.course);
+  }
   if (p.op === 'revoke') {
-    await siteUpdate({ ['courseAccess/' + keyOf(p.uid)]: null });
-    return courseAccessAdmin(a);
+    await siteUpdate({ [w.grants + '/' + keyOf(p.uid)]: null });
+    return courseAccessAdmin(a, w.course);
+  }
+  if (p.op === 'grantUser') {
+    await siteUpdate({
+      [w.grants + '/' + keyOf(p.uid)]: {
+        uid: p.uid,
+        name: p.name,
+        at: now,
+        by: a.uid,
+      } satisfies CourseGrant,
+      [w.requests + '/' + keyOf(p.uid)]: null,
+    });
+    return courseAccessAdmin(a, w.course);
   }
   if (p.op === 'grant') {
     check(find !== findDefault || !demo(), 409, 'Demo rejimida email bo‘yicha qidirib bo‘lmaydi.');
@@ -189,25 +319,25 @@ export async function manageCourseAccess(
       'Bu email bilan ro‘yxatdan o‘tgan foydalanuvchi topilmadi. Avval u saytda ro‘yxatdan o‘tsin.',
     );
     await siteUpdate({
-      ['courseAccess/' + keyOf(u!.uid)]: {
+      [w.grants + '/' + keyOf(u!.uid)]: {
         uid: u!.uid,
         name: u!.name.slice(0, 120),
         email: u!.email.slice(0, 120),
         at: now,
         by: a.uid,
       } satisfies CourseGrant,
-      ['courseRequests/' + keyOf(u!.uid)]: null,
+      [w.requests + '/' + keyOf(u!.uid)]: null,
     });
-    return courseAccessAdmin(a);
+    return courseAccessAdmin(a, w.course);
   }
   const key = keyOf(p.uid);
-  const r = await siteGet<CourseRequest>('courseRequests/' + key);
+  const r = await siteGet<CourseRequest>(w.requests + '/' + key);
   check(r && r.uid === p.uid, 404, 'So‘rov topilmadi (bekor qilingan bo‘lishi mumkin).');
   await siteUpdate({
-    ['courseRequests/' + key]: null,
+    [w.requests + '/' + key]: null,
     ...(p.op === 'approve'
       ? {
-          ['courseAccess/' + key]: {
+          [w.grants + '/' + key]: {
             uid: r!.uid,
             name: r!.name,
             ...(r!.email ? { email: r!.email } : {}),
@@ -217,5 +347,5 @@ export async function manageCourseAccess(
         }
       : {}),
   });
-  return courseAccessAdmin(a);
+  return courseAccessAdmin(a, w.course);
 }

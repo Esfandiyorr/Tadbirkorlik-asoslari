@@ -1118,7 +1118,7 @@ function courseOf(x){ var cs=CFG.courses||[]; return cs.filter(function(c){ retu
 function courseTopics(c){ return (CFG.topics||[]).filter(function(x){ return courseOf(x)===c; }); }
 /* 🔒 yopiq fan (courses[].closed — hali tayyorlanayotgan fan): fanlar ro'yxatida va talaba jadvallarida ko'rinmaydi,
    mavzulari o'rtacha baho hisobiga kirmaydi. Mavzularining o'zi ham yopiq (open:false) turadi. */
-function courseClosed(x){ var c=courseOf(x); return !!(c&&c.closed&&x&&x.course===c.id); }
+function courseClosed(x){ var c=courseOf(x); return !!(c&&(c.closed||c.paid)&&x&&x.course===c.id); }   /* pullik fan (paid) — yangi platformada administrator ruxsati bilan; bu dvigatel hisobiga kirmaydi */
 function liveTopics(){ return (CFG.topics||[]).filter(function(x){ return !courseClosed(x); }); }
 function curTopicObj(){ return (CFG.topics||[]).filter(function(x){ return x.id===CFG.topic; })[0]||null; }
 function pageCourse(){        /* shu sahifa qaysi fanga tegishli (mavzu sahifasi yoki fan sahifasi) */
@@ -1181,7 +1181,7 @@ function groupField(id,cur){
   return '<select id="'+id+'" class="rt-gsel"><option value="">'+T("— tanlang —","— choose —")+'</option>'+opts+'</select>';
 }
 function courseGate(next){
-  var list=(CFG.courses||[]).filter(function(c){ return !c.closed; });
+  var list=(CFG.courses||[]).filter(function(c){ return !c.closed&&!c.paid; });
   if(!list.length){ next(); return; }
   var here=(location.pathname.split("/").pop()||"index.html");
   var g=el('<div class="rt-gate" id="rtCourseGate"><div class="rt-box">'+
@@ -4433,7 +4433,7 @@ function learningPathsBind(){
 }
 function portalRender(){
   var au=document.getElementById("hmAuth"), cb=document.getElementById("hmCourses"), cta=document.getElementById("hmCta"); if(!au||!cb) return;
-  var tcv=tcHere()&&!S, cs=(CFG.courses||[]).filter(function(c){ return !c.closed||tcv; }), now=Date.now(), gst=!S&&!tcv;
+  var tcv=tcHere()&&!S, cs=(CFG.courses||[]).filter(function(c){ return !(c.closed||c.paid)||tcv; }), now=Date.now(), gst=!S&&!tcv;
   document.documentElement.classList.toggle("pt-mini",!gst);      /* hisobi bor talaba (va o'qituvchi): sayt haqida ma'lumot yo'q, faqat fan nomi; hisobsizga — hammasi */
   au.innerHTML=tcv?'<div class="hm-week tc hm-auth">👨‍🏫 '+T("O'qituvchi ko'rinishi. Fanni tanlab, mavzularni talabalar uchun ochishingiz mumkin.","Teacher view. Choose a course to open its topics for students.")+'</div>'
     :independent(S)?'<div class="hm-week hm-auth">📖 '+T("Mustaqil ta’lim · Ochiq darslarni o‘z tezligingizda o‘qing.","Independent learning · Read open lessons at your own pace.")+'</div>':'';

@@ -226,7 +226,10 @@ export class Platform {
     const catalogFirst = await this.publicData();
     const needProgress =
       !a.id.startsWith('legacy_') ||
-      catalogFirst.lessons.some((l) => !(l as { legacyFile?: string }).legacyFile);
+      // ⏳ tayyorlanayotgan (katalogdagi, faylsiz) mashg'ulotlar Firestore progressini ishlatmaydi
+      catalogFirst.lessons.some(
+        (l) => !(l as { legacyFile?: string }).legacyFile && !(l as { draft?: boolean }).draft,
+      );
     const [catalog, user, progress, attempts, earned, ownNotices, sharedNotices] =
       await Promise.all([
         catalogFirst,

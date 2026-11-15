@@ -155,7 +155,10 @@ it('does not read Firestore progress for original-presentation students while th
   const email = { id: 'u1', role: 'student', name: 'Vali' } as unknown as Actor;
   const service = new Platform(repo, () => clock);
   const first = await service.state(legacy);
-  expect(first.lessons.map((l) => (l as { id?: string }).id)).toEqual(['m1']);
+  // asosiy fan (pullik restoran kursi ro'yxati katalogdan qo'shiladi, Firestore'ga tegmaydi)
+  expect(
+    first.lessons.map((l) => (l as { id?: string }).id).filter((id) => !/^r\d/.test(String(id))),
+  ).toEqual(['m1']);
   expect(first.progress).toEqual([]);
   expect(find.mock.calls.some(([c]) => c === 'progress')).toBe(false);
   expect((await service.state(email)).progress).toHaveLength(1);

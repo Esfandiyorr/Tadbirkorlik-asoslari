@@ -30,7 +30,10 @@ it('does not convert permission errors into a quota fallback', async () => {
 
 it('limited mode preserves verified academic points without inventing XP or exposing demo users or answers', () => {
   const result = limitedCatalog({ ...demoUsers[0], academicPoints: 375.5 });
-  expect(result.lessons).toHaveLength(15);
+  // asosiy fanning 15 mavzusi (pullik restoran kursi mashg'ulotlari ham ro'yxatda)
+  expect(
+    (result.lessons as { id?: string }[]).filter((l) => !/^r\d/.test(String(l.id))),
+  ).toHaveLength(15);
   expect(result.user).toMatchObject({ academicPoints: 375.5 });
   expect(result.user).not.toHaveProperty('xp');
   expect(result).not.toHaveProperty('users');

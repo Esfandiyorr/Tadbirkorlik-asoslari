@@ -174,9 +174,9 @@ export function BackOffice({ openTab }: { openTab: (tab: string) => void }) {
       icon: '🔑',
       title: L('Kursga ruxsat', 'Course access', 'Доступ к курсу'),
       text: L(
-        'Talaba bo‘lmaganlar kursga faqat obuna yoki sizning ruxsatingiz bilan kiradi: so‘rovlar, email bo‘yicha ruxsat, ruxsatlar ro‘yxati.',
-        'Non-students enter the course only with Premium or your permission: requests, access by email, the list of grants.',
-        'Не-студенты входят в курс только по подписке или вашему разрешению: запросы, доступ по email, список.',
+        'Har bir kurs bo‘yicha kim qatnasha oladi: so‘rovlar, email yoki talaba bo‘yicha ruxsat, ruxsatlar ro‘yxati. Pullik kurs (restoran) — faqat siz ruxsat berganlarga; narx va to‘lov yo‘riqnomasi.',
+        'Who may take each course: requests, access by email or student, the list of grants. A paid course (restaurant) opens only for those you approve; price and payment instructions.',
+        'Кто может проходить каждый курс: запросы, доступ по email или студенту, список. Платный курс (ресторан) — только одобренным вами; цена и инструкция по оплате.',
       ),
     },
     {

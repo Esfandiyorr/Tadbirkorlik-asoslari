@@ -5,6 +5,7 @@ import type { Actor } from '../types';
 import { administrator, check } from './auth';
 import { authAdmin, demo, legacyDb, repository } from './repository';
 import { siteGet, siteUpdate } from './site-content';
+import { extraCourses } from '../seed';
 
 /* 📱 Play Market (Google Play) talablari uchun server qismi.
    1) Ilova ma'lumotlari — site/app = {operator, email, pkg, sha[]}: administrator «Sayt boshqaruvi → 📱 Ilova»da
@@ -134,6 +135,11 @@ async function eraseAccount(by: Actor, r: DeleteRequest, read: Read, update: Upd
     ['avatarOrders/' + key]: null,
     ['avatarGone/' + key]: null,
   };
+  // 💳 pullik kurslar bo'yicha ruxsat va so'rovlar
+  for (const c of extraCourses.filter((x) => x.paid)) {
+    site['courseAccess_' + c.id + '/' + key] = null;
+    site['courseRequests_' + c.id + '/' + key] = null;
+  }
   const subs = (await siteGet<Record<string, { uid?: string }>>('push/subs')) || {};
   for (const [k, s] of Object.entries(subs)) if (s?.uid === r.uid) site['push/subs/' + k] = null;
   // sinovda (read/update berilganda) ham ishlaydi; demo muhitda jonli bazaga tegilmaydi

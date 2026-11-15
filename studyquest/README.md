@@ -51,7 +51,7 @@ For Firebase-backed development, copy `.env.example` to `.env.local`, supply you
   subscription by hand and writes the price and payment instructions. Inside the Play Store app (`/?src=play`) the
   offer shows no price or payment instructions (`lib/play-app.ts`) — Google Play does not allow steering to external
   payment for digital goods.
-- **Course access** (`lib/server/course-access.ts`): sign-in starts with «Talabamisiz?». TerDU students use the
+- **Course access** (`lib/server/course-access.ts`, per course — see also the paid restaurant course below): sign-in starts with «Talabamisiz?». TerDU students use the
   student section (group + teacher approval) and keep full access with points. Everyone else registers with email or
   Google and opens course lessons only with Premium or the administrator's permission («🔑 Kursga ruxsat»: access
   requests, grant by email, revoke, and a switch to open the course to everyone for a while). Checked on the server
@@ -60,8 +60,15 @@ For Firebase-backed development, copy `.env.example` to `.env.local`, supply you
   (uz/ru/en), in-app account deletion requests approved by the administrator, `/.well-known/assetlinks.json` filled
   from the back office, a report form for the group chat, store texts, screenshots and a step-by-step guide.
 - A second course, **Restoran xodimlari malakasini oshirish** (RS 24, restaurant staff training), served straight from
-  the catalog (`catalog.more`, `lib/seed.ts` `extraCourses`) and currently **closed to everyone**: students never
-  receive it, only the teacher and the administrator see it under «Kurslar» with a «Hammaga yopiq» chip. Each lesson
+  the catalog (`catalog.more`, `lib/seed.ts` `extraCourses`) as a **paid course** (`"paid": true` in
+  `_reyting-manba/config.json`): everyone sees it (card «💳 Pullik kurs», lesson list, session plans), but only the
+  **administrator** and the participants he approves open its lessons — everyone else (students, teachers, email
+  users, guests) gets the «💳 Bu kurs pullik» card with the price, payment instructions and «Request to join». Access is
+  kept per course (`site/courseAccess_<course>`, `site/courseRequests_<course>`, `site/courseShop/<course>`) and
+  checked on the server before a lesson opens (`requirePaidCourse`). The administrator manages it in
+  **Sayt boshqaruvi → 🔑 Kursga ruxsat**, choosing the course tab: requests, grant by email or by finding a TerDU
+  student, the participant list, price and payment instructions. (`"closed": true` instead would hide a course from
+  everyone but staff.) Each lesson
   has slides, a 15-question test and a silent **animated video with Uzbek subtitles** (`fayllar/video/R<N>.mp4` +
   `.vtt`), played on the «🎬 Video dars» slide and from the lesson toolbar. The main course's topics, points and
   rating are unaffected. The **whole programme is laid out**: 10 modules and 2 final exams (r1–r12) in the four

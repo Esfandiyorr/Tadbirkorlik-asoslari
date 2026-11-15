@@ -422,7 +422,6 @@
       "title": "Restoran xodimlari malakasini oshirish",
       "desc": "RS 24 · 24 akademik soat (4 o‘quv kuni): 10 modul va 2 yakuniy imtihon — xizmat sikli, sanitariya, servirovka, xorijiy mehmon, allergenlar, buyurtma va to‘lov, shikoyat, to‘liq smena",
       "category": "Xizmat ko'rsatish",
-      "closed": true,
       "blocks": [
         [
           "Xizmat asoslari va mehmon bilan muloqot",
@@ -457,7 +456,8 @@
           ]
         ]
       ],
-      "entry": "Imtihonga kirish uchun kamida 18/20 modul soati va sanitariya hamda allergen bo‘yicha amaliy topshiriqlar talab etiladi."
+      "entry": "Imtihonga kirish uchun kamida 18/20 modul soati va sanitariya hamda allergen bo‘yicha amaliy topshiriqlar talab etiladi.",
+      "paid": true
     }
   ],
   "groups": [

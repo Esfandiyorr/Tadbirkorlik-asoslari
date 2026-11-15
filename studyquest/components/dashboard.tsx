@@ -26,7 +26,7 @@ import { HeroAvatar, useAcademicBoard } from './avatars';
 import { NewsBox, NewsChip } from './announcements';
 import { PromoBox } from './promo';
 import { Leaderboard } from './leaderboard';
-import { CourseGate } from './course-gate';
+import { CourseGate, PaidCourseGate, usePaidLocked } from './course-gate';
 import { AccessChip, PointsRing, PointsBreakdown } from './points-ui';
 import { t, dateLabel } from '@/lib/i18n';
 import {
@@ -39,7 +39,7 @@ import {
   topicPoints,
   tr,
 } from '@/lib/points';
-import type { Data, Lang, Lesson, Progress } from '@/lib/types';
+import type { Course, Data, Lang, Lesson, Progress } from '@/lib/types';
 
 const seenCount = (p: Progress) => Math.max(p.seen.length, p.legacySeen || 0);
 export const navigate = (view: string) => {
@@ -449,7 +449,7 @@ function LearnerHome() {
                     <CourseArt title={c.title} kind={c.illustration} />
                     <div className="course-card-body">
                       <span className="course-level">
-                        {c.closed ? <ClosedCourseChip lang={lang} /> : 'TerDU · ' + c.difficulty}
+                        {c.closed || c.paid ? <CourseChip course={c} /> : 'TerDU · ' + c.difficulty}
                       </span>
                       <h3>{c.title}</h3>
                       <p>
@@ -720,6 +720,22 @@ function GuestHome() {
 
 /* ============================== KURSLAR VA MAVZULAR ============================== */
 /** 🔒 Yopiq fan belgisi: fan hali tayyorlanmoqda — faqat o'qituvchi va administrator ko'radi. */
+/** Qo'shimcha fan belgisi: 🔒 hammaga yopiq yoki 💳 pullik (ruxsat bo'lsa — ✅ sizga ochiq). */
+function CourseChip({ course }: { course: Course }) {
+  const { data, lang } = useApp();
+  if (course.closed) return <ClosedCourseChip lang={lang} />;
+  const open = data?.user?.role === 'admin' || data?.paid?.[course.id]?.ok;
+  return open ? (
+    <span className="course-paid-chip is-open">
+      <Check size={12} />
+      {tr(lang, 'Sizga ochiq', 'Open to you', 'Вам открыт')}
+    </span>
+  ) : (
+    <span className="course-paid-chip">
+      💳 {tr(lang, 'Pullik kurs', 'Paid course', 'Платный курс')}
+    </span>
+  );
+}
 function ClosedCourseChip({ lang }: { lang: Lang }) {
   return (
     <span className="course-closed-chip">
@@ -741,7 +757,9 @@ export function CourseList({
     d = data!,
     u = d.user,
     open = useOpenLesson(),
-    [moduleId, setModule] = useState('');
+    [moduleId, setModule] = useState(''),
+    // 💳 pullik kurs, ruxsat yo'q — tayyor darslar qulf bilan (bosilsa — «Kurs pullik» oynasi)
+    paidLock = usePaidLocked(courseId);
   const course = courseId ? d.courses.find((x) => x.id === courseId) : null,
     mods = d.modules
       .filter((m) => m.courseId === courseId)
@@ -780,7 +798,7 @@ export function CourseList({
                 <CourseArt title={c.title} kind={c.illustration} />
                 <div className="course-card-body">
                   <span className="course-level">
-                    {c.closed ? <ClosedCourseChip lang={lang} /> : 'TerDU · ' + c.category}
+                    {c.closed || c.paid ? <CourseChip course={c} /> : 'TerDU · ' + c.category}
                   </span>
                   <h3>{c.title}</h3>
                   <p className="course-desc">{c.description}</p>
@@ -834,6 +852,17 @@ export function CourseList({
             {tr(lang, 'FAN MAVZULARI', 'COURSE TOPICS', 'ТЕМЫ КУРСА')}
           </span>
           <h1>{course.title}</h1>
+          {course.paid && d.user?.role === 'admin' && (
+            <p className="course-paid-note" role="note">
+              💳{' '}
+              {tr(
+                lang,
+                'Pullik kurs: hamma ko‘radi, lekin darslarga faqat siz ruxsat bergan qatnashchilar kiradi. Ruxsatlar — «Sayt boshqaruvi → 🔑 Kursga ruxsat» bo‘limida (kursni tanlang).',
+                'Paid course: everyone sees it, but only participants you approve can open the lessons. Manage access in “Site manager → 🔑 Course access” (choose the course).',
+                'Платный курс: его видят все, но уроки открыты только одобренным вами участникам. Доступ — в «Управление сайтом → 🔑 Доступ к курсу» (выберите курс).',
+              )}
+            </p>
+          )}
           {course.closed && (
             <p className="course-closed-note" role="note">
               <ClosedCourseChip lang={lang} />
@@ -944,7 +973,7 @@ export function CourseList({
         )
       ) : (
         <>
-          <CourseGate />
+          {course.paid ? <PaidCourseGate courseId={course.id} /> : !course.extra && <CourseGate />}
           {courseTopics()}
         </>
       )}
@@ -978,7 +1007,7 @@ export function CourseList({
             const p = d.progress?.find((x) => x.lessonId === l.id),
               history = u?.readingHistory?.[l.id],
               access = accessOf(d, l.id),
-              locked = access?.state === 'locked',
+              locked = access?.state === 'locked' || paidLock,
               number = courseLessons.findIndex((topic) => topic.id === l.id) + 1,
               pts = topicPoints(history),
               seen = Math.max(p ? seenCount(p) : 0, history?.seenSlides || 0);
@@ -1022,7 +1051,8 @@ export function CourseList({
                   (access?.state === 'score' ? ' is-live' : '')
                 }
                 onClick={() => open(l)}
-                aria-disabled={locked}
+                // 💳 pullik kursda bosilsa «Kurs pullik» oynasi ochiladi — tugma faol
+                aria-disabled={locked && !paidLock}
               >
                 <div className="mini-cover">
                   <TopicArt id={l.id} number={number} />
@@ -1058,13 +1088,15 @@ export function CourseList({
                   </>
                 )}
                 <span className="lesson-link">
-                  {locked
-                    ? tr(lang, 'Hali ochilmagan', 'Not open yet', 'Ещё не открыта')
-                    : access?.state === 'score' && access.due
-                      ? `⏳ ${dueText(access.due, lang).date} ${tr(lang, 'gacha', '', 'до')}`
-                      : history && history.status !== 'new'
-                        ? tr(lang, 'Davom etish', 'Continue', 'Продолжить')
-                        : tr(lang, 'Boshlash', 'Start', 'Начать')}
+                  {paidLock
+                    ? '💳 ' + tr(lang, 'Pullik kurs', 'Paid course', 'Платный курс')
+                    : locked
+                      ? tr(lang, 'Hali ochilmagan', 'Not open yet', 'Ещё не открыта')
+                      : access?.state === 'score' && access.due
+                        ? `⏳ ${dueText(access.due, lang).date} ${tr(lang, 'gacha', '', 'до')}`
+                        : history && history.status !== 'new'
+                          ? tr(lang, 'Davom etish', 'Continue', 'Продолжить')
+                          : tr(lang, 'Boshlash', 'Start', 'Начать')}
                   {!locked && <ChevronRight size={16} />}
                 </span>
               </button>

@@ -94,10 +94,12 @@ shablondan o'zgarishsiz o'tadi.
 Dastur — 24 akademik soatlik qisqa kurs (10 modul). Fan `config.json` → `courses` da ikkinchi bo'lib turadi
 (`"id": "restoran"`), mavzulari `topics` da `"course": "restoran"` bilan: `r1` … `r10`, fayllari `restoran-<N>.html`.
 
-- **Hammaga yopiq.** Fanda `"closed": true`, mavzularida `"open": false`. Talaba fanni ham, mavzularini ham ko'rmaydi
-  (sayt ma'lumotida umuman yo'q; dvigatel ro'yxatlarida ham chiqmaydi — `courseClosed`/`liveTopics`). Faqat o'qituvchi va
-  administrator ko'radi: «Kurslar» → 🔒 «Hammaga yopiq» belgili kartochka. Asosiy fanning 15 mavzusi, ball va reyting
-  hisob-kitobi o'zgarmaydi (saytda asosiy fan — `catalog.topics`, qo'shimcha fanlar — `catalog.more`).
+- **Pullik kurs.** Fanda `"paid": true`, mavzularida `"open": false`. Fan saytda hammaga ko'rinadi (kartochka, mavzular
+  ro'yxati, mashg'ulot rejalari), lekin darslarni faqat administrator va u ruxsat bergan foydalanuvchilar ochadi —
+  qolganlarga «💳 Kurs pullik» oynasi (narx, to'lov yo'riqnomasi, «ruxsat so'rash»). Ruxsatlar «Sayt boshqaruvi →
+  🔑 Kursga ruxsat» bo'limida, kurs tanlab boshqariladi (`studyquest/lib/server/course-access.ts`). Bu dvigatelda
+  (`rt-engine`) pullik fan mavzulari asosiy fan ro'yxatlari, ball va reyting hisobiga kirmaydi (`courseClosed`/`liveTopics`).
+  `"closed": true` (o'rniga) — fan hali hech kimga ko'rinmasin: faqat o'qituvchi va administrator ko'radi.
 - **To'liq tuzilma.** `config.json` da 12 ta mashg'ulot bor: `r1`–`r10` modullar, `r11`–`r12` yakuniy imtihonlar
   (`"kind": "exam"`), to'rt blokda (`courses[].blocks`). Har birida `plan` — dasturdagi reja: `hours`, `about` (mazmun),
   `task` (amaliy mashq yoki imtihon shartlari), `result` (natija dalili yoki o'tish sharti). Taqdimoti hali yozilmagan
@@ -115,8 +117,8 @@ Dastur — 24 akademik soatlik qisqa kurs (10 modul). Fan `config.json` → `cou
   Yig'ish: `NODE_PATH=studyquest/node_modules node _reyting-manba/video/film.js r<N>` (kadrma-kadr, ~6–8 daqiqa).
   Brauzerda ko'rish: `video/sahna.html?s=r<N>`. Video taqdimotning «🎬 Video dars» slaydida va dars oynasidagi «Video»
   tugmasida ochiladi; o'qituvchi MP4 va subtitr faylini yuklab olishi mumkin.
-- **Fanni ochish** (kelajakda): `courses` dagi `"closed"` ni olib tashlash yetarli emas — talabalar uchun kirish
-  (`legacy-access.ts`), ball va reytingni fanlar bo'yicha ajratish alohida hal qilinadi.
+- **Ball va reyting** pullik fan uchun hozircha yuritilmaydi: asosiy fanning ball va reytingi bilan aralashmasligi
+  uchun ularni fanlar bo'yicha ajratish alohida hal qilinadi.
 
 ## O'yin arenasi (`arena.html`)
 

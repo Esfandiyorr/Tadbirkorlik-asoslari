@@ -31,7 +31,7 @@ import {
 import { NativeSurface } from './native-surface';
 import { LessonFilmButton, TopicVideoButton } from './topic-video';
 import { LOGO_TOPIC } from '@/lib/logo-task';
-import { CourseGate, useCourseLocked } from './course-gate';
+import { CourseGate, PaidCourseGate, useCourseLocked, usePaidLocked } from './course-gate';
 /** Taqdimotning PDF nusxasi: to'liq havola yoki asl fayllar (public/legacy/fayllar). */
 const pdfHref = (pdf: string) => (pdf.startsWith('https://') ? pdf : '/legacy/' + pdf);
 export function LessonView({ id }: { id: string }) {
@@ -118,8 +118,12 @@ function LessonPlanView({ lesson }: { lesson: LessonType }) {
 }
 function OriginalLessonView({ id }: { id: string }) {
   const { data, lang, setLang, dark, call, toast, request } = useApp(),
-    courseLocked = useCourseLocked(),
+    mainLocked = useCourseLocked(),
     meta = data!.lessons.find((x) => x.id === id),
+    extraCourse = !!data!.courses.find((c) => c.id === meta?.courseId)?.extra,
+    paidLocked = usePaidLocked(meta?.courseId),
+    // 🔑 asosiy fan — obuna/ruxsat (talaba bo'lmaganlarga); 💳 pullik fan — administrator ruxsati
+    courseLocked = (mainLocked && !extraCourse) || paidLocked,
     [detail, setDetail] = useState<LessonType | null>(null),
     [index, setIndex] = useState(0),
     [busy, setBusy] = useState(false),
@@ -286,7 +290,7 @@ function OriginalLessonView({ id }: { id: string }) {
             course={data!.courses.find((c) => c.id === meta.courseId)?.title}
           />
         </header>
-        <CourseGate />
+        {paidLocked ? <PaidCourseGate courseId={meta.courseId} /> : <CourseGate />}
       </section>
     );
   const lesson = detail || meta,

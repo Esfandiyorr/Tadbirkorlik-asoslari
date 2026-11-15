@@ -1,4 +1,4 @@
-import type { CourseEntry } from './course-access';
+import type { CourseEntry, PaidCourseState } from './course-access';
 export type Role = 'student' | 'teacher' | 'admin';
 export type Lang = 'uz' | 'en' | 'ru';
 export type ReadingHistory = {
@@ -57,6 +57,8 @@ export type Course = {
   illustration: string;
   /** fan hali tayyorlanmoqda: talabalarga ko'rinmaydi — faqat o'qituvchi va administrator ko'radi */
   closed?: boolean;
+  /** 💳 pullik fan: hammaga ko'rinadi, darslarini faqat administrator va u ruxsat bergan foydalanuvchilar ochadi */
+  paid?: boolean;
   /** fan bo'yicha umumiy eslatma (masalan, imtihonga kirish sharti) */
   entry?: string;
   /** katalogdan beriladigan qo'shimcha fan (bazada yozuvi yo'q — «enroll» shart emas) */
@@ -164,6 +166,8 @@ export type Data = {
   lessonAccess?: Record<string, LessonAccess>;
   /** 🔑 kursga kirish (talaba bo'lmaganlar uchun: obuna yoki administrator ruxsati) — lib/server/course-access.ts */
   course?: CourseEntry;
+  /** 💳 pullik kurslar (fan id → kira oladimi, so'rov holati, narx) — lib/server/course-access.ts paidView */
+  paid?: Record<string, PaidCourseState>;
   progress?: Progress[];
   attempts?: Attempt[];
   transactions?: XpTransaction[];

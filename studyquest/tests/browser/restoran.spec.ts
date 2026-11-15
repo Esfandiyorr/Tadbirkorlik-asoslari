@@ -1,22 +1,23 @@
 import { test, expect, type Page } from '@playwright/test';
 
-/* 🍽️ Yangi fan — «Restoran xodimlari malakasini oshirish»: hozircha hammaga yopiq. O'qituvchi va administrator
-   fanni, mavzularini va 🎬 animatsion videoni (subtitr bilan) ko'radi; talaba fanni umuman ko'rmaydi. */
+/* 🍽️ Yangi fan — «Restoran xodimlari malakasini oshirish»: 💳 pullik kurs. Hamma ko'radi, darslarni faqat
+   administrator va u ruxsat bergan qatnashchilar ochadi (🎬 animatsion video subtitr bilan). */
 async function as(page: Page, id: string) {
   await page.request.post('/api/auth/demo', { data: { id } });
 }
 
-test('the teacher sees the closed restaurant course, opens a lesson and plays the subtitled video', async ({
+test('the administrator opens a restaurant lesson and plays the subtitled video', async ({
   page,
 }) => {
-  await as(page, 'demo-teacher');
+  await as(page, 'demo-admin');
   await page.goto('/#courses', { waitUntil: 'domcontentloaded' });
   const card = page.locator('.course-card').filter({ hasText: 'Restoran xodimlari' });
   await expect(card).toBeVisible();
-  await expect(card.locator('.course-closed-chip')).toHaveText('Hammaga yopiq');
+  await expect(card.locator('.course-paid-chip')).toHaveText('Sizga ochiq');
   await card.click();
   await expect(page).toHaveURL(/#course\/restoran$/);
-  await expect(page.locator('.course-closed-note')).toContainText('talabalar uni ko‘rmaydi');
+  await expect(page.locator('.course-paid-note')).toContainText('faqat siz ruxsat bergan');
+  await expect(page.locator('.course-gate.is-paid')).toHaveCount(0);
   const lesson = page.locator('.lesson-card').filter({ hasText: 'Kasbiy etika va xizmat sikli' });
   await expect(lesson).toBeVisible();
   await lesson.click();
@@ -68,32 +69,98 @@ test('the teacher sees the closed restaurant course, opens a lesson and plays th
   expect((await mp4.body()).subarray(4, 8).toString()).toBe('ftyp');
 });
 
-test('students do not see the closed restaurant course and cannot open its lessons', async ({
+test('everyone sees the paid course, but without permission the lessons stay closed', async ({
   page,
 }) => {
-  await as(page, 'demo-student');
-  await page.goto('/#courses', { waitUntil: 'domcontentloaded' });
-  await expect(page.locator('.course-card').first()).toBeVisible();
-  // boshqa sinovlar yaratgan demo kurslar bo'lishi mumkin — muhimi: restoran kursi yo'q
-  await expect(
-    page.locator('.course-card').filter({ hasText: 'Tadbirkorlik asoslari' }),
-  ).toHaveCount(1);
-  await expect(page.getByText('Restoran xodimlari')).toHaveCount(0);
-  // to'g'ridan-to'g'ri havola ham ochmaydi
-  await page.goto('/#lesson/r1');
-  await page.reload();
-  await expect(page.locator('.native-document')).toHaveCount(0);
-  await expect(page.getByRole('button', { name: 'Kurslar' }).first()).toBeVisible();
-  const api = await page.request.get('/api/platform?view=legacyLesson&lesson=r1');
-  expect(api.status()).toBe(403);
-  // bosh ma'lumotda fan ham, mavzusi ham yo'q
-  const data = await (await page.request.get('/api/platform')).json();
-  expect(data.courses.map((c: { id: string }) => c.id)).not.toContain('restoran');
-  expect(data.lessons.some((l: { id: string }) => l.id === 'r1')).toBe(false);
+  for (const id of ['demo-student', 'demo-teacher']) {
+    await as(page, id);
+    await page.goto('/#courses', { waitUntil: 'domcontentloaded' });
+    await page.reload();
+    const card = page.locator('.course-card').filter({ hasText: 'Restoran xodimlari' });
+    await expect(card.locator('.course-paid-chip')).toHaveText('💳 Pullik kurs');
+    await card.click();
+    await expect(page.locator('.course-gate.is-paid')).toContainText('Bu kurs pullik');
+    await expect(page.locator('.lesson-card')).toHaveCount(12);
+    // tayyor dars — qulf bilan; bosilsa dars emas, «Kurs pullik» oynasi
+    const lesson = page.locator('.lesson-card').filter({ hasText: 'Kasbiy etika' });
+    await expect(lesson).toContainText('💳 Pullik kurs');
+    await lesson.click();
+    await expect(page).toHaveURL(/#lesson\/r1$/);
+    await expect(page.locator('.course-gate-page .course-gate.is-paid')).toBeVisible();
+    await expect(page.locator('.native-document')).toHaveCount(0);
+    // server ham bermaydi
+    const api = await page.request.get('/api/platform?view=legacyLesson&lesson=r1');
+    expect(api.status()).toBe(403);
+    // tayyorlanayotgan mashg'ulot rejasi esa ko'rinadi (kurs dasturi)
+    await page.goto('/#lesson/r5', { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('.lesson-plan-body')).toContainText('Menyu va allergenlar');
+  }
+  // mehmonga ham kurs ko'rinadi — darslar uchun kirish so'raladi
+  await page.request.delete('/api/auth/demo');
+  const guest = await (await page.request.get('/api/platform')).json();
+  expect(guest.courses.map((c: { id: string }) => c.id)).toContain('restoran');
+  expect(guest.paid.restoran).toMatchObject({ ok: false });
   // asl fayl to'g'ridan-to'g'ri ochilsa — saytga qaytaradi (taqdimot ko'rinmaydi)
+  await as(page, 'demo-student');
   await page.goto('/legacy/restoran-1.html');
   await expect(page).toHaveURL(/#lesson\/r1$/);
   await expect(page.locator('.native-document')).toHaveCount(0);
+});
+
+test('a student asks to join, the administrator approves in «Kursga ruxsat» and the lesson opens', async ({
+  page,
+}) => {
+  await as(page, 'demo-student');
+  await page.goto('/#course/restoran', { waitUntil: 'domcontentloaded' });
+  await page.reload();
+  const gate = page.locator('.course-gate.is-paid');
+  await gate.getByRole('button', { name: 'Qatnashish uchun so‘rov' }).click();
+  await gate.getByLabel(/Izoh/).fill('Ofitsiant, «Sharq» restorani');
+  await gate.getByRole('button', { name: 'So‘rov yuborish' }).click();
+  await expect(gate.locator('.course-gate-pending')).toContainText('So‘rov yuborilgan');
+
+  await as(page, 'demo-admin');
+  await page.goto('/#admin', { waitUntil: 'domcontentloaded' });
+  await page.reload();
+  await page.locator('.bo-card-btn').filter({ hasText: 'Kursga ruxsat' }).click();
+  await page.getByRole('tab', { name: /Restoran xodimlari/ }).click();
+  const sec = page.locator('.bo-course-access.is-paid');
+  // narx va to'lov yo'riqnomasi
+  await sec.getByLabel(/Kurs narxi/).fill('450 000 so‘m');
+  await sec.getByLabel('Qanday to‘lanadi').fill('Click orqali to‘lang.');
+  await sec.getByRole('button', { name: 'Saqlash' }).click();
+  await expect(page.locator('.toast')).toContainText('Saqlandi');
+  const row = sec.locator('.bo-list li').filter({ hasText: 'Ofitsiant, «Sharq» restorani' });
+  await row.getByRole('button', { name: /^Ruxsat berish:/ }).click();
+  await expect(sec).toContainText('Yangi so‘rov yo‘q.');
+  await expect(sec.getByRole('button', { name: /^Ruxsatni olish:/ })).toHaveCount(1);
+
+  // talaba endi darsni ochadi
+  await as(page, 'demo-student');
+  await page.goto('/#course/restoran', { waitUntil: 'domcontentloaded' });
+  await page.reload();
+  await expect(page.locator('.course-card, .course-gate.is-paid')).toHaveCount(0);
+  await page.locator('.lesson-card').filter({ hasText: 'Kasbiy etika' }).click();
+  await expect(page.locator('.native-document')).toContainText('KASBIY ETIKA VA XIZMAT SIKLI');
+
+  // asl holatga (boshqa sinovlar uchun): ruxsatni olib qo'yish, narxni tozalash
+  await as(page, 'demo-admin');
+  const view = await (
+    await page.request.get('/api/platform?view=courseAccessAdmin&course=restoran')
+  ).json();
+  for (const g of view.grants)
+    await page.request.post('/api/platform', {
+      data: {
+        action: 'courseAccessAdmin',
+        input: { op: 'revoke', uid: g.uid, course: 'restoran' },
+      },
+    });
+  await page.request.post('/api/platform', {
+    data: {
+      action: 'courseAccessAdmin',
+      input: { op: 'shop', course: 'restoran', price: '', how: '' },
+    },
+  });
 });
 
 test('the whole course is laid out: 12 sessions in 4 blocks, unfinished ones show their plan', async ({

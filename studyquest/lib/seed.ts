@@ -88,13 +88,15 @@ export const lessons: Lesson[] = catalog.topics.map((t, i) => ({
 }));
 /* 📚 Qo'shimcha fanlar (config.json «courses» dagi ikkinchi va keyingi fanlar) — sync-legacy.mjs «more» ga chiqaradi.
    Ular Firestore'ga yozilmaydi: katalogdan to'g'ridan-to'g'ri beriladi (Platform.publicData). Asosiy fanning ball,
-   reyting va «Mavzular holati» hisob-kitoblariga aralashmaydi. closed — faqat o'qituvchi va administrator ko'radi. */
+   reyting va «Mavzular holati» hisob-kitoblariga aralashmaydi. closed — faqat o'qituvchi va administrator ko'radi;
+   paid — hammaga ko'rinadi, darslarini faqat administrator va u ruxsat berganlar ochadi (lib/server/course-access.ts). */
 type MoreCourse = {
   id: string;
   title: string;
   description: string;
   category: string;
   closed: boolean;
+  paid?: boolean;
   entry?: string;
   blocks: { id: string; title: string; topics: string[] }[];
   topics: {
@@ -120,6 +122,7 @@ export const extraCourses: Course[] = more.map((c) => ({
   category: c.category,
   illustration: 'service',
   ...(c.closed ? { closed: true } : {}),
+  ...(c.paid ? { paid: true } : {}),
   ...(c.entry ? { entry: c.entry } : {}),
   extra: true,
 }));

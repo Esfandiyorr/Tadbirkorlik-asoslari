@@ -57,7 +57,10 @@ it('serves a safe public catalog when Firestore refuses reads', async () => {
   const data = await response.json();
   expect(response.status).toBe(200);
   expect(data.limited).toBe(true);
-  expect(data.lessons).toHaveLength(15);
+  // asosiy fanning 15 mavzusi (pullik restoran kursi mashg'ulotlari ham ro'yxatda)
+  expect(
+    (data.lessons as { id?: string }[]).filter((l) => !/^r\d/.test(String(l.id))),
+  ).toHaveLength(15);
   expect(data.user).toBeUndefined();
   expect(data.quizzes).toEqual([]);
 });

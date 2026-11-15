@@ -11774,3 +11774,100 @@ html {
     margin: 12px auto;
   }
 }
+
+/* 💳 Pullik kurs: kartochkadagi belgi, administratorga eslatma va «Kurs pullik» oynasidagi narx */
+.course-paid-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: #fef3c7;
+  color: #92400e;
+  font-size: 11.5px;
+  font-weight: 800;
+  white-space: nowrap;
+  text-transform: none;
+  letter-spacing: 0.2px;
+}
+.course-paid-chip.is-open {
+  background: #dcfce7;
+  color: #166534;
+}
+.dark .course-paid-chip {
+  background: #3a2a12;
+  color: #fcd9a6;
+}
+.dark .course-paid-chip.is-open {
+  background: #14351f;
+  color: #bbf7d0;
+}
+.course-paid-note {
+  margin: 8px 0 0;
+  padding: 10px 12px;
+  border: 1px dashed #f5c26b;
+  border-radius: 12px;
+  background: #fffbeb;
+  color: #78350f;
+  font-size: 13.5px;
+  line-height: 1.45;
+}
+.dark .course-paid-note {
+  border-color: #92400e;
+  background: #2a1f0e;
+  color: #fde68a;
+}
+.course-gate.is-paid {
+  border-color: #f5c26b;
+  background: radial-gradient(circle at 100% 0, #fff3d6 0, transparent 55%), var(--surface);
+}
+.dark .course-gate.is-paid {
+  border-color: #92400e;
+  background: radial-gradient(circle at 100% 0, #3a2a12 0, transparent 55%), var(--surface);
+}
+.course-gate.is-paid .course-gate-lock {
+  background: linear-gradient(135deg, #d97706, #f59e0b);
+  box-shadow: 0 10px 24px -14px #d97706;
+}
+.paid-gate-price {
+  display: grid;
+  gap: 4px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: var(--surface-soft);
+  border: 1px solid var(--border);
+}
+.paid-gate-price b {
+  font-size: 17px;
+}
+.paid-gate-price p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13.5px;
+  line-height: 1.5;
+  white-space: pre-line;
+}
+.bo-course-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 14px;
+}
+.bo-course-tabs button {
+  padding: 8px 14px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.bo-course-tabs button.on {
+  border-color: var(--violet);
+  background: var(--soft-violet);
+  color: #6d28d9;
+}
+.dark .bo-course-tabs button.on {
+  color: #c4b5fd;
+}

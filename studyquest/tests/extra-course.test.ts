@@ -35,11 +35,12 @@ it('keeps the main course catalog untouched: 15 topics, no restaurant topics in 
   expect(lessons.every((l) => l.courseId === course.id)).toBe(true);
 });
 
-it('describes the restaurant course as a closed extra course with its lessons, blocks and video', () => {
+it('describes the restaurant course as a paid extra course with its lessons, blocks and video', () => {
   const restoran = extraCourses.find((c) => c.id === 'restoran')!;
   expect(restoran).toMatchObject({
     title: 'Restoran xodimlari malakasini oshirish',
-    closed: true,
+    paid: true,
+    extra: true,
     published: true,
   });
   expect(extraModules.filter((m) => m.courseId === 'restoran').map((m) => m.title)).toEqual([
@@ -92,49 +93,44 @@ it('describes the restaurant course as a closed extra course with its lessons, b
   });
 });
 
-it('shows the closed course only to the teacher and the administrator', async () => {
-  expect(seesCourse(extraCourses[0], 'student')).toBe(false);
-  expect(seesCourse(extraCourses[0], undefined)).toBe(false);
-  expect(seesCourse(extraCourses[0], 'teacher')).toBe(true);
-  expect(seesCourse(extraCourses[0], 'admin')).toBe(true);
+it('shows the paid course to everyone; a closed course would be staff-only', async () => {
+  const restoran = extraCourses.find((c) => c.id === 'restoran')!;
+  expect(restoran).toMatchObject({ paid: true });
+  expect(restoran.closed).toBeFalsy();
+  // 💳 pullik kurs — hammaga ko'rinadi (darslarni ochish — alohida tekshiriladi)
+  for (const role of ['student', undefined, 'teacher', 'admin'])
+    expect(seesCourse(restoran, role)).toBe(true);
+  // 🔒 yopiq kurs bo'lsa — faqat o'qituvchi va administrator
+  const closed = { ...restoran, paid: false, closed: true };
+  expect(seesCourse(closed, 'student')).toBe(false);
+  expect(seesCourse(closed, undefined)).toBe(false);
+  expect(seesCourse(closed, 'teacher')).toBe(true);
 
   const base = { courses: [course], modules, lessons };
-  expect(ids(withExtraCourses(base, 'student').courses)).toEqual([course.id]);
-  expect(ids(withExtraCourses(base).lessons)).not.toContain('r1');
-  const staffView = withExtraCourses(base, 'teacher');
-  expect(ids(staffView.courses)).toEqual([course.id, 'restoran']);
-  expect(ids(staffView.lessons)).toContain('r1');
+  expect(ids(withExtraCourses(base, 'student').courses)).toEqual([course.id, 'restoran']);
+  expect(ids(withExtraCourses(base).lessons)).toContain('r1');
   // ikki marta qo'shilmaydi
+  const staffView = withExtraCourses(base, 'teacher');
   expect(ids(withExtraCourses(staffView, 'admin').courses)).toEqual([course.id, 'restoran']);
 
-  // mehmon va talaba: fan ham, mavzulari ham yo'q
-  expect(ids((await service.publicData()).courses)).toEqual([course.id]);
-  const forStudent = await service.state(student);
-  expect(ids(forStudent.courses)).toEqual([course.id]);
-  expect(ids(forStudent.lessons as { id?: string }[]).some((id) => /^r\d/.test(String(id)))).toBe(
-    false,
-  );
-  // o'qituvchi va administrator: oddiy ko'rinishda ham, xodimlar ko'rinishida ham bor
-  for (const a of [teacher, admin]) {
-    expect(ids((await service.state(a)).courses)).toContain('restoran');
-    const staff = await service.state(a, true, false);
-    expect(ids(staff.courses)).toContain('restoran');
-    expect(ids(staff.lessons as { id?: string }[])).toContain('r1');
-    expect(ids(staff.modules)).toContain('restoran-1');
+  // mehmon, talaba, o'qituvchi va administrator — hammaning ma'lumotida kurs va mashg'ulotlar ro'yxati bor
+  expect(ids((await service.publicData()).courses)).toContain('restoran');
+  for (const a of [student, teacher, admin]) {
+    const v = await service.state(a);
+    expect(ids(v.courses)).toContain('restoran');
+    expect(ids(v.lessons as { id?: string }[])).toContain('r1');
   }
-  // baza vaqtincha ishlamaganda beriladigan qisqa katalog ham shu qoidaga bo'ysunadi
-  expect(ids(limitedCatalog(student).courses)).toEqual([course.id]);
-  expect(ids(limitedCatalog().lessons)).not.toContain('r1');
-  expect(ids(limitedCatalog(teacher).lessons)).toContain('r1');
+  const staff = await service.state(admin, true, false);
+  expect(ids(staff.modules)).toContain('restoran-1');
+  // baza vaqtincha ishlamaganda beriladigan qisqa katalog ham
+  expect(ids(limitedCatalog(student).courses)).toContain('restoran');
+  expect(ids(limitedCatalog().lessons)).toContain('r1');
 });
 
-it('enrolling in the catalog course is a no-op for staff and refused for students', async () => {
-  // eski sahifa (keshdagi) yoki qidiruv «enroll» yuborsa ham, administrator va o'qituvchi darsni ochadi
-  for (const a of [teacher, admin])
+it('enrolling in the catalog course is a harmless no-op (lessons are checked separately)', async () => {
+  // eski sahifa (keshdagi) yoki qidiruv «enroll» yuborsa ham xato chiqmaydi; darsni ochish — alohida tekshiriladi
+  for (const a of [student, teacher, admin])
     await expect(service.act(a, 'enroll', { courseId: 'restoran' })).resolves.toEqual({ ok: true });
-  await expect(service.act(student, 'enroll', { courseId: 'restoran' })).rejects.toMatchObject({
-    status: 403,
-  });
   // boshqa foydalanuvchini yopiq fanga yozib bo'lmaydi
   await expect(
     service.act(teacher, 'enroll', { courseId: 'restoran', userId: student.id }),

@@ -9,7 +9,12 @@ import {
   cancelCourseRequest,
   requireCourse,
   terduStudent,
+  paidEntry,
+  paidView,
+  requirePaidCourse,
+  MAIN_COURSE,
 } from '../lib/server/course-access';
+import { MAIN_COURSE_ID } from '../lib/course-access';
 import { managePremium } from '../lib/server/premium';
 import { legacyAccess } from '../lib/server/legacy-access';
 import { resetSiteMemory } from '../lib/server/site-content';
@@ -166,4 +171,76 @@ it('the administrator can open the course to everyone for a while', async () => 
   v = await manageCourseAccess(admin, { op: 'gate', off: false });
   expect(v.gate).toEqual({ off: false });
   expect(await courseEntry(email, now)).toEqual({ ok: false, pending: null });
+});
+
+/* 💳 Pullik kurs (restoran): hammaga ko'rinadi, darslarni faqat administrator va u ruxsat berganlar ochadi. */
+it('a paid course opens only for the administrator and the participants he approves', async () => {
+  const teacherA = who('tc', 'teacher', 'university');
+  // administrator — doim; o'qituvchi va TerDU talabasi ham ruxsatsiz kirmaydi
+  expect(await paidEntry(admin, 'restoran')).toEqual({ ok: true, via: 'staff' });
+  expect(await paidEntry(teacherA, 'restoran')).toEqual({ ok: false, pending: null });
+  expect(await paidEntry(student, 'restoran')).toEqual({ ok: false, pending: null });
+  await expect(requirePaidCourse(student, 'restoran')).rejects.toMatchObject({ status: 403 });
+  await expect(requirePaidCourse(admin, 'restoran')).resolves.toBeUndefined();
+  // asosiy fanga berilgan ruxsat pullik kursni ochmaydi (har kurs alohida)
+  await requestCourseAccess(email, {}, now);
+  await manageCourseAccess(admin, { op: 'approve', uid: email.id }, now);
+  expect(await paidEntry(email, 'restoran')).toEqual({ ok: false, pending: null });
+
+  // so'rov → administrator kurs bo'yicha ko'radi va tasdiqlaydi
+  expect(
+    await requestCourseAccess(email, { course: 'restoran', note: 'Oshxona, ofitsiant' }, now),
+  ).toEqual({ ok: false, pending: now });
+  let v = await courseAccessAdmin(admin, 'restoran');
+  expect(v).toMatchObject({ course: 'restoran', paid: true });
+  expect(v.courses.map((c) => c.id)).toEqual(['tad-asoslari', 'restoran']);
+  expect(v.requests).toEqual([
+    expect.objectContaining({ uid: email.id, note: 'Oshxona, ofitsiant' }),
+  ]);
+  // asosiy fan ro'yxatiga aralashmaydi
+  expect((await courseAccessAdmin(admin)).requests).toEqual([]);
+  v = await manageCourseAccess(admin, { op: 'approve', uid: email.id, course: 'restoran' }, now);
+  expect(v.requests).toEqual([]);
+  expect(v.grants.map((g) => g.uid)).toEqual([email.id]);
+  expect(await paidEntry(email, 'restoran')).toEqual({ ok: true, via: 'grant' });
+  await expect(requirePaidCourse(email, 'restoran')).resolves.toBeUndefined();
+
+  // TerDU talabasiga to'g'ridan-to'g'ri ruxsat, keyin olib qo'yish
+  v = await manageCourseAccess(
+    admin,
+    { op: 'grantUser', uid: student.id, name: 'Ali Valiyev', course: 'restoran' },
+    now,
+  );
+  expect(await paidEntry(student, 'restoran')).toEqual({ ok: true, via: 'grant' });
+  v = await manageCourseAccess(admin, { op: 'revoke', uid: student.id, course: 'restoran' });
+  expect(v.grants.map((g) => g.uid)).toEqual([email.id]);
+  expect(await paidEntry(student, 'restoran')).toEqual({ ok: false, pending: null });
+
+  // narx va to'lov yo'riqnomasi — hammaga (mehmonga ham) ko'rinadi
+  v = await manageCourseAccess(admin, {
+    op: 'shop',
+    course: 'restoran',
+    price: '450 000 so‘m',
+    how: 'Click orqali',
+  });
+  expect(v.shop).toEqual({ price: '450 000 so‘m', how: 'Click orqali' });
+  expect((await paidView()).restoran).toEqual({
+    ok: false,
+    pending: null,
+    price: '450 000 so‘m',
+    how: 'Click orqali',
+  });
+  expect((await paidView(email)).restoran).toMatchObject({ ok: true, via: 'grant' });
+  // noma'lum kurs va faqat administrator
+  await expect(courseAccessAdmin(admin, 'yoq')).rejects.toMatchObject({ status: 404 });
+  await expect(
+    manageCourseAccess(teacherA, { op: 'revoke', uid: email.id, course: 'restoran' }),
+  ).rejects.toMatchObject({ status: 403 });
+  await expect(
+    manageCourseAccess(admin, { op: 'shop', course: 'tad-asoslari', price: '1', how: '' }),
+  ).rejects.toMatchObject({ status: 400 });
+});
+
+it('the client constant for the main course matches the catalog', () => {
+  expect(MAIN_COURSE_ID).toBe(MAIN_COURSE);
 });

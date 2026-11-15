@@ -159,6 +159,8 @@ const catalog = {
     description: uzQuotes(c.desc || ''),
     category: uzQuotes(c.category || 'Kurs'),
     closed: !!c.closed,
+    // 💳 pullik: hammaga ko'rinadi, darslarni faqat administrator va u ruxsat berganlar ochadi
+    paid: !!c.paid,
     ...(c.entry ? { entry: uzQuotes(c.entry) } : {}),
     blocks: (c.blocks || []).map(([title, ids], i) => ({
       id: c.id + '-' + (i + 1),

@@ -24,3 +24,9 @@ export type CourseRequest = {
   at: number;
   note?: string;
 };
+/** 💳 Pullik kurs: narx va to'lov yo'riqnomasi (administrator «🔑 Kursga ruxsat» bo'limida yozadi). */
+export type CourseShop = { price: string; how: string };
+/** Foydalanuvchining pullik kursdagi holati (kira oladimi, so'rov yuborganmi) va kurs narxi. */
+export type PaidCourseState = CourseEntry & CourseShop;
+/** Asosiy fan («Tadbirkorlik asoslari») — kursga ruxsat bo'limidagi birinchi yorliq. */
+export const MAIN_COURSE_ID = 'tad-asoslari';

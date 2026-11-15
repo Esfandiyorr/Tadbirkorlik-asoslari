@@ -10,7 +10,9 @@ import {
   courseAccessAdmin,
   courseEntry,
   manageCourseAccess,
+  paidView,
   requestCourseAccess,
+  requirePaidCourse,
   terduStudent,
 } from '@/lib/server/course-access';
 import type { Actor } from '@/lib/types';
@@ -274,9 +276,15 @@ export async function GET(req: NextRequest) {
       });
     }
     if (req.nextUrl.searchParams.get('view') === 'courseAccessAdmin') {
-      return NextResponse.json(await courseAccessAdmin(await actor(req, true)), {
-        headers: { 'Cache-Control': 'private, no-store' },
-      });
+      return NextResponse.json(
+        await courseAccessAdmin(
+          await actor(req, true),
+          req.nextUrl.searchParams.get('course') || undefined,
+        ),
+        {
+          headers: { 'Cache-Control': 'private, no-store' },
+        },
+      );
     }
     if (req.nextUrl.searchParams.get('view') === 'premiumAdmin') {
       return NextResponse.json(await premiumAdmin(await actor(req, true)), {
@@ -332,7 +340,16 @@ export async function GET(req: NextRequest) {
       const extra = extraLessons.find((l) => l.id === wanted);
       if (extra) {
         const owner = extraCourses.find((c) => c.id === extra.courseId);
-        // Tejamkor (readOnly) so'rovda Firestore'dagi o'qituvchi/administrator roli ko'rinmaydi — bir marta tekshiriladi
+        check(owner, 404, 'Asl dars topilmadi');
+        // ⏳ tayyorlanayotgan darsda taqdimot yo'q — faqat reja (sahifaning o'zi ko'rsatadi)
+        check(!extra.draft, 404, 'Bu mashg‘ulot hali tayyorlanmoqda.');
+        if (owner!.paid) {
+          // 💳 pullik kurs: administrator yoki u ruxsat bergan qatnashchi
+          await requirePaidCourse(a, owner!.id);
+          return NextResponse.json(extra);
+        }
+        // 🔒 yopiq kurs: faqat o'qituvchi va administrator. Tejamkor (readOnly) so'rovda Firestore'dagi rol
+        // ko'rinmaydi — bir marta tekshiriladi
         let role = a.role;
         if (role === 'student')
           role =
@@ -341,8 +358,8 @@ export async function GET(req: NextRequest) {
                 role?: typeof role;
               } | null
             )?.role || role;
-        check(owner && seesCourse(owner, role), 403, 'Bu fan hali ochilmagan.');
-        check(role !== 'student', 403, 'Bu fan hali ochilmagan.');
+        check(seesCourse(owner!, role), 403, 'Bu fan hali ochilmagan.');
+        check(role !== 'student' || !owner!.closed, 403, 'Bu fan hali ochilmagan.');
         return NextResponse.json(extra);
       }
       const lesson = lessons.find((l) => l.id === wanted);
@@ -403,7 +420,13 @@ export async function GET(req: NextRequest) {
     }
     const service = new Platform(await repository()),
       hasSession = req.cookies.has('sq-demo') || !!req.headers.get('authorization');
-    if (!hasSession) return NextResponse.json({ ...(await service.publicData()), mode });
+    if (!hasSession)
+      return NextResponse.json({
+        ...(await service.publicData()),
+        mode,
+        // 💳 pullik kurslar: mehmonga narx ko'rinadi, darslar — kirib, ruxsat olgach
+        paid: await paidView().catch(() => ({})),
+      });
     const a = await actor(req);
     if (req.nextUrl.searchParams.get('view') === 'roster') {
       staff(a);
@@ -491,6 +514,8 @@ export async function GET(req: NextRequest) {
       Object.assign(state, demoAcademic(state.user as { id: string }));
     // baza vaqtincha javob bermasa ham sahifa ochilsin — darsni server baribir tekshiradi (legacyAccess)
     await withCourse(a, state as { course?: unknown; lessonAccess?: unknown }).catch(() => {});
+    // 💳 pullik kurslar (restoran kursi): kira oladimi, so'rov holati, narx
+    (state as { paid?: unknown }).paid = await paidView(a).catch(() => ({}));
     return NextResponse.json({
       ...state,
       mode,
@@ -623,14 +648,15 @@ export async function POST(req: NextRequest) {
     if (p.action === 'courseRequest') {
       // 🔑 talaba bo'lmagan foydalanuvchi: «Kursga ruxsat so'rash» yoki so'rovni bekor qilish
       const a = await actor(req, true);
-      const v = (p.input || {}) as { op?: unknown; note?: unknown };
+      const v = (p.input || {}) as { op?: unknown; note?: unknown; course?: unknown };
+      const course = typeof v.course === 'string' && v.course ? v.course : undefined;
       return NextResponse.json(
         v.op === 'cancel'
-          ? await cancelCourseRequest(a)
-          : await requestCourseAccess(
-              a,
-              typeof v.note === 'string' && v.note.trim() ? { note: v.note } : {},
-            ),
+          ? await cancelCourseRequest(a, course)
+          : await requestCourseAccess(a, {
+              ...(typeof v.note === 'string' && v.note.trim() ? { note: v.note } : {}),
+              ...(course ? { course } : {}),
+            }),
       );
     }
     if (p.action === 'appAdmin') {
