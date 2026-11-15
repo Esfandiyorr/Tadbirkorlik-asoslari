@@ -82,7 +82,7 @@ for (const width of [320, 390, 768, 1280]) {
         'arena',
         'ranking',
         'library',
-        'slides',
+        'services',
         'badges',
         'profile',
         'admin',

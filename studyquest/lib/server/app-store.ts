@@ -134,6 +134,9 @@ async function eraseAccount(by: Actor, r: DeleteRequest, read: Read, update: Upd
     ['avatarPass/' + key]: null,
     ['avatarOrders/' + key]: null,
     ['avatarGone/' + key]: null,
+    // 💼 pullik xizmatlar: buyurtmalar va ularning fayllari
+    ['serviceOrders/' + key]: null,
+    ['serviceFiles/' + key]: null,
   };
   // 💳 pullik kurslar bo'yicha ruxsat va so'rovlar
   for (const c of extraCourses.filter((x) => x.paid)) {

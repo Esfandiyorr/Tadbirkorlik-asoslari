@@ -5,20 +5,19 @@ Saytga kiritilgan har bir o'zgarish ilovada ham darhol ko'rinadi — Play Market
 
 Saytning o'zida tayyor bo'lgan narsalar (kod tomoni):
 
-| Talab                                                                        | Holati                 | Qayerda                                    |
-| ---------------------------------------------------------------------------- | ---------------------- | ------------------------------------------ |
-| Maxfiylik siyosati (ochiq sahifa)                                            | ✅                     | `https://<sayt>/privacy`                   |
-| Hisobni o'chirish sahifasi                                                   | ✅                     | `https://<sayt>/delete-account`            |
-| Ilova ichidan hisobni o'chirishni so'rash                                    | ✅                     | Profil → «🗑 Hisobni o'chirish»             |
-| Chatda shikoyat qilish                                                       | ✅                     | Talabalar chati → «🚩 Shikoyat qilish»     |
-| Sun'iy intellekt natijasi ustidan shikoyat (Google'ning AI qoidasi)          | ✅                     | 🎞 Taqdimot → taqdimot ostida «🚩 Shikoyat» |
-| Sun'iy intellekt nojo'ya (18+, haqorat, zararli yo'riqnoma) matn yozmaydi    | ✅                     | Taqdimot so'rovidagi qoida                 |
-| Ilovada narx va to'lov yo'riqnomasi ko'rinmaydi (obuna, avatar, pullik kurs) | ✅                     | 7-qadamga qarang                           |
-| Ilova va sayt bog'lanishi (`assetlinks.json`)                                | ⏳ SHA-256 kiritilgach | Sayt boshqaruvi → 📱 Ilova                 |
-| Manifest, ikonkalar, oflayn sahifa                                           | ✅                     | —                                          |
-| Do'kon matni va rasmlari                                                     | ✅                     | `dokon-matni.md`, `rasmlar/`               |
+| Talab                                                                              | Holati                 | Qayerda                                |
+| ---------------------------------------------------------------------------------- | ---------------------- | -------------------------------------- |
+| Maxfiylik siyosati (ochiq sahifa)                                                  | ✅                     | `https://<sayt>/privacy`               |
+| Hisobni o'chirish sahifasi                                                         | ✅                     | `https://<sayt>/delete-account`        |
+| Ilova ichidan hisobni o'chirishni so'rash                                          | ✅                     | Profil → «🗑 Hisobni o'chirish»         |
+| Chatda shikoyat qilish                                                             | ✅                     | Talabalar chati → «🚩 Shikoyat qilish» |
+| 💼 Pullik xizmatlar ilovada ko'rinmaydi (tashqi to'lovga yo'naltirish taqiqlangan) | ✅                     | Faqat saytda ishlaydi                  |
+| Ilovada narx va to'lov yo'riqnomasi ko'rinmaydi (obuna, avatar, pullik kurs)       | ✅                     | 7-qadamga qarang                       |
+| Ilova va sayt bog'lanishi (`assetlinks.json`)                                      | ⏳ SHA-256 kiritilgach | Sayt boshqaruvi → 📱 Ilova             |
+| Manifest, ikonkalar, oflayn sahifa                                                 | ✅                     | —                                      |
+| Do'kon matni va rasmlari                                                           | ✅                     | `dokon-matni.md`, `rasmlar/`           |
 
-Shikoyatlar (chatdan ham, taqdimotdan ham) **«Adminga xabar» → Kelgan xabarlar**ga 🚩 belgisi bilan tushadi.
+Chatdagi shikoyatlar **«Adminga xabar» → Kelgan xabarlar**ga 🚩 belgisi bilan tushadi.
 Google talabi — ularni o'z vaqtida ko'rib chiqish (odatda 24 soat ichida).
 
 ### Qisqa ro'yxat: sizdan nima kerak
@@ -115,7 +114,7 @@ biror bo'lim yopiq qolsa, ilova rad etilishi mumkin:
 
 1. Saytda talaba sifatida ro'yxatdan o'ting (masalan, ism: `Google`, familiya: `Tekshiruvchi`, guruh: istalgan)
    va administrator sifatida hisobni **tasdiqlang**.
-2. Unga **💎 obuna** bering (Sayt boshqaruvi → 💎 Obuna) — sun'iy intellekt taqdimoti va 💎 manbalar ochiladi.
+2. Unga **💎 obuna** bering (Sayt boshqaruvi → 💎 Obuna) — kurs darslari va 💎 manbalar ochiladi.
 3. **🔑 Kursga ruxsat → pullik kurs (Restoran) yorlig'i** → shu talabaga ruxsat bering — pullik kurs ham ochiladi.
 4. Login va parolni «App access» bo'limiga yozing (`play-console-javoblari.md` dagi izoh bilan).
 
@@ -136,6 +135,8 @@ Shuning uchun sayt shunday ishlaydi:
 - Xuddi shunday ilovada **avatar sotib olish** («To'lov qildim») va **pullik kurs** (restoran) narxi hamda
   to'lov yo'riqnomasi yashiriladi: pullik kursda faqat «administrator ruxsat bergandan keyin ochiladi» deyiladi
   va ruxsat so'rash tugmasi qoladi.
+- **💼 Pullik xizmatlar** bo'limi (buyurtma asosida taqdimot, sayt, dizayn va h.k.) ilovada **umuman
+  ko'rinmaydi**: menyuda ham, bosh sahifada ham yo'q. Buyurtma, to'lov va tayyor ishni yuklab olish — faqat saytda.
 - Click ulanganda ham to'lov **faqat saytda** bo'ladi; ilovada Click/Payme havolasi yoki karta raqami
   ko'rsatilmasligi kerak (bu kodda hisobga olingan).
 

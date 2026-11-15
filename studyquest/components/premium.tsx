@@ -100,14 +100,6 @@ export function PremiumOffer({
             )}
           </li>
           <li>
-            🎞{' '}
-            {L(
-              'Sun’iy intellekt istalgan mavzuda tayyor taqdimot tuzib beradi — PowerPoint faylini yuklab olasiz',
-              'AI builds a ready presentation on any topic — download it as a PowerPoint file',
-              'ИИ готовит презентацию на любую тему — скачивайте файл PowerPoint',
-            )}
-          </li>
-          <li>
             📚{' '}
             {L(
               'Kutubxonadagi 💎 belgili kitob, qo‘llanma va namunalar',

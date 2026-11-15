@@ -1,21 +1,20 @@
 import { test, expect, type Page } from '@playwright/test';
 
-/* Yangi menyu: 🏆 reyting kurs ichida; o'rnida 📚 Kutubxona va 🎞 Taqdimot (sun'iy intellekt, pullik).
-   Demo muhitda taqdimotni namunaviy generator tuzadi — tashqi xizmatga so'rov yuborilmaydi. */
+/* Yangi menyu: 🏆 reyting kurs ichida; o'rnida 📚 Kutubxona va 💼 Pullik xizmatlar (tests/browser/services.spec.ts). */
 async function as(page: Page, id: string) {
   await page.request.post('/api/auth/demo', { data: { id } });
 }
 const act = (page: Page, action: string, input: unknown) =>
   page.request.post('/api/platform', { data: { action, input } });
 
-test('the leaderboard lives inside the course and the menu offers the library and presentations', async ({
+test('the leaderboard lives inside the course and the menu offers the library and paid services', async ({
   page,
 }) => {
   await as(page, 'demo-student');
   await page.goto('/#home', { waitUntil: 'domcontentloaded' });
   const side = page.locator('.sidebar nav');
   await expect(side.locator('a[href="#library"]')).toHaveText('Kutubxona');
-  await expect(side.locator('a[href="#slides"]')).toHaveText('Taqdimot');
+  await expect(side.locator('a[href="#services"]')).toHaveText('Pullik xizmatlar');
   await expect(side.locator('a[href="#ranking"]')).toHaveCount(0);
   // kurs ichida ikki bo'lim: Mavzular va Reyting
   await side.locator('a[href="#courses"]').click();
@@ -116,68 +115,6 @@ test('the administrator fills the library; premium resources open only with Prem
   }
 });
 
-test('a student builds a free presentation, views it, downloads PowerPoint and then needs Premium', async ({
-  page,
-}) => {
-  await as(page, 'demo-teacher'); // boshqa sinovlardagi talabadan mustaqil bo'lishi uchun avval o'qituvchi holati
-  await page.goto('/#slides', { waitUntil: 'domcontentloaded' });
-  await expect(page.locator('.sm-access.is-on')).toContainText('Bugun yana');
-  await as(page, 'demo-student');
-  await page.reload({ waitUntil: 'domcontentloaded' });
-  await expect(page.locator('.sm-access.is-free')).toContainText('1 ta bepul taqdimot');
-  const form = page.locator('.sm-form');
-  const go = form.getByRole('button', { name: 'Taqdimot tuzish' });
-  await expect(go).toBeDisabled();
-  await form.getByLabel('Taqdimot mavzusi').fill('Kichik biznesda marketing');
-  await form.getByLabel('Slaydlar soni').fill('6');
-  await form.getByRole('radio', { name: /Chuqur/ }).click();
-  await go.click();
-  await expect(page.getByText('🎞 Taqdimot tayyor!')).toBeVisible();
-  const viewer = page.locator('.sm-viewer');
-  await expect(viewer.locator('.sm-slide.is-cover h2')).toHaveText('Kichik biznesda marketing');
-  await expect(viewer.locator('.sm-pos')).toHaveText('1 / 7');
-  await page.keyboard.press('ArrowRight');
-  await expect(viewer.locator('.sm-pos')).toHaveText('2 / 7');
-  await expect(viewer.locator('.sm-slide li')).toHaveCount(3);
-  await expect(viewer.locator('.sm-notes')).toContainText('Gapirib berish uchun');
-  await viewer.getByRole('button', { name: 'Keyingi slayd' }).click();
-  await expect(viewer.locator('.sm-pos')).toHaveText('3 / 7');
-  // rang mavzusi
-  await viewer.getByRole('radio', { name: 'Okean' }).click();
-  await expect(viewer).toHaveAttribute('style', /--dk-bg:\s*#0C4A6E/i);
-  // PowerPoint fayli
-  const download = page.waitForEvent('download');
-  await viewer.getByRole('button', { name: /PowerPoint/ }).click();
-  const file = await download;
-  expect(file.suggestedFilename()).toBe('Kichik biznesda marketing.pptx');
-  // 🚩 sun'iy intellekt natijasi ustidan shikoyat (Google Play talabi) — ilovadan chiqmasdan
-  await viewer.getByRole('button', { name: 'Shikoyat qilish' }).click();
-  const report = viewer.locator('.ai-report');
-  await report.getByLabel('Sabab').selectOption('false');
-  await report.getByLabel(/Izoh/).fill('Raqamlar noto‘g‘ri');
-  await report.getByRole('button', { name: 'Yuborish' }).click();
-  await expect(page.getByText(/Shikoyat yuborildi/)).toBeVisible();
-  await expect(report).toHaveCount(0);
-  // ro'yxatda saqlangan; bepul sinov tugadi — ikkinchisi obuna so'raydi
-  await expect(page.locator('.sm-mine li')).toHaveCount(1);
-  await expect(page.locator('.sm-access.is-off')).toContainText('Bepul taqdimotlar tugadi');
-  await form.getByLabel('Taqdimot mavzusi').fill('Biznes reja');
-  await go.click();
-  await expect(page.getByRole('dialog', { name: /Obuna bilan ko‘proq imkoniyat/ })).toBeVisible();
-  await page.getByRole('button', { name: 'Keyinroq' }).click();
-  // telefon kengligida ham sig'adi
-  await page.setViewportSize({ width: 380, height: 760 });
-  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(381);
-  // o'chirish
-  page.once('dialog', (d) => void d.accept());
-  await page
-    .locator('.sm-mine')
-    .getByRole('button', { name: /O‘chirish/ })
-    .click();
-  await expect(page.locator('.sm-mine')).toHaveCount(0);
-  await expect(page.locator('.sm-viewer')).toHaveCount(0);
-});
-
 test('inside the Play Market app the offer shows no price or payment instructions', async ({
   page,
 }) => {
@@ -188,32 +125,42 @@ test('inside the Play Market app the offer shows no price or payment instruction
         op: 'info',
         price: '25 000 so‘m / oy',
         how: 'Click orqali 8600 … kartaga o‘tkazing',
-        free: 0,
       })
     ).ok(),
   ).toBe(true);
+  const added = await act(page, 'library', {
+    op: 'add',
+    kind: 'template',
+    h: 'Play sinovi namunasi',
+    link: 'https://example.uz/play',
+    pro: true,
+  });
+  expect(added.ok()).toBe(true);
   await as(page, 'demo-student');
   // brauzerda: narx va to'lov yo'riqnomasi ko'rinadi
-  await page.goto('/#slides', { waitUntil: 'domcontentloaded' });
-  await page.getByRole('button', { name: /Obuna haqida/ }).click();
+  await page.goto('/#library', { waitUntil: 'domcontentloaded' });
+  const locked = page.locator('.lib-card').filter({ hasText: 'Play sinovi namunasi' });
+  await locked.click();
   const offer = page.getByRole('dialog', { name: /Obuna bilan ko‘proq imkoniyat/ });
   await expect(offer).toContainText('25 000 so‘m / oy');
   await expect(offer).toContainText('Click orqali');
   await expect(offer.getByRole('button', { name: 'Administratorga yozish' })).toBeVisible();
   await offer.getByRole('button', { name: 'Keyinroq' }).click();
   // Play Market ilovasi saytni /?src=play bilan ochadi — narx ham, to'lov yo'riqnomasi ham yo'q (Google qoidasi)
-  await page.goto('/?src=play#slides', { waitUntil: 'domcontentloaded' });
-  await expect(page.locator('.sm-access.is-off')).toContainText('obunachilar uchun');
-  await page.getByRole('button', { name: /Obuna haqida/ }).click();
+  await page.goto('/?src=play#library', { waitUntil: 'domcontentloaded' });
+  await locked.click();
   await expect(offer).toContainText('Bu imkoniyatlar obunachilar uchun');
   await expect(offer).not.toContainText('25 000');
   await expect(offer).not.toContainText('Click orqali');
   await expect(offer.getByRole('button', { name: 'Administratorga yozish' })).toHaveCount(0);
   await offer.getByRole('button', { name: 'Tushunarli' }).click();
   // belgi shu oynada saqlanadi: ilova ichida boshqa bo'limga o'tilganda ham
-  await page.goto('/#library', { waitUntil: 'domcontentloaded' });
+  await page.goto('/#home', { waitUntil: 'domcontentloaded' });
   expect(await page.evaluate(() => sessionStorage.getItem('sq-play'))).toBe('1');
   // asl holiga qaytarish
   await as(page, 'demo-admin');
-  await act(page, 'premiumAdmin', { op: 'info', price: '', how: '', free: 1 });
+  await act(page, 'premiumAdmin', { op: 'info', price: '', how: '' });
+  const items = (await added.json()) as { items?: { id: string; h: string }[] };
+  const id = (items.items || []).find((x) => x.h === 'Play sinovi namunasi')?.id;
+  if (id) await act(page, 'library', { op: 'remove', id });
 });

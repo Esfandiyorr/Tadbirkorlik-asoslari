@@ -17,7 +17,7 @@ import {
   MessageSquare,
   Sparkles,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useApp } from './provider';
 import { Button } from './ui/button';
 import { TopicArt, CourseArt } from './topic-art';
@@ -29,6 +29,7 @@ import { Leaderboard } from './leaderboard';
 import { CourseGate, PaidCourseGate, usePaidLocked } from './course-gate';
 import { AccessChip, PointsRing, PointsBreakdown } from './points-ui';
 import { t, dateLabel } from '@/lib/i18n';
+import { isPlayApp } from '@/lib/play-app';
 import {
   accessOf,
   courseTotals,
@@ -130,6 +131,9 @@ export function Dashboard() {
 /** Bosh sahifadagi tezkor o'tishlar: asosiy bo'limlar bitta bosishda. */
 function QuickLinks() {
   const { lang } = useApp();
+  // 💼 Play Market ilovasida pullik xizmatlar ko'rsatilmaydi (lib/play-app.ts)
+  const [play, setPlay] = useState(false);
+  useEffect(() => setPlay(isPlayApp()), []);
   const items: [string, string, [string, string, string], [string, string, string]][] = [
     [
       'courses',
@@ -137,12 +141,20 @@ function QuickLinks() {
       ['Mavzular', 'Topics', 'Темы'],
       ['Fanni ketma-ket o‘rganish', 'Study the course step by step', 'Изучать курс по порядку'],
     ],
-    [
-      'slides',
-      '🎞',
-      ['Taqdimot', 'Presentation', 'Презентация'],
-      ['Sun’iy intellekt tuzib beradi', 'Built for you by AI', 'Подготовит ИИ'],
-    ],
+    ...(play
+      ? []
+      : [
+          [
+            'services',
+            '💼',
+            ['Pullik xizmatlar', 'Paid services', 'Платные услуги'],
+            [
+              'Taqdimot, kurs ishi, sayt va boshqalar',
+              'Slides, papers, websites and more',
+              'Презентации, курсовые, сайты и др.',
+            ],
+          ] as [string, string, [string, string, string], [string, string, string]],
+        ]),
     [
       'library',
       '📖',

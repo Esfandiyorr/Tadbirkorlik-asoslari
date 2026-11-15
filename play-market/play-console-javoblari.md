@@ -6,7 +6,7 @@ to'lov qo'shilsa), javoblarni ham yangilang — noto'g'ri deklaratsiya ilovaning
 ## App access
 
 **All or some functionality is restricted** → sinov hisobining login va parolini yozing.
-Izoh (inglizcha): `Sign in with "Talaba hisobi" (Student account). The account is approved, has Premium and has access to every course, so all features are open. AI presentations: menu → "Taqdimot".`
+Izoh (inglizcha): `Sign in with "Talaba hisobi" (Student account). The account is approved, has Premium and has access to every course, so all features are open.`
 
 ## Ads — «Does your app contain ads?»
 
@@ -21,9 +21,6 @@ Izoh (inglizcha): `Sign in with "Talaba hisobi" (Student account). The account i
   - Is the chat moderated / can users report or block? **Yes** (shikoyat qilish, so'kinish filtri, o'qituvchi nazorati)
 - Shares user's location: **No**
 - Allows purchases of digital goods: **No** (ilova ichida sotuv yo'q)
-- Agar so'rovnomada **sun'iy intellekt (generative AI)** haqida savol chiqsa: **Yes** — ilova talabaning
-  mavzusi bo'yicha taqdimot matnini AI yordamida tuzadi; nojo'ya mavzular rad etiladi, foydalanuvchi har bir
-  natija ustidan ilovaning o'zida «🚩 Shikoyat» yubora oladi.
 
 ## Target audience and content
 
@@ -42,24 +39,25 @@ Hammasi: **No**
 URL: `https://<sayt>/delete-account`
 
 Yig'iladigan ma'lumot turlari (hammasi: _Collected_, _Not shared_; «Shared» — yo'q, chunki ma'lumot faqat
-ilova ishlashi uchun xizmat ko'rsatuvchilarga — Firebase, Vercel, Anthropic — beriladi, bu Google ta'rifida
+ilova ishlashi uchun xizmat ko'rsatuvchilarga — Firebase, Vercel — beriladi, bu Google ta'rifida
 «sharing» emas):
 
-| Data type                                                                                                                         | Majburiymi                                       | Maqsad                                |
-| --------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------ | ------------------------------------- |
-| Personal info → **Name**                                                                                                          | Required                                         | App functionality, Account management |
-| Personal info → **Email address**                                                                                                 | Optional (faqat email bilan ro'yxatdan o'tganda) | Account management                    |
-| Personal info → **User IDs**                                                                                                      | Required                                         | App functionality, Account management |
-| Personal info → **Other info** (o'quv guruhi)                                                                                     | Optional                                         | App functionality                     |
-| Messages → **Other in-app messages** (chat, administratorga xabar)                                                                | Optional                                         | App functionality                     |
-| Photos and videos → **Photos** (topshiriqqa yuklangan rasm, chatdagi rasm)                                                        | Optional                                         | App functionality                     |
-| App activity → **App interactions** (o'qilgan mavzular, test javoblari, ballar)                                                   | Required                                         | App functionality                     |
-| App activity → **Other user-generated content** (taqdimot mavzulari)                                                              | Optional                                         | App functionality                     |
-| Device or other IDs → **Device or other IDs** (bildirishnoma obunasi)                                                             | Optional                                         | App functionality                     |
-| Financial info → **Purchase history** (obuna muddati, avatar yoki pullik kurs uchun «To'lov qildim» so'rovi va chek raqami izohi) | Optional                                         | App functionality, Account management |
+| Data type                                                                                                                                        | Majburiymi                                       | Maqsad                                |
+| ------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------ | ------------------------------------- |
+| Personal info → **Name**                                                                                                                         | Required                                         | App functionality, Account management |
+| Personal info → **Email address**                                                                                                                | Optional (faqat email bilan ro'yxatdan o'tganda) | Account management                    |
+| Personal info → **User IDs**                                                                                                                     | Required                                         | App functionality, Account management |
+| Personal info → **Other info** (o'quv guruhi)                                                                                                    | Optional                                         | App functionality                     |
+| Messages → **Other in-app messages** (chat, administratorga xabar)                                                                               | Optional                                         | App functionality                     |
+| Photos and videos → **Photos** (topshiriqqa yuklangan rasm, chatdagi rasm)                                                                       | Optional                                         | App functionality                     |
+| App activity → **App interactions** (o'qilgan mavzular, test javoblari, ballar)                                                                  | Required                                         | App functionality                     |
+| App activity → **Other user-generated content** (pullik xizmat buyurtmasi matni)                                                                 | Optional                                         | App functionality                     |
+| Device or other IDs → **Device or other IDs** (bildirishnoma obunasi)                                                                            | Optional                                         | App functionality                     |
+| Files and docs → **Files and docs** (pullik xizmat buyurtmasiga biriktirilgan va tayyorlangan fayllar)                                           | Optional                                         | App functionality                     |
+| Financial info → **Purchase history** (obuna muddati, avatar, pullik kurs yoki pullik xizmat uchun «To'lov qildim» so'rovi va chek raqami izohi) | Optional                                         | App functionality, Account management |
 
 Yig'ilmaydi: Location, Financial info'ning qolgan turlari (karta ma'lumotlari, kredit va h.k. — to'lov
-saytdan tashqarida qilinadi), Health, Contacts, Calendar, Audio, Files, Web browsing,
+saytdan tashqarida qilinadi), Health, Contacts, Calendar, Audio, Web browsing,
 App info and performance (crash/diagnostika SDK'si yo'q).
 
 Har bir tur uchun: **Is this data processed ephemerally?** → No · **Can users choose whether it's collected?** →

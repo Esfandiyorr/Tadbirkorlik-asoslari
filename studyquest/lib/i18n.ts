@@ -49,8 +49,8 @@ const words = {
   navChat: ['Chat', 'Chat', 'Чат'],
   library: ['Kutubxona', 'Library', 'Библиотека'],
   navLibrary: ['Kitoblar', 'Library', 'Книги'],
-  navSlides: ['Slayd', 'Slides', 'Слайды'],
-  slides: ['Taqdimot', 'Slides', 'Презентация'],
+  navServices: ['Xizmatlar', 'Services', 'Услуги'],
+  services: ['Pullik xizmatlar', 'Paid services', 'Платные услуги'],
   menu: ['Asosiy menyu', 'Main menu', 'Главное меню'],
   tagline: [
     'Maqsad bilan o‘qing, ishonch bilan o‘sing.',

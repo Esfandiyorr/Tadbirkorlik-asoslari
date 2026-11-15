@@ -17,6 +17,7 @@ import { AppAdmin } from './app-admin';
 import { LibraryAdmin } from './library-admin';
 import { PremiumAdmin } from './premium-admin';
 import { CourseAccessAdmin } from './course-access-admin';
+import { ServicesAdmin } from './services-admin';
 import { startEditMode } from '../site-content';
 
 /* 🛠 Sayt boshqaruvi (administrator): saytdagi matn, rasm, avatar, test va jonli testni dasturchiga yozmasdan
@@ -35,7 +36,8 @@ export type BoSection =
   | 'app'
   | 'library'
   | 'premium'
-  | 'courseAccess';
+  | 'courseAccess'
+  | 'services';
 const KEY = 'sq-bo-section';
 
 export function BackOffice({ openTab }: { openTab: (tab: string) => void }) {
@@ -170,6 +172,16 @@ export function BackOffice({ openTab }: { openTab: (tab: string) => void }) {
       ),
     },
     {
+      id: 'services',
+      icon: '💼',
+      title: L('Pullik xizmatlar', 'Paid services', 'Платные услуги'),
+      text: L(
+        'Talabalar buyurtmalari: narx aytish, to‘lovni tasdiqlash, tayyor ishni yuklash va topshirish, yozishma. Yo‘nalishlar, narxlar va to‘lov yo‘riqnomasi.',
+        'Student orders: quote a price, confirm payment, upload and deliver the result, chat. Directions, prices and payment instructions.',
+        'Заказы студентов: цена, подтверждение оплаты, загрузка и сдача результата, переписка. Направления, цены и инструкция по оплате.',
+      ),
+    },
+    {
       id: 'courseAccess',
       icon: '🔑',
       title: L('Kursga ruxsat', 'Course access', 'Доступ к курсу'),
@@ -188,9 +200,9 @@ export function BackOffice({ openTab }: { openTab: (tab: string) => void }) {
         'Подписка (платные функции)',
       ),
       text: L(
-        'Narx va to‘lov yo‘riqnomasi, obuna berish yoki bekor qilish. Obuna kurs darslarini (talaba bo‘lmaganlarga), sun’iy intellekt taqdimotlari va 💎 manbalarni ochadi.',
-        'Price and payment instructions, giving or removing Premium. Premium unlocks course lessons (for non-students), AI presentations and 💎 resources.',
-        'Цена и инструкция по оплате, выдача и отмена подписки. Подписка открывает уроки курса (для не-студентов), ИИ-презентации и материалы 💎.',
+        'Narx va to‘lov yo‘riqnomasi, obuna berish yoki bekor qilish. Obuna kurs darslarini (talaba bo‘lmaganlarga), 💎 manbalarni va avatarni ochadi.',
+        'Price and payment instructions, giving or removing Premium. Premium unlocks course lessons (for non-students), 💎 resources and avatars.',
+        'Цена и инструкция по оплате, выдача и отмена подписки. Подписка открывает уроки курса (для не-студентов), материалы 💎 и аватар.',
       ),
     },
     {
@@ -261,6 +273,7 @@ export function BackOffice({ openTab }: { openTab: (tab: string) => void }) {
     else if (section === 'library') body = <LibraryAdmin />;
     else if (section === 'premium') body = <PremiumAdmin />;
     else if (section === 'courseAccess') body = <CourseAccessAdmin />;
+    else if (section === 'services') body = <ServicesAdmin />;
     else if (section === 'promo') body = <PromoAdmin />;
     else if (section === 'video') body = <VideoAdmin />;
     else if (section === 'logo') body = <LogoTaskAdmin />;

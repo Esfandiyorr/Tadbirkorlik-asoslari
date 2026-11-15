@@ -11,6 +11,7 @@ import {
   normalizeSha,
   requestDeletion,
 } from '../lib/server/app-store';
+import { manageServices } from '../lib/server/services';
 import { resetSiteMemory, siteGet } from '../lib/server/site-content';
 import { subscribePush, pushSubs } from '../lib/server/push';
 import { deleteDoc, privacyDoc } from '../lib/legal';
@@ -109,6 +110,12 @@ it('a student asks to delete the account, may cancel, and the administrator eras
     },
   };
   await subscribePush(ali, dev);
+  await manageServices(
+    ali,
+    { op: 'order', kind: 'taqdimot', title: 'Sinov', text: 'Sinov buyurtmasining matni' },
+    now,
+  );
+  expect(await siteGet('serviceOrders/legacy_ali')).toBeTruthy();
   expect((await appAdmin(admin)).requests.map((r) => r.uid)).toEqual(['legacy_ali', 'legacy_vali']);
   await expect(appAdmin(who('tc', 'teacher'))).rejects.toMatchObject({ status: 403 });
 
@@ -151,6 +158,7 @@ it('a student asks to delete the account, may cancel, and the administrator eras
     why: 'self-request',
   });
   expect(await pushSubs()).toEqual({}); // bildirishnoma obunasi ham o'chdi
+  expect(await siteGet('serviceOrders/legacy_ali')).toBeNull(); // 💼 buyurtmalar ham
   expect(await siteGet('deleteRequests/legacy_ali')).toBeNull();
 
   // rad etilsa — hech narsa o'chmaydi, faqat so'rov olib tashlanadi

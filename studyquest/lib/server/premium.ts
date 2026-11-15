@@ -5,11 +5,11 @@ import type { PremiumInfo, PremiumState } from '../library';
 import { administrator } from './auth';
 import { siteGet, siteUpdate } from './site-content';
 
-/* 💎 Obuna (premium): pullik imkoniyatlar (sun'iy intellekt taqdimoti, kutubxonadagi 💎 manbalar) uchun.
+/* 💎 Obuna (premium): pullik imkoniyatlar (kurs darslari — talaba bo'lmaganlarga, kutubxonadagi 💎 manbalar, avatar) uchun.
    To'lov tizimi ulanguncha obunani administrator qo'lda beradi: talaba ko'rsatilgan usulda to'laydi, administrator
    «Sayt boshqaruvi → 💎 Obuna»da muddatini belgilaydi. Keyin to'lov tizimi (Click, Payme …) ulanganda u ham shu
    yozuvni yangilaydi: site/premium/<foydalanuvchi> = {uid, name, group, until, at, by}.
-   site/premiumInfo = {price, how, free} — narx va to'lov yo'riqnomasi (talabaga ko'rsatiladi), bepul sinov soni. */
+   site/premiumInfo = {price, how} — narx va to'lov yo'riqnomasi (talabaga ko'rsatiladi). */
 
 export type Grant = {
   uid: string;
@@ -22,15 +22,9 @@ export type Grant = {
 const keyOf = (id: string) => id.replace(/[^A-Za-z0-9_-]/g, '_').slice(0, 120);
 export const premiumKey = keyOf;
 
-const INFO: PremiumInfo = { price: '', how: '', free: 1 };
 function normalizeInfo(raw: Partial<PremiumInfo> | null): PremiumInfo {
   const s = (v: unknown, n: number) => (typeof v === 'string' ? v.trim().slice(0, n) : '');
-  const f = Math.round(Number(raw?.free));
-  return {
-    price: s(raw?.price, 80),
-    how: s(raw?.how, 600),
-    free: Number.isFinite(f) && f >= 0 && f <= 20 ? f : INFO.free,
-  };
+  return { price: s(raw?.price, 80), how: s(raw?.how, 600) };
 }
 export async function premiumInfo(): Promise<PremiumInfo> {
   return normalizeInfo(await siteGet<Partial<PremiumInfo>>('premiumInfo'));
@@ -80,7 +74,6 @@ const input = z.discriminatedUnion('op', [
       op: z.literal('info'),
       price: z.string().trim().max(80),
       how: z.string().trim().max(600),
-      free: z.number().int().min(0).max(20),
     })
     .strict(),
 ]);
@@ -88,8 +81,7 @@ const input = z.discriminatedUnion('op', [
 export async function managePremium(a: Actor, raw: unknown, now = Date.now()) {
   administrator(a);
   const p = input.parse(raw);
-  if (p.op === 'info')
-    await siteUpdate({ premiumInfo: { price: p.price, how: p.how, free: p.free } });
+  if (p.op === 'info') await siteUpdate({ premiumInfo: { price: p.price, how: p.how } });
   else if (p.op === 'revoke') await siteUpdate({ ['premium/' + keyOf(p.uid)]: null });
   else await grantPremium(p.uid, p.name, p.group || '', p.days, (a.name || a.id).slice(0, 60), now);
   return premiumAdmin(a, now);

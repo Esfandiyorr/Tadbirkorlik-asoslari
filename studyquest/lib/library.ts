@@ -45,8 +45,6 @@ export type PremiumInfo = {
   price: string;
   /** qanday to'lash (talabaga ko'rsatiladi) */
   how: string;
-  /** obunasiz foydalanuvchiga nechta bepul sun'iy intellekt taqdimoti */
-  free: number;
 };
 export type PremiumState = {
   /** obuna amalda (o'qituvchi va administratorda doim) */

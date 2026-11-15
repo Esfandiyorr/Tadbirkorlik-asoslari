@@ -23,7 +23,7 @@ import {
   ChevronRight,
   LogIn,
   LibraryBig,
-  Presentation,
+  BriefcaseBusiness,
 } from 'lucide-react';
 import { Provider, useApp } from './provider';
 import { LiveGate, NewsBox, NewsPopup } from './announcements';
@@ -43,7 +43,8 @@ import { ChatPage } from './chat-page';
 import { AcademicHistory } from './academic-history';
 import { ChangePassword } from './change-password';
 import { Library } from './library';
-import { SlidesMaker } from './slides-maker';
+import { Services } from './services';
+import { isPlayApp } from '@/lib/play-app';
 import { AccountDelete } from './account-delete';
 import { PushToggle } from './push-toggle';
 import { Button } from './ui/button';
@@ -70,7 +71,10 @@ export function StudyQuest() {
     [view, setView] = useState('home'),
     [menu, setMenu] = useState(false),
     [notifications, setNotifications] = useState(false),
-    [install, setInstall] = useState<any>(null);
+    [install, setInstall] = useState<any>(null),
+    // Play Market ilovasi (TWA) ichidami — lib/play-app.ts; serverda doim false, brauzerda effektda aniqlanadi
+    [play, setPlay] = useState(false);
+  useEffect(() => setPlay(isPlayApp()), []);
   useEffect(() => {
     const update = () => {
       setView(location.hash.slice(1) || 'home');
@@ -136,7 +140,8 @@ export function StudyQuest() {
     { id: 'courses', key: 'courses', icon: BookOpen },
     { id: 'arena', key: 'arena', icon: Gamepad2 },
     { id: 'library', key: 'library', icon: LibraryBig },
-    { id: 'slides', key: 'slides', icon: Presentation },
+    // 💼 Play Market ilovasida pullik xizmatlar ko'rsatilmaydi (Google qoidasi: ilova ichida tashqi to'lov yo'q)
+    ...(play ? [] : [{ id: 'services', key: 'services' as Key, icon: BriefcaseBusiness }]),
     { id: 'badges', key: 'badges', icon: Medal },
     ...(user ? [{ id: 'chat', key: 'chat' as Key, icon: MessageSquare }] : []),
   ];
@@ -173,7 +178,8 @@ export function StudyQuest() {
       <AuthPanel />
     );
   else if (mainView === 'library') content = <Library />;
-  else if (mainView === 'slides') content = <SlidesMaker />;
+  // eski #slides (AI taqdimot) havolalari ham shu bo'limga olib keladi
+  else if ((mainView === 'services' || mainView === 'slides') && !play) content = <Services />;
   else if (mainView === 'arena') content = <Games sub={view.split('/').slice(1).join('/')} />;
   else if (view === 'teacher')
     content = role === 'teacher' || role === 'admin' ? <Staff /> : <AuthPanel />;
@@ -386,7 +392,9 @@ export function StudyQuest() {
           { id: 'courses', label: t(lang, 'courses'), icon: BookOpen },
           { id: 'arena', label: t(lang, 'navArena'), icon: Gamepad2 },
           { id: 'library', label: t(lang, 'navLibrary'), icon: LibraryBig },
-          { id: 'slides', label: t(lang, 'navSlides'), icon: Presentation },
+          ...(play
+            ? []
+            : [{ id: 'services', label: t(lang, 'navServices'), icon: BriefcaseBusiness }]),
           ...(nav.some((n) => n.id === 'chat')
             ? [{ id: 'chat', label: t(lang, 'navChat'), icon: MessageSquare }]
             : signedIn

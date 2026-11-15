@@ -15,14 +15,14 @@ export function PremiumAdmin() {
   const L = useL();
   const { lang, request } = useApp();
   const { data, error, busy, act } = useAdminView<PremiumAdminView>('premiumAdmin', 'premiumAdmin');
-  const [info, setInfo] = useState({ price: '', how: '', free: 1 });
+  const [info, setInfo] = useState({ price: '', how: '' });
   const [students, setStudents] = useState<Student[]>([]),
     [q, setQ] = useState(''),
     [pick, setPick] = useState<Student | null>(null),
     [days, setDays] = useState(30);
   const saved = data?.info;
   useEffect(() => {
-    if (saved) setInfo({ price: saved.price, how: saved.how, free: saved.free });
+    if (saved) setInfo({ price: saved.price, how: saved.how });
   }, [saved]);
   useEffect(() => {
     let live = true;
@@ -64,7 +64,7 @@ export function PremiumAdmin() {
   const saveInfo = (e: FormEvent) => {
     e.preventDefault();
     void act(
-      { op: 'info', price: info.price.trim(), how: info.how.trim(), free: info.free },
+      { op: 'info', price: info.price.trim(), how: info.how.trim() },
       'info',
       '💾 ' + L('Saqlandi', 'Saved', 'Сохранено'),
     ).catch(() => {});
@@ -90,9 +90,9 @@ export function PremiumAdmin() {
         </span>
         <span>
           {L(
-            'ta foydalanuvchida obuna amalda. Obuna: kurs darslari (talaba bo‘lmaganlarga), sun’iy intellekt taqdimotlari, kutubxonadagi 💎 manbalar va 🎭 avatar (top-10 dan tashqarida ham).',
-            'users have Premium. Premium unlocks course lessons (for non-students), AI presentations, 💎 library resources and 🎭 an avatar (even outside the top 10).',
-            'пользователей с подпиской. Подписка открывает уроки курса (для не-студентов), ИИ-презентации, материалы 💎 в библиотеке и 🎭 аватар (даже вне топ-10).',
+            'ta foydalanuvchida obuna amalda. Obuna: kurs darslari (talaba bo‘lmaganlarga), kutubxonadagi 💎 manbalar va 🎭 avatar (top-10 dan tashqarida ham).',
+            'users have Premium. Premium unlocks course lessons (for non-students), 💎 library resources and 🎭 an avatar (even outside the top 10).',
+            'пользователей с подпиской. Подписка открывает уроки курса (для не-студентов), материалы 💎 в библиотеке и 🎭 аватар (даже вне топ-10).',
           )}
         </span>
       </div>
@@ -184,24 +184,6 @@ export function PremiumAdmin() {
                 'Например: переведите через Click или Payme на карту … и отправьте чек в «Написать админу».',
               )}
             />
-          </label>
-          <label>
-            {L(
-              'Obunasiz talabaga bepul taqdimotlar soni',
-              'Free AI presentations without Premium',
-              'Бесплатных презентаций без подписки',
-            )}
-            <select
-              className="input"
-              value={info.free}
-              onChange={(e) => setInfo({ ...info, free: +e.target.value })}
-            >
-              {[0, 1, 2, 3, 5].map((n) => (
-                <option key={n} value={n}>
-                  {n}
-                </option>
-              ))}
-            </select>
           </label>
           <div className="bo-actions">
             <Button type="submit" disabled={!!busy}>
