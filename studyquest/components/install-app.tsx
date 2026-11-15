@@ -57,14 +57,14 @@ export function InstallApp({
   }
   return (
     <section className="install-page panel">
-      <img src="/icon-192.png" width={88} height={88} alt="Tadbirkorlik asoslari" />
+      <img src="/icon-192.png" width={88} height={88} alt="Unistay" />
       <span className="eyebrow">TERDU</span>
       <h1>
         {lang === 'uz'
-          ? 'Tadbirkorlik asoslari ilovasi'
+          ? 'Unistay ilovasi'
           : lang === 'en'
-            ? 'Tadbirkorlik asoslari app'
-            : 'Приложение Tadbirkorlik asoslari'}
+            ? 'Unistay app'
+            : 'Приложение Unistay'}
       </h1>
       <p>
         {lang === 'uz'

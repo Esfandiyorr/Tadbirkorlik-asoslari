@@ -172,18 +172,20 @@ a:focus-visible {
   letter-spacing: 2.25px;
   color: var(--muted);
 }
-/* TerDU gerbi — platforma logotipi */
+/* Unistay — platforma logotipi (dumaloq burchakli kvadrat, rang o'tishi rasmning o'zida) */
 .brand-logo {
   flex-shrink: 0;
   width: 46px;
   height: 46px;
-  border-radius: 50%;
+  border-radius: 13px;
   object-fit: contain;
-  background: #fff;
-  padding: 2px;
-  box-shadow:
-    0 0 0 1px #e6e1f5,
-    0 6px 16px -6px #6d40d355;
+  box-shadow: 0 8px 18px -8px #5b3fd8aa;
+}
+.sq-brand b span {
+  color: #7c3aed;
+}
+.dark .sq-brand b span {
+  color: #c4b5fd;
 }
 .loading-logo {
   width: 76px;
@@ -193,9 +195,7 @@ a:focus-visible {
 @keyframes logo-breathe {
   50% {
     transform: scale(1.06);
-    box-shadow:
-      0 0 0 1px #e6e1f5,
-      0 10px 28px -6px #6d40d377;
+    box-shadow: 0 12px 28px -8px #5b3fd8cc;
   }
 }
 @media (prefers-reduced-motion: reduce) {

@@ -3,11 +3,12 @@ import { Provider } from '@/components/provider';
 import './globals.css';
 import './platform.css';
 export const metadata: Metadata = {
-  title: 'Tadbirkorlik asoslari',
-  description: 'Tadbirkorlik asoslarini o‘rganing, bilimni mustahkamlang va yutuqlarga erishing.',
+  title: 'Unistay',
+  description:
+    'Unistay — talabalar platformasi: kurslar, jonli test va o‘yinlar, talabalar bir-biriga xizmat ko‘rsatib pul ishlaydigan bozor.',
   manifest: '/manifest.webmanifest',
-  appleWebApp: { capable: true, statusBarStyle: 'default', title: 'Tadbirkorlik asoslari' },
-  icons: { icon: '/icon-192.png', apple: '/apple-touch-icon.png' },
+  appleWebApp: { capable: true, statusBarStyle: 'default', title: 'Unistay' },
+  icons: { icon: '/icon.svg', apple: '/apple-touch-icon.png' },
 };
 export const viewport: Viewport = { width: 'device-width', initialScale: 1, themeColor: '#7c3aed' };
 export default function Layout({ children }: { children: React.ReactNode }) {

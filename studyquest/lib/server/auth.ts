@@ -48,7 +48,7 @@ export async function actor(req: NextRequest, readOnly = false): Promise<Actor> 
   check(
     demo() || configured(),
     503,
-    'Tadbirkorlik asoslari xizmatlari hali sozlanmagan. Mavjud darslardan foydalanishingiz mumkin.',
+    'Unistay xizmatlari hali sozlanmagan. Mavjud darslardan foydalanishingiz mumkin.',
   );
   const repo = await repository();
   if (demo()) {
@@ -61,7 +61,7 @@ export async function actor(req: NextRequest, readOnly = false): Promise<Actor> 
   check(
     configured(),
     503,
-    'Tadbirkorlik asoslari xizmatlari hali sozlanmagan. Mavjud darslardan foydalanishingiz mumkin.',
+    'Unistay xizmatlari hali sozlanmagan. Mavjud darslardan foydalanishingiz mumkin.',
   );
   const token = req.headers.get('authorization')?.replace(/^Bearer /, '');
   check(token, 401, 'Hisobingizga kiring');

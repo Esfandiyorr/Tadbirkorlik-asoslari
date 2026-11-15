@@ -1,6 +1,6 @@
-const CACHE = 'studyquest-shell-v4';
+const CACHE = 'studyquest-shell-v5';
 self.addEventListener('install', (e) => {
-  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(['/offline.html', '/terdu-logo.png'])));
+  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(['/offline.html', '/unistay-logo.svg'])));
   self.skipWaiting();
 });
 self.addEventListener('activate', (e) =>
@@ -46,7 +46,7 @@ self.addEventListener('push', (e) => {
       ? new URL(d.i, self.location.origin).href
       : undefined;
   e.waitUntil(
-    self.registration.showNotification(d.t || 'TerDU · Tadbirkorlik asoslari', {
+    self.registration.showNotification(d.t || 'Unistay', {
       body: d.b || '',
       tag: d.g || 'sq',
       renotify: true,

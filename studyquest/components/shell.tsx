@@ -100,12 +100,12 @@ export function StudyQuest() {
       <div className="app-loading">
         <img
           className="brand-logo loading-logo"
-          src="/terdu-logo.png"
-          alt="TerDU"
+          src="/unistay-logo.svg"
+          alt="Unistay"
           width="72"
           height="72"
         />
-        <p>Tadbirkorlik asoslari</p>
+        <p>Unistay</p>
         <div className="loading-line" />
       </div>
     );
@@ -123,7 +123,7 @@ export function StudyQuest() {
   if (!data)
     return (
       <div className="error-page">
-        <h1>Tadbirkorlik asoslari</h1>
+        <h1>Unistay</h1>
         <p>{error}</p>
         <Button onClick={refresh}>
           {lang === 'uz' ? 'Qayta urinish' : lang === 'ru' ? 'Повторить' : 'Try again'}
@@ -213,10 +213,12 @@ export function StudyQuest() {
       )}
       <aside className={'sidebar ' + (menu ? 'open' : '')}>
         <a className="sq-brand" href="#home">
-          <img className="brand-logo" src="/terdu-logo.png" alt="TerDU" width="46" height="46" />
+          <img className="brand-logo" src="/unistay-logo.svg" alt="" width="46" height="46" />
           <div>
-            <b>Tadbirkorlik asoslari</b>
-            <small>TERDU</small>
+            <b>
+              Uni<span>stay</span>
+            </b>
+            <small>{lang === 'en' ? 'STUDENTS' : lang === 'ru' ? 'СТУДЕНТАМ' : 'TALABALAR'}</small>
           </div>
         </a>
         <span className="nav-label">
@@ -266,9 +268,9 @@ export function StudyQuest() {
             </Button>
           </div>
           <a className="original-link" href="#app">
-            <img src="/legacy/logo_tersu.png" alt="" width="27" height="27" />
+            <img src="/icon-192.png" alt="" width="27" height="27" />
             <span>
-              TerDU ·{' '}
+              Unistay ·{' '}
               {lang === 'uz' ? 'Telefon ilovasi' : lang === 'ru' ? 'Приложение' : 'Install app'}
             </span>
             <ArrowUpRight size={14} />
@@ -337,7 +339,7 @@ export function StudyQuest() {
               <span>{(user?.name || legacy?.name || 'T')[0]}</span>
               <div>
                 <b>{user?.name?.split(' ')[0] || legacy?.name || t(lang, 'login')}</b>
-                <small>{roleLabel(lang, role, user?.learnerType) || 'Tadbirkorlik asoslari'}</small>
+                <small>{roleLabel(lang, role, user?.learnerType) || 'Unistay'}</small>
               </div>
             </button>
           </div>
@@ -382,7 +384,7 @@ export function StudyQuest() {
           </AnimatePresence>
         </main>
         <footer className="app-footer">
-          <span>© {new Date().getFullYear()} Tadbirkorlik asoslari · TerDU</span>
+          <span>© {new Date().getFullYear()} Unistay</span>
           <span>{t(lang, 'tagline')}</span>
         </footer>
       </div>

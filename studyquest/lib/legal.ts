@@ -6,7 +6,7 @@ export type LegalLang = 'uz' | 'ru' | 'en';
 export const LEGAL_LANGS: LegalLang[] = ['uz', 'ru', 'en'];
 export const legalLang = (v: unknown): LegalLang => (v === 'ru' || v === 'en' ? v : 'uz');
 export const LEGAL_UPDATED = '2026-11-12';
-export const APP_NAME = 'Tadbirkorlik asoslari';
+export const APP_NAME = 'Unistay';
 
 /** p — ro'yxatdan oldingi matn, ul — ro'yxat, note — ro'yxatdan keyingi izoh */
 export type LegalSection = { h: string; p?: string[]; ul?: string[]; note?: string[] };
@@ -25,10 +25,10 @@ const contact = (w: Who, l: LegalLang) => {
 const operator = (w: Who, l: LegalLang) =>
   w.operator ||
   (l === 'uz'
-    ? '«Tadbirkorlik asoslari» platformasi ma’muriyati'
+    ? '«Unistay» platformasi ma’muriyati'
     : l === 'ru'
-      ? 'администрация платформы «Tadbirkorlik asoslari»'
-      : 'the administration of the “Tadbirkorlik asoslari” platform');
+      ? 'администрация платформы «Unistay»'
+      : 'the administration of the “Unistay” platform');
 
 export function privacyDoc(l: LegalLang, w: Who): LegalDoc {
   const op = operator(w, l),

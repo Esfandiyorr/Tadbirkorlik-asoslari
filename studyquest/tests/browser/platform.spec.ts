@@ -322,7 +322,7 @@ test('the original arena stays inside the game page and the new app can be insta
   await page.getByRole('button', { name: 'Ilovani o‘rnatish', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Ilova o‘rnatilgan', exact: true })).toBeDisabled();
   const manifest = await (await page.request.get('/manifest.webmanifest')).json();
-  expect(manifest.name).toBe('Tadbirkorlik asoslari');
+  expect(manifest.name).toBe('Unistay');
   expect(manifest.shortcuts.some((s: any) => s.url === '/#arena')).toBe(true);
 });
 

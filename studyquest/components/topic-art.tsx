@@ -99,9 +99,9 @@ export function TopicArt({
   );
 }
 
-/* Fan (kurs) rasmi: TerDU gerbi va tadbirkorlik belgilari bilan ajralib turadi. */
+/* Fan (kurs) rasmi: platforma (Unistay) belgisi va tadbirkorlik belgilari bilan ajralib turadi. */
 export function CourseArt({ title, kind }: { title: string; kind?: string }) {
-  // «service» — restoran xizmati kursi: o'z rangi va belgilari bilan (TerDU gerbisiz).
+  // «service» — restoran xizmati kursi: o'z rangi va belgilari bilan.
   const service = kind === 'service',
     emoji = service ? ['🤵', '🥗', '☕', '🧾'] : ['🚀', '💡', '📈', '💼'];
   return (
@@ -110,7 +110,7 @@ export function CourseArt({ title, kind }: { title: string; kind?: string }) {
       {service ? (
         <span className="course-hero-logo course-hero-mark">🍽️</span>
       ) : (
-        <img src="/terdu-logo.png" alt="" className="course-hero-logo" width="64" height="64" />
+        <img src="/unistay-logo.svg" alt="" className="course-hero-logo" width="64" height="64" />
       )}
       {emoji.map((e, i) => (
         <span className={'course-hero-emoji e' + (i + 1)} key={e}>

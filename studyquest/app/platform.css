@@ -222,9 +222,7 @@
 .course-hero-logo {
   width: 62px;
   height: 62px;
-  border-radius: 50%;
-  background: #fff;
-  padding: 3px;
+  border-radius: 18px;
   object-fit: contain;
   box-shadow:
     0 0 0 4px #ffffff33,
@@ -1190,7 +1188,7 @@
   box-shadow: var(--shadow);
 }
 .guest-badge img {
-  border-radius: 50%;
+  border-radius: 8px;
 }
 .guest-hero h1 {
   font-size: clamp(30px, 4vw, 46px);
@@ -1762,7 +1760,7 @@
   margin-bottom: 4px;
 }
 .auth-form-head img {
-  border-radius: 50%;
+  border-radius: 16px;
   box-shadow: 0 6px 16px -8px #0006;
 }
 .auth-form-head h2 {
@@ -1967,7 +1965,7 @@
   box-shadow: 0 6px 18px -12px #4c1d9566;
 }
 .design-workspace .auth-story .hero-tag img {
-  border-radius: 50%;
+  border-radius: 6px;
 }
 .design-workspace .auth-story h1 {
   color: #2e1065;

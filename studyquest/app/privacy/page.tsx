@@ -6,9 +6,9 @@ import { appInfo } from '@/lib/server/app-store';
 /* 🔒 Maxfiylik siyosati — ochiq sahifa (Google Play talabi): kirmasdan ochiladi, ?lang=uz|ru|en. */
 export const dynamic = 'force-dynamic';
 export const metadata: Metadata = {
-  title: 'Maxfiylik siyosati · Tadbirkorlik asoslari',
+  title: 'Maxfiylik siyosati · Unistay',
   description:
-    'Tadbirkorlik asoslari platformasi qanday ma’lumot yig‘adi va uni qanday o‘chirish mumkin.',
+    'Unistay platformasi qanday ma’lumot yig‘adi va uni qanday o‘chirish mumkin.',
 };
 export default async function Page({
   searchParams,

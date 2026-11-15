@@ -162,7 +162,7 @@ export function AuthPanel({ onClose }: { onClose?: () => void }) {
       <main className="maintenance-page">
         <section className="panel maintenance-card">
           <Shield size={36} aria-hidden="true" />
-          <h1>Tadbirkorlik asoslari</h1>
+          <h1>Unistay</h1>
           <h2>Platforma vaqtincha yopiq</h2>
           <p>Texnik ishlar olib borilmoqda. Hozir faqat administrator kirishi mumkin.</p>
           {googleError && <p role="alert">{googleError}</p>}
@@ -183,14 +183,14 @@ export function AuthPanel({ onClose }: { onClose?: () => void }) {
   const form = (
     <div className="auth-form">
       <div className="auth-form-head">
-        <img src="/terdu-logo.png" alt="TerDU" width="56" height="56" />
+        <img src="/unistay-logo.svg" alt="Unistay" width="56" height="56" />
         <div>
           <h2>{L('Xush kelibsiz!', 'Welcome!', 'Добро пожаловать!')}</h2>
           <p className="muted">
             {L(
-              'Tadbirkorlik asoslari · TerDU',
-              'Fundamentals of Entrepreneurship · TerDU',
-              'Основы предпринимательства · ТерГУ',
+              'Unistay · talabalar platformasi',
+              'Unistay · student platform',
+              'Unistay · платформа для студентов',
             )}
           </p>
         </div>
@@ -466,16 +466,14 @@ export function AuthPanel({ onClose }: { onClose?: () => void }) {
         <div className="auth-story">
           {design === 'rocket' ? (
             <div className="auth-rocket-title">
-              <h1>Tadbirkorlik asoslari</h1>
-              <p>
-                {L('TerDU o‘quv platformasi', 'TerDU learning platform', 'Учебная платформа ТерГУ')}
-              </p>
+              <h1>Unistay</h1>
+              <p>{L('Talabalar platformasi', 'Student platform', 'Платформа для студентов')}</p>
             </div>
           ) : (
             <>
               <span className="hero-tag">
-                <img src="/terdu-logo.png" alt="" width="22" height="22" />
-                Tadbirkorlik asoslari
+                <img src="/unistay-logo.svg" alt="" width="22" height="22" />
+                Unistay
               </span>
               <h1>
                 {L('Bilimdan biznes sari.', 'From learning to building.', 'От знаний — к бизнесу.')}

@@ -1,12 +1,12 @@
 {
-  "name": "Tadbirkorlik asoslari",
+  "name": "Unistay",
   "id": "/",
   "categories": [
     "education"
   ],
   "orientation": "any",
-  "short_name": "Tadbirkorlik asoslari",
-  "description": "Bilim sari har kuni yangi qadam",
+  "short_name": "Unistay",
+  "description": "Talabalar platformasi: kurslar, jonli test va o‘yinlar, talabalar xizmatlar bozori",
   "lang": "uz",
   "start_url": "/",
   "scope": "/",
@@ -28,6 +28,12 @@
     }
   ],
   "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
     {
       "src": "/icon-192.png",
       "sizes": "192x192",
