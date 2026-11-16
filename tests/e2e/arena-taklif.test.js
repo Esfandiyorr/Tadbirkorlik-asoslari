@@ -4,6 +4,13 @@ const H=require('../lib/h.js'); const {sleep,ck}=H;
 const ARENA=H.SITE+"/arena.html";
 async function home(p){ await p.goto(ARENA+"#/"); for(let t=0;t<40;t++){ await sleep(400); if(await p.$("#onl")) break; } await sleep(800); }
 async function until(p,fn,arg,ms){ const t0=Date.now(); while(Date.now()-t0<(ms||20000)){ if(await p.evaluate(fn,arg).catch(()=>false)) return true; await sleep(300); } return false; }
+/* O'yin oxiridagi xabar (#c4s, #pzM, #sdS) ~1,2 s dan keyin «Natijangiz yuborildi» ekrani bilan almashadi (arena.html → submit).
+   Sekin CI'da tekshiruv shu oraliqni o'tkazib yubormasin: o'yin tugashidan oldin sahifaga yozuvchi qo'yiladi —
+   xabar bir marta paydo bo'lgan bo'lsa, keyinroq tekshirilganda ham topiladi. */
+async function rec(p){ await p.evaluate(()=>{ window.__msgs=[]; if(window.__msgObs) return;
+  window.__msgObs=new MutationObserver(ms=>ms.forEach(m=>{ const el=m.target.nodeType===3?m.target.parentElement:m.target; if(el&&/^(c4s|pzM|sdS)$/.test(el.id||"")) window.__msgs.push(el.textContent); }));
+  window.__msgObs.observe(document.documentElement,{childList:true,subtree:true,characterData:true}); }); }
+const saw=(p,src,ms)=>until(p,a=>(window.__msgs||[]).some(t=>new RegExp(a).test(t)),src,ms);
 const ph=(code)=>((H.dbGet("arena/rooms/"+code+"/state")||{}).ph);
 const perm=p=>p.evaluate(()=>[...document.querySelectorAll("#pzB .pzt")].map(t=>+t.getAttribute("data-p")));
 async function solveStep(p){
@@ -34,10 +41,11 @@ async function solveStep(p){
   ck("qabul qilindi → ikkalasida o'yin boshlandi (bir necha soniyada)",await until(A,c=>!!document.querySelector("#c4b"),null,15000)&&await until(B,()=>!!document.querySelector("#c4b"),null,15000)&&ph(code)==="play",ph(code));
   ck("taklif yozuvi o'chirildi",!H.dbGet("arena/inv/sB/sA"));
   await sleep(4800);                                     /* 3-2-1 sanog'i */
+  await rec(A); await rec(B);
   const drop=async(p,x)=>{ await until(p,()=>document.getElementById("c4b").classList.contains("my"),null,8000); await p.click('#c4b .c4c[data-x="'+x+'"]'); await sleep(200); };
   for(let k=0;k<3;k++){ await drop(A,0); await drop(B,1); }
   await drop(A,0);
-  ck("To'rttalik: A 4 tasini terdi → «Siz yutdingiz», B da «Raqib to'rttalik yig'di»",await until(A,()=>/yutdingiz/.test(document.getElementById("c4s").innerText),null,6000)&&await until(B,()=>/to'rttalik yig'di/.test(document.getElementById("c4s").innerText),null,6000));
+  ck("To'rttalik: A 4 tasini terdi → «Siz yutdingiz», B da «Raqib to'rttalik yig'di»",await saw(A,"yutdingiz",6000)&&await saw(B,"to'rttalik yig'di",6000));
   ck("ikkala taxta bir xil",await A.evaluate(()=>[...document.querySelectorAll(".c4d")].map(d=>d.className).join())===await B.evaluate(()=>[...document.querySelectorAll(".c4d")].map(d=>d.className).join()));
   ck("o'yin oxirida g'olib A, «Revansh» tugmasi",await until(A,()=>/Ali Valiyev/.test((document.querySelector(".win")||{}).innerText||"")&&/Revansh/.test(document.getElementById("eg").innerText),null,20000));
   /* 3) rad etish */
@@ -83,9 +91,10 @@ async function solveStep(p){
   const ia=await A.evaluate(()=>getComputedStyle(document.querySelector(".pz-prev")).backgroundImage), ib=await B.evaluate(()=>getComputedStyle(document.querySelector(".pz-prev")).backgroundImage);
   ck("duel: 4×4, ikkalasida boshqa-boshqa rasm",(await perm(A)).length===16&&ia!==ib&&ia.length>100,JSON.stringify([(await perm(A)).length,ia.slice(0,80),ib.slice(0,80),ia===ib,ia.length]));
   await A.screenshot({path:"arena_pzl.png"});
+  await rec(A); await rec(B);
   await solveStep(B); await solveStep(B);
   for(let k=0;k<20;k++){ if(!(await solveStep(A))) break; await sleep(120); }
-  ck("A birinchi yig'di → A: «Siz birinchi yig'dingiz», B: «… birinchi yig'di» va taxta qotadi",await until(A,()=>/birinchi yig'dingiz/.test(document.getElementById("pzM").innerText),null,6000)&&await until(B,()=>/Ali.*birinchi yig'di/.test(document.getElementById("pzM").innerText),null,8000));
+  ck("A birinchi yig'di → A: «Siz birinchi yig'dingiz», B: «… birinchi yig'di» va taxta qotadi",await saw(A,"birinchi yig'dingiz",6000)&&await saw(B,"Ali.*birinchi yig'di",8000));
   ck("duel natijasi: g'olib A",await until(A,()=>/Ali Valiyev/.test((document.querySelector(".win")||{}).innerText||""),null,25000));
   /* 6) Sudoku (yakka): hammaga bir xil boshqotirma (urug'dan), to'g'ri to'ldirilsa — yechildi */
   const SD=await H.mk(b,H.stu("sD","Dilnoza","Rahimova","FIZ-21"),{}); await home(SD);
@@ -95,9 +104,10 @@ async function solveStep(p){
   const giv=await SD.evaluate(()=>[...document.querySelectorAll("#sdB .sdc")].map((c,i)=>c.classList.contains("g")?i+":"+c.textContent:null).filter(Boolean));
   ck("sudoku: 15 ta berilgan son urug'dan hisoblangan yechimga mos",giv.length===15&&giv.every(x=>{ const [i,v]=x.split(":").map(Number); return sol.sol[Math.floor(i/6)][i%6]===v; }),giv.join(" "));
   ck("sudoku: qator, ustun va 2×3 blok qoidasi bo'yicha to'g'ri yechim",await SD.evaluate(s=>{ const v=s.flat(); return Object.keys(window.ARENA_TEST.sdkBad(v)).length===0&&v.every(x=>x>=1&&x<=6); },sol.sol));
+  await rec(SD);
   await SD.click('#sdB .sdc:not(.g)'); await SD.click('#sdP [data-k="'+(sol.sol[0][0]===1?2:1)+'"]');
   for(let i=0;i<36;i++){ if(sol.giv.includes(i)) continue; await SD.click('#sdB .sdc[data-i="'+i+'"]'); await SD.click('#sdP [data-k="'+sol.sol[Math.floor(i/6)][i%6]+'"]'); }
-  ck("sudoku to'liq va to'g'ri to'ldirildi → «Sudoku yechildi!»",await until(SD,()=>/Sudoku yechildi/.test(document.getElementById("sdS").innerText),null,6000));
+  ck("sudoku to'liq va to'g'ri to'ldirildi → «Sudoku yechildi!»",await saw(SD,"Sudoku yechildi",6000));
   ck("noto'g'ri son qizil bilan belgilanadi (qoida buzilsa)",await SD.evaluate(()=>{ const T=window.ARENA_TEST, v=[1,1,0,0,0,0].concat(new Array(30).fill(0)); return !!T.sdkBad(v)[0]&&!!T.sdkBad(v)[1]; }));
   /* 7) telefon */
   const M=await H.mk(b,H.stu("sE","Eldor","Tursunov","AP-223"),{vp:{width:390,height:844},mobile:true}); await home(M);
