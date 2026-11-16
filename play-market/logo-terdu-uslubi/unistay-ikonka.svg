@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024"><title>Unistay — ilova ikonkasi</title>
+<defs>
+  <linearGradient id="ik-fon" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2E7D3E"/><stop offset="1" stop-color="#154521"/></linearGradient>
+  <radialGradient id="ik-nur" cx="512" cy="300" r="680" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".3" stop-color="#fff" stop-opacity="0"/><stop offset=".42" stop-color="#fff" stop-opacity=".2"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+  <clipPath id="ik-k"><rect width="1024" height="1024" rx="228"/></clipPath>
+</defs>
+<g clip-path="url(#ik-k)">
+  <rect width="1024" height="1024" fill="url(#ik-fon)"/>
+  <path d="M512 300L512.0 -600.0L612.8 -594.3ZM512 300L712.3 -577.4L809.3 -549.5ZM512 300L902.5 -510.9L990.8 -462.1ZM512 300L1073.1 -403.6L1148.4 -336.4ZM512 300L1215.6 -261.1L1274.1 -178.8ZM512 300L1322.9 -90.5L1361.5 2.7ZM512 300L1389.4 99.7L1406.3 199.2ZM512 300L1412.0 300.0L1406.3 400.8ZM512 300L1389.4 500.3L1361.5 597.3ZM512 300L1322.9 690.5L1274.1 778.8ZM512 300L1215.6 861.1L1148.4 936.4ZM512 300L1073.1 1003.6L990.8 1062.1ZM512 300L902.5 1110.9L809.3 1149.5ZM512 300L712.3 1177.4L612.8 1194.3ZM512 300L512.0 1200.0L411.2 1194.3ZM512 300L311.7 1177.4L214.7 1149.5ZM512 300L121.5 1110.9L33.2 1062.1ZM512 300L-49.1 1003.6L-124.4 936.4ZM512 300L-191.6 861.1L-250.1 778.8ZM512 300L-298.9 690.5L-337.5 597.3ZM512 300L-365.4 500.3L-382.3 400.8ZM512 300L-388.0 300.0L-382.3 199.2ZM512 300L-365.4 99.7L-337.5 2.7ZM512 300L-298.9 -90.5L-250.1 -178.8ZM512 300L-191.6 -261.1L-124.4 -336.4ZM512 300L-49.1 -403.6L33.2 -462.1ZM512 300L121.5 -510.9L214.7 -549.5ZM512 300L311.7 -577.4L411.2 -594.3Z" fill="url(#ik-nur)"/>
+  <circle cx="512" cy="512" r="420" fill="none" stroke="#fff" stroke-opacity=".28" stroke-width="10"/>
+  <circle cx="512" cy="512" r="396" fill="none" stroke="#fff" stroke-opacity=".18" stroke-width="4"/>
+</g>
+<path d="M284 494L512 300L740 494" fill="none" stroke="#F2B632" stroke-width="78" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M388 532V640a124 124 0 0 0 248 0V532" fill="none" stroke="#fff" stroke-width="86" stroke-linecap="round"/>
+</svg>
