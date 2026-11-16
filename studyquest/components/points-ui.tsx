@@ -129,6 +129,10 @@ export function PointsBreakdown({
         : []),
     ],
     tips = hints ? pointHints(history, lang) : [];
+  // har yo'nalishda qancha ball qolgani (masalan, slaydlar 30 dan 25 — 5 qoldi) va jami qolgani
+  const rest = (r: { value: number; max: number }) =>
+      Math.max(0, Math.round((r.max - r.value) * 10) / 10),
+    left = Math.round(rows.reduce((s, r) => s + rest(r), 0) * 10) / 10;
   return (
     <div className="points-breakdown">
       {rows.map((r) => (
@@ -144,8 +148,30 @@ export function PointsBreakdown({
             {num(r.value)}
             <small>/{r.max}</small>
           </b>
+          <small className={'pb-rest' + (rest(r) ? '' : ' is-full')}>
+            {rest(r)
+              ? tr(
+                  lang,
+                  `${num(rest(r))} ball qoldi`,
+                  `${num(rest(r))} pts left`,
+                  `осталось ${num(rest(r))}`,
+                )
+              : '✓ ' + tr(lang, 'to‘liq', 'full', 'полностью')}
+          </small>
         </div>
       ))}
+      {!hints && (
+        <p className={'pb-left' + (left ? '' : ' is-full')}>
+          {left
+            ? tr(
+                lang,
+                `🎯 Jami qolgan: ${num(left)} ball`,
+                `🎯 Left in total: ${num(left)} pts`,
+                `🎯 Всего осталось: ${num(left)} баллов`,
+              )
+            : '🎉 ' + tr(lang, 'To‘liq ball olingan', 'Full points earned', 'Получены все баллы')}
+        </p>
+      )}
       {hints &&
         (tips.length ? (
           <ul className="pb-hints">
