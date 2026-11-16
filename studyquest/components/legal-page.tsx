@@ -27,7 +27,7 @@ export function LegalPage({
     <main className="legal" lang={lang}>
       <header className="legal-top">
         <a className="legal-brand" href="/">
-          <img src="/terdu-logo.png" alt="" width={40} height={40} />
+          <img src="/unistay-logo.svg" alt="" width={40} height={40} />
           <b>{APP_NAME}</b>
         </a>
         <nav className="legal-langs" aria-label="Til / Язык / Language">

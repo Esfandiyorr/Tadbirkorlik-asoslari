@@ -6,9 +6,8 @@ import { appInfo } from '@/lib/server/app-store';
 /* 🗑 Hisobni o'chirish yo'riqnomasi — ochiq sahifa (Google Play talabi): kirmasdan ochiladi, ?lang=uz|ru|en. */
 export const dynamic = 'force-dynamic';
 export const metadata: Metadata = {
-  title: 'Hisobni o‘chirish · Tadbirkorlik asoslari',
-  description:
-    'Tadbirkorlik asoslari platformasidagi hisob va ma’lumotlarni qanday o‘chirish mumkin.',
+  title: 'Hisobni o‘chirish · Unistay',
+  description: 'Unistay platformasidagi hisob va ma’lumotlarni qanday o‘chirish mumkin.',
 };
 export default async function Page({
   searchParams,

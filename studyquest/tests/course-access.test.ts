@@ -166,11 +166,74 @@ it('access given by email reaches the sign-in account, also behind a student-sec
 
 it('the administrator can open the course to everyone for a while', async () => {
   let v = await manageCourseAccess(admin, { op: 'gate', off: true });
-  expect(v.gate).toEqual({ off: true });
+  expect(v.gate).toEqual({ off: true, students: false });
   expect(await courseEntry(email, now)).toEqual({ ok: true, via: 'open' });
   v = await manageCourseAccess(admin, { op: 'gate', off: false });
-  expect(v.gate).toEqual({ off: false });
+  expect(v.gate).toEqual({ off: false, students: false });
   expect(await courseEntry(email, now)).toEqual({ ok: false, pending: null });
+});
+
+/* 🎓 «Talabamisiz?» ro'yxatdan o'tishda emas, kursni boshlaganda so'raladi: «Ha» — guruh bilan yozilish. */
+it('a student enrols with a group when starting the course; the administrator approves', async () => {
+  await expect(requestCourseAccess(email, { group: '!' }, now)).rejects.toThrow();
+  await expect(requestCourseAccess(email, { group: 'A' }, now)).rejects.toThrow();
+  await expect(
+    requestCourseAccess(email, { group: 'AP-223', course: 'restoran' }, now),
+  ).rejects.toMatchObject({ status: 400 });
+  expect(await requestCourseAccess(email, { group: ' AP-223 ' }, now)).toEqual({
+    ok: false,
+    pending: now,
+    group: 'AP-223',
+  });
+  expect(await courseEntry(email, now)).toEqual({ ok: false, pending: now, group: 'AP-223' });
+  let v = await courseAccessAdmin(admin);
+  expect(v.requests).toEqual([
+    {
+      uid: 'uidEmail1',
+      name: 'Dilnoza Karimova',
+      email: 'uidEmail1@example.com',
+      group: 'AP-223',
+      at: now,
+    },
+  ]);
+  v = await manageCourseAccess(admin, { op: 'approve', uid: email.id }, now + 1000);
+  expect(v.grants[0]).toMatchObject({ uid: 'uidEmail1', group: 'AP-223', by: 'owner' });
+  expect(await courseEntry(email, now)).toEqual({ ok: true, via: 'grant' });
+});
+
+it('with «open for students at once» the course opens right after entering the group', async () => {
+  await expect(manageCourseAccess(email, { op: 'students', on: true })).rejects.toMatchObject({
+    status: 403,
+  });
+  let v = await manageCourseAccess(admin, { op: 'students', on: true });
+  expect(v.gate).toEqual({ off: false, students: true });
+  // «gate» o'zgarsa ham talabalar sozlamasi saqlanadi
+  v = await manageCourseAccess(admin, { op: 'gate', off: false });
+  expect(v.gate).toEqual({ off: false, students: true });
+  // guruhsiz so'rov — avvalgidek administrator tasdig'ini kutadi
+  expect(await requestCourseAccess(independent, { note: 'Ish joyimdan' }, now)).toEqual({
+    ok: false,
+    pending: now,
+  });
+  expect(await requestCourseAccess(email, { group: 'AP-223' }, now)).toEqual({
+    ok: true,
+    via: 'grant',
+  });
+  v = await courseAccessAdmin(admin);
+  expect(v.grants).toEqual([
+    {
+      uid: 'uidEmail1',
+      name: 'Dilnoza Karimova',
+      email: 'uidEmail1@example.com',
+      group: 'AP-223',
+      at: now,
+      by: 'student',
+    },
+  ]);
+  expect(v.requests.map((r) => r.uid)).toEqual(['legacy_mustaqil']);
+  expect(await courseEntry(email, now)).toEqual({ ok: true, via: 'grant' });
+  v = await manageCourseAccess(admin, { op: 'students', on: false });
+  expect(v.gate).toEqual({ off: false, students: false });
 });
 
 /* 💳 Pullik kurs (restoran): hammaga ko'rinadi, darslarni faqat administrator va u ruxsat berganlar ochadi. */

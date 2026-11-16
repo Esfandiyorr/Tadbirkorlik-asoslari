@@ -322,7 +322,7 @@ test('the original arena stays inside the game page and the new app can be insta
   await page.getByRole('button', { name: 'Ilovani o‘rnatish', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Ilova o‘rnatilgan', exact: true })).toBeDisabled();
   const manifest = await (await page.request.get('/manifest.webmanifest')).json();
-  expect(manifest.name).toBe('Tadbirkorlik asoslari');
+  expect(manifest.name).toBe('Unistay');
   expect(manifest.shortcuts.some((s: any) => s.url === '/#arena')).toBe(true);
 });
 
@@ -345,8 +345,8 @@ test('student entry asks for the existing first name, surname and code', async (
     await route.fulfill({ response, body });
   });
   await page.goto('/#login', { waitUntil: 'domcontentloaded' });
-  // 🎓 birinchi savol: «Talabamisiz?» → talaba bo'limi
-  await page.getByRole('button', { name: /Ha, TerDU talabasiman/ }).click();
+  // 🎓 avvalgi talaba hisobi (ism + kod) → talaba bo'limi
+  await page.getByRole('button', { name: /Talaba hisobi/ }).click();
   const frame = page.locator('.native-login .native-document');
   await expect(frame.locator('#lgN')).toBeVisible();
   await expect(frame.locator('#lgS')).toBeVisible();

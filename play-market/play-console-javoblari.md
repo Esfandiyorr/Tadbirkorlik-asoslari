@@ -51,14 +51,19 @@ ilova ishlashi uchun xizmat ko'rsatuvchilarga — Firebase, Vercel — beriladi,
 | Messages → **Other in-app messages** (chat, administratorga xabar)                                                                               | Optional                                         | App functionality                     |
 | Photos and videos → **Photos** (topshiriqqa yuklangan rasm, chatdagi rasm)                                                                       | Optional                                         | App functionality                     |
 | App activity → **App interactions** (o'qilgan mavzular, test javoblari, ballar)                                                                  | Required                                         | App functionality                     |
-| App activity → **Other user-generated content** (pullik xizmat buyurtmasi matni)                                                                 | Optional                                         | App functionality                     |
+| App activity → **Other user-generated content** (pullik xizmat vazifasi matni, summa, ijrochi haqidagi matn, baho va fikr)                       | Optional                                         | App functionality                     |
 | Device or other IDs → **Device or other IDs** (bildirishnoma obunasi)                                                                            | Optional                                         | App functionality                     |
 | Files and docs → **Files and docs** (pullik xizmat buyurtmasiga biriktirilgan va tayyorlangan fayllar)                                           | Optional                                         | App functionality                     |
 | Financial info → **Purchase history** (obuna muddati, avatar, pullik kurs yoki pullik xizmat uchun «To'lov qildim» so'rovi va chek raqami izohi) | Optional                                         | App functionality, Account management |
+| Financial info → **Other financial info** (ijrochining pul o'tkazish ma'lumoti: karta yoki telefon — faqat saytda, faqat admin ko'radi)          | Optional                                         | App functionality                     |
 
-Yig'ilmaydi: Location, Financial info'ning qolgan turlari (karta ma'lumotlari, kredit va h.k. — to'lov
+Yig'ilmaydi: Location, Financial info'ning qolgan turlari (to'lov kartasi orqali xarid, kredit va h.k. — to'lov
 saytdan tashqarida qilinadi), Health, Contacts, Calendar, Audio, Web browsing,
 App info and performance (crash/diagnostika SDK'si yo'q).
+
+> «Pullik xizmatlar» (talabalar ish bozori) Play Market ilovasida yashirilgan va faqat saytda ishlaydi. Lekin hisob
+> bitta bo'lgani uchun Data safety'da ijrochi ma'lumotlarini (pul o'tkazish uchun karta yoki telefon) ehtiyot
+> sifatida «Other financial info» deb belgilash tavsiya etiladi.
 
 Har bir tur uchun: **Is this data processed ephemerally?** → No · **Can users choose whether it's collected?** →
 «Optional» deb belgilanganlar uchun Yes.

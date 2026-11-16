@@ -22,7 +22,11 @@ import { premiumState } from './premium';
    Bazada (brauzerlar tegolmaydigan site/* bo'limida):
      site/courseAccess/<foydalanuvchi>   = {uid, name, email?, at, by}      — administrator bergan ruxsat;
      site/courseRequests/<foydalanuvchi> = {uid, name, email?, at, note?}   — «ruxsat so'rash» (administrator ko'radi);
-     site/courseGate = {off}                                               — off=true: kurs hammaga ochiq (vaqtincha).
+     site/courseGate = {off, students}                                     — off=true: kurs hammaga ochiq (vaqtincha);
+                                                                             students=true: «Talabaman» deb guruhi bilan
+                                                                             yozilganlarga kurs darhol ochiladi.
+   🎓 Ro'yxatdan o'tishda «Talabamisiz?» so'ralmaydi: foydalanuvchi kursni boshlaganda so'raladi — «Ha» desa guruhini
+   yozib kursga yoziladi (so'rov {group} bilan; o'qituvchi/administrator tasdiqlaydi yoki students=true bo'lsa — darhol).
    Ruxsat foydalanuvchi id si (legacy_<id> yoki uid) yoki uning kirish hisobi (Firebase uid) bo'yicha beriladi —
    administrator emailni yozib bersa, server uni uid ga aylantiradi. */
 
@@ -37,21 +41,25 @@ export function terduStudent(a: Pick<Actor, 'id' | 'learnerType'>) {
 }
 
 /* Umumiy sozlama 30 soniya xotirada (har sahifa ochilganda bazaga bormaslik uchun). */
+type Gate = { off: boolean; students: boolean };
 const mem = ((
-  globalThis as { __sqCourseGate?: { c: { off: boolean; at: number } | null } }
+  globalThis as { __sqCourseGate?: { c: (Gate & { at: number }) | null } }
 ).__sqCourseGate ??= { c: null });
 export function forgetCourseGate() {
   mem.c = null;
 }
-export async function courseGate(): Promise<{ off: boolean }> {
+export async function courseGate(): Promise<Gate> {
   const c = mem.c;
-  if (c && Date.now() - c.at < 30000) return { off: c.off };
-  let off = false;
+  if (c && Date.now() - c.at < 30000) return { off: c.off, students: c.students };
+  let off = false,
+    students = false;
   try {
-    off = (await siteGet<{ off?: boolean }>('courseGate'))?.off === true;
+    const v = await siteGet<{ off?: boolean; students?: boolean }>('courseGate');
+    off = v?.off === true;
+    students = v?.students === true;
   } catch {}
-  mem.c = { off, at: Date.now() };
-  return { off };
+  mem.c = { off, students, at: Date.now() };
+  return { off, students };
 }
 
 async function grantOf(a: Pick<Actor, 'id' | 'uid'>, base = 'courseAccess') {
@@ -148,7 +156,12 @@ export async function courseEntry(a: Actor, now = Date.now()): Promise<CourseEnt
   if (grant) return { ok: true, via: 'grant' };
   if (premium.active) return { ok: true, via: 'premium', until: premium.until };
   if (gate.off) return { ok: true, via: 'open' };
-  return { ok: false, pending: request?.uid === a.id ? Number(request.at) || null : null };
+  const mine = request?.uid === a.id;
+  return {
+    ok: false,
+    pending: mine ? Number(request!.at) || null : null,
+    ...(mine && request!.group ? { group: request!.group } : {}),
+  };
 }
 /** Server tekshiruvi: dars ochilishidan oldin. */
 export async function requireCourse(a: Actor) {
@@ -169,12 +182,37 @@ export async function requestCourseAccess(a: Actor, raw: unknown, now = Date.now
     .object({
       note: z.string().trim().max(300).optional(),
       course: z.string().max(40).optional(),
+      // 🎓 «Talabaman» — guruh (masalan, AP-223)
+      group: z
+        .string()
+        .trim()
+        .regex(
+          /^[\p{L}\p{N}][\p{L}\p{N} ._/-]{1,39}$/u,
+          'Guruh nomini to‘g‘ri yozing (masalan, AP-223).',
+        )
+        .optional(),
     })
     .strict()
     .parse(raw ?? {});
   const w = where(v.course);
+  check(!v.group || !w.paid, 400, 'Guruh bilan faqat asosiy kursga yoziladi.');
   const entry = w.paid ? await paidEntry(a, w.course) : await courseEntry(a, now);
   if (entry.ok) return entry;
+  if (v.group && (await courseGate()).students) {
+    // administrator «talabalarga darhol ochish»ni yoqqan — kurs shu zahoti ochiladi
+    await siteUpdate({
+      [w.grants + '/' + keyOf(a.id)]: {
+        uid: a.id,
+        name: a.name.slice(0, 120),
+        ...(a.email ? { email: a.email.slice(0, 120) } : {}),
+        group: v.group,
+        at: now,
+        by: 'student',
+      } satisfies CourseGrant,
+      [w.requests + '/' + keyOf(a.id)]: null,
+    });
+    return { ok: true, via: 'grant' } satisfies CourseEntry;
+  }
   const all = (await siteGet<Record<string, unknown>>(w.requests)) || {};
   check(
     Object.keys(all).length < MAX_REQUESTS || !!all[keyOf(a.id)],
@@ -185,11 +223,12 @@ export async function requestCourseAccess(a: Actor, raw: unknown, now = Date.now
     uid: a.id,
     name: a.name.slice(0, 120),
     ...(a.email ? { email: a.email.slice(0, 120) } : {}),
+    ...(v.group ? { group: v.group } : {}),
     at: now,
     ...(v.note ? { note: v.note } : {}),
   };
   await siteUpdate({ [w.requests + '/' + keyOf(a.id)]: rec });
-  return { ok: false, pending: now } satisfies CourseEntry;
+  return { ok: false, pending: now, ...(v.group ? { group: v.group } : {}) } satisfies CourseEntry;
 }
 export async function cancelCourseRequest(a: Actor, course?: string) {
   await siteUpdate({ [where(course).requests + '/' + keyOf(a.id)]: null });
@@ -203,7 +242,7 @@ export async function courseAccessAdmin(a: Actor, course?: string) {
   const [grants, requests, gate, shop] = await Promise.all([
     siteGet<Record<string, CourseGrant>>(w.grants),
     siteGet<Record<string, CourseRequest>>(w.requests),
-    siteGet<{ off?: boolean }>('courseGate'),
+    siteGet<{ off?: boolean; students?: boolean }>('courseGate'),
     w.paid ? courseShop(w.course) : Promise.resolve(null),
   ]);
   const valid = <T extends { uid?: unknown; at?: unknown }>(x: T | null | undefined): x is T =>
@@ -216,7 +255,7 @@ export async function courseAccessAdmin(a: Actor, course?: string) {
       ...extraCourses.filter((c) => c.paid).map((c) => ({ id: c.id, title: c.title, paid: true })),
     ],
     shop,
-    gate: { off: gate?.off === true },
+    gate: { off: gate?.off === true, students: gate?.students === true },
     grants: Object.values(grants || {})
       .filter(valid)
       .sort((x, y) => y.at - x.at),
@@ -263,6 +302,8 @@ const input = z.discriminatedUnion('op', [
     })
     .strict(),
   z.object({ op: z.literal('gate'), off: z.boolean() }).strict(),
+  // 🎓 «Talabaman» deb guruhi bilan yozilganlarga kursni darhol ochish (aks holda — so'rov, tasdiqlash kerak)
+  z.object({ op: z.literal('students'), on: z.boolean() }).strict(),
 ]);
 type FindUser = (email: string) => Promise<{ uid: string; name: string; email: string } | null>;
 const findDefault: FindUser = async (email) => {
@@ -282,8 +323,10 @@ export async function manageCourseAccess(
 ) {
   administrator(a);
   const p = input.parse(raw);
-  if (p.op === 'gate') {
-    await siteUpdate({ courseGate: { off: p.off } });
+  if (p.op === 'gate' || p.op === 'students') {
+    await siteUpdate(
+      p.op === 'gate' ? { 'courseGate/off': p.off } : { 'courseGate/students': p.on || null },
+    );
     mem.c = null;
     return courseAccessAdmin(a);
   }
@@ -341,6 +384,7 @@ export async function manageCourseAccess(
             uid: r!.uid,
             name: r!.name,
             ...(r!.email ? { email: r!.email } : {}),
+            ...(r!.group ? { group: r!.group } : {}),
             at: now,
             by: a.uid,
           } satisfies CourseGrant,

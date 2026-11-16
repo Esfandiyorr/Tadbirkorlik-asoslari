@@ -149,9 +149,9 @@ function QuickLinks() {
             '💼',
             ['Pullik xizmatlar', 'Paid services', 'Платные услуги'],
             [
-              'Taqdimot, kurs ishi, sayt va boshqalar',
-              'Slides, papers, websites and more',
-              'Презентации, курсовые, сайты и др.',
+              'Vazifa bering yoki ish qilib pul ishlang',
+              'Post a task or earn by doing one',
+              'Дайте задачу или заработайте',
             ],
           ] as [string, string, [string, string, string], [string, string, string]],
         ]),
@@ -611,36 +611,31 @@ function GuestHome() {
       <section className="guest-hero">
         <div className="guest-hero-text">
           <span className="guest-badge">
-            <img src="/terdu-logo.png" alt="" width="26" height="26" />
+            <img src="/unistay-logo.svg" alt="" width="26" height="26" />
             {tr(
               lang,
-              'Termiz davlat universiteti',
-              'Termez State University',
-              'Термезский государственный университет',
+              'Unistay · talabalar platformasi',
+              'Unistay · student platform',
+              'Unistay · платформа для студентов',
             )}
           </span>
           <h1>
-            {tr(
-              lang,
-              'Tadbirkorlik asoslari',
-              'Fundamentals of Entrepreneurship',
-              'Основы предпринимательства',
-            )}
+            Unistay
             <span>
               {tr(
                 lang,
-                'interaktiv o‘quv platformasi',
-                'interactive learning platform',
-                'интерактивная учебная платформа',
+                'talabalar uchun interaktiv platforma',
+                'an interactive platform for students',
+                'интерактивная платформа для студентов',
               )}
             </span>
           </h1>
           <p>
             {tr(
               lang,
-              'Ma’ruzalar — ko‘rgazmali taqdimotlar, bilim — testlar, o‘yinlar va reyting bilan mustahkamlanadi. Fan o‘qituvchisi — Isfandiyor Sayfiddinov.',
-              'Lectures come as visual presentations; knowledge is reinforced with tests, games and a leaderboard. Course teacher: Isfandiyor Sayfiddinov.',
-              'Лекции — наглядные презентации, знания закрепляются тестами, играми и рейтингом. Преподаватель — Исфандиёр Сайфиддинов.',
+              '«Tadbirkorlik asoslari» va boshqa kurslar: ma’ruzalar — ko‘rgazmali taqdimotlar, bilim — testlar, jonli viktorina, o‘yinlar va reyting bilan mustahkamlanadi. Fan o‘qituvchisi — Isfandiyor Sayfiddinov.',
+              '“Fundamentals of Entrepreneurship” and other courses: lectures come as visual presentations; knowledge is reinforced with tests, a live quiz, games and a leaderboard. Course teacher: Isfandiyor Sayfiddinov.',
+              '«Основы предпринимательства» и другие курсы: лекции — наглядные презентации, знания закрепляются тестами, живой викториной, играми и рейтингом. Преподаватель — Исфандиёр Сайфиддинов.',
             )}
           </p>
           <div className="guest-actions">

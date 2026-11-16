@@ -648,7 +648,12 @@ export async function POST(req: NextRequest) {
     if (p.action === 'courseRequest') {
       // 🔑 talaba bo'lmagan foydalanuvchi: «Kursga ruxsat so'rash» yoki so'rovni bekor qilish
       const a = await actor(req, true);
-      const v = (p.input || {}) as { op?: unknown; note?: unknown; course?: unknown };
+      const v = (p.input || {}) as {
+        op?: unknown;
+        note?: unknown;
+        course?: unknown;
+        group?: unknown;
+      };
       const course = typeof v.course === 'string' && v.course ? v.course : undefined;
       return NextResponse.json(
         v.op === 'cancel'
@@ -656,6 +661,8 @@ export async function POST(req: NextRequest) {
           : await requestCourseAccess(a, {
               ...(typeof v.note === 'string' && v.note.trim() ? { note: v.note } : {}),
               ...(course ? { course } : {}),
+              // 🎓 kursni boshlaganda «Talabaman» — guruh bilan yozilish
+              ...(typeof v.group === 'string' && v.group.trim() ? { group: v.group } : {}),
             }),
       );
     }

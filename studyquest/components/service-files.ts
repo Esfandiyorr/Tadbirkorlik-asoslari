@@ -21,17 +21,20 @@ export async function servicesAct<T>(request: Req, scope: 'me' | 'admin', input:
   );
 }
 
-/** Faylni buyurtmaga yuklash. o — «<foydalanuvchi>/<buyurtma>»; ids — begin/finish uchun buyurtma kaliti. */
+/** Faylni vazifaga yuklash. who: me — buyurtmachi (talablar), worker — ijrochi (natija), admin — administrator.
+    o — «<buyurtmachi>/<vazifa>»; ids — begin/finish uchun vazifa kaliti ({id} yoki {uk, id}). */
 export async function sendOrderFile(
   request: Req,
-  scope: 'me' | 'admin',
+  who: 'me' | 'worker' | 'admin',
   o: string,
   ids: Record<string, string>,
   file: File,
   onProgress?: (x: number) => void,
 ) {
+  const scope = who === 'admin' ? 'admin' : 'me';
+  const op = (x: 'begin' | 'finish' | 'unfile') => (who === 'worker' ? 'w' + x : x);
   const begun = await servicesAct<{ fid: string; chunk: number; chunks: number }>(request, scope, {
-    op: 'begin',
+    op: op('begin'),
     ...ids,
     name: file.name,
     size: file.size,
@@ -39,7 +42,7 @@ export async function sendOrderFile(
   try {
     for (let n = 0; n < begun.chunks; n++) {
       const form = new FormData();
-      form.append('scope', scope);
+      form.append('scope', who);
       form.append('o', o);
       form.append('fid', begun.fid);
       form.append('n', String(n));
@@ -49,10 +52,10 @@ export async function sendOrderFile(
     }
   } catch (e) {
     // chala qolgan yuklashni olib tashlash (aks holda bir kundan keyin o'zi tozalanadi)
-    await servicesAct(request, scope, { op: 'unfile', ...ids, fid: begun.fid }).catch(() => {});
+    await servicesAct(request, scope, { op: op('unfile'), ...ids, fid: begun.fid }).catch(() => {});
     throw e;
   }
-  return servicesAct<unknown>(request, scope, { op: 'finish', ...ids, fid: begun.fid });
+  return servicesAct<unknown>(request, scope, { op: op('finish'), ...ids, fid: begun.fid });
 }
 
 /** Faylni bo'laklab yuklab olib, qurilmaga saqlaydi. */

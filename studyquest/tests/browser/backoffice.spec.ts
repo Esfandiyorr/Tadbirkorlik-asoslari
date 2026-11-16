@@ -266,7 +266,7 @@ test('in edit mode the administrator clicks any text or picture and everyone see
   const logo = page.locator('.sidebar img').first();
   await logo.click();
   const pic = page.getByRole('dialog', { name: /Rasmni almashtirish/ });
-  await pic.locator('input[type="file"]').setInputFiles('public/icon-192.png');
+  await pic.locator('input[type="file"]').setInputFiles('tests/fixtures/white-bg.png');
   await expect(pic.getByText('Yangi rasm', { exact: true })).toBeVisible();
   await pic.getByRole('button', { name: 'Saqlash' }).click();
   await expect(pic).toBeHidden();
@@ -326,7 +326,7 @@ test('in edit mode the administrator clicks any text or picture and everyone see
     .click();
   await expect(page.locator('.bo-images li')).toHaveCount(0);
   await expect(page.locator('.sidebar a[href="#library"]')).toHaveText('Kutubxona');
-  await expect(page.locator('.sidebar img').first()).toHaveAttribute('src', '/terdu-logo.png');
+  await expect(page.locator('.sidebar img').first()).toHaveAttribute('src', '/unistay-logo.svg');
 });
 
 test('the administrator adds a new avatar and hides another; top students see the library change', async ({
@@ -354,7 +354,7 @@ test('the administrator adds a new avatar and hides another; top students see th
       x.drawImage(img, 0, 0);
       return { a: x.getImageData(0, 0, 1, 1).data[3], w: c.width, h: c.height };
     }, src);
-  await page.getByLabel('Avatar rasmi').setInputFiles('public/icon-192.png');
+  await page.getByLabel('Avatar rasmi').setInputFiles('tests/fixtures/white-bg.png');
   await expect(page.locator('.bo-avatar-new')).toContainText('Fon olib tashlandi');
   await page.locator('.bo-avatar-new').getByLabel('Nomi (o‘zbekcha)').fill('Termiz Burguti');
   await page.getByLabel(/Qaysi multfilm/).fill('TerDU');
@@ -369,7 +369,7 @@ test('the administrator adds a new avatar and hides another; top students see th
   const before = await src();
   await page
     .getByLabel('Rasmini almashtirish: Termiz Burguti')
-    .setInputFiles('public/icon-192.png');
+    .setInputFiles('tests/fixtures/white-bg.png');
   await expect.poll(src).not.toBe(before);
   expect(await cornerAlpha(await src())).toEqual({ a: 255, w: 192, h: 192 });
   const white = await src();

@@ -17,7 +17,7 @@ export const dynamic = 'force-dynamic';
    GET              — katalog, to'lov yo'riqnomasi va o'z buyurtmalari (kirmagan mehmonga — faqat katalog)
    GET ?admin=1     — administrator: hamma buyurtmalar va sozlamalar
    POST JSON        — {scope: 'me' | 'admin', input: {op, …}}
-   POST multipart   — fayl bo'lagi: scope, o («<foydalanuvchi>/<buyurtma>»), fid, n, file (≤ 2,5 MB) */
+   POST multipart   — fayl bo'lagi: scope (me | worker | admin), o («<buyurtmachi>/<vazifa>»), fid, n, file (≤ 2,5 MB) */
 const headers = { 'Cache-Control': 'private, no-store' };
 
 export async function GET(req: NextRequest) {
@@ -48,13 +48,14 @@ export async function POST(req: NextRequest) {
       );
       const form = await req.formData(),
         file = form.get('file'),
-        team = form.get('scope') === 'admin';
+        scope = form.get('scope'),
+        who = scope === 'admin' ? 'admin' : scope === 'worker' ? 'worker' : 'me';
       check(file instanceof File && file.size <= FILE_CHUNK, 400, 'Bo‘lak topilmadi.');
-      const a = await actor(req, !team);
+      const a = await actor(req, who !== 'admin');
       return NextResponse.json(
         await saveServiceChunk(
           a,
-          team,
+          who,
           String(form.get('o') || ''),
           String(form.get('fid') || ''),
           Number(form.get('n')),

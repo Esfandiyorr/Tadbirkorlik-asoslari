@@ -1,4 +1,4 @@
-# 📱 «Tadbirkorlik asoslari»ni Play Market'ga chiqarish — qo'llanma
+# 📱 «Unistay»ni Play Market'ga chiqarish — qo'llanma
 
 Sayt ilovaga **TWA** (Trusted Web Activity) usulida aylantiriladi: ilova saytning o'zini to'liq ekranda ochadi.
 Saytga kiritilgan har bir o'zgarish ilovada ham darhol ko'rinadi — Play Market'ga qayta yuklash shart emas.
@@ -22,7 +22,7 @@ Google talabi — ularni o'z vaqtida ko'rib chiqish (odatda 24 soat ichida).
 
 ### Qisqa ro'yxat: sizdan nima kerak
 
-1. ☐ TerDU logotipi uchun ruxsatnoma **yoki** tashkilot hisobi (0-qadam).
+1. ✅ Nom va logotip: ilova endi **Unistay** — universitet nomi va gerbi brendda ishlatilmaydi (0-qadam).
 2. ☐ Domen bo'yicha qaror (0-qadam).
 3. ☐ Saytda 📱 Ilova: operator va murojaat emaili (1-qadam).
 4. ☐ Play Console hisobi, 25 $, shaxsni tasdiqlash (2-qadam).
@@ -38,10 +38,12 @@ Quyidagi qadamlarni **siz** bajarasiz (Google hisobi, to'lov va shaxsni tasdiqla
 
 ## 0-qadam. Avval hal qilinadigan ikki masala
 
-1. **TerDU nomi va logotipi.** Ilovada universitet logotipi bor. Shaxsiy hisobdan chiqarilsa, Google buni
-   «boshqa tashkilot nomidan chiqish» deb rad etishi mumkin. Universitetdan yozma ruxsatnoma oling (PDF) yoki
-   ilovani universitetning tashkilot hisobidan chiqaring. Ruxsatnoma bo'lsa, uni Play Console'da ariza berishda
-   ilova qiling.
+1. **Nom va logotip — hal qilindi.** Ilova nomi **Unistay**, ikonka va logotip — o'zimizniki
+   (`studyquest/public/unistay-logo.svg`; boshqa variantlar — `logo-variantlar/`). Universitet nomi va gerbi
+   brend sifatida (ikonka, sarlavha, do'kon sahifasi) ishlatilmaydi, shuning uchun «boshqa tashkilot nomidan
+   chiqish» xavfi yo'q. Eslatma: «Tadbirkorlik asoslari» kursining asl taqdimot slaydlari ichida universitet
+   gerbi uchraydi — bu o'quv materiali, lekin tekshiruvchi savol bersa, «kurs muallifi shu universitet
+   o'qituvchisi» deb tushuntiring yoki o'sha slaydlardan gerbni olib tashlashni so'rang.
 2. **Domen.** Ilova sayt manziliga bog'lanadi. Keyinchalik o'z domeningizga o'tsangiz, ilovani qayta yasashga
    to'g'ri keladi. Domen o'zgarishi kutilsa — avval domenni ulang, keyin ilovani yasang.
 
@@ -69,8 +71,8 @@ Bu ikkalasi maxfiylik siyosati sahifasida ko'rinadi. Paket nomi va SHA-256 ni 4-
 
 1. <https://www.pwabuilder.com> ni oching, sayt manzilini kiriting, **Start** ni bosing.
 2. **Package For Stores → Android → Generate Package**. Sozlamalar:
-   - **Package ID**: `uz.terdu.tadbirkorlik` (yoki o'zingizniki; keyin o'zgartirib bo'lmaydi);
-   - **App name**: `Tadbirkorlik asoslari`;
+   - **Package ID**: `uz.unistay.app` (yoki o'zingizniki; keyin o'zgartirib bo'lmaydi);
+   - **App name**: `Unistay`;
    - **Start URL**: `/?src=play` (shu bilan ilova «Play Market ilovasi» ekanini biladi — 7-qadamga qarang);
    - **Signing key**: «Create new» (yangi kalit yaratilsin).
 3. ZIP faylni yuklab oling. Ichida:
@@ -82,7 +84,7 @@ Bu ikkalasi maxfiylik siyosati sahifasida ko'rinadi. Paket nomi va SHA-256 ni 4-
 
 ## 4-qadam. Ilovani yarating va saytga bog'lang
 
-1. Play Console → **Create app**: nom `Tadbirkorlik asoslari`, til — o'zbek, turi — **App**, **Free**.
+1. Play Console → **Create app**: nom `Unistay`, til — o'zbek, turi — **App**, **Free**.
 2. **Test and release → Testing → Closed testing** → yangi «track» yarating → `.aab` faylni yuklang.
 3. **Test and release → Setup → App integrity → App signing** sahifasidan
    **SHA-256 certificate fingerprint** ni nusxalang.
@@ -98,7 +100,9 @@ Bu ikkalasi maxfiylik siyosati sahifasida ko'rinadi. Paket nomi va SHA-256 ni 4-
 - Nom, qisqa va to'liq tavsif — `dokon-matni.md` faylidan (o'zbek, rus, ingliz);
 - **App icon** 512×512 — `rasmlar/icon-512.png`;
 - **Feature graphic** 1024×500 — `rasmlar/feature-graphic.png`;
-- **Phone screenshots** (kamida 2 ta) — `rasmlar/telefon-*.png`.
+- **Phone screenshots** (kamida 2 ta) — `rasmlar/telefon-*.png` (1080×1920, Play ilovasi ko'rinishida olingan:
+  bosh sahifa, mavzular, ⚡ jonli test, kutubxona, o'yinlar, yutuqlar). Ilovada yo'q bo'limni (masalan, 💼 Pullik
+  xizmatlar) skrinshotga qo'ymang.
 
 ## 6-qadam. «App content» shakllari
 
@@ -135,8 +139,8 @@ Shuning uchun sayt shunday ishlaydi:
 - Xuddi shunday ilovada **avatar sotib olish** («To'lov qildim») va **pullik kurs** (restoran) narxi hamda
   to'lov yo'riqnomasi yashiriladi: pullik kursda faqat «administrator ruxsat bergandan keyin ochiladi» deyiladi
   va ruxsat so'rash tugmasi qoladi.
-- **💼 Pullik xizmatlar** bo'limi (buyurtma asosida taqdimot, sayt, dizayn va h.k.) ilovada **umuman
-  ko'rinmaydi**: menyuda ham, bosh sahifada ham yo'q. Buyurtma, to'lov va tayyor ishni yuklab olish — faqat saytda.
+- **💼 Pullik xizmatlar** (talabalar ish bozori: vazifa berish, ijrochilar arizasi, to'lov va pul o'tkazish)
+  ilovada **umuman ko'rinmaydi**: menyuda ham, bosh sahifada ham yo'q. Hammasi — faqat saytda.
 - Click ulanganda ham to'lov **faqat saytda** bo'ladi; ilovada Click/Payme havolasi yoki karta raqami
   ko'rsatilmasligi kerak (bu kodda hisobga olingan).
 

@@ -125,6 +125,52 @@ function MainCourseAccess() {
         </Button>
       </div>
 
+      <div className="bo-status bo-students">
+        <span className={'bo-pill ' + (data.gate.students ? 'on' : 'off')}>
+          🎓{' '}
+          {data.gate.students
+            ? L('Darhol ochiladi', 'Opens at once', 'Открывается сразу')
+            : L('Tasdiqlash bilan', 'After approval', 'После одобрения')}
+        </span>
+        <span>
+          {L(
+            'Ro‘yxatdan o‘tishda «Talabamisiz?» so‘ralmaydi — kursni boshlaganda so‘raladi: «Ha» degan foydalanuvchi guruhini yozib kursga yoziladi va shu ro‘yxatga 🎓 belgisi bilan tushadi.',
+            'Registration no longer asks “Are you a student?” — it is asked when the course starts: students enter their group and appear in this list marked 🎓.',
+            'При регистрации больше не спрашивают «Вы студент?» — вопрос задаётся при начале курса: студент указывает группу и попадает в этот список со значком 🎓.',
+          )}
+        </span>
+        <Button
+          size="sm"
+          variant="outline"
+          disabled={!!busy}
+          onClick={() =>
+            void act(
+              { op: 'students', on: !data.gate.students },
+              'students',
+              data.gate.students
+                ? L(
+                    'Talabalar endi tasdiqlash bilan kiradi',
+                    'Students now need approval',
+                    'Студентам теперь нужно одобрение',
+                  )
+                : L(
+                    'Talabalarga kurs darhol ochiladi',
+                    'The course now opens for students at once',
+                    'Курс теперь открывается студентам сразу',
+                  ),
+            ).catch(() => {})
+          }
+        >
+          {data.gate.students
+            ? L('🔒 Tasdiqlab kiritish', '🔒 Require approval', '🔒 Требовать одобрения')
+            : L(
+                '🎓 Talabalarga darhol ochish',
+                '🎓 Open for students at once',
+                '🎓 Открывать студентам сразу',
+              )}
+        </Button>
+      </div>
+
       <div className="bo-card">
         <h3>
           🙋 {L('Ruxsat so‘raganlar', 'Access requests', 'Запросы доступа')} ({data.requests.length}
@@ -134,7 +180,10 @@ function MainCourseAccess() {
           {data.requests.map((r) => (
             <li key={r.uid}>
               <div>
-                <b>{r.name}</b>
+                <b>
+                  {r.name}
+                  {r.group && <em className="bo-group">🎓 {r.group}</em>}
+                </b>
                 <small>
                   {[r.email, dueText(r.at, lang, now).date].filter(Boolean).join(' · ')}
                 </small>
@@ -252,7 +301,10 @@ function MainCourseAccess() {
           {data.grants.map((g) => (
             <li key={g.uid}>
               <div>
-                <b>{g.name}</b>
+                <b>
+                  {g.name}
+                  {g.group && <em className="bo-group">🎓 {g.group}</em>}
+                </b>
                 <small>
                   {[g.email, L('berilgan: ', 'since ', 'с ') + dueText(g.at, lang, now).date]
                     .filter(Boolean)

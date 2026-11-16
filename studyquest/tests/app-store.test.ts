@@ -113,7 +113,13 @@ it('a student asks to delete the account, may cancel, and the administrator eras
   await adminServices(admin, { op: 'launch', open: true });
   await manageServices(
     ali,
-    { op: 'order', kind: 'taqdimot', title: 'Sinov', text: 'Sinov buyurtmasining matni' },
+    {
+      op: 'order',
+      kind: 'taqdimot',
+      title: 'Sinov',
+      text: 'Sinov buyurtmasining matni',
+      budget: 50000,
+    },
     now,
   );
   expect(await siteGet('serviceOrders/legacy_ali')).toBeTruthy();

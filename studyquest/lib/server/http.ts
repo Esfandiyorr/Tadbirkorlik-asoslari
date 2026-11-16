@@ -19,9 +19,6 @@ export function failure(e: unknown) {
       { status: 400 },
     );
   if (e instanceof ApiError) return NextResponse.json({ error: e.message }, { status: e.status });
-  console.error(
-    'Tadbirkorlik asoslari request failed:',
-    e instanceof Error ? e.message : 'unknown',
-  );
+  console.error('Unistay request failed:', e instanceof Error ? e.message : 'unknown');
   return NextResponse.json({ error: 'Amal bajarilmadi. Qayta urining.' }, { status: 500 });
 }
