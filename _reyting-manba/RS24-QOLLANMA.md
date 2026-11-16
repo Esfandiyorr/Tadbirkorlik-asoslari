@@ -105,3 +105,8 @@ tekshiradi. Bazaga ulanmaydi. Matn manbalari `matn/restoran_<N>_matn.py`, davomi
 
 Umumiy `inject.py` barcha sahifalardagi konfiguratsiyani yangilashi mumkin; faqat davomiy darslar
 uchun yuqoridagi maxsus yig'uvchidan foydalaning. Generatsiyalangan HTMLni qo'lda tahrirlamang.
+
+CI manba mosligini `python3 _reyting-manba/check_generated.py` orqali vaqtinchalik papkada
+tekshiradi. Umumiy dvigatel va yangi R4–R12 to'liq qayta yig'iladi; eski sahifalar joyida
+yozilmaydi. Faqat eski kataloglarda yangi R4–R12 yozuvlari yo'qligiga ruxsat bor; asosiy fan,
+avvalgi boshqa mavzular, ball sozlamalari va kod o'zgarishi xato hisoblanadi.

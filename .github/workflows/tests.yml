@@ -28,8 +28,9 @@ jobs:
 
       - name: Umumiy kod (rt-engine) manbaga mosligini tekshirish
         run: |
-          python3 _reyting-manba/inject.py
-          git diff --stat --exit-code || { echo "::error::inject.py ishga tushirilmagan: rt-engine.js / taqdimotlar _reyting-manba manbasiga mos emas"; exit 1; }
+          python3 _reyting-manba/check_generated_test.py
+          python3 _reyting-manba/check_generated.py
+          git diff --stat --exit-code || { echo "::error::Manba tekshiruvi repo fayllarini o'zgartirdi"; exit 1; }
 
       - uses: actions/cache@v4
         with:
