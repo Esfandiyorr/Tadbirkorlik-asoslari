@@ -592,7 +592,6 @@ details.adv summary{cursor:pointer;font-weight:800;color:var(--muted)}
 .lv-col .av{width:40px;height:40px;font-size:15px;border:3px solid #fff}
 .lv-col .nm{font-weight:900;font-size:14.5px;margin:6px 0 2px;line-height:1.2;max-width:100%;overflow:hidden;text-overflow:ellipsis}
 .lv-col .sc{font-weight:800;opacity:.92;font-variant-numeric:tabular-nums}
-.lv-col .pz{display:inline-block;background:#ffd60a;color:#1b1b2f;border-radius:999px;padding:3px 10px;font-size:12.5px;font-weight:900;margin:6px 0}
 .lv-col .blk{width:100%;margin-top:6px;border-radius:14px 14px 4px 4px;display:grid;place-items:center;font-size:46px;font-weight:900;color:rgba(255,255,255,.95);
   box-shadow:inset 0 -10px 0 rgba(0,0,0,.18)}
 .lv-col.p1 .blk{height:170px;background:linear-gradient(180deg,#ffd60a,#f59e0b)}
@@ -620,6 +619,88 @@ details.adv summary{cursor:pointer;font-weight:800;color:var(--muted)}
   .lc-btn{width:100%;text-align:center}
 }
 @media(prefers-reduced-motion:reduce){.lv-sh,.lv-logo i,.lc-shapes i,.rt-sp,.lv-col .lv-pz,.live-card.hot{animation:none!important}}
+/* ===== ⚡ JONLI TEST — Kahoot uslubi: binafsha sahna; savol paytida och kulrang sahna, oq savol paneli, binafsha
+   taymer, katta rangli javob tugmalari; javobdan keyin butun ekran yashil yoki qizil; lobbi — oq vaqt paneli va
+   o'yinchilar nomlari; shohsupa — binafsha bloklar va medallar ===== */
+.lv{background:radial-gradient(900px 520px at 12% -12%,#6a2dc2 0%,transparent 62%),radial-gradient(700px 520px at 105% 110%,#2c0b66 0%,transparent 60%),#46178f;
+  font-family:"Montserrat","Nunito",ui-sans-serif,system-ui,"Segoe UI",Roboto,Arial,sans-serif;transition:background .45s ease}
+.lv[data-ph="r"]{background:radial-gradient(900px 520px at 50% -20%,#6a2dc2 0%,transparent 60%),#3a1078}
+.lv-sh{opacity:.09}
+.lv .lv-badge{background:rgba(0,0,0,.22);border-color:rgba(255,255,255,.18)}
+/* lobbi va kutish: oq «PIN» paneli */
+.lv[data-ph="lobby"] .lv-big,.lv[data-ph="wait"] .lv-big{display:inline-block;background:#fff;color:#2b0f5c;border-radius:10px;padding:4px 30px 8px;margin:6px 0 10px;
+  box-shadow:0 6px 0 rgba(0,0,0,.28);text-shadow:none;letter-spacing:4px}
+.lv[data-ph="lobby"] .lv-h,.lv[data-ph="wait"] .lv-h{letter-spacing:-.5px}
+.lv-count{display:inline-block;background:rgba(0,0,0,.25);border-radius:10px;padding:8px 16px;line-height:1.5}
+.lv-count b{font-size:26px}
+.lv-pls{gap:10px;max-width:900px}
+.lv-pl{background:rgba(0,0,0,.28);color:#fff;border-radius:10px;padding:6px 14px 6px 6px;font-size:16.5px;box-shadow:none;animation:lvPop .45s cubic-bezier(.2,1.6,.4,1) backwards}
+.lv-pl.me{outline:3px solid #ffd60a;background:rgba(255,214,10,.22)}
+@keyframes lvPop{from{transform:scale(.3);opacity:0}}
+.lv-joined{background:rgba(38,208,124,.25);border-color:rgba(38,208,124,.75)}
+.lv-btn{background:#fff;color:#2b0f5c;box-shadow:0 6px 0 rgba(0,0,0,.3);border-radius:10px}
+.lv-btn:active{box-shadow:0 2px 0 rgba(0,0,0,.3)}
+/* savol: och kulrang sahna */
+.lv[data-ph="q"]{background:#f2f2f2;color:#333}
+.lv[data-ph="q"] .lv-sh{opacity:.05}
+.lv[data-ph="q"] .lv-badge{background:#fff;color:#333;border-color:#e2e2e2;box-shadow:0 2px 4px rgba(0,0,0,.08)}
+.lv[data-ph="q"] .lv-ib{background:#fff;color:#333;border-color:#ddd}
+.lv[data-ph="q"] .lv-qtop{margin:10px 0 8px}
+.lv[data-ph="q"] .lv-q{border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.12);font-size:clamp(20px,3.3vw,34px);padding:20px 24px;animation:lvQ .45s}
+.lv[data-ph="q"] .lv-mid{justify-content:space-between;align-items:center;min-height:clamp(120px,24vh,250px);margin:12px 0;padding:0 4px;flex-wrap:nowrap}
+.lv[data-ph="q"] .lv-timer{width:clamp(78px,9vw,104px);height:clamp(78px,9vw,104px);border-radius:50%;background:#864cbf;box-shadow:0 4px 0 #5c2b94}
+.lv[data-ph="q"] .lv-timer .bg{stroke:rgba(255,255,255,.22)}
+.lv[data-ph="q"] .lv-timer .fg{stroke:#fff}
+.lv[data-ph="q"] .lv-timer b{color:#fff;font-size:clamp(28px,3.4vw,38px)}
+.lv[data-ph="q"] .lv-timer.low{background:#e21b3c;box-shadow:0 4px 0 #9b1028}
+.lv-art{flex:1;display:grid;place-items:center;min-width:0}
+.lv-art .lv-logo{grid-template-columns:repeat(2,clamp(40px,6vw,70px));gap:clamp(10px,1.6vw,18px)}
+.lv-art .lv-logo i{width:clamp(40px,6vw,70px);height:clamp(40px,6vw,70px);animation:khBob2 2.4s ease-in-out infinite}
+.lv-art .lv-logo i:nth-child(2){animation-delay:.3s}.lv-art .lv-logo i:nth-child(3){animation-delay:.6s}.lv-art .lv-logo i:nth-child(4){animation-delay:.9s}
+.lv[data-ph="q"] .lv-status{background:#fff;color:#333;border-radius:10px;padding:12px 16px;box-shadow:0 2px 6px rgba(0,0,0,.1);max-width:260px;font-size:15px}
+.lv[data-ph="q"] .lv-status .lv-dots i{background:#864cbf}
+.lv[data-ph="q"] .lv-ans{gap:10px}
+.lv[data-ph="q"] .lv-a{min-height:clamp(86px,15vh,150px);border-radius:8px;padding:16px 20px;font-size:clamp(17px,2.1vw,24px);font-weight:800;
+  box-shadow:inset 0 -7px 0 rgba(0,0,0,.24);text-shadow:0 1px 2px rgba(0,0,0,.25)}
+.lv[data-ph="q"] .lv-a svg{width:clamp(34px,3.6vw,46px);height:clamp(34px,3.6vw,46px)}
+.lv[data-ph="q"] .lv-a.pick{outline:5px solid #333;outline-offset:3px}
+.lv[data-ph="q"] .lv-a.dim{opacity:.22}
+/* vaqt tugadi */
+.lv[data-ph="x"]{background:#46178f}
+/* natija: butun ekran yashil / qizil (Kahoot) */
+.lv[data-res="ok"]{background:radial-gradient(800px 420px at 50% -10%,#8ee35f 0%,transparent 60%),#66bf39}
+.lv[data-res="no"]{background:radial-gradient(800px 420px at 50% -10%,#ff6b85 0%,transparent 60%),#ff3355}
+.lv[data-res] .lv-badge{background:rgba(0,0,0,.2)}
+.lv-res{display:flex;flex-direction:column;align-items:center;gap:8px;padding:18px 16px 14px}
+.lv[data-res] .lv-res{background:none;box-shadow:none}
+.lv-res-ic{display:grid;place-items:center;width:clamp(64px,9vw,92px);height:clamp(64px,9vw,92px);border-radius:50%;background:#fff;font-size:clamp(34px,5vw,52px);
+  font-style:normal;font-weight:900;box-shadow:0 6px 0 rgba(0,0,0,.18);animation:lvPop .5s cubic-bezier(.2,1.6,.4,1)}
+.lv-res.ok .lv-res-ic{color:#66bf39}.lv-res.no .lv-res-ic{color:#ff3355}.lv-res.na .lv-res-ic{color:#864cbf}
+.lv-res b{font-size:clamp(28px,6vw,44px);letter-spacing:-.5px;text-shadow:0 3px 0 rgba(0,0,0,.14)}
+.lv-res-pts{display:inline-block;background:rgba(0,0,0,.28);border-radius:10px;padding:6px 18px;font-style:normal;font-weight:900;font-size:clamp(20px,3.6vw,28px)}
+.lv-res-st{display:inline-block;background:rgba(255,255,255,.95);color:#333;border-radius:999px;padding:4px 14px;font-weight:800;font-size:14px}
+.lv[data-res] .lv-q.sm{box-shadow:0 2px 6px rgba(0,0,0,.14)}
+.lv[data-res] .lv-bars{background:rgba(0,0,0,.16);border-radius:14px;padding:14px 10px 10px;height:190px}
+.lv[data-res] .lv-bar:not(.ok){opacity:.75}
+.lv-h3{display:table;margin:18px auto 10px;background:#fff;color:#2b0f5c;border-radius:8px;padding:8px 22px;font-weight:900;box-shadow:0 4px 0 rgba(0,0,0,.2)}
+.lv-row{border-radius:8px;box-shadow:0 3px 0 rgba(0,0,0,.14)}
+/* shohsupa */
+.lv-col .nm{background:#fff;color:#2b0f5c;border-radius:8px;padding:6px 12px;margin:8px 0 4px;box-shadow:0 3px 0 rgba(0,0,0,.2)}
+.lv-col .lv-prize{display:inline-block;background:#ffd60a;color:#1b1b2f;border-radius:999px;padding:3px 10px;font-size:12.5px;font-weight:900;margin:6px 0}
+.lv-col .blk{background:linear-gradient(180deg,#864cbf,#5c2b94)!important;border-radius:10px 10px 0 0;box-shadow:inset 0 -10px 0 rgba(0,0,0,.18),0 0 0 2px rgba(255,255,255,.08)}
+.lv-col.p1 .blk{color:#ffd60a;text-shadow:0 4px 0 #b45309}
+.lv-col.p2 .blk{color:#e5e7eb;text-shadow:0 4px 0 #6b7280}
+.lv-col.p3 .blk{color:#f4a261;text-shadow:0 4px 0 #9a3412}
+@media(max-width:600px){
+  .lv[data-ph="q"] .lv-mid{min-height:0;margin:10px 0}
+  .lv-art{display:none}
+  .lv[data-ph="q"] .lv-status{max-width:none;flex:1;font-size:14px;padding:10px 12px}
+  .lv[data-ph="q"] .lv-ans{grid-template-columns:1fr 1fr;gap:8px}
+  .lv[data-ph="q"] .lv-a{min-height:96px;flex-direction:column;justify-content:center;text-align:center;gap:8px;padding:12px 8px;font-size:15px}
+  .lv[data-ph="q"] .lv-q{font-size:19px;padding:14px 14px}
+  .lv-pl{font-size:15px}
+}
+@media(prefers-reduced-motion:reduce){.lv-pl,.lv-res-ic,.lv-art .lv-logo i{animation:none!important}}
 
 .lv-col .avp>img,.lv-col .avp>.avp-in{box-shadow:0 0 0 3px #fff,0 6px 16px -6px rgba(0,0,0,.4)}
 .lv-col .avp{margin-bottom:2px}
@@ -6182,7 +6263,7 @@ function lvUpdate(t){
 function lvRender(){
   var box=document.getElementById("lvMain"); if(!box||!LV) return;
   var ph=LV.phase, c=ph.charAt(0), i=+ph.slice(1), m=LV.meta, t=snow();
-  var lv=document.getElementById("lv"); if(lv) lv.setAttribute("data-ph",c==="q"||c==="x"||c==="r"?c:ph);
+  var lv=document.getElementById("lv"); if(lv){ lv.setAttribute("data-ph",c==="q"||c==="x"||c==="r"?c:ph); lv.removeAttribute("data-res"); }
   LV.lastS=null;
   lvMusic();
   if(ph==="wait"){
@@ -6233,7 +6314,9 @@ function lvRender(){
       '<div class="lv-q'+(String(q.t).length>130?' long':'')+'">'+esc(q.t)+'</div>'+
       '<div class="lv-mid"><div class="lv-timer" id="lvTimer"><svg viewBox="0 0 84 84"><circle cx="42" cy="42" r="36" class="bg"/>'+
         '<circle cx="42" cy="42" r="36" class="fg" id="lvRing" stroke-dasharray="226.2" stroke-dashoffset="'+(226.2*(1-lft/(m.qsec*1000)))+'"/></svg>'+
-        '<b id="lvT">'+Math.ceil(lft/1000)+'</b></div><div class="lv-status">'+st+'</div></div>'+
+        '<b id="lvT">'+Math.ceil(lft/1000)+'</b></div>'+
+      '<div class="lv-art" aria-hidden="true"><div class="lv-logo"><i class="s0"></i><i class="s1"></i><i class="s2"></i><i class="s3"></i></div></div>'+
+      '<div class="lv-status">'+st+'</div></div>'+
       '<div class="lv-ans'+(dis?" locked":"")+'">'+[0,1,2,3].map(function(k){
         var cls="lv-a c"+k+(mine!==undefined?(mine===k?" pick":" dim"):"");
         return '<button type="button" class="'+cls+'" data-k="'+k+'"'+(dis?" disabled":"")+'>'+KSHP[k]+'<span>'+esc((q.o||[])[k]||"")+'</span></button>';
@@ -6256,9 +6339,15 @@ function lvRender(){
     var res='';
     if(LV.joined&&meR){
       var ls=meR.last||{};
-      if(ls.ok){ res='<div class="lv-res ok"><b>✅ '+L("To'g'ri!","Correct!")+' +'+nf(ls.pts)+'</b><span>'+(ls.st>1?'🔥 '+ls.st+' '+L("ketma-ket","in a row")+' · ':'')+L("Siz","You are")+' '+meR.rank+'-'+L("o'rindasiz","place")+'</span></div>'; KS.ok(); FX.confetti(900); }
-      else if(ls.ans){ res='<div class="lv-res no"><b>❌ '+L("Noto'g'ri","Wrong")+'</b><span>'+L("Siz","You are")+' '+meR.rank+'-'+L("o'rindasiz","place")+' · '+L("keyingisida omad!","good luck next time!")+'</span></div>'; KS.no(); }
-      else { res='<div class="lv-res na"><b>⌛ '+L("Javob bermadingiz","No answer")+'</b><span>'+L("Siz","You are")+' '+meR.rank+'-'+L("o'rindasiz","place")+'</span></div>'; KS.no(); }
+      var place='<span>'+L("Siz","You are")+' '+meR.rank+'-'+L("o'rindasiz","place")+'</span>';
+      if(ls.ok){ res='<div class="lv-res ok"><i class="lv-res-ic" aria-hidden="true">✓</i><b>'+L("To'g'ri!","Correct!")+'</b>'+
+          (ls.st>1?'<span class="lv-res-st">🔥 '+L("Ketma-ket","Answer streak")+' '+ls.st+'</span>':'')+'<em class="lv-res-pts">+ '+nf(ls.pts)+'</em>'+place+'</div>';
+        if(lv) lv.setAttribute("data-res","ok"); KS.ok(); FX.confetti(900); }
+      else if(ls.ans){ res='<div class="lv-res no"><i class="lv-res-ic" aria-hidden="true">✕</i><b>'+L("Noto'g'ri","Incorrect")+'</b>'+
+          '<span class="lv-res-st">'+L("Keyingisida omad! 💪","Good luck next time! 💪")+'</span>'+place+'</div>';
+        if(lv) lv.setAttribute("data-res","no"); KS.no(); }
+      else { res='<div class="lv-res na"><i class="lv-res-ic" aria-hidden="true">⌛</i><b>'+L("Javob bermadingiz","No answer")+'</b>'+place+'</div>';
+        if(lv) lv.setAttribute("data-res","na"); KS.no(); }
     } else KS.drum();
     lvSetMyScore(sc);
     var top=sc.rows.slice(0,5), meIn=meR&&meR.rank<=5;
@@ -6283,7 +6372,7 @@ function lvRender(){
     var col=function(ix){
       var r=rows[ix]; if(!r) return '<div class="lv-col p'+(ix+1)+' empty"><div class="blk">'+(ix+1)+'</div></div>';
       return '<div class="lv-col p'+(ix+1)+'">'+kPrize(ix)+lvAv(r.sid,r.n,48,1)+'<div class="nm">'+esc(r.n)+'</div><div class="sc">'+nf(r.s)+'</div>'+
-        (pz[r.sid]?'<span class="pz">+'+pz[r.sid]+' '+L("ball","pts")+'</span>':'')+'<div class="blk">'+(ix+1)+'</div></div>';
+        (pz[r.sid]?'<span class="lv-prize">+'+pz[r.sid]+' '+L("ball","pts")+'</span>':'')+'<div class="blk">'+(ix+1)+'</div></div>';
     };
     var mine='';
     if(me){
