@@ -88,16 +88,20 @@ export function PointsBreakdown({
   history,
   lang,
   hints = false,
+  compact = false,
 }: {
   history?: ReadingHistory;
   lang: Lang;
   hints?: boolean;
+  /** mavzu kartochkasi uchun ixcham ko'rinish: yo'nalishlar bir qatorda (ball, chiziq, qolgani) */
+  compact?: boolean;
 }) {
   const p = topicPoints(history),
     rows = [
       {
         key: 'slides',
         label: tr(lang, 'Slaydlar', 'Slides', 'Слайды'),
+        short: tr(lang, 'Slayd', 'Slides', 'Слайды'),
         value: p.slides,
         max: 30,
         emoji: '📑',
@@ -105,6 +109,7 @@ export function PointsBreakdown({
       {
         key: 'time',
         label: tr(lang, 'O‘qish vaqti', 'Reading time', 'Время чтения'),
+        short: tr(lang, 'Vaqt', 'Time', 'Время'),
         value: p.time,
         max: 20,
         emoji: '⏱️',
@@ -112,6 +117,7 @@ export function PointsBreakdown({
       {
         key: 'test',
         label: tr(lang, 'Test', 'Test', 'Тест'),
+        short: tr(lang, 'Test', 'Test', 'Тест'),
         value: p.test,
         max: history?.testMax ?? 50,
         emoji: '🧪',
@@ -121,6 +127,7 @@ export function PointsBreakdown({
             {
               key: 'task',
               label: tr(lang, 'Logotip (o‘qituvchi)', 'Logo (teacher)', 'Логотип (преподаватель)'),
+              short: tr(lang, 'Logo', 'Logo', 'Лого'),
               value: p.task || 0,
               max: history.taskMax,
               emoji: '🎨',
@@ -133,6 +140,52 @@ export function PointsBreakdown({
   const rest = (r: { value: number; max: number }) =>
       Math.max(0, Math.round((r.max - r.value) * 10) / 10),
     left = Math.round(rows.reduce((s, r) => s + rest(r), 0) * 10) / 10;
+  if (compact)
+    return (
+      <div className="points-breakdown is-compact">
+        <div className="pb-cells">
+          {rows.map((r) => (
+            <div
+              className={'pb-cell ' + r.key}
+              key={r.key}
+              title={`${r.label}: ${num(r.value)}/${r.max}`}
+            >
+              <span className="pb-cell-h">
+                <span className="pb-emoji">{r.emoji}</span>
+                {r.short}
+              </span>
+              <b>
+                {num(r.value)}
+                <small>/{r.max}</small>
+              </b>
+              <span className="pb-bar">
+                <i style={{ width: (r.value / r.max) * 100 + '%' }} />
+              </span>
+              <small className={'pb-rest' + (rest(r) ? '' : ' is-full')}>
+                {rest(r)
+                  ? tr(
+                      lang,
+                      `${num(rest(r))} qoldi`,
+                      `${num(rest(r))} left`,
+                      `ост. ${num(rest(r))}`,
+                    )
+                  : '✓ ' + tr(lang, 'to‘liq', 'full', 'всё')}
+              </small>
+            </div>
+          ))}
+        </div>
+        <p className={'pb-left' + (left ? '' : ' is-full')}>
+          {left
+            ? tr(
+                lang,
+                `🎯 Jami qolgan: ${num(left)} ball`,
+                `🎯 Left in total: ${num(left)} pts`,
+                `🎯 Всего осталось: ${num(left)} баллов`,
+              )
+            : '🎉 ' + tr(lang, 'To‘liq ball olingan', 'Full points earned', 'Получены все баллы')}
+        </p>
+      </div>
+    );
   return (
     <div className="points-breakdown">
       {rows.map((r) => (

@@ -102,8 +102,19 @@ export function CourseLessons({
           onClick={() => open(l)}
           aria-disabled={locked && !paidLock && !l.draft}
         >
-          <div className="mini-cover">
+          <div className={'mini-cover' + (grouped ? '' : ' is-titled')}>
             <TopicArt id={l.id} number={number} />
+            {!grouped && (
+              // asosiy fan: mavzu raqami va nomi rasmning o'zida (kattaroq muqova)
+              <div className="mini-cover-caption">
+                <span className="mini-cover-kicker">
+                  {l.exam
+                    ? tr(lang, 'Yakuniy imtihon', 'Final exam', 'Итоговый экзамен')
+                    : tr(lang, `${number}-mavzu`, `Topic ${number}`, `Тема ${number}`)}
+                </span>
+                <h3>{l.title}</h3>
+              </div>
+            )}
             {locked && (
               <span className="lock-veil">
                 <Lock size={24} />
@@ -121,9 +132,11 @@ export function CourseLessons({
             </span>
             <AccessChip access={access} lang={lang} />
           </div>
-          <h3>
-            {number}. {l.title}
-          </h3>
+          {grouped && (
+            <h3>
+              {number}. {l.title}
+            </h3>
+          )}
           {academic ? (
             <>
               {grouped && (
@@ -131,9 +144,9 @@ export function CourseLessons({
                   {num(pts.total)} / 100 {tr(lang, 'ball', 'pts', 'баллов')}
                 </span>
               )}
-              <div className="lesson-points">
-                <PointsRing value={pts.total} size={58} />
-                <PointsBreakdown history={h} lang={lang} />
+              <div className={'lesson-points' + (grouped ? '' : ' is-compact')}>
+                <PointsRing value={pts.total} size={grouped ? 58 : 46} />
+                <PointsBreakdown history={h} lang={lang} compact={!grouped} />
               </div>
             </>
           ) : (
