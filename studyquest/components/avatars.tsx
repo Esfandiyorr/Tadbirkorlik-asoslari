@@ -1,7 +1,18 @@
 'use client';
 import { useCallback, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Check, Crown, CreditCard, Lock, RefreshCw, Send, Sparkles, Trophy, X } from 'lucide-react';
+import {
+  Check,
+  Crown,
+  CreditCard,
+  Lock,
+  Plus,
+  RefreshCw,
+  Send,
+  Sparkles,
+  Trophy,
+  X,
+} from 'lucide-react';
 import { useApp } from './provider';
 import { Button } from './ui/button';
 import { AVATAR_TOP, BUILTIN_AVATARS, type AvatarItem, type AvatarShop } from '@/lib/avatars';
@@ -153,7 +164,57 @@ function eligibility(me: AvatarMe | null, lang: Lang) {
   );
 }
 
-/** Avatarlar kutubxonasi: tanlash, olib tashlash va yangi avatar taklif qilish. */
+/** 📜 Avatar qo'yish shartlari — avatar bosilganda (qo'yishdan oldin) ko'rsatiladi. */
+function AvatarRules({ lang }: { lang: Lang }) {
+  const L = (uz: string, en: string, ru: string) => tr(lang, uz, en, ru);
+  return (
+    <ul className="av-rules">
+      <li>
+        🏆{' '}
+        {L(
+          `Umumiy reytingning 1–${AVATAR_TOP}-o‘rinlaridagi talabalar avatarni bepul qo‘yadi.`,
+          `Students in places 1–${AVATAR_TOP} of the overall ranking set an avatar for free.`,
+          `Студенты на 1–${AVATAR_TOP}-м местах общего рейтинга ставят аватар бесплатно.`,
+        )}
+      </li>
+      <li>
+        💎{' '}
+        {L(
+          'Obuna davomida (yoki avatar huquqi sotib olingan muddatda) ham qo‘yish mumkin; administrator alohida ruxsat ham berishi mumkin.',
+          'You can also set one while subscribed (or during a bought avatar pass); the administrator may allow it too.',
+          'Также можно по подписке (или на оплаченный срок); администратор может разрешить отдельно.',
+        )}
+      </li>
+      <li>
+        👤{' '}
+        {L(
+          'Bitta avatar faqat bitta talabada bo‘ladi — siz qo‘ygan avatar boshqalarga «band» bo‘lib ko‘rinadi.',
+          'Each avatar belongs to one student only — yours shows as “taken” to others.',
+          'Один аватар — у одного студента: ваш будет «занят» для других.',
+        )}
+      </li>
+      <li>
+        📉{' '}
+        {L(
+          `Top-${AVATAR_TOP} dan tushsangiz yoki obuna/muddat tugasa, avatar avtomatik bo‘shatiladi.`,
+          `If you leave the top ${AVATAR_TOP} or Premium/your pass ends, the avatar is freed automatically.`,
+          `Если вы выйдете из топ-${AVATAR_TOP} или закончится подписка/срок, аватар освободится.`,
+        )}
+      </li>
+      <li>
+        🔁{' '}
+        {L(
+          'Avatarni istalgan vaqtda almashtirish yoki olib tashlash mumkin.',
+          'You can change or remove your avatar at any time.',
+          'Аватар можно сменить или убрать в любой момент.',
+        )}
+      </li>
+    </ul>
+  );
+}
+
+/** Avatarlar kutubxonasi: rasmlar ro'yxati; avatar bosilsa — qo'yish shartlari va (sharti bo'lsa) «Qo'yish»,
+    bo'lmasa — avatar olish yo'llari. Olib tashlash va yangi avatar taklif qilish ham shu yerda. */
 export function AvatarPicker({ board, onClose }: { board: AcademicBoard; onClose: () => void }) {
   const { request, lang, toast } = useApp();
   const L = (uz: string, en: string, ru: string) => tr(lang, uz, en, ru);
@@ -162,12 +223,18 @@ export function AvatarPicker({ board, onClose }: { board: AcademicBoard; onClose
     names = Object.fromEntries(board.rows.map((r) => [r.id, r.name]));
   const [busy, setBusy] = useState(''),
     [idea, setIdea] = useState({ hero: '', link: '', note: '' }),
-    [sent, setSent] = useState(false);
+    [sent, setSent] = useState(false),
+    // tanlangan (bosilgan) avatar: uning shartlari ko'rsatiladi
+    [sel, setSel] = useState<string | null>(null);
   useEffect(() => {
-    const key = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
+    const key = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return;
+      if (sel) setSel(null);
+      else onClose();
+    };
     window.addEventListener('keydown', key);
     return () => window.removeEventListener('keydown', key);
-  }, [onClose]);
+  }, [onClose, sel]);
   async function choose(id: string | null) {
     setBusy(id || 'none');
     try {
@@ -248,7 +315,7 @@ export function AvatarPicker({ board, onClose }: { board: AcademicBoard; onClose
             <h2 id="av-picker-h">
               🎭 {L('Avatarlar kutubxonasi', 'Avatar library', 'Библиотека аватаров')}
             </h2>
-            <p className={me?.can ? 'ok' : ''}>{eligibility(me, lang)}</p>
+            {!sel && <p className={me?.can ? 'ok' : ''}>{eligibility(me, lang)}</p>}
           </div>
           <button
             type="button"
@@ -269,65 +336,104 @@ export function AvatarPicker({ board, onClose }: { board: AcademicBoard; onClose
             )}
           </p>
         )}
-        {me && !me.can && <AvatarWays board={board} />}
-        <ul className="av-grid">
-          {(board.avatars.catalog || avatarList()).map(({ id }) => {
-            const owner = owners[id],
-              mine = me?.avatar === id,
-              taken = !!owner && !mine;
-            const state = mine ? 'mine' : taken ? 'taken' : me?.can ? 'free' : 'locked';
-            return (
-              <li key={id} className={'av-card is-' + state}>
-                <button
-                  type="button"
-                  disabled={state !== 'free' || !!busy}
-                  onClick={() => void choose(id)}
-                  aria-label={
-                    avatarName(id, lang) +
-                    ' — ' +
-                    (mine
-                      ? L('sizning avataringiz', 'your avatar', 'ваш аватар')
-                      : taken
-                        ? L('band', 'taken', 'занят')
-                        : me?.can
-                          ? L('tanlash', 'choose', 'выбрать')
-                          : L('yopiq', 'locked', 'закрыт'))
-                  }
-                >
-                  <span className="av-stage">
-                    <AvatarFigure id={id} />
-                  </span>
-                  <b>{avatarName(id, lang)}</b>
-                  <small>
-                    {mine ? (
-                      <>
-                        <Check size={13} /> {L('Sizniki', 'Yours', 'Ваш')}
-                      </>
-                    ) : taken ? (
-                      <>
-                        <Lock size={12} /> {L('Band', 'Taken', 'Занят')}
-                        {names[owner] ? ' · ' + names[owner] : ''}
-                      </>
-                    ) : me?.can ? (
-                      busy === id ? (
-                        '…'
-                      ) : (
+        {sel ? (
+          // 📜 bosilgan avatar: katta rasmi, qo'yish shartlari va «Qo'yish» (yoki avatar olish yo'llari)
+          <div className="av-detail" role="region" aria-label={avatarName(sel, lang)}>
+            <span className="av-stage av-detail-stage">
+              <AvatarFigure id={sel} />
+            </span>
+            <div className="av-detail-body">
+              <h3>{avatarName(sel, lang)}</h3>
+              <b className="av-detail-h">
+                📜 {L('Avatar qo‘yish shartlari', 'Avatar rules', 'Условия аватара')}
+              </b>
+              <AvatarRules lang={lang} />
+              {me ? (
+                <p className={'av-detail-status' + (me.can ? ' ok' : '')}>
+                  {eligibility(me, lang)}
+                </p>
+              ) : (
+                <p className="av-detail-status">
+                  {L(
+                    'Avatar qo‘yish uchun hisobingizga kiring.',
+                    'Sign in to set an avatar.',
+                    'Войдите, чтобы поставить аватар.',
+                  )}
+                </p>
+              )}
+              {me && !me.can && <AvatarWays board={board} />}
+              <div className="av-detail-actions">
+                {me?.can && (
+                  <Button disabled={!!busy} onClick={() => void choose(sel)}>
+                    <Sparkles size={16} />{' '}
+                    {busy === sel
+                      ? '…'
+                      : L('Shu avatarni qo‘yish', 'Set this avatar', 'Поставить этот аватар')}
+                  </Button>
+                )}
+                <Button variant="outline" disabled={!!busy} onClick={() => setSel(null)}>
+                  ← {L('Boshqa avatarlar', 'Other avatars', 'Другие аватары')}
+                </Button>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <ul className="av-grid">
+            {(board.avatars.catalog || avatarList()).map(({ id }) => {
+              const owner = owners[id],
+                mine = me?.avatar === id,
+                taken = !!owner && !mine;
+              const state = mine ? 'mine' : taken ? 'taken' : me?.can ? 'free' : 'locked';
+              return (
+                <li key={id} className={'av-card is-' + state}>
+                  <button
+                    type="button"
+                    // bo'sh avatar bosilsa — qo'yish shartlari ochiladi (tanlash huquqi bo'lmasa ham)
+                    disabled={mine || taken || !!busy}
+                    onClick={() => setSel(id)}
+                    aria-label={
+                      avatarName(id, lang) +
+                      ' — ' +
+                      (mine
+                        ? L('sizning avataringiz', 'your avatar', 'ваш аватар')
+                        : taken
+                          ? L('band', 'taken', 'занят')
+                          : me?.can
+                            ? L('tanlash', 'choose', 'выбрать')
+                            : L('qo‘yish shartlari', 'how to get it', 'как получить'))
+                    }
+                  >
+                    <span className="av-stage">
+                      <AvatarFigure id={id} />
+                    </span>
+                    <b>{avatarName(id, lang)}</b>
+                    <small>
+                      {mine ? (
+                        <>
+                          <Check size={13} /> {L('Sizniki', 'Yours', 'Ваш')}
+                        </>
+                      ) : taken ? (
+                        <>
+                          <Lock size={12} /> {L('Band', 'Taken', 'Занят')}
+                          {names[owner] ? ' · ' + names[owner] : ''}
+                        </>
+                      ) : me?.can ? (
                         <>
                           <Sparkles size={13} /> {L('Tanlash', 'Choose', 'Выбрать')}
                         </>
-                      )
-                    ) : (
-                      <>
-                        <Lock size={12} /> {L('Bo‘sh', 'Free', 'Свободен')}
-                      </>
-                    )}
-                  </small>
-                </button>
-              </li>
-            );
-          })}
-        </ul>
-        {me?.avatar && (
+                      ) : (
+                        <>
+                          <Lock size={12} /> {L('Shartlari', 'How to get', 'Условия')}
+                        </>
+                      )}
+                    </small>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+        {me?.avatar && !sel && (
           <div className="av-remove">
             <Button variant="outline" disabled={!!busy} onClick={() => void choose(null)}>
               {L('Avatarni olib tashlash', 'Remove my avatar', 'Убрать аватар')}
@@ -608,23 +714,29 @@ export function HeroAvatar({ board }: { board: AcademicBoard }) {
               avatarName(id, lang) +
               ' — ' +
               L('almashtirish', 'change', 'сменить')
-            : L('Avatarlar kutubxonasi', 'Avatar library', 'Библиотека аватаров')
+            : L('Avatar qo‘yish', 'Set an avatar', 'Поставить аватар')
         }
       >
-        <span className="hero-avatar-stage">
-          <AvatarFigure id={id} />
-        </span>
         {id ? (
-          <span className="hero-avatar-swap" aria-hidden="true">
-            <RefreshCw size={15} />
-          </span>
+          <>
+            <span className="hero-avatar-stage">
+              <AvatarFigure id={id} />
+            </span>
+            <span className="hero-avatar-swap" aria-hidden="true">
+              <RefreshCw size={15} />
+            </span>
+          </>
         ) : (
-          <span className="hero-avatar-label">
-            {me?.can ? (
-              <>
-                <b>{L('Avatar tanlang', 'Choose an avatar', 'Выберите аватар')}</b>
-                <small>
-                  {me.via === 'premium'
+          <>
+            {/* avatar hali yo'q — joy bo'sh turadi; bosilsa avatarlar rasmlari ochiladi */}
+            <span className="hero-avatar-stage hero-avatar-empty" aria-hidden="true">
+              <Plus size={34} strokeWidth={2.4} />
+            </span>
+            <span className="hero-avatar-label">
+              <b>{L('Avatar qo‘yish', 'Set an avatar', 'Поставить аватар')}</b>
+              <small>
+                {me?.can
+                  ? me.via === 'premium'
                     ? L('💎 Obunangiz bor!', '💎 You have Premium!', '💎 У вас подписка!')
                     : me.via === 'pass'
                       ? L(
@@ -638,30 +750,21 @@ export function HeroAvatar({ board }: { board: AcademicBoard }) {
                             'Allowed by the administrator 🎉',
                             'Разрешено администратором 🎉',
                           )
-                        : L('Siz top-10 dasiz! 🎉', 'You are in the top 10! 🎉', 'Вы в топ-10! 🎉')}
-                </small>
-              </>
-            ) : (
-              <>
-                <b>
-                  {me?.lost
+                        : L('Siz top-10 dasiz! 🎉', 'You are in the top 10! 🎉', 'Вы в топ-10! 🎉')
+                  : me?.lost
                     ? L('📉 Avatar bo‘shatildi', '📉 Avatar freed', '📉 Аватар освобождён')
-                    : L('Avatar — mukofot', 'Avatar — a reward', 'Аватар — награда')}
-                </b>
-                <small>
-                  {L(
-                    `Top-${AVATAR_TOP} ga chiqing yoki obuna bilan oling`,
-                    `Reach the top ${AVATAR_TOP} or get it with Premium`,
-                    `Войдите в топ-${AVATAR_TOP} или получите по подписке`,
-                  )}
-                  {me?.place
-                    ? ' · ' +
-                      L(`hozir ${me.place}-o‘rin`, `now #${me.place}`, `сейчас ${me.place}-е`)
-                    : ''}
-                </small>
-              </>
-            )}
-          </span>
+                    : L(
+                        'Rasmlar va shartlarni ko‘rish',
+                        'See the pictures and rules',
+                        'Картинки и условия',
+                      ) +
+                      (me?.place
+                        ? ' · ' +
+                          L(`hozir ${me.place}-o‘rin`, `now #${me.place}`, `сейчас ${me.place}-е`)
+                        : '')}
+              </small>
+            </span>
+          </>
         )}
       </button>
       {open && <AvatarPicker board={board} onClose={() => setOpen(false)} />}

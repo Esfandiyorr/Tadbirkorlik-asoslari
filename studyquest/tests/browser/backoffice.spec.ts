@@ -395,6 +395,7 @@ test('the administrator adds a new avatar and hides another; top students see th
   await expect(dialog.locator('.av-card')).toHaveCount(10);
   await expect(dialog).not.toContainText('Sonik');
   await dialog.getByRole('button', { name: /Termiz Burguti — tanlash/ }).click();
+  await dialog.getByRole('button', { name: /Shu avatarni qo‘yish/ }).click();
   await expect(dialog).toBeHidden();
   await expect(page.locator('.hero-avatar:visible img')).toHaveAttribute(
     'src',

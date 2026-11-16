@@ -4925,7 +4925,8 @@ button.rk-slot:has(.av-empty)::after {
     border-color 0.18s,
     box-shadow 0.18s;
 }
-.av-card.is-free button:hover {
+.av-card.is-free button:hover,
+.av-card.is-locked button:hover {
   transform: translateY(-4px);
   border-color: var(--violet);
   box-shadow: 0 14px 26px -18px var(--violet);
@@ -4988,8 +4989,70 @@ button.rk-slot:has(.av-empty)::after {
 .av-card.is-locked small {
   color: var(--muted);
 }
-.av-card.is-locked .av-figure {
-  filter: saturate(0.6) opacity(0.75);
+/* 📜 bosilgan avatar: katta rasm + qo'yish shartlari */
+.av-detail {
+  display: grid;
+  grid-template-columns: minmax(180px, 240px) minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+.av-detail-stage {
+  height: 280px;
+  position: sticky;
+  top: 0;
+}
+.av-detail-body {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+.av-detail-body h3 {
+  margin: 0;
+  font-size: 22px;
+}
+.av-detail-h {
+  font-size: 15px;
+}
+.av-rules {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 12px 14px;
+  list-style: none;
+  border-radius: 16px;
+  background: var(--surface-soft);
+  border: 1px solid var(--border);
+  font-size: 14px;
+  line-height: 1.45;
+}
+.av-detail-status {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: #fff7ed;
+  color: #9a3412;
+  font-size: 14px;
+  font-weight: 650;
+}
+.av-detail-status.ok {
+  background: #dcfce7;
+  color: #166534;
+}
+.dark .av-detail-status {
+  background: #43140766;
+  color: #fdba74;
+}
+.dark .av-detail-status.ok {
+  background: #14532d66;
+  color: #86efac;
+}
+.av-detail .av-ways {
+  margin: 0;
+}
+.av-detail-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 .av-remove {
   display: flex;
@@ -5065,9 +5128,28 @@ button.rk-slot:has(.av-empty)::after {
   max-height: 210px;
   filter: drop-shadow(0 12px 12px #0000003b);
 }
-.hero-avatar:not(.has) .hero-avatar-stage .av-figure {
-  width: 62%;
-  fill: #2e10654d;
+/* avatar yo'q: joy bo'sh — uzuq chiziqli ramka va «+» */
+.hero-avatar-stage.hero-avatar-empty {
+  place-items: center;
+  margin: 2px 14%;
+  border: 3px dashed #7c3aed66;
+  border-radius: 20px;
+  background: #ffffff8c;
+  color: #7c3aed;
+  transition:
+    border-color 0.2s,
+    background 0.2s;
+}
+.hero-avatar-empty svg {
+  width: 46px;
+  height: 46px;
+  padding: 8px;
+  border-radius: 50%;
+  background: #ede9fe;
+}
+.hero-avatar:hover .hero-avatar-empty {
+  border-color: #7c3aed;
+  background: #ffffffcc;
 }
 .hero-avatar-label {
   display: grid;
@@ -5231,6 +5313,15 @@ button.rk-slot:has(.av-empty)::after {
   .av-stage {
     height: 112px;
   }
+  .av-detail {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .av-detail-stage {
+    position: static;
+    width: min(220px, 70%);
+    height: 220px;
+    justify-self: center;
+  }
   /* telefonda bosh blok bir ustun: avatar kartochkasi gorizontal — chapda qahramon, o'ngda yozuv */
   .hero-avatar {
     grid-template-columns: 112px minmax(0, 1fr);
@@ -5244,6 +5335,11 @@ button.rk-slot:has(.av-empty)::after {
   .hero-avatar-stage {
     align-self: end;
     height: 128px;
+  }
+  .hero-avatar-stage.hero-avatar-empty {
+    align-self: center;
+    height: 112px;
+    margin: 0 0 8px;
   }
   .hero-avatar-stage .av-figure {
     max-height: 128px;
