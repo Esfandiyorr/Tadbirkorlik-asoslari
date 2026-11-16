@@ -40,7 +40,6 @@ import { Staff } from './staff';
 import { InstallApp } from './install-app';
 import { NativeSurface } from './native-surface';
 import { ChatPage } from './chat-page';
-import { AcademicHistory } from './academic-history';
 import { ChangePassword } from './change-password';
 import { Library } from './library';
 import { Services } from './services';
@@ -508,24 +507,10 @@ function Profile() {
           </div>
         )}
       </section>
-      <div className="profile-layout">
-        <div className="profile-main">
-          <AcademicHistory />
-          {!u?.readingHistory && (
-            <div className="soft-empty panel">
-              <span>📚</span>
-              <p>
-                {tr(
-                  lang,
-                  'Mavzularni o‘qishni boshlang — har bir mavzu bo‘yicha ballaringiz shu yerda ko‘rinadi.',
-                  'Start reading topics — your points for each topic will appear here.',
-                  'Начните читать темы — здесь появятся баллы по каждой теме.',
-                )}
-              </p>
-            </div>
-          )}
-        </div>
-        <aside className="profile-side">
+      {/* Profilda faqat asosiy ma'lumotlar: shaxsiy ma'lumotlar, parol, bildirishnomalar, hisob.
+          Mavzular bo'yicha ballar kurs sahifasidagi mavzu kartochkalarida ko'rinadi. */}
+      <div className="profile-layout is-basic">
+        <div className="profile-side">
           <section className="panel profile-card">
             <h2>⚙️ {tr(lang, 'Shaxsiy ma’lumotlar', 'Personal details', 'Личные данные')}</h2>
             <form
@@ -603,7 +588,7 @@ function Profile() {
             </Button>
           </section>
           <AccountDelete />
-        </aside>
+        </div>
       </div>
       {advanced && (
         <section className="panel">

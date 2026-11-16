@@ -728,15 +728,7 @@
 .academic-topic-card b {
   color: var(--text);
 }
-.academic-topic-status {
-  display: inline-flex;
-  background: var(--soft-violet);
-  color: var(--violet);
-  padding: 4px 9px;
-  border-radius: 7px;
-  font-size: 13px;
-  margin-bottom: 10px;
-}
+
 @media (max-width: 900px) {
   .native-document .g3,
   .native-document .g5,
@@ -852,23 +844,7 @@
   font-size: 15px;
   margin-top: 18px;
 }
-.academic-topic-status {
-  align-items: center;
-  gap: 6px;
-}
-.academic-topic-link {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 16px;
-  color: var(--violet);
-  font-size: 14px;
-  font-weight: 600;
-}
-.academic-history {
-  width: 100%;
-  margin: 20px 0 28px;
-}
+
 .lesson-academic-summary {
   display: flex;
   flex-wrap: wrap;
