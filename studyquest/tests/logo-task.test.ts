@@ -163,6 +163,41 @@ it('the student sends a logo, the teacher grades it out of 25 and the mark reach
   expect(demoTaskMark('legacy_c')).toBeUndefined();
 });
 
+it('a second attempt opens for every graded student at once, or only for one group', async () => {
+  const a = student('legacy_e', 'AP-223'),
+    b = student('legacy_f', 'AP-223'),
+    c = student('legacy_g', 'T-323'),
+    d = student('legacy_h', 'T-323');
+  for (const s of [a, b, c, d]) await submitLogo(s, png, desc);
+  for (const uid of ['legacy_e', 'legacy_f', 'legacy_g'])
+    await manageLogoTask(teacher, { op: 'grade', uid, score: 15 });
+  // talaba ommaviy ruxsat bera olmaydi
+  await expect(manageLogoTask(a, { op: 'againAll' })).rejects.toMatchObject({ status: 403 });
+  // faqat AP-223: ikkala baholangan talaba ochiladi, T-323 tegmaydi
+  let v = await manageLogoTask(teacher, { op: 'againAll', group: 'AP-223' });
+  expect(v.rows.filter((r) => r.again).map((r) => r.uid)).toEqual(['legacy_e', 'legacy_f']);
+  expect((await logoTaskFor(a)).task).toMatchObject({ canSend: true, final: { score: 15 } });
+  expect((await logoTaskFor(c)).task).toMatchObject({ canSend: false });
+  // hammaga: qolgan baholangan T-323 talabasi ham ochiladi; baholanmagan (legacy_h) — o'zi almashtira oladi
+  v = await manageLogoTask(teacher, { op: 'againAll' });
+  expect(v.rows.filter((r) => r.again).map((r) => r.uid)).toEqual([
+    'legacy_e',
+    'legacy_f',
+    'legacy_g',
+  ]);
+  expect(v.rows.find((r) => r.uid === 'legacy_h')!.again).toBeUndefined();
+  // ochadigan hech kim qolmagan bo'lsa — xato
+  await expect(manageLogoTask(teacher, { op: 'againAll' })).rejects.toMatchObject({
+    status: 409,
+  });
+  // ikkinchi variant yuborilgach — eski baho yangisi qo'yilguncha turadi
+  expect((await submitLogo(a, png, desc + ' Ikkinchi urinish.')).task).toMatchObject({
+    resent: true,
+    final: { score: 15 },
+    canSend: false,
+  });
+});
+
 it('only the administrator closes submissions', async () => {
   await expect(manageLogoTask(teacher, { op: 'settings', open: false })).rejects.toMatchObject({
     status: 403,

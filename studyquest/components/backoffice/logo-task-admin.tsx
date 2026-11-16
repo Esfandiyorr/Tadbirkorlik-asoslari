@@ -79,6 +79,8 @@ export function LogoTaskAdmin() {
         .toLowerCase()
         .includes(query.trim().toLowerCase()),
   );
+  // 🔁 ikkinchi urinish ochilishi mumkin bo'lganlar: baholangan, hali ruxsat olmagan va yangi variant yubormagan
+  const retry = graded.filter((r) => !r.again && !r.resent);
   const marks = graded.map((r) => r.final!.score);
   const avg = marks.length ? (marks.reduce((s, n) => s + n, 0) / marks.length).toFixed(1) : '—';
   function csv() {
@@ -159,6 +161,44 @@ export function LogoTaskAdmin() {
             {L('Topshiriq qabul qilinmoqda', 'Accepting submissions', 'Приём работ открыт')}
           </label>
         )}
+        <Button
+          variant="outline"
+          disabled={!!busy || !retry.length}
+          title={L(
+            'Baholangan talabalar logotipning yangi variantini yubora oladi; yangi variant baholanguncha eski baho turadi.',
+            'Graded students may send a new version; the old mark stays until the new one is graded.',
+            'Оценённые студенты смогут отправить новый вариант; старая оценка остаётся до новой.',
+          )}
+          onClick={() =>
+            confirm(
+              group
+                ? L(
+                    `${group} guruhidagi ${retry.length} ta baholangan talabaga ikkinchi urinish ochilsinmi?`,
+                    `Open a second attempt for ${retry.length} graded students in ${group}?`,
+                    `Открыть вторую попытку для ${retry.length} студентов группы ${group}?`,
+                  )
+                : L(
+                    `Baholangan ${retry.length} ta talabaning hammasiga ikkinchi urinish ochilsinmi?`,
+                    `Open a second attempt for all ${retry.length} graded students?`,
+                    `Открыть вторую попытку для всех ${retry.length} оценённых студентов?`,
+                  ),
+            ) &&
+            void act(
+              { op: 'againAll', ...(group ? { group } : {}) },
+              'againAll',
+              '🔁 ' +
+                L(
+                  `${retry.length} ta talabaga ikkinchi urinish ochildi`,
+                  `Second attempt opened for ${retry.length} students`,
+                  `Вторая попытка открыта: ${retry.length}`,
+                ),
+            )
+          }
+        >
+          <RotateCcw size={16} />
+          {L('Ikkinchi urinish — hammaga', 'Second attempt for all', 'Вторая попытка всем')} (
+          {retry.length})
+        </Button>
         <Button variant="outline" disabled={!inGroup.length} onClick={csv}>
           <Download size={16} />
           CSV

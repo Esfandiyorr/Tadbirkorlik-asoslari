@@ -23,7 +23,8 @@ import { imageUrl, siteGet, siteUpdate, storeBlob } from './site-content';
      cfg         = {open}                             — topshiriq qabul qilinadimi (administrator)
    Rasm — site/blob/lg-<xesh> (talabaning oxirgi yuklagani; manzil versiya bilan, /api/site/img orqali).
    Talaba ishini o'qituvchi baholaguncha almashtira oladi; baholangandan keyin — faqat o'qituvchi ruxsat bersa
-   (yangi variant kelgunicha va qayta baholanguncha eski baho turadi).
+   (yangi variant kelgunicha va qayta baholanguncha eski baho turadi). Ruxsat har talabaga alohida («again») yoki
+   baholangan hammaga / bitta guruhga birdaniga («againAll» — ikkinchi urinish) beriladi.
    🎯 Ball: o'qituvchi qo'ygan 0–25 ball 8-mavzuning 100 baliga kiradi (slaydlar 30 + vaqt 20 + test 25 + logotip 25).
    Shuning uchun baho talabaning asl yozuviga ham yoziladi: students/<id>/task/m8 (dvigatel va reyting o'qiydi),
    umumiy ball (students/<id>/total) esa farq miqdoricha darhol o'zgaradi. */
@@ -184,6 +185,8 @@ const adminInput = z.discriminatedUnion('op', [
     .strict(),
   z.object({ op: z.literal('clearGrade'), uid: UID }).strict(),
   z.object({ op: z.literal('again'), uid: UID }).strict(),
+  // 🔁 ikkinchi urinish — baholangan hamma talabaga (yoki bitta guruhga) birdaniga
+  z.object({ op: z.literal('againAll'), group: z.string().trim().max(40).optional() }).strict(),
   z.object({ op: z.literal('settings'), open: z.boolean() }).strict(),
 ]);
 
@@ -193,6 +196,17 @@ export async function manageLogoTask(a: Actor, raw: unknown, now = Date.now()) {
   if (v.op === 'settings') {
     administrator(a);
     await siteUpdate({ 'logoTask/cfg': { open: v.open } });
+    return logoTaskList(a);
+  }
+  if (v.op === 'againAll') {
+    // baholangan, hali ruxsat olmagan va yangi variant yubormaganlar — eski baho yangi variant baholanguncha turadi
+    const all = (await siteGet<Record<string, Stored>>('logoTask/s')) || {};
+    const patch: Record<string, unknown> = {};
+    for (const [uid, s] of Object.entries(all))
+      if (s?.final && !s.again && !s.resent && (!v.group || s.group === v.group))
+        patch['logoTask/s/' + uid + '/again'] = true;
+    check(Object.keys(patch).length, 409, 'Ruxsat beriladigan baholangan ish yo‘q.');
+    await siteUpdate(patch);
     return logoTaskList(a);
   }
   const path = 'logoTask/s/' + v.uid;
