@@ -65,6 +65,10 @@ export function CourseLessons({
   const selected = lessons.filter(
     (l) => (!moduleId || l.moduleId === moduleId) && (status === 'all' || state(l) === status),
   );
+  // Asosiy fan (Tadbirkorlik asoslari) mavzulari bo'limlarga bo'linmaydi — avvalgidek bitta katta ro'yxat:
+  // har mavzu raqamli rasmi bilan katta kartochkada. Bo'limlar (yig'iladigan bloklar) faqat qo'shimcha fanlarda
+  // (masalan, restoran kursining 4 bloki).
+  const grouped = !!course.extra;
   // Bir bo'limga kiruvchi mavzular rejaning turli joylarida kelishi mumkin.
   // Ketma-ket bo'laklar asl dars tartibini saqlaydi (masalan, m4/m5 va m10–m15).
   const groups = selected.reduce<{ id: string; title: string; rows: Lesson[] }[]>((out, l) => {
@@ -74,6 +78,102 @@ export function CourseLessons({
     out.at(-1)!.rows.push(l);
     return out;
   }, []);
+  const moduleTitle = (l: Lesson) => modules.find((m) => m.id === l.moduleId)?.title || '';
+  /** Mavzu kartochkasi: muqova (mavzu raqami bilan), bo'lim nomi, holat, sarlavha, ball va tugma. */
+  const card = (l: Lesson, sectionTitle: string) => {
+    const h = history[l.id],
+      pts = topicPoints(h),
+      access = accessOf(data, l.id),
+      locked = state(l) === 'locked',
+      progress = data.progress?.find((p) => p.lessonId === l.id),
+      seen = Math.max(h?.seenSlides || 0, progress?.seen.length || 0, progress?.legacySeen || 0),
+      number = lessons.findIndex((x) => x.id === l.id) + 1,
+      academic = !course.extra && !!data.user?.readingHistory;
+    return (
+      <article className="lesson-item" key={l.id}>
+        <button
+          className={
+            'lesson-card panel' +
+            (l.draft ? ' is-draft' : '') +
+            (l.exam ? ' is-exam' : '') +
+            (locked ? ' is-locked' : '') +
+            (access?.state === 'score' ? ' is-live' : '')
+          }
+          onClick={() => open(l)}
+          aria-disabled={locked && !paidLock && !l.draft}
+        >
+          <div className="mini-cover">
+            <TopicArt id={l.id} number={number} />
+            {locked && (
+              <span className="lock-veil">
+                <Lock size={24} />
+              </span>
+            )}
+          </div>
+          <div className="lesson-card-top">
+            {grouped && (
+              <span className="lesson-row-number">{String(number).padStart(2, '0')}</span>
+            )}
+            <span className="course-level">
+              {l.exam
+                ? tr(lang, 'Yakuniy imtihon', 'Final exam', 'Итоговый экзамен')
+                : sectionTitle}
+            </span>
+            <AccessChip access={access} lang={lang} />
+          </div>
+          <h3>
+            {number}. {l.title}
+          </h3>
+          {academic ? (
+            <>
+              {grouped && (
+                <span className="lesson-compact-score">
+                  {num(pts.total)} / 100 {tr(lang, 'ball', 'pts', 'баллов')}
+                </span>
+              )}
+              <div className="lesson-points">
+                <PointsRing value={pts.total} size={58} />
+                <PointsBreakdown history={h} lang={lang} />
+              </div>
+            </>
+          ) : (
+            <p className="lesson-reading-count">
+              {l.plan?.hours || `${seen}/${l.slideCount} ${tr(lang, 'slayd', 'slides', 'слайдов')}`}
+            </p>
+          )}
+          <span className="lesson-link">
+            {l.draft
+              ? tr(lang, 'Tayyorlanmoqda', 'In preparation', 'Готовится')
+              : paidLock
+                ? '💳 ' + tr(lang, 'Pullik kurs', 'Paid course', 'Платный курс')
+                : locked
+                  ? tr(lang, 'Hali ochilmagan', 'Not open yet', 'Пока закрыто')
+                  : access?.state === 'score' && access.due
+                    ? '⏳ ' + dueText(access.due, lang).date
+                    : state(l) === 'started'
+                      ? tr(lang, 'Davom etish', 'Continue', 'Продолжить')
+                      : tr(lang, 'Boshlash', 'Start', 'Начать')}
+            <ChevronRight size={15} />
+          </span>
+        </button>
+        {l.plan && (
+          <details className="lesson-plan-preview">
+            <summary>{tr(lang, 'Dars rejasi', 'Lesson plan', 'План урока')}</summary>
+            <div>
+              <p>
+                <b>{l.plan.hours}</b>
+              </p>
+              <p>{l.plan.about}</p>
+              <h4>{tr(lang, 'Amaliy topshiriq', 'Practice', 'Практика')}</h4>
+              <p>{l.plan.task}</p>
+              <h4>{tr(lang, 'Natija', 'Outcome', 'Результат')}</h4>
+              <p>{l.plan.result}</p>
+            </div>
+          </details>
+        )}
+      </article>
+    );
+  };
   return (
     <div className="course-learning-list">
       <div
@@ -125,126 +225,35 @@ export function CourseLessons({
           )}
         </p>
       )}
-      {groups.map((m) => {
-        const rows = m.rows;
-        if (!rows.length) return null;
-        return (
-          <details
-            className="course-module"
-            key={m.id + ':' + rows[0].id}
-            open={expanded[m.id] ?? true}
-            onToggle={(e) => {
-              const value = e.currentTarget.open;
-              setExpanded((v) => (v[m.id] === value ? v : { ...v, [m.id]: value }));
-            }}
-          >
-            <summary>
-              <BookOpen size={18} />
-              <span>{m.title}</span>
-              <small>
-                {rows.length} {tr(lang, 'dars', 'lessons', 'уроков')}
-              </small>
-            </summary>
-            <div className="lesson-grid">
-              {rows.map((l) => {
-                const h = history[l.id],
-                  pts = topicPoints(h),
-                  access = accessOf(data, l.id),
-                  locked = state(l) === 'locked',
-                  progress = data.progress?.find((p) => p.lessonId === l.id),
-                  seen = Math.max(
-                    h?.seenSlides || 0,
-                    progress?.seen.length || 0,
-                    progress?.legacySeen || 0,
-                  ),
-                  number = lessons.findIndex((x) => x.id === l.id) + 1,
-                  academic = !course.extra && !!data.user?.readingHistory;
-                return (
-                  <article className="lesson-item" key={l.id}>
-                    <button
-                      className={
-                        'lesson-card panel' +
-                        (l.draft ? ' is-draft' : '') +
-                        (l.exam ? ' is-exam' : '') +
-                        (locked ? ' is-locked' : '') +
-                        (access?.state === 'score' ? ' is-live' : '')
-                      }
-                      onClick={() => open(l)}
-                      aria-disabled={locked && !paidLock && !l.draft}
-                    >
-                      <div className="mini-cover">
-                        <TopicArt id={l.id} number={number} />
-                        {locked && (
-                          <span className="lock-veil">
-                            <Lock size={24} />
-                          </span>
-                        )}
-                      </div>
-                      <div className="lesson-card-top">
-                        <span className="lesson-row-number">{String(number).padStart(2, '0')}</span>
-                        <span className="course-level">
-                          {l.exam
-                            ? tr(lang, 'Yakuniy imtihon', 'Final exam', 'Итоговый экзамен')
-                            : m.title}
-                        </span>
-                        <AccessChip access={access} lang={lang} />
-                      </div>
-                      <h3>
-                        {number}. {l.title}
-                      </h3>
-                      {academic ? (
-                        <>
-                          <span className="lesson-compact-score">
-                            {num(pts.total)} / 100 {tr(lang, 'ball', 'pts', 'баллов')}
-                          </span>
-                          <div className="lesson-points">
-                            <PointsRing value={pts.total} size={58} />
-                            <PointsBreakdown history={h} lang={lang} />
-                          </div>
-                        </>
-                      ) : (
-                        <p className="lesson-reading-count">
-                          {l.plan?.hours ||
-                            `${seen}/${l.slideCount} ${tr(lang, 'slayd', 'slides', 'слайдов')}`}
-                        </p>
-                      )}
-                      <span className="lesson-link">
-                        {l.draft
-                          ? tr(lang, 'Tayyorlanmoqda', 'In preparation', 'Готовится')
-                          : paidLock
-                            ? '💳 ' + tr(lang, 'Pullik kurs', 'Paid course', 'Платный курс')
-                            : locked
-                              ? tr(lang, 'Hali ochilmagan', 'Not open yet', 'Пока закрыто')
-                              : access?.state === 'score' && access.due
-                                ? '⏳ ' + dueText(access.due, lang).date
-                                : state(l) === 'started'
-                                  ? tr(lang, 'Davom etish', 'Continue', 'Продолжить')
-                                  : tr(lang, 'Boshlash', 'Start', 'Начать')}
-                        <ChevronRight size={15} />
-                      </span>
-                    </button>
-                    {l.plan && (
-                      <details className="lesson-plan-preview">
-                        <summary>{tr(lang, 'Dars rejasi', 'Lesson plan', 'План урока')}</summary>
-                        <div>
-                          <p>
-                            <b>{l.plan.hours}</b>
-                          </p>
-                          <p>{l.plan.about}</p>
-                          <h4>{tr(lang, 'Amaliy topshiriq', 'Practice', 'Практика')}</h4>
-                          <p>{l.plan.task}</p>
-                          <h4>{tr(lang, 'Natija', 'Outcome', 'Результат')}</h4>
-                          <p>{l.plan.result}</p>
-                        </div>
-                      </details>
-                    )}
-                  </article>
-                );
-              })}
-            </div>
-          </details>
-        );
-      })}
+      {!grouped
+        ? // asosiy fan: bo'limlarsiz bitta katta ro'yxat, mavzu raqami bilan
+          !!selected.length && (
+            <div className="lesson-grid">{selected.map((l) => card(l, moduleTitle(l)))}</div>
+          )
+        : groups.map((m) => {
+            const rows = m.rows;
+            if (!rows.length) return null;
+            return (
+              <details
+                className="course-module"
+                key={m.id + ':' + rows[0].id}
+                open={expanded[m.id] ?? true}
+                onToggle={(e) => {
+                  const value = e.currentTarget.open;
+                  setExpanded((v) => (v[m.id] === value ? v : { ...v, [m.id]: value }));
+                }}
+              >
+                <summary>
+                  <BookOpen size={18} />
+                  <span>{m.title}</span>
+                  <small>
+                    {rows.length} {tr(lang, 'dars', 'lessons', 'уроков')}
+                  </small>
+                </summary>
+                <div className="lesson-grid">{rows.map((l) => card(l, m.title))}</div>
+              </details>
+            );
+          })}
     </div>
   );
 }
