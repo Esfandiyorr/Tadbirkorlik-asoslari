@@ -20,3 +20,13 @@
 - Asl R1–R3 va eski akademik baholash dvigateliga ushbu UX ishlari o‘zgartirish kiritmaydi. Demo sinovlari jonli talabalar bazasini ishlatmaydi.
 
 Brauzer sinovlari uchun `STUDYQUEST_DEMO=true` nusxadan foydalaning. `npm run build` production nusxasini yaratadi; uni demo brauzer sinovlari bilan bir vaqtda bajarmang, chunki ikkisi `public/legacy` papkasini tayyorlaydi. Brauzer tekshiruvidan oldin `STUDYQUEST_DEMO=true node scripts/sync-legacy.mjs` orqali demo nusxani tiklang.
+
+## Yakuniy tekshiruv — 2026-11-16
+
+- 44 Vitest fayli, **216 ta sinov** o‘tdi (`npm test -- --testTimeout=30000`; vaqt cheklovi ushbu muhitdagi kriptografik tekshiruvlar uchun kengaytirilgan, tekshiruv shartlari o‘zgarmagan).
+- **67 ta alohida Playwright sinovi** o‘tdi: asosiy 61 tekshiruv, zarur tuzatishlardan so‘ng qayta bajarilganlari bilan, va 6 qo‘shimcha maxfiylik/navigatsiya tekshiruvi. Asosiy kursning har bir slaydi, eski testlar, pullik kursga ruxsat va tayyor restoran mashg‘ulotlari ham qamralgan.
+- 320–1440 px tekshirildi. 390×844 namunada asosiy tugma y=406–452, pastki menyu y=777 dan; kurs ro‘yxati ikkita ochiq bo‘lim bilan 2206 px, yoniga kengayish yo‘q.
+- TypeScript tekshiruvi va production build muvaffaqiyatli yakunlandi.
+- O‘zgargan TypeScript/TSX/CSS/Markdown fayllari Prettier tekshiruvidan o‘tdi.
+- `restoran-1.html`–`restoran-3.html`, ularning uchta matn manbasi, `rt-engine.js`, serverdagi `academic.ts` va `platform.ts` dastlabki SHA-256 nusxalariga teng.
+- Mahalliy demo tekshirildi. Haqiqiy talabalar bazasi, jonli autentifikatsiya va tashqi push yetkazilishi ushbu sinovlarda ishlatilmagan.
