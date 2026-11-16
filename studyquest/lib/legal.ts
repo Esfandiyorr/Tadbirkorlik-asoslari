@@ -5,7 +5,7 @@
 export type LegalLang = 'uz' | 'ru' | 'en';
 export const LEGAL_LANGS: LegalLang[] = ['uz', 'ru', 'en'];
 export const legalLang = (v: unknown): LegalLang => (v === 'ru' || v === 'en' ? v : 'uz');
-export const LEGAL_UPDATED = '2026-11-12';
+export const LEGAL_UPDATED = '2026-11-16';
 export const APP_NAME = 'Unistay';
 
 /** p — ro'yxatdan oldingi matn, ul — ro'yxat, note — ro'yxatdan keyingi izoh */
@@ -53,7 +53,8 @@ export function privacyDoc(l: LegalLang, w: Who): LegalDoc {
             'Учебные данные: какие темы и слайды вы прочитали, время чтения, ответы на тесты и задания, баллы, оценки, достижения и место в рейтинге.',
             'Содержимое, которое вы создаёте: сообщения в чате группы и в переписке с администратором, загруженные работы (например, логотип для задания), выбранный аватар.',
             'Игры и живой тест: участие, ответы и результаты.',
-            'Платные услуги и подписка: текст заказа, желаемый срок, телефон или Telegram (если указали), файлы, которые вы приложили, и готовые работы команды, переписка по заказу, отметка «Я оплатил» с вашим комментарием (например, номер чека) и срок действия подписки. Файлы заказа удаляются через 90 дней после сдачи работы или сразу при отмене; заказ можно удалить самому.',
+            'Платные услуги и подписка: текст задачи, сумма, которую вы готовы заплатить, желаемый срок, телефон или Telegram (если указали), приложенные файлы и готовый результат, переписка по задаче, отметка «Я оплатил» с вашим комментарием (например, номер чека), ваша оценка и отзыв, а также срок действия подписки. Задача без контактов и файлов видна на бирже исполнителям под сокращённым именем (например, «Али В.») с группой; файлы и переписку видят только утверждённый исполнитель и администратор. Файлы удаляются через 90 дней после сдачи работы или сразу при отмене; задачу можно удалить самому.',
+            'Если вы исполнитель: описание о себе, направления, отклики на задачи, выполненные работы, оценки и выплаты, а также реквизиты для выплат (карта или телефон) — их видит только администратор. Заказчики видят ваше сокращённое имя, число работ и рейтинг. Выйти из исполнителей можно в любой момент.',
             'Доступ к курсу: если вы запросили доступ к курсу (в том числе к платному) — имя, email, время запроса и ваш комментарий, например номер чека (их видит только администратор).',
             'Покупка аватара: время запроса «Я оплатил», ваш комментарий (например, номер чека) и срок действия права на аватар.',
             'Уведомления: если вы включили уведомления — технический адрес вашего браузера или устройства (push-подписка), чтобы доставлять сообщения.',
@@ -130,7 +131,8 @@ export function privacyDoc(l: LegalLang, w: Who): LegalDoc {
             'Learning data: topics and slides you read, reading time, answers to tests and assignments, points, grades, achievements and leaderboard position.',
             'Content you create: messages in the group chat and in the conversation with the administrator, uploaded work (for example a logo for an assignment), your chosen avatar.',
             'Games and the live quiz: participation, answers and results.',
-            'Paid services and Premium: the order text, the wanted date, a phone number or Telegram (if you add one), files you attach and the team’s finished work, the order conversation, your “I paid” note (for example a receipt number) and the period of your Premium. Order files are deleted 90 days after delivery or at once if the order is cancelled; you can delete an order yourself.',
+            'Paid services and Premium: the task text, the amount you are ready to pay, the wanted date, a phone number or Telegram (if you add one), files you attach and the delivered result, the task conversation, your “I paid” note (for example a receipt number), your rating and review, and the period of your Premium. Without contacts and files, a task is shown on the board to workers under a shortened name (for example “Ali V.”) with your group; files and the conversation are seen only by the approved worker and the administrator. Files are deleted 90 days after delivery or at once if the task is cancelled; you can delete a task yourself.',
+            'If you are a worker: your description, directions, applications, completed jobs, ratings and payouts, and your payout details (card or phone) — seen only by the administrator. Clients see your shortened name, number of jobs and rating. You can stop being a worker at any time.',
             'Course access: if you request access to a course (including a paid one) — your name, email, the time of the request and your note, for example a receipt number (seen only by the administrator).',
             'Avatar purchase: the time of your “I paid” request, your note (for example a receipt number) and how long your avatar right lasts.',
             'Notifications: if you turn notifications on — the technical address of your browser or device (push subscription) used to deliver messages.',
@@ -206,7 +208,8 @@ export function privacyDoc(l: LegalLang, w: Who): LegalDoc {
           'O‘qish ma’lumotlari: qaysi mavzu va slaydlarni o‘qiganingiz, o‘qish vaqti, test va topshiriq javoblari, ballar, baholar, yutuqlar va reytingdagi o‘rningiz.',
           'Siz yaratgan kontent: guruh chatidagi va administrator bilan yozishmadagi xabarlar, yuklagan ishlaringiz (masalan, topshiriq uchun logotip), tanlagan avataringiz.',
           'O‘yinlar va jonli test: ishtirok, javoblar va natijalar.',
-          'Pullik xizmatlar va obuna: buyurtma matni, kerakli sana, telefon yoki Telegram (yozsangiz), siz biriktirgan fayllar va jamoa tayyorlagan ish, buyurtma bo‘yicha yozishma, «To‘lov qildim» izohingiz (masalan, chek raqami) va obunangiz muddati. Buyurtma fayllari ish topshirilgandan 90 kun keyin yoki bekor qilinganda darhol o‘chiriladi; buyurtmani o‘zingiz ham o‘chira olasiz.',
+          'Pullik xizmatlar va obuna: vazifa matni, to‘lay oladigan summangiz, kerakli sana, telefon yoki Telegram (yozsangiz), siz biriktirgan fayllar va topshirilgan natija, vazifa bo‘yicha yozishma, «To‘lov qildim» izohingiz (masalan, chek raqami), bahoyingiz va fikringiz hamda obunangiz muddati. Vazifa aloqa ma’lumotlari va fayllarsiz, qisqartirilgan ism (masalan, «Ali V.») va guruh bilan ijrochilarga e’londa ko‘rinadi; fayllar va yozishmani faqat tasdiqlangan ijrochi va administrator ko‘radi. Fayllar ish topshirilgandan 90 kun keyin yoki bekor qilinganda darhol o‘chiriladi; vazifani o‘zingiz ham o‘chira olasiz.',
+          'Ijrochi bo‘lsangiz: o‘zingiz haqingizdagi matn, yo‘nalishlar, arizalaringiz, bajargan ishlar, baholar va o‘tkazilgan pullar hamda pul o‘tkazish ma’lumoti (karta yoki telefon) — uni faqat administrator ko‘radi. Buyurtmachilar qisqartirilgan ismingiz, ishlar soni va reytingingizni ko‘radi. Ijrochilikdan istalgan vaqtda chiqishingiz mumkin.',
           'Kursga ruxsat: kursga (jumladan pullik kursga) ruxsat so‘rasangiz — ismingiz, emailingiz, so‘rov vaqti va izohingiz, masalan chek raqami (faqat administrator ko‘radi).',
           'Avatar sotib olish: «To‘lov qildim» so‘rovi vaqti, izohingiz (masalan, chek raqami) va avatar huquqi muddati.',
           'Bildirishnomalar: yoqqan bo‘lsangiz — xabar yetkazish uchun brauzeringiz yoki qurilmangizning texnik manzili (push obunasi).',

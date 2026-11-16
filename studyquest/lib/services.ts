@@ -283,19 +283,47 @@ export type ServiceCard = ServiceKind &
   };
 
 /** Buyurtma holati. */
-export const SERVICE_STATUSES = ['new', 'quoted', 'paid', 'work', 'done', 'cancel'] as const;
+export const SERVICE_STATUSES = [
+  'open',
+  'assigned',
+  'paid',
+  'work',
+  'review',
+  'done',
+  'cancel',
+] as const;
 export type ServiceStatus = (typeof SERVICE_STATUSES)[number];
+/** Vazifa yo'li: e'lon (ijrochilar ariza beradi) → administrator ijrochini tasdiqlaydi → buyurtmachi to'laydi →
+    administrator to'lovni tasdiqlaydi → ijrochi bajaradi → buyurtmachi tekshirib qabul qiladi (baho) → administrator
+    ijrochiga pulini o'tkazadi. */
 export const STATUS_LABEL: Record<ServiceStatus, [string, Tri]> = {
-  new: ['🕐', ['Ko‘rib chiqilmoqda', 'Under review', 'На рассмотрении']],
-  quoted: ['💳', ['To‘lov kutilmoqda', 'Awaiting payment', 'Ожидает оплаты']],
+  open: ['📣', ['Ijrochi qidirilmoqda', 'Looking for a worker', 'Ищем исполнителя']],
+  assigned: ['💳', ['To‘lov kutilmoqda', 'Awaiting payment', 'Ожидает оплаты']],
   paid: ['🔎', ['To‘lov tekshirilmoqda', 'Checking payment', 'Проверка оплаты']],
-  work: ['🛠', ['Tayyorlanmoqda', 'In progress', 'В работе']],
-  done: ['✅', ['Tayyor', 'Ready', 'Готово']],
+  work: ['🛠', ['Bajarilmoqda', 'In progress', 'В работе']],
+  review: ['👀', ['Tekshirish kerak', 'Ready for review', 'Нужна проверка']],
+  done: ['✅', ['Yakunlandi', 'Completed', 'Завершён']],
   cancel: ['✖', ['Bekor qilingan', 'Cancelled', 'Отменён']],
 };
-/** Buyurtma hali tugamagan (talaba bir vaqtda ko'pi bilan ACTIVE_MAX tasini ochiq tutadi). */
+/** Vazifa hali tugamagan (buyurtmachi bir vaqtda ko'pi bilan ACTIVE_MAX tasini ochiq tutadi). */
 export const isActive = (s: ServiceStatus) => s !== 'done' && s !== 'cancel';
 export const ACTIVE_MAX = 5;
+/** Buyurtmachi yozadigan summa (so'm). */
+export const BUDGET_MIN = 5000;
+export const BUDGET_MAX = 50_000_000;
+/** 150000 → «150 000 so'm». */
+export const formatSum = (n: number) =>
+  Math.round(n)
+    .toString()
+    .replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' so‘m';
+/** «Ali Valiyev» → «Ali V.» (vazifalar e'lonida va ijrochilar ro'yxatida to'liq ism ko'rsatilmaydi). */
+export function maskName(name: string) {
+  const [first, ...rest] = String(name || '')
+    .trim()
+    .split(/\s+/);
+  const last = rest.find(Boolean);
+  return (first || 'Talaba') + (last ? ' ' + last[0].toUpperCase() + '.' : '');
+}
 
 /* ---------- 📎 fayllar ---------- */
 /** Vercel bitta so'rovda 4,5 MB dan ortiq qabul qilmaydi — fayl 2,5 MB lik bo'laklarga bo'linib yuklanadi va
@@ -350,27 +378,46 @@ export type OrderFile = {
   chunks: number;
   at: number;
 };
-export type OrderMsg = { id: string; from: 'user' | 'team'; text: string; at: number };
+export type OrderMsg = {
+  id: string;
+  /** user — buyurtmachi, worker — ijrochi, team — administrator */
+  from: 'user' | 'worker' | 'team';
+  text: string;
+  at: number;
+};
+/** «Men qilaman» degan ijrochi. */
+export type Applicant = {
+  uk: string;
+  name: string;
+  note?: string;
+  at: number;
+  jobs: number;
+  rating: number | null;
+};
 
 export type ServiceOrder = {
   id: string;
-  /** buyurtmachi (foydalanuvchi kaliti) — administrator so'rovlari shu bilan topadi */
+  /** buyurtmachi (foydalanuvchi kaliti) */
   uk: string;
   kind: string;
   title: string;
   text: string;
+  /** buyurtmachi to'lay oladigan summa (so'm) */
+  budget: number;
   /** talaba xohlagan muddat (YYYY-MM-DD) */
   due?: string;
-  /** telefon yoki Telegram (ixtiyoriy) */
+  /** telefon yoki Telegram (faqat buyurtmachi va administratorga) */
   contact?: string;
   status: ServiceStatus;
   at: number;
   upd: number;
-  /** jamoa aytgan narx va tayyor bo'lish muddati */
-  price?: string;
-  eta?: string;
+  /** ariza bergan ijrochilar */
+  apps: Applicant[];
+  /** administrator tasdiqlagan ijrochi */
+  worker?: { uk: string; name: string; jobs: number; rating: number | null };
   paidAt?: number;
   paidNote?: string;
+  deliveredAt?: number;
   doneAt?: number;
   /** bekor qilish sababi */
   reason?: string;
@@ -378,16 +425,59 @@ export type ServiceOrder = {
   link?: string;
   /** fayllar muddati o'tib o'chirilgan */
   expired?: boolean;
+  /** buyurtmachining bahosi (1–5) va fikri */
+  rating?: number;
+  review?: string;
+  /** administrator ijrochiga o'tkazgan pul */
+  payout?: { amount: number; at: number; note?: string };
   files: OrderFile[];
   msgs: OrderMsg[];
 };
-/** Administrator ko'radigan buyurtma: buyurtmachi ma'lumotlari bilan. */
+/** Administrator ko'radigan vazifa: buyurtmachi ma'lumotlari bilan. */
 export type AdminOrder = ServiceOrder & {
   name: string;
   group?: string;
   email?: string;
   role?: string;
 };
+/** Vazifalar e'loni (ijrochilar ko'radi): buyurtmachining to'liq ismi, aloqasi va fayllari ko'rinmaydi. */
+export type BoardTask = {
+  id: string;
+  uk: string;
+  kind: string;
+  title: string;
+  text: string;
+  budget: number;
+  due?: string;
+  at: number;
+  /** nechta ijrochi ariza bergan */
+  apps: number;
+  /** men ariza berganmanmi (va izohim) */
+  applied?: { note?: string; at: number };
+  /** bu mening vazifam */
+  own?: boolean;
+  by: string;
+  group?: string;
+};
+/** Ijrochi (ishlaydigan talaba). pay — pul o'tkazish uchun ma'lumot: faqat o'ziga va administratorga. */
+export type WorkerProfile = {
+  uk: string;
+  name: string;
+  group?: string;
+  about: string;
+  skills: string[];
+  at: number;
+  status: 'active' | 'blocked';
+  jobs: number;
+  rating: number | null;
+  /** o'tkazib berilgan jami summa */
+  earned: number;
+  /** qabul qilingan, lekin hali o'tkazilmagan */
+  pending: number;
+  pay?: string;
+};
+/** Eng faol ijrochilar (sahifadagi ro'yxat). */
+export type TopWorker = { name: string; jobs: number; rating: number | null; skills: string[] };
 
 export type ServicesView = {
   /** bo'lim ishga tushganmi; yo'q bo'lsa — «tez orada» oynasi va taklif yuborish, buyurtma qabul qilinmaydi */
@@ -396,18 +486,31 @@ export type ServicesView = {
   /** xizmatlardan foydalangan / kutayotgan odamlar soni (har biri bir marta sanaladi) */
   people: number;
   fans: number;
+  /** platforma ulushi (%): ijrochi summaning qolganini oladi */
+  fee: number;
+  stats: { tasks: number; workers: number; done: number };
+  top: TopWorker[];
+  signedIn: boolean;
   /** to'lov yo'riqnomasi (faqat kirgan foydalanuvchiga) */
   how?: string;
+  /** mening vazifalarim (buyurtmachi sifatida) */
   orders?: ServiceOrder[];
-  signedIn: boolean;
+  /** ochiq vazifalar e'loni */
+  board?: BoardTask[];
+  /** ijrochi profilim (yo'q bo'lsa — null) */
+  me?: WorkerProfile | null;
+  /** ijrochi sifatidagi ishlarim (menga tasdiqlangan vazifalar) */
+  jobs?: ServiceOrder[];
 };
 export type ServicesAdminView = {
   open: boolean;
+  fee: number;
   catalog: ServiceCard[];
   people: number;
   fans: number;
   how: string;
   orders: AdminOrder[];
+  workers: WorkerProfile[];
   /** saqlangan fayllarning umumiy hajmi */
   used: number;
 };

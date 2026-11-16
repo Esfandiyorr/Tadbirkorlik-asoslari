@@ -1,9 +1,7 @@
 {
   "name": "Unistay",
   "id": "/",
-  "categories": [
-    "education"
-  ],
+  "categories": ["education"],
   "orientation": "any",
   "short_name": "Unistay",
   "description": "Talabalar platformasi: kurslar, jonli test va o‘yinlar, talabalar xizmatlar bozori",

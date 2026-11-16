@@ -60,11 +60,7 @@ export function InstallApp({
       <img src="/icon-192.png" width={88} height={88} alt="Unistay" />
       <span className="eyebrow">TERDU</span>
       <h1>
-        {lang === 'uz'
-          ? 'Unistay ilovasi'
-          : lang === 'en'
-            ? 'Unistay app'
-            : 'Приложение Unistay'}
+        {lang === 'uz' ? 'Unistay ilovasi' : lang === 'en' ? 'Unistay app' : 'Приложение Unistay'}
       </h1>
       <p>
         {lang === 'uz'

@@ -176,9 +176,9 @@ export function BackOffice({ openTab }: { openTab: (tab: string) => void }) {
       icon: '💼',
       title: L('Pullik xizmatlar', 'Paid services', 'Платные услуги'),
       text: L(
-        'Talabalar buyurtmalari: narx aytish, to‘lovni tasdiqlash, tayyor ishni yuklash va topshirish, yozishma. Yo‘nalishlar, narxlar va to‘lov yo‘riqnomasi.',
-        'Student orders: quote a price, confirm payment, upload and deliver the result, chat. Directions, prices and payment instructions.',
-        'Заказы студентов: цена, подтверждение оплаты, загрузка и сдача результата, переписка. Направления, цены и инструкция по оплате.',
+        'Talabalar ish bozori: arizalardan ijrochini tasdiqlash, to‘lovni tasdiqlash, ish nazorati va ijrochilarga pul o‘tkazish. Ijrochilar, yo‘nalishlar, to‘lov yo‘riqnomasi va platforma ulushi.',
+        'Student marketplace: approve a worker from the applications, confirm payment, oversee the work and pay workers. Workers, directions, payment instructions and platform fee.',
+        'Биржа студентов: утверждение исполнителя, подтверждение оплаты, контроль работы и выплаты исполнителям. Исполнители, направления, инструкция по оплате и комиссия.',
       ),
     },
     {

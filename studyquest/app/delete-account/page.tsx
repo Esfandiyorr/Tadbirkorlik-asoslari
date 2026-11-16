@@ -7,8 +7,7 @@ import { appInfo } from '@/lib/server/app-store';
 export const dynamic = 'force-dynamic';
 export const metadata: Metadata = {
   title: 'Hisobni o‘chirish · Unistay',
-  description:
-    'Unistay platformasidagi hisob va ma’lumotlarni qanday o‘chirish mumkin.',
+  description: 'Unistay platformasidagi hisob va ma’lumotlarni qanday o‘chirish mumkin.',
 };
 export default async function Page({
   searchParams,
