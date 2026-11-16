@@ -12453,7 +12453,7 @@ html {
   color: #fdba74;
 }
 
-/* 🎓 Kirish oynasi: «Talabamisiz?» — birinchi qadam */
+/* 🎓 Tanlov kartalari (kirish oynasi va kursni boshlashdagi «Talabamisiz?») */
 .auth-kind {
   display: grid;
   gap: 10px;
@@ -12617,6 +12617,25 @@ html {
   display: grid;
   gap: 10px;
 }
+/* 🎓 kursni boshlaganda «Talabamisiz?» */
+.course-gate-kind {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 10px;
+}
+.course-gate-q {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: 17px;
+  font-weight: 800;
+}
+.course-gate-kind .auth-kind-card {
+  height: 100%;
+  box-shadow: none;
+}
+.course-gate-kind .auth-kind-card + .auth-kind-card {
+  margin-top: 0;
+}
 .course-gate-ask label {
   display: grid;
   gap: 6px;
@@ -12686,6 +12705,20 @@ html {
   display: block;
   margin-top: 2px;
   color: var(--text);
+}
+.bo-group {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--soft-violet);
+  color: #6d28d9;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 750;
+}
+.dark .bo-group {
+  color: #c4b5fd;
 }
 .bo-course-explain ul {
   display: grid;

@@ -9,11 +9,15 @@ export type CourseEntry = {
   until?: number;
   /** «ruxsat so'rash» yuborilgan vaqt (administrator hali ko'rmagan) */
   pending?: number | null;
+  /** 🎓 «Talabaman» deb guruhi bilan yozilgan bo'lsa — guruh (o'qituvchi tasdiqlashini kutmoqda) */
+  group?: string;
 };
 export type CourseGrant = {
   uid: string;
   name: string;
   email?: string;
+  /** 🎓 talaba sifatida yozilganda ko'rsatgan guruhi */
+  group?: string;
   at: number;
   by: string;
 };
@@ -21,6 +25,8 @@ export type CourseRequest = {
   uid: string;
   name: string;
   email?: string;
+  /** 🎓 kursni boshlaganda «Talabaman» deb yozgan guruhi */
+  group?: string;
   at: number;
   note?: string;
 };

@@ -17,7 +17,8 @@ import { NativeSurface } from './native-surface';
 export function AuthPanel({ onClose }: { onClose?: () => void }) {
   const { data, lang, refresh, toast, setLogin, demoLogin, useEmailMode } = useApp(),
     [register, setRegister] = useState(false),
-    // 🎓 «Talabamisiz?» — birinchi qadam: TerDU talabasi → talaba bo'limi; boshqalar → email yoki Google
+    // Ro'yxatdan o'tishda «Talabamisiz?» so'ralmaydi (kursni boshlaganda so'raladi — components/course-gate.tsx).
+    // Hamma email yoki Google bilan kiradi; avvalgi talaba hisobi (ism + kod) borlar — «Talaba hisobi» tugmasi orqali.
     [kind, setKind] = useState<'student' | 'other' | null>(null),
     [name, setName] = useState(''),
     [email, setEmail] = useState(''),
@@ -32,10 +33,8 @@ export function AuthPanel({ onClose }: { onClose?: () => void }) {
       if (k === 'student' || k === 'other') setKind(k);
     } catch {}
   }, []);
-  const choose = (k: 'student' | 'other' | null, fresh = true) => {
+  const choose = (k: 'student' | 'other' | null) => {
     setKind(k);
-    // yangi tanlovda ro'yxatdan o'tish oynasi ochiladi (savol ro'yxatdan o'tish uchun); keyingi safar — kirish
-    if (k === 'other') setRegister(fresh);
     try {
       if (k) localStorage.setItem('sq-auth-kind', k);
       else localStorage.removeItem('sq-auth-kind');
@@ -223,54 +222,11 @@ export function AuthPanel({ onClose }: { onClose?: () => void }) {
             );
           })}
         </>
-      ) : !kind ? (
-        <div className="auth-kind" role="group" aria-labelledby="auth-kind-h">
-          <h3 id="auth-kind-h">{L('Talabamisiz?', 'Are you a student?', 'Вы студент?')}</h3>
-          <p className="muted">
-            {L(
-              'Sizga mos bo‘limni tanlang',
-              'Choose the option that fits you',
-              'Выберите подходящий вариант',
-            )}
-          </p>
-          <button type="button" className="auth-kind-card" onClick={() => choose('student')}>
-            <span className="auth-kind-ico" aria-hidden="true">
-              🎓
-            </span>
-            <span className="auth-kind-text">
-              <b>{L('Ha, TerDU talabasiman', 'Yes, I study at TerSU', 'Да, я студент ТерГУ')}</b>
-              <small>
-                {L(
-                  'Talaba bo‘limi: guruhingiz bilan kirasiz yoki ro‘yxatdan o‘tasiz. Ustozingiz tasdiqlagach darslar, ballar va reyting ochiladi.',
-                  'Student section: sign in or register with your group. Once your teacher approves, lessons, points and ranking open.',
-                  'Раздел студента: войдите или зарегистрируйтесь со своей группой. После подтверждения преподавателем откроются уроки, баллы и рейтинг.',
-                )}
-              </small>
-            </span>
-            <ArrowRight size={18} aria-hidden="true" />
-          </button>
-          <button type="button" className="auth-kind-card" onClick={() => choose('other')}>
-            <span className="auth-kind-ico" aria-hidden="true">
-              🌍
-            </span>
-            <span className="auth-kind-text">
-              <b>{L('Yo‘q, talaba emasman', 'No, I am not a student', 'Нет, я не студент')}</b>
-              <small>
-                {L(
-                  'Email yoki Google bilan tez ro‘yxatdan o‘tasiz. Kurs darslari 💎 obunachilarga yoki administrator ruxsat berganlarga ochiladi.',
-                  'Register quickly with email or Google. Course lessons open for 💎 subscribers or with the administrator’s permission.',
-                  'Быстрая регистрация через email или Google. Уроки курса открыты 💎 подписчикам или по разрешению администратора.',
-                )}
-              </small>
-            </span>
-            <ArrowRight size={18} aria-hidden="true" />
-          </button>
-        </div>
       ) : student ? (
         <>
-          <button type="button" className="auth-kind-back" onClick={() => choose(null)}>
-            ← 🎓 {L('Talaba bo‘limi', 'Student section', 'Раздел студента')}
-            <span>{L('o‘zgartirish', 'change', 'изменить')}</span>
+          <button type="button" className="auth-kind-back" onClick={() => choose('other')}>
+            ← 🎓 {L('Talaba hisobi', 'Student account', 'Аккаунт студента')}
+            <span>{L('email yoki Google', 'email or Google', 'email или Google')}</span>
           </button>
           <NativeSurface
             id="student-login"
@@ -311,15 +267,11 @@ export function AuthPanel({ onClose }: { onClose?: () => void }) {
         </>
       ) : (
         <>
-          <button type="button" className="auth-kind-back" onClick={() => choose(null)}>
-            ← 🌍 {L('Talaba emasman', 'Not a student', 'Не студент')}
-            <span>{L('o‘zgartirish', 'change', 'изменить')}</span>
-          </button>
           <p className="auth-kind-note">
             {L(
-              'ℹ️ Ro‘yxatdan o‘tgach saytdan foydalanasiz. Kurs darslari 💎 obunachilarga yoki administrator ruxsat berganlarga ochiladi — kirgach «Ruxsat so‘rash» tugmasini bosing.',
-              'ℹ️ After registering you can use the site. Course lessons open for 💎 subscribers or with the administrator’s permission — press “Request access” after signing in.',
-              'ℹ️ После регистрации сайт доступен. Уроки курса открыты 💎 подписчикам или по разрешению администратора — после входа нажмите «Запросить доступ».',
+              'ℹ️ Email yoki Google bilan kiring. Kursni boshlaganingizda talaba bo‘lsangiz guruhingizni yozib kursga yozilasiz.',
+              'ℹ️ Sign in with email or Google. When you start the course, students enter their group to enrol.',
+              'ℹ️ Войдите через email или Google. При начале курса студенты указывают группу и записываются.',
             )}
           </p>
           <div
@@ -413,7 +365,11 @@ export function AuthPanel({ onClose }: { onClose?: () => void }) {
             {googleButton}
             <Button variant="ghost" className="auth-email" onClick={() => choose('student')}>
               <BookOpen size={18} />
-              {L('Talaba hisobi', 'Student account', 'Аккаунт студента')}
+              {L(
+                'Talaba hisobi (ism + kod)',
+                'Student account (name + code)',
+                'Аккаунт студента (имя + код)',
+              )}
             </Button>
           </div>
         </>
