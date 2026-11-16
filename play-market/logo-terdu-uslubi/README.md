@@ -32,6 +32,24 @@ Shu sababli logotipni Play Market va boshqa joylarda ishlatsa bo'ladi.
 
 Kichik o'lchamda (64 px dan kichik) muhr o'rniga ikonkani ishlating: muhrdagi mayda yozuvlar o'qilmay qoladi.
 
+## Yozuvli logotip: «unistay — TerDU hamkori · Biz bilan qoling»
+
+![Yozuvli logotip](unistay-yozuv.png)
+
+| Fayl | Qayerda ishlatiladi |
+|---|---|
+| `unistay-yozuv.svg` / `.png` (2484×1120, shaffof fon) | Oq yoki och fondagi sayt sarlavhasi, banner, taqdimot |
+| `unistay-yozuv-tungi.svg` / `.png` | Qorong'i fon (to'q yashil plashka bilan) |
+
+- «unistay» TerDU gerbining to'q yashil rangida (`#1E5B2B`).
+- «u» harfi ustidagi oltin tom — **Stay** (qolish, uy) ramzi. Bu ramz muhr va ikonkadagi tom bilan bir xil.
+- O'ng yuqorida «**TerDU** hamkori» yozuvi bor. «TerDU» so'zi gerbdagidek serifli shriftda yozilgan.
+- Pastdagi shior «Biz bilan qoling» oltin rangda.
+- Harflar Nunito Black shriftida (SIL OFL litsenziyasi, tijoriy foydalanish mumkin).
+
+> «TerDU hamkori» yozuvini universitet bilan rasmiy hamkorlik bo'lsa ishlating. Play Market yoki boshqa
+> platformalar bu da'voni tasdiqlovchi hujjat so'rashi mumkin.
+
 ## Ranglar
 
 | Rang | HEX |
