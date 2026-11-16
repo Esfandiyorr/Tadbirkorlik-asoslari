@@ -1,4 +1,4 @@
-import { beforeAll, beforeEach, expect, it } from 'vitest';
+import { beforeAll, beforeEach, expect, it, vi } from 'vitest';
 import type { Actor } from '../lib/types';
 import {
   appAdmin,
@@ -22,6 +22,13 @@ import {
 import { repository } from '../lib/server/repository';
 import { LearningNotes } from '../lib/server/learning-notes';
 import { deleteDoc, privacyDoc } from '../lib/legal';
+
+// Hisobni o'chirish sinovi faqat xotiradagi bazani ishlatadi; brauzer demo fayliga tegmaydi.
+vi.mock('../lib/server/repository', async (load) => {
+  const actual = await load<typeof import('../lib/server/repository')>();
+  const db = new actual.MemoryRepository();
+  return { ...actual, repository: async () => db };
+});
 
 /* 📱 Play Market: ilova imzosi (assetlinks.json), maxfiylik siyosati ma'lumotlari va hisobni o'chirish so'rovlari. */
 beforeAll(() => {
