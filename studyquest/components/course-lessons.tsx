@@ -65,9 +65,15 @@ export function CourseLessons({
   const selected = lessons.filter(
     (l) => (!moduleId || l.moduleId === moduleId) && (status === 'all' || state(l) === status),
   );
-  const groups = modules.length
-    ? modules
-    : [{ id: '', title: course.title, order: 0, courseId: course.id }];
+  // Bir bo'limga kiruvchi mavzular rejaning turli joylarida kelishi mumkin.
+  // Ketma-ket bo'laklar asl dars tartibini saqlaydi (masalan, m4/m5 va m10–m15).
+  const groups = selected.reduce<{ id: string; title: string; rows: Lesson[] }[]>((out, l) => {
+    const id = modules.length ? l.moduleId : '';
+    if (out.at(-1)?.id !== id)
+      out.push({ id, title: modules.find((m) => m.id === id)?.title || course.title, rows: [] });
+    out.at(-1)!.rows.push(l);
+    return out;
+  }, []);
   return (
     <div className="course-learning-list">
       <div
@@ -120,12 +126,12 @@ export function CourseLessons({
         </p>
       )}
       {groups.map((m) => {
-        const rows = selected.filter((l) => l.moduleId === m.id || !modules.length);
+        const rows = m.rows;
         if (!rows.length) return null;
         return (
           <details
             className="course-module"
-            key={m.id}
+            key={m.id + ':' + rows[0].id}
             open={expanded[m.id] ?? true}
             onToggle={(e) => {
               const value = e.currentTarget.open;
