@@ -305,28 +305,56 @@ export function BackOffice({ openTab }: { openTab: (tab: string) => void }) {
           )}
         </p>
       </div>
-      <ul className="bo-cards">
-        {cards.map((c) => (
-          <li key={c.id}>
-            <button
-              type="button"
-              className="bo-card-btn"
-              onClick={() => (c.tab ? openTab(c.tab) : setSection(c.id as BoSection))}
-            >
-              <span className="bo-card-icon" aria-hidden="true">
-                {c.icon}
-              </span>
-              <b>{c.title}</b>
-              <small>{c.text}</small>
-            </button>
-            {c.action && (
-              <Button size="sm" variant="secondary" className="bo-card-action" onClick={c.action}>
-                {c.actionLabel}
-              </Button>
-            )}
-          </li>
-        ))}
-      </ul>
+      {[
+        {
+          id: 'education',
+          title: L('Ta’lim', 'Education', 'Обучение'),
+          ids: ['quiz', 'video', 'logo', 'live', 'library', 'access', 'legacy'],
+        },
+        {
+          id: 'students',
+          title: L('Talabalar', 'Students', 'Студенты'),
+          ids: ['academic', 'courseAccess', 'premium', 'avatars'],
+        },
+        {
+          id: 'site',
+          title: L('Sayt va xizmatlar', 'Site and services', 'Сайт и услуги'),
+          ids: ['content', 'news', 'push', 'promo', 'app', 'services', 'platform'],
+        },
+      ].map((group) => (
+        <section className="bo-category" key={group.id} aria-labelledby={'bo-' + group.id}>
+          <h3 id={'bo-' + group.id}>{group.title}</h3>
+          <ul className="bo-cards">
+            {cards
+              .filter((c) => group.ids.includes(c.id))
+              .map((c) => (
+                <li key={c.id}>
+                  <button
+                    type="button"
+                    className="bo-card-btn"
+                    onClick={() => (c.tab ? openTab(c.tab) : setSection(c.id as BoSection))}
+                  >
+                    <span className="bo-card-icon" aria-hidden="true">
+                      {c.icon}
+                    </span>
+                    <b>{c.title}</b>
+                    <small>{c.text}</small>
+                  </button>
+                  {c.action && (
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      className="bo-card-action"
+                      onClick={c.action}
+                    >
+                      {c.actionLabel}
+                    </Button>
+                  )}
+                </li>
+              ))}
+          </ul>
+        </section>
+      ))}
     </section>
   );
 }

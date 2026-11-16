@@ -45,19 +45,27 @@ it('keeps topics eight through fifteen closed by default and honors administrato
     expect(engine.accState(topic, { id: 'alice', group: 'AP-223' }), topic.id).toBe('score');
   }
 });
-it('keeps the generated server catalog and every embedded presentation access configuration aligned', () => {
+it('keeps main access aligned while allowing preserved extra-course decks to keep their original catalog', () => {
   expect(catalog.topics).toHaveLength(15);
   // taqdimoti bor mavzular (tayyorlanayotgan — fayli yo'q — darslar dvigatelga kirmaydi)
   const withFile = config.topics.filter((t) => 'file' in t && t.file) as {
     id: string;
     file: string;
     read?: boolean;
+    course?: string;
   }[];
   for (const topic of withFile) {
     const generated = catalog.topics.find((t) => t.id === topic.id);
     if (generated) expect(generated.read).toBe(!!topic.read);
     const html = readFileSync('../' + topic.file, 'utf8');
     const embedded = JSON.parse(html.match(/var RT_CFG=(\{[^\n]*\});if\(RT_CFG/)![1]);
-    expect(embedded.topics).toEqual(withFile);
+    // Yangi qo'shimcha darslar uchun R1–R3 va asosiy taqdimotlarni qayta yozmaymiz.
+    // Ball va kirish boshqaradigan barcha asosiy mavzular esa aynan mos qolishi shart.
+    const main = (t: { course?: string }) => !t.course || t.course === config.courses[0].id;
+    expect(embedded.topics.filter(main)).toEqual(withFile.filter(main));
+    for (const entry of embedded.topics)
+      expect(entry, `${topic.id}: ${entry.id}`).toEqual(withFile.find((t) => t.id === entry.id));
+    expect(embedded.topics.find((t: { id: string }) => t.id === topic.id)).toEqual(topic);
+    if (/^r(?:[4-9]|1[0-2])$/.test(topic.id)) expect(embedded.topics).toEqual(withFile);
   }
 });

@@ -9,10 +9,9 @@ Dasturdagi ishchi iboralar: Which language would you prefer? · Do you have any 
 ingredients with our kitchen. · May I confirm your order? · Would you like one bill or separate bills?
 Inglizcha iboralar <b>qalin</b>, yonida o'zbekcha ma'nosi. Narxlar — o'quv misoli.
 Ishlatish:
-  python3 _reyting-manba/yangi_mavzu.py _reyting-manba/matn/restoran_4_matn.py restoran-4.html "Xorijiy mehmon bilan muloqot" 4 "<tavsif>" mavzu-7.html "Restoran xizmati|Restaurant service"
-  python3 _reyting-manba/inject.py
+  python3 _reyting-manba/restoran_yigish.py
 """
-exec(open(MATN_DIR + "restoran_umumiy.py", encoding="utf-8").read())
+exec(open(MATN_DIR + "restoran_davom.py", encoding="utf-8").read())
 
 
 def en(ibora, tarjima):
@@ -21,7 +20,7 @@ def en(ibora, tarjima):
 
 
 # ============================ 1. MUQOVA ============================
-cover(4, "XORIJIY MEHMON BILAN MULOQOT",
+lesson_cover(4, "XORIJIY MEHMON BILAN MULOQOT",
       "<b>Til tanlovini so'rash</b> · sodda va sekin gapirish · ismni hurmat bilan talaffuz qilish · <b>ikki tilli menyu</b> · "
       "taom, porsiya va narxni izohlash · madaniy va diniy ehtiyojni <b>taxmin qilmasdan</b> aniqlashtirish · parhez so'rovi · "
       "<b>buyurtmani qayta tasdiqlash</b> · xizmat ingliz tilidagi ishchi iboralar.",
@@ -432,11 +431,25 @@ slide("Amaliy mashq", "Amaliy mashq",
   ["<b>Tasdiqlash</b>", "Buyurtmani takrorladi; mehmon «correct» dedi; keyingi qadam aytildi", "☐"]]) +
  quote("📄 <b>Natija dalili:</b> «mehmon» tilni, buyurtma mazmunini va keyingi qadamni tushunganini tasdiqlaydi."))
 
-# ============================ 19. VIDEO ============================
-video_slide(4, "ingliz tilida ikki suhbat", "3", [
- ("green", "🌍", "1. Til", "Ofitsiant suhbatni qaysi savol bilan boshladi? Nega tilni taxmin qilmadi?"),
- ("blue", "📖", "2. Menyu", "Palov qanday tushuntirildi? Narx qanday ko'rsatildi?"),
- ("orange", "🥜", "3. Parhez", "Mehmon allergiyasi haqida aytganda ofitsiant qaysi iborani ishlatdi?")])
+# ============================ 19. NAMUNAVIY SUHBATLAR ============================
+page("Namuna: ikki qisqa suhbat", grid(2,
+ dialog("green", "📖", "1. Taom va narx", [
+  ("O", "Good evening! Which language would you prefer?"),
+  ("X", "English, please. What is plov?"),
+  ("O", "Our plov is rice with lamb, carrots and onions. One portion is 350 grams. It costs 50,000 soums. Bread is extra."),
+  ("X", "One portion, please."),
+  ("O", "Do you have any food allergies or dietary requirements?"),
+  ("X", "No, thank you."),
+  ("O", "May I confirm: one plov, no bread? It takes about 15 minutes."),
+  ("X", "Yes, correct.")], "Tarkib, porsiya va narx shu mashq menyusiga tegishli. Haqiqiy retsept bilan tekshiriladi."),
+ dialog("orange", "🥜", "2. Allergen so'rovi", [
+  ("X", "I have a walnut allergy. Can I have this salad?"),
+  ("O", "A walnut allergy. Thank you for telling me. Let me check the ingredients and preparation with our kitchen."),
+  ("Osh", "Maket javob: tarkib va alohida toza jihoz tekshirildi; yogurtli sousda sut bor. Yong'oq qo'shilmaydi."),
+  ("O", "The kitchen has checked the recipe and separate preparation. The sauce contains milk. Would you like this salad?"),
+  ("X", "Yes. I do not have a milk allergy."),
+  ("O", "One salad, walnut allergy noted. I will confirm your plate with the kitchen before serving.")],
+  "Maket javobi bo'lmasa yoki sharoit tasdiqlanmasa, taom uzatilmaydi.")))
 
 # ============================ 20. XULOSA ============================
 slide("Xulosa", "Xulosa",
@@ -458,7 +471,7 @@ slide("Xulosa", "Xulosa",
  '</div>')
 
 # ============================ 21. TEST ============================
-test_slide(15, "Keyingi mashg'ulotgacha <b>15 ta ishchi iborani</b> yod oling va o'z menyuingizdagi 5 ta taomni inglizcha tushuntirib keling.")
+test_slide(15, "Bu — <b>tayyorgarlik mashqi</b>. Keyingi mashg'ulotgacha 15 ta ishchi iborani takrorlang va o'z menyuingizdagi 5 ta taomni inglizcha tushuntirib keling.")
 
 # ============================ TEST SAVOLLARI ============================
 # SV — 4 variantli savol (uzunligi teng, to'g'ri javob raqami), SO — ochiq savol (bitta so'z yoki son)

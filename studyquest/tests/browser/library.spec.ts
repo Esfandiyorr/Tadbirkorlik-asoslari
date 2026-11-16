@@ -23,11 +23,11 @@ test('the leaderboard lives inside the course and the menu offers the library an
     'aria-selected',
     'true',
   );
-  await expect(page.locator('.lesson-grid')).toBeVisible();
+  await expect(page.locator('.course-learning-list')).toBeVisible();
   await page.getByRole('tab', { name: 'Reyting' }).click();
   await expect.poll(() => new URL(page.url()).hash).toMatch(/^#course\/[^/]+\/ranking$/);
   await expect(page.locator('.rk-page.is-embedded')).toBeVisible();
-  await expect(page.locator('.lesson-grid')).toHaveCount(0);
+  await expect(page.locator('.course-learning-list')).toHaveCount(0);
   await expect(page.locator('.course-banner')).toBeVisible();
   // eski havola (#ranking) ham shu yerga olib keladi
   await page.goto('/#ranking', { waitUntil: 'domcontentloaded' });

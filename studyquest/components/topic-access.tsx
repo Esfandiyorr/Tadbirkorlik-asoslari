@@ -46,6 +46,17 @@ export function TopicAccessPanel() {
     ['open', L('Hammaga ochiq', 'Open for all', 'Открыта всем'), Unlock],
   ];
   async function pick(row: Row, mode: Mode) {
+    if (
+      row.state === 'groups' &&
+      !confirm(
+        L(
+          `Tadbirkorlik asoslari · ${row.order + 1}-mavzu: ${row.title}. Amal barcha guruh va talabaga ta’sir qiladi; mavjud alohida ochilishlar umumiy holat bilan almashtiriladi. Davom etasizmi?`,
+          `Entrepreneurship · topic ${row.order + 1}: ${row.title}. This affects all groups and students and replaces separate access rules. Continue?`,
+          `Предпринимательство · тема ${row.order + 1}: ${row.title}. Изменение для всех групп и студентов заменит отдельные правила доступа. Продолжить?`,
+        ),
+      )
+    )
+      return;
     setBusy(row.id + mode);
     try {
       const v = await call<{ topics: Row[] }>('topicMode', { topic: row.id, mode });

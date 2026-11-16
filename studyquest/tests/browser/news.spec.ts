@@ -193,7 +193,7 @@ test('students see a small live quiz card twenty minutes before the start and ma
   // Kichik kartochka: ekranni to'sib qo'ymaydi, sahifa ishlatiladi.
   const box = (await card.boundingBox())!;
   expect(box.width).toBeLessThan(400);
-  await expect(page.locator('.hero-avatar')).toBeVisible();
+  await expect(page.locator('.hero-avatar:visible')).toBeVisible();
   await card.getByRole('button', { name: /O‘yinga kirish/ }).click();
   await expect.poll(() => new URL(page.url()).hash).toBe('#arena/play/live');
   await expect(card).toBeHidden();

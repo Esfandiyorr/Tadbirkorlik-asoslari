@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html lang="uz" data-theme="light">
+<head>
+<!-- PLATFORM:BEGIN -->
+<script src="platform-redirect.js?v=6ab9c7cd4f"></script>
+<!-- PLATFORM:END -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Xorijiy mehmon bilan muloqot — TerDU</title>
+<meta name="description" content="RS 24 · Xorijiy mehmon bilan muloqot · 1 soat nazariya · 1 soat amaliyot">
+<style>
+/* ================== TOKENS ================== */
+:root{
+  --bg:#eef3fb; --bg2:#e6ecf9;
+  --panel:#ffffff; --panel2:#f7f9fe;
+  --ink:#0d1b2a; --ink2:#1f2d3d; --muted:#5b6b82;
+  --line:#e1e8f4; --shadow:0 18px 40px -18px rgba(13,27,42,.35);
+  --green:#12a150; --green2:#0b7a3c;
+  --orange:#f97316; --amber:#f59e0b;
+  --violet:#7c3aed; --pink:#ec4899;
+  --blue:#2563eb; --cyan:#0891b2;
+  --red:#e11d48; --teal:#0d9488;
+  --chip:#f1f5fd;
+  --ok:#12a150; --err:#e11d48;
+}
+:root[data-theme="dark"]{
+  --bg:#080f1d; --bg2:#0d1728;
+  --panel:#111b2e; --panel2:#0e1726;
+  --ink:#eaf1ff; --ink2:#dbe6fb; --muted:#9db0cd;
+  --line:#22304c; --shadow:0 18px 44px -18px rgba(0,0,0,.75);
+  --green:#2ee07f; --green2:#12a150;
+  --orange:#ff9d4d; --amber:#fbbf24;
+  --violet:#a78bfa; --pink:#f472b6;
+  --blue:#60a5fa; --cyan:#22d3ee;
+  --red:#fb7185; --teal:#2dd4bf;
+  --chip:#17243c;
+  --ok:#2ee07f; --err:#fb7185;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; color:var(--ink);
+  font-family:"Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
+  background:
+    radial-gradient(1100px 600px at 8% -10%, rgba(18,161,80,.20), transparent 60%),
+    radial-gradient(900px 520px at 100% 0%, rgba(124,58,237,.20), transparent 55%),
+    radial-gradient(900px 600px at 50% 115%, rgba(249,115,22,.18), transparent 60%),
+    linear-gradient(160deg,var(--bg),var(--bg2));
+  background-attachment:fixed;
+  overflow:hidden;
+  transition:background .4s ease,color .3s ease;
+}
+.terdu-logo{background-image:url("logo_tersu.png");background-size:contain;background-position:center;background-repeat:no-repeat}
+:root[data-theme="dark"] .terdu-logo{background-color:#fff;border-radius:50%}
+/* ================== LAYOUT ================== */
+#app{display:flex;flex-direction:column;height:100vh;height:100dvh}
+.topbar{
+  display:flex;align-items:center;gap:14px;padding:10px 18px;
+  background:color-mix(in srgb,var(--panel) 82%,transparent);
+  backdrop-filter:blur(14px);border-bottom:1px solid var(--line);z-index:30;flex:0 0 auto;
+}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}
+.brand .logo{width:44px;height:44px;flex:0 0 auto;filter:drop-shadow(0 4px 8px rgba(0,0,0,.15))}
+.brand b{display:block;font-size:14px;line-height:1.15;letter-spacing:.2px}
+.brand span{display:block;font-size:11.5px;color:var(--muted)}
+.spacer{flex:1}
+.tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.btn{
+  border:1px solid var(--line);background:var(--panel);color:var(--ink);
+  padding:8px 12px;border-radius:12px;font-size:13px;font-weight:600;cursor:pointer;
+  display:inline-flex;align-items:center;gap:7px;transition:.18s;white-space:nowrap;
+}
+.btn:hover{transform:translateY(-2px);border-color:transparent;box-shadow:0 10px 22px -12px rgba(0,0,0,.5)}
+.btn.accent{background:linear-gradient(135deg,var(--green),var(--teal));color:#fff;border-color:transparent}
+.btn.warn{background:linear-gradient(135deg,var(--orange),var(--amber));color:#231000;border-color:transparent}
+.btn.ghost{background:transparent}
+a.btn{text-decoration:none;color:var(--ink)}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+#timer{font-variant-numeric:tabular-nums;font-weight:800;letter-spacing:.5px;color:var(--violet)}
+
+.progress-wrap{height:5px;background:color-mix(in srgb,var(--line) 70%,transparent);flex:0 0 auto}
+#progress{height:100%;width:0;border-radius:0 6px 6px 0;
+  background:linear-gradient(90deg,var(--green),var(--cyan),var(--violet),var(--orange));
+  transition:width .35s cubic-bezier(.4,0,.2,1)}
+
+#deck{position:relative;flex:1 1 auto;overflow:hidden}
+.slide{
+  position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;
+  padding:26px clamp(16px,4vw,54px) 34px;
+  opacity:0;visibility:hidden;transform:translateX(40px) scale(.985);
+  transition:opacity .4s ease,transform .45s cubic-bezier(.22,1,.36,1),visibility .45s;
+}
+.slide.active{opacity:1;visibility:visible;transform:none}
+.slide.prev{transform:translateX(-40px) scale(.985)}
+.inner{max-width:1240px;margin:0 auto}
+
+.navbar{
+  display:flex;align-items:center;gap:12px;padding:9px 18px;flex:0 0 auto;
+  background:color-mix(in srgb,var(--panel) 82%,transparent);
+  backdrop-filter:blur(14px);border-top:1px solid var(--line);z-index:30;
+}
+.counter{font-size:13px;font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums}
+.dots{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;flex:1}
+.dot{width:9px;height:9px;border-radius:50%;border:none;padding:0;cursor:pointer;
+  background:color-mix(in srgb,var(--muted) 45%,transparent);transition:.2s}
+.dot:hover{transform:scale(1.4)}
+.dot.on{width:26px;border-radius:6px;background:linear-gradient(90deg,var(--green),var(--cyan))}
+
+/* ================== TYPO ================== */
+.kicker{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:800;
+  letter-spacing:1.6px;text-transform:uppercase;color:#fff;padding:6px 14px;border-radius:999px;
+  background:linear-gradient(135deg,var(--violet),var(--pink));box-shadow:0 8px 18px -10px var(--violet)}
+h1{font-size:clamp(26px,4.4vw,50px);line-height:1.1;margin:14px 0 10px;letter-spacing:-.5px}
+h2{font-size:clamp(21px,3.1vw,35px);line-height:1.16;margin:8px 0 16px;letter-spacing:-.3px}
+h3{font-size:clamp(16px,2vw,21px);margin:0 0 8px}
+p,li{font-size:clamp(14px,1.35vw,17.5px);line-height:1.6;color:var(--ink2)}
+.lead{font-size:clamp(15px,1.6vw,19px);color:var(--muted)}
+.grad{background:linear-gradient(120deg,var(--green),var(--cyan) 45%,var(--violet));
+  -webkit-background-clip:text;background-clip:text;color:transparent}
+.grad-w{background:linear-gradient(120deg,var(--orange),var(--pink) 55%,var(--violet));
+  -webkit-background-clip:text;background-clip:text;color:transparent}
+small.note{display:block;margin-top:12px;color:var(--muted);font-size:12.5px}
+
+/* ================== BLOCKS ================== */
+.card{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:18px 20px;
+  box-shadow:var(--shadow);position:relative;overflow:hidden}
+.card::before{content:"";position:absolute;inset:0 auto 0 0;width:5px;background:var(--c,var(--green))}
+.card h3{color:var(--c,var(--green))}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.g5{grid-template-columns:repeat(5,minmax(0,1fr))}
+@media(max-width:980px){.g3,.g4,.g5{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:640px){.g2,.g3,.g4,.g5{grid-template-columns:1fr}}
+
+.def{border-radius:20px;padding:20px 24px;color:#fff;box-shadow:var(--shadow);
+  background:linear-gradient(135deg,var(--green2),var(--teal) 55%,var(--cyan));font-size:clamp(15px,1.7vw,20px);line-height:1.5}
+.def b{color:#fffbe8}
+.quote{border-left:6px solid var(--amber);background:var(--panel2);border-radius:0 16px 16px 0;
+  padding:14px 18px;font-style:italic;color:var(--ink2)}
+.pill{display:inline-block;margin:4px 6px 0 0;padding:6px 12px;border-radius:999px;background:var(--chip);
+  border:1px solid var(--line);font-size:13px;font-weight:600;color:var(--ink2)}
+.pill.g{background:color-mix(in srgb,var(--green) 16%,transparent);border-color:transparent;color:var(--green2)}
+:root[data-theme="dark"] .pill.g{color:var(--green)}
+.icon{font-size:26px;line-height:1;display:block;margin-bottom:6px}
+ul.clean{margin:6px 0 0;padding-left:20px}
+ul.clean li{margin-bottom:6px}
+ul.tick{list-style:none;margin:6px 0 0;padding:0}
+ul.tick li{position:relative;padding-left:28px;margin-bottom:8px}
+ul.tick li::before{content:"✔";position:absolute;left:0;top:0;color:var(--green);font-weight:900}
+ul.cross li::before{content:"✕";color:var(--red)}
+
+table{width:100%;border-collapse:separate;border-spacing:0;background:var(--panel);
+  border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:var(--shadow);font-size:clamp(13px,1.25vw,16px)}
+th,td{padding:10px 13px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+thead th{background:linear-gradient(135deg,var(--violet),var(--blue));color:#fff;font-weight:700;letter-spacing:.2px}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:nth-child(even){background:var(--panel2)}
+tbody tr:hover{background:color-mix(in srgb,var(--cyan) 10%,transparent)}
+.tw{overflow-x:auto;border-radius:16px}
+td.g{color:var(--green);font-weight:700}
+td.r{color:var(--red);font-weight:700}
+
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:18px;text-align:center;box-shadow:var(--shadow)}
+.stat .num{font-size:clamp(26px,4.2vw,46px);font-weight:900;line-height:1;
+  background:linear-gradient(135deg,var(--green),var(--cyan));-webkit-background-clip:text;background-clip:text;color:transparent}
+.stat.o .num{background:linear-gradient(135deg,var(--orange),var(--pink));-webkit-background-clip:text;background-clip:text}
+.stat.v .num{background:linear-gradient(135deg,var(--violet),var(--blue));-webkit-background-clip:text;background-clip:text}
+.stat p{margin:8px 0 0;font-size:13.5px;color:var(--muted)}
+
+.chain{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;align-items:stretch}
+@media(max-width:860px){.chain{grid-template-columns:1fr}}
+.link{border-radius:18px;padding:16px;color:#fff;box-shadow:var(--shadow);position:relative}
+.link h3{color:#fff;font-size:15px;letter-spacing:1px;text-transform:uppercase;opacity:.95}
+.link p{color:#fff;opacity:.95;font-size:14px;margin:6px 0 0}
+.l1{background:linear-gradient(135deg,#e11d48,#f97316)}
+.l2{background:linear-gradient(135deg,#f59e0b,#12a150)}
+.l3{background:linear-gradient(135deg,#0891b2,#2563eb)}
+.l4{background:linear-gradient(135deg,#7c3aed,#ec4899)}
+.link::after{content:"➜";position:absolute;right:-16px;top:50%;transform:translateY(-50%);
+  font-size:20px;color:var(--muted);z-index:2}
+.link:last-child::after{content:""}
+@media(max-width:860px){.link::after{right:50%;top:auto;bottom:-15px;transform:translateX(50%) rotate(90deg)}}
+
+.fact{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:var(--shadow);
+  transition:.2s;cursor:default}
+.fact:hover{transform:translateY(-5px)}
+.fact b{display:block;color:var(--violet);margin-bottom:4px;font-size:15px}
+.fact p{margin:0;font-size:14px;color:var(--muted)}
+.rich{display:flex;align-items:center;gap:12px;background:var(--panel);border:1px solid var(--line);
+  border-radius:16px;padding:12px 14px;box-shadow:var(--shadow)}
+.rich .rk{width:34px;height:34px;flex:0 0 auto;border-radius:50%;display:grid;place-items:center;font-weight:900;color:#fff;
+  background:linear-gradient(135deg,var(--amber),var(--orange))}
+.rich b{display:block;font-size:15px}
+.rich span{font-size:12.5px;color:var(--muted)}
+
+/* ================== TITLE SLIDE ================== */
+.title-wrap{display:grid;grid-template-columns:auto 1fr;gap:clamp(18px,3vw,42px);align-items:center;min-height:100%}
+@media(max-width:820px){.title-wrap{grid-template-columns:1fr;text-align:center;justify-items:center}}
+.big-logo{width:clamp(150px,20vw,240px);height:auto;aspect-ratio:1;animation:float 5s ease-in-out infinite;
+  filter:drop-shadow(0 16px 26px rgba(0,0,0,.25))}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+.meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.meta div{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:10px 14px;font-size:13.5px;box-shadow:var(--shadow)}
+.meta b{color:var(--green)}
+
+/* ================== TEST ================== */
+.qbox{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:16px 18px;margin-bottom:14px;box-shadow:var(--shadow)}
+.qbox .q{font-weight:800;margin:0 0 10px;font-size:16px}
+.qbox .q i{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:8px;margin-right:8px;
+  background:linear-gradient(135deg,var(--violet),var(--blue));color:#fff;font-style:normal;font-size:13px;font-weight:900;vertical-align:-4px}
+.opt{display:block;width:100%;text-align:left;border:1.5px solid var(--line);background:var(--panel2);color:var(--ink);
+  border-radius:12px;padding:10px 14px;margin-bottom:8px;font-size:14.5px;cursor:pointer;transition:.15s;font-family:inherit}
+.opt:hover:not(:disabled){border-color:var(--blue);transform:translateX(5px)}
+.opt .k{font-weight:900;margin-right:8px;color:var(--blue)}
+.opt.right{background:color-mix(in srgb,var(--ok) 18%,var(--panel));border-color:var(--ok);color:var(--ink)}
+.opt.wrong{background:color-mix(in srgb,var(--err) 18%,var(--panel));border-color:var(--err)}
+.opt:disabled{cursor:default}
+.fb{margin:6px 0 0;font-size:13.5px;font-weight:700;display:none}
+.fb.show{display:block}
+.fb.ok{color:var(--ok)}.fb.no{color:var(--err)}
+.scorebar{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  background:linear-gradient(135deg,var(--violet),var(--blue));color:#fff;border-radius:16px;padding:12px 16px;margin-bottom:16px;box-shadow:var(--shadow)}
+.scorebar b{font-size:19px}
+.result{display:none;border-radius:20px;padding:22px;text-align:center;color:#fff;box-shadow:var(--shadow);
+  background:linear-gradient(135deg,var(--green2),var(--teal),var(--cyan))}
+.result.show{display:block;animation:pop .45s cubic-bezier(.2,1.3,.4,1)}
+.result .pct{font-size:clamp(38px,7vw,68px);font-weight:900;line-height:1}
+@keyframes pop{from{transform:scale(.9);opacity:0}to{transform:none;opacity:1}}
+
+/* ================== OVERLAYS ================== */
+.overlay{position:fixed;inset:0;z-index:60;display:none;padding:22px;overflow:auto;
+  background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px)}
+.overlay.show{display:block;animation:fade .25s ease}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.ov-head{display:flex;align-items:center;gap:12px;max-width:1200px;margin:0 auto 16px}
+.thumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px;max-width:1200px;margin:0 auto}
+.thumb{border:1.5px solid var(--line);background:var(--panel);border-radius:14px;padding:12px;cursor:pointer;text-align:left;
+  transition:.18s;box-shadow:var(--shadow);color:var(--ink);font-family:inherit}
+.thumb:hover{transform:translateY(-4px);border-color:var(--green)}
+.thumb.on{border-color:var(--green);background:color-mix(in srgb,var(--green) 12%,var(--panel))}
+.thumb i{font-style:normal;font-size:11px;font-weight:900;color:var(--muted);letter-spacing:1px}
+.thumb b{display:block;margin-top:5px;font-size:14px;line-height:1.25}
+kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;border-radius:7px;
+  padding:2px 8px;font-family:inherit;font-size:12.5px;font-weight:700}
+.helpbox{max-width:560px;margin:8vh auto;background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:22px;box-shadow:var(--shadow)}
+.helpbox div{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px dashed var(--line);font-size:14px}
+.helpbox div:last-child{border:none}
+
+.hint{position:fixed;left:50%;bottom:64px;transform:translateX(-50%);z-index:40;
+  background:color-mix(in srgb,var(--panel) 92%,transparent);border:1px solid var(--line);border-radius:999px;
+  padding:8px 16px;font-size:12.5px;color:var(--muted);box-shadow:var(--shadow);transition:opacity .5s}
+.hint.hide{opacity:0;pointer-events:none}
+
+.lnk{color:var(--blue);font-weight:600;text-decoration:none;border-bottom:1px dashed currentColor}
+.lnk:hover{color:var(--violet)}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* RT:BEGIN */
+</style>
+<link rel="stylesheet" href="rt-engine.css?v=fd149678c5">
+<style>
+/* RT:END */
+@media print{
+  body{overflow:visible;background:#fff}
+  .topbar,.navbar,.progress-wrap,.overlay,.hint{display:none!important}
+  #deck{overflow:visible;height:auto}
+  .slide{position:static;opacity:1;visibility:visible;transform:none;page-break-after:always;min-height:auto}
+}
+</style>
+<!-- PWA:BEGIN -->
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#f7f8f6">
+<link rel="apple-touch-icon" href="fayllar/ilova/icon-180.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="TerDU Biznes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<script src="pwa.js" defer></script>
+<!-- PWA:END -->
+<!-- OG:BEGIN -->
+<meta name="author" content="Isfandiyor Sayfiddinov">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="IsfandiyorSayfiddinov">
+<meta property="og:title" content="IsfandiyorSayfiddinov">
+<meta property="og:description" content="4-mavzu: Xorijiy mehmon bilan muloqot · Restoran xodimlari malakasini oshirish">
+<meta property="og:url" content="https://esfandiyorr.github.io/Tadbirkorlik-asoslari/restoran-4.html">
+<meta property="og:locale" content="uz_UZ">
+<meta property="og:image" content="https://esfandiyorr.github.io/Tadbirkorlik-asoslari/fayllar/havola-isfandiyor.jpg?v=7c06edc5">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="TerDU logotipi va Isfandiyor Sayfiddinov">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="IsfandiyorSayfiddinov">
+<meta name="twitter:description" content="4-mavzu: Xorijiy mehmon bilan muloqot · Restoran xodimlari malakasini oshirish">
+<meta name="twitter:image" content="https://esfandiyorr.github.io/Tadbirkorlik-asoslari/fayllar/havola-isfandiyor.jpg?v=7c06edc5">
+<!-- OG:END -->
+<!-- DESIGN:BEGIN -->
+<link rel="stylesheet" href="learning-design.css?v=f3054b33b4">
+<!-- DESIGN:END -->
+</head>
+<body>
+
+<div id="app">
+  <!-- ====== TOPBAR ====== -->
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo terdu-logo" role="img" aria-label="Termiz davlat universiteti logotipi"></div>
+      <div>
+        <b class="tb-name">TerDU</b>
+        <span data-ui="subj">Restoran xizmati · 4-mavzu</span>
+      </div>
+    </div>
+    <div class="spacer"></div>
+    <div class="tools">
+      <button class="btn ghost" id="btnLang" title="O'zbekcha / English (L)">🌐 <span id="langTxt">ENG</span></button>
+      <button class="btn ghost" id="btnTimer" title="Vaqt hisoblagich (T)">⏱ <span id="timer">00:00</span></button>
+      <button class="btn ghost" id="btnGrid" title="Slaydlar ro'yxati (O)" data-ui="grid">▦ Slaydlar</button>
+      <button class="btn ghost" id="btnTheme" title="Tun / Kun rejimi (D)">🌙 <span id="themeTxt">Tun</span></button>
+      <button class="btn ghost" id="btnFull" title="To'liq ekran (F)" data-ui="full">⛶ Ekran</button>
+      <button class="btn ghost" id="btnPrint" title="Chop etish / PDF (P)">🖨 PDF</button>
+      <button class="btn ghost" id="btnHelp" title="Yordam (?)">❔</button>
+    </div>
+  </header>
+  <div class="progress-wrap"><div id="progress"></div></div>
+
+  <main id="deck">
+  <!-- ============ 1 ============ -->
+  <section class="slide" data-title="Muqova" data-title-en="Muqova">
+    <div class="inner">
+<div class="inner title-wrap"><div><span data-i="0" class="kicker">4-mavzu · 1 soat nazariya · 1 soat amaliyot</span><h1 data-i="1" class="grad">XORIJIY MEHMON BILAN MULOQOT</h1><p data-i="2" class="lead"><b>Til tanlovini so'rash</b> · sodda va sekin gapirish · ismni hurmat bilan talaffuz qilish · <b>ikki tilli menyu</b> · taom, porsiya va narxni izohlash · madaniy va diniy ehtiyojni <b>taxmin qilmasdan</b> aniqlashtirish · parhez so'rovi · <b>buyurtmani qayta tasdiqlash</b> · xizmat ingliz tilidagi ishchi iboralar.</p><div class="meta"><div data-i="3">🍽️ Kurs: <b>Restoran xodimlari malakasini oshirish</b></div><div data-i="4">🗂 <b>RS 24</b> · 24 akademik soat · 10 modul + 2 imtihon</div><div data-i="5">📖 <b>21</b> slayd · <b>15</b> ta mashq savoli · vaziyat va nazorat varag'i</div><div data-i="6">⌨️ <b>→</b> bilan davom eting · <b>P</b> — chop etish</div></div></div></div>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Maqsad va natijalar" data-title-en="Maqsad va natijalar">
+    <div class="inner">
+<span data-i="7" class="kicker">Mavzuning maqsadi</span><h2 data-i="8">Mashg'ulot yakunida tinglovchi <span class="grad">nima qila oladi?</span></h2><div data-i="9" class="def">Maqsad: tinglovchi xorijiy mehmon bilan <b>sodda ingliz tilida</b> xavfsiz va tushunarli muloqot qiladi: tilni aniqlaydi, taomni tushuntiradi, ehtiyojni <b>taxmin qilmasdan so'raydi</b> va buyurtmani qayta tasdiqlaydi. Mukammal grammatika emas — <b>mehmon to'g'ri tushungani</b> muhim.</div><div class="grid g3" style="margin-top:16px"><div class="card" style="--c:var(--green);"><span class="icon">🌍</span><h3 data-i="10">Tilni aniqlaydi</h3><p data-i="11">Mehmon qaysi tilda gaplashishni xohlashini so'raydi — tashqi ko'rinishga qarab taxmin qilmaydi.</p></div><div class="card" style="--c:var(--blue);"><span class="icon">🗣</span><h3 data-i="12">Sodda gapiradi</h3><p data-i="13">Qisqa gaplar, sekin va aniq talaffuz, idiomasiz. Tushunilganini tekshiradi.</p></div><div class="card" style="--c:var(--violet);"><span class="icon">📖</span><h3 data-i="14">Menyuni tushuntiradi</h3><p data-i="15">Ikki tilli menyudan foydalanib, taom tarkibi, porsiyasi va narxini izohlaydi.</p></div><div class="card" style="--c:var(--orange);"><span class="icon">🤝</span><h3 data-i="16">Ehtiyojni so'raydi</h3><p data-i="17">Parhez, madaniy yoki diniy ehtiyojni neytral savol bilan aniqlashtiradi va yozib oladi.</p></div><div class="card" style="--c:var(--pink);"><span class="icon">👨‍🍳</span><h3 data-i="18">Oshxona bilan tekshiradi</h3><p data-i="19">Bilmagan narsasini taxmin qilmaydi: «Let me check with our kitchen».</p></div><div class="card" style="--c:var(--cyan);"><span class="icon">✅</span><h3 data-i="20">Tasdiqlaydi</h3><p data-i="21">Buyurtmani takrorlaydi va mehmon keyingi qadamni tushunganiga ishonch hosil qiladi.</p></div></div>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Reja va tushunchalar" data-title-en="Reja va tushunchalar">
+    <div class="inner">
+<span data-i="22" class="kicker">Mashg'ulot rejasi</span><h2 data-i="23">Bugungi <span class="grad">5 ta blok</span></h2><div class="grid g5"><div class="card" style="--c:var(--green);"><span class="icon">1️⃣</span><h3 data-i="24">Til va salom</h3><p data-i="25">Til tanlovi, kutib olish, ism va murojaat.</p></div><div class="card" style="--c:var(--blue);"><span class="icon">2️⃣</span><h3 data-i="26">Sodda nutq</h3><p data-i="27">7 qoida: qisqa, sekin, aniq, tekshirib.</p></div><div class="card" style="--c:var(--violet);"><span class="icon">3️⃣</span><h3 data-i="28">Menyu</h3><p data-i="29">Taomni tushuntirish, porsiya va narx.</p></div><div class="card" style="--c:var(--orange);"><span class="icon">4️⃣</span><h3 data-i="30">Ehtiyoj</h3><p data-i="31">Madaniy, diniy va parhez so'rovlari.</p></div><div class="card" style="--c:var(--pink);"><span class="icon">5️⃣</span><h3 data-i="32">Tasdiq va amaliyot</h3><p data-i="33">Buyurtmani tasdiqlash, hisob, ikki dialog.</p></div></div><h3 data-i="34" style="margin-top:22px">🔑 Tayanch tushunchalar va so'zlar</h3><div data-i="35"><span class="pill g">til tanlovi</span><span class="pill g">sodda nutq</span><span class="pill g">ikki tilli menyu</span><span class="pill g">ingredients — tarkib</span><span class="pill">portion — porsiya</span><span class="pill">spicy — achchiq</span><span class="pill g">allergy — allergiya</span><span class="pill g">dietary requirements — parhez talablari</span><span class="pill">halal</span><span class="pill">vegetarian</span><span class="pill g">to confirm — tasdiqlash</span><span class="pill g">bill — hisob</span><span class="pill">separate — alohida</span><span class="pill">receipt — chek</span></div>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Xorijiy mehmon: nimasi boshqacha?" data-title-en="Xorijiy mehmon: nimasi boshqacha?">
+    <div class="inner">
+<span data-i="36" class="kicker">1-blok · Kontekst</span><h2 data-i="37">Mehmon uchun bu yerda <span class="grad">hamma narsa yangi</span></h2><div data-i="38" class="def">Xorijiy mehmon tilni bilmaydi, taomlarni tanimaydi, narx va odatlarga ko'nikmagan. U sizga <b>ko'proq ishonishga majbur</b>: nima yeyishini, qancha to'lashini va nima bo'layotganini siz orqali biladi. Shuning uchun vazifa ikkita: <b>tushunarli</b> va <b>xavfsiz</b>.</div><div class="grid g3" style="margin-top:16px"><div class="card" style="--c:var(--blue);"><span class="icon">🗣</span><h3 data-i="39">Til to'sig'i</h3><p data-i="40">Mehmon savolini to'liq bera olmaydi yoki javobingizni yarim tushunadi. Tushunmagan mehmon ko'pincha <b>«yes» deb bosh irg'aydi</b>.</p></div><div class="card" style="--c:var(--orange);"><span class="icon">🍲</span><h3 data-i="41">Notanish taomlar</h3><p data-i="42">«Norin», «hasip», «qazi» — mehmonga hech narsa demaydi. Tarkibni bilmasdan buyurtma berish — allergiya va diniy cheklov uchun <b>xavf</b>.</p></div><div class="card" style="--c:var(--violet);"><span class="icon">💵</span><h3 data-i="43">Narx va odatlar</h3><p data-i="44">So'mdagi narx, xizmat haqi, choychaqa, non va choy pullikmi — mehmon bularni <b>oldindan</b> bilishni xohlaydi.</p></div></div><div class="tw"><table><thead><tr><th data-i="45">Mehmon nimadan xavotirda</th><th data-i="46">Sizning javobingiz</th></tr></thead><tbody><tr><td data-i="47">«Meni tushunisharmikan?»</td><td data-i="48">Tilni so'raysiz, sekin va sodda gapirasiz</td></tr><tr><td data-i="49">«Bu taomda nima bor?»</td><td data-i="50">Tarkibni tushuntirasiz, bilmasangiz — oshxonadan so'raysiz</td></tr><tr><td data-i="51">«Qancha to'layman?»</td><td data-i="52">Narxni menyuda ko'rsatasiz, qo'shimcha to'lovlarni oldindan aytasiz</td></tr><tr><td data-i="53">«Menga mumkin bo'lmagan narsa tushib qolmasmikan?»</td><td data-i="54">Parhez va allergiyani so'rab, yozib olasiz va tasdiqlaysiz</td></tr><tr><td data-i="55">«Buyurtmam to'g'ri tushunildimi?»</td><td data-i="56">Buyurtmani ovoz chiqarib qayta tasdiqlaysiz</td></tr></tbody></table></div><div data-i="57" class="quote" style="margin-top:14px">📌 Xorijiy mehmon restoran bilan birga <b>mamlakat haqida</b> ham taassurot olib ketadi. Siz — uning uchun O'zbekiston mehmondo'stligining yuzi.</div>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Til tanlovini so'rash" data-title-en="Til tanlovini so'rash">
+    <div class="inner">
+<span data-i="58" class="kicker">1.2 · Birinchi qadam</span><h2 data-i="59">Taxmin qilmang — <span class="grad">so'rang</span></h2><div data-i="60" class="def">Mehmonning tashqi ko'rinishiga qarab til tanlash — xato: yevropacha ko'rinishli mehmon rus tilini bilmasligi, osiyolik mehmon esa ingliz tilida erkin gapirishi mumkin. To'g'ri yo'l — salomlashib, <b>tilni so'rash</b>.</div><div class="grid g2" style="margin-top:16px"><div class="card" style="--c:var(--green);"><span class="icon">👋</span><h3 data-i="61">Kutib olish iboralari</h3><ul class="clean"><li data-i="62"><b>Good morning / afternoon / evening!</b> — Xayrli tong / kun / kech!</li><li data-i="63"><b>Welcome to our restaurant.</b> — Restoranimizga xush kelibsiz.</li><li data-i="64"><b>Which language would you prefer?</b> — Qaysi tilni afzal ko'rasiz?</li><li data-i="65"><b>English, Russian or Uzbek?</b> — Ingliz, rus yoki o'zbek tilimi?</li><li data-i="66"><b>Do you have a reservation?</b> — Stol band qilganmisiz?</li><li data-i="67"><b>A table for two?</b> — Ikki kishilik stolmi?</li><li data-i="68"><b>This way, please.</b> — Marhamat, bu yoqqa.</li></ul></div><div class="card" style="--c:var(--blue);"><span class="icon">🧭</span><h3 data-i="69">Qoidalar</h3><ul class="clean"><li data-i="70">Avval salom, keyin til haqidagi savol — 1-mavzudagi 30 soniya qoidasi o'zgarmaydi</li><li data-i="71">Mehmon tanlagan tilda davom eting; o'rtada boshqa tilga o'tib ketmang</li><li data-i="72">Tilni yaxshi bilmasangiz — yashirmang: <b>«My English is simple, but I will help you»</b></li><li data-i="73">Kerak bo'lsa hamkasbni chaqiring: <b>«One moment, please. I will ask my colleague»</b></li><li data-i="74">Mehmon tilingizni tuzatsa — rahmat ayting, xijolat bo'lmang</li></ul></div></div><div data-i="75" class="quote" style="margin-top:14px">🙂 Tabassum va ochiq qo'l ishorasi barcha tillarda bir xil tushuniladi. So'z yetmasa — <b>menyuda ko'rsating</b>.</div>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Sodda va sekin gapirish" data-title-en="Sodda va sekin gapirish">
+    <div class="inner">
+<span data-i="76" class="kicker">2-blok · Sodda nutq</span><h2 data-i="77">Sodda nutqning <span class="grad">7 qoidasi</span></h2><div class="grid g2" style="margin-top:16px"><div class="card" style="--c:var(--green);"><span class="icon">✅</span><h3 data-i="78">Shunday gapiring</h3><ul class="clean"><li data-i="79"><b>Qisqa gap:</b> bitta gapda bitta fikr</li><li data-i="80"><b>Sekin va aniq</b> — lekin baland emas: mehmon kar emas</li><li data-i="81"><b>Oddiy so'zlar:</b> idioma, sleng va qisqartmasiz</li><li data-i="82"><b>Tanlovli savol:</b> «Tea or coffee?» — «What would you like to drink?» dan osonroq</li><li data-i="83"><b>Raqamni ko'rsating:</b> narx va vaqtni menyuda yoki qog'ozda ko'rsating</li><li data-i="84"><b>Ko'rsatib gapiring:</b> menyu, surat, qo'l ishorasi</li><li data-i="85"><b>Tekshiring:</b> «Is that OK?» — va javobni kuting</li></ul></div><div class="card" style="--c:var(--red);"><span class="icon">⛔</span><h3 data-i="86">Bunday qilmang</h3><ul class="cross"><li data-i="87">Uzun, murakkab gap: «If you'd like, I could possibly suggest…»</li><li data-i="88">Tushunmagan mehmonga <b>balandroq</b> takrorlash</li><li data-i="89">O'sha gapni o'sha so'zlar bilan uch marta aytish</li><li data-i="90">Mehmonning gapini tugatmasdan «Yes, yes» deyish</li><li data-i="91">Hamkasb bilan mehmon oldida uning tushunmaydigan tilida kulishib gaplashish</li><li data-i="92">Tushunmay turib bosh irg'ash</li></ul></div></div><div class="tw"><table><thead><tr><th data-i="93">⛔ Murakkab</th><th data-i="94">✅ Sodda</th></tr></thead><tbody><tr><td data-i="95">«Our chef's signature dish is a slow-cooked lamb shank…»</td><td data-i="96"><b>«This is lamb. It is cooked slowly. It is very soft.»</b></td></tr><tr><td data-i="97">«It'll take a while, we're slammed tonight.»</td><td data-i="98"><b>«It will take 25 minutes. Is that OK?»</b></td></tr><tr><td data-i="99">«Would you care for anything to drink at all?»</td><td data-i="100"><b>«Would you like water, tea or juice?»</b></td></tr><tr><td data-i="101">«That's not on, I'm afraid.»</td><td data-i="102"><b>«Sorry, we do not have this dish today.»</b></td></tr></tbody></table></div><div data-i="103" class="quote" style="margin-top:14px">🔁 Mehmon tushunmadimi? <b>Boshqa, soddaroq so'z</b> bilan ayting va ko'rsating. Balandroq aytish yordam bermaydi.</div>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Ism va murojaat" data-title-en="Ism va murojaat">
+    <div class="inner">
+<span data-i="104" class="kicker">2.2 · Hurmat</span><h2 data-i="105">Ismni <span class="grad">to'g'ri talaffuz qilish</span> — hurmat belgisi</h2><div class="grid g2" style="margin-top:16px"><div class="card" style="--c:var(--green);"><span class="icon">🙋</span><h3 data-i="106">Iboralar</h3><ul class="clean"><li data-i="107"><b>May I have your name, please?</b> — Ismingizni bilsam maylimi?</li><li data-i="108"><b>How do you pronounce your name?</b> — Ismingiz qanday talaffuz qilinadi?</li><li data-i="109"><b>Could you spell it, please?</b> — Harflab aytib bera olasizmi?</li><li data-i="110"><b>Thank you, Mr Müller.</b> — Rahmat, janob Myuller.</li><li data-i="111"><b>Sir / Madam</b> — Janob / Xonim — ism noma'lum bo'lganda</li><li data-i="112"><b>Sorry, did I say it correctly?</b> — Kechirasiz, to'g'ri aytdimmi?</li></ul></div><div class="card" style="--c:var(--blue);"><span class="icon">🧭</span><h3 data-i="113">Qoidalar</h3><ul class="clean"><li data-i="114">Ismni noto'g'ri aytgandan ko'ra — <b>so'rash</b> yaxshi: bu uyat emas, hurmat</li><li data-i="115">Bron paytida ismni <b>harflab</b> yozib oling va o'qilishini qavsda belgilang</li><li data-i="116">Murojaat: <b>Mr / Ms + familiya</b>. Ism bilan faqat mehmon o'zi taklif qilsa</li><li data-i="117">Ismni qisqartirmang, laqab qo'ymang, hazil qilmang</li><li data-i="118">Bir marta to'g'ri eshitgach — xizmat davomida shu ism bilan murojaat qiling</li></ul></div></div><div class="grid g3" style="margin-top:14px"><div class="card" style="--c:var(--orange);"><span class="icon">🤝</span><h3 data-i="119">Salomlashish</h3><p data-i="120">Qo'l berishni <b>mehmon boshlaydi</b>. Ba'zi madaniyatlarda bosh irg'ash yoki qo'lni ko'ksiga qo'yish yetarli — mehmonga ergashing.</p></div><div class="card" style="--c:var(--violet);"><span class="icon">📏</span><h3 data-i="121">Masofa</h3><p data-i="122">Turli madaniyatlarda qulay masofa har xil. Mehmon orqaga chekinsa — yaqinlashmang. Yelkaga qo'l tekkizilmaydi.</p></div><div class="card" style="--c:var(--pink);"><span class="icon">👀</span><h3 data-i="123">Ko'z bilan aloqa</h3><p data-i="124">Do'stona, lekin tikilmasdan. Gaplashayotganda mehmonga qarang — menyuga yoki bloknotga emas.</p></div></div>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Ikki tilli menyu bilan ishlash" data-title-en="Ikki tilli menyu bilan ishlash">
+    <div class="inner">
+<span data-i="125" class="kicker">3-blok · Menyu</span><h2 data-i="126">Taom nomini tarjima qilmang — <span class="grad">tushuntiring</span></h2><div data-i="127" class="def">Xorijiy turistlarga xizmat ko'rsatadigan korxonada menyu <b>davlat tilida va chet tilida</b> bo'lishi talab etiladi. Lekin menyu sizning o'rningizni bosmaydi: «Lagman» so'zi inglizcha harflarda ham mehmonga hech narsa demaydi. Uni <b>to'rt savol</b> bo'yicha tushuntiring.</div><div class="grid g4" style="margin-top:16px"><div class="card" style="--c:var(--green);"><span class="icon">🥩</span><h3 data-i="128">1. Nimadan?</h3><p data-i="129">Asosiy mahsulot: <b>lamb, beef, chicken, rice, noodles, vegetables</b>.</p></div><div class="card" style="--c:var(--blue);"><span class="icon">🔥</span><h3 data-i="130">2. Qanday pishgan?</h3><p data-i="131"><b>Grilled, baked, steamed, fried, boiled</b> — qovurilgan, yopilgan, bug'da…</p></div><div class="card" style="--c:var(--violet);"><span class="icon">🥗</span><h3 data-i="132">3. Nima bilan?</h3><p data-i="133"><b>Served with</b> salad, bread, sauce — garnir va qo'shimchalar.</p></div><div class="card" style="--c:var(--orange);"><span class="icon">🌶</span><h3 data-i="134">4. Qanday ta'm?</h3><p data-i="135"><b>Spicy / not spicy, hot / cold, sweet, sour</b>; porsiya kattaligi.</p></div></div><div class="tw"><table><thead><tr><th data-i="136">Taom</th><th data-i="137">Sodda inglizcha tushuntirish</th></tr></thead><tbody><tr><td data-i="138">🍚 Osh (palov)</td><td data-i="139"><b>Rice cooked with lamb, carrots and onions.</b> Our national dish.</td></tr><tr><td data-i="140">🥟 Somsa</td><td data-i="141"><b>Baked pastry with minced meat and onions.</b></td></tr><tr><td data-i="142">🍜 Lag'mon</td><td data-i="143"><b>Hand-made noodles with beef and vegetables.</b> A little spicy.</td></tr><tr><td data-i="144">🥟 Manti</td><td data-i="145"><b>Steamed dumplings with meat and onions.</b> Served with yoghurt.</td></tr><tr><td data-i="146">🍢 Shashlik</td><td data-i="147"><b>Grilled meat on skewers.</b> Lamb, beef or chicken.</td></tr><tr><td data-i="148">🍅 Achchiq-chuchuk</td><td data-i="149"><b>Fresh tomato and onion salad.</b> No oil.</td></tr><tr><td data-i="150">🫓 Non</td><td data-i="151"><b>Traditional round bread, baked in a clay oven.</b></td></tr></tbody></table></div><div data-i="152" class="quote" style="margin-top:14px">👉 Menyuni mehmon tomonga burib, taomni <b>barmoq bilan emas — ochiq kaft yoki ruchka uchi bilan</b> ko'rsating: «This one.»</div>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Taom, porsiya va narxni izohlash" data-title-en="Taom, porsiya va narxni izohlash">
+    <div class="inner">
+<span data-i="153" class="kicker">3.2 · Aniqlik</span><h2 data-i="154">Mehmon <span class="grad">nima, qancha va necha pul</span> ekanini bilishi kerak</h2><div class="grid g3" style="margin-top:16px"><div class="card" style="--c:var(--green);"><span class="icon">🍽️</span><h3 data-i="155">Taom</h3><ul class="clean"><li data-i="156"><b>This dish is…</b> — Bu taom…</li><li data-i="157"><b>It is made with…</b> — U …dan tayyorlangan</li><li data-i="158"><b>It is not spicy.</b> — Achchiq emas.</li><li data-i="159"><b>It contains nuts / milk.</b> — Tarkibida yong'oq / sut bor.</li><li data-i="160"><b>I recommend…</b> — Men … ni tavsiya qilaman</li></ul></div><div class="card" style="--c:var(--blue);"><span class="icon">⚖️</span><h3 data-i="161">Porsiya</h3><ul class="clean"><li data-i="162"><b>The portion is for one person.</b> — Porsiya bir kishilik.</li><li data-i="163"><b>It is enough for two.</b> — Ikki kishiga yetadi.</li><li data-i="164"><b>It is about 300 grams.</b> — Taxminan 300 gramm.</li><li data-i="165"><b>A small or a large portion?</b> — Kichik yoki katta porsiya?</li><li data-i="166"><b>Would you like to share?</b> — Bo'lishib yeysizmi?</li></ul></div><div class="card" style="--c:var(--orange);"><span class="icon">💵</span><h3 data-i="167">Narx</h3><ul class="clean"><li data-i="168"><b>The price is 65,000 soums.</b> — Narxi 65 000 so'm.</li><li data-i="169"><b>The price is per person.</b> — Narx bir kishi uchun.</li><li data-i="170"><b>Bread and tea are not included.</b> — Non va choy narxga kirmaydi.</li><li data-i="171"><b>Service is included.</b> — Xizmat haqi kiritilgan.</li><li data-i="172"><b>We accept cards.</b> — Karta qabul qilamiz.</li></ul></div></div><div class="grid g2" style="margin-top:14px"><div class="card" style="--c:var(--red);"><span class="icon">🔢</span><h3 data-i="173">Raqamlarda adashmang</h3><p data-i="174"><b>Fifteen (15)</b> va <b>fifty (50)</b>, <b>sixteen</b> va <b>sixty</b> — eshitilishi o'xshash. Narxni aytish bilan birga <b>menyuda ko'rsating</b> yoki yozib bering. Ming — <b>thousand</b>: 65 000 — «sixty-five thousand».</p></div><div class="card" style="--c:var(--violet);"><span class="icon">🧾</span><h3 data-i="175">Kutilmagan to'lov bo'lmasin</h3><p data-i="176">Xizmat haqi, non, suv, sous alohida hisoblansa — buni <b>buyurtmadan oldin</b> ayting. Hisob kelganda bilgan mehmon o'zini aldangandek his qiladi.</p></div></div>
+    </div>
+  </section>
+
+  <section class="slide" data-title="1-dialog: taom, porsiya va narx" data-title-en="1-dialog: taom, porsiya va narx">
+    <div class="inner">
+<span data-i="177" class="kicker">3.3 · Namunaviy suhbat</span><h2 data-i="178">1-dialog: <span class="grad">«What is plov?»</span></h2><div class="grid g2" style="margin-top:16px"><div class="card" style="--c:var(--blue)"><span class="icon">💬</span><h3 data-i="179">Suhbat</h3><p data-i="180"><b>🤵 Ofitsiant:</b> <b>Good evening! Welcome. Which language would you prefer?</b></p><p data-i="181"><b>🧳 Xorijiy mehmon:</b> <b>English, please.</b></p><p data-i="182"><b>🤵 Ofitsiant:</b> <b>Of course. Here is the menu in English.</b></p><p data-i="183"><b>🧳 Xorijiy mehmon:</b> <b>What is plov?</b></p><p data-i="184"><b>🤵 Ofitsiant:</b> <b>It is rice cooked with lamb, carrots and onions. It is not spicy.</b></p><p data-i="185"><b>🧳 Xorijiy mehmon:</b> <b>How big is the portion?</b></p><p data-i="186"><b>🤵 Ofitsiant:</b> <b>It is about 350 grams. It is enough for one person.</b></p><p data-i="187"><b>🧳 Xorijiy mehmon:</b> <b>And the price?</b></p><p data-i="188"><b>🤵 Ofitsiant:</b> <b>Sixty-five thousand soums. Here, on the menu. Bread and tea are not included.</b></p><p data-i="189"><b>🧳 Xorijiy mehmon:</b> <b>OK. One plov and green tea, please.</b></p><p data-i="190"><b>🤵 Ofitsiant:</b> <b>May I confirm your order? One plov and one green tea. It will take about ten minutes.</b></p><p data-i="191"><b>🧳 Xorijiy mehmon:</b> <b>Perfect, thank you.</b></p></div><div class="card" style="--c:var(--green);"><span class="icon">🔎</span><h3 data-i="192">Bu suhbatda nima to'g'ri qilindi</h3><ul class="tick"><li data-i="193">Til <b>so'raldi</b>, taxmin qilinmadi</li><li data-i="194">Taom to'rt savol bo'yicha tushuntirildi: nimadan, qanday, ta'mi</li><li data-i="195">Porsiya <b>gramm va kishi soni</b> bilan aytildi</li><li data-i="196">Narx aytildi <b>va menyuda ko'rsatildi</b></li><li data-i="197">Narxga kirmaydigan narsalar oldindan aytildi</li><li data-i="198">Buyurtma <b>qayta tasdiqlandi</b></li><li data-i="199">Keyingi qadam — kutish vaqti — aytildi</li></ul></div></div><div data-i="200" class="quote" style="margin-top:14px">📝 <b>Tarjima:</b> palov — sabzi, piyoz va qo'y go'shti bilan pishirilgan guruch, achchiq emas; porsiya taxminan 350 g, bir kishiga yetadi; narxi 65 000 so'm, non va choy alohida; buyurtma: bitta palov, bitta ko'k choy; taxminan 10 daqiqa.</div>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Madaniy va diniy ehtiyoj" data-title-en="Madaniy va diniy ehtiyoj">
+    <div class="inner">
+<span data-i="201" class="kicker">4-blok · Ehtiyoj</span><h2 data-i="202">Ehtiyojni <span class="grad">taxmin qilmang — aniqlashtiring</span></h2><div data-i="203" class="def">Mehmonning millati, kiyimi yoki ismiga qarab «u buni yemaydi» yoki «unga buni taklif qilsa bo'ladi» deb qaror qilish — <b>stereotip</b>. Bir xil mamlakatdan kelgan ikki mehmonning ehtiyoji butunlay boshqa bo'lishi mumkin. To'g'ri yo'l: <b>hammaga bir xil, neytral savol</b>.</div><div class="grid g2" style="margin-top:16px"><div class="card" style="--c:var(--green);"><span class="icon">✅</span><h3 data-i="204">Neytral savollar</h3><ul class="clean"><li data-i="205"><b>Do you have any dietary requirements?</b> — Ovqatlanishda biror talabingiz bormi?</li><li data-i="206"><b>Is there anything you do not eat?</b> — Yemaydigan narsangiz bormi?</li><li data-i="207"><b>Do you have any food allergies?</b> — Biror ovqatga allergiyangiz bormi?</li><li data-i="208"><b>Would you like me to explain the ingredients?</b> — Tarkibini tushuntirib beraymi?</li></ul></div><div class="card" style="--c:var(--red);"><span class="icon">⛔</span><h3 data-i="209">Bunday so'ralmaydi</h3><ul class="cross"><li data-i="210">«Siz musulmonmisiz?», «Qaysi dindansiz?» — shaxsiy savol</li><li data-i="211">«Sizlar buni yemaysizlar-ku» — taxmin va umumlashtirish</li><li data-i="212">«Nega go'sht yemaysiz?» — sabab so'ralmaydi</li><li data-i="213">Mehmon rad etgan narsani qayta-qayta taklif qilish</li><li data-i="214">So'rovga kulish yoki hamkasbga ko'z qisish</li></ul></div></div><div class="tw"><table><thead><tr><th data-i="215">Mehmon aytishi mumkin</th><th data-i="216">Ma'nosi</th><th data-i="217">Sizning harakatingiz</th></tr></thead><tbody><tr><td data-i="218"><b>I am vegetarian.</b></td><td data-i="219">Go'sht va baliq yemaydi</td><td data-i="220">Go'shtsiz taomlarni ko'rsating; sho'rva asosi va yog'ni oshxonadan aniqlang</td></tr><tr><td data-i="221"><b>I am vegan.</b></td><td data-i="222">Hayvon mahsulotlarini umuman yemaydi (sut, tuxum, asal ham)</td><td data-i="223">Har taom tarkibini oshxona bilan tekshiring</td></tr><tr><td data-i="224"><b>Is it halal?</b></td><td data-i="225">Taom halol qoidalariga mosmi</td><td data-i="226">Faqat aniq bilganingizni ayting; bilmasangiz — mas'uldan so'rang</td></tr><tr><td data-i="227"><b>No pork / no beef, please.</b></td><td data-i="228">Cho'chqa / mol go'shti yemaydi</td><td data-i="229">Tarkibni, jumladan yog' va kolbasa mahsulotlarini tekshiring</td></tr><tr><td data-i="230"><b>No alcohol, please.</b></td><td data-i="231">Spirtli ichimlik ichmaydi</td><td data-i="232">Sous va desert tarkibini ham tekshiring; alkogolsiz ichimlik taklif qiling</td></tr><tr><td data-i="233"><b>I am fasting.</b></td><td data-i="234">Ro'za tutyapti</td><td data-i="235">Qachon ovqatlanishini so'rang, taomni o'sha vaqtga tayyorlating</td></tr></tbody></table></div><div data-i="236" class="quote" style="margin-top:14px">⚖️ <b>«Halol»</b>, <b>«vegan»</b>, <b>«glutensiz»</b> — bu va'da. Uni faqat <b>oshxona va mas'ul xodim tasdiqlagandan keyin</b> aytish mumkin.</div>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Parhez so'rovini yozib olish" data-title-en="Parhez so'rovini yozib olish">
+    <div class="inner">
+<span data-i="237" class="kicker">4.2 · Parhez va allergiya</span><h2 data-i="238">Eshitdim — yozdim — <span class="grad">oshxonadan tekshirdim</span></h2><div data-i="239" class="def">Parhez so'rovi ikki xil bo'ladi: <b>xohish</b> («piyozsiz bo'lsin») va <b>salomatlik talabi</b> (allergiya, intolerans). Ikkinchisida xato mehmon sog'lig'iga xavf soladi. Qaysi biri ekanini aniqlang va har ikkalasini ham <b>yozib oling</b>.</div><div class="grid g4" style="margin-top:16px"><div class="card" style="--c:var(--blue);"><span class="icon">👂</span><h3 data-i="240">1. Tinglang</h3><p data-i="241">Mehmonni bo'lmang. Tushunmasangiz: <b>«Could you repeat that, please?»</b></p></div><div class="card" style="--c:var(--green);"><span class="icon">❓</span><h3 data-i="242">2. Aniqlashtiring</h3><p data-i="243"><b>«Is it an allergy?»</b> — bu allergiyami yoki shunchaki xohishmi?</p></div><div class="card" style="--c:var(--orange);"><span class="icon">📝</span><h3 data-i="244">3. Yozing</h3><p data-i="245">So'rovni buyurtmaga <b>mehmon so'zlari bilan</b>, o'rin raqami bilan yozing.</p></div><div class="card" style="--c:var(--red);"><span class="icon">👨‍🍳</span><h3 data-i="246">4. Tekshiring</h3><p data-i="247"><b>«Let me check the ingredients with our kitchen.»</b> Javobni mehmonga qaytaring.</p></div></div><div class="grid g2" style="margin-top:14px"><div class="card" style="--c:var(--green);"><span class="icon">🗣</span><h3 data-i="248">Kerakli iboralar</h3><ul class="clean"><li data-i="249"><b>Do you have any food allergies?</b> — Ovqatga allergiyangiz bormi?</li><li data-i="250"><b>Is it an allergy or a preference?</b> — Bu allergiyami yoki xohishmi?</li><li data-i="251"><b>Let me write it down.</b> — Yozib olay.</li><li data-i="252"><b>Let me check the ingredients with our kitchen.</b> — Tarkibni oshxonamizdan tekshirib ko'ray.</li><li data-i="253"><b>I will be back in two minutes.</b> — Ikki daqiqada qaytaman.</li><li data-i="254"><b>The chef says this dish is safe for you.</b> — Oshpaz bu taom sizga xavfsiz ekanini aytdi.</li><li data-i="255"><b>I am sorry, this dish contains nuts. May I suggest…</b> — Afsuski, bu taomda yong'oq bor. … ni taklif qilsam maylimi?</li></ul></div><div class="card" style="--c:var(--red);"><span class="icon">🚫</span><h3 data-i="256">Hech qachon</h3><ul class="cross"><li data-i="257"><b>«I think it's OK»</b> — «menimcha, bo'ladi» degan javob yo'q</li><li data-i="258">Tushunmay turib <b>«Yes»</b> deyish</li><li data-i="259">Tarjimon ilovasiga to'liq ishonib, allergiya haqida xulosa qilish</li><li data-i="260">So'rovni yodda saqlab, yozmaslik</li><li data-i="261">Oshxona javobisiz taomni uzatish</li></ul></div></div><div data-i="262" class="quote" style="margin-top:14px">➡️ Allergenlar, tarkib jadvali va «ishonchli javob bo'lmasa — uzatmaslik» qoidasi — <b>5-mavzuda</b> batafsil.</div>
+    </div>
+  </section>
+
+  <section class="slide" data-title="2-dialog: parhez so'rovi" data-title-en="2-dialog: parhez so'rovi">
+    <div class="inner">
+<span data-i="263" class="kicker">4.3 · Namunaviy suhbat</span><h2 data-i="264">2-dialog: <span class="grad">«I am allergic to nuts»</span></h2><div class="grid g2" style="margin-top:16px"><div class="card" style="--c:var(--orange)"><span class="icon">💬</span><h3 data-i="265">Suhbat</h3><p data-i="266"><b>🤵 Ofitsiant:</b> <b>Are you ready to order?</b></p><p data-i="267"><b>🧳 Xorijiy mehmon:</b> <b>Yes. But I am allergic to nuts.</b></p><p data-i="268"><b>🤵 Ofitsiant:</b> <b>Thank you for telling me. Let me write it down: nut allergy.</b></p><p data-i="269"><b>🧳 Xorijiy mehmon:</b> <b>Is the chicken salad OK for me?</b></p><p data-i="270"><b>🤵 Ofitsiant:</b> <b>I am not sure. Let me check the ingredients with our kitchen. I will be back in two minutes.</b></p><p data-i="271"><b>🧳 Xorijiy mehmon:</b> <b>Thank you.</b></p><p data-i="272"><b>🤵 Ofitsiant:</b> <b>Thank you for waiting. The salad has walnuts. But the chef can make it without nuts, in a clean bowl.</b></p><p data-i="273"><b>🧳 Xorijiy mehmon:</b> <b>Great. I will have that.</b></p><p data-i="274"><b>🤵 Ofitsiant:</b> <b>May I confirm? One chicken salad, no nuts — nut allergy. Is that correct?</b></p><p data-i="275"><b>🧳 Xorijiy mehmon:</b> <b>Yes, correct.</b></p></div><div class="card" style="--c:var(--green);"><span class="icon">🔎</span><h3 data-i="276">Bu suhbatda nima to'g'ri qilindi</h3><ul class="tick"><li data-i="277">Mehmonga <b>rahmat aytildi</b> — allergiya haqida aytish oson emas</li><li data-i="278">So'rov darhol <b>yozib olindi</b></li><li data-i="279">Ofitsiant <b>taxmin qilmadi</b>: «I am not sure»</li><li data-i="280">Qachon qaytishi aytildi — mehmon kutishni biladi</li><li data-i="281">Oshxona javobi <b>aniq</b> yetkazildi: nima bor va qanday yechim</li><li data-i="282">Buyurtma allergiya belgisi bilan <b>qayta tasdiqlandi</b></li></ul></div></div><div data-i="283" class="quote" style="margin-top:14px">📝 <b>Tarjima:</b> mehmon yong'oqqa allergiyasi borligini aytdi; ofitsiant yozib oldi, tovuqli salat tarkibini oshxonadan tekshirdi: salatda yong'oq bor, lekin oshpaz uni yong'oqsiz, toza idishda tayyorlab bera oladi; buyurtma «yong'oqsiz — allergiya» belgisi bilan tasdiqlandi.</div>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Buyurtmani qayta tasdiqlash" data-title-en="Buyurtmani qayta tasdiqlash">
+    <div class="inner">
+<span data-i="284" class="kicker">5-blok · Tasdiq</span><h2 data-i="285"><span class="grad">«May I confirm your order?»</span> — eng muhim ibora</h2><div data-i="286" class="def">Til to'sig'i bor joyda xato ehtimoli yuqori. Uni ushlaydigan yagona ishonchli usul — buyurtmani <b>ovoz chiqarib takrorlash</b> va mehmonning <b>«Yes, correct»</b> deyishini kutish. Bu 30 soniya vaqt oladi va noto'g'ri taom, kechikish hamda norozilikdan qutqaradi.</div><div class="grid g4" style="margin-top:16px"><div class="card" style="--c:var(--green);"><span class="icon">🍽️</span><h3 data-i="287">1. Taomlar</h3><p data-i="288">Har bir taom nomi va <b>miqdori</b>: «Two plov, one salad».</p></div><div class="card" style="--c:var(--blue);"><span class="icon">✏️</span><h3 data-i="289">2. Maxsus so'rov</h3><p data-i="290">«No onions», «not spicy», <b>«nut allergy»</b> — albatta takrorlanadi.</p></div><div class="card" style="--c:var(--orange);"><span class="icon">🥤</span><h3 data-i="291">3. Ichimliklar</h3><p data-i="292">Turi, issiq-sovuqligi, gazli-gazsizligi: «Still water, no ice».</p></div><div class="card" style="--c:var(--violet);"><span class="icon">⏱</span><h3 data-i="293">4. Keyingi qadam</h3><p data-i="294"><b>«It will take about 20 minutes.»</b> Mehmon nima bo'lishini biladi.</p></div></div><div class="grid g2" style="margin-top:14px"><div class="card" style="--c:var(--green);"><span class="icon">🗣</span><h3 data-i="295">Tasdiqlash iboralari</h3><ul class="clean"><li data-i="296"><b>May I confirm your order?</b> — Buyurtmangizni tasdiqlasam maylimi?</li><li data-i="297"><b>So, that is… Is that correct?</b> — Demak, … To'g'rimi?</li><li data-i="298"><b>Anything else?</b> — Yana biror narsa?</li><li data-i="299"><b>Your food will be ready in about 20 minutes.</b> — Taomingiz taxminan 20 daqiqada tayyor bo'ladi.</li><li data-i="300"><b>I will bring the drinks first.</b> — Avval ichimliklarni olib kelaman.</li></ul></div><div class="card" style="--c:var(--blue);"><span class="icon">📄</span><h3 data-i="301">Natija dalili — mehmon uch narsani tushundi</h3><ul class="clean"><li data-i="302"><b>Til:</b> qaysi tilda xizmat ko'rsatilayotganini biladi va unga qulay</li><li data-i="303"><b>Buyurtma mazmuni:</b> nima, qancha va qanday shartlar bilan kelishini tasdiqladi</li><li data-i="304"><b>Keyingi qadam:</b> qancha kutishini yoki oshxonadan javob kutilayotganini biladi</li><li data-i="305">Uchalasi ham bo'lsa — muloqot muvaffaqiyatli</li></ul></div></div>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Tushunmasangiz nima qilasiz?" data-title-en="Tushunmasangiz nima qilasiz?">
+    <div class="inner">
+<span data-i="306" class="kicker">5.2 · Qiyin vaziyat</span><h2 data-i="307">Tushunmaslik — ayb emas. <span class="grad">Tushungandek ko'rsatish</span> — xato</h2><div class="grid g2" style="margin-top:16px"><div class="card" style="--c:var(--green);"><span class="icon">🧰</span><h3 data-i="308">Qutqaruvchi iboralar</h3><ul class="clean"><li data-i="309"><b>Sorry, I did not understand.</b> — Kechirasiz, tushunmadim.</li><li data-i="310"><b>Could you repeat that, please?</b> — Qaytarib yubora olasizmi?</li><li data-i="311"><b>Could you speak more slowly, please?</b> — Sekinroq gapira olasizmi?</li><li data-i="312"><b>Could you show me on the menu?</b> — Menyuda ko'rsata olasizmi?</li><li data-i="313"><b>Could you write it down, please?</b> — Yozib bera olasizmi?</li><li data-i="314"><b>One moment, please. I will ask my colleague.</b> — Bir daqiqa. Hamkasbimdan so'rayman.</li></ul></div><div class="card" style="--c:var(--blue);"><span class="icon">🪜</span><h3 data-i="315">Qadamma-qadam</h3><ul class="clean"><li data-i="316"><b>1.</b> Qaytarishni so'rang — xotirjam, tabassum bilan</li><li data-i="317"><b>2.</b> Menyuda yoki suratda ko'rsatishni so'rang</li><li data-i="318"><b>3.</b> Yozib berishni so'rang — yozuvni o'qish osonroq</li><li data-i="319"><b>4.</b> Tilni yaxshiroq biladigan hamkasbni chaqiring</li><li data-i="320"><b>5.</b> Tarjimon ilovasi — faqat mehmon roziligi bilan va yordamchi sifatida</li><li data-i="321"><b>6.</b> Baribir aniq bo'lmasa — mas'ul xodimga yetkazing</li></ul></div></div><div class="grid g3" style="margin-top:14px"><div class="card" style="--c:var(--red);"><span class="icon">📱</span><h3 data-i="322">Tarjimon ilovasi</h3><p data-i="323">Oddiy savollar uchun yordam beradi. Lekin <b>allergiya, tarkib va narx</b> masalasida xato tarjima xavfli — natijani albatta mehmon bilan qayta tasdiqlang.</p></div><div class="card" style="--c:var(--orange);"><span class="icon">😤</span><h3 data-i="324">Mehmon asabiylashsa</h3><p data-i="325">Ovozni ko'tarmang, tezlashmang. <b>«I am sorry. I want to help you.»</b> Hamkasb yoki administratorni chaqiring.</p></div><div class="card" style="--c:var(--violet);"><span class="icon">🤐</span><h3 data-i="326">Mehmon haqida gaplashmang</h3><p data-i="327">Mehmon tushunmaydi deb o'ylab, uning oldida u haqida gapirish — qo'pol xato. Ko'p mehmon siz o'ylagandan ko'proq tushunadi.</p></div></div>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Hisob va xayrlashuv" data-title-en="Hisob va xayrlashuv">
+    <div class="inner">
+<span data-i="328" class="kicker">5.3 · Yakun</span><h2 data-i="329"><span class="grad">«One bill or separate bills?»</span></h2><div class="grid g2" style="margin-top:16px"><div class="card" style="--c:var(--green);"><span class="icon">🧾</span><h3 data-i="330">Hisob iboralari</h3><ul class="clean"><li data-i="331"><b>Would you like the bill?</b> — Hisobni keltiraymi?</li><li data-i="332"><b>Would you like one bill or separate bills?</b> — Hisob bittami yoki alohidami?</li><li data-i="333"><b>Cash or card?</b> — Naqdmi yoki karta?</li><li data-i="334"><b>Here is your bill. The total is 240,000 soums.</b> — Mana hisobingiz. Jami 240 000 so'm.</li><li data-i="335"><b>Service is included / not included.</b> — Xizmat haqi kiritilgan / kiritilmagan.</li><li data-i="336"><b>Here is your receipt and your change.</b> — Mana chekingiz va qaytimingiz.</li></ul></div><div class="card" style="--c:var(--blue);"><span class="icon">👋</span><h3 data-i="337">Xayrlashuv iboralari</h3><ul class="clean"><li data-i="338"><b>Was everything OK?</b> — Hammasi ma'qul bo'ldimi?</li><li data-i="339"><b>Thank you very much.</b> — Katta rahmat.</li><li data-i="340"><b>Have a nice evening!</b> — Kechangiz xayrli o'tsin!</li><li data-i="341"><b>Enjoy your stay in Uzbekistan!</b> — O'zbekistonda vaqtingiz chog' o'tsin!</li><li data-i="342"><b>We hope to see you again.</b> — Sizni yana ko'rishdan umidvormiz.</li><li data-i="343"><b>Shall I call a taxi for you?</b> — Sizga taksi chaqiraymi?</li></ul></div></div><div class="grid g3" style="margin-top:14px"><div class="card" style="--c:var(--orange);"><span class="icon">💳</span><h3 data-i="344">To'lov</h3><p data-i="345">Karta terminali mehmon <b>ko'z oldida</b> ishlatiladi; karta ko'zdan uzoqqa olib ketilmaydi. Chet el valyutasi qabul qilinmasa — buni xotirjam tushuntiring.</p></div><div class="card" style="--c:var(--violet);"><span class="icon">💵</span><h3 data-i="346">Choychaqa</h3><p data-i="347">So'ralsa — halol javob bering: xizmat haqi hisobga kiritilganmi yoki yo'q. Choychaqa <b>so'ralmaydi</b> va unga ishora qilinmaydi.</p></div><div class="card" style="--c:var(--pink);"><span class="icon">🗺</span><h3 data-i="348">Qo'shimcha yordam</h3><p data-i="349">Yo'l, taksi, yaqin bankomat haqidagi savolga yordam bering. Bilmasangiz — administratordan so'rang.</p></div></div><div data-i="350" class="quote" style="margin-top:14px">🧾 Hisobni ajratish va to'lovni rasmiylashtirish tartibi — <b>8-mavzuda</b> batafsil.</div>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Ishchi iboralar: cho'ntak lug'ati" data-title-en="Ishchi iboralar: cho'ntak lug'ati">
+    <div class="inner">
+<span data-i="351" class="kicker">Takrorlash</span><h2 data-i="352">Yod olinadigan <span class="grad">15 ta ibora</span></h2><div class="tw"><table><thead><tr><th data-i="353">Vaziyat</th><th data-i="354">Inglizcha</th><th data-i="355">O'zbekcha</th></tr></thead><tbody><tr><td data-i="356">👋 Kutib olish</td><td data-i="357"><b>Good evening! Welcome.</b></td><td data-i="358">Xayrli kech! Xush kelibsiz.</td></tr><tr><td data-i="359">🌍 Til</td><td data-i="360"><b>Which language would you prefer?</b></td><td data-i="361">Qaysi tilni afzal ko'rasiz?</td></tr><tr><td data-i="362">🪑 Joylashtirish</td><td data-i="363"><b>This way, please.</b></td><td data-i="364">Marhamat, bu yoqqa.</td></tr><tr><td data-i="365">📖 Menyu</td><td data-i="366"><b>Here is the menu.</b></td><td data-i="367">Mana menyu.</td></tr><tr><td data-i="368">🥜 Allergiya</td><td data-i="369"><b>Do you have any food allergies?</b></td><td data-i="370">Ovqatga allergiyangiz bormi?</td></tr><tr><td data-i="371">📝 Buyurtma</td><td data-i="372"><b>Are you ready to order?</b></td><td data-i="373">Buyurtma berishga tayyormisiz?</td></tr><tr><td data-i="374">👨‍🍳 Tekshirish</td><td data-i="375"><b>Let me check the ingredients with our kitchen.</b></td><td data-i="376">Tarkibni oshxonadan tekshirib ko'ray.</td></tr><tr><td data-i="377">✅ Tasdiqlash</td><td data-i="378"><b>May I confirm your order?</b></td><td data-i="379">Buyurtmangizni tasdiqlasam maylimi?</td></tr><tr><td data-i="380">⏱ Vaqt</td><td data-i="381"><b>It will take about 20 minutes.</b></td><td data-i="382">Taxminan 20 daqiqa vaqt oladi.</td></tr><tr><td data-i="383">🔥 Ogohlantirish</td><td data-i="384"><b>Careful, the plate is hot.</b></td><td data-i="385">Ehtiyot bo'ling, tarelka issiq.</td></tr><tr><td data-i="386">🍽️ Uzatish</td><td data-i="387"><b>Enjoy your meal!</b></td><td data-i="388">Yoqimli ishtaha!</td></tr><tr><td data-i="389">💬 Tekshiruv</td><td data-i="390"><b>Is everything OK?</b></td><td data-i="391">Hammasi joyidami?</td></tr><tr><td data-i="392">🙏 Uzr</td><td data-i="393"><b>I am sorry. I will fix it now.</b></td><td data-i="394">Uzr so'rayman. Hozir tuzataman.</td></tr><tr><td data-i="395">🧾 Hisob</td><td data-i="396"><b>Would you like one bill or separate bills?</b></td><td data-i="397">Hisob bittami yoki alohidami?</td></tr><tr><td data-i="398">👋 Xayrlashuv</td><td data-i="399"><b>Thank you. Have a nice evening!</b></td><td data-i="400">Rahmat. Kechangiz xayrli o'tsin!</td></tr></tbody></table></div><div data-i="401" class="quote" style="margin-top:14px">🗣 Iboralarni <b>ovoz chiqarib</b> mashq qiling: ko'z bilan o'qilgan ibora kerakli paytda tilga kelmaydi.</div>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Amaliy mashq" data-title-en="Amaliy mashq">
+    <div class="inner">
+<span data-i="402" class="kicker">Amaliyot · 1 soat</span><h2 data-i="403">Ikki dialog — <span class="grad">oddiy ingliz tilida</span></h2><div data-i="404" class="def">Juftlikda ishlanadi: bir tinglovchi — <b>ofitsiant</b>, ikkinchisi — <b>xorijiy mehmon</b> (faqat ingliz tilida gapiradi), trener yoki uchinchi tinglovchi — kuzatuvchi. Har dialog 4–5 daqiqa. «Mehmon» vazifa kartochkasini oladi va ataylab bitta gapni tushunmagandek ko'rsatadi.</div><div class="grid g2" style="margin-top:16px"><div class="card" style="--c:var(--blue);"><span class="icon">1️⃣</span><h3 data-i="405">1-dialog · Taom, porsiya, narx</h3><ul class="clean"><li data-i="406">Mehmon ikki tilli menyudan notanish taom haqida so'raydi</li><li data-i="407">Ofitsiant tilni aniqlaydi va taomni to'rt savol bo'yicha tushuntiradi</li><li data-i="408">Porsiya kattaligi va narxni aytadi, menyuda ko'rsatadi</li><li data-i="409">Narxga kirmaydigan narsalarni oldindan aytadi</li><li data-i="410">Buyurtmani tasdiqlaydi va kutish vaqtini aytadi</li></ul></div><div class="card" style="--c:var(--orange);"><span class="icon">2️⃣</span><h3 data-i="411">2-dialog · Parhez so'rovi</h3><ul class="clean"><li data-i="412">Mehmon parhez yoki allergiya haqida aytadi (kartochka bo'yicha)</li><li data-i="413">Ofitsiant allergiya yoki xohish ekanini aniqlaydi va yozib oladi</li><li data-i="414">«Let me check the ingredients with our kitchen» deydi, qachon qaytishini aytadi</li><li data-i="415">«Oshxona javobi»ni (trener beradi) mehmonga yetkazadi</li><li data-i="416">Buyurtmani maxsus belgi bilan qayta tasdiqlaydi</li></ul></div></div><div class="tw"><table><thead><tr><th data-i="417">Kuzatuv mezoni</th><th data-i="418">Kuzatiladigan harakat</th><th data-i="419">Ha / Yo'q</th></tr></thead><tbody><tr><td data-i="420"><b>Til</b></td><td data-i="421">Tilni so'radi; sodda, sekin va qisqa gaplar bilan gapirdi</td><td data-i="422">☐</td></tr><tr><td data-i="423"><b>Tushuntirish</b></td><td data-i="424">Taom tarkibi, porsiya va narxni aniq aytdi, menyuda ko'rsatdi</td><td data-i="425">☐</td></tr><tr><td data-i="426"><b>Ehtiyoj</b></td><td data-i="427">So'rovni taxmin qilmadi: aniqlashtirdi va yozib oldi</td><td data-i="428">☐</td></tr><tr><td data-i="429"><b>Tekshirish</b></td><td data-i="430">Bilmaganini oshxonadan tekshirishini va qachon qaytishini aytdi</td><td data-i="431">☐</td></tr><tr><td data-i="432"><b>Tasdiqlash</b></td><td data-i="433">Buyurtmani takrorladi; mehmon «correct» dedi; keyingi qadam aytildi</td><td data-i="434">☐</td></tr></tbody></table></div><div data-i="435" class="quote" style="margin-top:14px">📄 <b>Natija dalili:</b> «mehmon» tilni, buyurtma mazmunini va keyingi qadamni tushunganini tasdiqlaydi.</div>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Namuna: ikki qisqa suhbat" data-title-en="Namuna: ikki qisqa suhbat">
+    <div class="inner">
+<span data-i="454" class="kicker">Bosqichma-bosqich</span><h2 data-i="455">Namuna: ikki qisqa suhbat</h2><div class="grid g2" style="margin-top:16px"><div class="card" style="--c:var(--green)"><span class="icon">📖</span><h3 data-i="436">1. Taom va narx</h3><p data-i="437"><b>🤵 Ofitsiant:</b> Good evening! Which language would you prefer?</p><p data-i="438"><b>🧳 Xorijiy mehmon:</b> English, please. What is plov?</p><p data-i="439"><b>🤵 Ofitsiant:</b> Our plov is rice with lamb, carrots and onions. One portion is 350 grams. It costs 50,000 soums. Bread is extra.</p><p data-i="440"><b>🧳 Xorijiy mehmon:</b> One portion, please.</p><p data-i="441"><b>🤵 Ofitsiant:</b> Do you have any food allergies or dietary requirements?</p><p data-i="442"><b>🧳 Xorijiy mehmon:</b> No, thank you.</p><p data-i="443"><b>🤵 Ofitsiant:</b> May I confirm: one plov, no bread? It takes about 15 minutes.</p><p data-i="444"><b>🧳 Xorijiy mehmon:</b> Yes, correct.</p><p data-i="445"><i>Tarkib, porsiya va narx shu mashq menyusiga tegishli. Haqiqiy retsept bilan tekshiriladi.</i></p></div><div class="card" style="--c:var(--orange)"><span class="icon">🥜</span><h3 data-i="446">2. Allergen so'rovi</h3><p data-i="447"><b>🧳 Xorijiy mehmon:</b> I have a walnut allergy. Can I have this salad?</p><p data-i="448"><b>🤵 Ofitsiant:</b> A walnut allergy. Thank you for telling me. Let me check the ingredients and preparation with our kitchen.</p><p data-i="449"><b>👨‍🍳 Oshxona:</b> Maket javob: tarkib va alohida toza jihoz tekshirildi; yogurtli sousda sut bor. Yong'oq qo'shilmaydi.</p><p data-i="450"><b>🤵 Ofitsiant:</b> The kitchen has checked the recipe and separate preparation. The sauce contains milk. Would you like this salad?</p><p data-i="451"><b>🧳 Xorijiy mehmon:</b> Yes. I do not have a milk allergy.</p><p data-i="452"><b>🤵 Ofitsiant:</b> One salad, walnut allergy noted. I will confirm your plate with the kitchen before serving.</p><p data-i="453"><i>Maket javobi bo'lmasa yoki sharoit tasdiqlanmasa, taom uzatilmaydi.</i></p></div></div>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Xulosa" data-title-en="Xulosa">
+    <div class="inner">
+<span data-i="456" class="kicker">Yakun</span><h2 data-i="457">Esda qoladigan <span class="grad">6 ta qoida</span></h2><div class="grid g3" style="margin-top:16px"><div class="card" style="--c:var(--green);"><span class="icon">🌍</span><h3 data-i="458">Tilni so'rang</h3><p data-i="459">«Which language would you prefer?» — tashqi ko'rinishga qarab taxmin qilinmaydi.</p></div><div class="card" style="--c:var(--blue);"><span class="icon">🗣</span><h3 data-i="460">Sodda va sekin</h3><p data-i="461">Qisqa gap, oddiy so'z, tanlovli savol. Balandroq emas — soddaroq.</p></div><div class="card" style="--c:var(--violet);"><span class="icon">📖</span><h3 data-i="462">Tushuntiring</h3><p data-i="463">Nimadan, qanday pishgan, nima bilan, qanday ta'm; porsiya va narx — menyuda.</p></div><div class="card" style="--c:var(--orange);"><span class="icon">🤝</span><h3 data-i="464">Taxmin qilmang</h3><p data-i="465">Parhez, madaniy va diniy ehtiyoj neytral savol bilan so'raladi.</p></div><div class="card" style="--c:var(--pink);"><span class="icon">👨‍🍳</span><h3 data-i="466">Tekshiring</h3><p data-i="467">«Let me check the ingredients with our kitchen» — «I think» degan javob yo'q.</p></div><div class="card" style="--c:var(--cyan);"><span class="icon">✅</span><h3 data-i="468">Tasdiqlang</h3><p data-i="469">«May I confirm your order?» — va keyingi qadamni ayting.</p></div></div><div class="grid g2" style="margin-top:16px"><div class="card" style="--c:var(--green);"><span class="icon">📚</span><h3 data-i="470">Mustahkamlash uchun</h3><ul class="clean"><li data-i="471">15 ta iborani kartochkaga yozing va har kuni ovoz chiqarib takrorlang</li><li data-i="472">Restoraningiz menyusidan 5 ta taomni to'rt savol bo'yicha inglizcha tushuntirib yozing</li><li data-i="473">Ikkala dialogni hamkasbingiz bilan rollarga bo'lib o'qing</li></ul></div><div class="card" style="--c:var(--blue);"><span class="icon">➡️</span><h3 data-i="474">Keyingi mavzu</h3><p data-i="475"><b>5-mavzu. Menyu va allergenlar bilan ishlash:</b> tarkib, porsiya va pishirish usuli; allergiya va intolerans; allergen jadvali; allergenning boshqa taomga o'tish xavfi.</p></div></div>
+    </div>
+  </section>
+
+  <section class="slide" data-title="TEST · Bilimni tekshirish" data-title-en="TEST · Bilimni tekshirish">
+    <div class="inner">
+<span data-i="476" class="kicker">Yakuniy nazorat</span><h2 data-i="477">🧪 Test topshiriqlari — <span class="grad">15 ta savol</span></h2><div class="scorebar"><span><span data-ui="score">Natija:</span> <b><span id="scoreNow">0</span> / <span id="scoreMax">15</span></b></span><span><span data-ui="answered">Javob berildi:</span> <b id="answered">0</b></span><div class="spacer"></div><button data-i="478" class="btn warn" id="btnReset">↻ Testni qayta boshlash</button></div><div id="testWrap"></div><div class="result" id="result"><div class="pct" id="pct">0%</div><h3 data-i="479" id="resTitle" style="color:#fff;margin:10px 0 4px">Natija</h3><p id="resTxt" style="color:#fff;opacity:.95;margin:0"></p></div><div class="card" style="--c:var(--green);margin-top:18px;text-align:center"><h3 data-i="480">🎓 Rahmat! E'tiboringiz uchun tashakkur</h3><p data-i="481">Bu — <b>tayyorgarlik mashqi</b>. Keyingi mashg'ulotgacha 15 ta ishchi iborani takrorlang va o'z menyuingizdagi 5 ta taomni inglizcha tushuntirib keling.</p><p data-i="482" style="color:var(--muted);font-size:13.5px">Restoran xodimlari malakasini oshirish · RS 24</p></div>
+    </div>
+  </section>
+
+  </main>
+
+  <!-- ====== NAVBAR ====== -->
+  <footer class="navbar">
+    <button class="btn" id="btnPrev" data-ui="prev">← Orqaga</button>
+    <span class="counter"><b id="cur">1</b> / <span id="total">18</span></span>
+    <div class="dots" id="dots"></div>
+    <span class="counter" id="slideName"></span>
+    <button class="btn accent" id="btnNext" data-ui="next">Keyingi →</button>
+  </footer>
+</div>
+
+<!-- ====== OVERLAYS ====== -->
+<div class="overlay" id="overview">
+  <div class="ov-head">
+    <h3 style="margin:0;flex:1" data-ui="allslides">▦ Barcha slaydlar</h3>
+    <button class="btn" id="ovClose" data-ui="close">✕ Yopish</button>
+  </div>
+  <div class="thumbs" id="thumbs"></div>
+</div>
+
+<div class="overlay" id="help">
+  <div class="helpbox">
+    <h3 style="margin-top:0" data-ui="helpTitle">⌨️ Klaviatura va imkoniyatlar</h3>
+    <div><span data-ui="hNext">Keyingi slayd</span><span><kbd>→</kbd> <kbd>Space</kbd> <kbd>PgDn</kbd></span></div>
+    <div><span data-ui="hPrev">Oldingi slayd</span><span><kbd>←</kbd> <kbd>PgUp</kbd></span></div>
+    <div><span data-ui="hHome">Birinchi / oxirgi slayd</span><span><kbd>Home</kbd> <kbd>End</kbd></span></div>
+    <div><span data-ui="hList">Slaydlar ro'yxati</span><span><kbd>O</kbd></span></div>
+    <div><span data-ui="hTheme">Tun / Kun rejimi</span><span><kbd>D</kbd></span></div>
+    <div><span data-ui="hLang">O'zbekcha / English</span><span><kbd>L</kbd></span></div>
+    <div><span data-ui="hFull">To'liq ekran</span><span><kbd>F</kbd></span></div>
+    <div><span data-ui="hTimer">Vaqt hisoblagich (start/stop)</span><span><kbd>T</kbd></span></div>
+    <div><span data-ui="hPrint">Chop etish / PDF</span><span><kbd>P</kbd></span></div>
+    <div><span data-ui="hGoto">Slayd raqamiga o'tish</span><span><kbd>1</kbd>…<kbd>9</kbd></span></div>
+    <div><span data-ui="hEsc">Yopish</span><span><kbd>Esc</kbd></span></div>
+    <p style="color:var(--muted);font-size:13px;margin:14px 0 0" data-ui="helpNote">📱 Telefonda chapga/o'ngga surib (swipe) slaydlarni almashtirish mumkin. Ochilgan slayd brauzer xotirasida saqlanadi.</p>
+    <button class="btn accent" id="helpClose" data-ui="gotit" style="margin-top:14px;width:100%;justify-content:center">Tushunarli</button>
+  </div>
+</div>
+
+<div class="hint" id="hint" data-ui="hint">⌨️ <kbd>→</kbd> keyingi slayd · <kbd>D</kbd> tun/kun · <kbd>L</kbd> uz/eng · <kbd>O</kbd> ro'yxat · <kbd>F</kbd> to'liq ekran</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- RT:BEGIN -->
+<script>var RT_CFG={"topic": "r4", "home": "", "slides": 21, "quiz": 15, "pSlide": 2, "pAll": 10, "teacher": "", "firebase": {"db": "tadbirkorlik-asoslari-default-rtdb", "regions": ["asia-southeast1", "europe-west1", "us-central1", "europe-west4", "asia-east1", "us-east1", "northamerica-northeast1"], "url": "https://tadbirkorlik-asoslari-default-rtdb.asia-southeast1.firebasedatabase.app"}, "topics": [{"id": "m1", "mode": "read", "modeAt": 1793853742801, "file": "mavzu-1.html", "title": "M1 · Tadbirkorlik tafakkuri va biznes imkoniyatlar", "open": true, "read": true, "quiz": 15, "slides": 18, "pdf": "fayllar/M1-mavzu.pdf", "pdfSize": "3,3 MB"}, {"id": "m2", "mode": "read", "modeAt": 1793853742801, "file": "mavzu-2.html", "title": "M2 · Mijoz muammosi asosida biznes g'oya", "open": true, "read": true, "quiz": 15, "slides": 24, "pdf": "fayllar/M2-mavzu.pdf", "pdfSize": "4,9 MB"}, {"id": "m3", "mode": "read", "modeAt": 1793853742801, "file": "mavzu-3.html", "title": "M3 · Mahsulotni kam xarajat bilan sinash (moliya va kredit)", "open": true, "read": true, "quiz": 15, "slides": 15, "lim": true, "pdf": "fayllar/M3-mavzu.pdf", "pdfSize": "2,1 MB"}, {"id": "m4", "mode": "read", "modeAt": 1793853742801, "file": "mavzu-4.html", "title": "M4 · Biznesni qonuniy rasmiylashtirish", "open": true, "read": true, "quiz": 18, "slides": 18, "lim": true}, {"id": "m5", "mode": "read", "modeAt": 1793853742801, "file": "mavzu-5.html", "title": "M5 · Soliqlar va hujjatlar", "open": true, "read": true, "quiz": 3, "slides": 18, "lim": true}, {"id": "m6", "mode": "read", "modeAt": 1793853742801, "file": "mavzu-6.html", "title": "M6 · Biznes-model qanday ishlaydi", "open": true, "quiz": 20, "slides": 24, "lim": true, "read": true}, {"id": "m7", "mode": "open", "modeAt": 1793853742801, "file": "mavzu-7.html", "title": "M7 · CRM nima?", "open": true, "quiz": 20, "slides": 24, "lim": true, "read": true}, {"id": "m8", "mode": "lock", "modeAt": 1793853742801, "title": "M8 · Mahsulotni reklama qilish va mijozga yetkazish", "file": "mavzu-8.html", "open": true, "slides": 24, "quiz": 20, "task": 25, "lim": true, "pdf": "fayllar/M8-mavzu.pdf", "pdfSize": "3,3 MB"}, {"id": "m9", "mode": "lock", "modeAt": 1793853742801, "title": "M9 · Biznes g'oyani taqdim etish va tadbirkorlik yo'lini boshlash", "file": "mavzu-9.html", "open": true, "slides": 18, "quiz": 15, "lim": true}, {"id": "m10", "mode": "lock", "modeAt": 1793853742801, "title": "M10 · Savdo jarayonini tashkil etish va mijozlar bilan ishlash", "file": "mavzu-10.html", "open": true, "slides": 18, "quiz": 15, "lim": true}, {"id": "m11", "mode": "lock", "modeAt": 1793853742801, "title": "M11 · Mahsulot narxini shakllantirish", "file": "mavzu-11.html", "open": true, "slides": 18, "quiz": 15, "lim": true}, {"id": "m12", "mode": "lock", "modeAt": 1793853742801, "title": "M12 · Biznesda pul oqimini rejalashtirish: kirim, chiqim va mablag' jalb qilish", "file": "mavzu-12.html", "open": true, "slides": 18, "quiz": 15, "lim": true}, {"id": "m13", "mode": "lock", "modeAt": 1793853742801, "title": "M13 · Biznesda foyda va zarar tahlili", "file": "mavzu-13.html", "open": true, "slides": 18, "quiz": 15, "lim": true}, {"id": "m14", "mode": "lock", "modeAt": 1793853742801, "title": "M14 · Biznes-reja tuzish va mahsulotni tashqi bozorga olib chiqish", "file": "mavzu-14.html", "open": true, "slides": 18, "quiz": 15, "lim": true}, {"id": "m15", "mode": "lock", "modeAt": 1793853742801, "title": "M15 · Jamoani shakllantirish, xodimlarni boshqarish va xavflarni aniqlash", "file": "mavzu-15.html", "open": true, "slides": 18, "quiz": 15, "lim": true}, {"id": "r1", "course": "restoran", "file": "restoran-1.html", "title": "R1 · Kasbiy etika va xizmat sikli", "open": false, "slides": 20, "quiz": 15, "lim": true, "video": "fayllar/video/R1.mp4", "kind": "lesson", "plan": {"hours": "1 soat nazariya · 1 soat amaliyot", "about": "Kasbiy ko‘rinish, smenaoldi brifingi, xizmat ketma-ketligi va vakolat chegaralari. Mehmonni kutib olish, stolga joylashtirish, xizmat davomida holatni tekshirish va kuzatish.", "task": "Bron bilan kelgan va bronsiz kelgan ikki mehmonni qabul qiladi. Kutish vaqtini tushuntiradi, stolni taklif qiladi va xizmatni yakunlaydi.", "result": "Kuzatuv varag‘ida kutib olish, e’tibor, vaqtni kelishish va kuzatish qayd etiladi."}}, {"id": "r2", "course": "restoran", "file": "restoran-2.html", "title": "R2 · Sanitariya va xavfsiz xizmat", "open": false, "slides": 21, "quiz": 15, "lim": true, "video": "fayllar/video/R2.mp4", "kind": "lesson", "plan": {"hours": "1 soat nazariya · 1 soat amaliyot", "about": "Qo‘l gigiyenasi, toza forma, xodim salomatligi haqida xabar berish, toza va ishlatilgan idishlarni ajratish, ifloslanishning oldini olish. Issiq idish, ho‘l pol va singan shisha bilan bog‘liq xavflar.", "task": "Qo‘l yuvishni namoyish qiladi, ifloslangan anjomni almashtiradi, to‘kilgan suyuqlik joyini belgilaydi va mas’ul xodimga xabar beradi.", "result": "Gigiyena va xavfga javob bo‘yicha tekshiruv varag‘i to‘ldiriladi."}}, {"id": "r3", "course": "restoran", "file": "restoran-3.html", "title": "R3 · Stol servirovkasi va taom uzatish", "open": false, "slides": 21, "quiz": 15, "lim": true, "kind": "lesson", "plan": {"hours": "2 soat amaliyot", "about": "Banket uchun dastlabki tayyorgarlik. Idish, qadah va anjomlarni menyuga mos joylashtirish, patnisni muvozanatlash, issiq taomni ogohlantirib uzatish va stolni yig‘ishtirish.", "task": "Ikki kishilik stolni ikki xil menyuga mos jihozlaydi. Taomni buyurtma bergan mehmonga xavfsiz uzatib, ishlatilgan idishlarni yig‘adi.", "result": "Tayyor stol va taom uzatish harakati nazorat ro‘yxati bo‘yicha tekshiriladi."}}, {"id": "r4", "course": "restoran", "title": "R4 · Xorijiy mehmon bilan muloqot", "open": false, "kind": "lesson", "plan": {"hours": "1 soat nazariya · 1 soat amaliyot", "about": "Til tanlovini so‘rash, sodda va sekin gapirish, ismni hurmat bilan talaffuz qilish, ikki tilli menyudan foydalanish. Madaniy yoki diniy ehtiyojni taxmin qilmasdan aniqlashtirish va buyurtmani qayta tasdiqlash. Ishchi iboralar: Which language would you prefer? · Do you have any food allergies? · Let me check the ingredients with our kitchen. · May I confirm your order? · Would you like one bill or separate bills?", "task": "Oddiy ingliz tilida ikki dialog o‘tkazadi. Birida taom, porsiya va narxni izohlaydi. Ikkinchisida parhez so‘rovini yozib oladi va oshxona bilan tekshirishini tushuntiradi.", "result": "Mehmon tilni, buyurtma mazmunini va keyingi qadamni tushunganini tasdiqlaydi."}, "file": "restoran-4.html", "slides": 21, "quiz": 15, "lim": true}, {"id": "r5", "course": "restoran", "title": "R5 · Menyu va allergenlar bilan ishlash", "open": false, "kind": "lesson", "plan": {"hours": "1 soat nazariya · 1 soat amaliyot", "about": "Tarkib, porsiya va pishirish usuli. Allergiya, intolerans, halol yoki o‘simlik asosidagi ovqatlanish kabi so‘rovlarni aniqlashtirish. Tarkib va tayyorlash sharoitini tekshirish, jumladan allergenning boshqa taomga o‘tish xavfini aniqlash.", "task": "Yong‘oqqa allergiyasi bor mehmon uchun retsept va allergen jadvalini tekshiradi, oshxonadan tasdiq oladi va buyurtmani belgilaydi. Ishonchli javob bo‘lmasa uzatishni to‘xtatadi.", "result": "Buyurtma qaydida so‘rov, oshxona javobi va mehmonga bildirilgan yechim ko‘rinadi."}, "file": "restoran-5.html", "slides": 17, "quiz": 15, "lim": true}, {"id": "r6", "course": "restoran", "title": "R6 · Xalqaro mezonlar va xizmat uslublari", "open": false, "kind": "lesson", "plan": {"hours": "1 soat nazariya · 1 soat amaliyot", "about": "WorldSkills Restaurant Service mezonlari, Codex gigiyena va allergen boshqaruvi, ISO 22000 oziq-ovqat xavfsizligi tizimi. Tarelkada uzatish, umumiy lagandan xizmat, bufet, banket va yordamchi aravachada stol yonida xizmat. Qiyosiy mashq: Yevropa Ittifoqi, Buyuk Britaniya, Fransiya va AQSh qoidalari.", "task": "Bitta menyu uchun individual uzatish va bufet variantini qiyoslaydi. Xizmat yo‘nalishi, anjomlar, allergen axboroti va navbatni boshqarishni rejalashtiradi.", "result": "Ikki servis shaklining tayyorgarlik ro‘yxati va tanlov sababi taqdim etiladi."}, "file": "restoran-6.html", "slides": 18, "quiz": 15, "lim": true}, {"id": "r7", "course": "restoran", "title": "R7 · Buyurtma va zal bilan oshxona hamkorligi", "open": false, "kind": "lesson", "plan": {"hours": "1 soat nazariya · 1 soat amaliyot", "about": "Stol va o‘rin raqami, taomlar ketma-ketligi, kutish vaqti, maxsus so‘rovlar. POS buyurtma tizimiga kiritish, oshxona bilan tasdiqlash va vakolatli tuzatish.", "task": "Uch kishilik stol buyurtmasini takrorlaydi, demo POSga kiritadi va mavjud bo‘lmagan taomga oshxona tasdiqlagan muqobilni taklif qiladi.", "result": "Oshxona chiptasi, POS yozuvi va mehmon tasdiqlagan buyurtma o‘zaro mos bo‘ladi."}, "file": "restoran-7.html", "slides": 17, "quiz": 15, "lim": true}, {"id": "r8", "course": "restoran", "title": "R8 · Tavsiya berish va to‘lovni rasmiylashtirish", "open": false, "kind": "lesson", "plan": {"hours": "1 soat nazariya · 1 soat amaliyot", "about": "Mehmon byudjetiga mos tavsiya, taom va alkogolsiz ichimlik uyg‘unligi, suv, choy va qahva uzatish. Menyudagi narx va to‘lov shartlarini tushuntirish, hisobni tekshirish va tegishli chekni taqdim etish.", "task": "Mehmon roziligi bilan ichimlik taklif qiladi, ikki kishining hisobini ajratadi va xato bandni mas’ul bilan tuzatadi.", "result": "Menyu, buyurtma, tuzatilgan hisob va o‘quv cheki o‘zaro mos keladi."}, "file": "restoran-8.html", "slides": 18, "quiz": 15, "lim": true}, {"id": "r9", "course": "restoran", "title": "R9 · Shikoyat va inklyuziv xizmat", "open": false, "kind": "lesson", "plan": {"hours": "1 soat nazariya · 1 soat amaliyot", "about": "Mehmonni tinglash, muammoni aniqlashtirish, yechim va muddatni kelishish. Yordam turini mehmonning o‘zidan so‘rash, qulay o‘rin taklif qilish. Salomatlik yoki xavfsizlikka tahdid bo‘lsa, restoran tartibi bo‘yicha yordam chaqirish.", "task": "Kechikkan taom shikoyatini hal qiladi va harakatlanish uchun qulay o‘rin so‘ragan mehmonga uning roziligi bilan yordam beradi.", "result": "Shikoyat qaydida mas’ul, muddat, yechim va mehmon javobi ko‘rsatiladi."}, "file": "restoran-9.html", "slides": 17, "quiz": 15, "lim": true}, {"id": "r10", "course": "restoran", "title": "R10 · To‘liq smena bo‘yicha amaliy mashq", "open": false, "kind": "lesson", "plan": {"hours": "2 soat amaliyot", "about": "Brifingdan smena topshirishgacha ikki stolga xizmat. Xorijiy mehmon, allergen so‘rovi, kechikish va alohida hisob vaziyatlari.", "task": "Tinglovchilar ofitsiant, mehmon va oshxona vakili rollarini almashtiradi. Har bir tinglovchi kamida bitta to‘liq xizmat siklini bajaradi.", "result": "Individual kuzatuv varag‘i va keyingi smenaga topshiriladigan ochiq vazifa qaydi."}, "file": "restoran-10.html", "slides": 17, "quiz": 15, "lim": true}, {"id": "r11", "course": "restoran", "title": "R11 · Yakuniy nazariy imtihon", "open": false, "kind": "exam", "plan": {"hours": "2 soat imtihon", "about": "30 ta test savoli (1 balldan) va 2 ta vaziyatli topshiriq (5 balldan) — jami 40 ball. Testga 35 daqiqa, vaziyatli topshiriqlarga 40 daqiqa, yo‘riqnomaga 5 daqiqa. Savollar taqsimoti: servis (6), sanitariya va allergenlar (8), xorijiy mehmon va xalqaro amaliyot (6), buyurtma va hisob (6), shikoyat va xavfsizlik (4).", "task": "Imtihonga kirish: kamida 18/20 modul soati, sanitariya va allergen bo‘yicha amaliy topshiriqlar bajarilgan bo‘lishi kerak.", "result": "O‘tish sharti: kamida 28/40 ball."}, "file": "restoran-11.html", "slides": 24, "quiz": 30, "lim": true}, {"id": "r12", "course": "restoran", "title": "R12 · Yakuniy amaliy imtihon", "open": false, "kind": "exam", "plan": {"hours": "2 soat imtihon", "about": "Har bir tinglovchiga 12 daqiqa; ikki bir xil stansiyada beshtagacha tinglovchi va bittadan baholovchi. Vaziyat: xorijiy mehmon allergiyasini bildiradi va alohida hisob so‘raydi — tinglovchi stolni tekshiradi, oshxonadan javob oladi, buyurtma va to‘lovni rasmiylashtiradi, kechikishga javob beradi.", "task": "6 mezon × 10 ball: gigiyena va xavfsizlik; servirovka va taom uzatish; xorijiy mehmon bilan muloqot; menyu va allergenlar; buyurtma va hisob; shikoyat va hamkorlik (0 — bajarilmadi, 5 — qisman, 10 — to‘liq va mustaqil).", "result": "O‘tish sharti: kamida 45/60 ball. Kritik xato amaliy qism natijasini bekor qiladi."}, "file": "restoran-12.html", "slides": 14, "quiz": 0, "lim": true}], "teacherTg": "https://t.me/esfandiyorr?direct", "teacherName": "Isfandiyor Sayfiddinov", "reopen": {"m1": {"id": "2026-10-19", "until": "2026-10-22T23:59:59+05:00"}}, "pwaMsg": "2026-10-19", "courses": [{"id": "tad-asoslari", "icon": "🚀", "title": "Tadbirkorlik asoslari", "desc": "Nazariya, interaktiv testlar va amaliy topshiriqlar", "first": "tadbirkorlik-asoslari.html"}, {"id": "restoran", "icon": "🍽️", "title": "Restoran xodimlari malakasini oshirish", "desc": "RS 24 · 24 akademik soat (4 o‘quv kuni): 10 modul va 2 yakuniy imtihon — xizmat sikli, sanitariya, servirovka, xorijiy mehmon, allergenlar, buyurtma va to‘lov, shikoyat, to‘liq smena", "category": "Xizmat ko'rsatish", "blocks": [["Xizmat asoslari va mehmon bilan muloqot", ["r1", "r2", "r3", "r4"]], ["Menyu bilan ishlash va xalqaro xizmat amaliyoti", ["r5", "r6", "r7"]], ["Hisob yuritish va smena amaliyoti", ["r8", "r9", "r10"]], ["Yakuniy imtihonlar", ["r11", "r12"]]], "entry": "Imtihonga kirish uchun kamida 18/20 modul soati va sanitariya hamda allergen bo‘yicha amaliy topshiriqlar talab etiladi.", "paid": true}], "maintenance": {"on": false, "uz": "Taqdimotlar vaqtincha yopilgan. Ish tugagach sayt yana ochiladi — iltimos, keyinroq qayta kiring.", "en": "The presentations are temporarily closed. The site will reopen when the work is done — please come back later."}, "groups": ["FIZ-123", "FIZ-223", "FIZ-323", "AP-123", "AP-223", "AP-323", "D-123", "DKG-BF-123", "YES-123", "T-123", "T-223", "T-323", "T-423", "KI-123", "KI-223", "DI-123", "DI-223"], "groupRenames": {"T-232": "T-223"}, "hideRating": [{"name": "Isfandiyor", "surname": "Sayfiddinov"}], "tracks": [{"file": "Musofir.mp3", "title": "Musofir", "artist": ""}], "fbWeb": {"apiKey": "AIzaSyDPOvO9kqBcD9zIeCy_eR9szezLhoDB4Oo", "authDomain": "tadbirkorlik-asoslari.firebaseapp.com", "databaseURL": "https://tadbirkorlik-asoslari-default-rtdb.asia-southeast1.firebasedatabase.app", "projectId": "tadbirkorlik-asoslari", "storageBucket": "tadbirkorlik-asoslari.firebasestorage.app", "messagingSenderId": "303986754308", "appId": "1:303986754308:web:fca65cded4728199e68651"}, "teacherH": "9a5935bc7e3abb2f8da12a8f053d28b942d399f06d3841a799d1616c7bc48ceb"};if(RT_CFG.maintenance&&RT_CFG.maintenance.on)document.documentElement.className+=" rt-maint-pre";</script>
+<script src="rt-engine.js?v=3168403d48"></script>
+<!-- RT:END -->
+<script>
+(function(){
+"use strict";
+/* ============ UZ / ENG lug'ati ============ */
+
+var UI={
+ uni:["TERMIZ DAVLAT UNIVERSITETI","TERMEZ STATE UNIVERSITY"],
+ grid:["▦ Slaydlar","▦ Slides"],
+ full:["⛶ Ekran","⛶ Fullscreen"],
+ prev:["← Orqaga","← Back"],
+ next:["Keyingi →","Next →"],
+ reset:["↻ Testni qayta boshlash","↻ Restart the test"],
+ allslides:["▦ Barcha slaydlar","▦ All slides"],
+ close:["✕ Yopish","✕ Close"],
+ score:["Natija:","Score:"],
+ answered:["Javob berildi:","Answered:"],
+ helpTitle:["⌨️ Klaviatura va imkoniyatlar","⌨️ Keyboard and features"],
+ hNext:["Keyingi slayd","Next slide"],
+ hPrev:["Oldingi slayd","Previous slide"],
+ hHome:["Birinchi / oxirgi slayd","First / last slide"],
+ hList:["Slaydlar ro'yxati","Slide overview"],
+ hTheme:["Tun / Kun rejimi","Night / Day mode"],
+ hLang:["O'zbekcha / English","Uzbek / English"],
+ hFull:["To'liq ekran","Fullscreen"],
+ hTimer:["Vaqt hisoblagich (start/stop)","Timer (start/stop)"],
+ hPrint:["Chop etish / PDF","Print / PDF"],
+ hGoto:["Slayd raqamiga o'tish","Go to slide number"],
+ hEsc:["Yopish","Close"],
+ helpNote:["📱 Telefonda chapga/o'ngga surib (swipe) slaydlarni almashtirish mumkin. Ochilgan slayd brauzer xotirasida saqlanadi.",
+           "📱 On a phone you can swipe left/right to change slides. The current slide is remembered in the browser."],
+ gotit:["Tushunarli","Got it"],
+ hint:["⌨️ <kbd>→</kbd> keyingi slayd · <kbd>D</kbd> tun/kun · <kbd>L</kbd> uz/eng · <kbd>O</kbd> ro'yxat · <kbd>F</kbd> to'liq ekran",
+       "⌨️ <kbd>→</kbd> next slide · <kbd>D</kbd> night/day · <kbd>L</kbd> uz/eng · <kbd>O</kbd> overview · <kbd>F</kbd> fullscreen"],
+ night:["Tun","Night"], day:["Kun","Day"], slide:["SLAYD","SLIDE"],
+ right:["✅ To'g'ri! ","✅ Correct! "],
+ wrong:["❌ Noto'g'ri. To'g'ri javob: ","❌ Incorrect. Correct answer: "],
+ correct:["to'g'ri javob","correct"],
+ r90t:["🏆 A'lo natija!","🏆 Excellent!"],
+ r90x:["Siz mavzuni mukammal o'zlashtirgansiz. Endi g'oyangizni amalda sinash vaqti keldi!",
+       "You have mastered the topic. Now it is time to test your idea in practice!"],
+ r75t:["🎉 Juda yaxshi!","🎉 Very good!"],
+ r75x:["Asosiy tushunchalar mustahkam. Yana bir bor takrorlab chiqing.",
+       "The key concepts are solid. Review the material once more."],
+ r50t:["👍 Yaxshi, lekin yetarli emas","👍 Good, but not enough"],
+ r50x:["Ma'ruzaning asosiy qismlarini qayta o'qing va testni takrorlang.",
+       "Re-read the main sections of the lecture and take the test again."],
+ r0t:["📚 Takrorlash zarur","📚 Revision needed"],
+ r0x:["Slaydlarni boshidan ko'rib chiqing va testni qaytadan yeching.",
+      "Go through the slides from the beginning and take the test again."],
+ subj:["Restoran xizmati · 4-mavzu", "Restaurant service · Topic 4"]
+};
+var lang="uz", i18nNodes=[], i18nOrig=[], uiNodes=[], uiOrig=[];
+function UIT(k){ return (UI[k]||["",""])[lang==="en"?1:0]; }
+function QSRC(){ return (lang==="en" && typeof QEN!=="undefined" && QEN && QEN.length===Q.length) ? QEN : Q; }
+
+/* ================= SLAYD BOSHQARUVI ================= */
+var slides=[].slice.call(document.querySelectorAll(".slide"));
+var total=slides.length, idx=0;
+var $=function(s){return document.querySelector(s)};
+$("#total").textContent=total;
+$("#scoreMax");
+
+var dots=$("#dots"), thumbs=$("#thumbs");
+slides.forEach(function(s,i){
+  var d=document.createElement("button");
+  d.className="dot"; d.title=(i+1)+". "+s.dataset.title;
+  d.onclick=function(){go(i)};
+  dots.appendChild(d);
+  var t=document.createElement("button");
+  t.className="thumb";
+  t.innerHTML="<i>"+UIT("slide")+" "+(i+1)+"</i><b>"+(lang==="en"&&s.dataset.titleEn?s.dataset.titleEn:s.dataset.title)+"</b>";
+  t.onclick=function(){go(i);closeAll()};
+  thumbs.appendChild(t);
+});
+var dotEls=[].slice.call(dots.children), thEls=[].slice.call(thumbs.children);
+
+function go(n){
+  n=Math.max(0,Math.min(total-1,n));
+  slides.forEach(function(s,i){
+    s.classList.toggle("active",i===n);
+    s.classList.toggle("prev",i<n);
+  });
+  dotEls.forEach(function(d,i){d.classList.toggle("on",i===n)});
+  thEls.forEach(function(d,i){d.classList.toggle("on",i===n)});
+  idx=n;
+  $("#cur").textContent=n+1;
+  $("#slideName").textContent=(typeof lang!=="undefined"&&lang==="en"&&slides[n].dataset.titleEn)?slides[n].dataset.titleEn:slides[n].dataset.title;
+  $("#progress").style.width=((n+1)/total*100)+"%";
+  $("#btnPrev").disabled=(n===0);
+  $("#btnNext").disabled=(n===total-1);
+  slides[n].scrollTop=0;
+  if(window.RT) RT.slideSeen(n);
+  try{localStorage.setItem("terdu_r4_slide",n)}catch(e){}
+  try{history.replaceState(null,"","#"+(n+1));}catch(e){} /* RT_HASH */
+  var hn=document.getElementById("hint"); if(hn&&n>0)hn.classList.add("hide");
+  if(slides[n].querySelector("[data-count]")) countUp(slides[n]);
+}
+$("#btnPrev").onclick=function(){go(idx-1)};
+$("#btnNext").onclick=function(){go(idx+1)};
+
+/* ================= RAQAMLAR ANIMATSIYASI ================= */
+function countUp(slide){
+  slide.querySelectorAll("[data-count]").forEach(function(el){
+    var end=parseFloat(el.dataset.count), dec=parseInt(el.dataset.dec||"0",10), suf=el.dataset.suf||"";
+    var t0=null, dur=1100;
+    function step(ts){
+      if(!t0)t0=ts;
+      var p=Math.min(1,(ts-t0)/dur), e=1-Math.pow(1-p,3);
+      var v=(end*e).toFixed(dec).replace(".",",");
+      el.textContent=v+suf;
+      if(p<1)requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  });
+}
+
+/* ================= TUN / KUN REJIMI ================= */
+function setTheme(t){
+  document.documentElement.setAttribute("data-theme",t);
+  $("#btnTheme").innerHTML=(t==="dark"?"☀️ ":"🌙 ")+"<span id='themeTxt'>"+UIT(t==="dark"?"day":"night")+"</span>";
+  try{localStorage.setItem("terdu_theme",t)}catch(e){}
+}
+$("#btnTheme").onclick=function(){
+  setTheme(document.documentElement.getAttribute("data-theme")==="dark"?"light":"dark");
+};
+
+/* ================= TO'LIQ EKRAN / CHOP ETISH ================= */
+$("#btnFull").onclick=function(){
+  if(!document.fullscreenElement){ (document.documentElement.requestFullscreen||function(){})().catch(function(){}); }
+  else{ document.exitFullscreen(); }
+};
+$("#btnPrint").onclick=function(){window.print()};
+
+/* ================= VAQT HISOBLAGICH ================= */
+var sec=0, tick=null;
+function fmt(s){var m=Math.floor(s/60),r=s%60;return (m<10?"0":"")+m+":"+(r<10?"0":"")+r}
+$("#btnTimer").onclick=function(){
+  if(tick){clearInterval(tick);tick=null;}
+  else{ tick=setInterval(function(){sec++;document.getElementById("timer").textContent=fmt(sec);},1000); }
+};
+
+/* ================= OVERLAYLAR ================= */
+function closeAll(){$("#overview").classList.remove("show");$("#help").classList.remove("show")}
+$("#btnGrid").onclick=function(){$("#overview").classList.toggle("show")};
+$("#ovClose").onclick=closeAll;
+$("#btnHelp").onclick=function(){$("#help").classList.toggle("show")};
+$("#helpClose").onclick=closeAll;
+$("#overview").addEventListener("click",function(e){if(e.target===this)closeAll()});
+$("#help").addEventListener("click",function(e){if(e.target===this)closeAll()});
+
+/* ================= KLAVIATURA ================= */
+document.addEventListener("keydown",function(e){
+  var k=e.key;
+  if(k==="Escape"){closeAll();return}
+  if(/^(INPUT|TEXTAREA)$/.test(e.target.tagName))return;
+  if(k==="ArrowRight"||k===" "||k==="PageDown"){e.preventDefault();go(idx+1)}
+  else if(k==="ArrowLeft"||k==="PageUp"){e.preventDefault();go(idx-1)}
+  else if(k==="Home"){go(0)}
+  else if(k==="End"){go(total-1)}
+  else if(k==="o"||k==="O"||k==="Ў"){$("#btnGrid").click()}
+  else if(k==="d"||k==="D"){$("#btnTheme").click()}
+  else if(k==="l"||k==="L"){$("#btnLang").click()}
+  else if(k==="f"||k==="F"){$("#btnFull").click()}
+  else if(k==="t"||k==="T"){$("#btnTimer").click()}
+  else if(k==="p"||k==="P"){e.preventDefault();window.print()}
+  else if(k==="?"){$("#btnHelp").click()}
+  else if(/^[1-9]$/.test(k)){go(parseInt(k,10)-1)}
+});
+
+/* ================= SWIPE (telefon uchun) ================= */
+var x0=null,y0=null;
+document.getElementById("deck").addEventListener("touchstart",function(e){
+  x0=e.changedTouches[0].clientX; y0=e.changedTouches[0].clientY;
+},{passive:true});
+document.getElementById("deck").addEventListener("touchend",function(e){
+  if(x0===null)return;
+  var dx=e.changedTouches[0].clientX-x0, dy=e.changedTouches[0].clientY-y0;
+  if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)*1.6){ dx<0?go(idx+1):go(idx-1); }
+  x0=null;
+},{passive:true});
+
+/* ================= TEST ================= */
+var Q=[
+ {q:"Restoranga xorijiy mehmon kirdi. Qaysi tilda gaplashishni qanday aniqlaysiz?",
+  a:["Salomlashib, «Which language would you prefer?» deb so'rayman",
+     "Tashqi ko'rinishiga qarab, o'zim mos tilni tanlab olaman",
+     "Darhol rus tilida gapiraman, chunki uni hamma tushunadi",
+     "Mehmon o'zi gapirmaguncha, indamay kutib turaveraman"],c:0,
+  e:"Til taxmin qilinmaydi: salomdan keyin mehmonning o'zidan so'raladi."},
+ {q:"Qaysi javob sodda nutq qoidalariga mos keladi?",
+  a:["«This is lamb. It is cooked slowly. It is very soft.»",
+     "«It's our chef's slow-braised signature lamb shank.»",
+     "«Well, basically, it's kind of a lamb thing, you know.»",
+     "«The lamb, which is braised, is rather tender, I'd say.»"],c:0,
+  e:"Qisqa gaplar, bitta gapda bitta fikr, oddiy so'zlar — idioma va murakkab tuzilmalarsiz."},
+ {q:"Mehmon aytganingizni tushunmadi. To'g'ri harakat qaysi?",
+  a:["Soddaroq so'z bilan qayta aytaman va menyuda ko'rsataman",
+     "O'sha gapni balandroq ovozda yana bir marta takrorlayman",
+     "Tushunmaganiga e'tibor bermay, buyurtmani yozib ketaman",
+     "Hamkasbimga o'zbekchada mehmon haqida gapirib beraman"],c:0,
+  e:"Balandroq aytish yordam bermaydi. Boshqa, soddaroq so'z tanlanadi va ko'rsatib tushuntiriladi."},
+ {q:"Mehmon «What is plov?» deb so'radi. Qaysi javob eng tushunarli?",
+  a:["«Rice cooked with lamb, carrots and onions.»",
+     "«Plov is plov. It is a very famous Uzbek food.»",
+     "«It is our national pride, everybody loves it.»",
+     "«You will see when it comes. It is delicious.»"],c:0,
+  e:"Taom nomi tarjima qilinmaydi — tushuntiriladi: nimadan, qanday pishgan, qanday ta'm."},
+ {q:"Iborani to'ldiring: «Would you like one bill or ____ bills?» <i>(bitta inglizcha so'z)</i>",
+  o:["separate", "seperate", "separate bills"],
+  e:"«Would you like one bill or separate bills?» — «Hisob bittami yoki alohidami?»"},
+ {q:"Mehmon «Is this dish halal?» deb so'radi, siz aniq bilmaysiz. Nima deysiz?",
+  a:["«Let me check with our kitchen. One moment, please.»",
+     "«Yes, of course, everything here is always halal.»",
+     "«I think it is OK. You can try it and see, madam.»",
+     "«I do not know. Please ask somebody else, sorry.»"],c:0,
+  e:"«Halol» — va'da. Uni faqat oshxona va mas'ul xodim tasdiqlagandan keyin aytish mumkin."},
+ {q:"Mehmonning parhez yoki diniy ehtiyojini qanday aniqlash to'g'ri?",
+  a:["Hammaga bir xil savol: «Do you have any dietary requirements?»",
+     "Millati va kiyimiga qarab, nimani yemasligini o'zim taxmin qilaman",
+     "To'g'ridan-to'g'ri so'rayman: «What is your religion, please?»",
+     "Hech narsa so'ramayman, mehmon o'zi aytmasa — demak, talab yo'q"],c:0,
+  e:"Ehtiyoj taxmin qilinmaydi va din haqida so'ralmaydi: hammaga neytral savol beriladi."},
+ {q:"Buyurtmani qabul qilgach, uni tasdiqlash uchun qaysi ibora ishlatiladi?",
+  a:["«May I confirm your order?»",
+     "«Are you ready to order?»",
+     "«Would you like the bill?»",
+     "«Do you have a reservation?»"],c:0,
+  e:"«May I confirm your order?» — keyin taomlar, miqdor, maxsus so'rov va kutish vaqti takrorlanadi."},
+ {q:"Iborani to'ldiring: «Do you have any food ____?» — «Ovqatga allergiyangiz bormi?» <i>(bitta inglizcha so'z)</i>",
+  o:["allergies", "allergy", "alergies", "allergys"],
+  e:"«Do you have any food allergies?» — har bir xorijiy mehmonga beriladigan xavfsizlik savoli."},
+ {q:"Bron jurnalida mehmonning ismi «Nguyen». Uni qanday talaffuz qilishni bilmaysiz. Nima qilasiz?",
+  a:["«How do you pronounce your name?» deb so'rayman",
+     "Yozilganidek o'qiyman, xato bo'lsa ham mayli",
+     "Ismni aytmay, faqat «Hey» deb murojaat qilaman",
+     "Qulay bo'lishi uchun ismni qisqartirib aytaman"],c:0,
+  e:"Ismni noto'g'ri aytgandan ko'ra so'rash yaxshi — bu hurmat belgisi."},
+ {q:"Mehmon tez gapirdi va siz tushunmadingiz. Qaysi javob to'g'ri?",
+  a:["«Sorry. Could you repeat that, please?»",
+     "«Yes, yes, OK, no problem, thank you.»",
+     "«I do not speak English. Goodbye, sir.»",
+     "«Speak Uzbek, please. This is Uzbekistan.»"],c:0,
+  e:"Tushunmaslik ayb emas; tushungandek «yes» deyish — xato. Qaytarishni yoki menyuda ko'rsatishni so'rang."},
+ {q:"Narxni xorijiy mehmonga qanday aytish to'g'ri?",
+  a:["Aytaman va menyuda ko'rsataman; qo'shimcha to'lovni oldindan aytaman",
+     "Faqat og'zaki, tez aytaman; qo'shimcha to'lovni hisobda ko'radi",
+     "Narxni aytmayman, chunki u menyuda inglizcha yozib qo'yilgan",
+     "Dollarda taxminan aytaman, so'mdagi narxni hisobda ko'radi"],c:0,
+  e:"Fifteen va fifty kabi raqamlar oson adashtiriladi: narx ko'rsatiladi, xizmat haqi kabi to'lovlar oldindan aytiladi."},
+ {q:"Iborani to'ldiring: «Let me check the ingredients with our ____.» <i>(bitta inglizcha so'z — «oshxona»)</i>",
+  o:["kitchen", "kichen", "kitchin", "chef"],
+  e:"«Let me check the ingredients with our kitchen» — «Tarkibni oshxonamizdan tekshirib ko'ray»."},
+ {q:"Muloqot muvaffaqiyatli bo'lganini nimadan bilasiz (natija dalili)?",
+  a:["Mehmon tilni, buyurtma mazmunini va keyingi qadamni tushundi",
+     "Mehmon har bir gapimga jilmayib, «yes, yes» deb javob berdi",
+     "Men biror marta ham grammatik xato qilmasdan gapira oldim",
+     "Suhbat juda qisqa bo'ldi va mehmon hech narsa so'ramadi"],c:0,
+  e:"Mukammal grammatika emas — mehmon uch narsani tushungani muhim: til, buyurtma, keyingi qadam."},
+ {q:"Inglizcha «spicy» so'zi taom haqida gapirilganda o'zbekcha nimani bildiradi? <i>(bitta so'z)</i>",
+  o:["achchiq", "achiq", "o'tkir", "achchiq taom", "qalampirli"],
+  e:"Spicy — achchiq. «It is not spicy» — «Achchiq emas»."}
+];
+function qIsOpen(qi){ return !!(Q[qi]&&Q[qi].o); }
+function qNorm(v){
+  var cy={"а":"a","б":"b","в":"v","г":"g","д":"d","е":"e","ё":"yo","ж":"j","з":"z","и":"i","й":"y","к":"k","л":"l","м":"m","н":"n","о":"o","п":"p","р":"r","с":"s","т":"t","у":"u","ф":"f","х":"x","ц":"ts","ч":"ch","ш":"sh","щ":"sh","ъ":"","ы":"i","ь":"","э":"e","ю":"yu","я":"ya","ў":"o","қ":"q","ғ":"g","ҳ":"h"};
+  return String(v==null?"":v).toLowerCase().replace(/[\u0400-\u04ff]/g,function(c){ return cy[c]!==undefined?cy[c]:c; }).replace(/[^a-z0-9]/g,"");
+}
+function qLev(a,b){
+  if(Math.abs(a.length-b.length)>1) return 2;
+  var p=[],i,j; for(j=0;j<=b.length;j++) p[j]=j;
+  for(i=1;i<=a.length;i++){ var c=[i]; for(j=1;j<=b.length;j++) c[j]=Math.min(p[j]+1,c[j-1]+1,p[j-1]+(a[i-1]===b[j-1]?0:1)); p=c; }
+  return p[b.length];
+}
+function qOk(qi,p){
+  if(p===undefined||p===null) return false;
+  var it=Q[qi]; if(!it.o) return p===it.c;
+  var v=qNorm(p); if(!v) return false;
+  var acc=it.o.concat((typeof QEN!=="undefined"&&QEN&&QEN[qi]&&QEN[qi].o)||[]);
+  return acc.some(function(a){
+    var n=qNorm(a);
+    if(/^[0-9]+$/.test(n)) return String(p).replace(/[^0-9]/g,"")===n;
+    return v===n||(n.length>=6&&qLev(v,n)<=1);
+  });
+}
+/* RS 24: faqat yangi R4–R11 uchun mahalliy tayyorgarlik testi.
+   Akademik ball, urinish va bazaga yozuv yo'q. R12 — kuzatuv, testsiz.
+   Q, qOk va qIsOpen taqdimotdan olinadi; renderTest til dvigatelining ilgagi. */
+var RS_MIN = 15, RS_STATE = null, RS_TIMER = null;
+// Oxirgi ifoda sync-legacy.mjs dagi muharrir savollari versiyasi bilan mos.
+function rsKey(){ var s=window.RT&&RT.student&&RT.student(); return "terdu_restoran_practice_"+RT_CFG.topic+"_"+(s?s.id:"anon"); }
+function rsSave() {
+  try { localStorage.setItem(rsKey(), JSON.stringify(RS_STATE)); } catch (e) {}
+}
+function rsLoad() {
+  try { RS_STATE = JSON.parse(localStorage.getItem(rsKey()) || 'null'); } catch (e) { RS_STATE = null; }
+  if (RS_STATE && (RS_STATE.version !== 1 || RS_STATE.order.length !== Q.length)) RS_STATE = null;
+}
+function rsShuffle(list) {
+  for (var i = list.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1)), temp = list[i]; list[i] = list[j]; list[j] = temp;
+  }
+  return list;
+}
+function rsLeft() { return Math.max(0, RS_STATE.at + RS_MIN * 60000 - Date.now()); }
+function rsClock(ms) { var s = Math.ceil(ms / 1000); return Math.floor(s / 60) + ':' + ('0' + s % 60).slice(-2); }
+function rsStart() {
+  if (!confirm('Tayyorgarlik mashqi: ' + Q.length + ' ta savol, ' + RS_MIN + ' daqiqa. Rasmiy bahoga yozilmaydi. Boshlaysizmi?')) return;
+  RS_STATE = { version: 1, at: Date.now(), done: false, answers: {},
+    order: rsShuffle(Q.map(function (_, i) { return i; })), options: {} };
+  Q.forEach(function (q, i) { if (q.a) RS_STATE.options[i] = rsShuffle(q.a.map(function (_, j) { return j; })); });
+  rsSave(); renderTest(); rsTick();
+}
+function rsFinish() {
+  if (!RS_STATE || RS_STATE.done) return;
+  RS_STATE.done = true; clearInterval(RS_TIMER); rsSave(); renderTest();
+}
+function rsAnswer(index, value) {
+  if (!RS_STATE || RS_STATE.done || RS_STATE.answers[index] !== undefined) return;
+  if (!rsLeft()) { rsFinish(); return; }
+  if (qIsOpen(index)) { value = String(value).trim().slice(0, 60); if (!value) return; }
+  RS_STATE.answers[index] = value; rsSave();
+  if (Object.keys(RS_STATE.answers).length === Q.length) rsFinish(); else renderTest();
+}
+function rsTick() {
+  clearInterval(RS_TIMER);
+  if (!RS_STATE || RS_STATE.done) return;
+  RS_TIMER = setInterval(function () {
+    if (!rsLeft()) { rsFinish(); return; }
+    var timer = document.getElementById('qtTime'); if (timer) timer.textContent = rsClock(rsLeft());
+  }, 1000);
+}
+function renderTest() {
+  var wrap = document.getElementById('testWrap');
+  if (!wrap || !Q.length) return;
+  if (RS_STATE && !RS_STATE.done && !rsLeft()) { rsFinish(); return; }
+  wrap.innerHTML = '';
+  document.getElementById('scoreMax').textContent = Q.length;
+  var correct = RS_STATE ? Q.reduce(function (sum, _, i) { return sum + (qOk(i, RS_STATE.answers[i]) ? 1 : 0); }, 0) : 0;
+  document.getElementById('scoreNow').textContent = correct;
+  document.getElementById('answered').textContent = RS_STATE ? Object.keys(RS_STATE.answers).length : 0;
+  var result = document.getElementById('result'); result.classList.toggle('show', !!(RS_STATE && RS_STATE.done));
+  if (RS_STATE && RS_STATE.done) {
+    document.getElementById('pct').textContent = correct + ' / ' + Q.length;
+    document.getElementById('resTitle').textContent = 'Tayyorgarlik natijasi';
+    document.getElementById('resTxt').textContent = 'Bu mashq rasmiy imtihon bahosi emas. Izohlarni o‘qing va xato yo‘nalishni qayta mashq qiling.';
+  }
+  if (!RS_STATE || RS_STATE.done) {
+    var start = document.createElement('button'); start.type = 'button'; start.className = 'btn accent'; start.id = 'qtGo';
+    start.textContent = RS_STATE ? 'Yangi mashqni boshlash' : 'Tayyorgarlik testini boshlash · ' + RS_MIN + ' daqiqa';
+    start.onclick = rsStart; wrap.appendChild(start);
+  }
+  if (!RS_STATE) return;
+  if (!RS_STATE.done) {
+    var status = document.createElement('p'); status.innerHTML = '⏱ Qolgan vaqt: <b id="qtTime">' + rsClock(rsLeft()) + '</b> · faqat mashq';
+    var finish = document.createElement('button'); finish.type = 'button'; finish.className = 'btn'; finish.id = 'qtEnd'; finish.textContent = 'Mashqni yakunlash';
+    finish.onclick = function () { if (confirm('Javobsiz savollar ham 0 hisoblanadi. Yakunlaysizmi?')) rsFinish(); };
+    wrap.appendChild(status); wrap.appendChild(finish);
+  }
+  RS_STATE.order.forEach(function (index, position) {
+    var q = Q[index], picked = RS_STATE.answers[index], box = document.createElement('div'); box.className = 'qbox';
+    var heading = document.createElement('p'); heading.className = 'q'; heading.innerHTML = '<i>' + (position + 1) + '</i>' + q.q; box.appendChild(heading);
+    if (qIsOpen(index)) {
+      if (picked === undefined && !RS_STATE.done) {
+        var input = document.createElement('input'); input.className = 'qin'; input.maxLength = 60; input.setAttribute('aria-label', 'Javob ' + (position + 1));
+        var submit = document.createElement('button'); submit.type = 'button'; submit.className = 'btn'; submit.textContent = 'Javob berish';
+        submit.onclick = function () { rsAnswer(index, input.value); };
+        input.onkeydown = function (e) { if (e.key === 'Enter') { e.preventDefault(); rsAnswer(index, input.value); } };
+        box.appendChild(input); box.appendChild(submit);
+      } else {
+        var written = document.createElement('p'); written.textContent = picked === undefined ? 'Javobsiz' : 'Javobingiz: ' + picked; box.appendChild(written);
+      }
+    } else RS_STATE.options[index].forEach(function (answer) {
+      var option = document.createElement('button'); option.type = 'button'; option.className = 'opt'; option.textContent = q.a[answer];
+      option.disabled = picked !== undefined || RS_STATE.done;
+      if (picked === answer) option.classList.add(qOk(index, picked) ? 'right' : 'wrong');
+      option.onclick = function () { rsAnswer(index, answer); }; box.appendChild(option);
+    });
+    if (RS_STATE.done) {
+      var feedback = document.createElement('p'); feedback.className = 'fb show ' + (qOk(index, picked) ? 'ok' : 'no');
+      feedback.textContent = (qOk(index, picked) ? '✓ ' : '↻ ') + q.e; box.appendChild(feedback);
+    }
+    wrap.appendChild(box);
+  });
+}
+if (Q.length) { rsLoad(); renderTest(); rsTick(); }
+var rsReset = document.getElementById('btnReset');
+if (rsReset) rsReset.onclick = function () {
+  if (!confirm('Faqat shu tayyorgarlik mashqini tozalaysizmi?')) return;
+  clearInterval(RS_TIMER); RS_STATE = null; rsSave(); renderTest();
+};
+
+/* ================= UZ / ENG mexanizmi ================= */
+var EN={"0": "4-mavzu · 1 soat nazariya · 1 soat amaliyot", "1": "XORIJIY MEHMON BILAN MULOQOT", "2": "<b>Til tanlovini so'rash</b> · sodda va sekin gapirish · ismni hurmat bilan talaffuz qilish · <b>ikki tilli menyu</b> · taom, porsiya va narxni izohlash · madaniy va diniy ehtiyojni <b>taxmin qilmasdan</b> aniqlashtirish · parhez so'rovi · <b>buyurtmani qayta tasdiqlash</b> · xizmat ingliz tilidagi ishchi iboralar.", "3": "🍽️ Kurs: <b>Restoran xodimlari malakasini oshirish</b>", "4": "🗂 <b>RS 24</b> · 24 akademik soat · 10 modul + 2 imtihon", "5": "📖 <b>21</b> slayd · <b>15</b> ta mashq savoli · vaziyat va nazorat varag'i", "6": "⌨️ <b>→</b> bilan davom eting · <b>P</b> — chop etish", "7": "Mavzuning maqsadi", "8": "Mashg'ulot yakunida tinglovchi <span class=\"grad\">nima qila oladi?</span>", "9": "Maqsad: tinglovchi xorijiy mehmon bilan <b>sodda ingliz tilida</b> xavfsiz va tushunarli muloqot qiladi: tilni aniqlaydi, taomni tushuntiradi, ehtiyojni <b>taxmin qilmasdan so'raydi</b> va buyurtmani qayta tasdiqlaydi. Mukammal grammatika emas — <b>mehmon to'g'ri tushungani</b> muhim.", "10": "Tilni aniqlaydi", "11": "Mehmon qaysi tilda gaplashishni xohlashini so'raydi — tashqi ko'rinishga qarab taxmin qilmaydi.", "12": "Sodda gapiradi", "13": "Qisqa gaplar, sekin va aniq talaffuz, idiomasiz. Tushunilganini tekshiradi.", "14": "Menyuni tushuntiradi", "15": "Ikki tilli menyudan foydalanib, taom tarkibi, porsiyasi va narxini izohlaydi.", "16": "Ehtiyojni so'raydi", "17": "Parhez, madaniy yoki diniy ehtiyojni neytral savol bilan aniqlashtiradi va yozib oladi.", "18": "Oshxona bilan tekshiradi", "19": "Bilmagan narsasini taxmin qilmaydi: «Let me check with our kitchen».", "20": "Tasdiqlaydi", "21": "Buyurtmani takrorlaydi va mehmon keyingi qadamni tushunganiga ishonch hosil qiladi.", "22": "Mashg'ulot rejasi", "23": "Bugungi <span class=\"grad\">5 ta blok</span>", "24": "Til va salom", "25": "Til tanlovi, kutib olish, ism va murojaat.", "26": "Sodda nutq", "27": "7 qoida: qisqa, sekin, aniq, tekshirib.", "28": "Menyu", "29": "Taomni tushuntirish, porsiya va narx.", "30": "Ehtiyoj", "31": "Madaniy, diniy va parhez so'rovlari.", "32": "Tasdiq va amaliyot", "33": "Buyurtmani tasdiqlash, hisob, ikki dialog.", "34": "🔑 Tayanch tushunchalar va so'zlar", "35": "<span class=\"pill g\">til tanlovi</span><span class=\"pill g\">sodda nutq</span><span class=\"pill g\">ikki tilli menyu</span><span class=\"pill g\">ingredients — tarkib</span><span class=\"pill\">portion — porsiya</span><span class=\"pill\">spicy — achchiq</span><span class=\"pill g\">allergy — allergiya</span><span class=\"pill g\">dietary requirements — parhez talablari</span><span class=\"pill\">halal</span><span class=\"pill\">vegetarian</span><span class=\"pill g\">to confirm — tasdiqlash</span><span class=\"pill g\">bill — hisob</span><span class=\"pill\">separate — alohida</span><span class=\"pill\">receipt — chek</span>", "36": "1-blok · Kontekst", "37": "Mehmon uchun bu yerda <span class=\"grad\">hamma narsa yangi</span>", "38": "Xorijiy mehmon tilni bilmaydi, taomlarni tanimaydi, narx va odatlarga ko'nikmagan. U sizga <b>ko'proq ishonishga majbur</b>: nima yeyishini, qancha to'lashini va nima bo'layotganini siz orqali biladi. Shuning uchun vazifa ikkita: <b>tushunarli</b> va <b>xavfsiz</b>.", "39": "Til to'sig'i", "40": "Mehmon savolini to'liq bera olmaydi yoki javobingizni yarim tushunadi. Tushunmagan mehmon ko'pincha <b>«yes» deb bosh irg'aydi</b>.", "41": "Notanish taomlar", "42": "«Norin», «hasip», «qazi» — mehmonga hech narsa demaydi. Tarkibni bilmasdan buyurtma berish — allergiya va diniy cheklov uchun <b>xavf</b>.", "43": "Narx va odatlar", "44": "So'mdagi narx, xizmat haqi, choychaqa, non va choy pullikmi — mehmon bularni <b>oldindan</b> bilishni xohlaydi.", "45": "Mehmon nimadan xavotirda", "46": "Sizning javobingiz", "47": "«Meni tushunisharmikan?»", "48": "Tilni so'raysiz, sekin va sodda gapirasiz", "49": "«Bu taomda nima bor?»", "50": "Tarkibni tushuntirasiz, bilmasangiz — oshxonadan so'raysiz", "51": "«Qancha to'layman?»", "52": "Narxni menyuda ko'rsatasiz, qo'shimcha to'lovlarni oldindan aytasiz", "53": "«Menga mumkin bo'lmagan narsa tushib qolmasmikan?»", "54": "Parhez va allergiyani so'rab, yozib olasiz va tasdiqlaysiz", "55": "«Buyurtmam to'g'ri tushunildimi?»", "56": "Buyurtmani ovoz chiqarib qayta tasdiqlaysiz", "57": "📌 Xorijiy mehmon restoran bilan birga <b>mamlakat haqida</b> ham taassurot olib ketadi. Siz — uning uchun O'zbekiston mehmondo'stligining yuzi.", "58": "1.2 · Birinchi qadam", "59": "Taxmin qilmang — <span class=\"grad\">so'rang</span>", "60": "Mehmonning tashqi ko'rinishiga qarab til tanlash — xato: yevropacha ko'rinishli mehmon rus tilini bilmasligi, osiyolik mehmon esa ingliz tilida erkin gapirishi mumkin. To'g'ri yo'l — salomlashib, <b>tilni so'rash</b>.", "61": "Kutib olish iboralari", "62": "<b>Good morning / afternoon / evening!</b> — Xayrli tong / kun / kech!", "63": "<b>Welcome to our restaurant.</b> — Restoranimizga xush kelibsiz.", "64": "<b>Which language would you prefer?</b> — Qaysi tilni afzal ko'rasiz?", "65": "<b>English, Russian or Uzbek?</b> — Ingliz, rus yoki o'zbek tilimi?", "66": "<b>Do you have a reservation?</b> — Stol band qilganmisiz?", "67": "<b>A table for two?</b> — Ikki kishilik stolmi?", "68": "<b>This way, please.</b> — Marhamat, bu yoqqa.", "69": "Qoidalar", "70": "Avval salom, keyin til haqidagi savol — 1-mavzudagi 30 soniya qoidasi o'zgarmaydi", "71": "Mehmon tanlagan tilda davom eting; o'rtada boshqa tilga o'tib ketmang", "72": "Tilni yaxshi bilmasangiz — yashirmang: <b>«My English is simple, but I will help you»</b>", "73": "Kerak bo'lsa hamkasbni chaqiring: <b>«One moment, please. I will ask my colleague»</b>", "74": "Mehmon tilingizni tuzatsa — rahmat ayting, xijolat bo'lmang", "75": "🙂 Tabassum va ochiq qo'l ishorasi barcha tillarda bir xil tushuniladi. So'z yetmasa — <b>menyuda ko'rsating</b>.", "76": "2-blok · Sodda nutq", "77": "Sodda nutqning <span class=\"grad\">7 qoidasi</span>", "78": "Shunday gapiring", "79": "<b>Qisqa gap:</b> bitta gapda bitta fikr", "80": "<b>Sekin va aniq</b> — lekin baland emas: mehmon kar emas", "81": "<b>Oddiy so'zlar:</b> idioma, sleng va qisqartmasiz", "82": "<b>Tanlovli savol:</b> «Tea or coffee?» — «What would you like to drink?» dan osonroq", "83": "<b>Raqamni ko'rsating:</b> narx va vaqtni menyuda yoki qog'ozda ko'rsating", "84": "<b>Ko'rsatib gapiring:</b> menyu, surat, qo'l ishorasi", "85": "<b>Tekshiring:</b> «Is that OK?» — va javobni kuting", "86": "Bunday qilmang", "87": "Uzun, murakkab gap: «If you'd like, I could possibly suggest…»", "88": "Tushunmagan mehmonga <b>balandroq</b> takrorlash", "89": "O'sha gapni o'sha so'zlar bilan uch marta aytish", "90": "Mehmonning gapini tugatmasdan «Yes, yes» deyish", "91": "Hamkasb bilan mehmon oldida uning tushunmaydigan tilida kulishib gaplashish", "92": "Tushunmay turib bosh irg'ash", "93": "⛔ Murakkab", "94": "✅ Sodda", "95": "«Our chef's signature dish is a slow-cooked lamb shank…»", "96": "<b>«This is lamb. It is cooked slowly. It is very soft.»</b>", "97": "«It'll take a while, we're slammed tonight.»", "98": "<b>«It will take 25 minutes. Is that OK?»</b>", "99": "«Would you care for anything to drink at all?»", "100": "<b>«Would you like water, tea or juice?»</b>", "101": "«That's not on, I'm afraid.»", "102": "<b>«Sorry, we do not have this dish today.»</b>", "103": "🔁 Mehmon tushunmadimi? <b>Boshqa, soddaroq so'z</b> bilan ayting va ko'rsating. Balandroq aytish yordam bermaydi.", "104": "2.2 · Hurmat", "105": "Ismni <span class=\"grad\">to'g'ri talaffuz qilish</span> — hurmat belgisi", "106": "Iboralar", "107": "<b>May I have your name, please?</b> — Ismingizni bilsam maylimi?", "108": "<b>How do you pronounce your name?</b> — Ismingiz qanday talaffuz qilinadi?", "109": "<b>Could you spell it, please?</b> — Harflab aytib bera olasizmi?", "110": "<b>Thank you, Mr Müller.</b> — Rahmat, janob Myuller.", "111": "<b>Sir / Madam</b> — Janob / Xonim — ism noma'lum bo'lganda", "112": "<b>Sorry, did I say it correctly?</b> — Kechirasiz, to'g'ri aytdimmi?", "113": "Qoidalar", "114": "Ismni noto'g'ri aytgandan ko'ra — <b>so'rash</b> yaxshi: bu uyat emas, hurmat", "115": "Bron paytida ismni <b>harflab</b> yozib oling va o'qilishini qavsda belgilang", "116": "Murojaat: <b>Mr / Ms + familiya</b>. Ism bilan faqat mehmon o'zi taklif qilsa", "117": "Ismni qisqartirmang, laqab qo'ymang, hazil qilmang", "118": "Bir marta to'g'ri eshitgach — xizmat davomida shu ism bilan murojaat qiling", "119": "Salomlashish", "120": "Qo'l berishni <b>mehmon boshlaydi</b>. Ba'zi madaniyatlarda bosh irg'ash yoki qo'lni ko'ksiga qo'yish yetarli — mehmonga ergashing.", "121": "Masofa", "122": "Turli madaniyatlarda qulay masofa har xil. Mehmon orqaga chekinsa — yaqinlashmang. Yelkaga qo'l tekkizilmaydi.", "123": "Ko'z bilan aloqa", "124": "Do'stona, lekin tikilmasdan. Gaplashayotganda mehmonga qarang — menyuga yoki bloknotga emas.", "125": "3-blok · Menyu", "126": "Taom nomini tarjima qilmang — <span class=\"grad\">tushuntiring</span>", "127": "Xorijiy turistlarga xizmat ko'rsatadigan korxonada menyu <b>davlat tilida va chet tilida</b> bo'lishi talab etiladi. Lekin menyu sizning o'rningizni bosmaydi: «Lagman» so'zi inglizcha harflarda ham mehmonga hech narsa demaydi. Uni <b>to'rt savol</b> bo'yicha tushuntiring.", "128": "1. Nimadan?", "129": "Asosiy mahsulot: <b>lamb, beef, chicken, rice, noodles, vegetables</b>.", "130": "2. Qanday pishgan?", "131": "<b>Grilled, baked, steamed, fried, boiled</b> — qovurilgan, yopilgan, bug'da…", "132": "3. Nima bilan?", "133": "<b>Served with</b> salad, bread, sauce — garnir va qo'shimchalar.", "134": "4. Qanday ta'm?", "135": "<b>Spicy / not spicy, hot / cold, sweet, sour</b>; porsiya kattaligi.", "136": "Taom", "137": "Sodda inglizcha tushuntirish", "138": "🍚 Osh (palov)", "139": "<b>Rice cooked with lamb, carrots and onions.</b> Our national dish.", "140": "🥟 Somsa", "141": "<b>Baked pastry with minced meat and onions.</b>", "142": "🍜 Lag'mon", "143": "<b>Hand-made noodles with beef and vegetables.</b> A little spicy.", "144": "🥟 Manti", "145": "<b>Steamed dumplings with meat and onions.</b> Served with yoghurt.", "146": "🍢 Shashlik", "147": "<b>Grilled meat on skewers.</b> Lamb, beef or chicken.", "148": "🍅 Achchiq-chuchuk", "149": "<b>Fresh tomato and onion salad.</b> No oil.", "150": "🫓 Non", "151": "<b>Traditional round bread, baked in a clay oven.</b>", "152": "👉 Menyuni mehmon tomonga burib, taomni <b>barmoq bilan emas — ochiq kaft yoki ruchka uchi bilan</b> ko'rsating: «This one.»", "153": "3.2 · Aniqlik", "154": "Mehmon <span class=\"grad\">nima, qancha va necha pul</span> ekanini bilishi kerak", "155": "Taom", "156": "<b>This dish is…</b> — Bu taom…", "157": "<b>It is made with…</b> — U …dan tayyorlangan", "158": "<b>It is not spicy.</b> — Achchiq emas.", "159": "<b>It contains nuts / milk.</b> — Tarkibida yong'oq / sut bor.", "160": "<b>I recommend…</b> — Men … ni tavsiya qilaman", "161": "Porsiya", "162": "<b>The portion is for one person.</b> — Porsiya bir kishilik.", "163": "<b>It is enough for two.</b> — Ikki kishiga yetadi.", "164": "<b>It is about 300 grams.</b> — Taxminan 300 gramm.", "165": "<b>A small or a large portion?</b> — Kichik yoki katta porsiya?", "166": "<b>Would you like to share?</b> — Bo'lishib yeysizmi?", "167": "Narx", "168": "<b>The price is 65,000 soums.</b> — Narxi 65 000 so'm.", "169": "<b>The price is per person.</b> — Narx bir kishi uchun.", "170": "<b>Bread and tea are not included.</b> — Non va choy narxga kirmaydi.", "171": "<b>Service is included.</b> — Xizmat haqi kiritilgan.", "172": "<b>We accept cards.</b> — Karta qabul qilamiz.", "173": "Raqamlarda adashmang", "174": "<b>Fifteen (15)</b> va <b>fifty (50)</b>, <b>sixteen</b> va <b>sixty</b> — eshitilishi o'xshash. Narxni aytish bilan birga <b>menyuda ko'rsating</b> yoki yozib bering. Ming — <b>thousand</b>: 65 000 — «sixty-five thousand».", "175": "Kutilmagan to'lov bo'lmasin", "176": "Xizmat haqi, non, suv, sous alohida hisoblansa — buni <b>buyurtmadan oldin</b> ayting. Hisob kelganda bilgan mehmon o'zini aldangandek his qiladi.", "177": "3.3 · Namunaviy suhbat", "178": "1-dialog: <span class=\"grad\">«What is plov?»</span>", "179": "Suhbat", "180": "<b>🤵 Ofitsiant:</b> <b>Good evening! Welcome. Which language would you prefer?</b>", "181": "<b>🧳 Xorijiy mehmon:</b> <b>English, please.</b>", "182": "<b>🤵 Ofitsiant:</b> <b>Of course. Here is the menu in English.</b>", "183": "<b>🧳 Xorijiy mehmon:</b> <b>What is plov?</b>", "184": "<b>🤵 Ofitsiant:</b> <b>It is rice cooked with lamb, carrots and onions. It is not spicy.</b>", "185": "<b>🧳 Xorijiy mehmon:</b> <b>How big is the portion?</b>", "186": "<b>🤵 Ofitsiant:</b> <b>It is about 350 grams. It is enough for one person.</b>", "187": "<b>🧳 Xorijiy mehmon:</b> <b>And the price?</b>", "188": "<b>🤵 Ofitsiant:</b> <b>Sixty-five thousand soums. Here, on the menu. Bread and tea are not included.</b>", "189": "<b>🧳 Xorijiy mehmon:</b> <b>OK. One plov and green tea, please.</b>", "190": "<b>🤵 Ofitsiant:</b> <b>May I confirm your order? One plov and one green tea. It will take about ten minutes.</b>", "191": "<b>🧳 Xorijiy mehmon:</b> <b>Perfect, thank you.</b>", "192": "Bu suhbatda nima to'g'ri qilindi", "193": "Til <b>so'raldi</b>, taxmin qilinmadi", "194": "Taom to'rt savol bo'yicha tushuntirildi: nimadan, qanday, ta'mi", "195": "Porsiya <b>gramm va kishi soni</b> bilan aytildi", "196": "Narx aytildi <b>va menyuda ko'rsatildi</b>", "197": "Narxga kirmaydigan narsalar oldindan aytildi", "198": "Buyurtma <b>qayta tasdiqlandi</b>", "199": "Keyingi qadam — kutish vaqti — aytildi", "200": "📝 <b>Tarjima:</b> palov — sabzi, piyoz va qo'y go'shti bilan pishirilgan guruch, achchiq emas; porsiya taxminan 350 g, bir kishiga yetadi; narxi 65 000 so'm, non va choy alohida; buyurtma: bitta palov, bitta ko'k choy; taxminan 10 daqiqa.", "201": "4-blok · Ehtiyoj", "202": "Ehtiyojni <span class=\"grad\">taxmin qilmang — aniqlashtiring</span>", "203": "Mehmonning millati, kiyimi yoki ismiga qarab «u buni yemaydi» yoki «unga buni taklif qilsa bo'ladi» deb qaror qilish — <b>stereotip</b>. Bir xil mamlakatdan kelgan ikki mehmonning ehtiyoji butunlay boshqa bo'lishi mumkin. To'g'ri yo'l: <b>hammaga bir xil, neytral savol</b>.", "204": "Neytral savollar", "205": "<b>Do you have any dietary requirements?</b> — Ovqatlanishda biror talabingiz bormi?", "206": "<b>Is there anything you do not eat?</b> — Yemaydigan narsangiz bormi?", "207": "<b>Do you have any food allergies?</b> — Biror ovqatga allergiyangiz bormi?", "208": "<b>Would you like me to explain the ingredients?</b> — Tarkibini tushuntirib beraymi?", "209": "Bunday so'ralmaydi", "210": "«Siz musulmonmisiz?», «Qaysi dindansiz?» — shaxsiy savol", "211": "«Sizlar buni yemaysizlar-ku» — taxmin va umumlashtirish", "212": "«Nega go'sht yemaysiz?» — sabab so'ralmaydi", "213": "Mehmon rad etgan narsani qayta-qayta taklif qilish", "214": "So'rovga kulish yoki hamkasbga ko'z qisish", "215": "Mehmon aytishi mumkin", "216": "Ma'nosi", "217": "Sizning harakatingiz", "218": "<b>I am vegetarian.</b>", "219": "Go'sht va baliq yemaydi", "220": "Go'shtsiz taomlarni ko'rsating; sho'rva asosi va yog'ni oshxonadan aniqlang", "221": "<b>I am vegan.</b>", "222": "Hayvon mahsulotlarini umuman yemaydi (sut, tuxum, asal ham)", "223": "Har taom tarkibini oshxona bilan tekshiring", "224": "<b>Is it halal?</b>", "225": "Taom halol qoidalariga mosmi", "226": "Faqat aniq bilganingizni ayting; bilmasangiz — mas'uldan so'rang", "227": "<b>No pork / no beef, please.</b>", "228": "Cho'chqa / mol go'shti yemaydi", "229": "Tarkibni, jumladan yog' va kolbasa mahsulotlarini tekshiring", "230": "<b>No alcohol, please.</b>", "231": "Spirtli ichimlik ichmaydi", "232": "Sous va desert tarkibini ham tekshiring; alkogolsiz ichimlik taklif qiling", "233": "<b>I am fasting.</b>", "234": "Ro'za tutyapti", "235": "Qachon ovqatlanishini so'rang, taomni o'sha vaqtga tayyorlating", "236": "⚖️ <b>«Halol»</b>, <b>«vegan»</b>, <b>«glutensiz»</b> — bu va'da. Uni faqat <b>oshxona va mas'ul xodim tasdiqlagandan keyin</b> aytish mumkin.", "237": "4.2 · Parhez va allergiya", "238": "Eshitdim — yozdim — <span class=\"grad\">oshxonadan tekshirdim</span>", "239": "Parhez so'rovi ikki xil bo'ladi: <b>xohish</b> («piyozsiz bo'lsin») va <b>salomatlik talabi</b> (allergiya, intolerans). Ikkinchisida xato mehmon sog'lig'iga xavf soladi. Qaysi biri ekanini aniqlang va har ikkalasini ham <b>yozib oling</b>.", "240": "1. Tinglang", "241": "Mehmonni bo'lmang. Tushunmasangiz: <b>«Could you repeat that, please?»</b>", "242": "2. Aniqlashtiring", "243": "<b>«Is it an allergy?»</b> — bu allergiyami yoki shunchaki xohishmi?", "244": "3. Yozing", "245": "So'rovni buyurtmaga <b>mehmon so'zlari bilan</b>, o'rin raqami bilan yozing.", "246": "4. Tekshiring", "247": "<b>«Let me check the ingredients with our kitchen.»</b> Javobni mehmonga qaytaring.", "248": "Kerakli iboralar", "249": "<b>Do you have any food allergies?</b> — Ovqatga allergiyangiz bormi?", "250": "<b>Is it an allergy or a preference?</b> — Bu allergiyami yoki xohishmi?", "251": "<b>Let me write it down.</b> — Yozib olay.", "252": "<b>Let me check the ingredients with our kitchen.</b> — Tarkibni oshxonamizdan tekshirib ko'ray.", "253": "<b>I will be back in two minutes.</b> — Ikki daqiqada qaytaman.", "254": "<b>The chef says this dish is safe for you.</b> — Oshpaz bu taom sizga xavfsiz ekanini aytdi.", "255": "<b>I am sorry, this dish contains nuts. May I suggest…</b> — Afsuski, bu taomda yong'oq bor. … ni taklif qilsam maylimi?", "256": "Hech qachon", "257": "<b>«I think it's OK»</b> — «menimcha, bo'ladi» degan javob yo'q", "258": "Tushunmay turib <b>«Yes»</b> deyish", "259": "Tarjimon ilovasiga to'liq ishonib, allergiya haqida xulosa qilish", "260": "So'rovni yodda saqlab, yozmaslik", "261": "Oshxona javobisiz taomni uzatish", "262": "➡️ Allergenlar, tarkib jadvali va «ishonchli javob bo'lmasa — uzatmaslik» qoidasi — <b>5-mavzuda</b> batafsil.", "263": "4.3 · Namunaviy suhbat", "264": "2-dialog: <span class=\"grad\">«I am allergic to nuts»</span>", "265": "Suhbat", "266": "<b>🤵 Ofitsiant:</b> <b>Are you ready to order?</b>", "267": "<b>🧳 Xorijiy mehmon:</b> <b>Yes. But I am allergic to nuts.</b>", "268": "<b>🤵 Ofitsiant:</b> <b>Thank you for telling me. Let me write it down: nut allergy.</b>", "269": "<b>🧳 Xorijiy mehmon:</b> <b>Is the chicken salad OK for me?</b>", "270": "<b>🤵 Ofitsiant:</b> <b>I am not sure. Let me check the ingredients with our kitchen. I will be back in two minutes.</b>", "271": "<b>🧳 Xorijiy mehmon:</b> <b>Thank you.</b>", "272": "<b>🤵 Ofitsiant:</b> <b>Thank you for waiting. The salad has walnuts. But the chef can make it without nuts, in a clean bowl.</b>", "273": "<b>🧳 Xorijiy mehmon:</b> <b>Great. I will have that.</b>", "274": "<b>🤵 Ofitsiant:</b> <b>May I confirm? One chicken salad, no nuts — nut allergy. Is that correct?</b>", "275": "<b>🧳 Xorijiy mehmon:</b> <b>Yes, correct.</b>", "276": "Bu suhbatda nima to'g'ri qilindi", "277": "Mehmonga <b>rahmat aytildi</b> — allergiya haqida aytish oson emas", "278": "So'rov darhol <b>yozib olindi</b>", "279": "Ofitsiant <b>taxmin qilmadi</b>: «I am not sure»", "280": "Qachon qaytishi aytildi — mehmon kutishni biladi", "281": "Oshxona javobi <b>aniq</b> yetkazildi: nima bor va qanday yechim", "282": "Buyurtma allergiya belgisi bilan <b>qayta tasdiqlandi</b>", "283": "📝 <b>Tarjima:</b> mehmon yong'oqqa allergiyasi borligini aytdi; ofitsiant yozib oldi, tovuqli salat tarkibini oshxonadan tekshirdi: salatda yong'oq bor, lekin oshpaz uni yong'oqsiz, toza idishda tayyorlab bera oladi; buyurtma «yong'oqsiz — allergiya» belgisi bilan tasdiqlandi.", "284": "5-blok · Tasdiq", "285": "<span class=\"grad\">«May I confirm your order?»</span> — eng muhim ibora", "286": "Til to'sig'i bor joyda xato ehtimoli yuqori. Uni ushlaydigan yagona ishonchli usul — buyurtmani <b>ovoz chiqarib takrorlash</b> va mehmonning <b>«Yes, correct»</b> deyishini kutish. Bu 30 soniya vaqt oladi va noto'g'ri taom, kechikish hamda norozilikdan qutqaradi.", "287": "1. Taomlar", "288": "Har bir taom nomi va <b>miqdori</b>: «Two plov, one salad».", "289": "2. Maxsus so'rov", "290": "«No onions», «not spicy», <b>«nut allergy»</b> — albatta takrorlanadi.", "291": "3. Ichimliklar", "292": "Turi, issiq-sovuqligi, gazli-gazsizligi: «Still water, no ice».", "293": "4. Keyingi qadam", "294": "<b>«It will take about 20 minutes.»</b> Mehmon nima bo'lishini biladi.", "295": "Tasdiqlash iboralari", "296": "<b>May I confirm your order?</b> — Buyurtmangizni tasdiqlasam maylimi?", "297": "<b>So, that is… Is that correct?</b> — Demak, … To'g'rimi?", "298": "<b>Anything else?</b> — Yana biror narsa?", "299": "<b>Your food will be ready in about 20 minutes.</b> — Taomingiz taxminan 20 daqiqada tayyor bo'ladi.", "300": "<b>I will bring the drinks first.</b> — Avval ichimliklarni olib kelaman.", "301": "Natija dalili — mehmon uch narsani tushundi", "302": "<b>Til:</b> qaysi tilda xizmat ko'rsatilayotganini biladi va unga qulay", "303": "<b>Buyurtma mazmuni:</b> nima, qancha va qanday shartlar bilan kelishini tasdiqladi", "304": "<b>Keyingi qadam:</b> qancha kutishini yoki oshxonadan javob kutilayotganini biladi", "305": "Uchalasi ham bo'lsa — muloqot muvaffaqiyatli", "306": "5.2 · Qiyin vaziyat", "307": "Tushunmaslik — ayb emas. <span class=\"grad\">Tushungandek ko'rsatish</span> — xato", "308": "Qutqaruvchi iboralar", "309": "<b>Sorry, I did not understand.</b> — Kechirasiz, tushunmadim.", "310": "<b>Could you repeat that, please?</b> — Qaytarib yubora olasizmi?", "311": "<b>Could you speak more slowly, please?</b> — Sekinroq gapira olasizmi?", "312": "<b>Could you show me on the menu?</b> — Menyuda ko'rsata olasizmi?", "313": "<b>Could you write it down, please?</b> — Yozib bera olasizmi?", "314": "<b>One moment, please. I will ask my colleague.</b> — Bir daqiqa. Hamkasbimdan so'rayman.", "315": "Qadamma-qadam", "316": "<b>1.</b> Qaytarishni so'rang — xotirjam, tabassum bilan", "317": "<b>2.</b> Menyuda yoki suratda ko'rsatishni so'rang", "318": "<b>3.</b> Yozib berishni so'rang — yozuvni o'qish osonroq", "319": "<b>4.</b> Tilni yaxshiroq biladigan hamkasbni chaqiring", "320": "<b>5.</b> Tarjimon ilovasi — faqat mehmon roziligi bilan va yordamchi sifatida", "321": "<b>6.</b> Baribir aniq bo'lmasa — mas'ul xodimga yetkazing", "322": "Tarjimon ilovasi", "323": "Oddiy savollar uchun yordam beradi. Lekin <b>allergiya, tarkib va narx</b> masalasida xato tarjima xavfli — natijani albatta mehmon bilan qayta tasdiqlang.", "324": "Mehmon asabiylashsa", "325": "Ovozni ko'tarmang, tezlashmang. <b>«I am sorry. I want to help you.»</b> Hamkasb yoki administratorni chaqiring.", "326": "Mehmon haqida gaplashmang", "327": "Mehmon tushunmaydi deb o'ylab, uning oldida u haqida gapirish — qo'pol xato. Ko'p mehmon siz o'ylagandan ko'proq tushunadi.", "328": "5.3 · Yakun", "329": "<span class=\"grad\">«One bill or separate bills?»</span>", "330": "Hisob iboralari", "331": "<b>Would you like the bill?</b> — Hisobni keltiraymi?", "332": "<b>Would you like one bill or separate bills?</b> — Hisob bittami yoki alohidami?", "333": "<b>Cash or card?</b> — Naqdmi yoki karta?", "334": "<b>Here is your bill. The total is 240,000 soums.</b> — Mana hisobingiz. Jami 240 000 so'm.", "335": "<b>Service is included / not included.</b> — Xizmat haqi kiritilgan / kiritilmagan.", "336": "<b>Here is your receipt and your change.</b> — Mana chekingiz va qaytimingiz.", "337": "Xayrlashuv iboralari", "338": "<b>Was everything OK?</b> — Hammasi ma'qul bo'ldimi?", "339": "<b>Thank you very much.</b> — Katta rahmat.", "340": "<b>Have a nice evening!</b> — Kechangiz xayrli o'tsin!", "341": "<b>Enjoy your stay in Uzbekistan!</b> — O'zbekistonda vaqtingiz chog' o'tsin!", "342": "<b>We hope to see you again.</b> — Sizni yana ko'rishdan umidvormiz.", "343": "<b>Shall I call a taxi for you?</b> — Sizga taksi chaqiraymi?", "344": "To'lov", "345": "Karta terminali mehmon <b>ko'z oldida</b> ishlatiladi; karta ko'zdan uzoqqa olib ketilmaydi. Chet el valyutasi qabul qilinmasa — buni xotirjam tushuntiring.", "346": "Choychaqa", "347": "So'ralsa — halol javob bering: xizmat haqi hisobga kiritilganmi yoki yo'q. Choychaqa <b>so'ralmaydi</b> va unga ishora qilinmaydi.", "348": "Qo'shimcha yordam", "349": "Yo'l, taksi, yaqin bankomat haqidagi savolga yordam bering. Bilmasangiz — administratordan so'rang.", "350": "🧾 Hisobni ajratish va to'lovni rasmiylashtirish tartibi — <b>8-mavzuda</b> batafsil.", "351": "Takrorlash", "352": "Yod olinadigan <span class=\"grad\">15 ta ibora</span>", "353": "Vaziyat", "354": "Inglizcha", "355": "O'zbekcha", "356": "👋 Kutib olish", "357": "<b>Good evening! Welcome.</b>", "358": "Xayrli kech! Xush kelibsiz.", "359": "🌍 Til", "360": "<b>Which language would you prefer?</b>", "361": "Qaysi tilni afzal ko'rasiz?", "362": "🪑 Joylashtirish", "363": "<b>This way, please.</b>", "364": "Marhamat, bu yoqqa.", "365": "📖 Menyu", "366": "<b>Here is the menu.</b>", "367": "Mana menyu.", "368": "🥜 Allergiya", "369": "<b>Do you have any food allergies?</b>", "370": "Ovqatga allergiyangiz bormi?", "371": "📝 Buyurtma", "372": "<b>Are you ready to order?</b>", "373": "Buyurtma berishga tayyormisiz?", "374": "👨‍🍳 Tekshirish", "375": "<b>Let me check the ingredients with our kitchen.</b>", "376": "Tarkibni oshxonadan tekshirib ko'ray.", "377": "✅ Tasdiqlash", "378": "<b>May I confirm your order?</b>", "379": "Buyurtmangizni tasdiqlasam maylimi?", "380": "⏱ Vaqt", "381": "<b>It will take about 20 minutes.</b>", "382": "Taxminan 20 daqiqa vaqt oladi.", "383": "🔥 Ogohlantirish", "384": "<b>Careful, the plate is hot.</b>", "385": "Ehtiyot bo'ling, tarelka issiq.", "386": "🍽️ Uzatish", "387": "<b>Enjoy your meal!</b>", "388": "Yoqimli ishtaha!", "389": "💬 Tekshiruv", "390": "<b>Is everything OK?</b>", "391": "Hammasi joyidami?", "392": "🙏 Uzr", "393": "<b>I am sorry. I will fix it now.</b>", "394": "Uzr so'rayman. Hozir tuzataman.", "395": "🧾 Hisob", "396": "<b>Would you like one bill or separate bills?</b>", "397": "Hisob bittami yoki alohidami?", "398": "👋 Xayrlashuv", "399": "<b>Thank you. Have a nice evening!</b>", "400": "Rahmat. Kechangiz xayrli o'tsin!", "401": "🗣 Iboralarni <b>ovoz chiqarib</b> mashq qiling: ko'z bilan o'qilgan ibora kerakli paytda tilga kelmaydi.", "402": "Amaliyot · 1 soat", "403": "Ikki dialog — <span class=\"grad\">oddiy ingliz tilida</span>", "404": "Juftlikda ishlanadi: bir tinglovchi — <b>ofitsiant</b>, ikkinchisi — <b>xorijiy mehmon</b> (faqat ingliz tilida gapiradi), trener yoki uchinchi tinglovchi — kuzatuvchi. Har dialog 4–5 daqiqa. «Mehmon» vazifa kartochkasini oladi va ataylab bitta gapni tushunmagandek ko'rsatadi.", "405": "1-dialog · Taom, porsiya, narx", "406": "Mehmon ikki tilli menyudan notanish taom haqida so'raydi", "407": "Ofitsiant tilni aniqlaydi va taomni to'rt savol bo'yicha tushuntiradi", "408": "Porsiya kattaligi va narxni aytadi, menyuda ko'rsatadi", "409": "Narxga kirmaydigan narsalarni oldindan aytadi", "410": "Buyurtmani tasdiqlaydi va kutish vaqtini aytadi", "411": "2-dialog · Parhez so'rovi", "412": "Mehmon parhez yoki allergiya haqida aytadi (kartochka bo'yicha)", "413": "Ofitsiant allergiya yoki xohish ekanini aniqlaydi va yozib oladi", "414": "«Let me check the ingredients with our kitchen» deydi, qachon qaytishini aytadi", "415": "«Oshxona javobi»ni (trener beradi) mehmonga yetkazadi", "416": "Buyurtmani maxsus belgi bilan qayta tasdiqlaydi", "417": "Kuzatuv mezoni", "418": "Kuzatiladigan harakat", "419": "Ha / Yo'q", "420": "<b>Til</b>", "421": "Tilni so'radi; sodda, sekin va qisqa gaplar bilan gapirdi", "422": "☐", "423": "<b>Tushuntirish</b>", "424": "Taom tarkibi, porsiya va narxni aniq aytdi, menyuda ko'rsatdi", "425": "☐", "426": "<b>Ehtiyoj</b>", "427": "So'rovni taxmin qilmadi: aniqlashtirdi va yozib oldi", "428": "☐", "429": "<b>Tekshirish</b>", "430": "Bilmaganini oshxonadan tekshirishini va qachon qaytishini aytdi", "431": "☐", "432": "<b>Tasdiqlash</b>", "433": "Buyurtmani takrorladi; mehmon «correct» dedi; keyingi qadam aytildi", "434": "☐", "435": "📄 <b>Natija dalili:</b> «mehmon» tilni, buyurtma mazmunini va keyingi qadamni tushunganini tasdiqlaydi.", "436": "1. Taom va narx", "437": "<b>🤵 Ofitsiant:</b> Good evening! Which language would you prefer?", "438": "<b>🧳 Xorijiy mehmon:</b> English, please. What is plov?", "439": "<b>🤵 Ofitsiant:</b> Our plov is rice with lamb, carrots and onions. One portion is 350 grams. It costs 50,000 soums. Bread is extra.", "440": "<b>🧳 Xorijiy mehmon:</b> One portion, please.", "441": "<b>🤵 Ofitsiant:</b> Do you have any food allergies or dietary requirements?", "442": "<b>🧳 Xorijiy mehmon:</b> No, thank you.", "443": "<b>🤵 Ofitsiant:</b> May I confirm: one plov, no bread? It takes about 15 minutes.", "444": "<b>🧳 Xorijiy mehmon:</b> Yes, correct.", "445": "<i>Tarkib, porsiya va narx shu mashq menyusiga tegishli. Haqiqiy retsept bilan tekshiriladi.</i>", "446": "2. Allergen so'rovi", "447": "<b>🧳 Xorijiy mehmon:</b> I have a walnut allergy. Can I have this salad?", "448": "<b>🤵 Ofitsiant:</b> A walnut allergy. Thank you for telling me. Let me check the ingredients and preparation with our kitchen.", "449": "<b>👨‍🍳 Oshxona:</b> Maket javob: tarkib va alohida toza jihoz tekshirildi; yogurtli sousda sut bor. Yong'oq qo'shilmaydi.", "450": "<b>🤵 Ofitsiant:</b> The kitchen has checked the recipe and separate preparation. The sauce contains milk. Would you like this salad?", "451": "<b>🧳 Xorijiy mehmon:</b> Yes. I do not have a milk allergy.", "452": "<b>🤵 Ofitsiant:</b> One salad, walnut allergy noted. I will confirm your plate with the kitchen before serving.", "453": "<i>Maket javobi bo'lmasa yoki sharoit tasdiqlanmasa, taom uzatilmaydi.</i>", "454": "Bosqichma-bosqich", "455": "Namuna: ikki qisqa suhbat", "456": "Yakun", "457": "Esda qoladigan <span class=\"grad\">6 ta qoida</span>", "458": "Tilni so'rang", "459": "«Which language would you prefer?» — tashqi ko'rinishga qarab taxmin qilinmaydi.", "460": "Sodda va sekin", "461": "Qisqa gap, oddiy so'z, tanlovli savol. Balandroq emas — soddaroq.", "462": "Tushuntiring", "463": "Nimadan, qanday pishgan, nima bilan, qanday ta'm; porsiya va narx — menyuda.", "464": "Taxmin qilmang", "465": "Parhez, madaniy va diniy ehtiyoj neytral savol bilan so'raladi.", "466": "Tekshiring", "467": "«Let me check the ingredients with our kitchen» — «I think» degan javob yo'q.", "468": "Tasdiqlang", "469": "«May I confirm your order?» — va keyingi qadamni ayting.", "470": "Mustahkamlash uchun", "471": "15 ta iborani kartochkaga yozing va har kuni ovoz chiqarib takrorlang", "472": "Restoraningiz menyusidan 5 ta taomni to'rt savol bo'yicha inglizcha tushuntirib yozing", "473": "Ikkala dialogni hamkasbingiz bilan rollarga bo'lib o'qing", "474": "Keyingi mavzu", "475": "<b>5-mavzu. Menyu va allergenlar bilan ishlash:</b> tarkib, porsiya va pishirish usuli; allergiya va intolerans; allergen jadvali; allergenning boshqa taomga o'tish xavfi.", "476": "Yakuniy nazorat", "477": "🧪 Test topshiriqlari — <span class=\"grad\">15 ta savol</span>", "478": "↻ Testni qayta boshlash", "479": "Natija", "480": "🎓 Rahmat! E'tiboringiz uchun tashakkur", "481": "Bu — <b>tayyorgarlik mashqi</b>. Keyingi mashg'ulotgacha 15 ta ishchi iborani takrorlang va o'z menyuingizdagi 5 ta taomni inglizcha tushuntirib keling.", "482": "Restoran xodimlari malakasini oshirish · RS 24"};
+
+
+
+
+
+var QEN=[{"q": "Restoranga xorijiy mehmon kirdi. Qaysi tilda gaplashishni qanday aniqlaysiz?", "a": ["Salomlashib, «Which language would you prefer?» deb so'rayman", "Tashqi ko'rinishiga qarab, o'zim mos tilni tanlab olaman", "Darhol rus tilida gapiraman, chunki uni hamma tushunadi", "Mehmon o'zi gapirmaguncha, indamay kutib turaveraman"], "c": 0, "e": "Til taxmin qilinmaydi: salomdan keyin mehmonning o'zidan so'raladi."}, {"q": "Qaysi javob sodda nutq qoidalariga mos keladi?", "a": ["«This is lamb. It is cooked slowly. It is very soft.»", "«It's our chef's slow-braised signature lamb shank.»", "«Well, basically, it's kind of a lamb thing, you know.»", "«The lamb, which is braised, is rather tender, I'd say.»"], "c": 0, "e": "Qisqa gaplar, bitta gapda bitta fikr, oddiy so'zlar — idioma va murakkab tuzilmalarsiz."}, {"q": "Mehmon aytganingizni tushunmadi. To'g'ri harakat qaysi?", "a": ["Soddaroq so'z bilan qayta aytaman va menyuda ko'rsataman", "O'sha gapni balandroq ovozda yana bir marta takrorlayman", "Tushunmaganiga e'tibor bermay, buyurtmani yozib ketaman", "Hamkasbimga o'zbekchada mehmon haqida gapirib beraman"], "c": 0, "e": "Balandroq aytish yordam bermaydi. Boshqa, soddaroq so'z tanlanadi va ko'rsatib tushuntiriladi."}, {"q": "Mehmon «What is plov?» deb so'radi. Qaysi javob eng tushunarli?", "a": ["«Rice cooked with lamb, carrots and onions.»", "«Plov is plov. It is a very famous Uzbek food.»", "«It is our national pride, everybody loves it.»", "«You will see when it comes. It is delicious.»"], "c": 0, "e": "Taom nomi tarjima qilinmaydi — tushuntiriladi: nimadan, qanday pishgan, qanday ta'm."}, {"q": "Iborani to'ldiring: «Would you like one bill or ____ bills?» <i>(bitta inglizcha so'z)</i>", "o": ["separate", "seperate", "separate bills"], "e": "«Would you like one bill or separate bills?» — «Hisob bittami yoki alohidami?»"}, {"q": "Mehmon «Is this dish halal?» deb so'radi, siz aniq bilmaysiz. Nima deysiz?", "a": ["«Let me check with our kitchen. One moment, please.»", "«Yes, of course, everything here is always halal.»", "«I think it is OK. You can try it and see, madam.»", "«I do not know. Please ask somebody else, sorry.»"], "c": 0, "e": "«Halol» — va'da. Uni faqat oshxona va mas'ul xodim tasdiqlagandan keyin aytish mumkin."}, {"q": "Mehmonning parhez yoki diniy ehtiyojini qanday aniqlash to'g'ri?", "a": ["Hammaga bir xil savol: «Do you have any dietary requirements?»", "Millati va kiyimiga qarab, nimani yemasligini o'zim taxmin qilaman", "To'g'ridan-to'g'ri so'rayman: «What is your religion, please?»", "Hech narsa so'ramayman, mehmon o'zi aytmasa — demak, talab yo'q"], "c": 0, "e": "Ehtiyoj taxmin qilinmaydi va din haqida so'ralmaydi: hammaga neytral savol beriladi."}, {"q": "Buyurtmani qabul qilgach, uni tasdiqlash uchun qaysi ibora ishlatiladi?", "a": ["«May I confirm your order?»", "«Are you ready to order?»", "«Would you like the bill?»", "«Do you have a reservation?»"], "c": 0, "e": "«May I confirm your order?» — keyin taomlar, miqdor, maxsus so'rov va kutish vaqti takrorlanadi."}, {"q": "Iborani to'ldiring: «Do you have any food ____?» — «Ovqatga allergiyangiz bormi?» <i>(bitta inglizcha so'z)</i>", "o": ["allergies", "allergy", "alergies", "allergys"], "e": "«Do you have any food allergies?» — har bir xorijiy mehmonga beriladigan xavfsizlik savoli."}, {"q": "Bron jurnalida mehmonning ismi «Nguyen». Uni qanday talaffuz qilishni bilmaysiz. Nima qilasiz?", "a": ["«How do you pronounce your name?» deb so'rayman", "Yozilganidek o'qiyman, xato bo'lsa ham mayli", "Ismni aytmay, faqat «Hey» deb murojaat qilaman", "Qulay bo'lishi uchun ismni qisqartirib aytaman"], "c": 0, "e": "Ismni noto'g'ri aytgandan ko'ra so'rash yaxshi — bu hurmat belgisi."}, {"q": "Mehmon tez gapirdi va siz tushunmadingiz. Qaysi javob to'g'ri?", "a": ["«Sorry. Could you repeat that, please?»", "«Yes, yes, OK, no problem, thank you.»", "«I do not speak English. Goodbye, sir.»", "«Speak Uzbek, please. This is Uzbekistan.»"], "c": 0, "e": "Tushunmaslik ayb emas; tushungandek «yes» deyish — xato. Qaytarishni yoki menyuda ko'rsatishni so'rang."}, {"q": "Narxni xorijiy mehmonga qanday aytish to'g'ri?", "a": ["Aytaman va menyuda ko'rsataman; qo'shimcha to'lovni oldindan aytaman", "Faqat og'zaki, tez aytaman; qo'shimcha to'lovni hisobda ko'radi", "Narxni aytmayman, chunki u menyuda inglizcha yozib qo'yilgan", "Dollarda taxminan aytaman, so'mdagi narxni hisobda ko'radi"], "c": 0, "e": "Fifteen va fifty kabi raqamlar oson adashtiriladi: narx ko'rsatiladi, xizmat haqi kabi to'lovlar oldindan aytiladi."}, {"q": "Iborani to'ldiring: «Let me check the ingredients with our ____.» <i>(bitta inglizcha so'z — «oshxona»)</i>", "o": ["kitchen", "kichen", "kitchin", "chef"], "e": "«Let me check the ingredients with our kitchen» — «Tarkibni oshxonamizdan tekshirib ko'ray»."}, {"q": "Muloqot muvaffaqiyatli bo'lganini nimadan bilasiz (natija dalili)?", "a": ["Mehmon tilni, buyurtma mazmunini va keyingi qadamni tushundi", "Mehmon har bir gapimga jilmayib, «yes, yes» deb javob berdi", "Men biror marta ham grammatik xato qilmasdan gapira oldim", "Suhbat juda qisqa bo'ldi va mehmon hech narsa so'ramadi"], "c": 0, "e": "Mukammal grammatika emas — mehmon uch narsani tushungani muhim: til, buyurtma, keyingi qadam."}, {"q": "Inglizcha «spicy» so'zi taom haqida gapirilganda o'zbekcha nimani bildiradi? <i>(bitta so'z)</i>", "o": ["achchiq", "achiq", "o'tkir", "achchiq taom", "qalampirli"], "e": "Spicy — achchiq. «It is not spicy» — «Achchiq emas»."}];
+
+
+
+
+
+
+(function(){
+  i18nNodes=[].slice.call(document.querySelectorAll("[data-i]"));
+  i18nNodes.forEach(function(el){ i18nOrig.push(el.innerHTML); });
+  uiNodes=[].slice.call(document.querySelectorAll("[data-ui]"));
+  uiNodes.forEach(function(el){ uiOrig.push(el.innerHTML); });
+})();
+function applyLang(L){
+  lang=(L==="en")?"en":"uz";
+  i18nNodes.forEach(function(el,k){
+    var i=el.getAttribute("data-i");
+    el.innerHTML=(lang==="en"&&EN[i])?EN[i]:i18nOrig[k];
+  });
+  uiNodes.forEach(function(el,k){
+    var key=el.getAttribute("data-ui");
+    if(UI[key]&&UI[key][1]) el.innerHTML=UI[key][lang==="en"?1:0];
+    else el.innerHTML=uiOrig[k];
+  });
+  document.documentElement.lang=lang;
+  document.getElementById("langTxt").textContent=(lang==="en")?"UZ":"ENG";
+  setTheme(document.documentElement.getAttribute("data-theme")||"light");
+  thEls.forEach(function(t,i){
+    t.innerHTML="<i>"+UIT("slide")+" "+(i+1)+"</i><b>"+((lang==="en"&&slides[i].dataset.titleEn)?slides[i].dataset.titleEn:slides[i].dataset.title)+"</b>";
+    t.title=(i+1)+". "+t.querySelector("b").textContent;
+  });
+  dotEls.forEach(function(d,i){ d.title=(i+1)+". "+((lang==="en"&&slides[i].dataset.titleEn)?slides[i].dataset.titleEn:slides[i].dataset.title); });
+  $("#slideName").textContent=(lang==="en"&&slides[idx].dataset.titleEn)?slides[idx].dataset.titleEn:slides[idx].dataset.title;
+  renderTest();
+  try{localStorage.setItem("terdu_lang",lang)}catch(e){}
+}
+$("#btnLang").onclick=function(){ applyLang(lang==="en"?"uz":"en"); };
+
+/* ================= START ================= */
+try{
+  var th=localStorage.getItem("terdu_theme");
+  setTheme(th|| (window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"));
+  var hv=parseInt((location.hash||"").replace(/[^0-9]/g,""),10);
+  var sv=isNaN(hv)?parseInt(localStorage.getItem("terdu_r4_slide"),10):(hv-1);
+  go(isNaN(sv)?0:sv);
+  window.addEventListener("hashchange",function(){
+    var h=parseInt((location.hash||"").replace(/[^0-9]/g,""),10);
+    if(!isNaN(h)&&h-1!==idx) go(h-1);
+  });
+}catch(e){ setTheme("light"); go(0); }
+try{ applyLang(localStorage.getItem("terdu_lang")==="en"?"en":"uz"); }catch(e){}
+setTimeout(function(){document.getElementById("hint").classList.add("hide")},7000);
+})();
+</script>
+</body>
+</html>

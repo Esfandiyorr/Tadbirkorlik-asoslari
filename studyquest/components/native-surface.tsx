@@ -17,6 +17,7 @@ type Props = {
   className?: string;
   onLoad?: () => void;
   fit?: boolean;
+  contentLang?: 'uz' | 'en';
   /** faol slayd nomi (taqdimotdagi data-title) — dars oynasidagi «ball qatori» uchun */
   onTitle?: (title: string) => void;
 };
@@ -58,13 +59,14 @@ const layoutProperties = new Set([
 ]);
 
 export const NativeSurface = forwardRef<HTMLIFrameElement, Props>(function NativeSurface(
-  { src, title, id, className = '', onLoad, fit = false, onTitle },
+  { src, title, id, className = '', onLoad, fit = false, onTitle, contentLang },
   forwardedRef,
 ) {
   const frame = useRef<HTMLIFrameElement>(null),
     surface = useRef<HTMLDivElement>(null),
     picker = useRef<HTMLInputElement>(null);
-  const { lang, dark, toast } = useApp();
+  const { lang: interfaceLang, dark, toast } = useApp();
+  const lang = contentLang || interfaceLang;
   const langRef = useRef(lang);
   langRef.current = lang;
   const onTitleRef = useRef(onTitle);
