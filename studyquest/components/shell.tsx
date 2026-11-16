@@ -99,13 +99,19 @@ export function StudyQuest() {
     return (
       <div className="app-loading">
         <img
-          className="brand-logo loading-logo"
-          src="/unistay-logo.svg"
-          alt="Unistay"
-          width="72"
-          height="72"
+          className="loading-logo wordmark-light"
+          src="/unistay-wordmark.svg"
+          alt="Unistay — Biz bilan qoling"
+          width="220"
+          height="84"
         />
-        <p>Unistay</p>
+        <img
+          className="loading-logo wordmark-dark"
+          src="/unistay-wordmark-dark.svg"
+          alt="Unistay — Biz bilan qoling"
+          width="220"
+          height="84"
+        />
         <div className="loading-line" />
       </div>
     );
@@ -214,13 +220,20 @@ export function StudyQuest() {
       )}
       <aside className={'sidebar ' + (menu ? 'open' : '')}>
         <a className="sq-brand" href="#home">
-          <img className="brand-logo" src="/unistay-logo.svg" alt="" width="46" height="46" />
-          <div>
-            <b>
-              Uni<span>stay</span>
-            </b>
-            <small>{lang === 'en' ? 'STUDENTS' : lang === 'ru' ? 'СТУДЕНТАМ' : 'TALABALAR'}</small>
-          </div>
+          <img
+            className="brand-wordmark wordmark-light"
+            src="/unistay-wordmark.svg"
+            alt="Unistay — Biz bilan qoling"
+            width="160"
+            height="61"
+          />
+          <img
+            className="brand-wordmark wordmark-dark"
+            src="/unistay-wordmark-dark.svg"
+            alt="Unistay — Biz bilan qoling"
+            width="160"
+            height="61"
+          />
         </a>
         <span className="nav-label">
           {lang === 'uz' ? 'BILIM OLISH' : lang === 'ru' ? 'ОБУЧЕНИЕ' : 'YOUR WORKSPACE'}

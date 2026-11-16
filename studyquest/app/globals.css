@@ -155,47 +155,33 @@ a:focus-visible {
 }
 .sq-brand {
   display: flex;
-  gap: 11px;
   align-items: center;
   margin: 0 10px 42px;
 }
-.sq-brand b {
+/* Unistay — so'z-logotip: «unistay» (TerDU yashili) va tagida «Biz bilan qoling» (oltin).
+   Kunduzgi va tungi rejim uchun ikki rasm; ko'rinadigani html.dark sinfiga qarab tanlanadi. */
+.brand-wordmark {
   display: block;
-  font-size: 16px;
-  line-height: 1.25;
-  letter-spacing: -0.4px;
+  width: 160px;
+  height: auto;
 }
-.sq-brand small {
+.wordmark-dark {
+  display: none;
+}
+.dark .wordmark-light {
+  display: none;
+}
+.dark .wordmark-dark {
   display: block;
-  font-size: 12px;
-  font-weight: 650;
-  letter-spacing: 2.25px;
-  color: var(--muted);
-}
-/* Unistay — platforma logotipi (dumaloq burchakli kvadrat, rang o'tishi rasmning o'zida) */
-.brand-logo {
-  flex-shrink: 0;
-  width: 46px;
-  height: 46px;
-  border-radius: 13px;
-  object-fit: contain;
-  box-shadow: 0 8px 18px -8px #5b3fd8aa;
-}
-.sq-brand b span {
-  color: #7c3aed;
-}
-.dark .sq-brand b span {
-  color: #c4b5fd;
 }
 .loading-logo {
-  width: 76px;
-  height: 76px;
+  width: 220px;
+  height: auto;
   animation: logo-breathe 1.8s ease-in-out infinite;
 }
 @keyframes logo-breathe {
   50% {
-    transform: scale(1.06);
-    box-shadow: 0 12px 28px -8px #5b3fd8cc;
+    transform: scale(1.04);
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -2082,16 +2068,11 @@ td .input {
   align-items: center;
   gap: 20px;
 }
-.app-loading > p {
-  font-size: 22px;
-  font-weight: 700;
-  letter-spacing: -0.7px;
-}
 .loading-line {
   width: 100px;
   height: 3px;
   border-radius: 10px;
-  background: linear-gradient(90deg, #d9c6f3, #8b5cf6, #d9c6f3);
+  background: linear-gradient(90deg, #cfe6c6, #1e5b2b, #cfe6c6);
   background-size: 200%;
   animation: shimmer 1s infinite;
 }
@@ -2149,9 +2130,6 @@ td .input {
   }
   .sq-brand {
     margin-left: 5px;
-  }
-  .sq-brand b {
-    font-size: 19px;
   }
   .app-workspace {
     margin-left: 215px;

@@ -326,7 +326,10 @@ test('in edit mode the administrator clicks any text or picture and everyone see
     .click();
   await expect(page.locator('.bo-images li')).toHaveCount(0);
   await expect(page.locator('.sidebar a[href="#library"]')).toHaveText('Kutubxona');
-  await expect(page.locator('.sidebar img').first()).toHaveAttribute('src', '/unistay-logo.svg');
+  await expect(page.locator('.sidebar img').first()).toHaveAttribute(
+    'src',
+    '/unistay-wordmark.svg',
+  );
 });
 
 test('the administrator adds a new avatar and hides another; top students see the library change', async ({
