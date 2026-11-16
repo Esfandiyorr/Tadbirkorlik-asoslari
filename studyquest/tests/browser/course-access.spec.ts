@@ -35,7 +35,7 @@ test('registration goes straight to email or Google; the old student account is 
     'aria-pressed',
     'true',
   );
-  await expect(page.getByLabel('Ism va familiya')).toBeVisible();
+  await expect(page.locator('.auth-form').getByLabel('Ism va familiya')).toBeVisible();
   // avvalgi talaba hisobi (ism + kod) — asl talaba oynasi
   await page.getByRole('button', { name: /Talaba hisobi/ }).click();
   await expect(page.locator('.native-login')).toBeVisible();
@@ -88,7 +88,7 @@ test('starting the course asks «Are you a student?»: students enrol with their
   const gate = page.locator('.course-gate');
   await expect(gate.getByRole('heading')).toHaveText('Kursni boshlaymizmi? 🚀');
   await expect(gate.locator('.course-gate-q')).toHaveText('Talabamisiz?');
-  await expect(page.locator('.lesson-grid')).toBeVisible();
+  await expect(page.locator('.course-learning-list')).toBeVisible();
   // «Yo'q» → 💎 obuna yoki ruxsat so'rash
   await gate.getByRole('button', { name: /Yo‘q, talaba emasman/ }).click();
   await expect(gate.getByRole('heading')).toHaveText('Kurs darslari obunachilar uchun');

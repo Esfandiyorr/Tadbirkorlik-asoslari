@@ -163,10 +163,12 @@ export function pointHints(h: ReadingHistory | undefined, lang: Lang): Hint[] {
   return out;
 }
 
-/** Barcha mavzular bo'yicha yig'indi. */
-export function courseTotals(d: Data) {
+/** Bitta kursning yig'indisi. Qo'shimcha kurslarda akademik ball hisoblanmaydi. */
+export function courseTotals(d: Data, courseId?: string) {
+  const selected = courseId ?? d.courses?.find((c) => !c.extra)?.id ?? d.lessons[0]?.courseId,
+    academic = !d.courses?.find((c) => c.id === selected)?.extra;
   const h = d.user?.readingHistory || {},
-    ids = d.lessons.map((l) => l.id);
+    ids = d.lessons.filter((l) => !selected || l.courseId === selected).map((l) => l.id);
   let points = 0,
     read = 0,
     started = 0,
@@ -179,18 +181,19 @@ export function courseTotals(d: Data) {
     const x = h[id];
     if (!x) continue;
     const p = topicPoints(x);
-    points += p.total;
+    if (academic) points += p.total;
     if (x.status === 'read') read++;
     if (x.status !== 'new') started++;
     seconds += x.seconds || 0;
-    if (p.total >= 99.95) perfect++;
-    if (p.test >= 49.95) fullTest++;
-    if (p.time >= 19.95) fullTime++;
-    if (x.grade === 5) grade5++;
+    if (academic && p.total >= 99.95) perfect++;
+    if (academic && p.test >= 49.95) fullTest++;
+    if (academic && p.time >= 19.95) fullTime++;
+    if (academic && x.grade === 5) grade5++;
   }
   return {
     points: Math.round(points * 10) / 10,
-    max: ids.length * 100,
+    max: academic ? ids.length * 100 : 0,
+    academic,
     read,
     started,
     seconds,

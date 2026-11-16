@@ -173,7 +173,7 @@ test('all 12 sessions are ready in four blocks; new lessons and exam materials o
   await page.goto('/#course/restoran', { waitUntil: 'domcontentloaded' });
   await expect(page.locator('.lesson-card')).toHaveCount(12);
   await expect(page.locator('.course-build-ready')).toContainText('12 ta dars tayyor');
-  await expect(page.locator('.course-build-wait')).toContainText('0 tasi tayyorlanmoqda');
+  await expect(page.locator('.course-build-wait')).toHaveCount(0);
   await expect(page.locator('.course-build small')).toContainText('18/20 modul soati');
   // qo'shimcha fanda reyting yorlig'i yo'q (ball va reyting — asosiy fanniki)
   await expect(page.getByRole('tab', { name: 'Reyting' })).toHaveCount(0);

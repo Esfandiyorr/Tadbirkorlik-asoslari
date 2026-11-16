@@ -18,7 +18,7 @@ test('a top-ten student picks an avatar from the home card and sees it in the ra
 }) => {
   await reset(page);
   await page.goto('/#home', { waitUntil: 'domcontentloaded' });
-  const card = page.locator('.hero-avatar');
+  const card = page.locator('.hero-avatar:visible');
   await expect(card).toContainText('Avatar tanlang');
   await expect(card.locator('svg.av-empty')).toBeVisible();
   await card.click();
@@ -179,7 +179,7 @@ test('places 11+ see why the avatar was freed and the ways to get one: Premium o
   await page.keyboard.press('Escape');
   // bosh sahifa kartochkasida ham: avatar bo'shatildi
   await page.goto('/#home', { waitUntil: 'domcontentloaded' });
-  await expect(page.locator('.hero-avatar')).toContainText('Avatar bo‘shatildi');
+  await expect(page.locator('.hero-avatar:visible')).toContainText('Avatar bo‘shatildi');
   // Play Market ilovasida sotib olish (tashqi to'lov) ko'rsatilmaydi
   await page.goto('/?src=play#ranking', { waitUntil: 'domcontentloaded' });
   await page.locator('.rk-mine-avatar').click();

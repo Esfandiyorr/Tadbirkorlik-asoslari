@@ -387,13 +387,16 @@ test('the administrator adds a new avatar and hides another; top students see th
   await as(page, 'demo-student');
   await page.goto('/#home', { waitUntil: 'domcontentloaded' });
   await page.reload({ waitUntil: 'domcontentloaded' });
-  await page.locator('.hero-avatar').click();
+  await page.locator('.hero-avatar:visible').click();
   const dialog = page.getByRole('dialog', { name: /Avatarlar kutubxonasi/ });
   await expect(dialog.locator('.av-card')).toHaveCount(10);
   await expect(dialog).not.toContainText('Sonik');
   await dialog.getByRole('button', { name: /Termiz Burguti — tanlash/ }).click();
   await expect(dialog).toBeHidden();
-  await expect(page.locator('.hero-avatar img')).toHaveAttribute('src', /^\/api\/site\/img\/av-c/);
+  await expect(page.locator('.hero-avatar:visible img')).toHaveAttribute(
+    'src',
+    /^\/api\/site\/img\/av-c/,
+  );
   await page.request.post('/api/platform', {
     data: { action: 'avatarPick', input: { avatar: null } },
   });
