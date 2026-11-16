@@ -137,7 +137,9 @@
       "open": true,
       "slides": 18,
       "quiz": 15,
-      "lim": true
+      "lim": true,
+      "pdf": "fayllar/M9-mavzu.pdf",
+      "pdfSize": "2,1 MB"
     },
     {
       "id": "m10",
