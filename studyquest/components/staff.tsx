@@ -20,8 +20,10 @@ import { AcademicRoster } from './academic-roster';
 import { PlatformSettings } from './platform-settings';
 import { NativeSurface } from './native-surface';
 import { TopicAccessPanel } from './topic-access';
-import { BackOffice } from './backoffice';
+import { BackOffice, openBackOffice } from './backoffice';
 import { LogoTaskAdmin } from './backoffice/logo-task-admin';
+import { StaffTasks } from './staff-tasks';
+import { AccountHelpAdmin } from './account-help';
 import { t, badgeLabel } from '@/lib/i18n';
 import type { Data, Lesson, Question, Quiz, Progress, Attempt } from '@/lib/types';
 const blankQuestion = (): Question => ({
@@ -76,6 +78,7 @@ export function Staff({ admin = false }: { admin?: boolean }) {
     return promise;
   }, [data, request]);
   const tabRow = useRef<HTMLDivElement>(null);
+  const [boRevision, setBoRevision] = useState(0);
   // Standart tab: administratorga — «🛠 Sayt boshqaruvi», o'qituvchiga — «Talabalar va baholar»
   // (ikkalasi ham asl bazadan, Firestore kvotasini sarflamaydi).
   const [tab, setTab] = useState(() => {
@@ -261,6 +264,16 @@ export function Staff({ admin = false }: { admin?: boolean }) {
           </Button>
         </div>
       </div>
+      <StaffTasks
+        admin={admin}
+        open={(id) => {
+          if (id === 'courseRequests') {
+            openBackOffice('courseAccess');
+            setBoRevision((n) => n + 1);
+            setTab('site');
+          } else setTab(id);
+        }}
+      />
       <div className="filter-row" ref={tabRow}>
         {[
           ...(admin
@@ -274,6 +287,7 @@ export function Staff({ admin = false }: { admin?: boolean }) {
           ['quiz', L('Testlar', 'Quizzes', 'Тесты')],
           ['students', L('O‘quvchilar', 'Learners', 'Ученики')],
           ['academic', L('Talabalar va baholar', 'Academic records', 'Студенты и оценки')],
+          ['accountHelp', L('Kirish yordami', 'Sign-in help', 'Помощь со входом')],
           ['legacy', L('Kursni boshqarish', 'Course controls', 'Управление предметом')],
           ...(admin ? [['platform', L('Platforma', 'Platform', 'Платформа')]] : []),
         ].map(([id, label]) => (
@@ -330,8 +344,9 @@ export function Staff({ admin = false }: { admin?: boolean }) {
       {tab === 'access' && <TopicAccessPanel />}
       {tab === 'logo' && <LogoTaskAdmin />}
       {tab === 'academic' && <AcademicRoster />}
+      {tab === 'accountHelp' && <AccountHelpAdmin />}
       {admin && tab === 'platform' && <PlatformSettings />}
-      {admin && tab === 'site' && <BackOffice openTab={setTab} />}
+      {admin && tab === 'site' && <BackOffice key={boRevision} openTab={setTab} />}
       {tab === 'legacy' && (
         <section className="panel">
           <NativeSurface

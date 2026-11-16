@@ -47,6 +47,8 @@ import { Services } from './services';
 import { isPlayApp } from '@/lib/play-app';
 import { AccountDelete } from './account-delete';
 import { PushToggle } from './push-toggle';
+import { NotificationPreferences } from './notification-preferences';
+import { ConnectionNotice } from './connection-notice';
 import { Button } from './ui/button';
 import { t, roleLabel, type Key } from '@/lib/i18n';
 import type { Lang } from '@/lib/types';
@@ -194,6 +196,7 @@ export function StudyQuest() {
   if (mainView === 'lesson' && (user || data.mode === 'legacy'))
     return (
       <main className="focus-learning">
+        <ConnectionNotice />
         {content}
         <LiveGate />
         <NewsPopup />
@@ -201,6 +204,7 @@ export function StudyQuest() {
     );
   return (
     <div className="app-shell">
+      <ConnectionNotice />
       <LiveGate />
       <NewsPopup />
       {menu && (
@@ -558,6 +562,7 @@ function Profile() {
           <ChangePassword />
           <section className="panel profile-card">
             <PushToggle />
+            <NotificationPreferences />
           </section>
           <section className="panel profile-card">
             <h2>👥 {tr(lang, 'Hisob va guruh', 'Account and group', 'Аккаунт и группа')}</h2>

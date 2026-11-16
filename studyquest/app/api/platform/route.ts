@@ -1,4 +1,5 @@
 import { failure } from '@/lib/server/http';
+import { recordStaffActivity } from '@/lib/server/staff-activity';
 import { NextRequest, NextResponse, after } from 'next/server';
 import { z } from 'zod';
 import { actor, ApiError, check, sameOrigin, staff, administrator } from '@/lib/server/auth';
@@ -643,7 +644,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(await managePremium(await actor(req, true), p.input));
     }
     if (p.action === 'courseAccessAdmin') {
-      return NextResponse.json(await manageCourseAccess(await actor(req, true), p.input));
+      const a = await actor(req, true),
+        result = await manageCourseAccess(a, p.input);
+      const input = p.input as { op: string; uid?: string };
+      await recordStaffActivity(
+        a,
+        'course:' + input.op,
+        result.course + (input.uid ? ' · ' + input.uid : ''),
+      ).catch(() => {});
+      return NextResponse.json(result);
     }
     if (p.action === 'courseRequest') {
       // 🔑 talaba bo'lmagan foydalanuvchi: «Kursga ruxsat so'rash» yoki so'rovni bekor qilish
@@ -720,6 +729,12 @@ export async function POST(req: NextRequest) {
       const r = await setTopicMode(p.input);
       // 🟢 mavzu ochildi (yoki yopiqdan o'qish rejimiga o'tdi) — talabalarga bildirishnoma
       const after_ = r.topics.find((x) => x.id === id);
+      if (after_)
+        await recordStaffActivity(
+          a,
+          'topic:' + after_.state,
+          'tad-asoslari · ' + after_.id + ' · ' + after_.title,
+        ).catch(() => {});
       if (
         before &&
         after_ &&

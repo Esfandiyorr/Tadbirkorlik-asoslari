@@ -8,6 +8,7 @@ import { siteGet, siteUpdate } from './site-content';
 import { extraCourses } from '../seed';
 import { SERVICE_KINDS } from '../services';
 import { forgetServiceUser } from './services';
+import { pushPreferenceKey } from './push';
 
 /* 📱 Play Market (Google Play) talablari uchun server qismi.
    1) Ilova ma'lumotlari — site/app = {operator, email, pkg, sha[]}: administrator «Sayt boshqaruvi → 📱 Ilova»da
@@ -127,6 +128,7 @@ const updateDefault: Update = async (patch) => legacyDb().ref().update(patch);
 async function eraseAccount(by: Actor, r: DeleteRequest, read: Read, update: Update, now: number) {
   const key = keyOf(r.uid);
   const site: Record<string, unknown> = {
+    ['push/preferences/' + pushPreferenceKey(r.uid)]: null,
     ['deleteRequests/' + key]: null,
     ['newsSeen/' + key]: null,
     ['slides/' + key]: null,
@@ -185,7 +187,14 @@ async function eraseAccount(by: Actor, r: DeleteRequest, read: Read, update: Upd
   }
   // yangi platformadagi yozuv (profil, XP, o'qish tarixi) — imkon bo'lsa o'chiriladi
   try {
-    await (await repository()).transaction(async (tx) => tx.delete('users', r.uid));
+    const db = await repository();
+    const notes = await db.find('learningNotes', 'userId', r.uid);
+    // Katta hisoblarda ham bitta Firestore paketining chegarasidan oshirmaslik.
+    for (let i = 0; i < notes.length; i += 400)
+      await db.transaction(async (tx) => {
+        for (const note of notes.slice(i, i + 400)) tx.delete('learningNotes', note.id);
+      });
+    await db.transaction(async (tx) => tx.delete('users', r.uid));
   } catch {}
   await siteUpdate(site);
 }

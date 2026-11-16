@@ -212,6 +212,33 @@ const subscription = z
 export async function pushSubs(): Promise<Record<string, PushSub>> {
   return (await siteGet<Record<string, PushSub>>('push/subs')) || {};
 }
+export const pushPreferenceInput = z
+  .object({
+    topics: z.boolean(),
+    announcements: z.boolean(),
+    live: z.boolean(),
+    videos: z.boolean(),
+  })
+  .strict();
+export type PushPreferences = z.infer<typeof pushPreferenceInput>;
+const defaultPreferences: PushPreferences = {
+  topics: true,
+  announcements: true,
+  live: true,
+  videos: true,
+};
+export const pushPreferenceKey = (uid: string) => createHash('sha256').update(uid).digest('hex');
+export async function pushPreferences(a: Actor): Promise<PushPreferences> {
+  return {
+    ...defaultPreferences,
+    ...(await siteGet<PushPreferences>('push/preferences/' + pushPreferenceKey(a.id))),
+  };
+}
+export async function savePushPreferences(a: Actor, input: unknown) {
+  const value = pushPreferenceInput.parse(input);
+  await siteUpdate({ ['push/preferences/' + pushPreferenceKey(a.id)]: value });
+  return value;
+}
 /** Foydalanuvchi qurilmasini obuna qilish (har qurilma — alohida yozuv; eski egasi bo'lsa almashtiriladi). */
 export async function subscribePush(a: Actor, raw: unknown, now = Date.now(), app = false) {
   const s = subscription.parse(raw);
@@ -266,8 +293,19 @@ export async function sendPush(
   payload: PushPayload,
   who: (s: PushSub) => boolean = () => true,
   now = Date.now(),
+  category?: keyof PushPreferences,
 ) {
-  const subs = Object.entries(await pushSubs()).filter(([, s]) => s?.e && s.p && s.a && who(s));
+  const preferences = category
+    ? (await siteGet<Record<string, PushPreferences>>('push/preferences')) || {}
+    : {};
+  const subs = Object.entries(await pushSubs()).filter(
+    ([, s]) =>
+      s?.e &&
+      s.p &&
+      s.a &&
+      who(s) &&
+      (!category || preferences[pushPreferenceKey(s.uid)]?.[category] !== false),
+  );
   const body = JSON.stringify({
     t: payload.t.slice(0, 80),
     b: payload.b.slice(0, 300),
@@ -427,7 +465,17 @@ async function deliver(
   by?: string,
   who = audienceFilter(aud),
 ) {
-  const r = await sendPush(payload, who, now);
+  const category =
+    k === 'topic'
+      ? 'topics'
+      : k === 'live' || k === 'ann'
+        ? 'live'
+        : k === 'video'
+          ? 'videos'
+          : k === 'test'
+            ? undefined
+            : 'announcements';
+  const r = await sendPush(payload, who, now, category);
   await logPush({
     at: now,
     k,
