@@ -100,7 +100,9 @@ Bu ikkalasi maxfiylik siyosati sahifasida ko'rinadi. Paket nomi va SHA-256 ni 4-
 - Nom, qisqa va to'liq tavsif — `dokon-matni.md` faylidan (o'zbek, rus, ingliz);
 - **App icon** 512×512 — `rasmlar/icon-512.png`;
 - **Feature graphic** 1024×500 — `rasmlar/feature-graphic.png`;
-- **Phone screenshots** (kamida 2 ta) — `rasmlar/telefon-*.png`.
+- **Phone screenshots** (kamida 2 ta) — `rasmlar/telefon-*.png` (1080×1920, Play ilovasi ko'rinishida olingan:
+  bosh sahifa, mavzular, ⚡ jonli test, kutubxona, o'yinlar, yutuqlar). Ilovada yo'q bo'limni (masalan, 💼 Pullik
+  xizmatlar) skrinshotga qo'ymang.
 
 ## 6-qadam. «App content» shakllari
 
@@ -137,8 +139,8 @@ Shuning uchun sayt shunday ishlaydi:
 - Xuddi shunday ilovada **avatar sotib olish** («To'lov qildim») va **pullik kurs** (restoran) narxi hamda
   to'lov yo'riqnomasi yashiriladi: pullik kursda faqat «administrator ruxsat bergandan keyin ochiladi» deyiladi
   va ruxsat so'rash tugmasi qoladi.
-- **💼 Pullik xizmatlar** bo'limi (buyurtma asosida taqdimot, sayt, dizayn va h.k.) ilovada **umuman
-  ko'rinmaydi**: menyuda ham, bosh sahifada ham yo'q. Buyurtma, to'lov va tayyor ishni yuklab olish — faqat saytda.
+- **💼 Pullik xizmatlar** (talabalar ish bozori: vazifa berish, ijrochilar arizasi, to'lov va pul o'tkazish)
+  ilovada **umuman ko'rinmaydi**: menyuda ham, bosh sahifada ham yo'q. Hammasi — faqat saytda.
 - Click ulanganda ham to'lov **faqat saytda** bo'ladi; ilovada Click/Payme havolasi yoki karta raqami
   ko'rsatilmasligi kerak (bu kodda hisobga olingan).
 
