@@ -5514,8 +5514,8 @@ button.rk-slot:has(.av-empty)::after {
 @media (max-width: 760px) {
   /* telefonda pastki menyu (≈70px) sahnani yopmasin */
   .arena-live-frame {
-    height: calc(100dvh - 270px);
-    min-height: 480px;
+    height: calc(100dvh - 290px);
+    min-height: 0;
     border-radius: 18px;
   }
 }

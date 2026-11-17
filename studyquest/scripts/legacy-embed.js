@@ -4,14 +4,17 @@
     var file = location.pathname.split('/').pop(),
       lesson = /^(mavzu|restoran)-(\d+)\.html$/.exec(file);
     var target = new URL('/', location.origin);
+    var live = file === 'arena.html' && /^#\/live\/?$/.test(location.hash);
     target.hash = lesson
       ? 'lesson/' + (lesson[1] === 'mavzu' ? 'm' : 'r') + lesson[2]
       : file === 'arena.html'
-        ? 'arena/live'
+        ? live
+          ? 'arena/play/live'
+          : 'arena/live'
         : file === 'tadbirkorlik-asoslari.html'
           ? 'course/tad-asoslari'
           : 'home';
-    if (file === 'arena.html' && /^#\//.test(location.hash))
+    if (file === 'arena.html' && !live && /^#\//.test(location.hash))
       target.searchParams.set('arena', location.hash.slice(0, 200));
     location.replace(target.href);
     return;
