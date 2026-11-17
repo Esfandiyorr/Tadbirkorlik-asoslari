@@ -258,7 +258,6 @@
   width: 100%;
   flex: 1;
 }
-.lesson-row-number,
 .lesson-compact-score {
   display: none;
 }
@@ -465,43 +464,10 @@
   .course-banner > .course-art {
     display: none;
   }
+  /* bo'limli fanlarda ham (restoran kursi) kartochka asosiy fandagidek: katta muqova, raqam va nom rasmda */
   .course-module .lesson-grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 10px;
-  }
-  .course-module .lesson-card {
-    min-height: 0;
-    padding: 14px;
-    gap: 6px;
-    border-radius: 14px;
-  }
-  .course-module .mini-cover,
-  .course-module .lesson-points {
-    display: none;
-  }
-  .course-module .lesson-card h3 {
-    margin: 3px 0;
-    font-size: 15px;
-    line-height: 1.4;
-  }
-  .course-module .lesson-card-top {
-    flex-wrap: wrap;
-    gap: 6px;
-  }
-  .course-module .lesson-card-top .course-level {
-    display: none;
-  }
-  .lesson-row-number {
-    display: inline-grid;
-    place-items: center;
-    width: 30px;
-    height: 30px;
-    border-radius: 9px;
-    color: var(--violet);
-    background: var(--soft-violet);
-    font-size: 13px;
-    font-weight: 800;
   }
   .lesson-compact-score {
     display: block;
@@ -510,10 +476,6 @@
   }
   .lesson-reading-count {
     margin: 0;
-    font-size: 13px;
-  }
-  .course-module .lesson-link {
-    margin-top: 5px;
     font-size: 13px;
   }
 }

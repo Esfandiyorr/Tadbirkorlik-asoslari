@@ -65,9 +65,9 @@ export function CourseLessons({
   const selected = lessons.filter(
     (l) => (!moduleId || l.moduleId === moduleId) && (status === 'all' || state(l) === status),
   );
-  // Asosiy fan (Tadbirkorlik asoslari) mavzulari bo'limlarga bo'linmaydi — avvalgidek bitta katta ro'yxat:
-  // har mavzu raqamli rasmi bilan katta kartochkada. Bo'limlar (yig'iladigan bloklar) faqat qo'shimcha fanlarda
-  // (masalan, restoran kursining 4 bloki).
+  // Asosiy fan (Tadbirkorlik asoslari) mavzulari bo'limlarga bo'linmaydi — avvalgidek bitta katta ro'yxat.
+  // Bo'limlar (yig'iladigan bloklar) faqat qo'shimcha fanlarda (masalan, restoran kursining 4 bloki).
+  // Kartochka esa hamma fanda bir xil: katta muqova, mavzu raqami va nomi rasmning o'zida.
   const grouped = !!course.extra;
   // Bir bo'limga kiruvchi mavzular rejaning turli joylarida kelishi mumkin.
   // Ketma-ket bo'laklar asl dars tartibini saqlaydi (masalan, m4/m5 va m10–m15).
@@ -79,7 +79,7 @@ export function CourseLessons({
     return out;
   }, []);
   const moduleTitle = (l: Lesson) => modules.find((m) => m.id === l.moduleId)?.title || '';
-  /** Mavzu kartochkasi: muqova (mavzu raqami bilan), bo'lim nomi, holat, sarlavha, ball va tugma. */
+  /** Mavzu kartochkasi: katta muqova (mavzu raqami va nomi bilan), bo'lim nomi, holat, ball va tugma. */
   const card = (l: Lesson, sectionTitle: string) => {
     const h = history[l.id],
       pts = topicPoints(h),
@@ -102,19 +102,17 @@ export function CourseLessons({
           onClick={() => open(l)}
           aria-disabled={locked && !paidLock && !l.draft}
         >
-          <div className={'mini-cover' + (grouped ? '' : ' is-titled')}>
+          <div className="mini-cover is-titled">
             <TopicArt id={l.id} number={number} />
-            {!grouped && (
-              // asosiy fan: mavzu raqami va nomi rasmning o'zida (kattaroq muqova)
-              <div className="mini-cover-caption">
-                <span className="mini-cover-kicker">
-                  {l.exam
-                    ? tr(lang, 'Yakuniy imtihon', 'Final exam', 'Итоговый экзамен')
-                    : tr(lang, `${number}-mavzu`, `Topic ${number}`, `Тема ${number}`)}
-                </span>
-                <h3>{l.title}</h3>
-              </div>
-            )}
+            {/* mavzu raqami va nomi rasmning o'zida (kattaroq muqova) */}
+            <div className="mini-cover-caption">
+              <span className="mini-cover-kicker">
+                {l.exam
+                  ? tr(lang, 'Yakuniy imtihon', 'Final exam', 'Итоговый экзамен')
+                  : tr(lang, `${number}-mavzu`, `Topic ${number}`, `Тема ${number}`)}
+              </span>
+              <h3>{l.title}</h3>
+            </div>
             {locked && (
               <span className="lock-veil">
                 <Lock size={24} />
@@ -122,9 +120,6 @@ export function CourseLessons({
             )}
           </div>
           <div className="lesson-card-top">
-            {grouped && (
-              <span className="lesson-row-number">{String(number).padStart(2, '0')}</span>
-            )}
             <span className="course-level">
               {l.exam
                 ? tr(lang, 'Yakuniy imtihon', 'Final exam', 'Итоговый экзамен')
@@ -132,11 +127,6 @@ export function CourseLessons({
             </span>
             <AccessChip access={access} lang={lang} />
           </div>
-          {grouped && (
-            <h3>
-              {number}. {l.title}
-            </h3>
-          )}
           {academic ? (
             <>
               {grouped && (
