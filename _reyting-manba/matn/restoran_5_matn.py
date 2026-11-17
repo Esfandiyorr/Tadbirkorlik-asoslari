@@ -105,7 +105,11 @@ page("Amaliy mashq: yong'oq allergiyasi", defn("Uchlik: ofitsiant, mehmon va osh
         ["2. Ofitsiant", "Stol/o'rin va allergenni yozadi; sous, bezak va umumiy anjomni tekshiradi"],
         ["3. Oshxona kartasi A", "Sous yorlig'i noma'lum — ofitsiant uzatishni to'xtatishi kerak"],
         ["4. Oshxona kartasi B", "Retsept va alohida toza jihoz tasdiqlangan muqobilni taklif qiladi"],
-        ["5. Natija", "Mehmon tanlovi, oshxona mas'uli, vaqt va uzatish tekshiruvi yoziladi"]]))
+        ["5. Natija", "Mehmon tanlovi, oshxona mas'uli, vaqt va uzatish tekshiruvi yoziladi"]]) +
+    quote("<b>Qo'shimcha vaziyat:</b> retseptda yong'oq yo'q, lekin salatga yong'oqli desertning umumiy qoshig'i tekkani aytiladi. "
+          "Tarkib jadvali bilan cheklanmang: xizmatni to'xtatib, yangi porsiya va tayyorlash tartibini mas'ul bilan tekshiring.") +
+    U("p", "<b>Qayd namunasi:</b> 6-stol / 2-o'rin · bodom va grek yong'og'i · sous yorlig'i olinmadi · mas'ul oshpaz tekshiradi · "
+      "hozircha uzatilmaydi · tekshiruv va mehmon javobi keyin qo'shiladi. Kuzatuvchi rollar almashganda aynan shu zanjirni tekshiradi."))
 checklist([
     ("Aniqlik", "Allergen turi, stol va o'rin aniq qayd etildi"),
     ("Manba", "Retsept, sous yorlig'i va jadvalning dolzarbligi tekshirildi"),
