@@ -198,9 +198,14 @@ test('the lobby, question, timer, result bars and winners keep their design on d
   ).toBeLessThanOrEqual(390);
   await page.screenshot({ path: 'tests/artifacts/live-question-mobile.png' });
   await page.setViewportSize({ width: 320, height: 640 });
-  const frameBox = (await page.locator('.arena-live-frame').boundingBox())!;
-  const navBox = (await page.locator('.bottom-nav').boundingBox())!;
-  expect(frameBox.y + frameBox.height).toBeLessThanOrEqual(navBox.y);
+  // Chrome «100dvh»ni oyna o'lchami o'zgargandan keyin biroz kechikib yangilaydi — joylashuv barqarorlashguncha kutamiz
+  await expect
+    .poll(async () => {
+      const frameBox = (await page.locator('.arena-live-frame').boundingBox())!;
+      const navBox = (await page.locator('.bottom-nav').boundingBox())!;
+      return navBox.y - (frameBox.y + frameBox.height);
+    })
+    .toBeGreaterThanOrEqual(0);
   expect(
     await stage.locator('body').evaluate(() => document.documentElement.scrollWidth),
   ).toBeLessThanOrEqual(320);
