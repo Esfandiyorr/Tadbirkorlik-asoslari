@@ -345,6 +345,34 @@ export function Games({ sub = '' }: { sub?: string }) {
   const playPath = sub.startsWith('play/') ? sub.slice(5) : '';
   const room = sub.startsWith('room/') ? sub.slice(5).toUpperCase() : '';
   const isRoom = ROOM_CODE.test(room);
+  // ⚡ Jonli test (Kahoot sahnasi) — arenaning o'zi, o'z dizayni bilan, ko'rinadigan iframe'da: ko'chirib chiziladigan
+  // (NativeSurface) ko'rinishda arena CSS'i yo'q va sahna buziladi (qora doira, uslubsiz tugmalar).
+  if (playPath === 'live') {
+    if (staff && user) staffPlayer(user);
+    const direct =
+      '/legacy/arena.html?sqEmbed=arena' +
+      (data?.mode === 'demo' ? '&sqDemo=1' : '') +
+      (staff ? '&sqStaff=1' : '') +
+      '#/live';
+    return (
+      <>
+        <div className="arena-bar">
+          <Button variant="ghost" onClick={() => navigate('arena')}>
+            <ArrowLeft size={18} />
+            {L('Barcha o‘yinlar', 'All games', 'Все игры')}
+          </Button>
+          <h1>⚡ {L('Jonli test', 'Live quiz', 'Живой тест')}</h1>
+        </div>
+        <iframe
+          key={direct}
+          className="arena-live-frame"
+          src={direct}
+          title={L('Jonli test', 'Live quiz', 'Живой тест')}
+          allow="autoplay; fullscreen"
+        />
+      </>
+    );
+  }
   if (sub === 'live' || isRoom || (playPath && LEGACY.test(playPath))) {
     if (staff && user) staffPlayer(user);
     const card = [...online, ...solo].find((c) => c.to === 'play/' + playPath);

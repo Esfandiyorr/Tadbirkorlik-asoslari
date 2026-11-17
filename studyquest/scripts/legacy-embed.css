@@ -45,6 +45,13 @@ html.sq-arena .wrap {
   max-width: none;
   padding: 16px;
 }
+/* ⚡ jonli test platformada to'g'ridan-to'g'ri iframe'da (sq-direct): sahna oynani to'liq egallaydi */
+html.sq-arena.sq-direct .wrap {
+  padding: 0;
+}
+html.sq-direct body {
+  background: transparent !important;
+}
 
 html.sq-login #app,
 html.sq-account #app,

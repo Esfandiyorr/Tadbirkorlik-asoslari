@@ -619,6 +619,11 @@ details.adv summary{cursor:pointer;font-weight:800;color:var(--muted)}
   .lc-btn{width:100%;text-align:center}
 }
 @media(prefers-reduced-motion:reduce){.lv-sh,.lv-logo i,.lc-shapes i,.rt-sp,.lv-col .lv-pz,.live-card.hot{animation:none!important}}
+/* platforma ichida to'g'ridan-to'g'ri (iframe) ochilgan jonli test: arenaning o'z sarlavhasi kerak emas, sahna butun oynada */
+html.sq-direct,html.sq-direct body{background:transparent}
+.sq-direct .topbar{display:none}
+.sq-direct .wrap{margin:0;padding:0;max-width:none}
+.sq-direct .lv{min-height:100vh;border-radius:0}
 /* ===== ⚡ JONLI TEST — Kahoot uslubi: binafsha sahna; savol paytida och kulrang sahna, oq savol paneli, binafsha
    taymer, katta rangli javob tugmalari; javobdan keyin butun ekran yashil yoki qizil; lobbi — oq vaqt paneli va
    o'yinchilar nomlari; shohsupa — binafsha bloklar va medallar ===== */
@@ -6630,6 +6635,20 @@ function homeYz(){
 }
 
 /* ---------- router ---------- */
+/* 🧩 Platforma ichida: sqNative=1 — arena yashirin turadi, ko'rinishini platforma ko'chirib chizadi (arena CSS'isiz).
+   Jonli test (Kahoot sahnasi) o'z CSS'isiz buziladi, shuning uchun u platformada alohida, to'g'ridan-to'g'ri iframe'da
+   ochiladi (#arena/play/live, sqNative'siz — «sq-direct»): ko'chirilgan arenadan unga o'tiladi, undan chiqilganda —
+   platformaning o'yinlar ro'yxatiga qaytiladi. */
+var SQP=new URLSearchParams(location.search), SQ_IN=window.parent!==window&&SQP.get("sqEmbed")==="arena",
+    SQ_NATIVE=SQ_IN&&SQP.get("sqNative")==="1", SQ_DIRECT=SQ_IN&&!SQ_NATIVE;
+if(SQ_DIRECT) document.documentElement.classList.add("sq-direct");
+/* sq-direct: sahifa havolalari (masalan, «Kursga qaytish») iframe ichida emas, butun oynada ochilsin */
+if(SQ_DIRECT) document.addEventListener("click",function(e){
+  var a=e.target&&e.target.closest?e.target.closest("a[href]"):null; if(!a||a.target==="_blank") return;
+  var h=a.getAttribute("href")||""; if(h.charAt(0)==="#"||/^(mailto|tel|javascript):/i.test(h)) return;
+  try{ parent.location.href=a.href; e.preventDefault(); }catch(x){}
+},true);
+function sqParent(h){ try{ parent.location.hash=h; return true; }catch(e){ return false; } }
 function route(){
   if(window.YZ) YZ.unmount();
   unwatchAll(); clearInterval(TICK); clearInterval(HB); clearInterval(HOMET); clearInterval(YZHT); clearInterval(DUELT); lvStop();
@@ -6640,6 +6659,8 @@ function route(){
   var rh=location.hash||""; if(!(RCH.code&&rh==="#/room/"+RCH.code)) rcUnmount();
   clearInterval(PZT); GP=null;
   var h=location.hash||"#/";
+  if(h==="#/live"&&SQ_NATIVE&&sqParent("#arena/play/live")) return;
+  if(SQ_DIRECT&&h!=="#/live"&&sqParent("#arena")) return;
   if(!ME) return need();
   if(ME.learnerType==="independent"){
     APP.innerHTML=card('<div class="center"><h2>'+L("Mustaqil ta’lim","Independent learning")+'</h2><p class="note">'+L("Arena universitet talabalarining guruh musobaqalari uchun. Ochiq darslarni kurslar sahifasida o‘qishingiz mumkin.","The arena is for university group competitions. You can read open lessons on the course page.")+'</p><a class="btn accent" href="tadbirkorlik-asoslari.html">'+L("Kursga qaytish","Back to the course")+'</a></div>'); return;

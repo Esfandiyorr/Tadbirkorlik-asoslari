@@ -5500,6 +5500,26 @@ button.rk-slot:has(.av-empty)::after {
   }
 }
 
+/* ⚡ jonli test — arenaning o'zi (o'z dizayni bilan) ko'rinadigan iframe'da */
+.arena-live-frame {
+  display: block;
+  width: 100%;
+  height: calc(100dvh - 200px);
+  min-height: 560px;
+  border: 0;
+  border-radius: 24px;
+  background: #46178f;
+  box-shadow: 0 18px 40px -24px #2e1065;
+}
+@media (max-width: 760px) {
+  /* telefonda pastki menyu (≈70px) sahnani yopmasin */
+  .arena-live-frame {
+    height: calc(100dvh - 270px);
+    min-height: 480px;
+    border-radius: 18px;
+  }
+}
+
 /* ---------- 📢 E'lonlar oynasi (yon menyu) va ⚡ jonli test oynasi ---------- */
 .news-box {
   position: relative;
