@@ -629,7 +629,7 @@ export async function POST(req: NextRequest) {
       // 📺 yangi video — talabalarga bildirishnoma (sozlamada yoqilgan bo'lsa)
       const v = (p.input || {}) as { op?: string; t?: string; title?: string };
       const topic = v.op === 'add' ? videoTopics().find((x) => x.id === v.t) : undefined;
-      if (topic)
+      if (topic && !topic.paid && !topic.closed)
         after(() =>
           videoPush(topic, typeof v.title === 'string' ? v.title.trim() : undefined).catch(
             () => {},

@@ -30,7 +30,7 @@ import {
 } from '@/lib/points';
 import { NativeSurface } from './native-surface';
 import { ReadingTools } from './reading-tools';
-import { LessonFilmButton, TopicVideoButton } from './topic-video';
+import { TopicVideoButton } from './topic-video';
 import { LOGO_TOPIC } from '@/lib/logo-task';
 import { CourseGate, PaidCourseGate, useCourseLocked, usePaidLocked } from './course-gate';
 /** Taqdimotning PDF nusxasi: to'liq havola yoki asl fayllar (public/legacy/fayllar). */
@@ -332,14 +332,12 @@ function OriginalLessonView({ id }: { id: string }) {
           <option value="uz">UZ</option>
           {!extraCourse && <option value="en">EN</option>}
         </select>
-        <TopicVideoButton id={id} />
-        {lesson.legacyVideo && (
-          <LessonFilmButton
-            video={lesson.legacyVideo}
-            title={lesson.title}
-            download={data?.user?.role === 'teacher' || data?.user?.role === 'admin'}
-          />
-        )}
+        <TopicVideoButton
+          id={id}
+          localVideo={lesson.legacyVideo}
+          title={lesson.title}
+          download={data?.user?.role === 'teacher' || data?.user?.role === 'admin'}
+        />
         {lesson.legacyPdf && (data?.user?.role === 'teacher' || data?.user?.role === 'admin') && (
           // 📥 O'qituvchi va administrator taqdimotning PDF nusxasini bir bosishda yuklab oladi.
           <Button

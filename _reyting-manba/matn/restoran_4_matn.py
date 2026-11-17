@@ -272,7 +272,7 @@ slide("Parhez so'rovini yozib olish", "Parhez so'rovini yozib olish",
    en("Let me write it down.", "Yozib olay."),
    en("Let me check the ingredients with our kitchen.", "Tarkibni oshxonamizdan tekshirib ko'ray."),
    en("I will be back in two minutes.", "Ikki daqiqada qaytaman."),
-   en("The chef says this dish is safe for you.", "Oshpaz bu taom sizga xavfsiz ekanini aytdi."),
+   en("The kitchen has checked the ingredients and preparation.", "Oshxona tarkib va tayyorlash jarayonini tekshirdi. Aniq natijani tushuntiring; umumiy xavfsizlik va'dasi bermang."),
    en("I am sorry, this dish contains nuts. May I suggest…", "Afsuski, bu taomda yong'oq bor. … ni taklif qilsam maylimi?")], cls="clean"),
   card_ul("red", "🚫", "Hech qachon", [
    "<b>«I think it's OK»</b> — «menimcha, bo'ladi» degan javob yo'q",
@@ -294,7 +294,7 @@ slide("2-dialog: parhez so'rovi", "2-dialog: parhez so'rovi",
    ("X", "<b>Is the chicken salad OK for me?</b>"),
    ("O", "<b>I am not sure. Let me check the ingredients with our kitchen. I will be back in two minutes.</b>"),
    ("X", "<b>Thank you.</b>"),
-   ("O", "<b>Thank you for waiting. The salad has walnuts. But the chef can make it without nuts, in a clean bowl.</b>"),
+   ("O", "<b>Thank you for waiting. The salad contains walnuts. The chef has checked the recipe and separate preparation for a fresh portion.</b>"),
    ("X", "<b>Great. I will have that.</b>"),
    ("O", "<b>May I confirm? One chicken salad, no nuts — nut allergy. Is that correct?</b>"),
    ("X", "<b>Yes, correct.</b>")]),
@@ -305,8 +305,8 @@ slide("2-dialog: parhez so'rovi", "2-dialog: parhez so'rovi",
    "Qachon qaytishi aytildi — mehmon kutishni biladi",
    "Oshxona javobi <b>aniq</b> yetkazildi: nima bor va qanday yechim",
    "Buyurtma allergiya belgisi bilan <b>qayta tasdiqlandi</b>"])) +
- quote("📝 <b>Tarjima:</b> mehmon yong'oqqa allergiyasi borligini aytdi; ofitsiant yozib oldi, tovuqli salat tarkibini oshxonadan tekshirdi: salatda yong'oq bor, "
-       "lekin oshpaz uni yong'oqsiz, toza idishda tayyorlab bera oladi; buyurtma «yong'oqsiz — allergiya» belgisi bilan tasdiqlandi."))
+ quote("📝 <b>O'quv sharti:</b> oshpaz retsept, sous, bezak va alohida tayyorlash jarayonini tekshirgan bo'lsagina bu javob ishlatiladi. "
+       "Faqat toza idishning o'zi yetarli emas. O'zaro kontakt nazorati tasdiqlanmasa, taom uzatilmaydi; muqobil ham tekshiriladi."))
 
 # ============================ 14. QAYTA TASDIQLASH ============================
 slide("Buyurtmani qayta tasdiqlash", "Buyurtmani qayta tasdiqlash",
@@ -412,17 +412,17 @@ slide("Amaliy mashq", "Amaliy mashq",
       "tinglovchi — kuzatuvchi. Har dialog 4–5 daqiqa. «Mehmon» vazifa kartochkasini oladi va ataylab bitta gapni tushunmagandek ko'rsatadi.") +
  grid(2,
   card_ul("blue", "1️⃣", "1-dialog · Taom, porsiya, narx", [
-   "Mehmon ikki tilli menyudan notanish taom haqida so'raydi",
+   "<b>A kartochka:</b> 350 g osh — 50 000 so'm; non alohida. Narxlar faqat mashq uchun",
    "Ofitsiant tilni aniqlaydi va taomni to'rt savol bo'yicha tushuntiradi",
    "Porsiya kattaligi va narxni aytadi, menyuda ko'rsatadi",
-   "Narxga kirmaydigan narsalarni oldindan aytadi",
+   "Mehmon narxni 5 000 deb tushunadi: menyuda ko'rsatib, tushunilganini qayta tekshiring",
    "Buyurtmani tasdiqlaydi va kutish vaqtini aytadi"], cls="clean"),
   card_ul("orange", "2️⃣", "2-dialog · Parhez so'rovi", [
-   "Mehmon parhez yoki allergiya haqida aytadi (kartochka bo'yicha)",
+   "<b>B kartochka:</b> mehmon grek yong'og'iga allergiyasini aytadi va salat so'raydi",
    "Ofitsiant allergiya yoki xohish ekanini aniqlaydi va yozib oladi",
    "«Let me check the ingredients with our kitchen» deydi, qachon qaytishini aytadi",
-   "«Oshxona javobi»ni (trener beradi) mehmonga yetkazadi",
-   "Buyurtmani maxsus belgi bilan qayta tasdiqlaydi"], cls="clean")) +
+   "Trener avval «bo'ladi» deydi: retsept, sous va alohida jarayon bo'yicha aniq javob so'rang",
+   "Tasdiq bor bo'lsa maxsus belgi bilan qayta tasdiqlang; bo'lmasa taomni uzatmang"], cls="clean")) +
  table(["Kuzatuv mezoni", "Kuzatiladigan harakat", "Ha / Yo'q"], [
   ["<b>Til</b>", "Tilni so'radi; sodda, sekin va qisqa gaplar bilan gapirdi", "☐"],
   ["<b>Tushuntirish</b>", "Taom tarkibi, porsiya va narxni aniq aytdi, menyuda ko'rsatdi", "☐"],
