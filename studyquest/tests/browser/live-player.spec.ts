@@ -65,7 +65,7 @@ test('a guest joins through the real server API and keeps the same place after r
   }
 });
 
-async function stageFixture(page: Page) {
+async function stageFixture(page: Page, slowRestore = false) {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   const initial = await (await page.request.get('/api/live?path=session')).json();
   const player = initial.player;
@@ -117,9 +117,20 @@ async function stageFixture(page: Page) {
     if (path === 'clock') value = now;
     else if (path === 'idx') value = { [day]: { ...g.meta } };
     else if (path === `games/${day}/meta`) value = g.meta;
-    else if (path === `games/${day}/p`) value = g.p;
-    else if (path === `games/${day}/mine`) value = { joined: !!g.p?.[player.id], answers: {} };
-    else if (path === `games/${day}`) value = g;
+    else if (path === `games/${day}/p`) {
+      if (slowRestore) await new Promise((resolve) => setTimeout(resolve, 80));
+      value = g.p;
+    } else if (path === `games/${day}/mine`) {
+      if (slowRestore) await new Promise((resolve) => setTimeout(resolve, 600));
+      value = {
+        joined: !!g.p?.[player.id],
+        answers: Object.fromEntries(
+          Object.entries(g.a || {})
+            .filter(([, a]) => a[player.id])
+            .map(([i, a]) => [i, a[player.id]]),
+        ),
+      };
+    } else if (path === `games/${day}`) value = g;
     else {
       const m = /\/(q|k|a)\/(\d+)$/.exec(path || '');
       expect(m).not.toBeNull();
@@ -138,6 +149,22 @@ async function stageFixture(page: Page) {
     },
   };
 }
+
+test('rejoining during a question restores participation even when the personal history arrives last', async ({
+  page,
+}) => {
+  const { g, player, advance } = await stageFixture(page, true);
+  g.p![player.id] = { n: 'Qayta kirgan mehmon', g: '', at: g.meta.open + 1000 };
+  await advance(g.q[0].at + 1000);
+  await page.goto('/#arena/play/live');
+  const stage = page.frameLocator('.arena-live-frame');
+  await expect(stage.locator('.lv-a').first()).toBeEnabled({ timeout: 3000 });
+  await stage.locator('.lv-a').nth(g.k[0].c).click();
+  await expect.poll(() => g.a?.[0]?.[player.id]?.c).toBe(g.k[0].c);
+  await page.reload();
+  await expect(stage.locator('.lv-a.pick')).toHaveAttribute('data-k', String(g.k[0].c));
+  await expect(stage.locator('.lv-a:enabled')).toHaveCount(0);
+});
 
 test('the lobby, question, timer, result bars and winners keep their design on desktop and phone', async ({
   page,

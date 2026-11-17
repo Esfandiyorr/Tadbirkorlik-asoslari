@@ -68,7 +68,7 @@ export function adaptPlatformLive(source) {
         var changed=false;
         if(v.joined&&!LV.joined){ LV.joined=true; changed=true; }
         Object.keys(v.answers||{}).forEach(function(i){ if(LV.ans[i]===undefined){ LV.ans[i]=v.answers[i].c; changed=true; } });
-        if(changed) lvRender();
+        if(changed||v.joined) lvRender();
       }); }`,
   );
   swap(
@@ -77,7 +77,7 @@ export function adaptPlatformLive(source) {
   );
   swap(
     '    if(LV.phase==="lobby"&&lvN()!==old) lvLobbyPlayers(old);',
-    '    if(LV.phase==="lobby"){ if(wasJoined!==LV.joined) lvRender(); else if(lvN()!==old) lvLobbyPlayers(old); }',
+    '    if(wasJoined!==LV.joined) lvRender(); else if(LV.phase==="lobby"&&lvN()!==old) lvLobbyPlayers(old);',
   );
   // The shared-code adapter has already validated that the player identity exists.
   swapIn(
