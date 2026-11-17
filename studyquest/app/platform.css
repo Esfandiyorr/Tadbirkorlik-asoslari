@@ -9987,6 +9987,63 @@ body:has(.focus-learning) .kh-pop {
     linear-gradient(155deg, #0b3b3c, #0f766e 55%, #b45309) padding-box,
     linear-gradient(115deg, #fbbf24, #fb7185, #c084fc, #38bdf8, #fbbf24) border-box;
 }
+/* ⚡ tuzilgan jonli test haqida bir martalik katta e'lon */
+.news-pop.is-live {
+  background:
+    radial-gradient(circle at 100% 0%, #fde04780, transparent 45%) padding-box,
+    linear-gradient(155deg, #1e1b4b, #4338ca 50%, #db2777) padding-box,
+    linear-gradient(115deg, #fbbf24, #fb7185, #c084fc, #38bdf8, #fbbf24) border-box;
+}
+.news-pop-live-ic {
+  justify-self: center;
+  font-size: 54px;
+  line-height: 1;
+  animation: sq-float 3.4s ease-in-out infinite;
+}
+.news-pop.is-live h2 {
+  text-align: center;
+}
+.news-pop.is-live .news-pop-text {
+  text-align: center;
+}
+.news-pop-facts {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.news-pop-facts li {
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: #ffffff26;
+  border: 1px solid #ffffff40;
+  font-size: 14px;
+  font-weight: 700;
+}
+.news-pop-note {
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: #00000026;
+  font-size: 15px;
+}
+.news-pop.is-live .news-pop-actions {
+  justify-content: center;
+}
+button.news-pop-link {
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+}
+@media (prefers-reduced-motion: reduce) {
+  .news-pop-live-ic {
+    animation: none;
+  }
+}
 
 /* 📄 Ochiq huquqiy sahifalar (/privacy, /delete-account) */
 .legal {

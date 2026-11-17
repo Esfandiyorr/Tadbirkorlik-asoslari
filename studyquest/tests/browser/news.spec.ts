@@ -186,6 +186,13 @@ test('students see a small live quiz card twenty minutes before the start and ma
   await as(page, 'demo-student');
   await withLive(page, 10);
   await page.goto('/#home', { waitUntil: 'domcontentloaded' });
+  // 📣 Avval — tuzilgan o'yin haqida bir martalik katta e'lon (vaqti, savollar soni, kirish tugmasi).
+  const big = page.getByRole('dialog', { name: /Jonli test — bugun/ });
+  await expect(big).toContainText('JONLI TEST');
+  await expect(big).toContainText('12 ta savol');
+  await expect(big.getByRole('button', { name: /O‘yinga kirish/ })).toBeVisible();
+  await big.getByRole('button', { name: 'Tushunarli' }).click();
+  await expect(big).toBeHidden();
   const card = page.getByRole('dialog', { name: 'Jonli test bor!' });
   await expect(card).toContainText('Lobbi ochiq');
   await expect(card).toContainText('12 ta savol');
@@ -205,6 +212,7 @@ test('students see a small live quiz card twenty minutes before the start and ma
   await page.reload({ waitUntil: 'domcontentloaded' });
   await expect(page.locator('.sidebar-news .news-live')).toContainText('Lobbi ochiq');
   await expect(card).toBeHidden();
+  await expect(big).toHaveCount(0); // katta e'lon — faqat bir marta
   // Fikrini o'zgartirsa — yon menyudagi e'lonlar oynasidan kiradi.
   await page
     .locator('.sidebar-news')
@@ -217,6 +225,11 @@ test('teachers close the card too, and a later game only shows its time', async 
   await as(page, 'demo-teacher');
   await withLive(page, 15, 'yz');
   await page.goto('/#home', { waitUntil: 'domcontentloaded' });
+  // o'qituvchiga ham bir martalik katta e'lon («×» bilan yopilsa ham ko'rilgan hisoblanadi)
+  const big = page.getByRole('dialog', { name: /Yozuv marafoni — bugun/ });
+  await expect(big).toContainText('YOZUV MARAFONI');
+  await big.getByRole('button', { name: 'Yopish' }).click();
+  await expect(big).toBeHidden();
   const card = page.getByRole('dialog', { name: 'Yozuv marafoni bor!' });
   await expect(card).toBeVisible();
   await card.getByRole('button', { name: 'Yopish' }).click();
@@ -224,6 +237,7 @@ test('teachers close the card too, and a later game only shows its time', async 
   await page.reload({ waitUntil: 'domcontentloaded' });
   await expect(page.locator('.sidebar-news .news-live')).toBeVisible();
   await expect(card).toBeHidden();
+  await expect(big).toHaveCount(0);
 
   const later = await page.context().newPage();
   await as(later, 'demo-student');
@@ -234,6 +248,10 @@ test('teachers close the card too, and a later game only shows its time', async 
   await expect(slide).toContainText(/bugun|ertaga/);
   await expect(slide).toContainText('boshlanishiga');
   await expect(later.locator('.kh-pop')).toHaveCount(0);
+  // 2 soatdan keyingi o'yin ham tuzilgan zahoti katta e'londa chiqadi (kichik kartochka — 20 daqiqa qolganda)
+  const bigLater = later.getByRole('dialog', { name: /Jonli test — bugun/ });
+  await expect(bigLater).toContainText('Boshlanishiga');
+  await expect(bigLater.getByRole('button', { name: /O‘yinga kirish/ })).toHaveCount(0);
 });
 
 test('the administrator fills the second box with offers and students see them under the menu', async ({

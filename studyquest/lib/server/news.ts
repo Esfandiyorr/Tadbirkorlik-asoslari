@@ -5,6 +5,7 @@ import type { Actor } from '../types';
 import { administrator, check } from './auth';
 import { demo, legacyDb } from './repository';
 import { demoKahoot } from './live-admin';
+import { liveNewsId } from '../live-quiz';
 import { imageUrl, siteGet, siteUpdate, storeBlob } from './site-content';
 
 /* 📢 E'lonlar oynasi (yon menyuda, har 10 soniyada almashadi) va ⚡ jonli test jadvali.
@@ -198,8 +199,17 @@ const newsId = z.string().regex(/^[A-Za-z0-9_-]{1,64}$/);
 /** Amaldagi e'lonlar va reklamalar id lari (promo.ts news.ts ni import qiladi — shuning uchun bu yerda kechiktirib). */
 async function liveIds(now: number) {
   const { readPromo } = await import('./promo');
-  const [news, promo] = await Promise.all([readNews(now), readPromo(now).catch(() => [])]);
-  return new Set([...news.map((n) => n.id), ...promo.map((p) => p.id)]);
+  const [news, promo, game] = await Promise.all([
+    readNews(now),
+    readPromo(now).catch(() => []),
+    liveGame(now).catch(() => null),
+  ]);
+  // ⚡ tuzilgan jonli test ham katta oynada bir marta chiqadi — uning «ko'rildi» belgisi ham saqlanadi
+  return new Set([
+    ...news.map((n) => n.id),
+    ...promo.map((p) => p.id),
+    ...(game ? [liveNewsId(game)] : []),
+  ]);
 }
 /** Foydalanuvchi o'qigan (amaldagi) e'lonlar ro'yxati. */
 export async function newsSeen(a: Actor, now = Date.now()) {
