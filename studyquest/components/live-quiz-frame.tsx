@@ -1,5 +1,5 @@
 'use client';
-import { useLayoutEffect, useRef } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import { useApp } from './provider';
 
 /** The stage keeps the arena CSS. The parent supplies authenticated requests, never bearer tokens. */
@@ -73,18 +73,35 @@ export function LiveQuizFrame() {
       window.removeEventListener('message', receive);
     };
   }, [identity, signedIn]);
+  const src =
+    '/legacy/arena.html?sqEmbed=arena&sqLive=1' +
+    (data?.mode === 'demo' ? '&sqDemo=1' : '') +
+    '#/live';
+  // Sahifa (≈0,5 MB) yuklanguncha o'z yuklanish ekrani: yarim yuklangan eski sahifa ko'rinmaydi.
+  const [loaded, setLoaded] = useState('');
+  const L = (uz: string, en: string, ru: string) => (lang === 'en' ? en : lang === 'ru' ? ru : uz);
   return (
-    <iframe
-      ref={frame}
-      key={identity}
-      className="arena-live-frame"
-      src={
-        '/legacy/arena.html?sqEmbed=arena&sqLive=1' +
-        (data?.mode === 'demo' ? '&sqDemo=1' : '') +
-        '#/live'
-      }
-      title={lang === 'en' ? 'Live quiz' : lang === 'ru' ? 'Живой тест' : 'Jonli test'}
-      allow="autoplay; fullscreen"
-    />
+    <div className="arena-live">
+      <iframe
+        ref={frame}
+        key={identity}
+        className="arena-live-frame"
+        src={src}
+        title={L('Jonli test', 'Live quiz', 'Живой тест')}
+        allow="autoplay; fullscreen"
+        onLoad={() => setLoaded(identity)}
+      />
+      {loaded !== identity && (
+        <div className="arena-live-loading" role="status">
+          <span className="arena-live-shapes" aria-hidden="true">
+            <i />
+            <i />
+            <i />
+            <i />
+          </span>
+          <b>{L('Jonli test ochilmoqda…', 'Opening the live quiz…', 'Открываем живой тест…')}</b>
+        </div>
+      )}
+    </div>
   );
 }

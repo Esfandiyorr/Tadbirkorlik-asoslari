@@ -5518,6 +5518,68 @@ button.rk-slot:has(.av-empty)::after {
     min-height: 0;
     border-radius: 18px;
   }
+  .arena-live-loading {
+    border-radius: 18px;
+  }
+}
+
+.arena-live {
+  position: relative;
+}
+/* yuklanish ekrani: arena sahnasi bilan bir xil binafsha fon va to'rt rangli shakl */
+.arena-live-loading {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 18px;
+  border-radius: 24px;
+  background: radial-gradient(circle at 50% 35%, #6d28d9, #46178f 70%);
+  color: #fff;
+  font-size: 17px;
+}
+.arena-live-shapes {
+  display: grid;
+  grid-template-columns: repeat(2, 34px);
+  gap: 8px;
+}
+.arena-live-shapes i {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  animation: arena-live-pop 1.2s ease-in-out infinite;
+}
+.arena-live-shapes i:nth-child(1) {
+  background: #e21b3c;
+}
+.arena-live-shapes i:nth-child(2) {
+  background: #1368ce;
+  animation-delay: 0.15s;
+}
+.arena-live-shapes i:nth-child(3) {
+  background: #d89e00;
+  animation-delay: 0.3s;
+}
+.arena-live-shapes i:nth-child(4) {
+  background: #26890c;
+  animation-delay: 0.45s;
+}
+@keyframes arena-live-pop {
+  0%,
+  100% {
+    transform: scale(0.82);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .arena-live-shapes i {
+    animation: none;
+  }
 }
 
 /* ---------- 📢 E'lonlar oynasi (yon menyu) va ⚡ jonli test oynasi ---------- */

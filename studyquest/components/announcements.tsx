@@ -712,6 +712,13 @@ const localSeen = (): string[] => {
   }
 };
 /** E'lonni shu brauzerda «o'qildi» deb belgilaydi va ochiq katta oynaga xabar beradi. */
+/** Jonli o'yinga kim kira oladi: o'qituvchi va har qanday talaba; Yozuv marafoni (yz) — faqat guruh talabalari. */
+function canJoinLive(u: { role: string; learnerType?: string } | undefined, g: LiveGame) {
+  if (u?.role === 'teacher') return true;
+  if (u?.role !== 'student') return false;
+  return g.type !== 'yz' || u.learnerType !== 'independent';
+}
+
 export function markLocalSeen(id: string) {
   try {
     localStorage.setItem(SEEN_KEY, JSON.stringify([...localSeen(), id].slice(-50)));
@@ -784,10 +791,10 @@ export function NewsPopup() {
     },
     [signedIn, request],
   );
-  // ⚡ jonli test tuzilgan bo'lsa — guruhdagi talaba va o'qituvchiga birinchi bo'lib (o'yinni tuzgan administratorga emas)
+  // ⚡ jonli test tuzilgan bo'lsa — talaba va o'qituvchiga birinchi bo'lib (o'yinni tuzgan administratorga emas).
+  // Jonli testga mustaqil o'quvchi ham qatnashadi (server orqali); Yozuv marafoni — hozircha guruh talabalari uchun.
   const u = data?.user,
-    canPlay = u?.role === 'teacher' || (u?.role === 'student' && u.learnerType !== 'independent'),
-    game = d?.live && canPlay && now() < d.live.end ? d.live : null;
+    game = d?.live && canJoinLive(u, d.live) && now() < d.live.end ? d.live : null;
   const pops: Pop[] = [
     ...(game ? [{ id: liveNewsId(game), at: Number.MAX_SAFE_INTEGER, live: game }] : []),
     ...(d?.news || []).filter((x) => x.pop),
@@ -1031,9 +1038,9 @@ export function LiveGate() {
   const { data: d, now } = useNews();
   const hash = useHash();
   const u = data?.user,
-    staff = u?.role === 'teacher' || u?.role === 'admin',
-    student = u?.role === 'student' && u.learnerType !== 'independent';
+    staff = u?.role === 'teacher' || u?.role === 'admin';
   const g = d?.live || null,
+    student = !!g && u?.role === 'student' && canJoinLive(u, g),
     n = now(),
     on = !!g && n >= g.start - GATE_MS && n < g.end;
   useTick(!!g && g.start - n < GATE_MS + 60000);
