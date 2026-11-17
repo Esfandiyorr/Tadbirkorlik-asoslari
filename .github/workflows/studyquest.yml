@@ -49,6 +49,8 @@ jobs:
         run: node scripts/sync-legacy.mjs
       - run: npm run typecheck
       - run: npm test
+      - name: Live quiz transactions against local Realtime Database emulator
+        run: LIVE_RTDB_EMULATOR=1 npx vitest run tests/live-player-emulator.test.ts
       - name: Firestore rules against local demo emulator
         run: npm run test:emulator
       # Ubuntu paket oynalari (apt) ba'zan runner'dan topilmaydi — shunda faqat brauzerning o'zi o'rnatiladi:

@@ -44,7 +44,11 @@ function readDemo(cookie: string) {
   check(x.exp > Date.now() && demoUsers.some((u) => u.id === x.id), 401, 'Seans tugagan');
   return x.id as string;
 }
-export async function actor(req: NextRequest, readOnly = false): Promise<Actor> {
+export async function actor(
+  req: NextRequest,
+  readOnly = false,
+  options: { allowPendingLegacy?: boolean } = {},
+): Promise<Actor> {
   check(
     demo() || configured(),
     503,
@@ -93,7 +97,9 @@ export async function actor(req: NextRequest, readOnly = false): Promise<Actor> 
       owner.exists() &&
         s &&
         s.status !== 'blocked' &&
-        (s.status === 'ok' || s.learnerType === 'independent'),
+        (s.status === 'ok' ||
+          s.learnerType === 'independent' ||
+          (options.allowPendingLegacy === true && (!s.status || s.status === 'pending'))),
       403,
       'Hisob tasdig‘i yoki darsga ruxsat talab qilinadi',
     );
