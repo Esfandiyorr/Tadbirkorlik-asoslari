@@ -69,8 +69,28 @@
   color:#fff;font-weight:800;padding:11px 18px;border-radius:14px;box-shadow:var(--shadow);opacity:0;transform:translateY(14px);
   transition:.35s;pointer-events:none;font-size:14.5px}
 .rt-toast.show{opacity:1;transform:none}
+/* 🎉 slayd uchun berilgan ball — ekran o'rtasida katta, animatsiya bilan */
+.rt-big{position:fixed;left:50%;top:40%;z-index:140;pointer-events:none;opacity:0;transform:translate(-50%,-50%)}
+.rt-big-in{position:relative;display:grid;justify-items:center;gap:2px;padding:18px 36px 16px;border-radius:28px;
+  background:linear-gradient(135deg,#16a34a,#0d9488 60%,#0891b2);color:#fff;border:3px solid rgba(255,255,255,.55);
+  box-shadow:0 26px 60px -18px rgba(0,0,0,.55),0 0 0 8px rgba(34,197,94,.18);text-align:center;font-family:inherit}
+.rt-big b{font-size:clamp(52px,10vw,92px);line-height:1;font-weight:900;letter-spacing:-.03em;text-shadow:0 5px 16px rgba(0,0,0,.28)}
+.rt-big span{font-size:clamp(16px,2.6vw,22px);font-weight:900;text-transform:uppercase;letter-spacing:.1em}
+.rt-big small{max-width:300px;margin-top:6px;font-size:13.5px;font-weight:700;line-height:1.35;opacity:.95}
+.rt-big i{position:absolute;top:-16px;right:-12px;font-size:34px;font-style:normal;animation:rtBigSpark 1.2s ease-in-out infinite}
+.rt-big.full .rt-big-in{background:linear-gradient(135deg,#f59e0b,#ea580c 55%,#db2777);box-shadow:0 26px 60px -18px rgba(0,0,0,.55),0 0 0 8px rgba(245,158,11,.22)}
+.rt-big.show{animation:rtBig 1.9s cubic-bezier(.2,.9,.3,1.2) both}
+.rt-big.full.show{animation-duration:2.6s}
+@keyframes rtBig{0%{opacity:0;transform:translate(-50%,-30%) scale(.45)}
+  14%{opacity:1;transform:translate(-50%,-50%) scale(1.14)}
+  24%{opacity:1;transform:translate(-50%,-50%) scale(1)}
+  76%{opacity:1;transform:translate(-50%,-58%) scale(1)}
+  100%{opacity:0;transform:translate(-50%,-85%) scale(.9)}}
+@keyframes rtBigSpark{0%,100%{transform:scale(1) rotate(0)}50%{transform:scale(1.25) rotate(14deg)}}
+@media (prefers-reduced-motion:reduce){.rt-big.show,.rt-big.full.show{animation:rtBigFade 1.9s both}.rt-big i{animation:none}
+  @keyframes rtBigFade{0%,100%{opacity:0}12%,82%{opacity:1}}}
 .rt-note{font-size:12.5px;color:var(--muted);margin-top:10px;line-height:1.5}
-@media print{.rt-ov,.rt-gate,.rt-toast{display:none!important}}
+@media print{.rt-ov,.rt-gate,.rt-toast,.rt-big{display:none!important}}
 .rt-badge{display:inline-block;min-width:20px;padding:1px 7px;border-radius:99px;font-size:12.5px;font-weight:800;
   background:linear-gradient(135deg,var(--violet),var(--blue));color:#fff;vertical-align:middle}
 .rt-table td .btn{padding:6px 10px;font-size:12.5px}

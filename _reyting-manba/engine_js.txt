@@ -821,7 +821,11 @@ function award(key,pts,label){
   if(!t.nw) t.nw={}; t.nw[key]=1;
   save(); chipUpdate();
   var d=Math.round(((t.p||0)-before)*10)/10;
-  if(d>0) toast("+"+d+" ball"+(label?" · "+label:""));
+  if(d>0){
+    /* 📑 slayd uchun ball — ekran o'rtasida katta animatsiya (pastki qatordagi «Bu slayd: +N» bilan bir xil son) */
+    if(isSl){ var sn=metaOf(CFG.topic).slides; bigPts(Math.round(3000/Math.max(1,sn))/100,t.p||0,Object.keys(t.slides).length>=sn); }
+    else toast("+"+d+" ball"+(label?" · "+label:""));
+  }
 }
 /* ---------- o'qishga sarflangan vaqt ---------- */
 var TMR=null, tmrAt=0, tmrSave=0, lastAct=Date.now();
@@ -860,6 +864,20 @@ function slideSeen(n){
 /* ---------- interfeys ---------- */
 function el(html){ var d=document.createElement("div"); d.innerHTML=html.trim(); return d.firstChild; }
 function esc(x){ return String(x==null?"":x).replace(/[<>&"]/g,function(c){return {"<":"&lt;",">":"&gt;","&":"&amp;",'"':"&quot;"}[c];}); }
+/* 🎉 Katta ball animatsiyasi: «+1,36 ball» ekran o'rtasida paydo bo'lib, yuqoriga suzib yo'qoladi (bosishga xalaqit bermaydi). */
+function bigPts(v,total,full){
+  var f=function(x){ return String(Math.round(x*100)/100).replace(".",","); };
+  var b=document.getElementById("rtBig");
+  if(!b){ b=el('<div class="rt-big" id="rtBig" role="status" aria-live="polite"><div class="rt-big-in"><i aria-hidden="true">✨</i><b></b><span></span><small></small></div></div>'); document.body.appendChild(b); }
+  b.querySelector("b").textContent="+"+f(v);
+  b.querySelector("span").textContent=T("ball","points");
+  b.querySelector("small").textContent=full
+    ? "🎉 "+T("Barcha slaydlar ko'rildi — 30 ball to'liq!","All slides seen — the full 30 points!")
+    : "📑 "+T("Slayd uchun","For the slide")+" · "+T("mavzu bali","topic score")+": "+f(total)+" / 100";
+  b.classList.toggle("full",!!full);
+  b.classList.remove("show"); void b.offsetWidth; b.classList.add("show");
+  clearTimeout(b._h); b._h=setTimeout(function(){ b.classList.remove("show"); },full?2600:1900);
+}
 function toast(txt){
   var t=document.getElementById("rtToast");
   if(!t){ t=el('<div class="rt-toast" id="rtToast"></div>'); document.body.appendChild(t); }
