@@ -6,6 +6,7 @@ test('a guest joins through the real server API and keeps the same place after r
   playwright,
 }) => {
   test.setTimeout(120000);
+  await page.emulateMedia({ reducedMotion: 'reduce' });
   const admin = await playwright.request.newContext({ baseURL: 'http://127.0.0.1:3200' });
   await admin.post('/api/auth/demo', { data: { id: 'demo-admin' } });
   expect((await (await admin.get('/api/platform')).json()).mode).toBe('demo');
