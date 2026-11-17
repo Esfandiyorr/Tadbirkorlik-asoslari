@@ -4,7 +4,7 @@ import { z } from 'zod';
 import type { Actor } from '../types';
 import { parseYouTube, YT_ID, type TopicVideo } from '../youtube';
 import { administrator, check } from './auth';
-import { catalog } from '../seed';
+import { course, extraCourses, lessons, extraLessons } from '../seed';
 import { siteGet, siteUpdate } from './site-content';
 
 /* 📺 Mavzu videolari: administrator «Sayt boshqaruvi → 📺 Mavzu videolari»da mavzuga YouTube havolasini qo'yadi.
@@ -14,11 +14,25 @@ import { siteGet, siteUpdate } from './site-content';
 
 type Stored = { id: string; t?: string; s?: number; at: number; by?: string };
 const MAX = 6;
-const topicId = z.string().regex(/^m\d{1,2}$/);
+const topicId = z.string().regex(/^[a-z][a-z0-9_-]{0,39}$/);
 const KEY = /^[a-z0-9-]{4,40}$/;
 
-export const videoTopics = () =>
-  (catalog.topics as { id: string; title: string }[]).map((t) => ({ id: t.id, title: t.title }));
+export const videoTopics = () => {
+  const courses = [course, ...extraCourses];
+  return [...lessons, ...extraLessons]
+    .filter((l) => l.published && !l.draft)
+    .map((l) => {
+      const c = courses.find((c) => c.id === l.courseId)!;
+      return {
+        id: l.id,
+        title: `${c.extra ? 'R' : 'M'}${l.order + 1} · ${l.title}`,
+        courseId: c.id,
+        courseTitle: c.title,
+        paid: !!c.paid,
+        closed: !!c.closed,
+      };
+    });
+};
 
 function list(raw: Record<string, Stored> | null): TopicVideo[] {
   return Object.entries(raw || {})
@@ -35,7 +49,7 @@ function list(raw: Record<string, Stored> | null): TopicVideo[] {
 }
 
 export async function topicVideos(t: string): Promise<TopicVideo[]> {
-  if (!topicId.safeParse(t).success) return [];
+  if (!topicId.safeParse(t).success || !videoTopics().some((x) => x.id === t)) return [];
   return list(await siteGet<Record<string, Stored>>('videos/' + t));
 }
 /** Hamma mavzular va ularning videolari (administrator ro'yxati). */

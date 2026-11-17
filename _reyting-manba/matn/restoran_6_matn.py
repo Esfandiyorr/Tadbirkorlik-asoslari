@@ -91,7 +91,12 @@ page("Amaliy mashq: servis loyihasi", defn("40 daqiqa: 5 daqiqa brifing, 10 daqi
     "10 daqiqa juftliklararo tekshiruv, 5 daqiqa tanlov himoyasi.") +
     grid(2,
         card_ul("green", "A", "Individual reja", ["20 ta o'rin sxemasi va xodim bo'limlari", "Menyuga mos anjom va patnislar", "Allergen so'rovli o'rinlarni maxfiy qayd qilish", "Oshxona signali, maxsus porsiya va iflos oqim"]),
-        card_ul("blue", "B", "Bufet rejasi", ["Kirish/chiqish, tarelka, taom va ichimlik stansiyasi", "Taom belgisi va alohida qisqichlar", "Tiqilinch va qulay o'tish yo'li", "Taom almashuvi, harorat/muddat qaydi va javobgar"])))
+        card_ul("blue", "B", "Bufet rejasi", ["Kirish/chiqish, tarelka, taom va ichimlik stansiyasi", "Taom belgisi va alohida qisqichlar", "Tiqilinch va qulay o'tish yo'li", "Taom almashuvi, harorat/muddat qaydi va javobgar"])) +
+    table(["Trenerning kutilmagan kartasi", "Rejada ko'rsatiladigan tuzatish"], [
+        ["Ichimlik navbati aravachadagi mehmon yo'lini to'sdi", "Xavfsiz o'tish yo'lini ochish, stansiya yoki navbat yo'nalishini qayta joylashtirish"],
+        ["Sutli sous qisqichi sut bo'lmagan taomga ishlatildi", "Bu taomni hozircha uzatmaslik; mas'ulga xabar, anjom va taom bo'yicha restoran tuzatish tartibi"]]) +
+    quote("<b>Himoya namunasi:</b> «Individual xizmatni tanladik, chunki maxsus o'rinni aniq kuzatamiz. Xavf — noto'g'ri porsiya chiqishi. "
+          "Chora — stol/o'rin belgisi va oshxona bilan ikki tomonlama tasdiq.» Boshqa asoslangan yechim ham qabul qilinadi."))
 checklist([
     ("Uslub", "Ikki servis shakli menyu va mehmon soniga moslandi"),
     ("Oqim", "Toza, iflos va mehmon yo'llari belgilandi"),

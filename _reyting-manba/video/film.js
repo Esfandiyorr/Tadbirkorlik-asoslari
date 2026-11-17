@@ -9,17 +9,21 @@ const { spawn, spawnSync } = require('child_process');
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
+const { startPreview } = require('./preview-server');
 
 const name = process.argv[2];
 if (!name) throw new Error('Ssenariy nomi kerak: node film.js r1');
 const S = require('./ssenariy/' + name + '.js');
 const ROOT = path.resolve(__dirname, '../..');
-const OUT = path.join(ROOT, 'fayllar/video', name.toUpperCase());
+// YouTube uchun fayllarni Git tashqarisida yig'ish: FILM_OUT_DIR=/workspace/artifacts/restoran.
+const OUT = path.join(process.env.FILM_OUT_DIR ? path.resolve(process.env.FILM_OUT_DIR) : path.join(ROOT, 'fayllar/video'), name.toUpperCase());
 const FPS = 25, W = 1280, H = 720, SCALE = +process.env.FILM_SCALE || 1.5;
 const WORKERS = +process.env.FILM_WORKERS || 4;
 const ONLY = process.env.FILM_SHOT; // «12.5,40» — faqat shu soniyalardagi kadrlarni PNG qilib saqlash (tekshirish uchun)
 const PNG = process.env.FILM_PNG === '1'; // kadrlar odatda JPEG (tez); PNG ikki baravar sekin, fayl hajmi deyarli bir xil
 const CUT = process.env.FILM_CUT; // «82,92» — faqat shu oraliq (soniya) yig'iladi: sinov uchun, natija <nom>-sinov.mp4
+let filmBrowser, filmPreview, filmProgressTimer;
+const filmChildren = new Set();
 
 const stamp = (t) => {
   const h = Math.floor(t / 3600), m = Math.floor((t % 3600) / 60), s = t % 60;
@@ -39,12 +43,13 @@ function wrap(text) {
 }
 
 (async () => {
-  const browser = await chromium.launch({ executablePath: process.env.SQ_BROWSER_EXECUTABLE || undefined });
+  const preview = filmPreview = await startPreview();
+  const browser = filmBrowser = await chromium.launch({ executablePath: process.env.SQ_BROWSER_EXECUTABLE || undefined });
   const open = async () => {
     const ctx = await browser.newContext({ viewport: { width: W, height: H }, deviceScaleFactor: SCALE });
     const page = await ctx.newPage();
     page.on('pageerror', (e) => { console.error('Sahna xatosi:', e.message); process.exitCode = 1; });
-    await page.goto('file://' + path.join(__dirname, 'sahna.html'));
+    await page.goto(preview.url);
     await page.evaluate(() => document.fonts.ready);
     const info = await page.evaluate((s) => FILM.load(s), S);
     return { page, info };
@@ -84,7 +89,7 @@ function wrap(text) {
   const pages = [first, ...(await Promise.all(Array.from({ length: WORKERS - 1 }, open)))];
   let done = 0;
   const started = Date.now();
-  const timer = setInterval(() => process.stdout.write('\r  kadrlar: ' + done + ' / ' + total + '   '), 2000);
+  const timer = filmProgressTimer = setInterval(() => process.stdout.write('\r  kadrlar: ' + done + ' / ' + total + '   '), 2000);
   await Promise.all(pages.map(async ({ page }, k) => {
     const a = first0 + k * per, b = Math.min(first0 + total, a + per);
     if (a >= b) return;
@@ -92,6 +97,8 @@ function wrap(text) {
       '-c:v', 'libx264', '-preset', 'slow', '-crf', process.env.FILM_CRF || '28', '-tune', 'animation', '-pix_fmt', 'yuv420p',
       // kalit kadr kamdan-kam (10 soniyada bir): tekis grafikada fayl hajmining asosiy qismi aynan kalit kadrlarga ketadi
       '-g', process.env.FILM_GOP || String(FPS * 10), '-r', String(FPS), path.join(tmp, 'part' + k + '.mp4')], { stdio: ['pipe', 'inherit', 'inherit'] });
+    filmChildren.add(ff);
+    ff.once('close', () => filmChildren.delete(ff));
     const closed = new Promise((res, rej) => ff.on('close', (c) => (c ? rej(new Error('ffmpeg ' + c)) : res())));
     for (let f = a; f < b; f++) {
       await page.evaluate((x) => FILM.seek(x), f / FPS);
@@ -115,4 +122,9 @@ function wrap(text) {
   fs.rmSync(tmp, { recursive: true, force: true });
   const mb = (fs.statSync(OUT + (cut ? '-sinov' : '') + '.mp4').size / 1048576).toFixed(2);
   console.log('  → ' + path.relative(ROOT, OUT) + (cut ? '-sinov' : '') + '.mp4 (' + mb + ' MB)' + (cut ? '' : ', .vtt, .jpg'));
-})().catch((e) => { console.error(e); process.exit(1); });
+})().catch((e) => { console.error(e); process.exitCode = 1; }).finally(async () => {
+  clearInterval(filmProgressTimer);
+  for (const child of filmChildren) child.kill('SIGTERM');
+  await filmBrowser?.close().catch(() => {});
+  await filmPreview?.close();
+});
