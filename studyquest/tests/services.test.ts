@@ -9,6 +9,7 @@ import {
   saveServiceChunk,
   serviceChunk,
   servicesAdmin,
+  servicesShown,
   servicesView,
 } from '../lib/server/services';
 import { resetSiteMemory, siteGet } from '../lib/server/site-content';
@@ -21,7 +22,8 @@ beforeAll(() => {
 });
 beforeEach(async () => {
   resetSiteMemory();
-  // bo'lim ishga tushirilgan holat (ishga tushmagan holat — alohida sinovda)
+  // bo'lim ochiq va ishga tushirilgan holat (yopiq va ishga tushmagan holatlar — alohida sinovlarda)
+  await adminServices(admin, { op: 'show', shown: true });
   await adminServices(admin, { op: 'launch', open: true });
 });
 const who = (id: string, role = 'student', name = 'Ali Valiyev') =>
@@ -86,6 +88,30 @@ async function upload(
   else await manageServices(a, { op: 'finish', id, fid });
   return fid;
 }
+
+it('a temporarily closed section refuses students and workers but not the administrator', async () => {
+  resetSiteMemory();
+  // 🔒 sozlama yo'q — bo'lim vaqtincha yopiq (administrator ochmaguncha)
+  expect(await servicesShown()).toBe(false);
+  expect((await servicesView(ali)).shown).toBe(false);
+  expect((await servicesAdmin(admin)).shown).toBe(false);
+  await expect(manageServices(ali, { op: 'leave' })).rejects.toThrow('vaqtincha yopiq');
+  await expect(manageServices(ali, { op: 'idea', kinds: ['taqdimot'], text: '' })).rejects.toThrow(
+    'vaqtincha yopiq',
+  );
+  await expect(saveServiceChunk(ali, 'me', 'x/y', 'z', 0, Buffer.from('a'))).rejects.toThrow(
+    'vaqtincha yopiq',
+  );
+  // administrator yopiq bo'limda ham ishlaydi va uni ochadi
+  await manageServices(admin, { op: 'leave' });
+  await adminServices(admin, { op: 'show', shown: true });
+  expect((await servicesAdmin(admin)).shown).toBe(true);
+  expect(await servicesShown()).toBe(true);
+  await manageServices(ali, { op: 'leave' });
+  await adminServices(admin, { op: 'show', shown: false });
+  expect(await siteGet('serviceInfo/shown')).toBeNull();
+  await expect(manageServices(ali, { op: 'leave' })).rejects.toThrow('vaqtincha yopiq');
+});
 
 it('a guest sees the catalog and figures; the administrator sets hints, the fee and closes a direction', async () => {
   const guest = await servicesView(null);

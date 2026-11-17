@@ -4,7 +4,8 @@ import { test, expect, type Page } from '@playwright/test';
    («Adminga xabar»ga tushadi); ishga tushgach talaba vazifa va summani yozadi → ijrochi talaba «Men qilaman» deydi →
    administrator ijrochini tasdiqlaydi → buyurtmachi to'laydi → administrator to'lovni tasdiqlaydi → ijrochi natijani
    topshiradi → buyurtmachi qabul qilib baho qo'yadi → administrator ijrochiga pulni o'tkazadi. Play Market ilovasida
-   bo'lim yo'q. */
+   bo'lim yo'q. Administrator bo'limni vaqtincha yopishi mumkin (sozlama yo'q bo'lsa — yopiq): menyuda yo'q,
+   talaba amallari qabul qilinmaydi. */
 async function as(page: Page, id: string) {
   await page.request.post('/api/auth/demo', { data: { id } });
 }
@@ -16,6 +17,8 @@ async function clearOrders(page: Page) {
   for (const o of board.orders as { uk: string; id: string }[])
     await svc(page, 'admin', { op: 'remove', uk: o.uk, id: o.id });
 }
+/** Bo'limni ochish/yopish (administrator sessiyasi kerak). */
+const show = (page: Page, shown: boolean) => svc(page, 'admin', { op: 'show', shown });
 const PDF = Buffer.from('%PDF-1.4\n% Pullik xizmatlar sinovi\n%%EOF\n');
 
 test('a student posts a task, a worker applies, the admin approves, the work is delivered and paid out', async ({
@@ -27,6 +30,7 @@ test('a student posts a task, a worker applies, the admin approves, the work is 
   await as(page, 'demo-admin');
   await clearOrders(page);
   for (const input of [
+    { op: 'show', shown: true },
     { op: 'launch', open: true },
     { op: 'fee', fee: 10 },
     { op: 'info', how: 'Click orqali 8600 … kartaga o‘tkazing' },
@@ -227,6 +231,7 @@ test('a student posts a task, a worker applies, the admin approves, the work is 
     { op: 'fee', fee: 0 },
     { op: 'launch', open: false },
     { op: 'catalog', kind: 'taqdimot', price: '', days: '', off: false },
+    { op: 'show', shown: false },
   ])
     await svc(page, 'admin', input);
 });
@@ -234,6 +239,8 @@ test('a student posts a task, a worker applies, the admin approves, the work is 
 test('guests see the guide and catalog; the Play Market app has no paid services', async ({
   page,
 }) => {
+  await as(page, 'demo-admin');
+  await show(page, true);
   await page.context().clearCookies();
   await page.goto('/#services', { waitUntil: 'domcontentloaded' });
   // bo'lim hali ishga tushmagan: mehmonga ham «tez orada» oynasi, taklif uchun — kirish
@@ -255,6 +262,8 @@ test('guests see the guide and catalog; the Play Market app has no paid services
   await expect(page.locator('.bottom-nav a[href="#services"]')).toHaveCount(0);
   await page.goto('/#services', { waitUntil: 'domcontentloaded' });
   await expect(page.locator('.svc-grid')).toHaveCount(0);
+  await as(page, 'demo-admin');
+  await show(page, false);
 });
 
 test('before the launch a student sees «Launching soon» and sends a suggestion to the administrator', async ({
@@ -262,6 +271,7 @@ test('before the launch a student sees «Launching soon» and sends a suggestion
   browser,
 }) => {
   await as(page, 'demo-admin');
+  await show(page, true);
   await svc(page, 'admin', { op: 'launch', open: false });
   const student = await (
     await browser.newContext({ baseURL: test.info().project.use.baseURL })
@@ -332,7 +342,7 @@ test('before the launch a student sees «Launching soon» and sends a suggestion
   await page.getByRole('button', { name: 'Boshqarish' }).click();
   page.once('dialog', (d) => void d.accept());
   await page.getByRole('button', { name: /Ishga tushirish/ }).click();
-  await expect(page.locator('.svc-launch')).toContainText('Ishlayapti');
+  await expect(page.locator('.svc-launch:not(.svc-shown)')).toContainText('Ishlayapti');
   await student.reload({ waitUntil: 'domcontentloaded' });
   await expect(student.locator('.svc-soon')).toHaveCount(0);
   await student.locator('.mk-tabs a[href="#services"]').click();
@@ -341,5 +351,55 @@ test('before the launch a student sees «Launching soon» and sends a suggestion
   // asl holiga qaytarish
   page.once('dialog', (d) => void d.accept());
   await page.getByRole('button', { name: /Tez orada.*qaytarish/ }).click();
-  await expect(page.locator('.svc-launch')).toContainText('Tez orada');
+  await expect(page.locator('.svc-launch:not(.svc-shown)')).toContainText('Tez orada');
+  await show(page, false);
+});
+
+test('the administrator closes the section for a while: students lose it, the administrator reopens it', async ({
+  page,
+  browser,
+}) => {
+  await as(page, 'demo-admin');
+  await show(page, false);
+  const student = await (
+    await browser.newContext({ baseURL: test.info().project.use.baseURL })
+  ).newPage();
+  await as(student, 'demo-student');
+  // talabada: menyu, pastki panel va bosh sahifada bo'lim yo'q
+  await student.goto('/#home', { waitUntil: 'domcontentloaded' });
+  await expect(student.locator('.quick-link.is-courses')).toBeVisible();
+  await expect(student.locator('.quick-link.is-services')).toHaveCount(0);
+  await expect(student.locator('.sidebar nav a[href="#services"]')).toHaveCount(0);
+  await expect(student.locator('.bottom-nav a[href="#services"]')).toHaveCount(0);
+  // eski havola yoki bildirishnoma orqali kelsa — «vaqtincha yopiq» xabari
+  await student.goto('/#services/mine', { waitUntil: 'domcontentloaded' });
+  await expect(
+    student.getByRole('heading', { name: 'Pullik xizmatlar vaqtincha yopiq', level: 1 }),
+  ).toBeVisible();
+  await expect(student.locator('.svc-grid')).toHaveCount(0);
+  // server ham qabul qilmaydi
+  const refused = await svc(student, 'me', { op: 'leave' });
+  expect(refused.status()).toBe(403);
+  expect((await refused.json()).error).toContain('vaqtincha yopiq');
+
+  // administrator bo'limni ko'radi va qayta ochadi
+  await page.goto('/#services', { waitUntil: 'domcontentloaded' });
+  await expect(page.locator('.svc-closed-note')).toContainText('vaqtincha yopiq');
+  await expect(page.locator('.sidebar nav a[href="#services"]')).toHaveCount(0);
+  await page.getByRole('button', { name: 'Boshqarish' }).click();
+  const box = page.locator('.svc-launch.svc-shown');
+  await expect(box).toContainText('Vaqtincha yopiq');
+  page.once('dialog', (d) => void d.accept());
+  await box.getByRole('button', { name: /Bo‘limni ochish/ }).click();
+  await expect(box).toContainText('Menyuda');
+  await expect(page.locator('.sidebar nav a[href="#services"]')).toBeVisible();
+  await student.reload({ waitUntil: 'domcontentloaded' });
+  await expect(student.locator('.sidebar nav a[href="#services"]')).toBeVisible();
+  await student.goto('/#services', { waitUntil: 'domcontentloaded' });
+  await expect(student.getByRole('heading', { name: /Pullik xizmatlar/, level: 1 })).toBeVisible();
+  await student.context().close();
+  // asl holiga — yana yopiq
+  page.once('dialog', (d) => void d.accept());
+  await box.getByRole('button', { name: /Vaqtincha yopish/ }).click();
+  await expect(box).toContainText('Vaqtincha yopiq');
 });

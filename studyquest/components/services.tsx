@@ -307,6 +307,16 @@ export function Services({ sub = '' }: { sub?: string }) {
           </Button>
         </div>
       )}
+      {admin && view && !view.shown && (
+        <p className="svc-soon is-admin svc-closed-note" role="status">
+          🔒{' '}
+          {L(
+            'Bo‘lim talabalar uchun vaqtincha yopiq: menyuda ko‘rinmaydi, talaba va ijrochi amallari qabul qilinmaydi. Sahifani faqat siz ko‘ryapsiz. Ochish — «Boshqarish» → «Bo‘limni ochish».',
+            'The section is temporarily closed for students: hidden from the menu, student and worker actions are refused. Only you see this page. Reopen via “Manage” → “Open the section”.',
+            'Раздел временно закрыт для студентов: скрыт из меню, действия студентов и исполнителей не принимаются. Страницу видите только вы. Открыть — «Управление» → «Открыть раздел».',
+          )}
+        </p>
+      )}
       {admin && soonMode && (
         <p className="svc-soon is-admin">
           ⏸{' '}

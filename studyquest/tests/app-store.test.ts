@@ -133,6 +133,7 @@ it('a student asks to delete the account, may cancel, and the administrator eras
     },
   };
   await subscribePush(ali, dev);
+  await adminServices(admin, { op: 'show', shown: true });
   await adminServices(admin, { op: 'launch', open: true });
   await manageServices(
     ali,

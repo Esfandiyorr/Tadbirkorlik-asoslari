@@ -141,14 +141,15 @@ export function StudyQuest() {
   const user = data.user,
     role = user?.role,
     mainView = view.split('/')[0],
-    id = view.split('/')[1];
+    id = view.split('/')[1],
+    // 💼 Pullik xizmatlar: Play Market ilovasida yo'q (Google qoidasi); administrator ochmaguncha — vaqtincha yopiq
+    services = !play && !!data.servicesShown;
   const nav: { id: string; key: Key; icon: typeof BookOpen }[] = [
     { id: 'home', key: 'home', icon: LayoutDashboard },
     { id: 'courses', key: 'courses', icon: BookOpen },
     { id: 'arena', key: 'arena', icon: Gamepad2 },
     { id: 'library', key: 'library', icon: LibraryBig },
-    // 💼 Play Market ilovasida pullik xizmatlar ko'rsatilmaydi (Google qoidasi: ilova ichida tashqi to'lov yo'q)
-    ...(play ? [] : [{ id: 'services', key: 'services' as Key, icon: BriefcaseBusiness }]),
+    ...(services ? [{ id: 'services', key: 'services' as Key, icon: BriefcaseBusiness }] : []),
     { id: 'badges', key: 'badges', icon: Medal },
     ...(user ? [{ id: 'chat', key: 'chat' as Key, icon: MessageSquare }] : []),
   ];
@@ -187,7 +188,8 @@ export function StudyQuest() {
   else if (mainView === 'library') content = <Library />;
   // eski #slides (AI taqdimot) havolalari ham shu bo'limga olib keladi
   else if ((mainView === 'services' || mainView === 'slides') && !play)
-    content = <Services sub={id || ''} />;
+    // vaqtincha yopiq bo'lim: talabaga — xabar (eski havola va bildirishnomalar uchun), administratorga — bo'limning o'zi
+    content = services || role === 'admin' ? <Services sub={id || ''} /> : <ServicesClosed />;
   else if (mainView === 'arena') content = <Games sub={view.split('/').slice(1).join('/')} />;
   else if (view === 'teacher')
     content = role === 'teacher' || role === 'admin' ? <Staff /> : <AuthPanel />;
@@ -411,9 +413,9 @@ export function StudyQuest() {
           { id: 'courses', label: t(lang, 'courses'), icon: BookOpen },
           { id: 'arena', label: t(lang, 'navArena'), icon: Gamepad2 },
           { id: 'library', label: t(lang, 'navLibrary'), icon: LibraryBig },
-          ...(play
-            ? []
-            : [{ id: 'services', label: t(lang, 'navServices'), icon: BriefcaseBusiness }]),
+          ...(services
+            ? [{ id: 'services', label: t(lang, 'navServices'), icon: BriefcaseBusiness }]
+            : []),
           ...(nav.some((n) => n.id === 'chat')
             ? [{ id: 'chat', label: t(lang, 'navChat'), icon: MessageSquare }]
             : signedIn
@@ -436,6 +438,35 @@ export function StudyQuest() {
     </div>
   );
 }
+/** 🔒 «Pullik xizmatlar» vaqtincha yopiq: eski havola yoki bildirishnoma orqali kelgan talabaga xabar. */
+function ServicesClosed() {
+  const { lang } = useApp();
+  return (
+    <section className="panel soft-empty services-closed" role="status">
+      <span aria-hidden="true">💼</span>
+      <h1>
+        {tr(
+          lang,
+          'Pullik xizmatlar vaqtincha yopiq',
+          'Paid services are temporarily closed',
+          'Платные услуги временно закрыты',
+        )}
+      </h1>
+      <p>
+        {tr(
+          lang,
+          'Bo‘lim qayta ochilganda menyuda yana paydo bo‘ladi. Savollar bo‘lsa — «Talabalar chati → Adminga xabar».',
+          'The section will reappear in the menu when it reopens. Questions — “Chat → Message the admin”.',
+          'Раздел снова появится в меню, когда откроется. Вопросы — «Чат → Сообщение администратору».',
+        )}
+      </p>
+      <Button onClick={() => navigate('home')}>
+        {tr(lang, 'Bosh sahifaga', 'Go home', 'На главную')}
+      </Button>
+    </section>
+  );
+}
+
 function Profile() {
   const { data, lang, call, toast, legacy, setLogin, logout } = useApp(),
     u = data?.user,
