@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""M9 · Biznes g'oyani taqdim etish va tadbirkorlik yo'lini boshlash — slaydlar va test (yangi_mavzu.py uchun).
+"""M9 · Biznes g'oyani taqdim etish va tadbirkorlik yo'lini boshlash — slaydlar va test (22 slayd: takrorlash va namunalar bilan) (yangi_mavzu.py uchun).
 T, d, slide — yangi_mavzu.py beradi.  Ishlatish:
   python3 _reyting-manba/yangi_mavzu.py _reyting-manba/matn/mavzu_9_matn.py mavzu-9.html "Biznes g'oyani taqdim etish va tadbirkorlik yo'lini boshlash" 9
 """
@@ -42,7 +42,7 @@ slide("Muqova", "Cover",
  '<div class="meta">' +
  E("div", "📚 Fan: <b>Tadbirkorlik asoslari</b>", "📚 Course: <b>Fundamentals of Entrepreneurship</b>") +
  E("div", "🎓 <b>Termiz davlat universiteti</b>", "🎓 <b>Termez State University</b>") +
- E("div", "🗂 <b>18</b> slayd · <b>15</b> ta test", "🗂 <b>18</b> slides · <b>15</b> tests") +
+ E("div", "🗂 <b>22</b> slayd · <b>15</b> ta test", "🗂 <b>22</b> slides · <b>15</b> tests") +
  E("div", "⌨️ <b>→</b> tugmasi bilan davom eting", "⌨️ Press <b>→</b> to continue") +
  '</div></div></div>')
 
@@ -67,7 +67,7 @@ slide("Reja va tushunchalar", "Plan and concepts",
  E("h2", "Bugungi <span class=\"grad\">4 ta blok</span>", "Today's <span class=\"grad\">4 blocks</span>") +
  '<div class="grid g4">' +
  card("green", "1️⃣", "G'oyani tekshirish", "Testing the idea", "Muammo, mijoz va yechim: g'oya haqiqatan kerakmi?", "Problem, customer and solution: is the idea really needed?") +
- card("blue", "2️⃣", "Taqdimot", "The pitch", "Tuzilma, 60 soniyalik pitch, savol-javobga tayyorgarlik.", "Structure, the 60-second pitch, preparing for questions.") +
+ card("blue", "2️⃣", "Taqdimot", "The pitch", "Tuzilma, 60 soniyalik pitch, tayyor namunalar va savol-javobga tayyorgarlik.", "Structure, the 60-second pitch, ready samples and preparing for questions.") +
  card("violet", "3️⃣", "Raqamlar", "The numbers", "Bozor hajmi, birlik foydasi, zararsiz nuqta, raqobat.", "Market size, profit per unit, break-even point, competition.") +
  card("orange", "4️⃣", "Boshlash yo'li", "The way to start", "MVP, yo'l xaritasi, huquqiy shakl va moliyalashtirish.", "MVP, a roadmap, legal form and funding.") +
  '</div>' + E("h3", "🔑 Tayanch tushunchalar", "🔑 Key concepts", 'style="margin-top:22px"') +
@@ -83,7 +83,25 @@ slide("Reja va tushunchalar", "Plan and concepts",
    '<span class="pill">business model</span><span class="pill">competitive edge</span><span class="pill">traction (proof)</span><span class="pill">pivot</span>'
    '<span class="pill">sole proprietor and LLC</span><span class="pill g">funding</span>'))
 
-# ============================ 4. AUDITORIYA ============================
+# ============================ 4. OLDINGI MAVZULAR ============================
+slide("Oldingi mavzulardan", "From the previous topics",
+ E("span", "Takrorlash · 1–8-mavzular", "Review · Topics 1–8", 'class="kicker"') +
+ E("h2", "Oldin o'rganganlarimiz <span class=\"grad\">bitta taqdimotga yig'iladi</span>", "What we learned before <span class=\"grad\">comes together in one pitch</span>") +
+ E("div", "9-mavzu — <b>yakunlovchi mavzu</b>. Yangi narsa kam: oldingi 8 mavzuda o'rgangan bilimni <b>bitta g'oya uchun</b> qo'llab, uni tinglovchiga ishonarli taqdim etamiz.",
+   "Topic 9 is a <b>closing topic</b>. Little is new: we apply what we learned in the previous 8 topics <b>to one idea</b> and present it convincingly.", 'class="def"') +
+ table([("Mavzu", "Topic"), ("U yerda nimani o'rgandik", "What we learned there"), ("Taqdimotda qayerda ishlatamiz", "Where we use it in the pitch")], [
+  [TD("<b>1</b> · Tadbirkorlik tafakkuri va biznes imkoniyatlar", "<b>1</b> · Entrepreneurial thinking and business opportunities"), TD("Tadbirkor oddiy muammoda imkoniyat ko'radi, xavfni hisoblab tavakkal qiladi", "An entrepreneur sees an opportunity in an everyday problem and takes calculated risks"), TD("«Nega aynan men?» — jamoa slaydi va g'oya qanday tug'ilgani", "“Why me?” — the team slide and how the idea was born", "g")],
+  [TD("<b>2</b> · Mijoz muammosi asosida biznes g'oya", "<b>2</b> · A business idea based on a customer problem"), TD("G'oya mijoz muammosidan boshlanadi; mijoz portreti va suhbat", "An idea starts from a customer problem; the customer portrait and interviews"), TD("1-slayd «Muammo» va «Mijoz»; suhbat natijasi — birinchi isbot", "Slide 1 “Problem” and “Customer”; interview results are the first proof", "g")],
+  [TD("<b>3</b> · Mahsulotni kam xarajat bilan sinash (moliya va kredit)", "<b>3</b> · Testing a product cheaply (finance and credit)"), TD("Avval kichik sinov, keyin sarmoya; kredit xavfi", "A small test first, investment later; the risk of a loan"), TD("MVP, «Birinchi natijalar» va «So'rov»dagi summa", "The MVP, “First results” and the sum in “The ask”", "g")],
+  [TD("<b>4</b> · Biznesni qonuniy rasmiylashtirish", "<b>4</b> · Registering a business legally"), TD("YaTT, MChJ va boshqa shakllar; ro'yxatdan o'tish tartibi", "Sole proprietor, LLC and other forms; how to register"), TD("Huquqiy shaklni tanlash va sababini aytish", "Choosing the legal form and explaining why", "g")],
+  [TD("<b>5</b> · Soliqlar va hujjatlar", "<b>5</b> · Taxes and documents"), TD("Soliq turlari, kirim-chiqim hisobi va hujjatlar", "Types of tax, income and spending records, documents"), TD("Xarajat va narx hisobida soliqni unutmaslik; hisob daftari", "Not forgetting tax in costs and price; a records book", "g")],
+  [TD("<b>6</b> · Biznes-model qanday ishlaydi", "<b>6</b> · How a business model works"), TD("Kim, nima uchun, qancha to'laydi; Lean Canvas, LTV va CAC", "Who pays, for what and how much; Lean Canvas, LTV and CAC"), TD("«Biznes model» va «Moliya» slaydlari", "The “Business model” and “Finance” slides", "g")],
+  [TD("<b>7</b> · CRM nima?", "<b>7</b> · What is CRM?"), TD("Mijozlar bazasi, qayta xarid va aloqa tarixi", "The customer base, repeat purchases and contact history"), TD("Isbot: nechta mijoz qaytdi — CRM dagi aniq raqam", "Proof: how many customers came back — an exact number from the CRM", "g")],
+  [TD("<b>8</b> · Mahsulotni reklama qilish va mijozga yetkazish", "<b>8</b> · Advertising a product and delivering it"), TD("Reklama kanallari, mijozga xabar va yetkazib berish", "Advertising channels, the message and delivery"), TD("«Marketing» slaydi: 2 ta kanal, byudjet va yetkazish", "The “Marketing” slide: 2 channels, a budget and delivery", "g")]]) +
+ E("div", "📌 Taqdimotga tayyorlanishdan oldin 1–8-mavzulardagi o'z topshiriqlaringizni oching: mijoz suhbati, hisob-kitob, biznes model va reklama rejasi — taqdimotning <b>tayyor qismlari</b>.",
+   "📌 Before preparing the pitch, open your own assignments from topics 1–8: the customer interview, the calculations, the business model and the advertising plan are <b>ready-made parts</b> of the pitch.", 'class="quote" style="margin-top:12px"'))
+
+# ============================ 5. AUDITORIYA ============================
 slide("Kimga taqdim etamiz?", "Who are we presenting to?",
  E("span", "1-blok · G'oya va tinglovchi", "Block 1 · The idea and the listener", 'class="kicker"') +
  E("h2", "Tinglovchi <span class=\"grad\">nimani bilmoqchi?</span>", "What does the listener <span class=\"grad\">want to know?</span>") +
@@ -98,7 +116,7 @@ slide("Kimga taqdim etamiz?", "Who are we presenting to?",
  E("div", "📌 <b>Qoida:</b> taqdimot — bu o'zingiz haqingizda gapirish emas, <b>tinglovchining savoliga javob berish</b>. Savolni oldindan bilsangiz, javob 2 baravar kuchli bo'ladi.",
    "📌 <b>Rule:</b> a pitch is not about talking about yourself, it is <b>answering the listener's question</b>. If you know the question in advance, your answer becomes twice as strong.", 'class="quote" style="margin-top:12px"'))
 
-# ============================ 5. G'OYANI TEKSHIRISH ============================
+# ============================ 6. G'OYANI TEKSHIRISH ============================
 slide("G'oyani tekshirish", "Testing the idea",
  E("span", "1.2 · Tekshiruv", "1.2 · Validation", 'class="kicker"') +
  E("h2", "Yaxshi g'oya emas, <span class=\"grad\">isbotlangan muammo</span>", "Not a good idea, but <span class=\"grad\">a proven problem</span>") +
@@ -120,7 +138,7 @@ slide("G'oyani tekshirish", "Testing the idea",
  E("div", "🎯 <b>Vazifa:</b> kamida <b>10 ta</b> maqsadli odam bilan 10 daqiqadan suhbatlashing. Agar 10 tadan 3–4 tasi «hozir ham shu muammo bilan kurashyapman va yechim izlayman» desa — g'oya jiddiy o'rganishga loyiq.",
    "🎯 <b>Task:</b> talk to at least <b>10</b> target people for 10 minutes each. If 3–4 of 10 say “I struggle with this right now and I am looking for a solution” — the idea deserves serious work.", 'class="quote" style="margin-top:12px"'))
 
-# ============================ 6. TAQDIMOT TUZILMASI ============================
+# ============================ 7. TAQDIMOT TUZILMASI ============================
 slide("Taqdimot tuzilmasi", "Pitch structure",
  E("span", "2-blok · Taqdimot", "Block 2 · The pitch", 'class="kicker"') +
  E("h2", "Taqdimotning <span class=\"grad\">10 ta slaydi</span>", "The <span class=\"grad\">10 slides</span> of a pitch") +
@@ -140,7 +158,7 @@ slide("Taqdimot tuzilmasi", "Pitch structure",
  E("small", "Slaydda matn kam bo'lsin: sarlavha, 1–2 raqam yoki rasm. Hamma narsani slaydga emas, <b>ovozingiz bilan</b> ayting.",
    "Keep slide text short: a headline, 1–2 numbers or a picture. Say everything else <b>with your voice</b>, not on the slide.", 'class="note"'))
 
-# ============================ 7. 60 SONIYALIK PITCH ============================
+# ============================ 8. 60 SONIYALIK PITCH ============================
 slide("60 soniyalik pitch", "The 60-second pitch",
  E("span", "2.2 · Lift pitch", "2.2 · Elevator pitch", 'class="kicker"') +
  E("h2", "60 soniyada <span class=\"grad\">g'oyani aytib bering</span>", "Explain the idea <span class=\"grad\">in 60 seconds</span>") +
@@ -166,158 +184,57 @@ slide("60 soniyalik pitch", "The 60-second pitch",
  E("li", "So'rov aniq: 20 mln — nimaga ekani ayon", "The ask is clear: 20 million — and what for") + '</ul></div></div>' +
  E("small", "«TerMeva» — o'quv uchun to'qib chiqarilgan shartli misol; undagi raqamlar haqiqiy emas.", "“TerMeva” is a made-up teaching example; its numbers are not real.", 'class="note"'))
 
-# ============================ 8. BOZOR HAJMI ============================
-slide("Bozor hajmi", "Market size",
- E("span", "3-blok · Raqamlar", "Block 3 · The numbers", 'class="kicker"') +
- E("h2", "Bozor: <span class=\"grad\">«hamma» emas, o'zim yetadigan mijozlar</span>", "The market: <span class=\"grad\">not “everyone” but customers I can reach</span>") +
- E("div", "Eng katta xato — «aholi 36 million, 1% sotib olsa ham...» deb hisoblash. Haqiqiy hisob <b>pastdan yuqoriga</b>: men o'zim nechta kishiga yeta olaman va ulardan nechtasi sotib oladi?",
-   "The biggest mistake is calculating “the population is 36 million, so even 1% would...”. A real estimate goes <b>from the bottom up</b>: how many people can I reach myself and how many of them will buy?", 'class="def"') +
- '<div class="grid g4" style="margin-top:14px">' +
- stat("2 000", "kishiga yeta olaman (kanal + tanishlar)", "people I can reach (channels + contacts)") +
- stat("5%", "xarid qiladi (suhbat va sinovdan)", "will buy (from interviews and tests)", "o") +
- stat("100", "mijoz oyiga", "customers a month", "v") +
- stat("4 000 000", "so'm oylik tushum (100 × 40 000)", "so'm monthly revenue (100 × 40,000)") +
- '</div><div class="grid g2" style="margin-top:14px">' +
- card("orange", "🧠", "Hisob nimani ko'rsatdi?", "What the calculation showed", "Oyiga 100 qadoq sotsak, tushum 4 000 000 so'm. Keyingi slaydda ko'ramiz: zararsiz bo'lish uchun <b>250 qadoq</b> kerak. Demak, faqat onlayn savdo yetmaydi.",
-      "Selling 100 packs a month brings 4,000,000 so'm. The next slides show that <b>250 packs</b> are needed to break even. So online sales alone are not enough.") +
- card_ul("green", "🛣", "Qanday chiqish mumkin?", "What are the ways out?", [
-  ("Do'konlar va kafelarga ulgurji sotish", "Selling wholesale to shops and cafés"),
-  ("Mijozlar doirasini kengaytirish (yangi kanal)", "Widening the customer circle (a new channel)"),
-  ("Doimiy xarajatni kamaytirish (ijara, ish haqi)", "Cutting fixed costs (rent, wages)"),
-  ("Narx va mahsulot to'plamini qayta ko'rish", "Reviewing the price and the product bundle")], "tick") +
- '</div>' +
- E("small", "Mijozlar soni va xarid ulushini «o'ylab» emas, o'z suhbat va sinov natijangizdan oling. Umumiy bozor ma'lumotini stat.uz va ochiq hisobotlardan qidiring.",
-   "Take the number of customers and the share who buy from your own interviews and tests, not from a guess. Look for general market data on stat.uz and open reports.", 'class="note"'))
-
-# ============================ 9. BIRLIK IQTISODIYOTI ============================
-slide("Birlik foydasi va zararsiz nuqta", "Unit profit and break-even",
- E("span", "3.2 · Moliyaviy hisob", "3.2 · Financial calculation", 'class="kicker"') +
- E("h2", "Birlik foydasi va <span class=\"grad\">zararsiz nuqta</span>", "Profit per unit and <span class=\"grad\">the break-even point</span>") +
- E("p", "Shartli misol — «TerMeva»: 250 gramm quritilgan meva qadog'i.", "A sample — “TerMeva”: a 250-gram pack of dried fruit.", 'class="lead"') +
- '<div class="grid g3">' +
- '<div class="card" style="--c:var(--blue)">' + E("h3", "1. Bitta qadoq hisobi", "1. One pack") +
- table(None, [
-  [TD("Sotish narxi", "Selling price"), TD("40 000", "40,000")],
-  [TD("Meva (xomashyo)", "Fruit (raw material)"), TD("− 16 000", "− 16,000")],
-  [TD("Qadoq va yorliq", "Pack and label"), TD("− 3 000", "− 3,000")],
-  [TD("Yetkazish", "Delivery"), TD("− 5 000", "− 5,000")],
-  [TD("<b>Birlik foydasi</b>", "<b>Profit per unit</b>"), TD("<b>16 000 so'm</b>", "<b>16,000 so'm</b>", "g")]]) + '</div>' +
- '<div class="card" style="--c:var(--violet)">' + E("h3", "2. Oylik doimiy xarajat", "2. Monthly fixed costs") +
- table(None, [
-  [TD("Ijara", "Rent"), TD("1 500 000", "1,500,000")],
-  [TD("Yordamchining ish haqi", "An assistant's wages"), TD("2 000 000", "2,000,000")],
-  [TD("Reklama va aloqa", "Advertising and phone"), TD("500 000", "500,000")],
-  [TD("<b>Jami</b>", "<b>Total</b>"), TD("<b>4 000 000 so'm</b>", "<b>4,000,000 so'm</b>", "r")]]) +
- E("p", "Sotuv bo'lmasa ham bu pul ketadi.", "This money is spent even if nothing sells.", 'style="margin-top:8px"') + '</div>' +
- '<div class="card" style="--c:var(--green)">' + E("h3", "3. Zararsiz nuqta", "3. The break-even point") +
- E("p", "<b>Zararsiz miqdor = doimiy xarajat ÷ birlik foydasi</b>", "<b>Break-even quantity = fixed costs ÷ profit per unit</b>") +
- E("p", "4 000 000 ÷ 16 000 = <b>250 qadoq</b> oyiga", "4,000,000 ÷ 16,000 = <b>250 packs</b> a month", 'style="font-size:17px"') +
- E("p", "Shundan keyingi har bir qadoq sof foyda bo'ladi.", "Every pack after that is net profit.", 'style="margin-top:8px"') + '</div></div>' +
- E("h3", "Oylik natija: qancha sotsak, nima bo'ladi?", "Monthly result: what happens at each level of sales?", 'style="margin-top:14px"') +
- table([("Oylik sotuv", "Monthly sales"), ("Foyda (miqdor × 16 000)", "Profit (quantity × 16,000)"), ("Doimiy xarajat", "Fixed costs"), ("Sof natija", "Net result")], [
-  [TD("100 qadoq", "100 packs"), TD("1 600 000", "1,600,000"), TD("4 000 000", "4,000,000"), TD("<b>−2 400 000 so'm</b>", "<b>−2,400,000 so'm</b>", "r")],
-  [TD("250 qadoq", "250 packs"), TD("4 000 000", "4,000,000"), TD("4 000 000", "4,000,000"), TD("<b>0 — zararsiz nuqta</b>", "<b>0 — break-even</b>")],
-  [TD("400 qadoq", "400 packs"), TD("6 400 000", "6,400,000"), TD("4 000 000", "4,000,000"), TD("<b>+2 400 000 so'm</b>", "<b>+2,400,000 so'm</b>", "g")]]) +
- E("div", "⏳ <b>Qoplanish muddati:</b> boshlang'ich sarmoya 20 000 000 so'm (uskuna 12 mln, xomashyo 4 mln, qadoq va reklama 2 mln, zaxira 2 mln). Oyiga 400 qadoq sotilsa, sof foyda 2 400 000: <b>20 000 000 ÷ 2 400 000 ≈ 8 oy</b>.",
-   "⏳ <b>Payback time:</b> the starting investment is 20,000,000 so'm (machine 12 million, raw material 4 million, packaging and ads 2 million, reserve 2 million). At 400 packs a month the net profit is 2,400,000: <b>20,000,000 ÷ 2,400,000 ≈ 8 months</b>.", 'class="quote" style="margin-top:10px"'))
-
-# ============================ 10. RAQOBAT VA USTUNLIK ============================
-slide("Raqobat va ustunlik", "Competition and edge",
- E("span", "3.3 · Raqobat", "3.3 · Competition", 'class="kicker"') +
- E("h2", "Raqobatchi bor — <span class=\"grad\">bu yaxshi belgi</span>", "Competitors exist — <span class=\"grad\">and that is a good sign</span>") +
- E("div", "«Raqobatchim yo'q» degan gap investorga <b>«bozor yo'q yoki o'rganilmagan»</b> deb eshitiladi. Mijoz muammoni hozir kim bilan hal qilayotganini ko'rsating.",
-   "“I have no competitors” sounds to an investor like <b>“there is no market, or it has not been studied”</b>. Show who the customer solves the problem with today.", 'class="def"') +
- table([("", ""), ("Bozordagi quritilgan meva (tayyor)", "Ready dried fruit in shops"), ("Uyda quritish", "Drying at home"), ("TerMeva", "TerMeva")], [
-  [TD("<b>Narx</b>", "<b>Price</b>"), TD("O'rtacha, har xil", "Medium, varies"), TD("Arzon", "Cheap"), TD("Biroz qimmatroq", "A little higher", "r")],
-  [TD("<b>Ishonchlilik</b>", "<b>Trust</b>"), TD("Ishlab chiqaruvchi noma'lum", "The producer is unknown"), TD("Yuqori", "High"), TD("Mahalliy, ochiq ishlab chiqarish", "Local, open production", "g")],
-  [TD("<b>Qulaylik</b>", "<b>Convenience</b>"), TD("Do'konga borish kerak", "You must go to the shop"), TD("Vaqt va mehnat ketadi", "Takes time and effort"), TD("Uyga yetkazib beriladi", "Delivered to the door", "g")],
-  [TD("<b>Qandsiz</b>", "<b>No added sugar</b>"), TD("Ko'pincha qand bor", "Often with sugar"), TD("Qandsiz", "Sugar-free"), TD("Qandsiz, yorliqda yozilgan", "Sugar-free, stated on the label", "g")]]) +
- '<div class="grid g2" style="margin-top:14px">' +
- card("green", "⭐", "UVP — noyob taklif", "UVP — the unique value proposition", "Bitta jumlada: <b>nima uchun mijoz aynan sizni tanlaydi?</b> Misol: «Termiz mevasidan, qandsiz, uyga yetkaziladi».",
-      "In one sentence: <b>why will the customer choose you?</b> Example: “From Termez fruit, sugar-free, delivered to your door”.") +
- card("orange", "🏰", "Ustunlik uzoq turadimi?", "Does the edge last?", "Nusxalash oson bo'lgan ustunlik (masalan, past narx) tez yo'qoladi. Ishonch, mijoz bazasi, sifat va servis esa uzoq turadi.",
-      "An edge that is easy to copy (such as a low price) disappears fast. Trust, a customer base, quality and service last longer.") +
- '</div>')
-
-# ============================ 11. MVP ============================
-slide("MVP: kichik sinov", "MVP: a small test",
- E("span", "4-blok · Boshlash", "Block 4 · Getting started", 'class="kicker"') +
- E("h2", "Katta pulsiz boshlash: <span class=\"grad\">MVP</span>", "Starting without big money: <span class=\"grad\">the MVP</span>") +
- E("div", "<b>MVP</b> (minimal hayotga layoqatli mahsulot) — g'oyani tekshirish uchun yasaladigan <b>eng oddiy variant</b>. Uskuna sotib olishdan oldin 40 ta oilaga kichik partiya sotib ko'rish MVP bo'ladi.",
-   "An <b>MVP</b> (minimum viable product) is <b>the simplest version</b> built to test an idea. Selling a small batch to 40 families before buying a machine is an MVP.", 'class="def"') +
- '<div class="chain" style="margin-top:14px">' +
- '<div class="link l1">' + E("h3", "1. Gipoteza", "1. Hypothesis") + E("p", "«Oilalar quritilgan mevani uyga yetkazib berilsa sotib oladi.»", "“Families will buy dried fruit if it is delivered to their door.”") + '</div>' +
- '<div class="link l2">' + E("h3", "2. Eng oddiy sinov", "2. The simplest test") + E("p", "Uyda tayyorlangan 40 qadoq, Telegramda e'lon.", "40 packs made at home, announced on Telegram.") + '</div>' +
- '<div class="link l3">' + E("h3", "3. O'lchash", "3. Measure") + E("p", "Nechta buyurtma, nechtasi qayta oldi, qanday fikr bildirdi?", "How many orders, how many bought again, what feedback?") + '</div>' +
- '<div class="link l4">' + E("h3", "4. Qaror", "4. Decide") + E("p", "Davom etamiz, o'zgartiramiz (pivot) yoki to'xtatamiz.", "Continue, change (pivot) or stop.") + '</div></div>' +
- '<div class="grid g2" style="margin-top:14px">' +
- card_ul("blue", "📏", "Sinov oldidan muvaffaqiyat mezonini yozing", "Write the success criterion before the test", [
-  ("«40 tadan kamida 10 tasi sotib oladi» — shunda g'oya ishlaydi.", "“At least 10 of 40 buy” — then the idea works."),
-  ("«Sotib olganlarning yarmi qayta buyurtma beradi.»", "“Half of the buyers order again.”"),
-  ("Natijadan keyin mezonni o'zgartirmang — o'zingizni aldamaysiz.", "Do not change the criterion after the result — that is cheating yourself.")], "clean") +
- card("orange", "🔄", "Pivot — yo'nalishni o'zgartirish", "Pivot — changing direction", "Natija kutilganidan past bo'lsa, ko'r-ko'rona davom etmang: <b>nima ishlamadi?</b> narxmi, mijozmi, kanalmi? Bitta narsani o'zgartirib, yana sinang.",
-      "If results are below expectation, do not carry on blindly: <b>what did not work?</b> The price, the customer, the channel? Change one thing and test again.") + '</div>' +
- E("div", "💡 <b>Muhim:</b> eng kuchli isbot — «yoqdi» degan maqtov emas, <b>pul to'lagan birinchi mijoz</b>. 100 ta layk 1 ta pulli buyurtmaga teng emas.",
-   "💡 <b>Important:</b> the strongest proof is not praise like “I liked it” but <b>the first paying customer</b>. 100 likes do not equal 1 paid order.", 'class="quote" style="margin-top:10px"'))
-
-# ============================ 12. YO'L XARITASI ============================
-slide("Tadbirkorlik yo'li xaritasi", "The entrepreneurial roadmap",
- E("span", "4.2 · Yo'l xaritasi", "4.2 · The roadmap", 'class="kicker"') +
- E("h2", "G'oyadan <span class=\"grad\">birinchi daromadgacha</span>: 7 qadam", "From an idea <span class=\"grad\">to the first income</span>: 7 steps") +
- '<div class="chain">' +
- '<div class="link l1">' + E("h3", "1. Tekshir", "1. Test") + E("p", "10 ta suhbat, muammoni tasdiqlash.", "10 interviews, confirm the problem.") + E("p", "1–2 hafta", "1–2 weeks", 'style="font-size:12.5px"') + '</div>' +
- '<div class="link l2">' + E("h3", "2. MVP", "2. MVP") + E("p", "Kichik partiya, birinchi sinov.", "A small batch, the first test.") + E("p", "2–4 hafta", "2–4 weeks", 'style="font-size:12.5px"') + '</div>' +
- '<div class="link l3">' + E("h3", "3. Birinchi sotuv", "3. First sale") + E("p", "Pul to'lagan mijozlar va fikr.", "Paying customers and feedback.") + E("p", "1–2 oy", "1–2 months", 'style="font-size:12.5px"') + '</div>' +
- '<div class="link l4">' + E("h3", "4. Hisob", "4. Numbers") + E("p", "Birlik foydasi va zararsiz nuqta.", "Profit per unit and break-even point.") + E("p", "Birinchi sotuvlar bilan", "Alongside the first sales", 'style="font-size:12.5px"') + '</div></div>' +
- '<div class="chain" style="margin-top:10px">' +
- '<div class="link l4">' + E("h3", "5. Rasmiylashtir", "5. Register") + E("p", "Huquqiy shakl, soliq va hisob.", "Legal form, tax and bookkeeping.") + '</div>' +
- '<div class="link l3">' + E("h3", "6. Moliyalashtir", "6. Fund it") + E("p", "O'z mablag'i, kredit, grant yoki investor.", "Own money, a loan, a grant or an investor.") + '</div>' +
- '<div class="link l2">' + E("h3", "7. O'sish", "7. Grow") + E("p", "Ishlayotgan kanalni kengaytirish, jamoa.", "Scale the channel that works, build a team.") + '</div></div>' +
- '<div class="grid g2" style="margin-top:14px">' +
- card("red", "⚠️", "Eng ko'p uchraydigan xato", "The most common mistake", "<b>Avval katta xarajat (ijara, uskuna, kredit), keyin mijoz izlash.</b> To'g'ri tartib teskarisi: avval mijoz va sinov, keyin sarmoya.",
-      "<b>Big spending first (rent, machines, a loan), customer search afterwards.</b> The right order is the opposite: customer and test first, investment after.") +
- card("green", "✅", "Birinchi 30 kun uchun nazorat ro'yxati", "A checklist for the first 30 days", "10 ta suhbat · MVP rejasi · birinchi 10 ta pulli mijoz · kunlik hisob daftari · 2 ta kanal. Ushbu ro'yxat bajarilmagan bo'lsa, kredit olishga shoshilmang.",
-      "10 interviews · an MVP plan · the first 10 paying customers · a daily records book · 2 channels. If this list is not done, do not rush into a loan.") + '</div>')
-
-# ============================ 13. HUQUQIY SHAKL ============================
-slide("Huquqiy shakl", "Legal form",
- E("span", "4.3 · Rasmiylashtirish", "4.3 · Registration", 'class="kicker"') +
- E("h2", "Biznesni <span class=\"grad\">qanday rasmiylashtirish kerak?</span>", "How to <span class=\"grad\">register the business?</span>") +
- E("div", "Daromad olishni boshlagach, faoliyat <b>qonuniy shaklda</b> bo'lishi kerak: u sizni jarima va nizolardan himoya qiladi, bank va hamkor bilan ishlash imkonini beradi.",
-   "Once you start earning, the activity should have a <b>legal form</b>: it protects you from fines and disputes and lets you work with banks and partners.", 'class="def"') +
- table([("Shakl", "Form"), ("Kim uchun", "Who it is for"), ("Asosiy xususiyati", "Main feature"), ("E'tibor bering", "Watch out for")], [
-  [TD("<b>Yakka tartibdagi tadbirkor (YaTT)</b>", "<b>Sole proprietor (YaTT)</b>"), TD("Yakka boshlayotgan, kichik hajmdagi biznes", "A solo start, small-scale business"), TD("Ro'yxatdan o'tish nisbatan sodda; o'zi yuritadi", "Registration is relatively simple; you run it yourself", "g"), TD("Majburiyat uchun shaxsiy mol-mulk bilan javob berilishi mumkin", "You may be liable for debts with personal property", "r")],
-  [TD("<b>Mas'uliyati cheklangan jamiyat (MChJ)</b>", "<b>Limited liability company (LLC)</b>"), TD("Hamkor bilan yoki kengayishni rejalagan biznes", "A business with partners or planned growth"), TD("Alohida yuridik shaxs; ishtirokchi kiritgan ulushi doirasida javob beradi", "A separate legal entity; a participant is liable up to their contribution", "g"), TD("Hujjat va hisobot ko'proq", "More paperwork and reporting")],
-  [TD("<b>O'zini o'zi band qilgan shaxs</b>", "<b>A self-employed person</b>"), TD("Kichik xizmat va hunar: dars berish, tikuv, dizayn", "Small services and crafts: tutoring, sewing, design"), TD("Yengil tartib, past hajmdagi faoliyatga mos", "A light regime, suited to a small volume of work", "g"), TD("Daromad va faoliyat turi chegaralari bor", "There are limits on income and type of activity", "r")]]) +
+# ============================ 9. NAMUNALAR: 60 SONIYALIK PITCH ============================
+slide("Namunalar: 60 soniyalik pitch", "Samples: the 60-second pitch",
+ E("span", "2.3 · Namunalar", "2.3 · Samples", 'class="kicker"') +
+ E("h2", "Uch xil biznes — <span class=\"grad\">bitta tuzilma</span>", "Three kinds of business — <span class=\"grad\">one structure</span>") +
+ E("div", "Ta'lim, qishloq xo'jaligi yoki xizmat — farqi yo'q: 5 ta jumla <b>muammo → yechim → farq → isbot → so'rov</b> tartibida aytiladi. Har birida <b>raqam</b> bor.",
+   "Education, farming or services — it makes no difference: 5 sentences go in the order <b>problem → solution → difference → proof → ask</b>. Each one has <b>a number</b>.", 'class="def"') +
  '<div class="grid g3" style="margin-top:14px">' +
- card("blue", "📝", "Qayerdan boshlash?", "Where to start?", "Ro'yxatdan o'tish bo'yicha amaldagi qoida va shakllarni <b>birdarcha.uz</b> va davlat xizmatlari markazlarida ko'rish mumkin.", "The current rules and forms for registration are available on <b>birdarcha.uz</b> and at public service centres.") +
- card("green", "📒", "Hisobni yuriting", "Keep your records", "Kirim va chiqimni birinchi kundan yozing: daftar yoki jadval yetadi. Soliq va bank bilan ishlashda shu asos bo'ladi.", "Write down income and spending from day one: a notebook or a table is enough. It is the basis for working with tax and the bank.") +
- card("orange", "📜", "Faoliyat turi", "Type of activity", "Oziq-ovqat, dori, ta'lim kabi ba'zi yo'nalishlar uchun <b>qo'shimcha ruxsat yoki sertifikat</b> kerak bo'lishi mumkin. Oldindan aniqlang.", "Some fields, such as food, medicine or education, may need <b>extra permits or certificates</b>. Find out in advance.") + '</div>' +
- E("small", "Soliq stavkalari, imtiyozlar va ro'yxatdan o'tish tartibi tez-tez o'zgaradi. Qaror qilishdan oldin lex.uz va soliq xizmatining amaldagi ma'lumotini tekshiring yoki mutaxassis bilan maslahatlashing.",
-   "Tax rates, benefits and registration procedures change often. Before deciding, check lex.uz and the tax service's current information or consult a specialist.", 'class="note"'))
+ card_ul("blue", "📚", "«Repetitor 24» · ta'lim", "“Repetitor 24” · education", [
+  ("<b>Muammo:</b> Termizdagi 9–11-sinf o'quvchilari matematika repetitoriga uzoq qatnaydi va oyiga 400–600 ming so'm to'laydi.", "<b>Problem:</b> pupils in grades 9–11 in Termez travel far to a maths tutor and pay 400–600 thousand so'm a month."),
+  ("<b>Yechim:</b> kechki onlayn guruh darslari — 6 kishilik guruh, haftasiga 3 marta, oyiga 250 000 so'm.", "<b>Solution:</b> evening online group lessons — groups of 6, three times a week, 250,000 so'm a month."),
+  ("<b>Farq:</b> har darsdan keyin ota-onaga qisqa natija hisoboti.", "<b>Difference:</b> a short progress report to parents after every lesson."),
+  ("<b>Isbot:</b> sinov oyida 18 o'quvchi yozildi, 15 tasi ikkinchi oy uchun to'ladi.", "<b>Proof:</b> 18 pupils signed up in the trial month and 15 paid for a second month."),
+  ("<b>So'rov:</b> 2 ta maktab bilan hamkorlik va 2 ta yangi o'qituvchi kerak.", "<b>Ask:</b> we need a partnership with 2 schools and 2 new teachers.")], "clean") +
+ card_ul("green", "🌱", "«Ko'chat Plus» · qishloq xo'jaligi", "“Ko'chat Plus” · farming", [
+  ("<b>Muammo:</b> Surxondaryo fermerlari pomidor ko'chatini bozordan oladi, uning bir qismi kasal chiqadi va hosil kamayadi.", "<b>Problem:</b> farmers in Surxondaryo buy tomato seedlings at the market; some turn out diseased and the harvest drops."),
+  ("<b>Yechim:</b> issiqxonada sog'lom ko'chat yetishtirib, dalaga yetkazib beramiz.", "<b>Solution:</b> we grow healthy seedlings in a greenhouse and deliver them to the field."),
+  ("<b>Farq:</b> ko'chat kasal chiqsa — bepul almashtirib beramiz.", "<b>Difference:</b> if a seedling turns out diseased, we replace it free of charge."),
+  ("<b>Isbot:</b> o'tgan bahorda 6 ta fermerga 12 000 ta ko'chat sotdik, 5 tasi kuzga yana buyurtma berdi.", "<b>Proof:</b> last spring we sold 12,000 seedlings to 6 farmers; 5 of them ordered again for the autumn."),
+  ("<b>So'rov:</b> issiqxonani kengaytirish uchun 60 mln so'm imtiyozli kredit.", "<b>Ask:</b> a 60 million so'm loan on easy terms to expand the greenhouse.")], "clean") +
+ card_ul("orange", "🔧", "«UstaChaq» · xizmat", "“UstaChaq” · services", [
+  ("<b>Muammo:</b> Termizda uy egalari santexnik yoki elektrikni tanishlardan so'rab topadi va yarim kun kutadi.", "<b>Problem:</b> home owners in Termez find a plumber or an electrician through friends and wait half a day."),
+  ("<b>Yechim:</b> tekshirilgan 25 ta usta bazasi va Telegram-bot: usta 2 soat ichida keladi, narx oldindan aytiladi.", "<b>Solution:</b> a base of 25 checked craftsmen and a Telegram bot: a craftsman arrives within 2 hours and the price is known in advance."),
+  ("<b>Farq:</b> ish uchun kafolat va har bir usta uchun mijozlar bahosi.", "<b>Difference:</b> a guarantee on the work and customer ratings for every craftsman."),
+  ("<b>Isbot:</b> birinchi oyda 140 ta buyurtma oldik, mijozlarning 30 foizi qayta murojaat qildi.", "<b>Proof:</b> 140 orders in the first month; 30 per cent of customers came back."),
+  ("<b>So'rov:</b> 10 mln so'm — reklama va dispetcher ish haqi uchun.", "<b>Ask:</b> 10 million so'm — for advertising and a dispatcher's wages.")], "clean") +
+ '</div>' +
+ E("small", "Barcha nomlar va raqamlar o'quv uchun to'qib chiqarilgan shartli misollar. O'z pitchingizda faqat o'zingiz tekshirgan raqamlarni ayting.",
+   "All names and numbers are made-up teaching examples. In your own pitch use only numbers you have checked yourself.", 'class="note"'))
 
-# ============================ 14. MOLIYALASHTIRISH ============================
-slide("Moliyalashtirish manbalari", "Sources of funding",
- E("span", "4.4 · Pul manbalari", "4.4 · Sources of money", 'class="kicker"') +
- E("h2", "Boshlash uchun <span class=\"grad\">pul qayerdan olinadi?</span>", "Where does the <span class=\"grad\">starting money come from?</span>") +
- table([("Manba", "Source"), ("Qachon mos", "When it fits"), ("Ijobiy tomoni", "Advantage"), ("Xavfi", "Risk")], [
-  [TD("<b>💰 O'z jamg'armasi</b>", "<b>💰 Own savings</b>"), TD("Kichik MVP va birinchi sotuv", "A small MVP and the first sale"), TD("Qarz va ulush so'ralmaydi", "No debt and no share to give away", "g"), TD("O'z pulingiz xavf ostida", "Your own money is at risk", "r")],
-  [TD("<b>👨‍👩‍👧 Oila va do'stlar</b>", "<b>👨‍👩‍👧 Family and friends</b>"), TD("Erta bosqich, kichik summa", "An early stage, a small sum"), TD("Tez va shartlari yumshoq", "Fast, with soft terms", "g"), TD("Munosabat buzilishi; shartni yozmaslik", "Damaged relationships; no written terms", "r")],
-  [TD("<b>🏦 Bank krediti</b>", "<b>🏦 A bank loan</b>"), TD("Daromad bor, to'lov manbai aniq", "There is income and a clear source of repayment"), TD("Biznes ulushi saqlanadi", "You keep the whole business", "g"), TD("Foiz; daromad bo'lmasa ham to'lanadi", "Interest; repaid even if income falls", "r")],
-  [TD("<b>🤲 Mikromoliya tashkiloti</b>", "<b>🤲 A microfinance organisation</b>"), TD("Kichik summa, tez kerak", "A small sum needed quickly"), TD("Hujjat kamroq", "Less paperwork", "g"), TD("Foizi ko'pincha yuqoriroq", "The interest is often higher", "r")],
-  [TD("<b>🎁 Grant va davlat dasturlari</b>", "<b>🎁 Grants and state programmes</b>"), TD("Ijtimoiy yoki yosh tadbirkor loyihalari", "Social or young-entrepreneur projects"), TD("Qaytarilmaydi yoki imtiyozli", "Non-repayable or on easy terms", "g"), TD("Talab ko'p, raqobat kuchli", "Many requirements, strong competition")],
-  [TD("<b>💼 Investor</b>", "<b>💼 An investor</b>"), TD("O'sish potensiali katta, isbot bor", "Large growth potential, proof exists"), TD("Pul va tajriba keladi", "Money and experience arrive", "g"), TD("Biznes ulushi beriladi", "You give up part of the business", "r")]]) +
- '<div class="grid g2" style="margin-top:14px">' +
- card("red", "⚠️", "Kredit olishdan oldingi sinov", "A test before taking a loan", "Savol: <b>«Sotuv hozircha past bo'lsa ham, oylik to'lovni qayerdan to'layman?»</b> Agar javob «sotuvdan ko'raman» bo'lsa — hali erta.",
-      "The question: <b>“If sales stay low for now, where will I pay the monthly instalment from?”</b> If the answer is “from sales, I hope” — it is too early.") +
- card("green", "📌", "Ariza va taqdimotga tayyorgarlik", "Preparing the application and the pitch", "Manbaga qarab ariza o'zgaradi: bankka — to'lov manbai va kafolat, grantga — ijtimoiy foyda, investorga — o'sish va isbot. Shartlarni manbaning o'zidan tekshiring.",
-      "The application changes with the source: for a bank — repayment source and collateral, for a grant — social benefit, for an investor — growth and proof. Check the terms with the source itself.") + '</div>' +
- E("small", "Kredit va grant shartlari, foiz stavkalari va dasturlar o'zgarib turadi. Ma'lumotni bank, tegishli davlat tashkiloti yoki rasmiy sayt orqali tasdiqlang.",
-   "Loan and grant terms, interest rates and programmes change over time. Confirm the information through the bank, the relevant public body or an official site.", 'class="note"'))
+# ============================ 10. NAMUNA: 3 DAQIQALIK TAQDIMOT ============================
+slide("Namuna: 3 daqiqalik taqdimot", "Sample: a 3-minute pitch",
+ E("span", "2.4 · To'liq namuna", "2.4 · A full sample", 'class="kicker"') +
+ E("h2", "«TerMeva»: <span class=\"grad\">10 slayd — 3 daqiqa</span>", "“TerMeva”: <span class=\"grad\">10 slides — 3 minutes</span>") +
+ E("p", "Har bir slaydda nima deyiladi va qancha vaqt ketadi. Raqamlar keyingi blokdagi hisob-kitob bilan bir xil.", "What is said on each slide and how long it takes. The numbers match the calculations in the next block.", 'class="lead"') +
+ table([("№", "No."), ("Slayd", "Slide"), ("Namuna matn (aytiladigan gap)", "Sample text (what you say)"), ("Vaqt", "Time")], [
+  [TD("1", "1"), TD("<b>Muammo</b>", "<b>Problem</b>"), TD("«Suhbatlashgan 12 ta oiladan 9 tasi mavsumda mevaning bir qismi isrof bo'lishini, qishda esa quritilgan mevani qimmat olishini aytdi.»", "“Of the 12 families we interviewed, 9 said some fruit goes to waste in season and in winter they pay a lot for dried fruit.”"), TD("20 s", "20 s")],
+  [TD("2", "2"), TD("<b>Yechim</b>", "<b>Solution</b>"), TD("«TerMeva mahalliy mevani quritib, 250 grammlik qadoqda uyga yetkazadi. Buyurtma — Telegram orqali, yetkazish — 24 soat ichida.»", "“TerMeva dries local fruit and delivers it in 250-gram packs. Orders come via Telegram and delivery is within 24 hours.”"), TD("20 s", "20 s")],
+  [TD("3", "3"), TD("<b>Mijoz va bozor</b>", "<b>Customer and market</b>"), TD("«Mijozimiz — bolali oilalar. Telegram va tanishlar orqali 2 000 kishiga yetamiz, sinovda 5% sotib oldi — oyiga 100 qadoq. Qolganini do'konlar orqali olamiz.»", "“Our customers are families with children. We reach 2,000 people through Telegram and contacts; 5% bought in the test — 100 packs a month. We get the rest through shops.”"), TD("20 s", "20 s")],
+  [TD("4", "4"), TD("<b>Biznes model</b>", "<b>Business model</b>"), TD("«Mijoz bir qadoq uchun 40 000 so'm to'laydi, shundan 16 000 so'mi bizning birlik foydamiz. Doimiy mijozlarga oylik obuna taklif qilamiz.»", "“The customer pays 40,000 so'm per pack, of which 16,000 so'm is our profit per unit. Regular customers get a monthly subscription.”"), TD("15 s", "15 s")],
+  [TD("5", "5"), TD("<b>Raqobat</b>", "<b>Competition</b>"), TD("«Bugun mijoz do'kondagi noma'lum ishlab chiqaruvchining mevasini oladi yoki uyda quritadi. Farqimiz: faqat mahalliy meva, qand qo'shilmaydi, uyga yetkaziladi.»", "“Today the customer buys fruit from an unknown producer in a shop or dries it at home. Our difference: only local fruit, no added sugar, delivered home.”"), TD("20 s", "20 s")],
+  [TD("6", "6"), TD("<b>Birinchi natijalar</b>", "<b>First results</b>"), TD("«Uyda tayyorlangan 40 qadoqni 40 ta oilaga sotdik — 22 tasi qayta buyurtma berdi. 3 ta do'kon sotuvga qo'yishga rozi bo'ldi.»", "“We sold 40 home-made packs to 40 families — 22 ordered again. 3 shops agreed to stock us.”", "g"), TD("20 s", "20 s")],
+  [TD("7", "7"), TD("<b>Marketing</b>", "<b>Marketing</b>"), TD("«Ikki kanal: Telegram-kanal va mahalla guruhlari hamda do'konda tatib ko'rish. Reklama byudjeti — oyiga 500 000 so'm.»", "“Two channels: a Telegram channel and neighbourhood groups, plus tasting in shops. The ad budget is 500,000 so'm a month.”"), TD("15 s", "15 s")],
+  [TD("8", "8"), TD("<b>Jamoa</b>", "<b>Team</b>"), TD("«Men — ishlab chiqarish va sifat, sherigim — sotuv va yetkazish. Oziq-ovqat texnologi bilan maslahat kelishuvimiz bor.»", "“I handle production and quality, my partner handles sales and delivery. We have an advice agreement with a food technologist.”"), TD("15 s", "15 s")],
+  [TD("9", "9"), TD("<b>Moliya</b>", "<b>Finance</b>"), TD("«Doimiy xarajat oyiga 4 mln so'm, zararsiz nuqta — 250 qadoq. Oyiga 400 qadoqda sof foyda 2,4 mln — sarmoya 8 oyda qoplanadi.»", "“Fixed costs are 4 million so'm a month and break-even is 250 packs. At 400 packs a month the net profit is 2.4 million — the investment pays back in 8 months.”"), TD("20 s", "20 s")],
+  [TD("10", "10"), TD("<b>So'rov</b>", "<b>The ask</b>"), TD("«Bizga 20 mln so'm kerak: uskuna 12 mln, xomashyo 4 mln, qadoq va reklama 2 mln, zaxira 2 mln. Pulni oylik foydadan 8 oyda qaytaramiz.»", "“We need 20 million so'm: a machine 12 million, raw material 4 million, packaging and ads 2 million, a reserve 2 million. We repay it from monthly profit in 8 months.”", "g"), TD("15 s", "15 s")]]) +
+ E("div", "⏱ Jami: <b>3 daqiqa</b>. Har bir slaydda bitta fikr va kamida bitta raqam bor. Matnni yodlamang — tartibni va raqamlarni yodlang, gapni o'z so'zingiz bilan ayting.",
+   "⏱ Total: <b>3 minutes</b>. Every slide has one idea and at least one number. Do not memorise the text — memorise the order and the numbers and say it in your own words.", 'class="quote" style="margin-top:12px"'))
 
-# ============================ 15. SAVOL-JAVOB ============================
+# ============================ 11. SAVOL-JAVOB ============================
 slide("Taqdimot va savol-javob", "Delivery and Q&A",
- E("span", "2.3 · Chiqish san'ati", "2.3 · Delivery", 'class="kicker"') +
+ E("span", "2.5 · Chiqish san'ati", "2.5 · Delivery", 'class="kicker"') +
  E("h2", "Qanday gapirish va <span class=\"grad\">qiyin savolga qanday javob berish</span>", "How to speak and <span class=\"grad\">how to answer a hard question</span>") +
  '<div class="grid g2"><div>' +
  card_ul("blue", "🎤", "Chiqish qoidalari", "Rules of delivery", [
@@ -338,7 +255,156 @@ slide("Taqdimot va savol-javob", "Delivery and Q&A",
  E("div", "🧠 Tinglovchi sizning g'oyangizga emas, avvalo <b>sizning tayyorligingizga</b> ishonadi: raqamlarni biladigan, javobdan qochmaydigan odamga pul ham, hamkorlik ham beriladi.",
    "🧠 The listener first trusts <b>your preparation</b>, and only then your idea: money and partnership go to someone who knows the numbers and does not dodge answers.", 'class="quote" style="margin-top:12px"'))
 
-# ============================ 16. AMALIY TOPSHIRIQ ============================
+# ============================ 12. BOZOR HAJMI ============================
+slide("Bozor hajmi", "Market size",
+ E("span", "3-blok · Raqamlar", "Block 3 · The numbers", 'class="kicker"') +
+ E("h2", "Bozor: <span class=\"grad\">«hamma» emas, o'zim yetadigan mijozlar</span>", "The market: <span class=\"grad\">not “everyone” but customers I can reach</span>") +
+ E("div", "Eng katta xato — «aholi 36 million, 1% sotib olsa ham...» deb hisoblash. Haqiqiy hisob <b>pastdan yuqoriga</b>: men o'zim nechta kishiga yeta olaman va ulardan nechtasi sotib oladi?",
+   "The biggest mistake is calculating “the population is 36 million, so even 1% would...”. A real estimate goes <b>from the bottom up</b>: how many people can I reach myself and how many of them will buy?", 'class="def"') +
+ '<div class="grid g4" style="margin-top:14px">' +
+ stat("2 000", "kishiga yeta olaman (kanal + tanishlar)", "people I can reach (channels + contacts)") +
+ stat("5%", "xarid qiladi (suhbat va sinovdan)", "will buy (from interviews and tests)", "o") +
+ stat("100", "mijoz oyiga", "customers a month", "v") +
+ stat("4 000 000", "so'm oylik tushum (100 × 40 000)", "so'm monthly revenue (100 × 40,000)") +
+ '</div><div class="grid g2" style="margin-top:14px">' +
+ card("orange", "🧠", "Hisob nimani ko'rsatdi?", "What the calculation showed", "Oyiga 100 qadoq sotsak, tushum 4 000 000 so'm. Keyingi slaydda ko'ramiz: zararsiz bo'lish uchun <b>250 qadoq</b> kerak. Demak, faqat onlayn savdo yetmaydi.",
+      "Selling 100 packs a month brings 4,000,000 so'm. The next slides show that <b>250 packs</b> are needed to break even. So online sales alone are not enough.") +
+ card_ul("green", "🛣", "Qanday chiqish mumkin?", "What are the ways out?", [
+  ("Do'konlar va kafelarga ulgurji sotish", "Selling wholesale to shops and cafés"),
+  ("Mijozlar doirasini kengaytirish (yangi kanal)", "Widening the customer circle (a new channel)"),
+  ("Doimiy xarajatni kamaytirish (ijara, ish haqi)", "Cutting fixed costs (rent, wages)"),
+  ("Narx va mahsulot to'plamini qayta ko'rish", "Reviewing the price and the product bundle")], "tick") +
+ '</div>' +
+ E("small", "Mijozlar soni va xarid ulushini «o'ylab» emas, o'z suhbat va sinov natijangizdan oling. Umumiy bozor ma'lumotini stat.uz va ochiq hisobotlardan qidiring.",
+   "Take the number of customers and the share who buy from your own interviews and tests, not from a guess. Look for general market data on stat.uz and open reports.", 'class="note"'))
+
+# ============================ 13. BIRLIK IQTISODIYOTI ============================
+slide("Birlik foydasi va zararsiz nuqta", "Unit profit and break-even",
+ E("span", "3.2 · Moliyaviy hisob", "3.2 · Financial calculation", 'class="kicker"') +
+ E("h2", "Birlik foydasi va <span class=\"grad\">zararsiz nuqta</span>", "Profit per unit and <span class=\"grad\">the break-even point</span>") +
+ E("p", "Shartli misol — «TerMeva»: 250 gramm quritilgan meva qadog'i.", "A sample — “TerMeva”: a 250-gram pack of dried fruit.", 'class="lead"') +
+ '<div class="grid g3">' +
+ '<div class="card" style="--c:var(--blue)">' + E("h3", "1. Bitta qadoq hisobi", "1. One pack") +
+ table(None, [
+  [TD("Sotish narxi", "Selling price"), TD("40 000", "40,000")],
+  [TD("Meva (xomashyo)", "Fruit (raw material)"), TD("− 16 000", "− 16,000")],
+  [TD("Qadoq va yorliq", "Pack and label"), TD("− 3 000", "− 3,000")],
+  [TD("Yetkazish", "Delivery"), TD("− 5 000", "− 5,000")],
+  [TD("<b>Birlik foydasi</b>", "<b>Profit per unit</b>"), TD("<b>16 000 so'm</b>", "<b>16,000 so'm</b>", "g")]]) + '</div>' +
+ '<div class="card" style="--c:var(--violet)">' + E("h3", "2. Oylik doimiy xarajat", "2. Monthly fixed costs") +
+ table(None, [
+  [TD("Ijara", "Rent"), TD("1 500 000", "1,500,000")],
+  [TD("Yordamchining ish haqi", "An assistant's wages"), TD("2 000 000", "2,000,000")],
+  [TD("Reklama va aloqa", "Advertising and phone"), TD("500 000", "500,000")],
+  [TD("<b>Jami</b>", "<b>Total</b>"), TD("<b>4 000 000 so'm</b>", "<b>4,000,000 so'm</b>", "r")]]) +
+ E("p", "Sotuv bo'lmasa ham bu pul ketadi.", "This money is spent even if nothing sells.", 'style="margin-top:8px"') + '</div>' +
+ '<div class="card" style="--c:var(--green)">' + E("h3", "3. Zararsiz nuqta", "3. The break-even point") +
+ E("p", "<b>Zararsiz miqdor = doimiy xarajat ÷ birlik foydasi</b>", "<b>Break-even quantity = fixed costs ÷ profit per unit</b>") +
+ E("p", "4 000 000 ÷ 16 000 = <b>250 qadoq</b> oyiga", "4,000,000 ÷ 16,000 = <b>250 packs</b> a month", 'style="font-size:17px"') +
+ E("p", "Shundan keyingi har bir qadoq sof foyda bo'ladi.", "Every pack after that is net profit.", 'style="margin-top:8px"') + '</div></div>' +
+ E("h3", "Oylik natija: qancha sotsak, nima bo'ladi?", "Monthly result: what happens at each level of sales?", 'style="margin-top:14px"') +
+ table([("Oylik sotuv", "Monthly sales"), ("Foyda (miqdor × 16 000)", "Profit (quantity × 16,000)"), ("Doimiy xarajat", "Fixed costs"), ("Sof natija", "Net result")], [
+  [TD("100 qadoq", "100 packs"), TD("1 600 000", "1,600,000"), TD("4 000 000", "4,000,000"), TD("<b>−2 400 000 so'm</b>", "<b>−2,400,000 so'm</b>", "r")],
+  [TD("250 qadoq", "250 packs"), TD("4 000 000", "4,000,000"), TD("4 000 000", "4,000,000"), TD("<b>0 — zararsiz nuqta</b>", "<b>0 — break-even</b>")],
+  [TD("400 qadoq", "400 packs"), TD("6 400 000", "6,400,000"), TD("4 000 000", "4,000,000"), TD("<b>+2 400 000 so'm</b>", "<b>+2,400,000 so'm</b>", "g")]]) +
+ E("div", "⏳ <b>Qoplanish muddati:</b> boshlang'ich sarmoya 20 000 000 so'm (uskuna 12 mln, xomashyo 4 mln, qadoq va reklama 2 mln, zaxira 2 mln). Oyiga 400 qadoq sotilsa, sof foyda 2 400 000: <b>20 000 000 ÷ 2 400 000 ≈ 8 oy</b>.",
+   "⏳ <b>Payback time:</b> the starting investment is 20,000,000 so'm (machine 12 million, raw material 4 million, packaging and ads 2 million, reserve 2 million). At 400 packs a month the net profit is 2,400,000: <b>20,000,000 ÷ 2,400,000 ≈ 8 months</b>.", 'class="quote" style="margin-top:10px"'))
+
+# ============================ 14. RAQOBAT VA USTUNLIK ============================
+slide("Raqobat va ustunlik", "Competition and edge",
+ E("span", "3.3 · Raqobat", "3.3 · Competition", 'class="kicker"') +
+ E("h2", "Raqobatchi bor — <span class=\"grad\">bu yaxshi belgi</span>", "Competitors exist — <span class=\"grad\">and that is a good sign</span>") +
+ E("div", "«Raqobatchim yo'q» degan gap investorga <b>«bozor yo'q yoki o'rganilmagan»</b> deb eshitiladi. Mijoz muammoni hozir kim bilan hal qilayotganini ko'rsating.",
+   "“I have no competitors” sounds to an investor like <b>“there is no market, or it has not been studied”</b>. Show who the customer solves the problem with today.", 'class="def"') +
+ table([("", ""), ("Bozordagi quritilgan meva (tayyor)", "Ready dried fruit in shops"), ("Uyda quritish", "Drying at home"), ("TerMeva", "TerMeva")], [
+  [TD("<b>Narx</b>", "<b>Price</b>"), TD("O'rtacha, har xil", "Medium, varies"), TD("Arzon", "Cheap"), TD("Biroz qimmatroq", "A little higher", "r")],
+  [TD("<b>Ishonchlilik</b>", "<b>Trust</b>"), TD("Ishlab chiqaruvchi noma'lum", "The producer is unknown"), TD("Yuqori", "High"), TD("Mahalliy, ochiq ishlab chiqarish", "Local, open production", "g")],
+  [TD("<b>Qulaylik</b>", "<b>Convenience</b>"), TD("Do'konga borish kerak", "You must go to the shop"), TD("Vaqt va mehnat ketadi", "Takes time and effort"), TD("Uyga yetkazib beriladi", "Delivered to the door", "g")],
+  [TD("<b>Qandsiz</b>", "<b>No added sugar</b>"), TD("Ko'pincha qand bor", "Often with sugar"), TD("Qandsiz", "Sugar-free"), TD("Qandsiz, yorliqda yozilgan", "Sugar-free, stated on the label", "g")]]) +
+ '<div class="grid g2" style="margin-top:14px">' +
+ card("green", "⭐", "UVP — noyob taklif", "UVP — the unique value proposition", "Bitta jumlada: <b>nima uchun mijoz aynan sizni tanlaydi?</b> Misol: «Termiz mevasidan, qandsiz, uyga yetkaziladi».",
+      "In one sentence: <b>why will the customer choose you?</b> Example: “From Termez fruit, sugar-free, delivered to your door”.") +
+ card("orange", "🏰", "Ustunlik uzoq turadimi?", "Does the edge last?", "Nusxalash oson bo'lgan ustunlik (masalan, past narx) tez yo'qoladi. Ishonch, mijoz bazasi, sifat va servis esa uzoq turadi.",
+      "An edge that is easy to copy (such as a low price) disappears fast. Trust, a customer base, quality and service last longer.") +
+ '</div>')
+
+# ============================ 15. MVP ============================
+slide("MVP: kichik sinov", "MVP: a small test",
+ E("span", "4-blok · Boshlash", "Block 4 · Getting started", 'class="kicker"') +
+ E("h2", "Katta pulsiz boshlash: <span class=\"grad\">MVP</span>", "Starting without big money: <span class=\"grad\">the MVP</span>") +
+ E("div", "<b>MVP</b> (minimal hayotga layoqatli mahsulot) — g'oyani tekshirish uchun yasaladigan <b>eng oddiy variant</b>. Uskuna sotib olishdan oldin 40 ta oilaga kichik partiya sotib ko'rish MVP bo'ladi.",
+   "An <b>MVP</b> (minimum viable product) is <b>the simplest version</b> built to test an idea. Selling a small batch to 40 families before buying a machine is an MVP.", 'class="def"') +
+ '<div class="chain" style="margin-top:14px">' +
+ '<div class="link l1">' + E("h3", "1. Gipoteza", "1. Hypothesis") + E("p", "«Oilalar quritilgan mevani uyga yetkazib berilsa sotib oladi.»", "“Families will buy dried fruit if it is delivered to their door.”") + '</div>' +
+ '<div class="link l2">' + E("h3", "2. Eng oddiy sinov", "2. The simplest test") + E("p", "Uyda tayyorlangan 40 qadoq, Telegramda e'lon.", "40 packs made at home, announced on Telegram.") + '</div>' +
+ '<div class="link l3">' + E("h3", "3. O'lchash", "3. Measure") + E("p", "Nechta buyurtma, nechtasi qayta oldi, qanday fikr bildirdi?", "How many orders, how many bought again, what feedback?") + '</div>' +
+ '<div class="link l4">' + E("h3", "4. Qaror", "4. Decide") + E("p", "Davom etamiz, o'zgartiramiz (pivot) yoki to'xtatamiz.", "Continue, change (pivot) or stop.") + '</div></div>' +
+ '<div class="grid g2" style="margin-top:14px">' +
+ card_ul("blue", "📏", "Sinov oldidan muvaffaqiyat mezonini yozing", "Write the success criterion before the test", [
+  ("«40 tadan kamida 10 tasi sotib oladi» — shunda g'oya ishlaydi.", "“At least 10 of 40 buy” — then the idea works."),
+  ("«Sotib olganlarning yarmi qayta buyurtma beradi.»", "“Half of the buyers order again.”"),
+  ("Natijadan keyin mezonni o'zgartirmang — o'zingizni aldamaysiz.", "Do not change the criterion after the result — that is cheating yourself.")], "clean") +
+ card("orange", "🔄", "Pivot — yo'nalishni o'zgartirish", "Pivot — changing direction", "Natija kutilganidan past bo'lsa, ko'r-ko'rona davom etmang: <b>nima ishlamadi?</b> narxmi, mijozmi, kanalmi? Bitta narsani o'zgartirib, yana sinang.",
+      "If results are below expectation, do not carry on blindly: <b>what did not work?</b> The price, the customer, the channel? Change one thing and test again.") + '</div>' +
+ E("div", "💡 <b>Muhim:</b> eng kuchli isbot — «yoqdi» degan maqtov emas, <b>pul to'lagan birinchi mijoz</b>. 100 ta layk 1 ta pulli buyurtmaga teng emas.",
+   "💡 <b>Important:</b> the strongest proof is not praise like “I liked it” but <b>the first paying customer</b>. 100 likes do not equal 1 paid order.", 'class="quote" style="margin-top:10px"'))
+
+# ============================ 16. YO'L XARITASI ============================
+slide("Tadbirkorlik yo'li xaritasi", "The entrepreneurial roadmap",
+ E("span", "4.2 · Yo'l xaritasi", "4.2 · The roadmap", 'class="kicker"') +
+ E("h2", "G'oyadan <span class=\"grad\">birinchi daromadgacha</span>: 7 qadam", "From an idea <span class=\"grad\">to the first income</span>: 7 steps") +
+ '<div class="chain">' +
+ '<div class="link l1">' + E("h3", "1. Tekshir", "1. Test") + E("p", "10 ta suhbat, muammoni tasdiqlash.", "10 interviews, confirm the problem.") + E("p", "1–2 hafta", "1–2 weeks", 'style="font-size:12.5px"') + '</div>' +
+ '<div class="link l2">' + E("h3", "2. MVP", "2. MVP") + E("p", "Kichik partiya, birinchi sinov.", "A small batch, the first test.") + E("p", "2–4 hafta", "2–4 weeks", 'style="font-size:12.5px"') + '</div>' +
+ '<div class="link l3">' + E("h3", "3. Birinchi sotuv", "3. First sale") + E("p", "Pul to'lagan mijozlar va fikr.", "Paying customers and feedback.") + E("p", "1–2 oy", "1–2 months", 'style="font-size:12.5px"') + '</div>' +
+ '<div class="link l4">' + E("h3", "4. Hisob", "4. Numbers") + E("p", "Birlik foydasi va zararsiz nuqta.", "Profit per unit and break-even point.") + E("p", "Birinchi sotuvlar bilan", "Alongside the first sales", 'style="font-size:12.5px"') + '</div></div>' +
+ '<div class="chain" style="margin-top:10px">' +
+ '<div class="link l4">' + E("h3", "5. Rasmiylashtir", "5. Register") + E("p", "Huquqiy shakl, soliq va hisob.", "Legal form, tax and bookkeeping.") + '</div>' +
+ '<div class="link l3">' + E("h3", "6. Moliyalashtir", "6. Fund it") + E("p", "O'z mablag'i, kredit, grant yoki investor.", "Own money, a loan, a grant or an investor.") + '</div>' +
+ '<div class="link l2">' + E("h3", "7. O'sish", "7. Grow") + E("p", "Ishlayotgan kanalni kengaytirish, jamoa.", "Scale the channel that works, build a team.") + '</div></div>' +
+ '<div class="grid g2" style="margin-top:14px">' +
+ card("red", "⚠️", "Eng ko'p uchraydigan xato", "The most common mistake", "<b>Avval katta xarajat (ijara, uskuna, kredit), keyin mijoz izlash.</b> To'g'ri tartib teskarisi: avval mijoz va sinov, keyin sarmoya.",
+      "<b>Big spending first (rent, machines, a loan), customer search afterwards.</b> The right order is the opposite: customer and test first, investment after.") +
+ card("green", "✅", "Birinchi 30 kun uchun nazorat ro'yxati", "A checklist for the first 30 days", "10 ta suhbat · MVP rejasi · birinchi 10 ta pulli mijoz · kunlik hisob daftari · 2 ta kanal. Ushbu ro'yxat bajarilmagan bo'lsa, kredit olishga shoshilmang.",
+      "10 interviews · an MVP plan · the first 10 paying customers · a daily records book · 2 channels. If this list is not done, do not rush into a loan.") + '</div>')
+
+# ============================ 17. HUQUQIY SHAKL ============================
+slide("Huquqiy shakl", "Legal form",
+ E("span", "4.3 · Rasmiylashtirish", "4.3 · Registration", 'class="kicker"') +
+ E("h2", "Biznesni <span class=\"grad\">qanday rasmiylashtirish kerak?</span>", "How to <span class=\"grad\">register the business?</span>") +
+ E("div", "Daromad olishni boshlagach, faoliyat <b>qonuniy shaklda</b> bo'lishi kerak: u sizni jarima va nizolardan himoya qiladi, bank va hamkor bilan ishlash imkonini beradi.",
+   "Once you start earning, the activity should have a <b>legal form</b>: it protects you from fines and disputes and lets you work with banks and partners.", 'class="def"') +
+ table([("Shakl", "Form"), ("Kim uchun", "Who it is for"), ("Asosiy xususiyati", "Main feature"), ("E'tibor bering", "Watch out for")], [
+  [TD("<b>Yakka tartibdagi tadbirkor (YaTT)</b>", "<b>Sole proprietor (YaTT)</b>"), TD("Yakka boshlayotgan, kichik hajmdagi biznes", "A solo start, small-scale business"), TD("Ro'yxatdan o'tish nisbatan sodda; o'zi yuritadi", "Registration is relatively simple; you run it yourself", "g"), TD("Majburiyat uchun shaxsiy mol-mulk bilan javob berilishi mumkin", "You may be liable for debts with personal property", "r")],
+  [TD("<b>Mas'uliyati cheklangan jamiyat (MChJ)</b>", "<b>Limited liability company (LLC)</b>"), TD("Hamkor bilan yoki kengayishni rejalagan biznes", "A business with partners or planned growth"), TD("Alohida yuridik shaxs; ishtirokchi kiritgan ulushi doirasida javob beradi", "A separate legal entity; a participant is liable up to their contribution", "g"), TD("Hujjat va hisobot ko'proq", "More paperwork and reporting")],
+  [TD("<b>O'zini o'zi band qilgan shaxs</b>", "<b>A self-employed person</b>"), TD("Kichik xizmat va hunar: dars berish, tikuv, dizayn", "Small services and crafts: tutoring, sewing, design"), TD("Yengil tartib, past hajmdagi faoliyatga mos", "A light regime, suited to a small volume of work", "g"), TD("Daromad va faoliyat turi chegaralari bor", "There are limits on income and type of activity", "r")]]) +
+ '<div class="grid g3" style="margin-top:14px">' +
+ card("blue", "📝", "Qayerdan boshlash?", "Where to start?", "Ro'yxatdan o'tish bo'yicha amaldagi qoida va shakllarni <b>birdarcha.uz</b> va davlat xizmatlari markazlarida ko'rish mumkin.", "The current rules and forms for registration are available on <b>birdarcha.uz</b> and at public service centres.") +
+ card("green", "📒", "Hisobni yuriting", "Keep your records", "Kirim va chiqimni birinchi kundan yozing: daftar yoki jadval yetadi. Soliq va bank bilan ishlashda shu asos bo'ladi.", "Write down income and spending from day one: a notebook or a table is enough. It is the basis for working with tax and the bank.") +
+ card("orange", "📜", "Faoliyat turi", "Type of activity", "Oziq-ovqat, dori, ta'lim kabi ba'zi yo'nalishlar uchun <b>qo'shimcha ruxsat yoki sertifikat</b> kerak bo'lishi mumkin. Oldindan aniqlang.", "Some fields, such as food, medicine or education, may need <b>extra permits or certificates</b>. Find out in advance.") + '</div>' +
+ E("small", "Soliq stavkalari, imtiyozlar va ro'yxatdan o'tish tartibi tez-tez o'zgaradi. Qaror qilishdan oldin lex.uz va soliq xizmatining amaldagi ma'lumotini tekshiring yoki mutaxassis bilan maslahatlashing.",
+   "Tax rates, benefits and registration procedures change often. Before deciding, check lex.uz and the tax service's current information or consult a specialist.", 'class="note"'))
+
+# ============================ 18. MOLIYALASHTIRISH ============================
+slide("Moliyalashtirish manbalari", "Sources of funding",
+ E("span", "4.4 · Pul manbalari", "4.4 · Sources of money", 'class="kicker"') +
+ E("h2", "Boshlash uchun <span class=\"grad\">pul qayerdan olinadi?</span>", "Where does the <span class=\"grad\">starting money come from?</span>") +
+ table([("Manba", "Source"), ("Qachon mos", "When it fits"), ("Ijobiy tomoni", "Advantage"), ("Xavfi", "Risk")], [
+  [TD("<b>💰 O'z jamg'armasi</b>", "<b>💰 Own savings</b>"), TD("Kichik MVP va birinchi sotuv", "A small MVP and the first sale"), TD("Qarz va ulush so'ralmaydi", "No debt and no share to give away", "g"), TD("O'z pulingiz xavf ostida", "Your own money is at risk", "r")],
+  [TD("<b>👨‍👩‍👧 Oila va do'stlar</b>", "<b>👨‍👩‍👧 Family and friends</b>"), TD("Erta bosqich, kichik summa", "An early stage, a small sum"), TD("Tez va shartlari yumshoq", "Fast, with soft terms", "g"), TD("Munosabat buzilishi; shartni yozmaslik", "Damaged relationships; no written terms", "r")],
+  [TD("<b>🏦 Bank krediti</b>", "<b>🏦 A bank loan</b>"), TD("Daromad bor, to'lov manbai aniq", "There is income and a clear source of repayment"), TD("Biznes ulushi saqlanadi", "You keep the whole business", "g"), TD("Foiz; daromad bo'lmasa ham to'lanadi", "Interest; repaid even if income falls", "r")],
+  [TD("<b>🤲 Mikromoliya tashkiloti</b>", "<b>🤲 A microfinance organisation</b>"), TD("Kichik summa, tez kerak", "A small sum needed quickly"), TD("Hujjat kamroq", "Less paperwork", "g"), TD("Foizi ko'pincha yuqoriroq", "The interest is often higher", "r")],
+  [TD("<b>🎁 Grant va davlat dasturlari</b>", "<b>🎁 Grants and state programmes</b>"), TD("Ijtimoiy yoki yosh tadbirkor loyihalari", "Social or young-entrepreneur projects"), TD("Qaytarilmaydi yoki imtiyozli", "Non-repayable or on easy terms", "g"), TD("Talab ko'p, raqobat kuchli", "Many requirements, strong competition")],
+  [TD("<b>💼 Investor</b>", "<b>💼 An investor</b>"), TD("O'sish potensiali katta, isbot bor", "Large growth potential, proof exists"), TD("Pul va tajriba keladi", "Money and experience arrive", "g"), TD("Biznes ulushi beriladi", "You give up part of the business", "r")]]) +
+ '<div class="grid g2" style="margin-top:14px">' +
+ card("red", "⚠️", "Kredit olishdan oldingi sinov", "A test before taking a loan", "Savol: <b>«Sotuv hozircha past bo'lsa ham, oylik to'lovni qayerdan to'layman?»</b> Agar javob «sotuvdan ko'raman» bo'lsa — hali erta.",
+      "The question: <b>“If sales stay low for now, where will I pay the monthly instalment from?”</b> If the answer is “from sales, I hope” — it is too early.") +
+ card("green", "📌", "Ariza va taqdimotga tayyorgarlik", "Preparing the application and the pitch", "Manbaga qarab ariza o'zgaradi: bankka — to'lov manbai va kafolat, grantga — ijtimoiy foyda, investorga — o'sish va isbot. Shartlarni manbaning o'zidan tekshiring.",
+      "The application changes with the source: for a bank — repayment source and collateral, for a grant — social benefit, for an investor — growth and proof. Check the terms with the source itself.") + '</div>' +
+ E("small", "Kredit va grant shartlari, foiz stavkalari va dasturlar o'zgarib turadi. Ma'lumotni bank, tegishli davlat tashkiloti yoki rasmiy sayt orqali tasdiqlang.",
+   "Loan and grant terms, interest rates and programmes change over time. Confirm the information through the bank, the relevant public body or an official site.", 'class="note"'))
+
+# ============================ 19. AMALIY TOPSHIRIQ ============================
 slide("Amaliy topshiriq", "Practical task",
  E("span", "Amaliy mashg'ulot · 2 soat", "Practical class · 2 hours", 'class="kicker"') +
  E("h2", "«3 daqiqalik <span class=\"grad\">taqdimot»</span>", "The “3-minute <span class=\"grad\">pitch”</span>") +
@@ -359,9 +425,38 @@ slide("Amaliy topshiriq", "Practical task",
  E("li", "30 kunlik MVP rejasi va muvaffaqiyat mezoni", "A 30-day MVP plan and the success criterion") +
  E("li", "Huquqiy shakl va moliyalashtirish manbasi (asoslab)", "Legal form and funding source (with reasons)") + '</ul></div>' +
  '<div class="card" style="--c:var(--amber);margin-top:12px">' + E("h3", "🏅 Baholash", "🏅 Assessment") +
- E("p", "Muammo va mijozni isbotlash <b>25%</b> · hisob-kitob <b>30%</b> · taqdimot tuzilmasi <b>25%</b> · savollarga javob <b>20%</b>.", "Proving the problem and customer <b>25%</b> · calculation <b>30%</b> · pitch structure <b>25%</b> · answering questions <b>20%</b>.") + '</div></div></div>')
+ E("p", "Muammo va mijozni isbotlash <b>25%</b> · hisob-kitob <b>30%</b> · taqdimot tuzilmasi <b>25%</b> · savollarga javob <b>20%</b>.", "Proving the problem and customer <b>25%</b> · calculation <b>30%</b> · pitch structure <b>25%</b> · answering questions <b>20%</b>.") + '</div></div></div>' +
+ E("small", "👉 To'ldirilgan namuna kartochka — keyingi slaydda.", "👉 A filled-in sample card is on the next slide.", 'class="note"'))
 
-# ============================ 17. XULOSA ============================
+# ============================ 20. NAMUNA: G'OYA KARTOCHKASI ============================
+slide("Namuna: g'oya kartochkasi", "Sample: an idea card",
+ E("span", "Amaliy topshiriq · To'ldirilgan namuna", "Practical task · A filled-in sample", 'class="kicker"') +
+ E("h2", "G'oya kartochkasi: <span class=\"grad\">«Kampus Print»</span>", "An idea card: <span class=\"grad\">“Kampus Print”</span>") +
+ E("p", "Amaliy topshiriqdagi A4 kartochkaning to'ldirilgan namunasi — 6 ta bo'lim, har birida aniq dalil yoki raqam.", "A filled-in sample of the A4 card from the practical task — 6 sections, each with clear evidence or a number.", 'class="lead"') +
+ '<div class="grid g3">' +
+ card("blue", "🎯", "1. Muammo, mijoz, yechim", "1. Problem, customer, solution", "<b>Muammo:</b> yotoqxonada yashovchi talabalar referat va kurs ishini kechqurun chop eta olmaydi, kunduzi navbatda 20–30 daqiqa kutadi. <b>Mijoz:</b> 1–4-kurs talabalari, haftasiga 20–60 bet. <b>Yechim:</b> faylni Telegram-botga yuborish — 15 daqiqada yotoqxona yonidagi nuqtada tayyor, 22:00 gacha.",
+      "<b>Problem:</b> students living in the dormitory cannot print essays and coursework in the evening and queue for 20–30 minutes in the daytime. <b>Customer:</b> 1st–4th-year students, 20–60 pages a week. <b>Solution:</b> send the file to a Telegram bot — ready in 15 minutes at a point next to the dormitory, open until 22:00.") +
+ card("green", "🗣", "2. Suhbat natijasi", "2. Interview result", "12 ta talaba bilan suhbat: 9 tasi o'tgan haftada navbatda kutgan, 7 tasi kechqurun chop eta olmay qolgan. Hozir 1 betga 500 so'm to'laydi.",
+      "Interviews with 12 students: 9 queued last week and 7 could not print in the evening. They now pay 500 so'm per page.") +
+ '<div class="card" style="--c:var(--violet)"><span class="icon">🧮</span>' + E("h3", "3. Birlik foydasi va zararsiz nuqta", "3. Profit per unit and break-even") +
+ table(None, [
+  [TD("1 bet narxi", "Price per page"), TD("500 so'm", "500 so'm")],
+  [TD("Qog'oz va toner", "Paper and toner"), TD("− 180 so'm", "− 180 so'm")],
+  [TD("<b>Birlik foydasi</b>", "<b>Profit per unit</b>"), TD("<b>320 so'm</b>", "<b>320 so'm</b>", "g")],
+  [TD("Doimiy xarajat (ijara 800 ming, internet va bot 100 ming, printer eskirishi 300 ming)", "Fixed costs (rent 800 thousand, internet and bot 100 thousand, printer wear 300 thousand)"), TD("1 200 000 so'm/oy", "1,200,000 so'm/month", "r")]]) +
+ E("p", "Zararsiz nuqta: 1 200 000 ÷ 320 = <b>3 750 bet/oy</b> (kuniga ≈ 125 bet). Oyiga 6 000 bet chop etilsa, sof foyda 720 000 so'm — printer (3,5 mln) ≈ 5 oyda qoplanadi.",
+   "Break-even: 1,200,000 ÷ 320 = <b>3,750 pages/month</b> (≈ 125 pages a day). At 6,000 pages a month the net profit is 720,000 so'm — the printer (3.5 million) pays back in ≈ 5 months.", 'style="margin-top:8px;font-size:13.5px"') + '</div>' +
+ card("orange", "⚔️", "4. Raqobat va UVP", "4. Competition and UVP", "Universitet yonida 2 ta nusxa ko'chirish nuqtasi bor: faqat kunduzi ishlaydi, navbat bo'ladi. <b>UVP:</b> «Botga yuboring — 15 daqiqada, navbatsiz, kechki 22:00 gacha».",
+      "There are 2 copy shops near the university: they work only in the daytime and have queues. <b>UVP:</b> “Send it to the bot — ready in 15 minutes, no queue, until 22:00”.") +
+ card("pink", "🧪", "5. 30 kunlik MVP va mezon", "5. A 30-day MVP and the criterion", "2 hafta o'z printerim bilan yotoqxonada ishlayman, bot o'rniga oddiy Telegram-guruh. <b>Mezon (oldindan yozilgan):</b> kuniga kamida 60 bet va 20 ta qayta mijoz. Bajarilsa — joy ijaraga olinadi; bajarilmasa — narx yoki ish vaqtini o'zgartirib, qayta sinayman.",
+      "For 2 weeks I work in the dormitory with my own printer and a plain Telegram group instead of a bot. <b>Criterion (written in advance):</b> at least 60 pages a day and 20 repeat customers. If met — I rent a place; if not — I change the price or the hours and test again.") +
+ card("cyan", "🏛", "6. Huquqiy shakl va pul", "6. Legal form and money", "<b>YaTT</b> — yakka o'zim boshlayman, hajm kichik (ro'yxatdan o'tish: birdarcha.uz). <b>Moliyalashtirish:</b> o'z jamg'armam — printer 3,5 mln so'm. Kredit olinmaydi: hali zararsiz nuqtaga yetilmagan va sinov natijasi yo'q.",
+      "<b>Sole proprietor</b> — I start alone and the volume is small (registration: birdarcha.uz). <b>Funding:</b> my own savings — a printer for 3.5 million so'm. No loan: break-even has not been reached and there is no test result yet.") +
+ '</div>' +
+ E("small", "«Kampus Print» — o'quv uchun to'qib chiqarilgan shartli misol. Sizning kartochkangizda raqamlar o'z suhbat va hisobingizdan olinadi.",
+   "“Kampus Print” is a made-up teaching example. On your card the numbers come from your own interviews and calculations.", 'class="note"'))
+
+# ============================ 21. XULOSA ============================
 slide("Xulosa va resurslar", "Summary and resources",
  E("span", "Xulosa · Mustaqil ish · Havolalar", "Summary · Independent work · Links", 'class="kicker"') +
  E("h2", "Yakuniy <span class=\"grad\">xulosa</span> va <span class=\"grad\">foydali resurslar</span>", "The final <span class=\"grad\">summary</span> and <span class=\"grad\">useful resources</span>") +
@@ -393,7 +488,7 @@ slide("Xulosa va resurslar", "Summary and resources",
  E("small", "⚠️ Qonun, soliq va moliyalashtirish shartlari o'zgaradi. Har doim amaldagi rasmiy ma'lumotga tayaning.", "⚠️ Laws, taxes and funding terms change. Always rely on current official information.", 'class="note"') +
  '</div></div></div>')
 
-# ============================ 18. TEST ============================
+# ============================ 22. TEST ============================
 slide("TEST · Bilimni tekshirish", "TEST · Check your knowledge",
  E("span", "Yakuniy nazorat", "Final check", 'class="kicker"') +
  E("h2", "🧪 Test topshiriqlari — <span class=\"grad\">15 ta savol</span>", "🧪 Test tasks — <span class=\"grad\">15 questions</span>") +
@@ -463,16 +558,16 @@ Q = [
          "Families in Termez pay a lot for fruit in winter or waste it all"],
       ee="A specific statement names who (families in Termez), when (in winter) and what difficulty. That is why it can be tested with interviews and surveys. The others are too general."),
  # 5 — zararsiz nuqta (to'g'ri: B)
- dict(q="Mahsulot narxi 50 000 so'm, birlik uchun o'zgaruvchan xarajat 35 000, oylik doimiy xarajat 3 000 000 so'm. Zararsiz miqdor qancha?",
+ dict(q="Mahsulot narxi 50 000 so'm, birlik uchun o'zgaruvchan xarajat 35 000, oylik doimiy xarajat 3 000 000 so'm. Zararsiz miqdor qancha?",
       a=["150 dona", "200 dona", "250 dona", "300 dona"], c=1,
-      e="Birlik foydasi = 50 000 − 35 000 = 15 000. Zararsiz miqdor = 3 000 000 ÷ 15 000 = 200 dona.",
+      e="Birlik foydasi = 50 000 − 35 000 = 15 000. Zararsiz miqdor = 3 000 000 ÷ 15 000 = 200 dona.",
       qe="The product price is 50,000 so'm, the variable cost per unit is 35,000 and the monthly fixed costs are 3,000,000 so'm. What is the break-even quantity?",
       ae=["150 units", "200 units", "250 units", "300 units"],
       ee="Profit per unit = 50,000 − 35,000 = 15,000. Break-even quantity = 3,000,000 ÷ 15,000 = 200 units."),
  # 6 — sof natija (to'g'ri: A)
- dict(q="Birlik foydasi 16 000 so'm, doimiy xarajat oyiga 4 000 000 so'm. Oyiga 300 dona sotilsa, sof natija qanday bo'ladi?",
-      a=["800 000 so'm foyda", "1 600 000 so'm foyda", "800 000 so'm zarar", "1 200 000 so'm zarar"], c=0,
-      e="Foyda = 300 × 16 000 = 4 800 000. Doimiy xarajat 4 000 000 ayrilsa, sof natija +800 000 so'm.",
+ dict(q="Birlik foydasi 16 000 so'm, doimiy xarajat oyiga 4 000 000 so'm. Oyiga 300 dona sotilsa, sof natija qanday bo'ladi?",
+      a=["800 000 so'm foyda", "1 600 000 so'm foyda", "800 000 so'm zarar", "1 200 000 so'm zarar"], c=0,
+      e="Foyda = 300 × 16 000 = 4 800 000. Doimiy xarajat 4 000 000 ayrilsa, sof natija +800 000 so'm.",
       qe="Profit per unit is 16,000 so'm and fixed costs are 4,000,000 so'm a month. If 300 units are sold a month, what is the net result?",
       ae=["800,000 so'm profit", "1,600,000 so'm profit", "800,000 so'm loss", "1,200,000 so'm loss"],
       ee="Profit = 300 × 16,000 = 4,800,000. Subtracting fixed costs of 4,000,000 gives a net result of +800,000 so'm."),
@@ -481,8 +576,8 @@ Q = [
       a=["Aholi 36 million, 1 foizi sotib olsa ham katta bozor bo'ladi, deb hisoblash",
          "Boshqa mamlakatdagi shunga o'xshash bozor hajmini bizga ko'chirib qo'yish",
          "Soha bo'yicha umumiy hisobotdagi raqamning yarmini o'z bozorimiz deb olish",
-         "2 000 kishiga yetaman, 5 foizi sotib oladi, har biri 40 000 so'm to'laydi"], c=3,
-      e="Pastdan yuqoriga hisob — o'zim yeta oladigan mijozlardan boshlanadi: 2 000 × 5% × 40 000 = 4 000 000 so'm. Aholi sonidan foiz olish esa asossiz va xavfli.",
+         "2 000 kishiga yetaman, 5 foizi sotib oladi, har biri 40 000 so'm to'laydi"], c=3,
+      e="Pastdan yuqoriga hisob — o'zim yeta oladigan mijozlardan boshlanadi: 2 000 × 5% × 40 000 = 4 000 000 so'm. Aholi sonidan foiz olish esa asossiz va xavfli.",
       qe="Which calculation is an example of a “bottom-up” market estimate?",
       ae=["Taking 36 million people and assuming even 1% buying is a big market",
          "Copying the size of a similar market in another country as our own",
