@@ -61,6 +61,7 @@ import {
 import { avatarLibrary, manageLibrary } from '@/lib/server/avatar-library';
 import { manageLibraryItems, readLibrary } from '@/lib/server/library';
 import { managePremium, premiumAdmin, premiumView } from '@/lib/server/premium';
+import { servicesShown } from '@/lib/server/services';
 import {
   appAdmin,
   cancelDeletion,
@@ -427,6 +428,7 @@ export async function GET(req: NextRequest) {
         mode,
         // 💳 pullik kurslar: mehmonga narx ko'rinadi, darslar — kirib, ruxsat olgach
         paid: await paidView().catch(() => ({})),
+        servicesShown: await servicesShown().catch(() => false),
       });
     const a = await actor(req);
     if (req.nextUrl.searchParams.get('view') === 'roster') {
@@ -517,6 +519,8 @@ export async function GET(req: NextRequest) {
     await withCourse(a, state as { course?: unknown; lessonAccess?: unknown }).catch(() => {});
     // 💳 pullik kurslar (restoran kursi): kira oladimi, so'rov holati, narx
     (state as { paid?: unknown }).paid = await paidView(a).catch(() => ({}));
+    // 💼 pullik xizmatlar vaqtincha yopiq bo'lsa — menyuda ko'rinmaydi
+    (state as { servicesShown?: boolean }).servicesShown = await servicesShown().catch(() => false);
     return NextResponse.json({
       ...state,
       mode,

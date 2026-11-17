@@ -11476,6 +11476,46 @@ button.danger,
   background: #fef3c7;
   color: #92400e;
 }
+/* 🔒 bo'lim vaqtincha yopiq (talabalardan yashirilgan) */
+.svc-launch.svc-shown.is-closed {
+  border-color: #fecaca;
+  background: #fef2f2;
+}
+.dark .svc-launch.svc-shown.is-closed {
+  border-color: #7f1d1d;
+  background: #2a1010;
+}
+.svc-launch.svc-shown.is-closed .bo-pill.off {
+  background: #fee2e2;
+  color: #991b1b;
+}
+.svc-closed-note {
+  border-color: #fecaca;
+  background: #fef2f2;
+}
+.dark .svc-closed-note {
+  border-color: #7f1d1d;
+  background: #2a1010;
+}
+/* talabaga: «Pullik xizmatlar vaqtincha yopiq» (eski havola yoki bildirishnoma orqali kelganda) */
+.services-closed {
+  max-width: 560px;
+  margin: 24px auto;
+  padding: 30px 22px;
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: center;
+  gap: 12px;
+  text-align: center;
+}
+.services-closed > span {
+  grid-row: auto;
+  font-size: 48px;
+}
+.services-closed h1 {
+  margin: 0;
+  font-size: 22px;
+  line-height: 1.3;
+}
 @media (prefers-reduced-motion: reduce) {
   .svc-soon,
   .svc-soon-rocket {

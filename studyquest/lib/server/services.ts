@@ -39,7 +39,8 @@ import { sendPush } from './push';
 import { supportAct } from './support';
 
 /* 💼 Pullik xizmatlar — talabalar ish bozori. Asl bazaning site/ bo'limida (brauzerlar tegolmaydi, faqat server):
-     serviceInfo                        = {how, open, fee}  — to'lov yo'riqnomasi; bo'lim ishga tushganmi; platforma ulushi %
+     serviceInfo                        = {how, open, fee, shown} — to'lov yo'riqnomasi; bo'lim ishga tushganmi;
+                                           platforma ulushi %; bo'lim menyuda ko'rinadimi (yo'q bo'lsa — vaqtincha yopiq)
      serviceCatalog/<yo'nalish>         = {price, days, off} — tavsiya narx, muddat, yopiq/ochiq
      serviceOrders/<buyurtmachi>/<id>   = vazifa: matn, summa, holat, arizalar, ijrochi, to'lov, yozishma, fayllar
      serviceFiles/<buyurtmachi>/<fayl>/<n> = faylning n-bo'lagi (base64, ≤ 2,5 MB)
@@ -157,11 +158,15 @@ async function readCatalog(all: boolean) {
   return { catalog, people: used.total, fans: wants.total };
 }
 async function readInfo() {
-  const v = await siteGet<{ how?: string; open?: boolean; fee?: number }>('serviceInfo');
+  const v = await siteGet<{ how?: string; open?: boolean; fee?: number; shown?: boolean }>(
+    'serviceInfo',
+  );
   const fee = Math.round(Number(v?.fee));
   return {
     how: v?.how || '',
     open: v?.open === true,
+    // 🔒 administrator «Bo'limni ochish» bosmaguncha bo'lim vaqtincha yopiq (menyuda yo'q, talaba amallari qabul qilinmaydi)
+    shown: v?.shown === true,
     fee: Number.isFinite(fee) && fee >= 0 && fee <= 50 ? fee : 0,
   };
 }
@@ -375,6 +380,7 @@ export async function servicesView(a: Actor | null, now = Date.now()): Promise<S
   );
   const head = {
     open: info.open,
+    shown: info.shown,
     catalog,
     people,
     fans,
@@ -442,7 +448,7 @@ const STATUS_ORDER: Record<ServiceStatus, number> = {
 /** Administrator: hamma vazifalar (buyurtmachi ma'lumotlari bilan), ijrochilar, sozlamalar. */
 export async function servicesAdmin(a: Actor, now = Date.now()): Promise<ServicesAdminView> {
   administrator(a);
-  const [all, { catalog, people, fans }, { how, open, fee }, workers] = await Promise.all([
+  const [all, { catalog, people, fans }, { how, open, fee, shown }, workers] = await Promise.all([
     readAll(),
     readCatalog(true),
     readInfo(),
@@ -491,7 +497,7 @@ export async function servicesAdmin(a: Actor, now = Date.now()): Promise<Service
     .filter(([wk, w]) => UK.test(wk) && w?.name)
     .map(([wk, w]) => profile(wk, w, stat, true))
     .sort((x, y) => y.at - x.at);
-  return { open, fee, catalog, people, fans, how, orders, workers: list, used };
+  return { open, shown, fee, catalog, people, fans, how, orders, workers: list, used };
 }
 
 /* ---------- 🔔 bildirishnomalar (xatosi amalni to'xtatmaydi) ---------- */
@@ -541,6 +547,15 @@ async function isAdminActor(a: Actor) {
     .then((r) => r.get('users', a.id))
     .catch(() => null);
   return stored?.role === 'admin';
+}
+/** 🔒 Bo'lim menyuda ko'rinadimi (asosiy sahifa ma'lumoti uchun). */
+export async function servicesShown() {
+  return (await readInfo()).shown;
+}
+/** Bo'lim vaqtincha yopiq bo'lsa — talaba va ijrochi amallari qabul qilinmaydi (administrator boshqaraveradi). */
+async function notClosed(a: Actor) {
+  if ((await readInfo()).shown || (await isAdminActor(a))) return;
+  throw new ApiError(403, 'Pullik xizmatlar bo‘limi vaqtincha yopiq.');
 }
 async function canOrder(a: Actor) {
   if ((await readInfo()).open || (await isAdminActor(a))) return;
@@ -627,6 +642,7 @@ const userInput = z.discriminatedUnion('op', [
 /** Foydalanuvchi amallari: buyurtmachi (vazifa berish, to'lash, qabul qilish …) va ijrochi (ariza, topshirish …). */
 export async function manageServices(a: Actor, raw: unknown, now = Date.now()) {
   const v = userInput.parse(raw);
+  await notClosed(a);
   const me = keyOf(a.id);
   const done = async () => ({ view: await servicesView(a, now) });
 
@@ -976,6 +992,7 @@ const adminInput = z.discriminatedUnion('op', [
   z.object({ op: z.literal('info'), how: z.string().trim().max(1500) }).strict(),
   z.object({ op: z.literal('fee'), fee: z.number().int().min(0).max(50) }).strict(),
   z.object({ op: z.literal('launch'), open: z.boolean() }).strict(),
+  z.object({ op: z.literal('show'), shown: z.boolean() }).strict(),
 ]);
 
 /** Administrator amallari: ijrochini tasdiqlash, to'lovni tasdiqlash, ijrochiga pul o'tkazish, nazorat, sozlamalar. */
@@ -999,6 +1016,10 @@ export async function adminServices(a: Actor, raw: unknown, now = Date.now()) {
   }
   if (v.op === 'launch') {
     await siteUpdate({ 'serviceInfo/open': v.open || null });
+    return done();
+  }
+  if (v.op === 'show') {
+    await siteUpdate({ 'serviceInfo/shown': v.shown || null });
     return done();
   }
   if (v.op === 'info') {
@@ -1252,6 +1273,7 @@ export async function saveServiceChunk(
 ) {
   const role: Who = who === true ? 'admin' : who === false ? 'me' : who;
   if (role === 'admin') administrator(a);
+  else await notClosed(a);
   const [uk, id] = o.split('/');
   const s = await load(uk || '', id || '');
   if (role === 'me') check(uk === keyOf(a.id), 403, 'Bu vazifaga fayl yuklab bo‘lmaydi.');

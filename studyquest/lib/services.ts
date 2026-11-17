@@ -482,6 +482,8 @@ export type TopWorker = { name: string; jobs: number; rating: number | null; ski
 export type ServicesView = {
   /** bo'lim ishga tushganmi; yo'q bo'lsa — «tez orada» oynasi va taklif yuborish, buyurtma qabul qilinmaydi */
   open: boolean;
+  /** 🔒 bo'lim menyuda ko'rinadimi; yo'q bo'lsa — vaqtincha yopiq (faqat administrator ko'radi) */
+  shown: boolean;
   catalog: ServiceCard[];
   /** xizmatlardan foydalangan / kutayotgan odamlar soni (har biri bir marta sanaladi) */
   people: number;
@@ -504,6 +506,7 @@ export type ServicesView = {
 };
 export type ServicesAdminView = {
   open: boolean;
+  shown: boolean;
   fee: number;
   catalog: ServiceCard[];
   people: number;

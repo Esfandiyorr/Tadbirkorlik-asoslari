@@ -131,7 +131,7 @@ export function Dashboard() {
 
 /** Bosh sahifadagi tezkor o'tishlar: asosiy bo'limlar bitta bosishda. */
 function QuickLinks() {
-  const { lang } = useApp();
+  const { lang, data } = useApp();
   // 💼 Play Market ilovasida pullik xizmatlar ko'rsatilmaydi (lib/play-app.ts)
   const [play, setPlay] = useState(false);
   useEffect(() => setPlay(isPlayApp()), []);
@@ -142,7 +142,8 @@ function QuickLinks() {
       ['Mavzular', 'Topics', 'Темы'],
       ['Fanni ketma-ket o‘rganish', 'Study the course step by step', 'Изучать курс по порядку'],
     ],
-    ...(play
+    // vaqtincha yopiq bo'lsa (administrator ochmaguncha) ham ko'rsatilmaydi
+    ...(play || !data?.servicesShown
       ? []
       : [
           [
