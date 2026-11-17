@@ -156,6 +156,28 @@ test('the administrator fills the question bank, schedules daily games and creat
   await expect(page.locator('.bo-list')).not.toContainText('Siz tuzgan o‘yin');
 });
 
+test('the administrator adds the ready 15-question pack for topic 9 in one click', async ({
+  page,
+}) => {
+  await as(page, 'demo-admin');
+  await page.goto('/#admin', { waitUntil: 'domcontentloaded' });
+  await page.locator('.bo-card-btn').filter({ hasText: 'Jonli test' }).click();
+  await page.getByRole('tab', { name: /Savollar banki/ }).click();
+  const pack = page.locator('.bo-packs').getByRole('button', { name: /9-mavzu/ });
+  await expect(pack).toContainText('15 ta savol');
+  page.once('dialog', (d) => void d.accept());
+  await pack.click();
+  await expect(page.locator('.toast')).toContainText('Qo‘shildi: 15');
+  await expect(page.getByRole('tab', { name: /Savollar banki \(15\)/ })).toBeVisible();
+  await expect(pack).toContainText('bankda');
+  await expect(pack).toBeDisabled();
+  // hammasi «9-mavzu» bo'limida, har birida 4 ta variant
+  const v = await (await page.request.get('/api/platform?view=liveAdmin')).json();
+  const bank = v.bank as { tp: string; o: string[] }[];
+  expect(bank).toHaveLength(15);
+  expect(bank.every((x) => x.tp === 'm9' && x.o.length === 4)).toBe(true);
+});
+
 test('the administrator edits a topic test and the presentation uses the new questions', async ({
   page,
 }) => {

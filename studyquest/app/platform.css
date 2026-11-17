@@ -6999,6 +6999,22 @@ body:has(.focus-learning) .kh-pop {
   gap: 8px;
   align-items: center;
 }
+.bo-packs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 10px 0 4px;
+  padding: 10px 12px;
+  border: 1px dashed var(--border);
+  border-radius: 14px;
+  background: var(--surface-soft);
+}
+.bo-packs > span {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--muted);
+}
 .bo-list,
 .bo-qlist {
   display: grid;
