@@ -25,7 +25,7 @@ DECKS={
  'mavzu-6.html': dict(id='m6',slides=24,quiz=20),
  'mavzu-7.html': dict(id='m7',slides=24,quiz=20),
  'mavzu-8.html': dict(id='m8',slides=24,quiz=20),
- 'mavzu-9.html': dict(id='m9',slides=18,quiz=15),
+ 'mavzu-9.html': dict(id='m9',slides=22,quiz=15),
  'mavzu-10.html': dict(id='m10',slides=18,quiz=15),
  'mavzu-11.html': dict(id='m11',slides=18,quiz=15),
  'mavzu-12.html': dict(id='m12',slides=18,quiz=15),

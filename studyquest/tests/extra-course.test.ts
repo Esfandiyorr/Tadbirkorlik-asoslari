@@ -18,9 +18,8 @@ import {
 import { slidePoints } from '../lib/points';
 import type { Actor } from '../lib/types';
 
-/* 🍽️ Ikkinchi fan — «Restoran xodimlari malakasini oshirish» (RS 24): katalogdan beriladi, hozircha HAMMAGA YOPIQ —
-   talaba va mehmon ma'lumotida umuman bo'lmaydi, faqat o'qituvchi va administrator ko'radi. Asosiy fanning
-   (Tadbirkorlik asoslari) 15 mavzusi, ball va reyting hisob-kitobi o'zgarmaydi. */
+/* RS 24 — pullik qo'shimcha kurs; katalog ochiq, darslar ruxsat bilan.
+   10 modul va 2 imtihon tayyor; asosiy fanning ball hisobi alohida qoladi. */
 const [student, teacher, admin] = demoUsers as unknown as Actor[];
 let service: Platform;
 beforeEach(() => {
@@ -57,8 +56,13 @@ it('describes the restaurant course as a paid extra course with its lessons, blo
   );
   expect(all.filter((l) => l.exam).map((l) => l.id)).toEqual(['r11', 'r12']);
   expect(all.find((l) => l.id === 'r11')?.moduleId).toBe('restoran-4');
-  // taqdimoti hali yo'q darslar — «tayyorlanmoqda» (faylsiz), ochilmaydi
-  for (const l of all.filter((x) => x.draft)) expect(l.legacyFile).toBeUndefined();
+  expect(all.every((l) => !l.draft)).toBe(true);
+  expect(all.map((l) => l.legacyFile)).toEqual(
+    Array.from({ length: 12 }, (_, i) => `restoran-${i + 1}.html`),
+  );
+  const metadata = catalog.more.find((c) => c.id === 'restoran')!;
+  expect(metadata.topics.find((l) => l.id === 'r11')).toMatchObject({ test: 30, exam: true });
+  expect(metadata.topics.find((l) => l.id === 'r12')).toMatchObject({ test: 0, exam: true });
   const mine = all.filter((l) => !l.draft);
   expect(mine.length).toBeGreaterThanOrEqual(1);
   expect(mine[0]).toMatchObject({

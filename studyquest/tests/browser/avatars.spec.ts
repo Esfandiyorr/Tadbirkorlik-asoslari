@@ -18,15 +18,27 @@ test('a top-ten student picks an avatar from the home card and sees it in the ra
 }) => {
   await reset(page);
   await page.goto('/#home', { waitUntil: 'domcontentloaded' });
-  const card = page.locator('.hero-avatar');
-  await expect(card).toContainText('Avatar tanlang');
-  await expect(card.locator('svg.av-empty')).toBeVisible();
+  const card = page.locator('.hero-avatar:visible');
+  // Avatar yo'q: joy bo'sh (soya ham emas) — «Avatar qo'yish»; bosilsa rasmlar ochiladi.
+  await expect(card).toContainText('Avatar qo‘yish');
+  await expect(card.locator('.hero-avatar-empty')).toBeVisible();
+  await expect(card.locator('.av-figure')).toHaveCount(0);
   await card.click();
   const dialog = page.getByRole('dialog', { name: /Avatarlar kutubxonasi/ });
   await expect(dialog).toContainText('1-o‘rindasiz');
   await expect(dialog.locator('.av-card')).toHaveCount(10);
   await expect(dialog.locator('.av-card img')).toHaveCount(10);
+  // Avatar bosilsa — avval qo'yish shartlari, keyin «Shu avatarni qo'yish».
   await dialog.getByRole('button', { name: /Mario — tanlash/ }).click();
+  const detail = dialog.locator('.av-detail');
+  await expect(detail).toContainText('Avatar qo‘yish shartlari');
+  await expect(detail.locator('.av-rules li')).toHaveCount(5);
+  await expect(detail.locator('.av-rules')).toContainText('1–10-o‘rinlaridagi');
+  await expect(detail.locator('.av-detail-status.ok')).toContainText('1-o‘rindasiz');
+  await detail.getByRole('button', { name: /Boshqa avatarlar/ }).click();
+  await expect(dialog.locator('.av-card')).toHaveCount(10);
+  await dialog.getByRole('button', { name: /Mario — tanlash/ }).click();
+  await detail.getByRole('button', { name: /Shu avatarni qo‘yish/ }).click();
   await expect(dialog).toBeHidden();
   await expect(page.locator('.toast')).toContainText('Mario');
   // Avatar tanlangach kartochkada yozuv yo'q — faqat qahramon; bosilsa almashtiriladi.
@@ -42,6 +54,7 @@ test('a top-ten student picks an avatar from the home card and sees it in the ra
   await mine.getByRole('button', { name: 'Avatarlar kutubxonasi' }).click();
   await expect(dialog.locator('.av-card.is-mine')).toContainText('Mario');
   await dialog.getByRole('button', { name: /Quvonch — tanlash/ }).click();
+  await dialog.getByRole('button', { name: /Shu avatarni qo‘yish/ }).click();
   await expect(mine.locator('.rk-slot img')).toHaveAttribute('src', '/avatars/joy.webp');
   await page.locator('.rk-mine-avatar').click();
   await dialog.getByRole('button', { name: 'Avatarni olib tashlash' }).click();
@@ -81,8 +94,18 @@ test('taken avatars are locked, places 11+ only browse, and students can suggest
   await expect(dialog).toContainText('1–10-o‘rinlaridagi');
   await expect(dialog).toContainText('Siz hozir 11-o‘rindasiz');
   await expect(dialog.locator('.av-card.is-taken')).toContainText('Band · Talaba 1');
+  // Rasmlar to'liq rangli, bosilsa — shartlari va avatar olish yo'llari; «Qo'yish» tugmasi yo'q.
   await expect(dialog.locator('.av-card.is-locked')).toHaveCount(9);
-  await expect(dialog.locator('.av-card button:not([disabled])')).toHaveCount(0);
+  await expect(dialog.locator('.av-card button:not([disabled])')).toHaveCount(9);
+  await dialog.getByRole('button', { name: /Mario — qo‘yish shartlari/ }).click();
+  const detail = dialog.locator('.av-detail');
+  await expect(detail).toContainText('Avatar qo‘yish shartlari');
+  await expect(detail.locator('.av-detail-status')).toContainText('Siz hozir 11-o‘rindasiz');
+  await expect(detail.locator('.av-ways')).toContainText('top-10 ga chiqing');
+  await expect(detail.getByRole('button', { name: /Shu avatarni qo‘yish/ })).toHaveCount(0);
+  // Esc — avval shartlardan rasmlarga qaytadi
+  await page.keyboard.press('Escape');
+  await expect(dialog.locator('.av-card')).toHaveCount(10);
   // Yangi avatar taklifi administratorga «Adminga xabar» orqali boradi.
   await dialog.getByLabel('Qahramon nomi').fill('Shrek (Shrek multfilmi)');
   await dialog.getByLabel('Izoh').fill('Hamma yaxshi ko‘radi');
@@ -159,6 +182,7 @@ test('places 11+ see why the avatar was freed and the ways to get one: Premium o
   await page.locator('.rk-mine-avatar').click();
   const dialog = page.getByRole('dialog', { name: /Avatarlar kutubxonasi/ });
   await expect(dialog.locator('.av-lost')).toContainText('«Po» avatari bo‘shatildi');
+  await dialog.getByRole('button', { name: /Po — qo‘yish shartlari/ }).click();
   const ways = dialog.locator('.av-ways');
   await expect(ways).toContainText('hozir 11-o‘rindasiz');
   await expect(ways).toContainText('10 000 so‘m · 30 kunga');
@@ -179,10 +203,11 @@ test('places 11+ see why the avatar was freed and the ways to get one: Premium o
   await page.keyboard.press('Escape');
   // bosh sahifa kartochkasida ham: avatar bo'shatildi
   await page.goto('/#home', { waitUntil: 'domcontentloaded' });
-  await expect(page.locator('.hero-avatar')).toContainText('Avatar bo‘shatildi');
+  await expect(page.locator('.hero-avatar:visible')).toContainText('Avatar bo‘shatildi');
   // Play Market ilovasida sotib olish (tashqi to'lov) ko'rsatilmaydi
   await page.goto('/?src=play#ranking', { waitUntil: 'domcontentloaded' });
   await page.locator('.rk-mine-avatar').click();
+  await dialog.getByRole('button', { name: /Po — qo‘yish shartlari/ }).click();
   await expect(dialog.locator('.av-ways')).toContainText('Obuna bo‘ling');
   await expect(dialog.getByRole('button', { name: 'Sotib olish' })).toHaveCount(0);
 });

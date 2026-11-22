@@ -56,7 +56,7 @@ const kindTitle = (lang: Parameters<typeof tr>[0], id: string) => {
 
 export function ServicesAdmin() {
   const L = useL();
-  const { request, toast } = useApp();
+  const { request, toast, refresh } = useApp();
   const [view, setView] = useState<ServicesAdminView | null>(null);
   const [error, setError] = useState('');
   const [tab, setTab] = useState<Tab>('tasks');
@@ -80,6 +80,43 @@ export function ServicesAdmin() {
   const todo = view.orders.filter(needsMe).length;
   const owed = view.workers.reduce((n, w) => n + w.pending, 0);
   const paid = view.workers.reduce((n, w) => n + w.earned, 0);
+  /** 🔒 Bo'limni vaqtincha yopish (menyudan olib tashlash, talaba amallarini to'xtatish) yoki qayta ochish. */
+  async function show(shown: boolean) {
+    if (
+      !window.confirm(
+        shown
+          ? L(
+              'Bo‘lim ochilsinmi? «Pullik xizmatlar» menyuda va bosh sahifada yana ko‘rinadi.',
+              'Open the section? “Paid services” returns to the menu and the home page.',
+              'Открыть раздел? «Платные услуги» снова появятся в меню и на главной.',
+            )
+          : L(
+              'Bo‘lim vaqtincha yopilsinmi? Menyudan yo‘qoladi, talabalar va ijrochilar hech narsa yubora olmaydi (ma’lumotlar o‘chmaydi).',
+              'Close the section for now? It leaves the menu and students and workers cannot send anything (no data is deleted).',
+              'Временно закрыть раздел? Он исчезнет из меню, студенты и исполнители ничего не смогут отправить (данные не удаляются).',
+            ),
+      )
+    )
+      return;
+    setBusy(true);
+    try {
+      const r = await servicesAct<{ admin: ServicesAdminView }>(request, 'admin', {
+        op: 'show',
+        shown,
+      });
+      setView(r.admin);
+      void refresh();
+      toast(
+        shown
+          ? L('👁 Bo‘lim ochildi', '👁 The section is open', '👁 Раздел открыт')
+          : L('🔒 Bo‘lim vaqtincha yopildi', '🔒 The section is closed', '🔒 Раздел закрыт'),
+      );
+    } catch (e) {
+      toast((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  }
   /** Bo'limni ishga tushirish yoki yana «tez orada» rejimiga qaytarish. */
   async function launch(open: boolean) {
     if (
@@ -122,6 +159,35 @@ export function ServicesAdmin() {
   }
   return (
     <div className="svc-admin">
+      <div className={'svc-launch svc-shown' + (view.shown ? ' is-open' : ' is-closed')}>
+        <span className={'bo-pill ' + (view.shown ? 'on' : 'off')}>
+          {view.shown
+            ? L('Menyuda', 'In the menu', 'В меню')
+            : L('Vaqtincha yopiq', 'Temporarily closed', 'Временно закрыт')}
+        </span>
+        <p>
+          {view.shown
+            ? L(
+                'Bo‘lim talabalarga ko‘rinadi (menyu va bosh sahifada).',
+                'Students see the section (menu and home page).',
+                'Раздел виден студентам (меню и главная).',
+              )
+            : L(
+                'Bo‘lim talabalardan yashirilgan: menyuda yo‘q, talaba va ijrochi amallari qabul qilinmaydi. Buyurtmalar va ijrochilar saqlanib turadi — bu yerdan boshqarishingiz mumkin.',
+                'Hidden from students: not in the menu, student and worker actions are refused. Orders and workers are kept — you can manage them here.',
+                'Скрыт от студентов: нет в меню, действия студентов и исполнителей не принимаются. Заказы и исполнители сохраняются — управлять можно здесь.',
+              )}
+        </p>
+        {view.shown ? (
+          <Button size="sm" variant="outline" disabled={busy} onClick={() => void show(false)}>
+            🔒 {L('Vaqtincha yopish', 'Close for now', 'Временно закрыть')}
+          </Button>
+        ) : (
+          <Button size="sm" disabled={busy} onClick={() => void show(true)}>
+            👁 {L('Bo‘limni ochish', 'Open the section', 'Открыть раздел')}
+          </Button>
+        )}
+      </div>
       <div className={'svc-launch' + (view.open ? ' is-open' : '')}>
         <span className={'bo-pill ' + (view.open ? 'on' : 'off')}>
           {view.open ? L('Ishlayapti', 'Live', 'Работает') : L('Tez orada', 'Coming soon', 'Скоро')}

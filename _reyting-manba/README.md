@@ -91,6 +91,11 @@ shablondan o'zgarishsiz o'tadi.
 
 ## Ikkinchi fan: «Restoran xodimlari malakasini oshirish» (RS 24)
 
+**Davomiy darslar tayyor:** R4–R10, R11 nazariy va R12 amaliy imtihon materiallari.
+Ketma-ket o'tish, amaliy dalillar, baholash va faqat yangi darslarni yig'ish tartibi:
+[RS 24 qo'llanmasi](RS24-QOLLANMA.md). R1–R3 o'zgartirilmaydi; yangi mashq natijalari
+brauzerda alohida saqlanadi, mavjud akademik ballarga qo'shilmaydi.
+
 Dastur — 24 akademik soatlik qisqa kurs (10 modul). Fan `config.json` → `courses` da ikkinchi bo'lib turadi
 (`"id": "restoran"`), mavzulari `topics` da `"course": "restoran"` bilan: `r1` … `r10`, fayllari `restoran-<N>.html`.
 
@@ -111,7 +116,7 @@ Dastur — 24 akademik soatlik qisqa kurs (10 modul). Fan `config.json` → `cou
   `python3 _reyting-manba/yangi_mavzu.py _reyting-manba/matn/restoran_<N>_matn.py restoran-<N>.html "Sarlavha" <N> "tavsif" mavzu-7.html "Restoran xizmati|Restaurant service"`
   → `config.json` ga mavzuni qo'shing (`id`, `course`, `file`, `title`, `open:false`, `slides`, `quiz`, `video`) →
   `python3 _reyting-manba/inject.py` (boshqa fan mavzulari `DECKS` ga o'zi qo'shiladi).
-- **🎬 Animatsion video.** Har mavzuda `fayllar/video/R<N>.mp4` (ovozsiz, 1080p), yonida `R<N>.vtt` (subtitr) va
+- **🎬 Animatsion video.** Video yig'ilgan mavzularda `fayllar/video/R<N>.mp4` (ovozsiz, 1080p), yonida `R<N>.vtt` (subtitr) va
   `R<N>.jpg` (muqova). Manba — `video/ssenariy/r<N>.js` (sahnalar va subtitr satrlari), sahna — `video/sahna.html`
   (SVG qahramonlar, restoran zali; sahna turlari: `title`, `list`, `steps`, `rule`, `dialog`, `compare`, `outro`).
   Yig'ish: `NODE_PATH=studyquest/node_modules node _reyting-manba/video/film.js r<N>` (kadrma-kadr, ~6–8 daqiqa).

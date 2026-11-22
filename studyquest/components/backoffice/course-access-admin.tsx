@@ -319,13 +319,23 @@ function MainCourseAccess() {
                   aria-label={
                     L('Ruxsatni olish', 'Remove access', 'Отозвать доступ') + ': ' + g.name
                   }
-                  onClick={() =>
+                  onClick={() => {
+                    if (
+                      !confirm(
+                        L(
+                          `${g.name} · Tadbirkorlik asoslari: kurs ruxsati olib tashlansinmi?`,
+                          `${g.name} · Entrepreneurship: remove course access?`,
+                          `${g.name} · Предпринимательство: отозвать доступ?`,
+                        ),
+                      )
+                    )
+                      return;
                     void act(
                       { op: 'revoke', uid: g.uid },
                       'rv' + g.uid,
                       L('Ruxsat olib tashlandi', 'Access removed', 'Доступ отозван'),
-                    ).catch(() => {})
-                  }
+                    ).catch(() => {});
+                  }}
                 >
                   <Trash2 size={14} />
                 </Button>
@@ -607,13 +617,24 @@ function PaidCourseAccess({ course }: { course: string }) {
                   aria-label={
                     L('Ruxsatni olish', 'Remove access', 'Отозвать доступ') + ': ' + g.name
                   }
-                  onClick={() =>
+                  onClick={() => {
+                    const title = data.courses.find((c) => c.id === course)?.title || course;
+                    if (
+                      !confirm(
+                        L(
+                          `${g.name} · ${title}: kurs ruxsati olib tashlansinmi?`,
+                          `${g.name} · ${title}: remove course access?`,
+                          `${g.name} · ${title}: отозвать доступ?`,
+                        ),
+                      )
+                    )
+                      return;
                     void act(
                       { op: 'revoke', uid: g.uid, course },
                       'rv' + g.uid,
                       L('Ruxsat olib tashlandi', 'Access removed', 'Доступ отозван'),
-                    ).catch(() => {})
-                  }
+                    ).catch(() => {});
+                  }}
                 >
                   <Trash2 size={14} />
                 </Button>

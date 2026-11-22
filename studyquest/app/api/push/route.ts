@@ -10,6 +10,9 @@ import {
   testPush,
   unsubscribePush,
   vapidKeys,
+  pushPreferences,
+  savePushPreferences,
+  pushPreferenceInput,
 } from '@/lib/server/push';
 
 export const runtime = 'nodejs';
@@ -24,6 +27,10 @@ export const dynamic = 'force-dynamic';
 export async function GET(req: NextRequest) {
   try {
     const view = req.nextUrl.searchParams.get('view');
+    if (view === 'preferences')
+      return NextResponse.json(await pushPreferences(await actor(req, true)), {
+        headers: { 'Cache-Control': 'private, no-store' },
+      });
     if (view === 'key')
       return NextResponse.json(
         { pub: (await vapidKeys()).pub },
@@ -52,6 +59,7 @@ export async function GET(req: NextRequest) {
 }
 
 const body = z.discriminatedUnion('op', [
+  z.object({ op: z.literal('preferences'), preferences: pushPreferenceInput }).strict(),
   z.object({ op: z.literal('subscribe'), sub: z.unknown(), app: z.boolean().optional() }).strict(),
   z.object({ op: z.literal('unsubscribe'), endpoint: z.string().max(1000) }).strict(),
   z.object({ op: z.literal('test') }).strict(),
@@ -67,6 +75,8 @@ export async function POST(req: NextRequest) {
     const p = body.parse(JSON.parse(text || '{}'));
     const a = await actor(req, true);
     const headers = { 'Cache-Control': 'private, no-store' };
+    if (p.op === 'preferences')
+      return NextResponse.json(await savePushPreferences(a, p.preferences), { headers });
     if (p.op === 'subscribe') {
       const r = await subscribePush(a, p.sub, Date.now(), p.app === true);
       // obuna paytida jonli test vaqti kelgan bo'lsa — eslatma kechikmasin

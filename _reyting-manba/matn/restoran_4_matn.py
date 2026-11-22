@@ -9,10 +9,9 @@ Dasturdagi ishchi iboralar: Which language would you prefer? · Do you have any 
 ingredients with our kitchen. · May I confirm your order? · Would you like one bill or separate bills?
 Inglizcha iboralar <b>qalin</b>, yonida o'zbekcha ma'nosi. Narxlar — o'quv misoli.
 Ishlatish:
-  python3 _reyting-manba/yangi_mavzu.py _reyting-manba/matn/restoran_4_matn.py restoran-4.html "Xorijiy mehmon bilan muloqot" 4 "<tavsif>" mavzu-7.html "Restoran xizmati|Restaurant service"
-  python3 _reyting-manba/inject.py
+  python3 _reyting-manba/restoran_yigish.py
 """
-exec(open(MATN_DIR + "restoran_umumiy.py", encoding="utf-8").read())
+exec(open(MATN_DIR + "restoran_davom.py", encoding="utf-8").read())
 
 
 def en(ibora, tarjima):
@@ -21,7 +20,7 @@ def en(ibora, tarjima):
 
 
 # ============================ 1. MUQOVA ============================
-cover(4, "XORIJIY MEHMON BILAN MULOQOT",
+lesson_cover(4, "XORIJIY MEHMON BILAN MULOQOT",
       "<b>Til tanlovini so'rash</b> · sodda va sekin gapirish · ismni hurmat bilan talaffuz qilish · <b>ikki tilli menyu</b> · "
       "taom, porsiya va narxni izohlash · madaniy va diniy ehtiyojni <b>taxmin qilmasdan</b> aniqlashtirish · parhez so'rovi · "
       "<b>buyurtmani qayta tasdiqlash</b> · xizmat ingliz tilidagi ishchi iboralar.",
@@ -273,7 +272,7 @@ slide("Parhez so'rovini yozib olish", "Parhez so'rovini yozib olish",
    en("Let me write it down.", "Yozib olay."),
    en("Let me check the ingredients with our kitchen.", "Tarkibni oshxonamizdan tekshirib ko'ray."),
    en("I will be back in two minutes.", "Ikki daqiqada qaytaman."),
-   en("The chef says this dish is safe for you.", "Oshpaz bu taom sizga xavfsiz ekanini aytdi."),
+   en("The kitchen has checked the ingredients and preparation.", "Oshxona tarkib va tayyorlash jarayonini tekshirdi. Aniq natijani tushuntiring; umumiy xavfsizlik va'dasi bermang."),
    en("I am sorry, this dish contains nuts. May I suggest…", "Afsuski, bu taomda yong'oq bor. … ni taklif qilsam maylimi?")], cls="clean"),
   card_ul("red", "🚫", "Hech qachon", [
    "<b>«I think it's OK»</b> — «menimcha, bo'ladi» degan javob yo'q",
@@ -295,7 +294,7 @@ slide("2-dialog: parhez so'rovi", "2-dialog: parhez so'rovi",
    ("X", "<b>Is the chicken salad OK for me?</b>"),
    ("O", "<b>I am not sure. Let me check the ingredients with our kitchen. I will be back in two minutes.</b>"),
    ("X", "<b>Thank you.</b>"),
-   ("O", "<b>Thank you for waiting. The salad has walnuts. But the chef can make it without nuts, in a clean bowl.</b>"),
+   ("O", "<b>Thank you for waiting. The salad contains walnuts. The chef has checked the recipe and separate preparation for a fresh portion.</b>"),
    ("X", "<b>Great. I will have that.</b>"),
    ("O", "<b>May I confirm? One chicken salad, no nuts — nut allergy. Is that correct?</b>"),
    ("X", "<b>Yes, correct.</b>")]),
@@ -306,8 +305,8 @@ slide("2-dialog: parhez so'rovi", "2-dialog: parhez so'rovi",
    "Qachon qaytishi aytildi — mehmon kutishni biladi",
    "Oshxona javobi <b>aniq</b> yetkazildi: nima bor va qanday yechim",
    "Buyurtma allergiya belgisi bilan <b>qayta tasdiqlandi</b>"])) +
- quote("📝 <b>Tarjima:</b> mehmon yong'oqqa allergiyasi borligini aytdi; ofitsiant yozib oldi, tovuqli salat tarkibini oshxonadan tekshirdi: salatda yong'oq bor, "
-       "lekin oshpaz uni yong'oqsiz, toza idishda tayyorlab bera oladi; buyurtma «yong'oqsiz — allergiya» belgisi bilan tasdiqlandi."))
+ quote("📝 <b>O'quv sharti:</b> oshpaz retsept, sous, bezak va alohida tayyorlash jarayonini tekshirgan bo'lsagina bu javob ishlatiladi. "
+       "Faqat toza idishning o'zi yetarli emas. O'zaro kontakt nazorati tasdiqlanmasa, taom uzatilmaydi; muqobil ham tekshiriladi."))
 
 # ============================ 14. QAYTA TASDIQLASH ============================
 slide("Buyurtmani qayta tasdiqlash", "Buyurtmani qayta tasdiqlash",
@@ -413,17 +412,17 @@ slide("Amaliy mashq", "Amaliy mashq",
       "tinglovchi — kuzatuvchi. Har dialog 4–5 daqiqa. «Mehmon» vazifa kartochkasini oladi va ataylab bitta gapni tushunmagandek ko'rsatadi.") +
  grid(2,
   card_ul("blue", "1️⃣", "1-dialog · Taom, porsiya, narx", [
-   "Mehmon ikki tilli menyudan notanish taom haqida so'raydi",
+   "<b>A kartochka:</b> 350 g osh — 50 000 so'm; non alohida. Narxlar faqat mashq uchun",
    "Ofitsiant tilni aniqlaydi va taomni to'rt savol bo'yicha tushuntiradi",
    "Porsiya kattaligi va narxni aytadi, menyuda ko'rsatadi",
-   "Narxga kirmaydigan narsalarni oldindan aytadi",
+   "Mehmon narxni 5 000 deb tushunadi: menyuda ko'rsatib, tushunilganini qayta tekshiring",
    "Buyurtmani tasdiqlaydi va kutish vaqtini aytadi"], cls="clean"),
   card_ul("orange", "2️⃣", "2-dialog · Parhez so'rovi", [
-   "Mehmon parhez yoki allergiya haqida aytadi (kartochka bo'yicha)",
+   "<b>B kartochka:</b> mehmon grek yong'og'iga allergiyasini aytadi va salat so'raydi",
    "Ofitsiant allergiya yoki xohish ekanini aniqlaydi va yozib oladi",
    "«Let me check the ingredients with our kitchen» deydi, qachon qaytishini aytadi",
-   "«Oshxona javobi»ni (trener beradi) mehmonga yetkazadi",
-   "Buyurtmani maxsus belgi bilan qayta tasdiqlaydi"], cls="clean")) +
+   "Trener avval «bo'ladi» deydi: retsept, sous va alohida jarayon bo'yicha aniq javob so'rang",
+   "Tasdiq bor bo'lsa maxsus belgi bilan qayta tasdiqlang; bo'lmasa taomni uzatmang"], cls="clean")) +
  table(["Kuzatuv mezoni", "Kuzatiladigan harakat", "Ha / Yo'q"], [
   ["<b>Til</b>", "Tilni so'radi; sodda, sekin va qisqa gaplar bilan gapirdi", "☐"],
   ["<b>Tushuntirish</b>", "Taom tarkibi, porsiya va narxni aniq aytdi, menyuda ko'rsatdi", "☐"],
@@ -432,11 +431,25 @@ slide("Amaliy mashq", "Amaliy mashq",
   ["<b>Tasdiqlash</b>", "Buyurtmani takrorladi; mehmon «correct» dedi; keyingi qadam aytildi", "☐"]]) +
  quote("📄 <b>Natija dalili:</b> «mehmon» tilni, buyurtma mazmunini va keyingi qadamni tushunganini tasdiqlaydi."))
 
-# ============================ 19. VIDEO ============================
-video_slide(4, "ingliz tilida ikki suhbat", "3", [
- ("green", "🌍", "1. Til", "Ofitsiant suhbatni qaysi savol bilan boshladi? Nega tilni taxmin qilmadi?"),
- ("blue", "📖", "2. Menyu", "Palov qanday tushuntirildi? Narx qanday ko'rsatildi?"),
- ("orange", "🥜", "3. Parhez", "Mehmon allergiyasi haqida aytganda ofitsiant qaysi iborani ishlatdi?")])
+# ============================ 19. NAMUNAVIY SUHBATLAR ============================
+page("Namuna: ikki qisqa suhbat", grid(2,
+ dialog("green", "📖", "1. Taom va narx", [
+  ("O", "Good evening! Which language would you prefer?"),
+  ("X", "English, please. What is plov?"),
+  ("O", "Our plov is rice with lamb, carrots and onions. One portion is 350 grams. It costs 50,000 soums. Bread is extra."),
+  ("X", "One portion, please."),
+  ("O", "Do you have any food allergies or dietary requirements?"),
+  ("X", "No, thank you."),
+  ("O", "May I confirm: one plov, no bread? It takes about 15 minutes."),
+  ("X", "Yes, correct.")], "Tarkib, porsiya va narx shu mashq menyusiga tegishli. Haqiqiy retsept bilan tekshiriladi."),
+ dialog("orange", "🥜", "2. Allergen so'rovi", [
+  ("X", "I have a walnut allergy. Can I have this salad?"),
+  ("O", "A walnut allergy. Thank you for telling me. Let me check the ingredients and preparation with our kitchen."),
+  ("Osh", "Maket javob: tarkib va alohida toza jihoz tekshirildi; yogurtli sousda sut bor. Yong'oq qo'shilmaydi."),
+  ("O", "The kitchen has checked the recipe and separate preparation. The sauce contains milk. Would you like this salad?"),
+  ("X", "Yes. I do not have a milk allergy."),
+  ("O", "One salad, walnut allergy noted. I will confirm your plate with the kitchen before serving.")],
+  "Maket javobi bo'lmasa yoki sharoit tasdiqlanmasa, taom uzatilmaydi.")))
 
 # ============================ 20. XULOSA ============================
 slide("Xulosa", "Xulosa",
@@ -458,7 +471,7 @@ slide("Xulosa", "Xulosa",
  '</div>')
 
 # ============================ 21. TEST ============================
-test_slide(15, "Keyingi mashg'ulotgacha <b>15 ta ishchi iborani</b> yod oling va o'z menyuingizdagi 5 ta taomni inglizcha tushuntirib keling.")
+test_slide(15, "Bu — <b>tayyorgarlik mashqi</b>. Keyingi mashg'ulotgacha 15 ta ishchi iborani takrorlang va o'z menyuingizdagi 5 ta taomni inglizcha tushuntirib keling.")
 
 # ============================ TEST SAVOLLARI ============================
 # SV — 4 variantli savol (uzunligi teng, to'g'ri javob raqami), SO — ochiq savol (bitta so'z yoki son)

@@ -26,7 +26,8 @@ import { HeroAvatar, useAcademicBoard } from './avatars';
 import { NewsBox, NewsChip } from './announcements';
 import { PromoBox } from './promo';
 import { Leaderboard } from './leaderboard';
-import { CourseGate, PaidCourseGate, usePaidLocked } from './course-gate';
+import { CourseGate, PaidCourseGate } from './course-gate';
+import { CourseLessons } from './course-lessons';
 import { AccessChip, PointsRing, PointsBreakdown } from './points-ui';
 import { t, dateLabel } from '@/lib/i18n';
 import { isPlayApp } from '@/lib/play-app';
@@ -99,7 +100,7 @@ function useOpenLesson() {
   };
 }
 
-const sortedLessons = (d: Data, courseId?: string) =>
+const sortedLessons = (d: Data, courseId = d.courses?.find((c) => !c.extra)?.id) =>
   d.lessons
     .filter((l) => !courseId || l.courseId === courseId)
     .sort((a, b) => a.order - b.order || a.id.localeCompare(b.id, undefined, { numeric: true }));
@@ -130,7 +131,7 @@ export function Dashboard() {
 
 /** Bosh sahifadagi tezkor o'tishlar: asosiy bo'limlar bitta bosishda. */
 function QuickLinks() {
-  const { lang } = useApp();
+  const { lang, data } = useApp();
   // 💼 Play Market ilovasida pullik xizmatlar ko'rsatilmaydi (lib/play-app.ts)
   const [play, setPlay] = useState(false);
   useEffect(() => setPlay(isPlayApp()), []);
@@ -141,7 +142,8 @@ function QuickLinks() {
       ['Mavzular', 'Topics', 'Темы'],
       ['Fanni ketma-ket o‘rganish', 'Study the course step by step', 'Изучать курс по порядку'],
     ],
-    ...(play
+    // vaqtincha yopiq bo'lsa (administrator ochmaguncha) ham ko'rsatilmaydi
+    ...(play || !data?.servicesShown
       ? []
       : [
           [
@@ -288,6 +290,12 @@ function LearnerHome() {
                     </span>
                   )}
                 </div>
+                <Button className="hero-button" onClick={() => open(lesson)}>
+                  <Play size={17} fill="currentColor" />
+                  {history?.status === 'started'
+                    ? tr(lang, 'Davom ettirish', 'Continue', 'Продолжить')
+                    : tr(lang, 'Boshlash', 'Start', 'Начать')}
+                </Button>
                 {hasAcademic ? (
                   <div className="continue-hero-points">
                     <PointsRing
@@ -325,12 +333,6 @@ function LearnerHome() {
                 ) : (
                   <ProgressBar value={progressFor(lesson) * 100} />
                 )}
-                <Button className="hero-button" onClick={() => open(lesson)}>
-                  <Play size={17} fill="currentColor" />
-                  {history?.status === 'started'
-                    ? tr(lang, 'Davom ettirish', 'Continue', 'Продолжить')
-                    : tr(lang, 'Boshlash', 'Start', 'Начать')}
-                </Button>
               </div>
             </motion.section>
           )}
@@ -451,6 +453,7 @@ function LearnerHome() {
             <div className="course-grid">
               {d.courses.map((c) => {
                 const topics = sortedLessons(d, c.id),
+                  scoped = courseTotals(d, c.id),
                   done = topics.filter((l) => u?.readingHistory?.[l.id]?.status === 'read').length;
                 return (
                   <button
@@ -467,15 +470,15 @@ function LearnerHome() {
                       <p>
                         {topics.length} {tr(lang, 'ta mavzu', 'topics', 'тем')}
                         <span>
-                          {hasAcademic && university
-                            ? `${num(totals.points)} / ${totals.max} ${tr(lang, 'ball', 'pts', 'баллов')}`
+                          {hasAcademic && university && !c.extra
+                            ? `${num(scoped.points)} / ${scoped.max} ${tr(lang, 'ball', 'pts', 'баллов')}`
                             : `${done}/${topics.length}`}
                         </span>
                       </p>
                       <ProgressBar
                         value={
-                          hasAcademic && university
-                            ? (totals.points / Math.max(1, totals.max)) * 100
+                          hasAcademic && university && !c.extra
+                            ? (scoped.points / Math.max(1, scoped.max)) * 100
                             : (done / Math.max(1, topics.length)) * 100
                         }
                       />
@@ -488,6 +491,11 @@ function LearnerHome() {
         </div>
         <aside className="dashboard-aside">
           <section className="profile-summary panel">
+            {avatarHome && (
+              <div className="profile-mobile-avatar">
+                <HeroAvatar board={board} />
+              </div>
+            )}
             <div className="profile-avatar">
               {name
                 .split(' ')
@@ -763,17 +771,13 @@ export function CourseList({
   const { data, lang } = useApp(),
     d = data!,
     u = d.user,
-    open = useOpenLesson(),
-    [moduleId, setModule] = useState(''),
-    // 💳 pullik kurs, ruxsat yo'q — tayyor darslar qulf bilan (bosilsa — «Kurs pullik» oynasi)
-    paidLock = usePaidLocked(courseId);
+    open = useOpenLesson();
   const course = courseId ? d.courses.find((x) => x.id === courseId) : null,
     mods = d.modules
       .filter((m) => m.courseId === courseId)
       .sort((a, b) => a.order - b.order || a.id.localeCompare(b.id)),
     courseLessons = sortedLessons(d, courseId),
-    list = courseLessons.filter((l) => !moduleId || l.moduleId === moduleId),
-    totals = courseTotals(d),
+    totals = courseTotals(d, courseId),
     hasAcademic = !!u?.readingHistory,
     university = u?.learnerType !== 'independent',
     ranking = sub === 'ranking';
@@ -799,6 +803,7 @@ export function CourseList({
         <div className="course-grid">
           {d.courses.map((c) => {
             const topics = sortedLessons(d, c.id),
+              scoped = courseTotals(d, c.id),
               done = topics.filter((l) => u?.readingHistory?.[l.id]?.status === 'read').length;
             return (
               <button key={c.id} className="course-card" onClick={() => navigate('course/' + c.id)}>
@@ -814,15 +819,15 @@ export function CourseList({
                       {topics.length} {tr(lang, 'ta mavzu', 'topics', 'тем')}
                     </span>
                     <span>
-                      {hasAcademic && university
-                        ? `${num(totals.points)} / ${totals.max} ${tr(lang, 'ball', 'pts', 'баллов')}`
+                      {hasAcademic && university && !c.extra
+                        ? `${num(scoped.points)} / ${scoped.max} ${tr(lang, 'ball', 'pts', 'баллов')}`
                         : `${done}/${topics.length}`}
                     </span>
                   </p>
                   <ProgressBar
                     value={
-                      hasAcademic && university
-                        ? (totals.points / Math.max(1, totals.max)) * 100
+                      hasAcademic && university && !c.extra
+                        ? (scoped.points / Math.max(1, scoped.max)) * 100
                         : (done / Math.max(1, topics.length)) * 100
                     }
                   />
@@ -890,10 +895,12 @@ export function CourseList({
                 ✅ {courseLessons.filter((l) => !l.draft).length}{' '}
                 {tr(lang, 'ta dars tayyor', 'lessons ready', 'занятий готово')}
               </span>
-              <span className="course-build-wait">
-                ⏳ {courseLessons.filter((l) => l.draft).length}{' '}
-                {tr(lang, 'tasi tayyorlanmoqda', 'in preparation', 'готовится')}
-              </span>
+              {courseLessons.some((l) => l.draft) && (
+                <span className="course-build-wait">
+                  ⏳ {courseLessons.filter((l) => l.draft).length}{' '}
+                  {tr(lang, 'tasi tayyorlanmoqda', 'in preparation', 'готовится')}
+                </span>
+              )}
               {course.entry && <small>🎓 {course.entry}</small>}
             </div>
           )}
@@ -981,139 +988,18 @@ export function CourseList({
       ) : (
         <>
           {course.paid ? <PaidCourseGate courseId={course.id} /> : !course.extra && <CourseGate />}
-          {courseTopics()}
+          <CourseLessons
+            key={course.id}
+            data={d}
+            course={course}
+            modules={mods}
+            lessons={courseLessons}
+            open={open}
+          />
         </>
       )}
     </>
   );
-  /** Mavzular ro'yxati (komponent emas — oddiy funksiya: har chizishda qayta o'rnatilmasin). */
-  function courseTopics() {
-    return (
-      <>
-        <div className="filter-row">
-          <Button
-            variant={!moduleId ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setModule('')}
-          >
-            {tr(lang, 'Hammasi', 'All', 'Все')}
-          </Button>
-          {mods.map((m) => (
-            <Button
-              size="sm"
-              variant={moduleId === m.id ? 'default' : 'outline'}
-              key={m.id}
-              onClick={() => setModule(m.id)}
-            >
-              {m.title}
-            </Button>
-          ))}
-        </div>
-        <div className="lesson-grid">
-          {list.map((l) => {
-            const p = d.progress?.find((x) => x.lessonId === l.id),
-              history = u?.readingHistory?.[l.id],
-              access = accessOf(d, l.id),
-              locked = access?.state === 'locked' || paidLock,
-              number = courseLessons.findIndex((topic) => topic.id === l.id) + 1,
-              pts = topicPoints(history),
-              seen = Math.max(p ? seenCount(p) : 0, history?.seenSlides || 0);
-            if (l.draft)
-              return (
-                <button
-                  key={l.id}
-                  className={'lesson-card panel is-draft' + (l.exam ? ' is-exam' : '')}
-                  onClick={() => open(l)}
-                >
-                  <div className="mini-cover">
-                    <TopicArt id={l.id} number={number} />
-                    <span className="draft-veil" aria-hidden="true">
-                      {l.exam ? '🎓' : '⏳'}
-                    </span>
-                  </div>
-                  <div className="lesson-card-top">
-                    <span className="course-level">
-                      {mods.find((m) => m.id === l.moduleId)?.title}
-                    </span>
-                    <span className="draft-chip">
-                      {tr(lang, 'Tayyorlanmoqda', 'In preparation', 'Готовится')}
-                    </span>
-                  </div>
-                  <h3>
-                    {number}. {l.title}
-                  </h3>
-                  {l.plan && <p className="draft-hours">🕒 {l.plan.hours}</p>}
-                  <span className="lesson-link">
-                    {tr(lang, 'Dars rejasi', 'Lesson plan', 'План занятия')}
-                    <ChevronRight size={16} />
-                  </span>
-                </button>
-              );
-            return (
-              <button
-                key={l.id}
-                className={
-                  'lesson-card panel' +
-                  (locked ? ' is-locked' : '') +
-                  (access?.state === 'score' ? ' is-live' : '')
-                }
-                onClick={() => open(l)}
-                // 💳 pullik kursda bosilsa «Kurs pullik» oynasi ochiladi — tugma faol
-                aria-disabled={locked && !paidLock}
-              >
-                <div className="mini-cover">
-                  <TopicArt id={l.id} number={number} />
-                  {(p?.completed || history?.status === 'read') && (
-                    <Check className="completed-check" />
-                  )}
-                  {locked && (
-                    <span className="lock-veil">
-                      <Lock size={26} />
-                    </span>
-                  )}
-                </div>
-                <div className="lesson-card-top">
-                  <span className="course-level">
-                    {mods.find((m) => m.id === l.moduleId)?.title}
-                  </span>
-                  <AccessChip access={access} lang={lang} />
-                </div>
-                <h3>
-                  {number}. {l.title}
-                </h3>
-                {hasAcademic ? (
-                  <div className="lesson-points">
-                    <PointsRing value={pts.total} size={58} />
-                    <PointsBreakdown history={history} lang={lang} />
-                  </div>
-                ) : (
-                  <>
-                    <p>
-                      {seen}/{l.slideCount} {tr(lang, 'slayd', 'slides', 'слайдов')}
-                    </p>
-                    <ProgressBar value={(seen / l.slideCount) * 100} />
-                  </>
-                )}
-                <span className="lesson-link">
-                  {paidLock
-                    ? '💳 ' + tr(lang, 'Pullik kurs', 'Paid course', 'Платный курс')
-                    : locked
-                      ? tr(lang, 'Hali ochilmagan', 'Not open yet', 'Ещё не открыта')
-                      : access?.state === 'score' && access.due
-                        ? `⏳ ${dueText(access.due, lang).date} ${tr(lang, 'gacha', '', 'до')}`
-                        : history && history.status !== 'new'
-                          ? tr(lang, 'Davom etish', 'Continue', 'Продолжить')
-                          : tr(lang, 'Boshlash', 'Start', 'Начать')}
-                  {!locked && <ChevronRight size={16} />}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-        {!list.length && <div className="empty-state">{t(lang, 'empty')}</div>}
-      </>
-    );
-  }
 }
 
 /* ============================== YUTUQLAR ============================== */

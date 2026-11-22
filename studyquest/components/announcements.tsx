@@ -7,6 +7,7 @@ import { Button } from './ui/button';
 import { dueText, tr } from '@/lib/points';
 import type { Lang } from '@/lib/types';
 import { FRESH_MS, PROMO_KIND, type PromoItem } from '@/lib/promo';
+import { liveNewsId } from '@/lib/live-quiz';
 import { ImagePick } from './image-pick';
 
 /* 📢 E'lonlar oynasi (yon menyuda «Talabalar chati» ostida, har 10 soniyada almashadi) va ⚡ jonli test oynasi.
@@ -711,6 +712,13 @@ const localSeen = (): string[] => {
   }
 };
 /** E'lonni shu brauzerda «o'qildi» deb belgilaydi va ochiq katta oynaga xabar beradi. */
+/** Jonli o'yinga kim kira oladi: o'qituvchi va har qanday talaba; Yozuv marafoni (yz) — faqat guruh talabalari. */
+function canJoinLive(u: { role: string; learnerType?: string } | undefined, g: LiveGame) {
+  if (u?.role === 'teacher') return true;
+  if (u?.role !== 'student') return false;
+  return g.type !== 'yz' || u.learnerType !== 'independent';
+}
+
 export function markLocalSeen(id: string) {
   try {
     localStorage.setItem(SEEN_KEY, JSON.stringify([...localSeen(), id].slice(-50)));
@@ -727,6 +735,8 @@ type Pop = {
   id: string;
   at: number;
   promo?: PromoItem;
+  /** ⚡ tuzilgan jonli test (yoki yozuv marafoni) — qatnasha oladiganlarga bir marta katta oynada */
+  live?: LiveGame;
   h?: string;
   t?: string;
   img?: string;
@@ -781,7 +791,12 @@ export function NewsPopup() {
     },
     [signedIn, request],
   );
+  // ⚡ jonli test tuzilgan bo'lsa — talaba va o'qituvchiga birinchi bo'lib (o'yinni tuzgan administratorga emas).
+  // Jonli testga mustaqil o'quvchi ham qatnashadi (server orqali); Yozuv marafoni — hozircha guruh talabalari uchun.
+  const u = data?.user,
+    game = d?.live && canJoinLive(u, d.live) && now() < d.live.end ? d.live : null;
   const pops: Pop[] = [
+    ...(game ? [{ id: liveNewsId(game), at: Number.MAX_SAFE_INTEGER, live: game }] : []),
     ...(d?.news || []).filter((x) => x.pop),
     ...(d?.promo || []).filter((x) => x.pop).map((x) => ({ ...x, promo: x })),
   ];
@@ -796,7 +811,7 @@ export function NewsPopup() {
     if (!item) return;
     const key = (e: KeyboardEvent) => {
       if (e.key !== 'Escape') return;
-      if (item.promo) void markRead(item.id);
+      if (item.promo || item.live) void markRead(item.id);
       else setLater((s) => new Set(s).add(item.id));
     };
     window.addEventListener('keydown', key);
@@ -811,6 +826,117 @@ export function NewsPopup() {
   }
   const external = item.link?.startsWith('http');
   const kind = item.promo ? PROMO_KIND[item.promo.kind] || PROMO_KIND.other : null;
+  if (item.live) {
+    // ⚡ bir martalik e'lon: tuzilgan jonli test (vaqti, savollar soni, eslatma) — «Tushunarli» yoki «×» bilan yopiladi
+    const g = item.live,
+      n = now(),
+      st = liveState(g, n),
+      yz = g.type === 'yz';
+    const go = () => {
+      void markRead(item.id);
+      navigate(gamePath(g));
+    };
+    return createPortal(
+      <div className="modal-backdrop news-pop-backdrop">
+        <section
+          className="news-pop is-live"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="news-pop-h"
+          aria-describedby="news-pop-t"
+        >
+          <header>
+            <span className="news-pop-kicker">
+              <i className="news-ping" aria-hidden="true" />
+              {yz
+                ? '⌨️ ' + L('YOZUV MARAFONI', 'TYPING RACE', 'МАРАФОН ПЕЧАТИ')
+                : '⚡ ' + L('JONLI TEST', 'LIVE QUIZ', 'ЖИВОЙ ТЕСТ')}
+              {queue.length > 1 && <em>1 / {queue.length}</em>}
+            </span>
+            <button
+              type="button"
+              className="news-pop-x"
+              aria-label={L('Yopish', 'Close', 'Закрыть')}
+              title={L('Yopish', 'Close', 'Закрыть')}
+              onClick={() => void read()}
+            >
+              <X size={20} />
+            </button>
+          </header>
+          <div className="news-pop-live-ic" aria-hidden="true">
+            {yz ? '⌨️' : '🎮'}
+          </div>
+          <h2 id="news-pop-h">
+            {st === 'live'
+              ? gameName(g, lang) + ' ' + L('ketmoqda!', 'is on!', 'идёт!')
+              : gameName(g, lang) + ' — ' + when(g.start, lang, n)}
+          </h2>
+          <p id="news-pop-t" className="news-pop-text">
+            {st === 'live'
+              ? L(
+                  'O‘yin boshlandi — hali ham kirib ko‘rishingiz mumkin.',
+                  'The game has started — you can still look in.',
+                  'Игра началась — ещё можно заглянуть.',
+                )
+              : L(
+                  `Qo‘shilish ${hm(g.open)} da ochiladi, boshlanishi soat ${hm(g.start)} da. Vaqtida kiring!`,
+                  `Joining opens at ${hm(g.open)}, the start is at ${hm(g.start)}. Be on time!`,
+                  `Вход откроется в ${hm(g.open)}, старт в ${hm(g.start)}. Не опаздывайте!`,
+                )}
+          </p>
+          <ul className="news-pop-facts">
+            {yz ? (
+              <li>🏆 {L('1–3-o‘rinlarga ball', 'Points for places 1–3', 'Баллы за 1–3 места')}</li>
+            ) : (
+              <>
+                <li>
+                  ❓ {g.nq || 10} {L('ta savol', 'questions', 'вопросов')}
+                  {g.qsec
+                    ? ' · ' +
+                      L(`har biriga ${g.qsec} soniya`, `${g.qsec} s each`, `по ${g.qsec} сек.`)
+                    : ''}
+                </li>
+                <li>🏆 {L('Reyting balli beriladi', 'Rating points', 'Баллы рейтинга')}</li>
+              </>
+            )}
+            {st !== 'live' && (
+              <li>
+                ⏱ {L('Boshlanishiga', 'Starts in', 'До старта')} {left(g.start - n, lang)}
+              </li>
+            )}
+          </ul>
+          {g.note && <p className="news-pop-note">📝 {g.note}</p>}
+          <div className="news-pop-actions">
+            <button
+              ref={okRef}
+              type="button"
+              className="news-pop-ok"
+              disabled={busy}
+              onClick={() => void read()}
+            >
+              ✓ {L('Tushunarli', 'Got it', 'Понятно')}
+            </button>
+            {st !== 'wait' && (
+              <button type="button" className="news-pop-link" onClick={go}>
+                {st === 'live'
+                  ? '👀 ' + L('O‘yinni ochish', 'Open the game', 'Открыть игру')
+                  : '🎮 ' + L('O‘yinga kirish', 'Enter the game', 'Войти в игру')}{' '}
+                →
+              </button>
+            )}
+          </div>
+          <small className="news-pop-hint">
+            {L(
+              'Bu e’lon bir marta chiqadi. Boshlanishiga 20 daqiqa qolganda ekran burchagida eslatma chiqadi; o‘yin yon menyudagi e’lonlar oynasida ham turadi.',
+              'This notice pops up only once. 20 minutes before the start a reminder appears in the corner; the game also stays in the side announcements box.',
+              'Это объявление всплывает один раз. За 20 минут до старта в углу появится напоминание; игра также есть в окне объявлений в боковом меню.',
+            )}
+          </small>
+        </section>
+      </div>,
+      document.body,
+    );
+  }
   return createPortal(
     <div className="modal-backdrop news-pop-backdrop">
       <section
@@ -912,9 +1038,9 @@ export function LiveGate() {
   const { data: d, now } = useNews();
   const hash = useHash();
   const u = data?.user,
-    staff = u?.role === 'teacher' || u?.role === 'admin',
-    student = u?.role === 'student' && u.learnerType !== 'independent';
+    staff = u?.role === 'teacher' || u?.role === 'admin';
   const g = d?.live || null,
+    student = !!g && u?.role === 'student' && canJoinLive(u, g),
     n = now(),
     on = !!g && n >= g.start - GATE_MS && n < g.end;
   useTick(!!g && g.start - n < GATE_MS + 60000);

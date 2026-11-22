@@ -26,6 +26,8 @@ import {
   CreditCard,
   MessageCircleHeart,
   Clock,
+  GraduationCap,
+  Trophy,
 } from 'lucide-react';
 
 /* Har mavzuning o'z rangi, belgisi va ikkita «jonli» emojisi — kartochka va dars sarlavhasida ishlatiladi. */
@@ -59,6 +61,8 @@ export const topicThemes: Record<
   r8: { icon: CreditCard, from: '#0369a1', to: '#22d3ee', emoji: ['☕', '💳'] },
   r9: { icon: MessageCircleHeart, from: '#be123c', to: '#fb923c', emoji: ['🙏', '♿'] },
   r10: { icon: Clock, from: '#4338ca', to: '#10b981', emoji: ['🔁', '⭐'] },
+  r11: { icon: GraduationCap, from: '#1e3a8a', to: '#7c3aed', emoji: ['📝', '🎓'] },
+  r12: { icon: Trophy, from: '#9d174d', to: '#f59e0b', emoji: ['🏆', '🍽️'] },
 };
 export const themeOf = (id: string) =>
   topicThemes[id] || {

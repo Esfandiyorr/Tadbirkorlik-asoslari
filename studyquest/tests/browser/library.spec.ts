@@ -10,6 +10,11 @@ const act = (page: Page, action: string, input: unknown) =>
 test('the leaderboard lives inside the course and the menu offers the library and paid services', async ({
   page,
 }) => {
+  // 💼 bo'lim ochiq bo'lsa menyuda ko'rinadi (vaqtincha yopish — tests/browser/services.spec.ts)
+  await as(page, 'demo-admin');
+  await page.request.post('/api/services', {
+    data: { scope: 'admin', input: { op: 'show', shown: true } },
+  });
   await as(page, 'demo-student');
   await page.goto('/#home', { waitUntil: 'domcontentloaded' });
   const side = page.locator('.sidebar nav');
@@ -23,16 +28,20 @@ test('the leaderboard lives inside the course and the menu offers the library an
     'aria-selected',
     'true',
   );
-  await expect(page.locator('.lesson-grid')).toBeVisible();
+  await expect(page.locator('.course-learning-list')).toBeVisible();
   await page.getByRole('tab', { name: 'Reyting' }).click();
   await expect.poll(() => new URL(page.url()).hash).toMatch(/^#course\/[^/]+\/ranking$/);
   await expect(page.locator('.rk-page.is-embedded')).toBeVisible();
-  await expect(page.locator('.lesson-grid')).toHaveCount(0);
+  await expect(page.locator('.course-learning-list')).toHaveCount(0);
   await expect(page.locator('.course-banner')).toBeVisible();
   // eski havola (#ranking) ham shu yerga olib keladi
   await page.goto('/#ranking', { waitUntil: 'domcontentloaded' });
   await expect(page.locator('.rk-page.is-embedded')).toBeVisible();
   await expect(page.getByRole('tab', { name: 'Reyting' })).toHaveAttribute('aria-selected', 'true');
+  await as(page, 'demo-admin');
+  await page.request.post('/api/services', {
+    data: { scope: 'admin', input: { op: 'show', shown: false } },
+  });
 });
 
 test('the administrator fills the library; premium resources open only with Premium', async ({

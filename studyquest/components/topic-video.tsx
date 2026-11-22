@@ -9,26 +9,41 @@ import { ytEmbed, ytWatch, type TopicVideo } from '@/lib/youtube';
 
 /* 📺 Mavzu videolari dars sahifasida: administrator mavzuga YouTube video qo'ysa, o'quvchi oynasi tepasida «Video»
    tugmasi chiqadi va video sayt ichidagi pleyerda (youtube-nocookie.com) ochiladi. 8-mavzuda video alohida slaydda
-   ham turadi. Ro'yxat ochiq va CDN keshida (/api/site/video). */
+   ham turadi. Pullik kurs ro'yxati autentifikatsiya va kurs ruxsati bilan olinadi. */
 
 export function useTopicVideos(id: string) {
-  const [videos, setVideos] = useState<TopicVideo[]>([]);
+  const { data, request } = useApp();
+  const owner = data?.user?.id || 'guest',
+    key = id + ':' + owner;
+  const [result, setResult] = useState<{ key: string; videos: TopicVideo[] } | null>(null);
   useEffect(() => {
     let alive = true;
-    fetch('/api/site/video?t=' + encodeURIComponent(id))
+    request('/api/site/video?t=' + encodeURIComponent(id))
       .then((r) => (r.ok ? r.json() : { videos: [] }))
-      .then((v: { videos?: TopicVideo[] }) => alive && setVideos(v.videos || []))
-      .catch(() => {});
+      .then((v: { videos?: TopicVideo[] }) => alive && setResult({ key, videos: v.videos || [] }))
+      .catch(() => {
+        if (alive) setResult({ key, videos: [] });
+      });
     return () => {
       alive = false;
     };
-  }, [id]);
-  return videos;
+  }, [id, key, request]);
+  return { videos: result?.key === key ? result.videos : [], loading: result?.key !== key };
 }
 
-export function TopicVideoButton({ id }: { id: string }) {
-  const { lang } = useApp();
-  const videos = useTopicVideos(id);
+export function TopicVideoButton({
+  id,
+  localVideo,
+  title,
+  download = false,
+}: {
+  id: string;
+  localVideo?: string;
+  title?: string;
+  download?: boolean;
+}) {
+  const { lang, data } = useApp();
+  const { videos, loading } = useTopicVideos(id);
   const [open, setOpen] = useState(false),
     [current, setCurrent] = useState(0);
   useEffect(() => {
@@ -37,7 +52,10 @@ export function TopicVideoButton({ id }: { id: string }) {
     document.addEventListener('keydown', key);
     return () => document.removeEventListener('keydown', key);
   }, [open]);
-  if (!videos.length) return null;
+  if (!videos.length)
+    return !loading && localVideo ? (
+      <LessonFilmButton video={localVideo} title={title || id} download={download} />
+    ) : null;
   const v = videos[Math.min(current, videos.length - 1)];
   const label = tr(lang, 'Video', 'Video', 'Видео');
   return (
@@ -77,7 +95,12 @@ export function TopicVideoButton({ id }: { id: string }) {
               <div className="topic-video-frame">
                 <iframe
                   key={v.key}
-                  src={ytEmbed(v.id, v.s)}
+                  src={
+                    ytEmbed(v.id, v.s) +
+                    (data?.lessons.find((l) => l.id === id)?.courseId === 'restoran'
+                      ? '&cc_load_policy=1&cc_lang_pref=uz'
+                      : '')
+                  }
                   title={v.t || 'YouTube video'}
                   allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                   allowFullScreen
@@ -112,6 +135,14 @@ export function TopicVideoButton({ id }: { id: string }) {
               >
                 {tr(lang, 'YouTube’da ochish ↗', 'Open on YouTube ↗', 'Открыть на YouTube ↗')}
               </a>
+              <p className="bo-hint">
+                {tr(
+                  lang,
+                  'Video ochilmasa, YouTube’da oching yoki dars matnidan davom eting.',
+                  'If the video does not load, open it on YouTube or continue with the lesson text.',
+                  'Если видео не загружается, откройте его на YouTube или продолжайте читать урок.',
+                )}
+              </p>
             </div>
           </div>,
           document.body,

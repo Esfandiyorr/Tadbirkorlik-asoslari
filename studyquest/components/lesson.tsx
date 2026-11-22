@@ -29,7 +29,8 @@ import {
   type SlidePoints,
 } from '@/lib/points';
 import { NativeSurface } from './native-surface';
-import { LessonFilmButton, TopicVideoButton } from './topic-video';
+import { ReadingTools } from './reading-tools';
+import { TopicVideoButton } from './topic-video';
 import { LOGO_TOPIC } from '@/lib/logo-task';
 import { CourseGate, PaidCourseGate, useCourseLocked, usePaidLocked } from './course-gate';
 /** Taqdimotning PDF nusxasi: to'liq havola yoki asl fayllar (public/legacy/fayllar). */
@@ -39,7 +40,7 @@ export function LessonView({ id }: { id: string }) {
     meta = data?.lessons.find((x) => x.id === id);
   // ⏳ hali tayyorlanayotgan dars (taqdimoti yo'q) — o'quv dasturidagi rejasi ko'rsatiladi
   if (meta?.draft) return <LessonPlanView lesson={meta} />;
-  return <OriginalLessonView id={id} />;
+  return <OriginalLessonView key={id} id={id} />;
 }
 
 /** 📋 Tayyorlanayotgan dars yoki imtihon: o'quv dasturidagi reja (soatlar, mazmun, amaliy mashq, natija dalili). */
@@ -117,7 +118,7 @@ function LessonPlanView({ lesson }: { lesson: LessonType }) {
   );
 }
 function OriginalLessonView({ id }: { id: string }) {
-  const { data, lang, setLang, dark, call, toast, request } = useApp(),
+  const { data, lang, dark, call, toast, request } = useApp(),
     mainLocked = useCourseLocked(),
     meta = data!.lessons.find((x) => x.id === id),
     extraCourse = !!data!.courses.find((c) => c.id === meta?.courseId)?.extra,
@@ -130,6 +131,10 @@ function OriginalLessonView({ id }: { id: string }) {
     [error, setError] = useState(''),
     [fit, setFit] = useState(false),
     [details, setDetails] = useState(false),
+    [continuous, setContinuous] = useState(false),
+    [contentLanguage, setContentLanguage] = useState<'uz' | 'en'>(
+      !extraCourse && lang === 'en' ? 'en' : 'uz',
+    ),
     frame = useRef<HTMLIFrameElement>(null),
     viewer = useRef<HTMLDivElement>(null),
     loaded = useRef('');
@@ -298,7 +303,11 @@ function OriginalLessonView({ id }: { id: string }) {
     history = data?.user?.readingHistory?.[id],
     access = accessOf(data!, id);
   return (
-    <section className="focus-reader" ref={viewer} aria-label={meta.title}>
+    <section
+      className={'focus-reader' + (continuous ? ' reader-continuous' : '')}
+      ref={viewer}
+      aria-label={meta.title}
+    >
       <header className="reader-toolbar">
         <Button
           variant="ghost"
@@ -316,22 +325,19 @@ function OriginalLessonView({ id }: { id: string }) {
         />
         <select
           className="reader-language"
-          aria-label={tr(lang, 'Til', 'Language', 'Язык')}
-          value={lang}
-          onChange={(e) => setLang(e.target.value as 'uz' | 'en' | 'ru')}
+          aria-label={tr(lang, 'Dars tili', 'Lesson language', 'Язык урока')}
+          value={contentLanguage}
+          onChange={(e) => setContentLanguage(e.target.value as 'uz' | 'en')}
         >
           <option value="uz">UZ</option>
-          <option value="en">EN</option>
-          <option value="ru">RU</option>
+          {!extraCourse && <option value="en">EN</option>}
         </select>
-        <TopicVideoButton id={id} />
-        {lesson.legacyVideo && (
-          <LessonFilmButton
-            video={lesson.legacyVideo}
-            title={lesson.title}
-            download={data?.user?.role === 'teacher' || data?.user?.role === 'admin'}
-          />
-        )}
+        <TopicVideoButton
+          id={id}
+          localVideo={lesson.legacyVideo}
+          title={lesson.title}
+          download={data?.user?.role === 'teacher' || data?.user?.role === 'admin'}
+        />
         {lesson.legacyPdf && (data?.user?.role === 'teacher' || data?.user?.role === 'admin') && (
           // 📥 O'qituvchi va administrator taqdimotning PDF nusxasini bir bosishda yuklab oladi.
           <Button
@@ -414,15 +420,44 @@ function OriginalLessonView({ id }: { id: string }) {
         <Button
           variant={details ? 'secondary' : 'outline'}
           className="reader-results-button"
-          aria-label={lang === 'uz' ? 'Mening ballim' : lang === 'ru' ? 'Мои баллы' : 'My points'}
+          aria-label={
+            extraCourse
+              ? tr(lang, 'Dars haqida', 'About lesson', 'Об уроке')
+              : tr(lang, 'Mening ballim', 'My points', 'Мои баллы')
+          }
           aria-expanded={details}
           onClick={() => setDetails(!details)}
         >
           <ChartNoAxesColumn size={17} />
-          <span>{lang === 'uz' ? 'Ballim' : lang === 'ru' ? 'Баллы' : 'Points'}</span>
+          <span>
+            {extraCourse
+              ? tr(lang, 'Dars haqida', 'About lesson', 'Об уроке')
+              : tr(lang, 'Ballim', 'Points', 'Баллы')}
+          </span>
         </Button>
       </header>
       <ProgressBar value={((index + 1) / meta.slideCount) * 100} />
+      {lang === 'ru' && (
+        <p className="reader-language-note">
+          {tr(
+            lang,
+            '',
+            '',
+            'Язык интерфейса: RU. Текст урока доступен: ' + (extraCourse ? 'UZ' : 'UZ / EN') + '.',
+          )}
+        </p>
+      )}
+      {detail && !error && (
+        <ReadingTools
+          key={id + ':' + (data?.user?.id || 'guest')}
+          lesson={detail}
+          engine={frame}
+          index={index}
+          go={go}
+          contentLanguage={contentLanguage}
+          onMode={setContinuous}
+        />
+      )}
       {error ? (
         <div role="alert" className="error-state">
           {error}
@@ -444,6 +479,7 @@ function OriginalLessonView({ id }: { id: string }) {
             <NativeSurface
               ref={frame}
               fit={fit}
+              contentLang={contentLanguage}
               title={lesson.title}
               src={
                 '/legacy/' +
@@ -476,7 +512,7 @@ function OriginalLessonView({ id }: { id: string }) {
           )}
         </div>
       )}
-      {lesson.legacyFile && detail && !error && (
+      {lesson.legacyFile && detail && !error && !extraCourse && (
         <ReaderPoints
           sp={slidePoints(id, slideTitle, meta.slideCount)}
           mode={access?.state}
@@ -487,64 +523,78 @@ function OriginalLessonView({ id }: { id: string }) {
       <ReaderControls index={index} count={meta.slideCount} ready={!!detail && !error} go={go} />
       {details && (
         <aside className="reader-details panel">
-          <div className="reader-details-head">
-            <h2>
-              🎯 {tr(lang, 'Mening ballim', 'My points', 'Мои баллы')}
-              <small>
-                {(Number(id.slice(1)) || meta.order + 1) + '-' + tr(lang, 'mavzu', 'topic', 'тема')}
-              </small>
-            </h2>
-            <AccessChip access={access} lang={lang} />
-          </div>
-          {access?.state === 'score' && access.due && (
-            <p className={'sidebar-due' + (dueText(access.due, lang).urgent ? ' urgent' : '')}>
-              <Clock size={15} />
-              <span>
-                {tr(lang, 'Ball beriladi', 'Points until', 'Баллы до')}:{' '}
-                <b>{dueText(access.due, lang).date}</b>
-                <em>{dueText(access.due, lang).left}</em>
-              </span>
-            </p>
-          )}
-          {access?.state === 'read' && (
-            <p className="muted">
-              {tr(
-                lang,
-                'Bu mavzu o‘qish rejimida: o‘qishingiz mumkin, lekin yangi ball qo‘shilmaydi.',
-                'This topic is in reading mode: you can read it, but no new points are added.',
-                'Тема в режиме чтения: читать можно, новые баллы не начисляются.',
-              )}
-            </p>
-          )}
-          {history ? (
-            <div className="reader-points">
-              <PointsRing value={topicPoints(history).total} size={84} />
-              <PointsBreakdown history={history} lang={lang} hints />
-            </div>
+          {extraCourse ? (
+            <>
+              <h2>{tr(lang, 'Dars haqida', 'About lesson', 'Об уроке')}</h2>
+              <p>{meta.plan?.hours}</p>
+              <p>{meta.plan?.about}</p>
+              <p>{meta.plan?.task}</p>
+              <p>{meta.plan?.result}</p>
+            </>
           ) : (
-            <p className="muted">
-              {id === LOGO_TOPIC
-                ? tr(
+            <>
+              <div className="reader-details-head">
+                <h2>
+                  🎯 {tr(lang, 'Mening ballim', 'My points', 'Мои баллы')}
+                  <small>
+                    {(Number(id.slice(1)) || meta.order + 1) +
+                      '-' +
+                      tr(lang, 'mavzu', 'topic', 'тема')}
+                  </small>
+                </h2>
+                <AccessChip access={access} lang={lang} />
+              </div>
+              {access?.state === 'score' && access.due && (
+                <p className={'sidebar-due' + (dueText(access.due, lang).urgent ? ' urgent' : '')}>
+                  <Clock size={15} />
+                  <span>
+                    {tr(lang, 'Ball beriladi', 'Points until', 'Баллы до')}:{' '}
+                    <b>{dueText(access.due, lang).date}</b>
+                    <em>{dueText(access.due, lang).left}</em>
+                  </span>
+                </p>
+              )}
+              {access?.state === 'read' && (
+                <p className="muted">
+                  {tr(
                     lang,
-                    'Bu mavzu 100 ball: 30 — barcha slaydlarni ochish, 20 — 1 soat o‘qish, 25 — yakuniy test, 25 — 🎨 logotip topshirig‘i (o‘qituvchi baholaydi).',
-                    'This topic is worth 100: 30 for every slide, 20 for one hour of reading, 25 for the final test, 25 for the 🎨 logo assignment (graded by the teacher).',
-                    'Тема — 100 баллов: 30 за слайды, 20 за час чтения, 25 за тест, 25 за 🎨 логотип (оценивает преподаватель).',
-                  )
-                : tr(
-                    lang,
-                    'Har mavzu 100 ball: 30 — barcha slaydlarni ochish, 20 — 1 soat o‘qish, 50 — yakuniy test.',
-                    'Each topic is worth 100: 30 for opening every slide, 20 for one hour of reading, 50 for the final test.',
-                    'Каждая тема — 100 баллов: 30 за все слайды, 20 за час чтения, 50 за итоговый тест.',
+                    'Bu mavzu o‘qish rejimida: o‘qishingiz mumkin, lekin yangi ball qo‘shilmaydi.',
+                    'This topic is in reading mode: you can read it, but no new points are added.',
+                    'Тема в режиме чтения: читать можно, новые баллы не начисляются.',
                   )}
-            </p>
-          )}
-          {!legacyMode && !data?.limited && (
-            <Button disabled={busy || progress?.completed} onClick={complete}>
-              <Check size={16} />
-              {progress?.completed
-                ? tr(lang, 'Yakunlangan', 'Completed', 'Завершено')
-                : t(lang, 'complete')}
-            </Button>
+                </p>
+              )}
+              {history ? (
+                <div className="reader-points">
+                  <PointsRing value={topicPoints(history).total} size={84} />
+                  <PointsBreakdown history={history} lang={lang} hints />
+                </div>
+              ) : (
+                <p className="muted">
+                  {id === LOGO_TOPIC
+                    ? tr(
+                        lang,
+                        'Bu mavzu 100 ball: 30 — barcha slaydlarni ochish, 20 — 1 soat o‘qish, 25 — yakuniy test, 25 — 🎨 logotip topshirig‘i (o‘qituvchi baholaydi).',
+                        'This topic is worth 100: 30 for every slide, 20 for one hour of reading, 25 for the final test, 25 for the 🎨 logo assignment (graded by the teacher).',
+                        'Тема — 100 баллов: 30 за слайды, 20 за час чтения, 25 за тест, 25 за 🎨 логотип (оценивает преподаватель).',
+                      )
+                    : tr(
+                        lang,
+                        'Har mavzu 100 ball: 30 — barcha slaydlarni ochish, 20 — 1 soat o‘qish, 50 — yakuniy test.',
+                        'Each topic is worth 100: 30 for opening every slide, 20 for one hour of reading, 50 for the final test.',
+                        'Каждая тема — 100 баллов: 30 за все слайды, 20 за час чтения, 50 за итоговый тест.',
+                      )}
+                </p>
+              )}
+              {!legacyMode && !data?.limited && (
+                <Button disabled={busy || progress?.completed} onClick={complete}>
+                  <Check size={16} />
+                  {progress?.completed
+                    ? tr(lang, 'Yakunlangan', 'Completed', 'Завершено')
+                    : t(lang, 'complete')}
+                </Button>
+              )}
+            </>
           )}
           {lesson.materialId && (
             <Button variant="outline" onClick={material}>

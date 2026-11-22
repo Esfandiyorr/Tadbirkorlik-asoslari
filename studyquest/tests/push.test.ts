@@ -29,6 +29,8 @@ import {
   vapidAuth,
   vapidKeys,
   videoPush,
+  pushPreferences,
+  savePushPreferences,
 } from '../lib/server/push';
 import { demoKahoot, manageLive } from '../lib/server/live-admin';
 import { readImage, resetSiteMemory } from '../lib/server/site-content';
@@ -54,6 +56,22 @@ afterEach(() => setPushSender(null));
 
 const who = (id: string, role = 'student', learnerType = 'university') =>
   ({ id, uid: id, role, name: id, classId: 'AP-223', learnerType }) as unknown as Actor;
+it('honors account notification choices across devices without affecting other users or test notifications', async () => {
+  const alice = who('alice'),
+    bob = who('bob');
+  for (const a of [alice, alice, bob]) await subscribePush(a, (await device()).sub);
+  expect(await pushPreferences(alice)).toMatchObject({ topics: true, live: true });
+  const prefs = { topics: false, announcements: true, live: false, videos: false };
+  await savePushPreferences(alice, prefs);
+  expect(await pushPreferences(alice)).toEqual(prefs);
+  expect((await pushPreferences(bob)).topics).toBe(true);
+  await expect(savePushPreferences(alice, { ...prefs, uid: bob.id })).rejects.toThrow();
+  const payload = { t: 'Xabar', b: 'Mavzu ochildi', u: '/#home', g: 'sq-topic' };
+  expect((await sendPush(payload, undefined, Date.now(), 'topics')).sent).toBe(1);
+  expect(demoOutbox.at(-1)?.sub.uid).toBe('bob');
+  expect((await sendPush(payload, undefined, Date.now(), 'announcements')).sent).toBe(3);
+  expect((await testPush(alice)).sent).toBe(2);
+});
 async function device(host = 'https://fcm.googleapis.com/fcm/send/') {
   const k = (await subtle.generateKey({ name: 'ECDH', namedCurve: 'P-256' }, true, [
     'deriveBits',

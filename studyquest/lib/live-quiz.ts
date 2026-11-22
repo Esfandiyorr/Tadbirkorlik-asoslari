@@ -91,6 +91,10 @@ export const LIVE_SECTIONS: { id: string; uz: string; en: string; ru: string }[]
   })),
 ];
 export const sectionKey = (tp?: string) => tp || '_';
+/** 📣 Tuzilgan o'yin haqidagi bir martalik katta e'lon id si («ko'rildi» belgisi shu bilan saqlanadi).
+    Vaqti o'zgartirilsa (boshqa soat) — yangi id: e'lon yangi vaqt bilan qayta chiqadi. */
+export const liveNewsId = (g: { d: string; start: number }) =>
+  'kh-' + g.d + '-' + Math.round(g.start / 60000);
 export const QSEC_CHOICES = [15, 20, 25, 30, 45];
 
 /** Toshkent vaqti (UTC+5): kun va soat. */

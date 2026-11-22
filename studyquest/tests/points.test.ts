@@ -11,6 +11,7 @@ import {
 import { lessonAccessStates } from '../lib/server/legacy-access';
 import { academicRecord } from '../lib/server/academic';
 import type { Data, ReadingHistory } from '../lib/types';
+import { course, extraCourses, extraLessons, lessons } from '../lib/seed';
 
 const history = (over: Partial<ReadingHistory> = {}): ReadingHistory => ({
   seenSlides: 9,
@@ -115,6 +116,33 @@ it('course totals add up the topic points', () => {
   } as unknown as Data;
   const t = courseTotals(d);
   expect(t).toMatchObject({ points: 140, max: 200, read: 1, started: 2, perfect: 1, fullTest: 1 });
+});
+
+it('scopes totals to a course and leaves historical academic records unchanged', () => {
+  const d = {
+    courses: [course, ...extraCourses],
+    lessons: [...lessons, ...extraLessons],
+    user: {
+      academicPoints: 186.5,
+      readingHistory: {
+        m1: history({ score: 100, status: 'read' }),
+        m2: history({ score: 74.2 }),
+        m3: history({ score: 12.3 }),
+        r1: history({ score: 90, status: 'read' }),
+      },
+    },
+  } as unknown as Data;
+  const before = structuredClone(d);
+  expect(courseTotals(d)).toMatchObject({ points: 186.5, max: 1500, lessons: 15, read: 1 });
+  expect(courseTotals(d, 'restoran')).toMatchObject({
+    points: 0,
+    max: 0,
+    academic: false,
+    lessons: 12,
+    read: 1,
+  });
+  expect(courseTotals(d, 'missing')).toMatchObject({ points: 0, max: 0, lessons: 0 });
+  expect(d).toEqual(before);
 });
 
 it('tells how many points the current slide, test or assignment gives', () => {

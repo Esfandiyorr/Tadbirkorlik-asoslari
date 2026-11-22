@@ -14,6 +14,7 @@ import { useApp } from './provider';
 import { Button } from './ui/button';
 import { t, roleLabel } from '@/lib/i18n';
 import { NativeSurface } from './native-surface';
+import { AccountHelpForm } from './account-help';
 export function AuthPanel({ onClose }: { onClose?: () => void }) {
   const { data, lang, refresh, toast, setLogin, demoLogin, useEmailMode } = useApp(),
     [register, setRegister] = useState(false),
@@ -197,6 +198,15 @@ export function AuthPanel({ onClose }: { onClose?: () => void }) {
       {googleError && (
         <p role="alert" className="auth-error">
           {googleError}
+        </p>
+      )}
+      {data?.mode !== 'demo' && (
+        <p className="auth-route-help">
+          {L(
+            'Yangi hisob uchun email yoki Google orqali kiring. Avvaldan ism va kod bilan kirgan bo‘lsangiz, “Talaba hisobi”ni tanlang.',
+            'For a new account, use email or Google. If you already sign in with a name and code, choose “Student account”.',
+            'Для нового аккаунта используйте email или Google. Если раньше входили по имени и коду, выберите «Аккаунт студента».',
+          )}
         </p>
       )}
       {data?.mode === 'demo' ? (
@@ -445,7 +455,10 @@ export function AuthPanel({ onClose }: { onClose?: () => void }) {
             </>
           )}
         </div>
-        {form}
+        <div className="auth-with-help">
+          {form}
+          <AccountHelpForm />
+        </div>
       </div>
       <div className="auth-design-switch" role="group" aria-label={L('Dizayn', 'Design', 'Дизайн')}>
         {(

@@ -22,6 +22,7 @@ import {
   sectionKey,
   startOf,
 } from '@/lib/live-quiz';
+import { LIVE_PACKS, samePackText } from '@/lib/live-packs';
 import type { LiveAdminView } from '@/lib/server/live-admin';
 import type { Lang } from '@/lib/types';
 
@@ -835,6 +836,44 @@ function Bank({ data, busy, act }: Props) {
           <Download size={14} />
           {L('Yuklab olish', 'Export', 'Скачать')}
         </Button>
+      </div>
+      {/* 📦 tayyor to'plamlar: bir bosishda bankka (bor savollar o'tkazib yuboriladi) */}
+      <div
+        className="bo-packs"
+        role="group"
+        aria-label={L('Tayyor to‘plamlar', 'Ready packs', 'Готовые наборы')}
+      >
+        <span>📦 {L('Tayyor to‘plamlar:', 'Ready packs:', 'Готовые наборы:')}</span>
+        {LIVE_PACKS.map((p) => {
+          const name = p.name[lang === 'en' ? 1 : lang === 'ru' ? 2 : 0],
+            left = p.questions.filter((q) => !data.bank.some((x) => samePackText(x.t, q.t))).length;
+          return (
+            <Button
+              key={p.id}
+              size="sm"
+              variant="outline"
+              disabled={!left || busy === 'import'}
+              onClick={() => {
+                if (
+                  !window.confirm(
+                    L(
+                      `«${name}» — ${left} ta savol bankka qo‘shilsinmi?`,
+                      `Add ${left} questions of “${name}” to the bank?`,
+                      `Добавить в банк ${left} вопросов «${name}»?`,
+                    ),
+                  )
+                )
+                  return;
+                void importMany(p.questions.map((q) => ({ ...q, o: [...q.o], tp: p.tp })));
+              }}
+            >
+              {name} ·{' '}
+              {left
+                ? L(`${left} ta savol`, `${left} questions`, `${left} вопр.`)
+                : '✓ ' + L('bankda', 'in the bank', 'в банке')}
+            </Button>
+          );
+        })}
       </div>
       {draft && (
         <form className="bo-form" onSubmit={saveDraft}>

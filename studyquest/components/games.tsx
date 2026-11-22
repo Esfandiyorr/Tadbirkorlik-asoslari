@@ -9,6 +9,7 @@ import { NativeSurface } from './native-surface';
 import { BrandGame } from './brand-game';
 import { ArenaOnline, ROOM_CODE, staffIdentity, staffPlayer, type ArenaMe } from './arena-online';
 import { BiznesGame } from './biznes';
+import { LiveQuizFrame } from './live-quiz-frame';
 const pairs: [Tri, Tri][] = [
   [
     ['TAM', 'TAM', 'TAM'],
@@ -200,7 +201,7 @@ const online: GameCard[] = [
       'A class quiz run by the teacher',
       'Викторина, которую ведёт преподаватель',
     ],
-    tag: ['Butun guruh', 'Whole class', 'Вся группа'],
+    tag: ['Barcha uchun', 'Everyone', 'Для всех'],
     to: 'play/live',
     legacy: true,
   },
@@ -308,8 +309,19 @@ export function Games({ sub = '' }: { sub?: string }) {
       !independent && (staff || !!legacy || data?.mode === 'demo' || user?.role === 'student'),
     signedIn = !!user || !!legacy;
   const L = (uz: string, en: string, ru: string) => (lang === 'en' ? en : lang === 'ru' ? ru : uz);
+  const oldLiveLink =
+    sub === 'live' &&
+    typeof window !== 'undefined' &&
+    /^#\/live\/?$/.test(new URLSearchParams(location.search).get('arena') || '');
+  useEffect(() => {
+    if (!oldLiveLink) return;
+    const url = new URL(location.href);
+    url.searchParams.delete('arena');
+    history.replaceState(history.state, '', url.href);
+    navigate('arena/play/live');
+  }, [oldLiveLink]);
   const open = (c: GameCard) => {
-    if (c.legacy && !signedIn) {
+    if (c.legacy && c.id !== 'live' && !signedIn) {
       if (data?.mode === 'demo') navigate('login');
       else setLogin(true);
       return;
@@ -345,6 +357,22 @@ export function Games({ sub = '' }: { sub?: string }) {
   const playPath = sub.startsWith('play/') ? sub.slice(5) : '';
   const room = sub.startsWith('room/') ? sub.slice(5).toUpperCase() : '';
   const isRoom = ROOM_CODE.test(room);
+  // ⚡ Jonli test (Kahoot sahnasi) — arenaning o'zi, o'z dizayni bilan, ko'rinadigan iframe'da: ko'chirib chiziladigan
+  // (NativeSurface) ko'rinishda arena CSS'i yo'q va sahna buziladi (qora doira, uslubsiz tugmalar).
+  if (playPath === 'live' || oldLiveLink) {
+    return (
+      <>
+        <div className="arena-bar">
+          <Button variant="ghost" onClick={() => navigate('arena')}>
+            <ArrowLeft size={18} />
+            {L('Barcha o‘yinlar', 'All games', 'Все игры')}
+          </Button>
+          <h1>⚡ {L('Jonli test', 'Live quiz', 'Живой тест')}</h1>
+        </div>
+        <LiveQuizFrame />
+      </>
+    );
+  }
   if (sub === 'live' || isRoom || (playPath && LEGACY.test(playPath))) {
     if (staff && user) staffPlayer(user);
     const card = [...online, ...solo].find((c) => c.to === 'play/' + playPath);
@@ -419,7 +447,7 @@ export function Games({ sub = '' }: { sub?: string }) {
       </>
     );
   const cardButton = (c: GameCard) => {
-    const locked = c.legacy && signedIn && !canArena;
+    const locked = c.legacy && c.id !== 'live' && signedIn && !canArena;
     return (
       <button
         key={c.id}
@@ -435,7 +463,7 @@ export function Games({ sub = '' }: { sub?: string }) {
           <small>{T3(lang, c.desc)}</small>
         </span>
         <span className="arena-card-tag">
-          {c.legacy && !signedIn
+          {c.legacy && c.id !== 'live' && !signedIn
             ? '🔐 ' + L('Kirish kerak', 'Sign-in needed', 'Нужен вход')
             : T3(lang, c.tag)}
         </span>
@@ -518,9 +546,9 @@ export function Games({ sub = '' }: { sub?: string }) {
         <p className="arena-note">
           ℹ️{' '}
           {L(
-            'Guruh arenasi universitet talabalari uchun. Mustaqil o‘quvchilar «Biznes» (bot bilan), «Brendni top», «Atama va ta’rif» va «Foyda hisobi» o‘yinlarini o‘ynay oladi.',
-            'The class arena is for university students. Independent learners can play “Business” (against a bot), “Guess the brand”, “Term and meaning” and “Profit maths”.',
-            'Арена группы — для студентов университета. Самостоятельным ученикам доступны «Бизнес» (с ботом), «Угадай бренд», «Термин и смысл» и «Расчёт прибыли».',
+            'Jonli test barcha uchun ochiq. Mustaqil o‘quvchilar «Biznes» (bot bilan), «Brendni top», «Atama va ta’rif» va «Foyda hisobi» o‘yinlarini ham o‘ynay oladi.',
+            'The live quiz is open to everyone. Independent learners can also play “Business” (against a bot), “Guess the brand”, “Term and meaning” and “Profit maths”.',
+            'Живой тест доступен всем. Самостоятельным ученикам также доступны «Бизнес» (с ботом), «Угадай бренд», «Термин и смысл» и «Расчёт прибыли».',
           )}
         </p>
       )}

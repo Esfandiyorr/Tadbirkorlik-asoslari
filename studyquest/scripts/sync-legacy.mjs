@@ -4,6 +4,7 @@ import vm from 'node:vm';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 import { adaptArenaLiveJoin, adaptStudentRegistration } from './legacy-credentials.mjs';
+import { adaptPlatformLive } from './arena-live.mjs';
 const app = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..'),
   root = path.resolve(app, '..'),
   out = path.join(app, 'public/legacy');
@@ -89,7 +90,8 @@ for (const entry of fs.readdirSync(root))
           ),
       );
     if (entry.endsWith('.html')) data = Buffer.from(topicQuiz(entry, data.toString()));
-    if (entry === 'arena.html') data = Buffer.from(adaptArenaLiveJoin(data.toString()));
+    if (entry === 'arena.html')
+      data = Buffer.from(adaptPlatformLive(adaptArenaLiveJoin(data.toString())));
     if (entry === 'rt-engine.js')
       data = Buffer.from(
         data
@@ -116,6 +118,7 @@ for (const entry of fs.readdirSync(root))
   }
 fs.cpSync(path.join(root, 'fayllar'), path.join(out, 'fayllar'), { recursive: true });
 fs.copyFileSync(path.join(app, 'scripts/legacy-bridge.js'), path.join(out, 'bridge.js'));
+fs.copyFileSync(path.join(app, 'scripts/live-player.js'), path.join(out, 'live-player.js'));
 fs.copyFileSync(path.join(app, 'scripts/native-engine.js'), path.join(out, 'native-engine.js'));
 fs.copyFileSync(path.join(app, 'scripts/legacy-demo.js'), path.join(out, 'demo-guard.js'));
 fs.copyFileSync(path.join(app, 'scripts/legacy-embed.js'), path.join(out, 'embed.js'));

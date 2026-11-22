@@ -166,6 +166,8 @@ export type Data = {
   lessonAccess?: Record<string, LessonAccess>;
   /** 🔑 kursga kirish (talaba bo'lmaganlar uchun: obuna yoki administrator ruxsati) — lib/server/course-access.ts */
   course?: CourseEntry;
+  /** 💼 «Pullik xizmatlar» bo'limi menyuda ko'rinadimi (yo'q — vaqtincha yopiq) — lib/server/services.ts */
+  servicesShown?: boolean;
   /** 💳 pullik kurslar (fan id → kira oladimi, so'rov holati, narx) — lib/server/course-access.ts paidView */
   paid?: Record<string, PaidCourseState>;
   progress?: Progress[];

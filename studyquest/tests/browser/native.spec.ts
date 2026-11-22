@@ -117,6 +117,41 @@ test('class arena is rendered in the new native design', async ({ page }) => {
   expect(await page.locator('.native-arena .native-document .topbar').count()).toBe(0);
 });
 
+test('live quiz opens in its own styled arena frame, not the copied surface', async ({ page }) => {
+  await student(page);
+  await scoredDemo(page);
+  // Sekin internetni taqlid qilish: arena sahifasi kech kelsa — yarim yuklangan sahifa emas, yuklanish ekrani ko'rinadi.
+  let release = () => {};
+  const held = new Promise<void>((done) => (release = done));
+  await page.route('**/legacy/arena.html*', async (route) => {
+    await held;
+    await route.continue();
+  });
+  // Eski havola (arena.html#/live) yoki arena ichidagi «Jonli test» — platformaning alohida sahifasiga o'tadi.
+  await page.goto('/?arena=%23%2Flive#arena/live');
+  await expect.poll(() => new URL(page.url()).hash).toBe('#arena/play/live');
+  await expect(page.locator('.native-arena')).toHaveCount(0);
+  const loading = page.locator('.arena-live-loading');
+  await expect(loading).toBeVisible();
+  await expect(loading).toContainText('Jonli test ochilmoqda');
+  release();
+  await expect(loading).toBeHidden();
+  const frame = page.locator('iframe.arena-live-frame');
+  await expect(frame).toBeVisible();
+  // hisob aniqlangach sahna qayta yaratiladi (key = foydalanuvchi) — o'lcham barqarorlashguncha kutiladi
+  await expect.poll(async () => (await frame.boundingBox())?.height ?? 0).toBeGreaterThan(450);
+  // Sahna arenaning o'z CSS'i bilan chiziladi (ko'chirilgan nusxada CSS yo'q edi — qora doira chiqardi):
+  // arenaning sarlavha qatori faqat uning CSS'idagi «.sq-direct .topbar» qoidasi bilan yashirinadi.
+  const live = page.frameLocator('iframe.arena-live-frame');
+  await expect(live.locator('html')).toHaveClass(/sq-direct/);
+  await expect(live.locator('#app > *').first()).toBeVisible();
+  await expect(live.locator('.topbar')).toBeHidden();
+  await page.screenshot({ path: 'tests/artifacts/native-live.png' });
+  // Sahnadan chiqilganda (✕ → #/) — platformaning o'yinlar ro'yxatiga qaytiladi.
+  await live.locator('body').evaluate(() => (location.hash = '#/'));
+  await expect.poll(() => new URL(page.url()).hash).toBe('#arena');
+});
+
 test('picture puzzle retains images and playable tiles in the native arena', async ({ page }) => {
   await student(page);
   await scoredDemo(page);

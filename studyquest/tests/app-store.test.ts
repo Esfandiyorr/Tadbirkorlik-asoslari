@@ -1,4 +1,4 @@
-import { beforeAll, beforeEach, expect, it } from 'vitest';
+import { beforeAll, beforeEach, expect, it, vi } from 'vitest';
 import type { Actor } from '../lib/types';
 import {
   appAdmin,
@@ -13,8 +13,22 @@ import {
 } from '../lib/server/app-store';
 import { adminServices, manageServices } from '../lib/server/services';
 import { resetSiteMemory, siteGet } from '../lib/server/site-content';
-import { subscribePush, pushSubs } from '../lib/server/push';
+import {
+  subscribePush,
+  pushSubs,
+  savePushPreferences,
+  pushPreferenceKey,
+} from '../lib/server/push';
+import { repository } from '../lib/server/repository';
+import { LearningNotes } from '../lib/server/learning-notes';
 import { deleteDoc, privacyDoc } from '../lib/legal';
+
+// Hisobni o'chirish sinovi faqat xotiradagi bazani ishlatadi; brauzer demo fayliga tegmaydi.
+vi.mock('../lib/server/repository', async (load) => {
+  const actual = await load<typeof import('../lib/server/repository')>();
+  const db = new actual.MemoryRepository();
+  return { ...actual, repository: async () => db };
+});
 
 /* 📱 Play Market: ilova imzosi (assetlinks.json), maxfiylik siyosati ma'lumotlari va hisobni o'chirish so'rovlari. */
 beforeAll(() => {
@@ -88,6 +102,15 @@ it('publishes asset links only when the package and a valid fingerprint are set'
 
 it('a student asks to delete the account, may cancel, and the administrator erases it without a copy', async () => {
   const ali = who('legacy_ali');
+  const notes = new LearningNotes(await repository());
+  await notes.save(ali, { lessonId: 'm1', text: 'Shaxsiy qayd', bookmarks: [1], version: 0 });
+  await notes.save(who('legacy_vali'), {
+    lessonId: 'm1',
+    text: 'Boshqa hisob',
+    bookmarks: [],
+    version: 0,
+  });
+  await savePushPreferences(ali, { topics: false, announcements: true, live: false, videos: true });
   expect(await deletionStatus(ali)).toEqual({ pending: null });
   await expect(requestDeletion(ali, {})).rejects.toThrow(); // tasdiqsiz bo'lmaydi
   await expect(requestDeletion(admin, { confirm: true })).rejects.toMatchObject({ status: 400 });
@@ -110,6 +133,7 @@ it('a student asks to delete the account, may cancel, and the administrator eras
     },
   };
   await subscribePush(ali, dev);
+  await adminServices(admin, { op: 'show', shown: true });
   await adminServices(admin, { op: 'launch', open: true });
   await manageServices(
     ali,
@@ -169,6 +193,9 @@ it('a student asks to delete the account, may cancel, and the administrator eras
   expect(await siteGet('serviceOrders/legacy_ali')).toBeNull(); // 💼 buyurtmalar ham
   expect(await siteGet('serviceStats/taqdimot/legacy_ali')).toBeNull(); // va kartadagi sanoqdan
   expect(await siteGet('deleteRequests/legacy_ali')).toBeNull();
+  expect((await notes.get(ali, 'm1')).text).toBe('');
+  expect((await notes.get(who('legacy_vali'), 'm1')).text).toBe('Boshqa hisob');
+  expect(await siteGet('push/preferences/' + pushPreferenceKey(ali.id))).toBeNull();
 
   // rad etilsa — hech narsa o'chmaydi, faqat so'rov olib tashlanadi
   const rejected = await manageApp(admin, { op: 'reject', uid: 'legacy_vali' }, now, read, update);

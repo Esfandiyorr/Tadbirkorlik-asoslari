@@ -419,12 +419,10 @@ test('existing academic points remain visible on the dashboard, profile and acad
   await expect(page.locator('.ranking-list')).toContainText('375,5');
   await page.goto('/#profile', { waitUntil: 'domcontentloaded' });
   await expect(page.locator('.profile-hero-stats b').first()).toHaveText('375,5');
-  // Ochilmagan va boshlanmagan mavzular alohida kartochka emas, bitta qatorda sanaladi.
-  const cards = await page.locator('.academic-topic-card').count();
-  const closed = await page.locator('.academic-closed').count();
-  expect(cards + (closed ? 1 : 0)).toBeGreaterThan(1);
-  await expect(page.locator('.academic-topic-card').first()).toContainText('75');
-  await expect(page.locator('.academic-topic-card').first()).toContainText('Baho: 4');
+  // Profilda faqat asosiy ma'lumotlar: mavzular bo'yicha ballar ro'yxati yo'q.
+  await expect(page.locator('.profile-card').first()).toContainText('Shaxsiy ma’lumotlar');
+  await expect(page.getByText('Mavzular bo‘yicha ballar')).toHaveCount(0);
+  await expect(page.locator('.academic-topic-card')).toHaveCount(0);
 });
 
 test('class chat remains in the new navigation and opens the existing chat interface', async ({

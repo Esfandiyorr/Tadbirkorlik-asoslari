@@ -134,3 +134,34 @@ it('a second-box offer can pop up once and counts as seen like an announcement',
   await managePromo(admin, { op: 'remove', id: r.id! }, t);
   await managePromo(admin, { op: 'remove', id: plain.id! }, t);
 });
+
+it('a created live quiz pops up once: its "seen" mark is kept until the game ends or moves', async () => {
+  const { markNewsSeen, newsSeen, liveGame } = await import('../lib/server/news');
+  const { demoKahoot } = await import('../lib/server/live-admin');
+  const { liveNewsId } = await import('../lib/live-quiz');
+  const t = Date.now();
+  const saved = demoKahoot.idx;
+  demoKahoot.idx = {
+    '2099-01-01': { open: t + 3600000, start: t + 3900000, end: t + 4800000, nq: 15, sp: 1 },
+  } as unknown as typeof demoKahoot.idx;
+  try {
+    const g = (await liveGame(t))!;
+    expect(g).toBeTruthy();
+    const id = liveNewsId(g);
+    expect(id).toMatch(/^kh-2099-01-01-\d+$/);
+    const ali = { id: 'legacy_ali.live', role: 'student', name: 'Ali' } as unknown as Actor;
+    expect((await newsSeen(ali, t)).seen).not.toContain(id);
+    // «Tushunarli» — server eslab qoladi (boshqa qurilmada ham qayta chiqmaydi)
+    expect((await markNewsSeen(ali, { id }, t)).seen).toContain(id);
+    expect((await newsSeen(ali, t + 1000)).seen).toContain(id);
+    // vaqti boshqa soatga ko'chirilsa — yangi e'lon (yangi id)
+    demoKahoot.idx = {
+      '2099-01-01': { open: t + 7200000, start: t + 7500000, end: t + 8400000, nq: 15, sp: 1 },
+    } as unknown as typeof demoKahoot.idx;
+    const moved = liveNewsId((await liveGame(t))!);
+    expect(moved).not.toBe(id);
+    expect((await newsSeen(ali, t + 2000)).seen).not.toContain(moved);
+  } finally {
+    demoKahoot.idx = saved;
+  }
+});

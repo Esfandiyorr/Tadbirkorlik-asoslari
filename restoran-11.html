@@ -1,0 +1,1334 @@
+<!DOCTYPE html>
+<html lang="uz" data-theme="light">
+<head>
+<!-- PLATFORM:BEGIN -->
+<script src="platform-redirect.js?v=6ab9c7cd4f"></script>
+<!-- PLATFORM:END -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Yakuniy nazariy imtihon — TerDU</title>
+<meta name="description" content="RS 24 · Yakuniy nazariy imtihon · 2 soat imtihon">
+<style>
+/* ================== TOKENS ================== */
+:root{
+  --bg:#eef3fb; --bg2:#e6ecf9;
+  --panel:#ffffff; --panel2:#f7f9fe;
+  --ink:#0d1b2a; --ink2:#1f2d3d; --muted:#5b6b82;
+  --line:#e1e8f4; --shadow:0 18px 40px -18px rgba(13,27,42,.35);
+  --green:#12a150; --green2:#0b7a3c;
+  --orange:#f97316; --amber:#f59e0b;
+  --violet:#7c3aed; --pink:#ec4899;
+  --blue:#2563eb; --cyan:#0891b2;
+  --red:#e11d48; --teal:#0d9488;
+  --chip:#f1f5fd;
+  --ok:#12a150; --err:#e11d48;
+}
+:root[data-theme="dark"]{
+  --bg:#080f1d; --bg2:#0d1728;
+  --panel:#111b2e; --panel2:#0e1726;
+  --ink:#eaf1ff; --ink2:#dbe6fb; --muted:#9db0cd;
+  --line:#22304c; --shadow:0 18px 44px -18px rgba(0,0,0,.75);
+  --green:#2ee07f; --green2:#12a150;
+  --orange:#ff9d4d; --amber:#fbbf24;
+  --violet:#a78bfa; --pink:#f472b6;
+  --blue:#60a5fa; --cyan:#22d3ee;
+  --red:#fb7185; --teal:#2dd4bf;
+  --chip:#17243c;
+  --ok:#2ee07f; --err:#fb7185;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; color:var(--ink);
+  font-family:"Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
+  background:
+    radial-gradient(1100px 600px at 8% -10%, rgba(18,161,80,.20), transparent 60%),
+    radial-gradient(900px 520px at 100% 0%, rgba(124,58,237,.20), transparent 55%),
+    radial-gradient(900px 600px at 50% 115%, rgba(249,115,22,.18), transparent 60%),
+    linear-gradient(160deg,var(--bg),var(--bg2));
+  background-attachment:fixed;
+  overflow:hidden;
+  transition:background .4s ease,color .3s ease;
+}
+.terdu-logo{background-image:url("logo_tersu.png");background-size:contain;background-position:center;background-repeat:no-repeat}
+:root[data-theme="dark"] .terdu-logo{background-color:#fff;border-radius:50%}
+/* ================== LAYOUT ================== */
+#app{display:flex;flex-direction:column;height:100vh;height:100dvh}
+.topbar{
+  display:flex;align-items:center;gap:14px;padding:10px 18px;
+  background:color-mix(in srgb,var(--panel) 82%,transparent);
+  backdrop-filter:blur(14px);border-bottom:1px solid var(--line);z-index:30;flex:0 0 auto;
+}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}
+.brand .logo{width:44px;height:44px;flex:0 0 auto;filter:drop-shadow(0 4px 8px rgba(0,0,0,.15))}
+.brand b{display:block;font-size:14px;line-height:1.15;letter-spacing:.2px}
+.brand span{display:block;font-size:11.5px;color:var(--muted)}
+.spacer{flex:1}
+.tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.btn{
+  border:1px solid var(--line);background:var(--panel);color:var(--ink);
+  padding:8px 12px;border-radius:12px;font-size:13px;font-weight:600;cursor:pointer;
+  display:inline-flex;align-items:center;gap:7px;transition:.18s;white-space:nowrap;
+}
+.btn:hover{transform:translateY(-2px);border-color:transparent;box-shadow:0 10px 22px -12px rgba(0,0,0,.5)}
+.btn.accent{background:linear-gradient(135deg,var(--green),var(--teal));color:#fff;border-color:transparent}
+.btn.warn{background:linear-gradient(135deg,var(--orange),var(--amber));color:#231000;border-color:transparent}
+.btn.ghost{background:transparent}
+a.btn{text-decoration:none;color:var(--ink)}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+#timer{font-variant-numeric:tabular-nums;font-weight:800;letter-spacing:.5px;color:var(--violet)}
+
+.progress-wrap{height:5px;background:color-mix(in srgb,var(--line) 70%,transparent);flex:0 0 auto}
+#progress{height:100%;width:0;border-radius:0 6px 6px 0;
+  background:linear-gradient(90deg,var(--green),var(--cyan),var(--violet),var(--orange));
+  transition:width .35s cubic-bezier(.4,0,.2,1)}
+
+#deck{position:relative;flex:1 1 auto;overflow:hidden}
+.slide{
+  position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;
+  padding:26px clamp(16px,4vw,54px) 34px;
+  opacity:0;visibility:hidden;transform:translateX(40px) scale(.985);
+  transition:opacity .4s ease,transform .45s cubic-bezier(.22,1,.36,1),visibility .45s;
+}
+.slide.active{opacity:1;visibility:visible;transform:none}
+.slide.prev{transform:translateX(-40px) scale(.985)}
+.inner{max-width:1240px;margin:0 auto}
+
+.navbar{
+  display:flex;align-items:center;gap:12px;padding:9px 18px;flex:0 0 auto;
+  background:color-mix(in srgb,var(--panel) 82%,transparent);
+  backdrop-filter:blur(14px);border-top:1px solid var(--line);z-index:30;
+}
+.counter{font-size:13px;font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums}
+.dots{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;flex:1}
+.dot{width:9px;height:9px;border-radius:50%;border:none;padding:0;cursor:pointer;
+  background:color-mix(in srgb,var(--muted) 45%,transparent);transition:.2s}
+.dot:hover{transform:scale(1.4)}
+.dot.on{width:26px;border-radius:6px;background:linear-gradient(90deg,var(--green),var(--cyan))}
+
+/* ================== TYPO ================== */
+.kicker{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:800;
+  letter-spacing:1.6px;text-transform:uppercase;color:#fff;padding:6px 14px;border-radius:999px;
+  background:linear-gradient(135deg,var(--violet),var(--pink));box-shadow:0 8px 18px -10px var(--violet)}
+h1{font-size:clamp(26px,4.4vw,50px);line-height:1.1;margin:14px 0 10px;letter-spacing:-.5px}
+h2{font-size:clamp(21px,3.1vw,35px);line-height:1.16;margin:8px 0 16px;letter-spacing:-.3px}
+h3{font-size:clamp(16px,2vw,21px);margin:0 0 8px}
+p,li{font-size:clamp(14px,1.35vw,17.5px);line-height:1.6;color:var(--ink2)}
+.lead{font-size:clamp(15px,1.6vw,19px);color:var(--muted)}
+.grad{background:linear-gradient(120deg,var(--green),var(--cyan) 45%,var(--violet));
+  -webkit-background-clip:text;background-clip:text;color:transparent}
+.grad-w{background:linear-gradient(120deg,var(--orange),var(--pink) 55%,var(--violet));
+  -webkit-background-clip:text;background-clip:text;color:transparent}
+small.note{display:block;margin-top:12px;color:var(--muted);font-size:12.5px}
+
+/* ================== BLOCKS ================== */
+.card{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:18px 20px;
+  box-shadow:var(--shadow);position:relative;overflow:hidden}
+.card::before{content:"";position:absolute;inset:0 auto 0 0;width:5px;background:var(--c,var(--green))}
+.card h3{color:var(--c,var(--green))}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.g5{grid-template-columns:repeat(5,minmax(0,1fr))}
+@media(max-width:980px){.g3,.g4,.g5{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:640px){.g2,.g3,.g4,.g5{grid-template-columns:1fr}}
+
+.def{border-radius:20px;padding:20px 24px;color:#fff;box-shadow:var(--shadow);
+  background:linear-gradient(135deg,var(--green2),var(--teal) 55%,var(--cyan));font-size:clamp(15px,1.7vw,20px);line-height:1.5}
+.def b{color:#fffbe8}
+.quote{border-left:6px solid var(--amber);background:var(--panel2);border-radius:0 16px 16px 0;
+  padding:14px 18px;font-style:italic;color:var(--ink2)}
+.pill{display:inline-block;margin:4px 6px 0 0;padding:6px 12px;border-radius:999px;background:var(--chip);
+  border:1px solid var(--line);font-size:13px;font-weight:600;color:var(--ink2)}
+.pill.g{background:color-mix(in srgb,var(--green) 16%,transparent);border-color:transparent;color:var(--green2)}
+:root[data-theme="dark"] .pill.g{color:var(--green)}
+.icon{font-size:26px;line-height:1;display:block;margin-bottom:6px}
+ul.clean{margin:6px 0 0;padding-left:20px}
+ul.clean li{margin-bottom:6px}
+ul.tick{list-style:none;margin:6px 0 0;padding:0}
+ul.tick li{position:relative;padding-left:28px;margin-bottom:8px}
+ul.tick li::before{content:"✔";position:absolute;left:0;top:0;color:var(--green);font-weight:900}
+ul.cross li::before{content:"✕";color:var(--red)}
+
+table{width:100%;border-collapse:separate;border-spacing:0;background:var(--panel);
+  border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:var(--shadow);font-size:clamp(13px,1.25vw,16px)}
+th,td{padding:10px 13px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+thead th{background:linear-gradient(135deg,var(--violet),var(--blue));color:#fff;font-weight:700;letter-spacing:.2px}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:nth-child(even){background:var(--panel2)}
+tbody tr:hover{background:color-mix(in srgb,var(--cyan) 10%,transparent)}
+.tw{overflow-x:auto;border-radius:16px}
+td.g{color:var(--green);font-weight:700}
+td.r{color:var(--red);font-weight:700}
+
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:18px;text-align:center;box-shadow:var(--shadow)}
+.stat .num{font-size:clamp(26px,4.2vw,46px);font-weight:900;line-height:1;
+  background:linear-gradient(135deg,var(--green),var(--cyan));-webkit-background-clip:text;background-clip:text;color:transparent}
+.stat.o .num{background:linear-gradient(135deg,var(--orange),var(--pink));-webkit-background-clip:text;background-clip:text}
+.stat.v .num{background:linear-gradient(135deg,var(--violet),var(--blue));-webkit-background-clip:text;background-clip:text}
+.stat p{margin:8px 0 0;font-size:13.5px;color:var(--muted)}
+
+.chain{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;align-items:stretch}
+@media(max-width:860px){.chain{grid-template-columns:1fr}}
+.link{border-radius:18px;padding:16px;color:#fff;box-shadow:var(--shadow);position:relative}
+.link h3{color:#fff;font-size:15px;letter-spacing:1px;text-transform:uppercase;opacity:.95}
+.link p{color:#fff;opacity:.95;font-size:14px;margin:6px 0 0}
+.l1{background:linear-gradient(135deg,#e11d48,#f97316)}
+.l2{background:linear-gradient(135deg,#f59e0b,#12a150)}
+.l3{background:linear-gradient(135deg,#0891b2,#2563eb)}
+.l4{background:linear-gradient(135deg,#7c3aed,#ec4899)}
+.link::after{content:"➜";position:absolute;right:-16px;top:50%;transform:translateY(-50%);
+  font-size:20px;color:var(--muted);z-index:2}
+.link:last-child::after{content:""}
+@media(max-width:860px){.link::after{right:50%;top:auto;bottom:-15px;transform:translateX(50%) rotate(90deg)}}
+
+.fact{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:var(--shadow);
+  transition:.2s;cursor:default}
+.fact:hover{transform:translateY(-5px)}
+.fact b{display:block;color:var(--violet);margin-bottom:4px;font-size:15px}
+.fact p{margin:0;font-size:14px;color:var(--muted)}
+.rich{display:flex;align-items:center;gap:12px;background:var(--panel);border:1px solid var(--line);
+  border-radius:16px;padding:12px 14px;box-shadow:var(--shadow)}
+.rich .rk{width:34px;height:34px;flex:0 0 auto;border-radius:50%;display:grid;place-items:center;font-weight:900;color:#fff;
+  background:linear-gradient(135deg,var(--amber),var(--orange))}
+.rich b{display:block;font-size:15px}
+.rich span{font-size:12.5px;color:var(--muted)}
+
+/* ================== TITLE SLIDE ================== */
+.title-wrap{display:grid;grid-template-columns:auto 1fr;gap:clamp(18px,3vw,42px);align-items:center;min-height:100%}
+@media(max-width:820px){.title-wrap{grid-template-columns:1fr;text-align:center;justify-items:center}}
+.big-logo{width:clamp(150px,20vw,240px);height:auto;aspect-ratio:1;animation:float 5s ease-in-out infinite;
+  filter:drop-shadow(0 16px 26px rgba(0,0,0,.25))}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+.meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.meta div{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:10px 14px;font-size:13.5px;box-shadow:var(--shadow)}
+.meta b{color:var(--green)}
+
+/* ================== TEST ================== */
+.qbox{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:16px 18px;margin-bottom:14px;box-shadow:var(--shadow)}
+.qbox .q{font-weight:800;margin:0 0 10px;font-size:16px}
+.qbox .q i{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:8px;margin-right:8px;
+  background:linear-gradient(135deg,var(--violet),var(--blue));color:#fff;font-style:normal;font-size:13px;font-weight:900;vertical-align:-4px}
+.opt{display:block;width:100%;text-align:left;border:1.5px solid var(--line);background:var(--panel2);color:var(--ink);
+  border-radius:12px;padding:10px 14px;margin-bottom:8px;font-size:14.5px;cursor:pointer;transition:.15s;font-family:inherit}
+.opt:hover:not(:disabled){border-color:var(--blue);transform:translateX(5px)}
+.opt .k{font-weight:900;margin-right:8px;color:var(--blue)}
+.opt.right{background:color-mix(in srgb,var(--ok) 18%,var(--panel));border-color:var(--ok);color:var(--ink)}
+.opt.wrong{background:color-mix(in srgb,var(--err) 18%,var(--panel));border-color:var(--err)}
+.opt:disabled{cursor:default}
+.fb{margin:6px 0 0;font-size:13.5px;font-weight:700;display:none}
+.fb.show{display:block}
+.fb.ok{color:var(--ok)}.fb.no{color:var(--err)}
+.scorebar{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  background:linear-gradient(135deg,var(--violet),var(--blue));color:#fff;border-radius:16px;padding:12px 16px;margin-bottom:16px;box-shadow:var(--shadow)}
+.scorebar b{font-size:19px}
+.result{display:none;border-radius:20px;padding:22px;text-align:center;color:#fff;box-shadow:var(--shadow);
+  background:linear-gradient(135deg,var(--green2),var(--teal),var(--cyan))}
+.result.show{display:block;animation:pop .45s cubic-bezier(.2,1.3,.4,1)}
+.result .pct{font-size:clamp(38px,7vw,68px);font-weight:900;line-height:1}
+@keyframes pop{from{transform:scale(.9);opacity:0}to{transform:none;opacity:1}}
+
+/* ================== OVERLAYS ================== */
+.overlay{position:fixed;inset:0;z-index:60;display:none;padding:22px;overflow:auto;
+  background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px)}
+.overlay.show{display:block;animation:fade .25s ease}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.ov-head{display:flex;align-items:center;gap:12px;max-width:1200px;margin:0 auto 16px}
+.thumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px;max-width:1200px;margin:0 auto}
+.thumb{border:1.5px solid var(--line);background:var(--panel);border-radius:14px;padding:12px;cursor:pointer;text-align:left;
+  transition:.18s;box-shadow:var(--shadow);color:var(--ink);font-family:inherit}
+.thumb:hover{transform:translateY(-4px);border-color:var(--green)}
+.thumb.on{border-color:var(--green);background:color-mix(in srgb,var(--green) 12%,var(--panel))}
+.thumb i{font-style:normal;font-size:11px;font-weight:900;color:var(--muted);letter-spacing:1px}
+.thumb b{display:block;margin-top:5px;font-size:14px;line-height:1.25}
+kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;border-radius:7px;
+  padding:2px 8px;font-family:inherit;font-size:12.5px;font-weight:700}
+.helpbox{max-width:560px;margin:8vh auto;background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:22px;box-shadow:var(--shadow)}
+.helpbox div{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px dashed var(--line);font-size:14px}
+.helpbox div:last-child{border:none}
+
+.hint{position:fixed;left:50%;bottom:64px;transform:translateX(-50%);z-index:40;
+  background:color-mix(in srgb,var(--panel) 92%,transparent);border:1px solid var(--line);border-radius:999px;
+  padding:8px 16px;font-size:12.5px;color:var(--muted);box-shadow:var(--shadow);transition:opacity .5s}
+.hint.hide{opacity:0;pointer-events:none}
+
+.lnk{color:var(--blue);font-weight:600;text-decoration:none;border-bottom:1px dashed currentColor}
+.lnk:hover{color:var(--violet)}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* RT:BEGIN */
+</style>
+<link rel="stylesheet" href="rt-engine.css?v=2480599504">
+<style>
+/* RT:END */
+@media print{
+  body{overflow:visible;background:#fff}
+  .topbar,.navbar,.progress-wrap,.overlay,.hint{display:none!important}
+  #deck{overflow:visible;height:auto}
+  .slide{position:static;opacity:1;visibility:visible;transform:none;page-break-after:always;min-height:auto}
+}
+</style>
+<!-- PWA:BEGIN -->
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#f7f8f6">
+<link rel="apple-touch-icon" href="fayllar/ilova/icon-180.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="TerDU Biznes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<script src="pwa.js" defer></script>
+<!-- PWA:END -->
+<!-- OG:BEGIN -->
+<meta name="author" content="Isfandiyor Sayfiddinov">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="IsfandiyorSayfiddinov">
+<meta property="og:title" content="IsfandiyorSayfiddinov">
+<meta property="og:description" content="11-mavzu: Yakuniy nazariy imtihon · Restoran xodimlari malakasini oshirish">
+<meta property="og:url" content="https://esfandiyorr.github.io/Tadbirkorlik-asoslari/restoran-11.html">
+<meta property="og:locale" content="uz_UZ">
+<meta property="og:image" content="https://esfandiyorr.github.io/Tadbirkorlik-asoslari/fayllar/havola-isfandiyor.jpg?v=7c06edc5">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="TerDU logotipi va Isfandiyor Sayfiddinov">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="IsfandiyorSayfiddinov">
+<meta name="twitter:description" content="11-mavzu: Yakuniy nazariy imtihon · Restoran xodimlari malakasini oshirish">
+<meta name="twitter:image" content="https://esfandiyorr.github.io/Tadbirkorlik-asoslari/fayllar/havola-isfandiyor.jpg?v=7c06edc5">
+<!-- OG:END -->
+<!-- DESIGN:BEGIN -->
+<link rel="stylesheet" href="learning-design.css?v=f3054b33b4">
+<!-- DESIGN:END -->
+</head>
+<body>
+
+<div id="app">
+  <!-- ====== TOPBAR ====== -->
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo terdu-logo" role="img" aria-label="Termiz davlat universiteti logotipi"></div>
+      <div>
+        <b class="tb-name">TerDU</b>
+        <span data-ui="subj">Restoran xizmati · 11-mavzu</span>
+      </div>
+    </div>
+    <div class="spacer"></div>
+    <div class="tools">
+      <button class="btn ghost" id="btnLang" title="O'zbekcha / English (L)">🌐 <span id="langTxt">ENG</span></button>
+      <button class="btn ghost" id="btnTimer" title="Vaqt hisoblagich (T)">⏱ <span id="timer">00:00</span></button>
+      <button class="btn ghost" id="btnGrid" title="Slaydlar ro'yxati (O)" data-ui="grid">▦ Slaydlar</button>
+      <button class="btn ghost" id="btnTheme" title="Tun / Kun rejimi (D)">🌙 <span id="themeTxt">Tun</span></button>
+      <button class="btn ghost" id="btnFull" title="To'liq ekran (F)" data-ui="full">⛶ Ekran</button>
+      <button class="btn ghost" id="btnPrint" title="Chop etish / PDF (P)">🖨 PDF</button>
+      <button class="btn ghost" id="btnHelp" title="Yordam (?)">❔</button>
+    </div>
+  </header>
+  <div class="progress-wrap"><div id="progress"></div></div>
+
+  <main id="deck">
+  <!-- ============ 1 ============ -->
+  <section class="slide" data-title="Muqova" data-title-en="Muqova">
+    <div class="inner">
+<div class="inner title-wrap"><div><span data-i="0" class="kicker">11-mavzu · 2 soat imtihon</span><h1 data-i="1" class="grad">YAKUNIY NAZARIY IMTIHON</h1><p data-i="2" class="lead"><b>30 ta test + 2 ta vaziyatli topshiriq = 40 ball</b> · o'tish: kamida 28/40 · kirish shartlari · vaqt · baholash mezoni · tayyorgarlik testi va bayonnoma blankasi.</p><div class="meta"><div data-i="3">🍽️ Kurs: <b>Restoran xodimlari malakasini oshirish</b></div><div data-i="4">🗂 <b>RS 24</b> · 24 akademik soat · 10 modul + 2 imtihon</div><div data-i="5">📖 <b>24</b> slayd · <b>30</b> ta mashq savoli · vaziyat va nazorat varag'i</div><div data-i="6">⌨️ <b>→</b> bilan davom eting · <b>P</b> — chop etish</div></div></div></div>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Imtihonga kirish va tayyorgarlik" data-title-en="Imtihonga kirish va tayyorgarlik">
+    <div class="inner">
+<span data-i="23" class="kicker">Bosqichma-bosqich</span><h2 data-i="24">Imtihonga kirish va tayyorgarlik</h2><div data-i="7" class="def">Trener uchta dalilni tekshiradi: <b>kamida 18/20 modul soati</b>, <b>R2 sanitariya amaliy ishi</b> va <b>R5 allergen amaliy ishi</b> bajarilgan. Saytdagi dars ochilishi yoki test foizi davomat va amaliy ish bajarilganini avtomatik tasdiqlamaydi.</div><div class="tw"><table><thead><tr><th data-i="8">Tinglovchi: __________</th><th data-i="9">Dalil</th><th data-i="10">Trener belgisi</th></tr></thead><tbody><tr><td data-i="11">Modul davomati</td><td data-i="12">___ / 20 soat; jurnal: ___</td><td data-i="13">☐ Kamida 18</td></tr><tr><td data-i="14">Sanitariya</td><td data-i="15">R2 kuzatuv varag'i, sana: ___</td><td data-i="16">☐ Bajarilgan</td></tr><tr><td data-i="17">Allergen</td><td data-i="18">R5 buyurtma va tekshiruv qaydi, sana: ___</td><td data-i="19">☐ Bajarilgan</td></tr><tr><td data-i="20">Kirish</td><td data-i="21">Sana ___; trener ___</td><td data-i="22">☐ Ruxsat / ☐ Qayta tayyorgarlik</td></tr></tbody></table></div>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Vaqt va umumiy baholash" data-title-en="Vaqt va umumiy baholash">
+    <div class="inner">
+<span data-i="41" class="kicker">Bosqichma-bosqich</span><h2 data-i="42">Vaqt va umumiy baholash</h2><div class="tw"><table><thead><tr><th data-i="25">Qism</th><th data-i="26">Vaqt</th><th data-i="27">Maksimum</th></tr></thead><tbody><tr><td data-i="28">Yo'riqnoma</td><td data-i="29">5 daqiqa</td><td data-i="30">—</td></tr><tr><td data-i="31">30 ta test</td><td data-i="32">35 daqiqa</td><td data-i="33">30 × 1 = 30</td></tr><tr><td data-i="34">2 ta vaziyatli topshiriq</td><td data-i="35">40 daqiqa (har biriga 20)</td><td data-i="36">2 × 5 = 10</td></tr><tr><td data-i="37">Jami</td><td data-i="38">80 daqiqa</td><td data-i="39">40 ball</td></tr></tbody></table></div><div data-i="40" class="quote" style="margin-top:14px">R11 o'tish: <b>kamida 28/40</b>. R12 alohida: kamida 45/60 va kritik xatosiz. Bir qismdagi yuqori ball ikkinchisining o'tish shartini almashtirmaydi.</div>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Savollar taqsimoti" data-title-en="Savollar taqsimoti">
+    <div class="inner">
+<span data-i="68" class="kicker">Bosqichma-bosqich</span><h2 data-i="69">Savollar taqsimoti</h2><div class="tw"><table><thead><tr><th data-i="43">Yo'nalish</th><th data-i="44">Savol raqamlari</th><th data-i="45">Soni</th><th data-i="46">Tayanch dars</th></tr></thead><tbody><tr><td data-i="47">Servis</td><td data-i="48">1–6</td><td data-i="49">6</td><td data-i="50">R1, R3</td></tr><tr><td data-i="51">Sanitariya va allergenlar</td><td data-i="52">7–14</td><td data-i="53">8</td><td data-i="54">R2, R5</td></tr><tr><td data-i="55">Xorijiy mehmon va xalqaro amaliyot</td><td data-i="56">15–20</td><td data-i="57">6</td><td data-i="58">R4, R6</td></tr><tr><td data-i="59">Buyurtma va hisob</td><td data-i="60">21–26</td><td data-i="61">6</td><td data-i="62">R7, R8</td></tr><tr><td data-i="63">Shikoyat va xavfsizlik</td><td data-i="64">27–30</td><td data-i="65">4</td><td data-i="66">R9, R10</td></tr></tbody></table></div><div data-i="67" class="quote" style="margin-top:14px">Bu raqamlar manbadagi va bosma nusxadagi tartibdir. Saytdagi tayyorgarlik testida savollar va javoblar aralashtiriladi.</div>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Tinglovchi yo'riqnomasi" data-title-en="Tinglovchi yo'riqnomasi">
+    <div class="inner">
+<span data-i="77" class="kicker">Bosqichma-bosqich</span><h2 data-i="78">Tinglovchi yo'riqnomasi</h2><ol data-i="75"><li data-i="70">Trener bergan variant va javob blankasiga ism, sana va guruhni yozing.</li><li data-i="71">Har testga bitta javob: to'g'ri — 1, noto'g'ri yoki javobsiz — 0. Salbiy ball yo'q.</li><li data-i="72">Vaziyatlarda harakat ketma-ketligi, kim bilan aloqa, qayd va to'xtash qarorini yozing.</li><li data-i="73">Noaniq tarkib yoki xavfli vaziyatda taxmin qilmang; nima tekshirilishini aniq ayting.</li><li data-i="74">Vaqt tugaganda javoblarni topshiring; yakuniy bahoni baholovchi bayonnomaga kiritadi.</li></ol><div data-i="76" class="quote" style="margin-top:14px">Saytdagi ochiq savollar va mezonlar <b>tayyorgarlik</b> uchun. Rasmiy imtihon trener nazoratidagi nusxada o'tkaziladi; brauzer natijasi rasmiy 40 ballik baho emas.</div>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Test javoblari blankasi" data-title-en="Test javoblari blankasi">
+    <div class="inner">
+<span data-i="114" class="kicker">Bosqichma-bosqich</span><h2 data-i="115">Test javoblari blankasi</h2><div class="tw"><table><thead><tr><th data-i="79">1–10</th><th data-i="80">11–20</th><th data-i="81">21–30</th></tr></thead><tbody><tr><td data-i="82">1. ☐ A ☐ B ☐ C ☐ D</td><td data-i="83">11. ☐ A ☐ B ☐ C ☐ D</td><td data-i="84">21. ☐ A ☐ B ☐ C ☐ D</td></tr><tr><td data-i="85">2. ☐ A ☐ B ☐ C ☐ D</td><td data-i="86">12. ☐ A ☐ B ☐ C ☐ D</td><td data-i="87">22. ☐ A ☐ B ☐ C ☐ D</td></tr><tr><td data-i="88">3. ☐ A ☐ B ☐ C ☐ D</td><td data-i="89">13. ☐ A ☐ B ☐ C ☐ D</td><td data-i="90">23. ☐ A ☐ B ☐ C ☐ D</td></tr><tr><td data-i="91">4. ☐ A ☐ B ☐ C ☐ D</td><td data-i="92">14. ☐ A ☐ B ☐ C ☐ D</td><td data-i="93">24. ☐ A ☐ B ☐ C ☐ D</td></tr><tr><td data-i="94">5. ☐ A ☐ B ☐ C ☐ D</td><td data-i="95">15. ☐ A ☐ B ☐ C ☐ D</td><td data-i="96">25. ☐ A ☐ B ☐ C ☐ D</td></tr><tr><td data-i="97">6. ☐ A ☐ B ☐ C ☐ D</td><td data-i="98">16. ☐ A ☐ B ☐ C ☐ D</td><td data-i="99">26. ☐ A ☐ B ☐ C ☐ D</td></tr><tr><td data-i="100">7. ☐ A ☐ B ☐ C ☐ D</td><td data-i="101">17. ☐ A ☐ B ☐ C ☐ D</td><td data-i="102">27. ☐ A ☐ B ☐ C ☐ D</td></tr><tr><td data-i="103">8. ☐ A ☐ B ☐ C ☐ D</td><td data-i="104">18. ☐ A ☐ B ☐ C ☐ D</td><td data-i="105">28. ☐ A ☐ B ☐ C ☐ D</td></tr><tr><td data-i="106">9. ☐ A ☐ B ☐ C ☐ D</td><td data-i="107">19. ☐ A ☐ B ☐ C ☐ D</td><td data-i="108">29. ☐ A ☐ B ☐ C ☐ D</td></tr><tr><td data-i="109">10. ☐ A ☐ B ☐ C ☐ D</td><td data-i="110">20. ☐ A ☐ B ☐ C ☐ D</td><td data-i="111">30. ☐ A ☐ B ☐ C ☐ D</td></tr></tbody></table></div><p data-i="112">To'g'ri javoblar: ___ / 30 · Baholovchi: ___ · Sana: ___</p><div data-i="113" class="quote" style="margin-top:14px">Chop etishda yangi_mavzu generatori yaratgan taqdimotdagi savol tartibidan foydalaning. Aralashtirilgan brauzer testining tartibini bosma blankaga ko'chirmang.</div>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Vaziyat A: xorijiy mehmon va allergen" data-title-en="Vaziyat A: xorijiy mehmon va allergen">
+    <div class="inner">
+<span data-i="124" class="kicker">Bosqichma-bosqich</span><h2 data-i="125">Vaziyat A: xorijiy mehmon va allergen</h2><div data-i="116" class="def">7/1 mehmon ingliz tilini tanlaydi va <b>grek yong'og'iga allergiyasi</b> borligini aytadi. Salatdagi sous yorlig'i topilmadi; oshxona «o'xshash sous bo'lsa kerak» deydi. Mehmon shoshayotganini bildiradi.</div><div class="grid g2" style="margin-top:16px"><div class="card" style="--c:var(--blue);"><span class="icon">✍️</span><h3 data-i="117">Yozma javob — 20 daqiqa</h3><ul class="tick"><li data-i="118">Mehmonga nima deysiz? Sodda inglizcha ibora bilan yozing</li><li data-i="119">Qaysi tarkib va jarayonni kimdan tekshirasiz?</li><li data-i="120">Noaniq javobda qanday qaror qilasiz?</li><li data-i="121">Buyurtma va yakuniy yechimni qanday qayd etasiz?</li></ul></div><div class="card" style="--c:var(--green);"><span class="icon">📝</span><h3 data-i="122">Javob joyi</h3><p data-i="123">1. ____________________<br>2. ____________________<br>3. ____________________<br>4. ____________________<br>5. ____________________</p></div></div>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Vaziyat A: baholash mezoni — 5 ball" data-title-en="Vaziyat A: baholash mezoni — 5 ball">
+    <div class="inner">
+<span data-i="139" class="kicker">Bosqichma-bosqich</span><h2 data-i="140">Vaziyat A: baholash mezoni — 5 ball</h2><div class="tw"><table><thead><tr><th data-i="126">Mezon</th><th data-i="127">1 ball uchun dalil</th></tr></thead><tbody><tr><td data-i="128">1. Aniqlik</td><td data-i="129">Stol/o'rin va grek yong'og'i allergiyasini yozadi, mehmonga qayta tasdiqlaydi</td></tr><tr><td data-i="130">2. Manba</td><td data-i="131">Sous yorlig'i/retsept, bezak va boshqa tarkibni mas'uldan tekshiradi</td></tr><tr><td data-i="132">3. Jarayon</td><td data-i="133">Umumiy anjom/sirt va alohida tayyorlash imkonini oshxonadan so'raydi</td></tr><tr><td data-i="134">4. Xavfsiz qaror</td><td data-i="135">Noaniq sousli taomni uzatmaydi; mas'ulga yetkazadi, faqat tekshirilgan muqobil</td></tr><tr><td data-i="136">5. Muloqot va qayd</td><td data-i="137">Sodda ibora, keyingi qadam/vaqt va mehmon tanlovini qayd etadi</td></tr></tbody></table></div><div data-i="138" class="quote" style="margin-top:14px">Har mezon: dalil aniq bo'lsa 1, yo'q yoki qarama-qarshi bo'lsa 0. Namuna: «Let me check the ingredients and preparation with our kitchen. I cannot confirm this sauce yet.»</div>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Vaziyat B: xato hisob va kechikish" data-title-en="Vaziyat B: xato hisob va kechikish">
+    <div class="inner">
+<span data-i="148" class="kicker">Bosqichma-bosqich</span><h2 data-i="149">Vaziyat B: xato hisob va kechikish</h2><div data-i="141" class="def">Ikki mehmon: A — tovuq 65 000 va suv 10 000; B — salat 30 000 va choy 15 000. Mashqda oldindan kelishilgan xizmat 10%. Hisobga buyurilmagan desert 25 000 qo'shilgan. Mehmonlar kechikishdan ham norozi va alohida hisob so'raydi. A 100 000 naqd beradi, B karta maketi bilan to'laydi.</div><ol data-i="146"><li data-i="142">Shikoyatni qabul qilish va xato bandni tekshirish harakatlarini yozing.</li><li data-i="143">Kim tuzatadi, nima sabab bilan va qanday qayd qoladi?</li><li data-i="144">Xato umumiy, to'g'ri umumiy, A va B hisobini hamda A qaytimini hisoblang.</li><li data-i="145">Karta javobi noma'lum bo'lsa nima qilasiz? Qaysi hujjatlar mos bo'lishi kerak?</li></ol><p data-i="147">Javob va hisob: __________________________________________________________</p>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Vaziyat B: baholash mezoni — 5 ball" data-title-en="Vaziyat B: baholash mezoni — 5 ball">
+    <div class="inner">
+<span data-i="163" class="kicker">Bosqichma-bosqich</span><h2 data-i="164">Vaziyat B: baholash mezoni — 5 ball</h2><div class="tw"><table><thead><tr><th data-i="150">Mezon</th><th data-i="151">1 ball uchun dalil</th></tr></thead><tbody><tr><td data-i="152">1. Shikoyat</td><td data-i="153">Tinglash, uzr, fakt va tekshirilgan yechim/muddat; ayblamaslik</td></tr><tr><td data-i="154">2. Tuzatish</td><td data-i="155">Buyurtmaga solishtirish, vakolatli mas'ul; desert va 2 500 xizmat haqini iz bilan olib tashlash</td></tr><tr><td data-i="156">3. Jami</td><td data-i="157">Xato 159 500; to'g'ri 132 000 (120 000 + 12 000)</td></tr><tr><td data-i="158">4. Ajratish/qaytim</td><td data-i="159">A 82 500, B 49 500; A qaytimi 17 500; A+B jami bilan mos</td></tr><tr><td data-i="160">5. To'lov va hujjat</td><td data-i="161">Noma'lum operatsiyani tekshirmasdan takrorlamaslik; hisob, tasdiq va tegishli chek mos</td></tr></tbody></table></div><div data-i="162" class="quote" style="margin-top:14px">Har satr to'liq bajarilsa 1, bajarilmasa 0. Baholovchi qaysi dalil yo'qligini yozadi. Hisobning sonli javobi bilan birga xizmat harakati ham baholanadi.</div>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Yakuniy nazariy bayonnoma" data-title-en="Yakuniy nazariy bayonnoma">
+    <div class="inner">
+<span data-i="186" class="kicker">Bosqichma-bosqich</span><h2 data-i="187">Yakuniy nazariy bayonnoma</h2><div class="tw"><table><thead><tr><th data-i="165">Maydon</th><th data-i="166">To'ldiriladi</th></tr></thead><tbody><tr><td data-i="167">Tinglovchi / sana / variant</td><td data-i="168">____________________________</td></tr><tr><td data-i="169">Kirish dalillari</td><td data-i="170">Davomat ___/20; R2 ___; R5 ___; trener ___</td></tr><tr><td data-i="171">Test</td><td data-i="172">___ / 30</td></tr><tr><td data-i="173">Vaziyat A</td><td data-i="174">___ / 5; izoh ___</td></tr><tr><td data-i="175">Vaziyat B</td><td data-i="176">___ / 5; izoh ___</td></tr><tr><td data-i="177">Jami</td><td data-i="178">___ / 40</td></tr><tr><td data-i="179">Natija</td><td data-i="180">☐ O'tdi (≥28) ☐ Qayta tayyorgarlik (<28)</td></tr><tr><td data-i="181">Baholovchi / imzo</td><td data-i="182">____________________________</td></tr><tr><td data-i="183">Qayta mashq va muddat</td><td data-i="184">____________________________</td></tr></tbody></table></div><div data-i="185" class="quote" style="margin-top:14px">Saytdagi mashq testi faqat 30 savolni tekshiradi. Ikki yozma topshiriqni baholovchi tekshiradi; jami 40 ballni brauzer foizidan chiqarmang.</div>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Natijani tushunish" data-title-en="Natijani tushunish">
+    <div class="inner">
+<span data-i="196" class="kicker">Bosqichma-bosqich</span><h2 data-i="197">Natijani tushunish</h2><div class="grid g2" style="margin-top:16px"><div class="card" style="--c:var(--green);"><span class="icon">✓</span><h3 data-i="188">Misol: 24 + 3 + 4</h3><p data-i="189">31/40 — R11dan o'tdi. R12 uchun alohida kamida 45/60 va kritik xatosiz natija kerak.</p></div><div class="card" style="--c:var(--orange);"><span class="icon">↻</span><h3 data-i="190">Misol: 23 + 2 + 2</h3><p data-i="191">27/40 — o'tmadi. Xato yo'nalish bo'yicha qayta tayyorgarlik va trener belgilagan qayta baholash.</p></div><div class="card" style="--c:var(--blue);"><span class="icon">🧭</span><h3 data-i="192">Zaif yo'nalish</h3><p data-i="193">Sanitariya/allergen bo'lsa R2/R5; hisob bo'lsa R7/R8; muloqot/shikoyat bo'lsa R4/R9ga qayting.</p></div><div class="card" style="--c:var(--violet);"><span class="icon">📄</span><h3 data-i="194">Saqlanadigan dalil</h3><p data-i="195">Javob blankasi, vaziyatli javoblar va imzolangan bayonnoma trenerning kurs hujjatlarida saqlanadi.</p></div></div>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Keyingi bosqich: amaliy imtihon" data-title-en="Keyingi bosqich: amaliy imtihon">
+    <div class="inner">
+<span data-i="200" class="kicker">Bosqichma-bosqich</span><h2 data-i="201">Keyingi bosqich: amaliy imtihon</h2><div data-i="198" class="def">R12da 12 daqiqalik xizmat vaziyati: xorijiy mehmon, allergen, kechikish va alohida hisob. 6 mezon × 10 ball = 60; o'tish ≥45/60 va kritik xatosiz.</div><div data-i="199" class="quote" style="margin-top:14px">Quyidagi 30 savolni 35 daqiqalik <b>tayyorgarlik mashqi</b> sifatida bajaring. Natija — to'g'ri javoblar / 30. Bu mashq asosiy fanning ballariga qo'shilmaydi, imtihonga avtomatik ruxsat yoki sertifikat bermaydi.</div>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Nazariy savollar 1–3" data-title-en="Nazariy savollar 1–3">
+    <div class="inner">
+<span data-i="220" class="kicker">Bosma tayyorgarlik varianti · Har savol 1 ball</span><h2 data-i="221">Nazariy savollar 1–3</h2><h3 data-i="202" style="margin-top:12px">1. Bron jurnalda topilmadi. Kasbiy javob qaysi?</h3><ol data-i="207" type="A"><li data-i="203">Xotirjam tekshirib, administrator bilan joylashtirish yechimini topish</li><li data-i="204">Mehmonni yolg'onchiga chiqarish</li><li data-i="205">Bronni tekshirmay ketkazish</li><li data-i="206">Boshqa bron stolini ruxsatsiz berish</li></ol><h3 data-i="208" style="margin-top:12px">2. Smena brifingining asosiy natijasi?</h3><ol data-i="213" type="A"><li data-i="209">Faqat chiroyli forma</li><li data-i="210">Jamoada bron, stop-list, vazifa va maxsus so'rovlar bo'yicha bir xil axborot</li><li data-i="211">Faqat barcha telefonni zaryadlash</li><li data-i="212">Faqat menyu muqovasini almashtirish</li></ol><h3 data-i="214" style="margin-top:12px">3. Menyuda yo'q taom uchun pribor qo'yish kerakmi?</h3><ol data-i="219" type="A"><li data-i="215">Ha; imkon qadar ko'p</li><li data-i="216">Faqat chapga hamma pribor</li><li data-i="217">Yo'q; kuvert menyudagi ketma-ketlikka mos bo'ladi</li><li data-i="218">Faqat desert pribori yetadi</li></ol>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Nazariy savollar 4–6" data-title-en="Nazariy savollar 4–6">
+    <div class="inner">
+<span data-i="240" class="kicker">Bosma tayyorgarlik varianti · Har savol 1 ball</span><h2 data-i="241">Nazariy savollar 4–6</h2><h3 data-i="222" style="margin-top:12px">4. Patnisni bo'shatishda muhim qoida?</h3><ol data-i="227" type="A"><li data-i="223">Bir tomonni birdan bo'shatish</li><li data-i="224">Mehmon boshidan oshirish</li><li data-i="225">Og'ir buyumni chetga qo'yish</li><li data-i="226">Muvozanatni saqlab, og'irlikni bir tomonga yig'maslik</li></ol><h3 data-i="228" style="margin-top:12px">5. Issiq taomni uzatishda nima qilinadi?</h3><ol data-i="233" type="A"><li data-i="229">To'g'ri o'rin tekshirilib, issiq idish haqida ogohlantiriladi</li><li data-i="230">Tarelka mehmon ustidan uzatiladi</li><li data-i="231">Bug' mehmon tomon ochiladi</li><li data-i="232">Patnis bolaga tutqaziladi</li></ol><h3 data-i="234" style="margin-top:12px">6. Mehmon ketganda buyumi qolgan. To'g'ri harakat?</h3><ol data-i="239" type="A"><li data-i="235">Shaxsiy foydalanish</li><li data-i="236">Restoran tartibida mas'ulga topshirish va qayd qilish</li><li data-i="237">Chatga egasining suratini tarqatish</li><li data-i="238">Hech kimga aytmaslik</li></ol>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Nazariy savollar 7–9" data-title-en="Nazariy savollar 7–9">
+    <div class="inner">
+<span data-i="260" class="kicker">Bosma tayyorgarlik varianti · Har savol 1 ball</span><h2 data-i="261">Nazariy savollar 7–9</h2><h3 data-i="242" style="margin-top:12px">7. Ishlatilgan idishdan keyin toza pribor ushlashdan oldin?</h3><ol data-i="247" type="A"><li data-i="243">Qo'lni fartukka artish</li><li data-i="244">Faqat priborni hidlash</li><li data-i="245">Qo'l gigiyenasini bajarish va oqimlarni ajratish</li><li data-i="246">O'sha qo'lqopda davom etish</li></ol><h3 data-i="248" style="margin-top:12px">8. Yerga tushgan vilka bilan nima qilinadi?</h3><ol data-i="253" type="A"><li data-i="249">Salfetkada artilib qaytariladi</li><li data-i="250">Suvga tekkizib beriladi</li><li data-i="251">Boshqa mehmonga qo'yiladi</li><li data-i="252">Ajratilib, o'rniga toza vilka keltiriladi</li></ol><h3 data-i="254" style="margin-top:12px">9. Xodimda qusish va ich ketish bor. Qaror?</h3><ol data-i="259" type="A"><li data-i="255">Smenagacha mas'ulga xabar, ishga qaytish tartibini tekshirish</li><li data-i="256">Yashirib ishga chiqish</li><li data-i="257">Faqat atir sepish</li><li data-i="258">Qo'lqop bilan hamma ishni bajarish</li></ol>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Nazariy savollar 10–12" data-title-en="Nazariy savollar 10–12">
+    <div class="inner">
+<span data-i="280" class="kicker">Bosma tayyorgarlik varianti · Har savol 1 ball</span><h2 data-i="281">Nazariy savollar 10–12</h2><h3 data-i="262" style="margin-top:12px">10. Stakan qanday ushlanadi?</h3><ol data-i="267" type="A"><li data-i="263">Ichki qismiga barmoq solib</li><li data-i="264">Ichish chetiga tegmasdan pastki qismi yoki oyoqchasidan</li><li data-i="265">Og'zidan qisib</li><li data-i="266">Mehmon ichadigan chetidan</li></ol><h3 data-i="268" style="margin-top:12px">11. Yong'oqli sousni qaynatish allergen xavfini ishonchli yo'qotadimi?</h3><ol data-i="273" type="A"><li data-i="269">Ha; har doim</li><li data-i="270">Faqat tuz qo'shilsa</li><li data-i="271">Yo'q; tekshirilgan tarkib va ajratilgan jarayon kerak</li><li data-i="272">Faqat kichik porsiyada</li></ol><h3 data-i="274" style="margin-top:12px">12. Allergen jadvalidagi noma'lum katakda nima qilasiz?</h3><ol data-i="279" type="A"><li data-i="275">Allergen yo'q deyman</li><li data-i="276">Menyudan narxni o'chiraman</li><li data-i="277">Mehmonga ozroq beraman</li><li data-i="278">Retsept, yorliq va mas'ul bilan tekshiraman</li></ol>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Nazariy savollar 13–15" data-title-en="Nazariy savollar 13–15">
+    <div class="inner">
+<span data-i="300" class="kicker">Bosma tayyorgarlik varianti · Har savol 1 ball</span><h2 data-i="301">Nazariy savollar 13–15</h2><h3 data-i="282" style="margin-top:12px">13. Vegan taomga yong'oq allergiyasi so'rovi keldi. Nima kerak?</h3><ol data-i="287" type="A"><li data-i="283">Allergen tarkibi va umumiy jihozni alohida tekshirish</li><li data-i="284">Vegan yozuviga tayanish</li><li data-i="285">Faqat porsiyani kamaytirish</li><li data-i="286">Faqat taomni isitish</li></ol><h3 data-i="288" style="margin-top:12px">14. Oshxona alohida tayyorlashni tasdiqlay olmadi. Qaror?</h3><ol data-i="293" type="A"><li data-i="289">Mehmon shoshsa uzatish</li><li data-i="290">Taomni uzatmaslik, mas'ul va tekshirilgan muqobilni izlash</li><li data-i="291">Bezakni olib berish</li><li data-i="292">So'rovni yashirish</li></ol><h3 data-i="294" style="margin-top:12px">15. Mehmon tilini qanday bilasiz?</h3><ol data-i="299" type="A"><li data-i="295">Kiyimiga qarab</li><li data-i="296">Faqat millatiga qarab</li><li data-i="297">Salomlashib, qaysi tilni afzal ko'rishini so'rab</li><li data-i="298">Hamma bilan bir xil chet tilda</li></ol>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Nazariy savollar 16–18" data-title-en="Nazariy savollar 16–18">
+    <div class="inner">
+<span data-i="320" class="kicker">Bosma tayyorgarlik varianti · Har savol 1 ball</span><h2 data-i="321">Nazariy savollar 16–18</h2><h3 data-i="302" style="margin-top:12px">16. Mehmon inglizcha tushunmadi. Keyingi qadam?</h3><ol data-i="307" type="A"><li data-i="303">Balandroq baqirish</li><li data-i="304">Tushungandek bosh irg'ash</li><li data-i="305">Savolni e'tiborsiz qoldirish</li><li data-i="306">Soddaroq gap va menyuda ko'rsatib qayta tasdiqlash</li></ol><h3 data-i="308" style="margin-top:12px">17. «Let me check the ingredients with our kitchen» nima uchun?</h3><ol data-i="313" type="A"><li data-i="309">Tarkibni taxminsiz oshxonadan tekshirish uchun</li><li data-i="310">Narxni yashirish uchun</li><li data-i="311">Hisobni ajratish uchun</li><li data-i="312">Mehmonni kuzatish uchun</li></ol><h3 data-i="314" style="margin-top:12px">18. WorldSkills va mahalliy qonun bir xilmi?</h3><ol data-i="319" type="A"><li data-i="315">Ha; barcha mamlakatda</li><li data-i="316">Yo'q; kasbiy mezon va majburiy talab farqlanadi</li><li data-i="317">Faqat sertifikat bo'lsa bir xil</li><li data-i="318">Faqat banketda bir xil</li></ol>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Nazariy savollar 19–21" data-title-en="Nazariy savollar 19–21">
+    <div class="inner">
+<span data-i="340" class="kicker">Bosma tayyorgarlik varianti · Har savol 1 ball</span><h2 data-i="341">Nazariy savollar 19–21</h2><h3 data-i="322" style="margin-top:12px">19. Bufetdagi har taom uchun qanday tayyorgarlik kerak?</h3><ol data-i="327" type="A"><li data-i="323">Faqat katta idish</li><li data-i="324">Bitta umumiy qisqich</li><li data-i="325">Ishonchli belgi, alohida anjom, saqlash nazorati va mas'ul</li><li data-i="326">Faqat bezak</li></ol><h3 data-i="328" style="margin-top:12px">20. YI 14 va AQSh 9 allergenni qiyoslashda nima muhim?</h3><ol data-i="333" type="A"><li data-i="329">Faqat sonni yodlash</li><li data-i="330">AQShda boshqa allergiya yo'q deyish</li><li data-i="331">Birini hamma joyda qonun qilish</li><li data-i="332">Hudud va qo'llanish sohasi, jumladan qadoqlangan mahsulot konteksti</li></ol><h3 data-i="334" style="margin-top:12px">21. Allergen buyurtmasi qanday manzillanadi?</h3><ol data-i="339" type="A"><li data-i="335">Stol/o'rin, aniq so'rov, POS belgisi va oshxona tasdig'i bilan</li><li data-i="336">Faqat taom nomi bilan</li><li data-i="337">Faqat mehmon kiyimi bilan</li><li data-i="338">Faqat terminal raqami bilan</li></ol>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Nazariy savollar 22–24" data-title-en="Nazariy savollar 22–24">
+    <div class="inner">
+<span data-i="360" class="kicker">Bosma tayyorgarlik varianti · Har savol 1 ball</span><h2 data-i="361">Nazariy savollar 22–24</h2><h3 data-i="342" style="margin-top:12px">22. Yo'q taomni muqobilga qachon almashtirasiz?</h3><ol data-i="347" type="A"><li data-i="343">Oshxona istagan zahoti</li><li data-i="344">Tarkib, narx va vaqt tekshirilib, mehmon tasdiqlagach</li><li data-i="345">Mehmon bilmasdan</li><li data-i="346">Faqat chipta chiqsa</li></ol><h3 data-i="348" style="margin-top:12px">23. Yuborilgan POS yozuvini izsiz o'chirish o'rniga?</h3><ol data-i="353" type="A"><li data-i="349">Begona parol bilan kirish</li><li data-i="350">Xatoni yashirish</li><li data-i="351">Vakolatli tuzatish, sabab, vaqt va mas'ul qaydi</li><li data-i="352">Mehmonga ortiqcha to'latish</li></ol><h3 data-i="354" style="margin-top:12px">24. Hisob asosi 120 000, kelishilgan xizmat 10%. Jami?</h3><ol data-i="359" type="A"><li data-i="355">121 000 so'm</li><li data-i="356">120 010 so'm</li><li data-i="357">144 000 so'm</li><li data-i="358">132 000 so'm</li></ol>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Nazariy savollar 25–27" data-title-en="Nazariy savollar 25–27">
+    <div class="inner">
+<span data-i="380" class="kicker">Bosma tayyorgarlik varianti · Har savol 1 ball</span><h2 data-i="381">Nazariy savollar 25–27</h2><h3 data-i="362" style="margin-top:12px">25. 82 500 hisobga 100 000 naqd berildi. Qaytim?</h3><ol data-i="367" type="A"><li data-i="363">17 500 so'm</li><li data-i="364">27 500 so'm</li><li data-i="365">7 500 so'm</li><li data-i="366">18 500 so'm</li></ol><h3 data-i="368" style="margin-top:12px">26. Terminal javobi kelmadi. To'g'ri harakat?</h3><ol data-i="373" type="A"><li data-i="369">Darhol yana yechish</li><li data-i="370">Birinchi operatsiya holatini tekshirmay takror yechmaslik</li><li data-i="371">PINni yozib olish</li><li data-i="372">Hisobni ikki barobar qilish</li></ol><h3 data-i="374" style="margin-top:12px">27. Kechikish shikoyati qanday yakunlanadi?</h3><ol data-i="379" type="A"><li data-i="375">Faqat bahslashish bilan</li><li data-i="376">Oshxonani ayblash bilan</li><li data-i="377">Yechim, mas'ul, muddat va mehmon javobini qayd qilish bilan</li><li data-i="378">Hisobni yashirish bilan</li></ol>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Nazariy savollar 28–30" data-title-en="Nazariy savollar 28–30">
+    <div class="inner">
+<span data-i="400" class="kicker">Bosma tayyorgarlik varianti · Har savol 1 ball</span><h2 data-i="401">Nazariy savollar 28–30</h2><h3 data-i="382" style="margin-top:12px">28. Harakatlanish yordami kerak deb o'yladingiz. Avval?</h3><ol data-i="387" type="A"><li data-i="383">Aravachasini darhol surish</li><li data-i="384">Faqat hamrohiga buyruq berish</li><li data-i="385">Mehmonni ko'tarish</li><li data-i="386">Mehmonning o'zidan qanday yordam qulayligini so'rash</li></ol><h3 data-i="388" style="margin-top:12px">29. Mehmon nafas olishda qiynalmoqda. Birinchi yo'nalish?</h3><ol data-i="393" type="A"><li data-i="389">Darhol mas'ul va shoshilinch yordamni chaqirish</li><li data-i="390">Avval hisobni to'latish</li><li data-i="391">10 daqiqa kutish</li><li data-i="392">O'zim dori belgilash</li></ol><h3 data-i="394" style="margin-top:12px">30. Keyingi smenaga ochiq vazifa qanday topshiriladi?</h3><ol data-i="399" type="A"><li data-i="395">Faqat «bir ish bor» deb</li><li data-i="396">Holat, keyingi qadam, yangi mas'ul, muddat va qabul tasdig'i bilan</li><li data-i="397">Jurnalni o'chirib</li><li data-i="398">Faqat mehmon ismi bilan</li></ol>
+    </div>
+  </section>
+
+  <section class="slide" data-title="TEST · Bilimni tekshirish" data-title-en="TEST · Bilimni tekshirish">
+    <div class="inner">
+<span data-i="402" class="kicker">Yakuniy nazorat</span><h2 data-i="403">🧪 Test topshiriqlari — <span class="grad">30 ta savol</span></h2><div class="scorebar"><span><span data-ui="score">Natija:</span> <b><span id="scoreNow">0</span> / <span id="scoreMax">30</span></b></span><span><span data-ui="answered">Javob berildi:</span> <b id="answered">0</b></span><div class="spacer"></div><button data-i="404" class="btn warn" id="btnReset">↻ Testni qayta boshlash</button></div><div id="testWrap"></div><div class="result" id="result"><div class="pct" id="pct">0%</div><h3 data-i="405" id="resTitle" style="color:#fff;margin:10px 0 4px">Natija</h3><p id="resTxt" style="color:#fff;opacity:.95;margin:0"></p></div><div class="card" style="--c:var(--green);margin-top:18px;text-align:center"><h3 data-i="406">🎓 Rahmat! E'tiboringiz uchun tashakkur</h3><p data-i="407">Tayyorgarlik testi tugagach, 2 ta vaziyatli javobni yozing va <b>baholovchiga</b> tekshirtiring. Rasmiy natija — bayonnomada.</p><p data-i="408" style="color:var(--muted);font-size:13.5px">Restoran xodimlari malakasini oshirish · RS 24</p></div>
+    </div>
+  </section>
+
+  </main>
+
+  <!-- ====== NAVBAR ====== -->
+  <footer class="navbar">
+    <button class="btn" id="btnPrev" data-ui="prev">← Orqaga</button>
+    <span class="counter"><b id="cur">1</b> / <span id="total">18</span></span>
+    <div class="dots" id="dots"></div>
+    <span class="counter" id="slideName"></span>
+    <button class="btn accent" id="btnNext" data-ui="next">Keyingi →</button>
+  </footer>
+</div>
+
+<!-- ====== OVERLAYS ====== -->
+<div class="overlay" id="overview">
+  <div class="ov-head">
+    <h3 style="margin:0;flex:1" data-ui="allslides">▦ Barcha slaydlar</h3>
+    <button class="btn" id="ovClose" data-ui="close">✕ Yopish</button>
+  </div>
+  <div class="thumbs" id="thumbs"></div>
+</div>
+
+<div class="overlay" id="help">
+  <div class="helpbox">
+    <h3 style="margin-top:0" data-ui="helpTitle">⌨️ Klaviatura va imkoniyatlar</h3>
+    <div><span data-ui="hNext">Keyingi slayd</span><span><kbd>→</kbd> <kbd>Space</kbd> <kbd>PgDn</kbd></span></div>
+    <div><span data-ui="hPrev">Oldingi slayd</span><span><kbd>←</kbd> <kbd>PgUp</kbd></span></div>
+    <div><span data-ui="hHome">Birinchi / oxirgi slayd</span><span><kbd>Home</kbd> <kbd>End</kbd></span></div>
+    <div><span data-ui="hList">Slaydlar ro'yxati</span><span><kbd>O</kbd></span></div>
+    <div><span data-ui="hTheme">Tun / Kun rejimi</span><span><kbd>D</kbd></span></div>
+    <div><span data-ui="hLang">O'zbekcha / English</span><span><kbd>L</kbd></span></div>
+    <div><span data-ui="hFull">To'liq ekran</span><span><kbd>F</kbd></span></div>
+    <div><span data-ui="hTimer">Vaqt hisoblagich (start/stop)</span><span><kbd>T</kbd></span></div>
+    <div><span data-ui="hPrint">Chop etish / PDF</span><span><kbd>P</kbd></span></div>
+    <div><span data-ui="hGoto">Slayd raqamiga o'tish</span><span><kbd>1</kbd>…<kbd>9</kbd></span></div>
+    <div><span data-ui="hEsc">Yopish</span><span><kbd>Esc</kbd></span></div>
+    <p style="color:var(--muted);font-size:13px;margin:14px 0 0" data-ui="helpNote">📱 Telefonda chapga/o'ngga surib (swipe) slaydlarni almashtirish mumkin. Ochilgan slayd brauzer xotirasida saqlanadi.</p>
+    <button class="btn accent" id="helpClose" data-ui="gotit" style="margin-top:14px;width:100%;justify-content:center">Tushunarli</button>
+  </div>
+</div>
+
+<div class="hint" id="hint" data-ui="hint">⌨️ <kbd>→</kbd> keyingi slayd · <kbd>D</kbd> tun/kun · <kbd>L</kbd> uz/eng · <kbd>O</kbd> ro'yxat · <kbd>F</kbd> to'liq ekran</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- RT:BEGIN -->
+<script>var RT_CFG={"topic": "r11", "home": "", "slides": 24, "quiz": 30, "pSlide": 2, "pAll": 10, "teacher": "", "firebase": {"db": "tadbirkorlik-asoslari-default-rtdb", "regions": ["asia-southeast1", "europe-west1", "us-central1", "europe-west4", "asia-east1", "us-east1", "northamerica-northeast1"], "url": "https://tadbirkorlik-asoslari-default-rtdb.asia-southeast1.firebasedatabase.app"}, "topics": [{"id": "m1", "mode": "read", "modeAt": 1793853742801, "file": "mavzu-1.html", "title": "M1 · Tadbirkorlik tafakkuri va biznes imkoniyatlar", "open": true, "read": true, "quiz": 15, "slides": 18, "pdf": "fayllar/M1-mavzu.pdf", "pdfSize": "3,3 MB"}, {"id": "m2", "mode": "read", "modeAt": 1793853742801, "file": "mavzu-2.html", "title": "M2 · Mijoz muammosi asosida biznes g'oya", "open": true, "read": true, "quiz": 15, "slides": 24, "pdf": "fayllar/M2-mavzu.pdf", "pdfSize": "4,9 MB"}, {"id": "m3", "mode": "read", "modeAt": 1793853742801, "file": "mavzu-3.html", "title": "M3 · Mahsulotni kam xarajat bilan sinash (moliya va kredit)", "open": true, "read": true, "quiz": 15, "slides": 15, "lim": true, "pdf": "fayllar/M3-mavzu.pdf", "pdfSize": "2,1 MB"}, {"id": "m4", "mode": "read", "modeAt": 1793853742801, "file": "mavzu-4.html", "title": "M4 · Biznesni qonuniy rasmiylashtirish", "open": true, "read": true, "quiz": 18, "slides": 18, "lim": true}, {"id": "m5", "mode": "read", "modeAt": 1793853742801, "file": "mavzu-5.html", "title": "M5 · Soliqlar va hujjatlar", "open": true, "read": true, "quiz": 3, "slides": 18, "lim": true}, {"id": "m6", "mode": "read", "modeAt": 1793853742801, "file": "mavzu-6.html", "title": "M6 · Biznes-model qanday ishlaydi", "open": true, "quiz": 20, "slides": 24, "lim": true, "read": true}, {"id": "m7", "mode": "open", "modeAt": 1793853742801, "file": "mavzu-7.html", "title": "M7 · CRM nima?", "open": true, "quiz": 20, "slides": 24, "lim": true, "read": true}, {"id": "m8", "mode": "lock", "modeAt": 1793853742801, "title": "M8 · Mahsulotni reklama qilish va mijozga yetkazish", "file": "mavzu-8.html", "open": true, "slides": 24, "quiz": 20, "task": 25, "lim": true, "pdf": "fayllar/M8-mavzu.pdf", "pdfSize": "3,3 MB"}, {"id": "m9", "mode": "lock", "modeAt": 1793853742801, "title": "M9 · Biznes g'oyani taqdim etish va tadbirkorlik yo'lini boshlash", "file": "mavzu-9.html", "open": true, "slides": 22, "quiz": 15, "lim": true, "pdf": "fayllar/M9-mavzu.pdf", "pdfSize": "2,7 MB"}, {"id": "m10", "mode": "lock", "modeAt": 1793853742801, "title": "M10 · Savdo jarayonini tashkil etish va mijozlar bilan ishlash", "file": "mavzu-10.html", "open": true, "slides": 18, "quiz": 15, "lim": true}, {"id": "m11", "mode": "lock", "modeAt": 1793853742801, "title": "M11 · Mahsulot narxini shakllantirish", "file": "mavzu-11.html", "open": true, "slides": 18, "quiz": 15, "lim": true}, {"id": "m12", "mode": "lock", "modeAt": 1793853742801, "title": "M12 · Biznesda pul oqimini rejalashtirish: kirim, chiqim va mablag' jalb qilish", "file": "mavzu-12.html", "open": true, "slides": 18, "quiz": 15, "lim": true}, {"id": "m13", "mode": "lock", "modeAt": 1793853742801, "title": "M13 · Biznesda foyda va zarar tahlili", "file": "mavzu-13.html", "open": true, "slides": 18, "quiz": 15, "lim": true}, {"id": "m14", "mode": "lock", "modeAt": 1793853742801, "title": "M14 · Biznes-reja tuzish va mahsulotni tashqi bozorga olib chiqish", "file": "mavzu-14.html", "open": true, "slides": 18, "quiz": 15, "lim": true}, {"id": "m15", "mode": "lock", "modeAt": 1793853742801, "title": "M15 · Jamoani shakllantirish, xodimlarni boshqarish va xavflarni aniqlash", "file": "mavzu-15.html", "open": true, "slides": 18, "quiz": 15, "lim": true}, {"id": "r1", "course": "restoran", "file": "restoran-1.html", "title": "R1 · Kasbiy etika va xizmat sikli", "open": false, "slides": 20, "quiz": 15, "lim": true, "video": "fayllar/video/R1.mp4", "kind": "lesson", "plan": {"hours": "1 soat nazariya · 1 soat amaliyot", "about": "Kasbiy ko‘rinish, smenaoldi brifingi, xizmat ketma-ketligi va vakolat chegaralari. Mehmonni kutib olish, stolga joylashtirish, xizmat davomida holatni tekshirish va kuzatish.", "task": "Bron bilan kelgan va bronsiz kelgan ikki mehmonni qabul qiladi. Kutish vaqtini tushuntiradi, stolni taklif qiladi va xizmatni yakunlaydi.", "result": "Kuzatuv varag‘ida kutib olish, e’tibor, vaqtni kelishish va kuzatish qayd etiladi."}}, {"id": "r2", "course": "restoran", "file": "restoran-2.html", "title": "R2 · Sanitariya va xavfsiz xizmat", "open": false, "slides": 21, "quiz": 15, "lim": true, "video": "fayllar/video/R2.mp4", "kind": "lesson", "plan": {"hours": "1 soat nazariya · 1 soat amaliyot", "about": "Qo‘l gigiyenasi, toza forma, xodim salomatligi haqida xabar berish, toza va ishlatilgan idishlarni ajratish, ifloslanishning oldini olish. Issiq idish, ho‘l pol va singan shisha bilan bog‘liq xavflar.", "task": "Qo‘l yuvishni namoyish qiladi, ifloslangan anjomni almashtiradi, to‘kilgan suyuqlik joyini belgilaydi va mas’ul xodimga xabar beradi.", "result": "Gigiyena va xavfga javob bo‘yicha tekshiruv varag‘i to‘ldiriladi."}}, {"id": "r3", "course": "restoran", "file": "restoran-3.html", "title": "R3 · Stol servirovkasi va taom uzatish", "open": false, "slides": 21, "quiz": 15, "lim": true, "kind": "lesson", "plan": {"hours": "2 soat amaliyot", "about": "Banket uchun dastlabki tayyorgarlik. Idish, qadah va anjomlarni menyuga mos joylashtirish, patnisni muvozanatlash, issiq taomni ogohlantirib uzatish va stolni yig‘ishtirish.", "task": "Ikki kishilik stolni ikki xil menyuga mos jihozlaydi. Taomni buyurtma bergan mehmonga xavfsiz uzatib, ishlatilgan idishlarni yig‘adi.", "result": "Tayyor stol va taom uzatish harakati nazorat ro‘yxati bo‘yicha tekshiriladi."}}, {"id": "r4", "course": "restoran", "title": "R4 · Xorijiy mehmon bilan muloqot", "open": false, "kind": "lesson", "plan": {"hours": "1 soat nazariya · 1 soat amaliyot", "about": "Til tanlovini so‘rash, sodda va sekin gapirish, ismni hurmat bilan talaffuz qilish, ikki tilli menyudan foydalanish. Madaniy yoki diniy ehtiyojni taxmin qilmasdan aniqlashtirish va buyurtmani qayta tasdiqlash. Ishchi iboralar: Which language would you prefer? · Do you have any food allergies? · Let me check the ingredients with our kitchen. · May I confirm your order? · Would you like one bill or separate bills?", "task": "Oddiy ingliz tilida ikki dialog o‘tkazadi. Birida taom, porsiya va narxni izohlaydi. Ikkinchisida parhez so‘rovini yozib oladi va oshxona bilan tekshirishini tushuntiradi.", "result": "Mehmon tilni, buyurtma mazmunini va keyingi qadamni tushunganini tasdiqlaydi."}, "file": "restoran-4.html", "slides": 21, "quiz": 15, "lim": true}, {"id": "r5", "course": "restoran", "title": "R5 · Menyu va allergenlar bilan ishlash", "open": false, "kind": "lesson", "plan": {"hours": "1 soat nazariya · 1 soat amaliyot", "about": "Tarkib, porsiya va pishirish usuli. Allergiya, intolerans, halol yoki o‘simlik asosidagi ovqatlanish kabi so‘rovlarni aniqlashtirish. Tarkib va tayyorlash sharoitini tekshirish, jumladan allergenning boshqa taomga o‘tish xavfini aniqlash.", "task": "Yong‘oqqa allergiyasi bor mehmon uchun retsept va allergen jadvalini tekshiradi, oshxonadan tasdiq oladi va buyurtmani belgilaydi. Ishonchli javob bo‘lmasa uzatishni to‘xtatadi.", "result": "Buyurtma qaydida so‘rov, oshxona javobi va mehmonga bildirilgan yechim ko‘rinadi."}, "file": "restoran-5.html", "slides": 17, "quiz": 15, "lim": true}, {"id": "r6", "course": "restoran", "title": "R6 · Xalqaro mezonlar va xizmat uslublari", "open": false, "kind": "lesson", "plan": {"hours": "1 soat nazariya · 1 soat amaliyot", "about": "WorldSkills Restaurant Service mezonlari, Codex gigiyena va allergen boshqaruvi, ISO 22000 oziq-ovqat xavfsizligi tizimi. Tarelkada uzatish, umumiy lagandan xizmat, bufet, banket va yordamchi aravachada stol yonida xizmat. Qiyosiy mashq: Yevropa Ittifoqi, Buyuk Britaniya, Fransiya va AQSh qoidalari.", "task": "Bitta menyu uchun individual uzatish va bufet variantini qiyoslaydi. Xizmat yo‘nalishi, anjomlar, allergen axboroti va navbatni boshqarishni rejalashtiradi.", "result": "Ikki servis shaklining tayyorgarlik ro‘yxati va tanlov sababi taqdim etiladi."}, "file": "restoran-6.html", "slides": 18, "quiz": 15, "lim": true}, {"id": "r7", "course": "restoran", "title": "R7 · Buyurtma va zal bilan oshxona hamkorligi", "open": false, "kind": "lesson", "plan": {"hours": "1 soat nazariya · 1 soat amaliyot", "about": "Stol va o‘rin raqami, taomlar ketma-ketligi, kutish vaqti, maxsus so‘rovlar. POS buyurtma tizimiga kiritish, oshxona bilan tasdiqlash va vakolatli tuzatish.", "task": "Uch kishilik stol buyurtmasini takrorlaydi, demo POSga kiritadi va mavjud bo‘lmagan taomga oshxona tasdiqlagan muqobilni taklif qiladi.", "result": "Oshxona chiptasi, POS yozuvi va mehmon tasdiqlagan buyurtma o‘zaro mos bo‘ladi."}, "file": "restoran-7.html", "slides": 17, "quiz": 15, "lim": true}, {"id": "r8", "course": "restoran", "title": "R8 · Tavsiya berish va to‘lovni rasmiylashtirish", "open": false, "kind": "lesson", "plan": {"hours": "1 soat nazariya · 1 soat amaliyot", "about": "Mehmon byudjetiga mos tavsiya, taom va alkogolsiz ichimlik uyg‘unligi, suv, choy va qahva uzatish. Menyudagi narx va to‘lov shartlarini tushuntirish, hisobni tekshirish va tegishli chekni taqdim etish.", "task": "Mehmon roziligi bilan ichimlik taklif qiladi, ikki kishining hisobini ajratadi va xato bandni mas’ul bilan tuzatadi.", "result": "Menyu, buyurtma, tuzatilgan hisob va o‘quv cheki o‘zaro mos keladi."}, "file": "restoran-8.html", "slides": 18, "quiz": 15, "lim": true}, {"id": "r9", "course": "restoran", "title": "R9 · Shikoyat va inklyuziv xizmat", "open": false, "kind": "lesson", "plan": {"hours": "1 soat nazariya · 1 soat amaliyot", "about": "Mehmonni tinglash, muammoni aniqlashtirish, yechim va muddatni kelishish. Yordam turini mehmonning o‘zidan so‘rash, qulay o‘rin taklif qilish. Salomatlik yoki xavfsizlikka tahdid bo‘lsa, restoran tartibi bo‘yicha yordam chaqirish.", "task": "Kechikkan taom shikoyatini hal qiladi va harakatlanish uchun qulay o‘rin so‘ragan mehmonga uning roziligi bilan yordam beradi.", "result": "Shikoyat qaydida mas’ul, muddat, yechim va mehmon javobi ko‘rsatiladi."}, "file": "restoran-9.html", "slides": 17, "quiz": 15, "lim": true}, {"id": "r10", "course": "restoran", "title": "R10 · To‘liq smena bo‘yicha amaliy mashq", "open": false, "kind": "lesson", "plan": {"hours": "2 soat amaliyot", "about": "Brifingdan smena topshirishgacha ikki stolga xizmat. Xorijiy mehmon, allergen so‘rovi, kechikish va alohida hisob vaziyatlari.", "task": "Tinglovchilar ofitsiant, mehmon va oshxona vakili rollarini almashtiradi. Har bir tinglovchi kamida bitta to‘liq xizmat siklini bajaradi.", "result": "Individual kuzatuv varag‘i va keyingi smenaga topshiriladigan ochiq vazifa qaydi."}, "file": "restoran-10.html", "slides": 17, "quiz": 15, "lim": true}, {"id": "r11", "course": "restoran", "title": "R11 · Yakuniy nazariy imtihon", "open": false, "kind": "exam", "plan": {"hours": "2 soat imtihon", "about": "30 ta test savoli (1 balldan) va 2 ta vaziyatli topshiriq (5 balldan) — jami 40 ball. Testga 35 daqiqa, vaziyatli topshiriqlarga 40 daqiqa, yo‘riqnomaga 5 daqiqa. Savollar taqsimoti: servis (6), sanitariya va allergenlar (8), xorijiy mehmon va xalqaro amaliyot (6), buyurtma va hisob (6), shikoyat va xavfsizlik (4).", "task": "Imtihonga kirish: kamida 18/20 modul soati, sanitariya va allergen bo‘yicha amaliy topshiriqlar bajarilgan bo‘lishi kerak.", "result": "O‘tish sharti: kamida 28/40 ball."}, "file": "restoran-11.html", "slides": 24, "quiz": 30, "lim": true}, {"id": "r12", "course": "restoran", "title": "R12 · Yakuniy amaliy imtihon", "open": false, "kind": "exam", "plan": {"hours": "2 soat imtihon", "about": "Har bir tinglovchiga 12 daqiqa; ikki bir xil stansiyada beshtagacha tinglovchi va bittadan baholovchi. Vaziyat: xorijiy mehmon allergiyasini bildiradi va alohida hisob so‘raydi — tinglovchi stolni tekshiradi, oshxonadan javob oladi, buyurtma va to‘lovni rasmiylashtiradi, kechikishga javob beradi.", "task": "6 mezon × 10 ball: gigiyena va xavfsizlik; servirovka va taom uzatish; xorijiy mehmon bilan muloqot; menyu va allergenlar; buyurtma va hisob; shikoyat va hamkorlik (0 — bajarilmadi, 5 — qisman, 10 — to‘liq va mustaqil).", "result": "O‘tish sharti: kamida 45/60 ball. Kritik xato amaliy qism natijasini bekor qiladi."}, "file": "restoran-12.html", "slides": 14, "quiz": 0, "lim": true}], "teacherTg": "https://t.me/esfandiyorr?direct", "teacherName": "Isfandiyor Sayfiddinov", "reopen": {"m1": {"id": "2026-10-19", "until": "2026-10-22T23:59:59+05:00"}}, "pwaMsg": "2026-10-19", "courses": [{"id": "tad-asoslari", "icon": "🚀", "title": "Tadbirkorlik asoslari", "desc": "Nazariya, interaktiv testlar va amaliy topshiriqlar", "first": "tadbirkorlik-asoslari.html"}, {"id": "restoran", "icon": "🍽️", "title": "Restoran xodimlari malakasini oshirish", "desc": "RS 24 · 24 akademik soat (4 o‘quv kuni): 10 modul va 2 yakuniy imtihon — xizmat sikli, sanitariya, servirovka, xorijiy mehmon, allergenlar, buyurtma va to‘lov, shikoyat, to‘liq smena", "category": "Xizmat ko'rsatish", "blocks": [["Xizmat asoslari va mehmon bilan muloqot", ["r1", "r2", "r3", "r4"]], ["Menyu bilan ishlash va xalqaro xizmat amaliyoti", ["r5", "r6", "r7"]], ["Hisob yuritish va smena amaliyoti", ["r8", "r9", "r10"]], ["Yakuniy imtihonlar", ["r11", "r12"]]], "entry": "Imtihonga kirish uchun kamida 18/20 modul soati va sanitariya hamda allergen bo‘yicha amaliy topshiriqlar talab etiladi.", "paid": true}], "maintenance": {"on": false, "uz": "Taqdimotlar vaqtincha yopilgan. Ish tugagach sayt yana ochiladi — iltimos, keyinroq qayta kiring.", "en": "The presentations are temporarily closed. The site will reopen when the work is done — please come back later."}, "groups": ["FIZ-123", "FIZ-223", "FIZ-323", "AP-123", "AP-223", "AP-323", "D-123", "DKG-BF-123", "YES-123", "T-123", "T-223", "T-323", "T-423", "KI-123", "KI-223", "DI-123", "DI-223"], "groupRenames": {"T-232": "T-223"}, "hideRating": [{"name": "Isfandiyor", "surname": "Sayfiddinov"}], "tracks": [{"file": "Musofir.mp3", "title": "Musofir", "artist": ""}], "fbWeb": {"apiKey": "AIzaSyDPOvO9kqBcD9zIeCy_eR9szezLhoDB4Oo", "authDomain": "tadbirkorlik-asoslari.firebaseapp.com", "databaseURL": "https://tadbirkorlik-asoslari-default-rtdb.asia-southeast1.firebasedatabase.app", "projectId": "tadbirkorlik-asoslari", "storageBucket": "tadbirkorlik-asoslari.firebasestorage.app", "messagingSenderId": "303986754308", "appId": "1:303986754308:web:fca65cded4728199e68651"}, "teacherH": "9a5935bc7e3abb2f8da12a8f053d28b942d399f06d3841a799d1616c7bc48ceb"};if(RT_CFG.maintenance&&RT_CFG.maintenance.on)document.documentElement.className+=" rt-maint-pre";</script>
+<script src="rt-engine.js?v=f75eb4120a"></script>
+<!-- RT:END -->
+<script>
+(function(){
+"use strict";
+/* ============ UZ / ENG lug'ati ============ */
+
+var UI={
+ uni:["TERMIZ DAVLAT UNIVERSITETI","TERMEZ STATE UNIVERSITY"],
+ grid:["▦ Slaydlar","▦ Slides"],
+ full:["⛶ Ekran","⛶ Fullscreen"],
+ prev:["← Orqaga","← Back"],
+ next:["Keyingi →","Next →"],
+ reset:["↻ Testni qayta boshlash","↻ Restart the test"],
+ allslides:["▦ Barcha slaydlar","▦ All slides"],
+ close:["✕ Yopish","✕ Close"],
+ score:["Natija:","Score:"],
+ answered:["Javob berildi:","Answered:"],
+ helpTitle:["⌨️ Klaviatura va imkoniyatlar","⌨️ Keyboard and features"],
+ hNext:["Keyingi slayd","Next slide"],
+ hPrev:["Oldingi slayd","Previous slide"],
+ hHome:["Birinchi / oxirgi slayd","First / last slide"],
+ hList:["Slaydlar ro'yxati","Slide overview"],
+ hTheme:["Tun / Kun rejimi","Night / Day mode"],
+ hLang:["O'zbekcha / English","Uzbek / English"],
+ hFull:["To'liq ekran","Fullscreen"],
+ hTimer:["Vaqt hisoblagich (start/stop)","Timer (start/stop)"],
+ hPrint:["Chop etish / PDF","Print / PDF"],
+ hGoto:["Slayd raqamiga o'tish","Go to slide number"],
+ hEsc:["Yopish","Close"],
+ helpNote:["📱 Telefonda chapga/o'ngga surib (swipe) slaydlarni almashtirish mumkin. Ochilgan slayd brauzer xotirasida saqlanadi.",
+           "📱 On a phone you can swipe left/right to change slides. The current slide is remembered in the browser."],
+ gotit:["Tushunarli","Got it"],
+ hint:["⌨️ <kbd>→</kbd> keyingi slayd · <kbd>D</kbd> tun/kun · <kbd>L</kbd> uz/eng · <kbd>O</kbd> ro'yxat · <kbd>F</kbd> to'liq ekran",
+       "⌨️ <kbd>→</kbd> next slide · <kbd>D</kbd> night/day · <kbd>L</kbd> uz/eng · <kbd>O</kbd> overview · <kbd>F</kbd> fullscreen"],
+ night:["Tun","Night"], day:["Kun","Day"], slide:["SLAYD","SLIDE"],
+ right:["✅ To'g'ri! ","✅ Correct! "],
+ wrong:["❌ Noto'g'ri. To'g'ri javob: ","❌ Incorrect. Correct answer: "],
+ correct:["to'g'ri javob","correct"],
+ r90t:["🏆 A'lo natija!","🏆 Excellent!"],
+ r90x:["Siz mavzuni mukammal o'zlashtirgansiz. Endi g'oyangizni amalda sinash vaqti keldi!",
+       "You have mastered the topic. Now it is time to test your idea in practice!"],
+ r75t:["🎉 Juda yaxshi!","🎉 Very good!"],
+ r75x:["Asosiy tushunchalar mustahkam. Yana bir bor takrorlab chiqing.",
+       "The key concepts are solid. Review the material once more."],
+ r50t:["👍 Yaxshi, lekin yetarli emas","👍 Good, but not enough"],
+ r50x:["Ma'ruzaning asosiy qismlarini qayta o'qing va testni takrorlang.",
+       "Re-read the main sections of the lecture and take the test again."],
+ r0t:["📚 Takrorlash zarur","📚 Revision needed"],
+ r0x:["Slaydlarni boshidan ko'rib chiqing va testni qaytadan yeching.",
+      "Go through the slides from the beginning and take the test again."],
+ subj:["Restoran xizmati · 11-mavzu", "Restaurant service · Topic 11"]
+};
+var lang="uz", i18nNodes=[], i18nOrig=[], uiNodes=[], uiOrig=[];
+function UIT(k){ return (UI[k]||["",""])[lang==="en"?1:0]; }
+function QSRC(){ return (lang==="en" && typeof QEN!=="undefined" && QEN && QEN.length===Q.length) ? QEN : Q; }
+
+/* ================= SLAYD BOSHQARUVI ================= */
+var slides=[].slice.call(document.querySelectorAll(".slide"));
+var total=slides.length, idx=0;
+var $=function(s){return document.querySelector(s)};
+$("#total").textContent=total;
+$("#scoreMax");
+
+var dots=$("#dots"), thumbs=$("#thumbs");
+slides.forEach(function(s,i){
+  var d=document.createElement("button");
+  d.className="dot"; d.title=(i+1)+". "+s.dataset.title;
+  d.onclick=function(){go(i)};
+  dots.appendChild(d);
+  var t=document.createElement("button");
+  t.className="thumb";
+  t.innerHTML="<i>"+UIT("slide")+" "+(i+1)+"</i><b>"+(lang==="en"&&s.dataset.titleEn?s.dataset.titleEn:s.dataset.title)+"</b>";
+  t.onclick=function(){go(i);closeAll()};
+  thumbs.appendChild(t);
+});
+var dotEls=[].slice.call(dots.children), thEls=[].slice.call(thumbs.children);
+
+function go(n){
+  n=Math.max(0,Math.min(total-1,n));
+  slides.forEach(function(s,i){
+    s.classList.toggle("active",i===n);
+    s.classList.toggle("prev",i<n);
+  });
+  dotEls.forEach(function(d,i){d.classList.toggle("on",i===n)});
+  thEls.forEach(function(d,i){d.classList.toggle("on",i===n)});
+  idx=n;
+  $("#cur").textContent=n+1;
+  $("#slideName").textContent=(typeof lang!=="undefined"&&lang==="en"&&slides[n].dataset.titleEn)?slides[n].dataset.titleEn:slides[n].dataset.title;
+  $("#progress").style.width=((n+1)/total*100)+"%";
+  $("#btnPrev").disabled=(n===0);
+  $("#btnNext").disabled=(n===total-1);
+  slides[n].scrollTop=0;
+  if(window.RT) RT.slideSeen(n);
+  try{localStorage.setItem("terdu_r11_slide",n)}catch(e){}
+  try{history.replaceState(null,"","#"+(n+1));}catch(e){} /* RT_HASH */
+  var hn=document.getElementById("hint"); if(hn&&n>0)hn.classList.add("hide");
+  if(slides[n].querySelector("[data-count]")) countUp(slides[n]);
+}
+$("#btnPrev").onclick=function(){go(idx-1)};
+$("#btnNext").onclick=function(){go(idx+1)};
+
+/* ================= RAQAMLAR ANIMATSIYASI ================= */
+function countUp(slide){
+  slide.querySelectorAll("[data-count]").forEach(function(el){
+    var end=parseFloat(el.dataset.count), dec=parseInt(el.dataset.dec||"0",10), suf=el.dataset.suf||"";
+    var t0=null, dur=1100;
+    function step(ts){
+      if(!t0)t0=ts;
+      var p=Math.min(1,(ts-t0)/dur), e=1-Math.pow(1-p,3);
+      var v=(end*e).toFixed(dec).replace(".",",");
+      el.textContent=v+suf;
+      if(p<1)requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  });
+}
+
+/* ================= TUN / KUN REJIMI ================= */
+function setTheme(t){
+  document.documentElement.setAttribute("data-theme",t);
+  $("#btnTheme").innerHTML=(t==="dark"?"☀️ ":"🌙 ")+"<span id='themeTxt'>"+UIT(t==="dark"?"day":"night")+"</span>";
+  try{localStorage.setItem("terdu_theme",t)}catch(e){}
+}
+$("#btnTheme").onclick=function(){
+  setTheme(document.documentElement.getAttribute("data-theme")==="dark"?"light":"dark");
+};
+
+/* ================= TO'LIQ EKRAN / CHOP ETISH ================= */
+$("#btnFull").onclick=function(){
+  if(!document.fullscreenElement){ (document.documentElement.requestFullscreen||function(){})().catch(function(){}); }
+  else{ document.exitFullscreen(); }
+};
+$("#btnPrint").onclick=function(){window.print()};
+
+/* ================= VAQT HISOBLAGICH ================= */
+var sec=0, tick=null;
+function fmt(s){var m=Math.floor(s/60),r=s%60;return (m<10?"0":"")+m+":"+(r<10?"0":"")+r}
+$("#btnTimer").onclick=function(){
+  if(tick){clearInterval(tick);tick=null;}
+  else{ tick=setInterval(function(){sec++;document.getElementById("timer").textContent=fmt(sec);},1000); }
+};
+
+/* ================= OVERLAYLAR ================= */
+function closeAll(){$("#overview").classList.remove("show");$("#help").classList.remove("show")}
+$("#btnGrid").onclick=function(){$("#overview").classList.toggle("show")};
+$("#ovClose").onclick=closeAll;
+$("#btnHelp").onclick=function(){$("#help").classList.toggle("show")};
+$("#helpClose").onclick=closeAll;
+$("#overview").addEventListener("click",function(e){if(e.target===this)closeAll()});
+$("#help").addEventListener("click",function(e){if(e.target===this)closeAll()});
+
+/* ================= KLAVIATURA ================= */
+document.addEventListener("keydown",function(e){
+  var k=e.key;
+  if(k==="Escape"){closeAll();return}
+  if(/^(INPUT|TEXTAREA)$/.test(e.target.tagName))return;
+  if(k==="ArrowRight"||k===" "||k==="PageDown"){e.preventDefault();go(idx+1)}
+  else if(k==="ArrowLeft"||k==="PageUp"){e.preventDefault();go(idx-1)}
+  else if(k==="Home"){go(0)}
+  else if(k==="End"){go(total-1)}
+  else if(k==="o"||k==="O"||k==="Ў"){$("#btnGrid").click()}
+  else if(k==="d"||k==="D"){$("#btnTheme").click()}
+  else if(k==="l"||k==="L"){$("#btnLang").click()}
+  else if(k==="f"||k==="F"){$("#btnFull").click()}
+  else if(k==="t"||k==="T"){$("#btnTimer").click()}
+  else if(k==="p"||k==="P"){e.preventDefault();window.print()}
+  else if(k==="?"){$("#btnHelp").click()}
+  else if(/^[1-9]$/.test(k)){go(parseInt(k,10)-1)}
+});
+
+/* ================= SWIPE (telefon uchun) ================= */
+var x0=null,y0=null;
+document.getElementById("deck").addEventListener("touchstart",function(e){
+  x0=e.changedTouches[0].clientX; y0=e.changedTouches[0].clientY;
+},{passive:true});
+document.getElementById("deck").addEventListener("touchend",function(e){
+  if(x0===null)return;
+  var dx=e.changedTouches[0].clientX-x0, dy=e.changedTouches[0].clientY-y0;
+  if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)*1.6){ dx<0?go(idx+1):go(idx-1); }
+  x0=null;
+},{passive:true});
+
+/* ================= TEST ================= */
+var Q=[
+ {q:"Bron jurnalda topilmadi. Kasbiy javob qaysi?",
+  a:["Xotirjam tekshirib, administrator bilan joylashtirish yechimini topish",
+     "Mehmonni yolg'onchiga chiqarish",
+     "Bronni tekshirmay ketkazish",
+     "Boshqa bron stolini ruxsatsiz berish"],c:0,
+  e:"R1: bron muammosi bahs bilan emas, tekshirish va mas'ul bilan hal qilinadi."},
+ {q:"Smena brifingining asosiy natijasi?",
+  a:["Faqat chiroyli forma",
+     "Jamoada bron, stop-list, vazifa va maxsus so'rovlar bo'yicha bir xil axborot",
+     "Faqat barcha telefonni zaryadlash",
+     "Faqat menyu muqovasini almashtirish"],c:1,
+  e:"R1: brifing xizmatning axborot tayyorgarligi."},
+ {q:"Menyuda yo'q taom uchun pribor qo'yish kerakmi?",
+  a:["Ha; imkon qadar ko'p",
+     "Faqat chapga hamma pribor",
+     "Yo'q; kuvert menyudagi ketma-ketlikka mos bo'ladi",
+     "Faqat desert pribori yetadi"],c:2,
+  e:"R3: anjomlar menyuga mos va tashqaridan ichkariga tartibda."},
+ {q:"Patnisni bo'shatishda muhim qoida?",
+  a:["Bir tomonni birdan bo'shatish",
+     "Mehmon boshidan oshirish",
+     "Og'ir buyumni chetga qo'yish",
+     "Muvozanatni saqlab, og'irlikni bir tomonga yig'maslik"],c:3,
+  e:"R3: og'irlik markazi tayanch ustida qoladi."},
+ {q:"Issiq taomni uzatishda nima qilinadi?",
+  a:["To'g'ri o'rin tekshirilib, issiq idish haqida ogohlantiriladi",
+     "Tarelka mehmon ustidan uzatiladi",
+     "Bug' mehmon tomon ochiladi",
+     "Patnis bolaga tutqaziladi"],c:0,
+  e:"R3: xavfsiz uzatish tezlikdan ustun."},
+ {q:"Mehmon ketganda buyumi qolgan. To'g'ri harakat?",
+  a:["Shaxsiy foydalanish",
+     "Restoran tartibida mas'ulga topshirish va qayd qilish",
+     "Chatga egasining suratini tarqatish",
+     "Hech kimga aytmaslik"],c:1,
+  e:"R1: mehmon mulki va maxfiyligi himoya qilinadi."},
+ {q:"Ishlatilgan idishdan keyin toza pribor ushlashdan oldin?",
+  a:["Qo'lni fartukka artish",
+     "Faqat priborni hidlash",
+     "Qo'l gigiyenasini bajarish va oqimlarni ajratish",
+     "O'sha qo'lqopda davom etish"],c:2,
+  e:"R2: toza va iflos oqim aralashtirilmaydi."},
+ {q:"Yerga tushgan vilka bilan nima qilinadi?",
+  a:["Salfetkada artilib qaytariladi",
+     "Suvga tekkizib beriladi",
+     "Boshqa mehmonga qo'yiladi",
+     "Ajratilib, o'rniga toza vilka keltiriladi"],c:3,
+  e:"R2: ifloslangan anjom xizmatga qaytarilmaydi."},
+ {q:"Xodimda qusish va ich ketish bor. Qaror?",
+  a:["Smenagacha mas'ulga xabar, ishga qaytish tartibini tekshirish",
+     "Yashirib ishga chiqish",
+     "Faqat atir sepish",
+     "Qo'lqop bilan hamma ishni bajarish"],c:0,
+  e:"R2: salomatlik haqida xabar oziq-ovqat xavfsizligining qismi."},
+ {q:"Stakan qanday ushlanadi?",
+  a:["Ichki qismiga barmoq solib",
+     "Ichish chetiga tegmasdan pastki qismi yoki oyoqchasidan",
+     "Og'zidan qisib",
+     "Mehmon ichadigan chetidan"],c:1,
+  e:"R2/R3: oziq-ovqat va og'iz tegadigan sirt himoyalanadi."},
+ {q:"Yong'oqli sousni qaynatish allergen xavfini ishonchli yo'qotadimi?",
+  a:["Ha; har doim",
+     "Faqat tuz qo'shilsa",
+     "Yo'q; tekshirilgan tarkib va ajratilgan jarayon kerak",
+     "Faqat kichik porsiyada"],c:2,
+  e:"R5: pishirish allergenni ishonchli yo'qotish usuli emas."},
+ {q:"Allergen jadvalidagi noma'lum katakda nima qilasiz?",
+  a:["Allergen yo'q deyman",
+     "Menyudan narxni o'chiraman",
+     "Mehmonga ozroq beraman",
+     "Retsept, yorliq va mas'ul bilan tekshiraman"],c:3,
+  e:"R5: ma'lumot yo'qligi xavfsizlik dalili emas."},
+ {q:"Vegan taomga yong'oq allergiyasi so'rovi keldi. Nima kerak?",
+  a:["Allergen tarkibi va umumiy jihozni alohida tekshirish",
+     "Vegan yozuviga tayanish",
+     "Faqat porsiyani kamaytirish",
+     "Faqat taomni isitish"],c:0,
+  e:"R5: parhez belgisi allergen tekshiruvini almashtirmaydi."},
+ {q:"Oshxona alohida tayyorlashni tasdiqlay olmadi. Qaror?",
+  a:["Mehmon shoshsa uzatish",
+     "Taomni uzatmaslik, mas'ul va tekshirilgan muqobilni izlash",
+     "Bezakni olib berish",
+     "So'rovni yashirish"],c:1,
+  e:"R5: noaniq xavfsizlikda xizmat to'xtatiladi."},
+ {q:"Mehmon tilini qanday bilasiz?",
+  a:["Kiyimiga qarab",
+     "Faqat millatiga qarab",
+     "Salomlashib, qaysi tilni afzal ko'rishini so'rab",
+     "Hamma bilan bir xil chet tilda"],c:2,
+  e:"R4: til taxmin qilinmaydi."},
+ {q:"Mehmon inglizcha tushunmadi. Keyingi qadam?",
+  a:["Balandroq baqirish",
+     "Tushungandek bosh irg'ash",
+     "Savolni e'tiborsiz qoldirish",
+     "Soddaroq gap va menyuda ko'rsatib qayta tasdiqlash"],c:3,
+  e:"R4: sodda nutq va tushunilganini tekshirish."},
+ {q:"«Let me check the ingredients with our kitchen» nima uchun?",
+  a:["Tarkibni taxminsiz oshxonadan tekshirish uchun",
+     "Narxni yashirish uchun",
+     "Hisobni ajratish uchun",
+     "Mehmonni kuzatish uchun"],c:0,
+  e:"R4/R5: tekshirish vaqti va keyingi qadam ham aytiladi."},
+ {q:"WorldSkills va mahalliy qonun bir xilmi?",
+  a:["Ha; barcha mamlakatda",
+     "Yo'q; kasbiy mezon va majburiy talab farqlanadi",
+     "Faqat sertifikat bo'lsa bir xil",
+     "Faqat banketda bir xil"],c:1,
+  e:"R6: manba maqomi va sohasi ajratiladi."},
+ {q:"Bufetdagi har taom uchun qanday tayyorgarlik kerak?",
+  a:["Faqat katta idish",
+     "Bitta umumiy qisqich",
+     "Ishonchli belgi, alohida anjom, saqlash nazorati va mas'ul",
+     "Faqat bezak"],c:2,
+  e:"R6: axborot va jarayon birga boshqariladi."},
+ {q:"YI 14 va AQSh 9 allergenni qiyoslashda nima muhim?",
+  a:["Faqat sonni yodlash",
+     "AQShda boshqa allergiya yo'q deyish",
+     "Birini hamma joyda qonun qilish",
+     "Hudud va qo'llanish sohasi, jumladan qadoqlangan mahsulot konteksti"],c:3,
+  e:"R6: ro'yxat restoran talablari bilan kontekstsiz tenglashtirilmaydi."},
+ {q:"Allergen buyurtmasi qanday manzillanadi?",
+  a:["Stol/o'rin, aniq so'rov, POS belgisi va oshxona tasdig'i bilan",
+     "Faqat taom nomi bilan",
+     "Faqat mehmon kiyimi bilan",
+     "Faqat terminal raqami bilan"],c:0,
+  e:"R7: buyurtma aniq mehmon va so'rovga bog'lanadi."},
+ {q:"Yo'q taomni muqobilga qachon almashtirasiz?",
+  a:["Oshxona istagan zahoti",
+     "Tarkib, narx va vaqt tekshirilib, mehmon tasdiqlagach",
+     "Mehmon bilmasdan",
+     "Faqat chipta chiqsa"],c:1,
+  e:"R7: mehmon tanlovi va yozuvlar yangilanadi."},
+ {q:"Yuborilgan POS yozuvini izsiz o'chirish o'rniga?",
+  a:["Begona parol bilan kirish",
+     "Xatoni yashirish",
+     "Vakolatli tuzatish, sabab, vaqt va mas'ul qaydi",
+     "Mehmonga ortiqcha to'latish"],c:2,
+  e:"R7: o'zgarish izi saqlanadi."},
+ {q:"Hisob asosi 120 000, kelishilgan xizmat 10%. Jami?",
+  a:["121 000 so'm",
+     "120 010 so'm",
+     "144 000 so'm",
+     "132 000 so'm"],c:3,
+  e:"R8: 120 000 × 1,10 = 132 000."},
+ {q:"82 500 hisobga 100 000 naqd berildi. Qaytim?",
+  a:["17 500 so'm",
+     "27 500 so'm",
+     "7 500 so'm",
+     "18 500 so'm"],c:0,
+  e:"R8: berilgan pul minus yakuniy hisob."},
+ {q:"Terminal javobi kelmadi. To'g'ri harakat?",
+  a:["Darhol yana yechish",
+     "Birinchi operatsiya holatini tekshirmay takror yechmaslik",
+     "PINni yozib olish",
+     "Hisobni ikki barobar qilish"],c:1,
+  e:"R8: ikki marta yechish xavfi oldi olinadi."},
+ {q:"Kechikish shikoyati qanday yakunlanadi?",
+  a:["Faqat bahslashish bilan",
+     "Oshxonani ayblash bilan",
+     "Yechim, mas'ul, muddat va mehmon javobini qayd qilish bilan",
+     "Hisobni yashirish bilan"],c:2,
+  e:"R9: muammo nazorat qilinadigan vazifaga aylantiriladi."},
+ {q:"Harakatlanish yordami kerak deb o'yladingiz. Avval?",
+  a:["Aravachasini darhol surish",
+     "Faqat hamrohiga buyruq berish",
+     "Mehmonni ko'tarish",
+     "Mehmonning o'zidan qanday yordam qulayligini so'rash"],c:3,
+  e:"R9: yordam rozilik va mehmon ko'rsatmasi bilan."},
+ {q:"Mehmon nafas olishda qiynalmoqda. Birinchi yo'nalish?",
+  a:["Darhol mas'ul va shoshilinch yordamni chaqirish",
+     "Avval hisobni to'latish",
+     "10 daqiqa kutish",
+     "O'zim dori belgilash"],c:0,
+  e:"R9: salomatlik xavfi oddiy shikoyat navbatida turmaydi."},
+ {q:"Keyingi smenaga ochiq vazifa qanday topshiriladi?",
+  a:["Faqat «bir ish bor» deb",
+     "Holat, keyingi qadam, yangi mas'ul, muddat va qabul tasdig'i bilan",
+     "Jurnalni o'chirib",
+     "Faqat mehmon ismi bilan"],c:1,
+  e:"R10: vazifa egasiz va muddatsiz qolmaydi."}
+];
+function qIsOpen(qi){ return !!(Q[qi]&&Q[qi].o); }
+function qNorm(v){
+  var cy={"а":"a","б":"b","в":"v","г":"g","д":"d","е":"e","ё":"yo","ж":"j","з":"z","и":"i","й":"y","к":"k","л":"l","м":"m","н":"n","о":"o","п":"p","р":"r","с":"s","т":"t","у":"u","ф":"f","х":"x","ц":"ts","ч":"ch","ш":"sh","щ":"sh","ъ":"","ы":"i","ь":"","э":"e","ю":"yu","я":"ya","ў":"o","қ":"q","ғ":"g","ҳ":"h"};
+  return String(v==null?"":v).toLowerCase().replace(/[\u0400-\u04ff]/g,function(c){ return cy[c]!==undefined?cy[c]:c; }).replace(/[^a-z0-9]/g,"");
+}
+function qLev(a,b){
+  if(Math.abs(a.length-b.length)>1) return 2;
+  var p=[],i,j; for(j=0;j<=b.length;j++) p[j]=j;
+  for(i=1;i<=a.length;i++){ var c=[i]; for(j=1;j<=b.length;j++) c[j]=Math.min(p[j]+1,c[j-1]+1,p[j-1]+(a[i-1]===b[j-1]?0:1)); p=c; }
+  return p[b.length];
+}
+function qOk(qi,p){
+  if(p===undefined||p===null) return false;
+  var it=Q[qi]; if(!it.o) return p===it.c;
+  var v=qNorm(p); if(!v) return false;
+  var acc=it.o.concat((typeof QEN!=="undefined"&&QEN&&QEN[qi]&&QEN[qi].o)||[]);
+  return acc.some(function(a){
+    var n=qNorm(a);
+    if(/^[0-9]+$/.test(n)) return String(p).replace(/[^0-9]/g,"")===n;
+    return v===n||(n.length>=6&&qLev(v,n)<=1);
+  });
+}
+/* RS 24: faqat yangi R4–R11 uchun mahalliy tayyorgarlik testi.
+   Akademik ball, urinish va bazaga yozuv yo'q. R12 — kuzatuv, testsiz.
+   Q, qOk va qIsOpen taqdimotdan olinadi; renderTest til dvigatelining ilgagi. */
+var RS_MIN = 35, RS_STATE = null, RS_TIMER = null;
+// Oxirgi ifoda sync-legacy.mjs dagi muharrir savollari versiyasi bilan mos.
+function rsKey(){ var s=window.RT&&RT.student&&RT.student(); return "terdu_restoran_practice_"+RT_CFG.topic+"_"+(s?s.id:"anon"); }
+function rsSave() {
+  try { localStorage.setItem(rsKey(), JSON.stringify(RS_STATE)); } catch (e) {}
+}
+function rsLoad() {
+  try { RS_STATE = JSON.parse(localStorage.getItem(rsKey()) || 'null'); } catch (e) { RS_STATE = null; }
+  if (RS_STATE && (RS_STATE.version !== 1 || RS_STATE.order.length !== Q.length)) RS_STATE = null;
+}
+function rsShuffle(list) {
+  for (var i = list.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1)), temp = list[i]; list[i] = list[j]; list[j] = temp;
+  }
+  return list;
+}
+function rsLeft() { return Math.max(0, RS_STATE.at + RS_MIN * 60000 - Date.now()); }
+function rsClock(ms) { var s = Math.ceil(ms / 1000); return Math.floor(s / 60) + ':' + ('0' + s % 60).slice(-2); }
+function rsStart() {
+  if (!confirm('Tayyorgarlik mashqi: ' + Q.length + ' ta savol, ' + RS_MIN + ' daqiqa. Rasmiy bahoga yozilmaydi. Boshlaysizmi?')) return;
+  RS_STATE = { version: 1, at: Date.now(), done: false, answers: {},
+    order: rsShuffle(Q.map(function (_, i) { return i; })), options: {} };
+  Q.forEach(function (q, i) { if (q.a) RS_STATE.options[i] = rsShuffle(q.a.map(function (_, j) { return j; })); });
+  rsSave(); renderTest(); rsTick();
+}
+function rsFinish() {
+  if (!RS_STATE || RS_STATE.done) return;
+  RS_STATE.done = true; clearInterval(RS_TIMER); rsSave(); renderTest();
+}
+function rsAnswer(index, value) {
+  if (!RS_STATE || RS_STATE.done || RS_STATE.answers[index] !== undefined) return;
+  if (!rsLeft()) { rsFinish(); return; }
+  if (qIsOpen(index)) { value = String(value).trim().slice(0, 60); if (!value) return; }
+  RS_STATE.answers[index] = value; rsSave();
+  if (Object.keys(RS_STATE.answers).length === Q.length) rsFinish(); else renderTest();
+}
+function rsTick() {
+  clearInterval(RS_TIMER);
+  if (!RS_STATE || RS_STATE.done) return;
+  RS_TIMER = setInterval(function () {
+    if (!rsLeft()) { rsFinish(); return; }
+    var timer = document.getElementById('qtTime'); if (timer) timer.textContent = rsClock(rsLeft());
+  }, 1000);
+}
+function renderTest() {
+  var wrap = document.getElementById('testWrap');
+  if (!wrap || !Q.length) return;
+  if (RS_STATE && !RS_STATE.done && !rsLeft()) { rsFinish(); return; }
+  wrap.innerHTML = '';
+  document.getElementById('scoreMax').textContent = Q.length;
+  var correct = RS_STATE ? Q.reduce(function (sum, _, i) { return sum + (qOk(i, RS_STATE.answers[i]) ? 1 : 0); }, 0) : 0;
+  document.getElementById('scoreNow').textContent = correct;
+  document.getElementById('answered').textContent = RS_STATE ? Object.keys(RS_STATE.answers).length : 0;
+  var result = document.getElementById('result'); result.classList.toggle('show', !!(RS_STATE && RS_STATE.done));
+  if (RS_STATE && RS_STATE.done) {
+    document.getElementById('pct').textContent = correct + ' / ' + Q.length;
+    document.getElementById('resTitle').textContent = 'Tayyorgarlik natijasi';
+    document.getElementById('resTxt').textContent = 'Bu mashq rasmiy imtihon bahosi emas. Izohlarni o‘qing va xato yo‘nalishni qayta mashq qiling.';
+  }
+  if (!RS_STATE || RS_STATE.done) {
+    var start = document.createElement('button'); start.type = 'button'; start.className = 'btn accent'; start.id = 'qtGo';
+    start.textContent = RS_STATE ? 'Yangi mashqni boshlash' : 'Tayyorgarlik testini boshlash · ' + RS_MIN + ' daqiqa';
+    start.onclick = rsStart; wrap.appendChild(start);
+  }
+  if (!RS_STATE) return;
+  if (!RS_STATE.done) {
+    var status = document.createElement('p'); status.innerHTML = '⏱ Qolgan vaqt: <b id="qtTime">' + rsClock(rsLeft()) + '</b> · faqat mashq';
+    var finish = document.createElement('button'); finish.type = 'button'; finish.className = 'btn'; finish.id = 'qtEnd'; finish.textContent = 'Mashqni yakunlash';
+    finish.onclick = function () { if (confirm('Javobsiz savollar ham 0 hisoblanadi. Yakunlaysizmi?')) rsFinish(); };
+    wrap.appendChild(status); wrap.appendChild(finish);
+  }
+  RS_STATE.order.forEach(function (index, position) {
+    var q = Q[index], picked = RS_STATE.answers[index], box = document.createElement('div'); box.className = 'qbox';
+    var heading = document.createElement('p'); heading.className = 'q'; heading.innerHTML = '<i>' + (position + 1) + '</i>' + q.q; box.appendChild(heading);
+    if (qIsOpen(index)) {
+      if (picked === undefined && !RS_STATE.done) {
+        var input = document.createElement('input'); input.className = 'qin'; input.maxLength = 60; input.setAttribute('aria-label', 'Javob ' + (position + 1));
+        var submit = document.createElement('button'); submit.type = 'button'; submit.className = 'btn'; submit.textContent = 'Javob berish';
+        submit.onclick = function () { rsAnswer(index, input.value); };
+        input.onkeydown = function (e) { if (e.key === 'Enter') { e.preventDefault(); rsAnswer(index, input.value); } };
+        box.appendChild(input); box.appendChild(submit);
+      } else {
+        var written = document.createElement('p'); written.textContent = picked === undefined ? 'Javobsiz' : 'Javobingiz: ' + picked; box.appendChild(written);
+      }
+    } else RS_STATE.options[index].forEach(function (answer) {
+      var option = document.createElement('button'); option.type = 'button'; option.className = 'opt'; option.textContent = q.a[answer];
+      option.disabled = picked !== undefined || RS_STATE.done;
+      if (picked === answer) option.classList.add(qOk(index, picked) ? 'right' : 'wrong');
+      option.onclick = function () { rsAnswer(index, answer); }; box.appendChild(option);
+    });
+    if (RS_STATE.done) {
+      var feedback = document.createElement('p'); feedback.className = 'fb show ' + (qOk(index, picked) ? 'ok' : 'no');
+      feedback.textContent = (qOk(index, picked) ? '✓ ' : '↻ ') + q.e; box.appendChild(feedback);
+    }
+    wrap.appendChild(box);
+  });
+}
+if (Q.length) { rsLoad(); renderTest(); rsTick(); }
+var rsReset = document.getElementById('btnReset');
+if (rsReset) rsReset.onclick = function () {
+  if (!confirm('Faqat shu tayyorgarlik mashqini tozalaysizmi?')) return;
+  clearInterval(RS_TIMER); RS_STATE = null; rsSave(); renderTest();
+};
+
+/* ================= UZ / ENG mexanizmi ================= */
+var EN={"0": "11-mavzu · 2 soat imtihon", "1": "YAKUNIY NAZARIY IMTIHON", "2": "<b>30 ta test + 2 ta vaziyatli topshiriq = 40 ball</b> · o'tish: kamida 28/40 · kirish shartlari · vaqt · baholash mezoni · tayyorgarlik testi va bayonnoma blankasi.", "3": "🍽️ Kurs: <b>Restoran xodimlari malakasini oshirish</b>", "4": "🗂 <b>RS 24</b> · 24 akademik soat · 10 modul + 2 imtihon", "5": "📖 <b>24</b> slayd · <b>30</b> ta mashq savoli · vaziyat va nazorat varag'i", "6": "⌨️ <b>→</b> bilan davom eting · <b>P</b> — chop etish", "7": "Trener uchta dalilni tekshiradi: <b>kamida 18/20 modul soati</b>, <b>R2 sanitariya amaliy ishi</b> va <b>R5 allergen amaliy ishi</b> bajarilgan. Saytdagi dars ochilishi yoki test foizi davomat va amaliy ish bajarilganini avtomatik tasdiqlamaydi.", "8": "Tinglovchi: __________", "9": "Dalil", "10": "Trener belgisi", "11": "Modul davomati", "12": "___ / 20 soat; jurnal: ___", "13": "☐ Kamida 18", "14": "Sanitariya", "15": "R2 kuzatuv varag'i, sana: ___", "16": "☐ Bajarilgan", "17": "Allergen", "18": "R5 buyurtma va tekshiruv qaydi, sana: ___", "19": "☐ Bajarilgan", "20": "Kirish", "21": "Sana ___; trener ___", "22": "☐ Ruxsat / ☐ Qayta tayyorgarlik", "23": "Bosqichma-bosqich", "24": "Imtihonga kirish va tayyorgarlik", "25": "Qism", "26": "Vaqt", "27": "Maksimum", "28": "Yo'riqnoma", "29": "5 daqiqa", "30": "—", "31": "30 ta test", "32": "35 daqiqa", "33": "30 × 1 = 30", "34": "2 ta vaziyatli topshiriq", "35": "40 daqiqa (har biriga 20)", "36": "2 × 5 = 10", "37": "Jami", "38": "80 daqiqa", "39": "40 ball", "40": "R11 o'tish: <b>kamida 28/40</b>. R12 alohida: kamida 45/60 va kritik xatosiz. Bir qismdagi yuqori ball ikkinchisining o'tish shartini almashtirmaydi.", "41": "Bosqichma-bosqich", "42": "Vaqt va umumiy baholash", "43": "Yo'nalish", "44": "Savol raqamlari", "45": "Soni", "46": "Tayanch dars", "47": "Servis", "48": "1–6", "49": "6", "50": "R1, R3", "51": "Sanitariya va allergenlar", "52": "7–14", "53": "8", "54": "R2, R5", "55": "Xorijiy mehmon va xalqaro amaliyot", "56": "15–20", "57": "6", "58": "R4, R6", "59": "Buyurtma va hisob", "60": "21–26", "61": "6", "62": "R7, R8", "63": "Shikoyat va xavfsizlik", "64": "27–30", "65": "4", "66": "R9, R10", "67": "Bu raqamlar manbadagi va bosma nusxadagi tartibdir. Saytdagi tayyorgarlik testida savollar va javoblar aralashtiriladi.", "68": "Bosqichma-bosqich", "69": "Savollar taqsimoti", "70": "Trener bergan variant va javob blankasiga ism, sana va guruhni yozing.", "71": "Har testga bitta javob: to'g'ri — 1, noto'g'ri yoki javobsiz — 0. Salbiy ball yo'q.", "72": "Vaziyatlarda harakat ketma-ketligi, kim bilan aloqa, qayd va to'xtash qarorini yozing.", "73": "Noaniq tarkib yoki xavfli vaziyatda taxmin qilmang; nima tekshirilishini aniq ayting.", "74": "Vaqt tugaganda javoblarni topshiring; yakuniy bahoni baholovchi bayonnomaga kiritadi.", "75": "<li data-i=\"70\">Trener bergan variant va javob blankasiga ism, sana va guruhni yozing.</li><li data-i=\"71\">Har testga bitta javob: to'g'ri — 1, noto'g'ri yoki javobsiz — 0. Salbiy ball yo'q.</li><li data-i=\"72\">Vaziyatlarda harakat ketma-ketligi, kim bilan aloqa, qayd va to'xtash qarorini yozing.</li><li data-i=\"73\">Noaniq tarkib yoki xavfli vaziyatda taxmin qilmang; nima tekshirilishini aniq ayting.</li><li data-i=\"74\">Vaqt tugaganda javoblarni topshiring; yakuniy bahoni baholovchi bayonnomaga kiritadi.</li>", "76": "Saytdagi ochiq savollar va mezonlar <b>tayyorgarlik</b> uchun. Rasmiy imtihon trener nazoratidagi nusxada o'tkaziladi; brauzer natijasi rasmiy 40 ballik baho emas.", "77": "Bosqichma-bosqich", "78": "Tinglovchi yo'riqnomasi", "79": "1–10", "80": "11–20", "81": "21–30", "82": "1. ☐ A ☐ B ☐ C ☐ D", "83": "11. ☐ A ☐ B ☐ C ☐ D", "84": "21. ☐ A ☐ B ☐ C ☐ D", "85": "2. ☐ A ☐ B ☐ C ☐ D", "86": "12. ☐ A ☐ B ☐ C ☐ D", "87": "22. ☐ A ☐ B ☐ C ☐ D", "88": "3. ☐ A ☐ B ☐ C ☐ D", "89": "13. ☐ A ☐ B ☐ C ☐ D", "90": "23. ☐ A ☐ B ☐ C ☐ D", "91": "4. ☐ A ☐ B ☐ C ☐ D", "92": "14. ☐ A ☐ B ☐ C ☐ D", "93": "24. ☐ A ☐ B ☐ C ☐ D", "94": "5. ☐ A ☐ B ☐ C ☐ D", "95": "15. ☐ A ☐ B ☐ C ☐ D", "96": "25. ☐ A ☐ B ☐ C ☐ D", "97": "6. ☐ A ☐ B ☐ C ☐ D", "98": "16. ☐ A ☐ B ☐ C ☐ D", "99": "26. ☐ A ☐ B ☐ C ☐ D", "100": "7. ☐ A ☐ B ☐ C ☐ D", "101": "17. ☐ A ☐ B ☐ C ☐ D", "102": "27. ☐ A ☐ B ☐ C ☐ D", "103": "8. ☐ A ☐ B ☐ C ☐ D", "104": "18. ☐ A ☐ B ☐ C ☐ D", "105": "28. ☐ A ☐ B ☐ C ☐ D", "106": "9. ☐ A ☐ B ☐ C ☐ D", "107": "19. ☐ A ☐ B ☐ C ☐ D", "108": "29. ☐ A ☐ B ☐ C ☐ D", "109": "10. ☐ A ☐ B ☐ C ☐ D", "110": "20. ☐ A ☐ B ☐ C ☐ D", "111": "30. ☐ A ☐ B ☐ C ☐ D", "112": "To'g'ri javoblar: ___ / 30 · Baholovchi: ___ · Sana: ___", "113": "Chop etishda yangi_mavzu generatori yaratgan taqdimotdagi savol tartibidan foydalaning. Aralashtirilgan brauzer testining tartibini bosma blankaga ko'chirmang.", "114": "Bosqichma-bosqich", "115": "Test javoblari blankasi", "116": "7/1 mehmon ingliz tilini tanlaydi va <b>grek yong'og'iga allergiyasi</b> borligini aytadi. Salatdagi sous yorlig'i topilmadi; oshxona «o'xshash sous bo'lsa kerak» deydi. Mehmon shoshayotganini bildiradi.", "117": "Yozma javob — 20 daqiqa", "118": "Mehmonga nima deysiz? Sodda inglizcha ibora bilan yozing", "119": "Qaysi tarkib va jarayonni kimdan tekshirasiz?", "120": "Noaniq javobda qanday qaror qilasiz?", "121": "Buyurtma va yakuniy yechimni qanday qayd etasiz?", "122": "Javob joyi", "123": "1. ____________________<br>2. ____________________<br>3. ____________________<br>4. ____________________<br>5. ____________________", "124": "Bosqichma-bosqich", "125": "Vaziyat A: xorijiy mehmon va allergen", "126": "Mezon", "127": "1 ball uchun dalil", "128": "1. Aniqlik", "129": "Stol/o'rin va grek yong'og'i allergiyasini yozadi, mehmonga qayta tasdiqlaydi", "130": "2. Manba", "131": "Sous yorlig'i/retsept, bezak va boshqa tarkibni mas'uldan tekshiradi", "132": "3. Jarayon", "133": "Umumiy anjom/sirt va alohida tayyorlash imkonini oshxonadan so'raydi", "134": "4. Xavfsiz qaror", "135": "Noaniq sousli taomni uzatmaydi; mas'ulga yetkazadi, faqat tekshirilgan muqobil", "136": "5. Muloqot va qayd", "137": "Sodda ibora, keyingi qadam/vaqt va mehmon tanlovini qayd etadi", "138": "Har mezon: dalil aniq bo'lsa 1, yo'q yoki qarama-qarshi bo'lsa 0. Namuna: «Let me check the ingredients and preparation with our kitchen. I cannot confirm this sauce yet.»", "139": "Bosqichma-bosqich", "140": "Vaziyat A: baholash mezoni — 5 ball", "141": "Ikki mehmon: A — tovuq 65 000 va suv 10 000; B — salat 30 000 va choy 15 000. Mashqda oldindan kelishilgan xizmat 10%. Hisobga buyurilmagan desert 25 000 qo'shilgan. Mehmonlar kechikishdan ham norozi va alohida hisob so'raydi. A 100 000 naqd beradi, B karta maketi bilan to'laydi.", "142": "Shikoyatni qabul qilish va xato bandni tekshirish harakatlarini yozing.", "143": "Kim tuzatadi, nima sabab bilan va qanday qayd qoladi?", "144": "Xato umumiy, to'g'ri umumiy, A va B hisobini hamda A qaytimini hisoblang.", "145": "Karta javobi noma'lum bo'lsa nima qilasiz? Qaysi hujjatlar mos bo'lishi kerak?", "146": "<li data-i=\"142\">Shikoyatni qabul qilish va xato bandni tekshirish harakatlarini yozing.</li><li data-i=\"143\">Kim tuzatadi, nima sabab bilan va qanday qayd qoladi?</li><li data-i=\"144\">Xato umumiy, to'g'ri umumiy, A va B hisobini hamda A qaytimini hisoblang.</li><li data-i=\"145\">Karta javobi noma'lum bo'lsa nima qilasiz? Qaysi hujjatlar mos bo'lishi kerak?</li>", "147": "Javob va hisob: __________________________________________________________", "148": "Bosqichma-bosqich", "149": "Vaziyat B: xato hisob va kechikish", "150": "Mezon", "151": "1 ball uchun dalil", "152": "1. Shikoyat", "153": "Tinglash, uzr, fakt va tekshirilgan yechim/muddat; ayblamaslik", "154": "2. Tuzatish", "155": "Buyurtmaga solishtirish, vakolatli mas'ul; desert va 2 500 xizmat haqini iz bilan olib tashlash", "156": "3. Jami", "157": "Xato 159 500; to'g'ri 132 000 (120 000 + 12 000)", "158": "4. Ajratish/qaytim", "159": "A 82 500, B 49 500; A qaytimi 17 500; A+B jami bilan mos", "160": "5. To'lov va hujjat", "161": "Noma'lum operatsiyani tekshirmasdan takrorlamaslik; hisob, tasdiq va tegishli chek mos", "162": "Har satr to'liq bajarilsa 1, bajarilmasa 0. Baholovchi qaysi dalil yo'qligini yozadi. Hisobning sonli javobi bilan birga xizmat harakati ham baholanadi.", "163": "Bosqichma-bosqich", "164": "Vaziyat B: baholash mezoni — 5 ball", "165": "Maydon", "166": "To'ldiriladi", "167": "Tinglovchi / sana / variant", "168": "____________________________", "169": "Kirish dalillari", "170": "Davomat ___/20; R2 ___; R5 ___; trener ___", "171": "Test", "172": "___ / 30", "173": "Vaziyat A", "174": "___ / 5; izoh ___", "175": "Vaziyat B", "176": "___ / 5; izoh ___", "177": "Jami", "178": "___ / 40", "179": "Natija", "180": "☐ O'tdi (≥28) ☐ Qayta tayyorgarlik (<28)", "181": "Baholovchi / imzo", "182": "____________________________", "183": "Qayta mashq va muddat", "184": "____________________________", "185": "Saytdagi mashq testi faqat 30 savolni tekshiradi. Ikki yozma topshiriqni baholovchi tekshiradi; jami 40 ballni brauzer foizidan chiqarmang.", "186": "Bosqichma-bosqich", "187": "Yakuniy nazariy bayonnoma", "188": "Misol: 24 + 3 + 4", "189": "31/40 — R11dan o'tdi. R12 uchun alohida kamida 45/60 va kritik xatosiz natija kerak.", "190": "Misol: 23 + 2 + 2", "191": "27/40 — o'tmadi. Xato yo'nalish bo'yicha qayta tayyorgarlik va trener belgilagan qayta baholash.", "192": "Zaif yo'nalish", "193": "Sanitariya/allergen bo'lsa R2/R5; hisob bo'lsa R7/R8; muloqot/shikoyat bo'lsa R4/R9ga qayting.", "194": "Saqlanadigan dalil", "195": "Javob blankasi, vaziyatli javoblar va imzolangan bayonnoma trenerning kurs hujjatlarida saqlanadi.", "196": "Bosqichma-bosqich", "197": "Natijani tushunish", "198": "R12da 12 daqiqalik xizmat vaziyati: xorijiy mehmon, allergen, kechikish va alohida hisob. 6 mezon × 10 ball = 60; o'tish ≥45/60 va kritik xatosiz.", "199": "Quyidagi 30 savolni 35 daqiqalik <b>tayyorgarlik mashqi</b> sifatida bajaring. Natija — to'g'ri javoblar / 30. Bu mashq asosiy fanning ballariga qo'shilmaydi, imtihonga avtomatik ruxsat yoki sertifikat bermaydi.", "200": "Bosqichma-bosqich", "201": "Keyingi bosqich: amaliy imtihon", "202": "1. Bron jurnalda topilmadi. Kasbiy javob qaysi?", "203": "Xotirjam tekshirib, administrator bilan joylashtirish yechimini topish", "204": "Mehmonni yolg'onchiga chiqarish", "205": "Bronni tekshirmay ketkazish", "206": "Boshqa bron stolini ruxsatsiz berish", "207": "<li data-i=\"203\">Xotirjam tekshirib, administrator bilan joylashtirish yechimini topish</li><li data-i=\"204\">Mehmonni yolg'onchiga chiqarish</li><li data-i=\"205\">Bronni tekshirmay ketkazish</li><li data-i=\"206\">Boshqa bron stolini ruxsatsiz berish</li>", "208": "2. Smena brifingining asosiy natijasi?", "209": "Faqat chiroyli forma", "210": "Jamoada bron, stop-list, vazifa va maxsus so'rovlar bo'yicha bir xil axborot", "211": "Faqat barcha telefonni zaryadlash", "212": "Faqat menyu muqovasini almashtirish", "213": "<li data-i=\"209\">Faqat chiroyli forma</li><li data-i=\"210\">Jamoada bron, stop-list, vazifa va maxsus so'rovlar bo'yicha bir xil axborot</li><li data-i=\"211\">Faqat barcha telefonni zaryadlash</li><li data-i=\"212\">Faqat menyu muqovasini almashtirish</li>", "214": "3. Menyuda yo'q taom uchun pribor qo'yish kerakmi?", "215": "Ha; imkon qadar ko'p", "216": "Faqat chapga hamma pribor", "217": "Yo'q; kuvert menyudagi ketma-ketlikka mos bo'ladi", "218": "Faqat desert pribori yetadi", "219": "<li data-i=\"215\">Ha; imkon qadar ko'p</li><li data-i=\"216\">Faqat chapga hamma pribor</li><li data-i=\"217\">Yo'q; kuvert menyudagi ketma-ketlikka mos bo'ladi</li><li data-i=\"218\">Faqat desert pribori yetadi</li>", "220": "Bosma tayyorgarlik varianti · Har savol 1 ball", "221": "Nazariy savollar 1–3", "222": "4. Patnisni bo'shatishda muhim qoida?", "223": "Bir tomonni birdan bo'shatish", "224": "Mehmon boshidan oshirish", "225": "Og'ir buyumni chetga qo'yish", "226": "Muvozanatni saqlab, og'irlikni bir tomonga yig'maslik", "227": "<li data-i=\"223\">Bir tomonni birdan bo'shatish</li><li data-i=\"224\">Mehmon boshidan oshirish</li><li data-i=\"225\">Og'ir buyumni chetga qo'yish</li><li data-i=\"226\">Muvozanatni saqlab, og'irlikni bir tomonga yig'maslik</li>", "228": "5. Issiq taomni uzatishda nima qilinadi?", "229": "To'g'ri o'rin tekshirilib, issiq idish haqida ogohlantiriladi", "230": "Tarelka mehmon ustidan uzatiladi", "231": "Bug' mehmon tomon ochiladi", "232": "Patnis bolaga tutqaziladi", "233": "<li data-i=\"229\">To'g'ri o'rin tekshirilib, issiq idish haqida ogohlantiriladi</li><li data-i=\"230\">Tarelka mehmon ustidan uzatiladi</li><li data-i=\"231\">Bug' mehmon tomon ochiladi</li><li data-i=\"232\">Patnis bolaga tutqaziladi</li>", "234": "6. Mehmon ketganda buyumi qolgan. To'g'ri harakat?", "235": "Shaxsiy foydalanish", "236": "Restoran tartibida mas'ulga topshirish va qayd qilish", "237": "Chatga egasining suratini tarqatish", "238": "Hech kimga aytmaslik", "239": "<li data-i=\"235\">Shaxsiy foydalanish</li><li data-i=\"236\">Restoran tartibida mas'ulga topshirish va qayd qilish</li><li data-i=\"237\">Chatga egasining suratini tarqatish</li><li data-i=\"238\">Hech kimga aytmaslik</li>", "240": "Bosma tayyorgarlik varianti · Har savol 1 ball", "241": "Nazariy savollar 4–6", "242": "7. Ishlatilgan idishdan keyin toza pribor ushlashdan oldin?", "243": "Qo'lni fartukka artish", "244": "Faqat priborni hidlash", "245": "Qo'l gigiyenasini bajarish va oqimlarni ajratish", "246": "O'sha qo'lqopda davom etish", "247": "<li data-i=\"243\">Qo'lni fartukka artish</li><li data-i=\"244\">Faqat priborni hidlash</li><li data-i=\"245\">Qo'l gigiyenasini bajarish va oqimlarni ajratish</li><li data-i=\"246\">O'sha qo'lqopda davom etish</li>", "248": "8. Yerga tushgan vilka bilan nima qilinadi?", "249": "Salfetkada artilib qaytariladi", "250": "Suvga tekkizib beriladi", "251": "Boshqa mehmonga qo'yiladi", "252": "Ajratilib, o'rniga toza vilka keltiriladi", "253": "<li data-i=\"249\">Salfetkada artilib qaytariladi</li><li data-i=\"250\">Suvga tekkizib beriladi</li><li data-i=\"251\">Boshqa mehmonga qo'yiladi</li><li data-i=\"252\">Ajratilib, o'rniga toza vilka keltiriladi</li>", "254": "9. Xodimda qusish va ich ketish bor. Qaror?", "255": "Smenagacha mas'ulga xabar, ishga qaytish tartibini tekshirish", "256": "Yashirib ishga chiqish", "257": "Faqat atir sepish", "258": "Qo'lqop bilan hamma ishni bajarish", "259": "<li data-i=\"255\">Smenagacha mas'ulga xabar, ishga qaytish tartibini tekshirish</li><li data-i=\"256\">Yashirib ishga chiqish</li><li data-i=\"257\">Faqat atir sepish</li><li data-i=\"258\">Qo'lqop bilan hamma ishni bajarish</li>", "260": "Bosma tayyorgarlik varianti · Har savol 1 ball", "261": "Nazariy savollar 7–9", "262": "10. Stakan qanday ushlanadi?", "263": "Ichki qismiga barmoq solib", "264": "Ichish chetiga tegmasdan pastki qismi yoki oyoqchasidan", "265": "Og'zidan qisib", "266": "Mehmon ichadigan chetidan", "267": "<li data-i=\"263\">Ichki qismiga barmoq solib</li><li data-i=\"264\">Ichish chetiga tegmasdan pastki qismi yoki oyoqchasidan</li><li data-i=\"265\">Og'zidan qisib</li><li data-i=\"266\">Mehmon ichadigan chetidan</li>", "268": "11. Yong'oqli sousni qaynatish allergen xavfini ishonchli yo'qotadimi?", "269": "Ha; har doim", "270": "Faqat tuz qo'shilsa", "271": "Yo'q; tekshirilgan tarkib va ajratilgan jarayon kerak", "272": "Faqat kichik porsiyada", "273": "<li data-i=\"269\">Ha; har doim</li><li data-i=\"270\">Faqat tuz qo'shilsa</li><li data-i=\"271\">Yo'q; tekshirilgan tarkib va ajratilgan jarayon kerak</li><li data-i=\"272\">Faqat kichik porsiyada</li>", "274": "12. Allergen jadvalidagi noma'lum katakda nima qilasiz?", "275": "Allergen yo'q deyman", "276": "Menyudan narxni o'chiraman", "277": "Mehmonga ozroq beraman", "278": "Retsept, yorliq va mas'ul bilan tekshiraman", "279": "<li data-i=\"275\">Allergen yo'q deyman</li><li data-i=\"276\">Menyudan narxni o'chiraman</li><li data-i=\"277\">Mehmonga ozroq beraman</li><li data-i=\"278\">Retsept, yorliq va mas'ul bilan tekshiraman</li>", "280": "Bosma tayyorgarlik varianti · Har savol 1 ball", "281": "Nazariy savollar 10–12", "282": "13. Vegan taomga yong'oq allergiyasi so'rovi keldi. Nima kerak?", "283": "Allergen tarkibi va umumiy jihozni alohida tekshirish", "284": "Vegan yozuviga tayanish", "285": "Faqat porsiyani kamaytirish", "286": "Faqat taomni isitish", "287": "<li data-i=\"283\">Allergen tarkibi va umumiy jihozni alohida tekshirish</li><li data-i=\"284\">Vegan yozuviga tayanish</li><li data-i=\"285\">Faqat porsiyani kamaytirish</li><li data-i=\"286\">Faqat taomni isitish</li>", "288": "14. Oshxona alohida tayyorlashni tasdiqlay olmadi. Qaror?", "289": "Mehmon shoshsa uzatish", "290": "Taomni uzatmaslik, mas'ul va tekshirilgan muqobilni izlash", "291": "Bezakni olib berish", "292": "So'rovni yashirish", "293": "<li data-i=\"289\">Mehmon shoshsa uzatish</li><li data-i=\"290\">Taomni uzatmaslik, mas'ul va tekshirilgan muqobilni izlash</li><li data-i=\"291\">Bezakni olib berish</li><li data-i=\"292\">So'rovni yashirish</li>", "294": "15. Mehmon tilini qanday bilasiz?", "295": "Kiyimiga qarab", "296": "Faqat millatiga qarab", "297": "Salomlashib, qaysi tilni afzal ko'rishini so'rab", "298": "Hamma bilan bir xil chet tilda", "299": "<li data-i=\"295\">Kiyimiga qarab</li><li data-i=\"296\">Faqat millatiga qarab</li><li data-i=\"297\">Salomlashib, qaysi tilni afzal ko'rishini so'rab</li><li data-i=\"298\">Hamma bilan bir xil chet tilda</li>", "300": "Bosma tayyorgarlik varianti · Har savol 1 ball", "301": "Nazariy savollar 13–15", "302": "16. Mehmon inglizcha tushunmadi. Keyingi qadam?", "303": "Balandroq baqirish", "304": "Tushungandek bosh irg'ash", "305": "Savolni e'tiborsiz qoldirish", "306": "Soddaroq gap va menyuda ko'rsatib qayta tasdiqlash", "307": "<li data-i=\"303\">Balandroq baqirish</li><li data-i=\"304\">Tushungandek bosh irg'ash</li><li data-i=\"305\">Savolni e'tiborsiz qoldirish</li><li data-i=\"306\">Soddaroq gap va menyuda ko'rsatib qayta tasdiqlash</li>", "308": "17. «Let me check the ingredients with our kitchen» nima uchun?", "309": "Tarkibni taxminsiz oshxonadan tekshirish uchun", "310": "Narxni yashirish uchun", "311": "Hisobni ajratish uchun", "312": "Mehmonni kuzatish uchun", "313": "<li data-i=\"309\">Tarkibni taxminsiz oshxonadan tekshirish uchun</li><li data-i=\"310\">Narxni yashirish uchun</li><li data-i=\"311\">Hisobni ajratish uchun</li><li data-i=\"312\">Mehmonni kuzatish uchun</li>", "314": "18. WorldSkills va mahalliy qonun bir xilmi?", "315": "Ha; barcha mamlakatda", "316": "Yo'q; kasbiy mezon va majburiy talab farqlanadi", "317": "Faqat sertifikat bo'lsa bir xil", "318": "Faqat banketda bir xil", "319": "<li data-i=\"315\">Ha; barcha mamlakatda</li><li data-i=\"316\">Yo'q; kasbiy mezon va majburiy talab farqlanadi</li><li data-i=\"317\">Faqat sertifikat bo'lsa bir xil</li><li data-i=\"318\">Faqat banketda bir xil</li>", "320": "Bosma tayyorgarlik varianti · Har savol 1 ball", "321": "Nazariy savollar 16–18", "322": "19. Bufetdagi har taom uchun qanday tayyorgarlik kerak?", "323": "Faqat katta idish", "324": "Bitta umumiy qisqich", "325": "Ishonchli belgi, alohida anjom, saqlash nazorati va mas'ul", "326": "Faqat bezak", "327": "<li data-i=\"323\">Faqat katta idish</li><li data-i=\"324\">Bitta umumiy qisqich</li><li data-i=\"325\">Ishonchli belgi, alohida anjom, saqlash nazorati va mas'ul</li><li data-i=\"326\">Faqat bezak</li>", "328": "20. YI 14 va AQSh 9 allergenni qiyoslashda nima muhim?", "329": "Faqat sonni yodlash", "330": "AQShda boshqa allergiya yo'q deyish", "331": "Birini hamma joyda qonun qilish", "332": "Hudud va qo'llanish sohasi, jumladan qadoqlangan mahsulot konteksti", "333": "<li data-i=\"329\">Faqat sonni yodlash</li><li data-i=\"330\">AQShda boshqa allergiya yo'q deyish</li><li data-i=\"331\">Birini hamma joyda qonun qilish</li><li data-i=\"332\">Hudud va qo'llanish sohasi, jumladan qadoqlangan mahsulot konteksti</li>", "334": "21. Allergen buyurtmasi qanday manzillanadi?", "335": "Stol/o'rin, aniq so'rov, POS belgisi va oshxona tasdig'i bilan", "336": "Faqat taom nomi bilan", "337": "Faqat mehmon kiyimi bilan", "338": "Faqat terminal raqami bilan", "339": "<li data-i=\"335\">Stol/o'rin, aniq so'rov, POS belgisi va oshxona tasdig'i bilan</li><li data-i=\"336\">Faqat taom nomi bilan</li><li data-i=\"337\">Faqat mehmon kiyimi bilan</li><li data-i=\"338\">Faqat terminal raqami bilan</li>", "340": "Bosma tayyorgarlik varianti · Har savol 1 ball", "341": "Nazariy savollar 19–21", "342": "22. Yo'q taomni muqobilga qachon almashtirasiz?", "343": "Oshxona istagan zahoti", "344": "Tarkib, narx va vaqt tekshirilib, mehmon tasdiqlagach", "345": "Mehmon bilmasdan", "346": "Faqat chipta chiqsa", "347": "<li data-i=\"343\">Oshxona istagan zahoti</li><li data-i=\"344\">Tarkib, narx va vaqt tekshirilib, mehmon tasdiqlagach</li><li data-i=\"345\">Mehmon bilmasdan</li><li data-i=\"346\">Faqat chipta chiqsa</li>", "348": "23. Yuborilgan POS yozuvini izsiz o'chirish o'rniga?", "349": "Begona parol bilan kirish", "350": "Xatoni yashirish", "351": "Vakolatli tuzatish, sabab, vaqt va mas'ul qaydi", "352": "Mehmonga ortiqcha to'latish", "353": "<li data-i=\"349\">Begona parol bilan kirish</li><li data-i=\"350\">Xatoni yashirish</li><li data-i=\"351\">Vakolatli tuzatish, sabab, vaqt va mas'ul qaydi</li><li data-i=\"352\">Mehmonga ortiqcha to'latish</li>", "354": "24. Hisob asosi 120 000, kelishilgan xizmat 10%. Jami?", "355": "121 000 so'm", "356": "120 010 so'm", "357": "144 000 so'm", "358": "132 000 so'm", "359": "<li data-i=\"355\">121 000 so'm</li><li data-i=\"356\">120 010 so'm</li><li data-i=\"357\">144 000 so'm</li><li data-i=\"358\">132 000 so'm</li>", "360": "Bosma tayyorgarlik varianti · Har savol 1 ball", "361": "Nazariy savollar 22–24", "362": "25. 82 500 hisobga 100 000 naqd berildi. Qaytim?", "363": "17 500 so'm", "364": "27 500 so'm", "365": "7 500 so'm", "366": "18 500 so'm", "367": "<li data-i=\"363\">17 500 so'm</li><li data-i=\"364\">27 500 so'm</li><li data-i=\"365\">7 500 so'm</li><li data-i=\"366\">18 500 so'm</li>", "368": "26. Terminal javobi kelmadi. To'g'ri harakat?", "369": "Darhol yana yechish", "370": "Birinchi operatsiya holatini tekshirmay takror yechmaslik", "371": "PINni yozib olish", "372": "Hisobni ikki barobar qilish", "373": "<li data-i=\"369\">Darhol yana yechish</li><li data-i=\"370\">Birinchi operatsiya holatini tekshirmay takror yechmaslik</li><li data-i=\"371\">PINni yozib olish</li><li data-i=\"372\">Hisobni ikki barobar qilish</li>", "374": "27. Kechikish shikoyati qanday yakunlanadi?", "375": "Faqat bahslashish bilan", "376": "Oshxonani ayblash bilan", "377": "Yechim, mas'ul, muddat va mehmon javobini qayd qilish bilan", "378": "Hisobni yashirish bilan", "379": "<li data-i=\"375\">Faqat bahslashish bilan</li><li data-i=\"376\">Oshxonani ayblash bilan</li><li data-i=\"377\">Yechim, mas'ul, muddat va mehmon javobini qayd qilish bilan</li><li data-i=\"378\">Hisobni yashirish bilan</li>", "380": "Bosma tayyorgarlik varianti · Har savol 1 ball", "381": "Nazariy savollar 25–27", "382": "28. Harakatlanish yordami kerak deb o'yladingiz. Avval?", "383": "Aravachasini darhol surish", "384": "Faqat hamrohiga buyruq berish", "385": "Mehmonni ko'tarish", "386": "Mehmonning o'zidan qanday yordam qulayligini so'rash", "387": "<li data-i=\"383\">Aravachasini darhol surish</li><li data-i=\"384\">Faqat hamrohiga buyruq berish</li><li data-i=\"385\">Mehmonni ko'tarish</li><li data-i=\"386\">Mehmonning o'zidan qanday yordam qulayligini so'rash</li>", "388": "29. Mehmon nafas olishda qiynalmoqda. Birinchi yo'nalish?", "389": "Darhol mas'ul va shoshilinch yordamni chaqirish", "390": "Avval hisobni to'latish", "391": "10 daqiqa kutish", "392": "O'zim dori belgilash", "393": "<li data-i=\"389\">Darhol mas'ul va shoshilinch yordamni chaqirish</li><li data-i=\"390\">Avval hisobni to'latish</li><li data-i=\"391\">10 daqiqa kutish</li><li data-i=\"392\">O'zim dori belgilash</li>", "394": "30. Keyingi smenaga ochiq vazifa qanday topshiriladi?", "395": "Faqat «bir ish bor» deb", "396": "Holat, keyingi qadam, yangi mas'ul, muddat va qabul tasdig'i bilan", "397": "Jurnalni o'chirib", "398": "Faqat mehmon ismi bilan", "399": "<li data-i=\"395\">Faqat «bir ish bor» deb</li><li data-i=\"396\">Holat, keyingi qadam, yangi mas'ul, muddat va qabul tasdig'i bilan</li><li data-i=\"397\">Jurnalni o'chirib</li><li data-i=\"398\">Faqat mehmon ismi bilan</li>", "400": "Bosma tayyorgarlik varianti · Har savol 1 ball", "401": "Nazariy savollar 28–30", "402": "Yakuniy nazorat", "403": "🧪 Test topshiriqlari — <span class=\"grad\">30 ta savol</span>", "404": "↻ Testni qayta boshlash", "405": "Natija", "406": "🎓 Rahmat! E'tiboringiz uchun tashakkur", "407": "Tayyorgarlik testi tugagach, 2 ta vaziyatli javobni yozing va <b>baholovchiga</b> tekshirtiring. Rasmiy natija — bayonnomada.", "408": "Restoran xodimlari malakasini oshirish · RS 24"};
+
+
+
+
+
+var QEN=[{"q": "Bron jurnalda topilmadi. Kasbiy javob qaysi?", "a": ["Xotirjam tekshirib, administrator bilan joylashtirish yechimini topish", "Mehmonni yolg'onchiga chiqarish", "Bronni tekshirmay ketkazish", "Boshqa bron stolini ruxsatsiz berish"], "c": 0, "e": "R1: bron muammosi bahs bilan emas, tekshirish va mas'ul bilan hal qilinadi."}, {"q": "Smena brifingining asosiy natijasi?", "a": ["Faqat chiroyli forma", "Jamoada bron, stop-list, vazifa va maxsus so'rovlar bo'yicha bir xil axborot", "Faqat barcha telefonni zaryadlash", "Faqat menyu muqovasini almashtirish"], "c": 1, "e": "R1: brifing xizmatning axborot tayyorgarligi."}, {"q": "Menyuda yo'q taom uchun pribor qo'yish kerakmi?", "a": ["Ha; imkon qadar ko'p", "Faqat chapga hamma pribor", "Yo'q; kuvert menyudagi ketma-ketlikka mos bo'ladi", "Faqat desert pribori yetadi"], "c": 2, "e": "R3: anjomlar menyuga mos va tashqaridan ichkariga tartibda."}, {"q": "Patnisni bo'shatishda muhim qoida?", "a": ["Bir tomonni birdan bo'shatish", "Mehmon boshidan oshirish", "Og'ir buyumni chetga qo'yish", "Muvozanatni saqlab, og'irlikni bir tomonga yig'maslik"], "c": 3, "e": "R3: og'irlik markazi tayanch ustida qoladi."}, {"q": "Issiq taomni uzatishda nima qilinadi?", "a": ["To'g'ri o'rin tekshirilib, issiq idish haqida ogohlantiriladi", "Tarelka mehmon ustidan uzatiladi", "Bug' mehmon tomon ochiladi", "Patnis bolaga tutqaziladi"], "c": 0, "e": "R3: xavfsiz uzatish tezlikdan ustun."}, {"q": "Mehmon ketganda buyumi qolgan. To'g'ri harakat?", "a": ["Shaxsiy foydalanish", "Restoran tartibida mas'ulga topshirish va qayd qilish", "Chatga egasining suratini tarqatish", "Hech kimga aytmaslik"], "c": 1, "e": "R1: mehmon mulki va maxfiyligi himoya qilinadi."}, {"q": "Ishlatilgan idishdan keyin toza pribor ushlashdan oldin?", "a": ["Qo'lni fartukka artish", "Faqat priborni hidlash", "Qo'l gigiyenasini bajarish va oqimlarni ajratish", "O'sha qo'lqopda davom etish"], "c": 2, "e": "R2: toza va iflos oqim aralashtirilmaydi."}, {"q": "Yerga tushgan vilka bilan nima qilinadi?", "a": ["Salfetkada artilib qaytariladi", "Suvga tekkizib beriladi", "Boshqa mehmonga qo'yiladi", "Ajratilib, o'rniga toza vilka keltiriladi"], "c": 3, "e": "R2: ifloslangan anjom xizmatga qaytarilmaydi."}, {"q": "Xodimda qusish va ich ketish bor. Qaror?", "a": ["Smenagacha mas'ulga xabar, ishga qaytish tartibini tekshirish", "Yashirib ishga chiqish", "Faqat atir sepish", "Qo'lqop bilan hamma ishni bajarish"], "c": 0, "e": "R2: salomatlik haqida xabar oziq-ovqat xavfsizligining qismi."}, {"q": "Stakan qanday ushlanadi?", "a": ["Ichki qismiga barmoq solib", "Ichish chetiga tegmasdan pastki qismi yoki oyoqchasidan", "Og'zidan qisib", "Mehmon ichadigan chetidan"], "c": 1, "e": "R2/R3: oziq-ovqat va og'iz tegadigan sirt himoyalanadi."}, {"q": "Yong'oqli sousni qaynatish allergen xavfini ishonchli yo'qotadimi?", "a": ["Ha; har doim", "Faqat tuz qo'shilsa", "Yo'q; tekshirilgan tarkib va ajratilgan jarayon kerak", "Faqat kichik porsiyada"], "c": 2, "e": "R5: pishirish allergenni ishonchli yo'qotish usuli emas."}, {"q": "Allergen jadvalidagi noma'lum katakda nima qilasiz?", "a": ["Allergen yo'q deyman", "Menyudan narxni o'chiraman", "Mehmonga ozroq beraman", "Retsept, yorliq va mas'ul bilan tekshiraman"], "c": 3, "e": "R5: ma'lumot yo'qligi xavfsizlik dalili emas."}, {"q": "Vegan taomga yong'oq allergiyasi so'rovi keldi. Nima kerak?", "a": ["Allergen tarkibi va umumiy jihozni alohida tekshirish", "Vegan yozuviga tayanish", "Faqat porsiyani kamaytirish", "Faqat taomni isitish"], "c": 0, "e": "R5: parhez belgisi allergen tekshiruvini almashtirmaydi."}, {"q": "Oshxona alohida tayyorlashni tasdiqlay olmadi. Qaror?", "a": ["Mehmon shoshsa uzatish", "Taomni uzatmaslik, mas'ul va tekshirilgan muqobilni izlash", "Bezakni olib berish", "So'rovni yashirish"], "c": 1, "e": "R5: noaniq xavfsizlikda xizmat to'xtatiladi."}, {"q": "Mehmon tilini qanday bilasiz?", "a": ["Kiyimiga qarab", "Faqat millatiga qarab", "Salomlashib, qaysi tilni afzal ko'rishini so'rab", "Hamma bilan bir xil chet tilda"], "c": 2, "e": "R4: til taxmin qilinmaydi."}, {"q": "Mehmon inglizcha tushunmadi. Keyingi qadam?", "a": ["Balandroq baqirish", "Tushungandek bosh irg'ash", "Savolni e'tiborsiz qoldirish", "Soddaroq gap va menyuda ko'rsatib qayta tasdiqlash"], "c": 3, "e": "R4: sodda nutq va tushunilganini tekshirish."}, {"q": "«Let me check the ingredients with our kitchen» nima uchun?", "a": ["Tarkibni taxminsiz oshxonadan tekshirish uchun", "Narxni yashirish uchun", "Hisobni ajratish uchun", "Mehmonni kuzatish uchun"], "c": 0, "e": "R4/R5: tekshirish vaqti va keyingi qadam ham aytiladi."}, {"q": "WorldSkills va mahalliy qonun bir xilmi?", "a": ["Ha; barcha mamlakatda", "Yo'q; kasbiy mezon va majburiy talab farqlanadi", "Faqat sertifikat bo'lsa bir xil", "Faqat banketda bir xil"], "c": 1, "e": "R6: manba maqomi va sohasi ajratiladi."}, {"q": "Bufetdagi har taom uchun qanday tayyorgarlik kerak?", "a": ["Faqat katta idish", "Bitta umumiy qisqich", "Ishonchli belgi, alohida anjom, saqlash nazorati va mas'ul", "Faqat bezak"], "c": 2, "e": "R6: axborot va jarayon birga boshqariladi."}, {"q": "YI 14 va AQSh 9 allergenni qiyoslashda nima muhim?", "a": ["Faqat sonni yodlash", "AQShda boshqa allergiya yo'q deyish", "Birini hamma joyda qonun qilish", "Hudud va qo'llanish sohasi, jumladan qadoqlangan mahsulot konteksti"], "c": 3, "e": "R6: ro'yxat restoran talablari bilan kontekstsiz tenglashtirilmaydi."}, {"q": "Allergen buyurtmasi qanday manzillanadi?", "a": ["Stol/o'rin, aniq so'rov, POS belgisi va oshxona tasdig'i bilan", "Faqat taom nomi bilan", "Faqat mehmon kiyimi bilan", "Faqat terminal raqami bilan"], "c": 0, "e": "R7: buyurtma aniq mehmon va so'rovga bog'lanadi."}, {"q": "Yo'q taomni muqobilga qachon almashtirasiz?", "a": ["Oshxona istagan zahoti", "Tarkib, narx va vaqt tekshirilib, mehmon tasdiqlagach", "Mehmon bilmasdan", "Faqat chipta chiqsa"], "c": 1, "e": "R7: mehmon tanlovi va yozuvlar yangilanadi."}, {"q": "Yuborilgan POS yozuvini izsiz o'chirish o'rniga?", "a": ["Begona parol bilan kirish", "Xatoni yashirish", "Vakolatli tuzatish, sabab, vaqt va mas'ul qaydi", "Mehmonga ortiqcha to'latish"], "c": 2, "e": "R7: o'zgarish izi saqlanadi."}, {"q": "Hisob asosi 120 000, kelishilgan xizmat 10%. Jami?", "a": ["121 000 so'm", "120 010 so'm", "144 000 so'm", "132 000 so'm"], "c": 3, "e": "R8: 120 000 × 1,10 = 132 000."}, {"q": "82 500 hisobga 100 000 naqd berildi. Qaytim?", "a": ["17 500 so'm", "27 500 so'm", "7 500 so'm", "18 500 so'm"], "c": 0, "e": "R8: berilgan pul minus yakuniy hisob."}, {"q": "Terminal javobi kelmadi. To'g'ri harakat?", "a": ["Darhol yana yechish", "Birinchi operatsiya holatini tekshirmay takror yechmaslik", "PINni yozib olish", "Hisobni ikki barobar qilish"], "c": 1, "e": "R8: ikki marta yechish xavfi oldi olinadi."}, {"q": "Kechikish shikoyati qanday yakunlanadi?", "a": ["Faqat bahslashish bilan", "Oshxonani ayblash bilan", "Yechim, mas'ul, muddat va mehmon javobini qayd qilish bilan", "Hisobni yashirish bilan"], "c": 2, "e": "R9: muammo nazorat qilinadigan vazifaga aylantiriladi."}, {"q": "Harakatlanish yordami kerak deb o'yladingiz. Avval?", "a": ["Aravachasini darhol surish", "Faqat hamrohiga buyruq berish", "Mehmonni ko'tarish", "Mehmonning o'zidan qanday yordam qulayligini so'rash"], "c": 3, "e": "R9: yordam rozilik va mehmon ko'rsatmasi bilan."}, {"q": "Mehmon nafas olishda qiynalmoqda. Birinchi yo'nalish?", "a": ["Darhol mas'ul va shoshilinch yordamni chaqirish", "Avval hisobni to'latish", "10 daqiqa kutish", "O'zim dori belgilash"], "c": 0, "e": "R9: salomatlik xavfi oddiy shikoyat navbatida turmaydi."}, {"q": "Keyingi smenaga ochiq vazifa qanday topshiriladi?", "a": ["Faqat «bir ish bor» deb", "Holat, keyingi qadam, yangi mas'ul, muddat va qabul tasdig'i bilan", "Jurnalni o'chirib", "Faqat mehmon ismi bilan"], "c": 1, "e": "R10: vazifa egasiz va muddatsiz qolmaydi."}];
+
+
+
+
+
+
+(function(){
+  i18nNodes=[].slice.call(document.querySelectorAll("[data-i]"));
+  i18nNodes.forEach(function(el){ i18nOrig.push(el.innerHTML); });
+  uiNodes=[].slice.call(document.querySelectorAll("[data-ui]"));
+  uiNodes.forEach(function(el){ uiOrig.push(el.innerHTML); });
+})();
+function applyLang(L){
+  lang=(L==="en")?"en":"uz";
+  i18nNodes.forEach(function(el,k){
+    var i=el.getAttribute("data-i");
+    el.innerHTML=(lang==="en"&&EN[i])?EN[i]:i18nOrig[k];
+  });
+  uiNodes.forEach(function(el,k){
+    var key=el.getAttribute("data-ui");
+    if(UI[key]&&UI[key][1]) el.innerHTML=UI[key][lang==="en"?1:0];
+    else el.innerHTML=uiOrig[k];
+  });
+  document.documentElement.lang=lang;
+  document.getElementById("langTxt").textContent=(lang==="en")?"UZ":"ENG";
+  setTheme(document.documentElement.getAttribute("data-theme")||"light");
+  thEls.forEach(function(t,i){
+    t.innerHTML="<i>"+UIT("slide")+" "+(i+1)+"</i><b>"+((lang==="en"&&slides[i].dataset.titleEn)?slides[i].dataset.titleEn:slides[i].dataset.title)+"</b>";
+    t.title=(i+1)+". "+t.querySelector("b").textContent;
+  });
+  dotEls.forEach(function(d,i){ d.title=(i+1)+". "+((lang==="en"&&slides[i].dataset.titleEn)?slides[i].dataset.titleEn:slides[i].dataset.title); });
+  $("#slideName").textContent=(lang==="en"&&slides[idx].dataset.titleEn)?slides[idx].dataset.titleEn:slides[idx].dataset.title;
+  renderTest();
+  try{localStorage.setItem("terdu_lang",lang)}catch(e){}
+}
+$("#btnLang").onclick=function(){ applyLang(lang==="en"?"uz":"en"); };
+
+/* ================= START ================= */
+try{
+  var th=localStorage.getItem("terdu_theme");
+  setTheme(th|| (window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"));
+  var hv=parseInt((location.hash||"").replace(/[^0-9]/g,""),10);
+  var sv=isNaN(hv)?parseInt(localStorage.getItem("terdu_r11_slide"),10):(hv-1);
+  go(isNaN(sv)?0:sv);
+  window.addEventListener("hashchange",function(){
+    var h=parseInt((location.hash||"").replace(/[^0-9]/g,""),10);
+    if(!isNaN(h)&&h-1!==idx) go(h-1);
+  });
+}catch(e){ setTheme("light"); go(0); }
+try{ applyLang(localStorage.getItem("terdu_lang")==="en"?"en":"uz"); }catch(e){}
+setTimeout(function(){document.getElementById("hint").classList.add("hide")},7000);
+})();
+</script>
+</body>
+</html>
