@@ -123,6 +123,8 @@ it('returns minimal academic rows to verified users without Firestore while keep
         academicPoints: 375.5,
         // kunlik ball: bugungi kun boshidagi yozuv (dd/d0) bo'lmasa — 0
         today: 0,
+        // haftalik ball: Firestore'siz ham — bu hafta faollik yo'q, 0
+        week: 0,
       },
     ],
     // avatarlar holati ham Firestore'siz, asl bazadan (meta/avatars); bu foydalanuvchi reytingda yo'q

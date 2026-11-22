@@ -17,6 +17,8 @@ const names = [
   'Zarina Hamidova',
 ];
 const today = [12, 40, 5, 33, 25, 18, 27, 0, 9, 21, 3, 15];
+// shu hafta (dushanbadan) — Nigora haftaning yetakchisi, Malika va Otabek bu hafta ball olmagan
+const week = [52, 70, 15, 61, 48, 95, 37, 0, 19, 41, 0, 30];
 
 test('top ten rows are coloured, the rest plain, and every student sees their place and points', async ({
   page,
@@ -31,6 +33,7 @@ test('top ten rows are coloured, the rest plain, and every student sees their pl
           classId: i % 3 ? 'AP-223' : 'FIZ-123',
           academicPoints: 620 - i * 32.5,
           today: today[i],
+          week: week[i],
         })),
       },
     }),
@@ -67,6 +70,18 @@ test('top ten rows are coloured, the rest plain, and every student sees their pl
   await expect(card.locator('.rk-mine-score')).toContainText('Bugungi ballingiz');
   await expect(card.locator('.rk-mine-place')).toContainText('4');
   await expect(page.locator('.rk-note')).toContainText('00:00');
+
+  // Haftalik reyting: dushanbadan beri ball olganlar, haftalik ball bo'yicha.
+  const weekly = page.getByRole('tab', { name: /Haftalik/ });
+  await weekly.click();
+  await expect(weekly).toHaveAttribute('aria-selected', 'true');
+  await expect(rows).toHaveCount(10);
+  await expect(rows.nth(0)).toContainText('Nigora Tosheva');
+  await expect(rows.nth(0).locator('.rk-score')).toHaveText('95 ball');
+  await expect(card.locator('.rk-mine-score')).toContainText('Bu haftadagi ballingiz');
+  await expect(card.locator('.rk-mine-score')).toContainText('48');
+  await expect(card.locator('.rk-mine-place b')).toHaveText('5');
+  await expect(page.locator('.rk-note')).toContainText('dushanba');
 
   // Guruh filtri: boshqa guruhda men yo'qman — tepada shu haqda yoziladi.
   await page.getByRole('tab', { name: /Umumiy/ }).click();

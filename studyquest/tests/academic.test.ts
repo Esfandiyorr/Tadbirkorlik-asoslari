@@ -171,7 +171,7 @@ it('staff roster includes contact and registration details without exposing cred
   expect(JSON.stringify(await records.board(admin))).not.toContain('contact@example.test');
 });
 
-it('public academic ranking includes all groups with an explicit five-field allowlist', async () => {
+it('public academic ranking includes all groups with an explicit six-field allowlist', async () => {
   const board = await service.publicBoard();
   expect(board.map((u) => u.classId)).toEqual(['AP-224', 'AP-223']);
   expect(Object.keys(board[0]).sort()).toEqual([
@@ -180,6 +180,7 @@ it('public academic ranking includes all groups with an explicit five-field allo
     'id',
     'name',
     'today',
+    'week',
   ]);
   expect(JSON.stringify(board)).not.toMatch(/PRIVATE|email|topics|readingHistory|pwSalt/);
 });
@@ -219,4 +220,52 @@ it('daily ranking counts only points earned since the start of today in Tashkent
   const today = Object.fromEntries(board.map((u) => [u.id, u.today]));
   // Ali bugun 30 ball oldi; Bekning yozuvi kechagi — bugun 0; noto'g'ri kun boshi manfiy ball bermaydi.
   expect(today).toEqual({ legacy_a: 30, legacy_b: 0, legacy_c: 0 });
+});
+
+it('weekly ranking counts points since Monday (Tashkent) from a stored start-of-week snapshot', async () => {
+  const repo = new MemoryRepository(initialState());
+  const monday = Date.UTC(2026, 10, 16, 3, 0); // dushanba, 16-noyabr 08:00 (UTC+5)
+  const students: Record<string, any> = {
+    a: {
+      name: 'Ali',
+      surname: 'V',
+      group: 'AP-223',
+      status: 'ok',
+      total: 150,
+      dd: '2026-11-16',
+      d0: 120,
+    },
+    b: {
+      name: 'Bek',
+      surname: 'S',
+      group: 'Mustaqil',
+      status: 'ok',
+      total: 300,
+      dd: '2026-11-13',
+      d0: 250,
+    },
+  };
+  const read = async () => structuredClone(students);
+  expect((await new Academic(repo, read).weekBase(students, monday)).a).toBe(120);
+  // Keyingi kunlar: Ali yana 40, Bek 25 ball oladi; yangi talaba Cho shu hafta 60 ball to'playdi.
+  students.a = { ...students.a, total: 190, dd: '2026-11-18', d0: 170 };
+  students.b = { ...students.b, total: 325, dd: '2026-11-18', d0: 300 };
+  students.c = {
+    name: 'Cho',
+    surname: 'R',
+    group: 'AP-224',
+    status: 'ok',
+    total: 60,
+    dd: '2026-11-18',
+    d0: 0,
+  };
+  const wednesday = Date.UTC(2026, 10, 18, 9, 0);
+  const week = Object.fromEntries(
+    (await new Academic(repo, read).publicBoard(wednesday)).map((u) => [u.id, u.week]),
+  );
+  expect(week).toEqual({ legacy_a: 70, legacy_b: 25, legacy_c: 60 });
+  // Yangi hafta — hisob yana noldan.
+  const nextMonday = Date.UTC(2026, 10, 23, 2, 0);
+  const fresh = await new Academic(repo, read).publicBoard(nextMonday);
+  expect(fresh.every((u) => u.week === 0)).toBe(true);
 });

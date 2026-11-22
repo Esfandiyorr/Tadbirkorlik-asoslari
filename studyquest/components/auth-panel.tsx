@@ -29,7 +29,8 @@ import { AccountHelpForm } from './account-help';
      talaba tizimi qiladi (yashirin oyna — /legacy/index.html, scripts/legacy-credentials.mjs): parollar, egalik va
      1111 qoidasi o‘zgarmaydi, bu sahifa faqat maydonlarni to‘ldirib «Kirish»ni bosadi.
    • «Ro‘yxatdan o‘tish» → ism-familiya yoki Google. Ism-familiya bilan bo‘lsa «Talabamisiz?» so‘raladi: talaba
-     guruhini tanlaydi yoki yozadi (o‘qituvchi tasdiqlaydi), talaba bo‘lmasa — mustaqil o‘quvchi. Google bilan
+     guruhini tanlaydi yoki yozadi, talaba bo‘lmasa — «Mustaqil» guruhida; ikkalasi ham ball oladi va
+     reytingda qatnashadi (o‘qituvchi tasdiqlaydi). Google bilan
      kirganlarga «Talabamisiz?» bosh sahifadagi kurs oynasida so‘raladi (components/course-gate.tsx).
    • Maydonga email yozilsa — avvalgi email hisobiga kiradi (email + parol). */
 
@@ -47,6 +48,8 @@ type LegacyWindow = Window & {
 
 const LEGACY_LOGIN = '/legacy/index.html?studyquest=login&sqEmbed=login';
 const GROUPS: string[] = (catalog as { groups?: string[] }).groups || [];
+/** Talaba bo'lmaganlar ham oddiy hisob bilan ball to'playdi va reytingda qatnashadi — shu guruh nomi bilan. */
+const NON_STUDENT_GROUP = 'Mustaqil';
 const groupOk = (g: string) => /^[\p{L}\p{N}][\p{L}\p{N} ._/-]{1,39}$/u.test(g.trim());
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
@@ -462,16 +465,16 @@ export function AuthPanel({ onClose }: { onClose?: () => void }) {
             type="button"
             className="la-answer"
             disabled={!!busy}
-            onClick={() => register('independent', '')}
+            onClick={() => register('university', NON_STUDENT_GROUP)}
           >
             <span aria-hidden="true">🌍</span>
             <b>{L('Yo‘q, talaba emasman', 'No, I am not a student', 'Нет, я не студент')}</b>
             <small>
               {busy ||
                 L(
-                  'Mustaqil o‘quvchi sifatida darslarni o‘qiysiz.',
-                  'You read the lessons as an independent learner.',
-                  'Вы читаете уроки как самостоятельный слушатель.',
+                  '«Mustaqil» guruhida ball to‘playsiz, umumiy va haftalik reytingda qatnashasiz. Hisobingizni o‘qituvchi tasdiqlaydi.',
+                  'You earn points in the “Mustaqil” group and take part in the overall and weekly ranking. The teacher approves your account.',
+                  'Вы набираете баллы в группе «Mustaqil» и участвуете в общем и недельном рейтинге. Аккаунт подтверждает преподаватель.',
                 )}
             </small>
           </button>

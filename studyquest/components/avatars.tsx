@@ -29,6 +29,8 @@ export type BoardEntry = {
   classId: string;
   academicPoints?: number;
   today?: number;
+  /** shu hafta (dushanbadan, Toshkent) to'plangan ball */
+  week?: number;
   avatar?: string;
 };
 export type AvatarMe = {

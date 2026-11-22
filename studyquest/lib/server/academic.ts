@@ -8,6 +8,14 @@ import { course, lessons, catalog } from '../seed';
 
 type Read = (path: string) => Promise<any>;
 const number = (v: unknown) => (Number.isFinite(Number(v)) ? Math.max(0, Number(v)) : 0);
+/** Joriy haftaning dushanbasi (Toshkent vaqti, UTC+5) — «YYYY-MM-DD». */
+export function weekStart(now: number) {
+  const local = new Date(now + 18000000);
+  const back = (local.getUTCDay() + 6) % 7;
+  return new Date(Date.UTC(local.getUTCFullYear(), local.getUTCMonth(), local.getUTCDate() - back))
+    .toISOString()
+    .slice(0, 10);
+}
 export function academicRecord(id: string, s: Row) {
   const topics: Record<string, Row> = {},
     manual: Record<string, number> = {},
@@ -180,10 +188,48 @@ export class Academic {
       )
       .sort((a, b) => b.academicPoints - a.academicPoints || a.name.localeCompare(b.name));
   }
+  /** 📅 Haftalik reyting boshlanishi: har bir talabaning dushanba (Toshkent) boshidagi umumiy bali.
+      Server saqlaydi (leaderboards/week) — asl bazaga yangi maydon yozilmaydi. Haftaning birinchi so'rovida
+      yoziladi: shu hafta hali ball olmaganlarga — joriy umumiy ball, bu hafta faol bo'lganlarga — oxirgi faol
+      kun boshidagi ball (d0). Keyin ro'yxatdan o'tganlarning boshlang'ich bali — 0. */
+  async weekBase(source: Record<string, any>, now: number) {
+    const week = weekStart(now);
+    const valid = (v: Row | null) =>
+      v?.week === week && v.base && typeof v.base === 'object'
+        ? (v.base as Record<string, number>)
+        : null;
+    // Firestore kvotasi tugagan bo'lsa ham reyting ochiladi: saqlangan boshlanish o'qilmasa — shu so'rov uchun hisoblanadi.
+    let saved: Record<string, number> | null = null;
+    try {
+      saved = valid(await this.db.get('leaderboards', 'week'));
+    } catch {}
+    if (saved) return saved;
+    const base: Record<string, number> = {};
+    for (const [id, s] of Object.entries(source))
+      if (/^[a-zA-Z0-9_-]{1,100}$/.test(id) && s?.name)
+        base[id] =
+          Math.round(
+            (typeof s.dd === 'string' && s.dd >= week
+              ? Math.min(number(s.d0), number(s.total))
+              : number(s.total)) * 10,
+          ) / 10;
+    try {
+      return await this.db.transaction(async (tx) => {
+        const other = valid(await tx.get('leaderboards', 'week'));
+        if (other) return other;
+        tx.set('leaderboards', 'week', { week, base, at: now });
+        return base;
+      });
+    } catch {
+      return base;
+    }
+  }
   async publicBoard(now = Date.now()) {
     const source = (await this.read('students')) || {};
     // 📅 Kunlik reyting: dvigatel yozadigan dd (bugungi sana, Toshkent) va d0 (kun boshidagi ball).
     const today = new Date(now + 18000000).toISOString().slice(0, 10);
+    const base = await this.weekBase(source, now);
+    const round = (v: number) => Math.round(Math.max(0, v) * 10) / 10;
     return Object.entries(source)
       .filter(
         ([id, s]: [string, any]) =>
@@ -201,8 +247,8 @@ export class Academic {
           .slice(0, 200),
         classId: String(s.group || '').slice(0, 100),
         academicPoints: number(s.total),
-        today:
-          s.dd === today ? Math.round(Math.max(0, number(s.total) - number(s.d0)) * 10) / 10 : 0,
+        today: s.dd === today ? round(number(s.total) - number(s.d0)) : 0,
+        week: round(number(s.total) - number(base[id])),
       }))
       .sort((a, b) => b.academicPoints - a.academicPoints || a.name.localeCompare(b.name));
   }

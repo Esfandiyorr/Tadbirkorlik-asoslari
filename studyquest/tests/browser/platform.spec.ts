@@ -468,6 +468,65 @@ test('sign-up asks «Are you a student?» and saves the chosen group in the orig
   await page.screenshot({ path: 'tests/artifacts/student-sign-up.png', fullPage: true });
 });
 
+test('a non-student signs up in the «Mustaqil» group as a regular account that earns points', async ({
+  page,
+}) => {
+  await page.route('**/api/platform', async (route) => {
+    if (route.request().method() !== 'GET') return route.continue();
+    const response = await route.fetch();
+    const state = await response.json();
+    state.mode = 'legacy';
+    delete state.user;
+    await route.fulfill({ response, json: state });
+  });
+  await page.route('**/legacy/index.html*', async (route) => {
+    const response = await route.fetch();
+    const body = (await response.text())
+      .replace('window.STUDYQUEST_DEMO_COPY=true', 'window.STUDYQUEST_DEMO_COPY=false')
+      .replace(
+        '<script src="embed.js"></script>',
+        '<script>localStorage.removeItem("terdu_student");</script><script src="embed.js"></script>',
+      );
+    await route.fulfill({ response, body });
+  });
+  const created: Record<string, unknown>[] = [];
+  await page.route(/firebasedatabase\.app/, async (route) => {
+    const req = route.request();
+    if (req.method() === 'PUT' && /\/students\/[^/]+\.json/.test(req.url())) {
+      created.push(req.postDataJSON());
+      return route.fulfill({ json: req.postDataJSON() });
+    }
+    if (req.url().includes('/students.json')) return route.fulfill({ json: {} });
+    return route.fulfill({ json: null });
+  });
+  await page.route(/identitytoolkit\.googleapis\.com/, (route) =>
+    route.fulfill({
+      json: { idToken: 'tok', localId: 'anon1', refreshToken: 'ref', expiresIn: '3600' },
+    }),
+  );
+  await page.setViewportSize({ width: 390, height: 780 });
+  await page.goto('/#login', { waitUntil: 'domcontentloaded' });
+  await page.getByRole('button', { name: 'Ro‘yxatdan o‘tish' }).click();
+  await page.getByLabel('Ism', { exact: true }).fill('Aziz');
+  await page.getByLabel('Familiya').fill('Karimov');
+  await page.getByRole('button', { name: 'Davom etish' }).click();
+  await expect(page.getByRole('button', { name: /Yo‘q, talaba emasman/ })).toContainText(
+    'haftalik reytingda',
+  );
+  await page.getByRole('button', { name: /Yo‘q, talaba emasman/ }).click();
+  await expect(page.getByRole('heading', { name: 'Ro‘yxatdan o‘tdingiz!' })).toBeVisible({
+    timeout: 30000,
+  });
+  await expect(page.locator('.la-pending')).toContainText('Aziz Karimov · Mustaqil');
+  expect(created.at(-1)).toMatchObject({
+    name: 'Aziz',
+    surname: 'Karimov',
+    group: 'Mustaqil',
+    learnerType: 'university',
+    status: 'pending',
+  });
+});
+
 test('existing academic points remain visible on the dashboard, profile and academic ranking', async ({
   page,
 }) => {

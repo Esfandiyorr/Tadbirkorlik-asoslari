@@ -1,6 +1,6 @@
 'use client';
 import { useMemo, useState } from 'react';
-import { CalendarDays, Trophy, Users } from 'lucide-react';
+import { CalendarDays, CalendarRange, Trophy, Users } from 'lucide-react';
 import { useApp } from './provider';
 import {
   AvatarFigure,
@@ -12,7 +12,7 @@ import {
 import { num, tr } from '@/lib/points';
 
 type Entry = BoardEntry;
-type Period = 'day' | 'all';
+type Period = 'day' | 'week' | 'all';
 
 const initials = (name: string) =>
   name
@@ -71,12 +71,13 @@ export function Leaderboard({ embedded = false }: { embedded?: boolean }) {
     [picking, setPicking] = useState(false);
   const myId = data?.user?.id,
     myGroup = data?.user?.classId || '';
-  const score = (r: Entry) => (period === 'day' ? r.today || 0 : r.academicPoints || 0);
+  const score = (r: Entry) =>
+    period === 'day' ? r.today || 0 : period === 'week' ? r.week || 0 : r.academicPoints || 0;
   const visible = useMemo(
     () =>
       rows
         .filter((r) => !group || r.classId === group)
-        .filter((r) => period === 'all' || (r.today || 0) > 0)
+        .filter((r) => period === 'all' || score(r) > 0)
         .sort((a, b) => score(b) - score(a) || a.name.localeCompare(b.name)),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [rows, group, period],
@@ -91,6 +92,7 @@ export function Leaderboard({ embedded = false }: { embedded?: boolean }) {
   const unit = L('ball', 'pts', 'б.');
   const tabs: [Period, typeof Trophy, string][] = [
     ['day', CalendarDays, L('Kunlik', 'Today', 'За день')],
+    ['week', CalendarRange, L('Haftalik', 'This week', 'За неделю')],
     ['all', Trophy, L('Umumiy', 'Overall', 'Общий')],
   ];
   return (
@@ -136,7 +138,9 @@ export function Leaderboard({ embedded = false }: { embedded?: boolean }) {
             <small>
               {period === 'day'
                 ? L('Bugungi ballingiz', 'Today’s points', 'Баллы за сегодня')
-                : L('Umumiy ballingiz', 'Your points', 'Ваши баллы')}
+                : period === 'week'
+                  ? L('Bu haftadagi ballingiz', 'Points this week', 'Баллы за неделю')
+                  : L('Umumiy ballingiz', 'Your points', 'Ваши баллы')}
             </small>
             <b>
               {num(mine ? score(mine) : 0)} <span>{unit}</span>
@@ -150,11 +154,17 @@ export function Leaderboard({ embedded = false }: { embedded?: boolean }) {
                     'No points today yet — open a presentation to enter today’s ranking.',
                     'Сегодня баллов пока нет — откройте презентацию, чтобы попасть в рейтинг дня.',
                   )
-                : L(
-                    'Bu guruhda siz yo‘qsiz — «Hammasi» ni tanlang.',
-                    'You are not in this group — choose “All”.',
-                    'Вас нет в этой группе — выберите «Все».',
-                  )
+                : period === 'week'
+                  ? L(
+                      'Bu hafta hali ball olmadingiz — haftalik reyting har dushanba yangidan boshlanadi.',
+                      'No points this week yet — the weekly ranking starts again every Monday.',
+                      'На этой неделе баллов пока нет — недельный рейтинг начинается заново каждый понедельник.',
+                    )
+                  : L(
+                      'Bu guruhda siz yo‘qsiz — «Hammasi» ni tanlang.',
+                      'You are not in this group — choose “All”.',
+                      'Вас нет в этой группе — выберите «Все».',
+                    )
               : ahead && score(ahead) > score(mine)
                 ? L(
                     `${myIndex}-o‘ringacha ${num(score(ahead) - score(mine))} ball qoldi`,
@@ -218,6 +228,16 @@ export function Leaderboard({ embedded = false }: { embedded?: boolean }) {
             )}
           </p>
         )}
+        {period === 'week' && (
+          <p className="rk-note">
+            🗓️{' '}
+            {L(
+              'Shu hafta to‘plangan ballar. Haftalik reyting har dushanba 00:00 da (Toshkent vaqti) yangidan boshlanadi.',
+              'Points earned this week. The weekly ranking restarts every Monday at 00:00 (Tashkent time).',
+              'Баллы за эту неделю. Недельный рейтинг обнуляется каждый понедельник в 00:00 (по Ташкенту).',
+            )}
+          </p>
+        )}
 
         {error ? (
           <div className="error-state">{error}</div>
@@ -233,11 +253,17 @@ export function Leaderboard({ embedded = false }: { embedded?: boolean }) {
                     'Nobody has earned points today yet — be the first!',
                     'Сегодня ещё никто не набрал баллов — будьте первым!',
                   )
-                : L(
-                    'Birinchi natija sizniki bo‘lishi mumkin.',
-                    'The first result could be yours.',
-                    'Первый результат может стать вашим.',
-                  )}
+                : period === 'week'
+                  ? L(
+                      'Bu hafta hali hech kim ball olmagan — birinchi bo‘ling!',
+                      'Nobody has earned points this week yet — be the first!',
+                      'На этой неделе ещё никто не набрал баллов — будьте первым!',
+                    )
+                  : L(
+                      'Birinchi natija sizniki bo‘lishi mumkin.',
+                      'The first result could be yours.',
+                      'Первый результат может стать вашим.',
+                    )}
             </h3>
           </div>
         ) : (
