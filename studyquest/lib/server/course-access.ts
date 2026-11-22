@@ -52,11 +52,12 @@ export async function courseGate(): Promise<Gate> {
   const c = mem.c;
   if (c && Date.now() - c.at < 30000) return { off: c.off, students: c.students };
   let off = false,
-    students = false;
+    students = true;
   try {
     const v = await siteGet<{ off?: boolean; students?: boolean }>('courseGate');
     off = v?.off === true;
-    students = v?.students === true;
+    // ✅ sukut bo'yicha yoqiq: «Talabaman» deb guruhi bilan yozilganga kurs darhol ochiladi (o'chirilsa — tasdiq)
+    students = v?.students !== false;
   } catch {}
   mem.c = { off, students, at: Date.now() };
   return { off, students };
@@ -255,7 +256,7 @@ export async function courseAccessAdmin(a: Actor, course?: string) {
       ...extraCourses.filter((c) => c.paid).map((c) => ({ id: c.id, title: c.title, paid: true })),
     ],
     shop,
-    gate: { off: gate?.off === true, students: gate?.students === true },
+    gate: { off: gate?.off === true, students: gate?.students !== false },
     grants: Object.values(grants || {})
       .filter(valid)
       .sort((x, y) => y.at - x.at),
@@ -325,7 +326,8 @@ export async function manageCourseAccess(
   const p = input.parse(raw);
   if (p.op === 'gate' || p.op === 'students') {
     await siteUpdate(
-      p.op === 'gate' ? { 'courseGate/off': p.off } : { 'courseGate/students': p.on || null },
+      // students: sukut bo'yicha yoqiq, shuning uchun o'chirilgani aniq false bilan saqlanadi
+      p.op === 'gate' ? { 'courseGate/off': p.off } : { 'courseGate/students': p.on },
     );
     mem.c = null;
     return courseAccessAdmin(a);

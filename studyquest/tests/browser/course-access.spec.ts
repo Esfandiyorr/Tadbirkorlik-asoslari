@@ -25,7 +25,7 @@ test('the sign-in page: name and password, three languages, sign-up with «Are y
   });
   await page.setViewportSize({ width: 360, height: 760 });
   await page.goto('/#login', { waitUntil: 'domcontentloaded' });
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('tadbirkorlik-asoslari');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('www.tadbirkorlik-asoslari.uz');
   await expect(page.getByLabel('Ism familiya')).toHaveAttribute('placeholder', 'Ism familiya');
   await expect(page.getByLabel('Parol')).toHaveAttribute('type', 'password');
   const loginButton = page.getByRole('button', { name: 'Kirish', exact: true });
@@ -182,11 +182,12 @@ test('the administrator approves access requests and can open the course to ever
   await expect(pill).toContainText('Yoqilgan');
   // 🎓 guruh bilan yozilgan talabalarga kursni darhol ochish — yoqish va qaytarish
   const students = sec.locator('.bo-students .bo-pill');
-  await expect(students).toContainText('Tasdiqlash bilan');
-  await sec.getByRole('button', { name: '🎓 Talabalarga darhol ochish' }).click();
+  // sukut bo'yicha talabalarga kurs darhol ochiladi; administrator tasdiqni qayta yoqishi mumkin
   await expect(students).toContainText('Darhol ochiladi');
   await sec.getByRole('button', { name: '🔒 Tasdiqlab kiritish' }).click();
   await expect(students).toContainText('Tasdiqlash bilan');
+  await sec.getByRole('button', { name: '🎓 Talabalarga darhol ochish' }).click();
+  await expect(students).toContainText('Darhol ochiladi');
   await expect(sec).toContainText('Yangi so‘rov yo‘q.');
   // demo rejimida email bo'yicha qidiruv yo'q
   await expect(sec.getByLabel('Email')).toBeDisabled();

@@ -24,13 +24,13 @@ import { Button } from './ui/button';
 import { AccountHelpForm } from './account-help';
 
 /* 🔑 Kirish sahifasi — oddiy, bitta ustunli dizayn (sarlavha, ikki maydon, «Kirish», ostida «Ro‘yxatdan o‘tish»,
-   eng pastda «Mehmon»). Ranglar — saytning avvalgi binafsha ranglari.
+   uning tagida «Mehmon»). Ranglar — saytning avvalgi binafsha ranglari.
    • Talaba «Ism familiya» (yoki «Familiya Ism») va o‘zi qo‘ygan parol yoki 1111 bilan kiradi. Tekshiruvni avvalgi
      talaba tizimi qiladi (yashirin oyna — /legacy/index.html, scripts/legacy-credentials.mjs): parollar, egalik va
      1111 qoidasi o‘zgarmaydi, bu sahifa faqat maydonlarni to‘ldirib «Kirish»ni bosadi.
    • «Ro‘yxatdan o‘tish» → ism-familiya yoki Google. Ism-familiya bilan bo‘lsa «Talabamisiz?» so‘raladi: talaba
      guruhini tanlaydi yoki yozadi, talaba bo‘lmasa — «Mustaqil» guruhida; ikkalasi ham ball oladi va
-     reytingda qatnashadi (o‘qituvchi tasdiqlaydi). Google bilan
+     reytingda qatnashadi; hisob o‘qituvchi tasdig‘isiz darhol faollashadi (/api/student-activate). Google bilan
      kirganlarga «Talabamisiz?» bosh sahifadagi kurs oynasida so‘raladi (components/course-gate.tsx).
    • Maydonga email yozilsa — avvalgi email hisobiga kiradi (email + parol). */
 
@@ -138,7 +138,17 @@ export function AuthPanel({ onClose }: { onClose?: () => void }) {
       setError(problem(r.error));
       return;
     }
-    if (r.status === 'ok' || r.learnerType === 'independent') return enter();
+    if (r.status === 'ok' || r.learnerType === 'independent') {
+      if (fresh)
+        toast(
+          L(
+            '🔑 Parolingiz: 1111. Profil bo‘limida o‘zingizga yangi parol qo‘ying.',
+            '🔑 Your password is 1111. Set your own password in Profile.',
+            '🔑 Ваш пароль: 1111. Задайте свой пароль в профиле.',
+          ),
+        );
+      return enter();
+    }
     if (r.status === 'blocked') return setError(problem('blocked'));
     setPending({ name, group: r.group || group, fresh });
     go('pending');
@@ -353,6 +363,9 @@ export function AuthPanel({ onClose }: { onClose?: () => void }) {
         <button type="button" className="la-link" onClick={() => go('register')}>
           {L('Ro‘yxatdan o‘tish', 'Sign up', 'Регистрация')}
         </button>
+        <button type="button" className="la-link la-guest" onClick={() => go('guest')}>
+          {L('Mehmon', 'Guest', 'Гость')}
+        </button>
         {demo && (
           <div className="la-demo" role="group" aria-label="Demo">
             {(
@@ -455,9 +468,9 @@ export function AuthPanel({ onClose }: { onClose?: () => void }) {
             <b>{L('Ha, talabaman', 'Yes, I am a student', 'Да, я студент')}</b>
             <small>
               {L(
-                'Guruhingizni tanlaysiz. O‘qituvchi tasdiqlagach darslar, ballar va reyting ochiladi.',
-                'You choose your group. Lessons, points and ranking open once the teacher approves.',
-                'Вы выбираете группу. После подтверждения преподавателем откроются уроки, баллы и рейтинг.',
+                'Guruhingizni tanlaysiz — darslar, ballar va reyting darhol ochiladi.',
+                'You choose your group — lessons, points and ranking open at once.',
+                'Вы выбираете группу — уроки, баллы и рейтинг откроются сразу.',
               )}
             </small>
           </button>
@@ -472,9 +485,9 @@ export function AuthPanel({ onClose }: { onClose?: () => void }) {
             <small>
               {busy ||
                 L(
-                  '«Mustaqil» guruhida ball to‘playsiz, umumiy va haftalik reytingda qatnashasiz. Hisobingizni o‘qituvchi tasdiqlaydi.',
-                  'You earn points in the “Mustaqil” group and take part in the overall and weekly ranking. The teacher approves your account.',
-                  'Вы набираете баллы в группе «Mustaqil» и участвуете в общем и недельном рейтинге. Аккаунт подтверждает преподаватель.',
+                  '«Mustaqil» guruhida ball to‘playsiz, umumiy va haftalik reytingda qatnashasiz.',
+                  'You earn points in the “Mustaqil” group and take part in the overall and weekly ranking.',
+                  'Вы набираете баллы в группе «Mustaqil» и участвуете в общем и недельном рейтинге.',
                 )}
             </small>
           </button>
@@ -551,7 +564,11 @@ export function AuthPanel({ onClose }: { onClose?: () => void }) {
         <h2 id="la-h">
           {pending.fresh
             ? L('Ro‘yxatdan o‘tdingiz!', 'You are signed up!', 'Вы зарегистрированы!')
-            : L('Tasdiq kutilmoqda', 'Waiting for approval', 'Ожидает подтверждения')}
+            : L(
+                'Hisob hali faollashmadi',
+                'The account is not active yet',
+                'Аккаунт ещё не активен',
+              )}
         </h2>
         <p>
           <b>{pending.name}</b>
@@ -559,18 +576,18 @@ export function AuthPanel({ onClose }: { onClose?: () => void }) {
         </p>
         <p className="la-muted">
           {L(
-            'O‘qituvchi hisobingizni tasdiqlagach, sayt shu yerda o‘zi ochiladi.',
-            'Once the teacher approves your account, the site opens here by itself.',
-            'Когда преподаватель подтвердит аккаунт, сайт откроется здесь сам.',
+            'Internet sekin bo‘lishi mumkin. Sayt shu yerda o‘zi ochiladi yoki birozdan keyin qayta kiring.',
+            'The internet may be slow. The site opens here by itself, or log in again in a moment.',
+            'Возможно, медленный интернет. Сайт откроется здесь сам, или войдите снова чуть позже.',
           )}
         </p>
         {pending.fresh && (
           <p className="la-note">
             🔑{' '}
             {L(
-              'Keyingi safar ism familiyangiz va 1111 paroli bilan kirasiz. Keyin o‘zingiz yangi parol qo‘yasiz.',
-              'Next time log in with your name and the password 1111. Later you set your own password.',
-              'В следующий раз входите с именем и паролем 1111. Потом вы зададите свой пароль.',
+              'Ism familiyangiz va 1111 paroli bilan kirasiz. Keyin o‘zingiz yangi parol qo‘yasiz.',
+              'Log in with your name and the password 1111. Later you set your own password.',
+              'Входите с именем и паролем 1111. Потом вы зададите свой пароль.',
             )}
           </p>
         )}
@@ -653,14 +670,14 @@ export function AuthPanel({ onClose }: { onClose?: () => void }) {
         </div>
       </header>
       <div className="la-column">
-        <h1 className="la-brand">tadbirkorlik-asoslari</h1>
+        <h1 className="la-brand">
+          <span className="la-www">www.</span>tadbirkorlik-asoslari
+          <span className="la-uz">.uz</span>
+        </h1>
         {body}
       </div>
       {step === 'login' && (
         <footer className="la-foot">
-          <button type="button" className="la-guest" onClick={() => go('guest')}>
-            {L('Mehmon', 'Guest', 'Гость')}
-          </button>
           <button
             type="button"
             className="la-help"
@@ -768,9 +785,9 @@ function GuestInfo({
       <h2 id="la-h">{L('Sayt haqida', 'About the site', 'О сайте')}</h2>
       <p>
         {L(
-          'tadbirkorlik-asoslari — talabalar uchun onlayn o‘quv platformasi (Unistay). Fanlarni slaydma-slayd o‘rganasiz, testlarda bilimingizni sinaysiz, kursdoshlar bilan jonli viktorinada bellashasiz va ball to‘playsiz.',
-          'tadbirkorlik-asoslari is an online learning platform for students (Unistay). Study courses slide by slide, test yourself, compete with classmates in a live quiz and earn points.',
-          'tadbirkorlik-asoslari — онлайн-платформа для студентов (Unistay). Изучайте курсы по слайдам, проверяйте себя тестами, соревнуйтесь с однокурсниками в живой викторине и набирайте баллы.',
+          'www.tadbirkorlik-asoslari.uz — talabalar uchun onlayn o‘quv platformasi (Unistay). Fanlarni slaydma-slayd o‘rganasiz, testlarda bilimingizni sinaysiz, kursdoshlar bilan jonli viktorinada bellashasiz va ball to‘playsiz.',
+          'www.tadbirkorlik-asoslari.uz is an online learning platform for students (Unistay). Study courses slide by slide, test yourself, compete with classmates in a live quiz and earn points.',
+          'www.tadbirkorlik-asoslari.uz — онлайн-платформа для студентов (Unistay). Изучайте курсы по слайдам, проверяйте себя тестами, соревнуйтесь с однокурсниками в живой викторине и набирайте баллы.',
         )}
       </p>
       <h3>{L('Sayt tuzilishi', 'How the site is organised', 'Структура сайта')}</h3>
@@ -851,8 +868,14 @@ function useLegacyAuth() {
           ? 'network'
           : 'wrong',
   });
-  const done = (w: LegacyWindow): Outcome => {
-    const s = w.RT?.student() || {};
+  /** Kirdi: «kutilmoqda» hisob server tomonidan faollashguncha (o‘qituvchi tasdig‘i yo‘q) biroz kutiladi. */
+  const done = async (w: LegacyWindow): Promise<Outcome> => {
+    let s = w.RT?.student() || {};
+    for (let i = 0; i < 120 && s.status !== 'ok' && s.status !== 'blocked'; i++) {
+      if (s.learnerType === 'independent') break;
+      await sleep(100);
+      s = w.RT?.student() || {};
+    }
     return {
       ok: true,
       status: s.status || 'pending',

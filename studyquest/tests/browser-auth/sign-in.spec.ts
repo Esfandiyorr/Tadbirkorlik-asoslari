@@ -416,6 +416,11 @@ test('new student registration asks «Are you a student?», saves the group and 
     }
     return route.fallback();
   });
+  const activated: unknown[] = [];
+  await page.route('**/api/student-activate', (route) => {
+    activated.push(route.request().postDataJSON());
+    return route.fulfill({ json: { ok: true, status: 'ok' } });
+  });
   await page.goto('/#login');
   await legacyReady(page);
   await page.getByRole('button', { name: 'Ro‘yxatdan o‘tish' }).click();
@@ -425,7 +430,10 @@ test('new student registration asks «Are you a student?», saves the group and 
   await page.getByRole('button', { name: /Ha, talabaman/ }).click();
   await page.getByLabel('Ro‘yxatdan tanlang').selectOption('AP-223');
   await page.getByRole('button', { name: 'Ro‘yxatdan o‘tish' }).click();
-  await expect(page.getByRole('heading', { name: 'Ro‘yxatdan o‘tdingiz!' })).toBeVisible();
+  // o'qituvchi tasdig'i yo'q: hisob shu zahoti faollashadi va sayt ochiladi
+  await expect.poll(() => activated.length).toBe(1);
+  expect(activated).toEqual([{ id: created.id }]);
+  await expect(page.getByRole('button', { name: 'Kirilmoqda…' })).toBeVisible();
   expect(created.authVersion).toBe(1);
   expect(created.mustChangePassword).toBe(true);
   expect(created.credentialSetupVersion).toBe('default1111-v1');

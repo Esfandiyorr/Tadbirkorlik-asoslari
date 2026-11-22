@@ -445,6 +445,12 @@ test('sign-up asks «Are you a student?» and saves the chosen group in the orig
       json: { idToken: 'tok', localId: 'anon1', refreshToken: 'ref', expiresIn: '3600' },
     }),
   );
+  // ✅ o'qituvchi tasdig'i yo'q — hisob ro'yxatdan o'tgan zahoti faollashadi
+  const activated: unknown[] = [];
+  await page.route('**/api/student-activate', (route) => {
+    activated.push(route.request().postDataJSON());
+    return route.fulfill({ json: { ok: true, status: 'ok' } });
+  });
   await page.setViewportSize({ width: 390, height: 780 });
   await page.goto('/#login', { waitUntil: 'domcontentloaded' });
   await page.getByRole('button', { name: 'Ro‘yxatdan o‘tish' }).click();
@@ -454,16 +460,16 @@ test('sign-up asks «Are you a student?» and saves the chosen group in the orig
   await page.getByRole('button', { name: /Ha, talabaman/ }).click();
   await page.getByLabel('yoki o‘zingiz yozing').fill('YES-123');
   await page.getByRole('button', { name: 'Ro‘yxatdan o‘tish' }).click();
-  await expect(page.getByRole('heading', { name: 'Ro‘yxatdan o‘tdingiz!' })).toBeVisible({
-    timeout: 30000,
-  });
-  await expect(page.locator('.la-pending')).toContainText('Aziz Karimov · YES-123');
+  // kutish ekrani yo'q: hisob faollashadi va sayt ochiladi
+  await expect(page.getByRole('button', { name: 'Kirilmoqda…' })).toBeVisible({ timeout: 30000 });
+  await expect(page.locator('.la-pending')).toHaveCount(0);
+  expect(activated).toHaveLength(1);
   expect(created.at(-1)).toMatchObject({
     name: 'Aziz',
     surname: 'Karimov',
     group: 'YES-123',
     learnerType: 'university',
-    status: 'pending',
+    status: 'pending', // bazaga yozilishi — keyin server faollashtiradi
   });
   await page.screenshot({ path: 'tests/artifacts/student-sign-up.png', fullPage: true });
 });
@@ -504,6 +510,12 @@ test('a non-student signs up in the «Mustaqil» group as a regular account that
       json: { idToken: 'tok', localId: 'anon1', refreshToken: 'ref', expiresIn: '3600' },
     }),
   );
+  // ✅ o'qituvchi tasdig'i yo'q — hisob ro'yxatdan o'tgan zahoti faollashadi
+  const activated: unknown[] = [];
+  await page.route('**/api/student-activate', (route) => {
+    activated.push(route.request().postDataJSON());
+    return route.fulfill({ json: { ok: true, status: 'ok' } });
+  });
   await page.setViewportSize({ width: 390, height: 780 });
   await page.goto('/#login', { waitUntil: 'domcontentloaded' });
   await page.getByRole('button', { name: 'Ro‘yxatdan o‘tish' }).click();
@@ -514,16 +526,16 @@ test('a non-student signs up in the «Mustaqil» group as a regular account that
     'haftalik reytingda',
   );
   await page.getByRole('button', { name: /Yo‘q, talaba emasman/ }).click();
-  await expect(page.getByRole('heading', { name: 'Ro‘yxatdan o‘tdingiz!' })).toBeVisible({
-    timeout: 30000,
-  });
-  await expect(page.locator('.la-pending')).toContainText('Aziz Karimov · Mustaqil');
+  // kutish ekrani yo'q: hisob faollashadi va sayt ochiladi
+  await expect(page.getByRole('button', { name: 'Kirilmoqda…' })).toBeVisible({ timeout: 30000 });
+  await expect(page.locator('.la-pending')).toHaveCount(0);
+  expect(activated).toHaveLength(1);
   expect(created.at(-1)).toMatchObject({
     name: 'Aziz',
     surname: 'Karimov',
     group: 'Mustaqil',
     learnerType: 'university',
-    status: 'pending',
+    status: 'pending', // bazaga yozilishi — keyin server faollashtiradi
   });
 });
 

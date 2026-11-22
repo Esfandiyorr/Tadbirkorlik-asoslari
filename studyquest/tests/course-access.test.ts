@@ -166,15 +166,16 @@ it('access given by email reaches the sign-in account, also behind a student-sec
 
 it('the administrator can open the course to everyone for a while', async () => {
   let v = await manageCourseAccess(admin, { op: 'gate', off: true });
-  expect(v.gate).toEqual({ off: true, students: false });
+  expect(v.gate).toEqual({ off: true, students: true });
   expect(await courseEntry(email, now)).toEqual({ ok: true, via: 'open' });
   v = await manageCourseAccess(admin, { op: 'gate', off: false });
-  expect(v.gate).toEqual({ off: false, students: false });
+  expect(v.gate).toEqual({ off: false, students: true });
   expect(await courseEntry(email, now)).toEqual({ ok: false, pending: null });
 });
 
 /* 🎓 «Talabamisiz?» ro'yxatdan o'tishda emas, kursni boshlaganda so'raladi: «Ha» — guruh bilan yozilish. */
-it('a student enrols with a group when starting the course; the administrator approves', async () => {
+it('with «open for students at once» turned off, a student enrols with a group and the administrator approves', async () => {
+  await manageCourseAccess(admin, { op: 'students', on: false });
   await expect(requestCourseAccess(email, { group: '!' }, now)).rejects.toThrow();
   await expect(requestCourseAccess(email, { group: 'A' }, now)).rejects.toThrow();
   await expect(
