@@ -32,6 +32,8 @@ const userData = {
     xp: 0,
     streak: 0,
     academicPoints: student.total,
+    // server avvalgi talabaga o'qish tarixini ham beradi (lib/server/academic.ts) — ballar kartasi shu bilan chiqadi
+    readingHistory: {},
   },
   progress: [],
   attempts: [],
@@ -278,8 +280,8 @@ test('1111 login with «Familiya Ism» establishes the legacy session and displa
   await legacyReady(page);
   await signIn(page, student.surname + ' ' + student.name, '1111');
   await expect(page.locator('h1')).toContainText('Ali');
-  await expect(page.locator('.stat-card').filter({ hasText: 'Akademik ball' })).toContainText(
-    '375.5',
+  await expect(page.locator('.stat-card').filter({ hasText: 'Umumiy ball' })).toContainText(
+    /375[.,]5/,
   );
   expect(authenticatedRequests).toBeGreaterThan(0);
   await page.goto('/#ranking');
@@ -462,8 +464,8 @@ test('matching student names require an explicit group/account choice for 1111',
   expect(new URL(page.url()).hash).toBe('#login');
   await choice.selectOption(student.id);
   await page.getByRole('button', { name: 'Kirish', exact: true }).click();
-  await expect(page.locator('.stat-card').filter({ hasText: 'Akademik ball' })).toContainText(
-    '375.5',
+  await expect(page.locator('.stat-card').filter({ hasText: 'Umumiy ball' })).toContainText(
+    /375[.,]5/,
   );
 });
 
@@ -476,8 +478,10 @@ test('a guest visiting ranking sees login without requesting any ranking data', 
     if (new URL(route.request().url()).searchParams.get('view') === 'academic') rankingRequests++;
     return route.fulfill({ json: publicData });
   });
+  // #ranking endi kurs ichidagi reytingga olib boradi; mehmon uchun reyting ma'lumoti so'ralmaydi
   await page.goto('/#ranking');
-  await expect(page.getByLabel('Ism familiya')).toBeVisible();
+  await expect(page.locator('.sidebar')).toBeVisible();
+  await page.waitForTimeout(1500);
   await expect(page.locator('.ranking-list')).toHaveCount(0);
   expect(rankingRequests).toBe(0);
 });
@@ -499,8 +503,8 @@ test('an existing personal code continues to use the original credential verific
   await page.goto('/#login');
   await legacyReady(page);
   await signIn(page, student.name + ' ' + student.surname, '1234');
-  await expect(page.locator('.stat-card').filter({ hasText: 'Akademik ball' })).toContainText(
-    '375.5',
+  await expect(page.locator('.stat-card').filter({ hasText: 'Umumiy ball' })).toContainText(
+    /375[.,]5/,
   );
   expect(sharedRequests).toBe(0);
 });
