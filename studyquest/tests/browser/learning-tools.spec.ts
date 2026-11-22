@@ -131,6 +131,8 @@ test('guest can request sign-in help, staff can reply, and student cannot open t
     await route.fulfill({ response, json: state });
   });
   await page.goto('/#login');
+  // «?» — kirishda yordam
+  await page.getByRole('button', { name: 'Kirishda yordam' }).click();
   await page.locator('.account-help summary').click();
   const name = 'Yordam sinovi ' + Date.now();
   await page.getByLabel('Ism va familiya', { exact: true }).fill(name);

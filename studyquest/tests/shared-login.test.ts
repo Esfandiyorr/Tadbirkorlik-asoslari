@@ -29,6 +29,27 @@ it('1111 creates a server-owned session without returning or changing personal c
   );
   expect(JSON.stringify(write.mock.calls)).not.toMatch(/old-salt|375.5|p2:/);
 });
+it('1111 accepts «Familiya Ism» order too, but not a half-matching name', async () => {
+  const write = vi.fn();
+  expect(
+    await sharedLogin(
+      'anon-uid',
+      { id: 'alice', name: 'valiyev', surname: 'ALI', password: '1111' },
+      true,
+      async () => record,
+      write,
+    ),
+  ).toEqual({ ok: true });
+  await expect(
+    sharedLogin(
+      'uid',
+      { id: 'alice', name: 'Valiyev', surname: 'Valiyev', password: '1111' },
+      true,
+      async () => record,
+      vi.fn(),
+    ),
+  ).rejects.toMatchObject({ status: 403 });
+});
 it('refuses incorrect names, blocked users, disabled common code and revoked sessions', async () => {
   const write = vi.fn();
   await expect(

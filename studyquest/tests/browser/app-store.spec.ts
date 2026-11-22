@@ -28,6 +28,7 @@ test('the privacy policy and the deletion guide open without signing in, in thre
   // kirish oynasidan havola
   await page.setViewportSize({ width: 1280, height: 800 });
   await page.goto('/#login', { waitUntil: 'domcontentloaded' });
+  await page.getByRole('button', { name: 'Ro‘yxatdan o‘tish' }).click();
   await expect(page.locator('.auth-legal a')).toHaveAttribute('href', /^\/privacy\?lang=/);
 });
 

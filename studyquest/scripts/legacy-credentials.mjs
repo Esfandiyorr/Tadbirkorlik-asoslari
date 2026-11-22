@@ -2,6 +2,10 @@
 export function adaptStudentRegistration(source) {
   const names =
     'var cand=a.filter(function(x){ return nrm(x.name)===nrm(n)&&nrm(x.surname)===nrm(sn); });';
+  // «Ism Familiya» ham, «Familiya Ism» ham bir xil hisobni topadi. Parol kaliti bazadagi tartib bilan
+  // (h.name, h.surname) hisoblanadi — teskari yozilganda ham avvalgi kalit bilan mos keladi.
+  const namesAnyOrder =
+    'var cand=a.filter(function(x){ return (nrm(x.name)===nrm(n)&&nrm(x.surname)===nrm(sn))||(nrm(x.name)===nrm(sn)&&nrm(x.surname)===nrm(n)); });';
   const choice = `
     var choose=document.getElementById("sqNameChoice"),loginButton=document.getElementById("lgGo"),signature=nrm(n)+"|"+nrm(sn);
     if(password==="1111"&&cand.length>1&&loginButton){
@@ -30,10 +34,20 @@ export function adaptStudentRegistration(source) {
       'function claimOwn(id,pk,cb){',
       'function claimOwn(id,pk,cb){ if(pk==="shared1111"){ saToken(true,function(token){ if(!token){cb(false);return;} fetch("/api/student-login",{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+token},body:JSON.stringify({id:id,session:true})}).then(function(response){SEC=response.ok;cb(response.ok);}).catch(function(){cb(false);}); });return; }',
     ],
-    [names, names + choice + sharedLogin],
+    [names, namesAnyOrder + choice + sharedLogin],
+    [
+      'var key=modern?passwordKey(n,sn,password,h.pwSalt):Promise.resolve(pkey(n,sn,password));',
+      'var key=modern?passwordKey(h.name,h.surname,password,h.pwSalt):Promise.resolve(pkey(h.name,h.surname,password));',
+    ],
+    // Yangi kirish sahifasi (components/auth-panel.tsx) «Talabamisiz?» javobi va guruhni window.SQ_REG orqali beradi:
+    // talaba — tanlagan/yozgan guruhi bilan (o'qituvchi tasdiqlaydi), talaba emas — mustaqil o'quvchi.
     [
       'password=document.getElementById("rtB").value,selectedType=regType;',
-      'password="1111",selectedType=regType;',
+      'password="1111",selectedType=(window.SQ_REG&&window.SQ_REG.learnerType==="independent")?"independent":regType;',
+    ],
+    [
+      'S={id:uid(),name:n,surname:sn,learnerType:selectedType,group:"",',
+      'S={id:uid(),name:n,surname:sn,learnerType:selectedType,group:selectedType==="independent"?"":String((window.SQ_REG&&window.SQ_REG.group)||"").trim().slice(0,40),',
     ],
     [
       '    if(!passwordOk(password)) return err("rtErr",T("Parol 8–128 belgidan iborat bo‘lsin.","Use a password of 8–128 characters."));',

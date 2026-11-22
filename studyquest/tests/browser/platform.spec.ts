@@ -326,7 +326,92 @@ test('the original arena stays inside the game page and the new app can be insta
   expect(manifest.shortcuts.some((s: any) => s.url === '/#arena')).toBe(true);
 });
 
-test('student entry asks for the existing first name, surname and code', async ({ page }) => {
+/* Avvalgi talaba tizimidagi parol kaliti (rt-engine.js pkey) — soxta bazadagi hisob uchun. */
+function legacyKey(name: string, surname: string, pin: string) {
+  const nrm = (x: string) => x.toLowerCase().replace(/[^a-zЀ-ӿ']/g, '');
+  const hash32 = (str: string, seed: number) => {
+    let h = seed >>> 0;
+    for (let i = 0; i < str.length; i++) {
+      h ^= str.charCodeAt(i);
+      h = Math.imul(h, 16777619) >>> 0;
+    }
+    return ('0000000' + h.toString(16)).slice(-8);
+  };
+  const b = 'terdu:' + nrm(name) + '|' + nrm(surname) + '|' + pin;
+  return hash32(b, 2166136261) + hash32(b + '#2', 3323198485);
+}
+
+test('a student logs in with «Familiya Ism» and the old password through the original student system', async ({
+  page,
+}) => {
+  await page.route('**/api/platform', async (route) => {
+    if (route.request().method() !== 'GET') return route.continue();
+    const response = await route.fetch();
+    const state = await response.json();
+    state.mode = 'legacy';
+    delete state.user;
+    await route.fulfill({ response, json: state });
+  });
+  // Yashirin talaba oynasi haqiqiy rt-engine.js bilan ishlaydi; faqat baza va anonim kirish soxtalashtiriladi.
+  await page.route('**/legacy/index.html*', async (route) => {
+    const response = await route.fetch();
+    const body = (await response.text())
+      .replace('window.STUDYQUEST_DEMO_COPY=true', 'window.STUDYQUEST_DEMO_COPY=false')
+      .replace(
+        '<script src="embed.js"></script>',
+        '<script>localStorage.removeItem("terdu_student");</script><script src="embed.js"></script>',
+      );
+    await route.fulfill({ response, body });
+  });
+  const student = {
+    id: 'ali1',
+    name: 'Ali',
+    surname: 'Valiyev',
+    group: 'AP-223',
+    status: 'ok',
+    at: Date.now(),
+    pk: legacyKey('Ali', 'Valiyev', '4321'),
+  };
+  const claims: string[] = [];
+  await page.route(/firebasedatabase\.app/, async (route) => {
+    const url = route.request().url();
+    if (url.includes('/students.json')) return route.fulfill({ json: { ali1: student } });
+    if (route.request().method() === 'PUT' && url.includes('/owners/ali1/')) {
+      claims.push(url);
+      return route.fulfill({ json: student.pk });
+    }
+    return route.fulfill({ json: null });
+  });
+  await page.route(/identitytoolkit\.googleapis\.com/, (route) =>
+    route.fulfill({
+      json: { idToken: 'tok', localId: 'anon1', refreshToken: 'ref', expiresIn: '3600' },
+    }),
+  );
+  await page.setViewportSize({ width: 390, height: 780 });
+  await page.goto('/#login', { waitUntil: 'domcontentloaded' });
+  await expect(page.locator('#student-login')).toBeAttached();
+  await page.getByLabel('Ism familiya').fill('Valiyev Ali');
+  await page.getByLabel('Parol').fill('9999');
+  await page.getByRole('button', { name: 'Kirish', exact: true }).click();
+  await expect(page.locator('.la-error')).toHaveText('Ism familiya yoki parol noto‘g‘ri.', {
+    timeout: 30000,
+  });
+  expect(claims).toEqual([]);
+  // familiya birinchi yozilgan bo'lsa ham to'g'ri parol bilan kiradi
+  await page.getByLabel('Parol').fill('4321');
+  await page.getByRole('button', { name: 'Kirish', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Kirilmoqda…' })).toBeVisible({ timeout: 30000 });
+  expect(claims).toHaveLength(1);
+  const saved = await page.evaluate(() =>
+    JSON.parse(localStorage.getItem('terdu_student') || '{}'),
+  );
+  expect(saved).toMatchObject({ id: 'ali1', name: 'Ali', surname: 'Valiyev', status: 'ok' });
+  await page.screenshot({ path: 'tests/artifacts/student-code-login.png', fullPage: true });
+});
+
+test('sign-up asks «Are you a student?» and saves the chosen group in the original student system', async ({
+  page,
+}) => {
   await page.route('**/api/platform', async (route) => {
     if (route.request().method() !== 'GET') return route.continue();
     const response = await route.fetch();
@@ -337,26 +422,50 @@ test('student entry asks for the existing first name, surname and code', async (
   });
   await page.route('**/legacy/index.html*', async (route) => {
     const response = await route.fetch();
-    let body = await response.text();
-    body = body.replace(
-      '<script src="embed.js"></script>',
-      '<script>localStorage.removeItem("terdu_student");</script><script src="embed.js"></script>',
-    );
+    const body = (await response.text())
+      .replace('window.STUDYQUEST_DEMO_COPY=true', 'window.STUDYQUEST_DEMO_COPY=false')
+      .replace(
+        '<script src="embed.js"></script>',
+        '<script>localStorage.removeItem("terdu_student");</script><script src="embed.js"></script>',
+      );
     await route.fulfill({ response, body });
   });
+  const created: Record<string, unknown>[] = [];
+  await page.route(/firebasedatabase\.app/, async (route) => {
+    const req = route.request();
+    if (req.method() === 'PUT' && /\/students\/[^/]+\.json/.test(req.url())) {
+      created.push(req.postDataJSON());
+      return route.fulfill({ json: req.postDataJSON() });
+    }
+    if (req.url().includes('/students.json')) return route.fulfill({ json: {} });
+    return route.fulfill({ json: null });
+  });
+  await page.route(/identitytoolkit\.googleapis\.com/, (route) =>
+    route.fulfill({
+      json: { idToken: 'tok', localId: 'anon1', refreshToken: 'ref', expiresIn: '3600' },
+    }),
+  );
+  await page.setViewportSize({ width: 390, height: 780 });
   await page.goto('/#login', { waitUntil: 'domcontentloaded' });
-  // 🎓 avvalgi talaba hisobi (ism + kod) → talaba bo'limi
-  await page.getByRole('button', { name: /Talaba hisobi/ }).click();
-  const frame = page.locator('.native-login .native-document');
-  await expect(frame.locator('#lgN')).toBeVisible();
-  await expect(frame.locator('#lgS')).toBeVisible();
-  await expect(frame.locator('#lgB')).toBeVisible();
-  await expect(frame.locator('.topbar')).toBeHidden();
-  await frame.locator('#lgN').fill('Ali');
-  await frame.locator('#lgS').fill('Valiyev');
-  await frame.locator('#lgB').fill('1234');
-  expect(await frame.locator('#lgB').inputValue()).toBe('1234');
-  await page.screenshot({ path: 'tests/artifacts/student-code-login.png', fullPage: true });
+  await page.getByRole('button', { name: 'Ro‘yxatdan o‘tish' }).click();
+  await page.getByLabel('Ism', { exact: true }).fill('Aziz');
+  await page.getByLabel('Familiya').fill('Karimov');
+  await page.getByRole('button', { name: 'Davom etish' }).click();
+  await page.getByRole('button', { name: /Ha, talabaman/ }).click();
+  await page.getByLabel('yoki o‘zingiz yozing').fill('YES-123');
+  await page.getByRole('button', { name: 'Ro‘yxatdan o‘tish' }).click();
+  await expect(page.getByRole('heading', { name: 'Ro‘yxatdan o‘tdingiz!' })).toBeVisible({
+    timeout: 30000,
+  });
+  await expect(page.locator('.la-pending')).toContainText('Aziz Karimov · YES-123');
+  expect(created.at(-1)).toMatchObject({
+    name: 'Aziz',
+    surname: 'Karimov',
+    group: 'YES-123',
+    learnerType: 'university',
+    status: 'pending',
+  });
+  await page.screenshot({ path: 'tests/artifacts/student-sign-up.png', fullPage: true });
 });
 
 test('existing academic points remain visible on the dashboard, profile and academic ranking', async ({

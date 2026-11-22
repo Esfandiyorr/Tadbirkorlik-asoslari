@@ -1,7 +1,8 @@
 import { test, expect, type Page } from '@playwright/test';
 
-/* 🔑 Ro'yxatdan o'tishda «Talabamisiz?» so'ralmaydi — kursni boshlaganda so'raladi: talaba guruhini yozib kursga
-   yoziladi, qolganlar kurs darslarini faqat 💎 obuna yoki administrator ruxsati bilan ochadi. Demo muhitda faqat talaba/o'qituvchi/administrator hisoblari bor, shuning
+/* 🔑 Ism-familiya bilan ro'yxatdan o'tishda «Talabamisiz?» kirish sahifasida so'raladi; Google bilan kirganlarga —
+   kursni boshlaganda: talaba guruhini tanlab yoki yozib kursga yoziladi, qolganlar kurs darslarini faqat 💎 obuna yoki
+   administrator ruxsati bilan ochadi. Demo muhitda faqat talaba/o'qituvchi/administrator hisoblari bor, shuning
    uchun «talaba bo'lmagan» holat server javobini o'zgartirib ko'rsatiladi (server qoidasi — unit testlarda). */
 async function as(page: Page, id: string) {
   await page.request.post('/api/auth/demo', { data: { id } });
@@ -11,7 +12,7 @@ const noScroll = (page: Page) =>
     .poll(() => page.evaluate(() => document.documentElement.scrollWidth - innerWidth))
     .toBeLessThanOrEqual(0);
 
-test('registration goes straight to email or Google; the old student account is one tap away', async ({
+test('the sign-in page: name and password, three languages, sign-up with «Are you a student?», guest and help', async ({
   page,
 }) => {
   await page.route('**/api/platform', async (route) => {
@@ -24,28 +25,70 @@ test('registration goes straight to email or Google; the old student account is 
   });
   await page.setViewportSize({ width: 360, height: 760 });
   await page.goto('/#login', { waitUntil: 'domcontentloaded' });
-  await expect(page.getByLabel('Email', { exact: true })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Talabamisiz?' })).toHaveCount(0);
-  await expect(page.locator('.native-login')).toHaveCount(0);
-  await expect(page.locator('.auth-kind-note')).toContainText('guruhingizni yozib');
-  await expect(page.locator('.auth-google')).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('tadbirkorlik-asoslari');
+  await expect(page.getByLabel('Ism familiya')).toHaveAttribute('placeholder', 'Ism familiya');
+  await expect(page.getByLabel('Parol')).toHaveAttribute('type', 'password');
+  const loginButton = page.getByRole('button', { name: 'Kirish', exact: true });
+  await expect(loginButton).toBeVisible();
+  // ortiqcha narsa yo'q: email maydoni, Google tugmasi, video va dizayn tanlovi ko'rinmaydi
+  await expect(page.getByLabel('Email', { exact: true })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: /Google/ })).toHaveCount(0);
+  await expect(page.locator('video')).toHaveCount(0);
+  // talaba kirishi yashirin oynada — avvalgi talaba tizimi
+  await expect(page.locator('#student-login')).toHaveAttribute('src', /studyquest=login/);
   await noScroll(page);
+  // tillar tepada
+  await page.getByRole('button', { name: 'English' }).click();
+  await expect(page.getByRole('button', { name: 'Log in', exact: true })).toBeVisible();
+  await expect(page.getByLabel('Full name')).toBeVisible();
+  await page.getByRole('button', { name: 'Русский' }).click();
+  await expect(page.getByRole('button', { name: 'Войти', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Гость' })).toBeVisible();
+  await page.getByRole('button', { name: 'O‘zbekcha' }).click();
+  // faqat ism yozilsa — tushuntirish
+  await page.getByLabel('Ism familiya').fill('Ali');
+  await loginButton.click();
+  await expect(page.locator('.la-error')).toHaveText('Ism va familiyangizni to‘liq yozing.');
+
+  // «Ro‘yxatdan o‘tish» → ism-familiya yoki Google → «Talabamisiz?» → guruh
   await page.getByRole('button', { name: 'Ro‘yxatdan o‘tish' }).click();
-  await expect(page.getByRole('button', { name: 'Ro‘yxatdan o‘tish' })).toHaveAttribute(
-    'aria-pressed',
-    'true',
-  );
-  await expect(page.locator('.auth-form').getByLabel('Ism va familiya')).toBeVisible();
-  // avvalgi talaba hisobi (ism + kod) — asl talaba oynasi
-  await page.getByRole('button', { name: /Talaba hisobi/ }).click();
-  await expect(page.locator('.native-login')).toBeVisible();
-  await expect(page.locator('.auth-google')).toHaveCount(0);
+  await expect(page.getByRole('heading', { name: 'Ro‘yxatdan o‘tish' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Google orqali kirish' })).toBeVisible();
+  await expect(page.locator('.auth-legal a')).toHaveAttribute('href', /^\/privacy\?lang=uz/);
+  await page.getByLabel('Ism', { exact: true }).fill('Aziz');
+  await page.getByLabel('Familiya').fill('Karimov');
+  await page.getByRole('button', { name: 'Davom etish' }).click();
+  await expect(page.getByRole('heading', { name: 'Talabamisiz?' })).toBeVisible();
+  await page.getByRole('button', { name: /Ha, talabaman/ }).click();
+  const list = page.getByLabel('Ro‘yxatdan tanlang');
+  await expect(list.locator('option', { hasText: 'YES-123' })).toHaveCount(1);
+  const own = page.getByLabel('yoki o‘zingiz yozing');
+  await expect(own).toHaveAttribute('placeholder', 'Masalan: Yes-123');
+  await own.fill('Maxsus-7');
+  await list.selectOption('AP-223');
+  await expect(own).toHaveValue('');
   await noScroll(page);
-  // tanlov eslab qolinadi; talaba bo'limidan email yo'liga qaytish mumkin
-  await page.reload({ waitUntil: 'domcontentloaded' });
-  await expect(page.locator('.native-login')).toBeVisible();
-  await page.getByRole('button', { name: /Talaba emasmisiz/ }).click();
-  await expect(page.getByLabel('Email', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Orqaga' }).click();
+  await page.getByRole('button', { name: 'Orqaga' }).click();
+  await page.getByRole('button', { name: 'Kirish', exact: true }).click();
+
+  // «Mehmon» — sayt tuzilishi va kurslar
+  await page.getByRole('button', { name: 'Mehmon' }).click();
+  await expect(page.getByRole('heading', { name: 'Sayt haqida' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Sayt tuzilishi' })).toBeVisible();
+  await expect(page.locator('.la-courses')).toContainText('Tadbirkorlik asoslari');
+  await expect(page.locator('.la-courses')).toContainText('15 ta mavzu');
+  await noScroll(page);
+  await page.getByRole('button', { name: 'Kirish', exact: true }).click();
+
+  // «?» — kirishda yordam
+  await page.getByRole('button', { name: 'Kirishda yordam' }).click();
+  await expect(page.locator('.la-tips')).toContainText('1111');
+  await expect(page.locator('.account-help')).toBeVisible();
+  await page.getByRole('button', { name: 'Kirish', exact: true }).click();
+  await page.getByRole('button', { name: 'Mehmon' }).click();
+  await page.getByRole('button', { name: 'Saytni mehmon sifatida ko‘rish' }).click();
+  await expect.poll(() => new URL(page.url()).hash).toBe('#courses');
 });
 
 test('starting the course asks «Are you a student?»: students enrol with their group, others see Premium or ask', async ({
@@ -109,7 +152,13 @@ test('starting the course asks «Are you a student?»: students enrol with their
   await gate.getByRole('button', { name: /Ha, talabaman/ }).click();
   const enrol = gate.getByRole('button', { name: 'Kursga yozilish' });
   await expect(enrol).toBeDisabled();
-  await gate.getByLabel('Guruhingiz').fill('AP-223');
+  // guruh ro'yxatdan tanlanadi yoki qo'lda yoziladi (namuna xira: «Masalan: Yes-123»)
+  const typed = gate.getByLabel('yoki o‘zingiz yozing');
+  await expect(typed).toHaveAttribute('placeholder', 'Masalan: Yes-123');
+  await typed.fill('Maxsus-1');
+  await expect(enrol).toBeEnabled();
+  await gate.getByLabel('Guruhingizni tanlang').selectOption('AP-223');
+  await expect(typed).toHaveValue('');
   await enrol.click();
   await expect(gate.getByRole('heading')).toHaveText('Kursga yozildingiz');
   await expect(gate.locator('.course-gate-pending')).toContainText('Guruh: AP-223');

@@ -44,8 +44,11 @@ export async function sharedLogin(
         p.password === '1111' &&
         p.name &&
         p.surname &&
-        normalize(p.name) === normalize(student.name) &&
-        normalize(p.surname) === normalize(student.surname),
+        // «Ism Familiya» yoki «Familiya Ism» — tartib farq qilmaydi.
+        ((normalize(p.name) === normalize(student.name) &&
+          normalize(p.surname) === normalize(student.surname)) ||
+          (normalize(p.name) === normalize(student.surname) &&
+            normalize(p.surname) === normalize(student.name))),
       403,
       'Ism, familiya yoki kod noto‘g‘ri.',
     );

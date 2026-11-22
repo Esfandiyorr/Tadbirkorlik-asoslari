@@ -81,14 +81,25 @@ For Firebase-backed development, copy `.env.example` to `.env.local`, supply you
   offer shows no price or payment instructions (`lib/play-app.ts`) — Google Play does not allow steering to external
   payment for digital goods.
 - **Course access** (`lib/server/course-access.ts`, `components/course-gate.tsx`, per course — see also the paid
-  restaurant course below): registration no longer asks «Talabamisiz?» — everyone signs in with email or Google (earlier
-  student accounts with name + code stay one tap away under «Talaba hisobi»). The question is asked when the course
-  starts: **«Ha, talabaman»** → the user types their group and is enrolled (a request marked 🎓 with the group that the
+  restaurant course below): Google accounts are asked «Talabamisiz?» when the course starts (students who sign up with
+  their name are asked on the sign-in page — see **Sign-in page** below): **«Ha, talabaman»** → the user picks their
+  group from the list or types it and is enrolled (a request marked 🎓 with the group that the
   administrator approves, or — with «🎓 Talabalarga darhol ochish» on — the course opens at once); **«Yo'q»** → Premium
   or «Ruxsat so'rash». TerDU students from the student section keep full access with points. The administrator
   («🔑 Kursga ruxsat») sees requests and grants with the group, grants by email, revokes, and can open the course to
   everyone for a while. Checked on the server before a lesson opens (`legacyAccess`); the course, home and lesson
   pages show the card.
+- **Sign-in page** (`components/auth-panel.tsx`, `app/auth-login.css`): one column in the site's purple colours —
+  the title «tadbirkorlik-asoslari», UZ/ENG/RUS at the top, «Ism familiya» and «Parol», **Kirish**, under it
+  **Ro'yxatdan o'tish**, and **Mehmon** at the very bottom («?» opens sign-in help). Students sign in with their name in
+  either order («Ali Valiyev» or «Valiyev Ali») and their own password or 1111; the check is done by the original
+  student system in a hidden frame (`/legacy/index.html`, patched in `scripts/legacy-credentials.mjs`: name order,
+  password key from the stored name, `window.SQ_REG` for sign-up), so passwords, ownership claims and the 1111 policy
+  are unchanged. An email typed into the name field signs in to an email account. **Ro'yxatdan o'tish** → name and
+  surname or Google; with a name the page asks «Talabamisiz?»: a student picks a group from `config.json` «groups» or
+  types it (placeholder «Masalan: Yes-123») and waits for the teacher's approval (the page opens by itself once
+  approved); others become independent learners. **Mehmon** shows the site's sections, what it is and the courses, then
+  opens the site as a guest.
 - **Google Play readiness** (`lib/server/app-store.ts`, `play-market/`): public `/privacy` and `/delete-account` pages
   (uz/ru/en), in-app account deletion requests approved by the administrator, `/.well-known/assetlinks.json` filled
   from the back office, a report form for the group chat, store texts, screenshots and a step-by-step guide.

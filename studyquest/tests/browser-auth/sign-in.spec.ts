@@ -46,47 +46,31 @@ for (const viewport of [
   { width: 768, height: 1024 },
   { width: 1440, height: 900 },
 ]) {
-  test(`registration fills the window and keeps its artwork visible at ${viewport.width}px`, async ({
+  test(`the sign-in page fills the window without horizontal scrolling at ${viewport.width}px`, async ({
     page,
   }) => {
     await page.setViewportSize(viewport);
     await services(page);
     await page.route('**/api/platform*', (route) => route.fulfill({ json: publicData }));
     await page.goto('/#login');
-    await expect(page.locator('.native-login #lgN')).toBeVisible();
+    await expect(page.getByLabel('Ism familiya')).toBeVisible();
     await expect(page.locator('.app-shell, .sidebar, .bottom-nav')).toHaveCount(0);
-    const bounds = await page.locator('.auth-page').boundingBox();
+    const bounds = await page.locator('.la-page').boundingBox();
     expect(bounds!.x).toBe(0);
     expect(bounds!.width).toBe(viewport.width);
     expect(bounds!.height).toBeGreaterThanOrEqual(viewport.height);
-    await page.locator('.native-login [data-m="reg"]').click();
-    await expect(page.locator('.native-login #rtN')).toBeVisible();
-    await expect(page.locator('.auth-form > h2')).toHaveText('Hisob yaratish');
-    await expect
-      .poll(async () => {
-        const art = await page.locator('.auth-video video').boundingBox();
-        return (
-          !!art &&
-          art.width > 100 &&
-          art.height > 100 &&
-          art.y >= 0 &&
-          art.y + art.height <= viewport.height
-        );
-      })
-      .toBe(true);
+    await expect(page.getByRole('button', { name: 'Kirish', exact: true })).toBeInViewport();
+    await expect(page.getByRole('button', { name: 'Mehmon' })).toBeInViewport();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(
       true,
     );
-    await expect(page.locator('.native-login #rtB')).toHaveValue('1111');
-    await page.locator('.native-login #rtGo').scrollIntoViewIfNeeded();
-    await expect(page.locator('.native-login #rtGo')).toBeInViewport();
-    if (viewport.width === 390) {
-      await page.evaluate(() => scrollTo(0, 0));
+    await page.getByRole('button', { name: 'Ro‘yxatdan o‘tish' }).click();
+    await expect(page.getByRole('button', { name: 'Google orqali kirish' })).toBeVisible();
+    if (viewport.width === 390)
       await page.screenshot({
         path: 'tests/artifacts/auth-registration-mobile.png',
         fullPage: true,
       });
-    }
     if (viewport.width === 1440)
       await page.screenshot({
         path: 'tests/artifacts/auth-registration-desktop.png',
@@ -95,19 +79,38 @@ for (const viewport of [
   });
 }
 
-test('catalog sign-in uses the complete design and closes back to the course', async ({ page }) => {
+test('catalog sign-in opens the sign-in page and closes back to the course', async ({ page }) => {
   await services(page);
   await page.route('**/api/platform*', (route) => route.fulfill({ json: publicData }));
   await page.goto('/#course/tad-asoslari');
   await page.locator('.lesson-card').first().click();
-  await expect(page.locator('.auth-page')).toBeVisible();
-  await expect(page.locator('.auth-video video')).toBeVisible();
+  await expect(page.locator('.la-page')).toBeVisible();
   await expect(page.locator('.app-shell, .legacy-modal')).toHaveCount(0);
-  await page.getByRole('button', { name: 'Close', exact: true }).click();
-  await expect(page.locator('.auth-page')).toHaveCount(0);
+  await page.getByRole('button', { name: 'Yopish', exact: true }).click();
+  await expect(page.locator('.la-page')).toHaveCount(0);
   await expect(page.locator('.lesson-card').first()).toBeVisible();
   expect(new URL(page.url()).hash).toBe('#course/tad-asoslari');
 });
+
+/** Yashirin talaba oynasi bazaga ulangunicha kutadi. */
+async function legacyReady(page: Page) {
+  await expect
+    .poll(
+      () =>
+        page
+          .frames()
+          .find((f) => f.url().includes('/legacy/index.html'))
+          ?.evaluate(() => !!(window as any).RT?.cloud().on)
+          .catch(() => false) ?? false,
+    )
+    .toBe(true);
+}
+
+async function signIn(page: Page, name: string, password: string) {
+  await page.getByLabel('Ism familiya').fill(name);
+  await page.getByLabel('Parol').fill(password);
+  await page.getByRole('button', { name: 'Kirish', exact: true }).click();
+}
 
 async function services(page: Page) {
   // No live student data, authentication, or database mutations in these checks.
@@ -161,7 +164,7 @@ async function services(page: Page) {
   });
 }
 
-test('Google sign-in opens an account popup directly from the first login screen', async ({
+test('Google sign-in opens an account popup directly from the sign-up screen', async ({
   page,
   context,
 }) => {
@@ -169,8 +172,9 @@ test('Google sign-in opens an account popup directly from the first login screen
   await context.route('https://**/*', (route) => route.abort());
   await page.route('**/api/platform', (route) => route.fulfill({ json: publicData }));
   await page.goto('/#login');
+  await page.getByRole('button', { name: 'Ro‘yxatdan o‘tish' }).click();
   const popup = context.waitForEvent('page');
-  await page.getByRole('button', { name: 'Google', exact: true }).click();
+  await page.getByRole('button', { name: 'Google orqali kirish' }).click();
   const opened = await popup;
   expect(opened).not.toBe(page);
   await opened.close();
@@ -183,10 +187,9 @@ test('blocked Google popups show a persistent explanation', async ({ page }) => 
   });
   await page.route('**/api/platform', (route) => route.fulfill({ json: publicData }));
   await page.goto('/#login');
-  await page.getByRole('button', { name: 'Google', exact: true }).click();
-  await expect(page.locator('.auth-form > [role="alert"]')).toContainText(
-    'Brauzer Google oynasini blokladi',
-  );
+  await page.getByRole('button', { name: 'Ro‘yxatdan o‘tish' }).click();
+  await page.getByRole('button', { name: 'Google orqali kirish' }).click();
+  await expect(page.locator('.la-error')).toContainText('Brauzer Google oynasini blokladi');
 });
 
 test('expired saved session still allows reopening the student and Google sign-in options', async ({
@@ -200,13 +203,12 @@ test('expired saved session still allows reopening the student and Google sign-i
   }, student);
   await page.route('**/api/platform', (route) => route.fulfill({ json: publicData }));
   await page.goto('/#login');
-  await expect(page.locator('.native-login #lgN')).toBeVisible();
+  await expect(page.getByLabel('Ism familiya')).toBeVisible();
   // A saved legacy record is emitted every second, even when its token is invalid.
   await page.waitForTimeout(2200);
   expect(new URL(page.url()).hash).toBe('#login');
-  await page.getByRole('button', { name: 'Email', exact: true }).click();
-  await expect(page.getByRole('button', { name: 'Google', exact: true })).toBeVisible();
-  await expect(page.getByRole('textbox', { name: 'Email', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Ro‘yxatdan o‘tish' }).click();
+  await expect(page.getByRole('button', { name: 'Google orqali kirish' })).toBeVisible();
 });
 
 test('a rejected saved token shows public content and keeps sign-in reachable', async ({
@@ -229,7 +231,7 @@ test('a rejected saved token shows public content and keeps sign-in reachable', 
     return route.fulfill({ json: publicData });
   });
   await page.goto('/#login');
-  await expect(page.getByRole('button', { name: 'Email', exact: true })).toBeVisible();
+  await expect(page.getByLabel('Ism familiya')).toBeVisible();
   await expect.poll(() => rejections).toBeGreaterThan(0);
   await page.waitForTimeout(2200);
   expect(new URL(page.url()).hash).toBe('#login');
@@ -243,10 +245,10 @@ test('sign-in remains available when the platform API is unavailable', async ({ 
   );
   await page.goto('/');
   await page.locator('a[href="#login"]').click();
-  await expect(page.locator('.native-login #lgB')).toBeVisible();
+  await expect(page.getByLabel('Parol')).toBeVisible();
 });
 
-test('1111 code login establishes the legacy session and displays the original academic points', async ({
+test('1111 login with «Familiya Ism» establishes the legacy session and displays the original academic points', async ({
   page,
 }) => {
   await services(page);
@@ -273,20 +275,8 @@ test('1111 code login establishes the legacy session and displays the original a
     return route.fulfill({ json: signedIn ? userData : publicData });
   });
   await page.goto('/#login');
-  const frame = page.locator('.native-login .native-document');
-  await expect(frame.locator('#lgN')).toBeVisible();
-  await expect
-    .poll(() =>
-      page
-        .frames()
-        .find((f) => f.url().includes('/legacy/index.html'))!
-        .evaluate(() => (window as any).RT.cloud().on),
-    )
-    .toBe(true);
-  await frame.locator('#lgN').fill(student.name);
-  await frame.locator('#lgS').fill(student.surname);
-  await frame.locator('#lgB').fill('1111');
-  await frame.locator('#lgGo').click();
+  await legacyReady(page);
+  await signIn(page, student.surname + ' ' + student.name, '1111');
   await expect(page.locator('h1')).toContainText('Ali');
   await expect(page.locator('.stat-card').filter({ hasText: 'Akademik ball' })).toContainText(
     '375.5',
@@ -411,7 +401,9 @@ test('student changes the initial password in Profile and returns to sign-in', a
   });
 });
 
-test('new student registration uses the displayed 1111 initial password', async ({ page }) => {
+test('new student registration asks «Are you a student?», saves the group and uses the 1111 initial password', async ({
+  page,
+}) => {
   await services(page);
   let created: any;
   await page.route('**/api/platform*', (route) => route.fulfill({ json: publicData }));
@@ -423,18 +415,25 @@ test('new student registration uses the displayed 1111 initial password', async 
     return route.fallback();
   });
   await page.goto('/#login');
-  const surface = page.locator('.native-login .native-document');
-  await expect(surface.locator('#lgN')).toBeVisible();
-  await surface.locator('[data-m="reg"]').click();
-  await expect(surface.locator('#rtB')).toHaveValue('1111');
-  await expect(surface.locator('#rtB')).toHaveAttribute('readonly', '');
-  await surface.locator('#rtN').fill('New');
-  await surface.locator('#rtS').fill('Learner');
-  await surface.locator('#rtGo').click();
-  await expect.poll(() => created?.authVersion).toBe(1);
+  await legacyReady(page);
+  await page.getByRole('button', { name: 'Ro‘yxatdan o‘tish' }).click();
+  await page.getByLabel('Ism', { exact: true }).fill('New');
+  await page.getByLabel('Familiya').fill('Learner');
+  await page.getByRole('button', { name: 'Davom etish' }).click();
+  await page.getByRole('button', { name: /Ha, talabaman/ }).click();
+  await page.getByLabel('Ro‘yxatdan tanlang').selectOption('AP-223');
+  await page.getByRole('button', { name: 'Ro‘yxatdan o‘tish' }).click();
+  await expect(page.getByRole('heading', { name: 'Ro‘yxatdan o‘tdingiz!' })).toBeVisible();
+  expect(created.authVersion).toBe(1);
   expect(created.mustChangePassword).toBe(true);
   expect(created.credentialSetupVersion).toBe('default1111-v1');
   expect(created.total).toBe(0);
+  expect(created).toMatchObject({
+    name: 'New',
+    surname: 'Learner',
+    group: 'AP-223',
+    learnerType: 'university',
+  });
 });
 
 test('matching student names require an explicit group/account choice for 1111', async ({
@@ -455,24 +454,14 @@ test('matching student names require an explicit group/account choice for 1111',
     }),
   );
   await page.goto('/#login');
-  const form = page.locator('.native-login .native-document');
-  await expect(form.locator('#lgN')).toBeVisible();
-  await expect
-    .poll(() =>
-      page
-        .frames()
-        .find((f) => f.url().includes('/legacy/index.html'))!
-        .evaluate(() => (window as any).RT.cloud().on),
-    )
-    .toBe(true);
-  await form.locator('#lgN').fill(student.name);
-  await form.locator('#lgS').fill(student.surname);
-  await form.locator('#lgB').fill('1111');
-  await form.locator('#lgGo').click();
-  await expect(form.locator('#sqNameChoice')).toBeVisible();
+  await legacyReady(page);
+  await signIn(page, student.name + ' ' + student.surname, '1111');
+  const choice = page.getByLabel('Guruhingiz');
+  await expect(choice).toBeVisible();
+  await expect(choice.locator('option')).toHaveCount(3);
   expect(new URL(page.url()).hash).toBe('#login');
-  await form.locator('#sqNameChoice').selectOption(student.id);
-  await form.locator('#lgGo').click();
+  await choice.selectOption(student.id);
+  await page.getByRole('button', { name: 'Kirish', exact: true }).click();
   await expect(page.locator('.stat-card').filter({ hasText: 'Akademik ball' })).toContainText(
     '375.5',
   );
@@ -488,7 +477,7 @@ test('a guest visiting ranking sees login without requesting any ranking data', 
     return route.fulfill({ json: publicData });
   });
   await page.goto('/#ranking');
-  await expect(page.locator('.native-login #lgN')).toBeVisible();
+  await expect(page.getByLabel('Ism familiya')).toBeVisible();
   await expect(page.locator('.ranking-list')).toHaveCount(0);
   expect(rankingRequests).toBe(0);
 });
@@ -508,20 +497,8 @@ test('an existing personal code continues to use the original credential verific
     }),
   );
   await page.goto('/#login');
-  const form = page.locator('.native-login .native-document');
-  await expect(form.locator('#lgN')).toBeVisible();
-  await expect
-    .poll(() =>
-      page
-        .frames()
-        .find((f) => f.url().includes('/legacy/index.html'))!
-        .evaluate(() => (window as any).RT.cloud().on),
-    )
-    .toBe(true);
-  await form.locator('#lgN').fill(student.name);
-  await form.locator('#lgS').fill(student.surname);
-  await form.locator('#lgB').fill('1234');
-  await form.locator('#lgGo').click();
+  await legacyReady(page);
+  await signIn(page, student.name + ' ' + student.surname, '1234');
   await expect(page.locator('.stat-card').filter({ hasText: 'Akademik ball' })).toContainText(
     '375.5',
   );

@@ -1,162 +1,266 @@
 'use client';
-import { useState, useRef, useEffect } from 'react';
+import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
+import { GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  sendPasswordResetEmail,
-  updateProfile,
-  GoogleAuthProvider,
-  signInWithPopup,
-} from 'firebase/auth';
-import { BookOpen, GraduationCap, Shield, ArrowRight, X, Mail } from 'lucide-react';
+  ArrowLeft,
+  BookOpen,
+  CircleHelp,
+  Gamepad2,
+  GraduationCap,
+  LayoutDashboard,
+  LibraryBig,
+  Medal,
+  MessageSquare,
+  Shield,
+  X,
+} from 'lucide-react';
+import catalog from '@/lib/catalog.generated.json';
 import { firebaseAuth, isNetworkError, networkMessage } from '@/lib/firebase-client';
+import { roleLabel } from '@/lib/i18n';
+import { tr } from '@/lib/points';
+import type { Lang } from '@/lib/types';
 import { useApp } from './provider';
 import { Button } from './ui/button';
-import { t, roleLabel } from '@/lib/i18n';
-import { NativeSurface } from './native-surface';
 import { AccountHelpForm } from './account-help';
+
+/* 🔑 Kirish sahifasi — oddiy, bitta ustunli dizayn (sarlavha, ikki maydon, «Kirish», ostida «Ro‘yxatdan o‘tish»,
+   eng pastda «Mehmon»). Ranglar — saytning avvalgi binafsha ranglari.
+   • Talaba «Ism familiya» (yoki «Familiya Ism») va o‘zi qo‘ygan parol yoki 1111 bilan kiradi. Tekshiruvni avvalgi
+     talaba tizimi qiladi (yashirin oyna — /legacy/index.html, scripts/legacy-credentials.mjs): parollar, egalik va
+     1111 qoidasi o‘zgarmaydi, bu sahifa faqat maydonlarni to‘ldirib «Kirish»ni bosadi.
+   • «Ro‘yxatdan o‘tish» → ism-familiya yoki Google. Ism-familiya bilan bo‘lsa «Talabamisiz?» so‘raladi: talaba
+     guruhini tanlaydi yoki yozadi (o‘qituvchi tasdiqlaydi), talaba bo‘lmasa — mustaqil o‘quvchi. Google bilan
+     kirganlarga «Talabamisiz?» bosh sahifadagi kurs oynasida so‘raladi (components/course-gate.tsx).
+   • Maydonga email yozilsa — avvalgi email hisobiga kiradi (email + parol). */
+
+type Step = 'login' | 'register' | 'student' | 'group' | 'pending' | 'guest' | 'help';
+type Choice = { value: string; label: string };
+type Outcome =
+  | { ok: true; status: string; learnerType: string; group: string }
+  | { choose: Choice[]; split: number }
+  | { error: 'wrong' | 'blocked' | 'network' | 'exists' | 'service' };
+type LegacyStudent = { status?: string; learnerType?: string; group?: string };
+type LegacyWindow = Window & {
+  RT?: { auth: (mode: string) => void; student: () => LegacyStudent | null };
+  SQ_REG?: { learnerType: string; group: string };
+};
+
+const LEGACY_LOGIN = '/legacy/index.html?studyquest=login&sqEmbed=login';
+const GROUPS: string[] = (catalog as { groups?: string[] }).groups || [];
+const groupOk = (g: string) => /^[\p{L}\p{N}][\p{L}\p{N} ._/-]{1,39}$/u.test(g.trim());
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
 export function AuthPanel({ onClose }: { onClose?: () => void }) {
-  const { data, lang, refresh, toast, setLogin, demoLogin, useEmailMode } = useApp(),
-    [register, setRegister] = useState(false),
-    // Ro'yxatdan o'tishda «Talabamisiz?» so'ralmaydi (kursni boshlaganda so'raladi — components/course-gate.tsx).
-    // Hamma email yoki Google bilan kiradi; avvalgi talaba hisobi (ism + kod) borlar — «Talaba hisobi» tugmasi orqali.
-    [kind, setKind] = useState<'student' | 'other' | null>(null),
-    [name, setName] = useState(''),
-    [email, setEmail] = useState(''),
+  const { data, lang, setLang, refresh, demoLogin, toast, useEmailMode } = useApp();
+  const L = (uz: string, en: string, ru: string) => tr(lang, uz, en, ru);
+  const demo = data?.mode === 'demo';
+  const legacy = useLegacyAuth();
+  const [step, go] = useState<Step>('login'),
+    [full, setFull] = useState(''),
     [password, setPassword] = useState(''),
-    [busy, setBusy] = useState(false),
-    [googleError, setGoogleError] = useState(''),
-    [design, pickDesign] = useLoginDesign();
+    [first, setFirst] = useState(''),
+    [last, setLast] = useState(''),
+    [pick, setPick] = useState(''),
+    [typed, setTyped] = useState(''),
+    [choices, setChoices] = useState<{ list: Choice[]; split: number } | null>(null),
+    [choice, setChoice] = useState(''),
+    [error, setError] = useState(''),
+    [busy, setBusy] = useState(''),
+    [pending, setPending] = useState<{ name: string; group: string; fresh: boolean } | null>(null);
+  const entering = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
     window.scrollTo(0, 0);
+    setError('');
+  }, [step]);
+  useEffect(
+    () => () => {
+      if (entering.current) clearTimeout(entering.current);
+    },
+    [],
+  );
+  const close = () => (onClose ? onClose() : (location.hash = 'courses'));
+  const problem = (kind: Exclude<Outcome, { ok: true } | { choose: Choice[] }>['error']) =>
+    ({
+      wrong: L(
+        'Ism familiya yoki parol noto‘g‘ri.',
+        'The name or the password is incorrect.',
+        'Неверные имя и фамилия или пароль.',
+      ),
+      blocked: L(
+        'Hisobingiz bloklangan. O‘qituvchiga murojaat qiling.',
+        'Your account is blocked. Contact your teacher.',
+        'Ваш аккаунт заблокирован. Обратитесь к преподавателю.',
+      ),
+      network: networkMessage(lang),
+      exists: L(
+        'Bu ism-familiya bilan hisob bor. «Kirish» orqali kiring.',
+        'An account with this name already exists. Please log in.',
+        'Аккаунт с таким именем уже есть. Войдите.',
+      ),
+      service: L(
+        'Kirish xizmati yuklanmadi. Internetni tekshirib, qayta urining.',
+        'The sign-in service did not load. Check the internet and try again.',
+        'Служба входа не загрузилась. Проверьте интернет и повторите.',
+      ),
+    })[kind];
+  /** Hisob tasdiqlangan — provider sessiyani qabul qilgach sahifa o‘zi yopiladi. */
+  function enter() {
+    setBusy(L('Kirilmoqda…', 'Signing in…', 'Входим…'));
+    if (entering.current) clearTimeout(entering.current);
+    entering.current = setTimeout(() => {
+      setBusy('');
+      setError(
+        L(
+          'Kirish tasdiqlanmadi. Sahifani yangilab, qayta urining.',
+          'Sign-in was not confirmed. Reload the page and try again.',
+          'Вход не подтверждён. Обновите страницу и повторите.',
+        ),
+      );
+    }, 25000);
+  }
+  function settle(r: Outcome, name: string, fresh: boolean, group = '') {
+    if ('choose' in r) {
+      setChoices({ list: r.choose, split: r.split });
+      setChoice('');
+      setError(
+        L(
+          'Bir xil ism-familiyali talabalar bor. Guruhingizni tanlab, yana «Kirish»ni bosing.',
+          'There are students with the same name. Choose your group and press “Log in” again.',
+          'Есть студенты с таким же именем. Выберите группу и снова нажмите «Войти».',
+        ),
+      );
+      return;
+    }
+    if ('error' in r) {
+      setError(problem(r.error));
+      return;
+    }
+    if (r.status === 'ok' || r.learnerType === 'independent') return enter();
+    if (r.status === 'blocked') return setError(problem('blocked'));
+    setPending({ name, group: r.group || group, fresh });
+    go('pending');
+  }
+  async function login(e: FormEvent) {
+    e.preventDefault();
+    if (busy) return;
+    setError('');
+    const text = full.trim().replace(/\s+/g, ' ');
+    if (text.includes('@')) return emailLogin(text);
+    const parts = text.split(' ');
+    if (parts.length < 2 || parts.some((p) => p.length < 2))
+      return setError(
+        L(
+          'Ism va familiyangizni to‘liq yozing.',
+          'Enter your first name and surname.',
+          'Введите имя и фамилию полностью.',
+        ),
+      );
+    if (!password)
+      return setError(L('Parolni kiriting.', 'Enter your password.', 'Введите пароль.'));
+    if (choices && !choice)
+      return setError(L('Guruhingizni tanlang.', 'Choose your group.', 'Выберите группу.'));
+    if (demo)
+      return setError(
+        L(
+          'Demo rejimida pastdagi rol tugmalaridan foydalaning.',
+          'In demo mode use the role buttons below.',
+          'В демо-режиме используйте кнопки ролей ниже.',
+        ),
+      );
+    setBusy(L('Tekshirilmoqda…', 'Checking…', 'Проверяем…'));
     try {
-      const k = localStorage.getItem('sq-auth-kind');
-      if (k === 'student' || k === 'other') setKind(k);
-    } catch {}
-  }, []);
-  const choose = (k: 'student' | 'other' | null) => {
-    setKind(k);
+      const r = await legacy.login(
+        parts,
+        password,
+        choices && choice ? { split: choices.split, id: choice } : undefined,
+      );
+      if (!('choose' in r)) setChoices(null);
+      setBusy('');
+      settle(r, text, false);
+    } catch {
+      setBusy('');
+      setError(problem('service'));
+    }
+  }
+  async function emailLogin(email: string) {
+    const a = firebaseAuth();
+    if (!a) return setError(problem('service'));
+    setBusy(L('Tekshirilmoqda…', 'Checking…', 'Проверяем…'));
     try {
-      if (k) localStorage.setItem('sq-auth-kind', k);
-      else localStorage.removeItem('sq-auth-kind');
-    } catch {}
-  };
-  const student = kind === 'student';
+      useEmailMode();
+      await signInWithEmailAndPassword(a, email, password);
+      await refresh();
+    } catch (e) {
+      setError(isNetworkError(e) ? networkMessage(lang) : problem('wrong'));
+    } finally {
+      setBusy('');
+    }
+  }
   async function googleLogin() {
     if (busy) return;
-    setBusy(true);
-    setGoogleError('');
+    setError('');
+    const a = firebaseAuth();
+    if (!a) return setError(problem('service'));
+    setBusy(L('Google oynasi ochilmoqda…', 'Opening Google…', 'Открываем Google…'));
     try {
-      const a = firebaseAuth();
-      if (!a)
-        throw new Error(
-          L(
-            'Google orqali kirish hali sozlanmagan.',
-            'Google sign-in is not set up yet.',
-            'Вход через Google ещё не настроен.',
-          ),
-        );
       useEmailMode();
-      // Keep the popup directly in the click handler, before any network waits.
+      // Oyna tugma bosilgan zahoti ochilishi kerak (brauzer pop-up'ni bloklamasin).
       const provider = new GoogleAuthProvider();
       provider.setCustomParameters({ prompt: 'select_account' });
       await signInWithPopup(a, provider);
       await refresh();
     } catch (e) {
       const code = (e as { code?: string }).code;
-      if (code === 'auth/popup-closed-by-user') return;
-      setGoogleError(
-        isNetworkError(e)
-          ? networkMessage(lang)
-          : code === 'auth/popup-blocked'
-            ? L(
-                'Brauzer Google oynasini blokladi. Manzil qatoridagi belgi orqali pop-up oynalariga ruxsat bering va yana Google tugmasini bosing.',
-                'The browser blocked the Google window. Allow pop-ups using the icon in the address bar and press the Google button again.',
-                'Браузер заблокировал окно Google. Разрешите всплывающие окна через значок в адресной строке и снова нажмите кнопку Google.',
-              )
-            : code === 'auth/unauthorized-domain'
+      if (code !== 'auth/popup-closed-by-user')
+        setError(
+          isNetworkError(e)
+            ? networkMessage(lang)
+            : code === 'auth/popup-blocked'
               ? L(
-                  'Firebase Authentication → Settings → Authorized domains bo‘limiga ' +
-                    location.hostname +
-                    ' domenini qo‘shish kerak.',
-                  'Add ' +
-                    location.hostname +
-                    ' under Firebase Authentication → Settings → Authorized domains.',
-                  'Добавьте домен ' +
-                    location.hostname +
-                    ' в Firebase Authentication → Settings → Authorized domains.',
+                  'Brauzer Google oynasini blokladi. Manzil qatoridagi belgi orqali pop-up oynalariga ruxsat bering va qayta bosing.',
+                  'The browser blocked the Google window. Allow pop-ups in the address bar and press again.',
+                  'Браузер заблокировал окно Google. Разрешите всплывающие окна и нажмите снова.',
                 )
-              : (e as Error).message,
-      );
+              : code === 'auth/unauthorized-domain'
+                ? L(
+                    'Firebase Authentication → Settings → Authorized domains bo‘limiga ' +
+                      location.hostname +
+                      ' domenini qo‘shish kerak.',
+                    'Add ' +
+                      location.hostname +
+                      ' to Firebase Authentication → Authorized domains.',
+                    'Добавьте ' +
+                      location.hostname +
+                      ' в Firebase Authentication → Authorized domains.',
+                  )
+                : (e as Error).message,
+        );
     } finally {
-      setBusy(false);
+      setBusy('');
     }
   }
-  async function submit(reset = false) {
-    setBusy(true);
-    if (!reset) useEmailMode();
+  async function register(learnerType: 'university' | 'independent', group: string) {
+    if (busy) return;
+    setError('');
+    if (demo)
+      return setError(
+        L(
+          'Demo rejimida ro‘yxatdan o‘tish o‘chirilgan.',
+          'Registration is off in demo mode.',
+          'В демо-режиме регистрация отключена.',
+        ),
+      );
+    setBusy(L('Hisob yaratilmoqda…', 'Creating the account…', 'Создаём аккаунт…'));
     try {
-      const a = firebaseAuth();
-      if (!a)
-        throw new Error(
-          lang === 'uz'
-            ? 'Email orqali kirish hali yoqilmagan. Mavjud hisobingizdan foydalaning.'
-            : lang === 'ru'
-              ? 'Вход по email пока не включён. Используйте существующий аккаунт.'
-              : 'Email login is not enabled yet. Use your existing account.',
-        );
-      if (reset) {
-        await sendPasswordResetEmail(a, email);
-        toast(
-          lang === 'uz'
-            ? 'Parolni tiklash xabari yuborildi.'
-            : lang === 'ru'
-              ? 'Письмо для сброса пароля отправлено.'
-              : 'Password reset email sent.',
-        );
-        return;
-      }
-      if (register) {
-        if (password.length < 8 || name.trim().length < 2)
-          throw new Error(
-            lang === 'uz'
-              ? 'Ism va kamida 8 belgili parol kiriting.'
-              : lang === 'ru'
-                ? 'Введите имя и пароль не короче 8 символов.'
-                : 'Enter your name and a password of at least 8 characters.',
-          );
-        const u = await createUserWithEmailAndPassword(a, email, password);
-        await updateProfile(u.user, { displayName: name.trim() });
-        // Auth listeners can create the initial profile before displayName is updated.
-        const token = await u.user.getIdToken(true);
-        const profile = await fetch('/api/platform', {
-          method: 'POST',
-          headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            action: 'profile',
-            input: { name: name.trim(), leaderboardVisible: true },
-          }),
-        });
-        if (!profile.ok) throw new Error((await profile.json()).error);
-      } else await signInWithEmailAndPassword(a, email, password);
-      await refresh();
-    } catch (e) {
-      const code = (e as { code?: string }).code;
-      toast(
-        isNetworkError(e)
-          ? networkMessage(lang)
-          : code
-            ? lang === 'uz'
-              ? 'Kirish bajarilmadi. Email, parol va kirish usulini tekshiring.'
-              : lang === 'en'
-                ? 'Sign-in failed. Check your email, password and enabled sign-in method.'
-                : 'Вход не выполнен. Проверьте email, пароль и способ входа.'
-            : (e as Error).message,
-      );
-    } finally {
-      setBusy(false);
+      const r = await legacy.register(first.trim(), last.trim(), learnerType, group.trim());
+      setBusy('');
+      settle(r, first.trim() + ' ' + last.trim(), true, group.trim());
+    } catch {
+      setBusy('');
+      setError(problem('service'));
     }
   }
+
   if (data?.adminOnly)
     return (
       <main className="maintenance-page">
@@ -165,355 +269,682 @@ export function AuthPanel({ onClose }: { onClose?: () => void }) {
           <h1>Unistay</h1>
           <h2>Platforma vaqtincha yopiq</h2>
           <p>Texnik ishlar olib borilmoqda. Hozir faqat administrator kirishi mumkin.</p>
-          {googleError && <p role="alert">{googleError}</p>}
-          <Button disabled={busy} onClick={googleLogin}>
+          {error && <p role="alert">{error}</p>}
+          <Button disabled={!!busy} onClick={googleLogin}>
             Google orqali administrator kirishi
           </Button>
         </section>
       </main>
     );
-  const L = (uz: string, en: string, ru: string) => (lang === 'en' ? en : lang === 'ru' ? ru : uz);
-  const close = () => (onClose ? onClose() : (location.hash = 'courses'));
-  const googleButton = (
-    <Button variant="outline" className="auth-google" disabled={busy} onClick={googleLogin}>
-      <GoogleMark />
-      Google
-    </Button>
+
+  const alert = error ? (
+    <p role="alert" className="la-error">
+      {error}
+    </p>
+  ) : null;
+  const back = (to: Step, label = L('Orqaga', 'Back', 'Назад')) => (
+    <button type="button" className="la-back" onClick={() => go(to)}>
+      <ArrowLeft size={16} aria-hidden="true" /> {label}
+    </button>
   );
-  const form = (
-    <div className="auth-form">
-      <div className="auth-form-head">
-        <img src="/unistay-logo.svg" alt="Unistay" width="56" height="56" />
-        <div>
-          <h2>{L('Xush kelibsiz!', 'Welcome!', 'Добро пожаловать!')}</h2>
-          <p className="muted">
-            {L(
-              'Unistay · talabalar platformasi',
-              'Unistay · student platform',
-              'Unistay · платформа для студентов',
-            )}
-          </p>
-        </div>
-      </div>
-      {googleError && (
-        <p role="alert" className="auth-error">
-          {googleError}
-        </p>
-      )}
-      {data?.mode !== 'demo' && (
-        <p className="auth-route-help">
-          {L(
-            'Yangi hisob uchun email yoki Google orqali kiring. Avvaldan ism va kod bilan kirgan bo‘lsangiz, “Talaba hisobi”ni tanlang.',
-            'For a new account, use email or Google. If you already sign in with a name and code, choose “Student account”.',
-            'Для нового аккаунта используйте email или Google. Если раньше входили по имени и коду, выберите «Аккаунт студента».',
-          )}
-        </p>
-      )}
-      {data?.mode === 'demo' ? (
-        <>
-          <p className="demo-explainer">{t(lang, 'demo')}</p>
-          {[
-            ['student', BookOpen],
-            ['teacher', GraduationCap],
-            ['admin', Shield],
-          ].map(([role, Icon]) => {
-            const I = Icon as typeof BookOpen;
-            return (
-              <Button
-                variant="outline"
-                className="w-full auth-role"
-                key={String(role)}
-                onClick={() => demoLogin(role as string).catch((e) => toast(e.message))}
-              >
-                <I size={18} />
-                {roleLabel(lang, role as string)}
-                <ArrowRight size={16} />
-              </Button>
-            );
-          })}
-        </>
-      ) : student ? (
-        <>
-          <button type="button" className="auth-kind-back" onClick={() => choose('other')}>
-            ← 🎓 {L('Talaba hisobi', 'Student account', 'Аккаунт студента')}
-            <span>{L('email yoki Google', 'email or Google', 'email или Google')}</span>
-          </button>
-          <NativeSurface
-            id="student-login"
-            className="native-login"
-            title={L('Talaba hisobiga kirish', 'Student sign-in', 'Вход для студента')}
-            src="/legacy/index.html?studyquest=login&sqEmbed=login"
-          />
-          <div className="auth-hints">
-            <p>
-              🔑{' '}
-              {L(
-                'Kod — avvalgi PIN kodingiz yoki o‘zingiz qo‘ygan parol (boshlang‘ich kod — 1111).',
-                'Code — your old PIN or your own password (the starting code is 1111).',
-                'Код — прежний PIN или ваш пароль (начальный код — 1111).',
-              )}
-            </p>
-            <p>
-              ❓ <b>{L('Parolni unutdingizmi?', 'Forgot your password?', 'Забыли пароль?')}</b>{' '}
-              {L(
-                'O‘qituvchingiz yangisini o‘rnatib beradi.',
-                'Your teacher can set a new one.',
-                'Преподаватель установит новый.',
-              )}
-            </p>
-          </div>
-          <button
-            type="button"
-            className="auth-link auth-kind-switch"
-            onClick={() => choose('other')}
-          >
-            <Mail size={15} aria-hidden="true" />
-            {L(
-              'Talaba emasmisiz? Email yoki Google bilan kiring',
-              'Not a student? Use email or Google',
-              'Не студент? Войдите через email или Google',
-            )}
-          </button>
-        </>
-      ) : (
-        <>
-          <p className="auth-kind-note">
-            {L(
-              'ℹ️ Email yoki Google bilan kiring. Kursni boshlaganingizda talaba bo‘lsangiz guruhingizni yozib kursga yozilasiz.',
-              'ℹ️ Sign in with email or Google. When you start the course, students enter their group to enrol.',
-              'ℹ️ Войдите через email или Google. При начале курса студенты указывают группу и записываются.',
-            )}
-          </p>
-          <div
-            className="auth-tabs"
-            role="group"
-            aria-label={L('Kirish usuli', 'Access', 'Способ входа')}
-          >
-            <button
-              className={!register ? 'on' : ''}
-              aria-pressed={!register}
-              onClick={() => setRegister(false)}
-            >
-              {t(lang, 'login')}
-            </button>
-            <button
-              className={register ? 'on' : ''}
-              aria-pressed={register}
-              onClick={() => setRegister(true)}
-            >
-              {L('Ro‘yxatdan o‘tish', 'Register', 'Регистрация')}
-            </button>
-          </div>
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              void submit();
-            }}
-          >
-            {register && (
-              <label>
-                {L('Ism va familiya', 'Full name', 'Имя и фамилия')}
-                <input
-                  required
-                  className="input"
-                  autoComplete="name"
-                  placeholder={L(
-                    'Masalan: Aziz Karimov',
-                    'e.g. Aziz Karimov',
-                    'Например: Азиз Каримов',
-                  )}
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                />
-              </label>
-            )}
-            <label>
-              Email
-              <input
-                required
-                className="input"
-                type="email"
-                autoComplete="email"
-                placeholder="ism@gmail.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
+  const group = typed.trim() || pick;
+  let body: ReactNode;
+  if (step === 'login')
+    body = (
+      <>
+        <form className="la-form" onSubmit={login} noValidate>
+          <div className="la-fields">
+            <label className="la-sr" htmlFor="la-full">
+              {L('Ism familiya', 'Full name', 'Имя фамилия')}
             </label>
-            <label>
+            <input
+              id="la-full"
+              className="la-input"
+              autoComplete="name"
+              autoCapitalize="words"
+              placeholder={L('Ism familiya', 'Full name', 'Имя фамилия')}
+              value={full}
+              onChange={(e) => {
+                setFull(e.target.value);
+                setChoices(null);
+              }}
+            />
+            <label className="la-sr" htmlFor="la-password">
               {L('Parol', 'Password', 'Пароль')}
-              <input
-                required
-                className="input"
-                type="password"
-                minLength={8}
-                autoComplete={register ? 'new-password' : 'current-password'}
-                placeholder={L('Kamida 8 belgi', 'At least 8 characters', 'Не менее 8 символов')}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
             </label>
-            {!register && (
-              <button
-                type="button"
-                className="auth-link"
-                disabled={busy || !email}
-                onClick={() => submit(true)}
-              >
-                {L('Parolni unutdingizmi?', 'Forgot password?', 'Забыли пароль?')}
-              </button>
-            )}
-            <Button className="w-full" disabled={busy} type="submit">
-              {register
-                ? L('Hisob yaratish', 'Create account', 'Создать аккаунт')
-                : t(lang, 'login')}
-            </Button>
-          </form>
-          <div className="auth-or">
-            <span>{L('yoki', 'or', 'или')}</span>
+            <input
+              id="la-password"
+              className="la-input"
+              type="password"
+              autoComplete="current-password"
+              placeholder={L('Parol', 'Password', 'Пароль')}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
           </div>
-          <div className="auth-alt">
-            {googleButton}
-            <Button variant="ghost" className="auth-email" onClick={() => choose('student')}>
-              <BookOpen size={18} />
-              {L(
-                'Talaba hisobi (ism + kod)',
-                'Student account (name + code)',
-                'Аккаунт студента (имя + код)',
-              )}
-            </Button>
-          </div>
-        </>
-      )}
-      <a className="auth-back" href="#courses" onClick={onClose}>
-        {L(
-          'Kirmasdan mavzularni ko‘rish',
-          'Browse topics without signing in',
-          'Смотреть темы без входа',
-        )}{' '}
-        →
-      </a>
-      <p className="auth-legal">
-        {L(
-          'Kirish yoki ro‘yxatdan o‘tish orqali',
-          'By signing in or registering you accept the',
-          'Входя или регистрируясь, вы принимаете',
-        )}{' '}
-        <a href={'/privacy?lang=' + lang} target="_blank" rel="noopener">
-          {L('Maxfiylik siyosati', 'Privacy Policy', 'Политику конфиденциальности')}
-        </a>
-        {L('ga rozilik bildirasiz.', '.', '.')}
-      </p>
-    </div>
-  );
-  return (
-    <main
-      className={'auth-page design-' + design}
-      onClickCapture={(event) => {
-        const tab =
-          event.target instanceof Element
-            ? event.target.closest<HTMLElement>('.native-login [data-m]')
-            : null;
-        if (tab) {
-          setRegister(tab.dataset.m === 'reg');
-          window.scrollTo(0, 0);
-        }
-      }}
-    >
-      <Button
-        variant="ghost"
-        size="icon"
-        className="auth-close"
-        aria-label={L('Yopish', 'Close', 'Закрыть')}
-        onClick={close}
-      >
-        <X size={20} />
-      </Button>
-      <div className="auth-shell">
-        <div className="auth-story">
-          {design === 'rocket' ? (
-            <div className="auth-rocket-title">
-              <h1>Unistay</h1>
-              <p>{L('Talabalar platformasi', 'Student platform', 'Платформа для студентов')}</p>
-            </div>
-          ) : (
+          {choices && (
             <>
-              <span className="hero-tag">
-                <img src="/unistay-logo.svg" alt="" width="22" height="22" />
-                Unistay
-              </span>
-              <h1>
-                {L('Bilimdan biznes sari.', 'From learning to building.', 'От знаний — к бизнесу.')}
-              </h1>
-              <AuthVideo />
-              <p>
-                {L(
-                  '15 ta mavzu, testlar, o‘yinlar va reyting — barchasi bitta platformada.',
-                  '15 topics, tests, games and a leaderboard — all in one place.',
-                  '15 тем, тесты, игры и рейтинг — всё на одной платформе.',
-                )}
-              </p>
+              <label className="la-sr" htmlFor="la-choice">
+                {L('Guruhingiz', 'Your group', 'Ваша группа')}
+              </label>
+              <select
+                id="la-choice"
+                className="la-input la-select"
+                value={choice}
+                onChange={(e) => setChoice(e.target.value)}
+              >
+                <option value="">{L('— guruhingiz —', '— your group —', '— ваша группа —')}</option>
+                {choices.list.map((c) => (
+                  <option key={c.value} value={c.value}>
+                    {c.label}
+                  </option>
+                ))}
+              </select>
             </>
           )}
-        </div>
-        <div className="auth-with-help">
-          {form}
-          <AccountHelpForm />
-        </div>
-      </div>
-      <div className="auth-design-switch" role="group" aria-label={L('Dizayn', 'Design', 'Дизайн')}>
-        {(
-          [
-            ['rocket', '🚀', L('Biznes start', 'Business start', 'Бизнес-старт')],
-            ['workspace', '💻', L('Raqamli ta’lim', 'Digital learning', 'Цифровое обучение')],
-          ] as const
-        ).map(([id, icon, label]) => (
-          <button
-            key={id}
-            className={design === id ? 'on' : ''}
-            aria-pressed={design === id}
-            title={label}
-            onClick={() => pickDesign(id)}
-          >
-            <span aria-hidden="true">{icon}</span>
-            {label}
+          {alert}
+          <button type="submit" className="la-submit" disabled={!!busy}>
+            {busy || L('Kirish', 'Log in', 'Войти')}
           </button>
-        ))}
+        </form>
+        <button type="button" className="la-link" onClick={() => go('register')}>
+          {L('Ro‘yxatdan o‘tish', 'Sign up', 'Регистрация')}
+        </button>
+        {demo && (
+          <div className="la-demo" role="group" aria-label="Demo">
+            {(
+              [
+                ['student', BookOpen],
+                ['teacher', GraduationCap],
+                ['admin', Shield],
+              ] as const
+            ).map(([role, Icon]) => (
+              <button
+                key={role}
+                type="button"
+                className="auth-role"
+                onClick={() => demoLogin(role).catch((e) => toast(e.message))}
+              >
+                <Icon size={16} aria-hidden="true" /> {roleLabel(lang, role)}
+              </button>
+            ))}
+          </div>
+        )}
+      </>
+    );
+  else if (step === 'register')
+    body = (
+      <section className="la-card" aria-labelledby="la-h">
+        {back('login', L('Kirish', 'Log in', 'Войти'))}
+        <h2 id="la-h">{L('Ro‘yxatdan o‘tish', 'Sign up', 'Регистрация')}</h2>
+        <form
+          className="la-card-form"
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (first.trim().length < 2 || last.trim().length < 2)
+              return setError(
+                L(
+                  'Ism va familiyani yozing.',
+                  'Enter your name and surname.',
+                  'Введите имя и фамилию.',
+                ),
+              );
+            go('student');
+          }}
+          noValidate
+        >
+          <label>
+            {L('Ism', 'First name', 'Имя')}
+            <input
+              className="la-input"
+              autoComplete="given-name"
+              autoCapitalize="words"
+              value={first}
+              onChange={(e) => setFirst(e.target.value)}
+            />
+          </label>
+          <label>
+            {L('Familiya', 'Surname', 'Фамилия')}
+            <input
+              className="la-input"
+              autoComplete="family-name"
+              autoCapitalize="words"
+              value={last}
+              onChange={(e) => setLast(e.target.value)}
+            />
+          </label>
+          {alert}
+          <button type="submit" className="la-submit">
+            {L('Davom etish', 'Continue', 'Продолжить')}
+          </button>
+        </form>
+        <div className="la-or">
+          <span>{L('yoki', 'or', 'или')}</span>
+        </div>
+        <button type="button" className="la-google" disabled={!!busy} onClick={googleLogin}>
+          <GoogleMark />
+          {busy || L('Google orqali kirish', 'Continue with Google', 'Войти через Google')}
+        </button>
+        <p className="auth-legal">
+          {L(
+            'Ro‘yxatdan o‘tish orqali',
+            'By signing up you accept the',
+            'Регистрируясь, вы принимаете',
+          )}{' '}
+          <a href={'/privacy?lang=' + lang} target="_blank" rel="noopener">
+            {L('Maxfiylik siyosati', 'Privacy Policy', 'Политику конфиденциальности')}
+          </a>
+          {L('ga rozilik bildirasiz.', '.', '.')}
+        </p>
+      </section>
+    );
+  else if (step === 'student')
+    body = (
+      <section className="la-card" aria-labelledby="la-h">
+        {back('register')}
+        <h2 id="la-h">{L('Talabamisiz?', 'Are you a student?', 'Вы студент?')}</h2>
+        <p className="la-muted">
+          {first.trim()} {last.trim()}
+        </p>
+        <div className="la-answers">
+          <button type="button" className="la-answer" onClick={() => go('group')}>
+            <span aria-hidden="true">🎓</span>
+            <b>{L('Ha, talabaman', 'Yes, I am a student', 'Да, я студент')}</b>
+            <small>
+              {L(
+                'Guruhingizni tanlaysiz. O‘qituvchi tasdiqlagach darslar, ballar va reyting ochiladi.',
+                'You choose your group. Lessons, points and ranking open once the teacher approves.',
+                'Вы выбираете группу. После подтверждения преподавателем откроются уроки, баллы и рейтинг.',
+              )}
+            </small>
+          </button>
+          <button
+            type="button"
+            className="la-answer"
+            disabled={!!busy}
+            onClick={() => register('independent', '')}
+          >
+            <span aria-hidden="true">🌍</span>
+            <b>{L('Yo‘q, talaba emasman', 'No, I am not a student', 'Нет, я не студент')}</b>
+            <small>
+              {busy ||
+                L(
+                  'Mustaqil o‘quvchi sifatida darslarni o‘qiysiz.',
+                  'You read the lessons as an independent learner.',
+                  'Вы читаете уроки как самостоятельный слушатель.',
+                )}
+            </small>
+          </button>
+        </div>
+        {alert}
+      </section>
+    );
+  else if (step === 'group')
+    body = (
+      <section className="la-card" aria-labelledby="la-h">
+        {back('student')}
+        <h2 id="la-h">{L('Guruhingiz', 'Your group', 'Ваша группа')}</h2>
+        <form
+          className="la-card-form"
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (!groupOk(group))
+              return setError(
+                L(
+                  'Guruhni ro‘yxatdan tanlang yoki yozing (masalan: YES-123).',
+                  'Choose your group from the list or type it (e.g. YES-123).',
+                  'Выберите группу из списка или введите её (например, YES-123).',
+                ),
+              );
+            void register('university', group);
+          }}
+          noValidate
+        >
+          <label>
+            {L('Ro‘yxatdan tanlang', 'Choose from the list', 'Выберите из списка')}
+            <select
+              className="la-input la-select"
+              value={pick}
+              onChange={(e) => {
+                setPick(e.target.value);
+                setTyped('');
+              }}
+            >
+              <option value="">{L('— tanlang —', '— choose —', '— выберите —')}</option>
+              {GROUPS.map((g) => (
+                <option key={g} value={g}>
+                  {g}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            {L('yoki o‘zingiz yozing', 'or type it yourself', 'или введите сами')}
+            <input
+              className="la-input"
+              maxLength={40}
+              autoCapitalize="characters"
+              placeholder={L('Masalan: Yes-123', 'E.g. Yes-123', 'Например: Yes-123')}
+              value={typed}
+              onChange={(e) => {
+                setTyped(e.target.value);
+                if (e.target.value) setPick('');
+              }}
+            />
+          </label>
+          {alert}
+          <button type="submit" className="la-submit" disabled={!!busy}>
+            {busy || L('Ro‘yxatdan o‘tish', 'Sign up', 'Зарегистрироваться')}
+          </button>
+        </form>
+      </section>
+    );
+  else if (step === 'pending' && pending)
+    body = (
+      <section className="la-card la-pending" aria-labelledby="la-h" role="status">
+        <span className="la-big" aria-hidden="true">
+          ⏳
+        </span>
+        <h2 id="la-h">
+          {pending.fresh
+            ? L('Ro‘yxatdan o‘tdingiz!', 'You are signed up!', 'Вы зарегистрированы!')
+            : L('Tasdiq kutilmoqda', 'Waiting for approval', 'Ожидает подтверждения')}
+        </h2>
+        <p>
+          <b>{pending.name}</b>
+          {pending.group ? ' · ' + pending.group : ''}
+        </p>
+        <p className="la-muted">
+          {L(
+            'O‘qituvchi hisobingizni tasdiqlagach, sayt shu yerda o‘zi ochiladi.',
+            'Once the teacher approves your account, the site opens here by itself.',
+            'Когда преподаватель подтвердит аккаунт, сайт откроется здесь сам.',
+          )}
+        </p>
+        {pending.fresh && (
+          <p className="la-note">
+            🔑{' '}
+            {L(
+              'Keyingi safar ism familiyangiz va 1111 paroli bilan kirasiz. Keyin o‘zingiz yangi parol qo‘yasiz.',
+              'Next time log in with your name and the password 1111. Later you set your own password.',
+              'В следующий раз входите с именем и паролем 1111. Потом вы зададите свой пароль.',
+            )}
+          </p>
+        )}
+        {back('login', L('Kirish sahifasi', 'Login page', 'Страница входа'))}
+      </section>
+    );
+  else if (step === 'guest') body = <GuestInfo L={L} onBack={() => go('login')} onBrowse={close} />;
+  else
+    body = (
+      <section className="la-card" aria-labelledby="la-h">
+        {back('login', L('Kirish', 'Log in', 'Войти'))}
+        <h2 id="la-h">{L('Kirishda yordam', 'Help with signing in', 'Помощь со входом')}</h2>
+        <ul className="la-tips">
+          <li>
+            {L(
+              'Ism va familiyani istalgan tartibda yozing: «Ali Valiyev» yoki «Valiyev Ali».',
+              'Type your name in any order: “Ali Valiyev” or “Valiyev Ali”.',
+              'Имя и фамилию можно писать в любом порядке: «Али Валиев» или «Валиев Али».',
+            )}
+          </li>
+          <li>
+            {L(
+              'Parol — o‘zingiz qo‘ygan parol yoki boshlang‘ich 1111.',
+              'Password — your own password or the starting 1111.',
+              'Пароль — ваш собственный или начальный 1111.',
+            )}
+          </li>
+          <li>
+            {L(
+              'Parolni unutgan bo‘lsangiz, o‘qituvchingiz yangisini o‘rnatib beradi.',
+              'If you forgot the password, your teacher can set a new one.',
+              'Если вы забыли пароль, преподаватель установит новый.',
+            )}
+          </li>
+        </ul>
+        <AccountHelpForm />
+        <p className="auth-legal">
+          <a href={'/privacy?lang=' + lang} target="_blank" rel="noopener">
+            {L('Maxfiylik siyosati', 'Privacy Policy', 'Политика конфиденциальности')}
+          </a>
+        </p>
+      </section>
+    );
+
+  return (
+    <main className={'la-page la-step-' + step}>
+      <header className="la-top">
+        {onClose ? (
+          <button
+            type="button"
+            className="la-close"
+            aria-label={L('Yopish', 'Close', 'Закрыть')}
+            onClick={close}
+          >
+            <X size={20} />
+          </button>
+        ) : (
+          <span />
+        )}
+        <div className="la-langs" role="group" aria-label={L('Til', 'Language', 'Язык')}>
+          {(
+            [
+              ['uz', 'UZ', 'O‘zbekcha'],
+              ['en', 'ENG', 'English'],
+              ['ru', 'RUS', 'Русский'],
+            ] as const
+          ).map(([id, short, name]) => (
+            <button
+              key={id}
+              type="button"
+              lang={id}
+              aria-label={name}
+              aria-pressed={lang === id}
+              className={lang === id ? 'on' : ''}
+              onClick={() => setLang(id as Lang)}
+            >
+              {short}
+            </button>
+          ))}
+        </div>
+      </header>
+      <div className="la-column">
+        <h1 className="la-brand">tadbirkorlik-asoslari</h1>
+        {body}
       </div>
+      {step === 'login' && (
+        <footer className="la-foot">
+          <button type="button" className="la-guest" onClick={() => go('guest')}>
+            {L('Mehmon', 'Guest', 'Гость')}
+          </button>
+          <button
+            type="button"
+            className="la-help"
+            aria-label={L('Kirishda yordam', 'Help with signing in', 'Помощь со входом')}
+            onClick={() => go('help')}
+          >
+            <CircleHelp size={22} aria-hidden="true" />
+          </button>
+        </footer>
+      )}
+      {!demo && legacy.frame}
     </main>
   );
 }
 
-/* Kirish oynasi dizayni: o'qituvchi tanlagani (meta/design) yoki shu brauzerda tanlangani. */
-type LoginDesign = 'rocket' | 'workspace';
-function useLoginDesign() {
-  const [design, setDesign] = useState<LoginDesign>('rocket');
-  useEffect(() => {
-    let saved = '';
+/* 👀 Mehmon: sayt tuzilishi, sayt haqida va kurslar — hisobsiz ko‘rish mumkin. */
+function GuestInfo({
+  L,
+  onBack,
+  onBrowse,
+}: {
+  L: (uz: string, en: string, ru: string) => string;
+  onBack: () => void;
+  onBrowse: () => void;
+}) {
+  const sections = [
+    [
+      LayoutDashboard,
+      L('Bosh sahifa', 'Home', 'Главная'),
+      L(
+        'Davom etayotgan dars, ballar, e’lonlar va eslatmalar.',
+        'Your current lesson, points, news and reminders.',
+        'Текущий урок, баллы, объявления и напоминания.',
+      ),
+    ],
+    [
+      BookOpen,
+      L('Kurslar', 'Courses', 'Курсы'),
+      L(
+        'Fanlar va mavzular: slaydlar, video, testlar va topshiriqlar.',
+        'Courses and topics: slides, video, tests and assignments.',
+        'Курсы и темы: слайды, видео, тесты и задания.',
+      ),
+    ],
+    [
+      Gamepad2,
+      L('O‘yin maydoni', 'Game arena', 'Игровая арена'),
+      L(
+        'Jonli test, «Biznes» o‘yini va boshqa bellashuvlar.',
+        'Live quiz, the “Business” game and other contests.',
+        'Живой тест, игра «Бизнес» и другие состязания.',
+      ),
+    ],
+    [
+      LibraryBig,
+      L('Kutubxona', 'Library', 'Библиотека'),
+      L(
+        'Kitoblar, qo‘llanmalar, qonunlar va namunalar.',
+        'Books, guides, laws and templates.',
+        'Книги, пособия, законы и образцы.',
+      ),
+    ],
+    [
+      Medal,
+      L('Yutuqlar va reyting', 'Achievements and ranking', 'Достижения и рейтинг'),
+      L(
+        'Nishonlar, guruh va umumiy reyting.',
+        'Badges, group and overall ranking.',
+        'Значки, рейтинг группы и общий рейтинг.',
+      ),
+    ],
+    [
+      MessageSquare,
+      L('Talabalar chati', 'Class chat', 'Чат студентов'),
+      L(
+        'Kursdoshlar va o‘qituvchi bilan yozishma (hisob bilan).',
+        'Messages with classmates and the teacher (with an account).',
+        'Переписка с однокурсниками и преподавателем (с аккаунтом).',
+      ),
+    ],
+  ] as const;
+  const courses = (
+    catalog.courses as {
+      id: string;
+      title: string;
+      desc?: string;
+      icon?: string;
+      closed?: boolean;
+      paid?: boolean;
+    }[]
+  )
+    .filter((c) => !c.closed)
+    .map((c) => ({
+      ...c,
+      topics:
+        c.id === catalog.courses[0]?.id
+          ? catalog.topics.length
+          : catalog.more.find((m) => m.id === c.id)?.topics.length || 0,
+    }));
+  return (
+    <section className="la-card la-guestinfo" aria-labelledby="la-h">
+      <button type="button" className="la-back" onClick={onBack}>
+        <ArrowLeft size={16} aria-hidden="true" /> {L('Kirish', 'Log in', 'Войти')}
+      </button>
+      <h2 id="la-h">{L('Sayt haqida', 'About the site', 'О сайте')}</h2>
+      <p>
+        {L(
+          'tadbirkorlik-asoslari — talabalar uchun onlayn o‘quv platformasi (Unistay). Fanlarni slaydma-slayd o‘rganasiz, testlarda bilimingizni sinaysiz, kursdoshlar bilan jonli viktorinada bellashasiz va ball to‘playsiz.',
+          'tadbirkorlik-asoslari is an online learning platform for students (Unistay). Study courses slide by slide, test yourself, compete with classmates in a live quiz and earn points.',
+          'tadbirkorlik-asoslari — онлайн-платформа для студентов (Unistay). Изучайте курсы по слайдам, проверяйте себя тестами, соревнуйтесь с однокурсниками в живой викторине и набирайте баллы.',
+        )}
+      </p>
+      <h3>{L('Sayt tuzilishi', 'How the site is organised', 'Структура сайта')}</h3>
+      <ul className="la-sections">
+        {sections.map(([Icon, title, text]) => (
+          <li key={title}>
+            <span className="la-ico" aria-hidden="true">
+              <Icon size={18} />
+            </span>
+            <span>
+              <b>{title}</b>
+              <small>{text}</small>
+            </span>
+          </li>
+        ))}
+      </ul>
+      <h3>{L('Kurslar', 'Courses', 'Курсы')}</h3>
+      <ul className="la-courses">
+        {courses.map((c) => (
+          <li key={c.id}>
+            <span className="la-cico" aria-hidden="true">
+              {c.icon || '📘'}
+            </span>
+            <span>
+              <b>{c.title}</b>
+              {c.desc && <small>{c.desc}</small>}
+              <em>
+                {c.topics} {L('ta mavzu', 'topics', 'тем')}
+                {c.paid ? ' · ' + L('pullik', 'paid', 'платный') : ''}
+              </em>
+            </span>
+          </li>
+        ))}
+      </ul>
+      <button type="button" className="la-submit" onClick={onBrowse}>
+        {L(
+          'Saytni mehmon sifatida ko‘rish',
+          'Browse the site as a guest',
+          'Смотреть сайт как гость',
+        )}
+      </button>
+    </section>
+  );
+}
+
+/* Avvalgi talaba tizimi yashirin oynada ishlaydi: shu sahifa uning maydonlarini to‘ldiradi va tugmasini bosadi.
+   Muvaffaqiyatli kirgach oyna sessiyani o‘zi yuboradi (scripts/legacy-bridge.js → provider.tsx). */
+function useLegacyAuth() {
+  const frame = useRef<HTMLIFrameElement>(null);
+  const win = () => {
     try {
-      saved = localStorage.getItem('sq-login-design') || '';
-    } catch {}
-    if (saved === 'rocket' || saved === 'workspace') {
-      setDesign(saved);
-      return;
+      return (frame.current?.contentWindow as LegacyWindow | null) || null;
+    } catch {
+      return null;
     }
-    let alive = true;
-    fetch('/api/platform?view=loginDesign')
-      .then((r) => (r.ok ? r.json() : null))
-      .then((v) => {
-        if (alive && (v?.login === 'rocket' || v?.login === 'workspace')) setDesign(v.login);
-      })
-      .catch(() => {});
-    return () => {
-      alive = false;
-    };
-  }, []);
-  const pick = (d: LoginDesign) => {
-    setDesign(d);
-    try {
-      localStorage.setItem('sq-login-design', d);
-    } catch {}
   };
-  return [design, pick] as const;
+  async function open(mode: 'log' | 'reg', button: string) {
+    for (let i = 0; i < 250; i++) {
+      const w = win();
+      if (w?.RT?.auth && w.document.readyState !== 'loading') {
+        if (!w.document.getElementById(button)) w.RT.auth(mode);
+        if (w.document.getElementById(button)) return w;
+      }
+      await sleep(100);
+    }
+    throw new Error('service');
+  }
+  const fill = (w: LegacyWindow, id: string, value: string) => {
+    const input = w.document.getElementById(id) as HTMLInputElement | null;
+    if (input) input.value = value;
+  };
+  const classify = (text: string): Outcome => ({
+    error: /blok|block/i.test(text)
+      ? 'blocked'
+      : /mavjud|exists/i.test(text)
+        ? 'exists'
+        : /server|internet|ulan|connect/i.test(text)
+          ? 'network'
+          : 'wrong',
+  });
+  const done = (w: LegacyWindow): Outcome => {
+    const s = w.RT?.student() || {};
+    return {
+      ok: true,
+      status: s.status || 'pending',
+      learnerType: s.learnerType || 'university',
+      group: s.group || '',
+    };
+  };
+  /** Tugmani bosib natijani kutadi: oyna yopildi — kirdi; xato matni — rad etildi; guruh tanlovi — bir xil ismlar. */
+  async function press(
+    w: LegacyWindow,
+    button: string,
+    errorBox: string,
+  ): Promise<'done' | { choose: Choice[] } | { text: string }> {
+    const d = w.document,
+      b = d.getElementById(button) as HTMLButtonElement,
+      box = d.getElementById(errorBox);
+    if (box) {
+      box.style.display = 'none';
+      box.textContent = '';
+    }
+    b.click();
+    for (let i = 0; i < 900; i++) {
+      await sleep(100);
+      if (!b.isConnected) return 'done' as const;
+      if (b.disabled) continue;
+      await sleep(80);
+      if (!b.isConnected) return 'done' as const;
+      const pick = d.getElementById('sqNameChoice') as HTMLSelectElement | null;
+      if (pick && button === 'lgGo')
+        return {
+          choose: Array.from(pick.options)
+            .filter((o) => o.value)
+            .map((o) => ({ value: o.value, label: o.textContent || o.value })),
+        };
+      const text = d.getElementById(errorBox)?.textContent || '';
+      if (text) return { text };
+    }
+    return { text: 'internet' };
+  }
+  async function login(
+    parts: string[],
+    password: string,
+    chosen?: { split: number; id: string },
+  ): Promise<Outcome> {
+    // «Ism Familiya» va «Familiya Ism» ikkalasini ham asl tizim topadi; uch so‘zli ismlar uchun bo‘linish nuqtalari sinanadi.
+    const splits = parts
+      .slice(1)
+      .map((_, k) => [parts.slice(0, k + 1).join(' '), parts.slice(k + 1).join(' ')]);
+    let last: Outcome = { error: 'wrong' };
+    for (let k = chosen ? chosen.split : 0; k < splits.length; k++) {
+      const w = await open('log', 'lgGo');
+      fill(w, 'lgN', splits[k][0]);
+      fill(w, 'lgS', splits[k][1]);
+      fill(w, 'lgB', password);
+      if (chosen) {
+        const pick = w.document.getElementById('sqNameChoice') as HTMLSelectElement | null;
+        if (pick) pick.value = chosen.id;
+      }
+      const r = await press(w, 'lgGo', 'lgErr');
+      if (r === 'done') return done(w);
+      if ('choose' in r) return { choose: r.choose, split: k };
+      last = classify(r.text);
+      if (chosen || ('error' in last && last.error !== 'wrong')) return last;
+    }
+    return last;
+  }
+  async function register(
+    first: string,
+    last: string,
+    learnerType: 'university' | 'independent',
+    group: string,
+  ): Promise<Outcome> {
+    const w = await open('reg', 'rtGo');
+    w.SQ_REG = { learnerType, group: learnerType === 'independent' ? '' : group };
+    fill(w, 'rtN', first);
+    fill(w, 'rtS', last);
+    const r = await press(w, 'rtGo', 'rtErr');
+    if (r === 'done') return done(w);
+    return classify('text' in r ? r.text : '');
+  }
+  return {
+    login,
+    register,
+    frame: (
+      <iframe
+        id="student-login"
+        ref={frame}
+        className="la-legacy"
+        src={LEGACY_LOGIN}
+        title="Talaba hisobi"
+        aria-hidden="true"
+        tabIndex={-1}
+      />
+    ),
+  };
 }
 
 function GoogleMark() {
@@ -536,77 +967,5 @@ function GoogleMark() {
         d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"
       />
     </svg>
-  );
-}
-
-function AuthVideo() {
-  const { lang } = useApp();
-  const video = useRef<HTMLVideoElement>(null),
-    [playing, setPlaying] = useState(false),
-    [loaded, setLoaded] = useState(false);
-  useEffect(() => {
-    const media = matchMedia('(prefers-reduced-motion: reduce)');
-    const sync = () => {
-      if (media.matches || document.hidden) {
-        video.current?.pause();
-        setPlaying(false);
-      } else {
-        setLoaded(true);
-        setPlaying(true);
-      }
-    };
-    sync();
-    media.addEventListener('change', sync);
-    document.addEventListener('visibilitychange', sync);
-    return () => {
-      media.removeEventListener('change', sync);
-      document.removeEventListener('visibilitychange', sync);
-    };
-  }, []);
-  useEffect(() => {
-    if (!loaded) return;
-    if (playing) video.current?.play().catch(() => setPlaying(false));
-    else video.current?.pause();
-  }, [loaded, playing]);
-  return (
-    <div className="auth-video">
-      <video
-        ref={video}
-        muted
-        playsInline
-        loop
-        preload="none"
-        poster="/legacy/fayllar/auth-workspace-poster.webp"
-      >
-        {loaded && (
-          <>
-            <source src="/legacy/fayllar/auth-workspace.webm" type="video/webm" />
-            <source src="/legacy/fayllar/auth-workspace.mp4" type="video/mp4" />
-          </>
-        )}
-      </video>
-      <button
-        type="button"
-        aria-label={
-          playing
-            ? lang === 'uz'
-              ? 'Animatsiyani to‘xtatish'
-              : lang === 'ru'
-                ? 'Остановить анимацию'
-                : 'Pause animation'
-            : lang === 'uz'
-              ? 'Animatsiyani boshlash'
-              : lang === 'ru'
-                ? 'Запустить анимацию'
-                : 'Play animation'
-        }
-        onClick={() => {
-          setLoaded(true);
-          setPlaying(!playing);
-        }}
-      >
-        {playing ? 'Ⅱ' : '▶'}
-      </button>
-    </div>
   );
 }

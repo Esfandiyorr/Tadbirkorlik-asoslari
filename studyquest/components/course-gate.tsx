@@ -7,6 +7,10 @@ import { navigate } from './dashboard';
 import { PremiumOffer, usePremium } from './premium';
 import { dueText, tr } from '@/lib/points';
 import { isPlayApp } from '@/lib/play-app';
+import catalog from '@/lib/catalog.generated.json';
+
+/** 🎓 Guruhlar ro'yxati (config.json «groups»); ro'yxatda yo'q guruhni talaba o'zi yozadi. */
+const GROUPS: string[] = (catalog as { groups?: string[] }).groups || [];
 
 /* 🔑 Kursga kirish oynasi (server: lib/server/course-access.ts). Ro'yxatdan o'tishda «Talabamisiz?» so'ralmaydi —
    kursni boshlaganda shu oynada so'raladi:
@@ -179,14 +183,28 @@ function CourseGateCard({ compact }: { compact?: boolean }) {
             }}
           >
             <label>
-              {L('Guruhingiz', 'Your group', 'Ваша группа')}
-              <input
+              {L('Guruhingizni tanlang', 'Choose your group', 'Выберите группу')}
+              <select
                 className="input"
-                maxLength={40}
-                value={group}
-                autoFocus
+                value={GROUPS.includes(group) ? group : ''}
                 onChange={(e) => setGroup(e.target.value)}
-                placeholder={L('Masalan: AP-223', 'E.g. AP-223', 'Например: AP-223')}
+              >
+                <option value="">{L('— tanlang —', '— choose —', '— выберите —')}</option>
+                {GROUPS.map((g) => (
+                  <option key={g} value={g}>
+                    {g}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              {L('yoki o‘zingiz yozing', 'or type it yourself', 'или введите сами')}
+              <input
+                className="input course-gate-group"
+                maxLength={40}
+                value={GROUPS.includes(group) ? '' : group}
+                onChange={(e) => setGroup(e.target.value)}
+                placeholder={L('Masalan: Yes-123', 'E.g. Yes-123', 'Например: Yes-123')}
               />
             </label>
             <div className="course-gate-actions">
