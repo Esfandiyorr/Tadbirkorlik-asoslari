@@ -151,7 +151,9 @@
       "slides": 21,
       "quiz": 15,
       "video": "fayllar/video/M10.mp4",
-      "lim": true
+      "lim": true,
+      "pdf": "fayllar/M10-mavzu.pdf",
+      "pdfSize": "2,4 MB"
     },
     {
       "id": "m11",

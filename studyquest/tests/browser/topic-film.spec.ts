@@ -48,4 +48,13 @@ test('topic 10: the reworked presentation and its subtitled video play inside th
   const vtt = await page.request.get('/legacy/fayllar/video/M10.vtt');
   expect(vtt.status()).toBe(200);
   expect(await vtt.text()).toContain('Shirin kun');
+
+  // «📥 PDF» — taqdimotning PDF nusxasi
+  await page.getByRole('button', { name: 'Mening ballim', exact: true }).click();
+  await expect(
+    page.locator('.reader-details').getByRole('link', { name: 'PDF', exact: true }),
+  ).toHaveAttribute('href', '/legacy/fayllar/M10-mavzu.pdf');
+  const pdf = await page.request.get('/legacy/fayllar/M10-mavzu.pdf');
+  expect(pdf.status()).toBe(200);
+  expect(pdf.headers()['content-type']).toContain('application/pdf');
 });

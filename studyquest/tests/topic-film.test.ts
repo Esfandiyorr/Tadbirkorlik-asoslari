@@ -12,6 +12,10 @@ it('topic 10 has its animated film with subtitles and a cover', () => {
     expect(fs.existsSync(path.resolve(__dirname, '../../fayllar/video/M10.' + ext)), ext).toBe(
       true,
     );
+  // «📥 PDF»: 21 slaydning PDF nusxasi
+  expect(m10.legacyPdf).toBe('fayllar/M10-mavzu.pdf');
+  const pdf = fs.readFileSync(path.resolve(__dirname, '../../fayllar/M10-mavzu.pdf'));
+  expect(pdf.subarray(0, 5).toString()).toBe('%PDF-');
   // videosi yo'q mavzularda tugma eski holicha (faqat boshqaruvdagi YouTube havolalari)
   expect(lessons.find((l) => l.id === 'm11')!.legacyVideo).toBeUndefined();
 });
