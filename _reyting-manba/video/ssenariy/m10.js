@@ -204,7 +204,7 @@
       type: 'rule',
       head: 'Konversiya: **100 kishidan nechtasi** oldi?',
       big: '20',
-      unit: 'foiz · konversiya',
+      unit: 'foiz',
       items: [
         { i: '👥', t: '100 kishi yozdi', d: 'Bir oyda' },
         { i: '🛒', t: '20 tasi oldi × 250 000 so‘m', d: 'O‘rtacha chek' },
