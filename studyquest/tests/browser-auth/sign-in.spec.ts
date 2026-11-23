@@ -166,7 +166,7 @@ async function services(page: Page) {
   });
 }
 
-test('Google sign-in opens an account popup directly from the sign-up screen', async ({
+test('Google sign-in opens an account popup directly from the first sign-in screen', async ({
   page,
   context,
 }) => {
@@ -174,7 +174,6 @@ test('Google sign-in opens an account popup directly from the sign-up screen', a
   await context.route('https://**/*', (route) => route.abort());
   await page.route('**/api/platform', (route) => route.fulfill({ json: publicData }));
   await page.goto('/#login');
-  await page.getByRole('button', { name: 'Ro‘yxatdan o‘tish' }).click();
   const popup = context.waitForEvent('page');
   await page.getByRole('button', { name: 'Google orqali kirish' }).click();
   const opened = await popup;

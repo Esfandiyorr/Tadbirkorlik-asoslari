@@ -30,9 +30,9 @@ test('the sign-in page: name and password, three languages, sign-up with «Are y
   await expect(page.getByLabel('Parol')).toHaveAttribute('type', 'password');
   const loginButton = page.getByRole('button', { name: 'Kirish', exact: true });
   await expect(loginButton).toBeVisible();
-  // ortiqcha narsa yo'q: email maydoni, Google tugmasi, video va dizayn tanlovi ko'rinmaydi
+  // Google bilan kirish asosiy oynada ham; ortiqcha narsa yo'q: email maydoni, video va dizayn tanlovi
+  await expect(page.getByRole('button', { name: 'Google orqali kirish' })).toBeVisible();
   await expect(page.getByLabel('Email', { exact: true })).toHaveCount(0);
-  await expect(page.getByRole('button', { name: /Google/ })).toHaveCount(0);
   await expect(page.locator('video')).toHaveCount(0);
   // talaba kirishi yashirin oynada — avvalgi talaba tizimi
   await expect(page.locator('#student-login')).toHaveAttribute('src', /studyquest=login/);

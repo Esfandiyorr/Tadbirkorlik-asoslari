@@ -330,6 +330,27 @@
 .la-google:hover {
   background: #faf7fd;
 }
+/* asosiy (binafsha) oynadagi «yoki» va Google tugmasi */
+.la-or-dark {
+  margin: 16px 0 12px;
+  color: #f3e8ff;
+}
+.la-or-dark::before,
+.la-or-dark::after {
+  background: #ffffff40;
+}
+.la-google-main {
+  border-color: #ffffff;
+  box-shadow: 0 10px 22px -14px #12001f;
+}
+.la-google-main:disabled {
+  opacity: 0.85;
+  cursor: progress;
+}
+.la-google:focus-visible {
+  outline: 3px solid #f0abfc;
+  outline-offset: 2px;
+}
 .la-muted {
   margin: 0;
   color: #6b5c7d;
