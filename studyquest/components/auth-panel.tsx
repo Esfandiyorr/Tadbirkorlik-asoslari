@@ -360,6 +360,19 @@ export function AuthPanel({ onClose }: { onClose?: () => void }) {
             {busy || L('Kirish', 'Log in', 'Войти')}
           </button>
         </form>
+        {/* Google bilan kirish — asosiy oynada ham (o'qituvchilar, administrator va Google hisobi borlar uchun) */}
+        <div className="la-or la-or-dark">
+          <span>{L('yoki', 'or', 'или')}</span>
+        </div>
+        <button
+          type="button"
+          className="la-google la-google-main"
+          disabled={!!busy}
+          onClick={googleLogin}
+        >
+          <GoogleMark />
+          {L('Google orqali kirish', 'Continue with Google', 'Войти через Google')}
+        </button>
         <button type="button" className="la-link" onClick={() => go('register')}>
           {L('Ro‘yxatdan o‘tish', 'Sign up', 'Регистрация')}
         </button>

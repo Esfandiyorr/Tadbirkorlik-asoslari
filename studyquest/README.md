@@ -91,7 +91,7 @@ For Firebase-backed development, copy `.env.example` to `.env.local`, supply you
   everyone for a while. Checked on the server before a lesson opens (`legacyAccess`); the course, home and lesson
   pages show the card.
 - **Sign-in page** (`components/auth-panel.tsx`, `app/auth-login.css`): one column in the site's purple colours —
-  the title «www.tadbirkorlik-asoslari.uz», UZ/ENG/RUS at the top, «Ism familiya» and «Parol», **Kirish**, under it
+  the title «www.tadbirkorlik-asoslari.uz», UZ/ENG/RUS at the top, «Ism familiya» and «Parol», **Kirish**, then «Google orqali kirish», under it
   **Ro'yxatdan o'tish** and **Mehmon** («?» at the bottom right opens sign-in help). Students sign in with their name in
   either order («Ali Valiyev» or «Valiyev Ali») and their own password or 1111; the check is done by the original
   student system in a hidden frame (`/legacy/index.html`, patched in `scripts/legacy-credentials.mjs`: name order,
