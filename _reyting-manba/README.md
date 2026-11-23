@@ -122,6 +122,12 @@ Dastur — 24 akademik soatlik qisqa kurs (10 modul). Fan `config.json` → `cou
   Yig'ish: `NODE_PATH=studyquest/node_modules node _reyting-manba/video/film.js r<N>` (kadrma-kadr, ~6–8 daqiqa).
   Brauzerda ko'rish: `video/sahna.html?s=r<N>`. Video taqdimotning «🎬 Video dars» slaydida va dars oynasidagi «Video»
   tugmasida ochiladi; o'qituvchi MP4 va subtitr faylini yuklab olishi mumkin.
+- **🎬 Asosiy fan videolari** (`M<N>`). Tadbirkorlik asoslari mavzulari uchun ham xuddi shu vosita: ssenariy —
+  `video/ssenariy/m<N>.js`, natija — `fayllar/video/M<N>.mp4` (+ `.vtt`, `.jpg`), `config.json` dagi mavzuga
+  `"video": "fayllar/video/M<N>.mp4"` qo'shiladi (dars oynasida «Video» tugmasi chiqadi). Ssenariyda `kurs`, `kursTo`,
+  `icon`, `floats` (muqova belgilari) va `bg: "dokon"` (suhbatlar qandolat do'konida) berish mumkin; sotuvchi
+  qahramon — `nilufar`. Restoran videolari avvalgidek (sukut bo'yicha restoran zali). Birinchi namuna — 10-mavzu
+  (`m10`, savdo jarayoni, ~5 daqiqa).
 - **Ball va reyting** pullik fan uchun hozircha yuritilmaydi: asosiy fanning ball va reytingi bilan aralashmasligi
   uchun ularni fanlar bo'yicha ajratish alohida hal qilinadi.
 

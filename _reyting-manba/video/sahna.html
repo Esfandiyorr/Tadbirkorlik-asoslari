@@ -194,6 +194,7 @@ var CAST = {
   emma:    {kind:"guest", skin:"#f8d9c4", hair:"#d9a441", style:"long", top:"#0369a1", dress:true},
   admin:   {kind:"admin", skin:"#e0ac84", hair:"#1c120c", style:"side", name:"Admin"},
   oshpaz:  {kind:"chef", skin:"#e6b48c", hair:"#2a1a12", style:"short"},
+  nilufar: {kind:"seller", skin:"#f0c4a0", hair:"#2a160c", style:"bun", top:"#7c3aed", apron:"#f9a8d4", name:"Nilufar"},   /* 🧁 sotuvchi (savdo mavzusi) */
   trener:  {kind:"admin", skin:"#eab891", hair:"#3a2418", style:"bun", top:"#7c2d12", tie:"#f59e0b", name:"Trener", female:true}
 };
 function hairSvg(o){
@@ -214,7 +215,7 @@ function arm(x1,y1,x2,y2,x3,y3,col,skin,cls){
 /* pose: stand | wave | tray | hand | note | chest ;  look: -1 chapga, 1 o'ngga */
 function person(key, pose, look){
   var o=CAST[key]||CAST.aziz, sk=o.skin, k=o.kind, lx=(look||0)*3;
-  var shirt = k==="waiter"?"#ffffff" : k==="chef"?"#ffffff" : k==="admin"?(o.top||"#1e293b") : (o.top||"#2563eb");
+  var shirt = k==="waiter"?"#ffffff" : k==="chef"?"#ffffff" : (k==="admin"||k==="seller")?(o.top||"#1e293b") : (o.top||"#2563eb");
   var legs = k==="chef"?"#374151" : (o.dress?"none":"#1f2937");
   var s='<svg viewBox="-130 -400 260 430" xmlns="http://www.w3.org/2000/svg"><ellipse cx="0" cy="8" rx="74" ry="12" fill="#00000026"/><g class="body">';
   // oyoqlar
@@ -238,6 +239,15 @@ function person(key, pose, look){
        '<circle cx="-14" cy="-214" r="5" fill="#9ca3af"/><circle cx="14" cy="-214" r="5" fill="#9ca3af"/><circle cx="-14" cy="-184" r="5" fill="#9ca3af"/><circle cx="14" cy="-184" r="5" fill="#9ca3af"/>'+
        '<path d="M-22 -262 L0 -244 L22 -262 Z" fill="#dc2626"/>'+
        '<rect x="-48" y="-150" width="96" height="74" rx="8" fill="#f3f4f6" stroke="#e5e7eb" stroke-width="3"/>';
+  } else if(k==="seller"){
+    /* 🧁 sotuvchi: oq yoqa, pushti fartuk, ko'krakdagi kekscha belgisi va ism beyji */
+    var ap=o.apron||"#f9a8d4";
+    s+='<path d="M-20 -262 L0 -236 L20 -262 Z" fill="#ffffff"/>'+
+       '<path d="M-36 -236 L-30 -262 M36 -236 L30 -262" stroke="'+ap+'" stroke-width="8" stroke-linecap="round"/>'+
+       '<path d="M-40 -238 Q0 -228 40 -238 L50 -100 Q0 -86 -50 -100 Z" fill="'+ap+'"/>'+
+       '<path d="M-30 -150 Q0 -140 30 -150" stroke="#ffffff88" stroke-width="4" fill="none"/>'+
+       '<circle cx="0" cy="-196" r="17" fill="#ffffff"/><path d="M-9 -194 L9 -194 L6 -182 L-6 -182 Z" fill="#f59e0b"/><circle cx="0" cy="-199" r="8" fill="#ec4899"/><circle cx="0" cy="-208" r="3" fill="#dc2626"/>'+
+       '<rect x="18" y="-226" width="26" height="12" rx="3" fill="#fde68a"/>';
   } else if(k==="admin"){
     s+='<path d="M-16 -262 L0 -214 L16 -262 Z" fill="#ffffff"/><path d="M-5 -252 L5 -252 L8 -214 L0 -202 L-8 -214 Z" fill="'+(o.tie||"#b45309")+'"/>'+
        '<path d="M-16 -262 L-34 -236 L-8 -196 Z M16 -262 L34 -236 L8 -196 Z" fill="#ffffff22"/>'+
@@ -299,6 +309,41 @@ function bgZal(){
   s+='<path d="M1176 520 L1190 600 L1246 600 L1260 520 Z" fill="#9a3412"/><path d="M1218 520 Q1160 440 1150 380 Q1200 430 1218 500 Q1224 420 1262 366 Q1268 440 1226 520 Z" fill="#15803d"/><path d="M1218 520 Q1190 470 1200 420 Q1230 470 1218 520Z" fill="#22c55e"/>';
   return s+'</svg>';
 }
+/* 🧁 qandolat do'koni foni (savdo mavzusi): peshlavha, javonlarda tort va keks, vitrina */
+function bgDokon(){
+  var u="d"+(++BGN), i;
+  var s='<svg class="bg" viewBox="0 0 1280 720" xmlns="http://www.w3.org/2000/svg"><defs>'+
+   '<linearGradient id="dw'+u+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fdf2f8"/><stop offset="1" stop-color="#fce7f3"/></linearGradient>'+
+   '<linearGradient id="gl'+u+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e0f2fe" stop-opacity=".9"/><stop offset="1" stop-color="#bae6fd" stop-opacity=".6"/></linearGradient></defs>'+
+   '<rect width="1280" height="520" fill="url(#dw'+u+')"/>';
+  for(i=0;i<20;i++) s+='<rect x="'+(i*66+20)+'" y="0" width="24" height="520" fill="#fbcfe8" opacity=".35"/>';
+  // peshlavha
+  s+='<rect x="430" y="34" width="420" height="92" rx="22" fill="#9d174d"/><rect x="444" y="48" width="392" height="64" rx="15" fill="none" stroke="#fbcfe8" stroke-width="3" stroke-dasharray="9 7"/>'+
+     '<text x="640" y="96" text-anchor="middle" font-family="Inter,sans-serif" font-size="40" font-weight="900" letter-spacing="3" fill="#ffffff">SHIRIN KUN</text>';
+  function cake(x,y,c1,c2){ return '<rect x="'+(x-36)+'" y="'+(y-42)+'" width="72" height="42" rx="9" fill="'+c1+'"/><rect x="'+(x-36)+'" y="'+(y-50)+'" width="72" height="14" rx="7" fill="'+c2+'"/>'+
+    '<path d="M'+(x-36)+' '+(y-30)+' q9 8 18 0 q9 8 18 0 q9 8 18 0 q9 8 18 0" stroke="'+c2+'" stroke-width="4" fill="none"/><circle cx="'+x+'" cy="'+(y-57)+'" r="7" fill="#dc2626"/>'; }
+  function cup(x,y,c){ return '<path d="M'+(x-17)+' '+(y-28)+' L'+(x+17)+' '+(y-28)+' L'+(x+12)+' '+y+' L'+(x-12)+' '+y+' Z" fill="#f59e0b"/>'+
+    '<circle cx="'+(x-9)+'" cy="'+(y-34)+'" r="11" fill="'+c+'"/><circle cx="'+(x+9)+'" cy="'+(y-34)+'" r="11" fill="'+c+'"/><circle cx="'+x+'" cy="'+(y-44)+'" r="12" fill="'+c+'"/><circle cx="'+x+'" cy="'+(y-58)+'" r="5" fill="#dc2626"/>'; }
+  // javonlar (chap va o'ng)
+  [[40,210],[40,330],[930,210],[930,330]].forEach(function(p){
+    var x=p[0], y=p[1];
+    s+='<rect x="'+x+'" y="'+y+'" width="310" height="14" rx="5" fill="#b45309"/><rect x="'+x+'" y="'+(y+14)+'" width="310" height="6" fill="#92400e" opacity=".5"/>';
+  });
+  s+=cake(110,210,"#fde68a","#f472b6")+cake(205,210,"#fef3c7","#a855f7")+cake(300,210,"#fecaca","#ffffff")+
+     cup(80,330,"#f9a8d4")+cup(140,330,"#c4b5fd")+cup(200,330,"#fde68a")+cup(260,330,"#f9a8d4")+cup(320,330,"#bbf7d0")+
+     cake(1000,210,"#fecaca","#ffffff")+cake(1095,210,"#fde68a","#f472b6")+cake(1190,210,"#fef3c7","#a855f7")+
+     cup(970,330,"#bbf7d0")+cup(1030,330,"#f9a8d4")+cup(1090,330,"#c4b5fd")+cup(1150,330,"#fde68a")+cup(1210,330,"#f9a8d4");
+  // vitrina (orqada)
+  s+='<rect x="400" y="300" width="480" height="220" rx="16" fill="#fde7f3" stroke="#f9a8d4" stroke-width="4"/>'+
+     '<rect x="414" y="314" width="452" height="120" rx="10" fill="url(#gl'+u+')"/>'+
+     cake(500,420,"#fde68a","#f472b6")+cake(640,420,"#fecaca","#ffffff")+cake(780,420,"#fef3c7","#a855f7")+
+     '<rect x="414" y="430" width="452" height="8" fill="#f9a8d4"/><rect x="400" y="440" width="480" height="80" rx="10" fill="#be185d"/>'+
+     '<text x="640" y="490" text-anchor="middle" font-family="Inter,sans-serif" font-size="24" font-weight="800" fill="#fce7f3">TORT · KEKS · SHIRINLIK</text>';
+  // pol
+  s+='<rect y="516" width="1280" height="204" fill="#fef9c3"/><rect y="516" width="1280" height="8" fill="#d6a45a"/>';
+  for(i=0;i<16;i++) for(var j=0;j<5;j++) if((i+j)%2) s+='<rect x="'+(i*80)+'" y="'+(524+j*40)+'" width="80" height="40" fill="#fde68a" opacity=".7"/>';
+  return s+'</svg>';
+}
 /* qabul stoli (xostes) yoki mehmon stoli */
 function prop(kind){
   if(kind==="stand") return '<svg class="bg" viewBox="0 0 1280 720"><rect x="586" y="452" width="108" height="170" rx="10" fill="#7c2d12"/><rect x="574" y="436" width="132" height="24" rx="8" fill="#5b1d0f"/>'+
@@ -331,12 +376,12 @@ function shownAt(sc,key){
   var at=null; (sc.lines||[]).forEach(function(l){ var k=(l.on||[]).indexOf(key); if(at==null&&k>=0) at=l.at+k*.32; });
   return at==null?.6:at;
 }
-function chip(F){ return '<div class="chip"><i>'+em("🍽️")+'</i>'+esc(F.kurs||"Restoran xizmati")+'<small>'+F.n+'-mavzu</small></div>'; }
+function chip(F){ return '<div class="chip"><i>'+em(F.icon||"🍽️")+'</i>'+esc(F.kurs||"Restoran xizmati")+'<small>'+F.n+'-mavzu</small></div>'; }
 
 /* ======================= SAHNA TURLARI ======================= */
 var BUILD = {
   title: function(sc,F){
-    var fl=[["🍽️",900,96,.9],["🥗",1110,230,1.2],["☕",860,470,1.5],["🧾",1130,520,1.8]];
+    var fl=F.floats||[["🍽️",900,96,.9],["🥗",1110,230,1.2],["☕",860,470,1.5],["🧾",1130,520,1.8]];
     return '<div class="ring"></div><div class="ring two"></div>'+
       '<div class="kurs">'+esc(F.kursTo||"RESTORAN XODIMLARI MALAKASINI OSHIRISH · RS 24")+'</div><div class="num">'+F.n+'-mavzu</div>'+
       '<h1>'+rich(sc.title)+'</h1><p>'+rich(sc.sub||"")+'</p>'+
@@ -344,7 +389,7 @@ var BUILD = {
       '<div class="actor big" data-who="H" style="right:150px;bottom:14px">'+person(sc.host||"aziz","wave",-1)+'</div>';
   },
   dialog: function(sc,F){
-    var L=sc.left||{}, R=sc.right||{}, h=bgZal()+prop(sc.prop)+chip(F);
+    var L=sc.left||{}, R=sc.right||{}, h=((sc.bg||F.bg)==="dokon"?bgDokon():bgZal())+prop(sc.prop)+chip(F);
     if(L.who) h+='<div class="actor'+(sc.enter==="L"?" walkL":"")+'" data-who="L" style="left:'+(L.x||190)+'px">'+person(L.who,L.pose||"stand",1)+'</div>';
     if(R.who) h+='<div class="actor'+(sc.enter==="R"?" walkR":"")+'" data-who="R" style="right:'+(R.x||190)+'px">'+person(R.who,R.pose||"stand",-1)+'</div>';
     (sc.lines||[]).forEach(function(l){

@@ -1,4 +1,4 @@
-/* Mahalliy sahna serveri. Faqat animatsiya sahnasi va r1–r12 ssenariylari beriladi. */
+/* Mahalliy sahna serveri. Faqat animatsiya sahnasi, r1–r12 (restoran) va m1–m15 (Tadbirkorlik asoslari) ssenariylari beriladi. */
 const http = require("node:http");
 const fs = require("node:fs/promises");
 const path = require("node:path");
@@ -10,7 +10,7 @@ exports.startPreview = async function () {
       !["GET", "HEAD"].includes(req.method) ||
       !(
         /^\/sahna\.html$/.test(name) ||
-        /^\/ssenariy\/r(?:[1-9]|1[0-2])\.js$/.test(name)
+        /^\/ssenariy\/(?:r(?:[1-9]|1[0-2])|m(?:[1-9]|1[0-5]))\.js$/.test(name)
       )
     ) {
       res.writeHead(404);

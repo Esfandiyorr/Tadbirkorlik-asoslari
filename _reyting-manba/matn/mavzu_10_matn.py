@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
-"""M10 · Savdo jarayonini tashkil etish va mijozlar bilan ishlash — slaydlar va test (yangi_mavzu.py uchun).
-T, d, slide — yangi_mavzu.py beradi.  Ishlatish:
-  python3 _reyting-manba/yangi_mavzu.py _reyting-manba/matn/mavzu_10_matn.py mavzu-10.html "Savdo jarayonini tashkil etish va mijozlar bilan ishlash" 10
+"""M10 · Savdo jarayonini tashkil etish va mijozlar bilan ishlash — slaydlar va test (21 slayd: sodda tilda, to'liq suhbat
+namunasi va animatsion video bilan) (yangi_mavzu.py uchun).
+T, d, slide — yangi_mavzu.py beradi.  Ishlatish (shablon — mavzuning o'zi, dvigatel o'zgarmasin):
+  python3 _reyting-manba/yangi_mavzu.py _reyting-manba/matn/mavzu_10_matn.py mavzu-10.html "Savdo jarayonini tashkil etish va mijozlar bilan ishlash" 10 "" mavzu-10.html
+Video: fayllar/video/M10.mp4 (manba — _reyting-manba/video/ssenariy/m10.js).
 """
 
 def E(tag, uz, en, attr=""):
@@ -31,6 +33,13 @@ def table(heads, rows):
 def stat(num, uz, en, cls=""):
     return '<div class="stat ' + cls + '"><div class="num">' + num + '</div>' + E("p", uz, en) + '</div>'
 
+def oddiy(uz, en):
+    """💡 «Oddiy tilda» — har slayddagi asosiy fikr bir-ikki gapda."""
+    return E("div", "💡 <b>Oddiy tilda:</b> " + uz, "💡 <b>In plain words:</b> " + en, 'class="quote" style="margin-top:12px"')
+
+G = lambda x: '<span class="grad">' + x + '</span>'
+VIDEO = "fayllar/video/M10"
+
 
 # ============================ 1. MUQOVA ============================
 slide("Muqova", "Cover",
@@ -38,326 +47,391 @@ slide("Muqova", "Cover",
  '<div class="big-logo terdu-logo" role="img" aria-label="Termiz davlat universiteti logotipi"></div><div>' +
  E("span", "M10-mavzu · Amaliy mashg'ulot · 2 soat", "Topic 10 · Practical class · 2 hours", 'class="kicker"') +
  E("h1", "SAVDO JARAYONINI TASHKIL ETISH VA MIJOZLAR BILAN ISHLASH", "ORGANISING THE SALES PROCESS AND WORKING WITH CUSTOMERS", 'class="grad"') +
- E("p", "Savdo — tasodif emas, <b>qadamlar ketma-ketligi</b> · mijoz ehtiyojini aniqlash · e'tirozlar bilan ishlash · savdoni hisoblash · mijozni saqlab qolish.",
-   "Selling is not luck but <b>a sequence of steps</b> · finding out the customer's need · handling objections · counting sales · keeping the customer.", 'class="lead"') +
+ E("p", "Savdo — omad emas, <b>7 ta oddiy qadam</b>: mijozni topish, salomlashish, so'rash, taklif qilish, savollarga javob berish, kelishish va aloqada qolish.",
+   "Selling is not luck but <b>7 simple steps</b>: find the customer, greet, ask, offer, answer questions, agree and stay in touch.", 'class="lead"') +
  '<div class="meta">' +
  E("div", "📚 Fan: <b>Tadbirkorlik asoslari</b>", "📚 Course: <b>Fundamentals of Entrepreneurship</b>") +
  E("div", "🎓 <b>Termiz davlat universiteti</b>", "🎓 <b>Termez State University</b>") +
- E("div", "🗂 <b>18</b> slayd · <b>15</b> ta test", "🗂 <b>18</b> slides · <b>15</b> tests") +
+ E("div", "🗂 <b>21</b> slayd · <b>15</b> ta test · 🎬 video", "🗂 <b>21</b> slides · <b>15</b> tests · 🎬 video") +
  E("div", "⌨️ <b>→</b> tugmasi bilan davom eting", "⌨️ Press <b>→</b> to continue") +
  '</div></div></div>')
 
 # ============================ 2. MAQSAD ============================
 slide("Maqsad va natijalar", "Aims and outcomes",
  E("span", "Mashg'ulotning maqsadi", "Aim of the class", 'class="kicker"') +
- E("h2", "Mashg'ulot yakunida talaba <span class=\"grad\">nimani qila oladi?</span>", "By the end of the class the student <span class=\"grad\">can:</span>") +
- E("div", "Maqsad: talaba savdoni <b>tartibli jarayon</b> sifatida tashkil etishni — mijozni topishdan qayta xaridgacha — hamda mijoz bilan <b>ishonchli va halol</b> muloqot qilishni o'rganadi.",
-   "Aim: the student learns to organise selling as an <b>orderly process</b> — from finding a customer to a repeat purchase — and to talk with customers in a <b>trusting and honest</b> way.", 'class="def"') +
+ E("h2", "Bugun nimani " + G("o'rganamiz?"), "What will we " + G("learn today?")) +
+ E("div", "Maqsad: mijoz bilan qanday gaplashishni, uni qanday tinglashni va <b>halol yo'l bilan</b> qanday sotishni — birinchi salomdan qayta xaridgacha — qadamma-qadam o'rganish.",
+   "Aim: to learn step by step how to talk to a customer, how to listen and how to sell <b>honestly</b> — from the first hello to a repeat purchase.", 'class="def"') +
  '<div class="grid g3" style="margin-top:16px">' +
- card("green", "🪜", "Jarayonni quradi", "Builds the process", "Savdoni 7 bosqichga bo'lib, har bosqichda nima qilishni biladi.", "Splits selling into 7 steps and knows what to do at each step.") +
- card("blue", "❓", "Ehtiyojni aniqlaydi", "Finds the need", "Ochiq savollar bilan mijoz nimani xohlashini va nega kerakligini bilib oladi.", "Uses open questions to learn what the customer wants and why.") +
- card("violet", "🎁", "Taklif beradi", "Makes an offer", "Mahsulotning xususiyatini mijoz foydasiga aylantirib, 2–3 variant taklif qiladi.", "Turns product features into customer benefits and offers 2–3 options.") +
- card("orange", "🛡", "E'tirozga javob beradi", "Answers objections", "«Qimmat», «o'ylab ko'raman» kabi gaplarga bosimsiz va asosli javob beradi.", "Answers “too expensive” or “I will think about it” without pressure and with reasons.") +
- card("pink", "📊", "Savdoni hisoblaydi", "Counts sales", "Konversiya, o'rtacha chek va tushumni hisoblab, qayerda yo'qotayotganini topadi.", "Calculates conversion, average order and revenue and finds where sales are lost.") +
- card("cyan", "🤝", "Mijozni saqlaydi", "Keeps the customer", "Qayta xarid va tavsiya uchun mijoz bilan aloqani yo'lga qo'yadi.", "Sets up contact with customers for repeat purchases and referrals.") +
+ card("green", "🪜", "7 qadamni bilaman", "I know the 7 steps", "Savdo qaysi qadamlardan iboratligini va har birida nima qilishni aytib bera olaman.", "I can name the steps of a sale and say what to do at each one.") +
+ card("blue", "❓", "To'g'ri so'rayman", "I ask the right way", "Mijozga savol berib, unga aslida nima kerakligini bilib olaman.", "I ask questions and learn what the customer really needs.") +
+ card("violet", "🎁", "Foydani aytaman", "I explain the benefit", "Mahsulotni «bu sizga nima beradi?» degan til bilan taklif qilaman.", "I present the product in the language of “what does it give you?”.") +
+ card("orange", "🛡", "«Qimmat»ga javob beraman", "I answer “too expensive”", "E'tirozdan qo'rqmayman: bahslashmasdan, sabab va variant bilan javob beraman.", "I am not afraid of objections: I answer with reasons and options, without arguing.") +
+ card("pink", "🧮", "Savdoni hisoblayman", "I count sales", "100 kishidan nechtasi sotib olganini va oylik tushumni hisoblay olaman.", "I can count how many of 100 people bought and the monthly revenue.") +
+ card("cyan", "🤝", "Mijozni saqlayman", "I keep the customer", "Xariddan keyin ham aloqada bo'lib, mijozni qayta qaytaraman.", "I stay in touch after the sale and bring the customer back.") +
  '</div>')
 
-# ============================ 3. REJA ============================
-slide("Reja va tushunchalar", "Plan and concepts",
+# ============================ 3. REJA VA LUG'AT ============================
+slide("Reja va lug'at", "Plan and glossary",
  E("span", "Mashg'ulot rejasi", "Class plan", 'class="kicker"') +
- E("h2", "Bugungi <span class=\"grad\">4 ta blok</span>", "Today's <span class=\"grad\">4 blocks</span>") +
+ E("h2", "4 ta blok va " + G("8 ta yangi so'z"), "4 blocks and " + G("8 new words")) +
  '<div class="grid g4">' +
- card("green", "1️⃣", "Savdo jarayoni", "The sales process", "7 bosqich, mijozlarni yozib borish, birinchi aloqa.", "7 steps, recording customers, the first contact.") +
- card("blue", "2️⃣", "Muloqot", "Conversation", "Ehtiyojni aniqlash, taklif, e'tirozlar, kelishuv.", "Finding the need, the offer, objections, the deal.") +
- card("violet", "3️⃣", "Raqamlar", "The numbers", "Konversiya, o'rtacha chek, tushum, mijoz qiymati.", "Conversion, average order, revenue, customer value.") +
- card("orange", "4️⃣", "Mijoz bilan uzoq aloqa", "Long-term relations", "Qayta xarid, B2B savdo, qiyin mijoz, o'lchash.", "Repeat purchases, B2B sales, difficult customers, measuring.") +
- '</div>' + E("h3", "🔑 Tayanch tushunchalar", "🔑 Key concepts", 'style="margin-top:22px"') +
- E("div",
-   '<span class="pill g">savdo jarayoni</span><span class="pill g">lid (potensial mijoz)</span><span class="pill">birinchi aloqa</span><span class="pill g">ehtiyojni aniqlash</span>'
-   '<span class="pill g">SPIN savollari</span><span class="pill g">FAB (xususiyat-afzallik-foyda)</span><span class="pill">e\'tiroz</span><span class="pill">kelishuvni yopish</span>'
-   '<span class="pill g">konversiya</span><span class="pill g">o\'rtacha chek</span><span class="pill">upsell</span><span class="pill">cross-sell</span>'
-   '<span class="pill">qayta xarid</span><span class="pill g">NPS</span><span class="pill">B2C va B2B</span><span class="pill">mijozni yo\'qotish (churn)</span>'
-   '<span class="pill">mijozlar bazasi (CRM)</span>',
-   '<span class="pill g">sales process</span><span class="pill g">lead (prospect)</span><span class="pill">first contact</span><span class="pill g">needs discovery</span>'
-   '<span class="pill g">SPIN questions</span><span class="pill g">FAB (feature-advantage-benefit)</span><span class="pill">objection</span><span class="pill">closing the deal</span>'
-   '<span class="pill g">conversion</span><span class="pill g">average order value</span><span class="pill">upsell</span><span class="pill">cross-sell</span>'
-   '<span class="pill">repeat purchase</span><span class="pill g">NPS</span><span class="pill">B2C and B2B</span><span class="pill">customer churn</span>'
-   '<span class="pill">customer database (CRM)</span>'))
+ card("green", "1️⃣", "Savdo jarayoni", "The sales process", "7 qadam, mijozlarni yozib borish, birinchi salom.", "7 steps, recording customers, the first hello.") +
+ card("blue", "2️⃣", "Suhbat", "The conversation", "Savol berish, taklif, «qimmat»ga javob, kelishuv.", "Asking, the offer, answering “too expensive”, the deal.") +
+ card("violet", "3️⃣", "Raqamlar", "The numbers", "100 kishidan nechtasi sotib oldi va qancha pul tushdi.", "How many of 100 people bought and how much money came in.") +
+ card("orange", "4️⃣", "Mijoz bilan do'stlik", "Long-term relations", "Qayta xarid, korxonalarga sotish, qiyin mijoz.", "Repeat purchases, selling to businesses, difficult customers.") +
+ '</div>' + E("h3", "📖 Yangi so'zlar — oddiy tilda", "📖 New words — in plain language", 'style="margin-top:18px"') +
+ table([("So'z", "Word"), ("Ma'nosi", "Meaning"), ("Misol", "Example")], [
+  [TD("<b>Lid</b>", "<b>Lead</b>"), TD("Qiziqish bildirgan, lekin hali sotib olmagan odam", "Someone interested who has not bought yet"), TD("Instagramda «narxi qancha?» deb yozgan qiz", "A girl who wrote “how much?” on Instagram")],
+  [TD("<b>Konversiya</b>", "<b>Conversion</b>"), TD("Qiziqqanlardan necha foizi sotib oldi", "What share of interested people bought"), TD("100 kishi yozdi, 20 tasi oldi → 20%", "100 people wrote, 20 bought → 20%")],
+  [TD("<b>O'rtacha chek</b>", "<b>Average order</b>"), TD("Bitta xaridor o'rtacha qancha pul to'laydi", "How much one buyer pays on average"), TD("20 ta buyurtma = 5 mln → 250 000 so'm", "20 orders = 5 mln → 250,000 so'm")],
+  [TD("<b>E'tiroz</b>", "<b>Objection</b>"), TD("Mijozning shubhasi yoki «lekin»i", "The customer's doubt or “but”"), TD("«Qimmat ekan», «O'ylab ko'raman»", "“It is expensive”, “I will think”")],
+  [TD("<b>Upsell</b>", "<b>Upsell</b>"), TD("Kattaroq yoki yaxshiroq variantni taklif qilish", "Offering a bigger or better version"), TD("2 kg o'rniga 3 kg tort", "A 3 kg cake instead of 2 kg")],
+  [TD("<b>Cross-sell</b>", "<b>Cross-sell</b>"), TD("Unga mos qo'shimcha mahsulot", "A matching extra product"), TD("Tortga shamlar va quti", "Candles and a box for the cake")],
+  [TD("<b>Qayta xarid</b>", "<b>Repeat purchase</b>"), TD("Mijoz yana qaytib kelib sotib olishi", "The customer comes back and buys again"), TD("Keyingi tug'ilgan kunga yana buyurtma", "Another order for the next birthday")],
+  [TD("<b>NPS</b>", "<b>NPS</b>"), TD("Mijozlar bizni do'stiga qanchalik tavsiya qiladi (ball)", "How much customers recommend us (a score)"), TD("«0 dan 10 gacha baholang»", "“Rate us from 0 to 10”", "g")]]))
 
-# ============================ 4. SAVDO JARAYONI ============================
+# ============================ 4. SAVDO NIMA? ============================
+slide("Savdo nima?", "What is selling?",
+ E("span", "Kirish · Hayotiy misol", "Introduction · A real-life example", 'class="kicker"') +
+ E("h2", "Savdo — aldash emas, " + G("yordam berish"), "Selling is not tricking but " + G("helping")) +
+ E("div", "Savdo — mijozning muammosini hal qiladigan mahsulotni topib berish va buning uchun haq olish. Yaxshi sotuvchi keraksiz narsani tiqishtirmaydi — u mijozga <b>to'g'ri tanlov qilishga yordam beradi</b>.",
+   "Selling means finding the product that solves the customer's problem and being paid for it. A good seller does not push useless things — they <b>help the customer choose well</b>.", 'class="def"') +
+ '<div class="grid g2" style="margin-top:14px">' +
+ '<div class="card" style="--c:var(--orange)"><span class="icon">🎂</span>' + E("h3", "Hikoya: «Shirin kun» qandolati", "Story: the “Shirin kun” bakery") +
+ E("p", "Nilufar Termizda uyda tort pishiradi va Instagram orqali sotadi. Bir oyda unga <b>100 kishi</b> yozadi, lekin faqat <b>20 tasi</b> buyurtma beradi. Qolgan 80 kishi qayerga ketdi?",
+   "Nilufar bakes cakes at home in Termez and sells them on Instagram. In a month <b>100 people</b> write to her but only <b>20</b> order. Where did the other 80 go?") +
+ '<ul class="tick cross">' + E("li", "Javob 3 soatdan keyin yozildi — mijoz boshqa joydan oldi.", "The reply came 3 hours later — the customer bought elsewhere.") +
+ E("li", "Darrov narx aytildi, nima kerakligi so'ralmadi.", "The price came at once; nobody asked what was needed.") +
+ E("li", "«Qimmat» deyishganda Nilufar xafa bo'lib, jim qoldi.", "When people said “too expensive”, Nilufar got upset and said nothing.") + '</ul>' +
+ E("small", "«Shirin kun» va Nilufar — o'quv uchun o'ylab topilgan misol. Mavzu oxirigacha shu qandolat va uning raqamlari ishlatiladi.", "“Shirin kun” and Nilufar are a made-up teaching example. The same bakery and its numbers are used to the end of the topic.", 'class="note"') + '</div>' +
+ '<div>' + card_ul("green", "🔗", "Oldingi mavzular bilan bog'liqlik", "Links to earlier topics", [
+  ("<b>7-mavzu</b> (CRM) mijozlarni <b>yozib borishni</b> o'rgatdi.", "<b>Topic 7</b> (CRM) taught how to <b>keep records</b> of customers."),
+  ("<b>8-mavzu</b> (reklama) mijozni sizga <b>olib keladi</b>.", "<b>Topic 8</b> (advertising) <b>brings</b> the customer to you."),
+  ("<b>10-mavzu</b> (savdo) kelgan odamni <b>xaridorga aylantiradi</b>.", "<b>Topic 10</b> (selling) <b>turns</b> that person into a buyer."),
+  ("<b>11-mavzu</b> (narx) to'g'ri narxni qanday qo'yishni o'rgatadi.", "<b>Topic 11</b> (pricing) teaches how to set the right price.")], "tick") +
+ '<div class="card" style="--c:var(--blue);margin-top:12px"><span class="icon">🎯</span>' + E("h3", "Bugungi savol", "Today's question") +
+ E("p", "Qanday qilsak, 100 kishidan 20 tasi emas, <b>25–30 tasi</b> sotib oladi — hech kimni aldamasdan?",
+   "What can we do so that <b>25–30</b> of 100 people buy instead of 20 — without tricking anyone?") + '</div></div></div>')
+
+# ============================ 5. SAVDO JARAYONI ============================
 slide("Savdo jarayoni: 7 qadam", "The sales process: 7 steps",
  E("span", "1-blok · Jarayon", "Block 1 · The process", 'class="kicker"') +
- E("h2", "Savdo — <span class=\"grad\">7 qadamli yo'l</span>", "Selling is <span class=\"grad\">a 7-step path</span>") +
- E("div", "Yaxshi sotuvchi «ilhom»ga emas, <b>tartibga</b> tayanadi. Har bosqichning o'z maqsadi bor — keyingi bosqichga o'tish uchun nima qilish kerakligini bilsangiz, mijoz yo'qolmaydi.",
-   "A good seller relies on <b>order</b>, not “inspiration”. Every step has its own aim — if you know what it takes to reach the next step, you will not lose the customer.", 'class="def"') +
+ E("h2", "Savdo — " + G("7 qadamli yo'l"), "Selling is " + G("a 7-step path")) +
+ E("div", "Har qadamning o'z vazifasi bor. Qadamni tashlab ketsangiz, mijoz ham ketib qoladi. Misollar — Nilufarning «Shirin kun» qandolatidan.",
+   "Every step has its own job. Skip a step and the customer leaves too. The examples come from Nilufar's “Shirin kun” bakery.", 'class="def"') +
  '<div class="chain" style="margin-top:14px">' +
- '<div class="link l1">' + E("h3", "1. Mijoz topish", "1. Find customers") + E("p", "Reklama, tavsiya, ko'cha, do'kon — lid yig'iladi.", "Advertising, referrals, walk-ins — leads are collected.") + '</div>' +
- '<div class="link l2">' + E("h3", "2. Birinchi aloqa", "2. First contact") + E("p", "Salomlashish, o'zingizni tanishtirish, muloqotni boshlash.", "Greeting, introducing yourself, starting the talk.") + '</div>' +
- '<div class="link l3">' + E("h3", "3. Ehtiyoj", "3. Need") + E("p", "Savol berib, mijoz nimani va nega xohlashini aniqlash.", "Asking questions to learn what the customer wants and why.") + '</div>' +
- '<div class="link l4">' + E("h3", "4. Taklif", "4. Offer") + E("p", "Ehtiyojga mos 2–3 variant va aniq narx.", "2–3 options that fit the need, with a clear price.") + '</div></div>' +
+ '<div class="link l1">' + E("h3", "1. Mijozni topish", "1. Find the customer") + E("p", "Instagram, tanishlar tavsiyasi, bozor. <i>Misol: tort rasmini joylash.</i>", "Instagram, friends' referrals, the market. <i>Example: posting a cake photo.</i>") + '</div>' +
+ '<div class="link l2">' + E("h3", "2. Salomlashish", "2. Greet") + E("p", "Tez va iliq javob, o'zingizni tanishtirish. <i>«Assalomu alaykum, men Nilufar!»</i>", "A quick, warm reply and introducing yourself. <i>“Hello, I am Nilufar!”</i>") + '</div>' +
+ '<div class="link l3">' + E("h3", "3. So'rash", "3. Ask") + E("p", "Nima va nega kerakligini bilish. <i>«Qanday tadbirga? Necha kishi?»</i>", "Find out what is needed and why. <i>“What event? How many people?”</i>") + '</div>' +
+ '<div class="link l4">' + E("h3", "4. Taklif qilish", "4. Offer") + E("p", "Ehtiyojga mos 2–3 variant va aniq narx.", "2–3 options that fit the need and a clear price.") + '</div></div>' +
  '<div class="chain" style="margin-top:10px">' +
- '<div class="link l4">' + E("h3", "5. E'tirozlar", "5. Objections") + E("p", "Shubha va savollarga halol, bosimsiz javob.", "Honest, pressure-free answers to doubts and questions.") + '</div>' +
- '<div class="link l3">' + E("h3", "6. Kelishuv", "6. The deal") + E("p", "Narx, muddat, to'lov va keyingi qadam — aniq kelishiladi.", "Price, time, payment and the next step are agreed clearly.") + '</div>' +
- '<div class="link l2">' + E("h3", "7. Kuzatish", "7. Follow-up") + E("p", "Xarid keyin: «hammasi joyidami?», qayta taklif, tavsiya.", "After purchase: “is everything fine?”, a new offer, a referral.") + '</div></div>' +
- E("div", "📌 <b>Eng ko'p xato:</b> 2-qadamdan to'g'ri 4-qadamga sakrash — mijoz nima xohlashini bilmasdan taklif berish. Natija: «qimmat» yoki «o'ylab ko'raman».",
-   "📌 <b>The most common mistake:</b> jumping from step 2 straight to step 4 — making an offer without knowing what the customer wants. The result: “too expensive” or “I will think about it”.", 'class="quote" style="margin-top:12px"'))
+ '<div class="link l4">' + E("h3", "5. Savollarga javob", "5. Answer doubts") + E("p", "«Qimmat», «o'ylab ko'raman» — bahslashmasdan javob.", "“Too expensive”, “I will think” — answer without arguing.") + '</div>' +
+ '<div class="link l3">' + E("h3", "6. Kelishish", "6. Agree") + E("p", "Kun, soat, narx, to'lov — aniq kelishiladi.", "Day, time, price, payment — agreed clearly.") + '</div>' +
+ '<div class="link l2">' + E("h3", "7. Aloqada qolish", "7. Stay in touch") + E("p", "«Tort yoqdimi?» — fikr so'rash, keyingi taklif.", "“Did you like the cake?” — ask for feedback, a new offer.") + '</div></div>' +
+ E("div", "📌 <b>Eng ko'p uchraydigan xato:</b> 2-qadamdan to'g'ri 4-qadamga sakrash — mijozga nima kerakligini so'ramay, darrov narx aytish. Natija: «qimmat ekan» yoki «o'ylab ko'raman».",
+   "📌 <b>The most common mistake:</b> jumping from step 2 straight to step 4 — naming the price without asking what the customer needs. The result: “too expensive” or “I will think about it”.", 'class="quote" style="margin-top:12px"'))
 
-# ============================ 5. MIJOZLARNI YOZIB BORISH ============================
-slide("Lidlarni yozib borish", "Recording leads",
- E("span", "1.2 · Mijozlar bazasi", "1.2 · The customer database", 'class="kicker"') +
- E("h2", "Yozilmagan mijoz — <span class=\"grad\">yo'qolgan mijoz</span>", "An unrecorded customer is <span class=\"grad\">a lost customer</span>") +
- E("div", "Savdo kuchayganda hammasini yodda saqlab bo'lmaydi. Har bir so'rovni <b>oddiy jadvalga</b> yozing: kim, qayerdan keldi, nima qiziqtirdi, hozir qaysi qadamda va keyingi aloqa qachon.",
-   "As sales grow you cannot keep everything in your head. Write every enquiry into <b>a simple table</b>: who, where from, what they were interested in, which step they are at and when to contact them next.", 'class="def"') +
+# ============================ 6. MIJOZLARNI YOZIB BORISH ============================
+slide("Mijozlarni yozib borish", "Recording customers",
+ E("span", "1.2 · Mijozlar jadvali", "1.2 · The customer table", 'class="kicker"') +
+ E("h2", "Yozilmagan mijoz — " + G("yo'qolgan mijoz"), "An unrecorded customer is " + G("a lost customer")) +
+ E("div", "<b>Lid</b> — sizga yozgan, qo'ng'iroq qilgan yoki narx so'ragan, lekin hali sotib olmagan odam. Har bir lidni <b>oddiy jadvalga</b> yozing: kim, qayerdan keldi, qaysi qadamda turibdi, unga qachon yana yozasiz.",
+   "A <b>lead</b> is someone who wrote, called or asked the price but has not bought yet. Write every lead into <b>a simple table</b>: who, where from, which step they are at, when you will write again.", 'class="def"') +
  '<div class="grid g2" style="margin-top:14px"><div style="min-width:0">' +
- '<div class="card" style="--c:var(--blue)">' + E("h3", "📒 Oddiy mijozlar jadvali (namuna)", "📒 A simple customer table (sample)") +
- table([("Mijoz", "Customer"), ("Manba", "Source"), ("Qadam", "Step"), ("Keyingi aloqa", "Next contact")], [
+ '<div class="card" style="--c:var(--blue)">' + E("h3", "📒 Nilufarning jadvali (namuna)", "📒 Nilufar's table (sample)") +
+ table([("Mijoz", "Customer"), ("Qayerdan", "Source"), ("Qaysi qadamda", "Step"), ("Keyingi aloqa", "Next contact")], [
   [TD("Dilnoza", "Dilnoza"), TD("Instagram", "Instagram"), TD("Taklif berildi", "Offer made"), TD("Ertaga 10:00", "Tomorrow 10:00")],
-  [TD("Bobur", "Bobur"), TD("Do'stidan tavsiya", "A friend's referral"), TD("Ehtiyoj aniqlanmoqda", "Finding the need"), TD("Bugun 17:00", "Today 17:00")],
+  [TD("Bobur", "Bobur"), TD("Do'stining tavsiyasi", "A friend's referral"), TD("Savol berilmoqda", "Asking questions"), TD("Bugun 17:00", "Today 17:00")],
   [TD("Kafe «Bahor»", "Café “Bahor”"), TD("Telegram", "Telegram"), TD("Kelishuv", "The deal"), TD("Juma", "Friday")],
-  [TD("Malika", "Malika"), TD("Instagram", "Instagram"), TD("E'tiroz: narx", "Objection: price"), TD("2 kundan keyin", "In 2 days")],
-  [TD("Sardor", "Sardor"), TD("Ko'chadan kirdi", "Walked in"), TD("Sotib oldi", "Bought"), TD("1 haftada fikr so'rash", "Feedback in 1 week", "g")]]) + '</div></div>' +
- '<div style="min-width:0">' + card_ul("green", "✅", "Jadval nimaga yordam beradi?", "How does the table help?", [
-  ("Kim bilan qachon gaplashishni <b>unutmaysiz</b>.", "You <b>do not forget</b> whom to talk to and when."),
-  ("Qaysi manbadan <b>ko'proq mijoz</b> kelayotganini ko'rasiz.", "You see which source brings <b>more customers</b>."),
-  ("Mijoz qaysi qadamda to'xtab qolayotgani ayon bo'ladi.", "It becomes clear at which step customers stall."),
-  ("Hamkor yoki xodim ishga qo'shilsa, ma'lumot tayyor turadi.", "If a partner or employee joins, the information is ready.")], "tick") +
- E("small", "Mijozlarning telefon va shaxsiy ma'lumotini faqat ularning roziligi bilan va faqat ish uchun saqlang; uchinchi shaxsga bermang.",
-   "Keep customers' phone numbers and personal data only with their consent and only for work; never pass them to third parties.", 'class="note"') +
+  [TD("Malika", "Malika"), TD("Instagram", "Instagram"), TD("«Qimmat» dedi", "Said “too expensive”"), TD("2 kundan keyin", "In 2 days")],
+  [TD("Sardor", "Sardor"), TD("O'zi kirib keldi", "Walked in"), TD("Sotib oldi ✅", "Bought ✅"), TD("1 haftadan keyin fikr so'rash", "Ask for feedback in 1 week", "g")]]) + '</div></div>' +
+ '<div style="min-width:0">' + card_ul("green", "✅", "Jadval nima beradi?", "What does the table give?", [
+  ("Kimga qachon yozishni <b>unutmaysiz</b>.", "You <b>do not forget</b> whom to write to and when."),
+  ("Qayerdan <b>ko'proq mijoz</b> kelayotganini ko'rasiz (Instagrammi, tavsiyami).", "You see where <b>more customers</b> come from (Instagram or referrals)."),
+  ("Mijozlar qaysi qadamda «to'xtab» qolayotgani ko'rinadi.", "You see at which step customers get stuck."),
+  ("Bu — 7-mavzudagi <b>CRM ning eng oddiy ko'rinishi</b>: telefondagi Google Sheets yoki daftar ham yetadi.", "This is the <b>simplest form of the CRM</b> from topic 7: Google Sheets on a phone or a notebook is enough.")], "tick") +
+ E("small", "Mijozning telefoni va boshqa shaxsiy ma'lumotini faqat uning roziligi bilan va faqat ish uchun saqlang; hech kimga bermang.",
+   "Keep a customer's phone number and other personal data only with their consent and only for work; never give it to anyone.", 'class="note"') +
  '</div></div>')
 
-# ============================ 6. BIRINCHI ALOQA ============================
+# ============================ 7. BIRINCHI ALOQA ============================
 slide("Birinchi aloqa", "The first contact",
  E("span", "1.3 · Birinchi taassurot", "1.3 · First impression", 'class="kicker"') +
- E("h2", "Birinchi 30 soniya: <span class=\"grad\">ishonchni qanday uyg'otish?</span>", "The first 30 seconds: <span class=\"grad\">how to win trust</span>") +
+ E("h2", "Birinchi 30 soniya: " + G("ishonchni qozonish"), "The first 30 seconds: " + G("winning trust")) +
  '<div class="grid g4">' +
- card("green", "😊", "Salom va ism", "Greeting and name", "Tabassum, salom, o'z ismingiz va do'koningiz nomi.", "A smile, a greeting, your name and the name of your business.") +
- card("blue", "👂", "Avval tinglang", "Listen first", "Darrov mahsulotni maqtamang — mijoz nimani izlayotganini so'rang.", "Do not start praising the product — ask what the customer is looking for.") +
- card("violet", "🎯", "Mijozning ismi", "The customer's name", "Ismi bilan murojaat qiling: «Dilnoza opa, tushundim...».", "Address them by name: “Dilnoza, I understand...”.") +
- card("orange", "⏱", "Tez javob", "A quick reply", "Onlayn yozishmada 15 daqiqa ichida javob bering.", "In online chats reply within 15 minutes.") +
+ card("green", "😊", "Salom va ism", "Hello and name", "Tabassum, salom, o'z ismingiz va biznesingiz nomi.", "A smile, a hello, your name and your business name.") +
+ card("blue", "👂", "Avval tinglang", "Listen first", "Darrov mahsulotni maqtamang — mijoz nima izlayotganini so'rang.", "Do not praise the product at once — ask what the customer is looking for.") +
+ card("violet", "🙋", "Ismi bilan murojaat", "Use their name", "«Dilnoza opa, tushundim...» — odam o'zini qadrli his qiladi.", "“Dilnoza, I see...” — people feel valued.") +
+ card("orange", "⏱", "Tez javob", "Reply fast", "Onlayn yozishmada <b>15 daqiqa</b> ichida javob bering.", "In online chats reply within <b>15 minutes</b>.") +
  '</div><div class="grid g2" style="margin-top:14px">' +
  '<div class="card" style="--c:var(--red)">' + E("h3", "❌ Yomon boshlanish", "❌ A weak start") +
- E("p", "«Nima kerak?» · «Narxi yozilgan, qarang» · «Hozir band edim, keyinroq yozing»", "“What do you want?” · “The price is written, look” · “I was busy, write later”", 'style="font-style:italic"') +
- '<ul class="tick cross">' + E("li", "Mijoz o'zini xalaqit beruvchi his qiladi", "The customer feels they are a nuisance") +
- E("li", "Ehtiyoj haqida bitta ham savol yo'q", "Not a single question about the need") + '</ul></div>' +
- '<div class="card" style="--c:var(--green)">' + E("h3", "✅ Yaxshi boshlanish (qandolat misoli)", "✅ A strong start (a bakery example)") +
- E("p", "«Assalomu alaykum! Men Nilufar, «Shirin kun» qandolatidan. Qanday tort izlayapsiz — tug'ilgan kun uchunmi yoki boshqa tadbirgami?»",
-   "“Hello! I am Nilufar from the “Shirin kun” bakery. What cake are you looking for — a birthday or another event?”", 'style="font-style:italic"') +
+ E("p", "«Nima kerak?» · «Narxi yozilgan, o'qing» · «Hozir bandman, keyin yozing»", "“What do you want?” · “The price is written, read it” · “I am busy, write later”", 'style="font-style:italic"') +
+ '<ul class="tick cross">' + E("li", "Mijoz o'zini ortiqcha odamdek his qiladi", "The customer feels unwanted") +
+ E("li", "Nima kerakligi haqida bitta ham savol yo'q", "Not a single question about what is needed") + '</ul></div>' +
+ '<div class="card" style="--c:var(--green)">' + E("h3", "✅ Yaxshi boshlanish", "✅ A strong start") +
+ E("p", "«Assalomu alaykum! Men Nilufar, «Shirin kun» qandolatidan. Tortni qanday tadbir uchun izlayapsiz — tug'ilgan kungami?»",
+   "“Hello! I am Nilufar from the “Shirin kun” bakery. What event is the cake for — a birthday?”", 'style="font-style:italic"') +
  '<ul class="tick">' + E("li", "Tanishuv + ochiq savol", "An introduction + an open question") +
- E("li", "Mijoz o'zi gapira boshlaydi", "The customer starts talking by themselves") + '</ul></div></div>' +
- E("small", "«Shirin kun» — o'quv uchun to'qib chiqarilgan shartli misol. Keyingi slaydlarda ham shu qandolat va uning raqamlari ishlatiladi.", "“Shirin kun” is a made-up teaching example. The following slides use the same bakery and its numbers.", 'class="note"'))
+ E("li", "Mijoz o'zi gapira boshlaydi", "The customer starts talking") + '</ul></div></div>' +
+ oddiy("odam sizdan sotib olishdan oldin <b>sizga ishonishi</b> kerak. Ishonch tez javob, salom va samimiy savoldan boshlanadi.",
+       "before people buy from you they must <b>trust you</b>. Trust starts with a quick reply, a hello and a sincere question."))
 
-# ============================ 7. EHTIYOJNI ANIQLASH ============================
-slide("Ehtiyojni aniqlash: SPIN", "Finding the need: SPIN",
- E("span", "2-blok · Muloqot", "Block 2 · Conversation", 'class="kicker"') +
- E("h2", "To'g'ri savol — <span class=\"grad\">yarim sotuv</span>", "The right question is <span class=\"grad\">half the sale</span>") +
- E("div", "<b>Ochiq savol</b> («nima uchun», «qanday», «qachon») mijozni gapirtiradi; <b>yopiq savol</b> («ha/yo'q») faqat tasdiqlash uchun. Ehtiyojni aniqlashda <b>SPIN</b> tartibi yaxshi ishlaydi.",
-   "An <b>open question</b> (“why”, “how”, “when”) makes the customer talk; a <b>closed question</b> (“yes/no”) is only for confirming. The <b>SPIN</b> order works well for finding the need.", 'class="def"') +
- table([("Savol turi", "Question type"), ("Maqsadi", "Purpose"), ("Misol (qandolat)", "Example (bakery)")], [
-  [TD("<b>S — Situation</b> (vaziyat)", "<b>S — Situation</b>"), TD("Hozirgi holatni bilish", "Learn the current situation"), TD("«Tadbir qachon va nechta mehmon bo'ladi?»", "“When is the event and how many guests will there be?”")],
-  [TD("<b>P — Problem</b> (muammo)", "<b>P — Problem</b>"), TD("Qiyinchilikni aniqlash", "Find the difficulty"), TD("«Oldin tortni qayerdan olgan edingiz, nima yoqmadi?»", "“Where did you get cakes before, what did you not like?”")],
-  [TD("<b>I — Implication</b> (oqibat)", "<b>I — Implication</b>"), TD("Muammo qanchalik jiddiy ekanini ko'rsatish", "Show how serious the problem is"), TD("«Tort kech kelsa, mehmonlar oldida nima bo'ladi?»", "“If the cake arrives late, what happens in front of the guests?”")],
-  [TD("<b>N — Need-payoff</b> (foyda)", "<b>N — Need-payoff</b>"), TD("Yechimning foydasini mijozning o'zi aytsin", "Let the customer name the benefit of the solution"), TD("«Aniq vaqtda, tayyor holda yetkazilsa, sizga qulay bo'ladimi?»", "“Would it help if it were delivered on time and ready?”", "g")]]) +
+# ============================ 8. EHTIYOJNI ANIQLASH ============================
+slide("Savol berish: 4 tur (SPIN)", "Asking: 4 kinds (SPIN)",
+ E("span", "2-blok · Suhbat", "Block 2 · The conversation", 'class="kicker"') +
+ E("h2", "To'g'ri savol — " + G("yarim sotuv"), "The right question is " + G("half the sale")) +
+ E("div", "<b>Ochiq savol</b> («qanday?», «nega?», «qachon?») — mijoz uzun javob beradi va o'zi gapiradi. <b>Yopiq savol</b> («ha» yoki «yo'q») — faqat aniqlashtirish uchun. Ochiq savollarni 4 tartibda berish qulay — buni qisqacha <b>SPIN</b> deyishadi.",
+   "An <b>open question</b> (“how?”, “why?”, “when?”) gets a long answer and the customer talks. A <b>closed question</b> (“yes” or “no”) is only for checking. It helps to ask open questions in 4 steps — called <b>SPIN</b> for short.", 'class="def"') +
+ table([("Savol turi", "Question type"), ("Nimani bilib olamiz?", "What do we learn?"), ("Misol (Nilufar so'raydi)", "Example (Nilufar asks)")], [
+  [TD("<b>S — Vaziyat</b>", "<b>S — Situation</b>"), TD("Hozir nima bo'lyapti?", "What is happening now?"), TD("«Tadbir qachon va necha kishi bo'ladi?»", "“When is the event and how many people?”")],
+  [TD("<b>P — Muammo</b>", "<b>P — Problem</b>"), TD("Nima yoqmayapti, nima qiyin?", "What is wrong or difficult?"), TD("«Oldin olgan tortingizda nima yoqmagan edi?»", "“What did you not like about your last cake?”")],
+  [TD("<b>I — Oqibat</b>", "<b>I — Implication</b>"), TD("Muammo hal bo'lmasa, nima bo'ladi?", "What if the problem is not solved?"), TD("«Tort kech kelsa, mehmonlar oldida nima bo'ladi?»", "“If the cake is late, what happens in front of the guests?”")],
+  [TD("<b>N — Foyda</b>", "<b>N — Need-payoff</b>"), TD("Yechim nima beradi? (buni mijoz o'zi aytadi)", "What will the solution give? (the customer says it)"), TD("«Tort aniq soatda kelsa, siz uchun qulay bo'ladimi?»", "“Would it help if the cake came exactly on time?”", "g")]]) +
  '<div class="grid g2" style="margin-top:14px">' +
- card("orange", "🧠", "Qoida: 70/30", "The 70/30 rule", "Muloqotning <b>70%</b>ini mijoz gapirsin, siz <b>30%</b>ini. Qancha ko'p tinglasangiz, shuncha aniq taklif berasiz.",
-      "The customer should speak for <b>70%</b> of the conversation and you for <b>30%</b>. The more you listen, the more accurate your offer.") +
- card("blue", "📝", "Eshitganingizni takrorlang", "Repeat what you heard", "«Tushunishimcha, 20 kishilik, shokoladli, shanba kuni, vaqti aniq kerak. To'g'rimi?» — mijoz sizni eshitganini his qiladi.",
-      "“If I understand, 20 people, chocolate, Saturday, an exact time. Right?” — the customer feels heard.") + '</div>')
+ card("orange", "🧠", "70/30 qoidasi", "The 70/30 rule", "Suhbatning <b>70%</b>ida mijoz gapirsin, <b>30%</b>ida siz. Ko'p tinglagan sotuvchi aniqroq taklif beradi.",
+      "The customer talks <b>70%</b> of the time and you <b>30%</b>. A seller who listens more makes a more accurate offer.") +
+ card("blue", "🔁", "Eshitganingizni qaytaring", "Repeat what you heard", "«Demak, 20 kishi, shokoladli, shanba kuni soat 18:00 da. To'g'rimi?» — mijoz sizni eshitganingizni ko'radi.",
+      "“So: 20 people, chocolate, Saturday at 18:00. Right?” — the customer sees that you listened.") + '</div>')
 
-# ============================ 8. TAKLIF ============================
-slide("Taklif: FAB va 3 variant", "The offer: FAB and 3 options",
+# ============================ 9. TAKLIF ============================
+slide("Taklif: foydani ayting", "The offer: say the benefit",
  E("span", "2.2 · Taklif berish", "2.2 · Making the offer", 'class="kicker"') +
- E("h2", "Xususiyatni <span class=\"grad\">foydaga aylantiring</span>", "Turn the feature <span class=\"grad\">into a benefit</span>") +
- E("div", "Mijoz «tarkibi qanday» deb emas, <b>«bu menga nima beradi?»</b> deb o'ylaydi. <b>FAB</b>: Xususiyat (Feature) → Afzallik (Advantage) → Foyda (Benefit).",
-   "The customer does not think “what is it made of” but <b>“what does it give me?”</b>. <b>FAB</b>: Feature → Advantage → Benefit.", 'class="def"') +
+ E("h2", "Xususiyatni " + G("foydaga aylantiring"), "Turn the feature " + G("into a benefit")) +
+ E("div", "Mijoz «tort nimadan qilingan?» deb emas, <b>«bu menga nima beradi?»</b> deb o'ylaydi. Shuning uchun 3 qadam bilan gapiring: <b>Xususiyat → Afzallik → Foyda</b> (inglizcha qisqartmasi — <b>FAB</b>). Tayyor qolip: «... <i>shuning uchun</i> ... , <i>bu sizga</i> ... beradi».",
+   "The customer does not think “what is the cake made of?” but <b>“what does it give me?”</b>. So speak in 3 steps: <b>Feature → Advantage → Benefit</b> (<b>FAB</b>). A ready pattern: “... <i>so</i> ... , <i>which gives you</i> ...”.", 'class="def"') +
  '<div class="grid g3" style="margin-top:12px">' +
- card("blue", "🧁", "F — Xususiyat", "F — Feature", "«Tort 2 kun oldin emas, <b>yetkazishdan 6 soat oldin</b> pishiriladi.»", "“The cake is baked <b>6 hours before delivery</b>, not 2 days earlier.”") +
- card("orange", "⭐", "A — Afzallik", "A — Advantage", "«Shuning uchun u <b>yangi va yumshoq</b> bo'ladi.»", "“So it stays <b>fresh and soft</b>.”") +
- card("green", "🎉", "B — Foyda", "B — Benefit", "«Mehmonlaringiz oldida <b>xotirjam bo'lasiz</b>, tort ta'rifini eshitasiz.»", "“You will be <b>calm in front of your guests</b> and hear praise for the cake.”") + '</div>' +
- E("h3", "Narxda 3 ta variant bering: «yaxshi — yanada yaxshi — eng yaxshi»", "Give 3 price options: “good — better — best”", 'style="margin-top:14px"') +
- table([("Paket", "Package"), ("Tarkibi", "What it includes"), ("Narx", "Price")], [
+ card("blue", "🧁", "Xususiyat — nima?", "Feature — what?", "«Tort <b>yetkazishdan 6 soat oldin</b> pishiriladi.»", "“The cake is baked <b>6 hours before delivery</b>.”") +
+ card("orange", "⭐", "Afzallik — shuning uchun", "Advantage — so", "«<b>Shuning uchun</b> u yangi va yumshoq bo'ladi.»", "“<b>So</b> it stays fresh and soft.”") +
+ card("green", "🎉", "Foyda — sizga nima beradi", "Benefit — what you get", "«<b>Bu sizga</b> mehmonlar oldida xotirjamlik beradi — hamma maqtaydi.»", "“<b>That gives you</b> peace of mind in front of the guests — everyone will praise it.”") + '</div>' +
+ E("h3", "Bitta narx emas — 3 ta variant bering", "Not one price — give 3 options", 'style="margin-top:14px"') +
+ table([("Variant", "Option"), ("Nima kiradi", "What it includes"), ("Narx", "Price")], [
   [TD("<b>Oddiy</b>", "<b>Basic</b>"), TD("Tort 1,5 kg, oddiy bezak", "A 1.5 kg cake, basic decoration"), TD("200 000 so'm", "200,000 so'm")],
-  [TD("<b>Standart</b> (ko'pchilik tanlaydi)", "<b>Standard</b> (most choose it)"), TD("Tort 2 kg, bezak + yozuv + shamlar", "A 2 kg cake, decoration + lettering + candles"), TD("<b>250 000 so'm</b>", "<b>250,000 so'm</b>", "g")],
-  [TD("<b>Premium</b>", "<b>Premium</b>"), TD("Tort 3 kg, maxsus bezak + shirinlik qutisi + yetkazish", "A 3 kg cake, special decoration + a dessert box + delivery"), TD("400 000 so'm", "400,000 so'm")]]) +
- E("small", "Uchta variant mijozga <b>tanlash erkinligini</b> beradi: «ha/yo'q» o'rniga «qaysi biri?» degan savol paydo bo'ladi. Narxlarni o'zingizning haqiqiy xarajatingizga qarab belgilang.",
-   "Three options give the customer <b>freedom of choice</b>: instead of “yes/no” the question becomes “which one?”. Set prices from your own real costs.", 'class="note"'))
+  [TD("<b>Standart</b> (ko'pchilik shuni tanlaydi)", "<b>Standard</b> (most choose it)"), TD("Tort 2 kg, bezak + yozuv + shamlar", "A 2 kg cake, decoration + lettering + candles"), TD("<b>250 000 so'm</b>", "<b>250,000 so'm</b>", "g")],
+  [TD("<b>Premium</b>", "<b>Premium</b>"), TD("Tort 3 kg, maxsus bezak + shirinlik qutisi + yetkazib berish", "A 3 kg cake, special decoration + a dessert box + delivery"), TD("400 000 so'm", "400,000 so'm")]]) +
+ oddiy("bitta narx aytsangiz, mijoz «ha» yoki «yo'q» deydi. 3 ta variant bersangiz, u <b>«qaysi biri?»</b> deb o'ylaydi. Narxni esa o'z xarajatingizdan kelib chiqib qo'ying (11-mavzu).",
+       "with one price the customer says “yes” or “no”. With 3 options they think <b>“which one?”</b>. Set prices from your own costs (topic 11)."))
 
-# ============================ 9. E'TIROZLAR ============================
-slide("E'tirozlar bilan ishlash", "Handling objections",
+# ============================ 10. E'TIROZLAR ============================
+slide("«Qimmat ekan»: e'tirozga javob", "“It is expensive”: answering objections",
  E("span", "2.3 · E'tirozlar", "2.3 · Objections", 'class="kicker"') +
- E("h2", "E'tiroz — <span class=\"grad\">rad javobi emas, savol</span>", "An objection is <span class=\"grad\">not a refusal but a question</span>") +
- E("div", "Mijoz e'tiroz bildirsa, u hali <b>qiziqyapti</b> degani: ko'pincha u ishonch, qiymat yoki vaqt haqida savol beryapti. Munozara emas, <b>tushunish</b> kerak.",
-   "If a customer raises an objection, they are still <b>interested</b>: they are often asking about trust, value or time. Do not argue — <b>understand</b>.", 'class="def"') +
- table([("E'tiroz", "Objection"), ("❌ Yomon javob", "❌ A weak answer"), ("✅ To'g'ri javob", "✅ A good answer")], [
-  [TD("<b>«Qimmat ekan»</b>", "<b>“It is expensive”</b>"), TD("«Yo'q, bu arzon, boshqalar undan ham qimmat!»", "“No, it is cheap, others are even more expensive!”", "r"), TD("«Tushunaman. Nimaga nisbatan qimmat deb o'yladingiz? Byudjetingiz qancha? 200 000 lik oddiy variantni ham ko'rsataymi?»", "“I understand. Compared to what do you find it expensive? What is your budget? Shall I show the 200,000 basic option?”", "g")],
-  [TD("<b>«O'ylab ko'raman»</b>", "<b>“I will think about it”</b>"), TD("«Ixtiyoringiz, o'ylang.»", "“As you wish, think.”", "r"), TD("«Albatta. Eng ko'p nimani o'ylab ko'rmoqchisiz — narxnimi, vaqtnimi? Ertaga soat 10 da yozib qo'yaymi?»", "“Of course. What exactly will you think over — the price or the time? Shall I message you tomorrow at 10?”", "g")],
-  [TD("<b>«Boshqa joyda arzon»</b>", "<b>“It is cheaper elsewhere”</b>"), TD("«Unda o'sha yerdan oling.»", "“Then buy it there.”", "r"), TD("«To'g'ri, narx har xil. Ularning tarkibi va yetkazish shartlarini solishtirdingizmi? Bizda tort yetkazishdan 6 soat oldin pishiriladi.»", "“True, prices differ. Did you compare their ingredients and delivery terms? Ours is baked 6 hours before delivery.”", "g")],
-  [TD("<b>«Sifatiga ishonmayman»</b>", "<b>“I do not trust the quality”</b>"), TD("«Hamma bizga ishonadi, siz nega ishonmaysiz?»", "“Everyone trusts us, why don't you?”", "r"), TD("«To'g'ri. Mijozlarimiz fikri va tort rasmlarini ko'rsataman; xohlasangiz, kichik 1 kg lik tortdan boshlang.»", "“Fair. I will show customer reviews and photos; if you wish, start with a small 1 kg cake.”", "g")]]) +
- E("h3", "5 qadamli javob usuli", "A 5-step way to answer", 'style="margin-top:14px"') +
+ E("h2", "E'tiroz — rad javobi emas, " + G("savol"), "An objection is not a refusal but " + G("a question")) +
+ E("div", "Mijoz «qimmat» desa, demak u hali <b>qiziqyapti</b> — aks holda jim chiqib ketardi. U aslida «nega shu narx?», «sizga ishonsam bo'ladimi?» deb so'rayapti. Bahslashmang — <b>tushunishga</b> harakat qiling.",
+   "If the customer says “too expensive”, they are still <b>interested</b> — otherwise they would just leave. They are really asking “why this price?” or “can I trust you?”. Do not argue — <b>try to understand</b>.", 'class="def"') +
+ table([("Mijoz aytadi", "The customer says"), ("❌ Noto'g'ri javob", "❌ A wrong answer"), ("✅ To'g'ri javob", "✅ A good answer")], [
+  [TD("<b>«Qimmat ekan»</b>", "<b>“It is expensive”</b>"), TD("«Yo'q, arzon! Boshqalar undan ham qimmat!»", "“No, it is cheap! Others are even dearer!”", "r"), TD("«Tushunaman. Qancha atrofida mo'ljallagan edingiz? 200 000 lik oddiy variantni ham ko'rsataymi?»", "“I understand. What amount did you have in mind? Shall I show the 200,000 basic option?”", "g")],
+  [TD("<b>«O'ylab ko'raman»</b>", "<b>“I will think about it”</b>"), TD("«Mayli, o'ylang.» (va unutish)", "“OK, think.” (and forget)", "r"), TD("«Albatta. Nimani o'ylab ko'rmoqchisiz — narxnimi, kunnimi? Ertaga soat 10 da yozsam bo'ladimi?»", "“Of course. What will you think over — the price or the day? May I write tomorrow at 10?”", "g")],
+  [TD("<b>«Boshqa joyda arzon»</b>", "<b>“It is cheaper elsewhere”</b>"), TD("«Unda o'sha yerdan oling.»", "“Then buy it there.”", "r"), TD("«To'g'ri, narxlar har xil. Bizda tort yetkazishdan 6 soat oldin pishiriladi va soatga aniq yetkaziladi.»", "“True, prices differ. Ours is baked 6 hours before delivery and arrives exactly on time.”", "g")],
+  [TD("<b>«Sifatiga ishonmayman»</b>", "<b>“I do not trust the quality”</b>"), TD("«Hamma ishonadi, siz nega ishonmaysiz?»", "“Everyone trusts us, why not you?”", "r"), TD("«Haqlisiz. Mijozlarimiz fikrini ko'rsataman; xohlasangiz, avval kichik 1 kg lik tortdan boshlang.»", "“Fair. I will show customer reviews; you can start with a small 1 kg cake.”", "g")]]) +
+ E("h3", "Javob berishning 5 qadami", "5 steps to answer", 'style="margin-top:14px"') +
  '<div class="grid g5">' +
  card("blue", "👂", "1. Tinglang", "1. Listen", "Gapni bo'lmang.", "Do not interrupt.") +
  card("green", "🤝", "2. Tan oling", "2. Acknowledge", "«Tushunaman».", "“I understand”.") +
  card("violet", "❓", "3. Aniqlang", "3. Clarify", "Asl sababini so'rang.", "Ask for the real reason.") +
- card("orange", "💬", "4. Javob bering", "4. Answer", "Dalil va variant bilan.", "With proof and an option.") +
- card("pink", "👉", "5. Qadam so'rang", "5. Ask for a step", "«Davom etamizmi?».", "“Shall we continue?”.") + '</div>')
+ card("orange", "💬", "4. Javob bering", "4. Answer", "Dalil yoki boshqa variant bilan.", "With proof or another option.") +
+ card("pink", "👉", "5. Qadam so'rang", "5. Ask for a step", "«Davom etamizmi?»", "“Shall we go on?”") + '</div>')
 
-# ============================ 10. KELISHUV ============================
+# ============================ 11. KELISHUV ============================
 slide("Kelishuvni yakunlash", "Closing the deal",
  E("span", "2.4 · Yakun", "2.4 · Closing", 'class="kicker"') +
- E("h2", "Kelishuvni <span class=\"grad\">bosimsiz yakunlash</span>", "Closing the deal <span class=\"grad\">without pressure</span>") +
+ E("h2", "Kelishuvni " + G("bosimsiz yakunlash"), "Closing the deal " + G("without pressure")) +
  '<div class="grid g2"><div>' +
- card_ul("green", "🔔", "Mijoz tayyor bo'lganining belgilari", "Signs the customer is ready", [
-  ("Yetkazish muddati va to'lov haqida so'raydi.", "Asks about delivery time and payment."),
-  ("«Agar olsam...» deb gapirishni boshlaydi.", "Starts talking with “If I buy...”."),
-  ("Tafsilotlarni qaytarib so'raydi: o'lcham, rang, miqdor.", "Asks again about details: size, colour, quantity."),
-  ("Hamrohi bilan maslahatlashadi yoki rasmni ko'rsatadi.", "Consults a companion or shows the picture to someone.")], "tick") + '</div><div>' +
- '<div class="card" style="--c:var(--blue)"><span class="icon">🔑</span>' + E("h3", "Yopishning 3 halol usuli", "3 honest ways to close") +
- '<ul class="tick">' + E("li", "<b>Tanlov:</b> «Standart variantni olamizmi yoki premiumni?»", "<b>A choice:</b> “Shall we take the standard or the premium?”") +
- E("li", "<b>Xulosa:</b> «Shanba, 18:00, 2 kg, yozuv bilan — to'g'ri yozdimmi?»", "<b>A summary:</b> “Saturday, 18:00, 2 kg, with lettering — did I get that right?”") +
- E("li", "<b>Keyingi qadam:</b> «Avans to'lasangiz, buyurtmani qayd qilaman.»", "<b>The next step:</b> “Once you pay an advance, I will register the order.”") + '</ul></div></div></div>' +
+ card_ul("green", "🔔", "Mijoz tayyor ekanini qanday bilamiz?", "How do we know the customer is ready?", [
+  ("Yetkazish kuni va to'lov haqida so'raydi.", "Asks about the delivery day and payment."),
+  ("«Agar olsam...» deb gapira boshlaydi.", "Starts saying “If I buy...”."),
+  ("Tafsilotlarni qayta so'raydi: o'lcham, rang, yozuv.", "Asks about details again: size, colour, lettering."),
+  ("Yonidagi odam bilan maslahatlashadi yoki rasmni ko'rsatadi.", "Consults someone or shows the photo to them.")], "tick") + '</div><div>' +
+ '<div class="card" style="--c:var(--blue)"><span class="icon">🔑</span>' + E("h3", "Yakunlashning 3 ta halol usuli", "3 honest ways to close") +
+ '<ul class="tick">' + E("li", "<b>Tanlov bering:</b> «Standartni olamizmi yoki premiumni?»", "<b>Give a choice:</b> “Shall we take the standard or the premium?”") +
+ E("li", "<b>Qisqa takrorlang:</b> «Shanba, 18:00, 2 kg, yozuv bilan — to'g'rimi?»", "<b>Sum it up:</b> “Saturday, 18:00, 2 kg, with lettering — right?”") +
+ E("li", "<b>Keyingi qadamni ayting:</b> «Oldindan 50 000 so'm to'lasangiz, buyurtmani yozib qo'yaman.»", "<b>Name the next step:</b> “Pay a 50,000 so'm advance and I will book the order.”") + '</ul></div></div></div>' +
  '<div class="grid g2" style="margin-top:14px">' +
- card("red", "⚠️", "Nimani qilmaslik kerak", "What not to do", "Soxta shoshilinchlik («oxirgi dona!»), yolg'on chegirma, qaror qabul qilishga majbur qilish. Bunday savdo mijozni keyin qaytarmaydi.",
-      "Fake urgency (“the last one!”), a false discount, forcing a decision. Such a sale will not bring the customer back.") +
- card("orange", "🙂", "«Yo'q» ni ham qabul qiling", "Accept a “no” too", "Mijoz rad etsa, sababini muloyim so'rang va «Keyinroq yozishimga ruxsatingiz bormi?» deng. Bugungi «yo'q» — bir oydan keyingi «ha» bo'lishi mumkin.",
-      "If the customer says no, politely ask why and say “May I message you later?”. Today's “no” may become a “yes” in a month.") + '</div>')
+ card("red", "⚠️", "Qilmang!", "Do not!", "Soxta shoshiltirish («oxirgi dona qoldi!»), yolg'on chegirma, majburlash. Bunday mijoz ikkinchi marta qaytmaydi.",
+      "Fake urgency (“only one left!”), false discounts, pressure. Such a customer never comes back.") +
+ card("orange", "🙂", "«Yo'q» ham normal", "A “no” is normal", "Mijoz rad etsa, sababini muloyim so'rang va «Keyinroq yozsam maylimi?» deng. Bugungi «yo'q» bir oydan keyin «ha» bo'lishi mumkin.",
+      "If the customer says no, politely ask why and say “May I write later?”. Today's “no” may be a “yes” in a month.") + '</div>')
 
-# ============================ 11. SAVDO HISOBI ============================
+# ============================ 12. NAMUNA: TO'LIQ SUHBAT ============================
+def Q2(qadam, kim, uz, en, cls=""):
+    """Suhbat qatori: qadam raqami va «Kim: gap»."""
+    who = {"N": "👩‍🍳 <b>Nilufar:</b> ", "D": "🙋‍♀️ <b>Dilnoza:</b> "}[kim]
+    return [TD("<b>" + qadam + "</b>", "<b>" + qadam + "</b>"), TD(who + "«" + uz + "»", who + "“" + en + "”", cls)]
+
+slide("Namuna: to'liq suhbat", "Sample: a full conversation",
+ E("span", "2.5 · 7 qadam bitta suhbatda", "2.5 · All 7 steps in one conversation", 'class="kicker"') +
+ E("h2", "Nilufar va Dilnoza: " + G("savdo boshidan oxirigacha"), "Nilufar and Dilnoza: " + G("a sale from start to finish")) +
+ E("p", "Dilnoza opa Instagramda tort rasmini ko'rib yozdi. Chap ustundagi raqam — 7 qadamdan qaysi biri ekanini ko'rsatadi.",
+   "Dilnoza saw a cake photo on Instagram and wrote. The number on the left shows which of the 7 steps it is.", 'class="lead"') +
+ table([("Qadam", "Step"), ("Suhbat", "The conversation")], [
+  Q2("1", "D", "Assalomu alaykum! Tortlaringiz narxi qancha?", "Hello! How much are your cakes?"),
+  Q2("2", "N", "Va alaykum assalom! Men Nilufar, «Shirin kun» qandolatidan. Ismingiz nima?", "Hello! I am Nilufar from the “Shirin kun” bakery. What is your name?"),
+  Q2("3", "N", "Dilnoza opa, tort qanday tadbirga va necha kishiga kerak?", "Dilnoza, what event is the cake for and for how many people?"),
+  Q2("3", "D", "O'g'limning tug'ilgan kuni, shanba, 20 kishi. O'tgan safar tort kech kelgan edi.", "My son's birthday, Saturday, 20 people. Last time the cake came late."),
+  Q2("3", "N", "Tushundim: 20 kishi, shanba, vaqti juda muhim. Soat nechaga kerak?", "I see: 20 people, Saturday, and time really matters. What time do you need it?"),
+  Q2("4", "N", "3 ta variant bor: oddiy 1,5 kg — 200 000, standart 2 kg yozuv va shamlar bilan — 250 000, premium 3 kg — 400 000. Tort yetkazishdan 6 soat oldin pishiriladi, shuning uchun yangi bo'ladi.", "There are 3 options: basic 1.5 kg — 200,000, standard 2 kg with lettering and candles — 250,000, premium 3 kg — 400,000. The cake is baked 6 hours before delivery, so it is fresh."),
+  Q2("5", "D", "Standart biroz qimmatroq ekan...", "The standard is a bit expensive..."),
+  Q2("5", "N", "Tushunaman. Qancha atrofida mo'ljallagan edingiz?", "I understand. What amount did you have in mind?"),
+  Q2("5", "D", "200 000 atrofida.", "Around 200,000."),
+  Q2("5", "N", "Unda oddiy 1,5 kg lik tortga yozuv va shamlarni qo'shamiz — jami 220 000. 20 kishiga yetadi.", "Then let us add lettering and candles to the basic 1.5 kg cake — 220,000 in total. It is enough for 20 people."),
+  Q2("6", "N", "Demak: shanba, 18:00, 1,5 kg, yozuv va shamlar bilan, 220 000 so'm. To'g'rimi? 50 000 oldindan to'lasangiz, yozib qo'yaman.", "So: Saturday, 18:00, 1.5 kg, with lettering and candles, 220,000 so'm. Right? Pay 50,000 in advance and I will book it.", "g"),
+  Q2("6", "D", "To'g'ri, hozir o'tkazaman!", "Right, I will send it now!", "g"),
+  Q2("7", "N", "(yakshanba) Dilnoza opa, tort yoqdimi? Mehmonlar nima deyishdi?", "(Sunday) Dilnoza, did you like the cake? What did the guests say?")]) +
+ oddiy("Nilufar <b>5 daqiqada</b> javob berdi, ism bilan murojaat qildi, narxdan oldin <b>3 ta savol</b> berdi, «qimmat»ga bahslashmay <b>mos variant</b> topdi va xariddan keyin <b>fikr so'radi</b> — keyingi buyurtma shu yerdan boshlanadi.",
+       "Nilufar replied in <b>5 minutes</b>, used the customer's name, asked <b>3 questions</b> before the price, found <b>a fitting option</b> instead of arguing about “expensive” and <b>asked for feedback</b> after the sale — the next order starts there."))
+
+# ============================ 13. SAVDO HISOBI ============================
 slide("Savdo hisobi", "Counting sales",
  E("span", "3-blok · Raqamlar", "Block 3 · The numbers", 'class="kicker"') +
- E("h2", "Tushum qayerdan <span class=\"grad\">o'sadi?</span>", "Where does revenue <span class=\"grad\">grow from?</span>") +
- E("div", "<b>Tushum = so'rovlar soni × konversiya × o'rtacha chek.</b> Uchta ko'rsatkichdan istalgani o'ssa, tushum ham o'sadi. Qaysi biri eng arzon yo'l bilan o'sishini hisoblab ko'ring.",
-   "<b>Revenue = number of enquiries × conversion × average order.</b> If any of the three grows, revenue grows. Work out which one can be raised most cheaply.", 'class="def"') +
+ E("h2", "Pul qayerdan " + G("ko'payadi?"), "Where does more money " + G("come from?")) +
+ E("div", "Tushum (bir oyda tushgan pul) uchta songa bog'liq: <b>Tushum = so'ragan odamlar soni × konversiya × o'rtacha chek.</b> Uchtadan bittasi o'ssa, tushum ham o'sadi.",
+   "Revenue (the money that comes in a month) depends on three numbers: <b>Revenue = number of people who asked × conversion × average order.</b> If one of them grows, revenue grows.", 'class="def"') +
  '<div class="grid g4" style="margin-top:14px">' +
- stat("100", "oyiga so'rov", "enquiries a month") +
- stat("20%", "konversiya (20 ta buyurtma)", "conversion (20 orders)", "o") +
- stat("250 000", "o'rtacha chek, so'm", "average order, so'm", "v") +
- stat("5 mln", "oylik tushum: 5 000 000 so'm", "monthly revenue: 5,000,000 so'm") + '</div>' +
- E("h3", "Qaysi yo'l tushumni ko'proq oshiradi?", "Which route raises revenue the most?", 'style="margin-top:14px"') +
- table([("Variant", "Option"), ("Hisob", "Calculation"), ("Tushum", "Revenue"), ("O'zgarish", "Change")], [
-  [TD("<b>A. Hozirgi holat</b>", "<b>A. The current situation</b>"), TD("100 × 20% × 250 000", "100 × 20% × 250,000"), TD("5 000 000", "5,000,000"), TD("—", "—")],
-  [TD("<b>B. Konversiya 25% bo'ldi</b> (tez javob, 3 variant)", "<b>B. Conversion reaches 25%</b> (quick reply, 3 options)"), TD("100 × 25% × 250 000", "100 × 25% × 250,000"), TD("6 250 000", "6,250,000"), TD("<b>+1 250 000</b>", "<b>+1,250,000</b>", "g")],
-  [TD("<b>C. O'rtacha chek 275 000</b> (+10%, shamlar va quti qo'shildi)", "<b>C. Average order 275,000</b> (+10%, candles and a box added)"), TD("100 × 20% × 275 000", "100 × 20% × 275,000"), TD("5 500 000", "5,500,000"), TD("+500 000", "+500,000")],
-  [TD("<b>D. So'rovlar 105 ta</b> (+5%)", "<b>D. 105 enquiries</b> (+5%)"), TD("105 × 20% × 250 000", "105 × 20% × 250,000"), TD("5 250 000", "5,250,000"), TD("+250 000", "+250,000")],
-  [TD("<b>E. B + C birga</b>", "<b>E. B + C together</b>"), TD("100 × 25% × 275 000", "100 × 25% × 275,000"), TD("6 875 000", "6,875,000"), TD("<b>+1 875 000</b>", "<b>+1,875,000</b>", "g")]]) +
- E("div", "🧠 <b>Xulosa:</b> yangi mijoz izlashdan oldin <b>mavjud so'rovlarni yo'qotmang</b> — konversiyani 5 punktga oshirish reklamani 5% ko'paytirishdan 5 baravar foydaliroq. Tushum ≠ foyda: har bir variantda xarajatni ham hisoblang.",
-   "🧠 <b>Conclusion:</b> before looking for new customers, <b>stop losing the enquiries you have</b> — raising conversion by 5 points is 5 times more valuable than raising enquiries by 5%. Revenue ≠ profit: count costs in every option too.", 'class="quote" style="margin-top:10px"'))
+ stat("100", "1-qadam: oyiga 100 kishi yozdi", "Step 1: 100 people wrote in a month") +
+ stat("20%", "2-qadam: 20 tasi oldi → 20 ÷ 100 = 20%", "Step 2: 20 bought → 20 ÷ 100 = 20%", "o") +
+ stat("250 000", "3-qadam: har biri o'rtacha 250 000 so'm", "Step 3: each paid 250,000 so'm on average", "v") +
+ stat("5 mln", "Natija: 20 × 250 000 = 5 000 000 so'm", "Result: 20 × 250,000 = 5,000,000 so'm") + '</div>' +
+ E("h3", "Qaysi yo'l pulni ko'proq oshiradi?", "Which way adds the most money?", 'style="margin-top:14px"') +
+ table([("Variant", "Option"), ("Hisob", "Calculation"), ("Tushum", "Revenue"), ("Farq", "Difference")], [
+  [TD("<b>A. Hozir</b>", "<b>A. Now</b>"), TD("100 × 20% × 250 000", "100 × 20% × 250,000"), TD("5 000 000", "5,000,000"), TD("—", "—")],
+  [TD("<b>B. 25 kishi oladi</b> (tez javob, 3 variant)", "<b>B. 25 people buy</b> (fast replies, 3 options)"), TD("100 × 25% × 250 000", "100 × 25% × 250,000"), TD("6 250 000", "6,250,000"), TD("<b>+1 250 000</b>", "<b>+1,250,000</b>", "g")],
+  [TD("<b>C. Chek 275 000</b> (shamlar va quti qo'shildi)", "<b>C. Average order 275,000</b> (candles and a box added)"), TD("100 × 20% × 275 000", "100 × 20% × 275,000"), TD("5 500 000", "5,500,000"), TD("+500 000", "+500,000")],
+  [TD("<b>D. 105 kishi yozadi</b> (+5 kishi reklama orqali)", "<b>D. 105 people write</b> (+5 via ads)"), TD("105 × 20% × 250 000", "105 × 20% × 250,000"), TD("5 250 000", "5,250,000"), TD("+250 000", "+250,000")],
+  [TD("<b>E. B va C birga</b>", "<b>E. B and C together</b>"), TD("100 × 25% × 275 000", "100 × 25% × 275,000"), TD("6 875 000", "6,875,000"), TD("<b>+1 875 000</b>", "<b>+1,875,000</b>", "g")]]) +
+ oddiy("yangi mijoz qidirishdan oldin <b>yozgan odamlarni yo'qotmang</b>. Yaxshi gaplashib 100 kishidan 25 tasiga sotish reklamani ko'paytirishdan ancha foydali. Esda tuting: tushum ≠ foyda — xarajatni ham hisoblang.",
+       "before looking for new customers, <b>do not lose the people who already wrote</b>. Selling to 25 of 100 by talking well is far more useful than more ads. Remember: revenue ≠ profit — count the costs too."))
 
-# ============================ 12. SAQLASH ============================
+# ============================ 14. SAQLASH ============================
 slide("Mijozni saqlash", "Keeping the customer",
  E("span", "4-blok · Uzoq aloqa", "Block 4 · Long-term relations", 'class="kicker"') +
- E("h2", "Birinchi xarid — <span class=\"grad\">munosabatning boshlanishi</span>", "The first purchase is <span class=\"grad\">the start of a relationship</span>") +
- E("div", "Yangi mijoz topish odatda mavjud mijozga qayta sotishdan <b>qimmatroq</b>. Shuning uchun xariddan keyin ham aloqani saqlang: yaxshi xizmat — eng arzon reklama.",
-   "Finding a new customer usually costs <b>more</b> than selling again to an existing one. So keep in touch after the purchase: good service is the cheapest advertising.", 'class="def"') +
+ E("h2", "Birinchi xarid — " + G("do'stlikning boshlanishi"), "The first purchase is " + G("the start of a friendship")) +
+ E("div", "Yangi mijoz topish eski mijozga yana sotishdan <b>qimmatroq</b> (reklama, vaqt). Shuning uchun xariddan keyin ham aloqani uzmang: yaxshi xizmat — eng arzon reklama.",
+   "Finding a new customer costs <b>more</b> than selling again to an old one (ads, time). So keep in touch after the sale: good service is the cheapest advertising.", 'class="def"') +
  '<div class="grid g2" style="margin-top:14px">' +
- '<div class="card" style="--c:var(--green)">' + E("h3", "📅 Xariddan keyingi aloqa jadvali", "📅 After-sale contact schedule") +
- table([("Qachon", "When"), ("Nima qilinadi", "What to do")], [
-  [TD("<b>1-kun</b>", "<b>Day 1</b>"), TD("«Hammasi joyidami? Yoqdimi?» — qisqa xabar", "“Is everything fine? Did you like it?” — a short message")],
-  [TD("<b>1-hafta</b>", "<b>Week 1</b>"), TD("Fikr va sharh so'rash; rasm joylashga ruxsat", "Ask for feedback and a review; permission to post the photo")],
-  [TD("<b>1-oy</b>", "<b>Month 1</b>"), TD("Yangi taklif yoki mavsumiy aksiya haqida xabar", "A message about a new offer or a seasonal promotion")],
-  [TD("<b>Yiliga bir marta</b>", "<b>Once a year</b>"), TD("Mijozning muhim sanasi (tug'ilgan kun) bilan tabriklash", "Greet the customer on an important date (a birthday)")]]) + '</div>' +
- '<div>' + card_ul("blue", "🔁", "Qo'shimcha sotuv usullari", "Ways to sell more", [
-  ("<b>Upsell:</b> kattaroq yoki yaxshiroq variantni taklif qilish (2 kg o'rniga 3 kg).", "<b>Upsell:</b> offering a bigger or better version (3 kg instead of 2 kg)."),
-  ("<b>Cross-sell:</b> unga mos boshqa mahsulot (tort + shamlar + shirinlik qutisi).", "<b>Cross-sell:</b> a matching extra product (a cake + candles + a dessert box)."),
-  ("<b>Tavsiya:</b> «Do'stlaringizga ham tavsiya qilsangiz, 10% chegirma beramiz.»", "<b>Referral:</b> “If you recommend us to friends, we give 10% off.”"),
-  ("<b>Sodiqlik:</b> 5-buyurtma — sovg'a yoki chegirma.", "<b>Loyalty:</b> the 5th order — a gift or a discount.")], "tick") + '</div></div>' +
- E("small", "Qo'shimcha taklif mijozga <b>haqiqatan foyda</b> bersa — ishlaydi; majburan o'tkazilsa — ishonchni yo'qotadi. Ruxsatsiz ommaviy xabar (spam) yubormang.",
-   "An extra offer works if it gives the customer <b>real benefit</b>; if forced, it destroys trust. Do not send bulk messages without permission (spam).", 'class="note"'))
+ '<div class="card" style="--c:var(--green)">' + E("h3", "📅 Xariddan keyin qachon yozamiz?", "📅 When do we write after the sale?") +
+ table([("Qachon", "When"), ("Nima qilamiz", "What we do")], [
+  [TD("<b>Ertasi kuni</b>", "<b>The next day</b>"), TD("«Tort yoqdimi?» — qisqa xabar", "“Did you like the cake?” — a short message")],
+  [TD("<b>1 haftadan keyin</b>", "<b>After 1 week</b>"), TD("Fikr so'rash; rasmini joylashga ruxsat so'rash", "Ask for feedback; ask to post the photo")],
+  [TD("<b>1 oydan keyin</b>", "<b>After 1 month</b>"), TD("Yangi tort yoki bayram aksiyasi haqida xabar", "A message about a new cake or a holiday offer")],
+  [TD("<b>Yiliga bir marta</b>", "<b>Once a year</b>"), TD("Muhim sanada tabriklash (o'g'lining tug'ilgan kuni)", "Greetings on an important date (her son's birthday)")]]) + '</div>' +
+ '<div>' + card_ul("blue", "🔁", "Ko'proq sotishning 4 halol yo'li", "4 honest ways to sell more", [
+  ("<b>Upsell</b> — kattarog'ini taklif qilish: 20 kishiga 1,5 kg kam bo'lsa, 2 kg.", "<b>Upsell</b> — offer a bigger one: if 1.5 kg is too small for 20 people, 2 kg."),
+  ("<b>Cross-sell</b> — mosini qo'shish: tort + shamlar + shirinlik qutisi.", "<b>Cross-sell</b> — add a match: a cake + candles + a dessert box."),
+  ("<b>Tavsiya</b> — «Do'stingizga aytsangiz, ikkalangizga 10% chegirma».", "<b>Referral</b> — “Tell a friend and you both get 10% off”."),
+  ("<b>Sodiqlik</b> — 5-buyurtmaga sovg'a.", "<b>Loyalty</b> — a gift on the 5th order.")], "tick") + '</div></div>' +
+ E("small", "Qo'shimcha taklif mijozga <b>haqiqatan kerak</b> bo'lsa ishlaydi; majburlansa — ishonch yo'qoladi. Ruxsatsiz ommaviy xabar (spam) yubormang.",
+   "An extra offer works if the customer <b>really needs it</b>; if forced, trust is lost. Do not send bulk messages without permission (spam).", 'class="note"'))
 
-# ============================ 13. B2C VA B2B ============================
-slide("B2C va B2B savdo", "B2C and B2B sales",
+# ============================ 15. B2C VA B2B ============================
+slide("Odamga va korxonaga sotish", "Selling to people and to businesses",
  E("span", "4.2 · Mijoz turi", "4.2 · Type of customer", 'class="kicker"') +
- E("h2", "Oddiy xaridorga va <span class=\"grad\">korxonaga sotish</span>", "Selling to a consumer and <span class=\"grad\">selling to a business</span>") +
- table([("", ""), ("B2C — oddiy xaridor", "B2C — an individual customer"), ("B2B — korxona yoki tadbirkor", "B2B — a business customer")], [
-  [TD("<b>Qaror qiluvchi</b>", "<b>Decision maker</b>"), TD("Odatda bitta odam (ko'pincha tezda)", "Usually one person (often quickly)"), TD("Ko'pincha bir necha kishi: egasi, buxgalter, xaridchi", "Often several people: owner, accountant, buyer")],
-  [TD("<b>Qaror muddati</b>", "<b>Time to decide</b>"), TD("Daqiqalar, soatlar, kunlar", "Minutes, hours, days"), TD("Kunlar, haftalar", "Days, weeks")],
-  [TD("<b>Nimaga qaraydi</b>", "<b>What they look at</b>"), TD("Ehtiyoj, his-tuyg'u, narx, qulaylik", "Need, emotion, price, convenience"), TD("Foyda, ishonchlilik, muddat, barqaror yetkazish", "Profit, reliability, time, stable delivery")],
-  [TD("<b>Hujjat</b>", "<b>Documents</b>"), TD("Ko'pincha chek yoki yozishma", "Often a receipt or a chat"), TD("Shartnoma, hisob-faktura, yetkazish hujjatlari", "A contract, an invoice, delivery documents")],
-  [TD("<b>To'lov</b>", "<b>Payment</b>"), TD("Darrov: naqd yoki karta", "Immediately: cash or card"), TD("Ko'pincha keyinroq yoki bosqichma-bosqich — kechikish xavfi bor", "Often later or in instalments — there is a risk of delay", "r")],
-  [TD("<b>Hajm</b>", "<b>Volume</b>"), TD("Kichik, ko'p mijoz", "Small, many customers"), TD("Katta, kam mijoz — har biri muhim", "Large, few customers — each matters", "g")]]) +
+ E("h2", "Oddiy xaridor va " + G("korxona"), "An individual buyer and " + G("a business")) +
+ E("div", "<b>B2C</b> (inglizcha «biznesdan iste'molchiga») — oddiy odamga sotish: Dilnoza opa o'g'liga tort oladi. <b>B2B</b> («biznesdan biznesga») — boshqa korxonaga sotish: «Bahor» kafesi har hafta shirinlik oladi.",
+   "<b>B2C</b> (“business to consumer”) is selling to an ordinary person: Dilnoza buys a cake for her son. <b>B2B</b> (“business to business”) is selling to another company: café “Bahor” buys desserts every week.", 'class="def"') +
+ table([("", ""), ("B2C — oddiy xaridor", "B2C — an individual"), ("B2B — korxona", "B2B — a business")], [
+  [TD("<b>Kim qaror qiladi</b>", "<b>Who decides</b>"), TD("Bitta odam, ko'pincha tez", "One person, often quickly"), TD("Bir necha kishi: egasi, buxgalter, xaridor", "Several people: owner, accountant, buyer")],
+  [TD("<b>Qancha vaqtda</b>", "<b>How long</b>"), TD("Daqiqalar, kunlar", "Minutes, days"), TD("Kunlar, haftalar", "Days, weeks")],
+  [TD("<b>Nimaga qaraydi</b>", "<b>What they look at</b>"), TD("Ehtiyoj, his-tuyg'u, narx", "Need, feelings, price"), TD("Foyda, ishonchlilik, o'z vaqtida yetkazish", "Profit, reliability, on-time delivery")],
+  [TD("<b>Hujjat</b>", "<b>Documents</b>"), TD("Chek yoki yozishma", "A receipt or a chat"), TD("Shartnoma, hisob-faktura", "A contract, an invoice")],
+  [TD("<b>To'lov</b>", "<b>Payment</b>"), TD("Darrov: naqd yoki karta", "At once: cash or card"), TD("Ko'pincha keyinroq — kechikish xavfi bor", "Often later — there is a risk of delay", "r")],
+  [TD("<b>Hajm</b>", "<b>Volume</b>"), TD("Kichik, mijoz ko'p", "Small, many customers"), TD("Katta, mijoz kam — har biri muhim", "Large, few customers — each matters", "g")]]) +
  '<div class="grid g2" style="margin-top:14px">' +
- card("green", "🏢", "B2B da nima qilish kerak?", "What to do in B2B", "Ulgurji narx va shartlarni yozma kelishing, <b>sinov partiyasi</b> taklif qiling, to'lov muddatini shartnomada aniq belgilang, mas'ul kishi bilan doimiy aloqada bo'ling.",
-      "Agree wholesale prices and terms in writing, offer <b>a trial batch</b>, set the payment deadline clearly in the contract and keep regular contact with a responsible person.") +
- card("orange", "📞", "Misol: kafe «Bahor»", "Example: café “Bahor”", "«Shirin kun» kafega haftasiga 6 ta kichik shirinlik yetkazsa: sinov hafta, ulgurji narx, aniq yetkazish vaqti, to'lov — har juma kuni. Bitta shunday mijoz 12 ta oddiy mijozga teng bo'lishi mumkin.",
-      "If “Shirin kun” delivers 6 small desserts a week to a café: a trial week, a wholesale price, an exact delivery time, payment every Friday. One such customer can equal 12 ordinary ones.") + '</div>' +
- E("small", "Shartnoma, hisob-faktura va soliq qoidalari tez-tez yangilanadi. Yuridik kelishuvlardan oldin lex.uz dagi amaldagi qoidalarni tekshiring yoki mutaxassis bilan maslahatlashing.",
-   "Contract, invoice and tax rules are updated often. Before legal agreements, check the current rules on lex.uz or consult a specialist.", 'class="note"'))
+ card("green", "🏢", "Korxonaga sotishda", "When selling to a business", "Narx va shartlarni <b>yozma</b> kelishing, avval <b>sinov partiyasi</b> bering, to'lov kunini shartnomada aniq yozing.",
+      "Agree prices and terms <b>in writing</b>, start with <b>a trial batch</b>, write the payment day clearly in the contract.") +
+ card("orange", "☕", "Misol: «Bahor» kafesi", "Example: café “Bahor”", "Haftasiga 6 ta shirinlik, to'lov — har juma. Bitta shunday mijoz 12 ta oddiy mijozga teng bo'lishi mumkin.",
+      "6 desserts a week, payment every Friday. One such customer can equal 12 ordinary ones.") + '</div>' +
+ E("small", "Shartnoma va soliq qoidalari tez-tez yangilanadi. Yuridik kelishuvdan oldin lex.uz dagi amaldagi qoidalarni tekshiring yoki mutaxassisdan so'rang.",
+   "Contract and tax rules change often. Before a legal agreement check the current rules on lex.uz or ask a specialist.", 'class="note"'))
 
-# ============================ 14. QIYIN MIJOZ ============================
-slide("Qiyin mijoz va odob", "Difficult customers and etiquette",
+# ============================ 16. QIYIN MIJOZ ============================
+slide("Qiyin mijoz va odob", "Difficult customers and manners",
  E("span", "4.3 · Muloqot madaniyati", "4.3 · Communication culture", 'class="kicker"') +
- E("h2", "Har xil mijoz — <span class=\"grad\">har xil yondashuv</span>", "Different customers — <span class=\"grad\">different approaches</span>") +
- table([("Mijoz turi", "Customer type"), ("Belgisi", "Sign"), ("Qanday ishlash", "How to work with them")], [
-  [TD("<b>⚡ Shoshqaloq</b>", "<b>⚡ In a hurry</b>"), TD("«Qisqa ayting, vaqtim yo'q»", "“Be brief, I have no time”"), TD("Asosiy foyda va narxni 2 jumlada ayting, keyin so'rang.", "State the main benefit and the price in 2 sentences, then ask.", "g")],
-  [TD("<b>🤔 Ikkilanuvchi</b>", "<b>🤔 Hesitant</b>"), TD("«Bilmadim... balki...»", "“I don't know... maybe...”"), TD("Aniq 2 variant bering, sharh va kafolat ko'rsating, shoshiltirmang.", "Offer 2 clear options, show reviews and a guarantee, do not rush.", "g")],
-  [TD("<b>😠 G'azablangan</b>", "<b>😠 Angry</b>"), TD("Baland ovoz yoki qattiq yozuv", "A raised voice or harsh writing"), TD("Gapini oxirigacha tinglang, his-tuyg'uni tan oling («tushunaman, noqulay bo'ldi»), keyin yechim bering.", "Hear them out, acknowledge the feeling (“I understand, that was inconvenient”), then offer a solution.", "g")],
-  [TD("<b>🤐 Jim</b>", "<b>🤐 Quiet</b>"), TD("Qisqa javoblar, ko'p so'ramaydi", "Short answers, asks little"), TD("Ochiq savol bering, tanlash uchun vaqt bering, rasm yoki namuna ko'rsating.", "Ask open questions, give time to choose, show a picture or a sample.", "g")],
-  [TD("<b>💬 Ko'p so'raydigan</b>", "<b>💬 Asks a lot</b>"), TD("Bir xil savolni qayta-qayta so'raydi", "Asks the same question again and again"), TD("Savollarni sanab chiqing, bitta xabarda javob bering, keyin qaror so'rang.", "List the questions, answer in one message, then ask for a decision.", "g")]]) +
+ E("h2", "Har xil mijoz — " + G("har xil yondashuv"), "Different customers — " + G("different approaches")) +
+ table([("Mijoz", "Customer"), ("Qanday tanish mumkin", "How to recognise"), ("Nima qilish kerak", "What to do")], [
+  [TD("<b>⚡ Shoshqaloq</b>", "<b>⚡ In a hurry</b>"), TD("«Qisqa ayting, vaqtim yo'q»", "“Be brief, I have no time”"), TD("Asosiy foyda va narxni 2 gapda ayting, keyin so'rang.", "Say the main benefit and price in 2 sentences, then ask.", "g")],
+  [TD("<b>🤔 Ikkilanuvchi</b>", "<b>🤔 Hesitant</b>"), TD("«Bilmadim... balki...»", "“I don't know... maybe...”"), TD("2 ta aniq variant bering, mijozlar fikrini ko'rsating, shoshiltirmang.", "Give 2 clear options, show reviews, do not rush.", "g")],
+  [TD("<b>😠 Jahli chiqqan</b>", "<b>😠 Angry</b>"), TD("Baland ovoz yoki qattiq xabar", "A raised voice or a harsh message"), TD("Oxirigacha tinglang, «tushunaman, noqulay bo'libdi» deng, keyin yechim taklif qiling.", "Hear them out, say “I understand, that was unpleasant”, then offer a solution.", "g")],
+  [TD("<b>🤐 Kam gapiradigan</b>", "<b>🤐 Quiet</b>"), TD("Qisqa javoblar", "Short answers"), TD("Ochiq savol bering, rasm yoki namuna ko'rsating, vaqt bering.", "Ask open questions, show a photo or sample, give time.", "g")],
+  [TD("<b>💬 Ko'p so'raydigan</b>", "<b>💬 Asks a lot</b>"), TD("Bir savolni qayta-qayta beradi", "Asks the same thing again and again"), TD("Savollarni bitta xabarda ro'yxat qilib javob bering, keyin qaror so'rang.", "Answer all questions in one listed message, then ask for a decision.", "g")]]) +
  '<div class="grid g2" style="margin-top:14px">' +
- card_ul("green", "🤝", "Muloqot odobi", "Etiquette", [
-  ("Mijozni «sen» deb emas, hurmat bilan «Siz» deb chaqiring.", "Address the customer politely and respectfully."),
-  ("Va'da bergan vaqtda javob bering va aloqaga chiqing.", "Reply and get in touch at the time you promised."),
-  ("Bilmagan narsangizni «tekshirib, aytaman» deb ayting.", "Say “I will check and tell you” about what you do not know."),
-  ("Xato bo'lsa, oldin o'zingiz xabar bering.", "If a mistake happens, tell the customer first.")], "tick") +
- card("red", "⚠️", "Chegara: halollik", "The limit: honesty", "Mijozni aldash, yashirin to'lov, soxta va'da, raqibni yomonlash — qisqa muddatda sotuv beradi, lekin <b>obro'ni yo'qotadi</b>. Shaxsiy ma'lumotni himoya qiling.",
-      "Deceiving customers, hidden fees, false promises, running down rivals — they may bring a sale in the short term but <b>cost your reputation</b>. Protect personal data.") + '</div>')
+ card_ul("green", "🤝", "Muloqot odobi", "Good manners", [
+  ("Mijozga hurmat bilan «Siz» deb murojaat qiling.", "Speak to the customer politely and respectfully."),
+  ("Va'da bergan vaqtda javob bering.", "Reply at the time you promised."),
+  ("Bilmagan narsangizga «tekshirib, aytaman» deng.", "Say “I will check and tell you” when you do not know."),
+  ("Xato bo'lsa, mijozdan oldin o'zingiz ayting.", "If something goes wrong, tell the customer first.")], "tick") +
+ card("red", "⚠️", "Chegara: halollik", "The limit: honesty", "Aldash, yashirin to'lov, yolg'on va'da, raqibni yomonlash — bir marta sotuv beradi, lekin <b>obro'ni butunlay yo'qotadi</b>. Mijozning shaxsiy ma'lumotini himoya qiling.",
+      "Tricks, hidden fees, false promises, badmouthing rivals — they bring one sale but <b>ruin your reputation</b>. Protect the customer's personal data.") + '</div>')
 
-# ============================ 15. O'LCHASH ============================
-slide("Mijoz bilan ishlashni o'lchash", "Measuring customer work",
+# ============================ 17. O'LCHASH ============================
+slide("Mijoz xursandmi? O'lchash", "Is the customer happy? Measuring",
  E("span", "4.4 · Ko'rsatkichlar", "4.4 · Metrics", 'class="kicker"') +
- E("h2", "Mijoz xursandmi? <span class=\"grad\">Raqam bilan tekshiring</span>", "Is the customer happy? <span class=\"grad\">Check it with numbers</span>") +
- table([("Ko'rsatkich", "Metric"), ("Formula", "Formula"), ("Misol («Shirin kun»)", "Example (“Shirin kun”)")], [
-  [TD("<b>NPS</b> — tavsiya indeksi", "<b>NPS</b> — net promoter score"), TD("tavsiya qiluvchilar % − tanqidchilar %", "promoters % − detractors %"), TD("50 javobdan 30 tasi tavsiya qiladi (60%), 8 tasi tanqid qiladi (16%): 60 − 16 = <b>44</b>", "Of 50 replies 30 promote (60%), 8 criticise (16%): 60 − 16 = <b>44</b>")],
-  [TD("<b>Qayta xarid ulushi</b>", "<b>Repeat purchase rate</b>"), TD("qayta olganlar ÷ barcha mijozlar × 100", "repeat buyers ÷ all customers × 100"), TD("60 mijozdan 21 tasi qayta oldi: 21 ÷ 60 × 100 = <b>35%</b>", "Of 60 customers 21 bought again: 21 ÷ 60 × 100 = <b>35%</b>")],
-  [TD("<b>Mijozni yo'qotish (churn)</b>", "<b>Customer churn</b>"), TD("ketganlar ÷ davr boshidagi mijozlar × 100", "lost ÷ customers at the start × 100"), TD("Oy boshida 80 mijoz, 8 tasi ketdi: <b>10%</b>", "80 customers at the start of the month, 8 left: <b>10%</b>", "r")],
-  [TD("<b>Javob tezligi</b>", "<b>Reply speed</b>"), TD("so'rovga birinchi javob vaqti", "time to the first reply"), TD("O'rtacha 12 daqiqa (maqsad — 15 dan kam)", "12 minutes on average (the target is under 15)", "g")]]) +
+ E("h2", "Mijoz xursandmi? " + G("Raqam bilan tekshiring"), "Is the customer happy? " + G("Check it with numbers")) +
+ E("div", "«Menimcha, hamma xursand» — bu taxmin. Har oy bir xil savollar bilan o'lchasangiz, nima yaxshilanayotganini <b>aniq ko'rasiz</b>.",
+   "“I think everyone is happy” is a guess. Measure with the same questions every month and you will <b>see clearly</b> what is improving.", 'class="def"') +
+ table([("Ko'rsatkich", "Metric"), ("Qanday hisoblanadi", "How to count"), ("Misol («Shirin kun»)", "Example (“Shirin kun”)")], [
+  [TD("<b>Tavsiya indeksi (NPS)</b>", "<b>Recommendation score (NPS)</b>"), TD("tavsiya qiluvchilar % − tanqid qiluvchilar %", "promoters % − critics %"), TD("50 kishidan 30 tasi tavsiya qiladi (60%), 8 tasi tanqid (16%): 60 − 16 = <b>44</b>", "Of 50 people 30 recommend (60%), 8 criticise (16%): 60 − 16 = <b>44</b>")],
+  [TD("<b>Qayta xarid</b>", "<b>Repeat purchases</b>"), TD("qayta olganlar ÷ barcha mijozlar × 100", "repeat buyers ÷ all customers × 100"), TD("60 mijozdan 21 tasi yana oldi: 21 ÷ 60 × 100 = <b>35%</b>", "21 of 60 customers bought again: 21 ÷ 60 × 100 = <b>35%</b>")],
+  [TD("<b>Ketgan mijozlar (churn)</b>", "<b>Lost customers (churn)</b>"), TD("ketganlar ÷ oy boshidagi mijozlar × 100", "lost ÷ customers at the start × 100"), TD("80 mijozdan 8 tasi ketdi: <b>10%</b>", "8 of 80 customers left: <b>10%</b>", "r")],
+  [TD("<b>Javob tezligi</b>", "<b>Reply speed</b>"), TD("birinchi javobgacha o'tgan vaqt", "time until the first reply"), TD("O'rtacha 12 daqiqa (maqsad — 15 dan kam)", "12 minutes on average (target: under 15)", "g")]]) +
  '<div class="grid g2" style="margin-top:14px">' +
- card("blue", "📋", "NPS ni qanday so'raladi?", "How to ask for NPS", "«0 dan 10 gacha, do'stingizga bizni tavsiya qilish ehtimoli qancha?» <b>9–10</b> — tavsiya qiluvchi, <b>7–8</b> — betaraf, <b>0–6</b> — tanqidchi. Natijaga «nega?» savolini qo'shing.",
-      "“From 0 to 10, how likely are you to recommend us to a friend?” <b>9–10</b> — promoter, <b>7–8</b> — neutral, <b>0–6</b> — detractor. Add the question “why?”.") +
- card("green", "🔍", "Raqam nimani ko'rsatadi?", "What the numbers show", "Qayta xarid past, javob tezligi yaxshi bo'lsa — muammo xizmatda emas, <b>mahsulot yoki narxda</b> bo'lishi mumkin. Har ko'rsatkichni boshqalari bilan birga o'qing.",
-      "If repeat purchases are low but reply speed is good, the problem may lie in <b>the product or price</b>, not service. Read each metric together with the others.") + '</div>' +
- E("small", "Namunadagi raqamlar o'quv uchun shartli. O'z biznesingizda har oy bir xil usulda o'lchang — shunda o'zgarishni ko'rasiz.",
-   "The sample numbers are made up for teaching. In your own business measure the same way every month — then you will see the change.", 'class="note"'))
+ card("blue", "📋", "NPS ni qanday so'raymiz?", "How do we ask for NPS?", "«0 dan 10 gacha, bizni do'stingizga tavsiya qilasizmi?» <b>9–10</b> — tavsiya qiluvchi, <b>7–8</b> — betaraf, <b>0–6</b> — tanqid qiluvchi. Oxirida «nega?» deb so'rang.",
+      "“From 0 to 10, would you recommend us to a friend?” <b>9–10</b> — promoter, <b>7–8</b> — neutral, <b>0–6</b> — critic. Finish with “why?”.") +
+ card("green", "🔍", "Raqamlarni birga o'qing", "Read the numbers together", "Javob tez, lekin qayta xarid kam bo'lsa — muammo xizmatda emas, <b>mahsulot yoki narxda</b> bo'lishi mumkin.",
+      "If replies are fast but repeat purchases are low, the problem may be in <b>the product or price</b>, not the service.") + '</div>')
 
-# ============================ 16. AMALIY TOPSHIRIQ ============================
+# ============================ 18. VIDEO DARS ============================
+slide("🎬 Video dars", "🎬 Video lesson",
+ E("span", "Ko'ring va muhokama qiling", "Watch and discuss", 'class="kicker"') +
+ E("h2", "🎬 Animatsion video: " + G("savdoning 7 qadami"), "🎬 Animated video: " + G("the 7 steps of a sale")) +
+ '<figure class="video-wrap sq-film" style="margin:0"><video controls playsinline preload="none" poster="' + VIDEO + '.jpg" src="' + VIDEO + '.mp4" style="width:100%;max-height:58vh;border-radius:18px;background:#000">'
+ '<track kind="subtitles" srclang="uz" label="O‘zbekcha" src="' + VIDEO + '.vtt" default></video>' +
+ E("figcaption", "⏱ Davomiyligi — taxminan 5 daqiqa · ovozsiz, subtitr bilan (pleyerdagi «CC» tugmasi)", "⏱ About 5 minutes · silent, with subtitles (the “CC” button in the player)", 'style="margin-top:8px;color:var(--muted);font-size:14px"') + '</figure>' +
+ '<div class="grid g3" style="margin-top:14px">' +
+ card("green", "👋", "1. Salomlashish", "1. The greeting", "Nilufar suhbatni qanday boshladi? Qaysi savol bilan?", "How did Nilufar start the conversation? With which question?") +
+ card("orange", "🛡", "2. «Qimmat ekan»", "2. “It is expensive”", "Dilnoza «qimmat» deganda Nilufar nima qildi? Nega bahslashmadi?", "What did Nilufar do when Dilnoza said “expensive”? Why did she not argue?") +
+ card("violet", "🧮", "3. Raqamlar", "3. The numbers", "Konversiya 20% dan 25% ga chiqsa, tushum qanchaga o'sadi?", "If conversion rises from 20% to 25%, how much does revenue grow?") + '</div>')
+
+# ============================ 19. AMALIY TOPSHIRIQ ============================
 slide("Amaliy topshiriq", "Practical task",
  E("span", "Amaliy mashg'ulot · 2 soat", "Practical class · 2 hours", 'class="kicker"') +
- E("h2", "«Savdo <span class=\"grad\">rolli o'yini»</span> va savdo kartochkasi", "The “sales <span class=\"grad\">role play”</span> and a sales card") +
- E("p", "Juftlikda: biri sotuvchi, biri mijoz. Keyin rollar almashadi. Har bir talaba o'z mahsuloti uchun A4 «savdo kartochkasi» tayyorlaydi.", "In pairs: one is the seller, one is the customer. Then the roles swap. Each student prepares an A4 “sales card” for their own product.", 'class="lead"') +
+ E("h2", "«Savdo " + G("rolli o'yini") + "» va savdo kartochkasi", "The “sales " + G("role play") + "” and a sales card") +
+ E("p", "Juftlikda ishlaysiz: biri sotuvchi, biri mijoz, keyin rollar almashadi. Har kim o'z mahsuloti (yoki «Shirin kun» torti) uchun A4 varaqda «savdo kartochkasi» tayyorlaydi.",
+   "Work in pairs: one is the seller, one is the customer, then swap. Everyone prepares an A4 “sales card” for their own product (or the “Shirin kun” cake).", 'class="lead"') +
  '<div class="grid g2"><div class="card" style="--c:var(--blue)">' + E("h3", "⏱ 120 daqiqalik reja", "⏱ The 120-minute plan") +
  table([("Vaqt", "Time"), ("Nima qilinadi", "What to do")], [
-  [TD("0–15", "0–15"), TD("Mahsulot va 3 ta mijoz turini tanlash", "Choose the product and 3 customer types")],
-  [TD("15–40", "15–40"), TD("Ehtiyoj savollari (SPIN) va FAB bo'yicha taklif yozish", "Write needs questions (SPIN) and an FAB offer")],
+  [TD("0–15", "0–15"), TD("Mahsulot va 3 xil mijozni tanlash", "Choose a product and 3 kinds of customers")],
+  [TD("15–40", "15–40"), TD("5 ta ochiq savol (SPIN) va «xususiyat → foyda» gapini yozish", "Write 5 open questions (SPIN) and a “feature → benefit” sentence")],
   [TD("40–60", "40–60"), TD("3 variantli narx va 4 ta e'tirozga javob tayyorlash", "Prepare a 3-option price and answers to 4 objections")],
   [TD("60–95", "60–95"), TD("Rolli o'yin: 5 daqiqadan, ikki marta (rollar almashadi)", "Role play: 5 minutes each, twice (roles swap)")],
-  [TD("95–110", "95–110"), TD("Savdo hisobi: konversiya, o'rtacha chek, tushum", "Sales calculation: conversion, average order, revenue")],
-  [TD("110–120", "110–120"), TD("O'zaro baholash va xulosa", "Peer assessment and wrap-up")]]) + '</div>' +
- '<div><div class="card" style="--c:var(--green)">' + E("h3", "📋 Savdo kartochkasida bo'lishi shart", "📋 The sales card must contain") +
- '<ul class="clean">' + E("li", "Mahsulot va mijoz turi (3 ta)", "The product and customer types (3)") +
- E("li", "5 ta ochiq savol (SPIN bo'yicha)", "5 open questions (using SPIN)") +
- E("li", "FAB taklifi va 3 variantli narx", "An FAB offer and a 3-option price") +
- E("li", "4 ta e'tiroz va asosli javoblar", "4 objections and reasoned answers") +
+  [TD("95–110", "95–110"), TD("Hisob: 100 kishi, konversiya, o'rtacha chek, tushum", "Calculation: 100 people, conversion, average order, revenue")],
+  [TD("110–120", "110–120"), TD("Bir-biringizni baholash va xulosa", "Assess each other and wrap up")]]) + '</div>' +
+ '<div><div class="card" style="--c:var(--green)">' + E("h3", "📋 Savdo kartochkasida bo'lsin", "📋 The sales card must have") +
+ '<ul class="clean">' + E("li", "Mahsulot va 3 xil mijoz", "The product and 3 kinds of customers") +
+ E("li", "5 ta ochiq savol (S, P, I, N tartibida)", "5 open questions (in S, P, I, N order)") +
+ E("li", "«Xususiyat → afzallik → foyda» gapi va 3 variantli narx", "A “feature → advantage → benefit” sentence and a 3-option price") +
+ E("li", "4 ta e'tiroz va ularga javob", "4 objections and the answers") +
  E("li", "Hisob: so'rov, konversiya, chek, tushum", "Calculation: enquiries, conversion, average order, revenue") +
- E("li", "Xariddan keyingi aloqa rejasi", "A post-sale contact plan") + '</ul></div>' +
+ E("li", "Xariddan keyin qachon va nima deb yozishingiz", "When and what you will write after the sale") + '</ul></div>' +
  '<div class="card" style="--c:var(--amber);margin-top:12px">' + E("h3", "🏅 Baholash", "🏅 Assessment") +
- E("p", "Muloqot va savollar <b>30%</b> · taklif va e'tirozlar <b>30%</b> · hisob-kitob <b>25%</b> · halollik va madaniyat <b>15%</b>.", "Conversation and questions <b>30%</b> · offer and objections <b>30%</b> · calculation <b>25%</b> · honesty and manners <b>15%</b>.") + '</div></div></div>')
+ E("p", "Savollar va tinglash <b>30%</b> · taklif va e'tirozlar <b>30%</b> · hisob-kitob <b>25%</b> · halollik va odob <b>15%</b>.", "Questions and listening <b>30%</b> · offer and objections <b>30%</b> · calculation <b>25%</b> · honesty and manners <b>15%</b>.") + '</div></div></div>')
 
-# ============================ 17. XULOSA ============================
+# ============================ 20. XULOSA ============================
 slide("Xulosa va resurslar", "Summary and resources",
  E("span", "Xulosa · Mustaqil ish · Havolalar", "Summary · Independent work · Links", 'class="kicker"') +
- E("h2", "Yakuniy <span class=\"grad\">xulosa</span> va <span class=\"grad\">foydali resurslar</span>", "The final <span class=\"grad\">summary</span> and <span class=\"grad\">useful resources</span>") +
+ E("h2", "Eslab qoling: " + G("6 ta asosiy fikr"), "Remember: " + G("6 key ideas")) +
  '<div class="grid g2"><div>' +
  card_ul("green", "📌", "Esda qoladigan 6 ta fikr", "6 things to remember", [
-  ("Savdo — <b>7 qadam</b>: topish, aloqa, ehtiyoj, taklif, e'tiroz, kelishuv, kuzatish.", "Selling is <b>7 steps</b>: find, contact, need, offer, objection, deal, follow-up."),
-  ("Har lidni <b>jadvalga yozing</b>: manba, qadam, keyingi aloqa.", "<b>Record every lead in a table</b>: source, step, next contact."),
-  ("Ko'proq <b>tinglang</b>: ochiq savollar (SPIN), 70/30 qoidasi.", "<b>Listen</b> more: open questions (SPIN), the 70/30 rule."),
-  ("Xususiyatni <b>foydaga aylantiring</b> (FAB) va 3 variant bering.", "<b>Turn features into benefits</b> (FAB) and give 3 options."),
-  ("<b>E'tiroz — savol:</b> tinglang, tan oling, aniqlang, javob bering, qadam so'rang.", "<b>An objection is a question:</b> listen, acknowledge, clarify, answer, ask for a step."),
-  ("Tushum = <b>so'rov × konversiya × chek</b>; mijozni saqlash — eng arzon o'sish.", "Revenue = <b>enquiries × conversion × average order</b>; keeping customers is the cheapest growth.")]) +
- '<div class="card" style="--c:var(--amber);margin-top:12px">' + E("h3", "📓 Mustaqil ish: «Haftalik savdo hisoboti»", "📓 Independent work: “A weekly sales report”") +
- '<ul class="clean">' + E("li", "7 kun davomida har bir so'rovni jadvalga yozing (manba, qadam, natija).", "For 7 days record every enquiry in a table (source, step, result).") +
- E("li", "Hafta oxirida konversiya, o'rtacha chek va tushumni hisoblang.", "At the end of the week calculate conversion, average order and revenue.") +
- E("li", "Mijozlar eng ko'p qaysi qadamda to'xtadi? Sababini yozing.", "At which step did customers stall most? Write down why.") +
- E("li", "Keyingi hafta uchun bitta yaxshilash rejasi tuzing.", "Make one improvement plan for next week.") + '</ul>' +
- E("p", "Hajmi: 1–2 bet + jadval. Baholash: jadval aniqligi 40% · hisob 30% · asoslangan reja 30%.", "Size: 1–2 pages + a table. Marking: accuracy of the table 40% · calculation 30% · reasoned plan 30%.", 'style="font-size:13.5px;color:var(--muted)"') + '</div></div>' +
+  ("Savdo — <b>7 qadam</b>: topish, salom, so'rash, taklif, javob, kelishish, aloqada qolish.", "Selling is <b>7 steps</b>: find, greet, ask, offer, answer, agree, stay in touch."),
+  ("Har bir yozgan odamni <b>jadvalga yozing</b>.", "<b>Write down</b> everyone who contacts you."),
+  ("Ko'proq <b>tinglang</b>: ochiq savollar, 70/30 qoidasi.", "<b>Listen</b> more: open questions, the 70/30 rule."),
+  ("Xususiyatni emas, <b>foydani</b> ayting va 3 variant bering.", "Talk about the <b>benefit</b>, not the feature, and give 3 options."),
+  ("<b>«Qimmat» — bu savol:</b> tinglang, tan oling, so'rang, javob bering, qadam so'rang.", "<b>“Expensive” is a question:</b> listen, acknowledge, ask, answer, ask for a step."),
+  ("Tushum = <b>so'rov × konversiya × chek</b>; eski mijozni saqlash — eng arzon o'sish.", "Revenue = <b>enquiries × conversion × average order</b>; keeping old customers is the cheapest growth.")]) +
+ '<div class="card" style="--c:var(--amber);margin-top:12px">' + E("h3", "📓 Mustaqil ish: «Bir haftalik savdo daftari»", "📓 Independent work: “A one-week sales diary”") +
+ '<ul class="clean">' + E("li", "7 kun davomida sizga yozgan yoki so'ragan har bir odamni jadvalga yozing.", "For 7 days write down everyone who wrote to you or asked.") +
+ E("li", "Hafta oxirida konversiya, o'rtacha chek va tushumni hisoblang.", "At the end of the week count conversion, average order and revenue.") +
+ E("li", "Mijozlar qaysi qadamda «to'xtab» qoldi? Nega?", "At which step did customers get stuck? Why?") +
+ E("li", "Keyingi hafta uchun bitta yaxshilash rejasi yozing.", "Write one improvement plan for next week.") + '</ul>' +
+ E("p", "Hajmi: 1–2 bet + jadval. Baholash: jadval 40% · hisob 30% · reja 30%.", "Size: 1–2 pages + a table. Marking: table 40% · calculation 30% · plan 30%.", 'style="font-size:13.5px;color:var(--muted)"') + '</div></div>' +
  '<div><div class="card" style="--c:var(--blue)">' + E("h3", "🔗 Foydali resurslar", "🔗 Useful resources") +
  E("p", "<b>Qonun va rasmiy manbalar:</b>", "<b>Law and official sources:</b>") +
  '<ul class="clean">' +
@@ -366,16 +440,16 @@ slide("Xulosa va resurslar", "Summary and resources",
  E("li", '<a class="lnk" href="https://stat.uz" target="_blank" rel="noopener">stat.uz</a> — rasmiy statistika', '<a class="lnk" href="https://stat.uz" target="_blank" rel="noopener">stat.uz</a> — official statistics') +
  E("li", '<a class="lnk" href="https://ombudsman.uz" target="_blank" rel="noopener">ombudsman.uz</a> — Biznes ombudsmani', '<a class="lnk" href="https://ombudsman.uz" target="_blank" rel="noopener">ombudsman.uz</a> — the Business Ombudsman') + '</ul>' +
  E("p", "<b>Bepul vositalar:</b>", "<b>Free tools:</b>", 'style="margin-top:8px"') +
- E("p", '<a class="lnk" href="https://docs.google.com" target="_blank" rel="noopener">docs.google.com</a> — mijozlar jadvali va hisob · <a class="lnk" href="https://telegram.org" target="_blank" rel="noopener">telegram.org</a> — mijoz bilan yozishma va kanal',
-   '<a class="lnk" href="https://docs.google.com" target="_blank" rel="noopener">docs.google.com</a> — customer table and calculations · <a class="lnk" href="https://telegram.org" target="_blank" rel="noopener">telegram.org</a> — chat with customers and a channel') +
- E("p", "<b>O'qish uchun:</b> Neil Rackham — «SPIN Selling» · Robert Cialdini — «Influence» · Dale Carnegie — «How to Win Friends and Influence People».", "<b>Further reading:</b> Neil Rackham — “SPIN Selling” · Robert Cialdini — “Influence” · Dale Carnegie — “How to Win Friends and Influence People”.", 'style="margin-top:8px"') +
+ E("p", '<a class="lnk" href="https://docs.google.com" target="_blank" rel="noopener">docs.google.com</a> — mijozlar jadvali va hisob · <a class="lnk" href="https://telegram.org" target="_blank" rel="noopener">telegram.org</a> — mijoz bilan yozishma',
+   '<a class="lnk" href="https://docs.google.com" target="_blank" rel="noopener">docs.google.com</a> — customer table and calculations · <a class="lnk" href="https://telegram.org" target="_blank" rel="noopener">telegram.org</a> — chatting with customers') +
+ E("p", "<b>O'qish uchun:</b> Neil Rackham — «SPIN Selling» · Dale Carnegie — «Do'st orttirish va odamlarga ta'sir qilish» (How to Win Friends and Influence People).", "<b>Further reading:</b> Neil Rackham — “SPIN Selling” · Dale Carnegie — “How to Win Friends and Influence People”.", 'style="margin-top:8px"') +
  E("small", "⚠️ Qonun va platforma qoidalari o'zgaradi. Har doim amaldagi rasmiy ma'lumotga tayaning.", "⚠️ Laws and platform rules change. Always rely on current official information.", 'class="note"') +
  '</div></div></div>')
 
-# ============================ 18. TEST ============================
+# ============================ 21. TEST ============================
 slide("TEST · Bilimni tekshirish", "TEST · Check your knowledge",
  E("span", "Yakuniy nazorat", "Final check", 'class="kicker"') +
- E("h2", "🧪 Test topshiriqlari — <span class=\"grad\">15 ta savol</span>", "🧪 Test tasks — <span class=\"grad\">15 questions</span>") +
+ E("h2", "🧪 Test topshiriqlari — " + G("15 ta savol"), "🧪 Test tasks — " + G("15 questions")) +
  '<div class="scorebar"><span><span data-ui="score">Natija:</span> <b><span id="scoreNow">0</span> / <span id="scoreMax">15</span></b></span>'
  '<span><span data-ui="answered">Javob berildi:</span> <b id="answered">0</b></span><div class="spacer"></div>' +
  E("button", "↻ Testni qayta boshlash", "↻ Restart the test", 'class="btn warn" id="btnReset"') + '</div>'
@@ -383,8 +457,8 @@ slide("TEST · Bilimni tekshirish", "TEST · Check your knowledge",
  E("h3", "Natija", "Result", 'id="resTitle" style="color:#fff;margin:10px 0 4px"') + '<p id="resTxt" style="color:#fff;opacity:.95;margin:0"></p></div>'
  '<div class="card" style="--c:var(--green);margin-top:18px;text-align:center">' +
  E("h3", "🎓 Rahmat! E'tiboringiz uchun tashakkur", "🎓 Thank you for your attention!") +
- E("p", "Keyingi mashg'ulotgacha <b>savdo kartochkasini</b> tugallang va bir hafta davomida so'rovlarni yozib boring — keyingi mavzu: mahsulot narxini shakllantirish.",
-   "Before the next class, finish your <b>sales card</b> and record enquiries for a week — the next topic: pricing a product.") +
+ E("p", "Keyingi mashg'ulotgacha <b>savdo kartochkasini</b> tugating va bir hafta davomida savdo daftarini yuriting. Keyingi mavzu — mahsulot narxini shakllantirish.",
+   "Before the next class finish your <b>sales card</b> and keep the sales diary for a week. Next topic: pricing a product.") +
  E("p", "Termiz davlat universiteti · Tadbirkorlik asoslari", "Termez State University · Fundamentals of Entrepreneurship", 'style="color:var(--muted);font-size:13.5px"') + '</div>')
 
 # ============================ TEST SAVOLLARI ============================

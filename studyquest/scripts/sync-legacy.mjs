@@ -207,6 +207,8 @@ const catalog = {
     // Taqdimotdagi test savollari soni (0 — test o'rniga krossvord yoki masala).
     test: testCount[t.id] || 0,
     pdf: t.pdf,
+    // 🎬 animatsion video (fayllar/video/M<N>.mp4, yonida .vtt va .jpg) — dars oynasidagi «Video» tugmasi
+    ...(t.video ? { video: t.video } : {}),
     open: t.open,
     read: !!t.read,
     lim: !!t.lim,

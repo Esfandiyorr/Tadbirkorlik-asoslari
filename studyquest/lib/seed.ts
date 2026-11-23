@@ -85,6 +85,8 @@ export const lessons: Lesson[] = catalog.topics.map((t, i) => ({
   published: true,
   legacyFile: t.file,
   ...(t.pdf ? { legacyPdf: t.pdf } : {}),
+  // 🎬 asosiy fan mavzusining animatsion videosi (config.json «video») — qo'shimcha fanlardagidek
+  ...((t as { video?: string }).video ? { legacyVideo: (t as { video?: string }).video } : {}),
 }));
 /* 📚 Qo'shimcha fanlar (config.json «courses» dagi ikkinchi va keyingi fanlar) — sync-legacy.mjs «more» ga chiqaradi.
    Ular Firestore'ga yozilmaydi: katalogdan to'g'ridan-to'g'ri beriladi (Platform.publicData). Asosiy fanning ball,
