@@ -147,7 +147,7 @@ async function eraseAccount(by: Actor, r: DeleteRequest, read: Read, update: Upd
     site['serviceStats/' + k.id + '/' + key] = null;
     site['serviceInterest/' + k.id + '/' + key] = null;
   }
-  // 💼 ijrochi profili va arizalari; tasdiqlangan vazifalarda ism yashiriladi
+  // 💼 avvalgi (ijrochilar bozori davridagi) ijrochi profili
   Object.assign(site, await forgetServiceUser(key));
   // 💳 pullik kurslar bo'yicha ruxsat va so'rovlar
   for (const c of extraCourses.filter((x) => x.paid)) {

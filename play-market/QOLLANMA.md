@@ -139,7 +139,7 @@ Shuning uchun sayt shunday ishlaydi:
 - Xuddi shunday ilovada **avatar sotib olish** («To'lov qildim») va **pullik kurs** (restoran) narxi hamda
   to'lov yo'riqnomasi yashiriladi: pullik kursda faqat «administrator ruxsat bergandan keyin ochiladi» deyiladi
   va ruxsat so'rash tugmasi qoladi.
-- **💼 Pullik xizmatlar** (talabalar ish bozori: vazifa berish, ijrochilar arizasi, to'lov va pul o'tkazish)
+- **💼 Pullik xizmatlar** (buyurtma berish, «🤖 Sun'iy intellekt yordamida tayyorlanmoqda», to'lov va natija)
   ilovada **umuman ko'rinmaydi**: menyuda ham, bosh sahifada ham yo'q. Hammasi — faqat saytda.
 - Click ulanganda ham to'lov **faqat saytda** bo'ladi; ilovada Click/Payme havolasi yoki karta raqami
   ko'rsatilmasligi kerak (bu kodda hisobga olingan).

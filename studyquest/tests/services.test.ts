@@ -12,11 +12,12 @@ import {
   servicesShown,
   servicesView,
 } from '../lib/server/services';
-import { resetSiteMemory, siteGet } from '../lib/server/site-content';
+import { resetSiteMemory, siteGet, siteUpdate } from '../lib/server/site-content';
 import { supportList } from '../lib/server/support';
 
-/* 💼 Talabalar ish bozori: vazifa va summa → ijrochilar «Men qilaman» → administrator tasdiqlaydi → to'lov →
-   ish → topshirish → qabul va baho → administrator ijrochiga pul o'tkazadi. */
+/* 💼 Pullik xizmatlar: buyurtma → «🤖 Sun'iy intellekt yordamida tayyorlanmoqda» (buyurtma administratorga yozishma
+   bo'lib keladi) → administrator natijani yuboradi → buyurtmachi qabul qiladi yoki tuzatish so'raydi. To'lov ishni
+   to'xtatmaydi: «To'lov qildim» → administrator tasdiqlaydi. */
 beforeAll(() => {
   process.env.STUDYQUEST_DEMO = 'true';
 });
@@ -38,7 +39,6 @@ const who = (id: string, role = 'student', name = 'Ali Valiyev') =>
 const admin = who('owner', 'admin');
 const ali = who('legacy_ali');
 const vali = who('legacy_vali', 'student', 'Vali Karimov');
-const gani = who('legacy_gani', 'student', 'G‘ani Soliyev');
 const PDF = Buffer.from('%PDF-1.4\n% sinov fayli\n');
 const DAY = 86400000;
 const NOW = Date.UTC(2026, 10, 15, 9, 0);
@@ -59,43 +59,26 @@ async function order(a: Actor, now = NOW, kind = 'taqdimot', budget = 150000) {
   );
   return (r as { id: string }).id;
 }
-const join = (a: Actor, skills = ['taqdimot', 'dizayn']) =>
-  manageServices(a, {
-    op: 'join',
-    about: 'PowerPoint va dizaynda 2 yillik tajriba',
-    skills,
-    pay: '8600 1234 5678 9012',
-    agree: true,
-  });
 /** Kichik faylni yuklash: begin → bitta bo'lak → finish. */
-async function upload(
-  a: Actor,
-  as: 'me' | 'worker' | 'admin',
-  uk: string,
-  id: string,
-  bytes = PDF,
-) {
+async function upload(a: Actor, as: 'me' | 'admin', uk: string, id: string, bytes = PDF) {
   const begin =
     as === 'admin'
       ? await adminServices(a, { op: 'begin', uk, id, name: 'natija.pdf', size: bytes.length })
-      : as === 'worker'
-        ? await manageServices(a, { op: 'wbegin', uk, id, name: 'natija.pdf', size: bytes.length })
-        : await manageServices(a, { op: 'begin', id, name: 'talab.pdf', size: bytes.length });
+      : await manageServices(a, { op: 'begin', id, name: 'talab.pdf', size: bytes.length });
   const { fid } = begin as { fid: string };
   await saveServiceChunk(a, as, uk + '/' + id, fid, 0, bytes);
   if (as === 'admin') await adminServices(a, { op: 'finish', uk, id, fid });
-  else if (as === 'worker') await manageServices(a, { op: 'wfinish', uk, id, fid });
   else await manageServices(a, { op: 'finish', id, fid });
   return fid;
 }
 
-it('a temporarily closed section refuses students and workers but not the administrator', async () => {
+it('a temporarily closed section refuses users but not the administrator', async () => {
   resetSiteMemory();
   // 🔒 sozlama yo'q — bo'lim vaqtincha yopiq (administrator ochmaguncha)
   expect(await servicesShown()).toBe(false);
   expect((await servicesView(ali)).shown).toBe(false);
   expect((await servicesAdmin(admin)).shown).toBe(false);
-  await expect(manageServices(ali, { op: 'leave' })).rejects.toThrow('vaqtincha yopiq');
+  await expect(order(ali)).rejects.toThrow('vaqtincha yopiq');
   await expect(manageServices(ali, { op: 'idea', kinds: ['taqdimot'], text: '' })).rejects.toThrow(
     'vaqtincha yopiq',
   );
@@ -103,24 +86,22 @@ it('a temporarily closed section refuses students and workers but not the admini
     'vaqtincha yopiq',
   );
   // administrator yopiq bo'limda ham ishlaydi va uni ochadi
-  await manageServices(admin, { op: 'leave' });
+  await adminServices(admin, { op: 'launch', open: true });
+  await order(admin, NOW);
   await adminServices(admin, { op: 'show', shown: true });
   expect((await servicesAdmin(admin)).shown).toBe(true);
   expect(await servicesShown()).toBe(true);
-  await manageServices(ali, { op: 'leave' });
+  await order(ali, NOW + 1);
   await adminServices(admin, { op: 'show', shown: false });
   expect(await siteGet('serviceInfo/shown')).toBeNull();
-  await expect(manageServices(ali, { op: 'leave' })).rejects.toThrow('vaqtincha yopiq');
+  await expect(order(ali, NOW + 2)).rejects.toThrow('vaqtincha yopiq');
 });
 
-it('a guest sees the catalog and figures; the administrator sets hints, the fee and closes a direction', async () => {
+it('a guest sees the catalog and figures; the administrator sets hints and closes a direction', async () => {
   const guest = await servicesView(null);
-  expect(guest).toMatchObject({
-    signedIn: false,
-    fee: 0,
-    stats: { tasks: 0, workers: 0, done: 0 },
-  });
-  expect(guest.board).toBeUndefined();
+  expect(guest).toMatchObject({ signedIn: false, done: 0, people: 0 });
+  expect(guest.orders).toBeUndefined();
+  expect(guest.how).toBeUndefined();
   expect(guest.catalog.map((k) => k.id)).toEqual(SERVICE_KINDS.map((k) => k.id));
   await adminServices(admin, {
     op: 'catalog',
@@ -131,130 +112,115 @@ it('a guest sees the catalog and figures; the administrator sets hints, the fee 
   });
   await adminServices(admin, { op: 'catalog', kind: 'video', price: '', days: '', off: true });
   await adminServices(admin, { op: 'info', how: 'Click orqali 8600 … kartaga o‘tkazing' });
-  await adminServices(admin, { op: 'fee', fee: 10 });
   const view = await servicesView(ali);
   expect(view.catalog.find((k) => k.id === 'taqdimot')).toMatchObject({ price: '50 000 so‘mdan' });
   expect(view.catalog.some((k) => k.id === 'video')).toBe(false);
-  expect(view).toMatchObject({ how: expect.stringContaining('Click'), fee: 10, me: null });
+  expect(view).toMatchObject({ how: expect.stringContaining('Click'), orders: [] });
   await expect(order(ali, NOW, 'video')).rejects.toThrow('yopiq');
   // summa chegaradan kichik bo'lmasin
   await expect(order(ali, NOW, 'taqdimot', 1000)).rejects.toThrow();
-  await expect(adminServices(ali, { op: 'fee', fee: 0 })).rejects.toThrow('Administrator');
+  await expect(adminServices(ali, { op: 'info', how: 'x' })).rejects.toThrow('Administrator');
+  // ijrochilar bozori olib tashlangan: ularning amallari endi qabul qilinmaydi
+  await expect(
+    manageServices(ali, {
+      op: 'join',
+      about: 'tajriba',
+      skills: ['taqdimot'],
+      pay: '8600',
+      agree: true,
+    }),
+  ).rejects.toThrow();
+  await expect(adminServices(admin, { op: 'fee', fee: 10 })).rejects.toThrow();
 });
 
-it('the whole path: task → «I will do it» → approved → paid → work → delivered → accepted → paid out', async () => {
-  await adminServices(admin, { op: 'fee', fee: 10 });
+it('the whole path: order → «prepared with AI» → chat → paid → result sent → changes → accepted', async () => {
   const id = await order(ali);
   const uk = keyOf(ali.id);
   const need = await upload(ali, 'me', uk, id);
-  // vali — hali ijrochi emas: e'lonni ko'radi, lekin ariza bera olmaydi
-  let v = await servicesView(vali, NOW);
-  expect(v.board).toHaveLength(1);
-  expect(v.board![0]).toMatchObject({ id, uk, budget: 150000, apps: 0, by: 'Ali V.' });
-  expect(JSON.stringify(v.board)).not.toContain('@ali'); // aloqa ma'lumoti e'londa yo'q
-  await expect(manageServices(vali, { op: 'apply', uk, id })).rejects.toThrow('Ijrochi bo‘lish');
-  await join(vali);
-  await join(gani, ['sayt']);
-  // o'z vazifasiga ariza berib bo'lmaydi
-  await join(ali);
-  await expect(manageServices(ali, { op: 'apply', uk, id })).rejects.toThrow('O‘z vazifangizga');
-  await manageServices(vali, { op: 'apply', uk, id, note: '2 kunda tayyorlayman' }, NOW + 1000);
-  await manageServices(gani, { op: 'apply', uk, id }, NOW + 2000);
-  v = await servicesView(vali, NOW);
-  expect(v.board![0]).toMatchObject({ apps: 2, applied: { note: '2 kunda tayyorlayman' } });
-  expect(v.me).toMatchObject({ name: 'Vali Karimov', jobs: 0, pay: '8600 1234 5678 9012' });
-  // buyurtmachi arizalarni ko'radi (to'liq ism va to'lov ma'lumotisiz)
+  // buyurtmachida — «tayyorlanmoqda» (sun'iy intellekt yozuvi), boshqalar buyurtmani ko'rmaydi
   let mine = (await servicesView(ali, NOW)).orders!;
-  expect(mine[0].apps.map((x) => [x.name, x.note])).toEqual([
-    ['Vali K.', '2 kunda tayyorlayman'],
-    ['G‘ani S.', undefined],
-  ]);
-  expect(JSON.stringify(mine)).not.toContain('8600 1234');
-  // ijrochi tasdiqlanmaguncha buyurtmachining fayli unga yopiq
+  expect(mine[0]).toMatchObject({ id, status: 'work', budget: 150000, contact: '@ali' });
+  expect((await servicesView(vali, NOW)).orders).toEqual([]);
   await expect(serviceChunk(vali, uk + '/' + id, need, 0)).rejects.toThrow('topilmadi');
-  // administrator ijrochini tasdiqlaydi — buyurtmachi to'laydi
-  const board = await servicesAdmin(admin, NOW);
-  expect(board.orders[0].apps.map((x) => x.name)).toEqual(['Vali Karimov', 'G‘ani Soliyev']);
-  expect(board.workers.map((w) => [w.name, w.pay])).toContainEqual([
-    'Vali Karimov',
-    '8600 1234 5678 9012',
+  // administratorga keladi: kim, qaysi xizmat, nima yozgani, fayli
+  let inbox = (await servicesAdmin(admin, NOW)).orders;
+  expect(inbox[0]).toMatchObject({
+    uk,
+    id,
+    kind: 'taqdimot',
+    name: 'Ali Valiyev',
+    group: 'AP-223',
+    title: 'Marketing asoslari',
+    text: expect.stringContaining('12 slayd'),
+    status: 'work',
+    msgs: [],
+  });
+  expect((await serviceChunk(admin, uk + '/' + id, need, 0)).bytes.equals(PDF)).toBe(true);
+  // yozishma: administrator savol beradi, buyurtmachi javob beradi
+  await adminServices(admin, { op: 'msg', uk, id, text: 'Ranglar qanday bo‘lsin?' }, NOW + 1000);
+  await manageServices(ali, { op: 'msg', id, text: 'Ko‘k va oq' }, NOW + 2000);
+  inbox = (await servicesAdmin(admin, NOW)).orders;
+  expect(inbox[0].msgs.map((m) => [m.from, m.text])).toEqual([
+    ['team', 'Ranglar qanday bo‘lsin?'],
+    ['user', 'Ko‘k va oq'],
   ]);
-  await expect(
-    adminServices(admin, { op: 'assign', uk, id, worker: keyOf('legacy_nobody') }),
-  ).rejects.toThrow('ariza bermagan');
-  await adminServices(admin, { op: 'assign', uk, id, worker: keyOf(vali.id) }, NOW + 3000);
-  expect((await servicesView(gani, NOW)).board).toEqual([]); // e'londan chiqdi
-  mine = (await servicesView(ali, NOW)).orders!;
-  expect(mine[0]).toMatchObject({ status: 'assigned', worker: { name: 'Vali K.' } });
-  await manageServices(ali, { op: 'paid', id, note: 'chek 12345' }, NOW + 4000);
+  // to'lov ishni to'xtatmaydi; to'lagandan keyin buyurtmachi o'zi bekor qila olmaydi
+  await manageServices(ali, { op: 'paid', id, note: 'chek 12345' }, NOW + 3000);
   await expect(manageServices(ali, { op: 'cancel', id })).rejects.toThrow('administrator');
-  // to'lov tasdiqlanmaguncha ijrochi natija yuklay olmaydi
-  await expect(
-    manageServices(vali, { op: 'wbegin', uk, id, name: 'x.pdf', size: 10 }),
-  ).rejects.toThrow('fayl qo‘shib bo‘lmaydi');
-  await adminServices(admin, { op: 'confirm', uk, id }, NOW + 5000);
-  // endi ijrochi talablar faylini ko'radi, yozishmada qatnashadi, natijani topshiradi
-  expect((await serviceChunk(vali, uk + '/' + id, need, 0)).bytes.equals(PDF)).toBe(true);
-  await expect(serviceChunk(gani, uk + '/' + id, need, 0)).rejects.toThrow('topilmadi');
-  await manageServices(vali, { op: 'wmsg', uk, id, text: 'Ranglar qanday bo‘lsin?' }, NOW + 6000);
-  await expect(manageServices(gani, { op: 'wmsg', uk, id, text: 'salom' })).rejects.toThrow(
-    'berilmagan',
-  );
-  await expect(manageServices(vali, { op: 'deliver', uk, id })).rejects.toThrow('tayyor ish');
-  const result = Buffer.concat([PDF, Buffer.from('natija')]);
-  const out = await upload(vali, 'worker', uk, id, result);
-  await manageServices(vali, { op: 'deliver', uk, id }, NOW + 7000);
   mine = (await servicesView(ali, NOW)).orders!;
-  expect(mine[0]).toMatchObject({ status: 'review' });
-  expect(mine[0].msgs.map((m) => m.from)).toEqual(['worker']);
+  expect(mine[0]).toMatchObject({ status: 'work', paidAt: NOW + 3000, paidNote: 'chek 12345' });
+  expect(mine[0].payOk).toBeUndefined();
+  await adminServices(admin, { op: 'confirm', uk, id }, NOW + 4000);
+  await expect(adminServices(admin, { op: 'confirm', uk, id })).rejects.toThrow('allaqachon');
+  await expect(manageServices(ali, { op: 'paid', id, note: '' })).rejects.toThrow('allaqachon');
+  // natijasiz yuborib bo'lmaydi; fayl yuklangach — «Mijozga yuborish»
+  await expect(adminServices(admin, { op: 'status', uk, id, status: 'review' })).rejects.toThrow(
+    'tayyor ish',
+  );
+  await expect(manageServices(ali, { op: 'accept', id, rating: 5 })).rejects.toThrow(
+    'yuborilmagan',
+  );
+  const result = Buffer.concat([PDF, Buffer.from('natija')]);
+  const out = await upload(admin, 'admin', uk, id, result);
+  await adminServices(admin, { op: 'status', uk, id, status: 'review' }, NOW + 5000);
+  mine = (await servicesView(ali, NOW)).orders!;
+  expect(mine[0]).toMatchObject({ status: 'review', payOk: NOW + 4000, deliveredAt: NOW + 5000 });
   expect((await serviceChunk(ali, uk + '/' + id, out, 0)).bytes.equals(result)).toBe(true);
-  // tuzatish → qayta topshirish → qabul va baho
-  await manageServices(ali, { op: 'revise', id, text: '3-slaydni o‘zgartiring' }, NOW + 8000);
-  expect((await servicesView(vali, NOW)).jobs![0].status).toBe('work');
-  await manageServices(vali, { op: 'deliver', uk, id }, NOW + 9000);
-  await manageServices(ali, { op: 'accept', id, rating: 5, review: 'Zo‘r!' }, NOW + 10000);
-  v = await servicesView(vali, NOW);
-  expect(v.me).toMatchObject({ jobs: 1, rating: 5, earned: 0, pending: 135000 });
-  expect(v.jobs![0]).toMatchObject({ status: 'done', rating: 5 });
-  expect(v.jobs![0].contact).toBeUndefined(); // ijrochi buyurtmachining aloqasini ko'rmaydi
-  // administrator ijrochiga pulini o'tkazadi
-  await expect(manageServices(ali, { op: 'remove', id })).rejects.toThrow('pul o‘tkazilgandan');
-  await adminServices(admin, { op: 'payout', uk, id, amount: 135000, note: 'Click' }, NOW + 11000);
-  v = await servicesView(vali, NOW);
-  expect(v.me).toMatchObject({ earned: 135000, pending: 0 });
-  expect(v.jobs![0].payout).toMatchObject({ amount: 135000 });
-  const guest = await servicesView(null, NOW);
-  expect(guest.top[0]).toMatchObject({ name: 'Vali K.', jobs: 1, rating: 5 });
-  expect(guest.stats).toMatchObject({ tasks: 0, workers: 3, done: 1 });
+  // tuzatish → yana tayyorlanmoqda → qayta yuborish → qabul va baho
+  await manageServices(ali, { op: 'revise', id, text: '3-slaydni o‘zgartiring' }, NOW + 6000);
+  expect((await servicesView(ali, NOW)).orders![0].status).toBe('work');
+  await expect(manageServices(ali, { op: 'cancel', id })).rejects.toThrow('administrator');
+  await adminServices(admin, { op: 'status', uk, id, status: 'review' }, NOW + 7000);
+  await manageServices(ali, { op: 'accept', id, rating: 5, review: 'Zo‘r!' }, NOW + 8000);
+  mine = (await servicesView(ali, NOW)).orders!;
+  expect(mine[0]).toMatchObject({ status: 'done', rating: 5, review: 'Zo‘r!' });
+  expect(mine[0].msgs.at(-1)).toMatchObject({
+    from: 'user',
+    text: '🔁 Tuzatish: 3-slaydni o‘zgartiring',
+  });
+  expect(await servicesView(null, NOW)).toMatchObject({ done: 1, people: 1 });
+  // yakunlanganini buyurtmachi ro'yxatdan o'chira oladi
+  await manageServices(ali, { op: 'remove', id }, NOW + 9000);
+  expect((await servicesView(ali, NOW)).orders).toEqual([]);
+  expect(await siteGet('serviceFiles/' + uk + '/' + out)).toBeNull();
 });
 
-it('workers: blocked ones cannot apply, leaving removes open applications, the administrator can take a task back', async () => {
+it('old records (worker marketplace era) open as «being prepared»; account deletion clears an old worker profile', async () => {
   const uk = keyOf(ali.id);
   const id = await order(ali);
-  await join(vali);
-  await expect(
-    manageServices(vali, { op: 'join', about: 'qisqa', skills: [], pay: '1', agree: true }),
-  ).rejects.toThrow();
-  await manageServices(vali, { op: 'apply', uk, id });
-  await manageServices(vali, { op: 'leave' });
-  expect((await servicesView(ali, NOW)).orders![0].apps).toEqual([]);
-  expect((await servicesView(vali, NOW)).me).toBeNull();
-  await join(vali);
-  await adminServices(admin, { op: 'worker', wk: keyOf(vali.id), status: 'blocked' });
-  await expect(manageServices(vali, { op: 'apply', uk, id })).rejects.toThrow('to‘xtatilgan');
-  await expect(join(vali)).rejects.toThrow('to‘xtatilgan');
-  await adminServices(admin, { op: 'worker', wk: keyOf(vali.id), status: 'active' });
-  await manageServices(vali, { op: 'apply', uk, id });
-  // tanlangan ijrochi profilidan chiqib keta olmaydi
-  await adminServices(admin, { op: 'assign', uk, id, worker: keyOf(vali.id) });
-  await expect(manageServices(vali, { op: 'leave' })).rejects.toThrow('tugallanmagan');
-  // administrator ijrochini qaytarib oladi — vazifa yana e'londa
-  await adminServices(admin, { op: 'unassign', uk, id });
-  expect((await servicesView(gani, NOW)).board).toHaveLength(1);
-  // hisob o'chirilsa — profil va arizalar o'chadi
-  const patch = await forgetServiceUser(keyOf(vali.id));
-  expect(patch).toMatchObject({ ['serviceWorkers/' + keyOf(vali.id)]: null });
-  expect(Object.keys(patch).some((k) => k.endsWith('/apps/' + keyOf(vali.id)))).toBe(true);
+  for (const old of ['open', 'assigned', 'paid', 'new', 'quoted']) {
+    await siteUpdate({ ['serviceOrders/' + uk + '/' + id + '/status']: old });
+    expect((await servicesView(ali, NOW)).orders![0].status).toBe('work');
+  }
+  await siteUpdate({
+    ['serviceOrders/' + uk + '/' + id + '/msgs/m1']: { from: 'worker', text: 'salom', at: NOW },
+  });
+  expect((await servicesAdmin(admin, NOW)).orders[0].msgs).toEqual([
+    { id: 'm1', from: 'team', text: 'salom', at: NOW },
+  ]);
+  expect(await forgetServiceUser(keyOf(vali.id))).toEqual({
+    ['serviceWorkers/' + keyOf(vali.id)]: null,
+  });
 });
 
 it('cancelling removes the files; open tasks are limited; finished ones can be removed', async () => {
@@ -290,10 +256,6 @@ it('cancelling removes the files; open tasks are limited; finished ones can be r
 it(`result files are deleted ${KEEP_DAYS} days after completion`, async () => {
   const uk = keyOf(ali.id);
   const id = await order(ali);
-  await join(vali);
-  await manageServices(vali, { op: 'apply', uk, id });
-  await adminServices(admin, { op: 'assign', uk, id, worker: keyOf(vali.id) });
-  await adminServices(admin, { op: 'confirm', uk, id });
   const out = await upload(admin, 'admin', uk, id);
   await adminServices(admin, { op: 'status', uk, id, status: 'done' }, NOW);
   expect((await servicesView(ali, NOW + (KEEP_DAYS - 1) * DAY)).orders![0].files).toHaveLength(1);
@@ -302,12 +264,11 @@ it(`result files are deleted ${KEEP_DAYS} days after completion`, async () => {
   expect(await siteGet('serviceFiles/' + uk + '/' + out)).toBeNull();
 });
 
-it('until the administrator launches the section only the administrator can post; workers can join', async () => {
+it('until the administrator launches the section only the administrator can order', async () => {
   await adminServices(admin, { op: 'launch', open: false });
   expect((await servicesView(null)).open).toBe(false);
   await expect(order(ali)).rejects.toThrow('hali ishga tushmagan');
   await order(admin); // administrator sinab ko'rishi mumkin
-  await join(vali); // ijrochilar oldindan ro'yxatdan o'tadi
   await adminServices(admin, { op: 'info', how: 'Karta: 8600 …' });
   expect(await servicesAdmin(admin)).toMatchObject({ open: false, how: 'Karta: 8600 …' });
   await expect(adminServices(ali, { op: 'launch', open: true })).rejects.toThrow('Administrator');

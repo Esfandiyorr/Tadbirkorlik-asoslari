@@ -1,6 +1,6 @@
 'use client';
 import { useCallback, useEffect, useState, type CSSProperties } from 'react';
-import { ExternalLink, RefreshCw, Upload } from 'lucide-react';
+import { ArrowLeft, ExternalLink, RefreshCw, Upload } from 'lucide-react';
 import { useApp } from '../provider';
 import { Button } from '../ui/button';
 import { useL } from './common';
@@ -19,47 +19,46 @@ import {
   type AdminOrder,
   type ServicesAdminView,
   type Tri,
-  type WorkerProfile,
 } from '@/lib/services';
 
-/* 💼 Sayt boshqaruvi → Pullik xizmatlar (talabalar ish bozori):
-   • Vazifalar — arizalar orasidan ijrochini tasdiqlash, to'lovni tasdiqlash, nazorat, ijrochiga pul o'tkazish;
-   • Ijrochilar — ro'yxat, pul o'tkazish ma'lumoti, ishlagan/kutilayotgan pul, to'xtatish;
-   • Yo'nalishlar — katalog (odatdagi narx, muddat, yopish);
-   • Sozlamalar — to'lov yo'riqnomasi va platforma ulushi (%). */
-type Tab = 'tasks' | 'workers' | 'catalog' | 'settings';
-type Filter = 'todo' | 'open' | 'pay' | 'work' | 'done' | 'cancel' | 'all';
+/* 💼 Sayt boshqaruvi → Pullik xizmatlar:
+   • 💬 Buyurtmalar — Telegram'dagi kabi: chapda buyurtmalar (kim, qaysi xizmat, oxirgi xabar), o'ngda tanlangan
+     buyurtma: buyurtmachi nima yozgani (birinchi xabar), yozishma, to'lovni tasdiqlash, tayyor ishni yuklash va
+     «📤 Mijozga yuborish»;
+   • 🗂 Yo'nalishlar — katalog (odatdagi narx, muddat, yopish);
+   • ⚙️ To'lov yo'riqnomasi — buyurtmachiga ko'rinadigan matn. */
+type Tab = 'chats' | 'catalog' | 'settings';
+type Filter = 'todo' | 'work' | 'review' | 'done' | 'cancel' | 'all';
 
-/** Administrator biror amal qilishi kerak bo'lgan vazifa. */
-const needsMe = (o: AdminOrder) =>
-  (o.status === 'open' && o.apps.length > 0) ||
-  o.status === 'paid' ||
-  (o.status === 'done' && !!o.worker && !o.payout);
+const lastFrom = (o: AdminOrder) => o.msgs[o.msgs.length - 1]?.from;
+/** Javob kutayotgan buyurtma: yangi (hali yozilmagan) yoki oxirgi xabar buyurtmachidan. */
+const unread = (o: AdminOrder) =>
+  o.status !== 'cancel' &&
+  o.status !== 'done' &&
+  (lastFrom(o) === 'user' || (!o.msgs.length && o.status === 'work'));
+/** Buyurtmachi «To'lov qildim» degan, lekin hali tasdiqlanmagan. */
+const payCheck = (o: AdminOrder) => o.status !== 'cancel' && !!o.paidAt && !o.payOk;
+const needsMe = (o: AdminOrder) => unread(o) || payCheck(o);
 const FILTERS: [Filter, Tri, (o: AdminOrder) => boolean][] = [
-  ['todo', ['Diqqat', 'Needs action', 'Требуют действия'], needsMe],
-  ['open', ['E’londa', 'On the board', 'На бирже'], (o) => o.status === 'open'],
-  ['pay', ['To‘lov', 'Payment', 'Оплата'], (o) => o.status === 'assigned' || o.status === 'paid'],
-  [
-    'work',
-    ['Ishda', 'In progress', 'В работе'],
-    (o) => o.status === 'work' || o.status === 'review',
-  ],
+  ['todo', ['Javob kutmoqda', 'Needs reply', 'Ждут ответа'], needsMe],
+  ['work', ['Tayyorlanmoqda', 'In progress', 'Готовятся'], (o) => o.status === 'work'],
+  ['review', ['Yuborilgan', 'Delivered', 'Отправлены'], (o) => o.status === 'review'],
   ['done', ['Yakunlangan', 'Completed', 'Завершённые'], (o) => o.status === 'done'],
   ['cancel', ['Bekor', 'Cancelled', 'Отменённые'], (o) => o.status === 'cancel'],
   ['all', ['Hammasi', 'All', 'Все'], () => true],
 ];
-const share = (budget: number, fee: number) => Math.round((budget * (100 - fee)) / 100);
 const kindTitle = (lang: Parameters<typeof tr>[0], id: string) => {
   const k = serviceKind(id);
   return k ? k.icon + ' ' + tr(lang, ...k.name) : id;
 };
+const keyOf = (o: AdminOrder) => o.uk + '/' + o.id;
 
 export function ServicesAdmin() {
   const L = useL();
   const { request, toast, refresh } = useApp();
   const [view, setView] = useState<ServicesAdminView | null>(null);
   const [error, setError] = useState('');
-  const [tab, setTab] = useState<Tab>('tasks');
+  const [tab, setTab] = useState<Tab>('chats');
   const [busy, setBusy] = useState(false);
   const load = useCallback(async () => {
     try {
@@ -78,9 +77,7 @@ export function ServicesAdmin() {
   if (error) return <p className="error-state">{error}</p>;
   if (!view) return <div className="skeleton" style={{ height: 220 }} />;
   const todo = view.orders.filter(needsMe).length;
-  const owed = view.workers.reduce((n, w) => n + w.pending, 0);
-  const paid = view.workers.reduce((n, w) => n + w.earned, 0);
-  /** 🔒 Bo'limni vaqtincha yopish (menyudan olib tashlash, talaba amallarini to'xtatish) yoki qayta ochish. */
+  /** 🔒 Bo'limni vaqtincha yopish (menyudan olib tashlash, buyurtmalarni to'xtatish) yoki qayta ochish. */
   async function show(shown: boolean) {
     if (
       !window.confirm(
@@ -91,9 +88,9 @@ export function ServicesAdmin() {
               'Открыть раздел? «Платные услуги» снова появятся в меню и на главной.',
             )
           : L(
-              'Bo‘lim vaqtincha yopilsinmi? Menyudan yo‘qoladi, talabalar va ijrochilar hech narsa yubora olmaydi (ma’lumotlar o‘chmaydi).',
-              'Close the section for now? It leaves the menu and students and workers cannot send anything (no data is deleted).',
-              'Временно закрыть раздел? Он исчезнет из меню, студенты и исполнители ничего не смогут отправить (данные не удаляются).',
+              'Bo‘lim vaqtincha yopilsinmi? Menyudan yo‘qoladi, foydalanuvchilar hech narsa yubora olmaydi (ma’lumotlar o‘chmaydi).',
+              'Close the section for now? It leaves the menu and users cannot send anything (no data is deleted).',
+              'Временно закрыть раздел? Он исчезнет из меню, пользователи ничего не смогут отправить (данные не удаляются).',
             ),
       )
     )
@@ -123,14 +120,14 @@ export function ServicesAdmin() {
       !window.confirm(
         open
           ? L(
-              'Bo‘lim ishga tushirilsinmi? Talabalar vazifa bera boshlaydi. Avval to‘lov yo‘riqnomasi va ulushni tekshiring.',
-              'Launch the section? Students will start posting tasks. Check the payment instructions and the fee first.',
-              'Запустить раздел? Студенты начнут давать задачи. Сначала проверьте инструкцию по оплате и комиссию.',
+              'Bo‘lim ishga tushirilsinmi? Foydalanuvchilar buyurtma bera boshlaydi. Avval to‘lov yo‘riqnomasini tekshiring.',
+              'Launch the section? Users will start placing orders. Check the payment instructions first.',
+              'Запустить раздел? Пользователи начнут делать заказы. Сначала проверьте инструкцию по оплате.',
             )
           : L(
-              'Bo‘lim «Tez orada» rejimiga qaytarilsinmi? Yangi vazifa qabul qilinmaydi, ochiq vazifalar davom etadi.',
-              'Switch back to “Launching soon”? New tasks stop; open tasks continue.',
-              'Вернуть режим «Скоро запуск»? Новые задачи не принимаются, открытые продолжаются.',
+              'Bo‘lim «Tez orada» rejimiga qaytarilsinmi? Yangi buyurtma qabul qilinmaydi, ochiq buyurtmalar davom etadi.',
+              'Switch back to “Launching soon”? New orders stop; open orders continue.',
+              'Вернуть режим «Скоро запуск»? Новые заказы не принимаются, открытые продолжаются.',
             ),
       )
     )
@@ -168,14 +165,14 @@ export function ServicesAdmin() {
         <p>
           {view.shown
             ? L(
-                'Bo‘lim talabalarga ko‘rinadi (menyu va bosh sahifada).',
-                'Students see the section (menu and home page).',
-                'Раздел виден студентам (меню и главная).',
+                'Bo‘lim foydalanuvchilarga ko‘rinadi (menyu va bosh sahifada).',
+                'Users see the section (menu and home page).',
+                'Раздел виден пользователям (меню и главная).',
               )
             : L(
-                'Bo‘lim talabalardan yashirilgan: menyuda yo‘q, talaba va ijrochi amallari qabul qilinmaydi. Buyurtmalar va ijrochilar saqlanib turadi — bu yerdan boshqarishingiz mumkin.',
-                'Hidden from students: not in the menu, student and worker actions are refused. Orders and workers are kept — you can manage them here.',
-                'Скрыт от студентов: нет в меню, действия студентов и исполнителей не принимаются. Заказы и исполнители сохраняются — управлять можно здесь.',
+                'Bo‘lim yashirilgan: menyuda yo‘q, buyurtmalar qabul qilinmaydi. Eski buyurtmalar saqlanib turadi — bu yerdan boshqarishingiz mumkin.',
+                'Hidden: not in the menu, orders are refused. Existing orders are kept — you can manage them here.',
+                'Скрыт: нет в меню, заказы не принимаются. Существующие заказы сохраняются — управлять можно здесь.',
               )}
         </p>
         {view.shown ? (
@@ -195,14 +192,14 @@ export function ServicesAdmin() {
         <p>
           {view.open
             ? L(
-                'Talabalar vazifa beryapti, ijrochilar ariza beryapti.',
-                'Students post tasks and workers apply.',
-                'Студенты дают задачи, исполнители откликаются.',
+                'Foydalanuvchilar buyurtma beryapti: har bir buyurtma shu yerga yozishma bo‘lib keladi, ularda «🤖 Sun’iy intellekt yordamida tayyorlanmoqda» yozuvi turadi.',
+                'Users are ordering: each order arrives here as a chat; they see “🤖 Being prepared with AI”.',
+                'Пользователи делают заказы: каждый приходит сюда как переписка; у них отображается «🤖 Готовится с помощью ИИ».',
               )
             : L(
-                'Bo‘lim hali ishga tushmagan: talaba kirganda «🚀 Tez orada» oynasi chiqadi, u taklif yuboradi yoki ijrochi bo‘lib ro‘yxatdan o‘tadi. Takliflar «Kelgan xabarlar»ga 💡 belgisi bilan tushadi.',
-                'Not launched yet: students see “🚀 Launching soon”, send suggestions or sign up as workers. Suggestions arrive in the inbox marked 💡.',
-                'Ещё не запущен: студенты видят «🚀 Скоро запуск», отправляют идеи или регистрируются исполнителями. Идеи приходят во «Входящие» со значком 💡.',
+                'Bo‘lim hali ishga tushmagan: foydalanuvchi kirganda «🚀 Tez orada» oynasi chiqadi va u taklif yuboradi. Takliflar «Kelgan xabarlar»ga 💡 belgisi bilan tushadi.',
+                'Not launched yet: users see “🚀 Launching soon” and send suggestions. Suggestions arrive in the inbox marked 💡.',
+                'Ещё не запущен: пользователи видят «🚀 Скоро запуск» и отправляют идеи. Идеи приходят во «Входящие» со значком 💡.',
               )}
         </p>
         {view.open ? (
@@ -217,34 +214,31 @@ export function ServicesAdmin() {
       </div>
       <ul className="mk-tiles is-admin">
         <li className="is-violet">
-          <small>{L('Faol vazifalar', 'Active tasks', 'Активные задачи')}</small>
-          <b>{view.orders.filter((o) => isActive(o.status)).length}</b>
+          <small>{L('Javob kutmoqda', 'Needs reply', 'Ждут ответа')}</small>
+          <b>{todo}</b>
         </li>
         <li className="is-blue">
-          <small>{L('Ijrochilar', 'Workers', 'Исполнители')}</small>
-          <b>{view.workers.filter((w) => w.status === 'active').length}</b>
+          <small>{L('Tayyorlanmoqda', 'In progress', 'Готовятся')}</small>
+          <b>{view.orders.filter((o) => o.status === 'work').length}</b>
         </li>
         <li className="is-amber">
-          <small>{L('Ijrochilarga o‘tkazish kerak', 'Owed to workers', 'К выплате')}</small>
-          <b>{formatSum(owed)}</b>
+          <small>{L('To‘lovni tekshirish', 'Payments to check', 'Проверить оплату')}</small>
+          <b>{view.orders.filter(payCheck).length}</b>
         </li>
         <li className="is-green">
-          <small>{L('O‘tkazib berilgan', 'Paid out', 'Выплачено')}</small>
-          <b>{formatSum(paid)}</b>
+          <small>{L('Yakunlangan', 'Completed', 'Завершено')}</small>
+          <b>{view.orders.filter((o) => o.status === 'done').length}</b>
         </li>
       </ul>
       <div className="bo-subtabs" role="tablist">
         {(
           [
-            ['tasks', '📋 ' + L('Vazifalar', 'Tasks', 'Задачи') + (todo ? ` (${todo})` : '')],
-            [
-              'workers',
-              '🧑‍💻 ' +
-                L('Ijrochilar', 'Workers', 'Исполнители') +
-                (view.workers.length ? ` (${view.workers.length})` : ''),
-            ],
+            ['chats', '💬 ' + L('Buyurtmalar', 'Orders', 'Заказы') + (todo ? ` (${todo})` : '')],
             ['catalog', '🗂 ' + L('Yo‘nalishlar', 'Directions', 'Направления')],
-            ['settings', '⚙️ ' + L('To‘lov va ulush', 'Payment and fee', 'Оплата и комиссия')],
+            [
+              'settings',
+              '⚙️ ' + L('To‘lov yo‘riqnomasi', 'Payment instructions', 'Инструкция по оплате'),
+            ],
           ] as [Tab, string][]
         ).map(([id, name]) => (
           <button
@@ -258,8 +252,7 @@ export function ServicesAdmin() {
           </button>
         ))}
       </div>
-      {tab === 'tasks' && <Tasks view={view} reload={load} onView={setView} />}
-      {tab === 'workers' && <Workers view={view} onView={setView} />}
+      {tab === 'chats' && <Inbox view={view} reload={load} onView={setView} />}
       {tab === 'catalog' && <Catalog view={view} onView={setView} />}
       {tab === 'settings' && <Settings view={view} onView={setView} />}
       <p className="muted svc-used">
@@ -269,7 +262,8 @@ export function ServicesAdmin() {
   );
 }
 
-function Tasks({
+/** 💬 Buyurtmalar: chapda ro'yxat, o'ngda tanlangan buyurtma bilan yozishma (telefonda — navbat bilan). */
+function Inbox({
   view,
   reload,
   onView,
@@ -282,18 +276,19 @@ function Tasks({
   const { lang } = useApp();
   const [filter, setFilter] = useState<Filter>(() => (view.orders.some(needsMe) ? 'todo' : 'all'));
   const [q, setQ] = useState('');
-  const [openId, setOpenId] = useState('');
+  const [openKey, setOpenKey] = useState('');
   const test = FILTERS.find(([f]) => f === filter)![2];
   const needle = q.trim().toLowerCase();
-  // ochiq turgan karta amal bajarilgach boshqa filtrga o'tsa ham, yopilguncha ro'yxatda qoladi
+  // ochiq turgan buyurtma amal bajarilgach boshqa filtrga o'tsa ham, yopilguncha ro'yxatda qoladi
   const list = view.orders.filter(
     (o) =>
-      (test(o) || openId === o.uk + o.id) &&
+      (test(o) || openKey === keyOf(o)) &&
       (!needle ||
-        (o.title + ' ' + o.name + ' ' + (o.group || '') + ' ' + (o.worker?.name || ''))
+        (o.title + ' ' + o.name + ' ' + (o.group || '') + ' ' + o.text)
           .toLowerCase()
           .includes(needle)),
   );
+  const current = view.orders.find((o) => keyOf(o) === openKey);
   return (
     <>
       <div className="svc-admin-tools">
@@ -309,60 +304,118 @@ function Tasks({
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder={L('Ism, guruh yoki mavzu', 'Name, group or topic', 'Имя, группа или тема')}
-          aria-label={L('Vazifalardan qidirish', 'Search tasks', 'Поиск задач')}
+          aria-label={L('Buyurtmalardan qidirish', 'Search orders', 'Поиск заказов')}
         />
         <Button size="sm" variant="outline" onClick={() => void reload()}>
           <RefreshCw size={14} /> {L('Yangilash', 'Refresh', 'Обновить')}
         </Button>
       </div>
-      {!list.length && (
-        <p className="muted svc-empty">
-          {L('Bu yerda hozircha vazifa yo‘q.', 'No tasks here yet.', 'Здесь пока нет задач.')}
-        </p>
-      )}
-      <ul className="svc-admin-list">
-        {list.map((o) => (
-          <li key={o.uk + o.id}>
-            <AdminTask
-              order={o}
-              view={view}
-              open={openId === o.uk + o.id}
-              toggle={() => setOpenId(openId === o.uk + o.id ? '' : o.uk + o.id)}
-              reload={reload}
-              onView={onView}
-            />
-          </li>
-        ))}
-      </ul>
+      <div className={'svc-inbox' + (current ? ' has-open' : '')}>
+        <ul className="svc-inbox-list" aria-label={L('Buyurtmalar', 'Orders', 'Заказы')}>
+          {!list.length && (
+            <li className="muted svc-empty">
+              {L(
+                'Bu yerda hozircha buyurtma yo‘q.',
+                'No orders here yet.',
+                'Здесь пока нет заказов.',
+              )}
+            </li>
+          )}
+          {list.map((o) => {
+            const k = serviceKind(o.kind);
+            const last = o.msgs[o.msgs.length - 1];
+            const [icon] = STATUS_LABEL[o.status];
+            return (
+              <li key={keyOf(o)}>
+                <button
+                  type="button"
+                  className={
+                    'svc-thread' +
+                    (keyOf(o) === openKey ? ' is-on' : '') +
+                    (unread(o) ? ' is-unread' : '')
+                  }
+                  aria-current={keyOf(o) === openKey ? 'true' : undefined}
+                  style={(k ? { '--c1': k.tone[0], '--c2': k.tone[1] } : {}) as CSSProperties}
+                  onClick={() => setOpenKey(keyOf(o))}
+                >
+                  <span className="svc-thread-ava" aria-hidden="true">
+                    {k?.icon || '✨'}
+                  </span>
+                  <span className="svc-thread-main">
+                    <span className="svc-thread-top">
+                      <b>{o.name}</b>
+                      <small>{dueText(o.upd, lang).date}</small>
+                    </span>
+                    <span className="svc-thread-kind">
+                      {kindTitle(lang, o.kind)} · {o.title}
+                    </span>
+                    <span className="svc-thread-last">
+                      {icon}{' '}
+                      {last
+                        ? (last.from === 'team' ? L('Siz: ', 'You: ', 'Вы: ') : '') + last.text
+                        : o.text}
+                    </span>
+                  </span>
+                  {(unread(o) || payCheck(o)) && (
+                    <span className="svc-thread-flags">
+                      {payCheck(o) && (
+                        <em
+                          title={L('To‘lovni tekshiring', 'Check the payment', 'Проверьте оплату')}
+                        >
+                          💳
+                        </em>
+                      )}
+                      {unread(o) && (
+                        <i aria-label={L('Javob kutmoqda', 'Needs reply', 'Ждёт ответа')} />
+                      )}
+                    </span>
+                  )}
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+        {current ? (
+          <AdminChat
+            key={keyOf(current)}
+            order={current}
+            reload={reload}
+            onView={onView}
+            onBack={() => setOpenKey('')}
+          />
+        ) : (
+          <div className="svc-inbox-empty muted">
+            💬{' '}
+            {L(
+              'Buyurtmani tanlang — buyurtmachi nima yozgani va yozishma shu yerda ochiladi.',
+              'Pick an order — what the client wrote and the chat open here.',
+              'Выберите заказ — здесь откроется, что написал заказчик, и переписка.',
+            )}
+          </div>
+        )}
+      </div>
     </>
   );
 }
 
-function AdminTask({
+function AdminChat({
   order: o,
-  view,
-  open,
-  toggle,
   reload,
   onView,
+  onBack,
 }: {
   order: AdminOrder;
-  view: ServicesAdminView;
-  open: boolean;
-  toggle: () => void;
   reload: () => Promise<void>;
   onView: (v: ServicesAdminView) => void;
+  onBack: () => void;
 }) {
   const L = useL();
   const { lang, request, toast } = useApp();
   const [busy, setBusy] = useState('');
   const [link, setLink] = useState(o.link || '');
-  const [amount, setAmount] = useState(String(share(o.budget, view.fee)));
-  const [payNote, setPayNote] = useState('');
   const [progress, setProgress] = useState('');
   const [icon, name] = STATUS_LABEL[o.status];
   const k = serviceKind(o.kind);
-  const pending = needsMe(o);
   async function act(input: Record<string, unknown>, key: string, done?: string) {
     setBusy(key);
     try {
@@ -408,145 +461,206 @@ function AdminTask({
   };
   const ins = o.files.filter((f) => f.side === 'in'),
     outs = o.files.filter((f) => f.side === 'out');
+  const ready = outs.length > 0 || !!o.link;
   const busyNow = !!busy;
   return (
     <article
-      className={'panel svc-aorder is-' + o.status + (pending ? ' is-todo' : '')}
+      className={'panel svc-chat is-' + o.status}
       style={(k ? { '--c1': k.tone[0], '--c2': k.tone[1] } : {}) as CSSProperties}
+      aria-label={o.title}
     >
-      <button type="button" className="svc-aorder-head" aria-expanded={open} onClick={toggle}>
-        <span className="svc-aorder-title">
-          <b>{o.title}</b>
+      <header className="svc-chat-head">
+        <button
+          type="button"
+          className="svc-chat-back"
+          onClick={onBack}
+          aria-label={L('Ro‘yxatga qaytish', 'Back to the list', 'Назад к списку')}
+        >
+          <ArrowLeft size={18} />
+        </button>
+        <span className="svc-thread-ava" aria-hidden="true">
+          {k?.icon || '✨'}
+        </span>
+        <span className="svc-chat-title">
+          <b>{o.name}</b>
           <small className="muted">
-            {kindTitle(lang, o.kind)} · {o.name}
-            {o.group ? ' · ' + o.group : ''} · {dueText(o.at, lang).date}
+            {[o.group, o.email, o.contact && '📞 ' + o.contact].filter(Boolean).join(' · ')}
           </small>
         </span>
-        <span className="svc-admin-side">
-          <b className="mk-budget">{formatSum(o.budget)}</b>
-          <span className={'svc-status is-' + o.status}>
-            {icon} {tr(lang, ...name)}
-          </span>
-          {o.status === 'open' && !!o.apps.length && (
-            <em className="svc-admin-flag">🙋 {o.apps.length}</em>
-          )}
-          {o.status === 'done' && o.worker && !o.payout && (
-            <em className="svc-admin-flag">💸 {L('o‘tkazish', 'pay out', 'выплата')}</em>
-          )}
+        <span className={'svc-status is-' + o.status}>
+          {icon} {tr(lang, ...name)}
         </span>
-      </button>
-      {open && (
-        <div className="svc-aorder-body">
-          <p className="svc-text">{o.text}</p>
-          <p className="svc-order-meta">
-            {o.due && <span>📅 {o.due}</span>}
-            {o.contact && <span>📞 {o.contact}</span>}
-            {o.email && <span>✉️ {o.email}</span>}
-            {o.worker && (
-              <span>
-                🧑‍💻 {o.worker.name} ·{' '}
-                {L(`${o.worker.jobs} ta ish`, `${o.worker.jobs} jobs`, `работ: ${o.worker.jobs}`)}
-                {o.worker.rating ? ' · ⭐ ' + o.worker.rating : ''}
-              </span>
-            )}
-          </p>
-          {!!ins.length && (
+      </header>
+      <p className="svc-order-meta">
+        <span>{kindTitle(lang, o.kind)}</span>
+        <span>
+          💰 <b>{formatSum(o.budget)}</b>
+        </span>
+        {o.due && <span>📅 {o.due}</span>}
+        <span>🕐 {dueText(o.at, lang).date}</span>
+      </p>
+
+      {o.status !== 'cancel' && (
+        <div className={'svc-pay is-admin' + (o.payOk ? ' is-ok' : '')}>
+          {o.payOk ? (
+            <b>
+              ✅ {L('To‘lov tasdiqlangan', 'Payment confirmed', 'Оплата подтверждена')} ·{' '}
+              {dueText(o.payOk, lang).date}
+            </b>
+          ) : (
             <>
-              <b className="svc-sub">
-                📎 {L('Buyurtmachi fayllari', 'Client files', 'Файлы заказчика')}
-              </b>
-              <FileList files={ins} o={o.uk + '/' + o.id} remove={removeFile} />
-            </>
-          )}
-
-          {o.status === 'open' && (
-            <div className="mk-apps is-admin">
-              <b>
-                🙋 {L('Arizalar', 'Applications', 'Отклики')} ({o.apps.length})
-              </b>
-              {!o.apps.length ? (
-                <p className="muted">
-                  {L(
-                    'Hali hech kim ariza bermagan.',
-                    'No one has applied yet.',
-                    'Откликов пока нет.',
-                  )}
-                </p>
-              ) : (
-                <ul>
-                  {o.apps.map((x) => (
-                    <li key={x.uk}>
-                      <span className="mk-avatar" aria-hidden="true">
-                        {x.name[0]}
-                      </span>
-                      <span>
-                        <b>{x.name}</b>{' '}
-                        <small className="muted">
-                          {L(`${x.jobs} ta ish`, `${x.jobs} jobs`, `работ: ${x.jobs}`)}
-                          {x.rating ? ' · ⭐ ' + x.rating : ''}
-                        </small>
-                        {x.note && <q>{x.note}</q>}
-                      </span>
-                      <Button
-                        size="sm"
-                        disabled={busyNow}
-                        onClick={() =>
-                          void act(
-                            { op: 'assign', worker: x.uk },
-                            'assign',
-                            L(
-                              'Ijrochi tasdiqlandi — buyurtmachiga to‘lov haqida xabar ketdi.',
-                              'Worker approved — the client was asked to pay.',
-                              'Исполнитель утверждён — заказчику отправлен запрос на оплату.',
-                            ),
-                          )
-                        }
-                      >
-                        ✅ {L('Tasdiqlash', 'Approve', 'Утвердить')}
-                      </Button>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          )}
-
-          {(o.status === 'assigned' || o.status === 'paid') && (
-            <div className="svc-pay is-admin">
               <b>
                 💳{' '}
-                {o.status === 'paid'
+                {o.paidAt
                   ? L(
                       'Buyurtmachi «To‘lov qildim» dedi — tekshiring',
                       'The client says they paid — check it',
                       'Заказчик сообщил об оплате — проверьте',
                     )
-                  : L(
-                      'Buyurtmachining to‘lovi kutilmoqda',
-                      'Waiting for the client’s payment',
-                      'Ожидается оплата заказчика',
-                    )}
+                  : L('To‘lov hali qilinmagan', 'Not paid yet', 'Ещё не оплачено')}
                 : {formatSum(o.budget)}
               </b>
               {o.paidNote && <p className="muted">🧾 {o.paidNote}</p>}
               <div className="svc-row">
                 <Button
                   size="sm"
+                  variant={o.paidAt ? 'default' : 'outline'}
                   disabled={busyNow}
                   onClick={() =>
                     void act(
                       { op: 'confirm' },
                       'confirm',
-                      L(
-                        'To‘lov tasdiqlandi — ijrochi ishni boshlaydi.',
-                        'Payment confirmed — the worker starts.',
-                        'Оплата подтверждена — исполнитель начинает работу.',
-                      ),
+                      L('To‘lov tasdiqlandi.', 'Payment confirmed.', 'Оплата подтверждена.'),
                     )
                   }
                 >
                   ✅ {L('To‘lovni tasdiqlash', 'Confirm payment', 'Подтвердить оплату')}
                 </Button>
+              </div>
+            </>
+          )}
+        </div>
+      )}
+
+      <Chat
+        msgs={o.msgs}
+        me="team"
+        open
+        lead={{
+          head: kindTitle(lang, o.kind) + ' · ' + o.title,
+          text: o.text,
+          at: o.at,
+          extra: ins.length ? (
+            <FileList files={ins} o={o.uk + '/' + o.id} remove={removeFile} />
+          ) : undefined,
+        }}
+        send={
+          o.status === 'cancel' ? undefined : async (text) => await act({ op: 'msg', text }, 'msg')
+        }
+      />
+
+      {o.status !== 'cancel' && (
+        <div className="svc-deliver">
+          <b className="svc-sub">
+            📥{' '}
+            {L(
+              'Tayyor ish (mijozga boradi)',
+              'Finished work (goes to the client)',
+              'Готовая работа (уйдёт заказчику)',
+            )}
+          </b>
+          {outs.length ? (
+            <FileList files={outs} o={o.uk + '/' + o.id} remove={removeFile} />
+          ) : (
+            <p className="muted">
+              {L('Hali fayl yuklanmagan.', 'No files yet.', 'Файлов пока нет.')}
+            </p>
+          )}
+          {o.status !== 'done' && outs.length < FILES_PER_ORDER.out && (
+            <label className="svc-attach-btn is-small">
+              <Upload size={15} />
+              {progress || L('Fayl yuklash', 'Upload a file', 'Загрузить файл')}
+              <input
+                type="file"
+                multiple
+                accept={FILE_ACCEPT}
+                disabled={busyNow}
+                onChange={(e) => {
+                  void upload(e.target.files);
+                  e.target.value = '';
+                }}
+              />
+            </label>
+          )}
+          <form
+            className="svc-msg-form"
+            onSubmit={(e) => {
+              e.preventDefault();
+              void act(
+                { op: 'link', link: link.trim() },
+                'link',
+                L('Saqlandi.', 'Saved.', 'Сохранено.'),
+              );
+            }}
+          >
+            <input
+              className="input"
+              type="url"
+              value={link}
+              onChange={(e) => setLink(e.target.value)}
+              placeholder="https://…"
+              aria-label={L('Natija havolasi', 'Result link', 'Ссылка на результат')}
+            />
+            <Button type="submit" size="sm" variant="outline" disabled={busyNow}>
+              {L('Saqlash', 'Save', 'Сохранить')}
+            </Button>
+          </form>
+          {o.link && (
+            <a className="svc-link" href={o.link} target="_blank" rel="noopener noreferrer">
+              <ExternalLink size={14} /> {o.link}
+            </a>
+          )}
+          {o.status !== 'done' && (
+            <div className="svc-row">
+              {o.status === 'work' && (
+                <Button
+                  size="sm"
+                  disabled={busyNow || !ready}
+                  title={
+                    ready
+                      ? undefined
+                      : L(
+                          'Avval fayl yuklang yoki havola qo‘ying',
+                          'Upload a file or add a link first',
+                          'Сначала загрузите файл или добавьте ссылку',
+                        )
+                  }
+                  onClick={() =>
+                    void act(
+                      { op: 'status', status: 'review' },
+                      'status',
+                      L(
+                        '📤 Mijozga yuborildi — unga bildirishnoma ketdi.',
+                        '📤 Sent to the client — they were notified.',
+                        '📤 Отправлено заказчику — ему пришло уведомление.',
+                      ),
+                    )
+                  }
+                >
+                  📤 {L('Mijozga yuborish', 'Send to the client', 'Отправить заказчику')}
+                </Button>
+              )}
+              {o.status === 'review' && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={busyNow}
+                  onClick={() => void act({ op: 'status', status: 'work' }, 'status')}
+                >
+                  🔁 {L('Ishga qaytarish', 'Back to work', 'Вернуть в работу')}
+                </Button>
+              )}
+              {ready && (
                 <Button
                   size="sm"
                   variant="outline"
@@ -555,355 +669,76 @@ function AdminTask({
                     if (
                       window.confirm(
                         L(
-                          'Ijrochi olib tashlanib, vazifa yana e’longa qaytsinmi?',
-                          'Remove the worker and put the task back on the board?',
-                          'Снять исполнителя и вернуть задачу на биржу?',
+                          'Buyurtmachi o‘rniga buyurtmani yakunlaysizmi? (masalan, u javob bermayapti)',
+                          'Complete the order for the client? (e.g. they do not respond)',
+                          'Завершить заказ за заказчика? (например, он не отвечает)',
                         ),
                       )
                     )
-                      void act({ op: 'unassign' }, 'unassign');
+                      void act({ op: 'status', status: 'done' }, 'status');
                   }}
                 >
-                  🔄 {L('Ijrochini almashtirish', 'Change worker', 'Сменить исполнителя')}
+                  ✅ {L('Yakunlash', 'Complete', 'Завершить')}
                 </Button>
-              </div>
-            </div>
-          )}
-
-          {(o.status === 'work' || o.status === 'review' || o.status === 'done') && (
-            <div className="svc-deliver">
-              <b className="svc-sub">📥 {L('Natija', 'Result', 'Результат')}</b>
-              {outs.length ? (
-                <FileList files={outs} o={o.uk + '/' + o.id} remove={removeFile} />
-              ) : (
-                <p className="muted">
-                  {L('Hali fayl yuklanmagan.', 'No files yet.', 'Файлов пока нет.')}
-                </p>
-              )}
-              {o.status !== 'done' && outs.length < FILES_PER_ORDER.out && (
-                <label className="svc-attach-btn is-small">
-                  <Upload size={15} />
-                  {progress || L('Fayl yuklash', 'Upload a file', 'Загрузить файл')}
-                  <input
-                    type="file"
-                    multiple
-                    accept={FILE_ACCEPT}
-                    disabled={busyNow}
-                    onChange={(e) => {
-                      void upload(e.target.files);
-                      e.target.value = '';
-                    }}
-                  />
-                </label>
-              )}
-              <form
-                className="svc-msg-form"
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  void act(
-                    { op: 'link', link: link.trim() },
-                    'link',
-                    L('Saqlandi.', 'Saved.', 'Сохранено.'),
-                  );
-                }}
-              >
-                <input
-                  className="input"
-                  type="url"
-                  value={link}
-                  onChange={(e) => setLink(e.target.value)}
-                  placeholder="https://…"
-                  aria-label={L('Natija havolasi', 'Result link', 'Ссылка на результат')}
-                />
-                <Button type="submit" size="sm" variant="outline" disabled={busyNow}>
-                  {L('Saqlash', 'Save', 'Сохранить')}
-                </Button>
-              </form>
-              {o.link && (
-                <a className="svc-link" href={o.link} target="_blank" rel="noopener noreferrer">
-                  <ExternalLink size={14} /> {o.link}
-                </a>
-              )}
-              {o.status !== 'done' && (
-                <div className="svc-row">
-                  {o.status === 'work' && (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      disabled={busyNow}
-                      onClick={() => void act({ op: 'status', status: 'review' }, 'status')}
-                    >
-                      👀 {L('Topshirildi deb belgilash', 'Mark delivered', 'Отметить сданным')}
-                    </Button>
-                  )}
-                  {o.status === 'review' && (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      disabled={busyNow}
-                      onClick={() => void act({ op: 'status', status: 'work' }, 'status')}
-                    >
-                      🔁 {L('Ishga qaytarish', 'Back to work', 'Вернуть в работу')}
-                    </Button>
-                  )}
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    disabled={busyNow}
-                    onClick={() => {
-                      if (
-                        window.confirm(
-                          L(
-                            'Buyurtmachi o‘rniga vazifani yakunlaysizmi? (masalan, u javob bermayapti)',
-                            'Complete the task for the client? (e.g. they do not respond)',
-                            'Завершить задачу за заказчика? (например, он не отвечает)',
-                          ),
-                        )
-                      )
-                        void act({ op: 'status', status: 'done' }, 'status');
-                    }}
-                  >
-                    ✅ {L('Yakunlash', 'Complete', 'Завершить')}
-                  </Button>
-                </div>
               )}
             </div>
           )}
-
-          {o.status === 'done' && o.rating && (
-            <p className="svc-note">
-              ⭐ {o.rating}/5{o.review ? ' — ' + o.review : ''}
-            </p>
-          )}
-          {o.status === 'done' && o.worker && (
-            <div className={'mk-payout' + (o.payout ? ' is-paid' : '')}>
-              {o.payout ? (
-                <p>
-                  💸{' '}
-                  {L(
-                    `${formatSum(o.payout.amount)} ijrochiga o‘tkazilgan`,
-                    `${formatSum(o.payout.amount)} paid to the worker`,
-                    `${formatSum(o.payout.amount)} выплачено исполнителю`,
-                  )}{' '}
-                  · {dueText(o.payout.at, lang).date}
-                  {o.payout.note ? ' · ' + o.payout.note : ''}
-                </p>
-              ) : (
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    const n = Number(amount.replace(/\D/g, ''));
-                    if (
-                      window.confirm(
-                        L(
-                          `${o.worker!.name} hisobiga ${formatSum(n)} o‘tkazdingizmi?`,
-                          `Did you transfer ${formatSum(n)} to ${o.worker!.name}?`,
-                          `Вы перевели ${formatSum(n)} исполнителю ${o.worker!.name}?`,
-                        ),
-                      )
-                    )
-                      void act(
-                        {
-                          op: 'payout',
-                          amount: n,
-                          ...(payNote.trim() ? { note: payNote.trim() } : {}),
-                        },
-                        'payout',
-                        '💸 ' + L('Belgilandi.', 'Recorded.', 'Отмечено.'),
-                      );
-                  }}
-                >
-                  <b>💸 {L('Ijrochiga pul o‘tkazish', 'Pay the worker', 'Выплата исполнителю')}</b>
-                  <small className="muted">
-                    {L(
-                      `Buyurtmachi ${formatSum(o.budget)} to‘lagan. Platforma ulushi ${view.fee}% — ijrochiga ${formatSum(share(o.budget, view.fee))}. Pul o‘tkazish ma’lumoti «Ijrochilar» bo‘limida.`,
-                      `The client paid ${formatSum(o.budget)}. Fee ${view.fee}% — the worker gets ${formatSum(share(o.budget, view.fee))}. Payout details are under “Workers”.`,
-                      `Заказчик оплатил ${formatSum(o.budget)}. Комиссия ${view.fee}% — исполнителю ${formatSum(share(o.budget, view.fee))}. Реквизиты — в разделе «Исполнители».`,
-                    )}
-                  </small>
-                  <div className="svc-row">
-                    <input
-                      className="input"
-                      inputMode="numeric"
-                      value={amount}
-                      onChange={(e) => setAmount(e.target.value.replace(/\D/g, '').slice(0, 9))}
-                      aria-label={L('Summa', 'Amount', 'Сумма')}
-                    />
-                    <input
-                      className="input"
-                      maxLength={200}
-                      value={payNote}
-                      onChange={(e) => setPayNote(e.target.value)}
-                      placeholder={L('Izoh (chek raqami)', 'Note (receipt)', 'Комментарий (чек)')}
-                      aria-label={L('Izoh', 'Note', 'Комментарий')}
-                    />
-                    <Button type="submit" size="sm" disabled={busyNow || !Number(amount)}>
-                      {L('O‘tkazildi', 'Paid', 'Выплачено')}
-                    </Button>
-                  </div>
-                </form>
-              )}
-            </div>
-          )}
-          {o.status === 'cancel' && o.reason && (
-            <p className="svc-note">
-              ✖ {L('Sabab', 'Reason', 'Причина')}: {o.reason}
-            </p>
-          )}
-
-          <Chat
-            msgs={o.msgs}
-            me="team"
-            open={o.msgs.length > 0}
-            send={
-              o.status === 'cancel'
-                ? undefined
-                : async (text) => await act({ op: 'msg', text }, 'msg')
-            }
-          />
-
-          <footer className="svc-order-actions">
-            {o.status !== 'cancel' && o.status !== 'done' && (
-              <Button
-                size="sm"
-                variant="outline"
-                disabled={busyNow}
-                onClick={() => {
-                  const reason = window.prompt(
-                    L('Bekor qilish sababi:', 'Reason for cancelling:', 'Причина отмены:'),
-                  );
-                  if (reason && reason.trim().length >= 3)
-                    void act({ op: 'cancel', reason: reason.trim() }, 'cancel');
-                }}
-              >
-                ✖ {L('Bekor qilish', 'Cancel', 'Отменить')}
-              </Button>
-            )}
-            {!isActive(o.status) && (
-              <Button
-                size="sm"
-                variant="outline"
-                disabled={busyNow}
-                onClick={() => {
-                  if (
-                    window.confirm(
-                      L(
-                        'Vazifa va fayllari butunlay o‘chirilsinmi?',
-                        'Delete the task and its files for good?',
-                        'Удалить задачу и её файлы навсегда?',
-                      ),
-                    )
-                  )
-                    void act({ op: 'remove' }, 'remove');
-                }}
-              >
-                🗑 {L('O‘chirish', 'Delete', 'Удалить')}
-              </Button>
-            )}
-          </footer>
         </div>
       )}
-    </article>
-  );
-}
 
-function Workers({
-  view,
-  onView,
-}: {
-  view: ServicesAdminView;
-  onView: (v: ServicesAdminView) => void;
-}) {
-  const L = useL();
-  const { lang, request, toast } = useApp();
-  const [busy, setBusy] = useState('');
-  async function setStatus(w: WorkerProfile, status: 'active' | 'blocked') {
-    if (
-      status === 'blocked' &&
-      !window.confirm(
-        L(
-          `${w.name} ijrochi hisobi to‘xtatilsinmi? U ariza bera olmaydi.`,
-          `Suspend ${w.name}? They will not be able to apply.`,
-          `Приостановить ${w.name}? Он не сможет откликаться.`,
-        ),
-      )
-    )
-      return;
-    setBusy(w.uk);
-    try {
-      const r = await servicesAct<{ admin: ServicesAdminView }>(request, 'admin', {
-        op: 'worker',
-        wk: w.uk,
-        status,
-      });
-      onView(r.admin);
-    } catch (e) {
-      toast((e as Error).message);
-    } finally {
-      setBusy('');
-    }
-  }
-  if (!view.workers.length)
-    return (
-      <p className="muted svc-empty">
-        {L(
-          'Hali ijrochi yo‘q. Talabalar «💸 Ishlab topish» bo‘limida ro‘yxatdan o‘tadi.',
-          'No workers yet. Students sign up under “💸 Earn”.',
-          'Исполнителей пока нет. Студенты регистрируются в разделе «💸 Заработать».',
-        )}
-      </p>
-    );
-  return (
-    <ul className="mk-workers">
-      {view.workers.map((w) => (
-        <li key={w.uk} className={'panel' + (w.status === 'blocked' ? ' is-off' : '')}>
-          <div className="mk-me">
-            <span className="mk-avatar" aria-hidden="true">
-              {w.name[0]}
-            </span>
-            <div>
-              <b>{w.name}</b>
-              <small className="muted">
-                {w.group ? w.group + ' · ' : ''}
-                {L('ro‘yxatdan o‘tgan', 'joined', 'с')} {dueText(w.at, lang).date}
-              </small>
-            </div>
-            <span className={'bo-pill ' + (w.status === 'active' ? 'on' : 'off')}>
-              {w.status === 'active'
-                ? L('Faol', 'Active', 'Активен')
-                : L('To‘xtatilgan', 'Suspended', 'Приостановлен')}
-            </span>
-          </div>
-          <p className="muted">{w.skills.map((s) => kindTitle(lang, s)).join(' · ')}</p>
-          <p className="svc-text">{w.about}</p>
-          <p className="mk-pay-info">
-            💳 {L('Pul o‘tkazish uchun', 'Payout details', 'Реквизиты')}: <b>{w.pay || '—'}</b>
-          </p>
-          <p className="svc-order-meta">
-            <span>✅ {L(`${w.jobs} ta ish`, `${w.jobs} jobs`, `работ: ${w.jobs}`)}</span>
-            <span>⭐ {w.rating ?? '—'}</span>
-            <span>
-              💸 {L('o‘tkazilgan', 'paid', 'выплачено')}: {formatSum(w.earned)}
-            </span>
-            {w.pending > 0 && (
-              <span className="mk-owed">
-                ⏳ {L('o‘tkazish kerak', 'owed', 'к выплате')}: {formatSum(w.pending)}
-              </span>
-            )}
-          </p>
+      {o.status === 'done' && o.rating && (
+        <p className="svc-note">
+          ⭐ {o.rating}/5{o.review ? ' — ' + o.review : ''}
+        </p>
+      )}
+      {o.status === 'cancel' && o.reason && (
+        <p className="svc-note">
+          ✖ {L('Sabab', 'Reason', 'Причина')}: {o.reason}
+        </p>
+      )}
+
+      <footer className="svc-order-actions">
+        {o.status !== 'cancel' && o.status !== 'done' && (
           <Button
             size="sm"
             variant="outline"
-            disabled={busy === w.uk}
-            onClick={() => void setStatus(w, w.status === 'active' ? 'blocked' : 'active')}
+            disabled={busyNow}
+            onClick={() => {
+              const reason = window.prompt(
+                L('Bekor qilish sababi:', 'Reason for cancelling:', 'Причина отмены:'),
+              );
+              if (reason && reason.trim().length >= 3)
+                void act({ op: 'cancel', reason: reason.trim() }, 'cancel');
+            }}
           >
-            {w.status === 'active'
-              ? '⛔ ' + L('To‘xtatish', 'Suspend', 'Приостановить')
-              : '✅ ' + L('Tiklash', 'Restore', 'Восстановить')}
+            ✖ {L('Bekor qilish', 'Cancel', 'Отменить')}
           </Button>
-        </li>
-      ))}
-    </ul>
+        )}
+        {!isActive(o.status) && (
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={busyNow}
+            onClick={() => {
+              if (
+                window.confirm(
+                  L(
+                    'Buyurtma va fayllari butunlay o‘chirilsinmi?',
+                    'Delete the order and its files for good?',
+                    'Удалить заказ и его файлы навсегда?',
+                  ),
+                )
+              ) {
+                onBack();
+                void act({ op: 'remove' }, 'remove');
+              }
+            }}
+          >
+            🗑 {L('O‘chirish', 'Delete', 'Удалить')}
+          </Button>
+        )}
+      </footer>
+    </article>
   );
 }
 
@@ -1003,7 +838,6 @@ function Settings({
   const L = useL();
   const { request, toast } = useApp();
   const [how, setHow] = useState(view.how);
-  const [fee, setFee] = useState(String(view.fee));
   const [busy, setBusy] = useState(false);
   async function save(input: Record<string, unknown>) {
     setBusy(true);
@@ -1017,7 +851,6 @@ function Settings({
       setBusy(false);
     }
   }
-  const feeN = Math.min(50, Math.max(0, Number(fee) || 0));
   return (
     <div className="svc-pay-admin">
       <form
@@ -1028,9 +861,9 @@ function Settings({
       >
         <label>
           {L(
-            'To‘lov yo‘riqnomasi (ijrochi tasdiqlangach buyurtmachiga ko‘rinadi)',
-            'Payment instructions (shown to the client once a worker is approved)',
-            'Инструкция по оплате (видна заказчику после утверждения исполнителя)',
+            'To‘lov yo‘riqnomasi (buyurtmachiga buyurtma sahifasida ko‘rinadi)',
+            'Payment instructions (shown to the client on the order page)',
+            'Инструкция по оплате (видна заказчику на странице заказа)',
           )}
           <textarea
             className="input"
@@ -1049,40 +882,11 @@ function Settings({
           {L('Saqlash', 'Save', 'Сохранить')}
         </Button>
       </form>
-      <form
-        className="mk-fee"
-        onSubmit={(e) => {
-          e.preventDefault();
-          void save({ op: 'fee', fee: feeN });
-        }}
-      >
-        <label>
-          {L('Platforma ulushi (%)', 'Platform fee (%)', 'Комиссия платформы (%)')}
-          <input
-            className="input"
-            type="number"
-            min={0}
-            max={50}
-            value={fee}
-            onChange={(e) => setFee(e.target.value)}
-          />
-        </label>
-        <small className="muted">
-          {L(
-            `Masalan, buyurtmachi 100 000 so‘m to‘lasa, ijrochi ${formatSum(share(100000, feeN))} oladi. Ijrochilar e’londa «Siz olasiz» summasini ko‘radi.`,
-            `E.g. if the client pays 100 000 so‘m, the worker gets ${formatSum(share(100000, feeN))}. Workers see the “You get” amount on the board.`,
-            `Например, если заказчик платит 100 000 сум, исполнитель получит ${formatSum(share(100000, feeN))}. Исполнители видят сумму «Вы получите».`,
-          )}
-        </small>
-        <Button type="submit" disabled={busy}>
-          {L('Saqlash', 'Save', 'Сохранить')}
-        </Button>
-      </form>
       <small className="muted">
         {L(
-          'Pul har doim administrator orqali o‘tadi: buyurtmachi sizga to‘laydi, ish qabul qilingach siz ijrochiga o‘tkazasiz va «O‘tkazildi» deb belgilaysiz. Play Market ilovasida bu bo‘lim ko‘rinmaydi (Google qoidasi) — vazifalar saytda beriladi.',
-          'Money always goes through the administrator: the client pays you, and after acceptance you pay the worker and mark it “Paid”. This section is hidden in the Play Market app (Google rules) — tasks are posted on the website.',
-          'Деньги всегда идут через администратора: заказчик платит вам, после приёмки вы переводите исполнителю и отмечаете «Выплачено». В приложении Play Market раздел скрыт (правила Google) — задачи даются на сайте.',
+          'Buyurtmachi to‘lab «To‘lov qildim» deydi, siz buyurtma yozishmasida «To‘lovni tasdiqlash»ni bosasiz. To‘lov ishni to‘xtatmaydi — natijani qachon yuborishni o‘zingiz hal qilasiz. Play Market ilovasida bu bo‘lim ko‘rinmaydi (Google qoidasi) — buyurtmalar saytda beriladi.',
+          'The client pays and presses “I paid”; you press “Confirm payment” in the order chat. Payment does not block the work — you decide when to send the result. This section is hidden in the Play Market app (Google rules) — orders are placed on the website.',
+          'Заказчик оплачивает и нажимает «Я оплатил», вы нажимаете «Подтвердить оплату» в переписке. Оплата не блокирует работу — когда отправить результат, решаете вы. В приложении Play Market раздел скрыт (правила Google) — заказы делаются на сайте.',
         )}
       </small>
     </div>

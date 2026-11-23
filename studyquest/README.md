@@ -41,41 +41,39 @@ For Firebase-backed development, copy `.env.example` to `.env.local`, supply you
   the course page (`#course/<id>/ranking`; the old `#ranking` link still opens it).
 - **Library** (`lib/server/library.ts`): the administrator adds books, guides, articles, videos, laws and templates as
   links with an optional cover; 💎 items hide their link from people without Premium.
-- **💼 Paid services — student marketplace** (`lib/services.ts`, `lib/server/services.ts`, `app/api/services`,
-  `components/services.tsx`): replaces the old AI presentation section (`#slides` now opens it). Students post tasks
-  for each other and earn money; the administrator holds the money in between. Tabs (`#services`, `#services/board`,
-  `#services/mine`, `#services/work`):
+- **💼 Paid services** (`lib/services.ts`, `lib/server/services.ts`, `app/api/services`, `components/services.tsx`):
+  replaces the old AI presentation section (`#slides` now opens it). A user orders work and the administrator
+  prepares it; the order shows **«🤖 Sun'iy intellekt yordamida tayyorlanmoqda»** (being prepared with the help of
+  AI). Tabs (`#services`, `#services/mine`; the old `#services/board` and `#services/work` links open the catalog):
   - **🛒 Order** — a catalog of 13 colourful direction cards (presentation, course paper, graduation thesis, essay,
     article, book publishing, business plan, website, design, translation, documents, video, other) with group
-    filters, search and how many people used each service. A task has a topic, details, **the amount the student
+    filters, search and how many people used each service. An order has a topic, details, **the amount the user
     can pay** (5 000 – 50 000 000 so'm; the administrator's usual price is shown as a hint), wanted date, contact
     and up to 3 attachments of 10 MB. Course papers, theses, essays and articles are **assistance only** (outline,
     sources, editing, formatting) — the student writes the text.
-  - **📋 Tasks** — the board of open tasks (no contact or files; the client's name is shortened to «Ali V.»).
-    Workers say **«🙋 I'll do it»** with an optional note and see the amount they get (budget minus the platform
-    fee). Workers whose skills match a new task get a push notification.
-  - **📦 My orders** — applicants with their jobs and rating; after the administrator approves a worker the client
-    pays (payment instructions + «I paid» with a receipt note), the administrator confirms the payment and the work
-    starts; the client downloads the result, asks for changes or accepts it with a 1–5 star rating and review.
-  - **💸 Earn / My jobs** — signing up as a worker (skills, about, payout card/phone seen only by the administrator,
-    rules incl. «assistance only» for academic work) and a dashboard: earned, awaiting payout, jobs done, rating,
-    active jobs (client files, chat, upload up to 6 result files of 30 MB or a link, «Deliver»), applications and
-    finished jobs with payout status.
-  - **Admin → 🛠 Site manager → 💼 Paid services**: launch toggle, totals (active tasks, workers, owed to workers,
-    paid out), tasks with a «Needs action» filter (applications to approve, payments to confirm, payouts due),
-    approve/replace the worker, confirm payment, status overrides, cancel with a reason, delete, files and chat;
-    **payout** form (defaults to budget minus the fee) — the administrator transfers the money and marks it paid;
-    workers list with payout details and suspend/restore; directions (usual price, timing, closed); payment
-    instructions and platform fee (0–50 %).
-    Until the administrator presses **🚀 Launch** (`site/serviceInfo/open`), students see a «🚀 Launching soon» window:
-    they tick the services they need and write a suggestion, which arrives in «Message the admin» as a 💡 idea, and can
-    already sign up as workers; tasks are refused (the administrator can still post test tasks). Storage (server-only
-    RTDB): `site/serviceOrders/<user>/<id>`, `site/serviceWorkers/<user>`, files in 2.5 MB base64 parts in
-    `site/serviceFiles/<user>/<file>/<n>` (Vercel's 4.5 MB request limit, joined in the browser on download),
-    `site/serviceStats|serviceInterest/<kind>/<user>` for the counters. Files of cancelled tasks are deleted at once and
-    results 90 days after completion; account deletion removes the user's tasks, files, counters, worker profile and
-    applications. Status changes send push notifications. The section is hidden inside the Play Store app
-    (`/?src=play`): Google Play does not allow steering to external payments.
+  - **📦 My orders** — the 🤖 «being prepared» status with a progress line (Order → In progress → Result → Accept),
+    payment instructions with **«I paid»** and a receipt note (payment does not block the work; the administrator
+    confirms it), the chat with the administrator, the result to download, «Needs changes» (back to work) or
+    acceptance with a 1–5 star rating and review. The client can cancel only before paying or receiving a result.
+  - **Admin → 🛠 Site manager → 💼 Paid services → 💬 Orders** — a Telegram-like inbox: on the left every order
+    (client, service, last message; a dot when the client wrote last or the order is new, 💳 when a payment
+    waits for confirmation; filters «Needs reply», «In progress», «Delivered», «Completed», «Cancelled», search),
+    on the right the conversation: the first bubble is the order itself (service, title, what the client wrote and
+    their files), then the chat, **Confirm payment**, the result (up to 6 files of 30 MB or a link) and
+    **«📤 Send to the client»** (→ «Ready — check it»), «Back to work», «Complete», cancel with a reason, delete. On
+    phones the list and the conversation open one after the other. Other tabs: directions (usual price, timing,
+    closed) and payment instructions.
+    Until the administrator presses **🚀 Launch** (`site/serviceInfo/open`), users see a «🚀 Launching soon» window:
+    they tick the services they need and write a suggestion, which arrives in «Message the admin» as a 💡 idea;
+    orders are refused (the administrator can still place test orders). Storage (server-only RTDB):
+    `site/serviceOrders/<user>/<id>` (status `work` → `review` → `done` | `cancel`; `paidAt`/`payOk` for payment;
+    older marketplace statuses read as `work`), files in 2.5 MB base64 parts in `site/serviceFiles/<user>/<file>/<n>`
+    (Vercel's 4.5 MB request limit, joined in the browser on download), `site/serviceStats|serviceInterest/<kind>/<user>`
+    for the counters. Files of cancelled orders are deleted at once and results 90 days after completion; account
+    deletion removes the user's orders, files, counters and any old worker profile. New orders, messages, payments
+    and changes notify the administrator by push; replies, confirmed payments and results notify the client. The
+    privacy policy says that order texts and files may be processed with AI tools. The section is hidden inside the
+    Play Store app (`/?src=play`): Google Play does not allow steering to external payments.
 - **Premium** (`lib/server/premium.ts`): until a payment provider is connected the administrator grants a timed
   subscription by hand and writes the price and payment instructions. Inside the Play Store app (`/?src=play`) the
   offer shows no price or payment instructions (`lib/play-app.ts`) — Google Play does not allow steering to external
