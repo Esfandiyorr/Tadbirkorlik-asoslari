@@ -81,9 +81,14 @@ For Firebase-backed development, copy `.env.example` to `.env.local`, supply you
   The offer (Profile → 💎 Premium, the 💎 slide in the announcements box on the right for users without Premium, 💎
   library items) lists what subscribers get and a simple form (`components/product-buy.tsx`): the card number from
   ⚙️ Payment instructions → «How much did you pay?» (any amount) → a receipt screenshot → «📤 Send the receipt». The
-  order waits in «Paid services» chat; the administrator checks the receipt and presses «✅ Open for 1 month» or
-  «✅ Open for 1 year» — Premium turns on by itself (added on top of the current period). For a fake receipt
-  «⛔ Fake receipt — block»: the order is cancelled, paid services are closed for that user
+  receipt appears in **Site manager → 💎 Premium → «🧾 Receipts to check»** (name, group, amount, note, receipt
+  picture; `premiumPending()` reads the open Premium orders) and in the «Paid services» chat: «✅ Accept for 1 month» /
+  «✅ Accept for 1 year» turns Premium on by itself (added on top of the current period); «✖ Reject» (`op: 'reject'`,
+  optional reason) closes the order without blocking — the user sees the reason and may send a new receipt (for a
+  custom service only the receipt and amount are removed). The same page lists **subscribers with their period and
+  how much they paid**: every opening is kept in `site/premium/<user>.hist` ({at, days, amount?, by}; hand-given
+  periods have no amount), with «⏳ Period: 1 year + 1 month», «💳 Paid: …», the end date, a history list and
+  «✖ Remove». For a fake receipt «⛔ Fake receipt — block» in the chat: the order is cancelled, paid services are closed for that user
   (`site/serviceBans/<user>`; optionally site sign-in is blocked too) and «⚙️ Payment instructions» lists the blocked
   users with «Unblock». The administrator can still grant Premium by hand. Subscribers get: a **profile look** — one
   of 5 (👑 Golden crown, 🌈 Rainbow, ✨ Violet glow, 💎 Diamond, 🔥 Fire; Profile → 💎 Premium), shown on their

@@ -8,7 +8,7 @@ import {
   saveServiceChunk,
   servicesView,
 } from '../lib/server/services';
-import { premiumState } from '../lib/server/premium';
+import { premiumAdmin, premiumState } from '../lib/server/premium';
 import { resetSiteMemory, siteGet } from '../lib/server/site-content';
 
 /* 🎯 Yakuniy testga tayyorgarlik: savollarni yuklash (ikki format), bo'limni sotib olish (narx belgilanmagan:
@@ -173,14 +173,68 @@ it('Premium: any amount and a receipt; the administrator opens it for 1 month or
   await expect(manageServices(vali, { op: 'buy', product: 'premium-oy' })).rejects.toThrow('yo‘q');
   const id = await pay(vali, 'premium', 3000);
   expect((await premiumState(vali, NOW)).active).toBe(false);
+  // «💎 Obuna» sahifasida: chek yuborganlar ro'yxati
+  let pm = await premiumAdmin(admin, NOW);
+  expect(pm.pending).toMatchObject([
+    { id, uk: keyOf(vali.id), name: 'Vali Karimov', budget: 3000, paidAt: NOW },
+  ]);
+  expect(pm.pending[0].files.filter((f) => f.side === 'pay')).toHaveLength(1);
   await adminServices(admin, { op: 'confirm', uk: keyOf(vali.id), id, days: 365 }, NOW);
   const st = await premiumState(vali, NOW);
   expect(st.active).toBe(true);
   expect(st.until).toBe(NOW + 365 * 86400000);
+  expect((await servicesView(vali, NOW)).orders!.find((o) => o.id === id)!.days).toBe(365);
   // ikkinchi chek — 1 oy, muddat ustiga qo'shiladi
   const id2 = await pay(vali, 'premium', 5000, NOW + 1000);
   await adminServices(admin, { op: 'confirm', uk: keyOf(vali.id), id: id2, days: 30 }, NOW + 2000);
   expect((await premiumState(vali, NOW)).until).toBe(NOW + 395 * 86400000);
+  // obunachilar: qancha muddatga va qancha to'lagani (tarix bilan)
+  pm = await premiumAdmin(admin, NOW);
+  expect(pm.pending).toEqual([]);
+  expect(pm.paid).toBe(8000);
+  expect(pm.grants).toMatchObject([
+    {
+      uid: vali.id,
+      name: 'Vali Karimov',
+      days: 395,
+      paid: 8000,
+      until: NOW + 395 * 86400000,
+      hist: [
+        { at: NOW, days: 365, amount: 3000, by: 'Admin' },
+        { at: NOW + 2000, days: 30, amount: 5000, by: 'Admin' },
+      ],
+    },
+  ]);
+});
+
+it('the administrator may not accept a receipt: the order closes, nothing opens, the user can send a new one', async () => {
+  const id = await pay(ali, 'premium', 2000);
+  await expect(adminServices(ali, { op: 'reject', uk: keyOf(ali.id), id })).rejects.toThrow(
+    'Administrator',
+  );
+  await adminServices(
+    admin,
+    { op: 'reject', uk: keyOf(ali.id), id, reason: 'summa ko‘rinmaydi' },
+    NOW + 1000,
+  );
+  expect((await servicesView(ali, NOW)).orders!.find((o) => o.id === id)).toMatchObject({
+    status: 'cancel',
+    reason: 'Chek qabul qilinmadi: summa ko‘rinmaydi',
+    files: [],
+  });
+  expect((await premiumState(ali, NOW)).active).toBe(false);
+  expect((await premiumAdmin(admin, NOW)).pending).toEqual([]);
+  // blok yo'q — yangi chek yuborsa bo'ladi
+  expect((await servicesView(ali, NOW)).banned).toBeUndefined();
+  const again = await pay(ali, 'premium', 5000, NOW + 2000);
+  await expect(
+    adminServices(admin, { op: 'reject', uk: keyOf(ali.id), id: again + 'x' }),
+  ).rejects.toThrow();
+  await adminServices(admin, { op: 'confirm', uk: keyOf(ali.id), id: again, days: 30 });
+  expect((await premiumState(ali, NOW)).active).toBe(true);
+  await expect(
+    adminServices(admin, { op: 'reject', uk: keyOf(ali.id), id: again }),
+  ).rejects.toThrow('tasdiqlangan');
 });
 
 it('practice records mistakes; the final exam is graded at the end and a pass gives a verifiable certificate', async () => {

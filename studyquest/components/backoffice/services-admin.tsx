@@ -20,6 +20,7 @@ import {
   isProduct,
   PREMIUM_TERMS,
   serviceKind,
+  termText,
   type ProductId,
   type AdminOrder,
   type ServicesAdminView,
@@ -518,7 +519,8 @@ function AdminChat({
             <>
               <b>
                 ✅ {L('To‘lov qabul qilingan', 'Payment accepted', 'Оплата принята')}
-                {o.budget ? ': ' + formatSum(o.budget) : ''} · {dueText(o.payOk, lang).date}
+                {o.budget ? ': ' + formatSum(o.budget) : ''}
+                {o.days ? ' · 💎 ' + termText(o.days, lang) : ''} · {dueText(o.payOk, lang).date}
               </b>
               <Receipts o={o.uk + '/' + o.id} files={o.files.filter((f) => f.side === 'pay')} />
             </>
@@ -575,6 +577,32 @@ function AdminChat({
                       : L('Qabul qilish', 'Accept', 'Принять')}
                   </Button>
                 )}
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={busyNow}
+                  onClick={() => {
+                    const why = window.prompt(
+                      L(
+                        `${o.name}ning cheki qabul qilinmasinmi? Sababini yozing (ixtiyoriy) — buyurtmachiga boradi.`,
+                        `Reject ${o.name}'s receipt? Write a reason (optional) — the client gets it.`,
+                        `Не принимать чек ${o.name}? Укажите причину (необязательно).`,
+                      ),
+                      '',
+                    );
+                    if (why !== null)
+                      void act(
+                        {
+                          op: 'reject',
+                          ...(why.trim() ? { reason: why.trim().slice(0, 300) } : {}),
+                        },
+                        'reject',
+                        '✖ ' + L('Chek qabul qilinmadi.', 'Receipt rejected.', 'Чек отклонён.'),
+                      );
+                  }}
+                >
+                  ✖ {L('Qabul qilmaslik', 'Reject', 'Не принимать')}
+                </Button>
                 <Button
                   size="sm"
                   variant="outline"

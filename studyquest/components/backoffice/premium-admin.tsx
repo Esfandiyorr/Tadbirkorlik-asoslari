@@ -1,20 +1,26 @@
 'use client';
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
-import { Crown, Trash2 } from 'lucide-react';
+import { Crown } from 'lucide-react';
 import { useApp } from '../provider';
 import { Button } from '../ui/button';
-import { dueText } from '@/lib/points';
+import { Receipts } from '../receipt';
+import { servicesAct } from '../service-files';
+import { PREMIUM_TERMS, formatSum, termText } from '@/lib/services';
 import { useAdminView, useL } from './common';
 import type { PremiumAdminView } from '@/lib/server/premium';
 
-/* 💎 Sayt boshqaruvi → Obuna: narx va to'lov yo'riqnomasi (talabaga ko'rsatiladi), talabaga obuna berish va bekor
-   qilish. To'lov tizimi ulanguncha: talaba to'laydi → administrator shu yerda muddatini belgilaydi. */
+/* 💎 Sayt boshqaruvi → Obuna: 🧾 chek yuborganlar (1 oy yoki 1 yilga qabul qilish, qabul qilmaslik), 👥 obunachilar —
+   qancha muddatga va qancha to'lagani (har bir ochilish tarixi bilan), obunani bekor qilish va qo'lda obuna berish. */
 type Student = { id: string; name: string; classId?: string };
 
 export function PremiumAdmin() {
   const L = useL();
-  const { lang, request } = useApp();
-  const { data, error, busy, act } = useAdminView<PremiumAdminView>('premiumAdmin', 'premiumAdmin');
+  const { lang, request, toast } = useApp();
+  const { data, error, busy, act, load } = useAdminView<PremiumAdminView>(
+    'premiumAdmin',
+    'premiumAdmin',
+  );
+  const [doing, setDoing] = useState('');
   const [students, setStudents] = useState<Student[]>([]),
     [q, setQ] = useState(''),
     [pick, setPick] = useState<Student | null>(null),
@@ -56,6 +62,31 @@ export function PremiumAdmin() {
   }, [q, students]);
   if (error) return <p className="error-state">{error}</p>;
   if (!data) return <div className="skeleton h-64" />;
+  /** 🧾 chekni qabul qilish (muddat bilan) yoki qabul qilmaslik — «Pullik xizmatlar» buyurtmasi orqali */
+  const decide = async (
+    o: { uk: string; id: string; name: string },
+    input: Record<string, unknown>,
+    done: string,
+  ) => {
+    setDoing(o.id);
+    try {
+      await servicesAct(request, 'admin', { ...input, uk: o.uk, id: o.id });
+      await load();
+      toast(done);
+    } catch (e) {
+      toast((e as Error).message);
+    } finally {
+      setDoing('');
+    }
+  };
+  // sana yili bilan (1 yillik obunada «24.11.2027»), Toshkent vaqti
+  const date = (t: number) =>
+    new Intl.DateTimeFormat('ru-RU', {
+      timeZone: 'Asia/Tashkent',
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    }).format(t);
   const grant = async (e: FormEvent) => {
     e.preventDefault();
     if (!pick) return;
@@ -77,11 +108,109 @@ export function PremiumAdmin() {
         </span>
         <span>
           {L(
-            'ta foydalanuvchida obuna amalda. Obuna: kurs darslari (talaba bo‘lmaganlarga), kutubxonadagi 💎 manbalar va 🎭 avatar (top-10 dan tashqarida ham).',
-            'users have Premium. Premium unlocks course lessons (for non-students), 💎 library resources and 🎭 an avatar (even outside the top 10).',
-            'пользователей с подпиской. Подписка открывает уроки курса (для не-студентов), материалы 💎 в библиотеке и 🎭 аватар (даже вне топ-10).',
+            'ta foydalanuvchida obuna amalda',
+            'users have Premium now',
+            'пользователей с активной подпиской',
           )}
+          {data.paid > 0 &&
+            ' · ' +
+              L('jami to‘langan', 'paid in total', 'всего оплачено') +
+              ': ' +
+              formatSum(data.paid)}
+          {data.pending.length > 0 &&
+            ' · 🧾 ' +
+              data.pending.length +
+              ' ' +
+              L('ta chek kutmoqda', 'receipts waiting', 'чеков ждут')}
         </span>
+      </div>
+
+      <div className="bo-card pm-admin-pending">
+        <h3>
+          🧾 {L('Chek yuborganlar — qabul qiling', 'Receipts to check', 'Присланные чеки')} (
+          {data.pending.length})
+        </h3>
+        {data.pending.length ? (
+          <ul className="bo-list pm-admin-list">
+            {data.pending.map((o) => (
+              <li key={o.uk + o.id}>
+                <div className="pm-admin-who">
+                  <b>{o.name}</b>
+                  <small>
+                    {[o.group, o.email, date(o.paidAt || o.at)].filter(Boolean).join(' · ')}
+                  </small>
+                  <span className="pm-admin-chips">
+                    <em className="is-sum">💳 {formatSum(o.budget)}</em>
+                    {o.paidNote && <em>💬 {o.paidNote}</em>}
+                  </span>
+                  <Receipts o={o.uk + '/' + o.id} files={o.files.filter((f) => f.side === 'pay')} />
+                </div>
+                <span className="pm-admin-btns">
+                  {PREMIUM_TERMS.map((days) => (
+                    <Button
+                      key={days}
+                      size="sm"
+                      disabled={!!doing}
+                      onClick={() =>
+                        void decide(
+                          o,
+                          { op: 'confirm', days },
+                          '💎 ' +
+                            o.name +
+                            ': ' +
+                            L('obuna ochildi', 'Premium is on', 'подписка открыта') +
+                            ' (' +
+                            termText(days, lang) +
+                            ')',
+                        )
+                      }
+                    >
+                      ✅ {termText(days, lang)}
+                      {L('ga qabul qilish', ' — accept', ' — принять')}
+                    </Button>
+                  ))}
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={!!doing}
+                    onClick={() => {
+                      const why = window.prompt(
+                        L(
+                          o.name +
+                            'ning cheki qabul qilinmasinmi? Sababini yozing (ixtiyoriy) — foydalanuvchiga boradi.',
+                          'Reject ' +
+                            o.name +
+                            '’s receipt? Write a reason (optional) — the user gets it.',
+                          'Не принимать чек ' + o.name + '? Укажите причину (необязательно).',
+                        ),
+                        '',
+                      );
+                      if (why === null) return;
+                      void decide(
+                        o,
+                        {
+                          op: 'reject',
+                          ...(why.trim() ? { reason: why.trim().slice(0, 300) } : {}),
+                        },
+                        '✖ ' + L('Chek qabul qilinmadi', 'Receipt rejected', 'Чек отклонён'),
+                      );
+                    }}
+                  >
+                    ✖ {L('Qabul qilmaslik', 'Reject', 'Не принимать')}
+                  </Button>
+                </span>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="muted">
+            {L(
+              'Hozircha yangi chek yo‘q. Foydalanuvchi istalgan summani to‘lab chek yuborsa, shu yerda chiqadi — 1 oy yoki 1 yilga qabul qilasiz, obuna o‘zi yoqiladi.',
+              'No new receipts. When a user pays any amount and sends a receipt it appears here — accept it for 1 month or 1 year and Premium turns on by itself.',
+              'Новых чеков нет. Когда пользователь оплатит любую сумму и пришлёт чек, он появится здесь — примите на 1 месяц или 1 год, подписка включится сама.',
+            )}
+          </p>
+        )}
       </div>
       <div className="bo-grid">
         <form className="bo-form" onSubmit={(e) => void grant(e)}>
@@ -140,12 +269,12 @@ export function PremiumAdmin() {
           </p>
         </form>
         <div className="bo-form">
-          <h3>🏷 {L('Narx va to‘lov', 'Price and payment', 'Цена и оплата')}</h3>
+          <h3>💳 {L('To‘lov qanday', 'How payment works', 'Как проходит оплата')}</h3>
           <p className="muted">
             {L(
-              'Obuna endi saytning o‘zida sotiladi: oylik va yillik tarif (narxi — «Pullik xizmatlar → ⚙️ To‘lov yo‘riqnomasi»). Obunachi «To‘lov qildim» desa, «Pullik xizmatlar → 💬 Buyurtmalar»da «To‘lovni tasdiqlash»ni bosasiz — obuna o‘zi yoqiladi (muddat mavjudiga qo‘shiladi). Bu yerdan qo‘lda ham berish mumkin.',
-              'Premium is now sold on the site itself: monthly and yearly plans (prices under “Paid services → ⚙️ Payment instructions”). When a subscriber presses “I paid”, press “Confirm payment” in “Paid services → 💬 Orders” — Premium turns on by itself (added to the current period). You can still grant it by hand here.',
-              'Подписка продаётся на самом сайте: месячный и годовой тариф (цены — «Платные услуги → ⚙️ Инструкция по оплате»). Когда подписчик нажмёт «Я оплатил», подтвердите оплату в «Платные услуги → 💬 Заказы» — подписка включится сама. Здесь можно выдать её и вручную.',
+              'Narx belgilanmagan: foydalanuvchi istalgan summani kartaga to‘lab (karta raqami — «Pullik xizmatlar → ⚙️ To‘lov yo‘riqnomasi»), chek skrinshotini yuboradi. Chek yuqorida chiqadi — 1 oy yoki 1 yilga qabul qilasiz (muddat mavjudiga qo‘shiladi) yoki qabul qilmaysiz. Soxta chekni «Pullik xizmatlar» yozishmasida bloklash mumkin.',
+              'No fixed price: the user pays any amount to the card (number under “Paid services → ⚙️ Payment instructions”) and sends a receipt screenshot. It appears above — accept it for 1 month or 1 year (added to the current period) or reject it. A fake receipt can be blocked in the “Paid services” chat.',
+              'Цена не задана: пользователь оплачивает любую сумму на карту («Платные услуги → ⚙️ Инструкция по оплате») и присылает скриншот чека. Он появится выше — примите на 1 месяц или 1 год (срок прибавляется) или отклоните. Поддельный чек можно заблокировать в переписке «Платные услуги».',
             )}
           </p>
         </div>
@@ -154,22 +283,51 @@ export function PremiumAdmin() {
         <h3>
           👥 {L('Obunachilar', 'Subscribers', 'Подписчики')} ({data.grants.length})
         </h3>
-        <ul className="bo-list bo-app-requests">
+        <ul className="bo-list pm-admin-list pm-admin-subs">
           {data.grants.map((g) => {
             const on = g.until > data.now;
             return (
-              <li key={g.uid}>
-                <div>
+              <li key={g.uid} className={on ? '' : 'is-off'}>
+                <div className="pm-admin-who">
                   <b>{g.name}</b>
-                  <small>
-                    {(g.group ? g.group + ' · ' : '') +
-                      (on
-                        ? L('gacha: ', 'until ', 'до ') + dueText(g.until, lang, data.now).date
-                        : L('muddati tugagan', 'expired', 'срок истёк'))}
-                  </small>
+                  {g.group && <small>{g.group}</small>}
+                  <span className="pm-admin-chips">
+                    <em className={on ? 'is-on' : 'is-off'}>
+                      {on
+                        ? '📅 ' + date(g.until) + L(' gacha', ' — until', ' — до')
+                        : '⌛ ' + L('muddati tugagan', 'expired', 'срок истёк')}
+                    </em>
+                    {g.days > 0 && (
+                      <em>
+                        ⏳ {L('Muddat', 'Period', 'Срок')}:{' '}
+                        {g.hist.map((t) => termText(t.days, lang)).join(' + ')}
+                      </em>
+                    )}
+                    <em className={g.paid > 0 ? 'is-sum' : ''}>
+                      💳 {L('To‘lagan', 'Paid', 'Оплатил')}:{' '}
+                      {g.paid > 0
+                        ? formatSum(g.paid)
+                        : L('qo‘lda berilgan', 'given by hand', 'выдано вручную')}
+                    </em>
+                  </span>
+                  {g.hist.length > 0 && (
+                    <details className="pm-admin-hist">
+                      <summary>
+                        {L('Tarix', 'History', 'История')} ({g.hist.length})
+                      </summary>
+                      <ol>
+                        {g.hist.map((t, i) => (
+                          <li key={i}>
+                            {date(t.at)} · {termText(t.days, lang)} ·{' '}
+                            {t.amount ? formatSum(t.amount) : L('qo‘lda', 'by hand', 'вручную')}
+                            {t.by && <small> · {t.by}</small>}
+                          </li>
+                        ))}
+                      </ol>
+                    </details>
+                  )}
                 </div>
-                <span className="bo-row-btns">
-                  <span className={'bo-pill ' + (on ? 'on' : 'off')}>{on ? '💎' : '⌛'}</span>
+                <span className="pm-admin-btns">
                   <Button
                     size="sm"
                     variant="outline"
@@ -179,15 +337,25 @@ export function PremiumAdmin() {
                       ': ' +
                       g.name
                     }
-                    onClick={() =>
+                    onClick={() => {
+                      if (
+                        !window.confirm(
+                          L(
+                            g.name + 'ning obunasi bekor qilinsinmi? Obuna darhol yopiladi.',
+                            'Remove ' + g.name + '’s Premium? It closes at once.',
+                            'Отменить подписку ' + g.name + '? Она закроется сразу.',
+                          ),
+                        )
+                      )
+                        return;
                       void act(
                         { op: 'revoke', uid: g.uid },
                         'rv' + g.uid,
                         L('Obuna bekor qilindi', 'Premium removed', 'Подписка отменена'),
-                      ).catch(() => {})
-                    }
+                      ).catch(() => {});
+                    }}
                   >
-                    <Trash2 size={14} />
+                    ✖ {L('Bekor qilish', 'Remove', 'Отменить')}
                   </Button>
                 </span>
               </li>

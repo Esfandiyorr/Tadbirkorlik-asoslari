@@ -72,6 +72,11 @@ it('the administrator gives, extends and removes Premium; staff always have it',
     now + DAY,
   );
   expect(v.grants[0].until).toBe(now + 37 * DAY);
+  // qo'lda berilgan muddatlar tarixda (to'lovsiz)
+  expect(v.grants[0]).toMatchObject({ days: 37, paid: 0 });
+  expect(v.grants[0].hist.map((t) => t.days)).toEqual([30, 7]);
+  expect(v.grants[0].hist[0].amount).toBeUndefined();
+  expect(v.pending).toEqual([]);
   // muddati o'tgach — o'zi tugaydi
   expect((await premiumState(ali, now + 38 * DAY)).active).toBe(false);
   expect((await premiumAdmin(admin, now + 38 * DAY)).active).toBe(0);

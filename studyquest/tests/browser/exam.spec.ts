@@ -181,7 +181,7 @@ test('final exam prep: upload questions, buy the section, practise, pass the fin
   await reset(page);
 });
 
-test('Premium: shown in the news box with its perks; any amount and a receipt, the administrator opens it for 1 month or 1 year; pick one of 5 looks', async ({
+test('Premium: shown in the news box with its perks; any amount and a receipt; on the Premium admin page the administrator rejects or accepts it for 1 month or 1 year and sees the period and amount; pick one of 5 looks', async ({
   page,
   browser,
 }) => {
@@ -215,15 +215,41 @@ test('Premium: shown in the news box with its perks; any amount and a receipt, t
   await expect(offer).not.toContainText('chegirma');
   const plans = offer.locator('.premium-plans');
   await expect(plans).not.toContainText('5 000 so‘m');
+  await payForm(plans, '1000');
+  await expect(plans).toContainText('Chekingiz yuborildi: 1 000 so‘m');
+  // administrator: Sayt boshqaruvi → 💎 Obuna — chek yuborganlar (summa, chek): qabul qilish yoki qilmaslik
+  await page.goto('/#admin', { waitUntil: 'domcontentloaded' });
+  await page
+    .getByRole('button', { name: /Obuna \(pullik imkoniyatlar\)/ })
+    .first()
+    .click();
+  const pending = page.locator('.pm-admin-pending .pm-admin-list > li');
+  await expect(pending).toHaveCount(1);
+  await expect(pending).toContainText('1 000 so‘m');
+  await expect(pending.locator('.receipts img')).toBeVisible();
+  await expect(pending.getByRole('button', { name: /1 yilga qabul qilish/ })).toBeVisible();
+  page.once('dialog', (d) => void d.accept('summa kam'));
+  await pending.getByRole('button', { name: /Qabul qilmaslik/ }).click();
+  await expect(pending).toHaveCount(0);
+  // foydalanuvchi: sababini ko'radi va yangi chek yuboradi
+  await student.reload({ waitUntil: 'domcontentloaded' });
+  await card.getByRole('button', { name: /Obuna bo‘lish/ }).click();
+  await expect(plans.locator('.pb-note.is-rejected')).toContainText(
+    'Chek qabul qilinmadi: summa kam',
+  );
   await payForm(plans, '5000');
   await expect(plans).toContainText('Chekingiz yuborildi: 5 000 so‘m');
-  // administrator: muddatni tanlab ochadi (1 oy yoki 1 yil)
-  await page.goto('/#admin/services', { waitUntil: 'domcontentloaded' });
-  await page.locator('.svc-thread').filter({ hasText: 'Premium' }).click();
-  const chat = page.locator('.svc-chat');
-  await expect(chat.getByRole('button', { name: /1 yilga ochish/ })).toBeVisible();
-  await chat.getByRole('button', { name: /1 oyga ochish/ }).click();
-  await expect(chat.locator('.svc-pay')).toContainText('To‘lov qabul qilingan');
+  // administrator 1 oyga qabul qiladi — obuna o'zi yoqiladi; ro'yxatda muddat va to'langan summa
+  await page.reload({ waitUntil: 'domcontentloaded' });
+  await expect(pending).toHaveCount(1);
+  await pending.getByRole('button', { name: /1 oyga qabul qilish/ }).click();
+  await expect(pending).toHaveCount(0);
+  const sub = page.locator('.pm-admin-subs > li').first();
+  await expect(sub).toContainText('Muddat: 1 oy');
+  await expect(sub).toContainText('To‘lagan: 5 000 so‘m');
+  await expect(sub).toContainText('gacha');
+  await expect(page.locator('.bo-status')).toContainText('jami to‘langan: 5 000 so‘m');
+  await expect(sub.getByRole('button', { name: /Obunani bekor qilish/ })).toBeVisible();
 
   // obunachi: 5 xil bezakdan birini tanlaydi
   await student.reload({ waitUntil: 'domcontentloaded' });

@@ -85,9 +85,18 @@ export function ProductBuy({ product }: { product: ProductId }) {
             'Откроется сразу после того, как администратор примет чек, — придёт уведомление.',
           )}
         </small>
-        <Receipts o={order.uk + '/' + order.id} files={order.files.filter((f) => f.side === 'pay')} />
+        <Receipts
+          o={order.uk + '/' + order.id}
+          files={order.files.filter((f) => f.side === 'pay')}
+        />
       </div>
     );
+  // ✖ oxirgi chek qabul qilinmagan bo'lsa — sababi bilan eslatma (yangi chek yuborish mumkin)
+  const last = (view.orders || []).find((o) => o.kind === product);
+  const rejected =
+    !order && last?.status === 'cancel' && last.reason?.startsWith('Chek qabul qilinmadi')
+      ? last.reason
+      : '';
   const sum = Number(amount.replace(/\D/g, '')) || 0;
   const ok = sum >= PAY_MIN && sum <= BUDGET_MAX && !!receipt;
   async function send() {
@@ -128,6 +137,16 @@ export function ProductBuy({ product }: { product: ProductId }) {
   }
   return (
     <div className="pb is-pay">
+      {rejected && (
+        <p className="pb-note is-rejected" role="status">
+          ✖ {rejected}.{' '}
+          {L(
+            'To‘lovni tekshirib, chekni qayta yuboring.',
+            'Check the payment and send the receipt again.',
+            'Проверьте оплату и отправьте чек снова.',
+          )}
+        </p>
+      )}
       <ol className="pb-steps">
         <li>
           <b>{L('Karta orqali to‘lang', 'Pay by card', 'Оплатите на карту')}</b>
@@ -143,7 +162,11 @@ export function ProductBuy({ product }: { product: ProductId }) {
         <li>
           <label>
             <b>
-              {L('Qancha to‘ladingiz? (so‘m)', 'How much did you pay? (so‘m)', 'Сколько вы оплатили? (сум)')}
+              {L(
+                'Qancha to‘ladingiz? (so‘m)',
+                'How much did you pay? (so‘m)',
+                'Сколько вы оплатили? (сум)',
+              )}
             </b>
             <input
               className="input"
@@ -164,7 +187,11 @@ export function ProductBuy({ product }: { product: ProductId }) {
         </li>
         <li>
           <b>
-            {L('Chek skrinshotini yuklang', 'Upload a screenshot of the receipt', 'Загрузите скриншот чека')}
+            {L(
+              'Chek skrinshotini yuklang',
+              'Upload a screenshot of the receipt',
+              'Загрузите скриншот чека',
+            )}
           </b>
           <ReceiptPick value={receipt} onChange={setReceipt} />
           <input

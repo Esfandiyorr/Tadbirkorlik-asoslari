@@ -13134,10 +13134,6 @@ html {
   height: 96px;
   border-radius: 14px;
 }
-.svc-discount {
-  color: #7c3aed;
-  font-weight: 650;
-}
 .dark .svc-discount {
   color: #c4b5fd;
 }
@@ -14180,6 +14176,17 @@ html {
   color: #b91c1c;
   font-weight: 600;
 }
+.pb-note.is-rejected {
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: #fef2f2;
+  color: #b91c1c;
+  font-weight: 600;
+}
+.dark .pb-note.is-rejected {
+  background: #2a1212;
+  color: #fca5a5;
+}
 .pb.is-done {
   border-color: #86efac;
   background: #f0fdf4;
@@ -14247,4 +14254,73 @@ html {
   gap: 6px;
   color: inherit;
   font-size: inherit;
+}
+
+/* 💎 Sayt boshqaruvi → Obuna: chek yuborganlar va obunachilar (muddat, to'langan summa, tarix) */
+.pm-admin-pending {
+  border-color: color-mix(in srgb, var(--violet) 35%, var(--border));
+}
+.pm-admin-list > li {
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+.pm-admin-list > li.is-off {
+  opacity: 0.75;
+}
+.pm-admin-who {
+  display: grid;
+  gap: 4px;
+  flex: 1 1 260px;
+  min-width: 0;
+}
+.pm-admin-chips {
+  display: flex !important;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.pm-admin-chips em {
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  font-size: 12.5px;
+  font-style: normal;
+  font-weight: 600;
+  color: var(--text);
+}
+.pm-admin-chips em.is-sum {
+  border-color: color-mix(in srgb, #16a34a 45%, var(--border));
+  color: #15803d;
+}
+.pm-admin-chips em.is-on {
+  border-color: color-mix(in srgb, var(--violet) 45%, var(--border));
+}
+.pm-admin-chips em.is-off {
+  color: var(--muted);
+}
+.pm-admin-btns {
+  display: flex !important;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+.pm-admin-hist summary {
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 13px;
+}
+.pm-admin-hist ol {
+  margin: 4px 0 0;
+  padding-left: 18px;
+  font-size: 13px;
+}
+.bo-list .pm-admin-hist li {
+  display: list-item;
+  padding: 2px 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+}
+.dark .pm-admin-chips em.is-sum {
+  color: #4ade80;
 }

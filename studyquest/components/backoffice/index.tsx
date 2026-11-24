@@ -203,9 +203,9 @@ export function BackOffice({
         'Подписка (платные функции)',
       ),
       text: L(
-        'Narx va to‘lov yo‘riqnomasi, obuna berish yoki bekor qilish. Obuna kurs darslarini (talaba bo‘lmaganlarga), 💎 manbalarni va avatarni ochadi.',
-        'Price and payment instructions, giving or removing Premium. Premium unlocks course lessons (for non-students), 💎 resources and avatars.',
-        'Цена и инструкция по оплате, выдача и отмена подписки. Подписка открывает уроки курса (для не-студентов), материалы 💎 и аватар.',
+        'Chek yuborganlarni qabul qilish (1 oy yoki 1 yil) yoki qabul qilmaslik; obunachilar — qancha muddatga va qancha to‘lagani; obunani qo‘lda berish yoki bekor qilish.',
+        'Accept receipts (1 month or 1 year) or reject them; subscribers with their period and how much they paid; give or remove Premium by hand.',
+        'Принять чеки (1 месяц или 1 год) или отклонить; подписчики — срок и сколько оплатили; выдать или отменить подписку вручную.',
       ),
     },
     {

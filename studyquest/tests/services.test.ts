@@ -200,6 +200,28 @@ it('the whole path: order (no price) → «prepared with AI» → chat → resul
   expect((await serviceChunk(ali, uk + '/' + id, out, 0)).bytes.equals(result)).toBe(true);
   // endi to'lov: istalgan summa + chek; natija yuborilgach buyurtmachi o'zi bekor qila olmaydi
   await expect(manageServices(ali, { op: 'paid', id, amount: 500, note: '' })).rejects.toThrow();
+  // ✖ administrator chekni qabul qilmasa: chek va summa olib tashlanadi, ish o'z joyida, chek qayta so'raladi
+  await manageServices(ali, { op: 'paid', id, amount: 90000, note: '' }, NOW + 3500);
+  await adminServices(admin, { op: 'reject', uk, id }, NOW + 3600);
+  mine = (await servicesView(ali, NOW)).orders!;
+  expect(mine[0]).toMatchObject({ status: 'review', budget: 0 });
+  expect(mine[0].paidAt).toBeUndefined();
+  expect(mine[0].files.filter((f) => f.side === 'pay')).toEqual([]);
+  expect(mine[0].msgs.at(-1)).toMatchObject({ from: 'team', text: '✖ Chek qabul qilinmadi' });
+  expect(await siteGet('serviceFiles/' + uk + '/' + rb.fid)).toBeNull();
+  await expect(manageServices(ali, { op: 'paid', id, amount: 150000, note: '' })).rejects.toThrow(
+    'chek',
+  );
+  await expect(adminServices(admin, { op: 'reject', uk, id })).rejects.toThrow('yuborilmagan');
+  const rb2 = (await manageServices(ali, {
+    op: 'begin',
+    id,
+    name: 'chek.png',
+    size: PNG.length,
+    side: 'pay',
+  })) as { fid: string };
+  await saveServiceChunk(ali, 'me', uk + '/' + id, rb2.fid, 0, PNG);
+  await manageServices(ali, { op: 'finish', id, fid: rb2.fid });
   await manageServices(ali, { op: 'paid', id, amount: 150000, note: 'chek 12345' }, NOW + 4000);
   expect(
     (await servicesAdmin(admin, NOW)).orders[0].files.filter((f) => f.side === 'pay'),

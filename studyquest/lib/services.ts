@@ -342,6 +342,13 @@ export function isProduct(id: string): id is ProductId {
 export const PAY_MIN = 1000;
 /** Administrator Premium'ni qabul qilayotganda tanlaydigan muddatlar (kun). */
 export const PREMIUM_TERMS = [30, 365] as const;
+/** 💎 Muddat matni: 30 → «1 oy», 365 → «1 yil», 7 → «7 kun». */
+export function termText(days: number, lang: string) {
+  const t = (uz: string, en: string, ru: string) => (lang === 'en' ? en : lang === 'ru' ? ru : uz);
+  if (days % 365 === 0) return days / 365 + ' ' + t('yil', days === 365 ? 'year' : 'years', 'г.');
+  if (days % 30 === 0) return days / 30 + ' ' + t('oy', days === 30 ? 'month' : 'months', 'мес.');
+  return days + ' ' + t('kun', 'days', 'дн.');
+}
 
 /** Administrator yo'nalish uchun yozadigan narx («50 000 so'mdan») va muddat («3–5 kun»), yoki yo'nalishni yopadi. */
 export type ServiceSetting = { price?: string; days?: string; off?: boolean };
@@ -473,8 +480,10 @@ export type ServiceOrder = {
   paidNote?: string;
   /** administrator to'lovni tasdiqlagan vaqt */
   payOk?: number;
-  /** 🛍 mahsulot ochilgan vaqt («To'lov qildim» bosilishi bilan — administrator keyin tekshiradi) */
+  /** 🛍 mahsulot ochilgan vaqt (administrator chekni qabul qilganda) */
   granted?: number;
+  /** 💎 Premium qancha kunga ochilgan */
+  days?: number;
   deliveredAt?: number;
   doneAt?: number;
   /** bekor qilish sababi */

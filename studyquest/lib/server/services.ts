@@ -94,6 +94,8 @@ type Stored = {
   paidNote?: string;
   payOk?: number;
   granted?: number;
+  /** 💎 Premium qancha kunga ochilgan */
+  days?: number;
   deliveredAt?: number;
   doneAt?: number;
   reason?: string;
@@ -165,12 +167,15 @@ async function readAll() {
   return ((await siteGet<All>('serviceOrders')) || {}) as All;
 }
 /** 🛍 Mahsulotni ochish: yakuniy test bo'limi yoki Premium (muddati — administrator tanlagani, mavjudiga qo'shiladi). */
-async function fulfil(s: Stored, id: string, by: string, now: number, days?: number) {
+async function fulfil(s: Stored, id: string, by: string, now: number, days: number) {
   const product = PRODUCTS[s.kind as ProductId];
   if (product.premium)
-    await grantPremium(s.uid, s.name, s.group || '', product.days || days || 30, by, now);
+    await grantPremium(s.uid, s.name, s.group || '', days, by, now, Number(s.budget) || 0);
   else await grantExamAccess(s.uid, s.name, by, 'order:' + id, now);
 }
+/** 💎 Premium muddati: eski tarif — o'z muddati, yangisi — administrator tanlagani (bo'lmasa 1 oy). */
+const premiumDays = (kind: string, days?: number) =>
+  (isProduct(kind) && PRODUCTS[kind].days) || days || 30;
 /** ⛔ To'lov topilmadi: ochilgan mahsulot yopiladi (yakuniy test — shu buyurtma ochgan bo'lsa; Premium — butunlay). */
 async function revoke(s: Stored, id: string) {
   if (!isProduct(s.kind)) return;
@@ -245,6 +250,7 @@ function toOrder(uk: string, id: string, s: Stored): ServiceOrder {
     ...(s.paidNote ? { paidNote: s.paidNote } : {}),
     ...(s.payOk ? { payOk: s.payOk } : {}),
     ...(s.granted ? { granted: s.granted } : {}),
+    ...(s.days ? { days: s.days } : {}),
     ...(s.deliveredAt ? { deliveredAt: s.deliveredAt } : {}),
     ...(s.doneAt ? { doneAt: s.doneAt } : {}),
     ...(s.reason ? { reason: s.reason } : {}),
@@ -321,6 +327,28 @@ export async function servicesView(a: Actor | null, now = Date.now()): Promise<S
   return { ...head, signedIn: true, how, orders, ...(banned ? { banned } : {}) };
 }
 
+const toAdmin = (uk: string, id: string, s: Stored): AdminOrder => ({
+  ...toOrder(uk, id, s),
+  name: s.name,
+  ...(s.group ? { group: s.group } : {}),
+  ...(s.email ? { email: s.email } : {}),
+  ...(s.role ? { role: s.role } : {}),
+});
+/** 💎 Premium uchun chek yuborib, administrator qabul qilishini kutayotganlar (eng eskisi birinchi). */
+export async function premiumPending(): Promise<AdminOrder[]> {
+  return flatten(await readAll())
+    .filter(
+      ({ s }) =>
+        isProduct(s.kind) &&
+        !!PRODUCTS[s.kind].premium &&
+        statusOf(s) !== 'cancel' &&
+        !!s.paidAt &&
+        !s.payOk,
+    )
+    .map(({ uk, id, s }) => toAdmin(uk, id, s))
+    .sort((x, y) => (x.paidAt || 0) - (y.paidAt || 0));
+}
+
 /** Administrator: hamma buyurtmalar (buyurtmachi ma'lumotlari bilan, oxirgi o'zgarish bo'yicha) va sozlamalar. */
 export async function servicesAdmin(a: Actor, now = Date.now()): Promise<ServicesAdminView> {
   administrator(a);
@@ -334,13 +362,7 @@ export async function servicesAdmin(a: Actor, now = Date.now()): Promise<Service
   let used = 0;
   const orders: AdminOrder[] = flatten(all).map(({ uk, id, s }) => {
     used += Object.values(s.files || {}).reduce((n, f) => n + (f?.size || 0), 0);
-    return {
-      ...toOrder(uk, id, s),
-      name: s.name,
-      ...(s.group ? { group: s.group } : {}),
-      ...(s.email ? { email: s.email } : {}),
-      ...(s.role ? { role: s.role } : {}),
-    };
+    return toAdmin(uk, id, s);
   });
   orders.sort((x, y) => y.upd - x.upd);
   const bans: ServiceBan[] = Object.entries(await readBans())
@@ -688,6 +710,15 @@ const adminInput = z.discriminatedUnion('op', [
     })
     .strict(),
   z.object({ op: z.literal('ban'), uk: ukField, id: z.string(), account: z.boolean() }).strict(),
+  // ✖ chek qabul qilinmadi (bloklamasdan): mahsulot buyurtmasi bekor bo'ladi, oddiy xizmatda chek qayta so'raladi
+  z
+    .object({
+      op: z.literal('reject'),
+      uk: ukField,
+      id: z.string(),
+      reason: z.string().trim().max(300).optional(),
+    })
+    .strict(),
   z.object({ op: z.literal('unban'), uk: ukField }).strict(),
   z
     .object({
@@ -800,11 +831,13 @@ export async function adminServices(a: Actor, raw: unknown, now = Date.now()) {
     const by = (a.name || a.id).slice(0, 60);
     if (isProduct(s.kind) && !s.granted) {
       // 🛍 chek qabul qilindi — mahsulot o'zi ochiladi (Premium — tanlangan muddatga)
-      await fulfil(s, v.id, by, now, v.days);
+      const days = premiumDays(s.kind, v.days);
+      await fulfil(s, v.id, by, now, days);
       Object.assign(patch, {
         [path + '/granted']: now,
         [path + '/status']: 'done',
         [path + '/doneAt']: now,
+        ...(PRODUCTS[s.kind].premium ? { [path + '/days']: days } : {}),
       });
     }
     await siteUpdate(patch);
@@ -837,6 +870,44 @@ export async function adminServices(a: Actor, raw: unknown, now = Date.now()) {
   } else if (v.op === 'link') {
     Object.assign(patch, { [path + '/link']: v.link || null, [path + '/upd']: now });
     await siteUpdate(patch);
+  } else if (v.op === 'reject') {
+    check(st !== 'cancel', 409, 'Buyurtma bekor qilingan.');
+    check(!s.payOk, 409, 'To‘lov allaqachon tasdiqlangan.');
+    check(!!s.paidAt, 409, 'Chek hali yuborilmagan.');
+    const why = 'Chek qabul qilinmadi' + (v.reason ? ': ' + v.reason : '');
+    if (isProduct(s.kind)) {
+      // 🛍 buyurtma yopiladi — foydalanuvchi xohlasa yangi chek bilan qayta yuboradi
+      dropFiles(patch, v.uk, v.id, s);
+      Object.assign(patch, {
+        [path + '/status']: 'cancel',
+        [path + '/reason']: why,
+        [path + '/upd']: now,
+      });
+    } else {
+      // oddiy xizmat: ish topshirilgan — faqat chek va summa olib tashlanadi, to'lov qayta so'raladi
+      for (const [fid, f] of Object.entries(s.files || {}))
+        if (f?.side === 'pay') {
+          patch[path + '/files/' + fid] = null;
+          patch[dataPath(v.uk, fid)] = null;
+        }
+      if (Object.keys(s.msgs || {}).length < MSGS_MAX)
+        addMsg(patch, v.uk, v.id, s, 'team', '✖ ' + why, now);
+      Object.assign(patch, {
+        [path + '/paidAt']: null,
+        [path + '/paidNote']: null,
+        [path + '/budget']: 0,
+        [path + '/upd']: now,
+      });
+    }
+    await siteUpdate(patch);
+    await notify(
+      [s.uid],
+      '✖ Chek qabul qilinmadi',
+      s.title +
+        (v.reason ? ': ' + v.reason : '') +
+        ' — to‘lovni tekshirib, chekni qayta yuboring yoki administratorga yozing.',
+      s.kind === 'yakuniy-test' ? '/#course/' + course.id + '/exam' : undefined,
+    );
   } else if (v.op === 'cancel') {
     check(st !== 'cancel', 409, 'Buyurtma allaqachon bekor qilingan.');
     dropFiles(patch, v.uk, v.id, s);
