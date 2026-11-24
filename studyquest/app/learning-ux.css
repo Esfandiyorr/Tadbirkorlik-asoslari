@@ -413,9 +413,6 @@
   .home-heading {
     margin-bottom: 14px;
   }
-  .home-heading > div > p {
-    display: none;
-  }
   .welcome-hero.continue-hero {
     min-height: 0;
     padding: 18px;
@@ -461,10 +458,6 @@
     height: 54px !important;
     flex-shrink: 0;
   }
-  .continue-hero-points ul {
-    display: none;
-  }
-
   .course-banner > .course-art {
     display: none;
   }

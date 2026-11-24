@@ -200,6 +200,9 @@ test('students see a small live quiz card twenty minutes before the start and ma
   // Kichik kartochka: ekranni to'sib qo'ymaydi, sahifa ishlatiladi.
   const box = (await card.boundingBox())!;
   expect(box.width).toBeLessThan(400);
+  const inbox = page.locator('.news-chip');
+  await expect(inbox).toBeVisible();
+  expect(box.y + box.height).toBeLessThan((await inbox.boundingBox())!.y);
   await expect(page.locator('.hero-avatar:visible')).toBeVisible();
   await card.getByRole('button', { name: /O‘yinga kirish/ }).click();
   await expect.poll(() => new URL(page.url()).hash).toBe('#arena/play/live');
@@ -375,7 +378,7 @@ test('the administrator fills the second box with offers and students see them u
   await expect(side).toContainText('2-E’LON OYNASI');
 });
 
-test('on phones the home page starts with the current topic and shows both boxes as a small envelope beside it', async ({
+test('on phones announcements stay above the bottom navigation while scrolling', async ({
   page,
   browser,
 }) => {
@@ -414,29 +417,39 @@ test('on phones the home page starts with the current topic and shows both boxes
   await phone.goto('/#home', { waitUntil: 'domcontentloaded' });
   const hero = phone.locator('.continue-hero');
   await expect(hero).toBeVisible();
-  // tepada — mavzu bloki; e'lon oynalari yo'q, ikkalasi — mavzu yonidagi ✉️ tugmada
+  // E’lonlar va takliflar bitta qotirilgan tugmada.
   await expect(phone.locator('.home-news')).toHaveCount(0);
   await expect(phone.locator('.home-promo')).toHaveCount(0);
-  const chip = hero
-    .locator('.hero-tag-row')
-    .getByRole('button', { name: /^E’lonlar: 2, yangi: 2/ });
-  await expect(chip).toBeVisible();
+  const chip = phone.locator('.news-chip');
+  await expect(chip).toHaveAccessibleName(/^E’lonlar: 2, yangi: 2/);
+  await expect(hero.locator('.news-chip')).toHaveCount(0);
   await expect(chip.locator('.news-chip-count.is-new')).toHaveText('2');
-  const box = await chip.boundingBox();
-  expect(box!.height).toBeLessThan(44);
+  const box = (await chip.boundingBox())!;
+  const nav = (await phone.locator('.bottom-nav').boundingBox())!;
+  expect(box.x + box.width).toBeGreaterThan(360);
+  expect(box.y + box.height).toBeLessThan(nav.y);
+  await phone.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+  await expect.poll(() => phone.evaluate(() => window.scrollY)).toBeGreaterThan(200);
+  expect(await chip.boundingBox()).toEqual(box);
   await chip.click();
   const list = phone.getByRole('dialog', { name: /E’LONLAR/ });
   await expect(list).toContainText('dushanba 9:00 da 321-xonaga keling');
+  const panelBox = (await list.boundingBox())!;
+  expect(panelBox.x + panelBox.width).toBeCloseTo(box.x + box.width, 0);
+  expect(panelBox.y + panelBox.height).toBeCloseTo(box.y + box.height, 0);
   await expect(list.locator('.news-list-item.is-promo')).toContainText('Yoshlar grant dasturi');
   await expect(list.locator('.news-list-item.is-new')).toHaveCount(2);
   await phone.keyboard.press('Escape');
   await expect(list).toHaveCount(0);
   // ko'rilgach — raqam kulrang (umumiy soni), qizil emas; sahifa yangilansa ham
-  await expect(hero.locator('.news-chip-count')).toHaveText('2');
-  await expect(hero.locator('.news-chip-count.is-new')).toHaveCount(0);
+  await phone.evaluate(() => window.scrollTo(0, 0));
+  await expect.poll(() => phone.evaluate(() => window.scrollY)).toBe(0);
+  expect(await chip.boundingBox()).toEqual(box);
+  await expect(chip.locator('.news-chip-count')).toHaveText('2');
+  await expect(chip.locator('.news-chip-count.is-new')).toHaveCount(0);
   await phone.reload({ waitUntil: 'domcontentloaded' });
-  await expect(hero.locator('.news-chip-count')).toHaveText('2');
-  await expect(hero.locator('.news-chip-count.is-new')).toHaveCount(0);
+  await expect(chip.locator('.news-chip-count')).toHaveText('2');
+  await expect(chip.locator('.news-chip-count.is-new')).toHaveCount(0);
   await phone.context().close();
 
   await panel

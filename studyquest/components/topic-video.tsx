@@ -151,8 +151,7 @@ export function TopicVideoButton({
   );
 }
 
-/* 🎬 Mavzuning animatsion videosi (restoran kursi): fayl sayt ichida turadi (public/legacy/fayllar/video/R<N>.mp4),
-   yonida shu nomli .vtt subtitr va .jpg muqova. Video ovozsiz — matn subtitrda (pleyerda yoqilgan holda ochiladi). */
+/* 🎬 Mavzuning animatsion videosi: MP4, .vtt subtitr va .jpg muqova sayt ichida turadi. */
 export const filmFiles = (video: string) => {
   const base = '/legacy/' + video.replace(/\.mp4$/i, '');
   return { mp4: base + '.mp4', vtt: base + '.vtt', poster: base + '.jpg' };
@@ -219,9 +218,9 @@ export function LessonFilmButton({
               <p className="topic-film-note">
                 {tr(
                   lang,
-                  'Video ovozsiz — matn subtitrda. Subtitr ko‘rinmasa, pleyerdagi «CC» tugmasini bosing.',
-                  'The video has no sound — the text is in the subtitles. If they are hidden, press “CC” in the player.',
-                  'Видео без звука — текст в субтитрах. Если их не видно, нажмите «CC» в плеере.',
+                  'Subtitr ko‘rinmasa, pleyerdagi «CC» tugmasini bosing.',
+                  'If subtitles are hidden, press “CC” in the player.',
+                  'Если субтитры скрыты, нажмите «CC» в плеере.',
                 )}
               </p>
               {download && (

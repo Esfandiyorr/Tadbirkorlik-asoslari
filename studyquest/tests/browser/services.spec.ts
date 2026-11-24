@@ -398,3 +398,69 @@ test('the administrator closes the section for a while: users lose it, the admin
   await box.getByRole('button', { name: /Vaqtincha yopish/ }).click();
   await expect(box).toContainText('Vaqtincha yopiq');
 });
+
+test('trial orders show their fixed charge and block new full-mode requests until paid', async ({
+  page,
+  browser,
+}) => {
+  await as(page, 'demo-admin');
+  expect((await svc(page, 'admin', { op: 'launch', open: true, trial: true })).ok()).toBe(true);
+  const context = await browser.newContext({ baseURL: test.info().project.use.baseURL });
+  try {
+    const student = await context.newPage();
+    await as(student, 'demo-student');
+    await student.goto('/#services', { waitUntil: 'domcontentloaded' });
+    await expect(student.getByRole('region', { name: 'Sinov rejimi' })).toContainText('2 000 so‘m');
+    const presentation = student
+      .locator('button.svc-card')
+      .filter({ has: student.getByText('Taqdimot', { exact: true }) });
+    await presentation.click();
+    const form = student.getByRole('dialog', { name: /Taqdimot/ });
+    await expect(form.getByLabel(/Qancha to‘lay olasiz/)).toHaveCount(0);
+    await form.getByLabel('Mavzu yoki ish nomi').fill('Sinov tarifi testi');
+    await form.getByLabel(/Nima kerak/).fill('Marketing uchun 12 ta slayd kerak');
+    await form.getByRole('button', { name: 'Buyurtma berish' }).click();
+    await expect(student).toHaveURL(/#services\/mine$/);
+    await expect(student.locator('.svc-order')).toContainText('Sinov tarifi testi');
+    await expect(student.getByRole('region', { name: 'Shaxsiy hisob' })).toContainText('0 so‘m');
+
+    const { orders } = await (await page.request.get('/api/services?admin=1')).json();
+    const { id, uk } = orders.find((o: { title: string }) => o.title === 'Sinov tarifi testi');
+    for (const action of [
+      { op: 'link', link: 'https://example.com/trial-result' },
+      { op: 'status', status: 'review' },
+      { op: 'launch', open: true, trial: false },
+    ]) {
+      const input = action.op === 'launch' ? action : { ...action, id, uk };
+      expect((await svc(page, 'admin', input)).ok()).toBe(true);
+    }
+    await student.goto('/#services', { waitUntil: 'domcontentloaded' });
+    await student.reload({ waitUntil: 'domcontentloaded' });
+    await expect(student.getByRole('region', { name: 'Shaxsiy hisob' })).toContainText(
+      '-2 000 so‘m',
+    );
+    await expect(presentation).toBeDisabled();
+
+    await student
+      .getByRole('region', { name: 'Shaxsiy hisob' })
+      .getByRole('button', { name: 'Buyurtmalarim' })
+      .click();
+    const order = student.locator('.svc-order').filter({ hasText: 'Sinov tarifi testi' });
+    // 🧾 sinov tarifi: summa qat'iy (2 000 so'm) — faqat chek skrinshoti yuklanadi
+    const pay = order.locator('.svc-pay');
+    await expect(pay).toContainText('Sinov tarifi: 2 000 so‘m');
+    await expect(pay.getByLabel(/Qancha to‘ladingiz/)).toHaveCount(0);
+    await pay
+      .locator('.receipt-pick input[type="file"]')
+      .setInputFiles({ name: 'chek.png', mimeType: 'image/png', buffer: RECEIPT });
+    await pay.getByRole('button', { name: /Chekni yuborish/ }).click();
+    await expect(pay).toContainText('Chekingiz yuborildi: 2 000 so‘m');
+    expect((await svc(page, 'admin', { op: 'confirm', id, uk })).ok()).toBe(true);
+    await student.goto('/#services', { waitUntil: 'domcontentloaded' });
+    await expect(presentation).toBeEnabled();
+  } finally {
+    await context.close();
+    await svc(page, 'admin', { op: 'launch', open: false });
+    await show(page, false);
+  }
+});

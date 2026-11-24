@@ -3,8 +3,14 @@ import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import { Pencil, Plus, RotateCcw, Save, Search } from 'lucide-react';
 import { useApp } from '../provider';
 import { Button } from '../ui/button';
-import { publishSiteContent, startEditMode, type SiteContent } from '../site-content';
+import {
+  publishSiteContent,
+  startEditMode,
+  useSiteContent,
+  type SiteContent,
+} from '../site-content';
 import { useL } from './common';
+import { SiteImages, type ImageSection } from './site-images';
 
 /* ✏️ Sayt boshqaruvi → Matnlar va rasmlar: tahrirlash rejimini yoqish, o'zgartirilgan yozuv va rasmlar ro'yxati,
    qo'lda almashtirish (bosib bo'lmaydigan yozuvlar uchun) va asl holiga qaytarish. */
@@ -22,28 +28,37 @@ const when = (ms: number) =>
     timeZone: 'Asia/Tashkent',
   });
 
-export function ContentAdmin() {
+export function ContentAdmin({ openSection }: { openSection: (section: ImageSection) => void }) {
   const { request, toast } = useApp();
   const L = useL();
+  const content = useSiteContent();
   const [view, setView] = useState<View | null>(null),
     [error, setError] = useState(''),
     [query, setQuery] = useState(''),
     [edit, setEdit] = useState<{ o: string; n: string } | null>(null),
     [manual, setManual] = useState({ o: '', n: '' }),
     [busy, setBusy] = useState('');
-  const load = useCallback(async () => {
-    try {
-      const r = await request('/api/platform?view=siteContent'),
-        v = await r.json();
-      if (!r.ok) throw new Error(v.error);
-      setView(v);
-    } catch (e) {
-      setError((e as Error).message);
-    }
-  }, [request]);
+  const load = useCallback(
+    async (signal: AbortSignal) => {
+      try {
+        const r = await request('/api/platform?view=siteContent', { signal }),
+          v = await r.json();
+        if (!r.ok) throw new Error(v.error);
+        if (!signal.aborted) {
+          setView(v);
+          setError('');
+        }
+      } catch (e) {
+        if (!signal.aborted) setError((e as Error).message);
+      }
+    },
+    [request],
+  );
   useEffect(() => {
-    void load();
-  }, [load]);
+    const controller = new AbortController();
+    void load(controller.signal);
+    return () => controller.abort();
+  }, [load, content]);
   async function send(input: unknown, key: string, done: string) {
     setBusy(key);
     try {
@@ -56,7 +71,6 @@ export function ContentAdmin() {
       if (!r.ok) throw new Error(v.error || v.issues?.[0]?.message || 'Xatolik');
       publishSiteContent(v as SiteContent);
       toast(done);
-      await load();
       return true;
     } catch (e) {
       toast((e as Error).message);
@@ -128,6 +142,7 @@ export function ContentAdmin() {
           )}
         </p>
       </div>
+      <SiteImages openSection={openSection} />
       {error && <p className="error-state">{error}</p>}
       {!view && !error && <div className="skeleton h-64" />}
       {view && (
@@ -236,9 +251,9 @@ export function ContentAdmin() {
             <details className="bo-manual">
               <summary>
                 {L(
-                  'Bosib bo‘lmaydigan yozuvni almashtirish (masalan, qisqa ogohlantirish xabarlari)',
-                  'Replace a text you cannot click (e.g. short pop-up messages)',
-                  'Заменить текст, на который нельзя нажать (например, всплывающие сообщения)',
+                  'Yozuv yoki emoji belgisini qo‘lda almashtirish',
+                  'Replace text or emoji manually',
+                  'Заменить текст или эмодзи вручную',
                 )}
               </summary>
               <form onSubmit={addManual}>
@@ -281,7 +296,11 @@ export function ContentAdmin() {
                 {view.images.map((x) => (
                   <li key={x.o}>
                     <span className="bo-image-pair">
-                      <img src={x.o} alt="" data-se-ui />
+                      {x.o.startsWith('/visuals/') ? (
+                        <span aria-hidden="true">🖼️</span>
+                      ) : (
+                        <img src={x.o} alt="" data-se-ui />
+                      )}
                       <span aria-hidden="true">→</span>
                       <img src={x.url} alt="" data-se-ui />
                     </span>

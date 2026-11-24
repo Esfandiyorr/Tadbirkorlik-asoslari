@@ -24,6 +24,8 @@ import { useApp } from './provider';
 import { Button } from './ui/button';
 import { navigate } from './dashboard';
 import { openBackOffice } from './backoffice';
+import { SiteVisual } from './site-content';
+import { visualPath } from '@/lib/site-visuals';
 import { PremiumOffer } from './premium';
 import { ReceiptPick, Receipts, uploadReceipt } from './receipt';
 import { ProductBuy } from './product-buy';
@@ -32,6 +34,8 @@ import { dueText, tr } from '@/lib/points';
 import {
   BUDGET_MAX,
   PAY_MIN,
+  TRIAL_PRICE,
+  hasTrialDebt,
   FILE_ACCEPT,
   FILE_MAX,
   FILES_PER_ORDER,
@@ -186,6 +190,9 @@ export function Services({ sub = '' }: { sub?: string }) {
   // bo'lim hali ishga tushmagan: foydalanuvchi buyurtma o'rniga taklif yuboradi (administrator sinab ko'rishi mumkin)
   const soonMode = !!view && !view.open;
   const waiting = soonMode && !admin;
+  const trial = !!view?.trial && (!view.signedIn || data?.user?.role === 'student');
+  const balance = view?.balance ?? 0;
+  const blocked = !!view?.open && !view.trial && balance < 0;
   useEffect(() => {
     if (!waiting || shown.current) return;
     shown.current = true;
@@ -270,6 +277,52 @@ export function Services({ sub = '' }: { sub?: string }) {
         </div>
       </header>
 
+      {trial && (
+        <section className="svc-soon" aria-label={L('Sinov rejimi', 'Trial mode', 'Пробный режим')}>
+          <div>
+            <b>
+              {L(
+                'Pullik xizmatlar sinov tariqasida ishga tushyapti',
+                'Paid services are launching in trial mode',
+                'Платные услуги запускаются в пробном режиме',
+              )}
+            </b>
+            <p>
+              {L(
+                'Oldindan to‘lov shart emas. Har bir tayyor xizmat uchun hisobingizga 2 000 so‘m qarz yoziladi.',
+                'Order without paying upfront. Each delivered service adds UZS 2,000 to your balance as debt.',
+                'Можно заказать без предоплаты. За каждую готовую услугу начисляется долг в 2 000 сум.',
+              )}
+            </p>
+          </div>
+        </section>
+      )}
+      {view?.signedIn && (trial || balance < 0 || tab === 'mine') && (
+        <section
+          className="svc-soon"
+          aria-label={L('Shaxsiy hisob', 'Account balance', 'Личный счёт')}
+        >
+          <div>
+            <b>
+              {L('Shaxsiy hisob', 'Account balance', 'Личный счёт')} · {formatSum(balance)}
+            </b>
+            {blocked && (
+              <p>
+                {L(
+                  'Yangi xizmat buyurtma qilish uchun sinov qarzingizni to‘lang va admin tasdiqlashini kuting.',
+                  'Pay your trial balance and wait for admin confirmation to place a new order.',
+                  'Оплатите пробные заказы и дождитесь подтверждения администратора, чтобы заказать новую услугу.',
+                )}
+              </p>
+            )}
+          </div>
+          {balance < 0 && tab !== 'mine' && (
+            <Button size="sm" variant="outline" onClick={() => go('mine')}>
+              {L('Buyurtmalarim', 'My orders', 'Мои заказы')}
+            </Button>
+          )}
+        </section>
+      )}
       {waiting && (
         <div className="svc-soon" role="status">
           <span className="svc-soon-icon" aria-hidden="true">
@@ -317,7 +370,7 @@ export function Services({ sub = '' }: { sub?: string }) {
         </p>
       )}
 
-      {view?.signedIn && !admin && (
+      {view?.signedIn && !admin && !trial && (
         // 💎 Premium haqida qisqa: nimalar ochiladi
         <div className="svc-premium">
           <span aria-hidden="true">💎</span>
@@ -375,11 +428,17 @@ export function Services({ sub = '' }: { sub?: string }) {
                         'Tap a card to say you are waiting for that service.',
                         'Нажмите на карточку, чтобы сообщить, что ждёте эту услугу.',
                       )
-                    : L(
-                        'Kartani bosing — nima kerakligini va summani yozasiz, buyurtmangiz sun’iy intellekt yordamida tayyorlanadi.',
-                        'Tap a card — describe what you need and your budget; your order is prepared with the help of AI.',
-                        'Нажмите на карточку — опишите, что нужно, и бюджет; заказ подготовят с помощью ИИ.',
-                      )}
+                    : trial
+                      ? L(
+                          'Xizmatni tanlang va nima kerakligini yozing.',
+                          'Choose a service and describe what you need.',
+                          'Выберите услугу и опишите задачу.',
+                        )
+                      : L(
+                          'Kartani bosing — nima kerakligini va summani yozasiz, buyurtmangiz sun’iy intellekt yordamida tayyorlanadi.',
+                          'Tap a card — describe what you need and your budget; your order is prepared with the help of AI.',
+                          'Нажмите на карточку — опишите, что нужно, и бюджет; заказ подготовят с помощью ИИ.',
+                        )}
                 </p>
               </div>
               <label className="lib-search svc-search">
@@ -426,20 +485,19 @@ export function Services({ sub = '' }: { sub?: string }) {
                       } as CSSProperties
                     }
                   >
-                    <span className="svc-card-tag">
-                      {tr(lang, ...SERVICE_GROUPS.study)} · 🛍 {L('Tayyor', 'Ready-made', 'Готово')}
+                    <span className="svc-card-top">
+                      <SiteVisual
+                        className="svc-card-art"
+                        imageKey={visualPath('services', 'yakuniy-test')}
+                        icon="🎯"
+                      />
+                      <span className="svc-card-tag">{L('Tayyor', 'Ready-made', 'Готово')}</span>
                     </span>
                     <b className="svc-card-name">{tr(lang, ...PRODUCTS['yakuniy-test'].name)}</b>
-                    <small className="svc-card-text">
-                      {tr(lang, ...PRODUCTS['yakuniy-test'].text)}
-                    </small>
                     <span className="svc-card-meta">
                       <em>💰 {L('Istalgan summa', 'Any amount', 'Любая сумма')}</em>
                     </span>
                     <span className="svc-card-go">{L('Ko‘rish', 'Open', 'Открыть')} →</span>
-                    <span className="svc-card-art" aria-hidden="true">
-                      🎯
-                    </span>
                   </a>
                 </li>
               )}
@@ -448,34 +506,40 @@ export function Services({ sub = '' }: { sub?: string }) {
                   <button
                     type="button"
                     className="svc-card"
+                    disabled={blocked}
                     style={{ '--c1': k.tone[0], '--c2': k.tone[1] } as CSSProperties}
                     onClick={() =>
                       waiting ? setSoon([k.id]) : view.signedIn ? setPick(k) : setLogin(true)
                     }
                   >
-                    <span className="svc-card-tag">
-                      {tr(lang, ...SERVICE_GROUPS[k.group])}
-                      {k.help && (
-                        <em className="svc-help"> · 🤝 {L('Yordam', 'Assistance', 'Помощь')}</em>
-                      )}
+                    <span className="svc-card-top">
+                      <SiteVisual
+                        className="svc-card-art"
+                        imageKey={visualPath('services', k.id)}
+                        icon={k.art}
+                      />
+                      <span className="svc-card-tag">
+                        {k.help
+                          ? L('Yordam', 'Assistance', 'Помощь')
+                          : tr(lang, ...SERVICE_GROUPS[k.group])}
+                      </span>
                     </span>
                     <b className="svc-card-name">{tr(lang, ...k.name)}</b>
-                    <span className="svc-card-users">
-                      <UserCount card={k} soon={soonMode} />
-                    </span>
-                    <small className="svc-card-text">{tr(lang, ...k.text)}</small>
-                    {k.days && (
+                    {waiting && (
+                      <span className="svc-card-users">
+                        <UserCount card={k} soon />
+                      </span>
+                    )}
+                    {(trial || k.days) && (
                       <span className="svc-card-meta">
-                        <em>⏱ {k.days}</em>
+                        {trial && <em>{formatSum(TRIAL_PRICE)}</em>}
+                        {k.days && <em>⏱ {k.days}</em>}
                       </span>
                     )}
                     <span className="svc-card-go">
                       {waiting
                         ? '🚀 ' + L('Tez orada', 'Coming soon', 'Скоро')
                         : L('Buyurtma berish', 'Order', 'Заказать') + ' →'}
-                    </span>
-                    <span className="svc-card-art" aria-hidden="true">
-                      {k.art}
                     </span>
                   </button>
                 </li>
@@ -494,7 +558,7 @@ export function Services({ sub = '' }: { sub?: string }) {
               </p>
             )}
           </section>
-          <HowItWorks />
+          <HowItWorks trial={trial} />
         </>
       )}
 
@@ -550,6 +614,7 @@ export function Services({ sub = '' }: { sub?: string }) {
       {pick && (
         <OrderForm
           card={pick}
+          trial={trial}
           onClose={() => setPick(null)}
           onDone={(v) => {
             setView(v);
@@ -585,7 +650,7 @@ function SignInNote() {
   );
 }
 
-function HowItWorks() {
+function HowItWorks({ trial }: { trial: boolean }) {
   const { lang } = useApp();
   const L = (uz: string, en: string, ru: string) => tr(lang, uz, en, ru);
   return (
@@ -601,7 +666,21 @@ function HowItWorks() {
               <em>{i + 1}</em>
             </span>
             <b>{tr(lang, ...name)}</b>
-            <small>{tr(lang, ...text)}</small>
+            <small>
+              {trial && i === 0
+                ? L(
+                    'Nima kerakligini yozing va kerakli fayllarni biriktiring.',
+                    'Describe what you need and attach any relevant files.',
+                    'Опишите задачу и прикрепите нужные файлы.',
+                  )
+                : trial && i === 3
+                  ? L(
+                      `Sinov tarifi: ish tayyor bo‘lgach ${formatSum(TRIAL_PRICE)} to‘laysiz va chek skrinshotini yuklaysiz.`,
+                      `Trial tariff: when the work is ready, pay ${formatSum(TRIAL_PRICE)} and upload a receipt screenshot.`,
+                      `Пробный тариф: когда работа готова, оплатите ${formatSum(TRIAL_PRICE)} и загрузите скриншот чека.`,
+                    )
+                  : tr(lang, ...text)}
+            </small>
           </li>
         ))}
       </ol>
@@ -889,10 +968,12 @@ function SoonModal({
 /* ---------- 📝 buyurtma berish ---------- */
 function OrderForm({
   card,
+  trial,
   onClose,
   onDone,
 }: {
   card: ServiceCard;
+  trial: boolean;
   onClose: () => void;
   onDone: (v: ServicesView) => void;
 }) {
@@ -1037,6 +1118,16 @@ function OrderForm({
             placeholder={tr(lang, ...card.hint)}
           />
         </label>
+        {trial && (
+          <p className="svc-note">
+            🧪{' '}
+            {L(
+              `Sinov tarifi: xizmat tayyor bo‘lgach hisobingizga ${formatSum(TRIAL_PRICE)} qarz yoziladi.`,
+              `Trial tariff: ${formatSum(TRIAL_PRICE)} is added to your balance when the service is delivered.`,
+              `Пробный тариф: после выполнения на счёт записывается долг ${formatSum(TRIAL_PRICE)}.`,
+            )}
+          </p>
+        )}
         <div className="svc-form-row">
           <label>
             {L('Qachongacha kerak?', 'Needed by', 'Нужно к')}
@@ -1117,13 +1208,15 @@ function OrderForm({
             {L('Bekor', 'Cancel', 'Отмена')}
           </Button>
         </div>
-        <small className="muted">
-          {L(
-            'Narx so‘ralmaydi: ish bajarilgach, natijani olib, istalgan summani to‘laysiz va chek skrinshotini yuklaysiz.',
-            'No price up front: when the work is done, you pay any amount and upload a screenshot of the receipt.',
-            'Цена не нужна: когда работа будет готова, оплатите любую сумму и загрузите скриншот чека.',
-          )}
-        </small>
+        {!trial && (
+          <small className="muted">
+            {L(
+              'Narx so‘ralmaydi: ish bajarilgach, natijani olib, istalgan summani to‘laysiz va chek skrinshotini yuklaysiz.',
+              'No price up front: when the work is done, you pay any amount and upload a screenshot of the receipt.',
+              'Цена не нужна: когда работа будет готова, оплатите любую сумму и загрузите скриншот чека.',
+            )}
+          </small>
+        )}
       </form>
     </div>,
     document.body,
@@ -1196,8 +1289,11 @@ function OrderCard({
           ? ['🧾', ['Chek tekshirilmoqda', 'Receipt being checked', 'Чек проверяется']]
           : ['💳', ['To‘lov kutilmoqda', 'Awaiting payment', 'Ожидает оплаты']];
   // 💳 oddiy xizmatda to'lov natija yuborilgandan keyin ochiladi
-  const delivered = !product && (!!o.deliveredAt || o.status === 'review' || o.status === 'done');
-  const sum = Number(amount.replace(/\D/g, '')) || 0;
+  const delivered =
+    !product &&
+    (!!o.deliveredAt || !!o.trialChargedAt || o.status === 'review' || o.status === 'done');
+  // 🧪 sinov tarifida summa qat'iy, aks holda — buyurtmachi yozgani
+  const pay = o.trial ? TRIAL_PRICE : Number(amount.replace(/\D/g, '')) || 0;
   return (
     <article className={'panel svc-order is-' + o.status} style={toneOf(o.kind)}>
       <header>
@@ -1284,11 +1380,17 @@ function OrderCard({
       {!product && o.status !== 'cancel' && !delivered && !o.payOk && (
         <p className="svc-note">
           💳{' '}
-          {L(
-            'To‘lov ish bajarilgach ochiladi — natijani olganingizdan keyin istalgan summani to‘laysiz.',
-            'Payment opens once the work is done — pay any amount after you get the result.',
-            'Оплата откроется после выполнения — заплатите любую сумму, когда получите результат.',
-          )}
+          {o.trial
+            ? L(
+                `Sinov tarifi: ish bajarilgach ${formatSum(TRIAL_PRICE)} qarz yoziladi va to‘lov ochiladi.`,
+                `Trial tariff: once the work is done, ${formatSum(TRIAL_PRICE)} is due and payment opens.`,
+                `Пробный тариф: после выполнения начисляется ${formatSum(TRIAL_PRICE)} и открывается оплата.`,
+              )
+            : L(
+                'To‘lov ish bajarilgach ochiladi — natijani olganingizdan keyin istalgan summani to‘laysiz.',
+                'Payment opens once the work is done — pay any amount after you get the result.',
+                'Оплата откроется после выполнения — заплатите любую сумму, когда получите результат.',
+              )}
         </p>
       )}
       {!product && o.status !== 'cancel' && (delivered || o.payOk) && (
@@ -1317,11 +1419,16 @@ function OrderCard({
             <>
               <b>
                 💳{' '}
-                {L(
-                  'Ish tayyor — endi to‘lov qiling (istalgan summa)',
-                  'The work is ready — now pay (any amount)',
-                  'Работа готова — теперь оплатите (любая сумма)',
-                )}
+                {o.trial
+                  ? L('Sinov tarifi', 'Trial tariff', 'Пробный тариф') +
+                    ': ' +
+                    formatSum(TRIAL_PRICE) +
+                    L(' — to‘lang', ' — please pay', ' — оплатите')
+                  : L(
+                      'Ish tayyor — endi to‘lov qiling (istalgan summa)',
+                      'The work is ready — now pay (any amount)',
+                      'Работа готова — теперь оплатите (любая сумма)',
+                    )}
               </b>
               <p className="svc-pay-how">
                 {how ||
@@ -1331,24 +1438,28 @@ function OrderCard({
                     'Спросите номер карты в переписке ниже.',
                   )}
               </p>
-              <label>
-                {L(
-                  'Qancha to‘ladingiz? (so‘m)',
-                  'How much did you pay? (so‘m)',
-                  'Сколько вы оплатили? (сум)',
-                )}
-                <input
-                  className="input"
-                  inputMode="numeric"
-                  value={amount}
-                  onChange={(e) =>
-                    setAmount(
-                      groupDigits(e.target.value.replace(/\D/g, '').replace(/^0+/, '').slice(0, 9)),
-                    )
-                  }
-                  placeholder="50 000"
-                />
-              </label>
+              {!o.trial && (
+                <label>
+                  {L(
+                    'Qancha to‘ladingiz? (so‘m)',
+                    'How much did you pay? (so‘m)',
+                    'Сколько вы оплатили? (сум)',
+                  )}
+                  <input
+                    className="input"
+                    inputMode="numeric"
+                    value={amount}
+                    onChange={(e) =>
+                      setAmount(
+                        groupDigits(
+                          e.target.value.replace(/\D/g, '').replace(/^0+/, '').slice(0, 9),
+                        ),
+                      )
+                    }
+                    placeholder="50 000"
+                  />
+                </label>
+              )}
               <ReceiptPick value={receipt} onChange={setReceipt} />
               <input
                 className="input"
@@ -1364,7 +1475,7 @@ function OrderCard({
               />
               <Button
                 size="sm"
-                disabled={!!busy || !receipt || sum < PAY_MIN || sum > BUDGET_MAX}
+                disabled={!!busy || !receipt || pay < PAY_MIN || pay > BUDGET_MAX}
                 onClick={async () => {
                   if (!receipt) return;
                   setBusy('paid');
@@ -1377,7 +1488,7 @@ function OrderCard({
                   }
                   if (
                     await act(
-                      { op: 'paid', amount: sum, note: note.trim() },
+                      { op: 'paid', amount: pay, note: note.trim() },
                       'paid',
                       L(
                         '🧾 Chek yuborildi — rahmat!',
@@ -1591,7 +1702,7 @@ function OrderCard({
       )}
 
       <footer className="svc-order-actions">
-        {o.status === 'work' && !o.paidAt && !o.payOk && !o.deliveredAt && (
+        {o.status === 'work' && !o.paidAt && !o.payOk && !o.deliveredAt && !o.trialChargedAt && (
           <Button
             size="sm"
             variant="outline"
@@ -1608,7 +1719,7 @@ function OrderCard({
             {L('Bekor qilish', 'Cancel order', 'Отменить')}
           </Button>
         )}
-        {!isActive(o.status) && (
+        {!isActive(o.status) && !hasTrialDebt(o) && (
           <Button
             size="sm"
             variant="outline"

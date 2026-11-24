@@ -10,6 +10,8 @@ import { FRESH_MS, PROMO_KIND, type PromoItem } from '@/lib/promo';
 import { liveNewsId } from '@/lib/live-quiz';
 import { ImagePick } from './image-pick';
 import { PremiumOffer, PremiumPerks, usePremium } from './premium';
+import { SitePicture, openSiteImageEditor } from './site-content';
+import { visualPath } from '@/lib/site-visuals';
 
 /* 📢 E'lonlar oynasi (yon menyuda «Talabalar chati» ostida, har 10 soniyada almashadi) va ⚡ jonli test oynasi.
    Matni uzun e'lon ustiga bosilsa — to'liq matn alohida oynada ochiladi.
@@ -173,6 +175,7 @@ export function NewsReader({
   title,
   text,
   img,
+  imageKey,
   link,
   cta,
   meta,
@@ -183,6 +186,7 @@ export function NewsReader({
   title?: string;
   text?: string;
   img?: string;
+  imageKey: string;
   link?: string;
   cta?: string;
   meta?: string;
@@ -226,7 +230,7 @@ export function NewsReader({
             <X size={20} />
           </button>
         </header>
-        {img && <img className="news-reader-img" src={img} alt="" />}
+        <SitePicture className="news-reader-img" imageKey={imageKey} original={img} />
         <h2 id="news-reader-h">{title || tr(lang, 'E’lon', 'Announcement', 'Объявление')}</h2>
         {text && <p className="news-reader-text">{text}</p>}
         {meta && <small className="news-reader-meta">{meta}</small>}
@@ -266,7 +270,11 @@ function NewsSlide({ item, now, onOpen }: { item: NewsItem; now: number; onOpen:
         aria-haspopup="dialog"
         onClick={onOpen}
       >
-        {item.img && <img className="news-slide-img" src={item.img} alt="" loading="lazy" />}
+        <SitePicture
+          className="news-slide-img"
+          imageKey={visualPath('news', item.id)}
+          original={item.img}
+        />
         {item.h && <b>{item.h}</b>}
         <span className="news-text" ref={ref}>
           {item.t}
@@ -473,6 +481,7 @@ export function NewsBox({ className = '' }: { className?: string }) {
           kicker={<>📢 {L('E’LON', 'NEWS', 'ОБЪЯВЛЕНИЕ')}</>}
           title={reading.h}
           text={reading.t}
+          imageKey={visualPath('news', reading.id)}
           img={reading.img}
           link={reading.link}
           meta={
@@ -494,17 +503,13 @@ export function NewsBox({ className = '' }: { className?: string }) {
   );
 }
 
-/** ✉️ Bosh sahifadagi kichik «xat» tugmasi (telefonda — joriy mavzu yonida): ikkala e'lon oynasi (e'lonlar va
-   takliflar) bitta joyda. Yonida — yangi (hali ochilmagan) e'lonlar soni qizil raqamda, hammasi ko'rilgach — umumiy
-   soni kulrangda. Eng so'nggi sarlavha har 10 soniyada almashadi. Bosilsa — hammasi to'liq matni bilan. */
-export function NewsChip({ className = '' }: { className?: string }) {
+/** Bosh sahifada e’lonlar, takliflar va yaqin jonli test uchun tugma. */
+export function NewsInbox() {
   const { lang, data, request } = useApp();
   const L = (uz: string, en: string, ru: string) => tr(lang, uz, en, ru);
   const { data: d, now } = useNews();
-  const [index, setIndex] = useState(0),
-    // ochilgan paytdagi «ko'rilganlar» (oynada yangilarini belgilash uchun); null — yopiq
-    [open, setOpen] = useState<Set<string> | null>(null),
-    [seen, setSeen] = useState<Set<string>>(() => new Set());
+  const [open, setOpen] = useState<Set<string> | null>(null);
+  const [seen, setSeen] = useState<Set<string>>(() => new Set());
   useEffect(() => {
     setSeen(new Set(localSeen()));
     const on = (e: Event) => setSeen((x) => new Set(x).add((e as CustomEvent<string>).detail));
@@ -515,54 +520,36 @@ export function NewsChip({ className = '' }: { className?: string }) {
   const g = d?.live && d.live.end > n && d.live.start - n < 86400000 ? d.live : null;
   const news = d?.news || [],
     promo = d?.promo || [];
-  const entries = [
-    ...(g
-      ? [
-          {
-            key: 'live',
-            text:
-              (g.type === 'yz' ? '⌨️ ' : '⚡ ') +
-              gameName(g, lang) +
-              ' · ' +
-              (liveState(g, n) === 'live' ? L('hozir', 'now', 'сейчас') : when(g.start, lang, n)),
-          },
-        ]
-      : []),
-    ...news.map((x) => ({ key: x.id, text: x.h || x.t })),
-    ...promo.map((x) => ({ key: x.id, text: x.h })),
-  ];
-  const ids = [...news.map((x) => x.id), ...promo.map((x) => x.id)];
+  const ids = [...news.map((x) => x.id), ...promo.map((x) => x.id), ...(g ? [liveNewsId(g)] : [])];
+  const total = ids.length;
   const unread = ids.filter((id) => !seen.has(id)).length;
-  const count = entries.length;
-  useEffect(() => {
-    if (count < 2 || open) return;
-    const t = setInterval(() => setIndex((i) => (i + 1) % count), ROTATE_MS);
-    return () => clearInterval(t);
-  }, [count, open]);
-  if (!count) return null;
-  const cur = entries[index % count];
-  const total = ids.length || count;
+  if (!total) return null;
+
   function show() {
     setOpen(new Set(seen));
-    // ochib ko'rildi — yangi deb sanalmaydi; katta oynadagi e'lonlar ham «o'qildi»
-    for (const x of news)
-      if (!seen.has(x.id)) {
-        markLocalSeen(x.id);
-        if (x.pop && data?.user)
-          void request('/api/platform', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ action: 'newsSeen', input: { id: x.id } }),
-          }).catch(() => {});
-      }
-    for (const x of promo) if (!seen.has(x.id)) markLocalSeen(x.id);
+    for (const id of ids) if (!seen.has(id)) markLocalSeen(id);
+    if (!data?.user) return;
+    const persistent = [
+      ...news.filter((x) => x.pop).map((x) => x.id),
+      ...promo.filter((x) => x.pop).map((x) => x.id),
+      ...(g && canJoinLive(data.user, g) ? [liveNewsId(g)] : []),
+    ];
+    for (const id of persistent) {
+      if (seen.has(id)) continue;
+      void request('/api/platform', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'newsSeen', input: { id } }),
+      }).catch(() => {});
+    }
   }
   return (
     <>
       <button
         type="button"
-        className={'news-chip ' + (unread ? 'has-new ' : '') + className}
+        className={'news-chip' + (unread ? ' has-new' : '')}
         aria-haspopup="dialog"
+        aria-expanded={open !== null}
         aria-label={
           L('E’lonlar', 'Announcements', 'Объявления') +
           ': ' +
@@ -572,12 +559,9 @@ export function NewsChip({ className = '' }: { className?: string }) {
         onClick={show}
       >
         <span className="news-chip-env" aria-hidden="true">
-          <Mail size={17} />
+          <Mail size={21} />
         </span>
         <em className={'news-chip-count' + (unread ? ' is-new' : '')}>{unread || total}</em>
-        <span className="news-chip-text" key={cur.key}>
-          {cur.text}
-        </span>
       </button>
       {open &&
         createPortal(
@@ -633,7 +617,7 @@ function NewsList({
     link.startsWith('http') ? { target: '_blank', rel: 'noopener noreferrer' } : {};
   return (
     <div
-      className="modal-backdrop news-reader-backdrop"
+      className="modal-backdrop news-reader-backdrop news-inbox-backdrop"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <section
@@ -657,7 +641,7 @@ function NewsList({
           </button>
         </header>
         {g && (
-          <article className="news-list-item is-live">
+          <article className={'news-list-item is-live' + (isNew(liveNewsId(g)) ? ' is-new' : '')}>
             <h3>
               {g.type === 'yz' ? '⌨️' : '⚡'} {gameName(g, lang)} · {when(g.start, lang, now)}
             </h3>
@@ -681,7 +665,11 @@ function NewsList({
               📢 {L('E’lon', 'Announcement', 'Объявление')}
               {isNew(x.id) && <em>{L('YANGI', 'NEW', 'НОВОЕ')}</em>}
             </span>
-            {x.img && <img className="news-reader-img" src={x.img} alt="" loading="lazy" />}
+            <SitePicture
+              className="news-reader-img"
+              imageKey={visualPath('news', x.id)}
+              original={x.img}
+            />
             {x.h && <h3>{x.h}</h3>}
             <p className="news-reader-text">{x.t}</p>
             <small className="news-reader-meta">{dueText(x.at, lang, now).date}</small>
@@ -704,7 +692,11 @@ function NewsList({
               key={x.id}
               className={'news-list-item is-promo' + (isNew(x.id) ? ' is-new' : '')}
             >
-              {x.img && <img className="news-reader-img" src={x.img} alt="" loading="lazy" />}
+              <SitePicture
+                className="news-reader-img"
+                imageKey={visualPath('promo', x.id)}
+                original={x.img}
+              />
               <span className="news-list-kind">
                 {k.icon} {tr(lang, ...k.name)}
                 {isNew(x.id) && <em>{L('YANGI', 'NEW', 'НОВОЕ')}</em>}
@@ -1002,7 +994,11 @@ export function NewsPopup() {
             <X size={20} />
           </button>
         </header>
-        {item.img && <img className="news-pop-img" src={item.img} alt="" />}
+        <SitePicture
+          className="news-pop-img"
+          imageKey={visualPath(item.promo ? 'promo' : 'news', item.id)}
+          original={item.img}
+        />
         <h2 id="news-pop-h">{item.h || L('E’lon', 'Announcement', 'Объявление')}</h2>
         {item.t && (
           <p id="news-pop-t" className="news-pop-text">
@@ -1373,7 +1369,11 @@ export function NewsAdmin({ openCourseControls }: { openCourseControls?: () => v
       <ul className="news-admin-list">
         {(d?.news || []).map((x) => (
           <li key={x.id}>
-            {x.img && <img className="news-admin-img" src={x.img} alt="" loading="lazy" />}
+            <SitePicture
+              className="news-admin-img"
+              imageKey={visualPath('news', x.id)}
+              original={x.img}
+            />
             <span>
               {x.h && <b>{x.h}</b>}
               <span>{x.t}</span>
@@ -1384,21 +1384,35 @@ export function NewsAdmin({ openCourseControls }: { openCourseControls?: () => v
                 {x.link ? ' · ' + x.link : ''}
               </small>
             </span>
-            <Button
-              size="sm"
-              variant="outline"
-              disabled={!!busy}
-              aria-label={L('O‘chirish', 'Delete', 'Удалить') + ': ' + (x.h || x.t.slice(0, 30))}
-              onClick={() =>
-                void send(
-                  { op: 'remove', id: x.id },
-                  'rm' + x.id,
-                  L('E’lon o‘chirildi', 'Deleted', 'Удалено'),
-                )
-              }
-            >
-              <Trash2 size={14} />
-            </Button>
+            <span className="bo-row-btns">
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() =>
+                  openSiteImageEditor(visualPath('news', x.id), {
+                    shown: x.img,
+                    label: x.h || x.t.slice(0, 80),
+                  })
+                }
+              >
+                {L('Rasm', 'Picture', 'Картинка')}
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={!!busy}
+                aria-label={L('O‘chirish', 'Delete', 'Удалить') + ': ' + (x.h || x.t.slice(0, 30))}
+                onClick={() =>
+                  void send(
+                    { op: 'remove', id: x.id },
+                    'rm' + x.id,
+                    L('E’lon o‘chirildi', 'Deleted', 'Удалено'),
+                  )
+                }
+              >
+                <Trash2 size={14} />
+              </Button>
+            </span>
           </li>
         ))}
         {!d?.news?.length && (

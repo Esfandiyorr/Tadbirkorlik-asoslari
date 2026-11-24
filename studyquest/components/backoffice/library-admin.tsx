@@ -4,6 +4,8 @@ import { Plus, Trash2 } from 'lucide-react';
 import { useApp } from '../provider';
 import { Button } from '../ui/button';
 import { ImagePick } from '../image-pick';
+import { SitePicture, openSiteImageEditor } from '../site-content';
+import { visualPath } from '@/lib/site-visuals';
 import { tr } from '@/lib/points';
 import { useL } from './common';
 import { LIBRARY_KIND, LIBRARY_KINDS, type LibraryItem, type LibraryKind } from '@/lib/library';
@@ -218,13 +220,16 @@ export function LibraryAdmin() {
       <ul className="bo-list bo-lib-list">
         {items.map((x) => (
           <li key={x.id}>
-            {x.img ? (
-              <img className="news-admin-img" src={x.img} alt="" loading="lazy" />
-            ) : (
-              <span className="bo-lib-icon" aria-hidden="true">
-                {(LIBRARY_KIND[x.kind] || LIBRARY_KIND.other).icon}
-              </span>
-            )}
+            <SitePicture
+              className="news-admin-img"
+              imageKey={visualPath('library-items', x.id)}
+              original={x.img}
+              fallback={
+                <span className="bo-lib-icon" aria-hidden="true">
+                  {(LIBRARY_KIND[x.kind] || LIBRARY_KIND.other).icon}
+                </span>
+              }
+            />
             <div>
               <b>
                 {x.pro ? '💎 ' : ''}
@@ -236,15 +241,29 @@ export function LibraryAdmin() {
               </small>
               {x.link && <code>{x.link}</code>}
             </div>
-            <Button
-              size="sm"
-              variant="outline"
-              disabled={!!busy}
-              aria-label={L('O‘chirish', 'Delete', 'Удалить') + ': ' + x.h}
-              onClick={() => void remove(x)}
-            >
-              <Trash2 size={14} />
-            </Button>
+            <span className="bo-row-btns">
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() =>
+                  openSiteImageEditor(visualPath('library-items', x.id), {
+                    shown: x.img,
+                    label: x.h,
+                  })
+                }
+              >
+                {L('Muqova', 'Cover', 'Обложка')}
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={!!busy}
+                aria-label={L('O‘chirish', 'Delete', 'Удалить') + ': ' + x.h}
+                onClick={() => void remove(x)}
+              >
+                <Trash2 size={14} />
+              </Button>
+            </span>
           </li>
         ))}
         {!items.length && (

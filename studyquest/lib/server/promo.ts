@@ -1,11 +1,12 @@
 import 'server-only';
 import { randomUUID } from 'node:crypto';
+import { visualPath } from '../site-visuals';
 import { z } from 'zod';
 import type { Actor } from '../types';
 import { PROMO_KINDS, type PromoItem, type PromoKind } from '../promo';
 import { administrator, check } from './auth';
 import { markPopSeen, newsLink } from './news';
-import { imageUrl, siteGet, siteUpdate, storeBlob } from './site-content';
+import { imageUrl, siteImageRemoval, siteGet, siteUpdate, storeBlob } from './site-content';
 
 /* 🛍 2-e'lon oynasi (yon menyu pastida): mahsulot, kurs va grant dasturlari reklamasi. Faqat administrator
    «Sayt boshqaruvi → 🛍 2-e'lon oynasi»da yozadi. Ma'lumot asl bazaning site/promo/<id> bo'limida — Firebase
@@ -87,7 +88,11 @@ export async function managePromo(a: Actor, raw: unknown, now = Date.now()) {
     if (v.pop) await markPopSeen(a, id, now).catch(() => {});
     return { id, promo: await readPromo(now) };
   }
-  await siteUpdate({ ['promo/' + v.id]: null, ['blob/pr-' + v.id]: null });
+  await siteUpdate({
+    ['promo/' + v.id]: null,
+    ['blob/pr-' + v.id]: null,
+    ...siteImageRemoval(visualPath('promo', v.id)),
+  });
   return { promo: await readPromo(now) };
 }
 

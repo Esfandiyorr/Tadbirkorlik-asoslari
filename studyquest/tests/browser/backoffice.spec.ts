@@ -427,3 +427,60 @@ test('the administrator adds a new avatar and hides another; top students see th
     data: { action: 'avatarPick', input: { avatar: null } },
   });
 });
+
+test('catalog pictures and home stickers can be changed in the shared image editor', async ({
+  page,
+  browser,
+}) => {
+  await as(page, 'demo-admin');
+  const call = (input: unknown) =>
+    page.request.post('/api/services', { data: { scope: 'admin', input } });
+  expect((await call({ op: 'launch', open: true, trial: true })).ok()).toBe(true);
+  const context = await browser.newContext({
+    baseURL: test.info().project.use.baseURL,
+    viewport: { width: 390, height: 844 },
+  });
+  try {
+    await page.goto('/#admin', { waitUntil: 'domcontentloaded' });
+    await page.locator('.bo-card-btn').filter({ hasText: 'Matnlar va rasmlar' }).click();
+    const directory = page.getByRole('region', { name: 'Rasmlar va stikerlar' });
+    const picker = directory.getByRole('combobox');
+    const editor = page.getByRole('dialog', { name: /Rasmni almashtirish/ });
+    for (const key of ['/visuals/services/taqdimot', '/visuals/home/courses']) {
+      await picker.selectOption(key);
+      await directory.getByRole('button', { name: 'Rasmni almashtirish' }).click();
+      await editor.locator('input[type=file]').setInputFiles('tests/fixtures/white-bg.png');
+      await editor.getByRole('button', { name: 'Saqlash' }).click();
+      await expect(editor).toBeHidden();
+    }
+    await expect(page.locator('.bo-images li')).toHaveCount(2);
+
+    const student = await context.newPage();
+    await as(student, 'demo-student');
+    await student.goto('/#home', { waitUntil: 'domcontentloaded' });
+    await expect(student.locator('.quick-link.is-courses img')).toHaveAttribute(
+      'src',
+      /\/api\/site\/img\//,
+    );
+    await student.goto('/#services', { waitUntil: 'domcontentloaded' });
+    const artwork = student.locator('[data-se-visual="/visuals/services/taqdimot"]');
+    await expect(artwork.locator('img')).toHaveAttribute('src', /\/api\/site\/img\//);
+    expect((await artwork.locator('..').locator('..').boundingBox())!.height).toBeLessThan(180);
+
+    await page.goto('/#admin/services', { waitUntil: 'domcontentloaded' });
+    await page.getByRole('tab', { name: /Yo‘nalishlar/ }).click();
+    const row = page.locator('.svc-cat-admin li').filter({ hasText: 'Taqdimot' }).first();
+    await expect(row.locator('img')).toBeVisible();
+    await row.getByRole('button', { name: 'Rasmni almashtirish' }).click();
+    await editor.getByRole('button', { name: 'Asl holiga qaytarish' }).click();
+    await expect(editor).toBeHidden();
+    await expect(row.locator('img')).toHaveCount(0);
+    await student.route('**/api/site/content', (route) => route.continue());
+    await student.reload({ waitUntil: 'domcontentloaded' });
+    await expect(artwork).toHaveText('📊');
+  } finally {
+    await context.close();
+    await call({ op: 'launch', open: false });
+    await call({ op: 'show', shown: false });
+  }
+});

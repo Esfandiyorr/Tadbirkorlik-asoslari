@@ -384,7 +384,7 @@ slide("🎬 Video dars", "🎬 Video lesson",
  E("h2", "🎬 Animatsion video: " + G("savdoning 7 qadami"), "🎬 Animated video: " + G("the 7 steps of a sale")) +
  '<figure class="video-wrap sq-film" style="margin:0"><video controls playsinline preload="none" poster="' + VIDEO + '.jpg" src="' + VIDEO + '.mp4" style="width:100%;max-height:58vh;border-radius:18px;background:#000">'
  '<track kind="subtitles" srclang="uz" label="O‘zbekcha" src="' + VIDEO + '.vtt" default></video>' +
- E("figcaption", "⏱ Davomiyligi — taxminan 5 daqiqa · ovozsiz, subtitr bilan (pleyerdagi «CC» tugmasi)", "⏱ About 5 minutes · silent, with subtitles (the “CC” button in the player)", 'style="margin-top:8px;color:var(--muted);font-size:14px"') + '</figure>' +
+ E("figcaption", "⏱ Davomiyligi — 4 daqiqa 42 soniya · O‘zbekcha ovoz va subtitr", "⏱ 4 minutes 42 seconds · Uzbek narration and subtitles", 'style="margin-top:8px;color:var(--muted);font-size:14px"') + '</figure>' +
  '<div class="grid g3" style="margin-top:14px">' +
  card("green", "👋", "1. Salomlashish", "1. The greeting", "Nilufar suhbatni qanday boshladi? Qaysi savol bilan?", "How did Nilufar start the conversation? With which question?") +
  card("orange", "🛡", "2. «Qimmat ekan»", "2. “It is expensive”", "Dilnoza «qimmat» deganda Nilufar nima qildi? Nega bahslashmadi?", "What did Nilufar do when Dilnoza said “expensive”? Why did she not argue?") +

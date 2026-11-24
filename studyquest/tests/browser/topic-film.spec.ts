@@ -22,6 +22,7 @@ test('topic 10: the reworked presentation and its subtitled video play inside th
   const video = doc.locator('figure.sq-film video');
   await expect(video).toHaveAttribute('src', /\/legacy\/fayllar\/video\/M10\.mp4$/);
   await expect(video).toHaveAttribute('poster', /\/legacy\/fayllar\/video\/M10\.jpg$/);
+  await expect(doc.locator('figure.sq-film figcaption')).toContainText('O‘zbekcha ovoz va subtitr');
   await expect(video.locator('track')).toHaveAttribute(
     'src',
     /\/legacy\/fayllar\/video\/M10\.vtt$/,
@@ -39,6 +40,8 @@ test('topic 10: the reworked presentation and its subtitled video play inside th
   const seconds = await player.evaluate((v: HTMLVideoElement) => v.duration);
   expect(seconds).toBeGreaterThan(200);
   expect(seconds).toBeLessThan(400);
+  expect(await player.evaluate((v: HTMLVideoElement) => v.muted)).toBe(false);
+  await expect(modal.locator('.topic-film-note')).toContainText(/Subtitr ko‘rinmasa/);
   await page.keyboard.press('Escape');
   await expect(modal).toHaveCount(0);
 

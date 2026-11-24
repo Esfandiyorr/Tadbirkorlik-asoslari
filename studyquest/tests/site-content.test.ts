@@ -155,4 +155,9 @@ it('replaces site texts and pictures for everyone, only by the administrator', a
   expect(v).toEqual({ texts: {}, images: {}, rev: 0 });
   expect(await readImage(key)).toBeNull();
   expect((await siteContent()).texts).toEqual({});
+
+  const sticker = await manageSiteText(admin, { op: 'set', o: '📚', n: '📖' }, now);
+  expect(sticker.texts).toEqual({ '📚': '📖' });
+  await manageSiteText(admin, { op: 'remove', o: '📚' });
+  expect((await siteContent()).texts).toEqual({});
 });

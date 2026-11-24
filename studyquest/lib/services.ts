@@ -382,7 +382,10 @@ export const STATUS_LABEL: Record<ServiceStatus, [string, Tri]> = {
 /** Vazifa hali tugamagan (buyurtmachi bir vaqtda ko'pi bilan ACTIVE_MAX tasini ochiq tutadi). */
 export const isActive = (s: ServiceStatus) => s !== 'done' && s !== 'cancel';
 export const ACTIVE_MAX = 5;
-/** Buyurtmachi yozadigan summa (so'm). */
+/** 🧪 Sinov tarifi: har buyurtma narxi (so'm) — administrator «Sinov tarifi»ni yoqqanda. */
+export const TRIAL_PRICE = 2000;
+export const hasTrialDebt = (order: { trialChargedAt?: number; payOk?: number }) =>
+  Boolean(order.trialChargedAt && !order.payOk);
 export const BUDGET_MIN = 5000;
 export const BUDGET_MAX = 50_000_000;
 /** 150000 → «150 000 so'm». */
@@ -468,6 +471,9 @@ export type ServiceOrder = {
   text: string;
   /** to'langan summa (so'm): foydalanuvchi «To'lov qildim»da yozadi (eski buyurtmalarda — taklif qilgan summasi) */
   budget: number;
+  /** 🧪 sinov tarifi: buyurtma qat'iy narxda (TRIAL_PRICE), natija yuborilganda qarz yoziladi */
+  trial?: true;
+  trialChargedAt?: number;
   /** talaba xohlagan muddat (YYYY-MM-DD) */
   due?: string;
   /** telefon yoki Telegram (faqat buyurtmachi va administratorga) */
@@ -516,6 +522,8 @@ export type ServiceBan = {
   title?: string;
 };
 export type ServicesView = {
+  trial: boolean;
+  balance?: number;
   /** bo'lim ishga tushganmi; yo'q bo'lsa — «tez orada» oynasi va taklif yuborish, buyurtma qabul qilinmaydi */
   open: boolean;
   /** 🔒 bo'lim menyuda ko'rinadimi; yo'q bo'lsa — vaqtincha yopiq (faqat administrator ko'radi) */
@@ -535,6 +543,7 @@ export type ServicesView = {
   orders?: ServiceOrder[];
 };
 export type ServicesAdminView = {
+  trial: boolean;
   open: boolean;
   shown: boolean;
   catalog: ServiceCard[];

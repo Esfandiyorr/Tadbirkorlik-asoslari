@@ -26,7 +26,7 @@ import {
   BriefcaseBusiness,
 } from 'lucide-react';
 import { Provider, useApp } from './provider';
-import { LiveGate, NewsBox, NewsPopup } from './announcements';
+import { LiveGate, NewsBox, NewsInbox, NewsPopup } from './announcements';
 import { PromoBox } from './promo';
 import { Dashboard, CourseList, Badges, achievementsOf, navigate } from './dashboard';
 import { courseTotals, durationText, num, tr } from '@/lib/points';
@@ -200,10 +200,14 @@ export function StudyQuest() {
   else if (mainView === 'arena') content = <Games sub={view.split('/').slice(1).join('/')} />;
   else if (view === 'teacher')
     content = role === 'teacher' || role === 'admin' ? <Staff /> : <AuthPanel />;
-  else if (view === 'admin' || view === 'admin/services')
+  else if (view === 'admin' || view === 'admin/services' || view === 'admin/content')
     content =
       role === 'admin' ? (
-        <Staff admin key={view} initialSection={id === 'services' ? 'services' : undefined} />
+        <Staff
+          admin
+          key={view}
+          initialSection={id === 'services' || id === 'content' ? id : undefined}
+        />
       ) : (
         <AuthPanel />
       );
@@ -448,6 +452,7 @@ export function StudyQuest() {
           </a>
         ))}
       </nav>
+      {view === 'home' && <NewsInbox />}
     </div>
   );
 }
