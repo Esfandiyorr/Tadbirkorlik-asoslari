@@ -15,6 +15,7 @@ import {
   PRODUCTS,
   fileSize,
   formatSum,
+  hasTrialDebt,
   isActive,
   isProduct,
   payable,
@@ -119,20 +120,26 @@ export function ServicesAdmin() {
     }
   }
   /** Bo'limni ishga tushirish yoki yana «tez orada» rejimiga qaytarish. */
-  async function launch(open: boolean) {
+  async function launch(open: boolean, trial = false) {
     if (
       !window.confirm(
-        open
+        trial
           ? L(
-              'Bo‘lim ishga tushirilsinmi? Foydalanuvchilar buyurtma bera boshlaydi. Avval to‘lov yo‘riqnomasini tekshiring.',
-              'Launch the section? Users will start placing orders. Check the payment instructions first.',
-              'Запустить раздел? Пользователи начнут делать заказы. Сначала проверьте инструкцию по оплате.',
+              'Sinov boshlansinmi? Talabalar oldindan to‘lamaydi. Har bir topshirilgan xizmat 2 000 so‘m qarz bo‘ladi.',
+              'Start the trial? Each delivered student order adds UZS 2,000 to their debt.',
+              'Начать пробный режим? Каждый выполненный студенческий заказ добавит долг в 2 000 сум.',
             )
-          : L(
-              'Bo‘lim «Tez orada» rejimiga qaytarilsinmi? Yangi buyurtma qabul qilinmaydi, ochiq buyurtmalar davom etadi.',
-              'Switch back to “Launching soon”? New orders stop; open orders continue.',
-              'Вернуть режим «Скоро запуск»? Новые заказы не принимаются, открытые продолжаются.',
-            ),
+          : open
+            ? L(
+                'Bo‘lim ishga tushirilsinmi? Foydalanuvchilar buyurtma bera boshlaydi. Avval to‘lov yo‘riqnomasini tekshiring.',
+                'Launch the section? Users will start placing orders. Check the payment instructions first.',
+                'Запустить раздел? Пользователи начнут делать заказы. Сначала проверьте инструкцию по оплате.',
+              )
+            : L(
+                'Bo‘lim «Tez orada» rejimiga qaytarilsinmi? Yangi buyurtma qabul qilinmaydi, ochiq buyurtmalar davom etadi.',
+                'Switch back to “Launching soon”? New orders stop; open orders continue.',
+                'Вернуть режим «Скоро запуск»? Новые заказы не принимаются, открытые продолжаются.',
+              ),
       )
     )
       return;
@@ -141,16 +148,20 @@ export function ServicesAdmin() {
       const r = await servicesAct<{ admin: ServicesAdminView }>(request, 'admin', {
         op: 'launch',
         open,
+        trial,
       });
       setView(r.admin);
+      void refresh();
       toast(
-        open
-          ? L('🚀 Bo‘lim ishga tushdi!', '🚀 The section is live!', '🚀 Раздел запущен!')
-          : L(
-              '⏸ «Tez orada» rejimi yoqildi.',
-              '⏸ “Launching soon” is on.',
-              '⏸ Режим «Скоро запуск».',
-            ),
+        trial
+          ? L('Sinov boshlandi', 'Trial started', 'Пробный режим запущен')
+          : open
+            ? L('🚀 Bo‘lim ishga tushdi!', '🚀 The section is live!', '🚀 Раздел запущен!')
+            : L(
+                '⏸ «Tez orada» rejimi yoqildi.',
+                '⏸ “Launching soon” is on.',
+                '⏸ Режим «Скоро запуск».',
+              ),
       );
     } catch (e) {
       toast((e as Error).message);
@@ -191,28 +202,51 @@ export function ServicesAdmin() {
       </div>
       <div className={'svc-launch' + (view.open ? ' is-open' : '')}>
         <span className={'bo-pill ' + (view.open ? 'on' : 'off')}>
-          {view.open ? L('Ishlayapti', 'Live', 'Работает') : L('Tez orada', 'Coming soon', 'Скоро')}
+          {view.trial
+            ? L('Sinov rejimi', 'Trial mode', 'Пробный режим')
+            : view.open
+              ? L('Ishlayapti', 'Live', 'Работает')
+              : L('Tez orada', 'Coming soon', 'Скоро')}
         </span>
         <p>
-          {view.open
+          {view.trial
             ? L(
-                'Foydalanuvchilar buyurtma beryapti: har bir buyurtma shu yerga yozishma bo‘lib keladi, ularda «🤖 Sun’iy intellekt yordamida tayyorlanmoqda» yozuvi turadi.',
-                'Users are ordering: each order arrives here as a chat; they see “🤖 Being prepared with AI”.',
-                'Пользователи делают заказы: каждый приходит сюда как переписка; у них отображается «🤖 Готовится с помощью ИИ».',
+                'Har bir topshirilgan xizmat uchun talabaga 2 000 so‘m qarz yoziladi. To‘liq rejimda qarz to‘langani tasdiqlangach yangi buyurtma ochiladi.',
+                'Each delivered service adds UZS 2,000 of student debt. In full mode, new orders require confirmed settlement.',
+                'За каждую выполненную услугу начисляется долг в 2 000 сум. В полном режиме новые заказы доступны после подтверждения оплаты.',
               )
-            : L(
-                'Bo‘lim hali ishga tushmagan: foydalanuvchi kirganda «🚀 Tez orada» oynasi chiqadi va u taklif yuboradi. Takliflar «Kelgan xabarlar»ga 💡 belgisi bilan tushadi.',
-                'Not launched yet: users see “🚀 Launching soon” and send suggestions. Suggestions arrive in the inbox marked 💡.',
-                'Ещё не запущен: пользователи видят «🚀 Скоро запуск» и отправляют идеи. Идеи приходят во «Входящие» со значком 💡.',
-              )}
+            : view.open
+              ? L(
+                  'Foydalanuvchilar buyurtma beryapti: har bir buyurtma shu yerga yozishma bo‘lib keladi, ularda «🤖 Sun’iy intellekt yordamida tayyorlanmoqda» yozuvi turadi.',
+                  'Users are ordering: each order arrives here as a chat; they see “🤖 Being prepared with AI”.',
+                  'Пользователи делают заказы: каждый приходит сюда как переписка; у них отображается «🤖 Готовится с помощью ИИ».',
+                )
+              : L(
+                  'Bo‘lim hali ishga tushmagan: foydalanuvchi kirganda «🚀 Tez orada» oynasi chiqadi va u taklif yuboradi. Takliflar «Kelgan xabarlar»ga 💡 belgisi bilan tushadi.',
+                  'Not launched yet: users see “🚀 Launching soon” and send suggestions. Suggestions arrive in the inbox marked 💡.',
+                  'Ещё не запущен: пользователи видят «🚀 Скоро запуск» и отправляют идеи. Идеи приходят во «Входящие» со значком 💡.',
+                )}
         </p>
-        {view.open ? (
+        {!view.trial && (
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={busy}
+            onClick={() => void launch(true, true)}
+          >
+            {L('Sinovni boshlash', 'Start trial', 'Начать пробный режим')}
+          </Button>
+        )}
+        {view.trial || !view.open ? (
+          <Button size="sm" disabled={busy} onClick={() => void launch(true)}>
+            {view.trial
+              ? L('To‘liq rejimga o‘tish', 'Switch to full mode', 'Перейти в полный режим')
+              : L('Ishga tushirish', 'Launch', 'Запустить')}
+          </Button>
+        ) : null}
+        {view.open && (
           <Button size="sm" variant="outline" disabled={busy} onClick={() => void launch(false)}>
             ⏸ {L('«Tez orada»ga qaytarish', 'Back to “coming soon”', 'Вернуть «Скоро»')}
-          </Button>
-        ) : (
-          <Button size="sm" disabled={busy} onClick={() => void launch(true)}>
-            🚀 {L('Ishga tushirish', 'Launch', 'Запустить')}
           </Button>
         )}
       </div>
@@ -512,7 +546,7 @@ function AdminChat({
         <span>🕐 {dueText(o.at, lang).date}</span>
       </p>
 
-      {o.status !== 'cancel' && (
+      {o.status !== 'cancel' && (!o.trial || o.trialChargedAt) && (
         <div className={'svc-pay is-admin' + (o.payOk ? ' is-ok' : '')}>
           {o.payOk ? (
             <b>
@@ -726,7 +760,7 @@ function AdminChat({
       )}
 
       <footer className="svc-order-actions">
-        {o.status !== 'cancel' && o.status !== 'done' && (
+        {o.status !== 'cancel' && o.status !== 'done' && !o.trialChargedAt && (
           <Button
             size="sm"
             variant="outline"
@@ -742,7 +776,7 @@ function AdminChat({
             ✖ {L('Bekor qilish', 'Cancel', 'Отменить')}
           </Button>
         )}
-        {!isActive(o.status) && (
+        {!isActive(o.status) && !hasTrialDebt(o) && (
           <Button
             size="sm"
             variant="outline"

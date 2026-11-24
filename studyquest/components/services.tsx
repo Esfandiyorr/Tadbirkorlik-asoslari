@@ -30,6 +30,8 @@ import { dueText, tr } from '@/lib/points';
 import {
   BUDGET_MAX,
   BUDGET_MIN,
+  TRIAL_PRICE,
+  hasTrialDebt,
   FILE_ACCEPT,
   FILE_MAX,
   FILES_PER_ORDER,
@@ -184,6 +186,9 @@ export function Services({ sub = '' }: { sub?: string }) {
   // bo'lim hali ishga tushmagan: foydalanuvchi buyurtma o'rniga taklif yuboradi (administrator sinab ko'rishi mumkin)
   const soonMode = !!view && !view.open;
   const waiting = soonMode && !admin;
+  const trial = !!view?.trial && (!view.signedIn || data?.user?.role === 'student');
+  const balance = view?.balance ?? 0;
+  const blocked = !!view?.open && !view.trial && balance < 0;
   useEffect(() => {
     if (!waiting || shown.current) return;
     shown.current = true;
@@ -268,6 +273,52 @@ export function Services({ sub = '' }: { sub?: string }) {
         </div>
       </header>
 
+      {trial && (
+        <section className="svc-soon" aria-label={L('Sinov rejimi', 'Trial mode', 'Пробный режим')}>
+          <div>
+            <b>
+              {L(
+                'Pullik xizmatlar sinov tariqasida ishga tushyapti',
+                'Paid services are launching in trial mode',
+                'Платные услуги запускаются в пробном режиме',
+              )}
+            </b>
+            <p>
+              {L(
+                'Oldindan to‘lov shart emas. Har bir tayyor xizmat uchun hisobingizga 2 000 so‘m qarz yoziladi.',
+                'Order without paying upfront. Each delivered service adds UZS 2,000 to your balance as debt.',
+                'Можно заказать без предоплаты. За каждую готовую услугу начисляется долг в 2 000 сум.',
+              )}
+            </p>
+          </div>
+        </section>
+      )}
+      {view?.signedIn && (trial || balance < 0 || tab === 'mine') && (
+        <section
+          className="svc-soon"
+          aria-label={L('Shaxsiy hisob', 'Account balance', 'Личный счёт')}
+        >
+          <div>
+            <b>
+              {L('Shaxsiy hisob', 'Account balance', 'Личный счёт')} · {formatSum(balance)}
+            </b>
+            {blocked && (
+              <p>
+                {L(
+                  'Yangi xizmat buyurtma qilish uchun sinov qarzingizni to‘lang va admin tasdiqlashini kuting.',
+                  'Pay your trial balance and wait for admin confirmation to place a new order.',
+                  'Оплатите пробные заказы и дождитесь подтверждения администратора, чтобы заказать новую услугу.',
+                )}
+              </p>
+            )}
+          </div>
+          {balance < 0 && tab !== 'mine' && (
+            <Button size="sm" variant="outline" onClick={() => go('mine')}>
+              {L('Buyurtmalarim', 'My orders', 'Мои заказы')}
+            </Button>
+          )}
+        </section>
+      )}
       {waiting && (
         <div className="svc-soon" role="status">
           <span className="svc-soon-icon" aria-hidden="true">
@@ -315,7 +366,7 @@ export function Services({ sub = '' }: { sub?: string }) {
         </p>
       )}
 
-      {view?.signedIn && !admin && (
+      {view?.signedIn && !admin && !trial && (
         // 💎 obunachilarga barcha xizmatlar yarim narxda
         <div className={'svc-premium' + (view.discount ? ' is-on' : '')}>
           <span aria-hidden="true">💎</span>
@@ -371,11 +422,17 @@ export function Services({ sub = '' }: { sub?: string }) {
                         'Tap a card to say you are waiting for that service.',
                         'Нажмите на карточку, чтобы сообщить, что ждёте эту услугу.',
                       )
-                    : L(
-                        'Kartani bosing — nima kerakligini va summani yozasiz, buyurtmangiz sun’iy intellekt yordamida tayyorlanadi.',
-                        'Tap a card — describe what you need and your budget; your order is prepared with the help of AI.',
-                        'Нажмите на карточку — опишите, что нужно, и бюджет; заказ подготовят с помощью ИИ.',
-                      )}
+                    : trial
+                      ? L(
+                          'Xizmatni tanlang va nima kerakligini yozing.',
+                          'Choose a service and describe what you need.',
+                          'Выберите услугу и опишите задачу.',
+                        )
+                      : L(
+                          'Kartani bosing — nima kerakligini va summani yozasiz, buyurtmangiz sun’iy intellekt yordamida tayyorlanadi.',
+                          'Tap a card — describe what you need and your budget; your order is prepared with the help of AI.',
+                          'Нажмите на карточку — опишите, что нужно, и бюджет; заказ подготовят с помощью ИИ.',
+                        )}
                 </p>
               </div>
               <label className="lib-search svc-search">
@@ -460,6 +517,7 @@ export function Services({ sub = '' }: { sub?: string }) {
                   <button
                     type="button"
                     className="svc-card"
+                    disabled={blocked}
                     style={{ '--c1': k.tone[0], '--c2': k.tone[1] } as CSSProperties}
                     onClick={() =>
                       waiting ? setSoon([k.id]) : view.signedIn ? setPick(k) : setLogin(true)
@@ -476,9 +534,13 @@ export function Services({ sub = '' }: { sub?: string }) {
                       <UserCount card={k} soon={soonMode} />
                     </span>
                     <small className="svc-card-text">{tr(lang, ...k.text)}</small>
-                    {(k.price || k.days) && (
+                    {(trial || k.price || k.days) && (
                       <span className="svc-card-meta">
-                        {k.price && <em>💰 {k.price}</em>}
+                        {trial ? (
+                          <em>{formatSum(TRIAL_PRICE)}</em>
+                        ) : (
+                          k.price && <em>💰 {k.price}</em>
+                        )}
                         {k.days && <em>⏱ {k.days}</em>}
                       </span>
                     )}
@@ -507,7 +569,7 @@ export function Services({ sub = '' }: { sub?: string }) {
               </p>
             )}
           </section>
-          <HowItWorks />
+          <HowItWorks trial={trial} />
         </>
       )}
 
@@ -563,6 +625,7 @@ export function Services({ sub = '' }: { sub?: string }) {
       {pick && (
         <OrderForm
           card={pick}
+          trial={trial}
           discount={view?.discount || 0}
           onClose={() => setPick(null)}
           onDone={(v) => {
@@ -599,7 +662,7 @@ function SignInNote() {
   );
 }
 
-function HowItWorks() {
+function HowItWorks({ trial }: { trial: boolean }) {
   const { lang } = useApp();
   const L = (uz: string, en: string, ru: string) => tr(lang, uz, en, ru);
   return (
@@ -608,16 +671,26 @@ function HowItWorks() {
         {L('Qanday ishlaydi?', 'How it works', 'Как это работает')}
       </h2>
       <ol className="svc-steps">
-        {STEPS.map(([icon, name, text], i) => (
-          <li key={i}>
-            <span className="svc-step-n" aria-hidden="true">
-              {icon}
-              <em>{i + 1}</em>
-            </span>
-            <b>{tr(lang, ...name)}</b>
-            <small>{tr(lang, ...text)}</small>
-          </li>
-        ))}
+        {(trial ? [STEPS[0], STEPS[1], STEPS[3], STEPS[4], STEPS[2]] : STEPS).map(
+          ([icon, name, text], i) => (
+            <li key={i}>
+              <span className="svc-step-n" aria-hidden="true">
+                {icon}
+                <em>{i + 1}</em>
+              </span>
+              <b>{tr(lang, ...name)}</b>
+              <small>
+                {trial && i === 0
+                  ? L(
+                      'Nima kerakligini yozing va kerakli fayllarni biriktiring.',
+                      'Describe what you need and attach any relevant files.',
+                      'Опишите задачу и прикрепите нужные файлы.',
+                    )
+                  : tr(lang, ...text)}
+              </small>
+            </li>
+          ),
+        )}
       </ol>
       <p className="svc-honest">
         <span aria-hidden="true">🛡</span>
@@ -903,11 +976,13 @@ function SoonModal({
 /* ---------- 📝 buyurtma berish ---------- */
 function OrderForm({
   card,
+  trial,
   discount,
   onClose,
   onDone,
 }: {
   card: ServiceCard;
+  trial: boolean;
   /** obunachi chegirmasi (%) */
   discount: number;
   onClose: () => void;
@@ -929,7 +1004,7 @@ function OrderForm({
     return () => window.removeEventListener('keydown', key);
   }, [onClose, busy]);
   const budget = Number(f.budget.replace(/\D/g, '')) || 0;
-  const budgetOk = budget >= BUDGET_MIN && budget <= BUDGET_MAX;
+  const budgetOk = trial || (budget >= BUDGET_MIN && budget <= BUDGET_MAX);
   function addFiles(list: FileList | null) {
     const picked = Array.from(list || []);
     const big = picked.find((x) => x.size > FILE_MAX.in);
@@ -951,7 +1026,7 @@ function OrderForm({
         kind: card.id,
         title: f.title.trim(),
         text: f.text.trim(),
-        budget,
+        ...(!trial ? { budget } : {}),
         ...(f.due ? { due: f.due } : {}),
         ...(f.contact.trim() ? { contact: f.contact.trim() } : {}),
       });
@@ -1057,49 +1132,59 @@ function OrderForm({
             placeholder={tr(lang, ...card.hint)}
           />
         </label>
-        <label className="mk-budget-field">
-          {L(
-            'Qancha to‘lay olasiz? (so‘m)',
-            'How much can you pay? (so‘m)',
-            'Сколько готовы заплатить? (сум)',
-          )}
-          <input
-            className="input"
-            inputMode="numeric"
-            required
-            value={f.budget}
-            onChange={(e) => {
-              const n = e.target.value.replace(/\D/g, '').replace(/^0+/, '').slice(0, 9);
-              setF({ ...f, budget: groupDigits(n) });
-            }}
-            placeholder="100 000"
-          />
-          <small className="muted">
-            {budget > 0 && !budgetOk
-              ? L(
-                  `Summa ${formatSum(BUDGET_MIN)} dan kam bo‘lmasin.`,
-                  `At least ${formatSum(BUDGET_MIN)}.`,
-                  `Не меньше ${formatSum(BUDGET_MIN)}.`,
-                )
-              : card.price
-                ? '💡 ' + L('Odatdagi narx', 'Usual price', 'Обычная цена') + ': ' + card.price
-                : L(
-                    'Ish hajmiga mos summani yozing.',
-                    'Write an amount that fits the job.',
-                    'Укажите сумму, соответствующую объёму работы.',
-                  )}
-          </small>
-          {!!discount && budgetOk && (
-            <small className="svc-discount">
-              💎{' '}
-              {L(
-                `Premium chegirmasi −${discount} %: siz ${formatSum(payable({ budget, discount }))} to‘laysiz`,
-                `Premium discount −${discount}%: you pay ${formatSum(payable({ budget, discount }))}`,
-                `Скидка подписчика −${discount}%: вы платите ${formatSum(payable({ budget, discount }))}`,
-              )}
+        {trial ? (
+          <p className="svc-note">
+            {L(
+              `Xizmat tayyor bo‘lgach hisobingizga ${formatSum(TRIAL_PRICE)} qarz yoziladi.`,
+              'The fixed trial charge is UZS 2,000 when your service is delivered.',
+              'После выполнения заказа начисляется долг в 2 000 сум.',
+            )}
+          </p>
+        ) : (
+          <label className="mk-budget-field">
+            {L(
+              'Qancha to‘lay olasiz? (so‘m)',
+              'How much can you pay? (so‘m)',
+              'Сколько готовы заплатить? (сум)',
+            )}
+            <input
+              className="input"
+              inputMode="numeric"
+              required
+              value={f.budget}
+              onChange={(e) => {
+                const n = e.target.value.replace(/\D/g, '').replace(/^0+/, '').slice(0, 9);
+                setF({ ...f, budget: groupDigits(n) });
+              }}
+              placeholder="100 000"
+            />
+            <small className="muted">
+              {budget > 0 && !budgetOk
+                ? L(
+                    `Summa ${formatSum(BUDGET_MIN)} dan kam bo‘lmasin.`,
+                    `At least ${formatSum(BUDGET_MIN)}.`,
+                    `Не меньше ${formatSum(BUDGET_MIN)}.`,
+                  )
+                : card.price
+                  ? '💡 ' + L('Odatdagi narx', 'Usual price', 'Обычная цена') + ': ' + card.price
+                  : L(
+                      'Ish hajmiga mos summani yozing.',
+                      'Write an amount that fits the job.',
+                      'Укажите сумму, соответствующую объёму работы.',
+                    )}
             </small>
-          )}
-        </label>
+            {!!discount && budgetOk && (
+              <small className="svc-discount">
+                💎{' '}
+                {L(
+                  `Premium chegirmasi −${discount} %: siz ${formatSum(payable({ budget, discount }))} to‘laysiz`,
+                  `Premium discount −${discount}%: you pay ${formatSum(payable({ budget, discount }))}`,
+                  `Скидка подписчика −${discount}%: вы платите ${formatSum(payable({ budget, discount }))}`,
+                )}
+              </small>
+            )}
+          </label>
+        )}
         <div className="svc-form-row">
           <label>
             {L('Qachongacha kerak?', 'Needed by', 'Нужно к')}
@@ -1180,13 +1265,15 @@ function OrderForm({
             {L('Bekor', 'Cancel', 'Отмена')}
           </Button>
         </div>
-        <small className="muted">
-          {L(
-            'To‘lov yo‘riqnomasi buyurtmangiz sahifasida chiqadi. Savollar bo‘lsa, buyurtma yozishmasida javob beramiz.',
-            'Payment instructions appear on your order page. If you have questions, we answer in the order chat.',
-            'Инструкция по оплате появится на странице заказа. На вопросы ответим в переписке по заказу.',
-          )}
-        </small>
+        {!trial && (
+          <small className="muted">
+            {L(
+              'To‘lov yo‘riqnomasi buyurtmangiz sahifasida chiqadi. Savollar bo‘lsa, buyurtma yozishmasida javob beramiz.',
+              'Payment instructions appear on your order page. If you have questions, we answer in the order chat.',
+              'Инструкция по оплате появится на странице заказа. На вопросы ответим в переписке по заказу.',
+            )}
+          </small>
+        )}
       </form>
     </div>,
     document.body,
@@ -1340,68 +1427,71 @@ function OrderCard({
           </div>
         </div>
       )}
-      {o.status !== 'cancel' && o.budget > 0 && !(product && o.status === 'done') && (
-        <div className={'svc-pay' + (o.payOk ? ' is-ok' : '')}>
-          {o.payOk ? (
-            <b>
-              ✅ {L('To‘lov tasdiqlangan', 'Payment confirmed', 'Оплата подтверждена')}:{' '}
-              {formatSum(pay)}
-            </b>
-          ) : o.paidAt ? (
-            <>
+      {o.status !== 'cancel' &&
+        (!o.trial || o.trialChargedAt) &&
+        o.budget > 0 &&
+        !(product && o.status === 'done') && (
+          <div className={'svc-pay' + (o.payOk ? ' is-ok' : '')}>
+            {o.payOk ? (
               <b>
-                🔎 {L('To‘lov tekshirilmoqda', 'Checking payment', 'Оплата проверяется')}:{' '}
+                ✅ {L('To‘lov tasdiqlangan', 'Payment confirmed', 'Оплата подтверждена')}:{' '}
                 {formatSum(pay)}
               </b>
-              {o.paidNote && <small className="muted">🧾 {o.paidNote}</small>}
-            </>
-          ) : (
-            <>
-              <b>
-                💳 {L('To‘lov', 'Payment', 'Оплата')}: {formatSum(pay)}
-              </b>
-              <p className="svc-pay-how">
-                {how ||
-                  L(
-                    'To‘lov usulini bilish uchun pastdagi yozishmada so‘rang.',
-                    'Ask in the conversation below how to pay.',
-                    'Спросите в переписке ниже, как оплатить.',
-                  )}
-              </p>
-              <label>
-                {L(
-                  'Chek raqami yoki izoh (ixtiyoriy)',
-                  'Receipt number or note (optional)',
-                  'Номер чека или комментарий',
-                )}
-                <input
-                  className="input"
-                  maxLength={200}
-                  value={note}
-                  onChange={(e) => setNote(e.target.value)}
-                />
-              </label>
-              <Button
-                size="sm"
-                disabled={!!busy}
-                onClick={() =>
-                  void act(
-                    { op: 'paid', note: note.trim() },
-                    'paid',
+            ) : o.paidAt ? (
+              <>
+                <b>
+                  🔎 {L('To‘lov tekshirilmoqda', 'Checking payment', 'Оплата проверяется')}:{' '}
+                  {formatSum(pay)}
+                </b>
+                {o.paidNote && <small className="muted">🧾 {o.paidNote}</small>}
+              </>
+            ) : (
+              <>
+                <b>
+                  💳 {L('To‘lov', 'Payment', 'Оплата')}: {formatSum(pay)}
+                </b>
+                <p className="svc-pay-how">
+                  {how ||
                     L(
-                      'Rahmat! To‘lovingiz tekshiriladi.',
-                      'Thank you! Your payment will be checked.',
-                      'Спасибо! Оплата будет проверена.',
-                    ),
-                  )
-                }
-              >
-                💳 {L('To‘lov qildim', 'I paid', 'Я оплатил')}
-              </Button>
-            </>
-          )}
-        </div>
-      )}
+                      'To‘lov usulini bilish uchun pastdagi yozishmada so‘rang.',
+                      'Ask in the conversation below how to pay.',
+                      'Спросите в переписке ниже, как оплатить.',
+                    )}
+                </p>
+                <label>
+                  {L(
+                    'Chek raqami yoki izoh (ixtiyoriy)',
+                    'Receipt number or note (optional)',
+                    'Номер чека или комментарий',
+                  )}
+                  <input
+                    className="input"
+                    maxLength={200}
+                    value={note}
+                    onChange={(e) => setNote(e.target.value)}
+                  />
+                </label>
+                <Button
+                  size="sm"
+                  disabled={!!busy}
+                  onClick={() =>
+                    void act(
+                      { op: 'paid', note: note.trim() },
+                      'paid',
+                      L(
+                        'Rahmat! To‘lovingiz tekshiriladi.',
+                        'Thank you! Your payment will be checked.',
+                        'Спасибо! Оплата будет проверена.',
+                      ),
+                    )
+                  }
+                >
+                  💳 {L('To‘lov qildim', 'I paid', 'Я оплатил')}
+                </Button>
+              </>
+            )}
+          </div>
+        )}
       {o.status === 'cancel' && o.reason && (
         <p className="svc-note">
           ✖ {L('Sabab', 'Reason', 'Причина')}: {o.reason}
@@ -1598,7 +1688,7 @@ function OrderCard({
       )}
 
       <footer className="svc-order-actions">
-        {o.status === 'work' && !o.paidAt && !o.payOk && !o.deliveredAt && (
+        {o.status === 'work' && !o.paidAt && !o.payOk && !o.deliveredAt && !o.trialChargedAt && (
           <Button
             size="sm"
             variant="outline"
@@ -1615,7 +1705,7 @@ function OrderCard({
             {L('Bekor qilish', 'Cancel order', 'Отменить')}
           </Button>
         )}
-        {!isActive(o.status) && (
+        {!isActive(o.status) && !hasTrialDebt(o) && (
           <Button
             size="sm"
             variant="outline"

@@ -379,6 +379,9 @@ export const STATUS_LABEL: Record<ServiceStatus, [string, Tri]> = {
 export const isActive = (s: ServiceStatus) => s !== 'done' && s !== 'cancel';
 export const ACTIVE_MAX = 5;
 /** Buyurtmachi yozadigan summa (so'm). */
+export const TRIAL_PRICE = 2000;
+export const hasTrialDebt = (order: { trialChargedAt?: number; payOk?: number }) =>
+  Boolean(order.trialChargedAt && !order.payOk);
 export const BUDGET_MIN = 5000;
 export const BUDGET_MAX = 50_000_000;
 /** 150000 → «150 000 so'm». */
@@ -457,6 +460,8 @@ export type ServiceOrder = {
   text: string;
   /** buyurtmachi to'lay oladigan summa (so'm; mahsulotda — narxi) */
   budget: number;
+  trial?: true;
+  trialChargedAt?: number;
   /** obunachi chegirmasi (%) — to'lanadigan summa: payable() */
   discount?: number;
   /** talaba xohlagan muddat (YYYY-MM-DD) */
@@ -493,6 +498,8 @@ export type AdminOrder = ServiceOrder & {
   role?: string;
 };
 export type ServicesView = {
+  trial: boolean;
+  balance?: number;
   /** bo'lim ishga tushganmi; yo'q bo'lsa — «tez orada» oynasi va taklif yuborish, buyurtma qabul qilinmaydi */
   open: boolean;
   /** 🔒 bo'lim menyuda ko'rinadimi; yo'q bo'lsa — vaqtincha yopiq (faqat administrator ko'radi) */
@@ -514,6 +521,7 @@ export type ServicesView = {
   orders?: ServiceOrder[];
 };
 export type ServicesAdminView = {
+  trial: boolean;
   open: boolean;
   shown: boolean;
   catalog: ServiceCard[];

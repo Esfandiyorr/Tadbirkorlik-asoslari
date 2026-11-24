@@ -307,3 +307,73 @@ it('cards count the people who ordered and who wait; suggestions reach «Message
   expect(await card(ali, 'taqdimot')).toMatchObject({ used: 1 });
   expect(await servicesView(ali, NOW)).toMatchObject({ people: 2 });
 });
+
+it('charges a trial order once at delivery and requires confirmed payment before a new full-mode order', async () => {
+  await adminServices(admin, { op: 'show', shown: false }, NOW);
+  await adminServices(admin, { op: 'launch', open: true, trial: true }, NOW);
+  expect(await servicesView(null, NOW)).toMatchObject({ shown: true, trial: true });
+  const sent = await manageServices(
+    ali,
+    {
+      op: 'order',
+      kind: 'taqdimot',
+      title: 'Sinov buyurtmasi',
+      text: 'Taqdimot tayyorlab bering',
+    },
+    NOW,
+  );
+  const id = (sent as { id: string }).id;
+  const keys = { uk: keyOf(ali.id), id };
+  expect(await servicesView(ali, NOW)).toMatchObject({
+    balance: 0,
+    orders: [{ trial: true, budget: 2000, status: 'work' }],
+  });
+  await expect(manageServices(ali, { op: 'paid', id, note: '' }, NOW)).rejects.toMatchObject({
+    status: 409,
+  });
+  await expect(adminServices(admin, { op: 'confirm', ...keys }, NOW)).rejects.toMatchObject({
+    status: 409,
+  });
+
+  await adminServices(admin, { op: 'link', ...keys, link: 'https://example.com/result' }, NOW);
+  await Promise.all(
+    [1, 2].map((step) =>
+      adminServices(
+        admin,
+        {
+          op: 'status',
+          ...keys,
+          status: 'review',
+        },
+        NOW + step,
+      ),
+    ),
+  );
+  expect(await servicesView(ali, NOW)).toMatchObject({ balance: -2000 });
+  expect(await servicesView(vali, NOW)).toMatchObject({ balance: 0 });
+
+  const second = await order(ali, NOW + 3);
+  await adminServices(
+    admin,
+    { op: 'link', uk: keys.uk, id: second, link: 'https://example.com/result2' },
+    NOW + 4,
+  );
+  await adminServices(admin, { op: 'status', uk: keys.uk, id: second, status: 'done' }, NOW + 5);
+  await manageServices(ali, { op: 'accept', id, rating: 5 }, NOW + 6);
+  expect(await servicesView(ali, NOW + 6)).toMatchObject({ balance: -4000 });
+  await expect(manageServices(ali, { op: 'remove', id }, NOW)).rejects.toThrow('qarzini');
+  await expect(adminServices(admin, { op: 'remove', ...keys }, NOW)).rejects.toThrow('qarzini');
+  await expect(
+    adminServices(admin, { op: 'cancel', ...keys, reason: 'Sinov' }, NOW),
+  ).rejects.toMatchObject({ status: 409 });
+
+  await adminServices(admin, { op: 'launch', open: true, trial: false }, NOW + 7);
+  await expect(order(ali, NOW + 8)).rejects.toThrow('4 000');
+  await manageServices(ali, { op: 'paid', id, note: 'Chek №1' }, NOW + 9);
+  await expect(order(ali, NOW + 10)).rejects.toThrow('4 000');
+  await adminServices(admin, { op: 'confirm', ...keys }, NOW + 11);
+  await expect(order(ali, NOW + 12)).rejects.toThrow('2 000');
+  await adminServices(admin, { op: 'confirm', uk: keys.uk, id: second }, NOW + 13);
+  await order(ali, NOW + 14);
+  expect(await servicesView(ali, NOW + 14)).toMatchObject({ balance: 0, trial: false });
+});
