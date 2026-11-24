@@ -2,6 +2,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ArrowUpRight, Lock, Plus, Search } from 'lucide-react';
 import { useApp } from './provider';
+import { SitePicture, SiteVisual } from './site-content';
+import { visualPath } from '@/lib/site-visuals';
 import { Button } from './ui/button';
 import { navigate } from './dashboard';
 import { openBackOffice } from './backoffice';
@@ -158,11 +160,17 @@ export function Library() {
                       }
                 }
               >
-                {x.img ? (
-                  <img src={x.img} alt="" loading="lazy" />
-                ) : (
-                  <i aria-hidden="true">{k.icon}</i>
-                )}
+                <SitePicture
+                  imageKey={visualPath('library-items', x.id)}
+                  original={x.img}
+                  fallback={
+                    <SiteVisual
+                      className="lib-cover-icon"
+                      imageKey={visualPath('library', x.kind)}
+                      icon={k.icon}
+                    />
+                  }
+                />
                 {x.pro && <em className="lib-pro">💎 {L('Obuna', 'Premium', 'Подписка')}</em>}
               </span>
               <span className="lib-body">

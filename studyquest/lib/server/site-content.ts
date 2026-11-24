@@ -1,4 +1,5 @@
 import 'server-only';
+import { editableSiteText } from '../site-visuals';
 import { z } from 'zod';
 import type { Actor } from '../types';
 import { administrator, check } from './auth';
@@ -224,7 +225,6 @@ export async function siteContentAdmin(a: Actor) {
       .sort((x, y) => (+y.at || 0) - (+x.at || 0)),
   };
 }
-const letters = /\p{L}/u;
 const textInput = z.discriminatedUnion('op', [
   z
     .object({
@@ -236,17 +236,21 @@ const textInput = z.discriminatedUnion('op', [
   z.object({ op: z.literal('remove'), o: z.string().max(2000).transform(normText) }).strict(),
   z.object({ op: z.literal('removeImage'), o: imagePath }).strict(),
 ]);
+export function siteImageRemoval(path: string) {
+  const key = contentKey('i', path);
+  return { ['images/' + key]: null, ['blob/' + key]: null };
+}
+
 /** Administrator: matnni almashtirish yoki asl holiga qaytarish; rasmni asl holiga qaytarish. */
 export async function manageSiteText(a: Actor, raw: unknown, now = Date.now()) {
   administrator(a);
   const p = textInput.parse(raw);
   if (p.op === 'removeImage') {
-    const key = contentKey('i', p.o);
-    await siteUpdate({ ['images/' + key]: null, ['blob/' + key]: null });
+    await siteUpdate(siteImageRemoval(p.o));
     return siteContent();
   }
   check(
-    p.o && letters.test(p.o),
+    p.o && editableSiteText(p.o),
     400,
     'Bu yozuvda harf yo‘q — sonlar va belgilar o‘zgartirilmaydi.',
   );
@@ -272,13 +276,17 @@ export function imageType(bytes: Buffer) {
 }
 export const MAX_IMAGE = 3 * 1024 * 1024;
 /** Rasm baytlarini saqlash: site/blob/<kalit> = {t: turi, d: base64, v: versiya}. Faqat administrator chaqiradi. */
-export async function storeBlob(key: string, bytes: Buffer, now = Date.now()) {
+function imageBlob(bytes: Buffer, now: number) {
   check(bytes.length > 0 && bytes.length <= MAX_IMAGE, 413, 'Rasm 3 MB dan oshmasin.');
   const type = imageType(bytes);
   check(type, 400, 'Faqat PNG, JPEG, WEBP yoki GIF rasm qabul qilinadi.');
   const v = now.toString(36);
-  await siteUpdate({ ['blob/' + key]: { t: type, d: bytes.toString('base64'), v } });
-  return { v, type: type!, size: bytes.length };
+  return { t: type!, d: bytes.toString('base64'), v };
+}
+export async function storeBlob(key: string, bytes: Buffer, now = Date.now()) {
+  const blob = imageBlob(bytes, now);
+  await siteUpdate({ ['blob/' + key]: blob });
+  return { v: blob.v, type: blob.t, size: bytes.length };
 }
 export async function readImage(key: string) {
   const b = await siteGet<{ t: string; d: string; v: string }>('blob/' + key);
@@ -289,8 +297,15 @@ export async function replaceSiteImage(a: Actor, o: string, bytes: Buffer, now =
   administrator(a);
   const path = imagePath.parse(o),
     key = contentKey('i', path),
-    saved = await storeBlob(key, bytes, now);
-  const entry: ImageEntry = { o: path, ...saved, at: now, by: a.name || a.id };
-  await siteUpdate({ ['images/' + key]: entry });
+    blob = imageBlob(bytes, now);
+  const entry: ImageEntry = {
+    o: path,
+    v: blob.v,
+    type: blob.t,
+    size: bytes.length,
+    at: now,
+    by: a.name || a.id,
+  };
+  await siteUpdate({ ['images/' + key]: entry, ['blob/' + key]: blob });
   return siteContent();
 }

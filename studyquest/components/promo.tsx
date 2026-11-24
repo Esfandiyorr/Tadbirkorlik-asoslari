@@ -2,9 +2,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ImagePlus, Pause, Play, Plus, Trash2, X } from 'lucide-react';
 import { useApp } from './provider';
+import { SitePicture, openSiteImageEditor, useSiteContent, shrink } from './site-content';
+import { visualPath } from '@/lib/site-visuals';
 import { Button } from './ui/button';
 import { NewsReader, ROTATE_MS, markLocalSeen, useClamped, useNews } from './announcements';
-import { shrink } from './site-content';
 import { dueText, tr } from '@/lib/points';
 import { FRESH_MS, PROMO_KIND, PROMO_KINDS, type PromoItem, type PromoKind } from '@/lib/promo';
 import type { Lang } from '@/lib/types';
@@ -31,9 +32,14 @@ export function PromoSlide({
 }) {
   const k = PROMO_KIND[item.kind] || PROMO_KIND.other;
   const [ref, clamped] = useClamped<HTMLSpanElement>();
+  const hasImage = Boolean(useSiteContent().images[visualPath('promo', item.id)] || item.img);
   const body = (
     <>
-      {item.img && <img className="promo-img" src={item.img} alt="" loading="lazy" />}
+      <SitePicture
+        className="promo-img"
+        imageKey={visualPath('promo', item.id)}
+        original={item.img}
+      />
       <span className="promo-kind">
         <span aria-hidden="true">{k.icon}</span> {tr(lang, ...k.name)}
         {now - item.at < FRESH_MS && <em>{tr(lang, 'YANGI', 'NEW', 'НОВОЕ')}</em>}
@@ -52,7 +58,7 @@ export function PromoSlide({
     </>
   );
   return (
-    <div className={'promo-slide is-' + item.kind + (item.img ? ' has-img' : '')}>
+    <div className={'promo-slide is-' + item.kind + (hasImage ? ' has-img' : '')}>
       {onOpen ? (
         <button type="button" className="promo-open" aria-haspopup="dialog" onClick={onOpen}>
           {body}
@@ -184,6 +190,7 @@ export function PromoBox({ className = '' }: { className?: string }) {
           }
           title={reading.h}
           text={reading.t}
+          imageKey={visualPath('promo', reading.id)}
           img={reading.img}
           link={reading.link}
           cta={reading.cta}
@@ -452,13 +459,15 @@ export function PromoAdmin() {
       <ul className="promo-admin-list">
         {list.map((x) => (
           <li key={x.id}>
-            {x.img ? (
-              <img src={x.img} alt="" />
-            ) : (
-              <span className="promo-thumb" aria-hidden="true">
-                {PROMO_KIND[x.kind].icon}
-              </span>
-            )}
+            <SitePicture
+              imageKey={visualPath('promo', x.id)}
+              original={x.img}
+              fallback={
+                <span className="promo-thumb" aria-hidden="true">
+                  {PROMO_KIND[x.kind].icon}
+                </span>
+              }
+            />
             <span>
               <b>{x.h}</b>
               {x.t && <span>{x.t}</span>}
@@ -468,15 +477,26 @@ export function PromoAdmin() {
                 {x.link ? ' · ' + x.link : ''}
               </small>
             </span>
-            <Button
-              size="sm"
-              variant="outline"
-              disabled={!!busy}
-              aria-label={L('O‘chirish', 'Delete', 'Удалить') + ': ' + x.h}
-              onClick={() => void remove(x.id)}
-            >
-              <Trash2 size={14} />
-            </Button>
+            <span className="bo-row-btns">
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() =>
+                  openSiteImageEditor(visualPath('promo', x.id), { shown: x.img, label: x.h })
+                }
+              >
+                {L('Rasm', 'Picture', 'Картинка')}
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={!!busy}
+                aria-label={L('O‘chirish', 'Delete', 'Удалить') + ': ' + x.h}
+                onClick={() => void remove(x.id)}
+              >
+                <Trash2 size={14} />
+              </Button>
+            </span>
           </li>
         ))}
         {!list.length && (

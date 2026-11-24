@@ -1,10 +1,11 @@
 import 'server-only';
 import { randomUUID } from 'node:crypto';
+import { visualPath } from '../site-visuals';
 import { z } from 'zod';
 import type { Actor } from '../types';
 import { LIBRARY_KINDS, type LibraryItem, type LibraryKind } from '../library';
 import { administrator, check } from './auth';
-import { imageUrl, siteGet, siteUpdate, storeBlob } from './site-content';
+import { imageUrl, siteImageRemoval, siteGet, siteUpdate, storeBlob } from './site-content';
 
 /* 📚 Kutubxona: foydali manbalar ro'yxati — kitob, qo'llanma, maqola, video, qonun va namunalar. Administrator
    «Sayt boshqaruvi → 📚 Kutubxona»da qo'shadi: nom, muallif, izoh, havola (https), muqova rasmi va 💎 belgisi.
@@ -67,7 +68,11 @@ export async function manageLibraryItems(a: Actor, raw: unknown, cover?: Buffer,
   administrator(a);
   const v = input.parse(raw);
   if (v.op === 'remove') {
-    await siteUpdate({ ['library/' + v.id]: null, ['blob/lb-' + v.id]: null });
+    await siteUpdate({
+      ['library/' + v.id]: null,
+      ['blob/lb-' + v.id]: null,
+      ...siteImageRemoval(visualPath('library-items', v.id)),
+    });
     return { items: await readLibrary(true) };
   }
   const stored = (await siteGet<Record<string, Stored>>('library')) || {};

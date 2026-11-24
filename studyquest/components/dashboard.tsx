@@ -22,6 +22,8 @@ import { useApp } from './provider';
 import { Button } from './ui/button';
 import { TopicArt, CourseArt } from './topic-art';
 import { PushInvite } from './push-toggle';
+import { SiteVisual } from './site-content';
+import { visualPath } from '@/lib/site-visuals';
 import { HeroAvatar, useAcademicBoard } from './avatars';
 import { Leaderboard } from './leaderboard';
 import { CourseGate, PaidCourseGate } from './course-gate';
@@ -140,7 +142,7 @@ function QuickLinks() {
     >
       {items.map(([id, icon, name]) => (
         <a key={id} href={'#' + id} className={'quick-link is-' + id}>
-          <span aria-hidden="true">{icon}</span>
+          <SiteVisual imageKey={visualPath('home', id)} icon={icon} />
           <b>{name}</b>
         </a>
       ))}
@@ -257,7 +259,11 @@ function LearnerHome() {
           <section className="stats-grid">
             {hasAcademic && university ? (
               <div className="stat-card">
-                <span className="stat-emoji">🏅</span>
+                <SiteVisual
+                  className="stat-emoji"
+                  imageKey={visualPath('home', 'points')}
+                  icon="🏅"
+                />
                 <div>
                   <small>{tr(lang, 'Umumiy ball', 'Total points', 'Общий балл')}</small>
                   <strong>{num(u?.academicPoints ?? totals.points)}</strong>
@@ -265,7 +271,11 @@ function LearnerHome() {
               </div>
             ) : null}
             <div className="stat-card">
-              <span className="stat-emoji">📖</span>
+              <SiteVisual
+                className="stat-emoji"
+                imageKey={visualPath('home', 'reading')}
+                icon="📖"
+              />
               <div>
                 <small>{tr(lang, 'O‘qilgan mavzular', 'Topics read', 'Прочитано тем')}</small>
                 <strong>
@@ -276,7 +286,11 @@ function LearnerHome() {
             </div>
             {hasAcademic && (
               <div className="stat-card">
-                <span className="stat-emoji">⏱️</span>
+                <SiteVisual
+                  className="stat-emoji"
+                  imageKey={visualPath('home', 'time')}
+                  icon="⏱️"
+                />
                 <div>
                   <small>{tr(lang, 'O‘qish vaqti', 'Reading time', 'Время чтения')}</small>
                   <strong className="stat-text">{durationText(totals.seconds, lang)}</strong>
@@ -285,7 +299,11 @@ function LearnerHome() {
             )}
             {!staff && (
               <div className="stat-card">
-                <span className="stat-emoji">🎯</span>
+                <SiteVisual
+                  className="stat-emoji"
+                  imageKey={visualPath('home', 'scoring')}
+                  icon="🎯"
+                />
                 <div>
                   <small>
                     {tr(lang, 'Ball beriladigan', 'Earning points now', 'Сейчас с баллами')}
@@ -578,9 +596,9 @@ function GuestHome() {
         />
       </section>
       <section className="guest-features">
-        {features.map(([e, h, p]) => (
+        {features.map(([e, h, p], index) => (
           <div className="guest-feature panel" key={h}>
-            <span>{e}</span>
+            <SiteVisual imageKey={visualPath('home', 'guest-' + (index + 1))} icon={e} />
             <b>{h}</b>
             <p>{p}</p>
           </div>

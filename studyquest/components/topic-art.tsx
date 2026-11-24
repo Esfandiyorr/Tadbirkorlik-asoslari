@@ -29,6 +29,8 @@ import {
   GraduationCap,
   Trophy,
 } from 'lucide-react';
+import { SiteVisual } from './site-content';
+import { visualPath } from '@/lib/site-visuals';
 
 /* Har mavzuning o'z rangi, belgisi va ikkita «jonli» emojisi — kartochka va dars sarlavhasida ishlatiladi. */
 export const topicThemes: Record<
@@ -91,11 +93,21 @@ export function TopicArt({
     >
       <span className="topic-art-orb one" />
       <span className="topic-art-orb two" />
-      <span className="topic-art-icon">
+      <SiteVisual
+        className="topic-art-icon"
+        imageKey={visualPath('topics', id + '-icon')}
+        icon={t.emoji[0]}
+      >
         <Icon size={compact ? 26 : 38} strokeWidth={1.9} />
-      </span>
-      <span className="topic-art-emoji a">{t.emoji[0]}</span>
-      <span className="topic-art-emoji b">{t.emoji[1]}</span>
+      </SiteVisual>
+      {t.emoji.map((icon, index) => (
+        <SiteVisual
+          key={index}
+          className={'topic-art-emoji ' + (index ? 'b' : 'a')}
+          imageKey={visualPath('topics', id + '-' + (index + 1))}
+          icon={icon}
+        />
+      ))}
       {number !== undefined && (
         <span className="topic-art-number">{String(number).padStart(2, '0')}</span>
       )}
@@ -112,14 +124,21 @@ export function CourseArt({ title, kind }: { title: string; kind?: string }) {
     <div className={'course-hero-art' + (service ? ' is-service' : '')} aria-hidden="true">
       <span className="course-hero-glow" />
       {service ? (
-        <span className="course-hero-logo course-hero-mark">🍽️</span>
+        <SiteVisual
+          className="course-hero-logo course-hero-mark"
+          imageKey={visualPath('courses', 'restaurant-logo')}
+          icon="🍽️"
+        />
       ) : (
         <img src="/unistay-logo.svg" alt="" className="course-hero-logo" width="64" height="64" />
       )}
       {emoji.map((e, i) => (
-        <span className={'course-hero-emoji e' + (i + 1)} key={e}>
-          {e}
-        </span>
+        <SiteVisual
+          className={'course-hero-emoji e' + (i + 1)}
+          key={e}
+          imageKey={visualPath('courses', (service ? 'restaurant-' : 'business-') + (i + 1))}
+          icon={e}
+        />
       ))}
       <b className="course-hero-title">{title}</b>
     </div>

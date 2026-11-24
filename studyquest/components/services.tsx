@@ -24,6 +24,8 @@ import { useApp } from './provider';
 import { Button } from './ui/button';
 import { navigate } from './dashboard';
 import { openBackOffice } from './backoffice';
+import { SiteVisual } from './site-content';
+import { visualPath } from '@/lib/site-visuals';
 import { PremiumOffer } from './premium';
 import { saveOrderFile, sendOrderFile, servicesAct } from './service-files';
 import { dueText, tr } from '@/lib/points';
@@ -479,13 +481,15 @@ export function Services({ sub = '' }: { sub?: string }) {
                       } as CSSProperties
                     }
                   >
-                    <span className="svc-card-tag">
-                      {tr(lang, ...SERVICE_GROUPS.study)} · 🛍 {L('Tayyor', 'Ready-made', 'Готово')}
+                    <span className="svc-card-top">
+                      <SiteVisual
+                        className="svc-card-art"
+                        imageKey={visualPath('services', 'yakuniy-test')}
+                        icon="🎯"
+                      />
+                      <span className="svc-card-tag">{L('Tayyor', 'Ready-made', 'Готово')}</span>
                     </span>
                     <b className="svc-card-name">{tr(lang, ...PRODUCTS['yakuniy-test'].name)}</b>
-                    <small className="svc-card-text">
-                      {tr(lang, ...PRODUCTS['yakuniy-test'].text)}
-                    </small>
                     <span className="svc-card-meta">
                       <em>
                         💰{' '}
@@ -503,12 +507,8 @@ export function Services({ sub = '' }: { sub?: string }) {
                           formatSum(view.products['yakuniy-test'])
                         )}
                       </em>
-                      <em>💎 {L('obunachiga −50 %', '−50% with Premium', '−50 % подписчикам')}</em>
                     </span>
                     <span className="svc-card-go">{L('Ko‘rish', 'Open', 'Открыть')} →</span>
-                    <span className="svc-card-art" aria-hidden="true">
-                      🎯
-                    </span>
                   </a>
                 </li>
               )}
@@ -523,17 +523,24 @@ export function Services({ sub = '' }: { sub?: string }) {
                       waiting ? setSoon([k.id]) : view.signedIn ? setPick(k) : setLogin(true)
                     }
                   >
-                    <span className="svc-card-tag">
-                      {tr(lang, ...SERVICE_GROUPS[k.group])}
-                      {k.help && (
-                        <em className="svc-help"> · 🤝 {L('Yordam', 'Assistance', 'Помощь')}</em>
-                      )}
+                    <span className="svc-card-top">
+                      <SiteVisual
+                        className="svc-card-art"
+                        imageKey={visualPath('services', k.id)}
+                        icon={k.art}
+                      />
+                      <span className="svc-card-tag">
+                        {k.help
+                          ? L('Yordam', 'Assistance', 'Помощь')
+                          : tr(lang, ...SERVICE_GROUPS[k.group])}
+                      </span>
                     </span>
                     <b className="svc-card-name">{tr(lang, ...k.name)}</b>
-                    <span className="svc-card-users">
-                      <UserCount card={k} soon={soonMode} />
-                    </span>
-                    <small className="svc-card-text">{tr(lang, ...k.text)}</small>
+                    {waiting && (
+                      <span className="svc-card-users">
+                        <UserCount card={k} soon />
+                      </span>
+                    )}
                     {(trial || k.price || k.days) && (
                       <span className="svc-card-meta">
                         {trial ? (
@@ -548,9 +555,6 @@ export function Services({ sub = '' }: { sub?: string }) {
                       {waiting
                         ? '🚀 ' + L('Tez orada', 'Coming soon', 'Скоро')
                         : L('Buyurtma berish', 'Order', 'Заказать') + ' →'}
-                    </span>
-                    <span className="svc-card-art" aria-hidden="true">
-                      {k.art}
                     </span>
                   </button>
                 </li>

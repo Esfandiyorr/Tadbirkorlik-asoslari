@@ -10,6 +10,8 @@ import { BrandGame } from './brand-game';
 import { ArenaOnline, ROOM_CODE, staffIdentity, staffPlayer, type ArenaMe } from './arena-online';
 import { BiznesGame } from './biznes';
 import { LiveQuizFrame } from './live-quiz-frame';
+import { SiteVisual } from './site-content';
+import { visualPath } from '@/lib/site-visuals';
 const pairs: [Tri, Tri][] = [
   [
     ['TAM', 'TAM', 'TAM'],
@@ -296,6 +298,12 @@ const solo: GameCard[] = [
     legacy: true,
   },
 ];
+export const arenaVisuals = [...online, ...solo].map((card) => ({
+  key: visualPath('arena', card.to.replaceAll('/', '-')),
+  label: card.title,
+  icon: card.emoji,
+}));
+
 const LEGACY =
   /^(create\/(dama|chess|c4|pzl|pzt|sudoku|word|memory)|solo\/(word|memory|sudoku)|puzzle|yozuv|live|kross)$/;
 const T3 = (lang: string, x: Tri) => (lang === 'en' ? x[1] : lang === 'ru' ? x[2] : x[0]);
@@ -455,9 +463,11 @@ export function Games({ sub = '' }: { sub?: string }) {
         disabled={locked}
         onClick={() => open(c)}
       >
-        <span className="arena-card-emoji" aria-hidden="true">
-          {c.emoji}
-        </span>
+        <SiteVisual
+          className="arena-card-emoji"
+          imageKey={visualPath('arena', c.to.replaceAll('/', '-'))}
+          icon={c.emoji}
+        />
         <span className="arena-card-body">
           <b>{T3(lang, c.title)}</b>
           <small>{T3(lang, c.desc)}</small>
@@ -577,9 +587,11 @@ export function Games({ sub = '' }: { sub?: string }) {
               className="arena-card tone-orange"
               onClick={() => navigate('quiz/' + q.id)}
             >
-              <span className="arena-card-emoji" aria-hidden="true">
-                📝
-              </span>
+              <SiteVisual
+                className="arena-card-emoji"
+                imageKey={visualPath('arena', 'quiz')}
+                icon="📝"
+              />
               <span className="arena-card-body">
                 <b>{q.title}</b>
                 <small>

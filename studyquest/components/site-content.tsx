@@ -1,10 +1,11 @@
 'use client';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { ImageUp, MousePointerClick, Pause, RotateCcw, Save, X } from 'lucide-react';
 import { useApp } from './provider';
 import { Button } from './ui/button';
 import { tr } from '@/lib/points';
+import { editableSiteText } from '@/lib/site-visuals';
 
 /* ✏️ Saytdagi matn va rasmlarni administrator o'zgartiradi (Sayt boshqaruvi → Matnlar va rasmlar).
    O'zgarishlar /api/site/content dan keladi va sahifaga qo'llanadi: ko'rinib turgan yozuv (bo'shliqlari bitta qilib)
@@ -18,9 +19,9 @@ export type SiteContent = {
 };
 const CACHE = 'sq-site-content',
   EDIT = 'sq-edit';
-const SKIP = 'script,style,noscript,textarea,code,pre,[contenteditable="true"],[data-se-ui]';
+const SKIP =
+  'script,style,noscript,textarea,code,pre,[contenteditable="true"],[data-se-ui],[data-se-visual]';
 export const normText = (s: string) => s.replace(/\s+/g, ' ').trim();
-const letters = /\p{L}/u;
 
 let texts = new Map<string, string>(),
   images = new Map<string, string>();
@@ -37,7 +38,8 @@ export function srcKey(src: string | null) {
   try {
     const u = new URL(src, location.href);
     if (u.origin !== location.origin || /^\/(api|avatars)\//.test(u.pathname)) return null;
-    return decodeURI(u.pathname);
+    const decoded = decodeURI(u.pathname);
+    return /^[A-Za-z0-9._~%/-]+$/.test(decoded) ? decoded : u.pathname;
   } catch {
     return null;
   }
@@ -246,12 +248,12 @@ const listeners = new Set<(c: SiteContent) => void>();
 let current: SiteContent = { texts: {}, images: {}, rev: 0 };
 /** Yangi holatni hamma joyga yoyish (administrator saqlaganda darhol). */
 export function publishSiteContent(c: SiteContent) {
-  current = c;
+  current = { ...c, texts: c.texts || {}, images: c.images || {} };
   try {
-    localStorage.setItem(CACHE, JSON.stringify(c));
+    localStorage.setItem(CACHE, JSON.stringify(current));
   } catch {}
-  setMaps(c);
-  listeners.forEach((f) => f(c));
+  setMaps(current);
+  listeners.forEach((f) => f(current));
 }
 export function useSiteContent() {
   const [c, setC] = useState(current);
@@ -264,6 +266,70 @@ export function useSiteContent() {
   }, []);
   return c;
 }
+export function SiteVisual({
+  imageKey,
+  icon,
+  className = '',
+  children,
+}: {
+  imageKey: string;
+  icon: string;
+  className?: string;
+  children?: ReactNode;
+}) {
+  const content = useSiteContent();
+  const src = content.images[imageKey];
+  const fallback = content.texts[icon] || icon;
+  return (
+    <span
+      className={className}
+      data-se-visual={imageKey}
+      data-se-fallback={fallback}
+      aria-hidden="true"
+    >
+      {src ? (
+        <img className="se-visual-image" src={src} alt="" loading="lazy" />
+      ) : (
+        (children ?? fallback)
+      )}
+    </span>
+  );
+}
+
+export function SitePicture({
+  imageKey,
+  original,
+  className,
+  fallback,
+}: {
+  imageKey: string;
+  original?: string;
+  className?: string;
+  fallback?: ReactNode;
+}) {
+  const src = useSiteContent().images[imageKey] || original;
+  return src ? (
+    <img
+      className={className}
+      src={src}
+      alt=""
+      loading="lazy"
+      data-se-visual={imageKey}
+      data-se-original={original}
+    />
+  ) : (
+    fallback || null
+  );
+}
+
+type ImageTarget = { kind: 'image'; o: string; shown?: string; icon?: string; label?: string };
+
+export function openSiteImageEditor(o: string, options: Omit<ImageTarget, 'kind' | 'o'> = {}) {
+  window.dispatchEvent(
+    new CustomEvent('sq-edit-image', { detail: { kind: 'image', o, ...options } }),
+  );
+}
+
 /** Sayt boshqaruvidan: tahrirlash rejimini yoqib bosh sahifaga o'tish. */
 export function startEditMode() {
   try {
@@ -271,6 +337,11 @@ export function startEditMode() {
   } catch {}
   window.dispatchEvent(new Event('sq-edit'));
   if (location.hash.startsWith('#admin')) location.hash = 'home';
+}
+
+function sameEntries(a: Record<string, string>, b: Record<string, string>) {
+  const keys = Object.keys(a);
+  return keys.length === Object.keys(b).length && keys.every((key) => a[key] === b[key]);
 }
 
 /** Butun saytga o'zgarishlarni qo'llovchi qatlam + administrator uchun tahrirlash rejimi. */
@@ -282,14 +353,23 @@ export function SiteContentLayer() {
       if (saved?.texts) publishSiteContent(saved);
     } catch {}
     let stop = false;
-    const load = () =>
-      fetch('/api/site/content')
+    const load = () => {
+      const before = current;
+      return fetch('/api/site/content')
         .then((r) => (r.ok ? r.json() : null))
         .then((c: SiteContent | null) => {
-          if (!stop && c && c.rev !== current.rev) publishSiteContent(c);
-          else if (!stop && c && !current.rev && !c.rev) current = c;
+          if (
+            !stop &&
+            before === current &&
+            c &&
+            (c.rev !== current.rev ||
+              !sameEntries(c.texts, current.texts) ||
+              !sameEntries(c.images, current.images))
+          )
+            publishSiteContent(c);
         })
         .catch(() => {});
+    };
     void load();
     const timer = setInterval(load, 5 * 60000);
     // Kuzatuvchi faqat o'zgarish bor paytda ulanadi — oddiy holatda sahifaga hech qanday yuk yo'q.
@@ -319,7 +399,7 @@ export function SiteContentLayer() {
 type Target =
   | { kind: 'text'; o: string; shown: string }
   | { kind: 'placeholder'; o: string; shown: string }
-  | { kind: 'image'; o: string; shown: string };
+  | ImageTarget;
 
 function EditMode() {
   const { lang, request, toast } = useApp();
@@ -335,8 +415,13 @@ function EditMode() {
       } catch {}
     };
     sync();
+    const image = (event: Event) => setTarget((event as CustomEvent<ImageTarget>).detail);
     window.addEventListener('sq-edit', sync);
-    return () => window.removeEventListener('sq-edit', sync);
+    window.addEventListener('sq-edit-image', image);
+    return () => {
+      window.removeEventListener('sq-edit', sync);
+      window.removeEventListener('sq-edit-image', image);
+    };
   }, []);
   const finish = useCallback(() => {
     try {
@@ -355,6 +440,14 @@ function EditMode() {
     const pick = (e: MouseEvent): Target | null => {
       const el = e.target as Element | null;
       if (!el || el.closest('[data-se-ui]')) return null;
+      const visual = el.closest<HTMLElement>('[data-se-visual]');
+      if (visual?.dataset.seVisual)
+        return {
+          kind: 'image',
+          o: visual.dataset.seVisual,
+          icon: visual.dataset.seFallback,
+          shown: visual.dataset.seOriginal,
+        };
       const img = el.closest('img');
       if (img) {
         const o = originalImage(img as HTMLImageElement);
@@ -373,11 +466,11 @@ function EditMode() {
       let node: Node | null | undefined =
         doc.caretPositionFromPoint?.(e.clientX, e.clientY)?.offsetNode ??
         doc.caretRangeFromPoint?.(e.clientX, e.clientY)?.startContainer;
-      if (!(node?.nodeType === 3 && el.contains(node) && letters.test((node as Text).data))) {
+      if (!(node?.nodeType === 3 && el.contains(node) && editableSiteText((node as Text).data))) {
         const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
         node = null;
         for (let t = walker.nextNode(); t; t = walker.nextNode())
-          if (letters.test((t as Text).data) && !skipped(t.parentElement)) {
+          if (editableSiteText((t as Text).data) && !skipped(t.parentElement)) {
             node = t;
             break;
           }
@@ -398,7 +491,7 @@ function EditMode() {
       e.preventDefault();
       e.stopPropagation();
       const t = pick(e);
-      if (t && t.kind !== 'image' && !letters.test(t.o))
+      if (t && t.kind !== 'image' && !editableSiteText(t.o))
         return toast(
           L(
             'Bu son yoki belgi — uni o‘zgartirib bo‘lmaydi.',
@@ -428,41 +521,44 @@ function EditMode() {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [on, paused, toast, lang]);
-  if (!on) return null;
+  if (!on && !target) return null;
   return createPortal(
     <>
-      <div
-        className="se-bar"
-        data-se-ui
-        role="region"
-        aria-label={L('Tahrirlash rejimi', 'Edit mode', 'Режим правки')}
-      >
-        <span>
-          {paused
-            ? L(
-                '🧭 Sahifalar bo‘ylab yuring, keyin «Tahrirlashga qaytish»ni bosing.',
-                '🧭 Browse the pages, then press “Back to editing”.',
-                '🧭 Перейдите на нужную страницу и нажмите «Вернуться к правке».',
-              )
-            : L(
-                '✏️ O‘zgartirmoqchi bo‘lgan yozuv yoki rasm ustiga bosing.',
-                '✏️ Click any text or picture to change it.',
-                '✏️ Нажмите на текст или картинку, чтобы изменить.',
-              )}
-        </span>
-        <Button size="sm" variant="secondary" onClick={() => setPaused(!paused)}>
-          {paused ? <MousePointerClick size={14} /> : <Pause size={14} />}
-          {paused
-            ? L('Tahrirlashga qaytish', 'Back to editing', 'Вернуться к правке')
-            : L('Sahifalar bo‘ylab yurish', 'Browse pages', 'Перейти по страницам')}
-        </Button>
-        <Button size="sm" onClick={finish}>
-          <X size={14} />
-          {L('Tayyor', 'Done', 'Готово')}
-        </Button>
-      </div>
+      {on && (
+        <div
+          className="se-bar"
+          data-se-ui
+          role="region"
+          aria-label={L('Tahrirlash rejimi', 'Edit mode', 'Режим правки')}
+        >
+          <span>
+            {paused
+              ? L(
+                  '🧭 Sahifalar bo‘ylab yuring, keyin «Tahrirlashga qaytish»ni bosing.',
+                  '🧭 Browse the pages, then press “Back to editing”.',
+                  '🧭 Перейдите на нужную страницу и нажмите «Вернуться к правке».',
+                )
+              : L(
+                  '✏️ O‘zgartirmoqchi bo‘lgan yozuv yoki rasm ustiga bosing.',
+                  '✏️ Click any text or picture to change it.',
+                  '✏️ Нажмите на текст или картинку, чтобы изменить.',
+                )}
+          </span>
+          <Button size="sm" variant="secondary" onClick={() => setPaused(!paused)}>
+            {paused ? <MousePointerClick size={14} /> : <Pause size={14} />}
+            {paused
+              ? L('Tahrirlashga qaytish', 'Back to editing', 'Вернуться к правке')
+              : L('Sahifalar bo‘ylab yurish', 'Browse pages', 'Перейти по страницам')}
+          </Button>
+          <Button size="sm" onClick={finish}>
+            <X size={14} />
+            {L('Tayyor', 'Done', 'Готово')}
+          </Button>
+        </div>
+      )}
       {target && (
         <Editor
+          key={target.kind + target.o}
           target={target}
           close={() => setTarget(null)}
           request={request}
@@ -499,6 +595,13 @@ function Editor({
     window.addEventListener('keydown', esc);
     return () => window.removeEventListener('keydown', esc);
   }, [close]);
+  const fileUrl = file?.url;
+  useEffect(
+    () => () => {
+      if (fileUrl) URL.revokeObjectURL(fileUrl);
+    },
+    [fileUrl],
+  );
   async function post(input: unknown) {
     const r = await request('/api/platform', {
         method: 'POST',
@@ -564,9 +667,16 @@ function Editor({
         </h2>
         {target.kind === 'image' ? (
           <>
+            {target.label && <p className="se-label">{target.label}</p>}
             <div className="se-images">
               <figure>
-                <img src={file?.url || target.shown} alt="" />
+                {file?.url || changed || target.shown ? (
+                  <img src={file?.url || changed || target.shown} alt="" />
+                ) : (
+                  <span className="se-visual-preview" aria-hidden="true">
+                    {target.icon || '🖼️'}
+                  </span>
+                )}
                 <figcaption>
                   {file
                     ? L('Yangi rasm', 'New picture', 'Новая картинка')
@@ -585,7 +695,7 @@ function Editor({
                   e.target.value = '';
                   if (!f) return;
                   try {
-                    const blob = await shrink(f);
+                    const blob = await shrink(f, target.o.startsWith('/visuals/') ? 800 : 1600);
                     setFile({ blob, url: URL.createObjectURL(blob) });
                   } catch (err) {
                     toast((err as Error).message);
@@ -595,9 +705,9 @@ function Editor({
             </label>
             <p className="se-note">
               {L(
-                'Rasm saytning hamma joyida almashadi (masalan, logotip menyuda ham, kirish sahifasida ham). Katta rasm avtomatik kichraytiriladi.',
-                'The picture changes everywhere on the site (e.g. the logo in the menu and on the sign-in page). Large pictures are shrunk automatically.',
-                'Картинка меняется на всём сайте (например, логотип в меню и на странице входа). Большие картинки уменьшаются автоматически.',
+                'Rasm shu tasvir ishlatilgan joylarda yangilanadi. Katta fayl avtomatik kichraytiriladi.',
+                'The picture updates wherever this visual is used. Large files are resized automatically.',
+                'Картинка обновится во всех местах, где она используется. Большие файлы уменьшатся автоматически.',
               )}
             </p>
           </>

@@ -79,9 +79,9 @@ export function BackOffice({
       icon: '✏️',
       title: L('Matnlar va rasmlar', 'Texts and images', 'Тексты и картинки'),
       text: L(
-        'Saytdagi istalgan yozuv yoki rasm ustiga bosib o‘zgartirasiz: sarlavhalar, tugmalar, izohlar, logotip.',
-        'Click any text or picture on the site to change it: headings, buttons, notes, the logo.',
-        'Нажмите на любой текст или картинку на сайте, чтобы изменить: заголовки, кнопки, подписи, логотип.',
+        'Saytdagi matnlarni tahrirlang, logotip, katalog rasmlari va stikerlarni almashtiring.',
+        'Edit site text, logos, catalog pictures and stickers.',
+        'Редактируйте тексты сайта, логотипы, картинки каталога и стикеры.',
       ),
       action: startEditMode,
       actionLabel: L('✏️ Tahrirlashni boshlash', '✏️ Start editing', '✏️ Начать правку'),
@@ -284,7 +284,7 @@ export function BackOffice({
     let body: ReactNode = null;
     if (section === 'live') body = <LiveAdmin />;
     else if (section === 'quiz') body = <TopicQuizAdmin />;
-    else if (section === 'content') body = <ContentAdmin />;
+    else if (section === 'content') body = <ContentAdmin openSection={setSection} />;
     else if (section === 'avatars') body = <AvatarsSection />;
     else if (section === 'news') body = <NewsAdmin openCourseControls={() => setSection('live')} />;
     else if (section === 'push') body = <PushAdmin />;

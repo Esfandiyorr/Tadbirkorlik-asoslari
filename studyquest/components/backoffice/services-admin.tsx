@@ -4,6 +4,8 @@ import { ArrowLeft, ExternalLink, RefreshCw, Upload } from 'lucide-react';
 import { useApp } from '../provider';
 import { Button } from '../ui/button';
 import { useL } from './common';
+import { openSiteImageEditor, SiteVisual } from '../site-content';
+import { visualPath } from '@/lib/site-visuals';
 import { Chat, FileList } from '../services';
 import { sendOrderFile, servicesAct } from '../service-files';
 import { dueText, tr } from '@/lib/points';
@@ -849,12 +851,28 @@ function Catalog({
           const r = rows[k.id];
           return (
             <li key={k.id} className={r.off ? 'is-off' : ''}>
-              <b>
-                {k.icon} {tr(lang, ...k.name)}
-                <small className="svc-cat-count">
-                  👥 {k.used} · 🙋 {k.wants}
-                </small>
-              </b>
+              <span className="svc-cat-identity">
+                <SiteVisual
+                  className="svc-card-art"
+                  imageKey={visualPath('services', k.id)}
+                  icon={k.art}
+                />
+                <span>
+                  <b>{tr(lang, ...k.name)}</b>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() =>
+                      openSiteImageEditor(visualPath('services', k.id), {
+                        icon: k.art,
+                        label: tr(lang, ...k.name),
+                      })
+                    }
+                  >
+                    {L('Rasmni almashtirish', 'Change picture', 'Заменить картинку')}
+                  </Button>
+                </span>
+              </span>
               <input
                 className="input"
                 maxLength={60}

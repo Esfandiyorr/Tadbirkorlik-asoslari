@@ -1,12 +1,13 @@
 import 'server-only';
 import { randomUUID } from 'node:crypto';
+import { visualPath } from '../site-visuals';
 import { z } from 'zod';
 import type { Actor } from '../types';
 import { administrator, check } from './auth';
 import { demo, legacyDb } from './repository';
 import { demoKahoot } from './live-admin';
 import { liveNewsId } from '../live-quiz';
-import { imageUrl, siteGet, siteUpdate, storeBlob } from './site-content';
+import { imageUrl, siteImageRemoval, siteGet, siteUpdate, storeBlob } from './site-content';
 
 /* 📢 E'lonlar oynasi (yon menyuda, har 10 soniyada almashadi) va ⚡ jonli test jadvali.
    E'lonlar: meta/news/<id> = {h?, t, link?, until?, at, pop?, img?} — faqat administrator (server orqali) yozadi,
@@ -165,7 +166,8 @@ export async function manageNews(a: Actor, raw: unknown, now = Date.now()) {
     await legacyDb()
       .ref('meta/news/' + v.id)
       .remove();
-  if (/^[a-z0-9-]{2,40}$/.test(v.id)) await siteUpdate({ ['blob/nw-' + v.id]: null });
+  if (/^[a-z0-9-]{2,40}$/.test(v.id))
+    await siteUpdate({ ['blob/nw-' + v.id]: null, ...siteImageRemoval(visualPath('news', v.id)) });
   return { news: await readNews(now) };
 }
 

@@ -9,6 +9,8 @@ import type { Lang } from '@/lib/types';
 import { FRESH_MS, PROMO_KIND, type PromoItem } from '@/lib/promo';
 import { liveNewsId } from '@/lib/live-quiz';
 import { ImagePick } from './image-pick';
+import { SitePicture, openSiteImageEditor } from './site-content';
+import { visualPath } from '@/lib/site-visuals';
 
 /* 📢 E'lonlar oynasi (yon menyuda «Talabalar chati» ostida, har 10 soniyada almashadi) va ⚡ jonli test oynasi.
    Matni uzun e'lon ustiga bosilsa — to'liq matn alohida oynada ochiladi.
@@ -172,6 +174,7 @@ export function NewsReader({
   title,
   text,
   img,
+  imageKey,
   link,
   cta,
   meta,
@@ -182,6 +185,7 @@ export function NewsReader({
   title?: string;
   text?: string;
   img?: string;
+  imageKey: string;
   link?: string;
   cta?: string;
   meta?: string;
@@ -225,7 +229,7 @@ export function NewsReader({
             <X size={20} />
           </button>
         </header>
-        {img && <img className="news-reader-img" src={img} alt="" />}
+        <SitePicture className="news-reader-img" imageKey={imageKey} original={img} />
         <h2 id="news-reader-h">{title || tr(lang, 'E’lon', 'Announcement', 'Объявление')}</h2>
         {text && <p className="news-reader-text">{text}</p>}
         {meta && <small className="news-reader-meta">{meta}</small>}
@@ -265,7 +269,11 @@ function NewsSlide({ item, now, onOpen }: { item: NewsItem; now: number; onOpen:
         aria-haspopup="dialog"
         onClick={onOpen}
       >
-        {item.img && <img className="news-slide-img" src={item.img} alt="" loading="lazy" />}
+        <SitePicture
+          className="news-slide-img"
+          imageKey={visualPath('news', item.id)}
+          original={item.img}
+        />
         {item.h && <b>{item.h}</b>}
         <span className="news-text" ref={ref}>
           {item.t}
@@ -448,6 +456,7 @@ export function NewsBox({ className = '' }: { className?: string }) {
           kicker={<>📢 {L('E’LON', 'NEWS', 'ОБЪЯВЛЕНИЕ')}</>}
           title={reading.h}
           text={reading.t}
+          imageKey={visualPath('news', reading.id)}
           img={reading.img}
           link={reading.link}
           meta={
@@ -630,7 +639,11 @@ function NewsList({
               📢 {L('E’lon', 'Announcement', 'Объявление')}
               {isNew(x.id) && <em>{L('YANGI', 'NEW', 'НОВОЕ')}</em>}
             </span>
-            {x.img && <img className="news-reader-img" src={x.img} alt="" loading="lazy" />}
+            <SitePicture
+              className="news-reader-img"
+              imageKey={visualPath('news', x.id)}
+              original={x.img}
+            />
             {x.h && <h3>{x.h}</h3>}
             <p className="news-reader-text">{x.t}</p>
             <small className="news-reader-meta">{dueText(x.at, lang, now).date}</small>
@@ -653,7 +666,11 @@ function NewsList({
               key={x.id}
               className={'news-list-item is-promo' + (isNew(x.id) ? ' is-new' : '')}
             >
-              {x.img && <img className="news-reader-img" src={x.img} alt="" loading="lazy" />}
+              <SitePicture
+                className="news-reader-img"
+                imageKey={visualPath('promo', x.id)}
+                original={x.img}
+              />
               <span className="news-list-kind">
                 {k.icon} {tr(lang, ...k.name)}
                 {isNew(x.id) && <em>{L('YANGI', 'NEW', 'НОВОЕ')}</em>}
@@ -951,7 +968,11 @@ export function NewsPopup() {
             <X size={20} />
           </button>
         </header>
-        {item.img && <img className="news-pop-img" src={item.img} alt="" />}
+        <SitePicture
+          className="news-pop-img"
+          imageKey={visualPath(item.promo ? 'promo' : 'news', item.id)}
+          original={item.img}
+        />
         <h2 id="news-pop-h">{item.h || L('E’lon', 'Announcement', 'Объявление')}</h2>
         {item.t && (
           <p id="news-pop-t" className="news-pop-text">
@@ -1322,7 +1343,11 @@ export function NewsAdmin({ openCourseControls }: { openCourseControls?: () => v
       <ul className="news-admin-list">
         {(d?.news || []).map((x) => (
           <li key={x.id}>
-            {x.img && <img className="news-admin-img" src={x.img} alt="" loading="lazy" />}
+            <SitePicture
+              className="news-admin-img"
+              imageKey={visualPath('news', x.id)}
+              original={x.img}
+            />
             <span>
               {x.h && <b>{x.h}</b>}
               <span>{x.t}</span>
@@ -1333,21 +1358,35 @@ export function NewsAdmin({ openCourseControls }: { openCourseControls?: () => v
                 {x.link ? ' · ' + x.link : ''}
               </small>
             </span>
-            <Button
-              size="sm"
-              variant="outline"
-              disabled={!!busy}
-              aria-label={L('O‘chirish', 'Delete', 'Удалить') + ': ' + (x.h || x.t.slice(0, 30))}
-              onClick={() =>
-                void send(
-                  { op: 'remove', id: x.id },
-                  'rm' + x.id,
-                  L('E’lon o‘chirildi', 'Deleted', 'Удалено'),
-                )
-              }
-            >
-              <Trash2 size={14} />
-            </Button>
+            <span className="bo-row-btns">
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() =>
+                  openSiteImageEditor(visualPath('news', x.id), {
+                    shown: x.img,
+                    label: x.h || x.t.slice(0, 80),
+                  })
+                }
+              >
+                {L('Rasm', 'Picture', 'Картинка')}
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={!!busy}
+                aria-label={L('O‘chirish', 'Delete', 'Удалить') + ': ' + (x.h || x.t.slice(0, 30))}
+                onClick={() =>
+                  void send(
+                    { op: 'remove', id: x.id },
+                    'rm' + x.id,
+                    L('E’lon o‘chirildi', 'Deleted', 'Удалено'),
+                  )
+                }
+              >
+                <Trash2 size={14} />
+              </Button>
+            </span>
           </li>
         ))}
         {!d?.news?.length && (
