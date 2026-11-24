@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useApp } from './provider';
 import { Button } from './ui/button';
 import { servicesAct } from './service-files';
+import { ReceiptPick, Receipts, uploadReceipt } from './receipt';
 import { tr } from '@/lib/points';
 import { isPlayApp } from '@/lib/play-app';
 import {
@@ -30,6 +31,7 @@ export function ProductBuy({
   const [view, setView] = useState<ServicesView | null>(null);
   const [busy, setBusy] = useState('');
   const [note, setNote] = useState('');
+  const [receipt, setReceipt] = useState<Blob | null>(null);
   const [play, setPlay] = useState(false);
   const signedIn = !!data?.user;
   useEffect(() => setPlay(isPlayApp()), []);
@@ -129,6 +131,10 @@ export function ProductBuy({
             'Откроется автоматически после подтверждения администратором — придёт уведомление.',
           )}
         </small>
+        <Receipts
+          o={order.uk + '/' + order.id}
+          files={order.files.filter((f) => f.side === 'pay')}
+        />
       </div>
     );
   return (
@@ -145,6 +151,7 @@ export function ProductBuy({
             'Напишите через «Написать админу», чтобы узнать способ оплаты.',
           )}
       </p>
+      <ReceiptPick value={receipt} onChange={setReceipt} />
       <label>
         {L(
           'Chek raqami yoki izoh (ixtiyoriy)',
@@ -161,8 +168,19 @@ export function ProductBuy({
       <div className="pb-row">
         <Button
           disabled={!!busy}
-          onClick={() =>
-            void act(
+          onClick={async () => {
+            // 🧾 avval chek rasmi yuklanadi, keyin «To'lov qildim»
+            if (receipt) {
+              setBusy('paid');
+              try {
+                await uploadReceipt(request, order.uk + '/' + order.id, order.id, receipt);
+              } catch (e) {
+                toast((e as Error).message);
+                setBusy('');
+                return;
+              }
+            }
+            await act(
               { op: 'paid', id: order.id, note: note.trim() },
               'paid',
               L(
@@ -170,8 +188,9 @@ export function ProductBuy({
                 'Thank you! It opens once the payment is confirmed.',
                 'Спасибо! Откроется после подтверждения оплаты.',
               ),
-            )
-          }
+            );
+            setReceipt(null);
+          }}
         >
           💳 {L('To‘lov qildim', 'I paid', 'Я оплатил')}
         </Button>

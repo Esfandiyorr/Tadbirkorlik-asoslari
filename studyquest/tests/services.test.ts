@@ -164,13 +164,35 @@ it('the whole path: order → «prepared with AI» → chat → paid → result 
     ['team', 'Ranglar qanday bo‘lsin?'],
     ['user', 'Ko‘k va oq'],
   ]);
+  // 🧾 chek rasmi: faqat rasm yoki PDF; uni buyurtmachi va administrator ko'radi, boshqalar — yo'q
+  const PNG = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13]);
+  await expect(
+    manageServices(ali, { op: 'begin', id, name: 'chek.docx', size: 10, side: 'pay' }),
+  ).rejects.toThrow('Chek uchun');
+  const rb = (await manageServices(ali, {
+    op: 'begin',
+    id,
+    name: 'chek.png',
+    size: PNG.length,
+    side: 'pay',
+  })) as { fid: string };
+  await saveServiceChunk(ali, 'me', uk + '/' + id, rb.fid, 0, PNG);
+  await manageServices(ali, { op: 'finish', id, fid: rb.fid });
+  expect((await serviceChunk(admin, uk + '/' + id, rb.fid, 0)).bytes.equals(PNG)).toBe(true);
+  await expect(serviceChunk(vali, uk + '/' + id, rb.fid, 0)).rejects.toThrow('topilmadi');
   // to'lov ishni to'xtatmaydi; to'lagandan keyin buyurtmachi o'zi bekor qila olmaydi
   await manageServices(ali, { op: 'paid', id, note: 'chek 12345' }, NOW + 3000);
+  expect(
+    (await servicesAdmin(admin, NOW)).orders[0].files.filter((f) => f.side === 'pay'),
+  ).toMatchObject([{ name: 'chek.png', ext: 'png' }]);
   await expect(manageServices(ali, { op: 'cancel', id })).rejects.toThrow('administrator');
   mine = (await servicesView(ali, NOW)).orders!;
   expect(mine[0]).toMatchObject({ status: 'work', paidAt: NOW + 3000, paidNote: 'chek 12345' });
   expect(mine[0].payOk).toBeUndefined();
   await adminServices(admin, { op: 'confirm', uk, id }, NOW + 4000);
+  await expect(
+    manageServices(ali, { op: 'begin', id, name: 'chek2.png', size: 12, side: 'pay' }),
+  ).rejects.toThrow('tasdiqlangan');
   await expect(adminServices(admin, { op: 'confirm', uk, id })).rejects.toThrow('allaqachon');
   await expect(manageServices(ali, { op: 'paid', id, note: '' })).rejects.toThrow('allaqachon');
   // natijasiz yuborib bo'lmaydi; fayl yuklangach — «Mijozga yuborish»

@@ -38,10 +38,6 @@ export function StaffTasks({ admin, open }: { admin: boolean; open: (tab: string
         </Button>
       </div>
       <div className="staff-task-grid">
-        <button onClick={() => open('logo')}>
-          <b>{count(value?.logos)}</b>
-          {L('Baholanmagan logotiplar', 'Ungraded logos', 'Логотипы без оценки')}
-        </button>
         <button onClick={() => open('accountHelp')}>
           <b>{count(value?.help)}</b>
           {L('Kirish bo‘yicha so‘rovlar', 'Sign-in help', 'Помощь со входом')}

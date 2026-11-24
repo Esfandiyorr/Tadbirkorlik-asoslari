@@ -34,8 +34,6 @@ import { LessonView, QuizView } from './lesson';
 import { AuthPanel } from './auth-panel';
 import { Leaderboard } from './leaderboard';
 import { Games } from './games';
-import { LogoTaskPage } from './logo-task';
-import { LOGO_TOPIC } from '@/lib/logo-task';
 import { Staff } from './staff';
 import { InstallApp } from './install-app';
 import { NativeSurface } from './native-surface';
@@ -175,8 +173,9 @@ export function StudyQuest() {
       />
     );
   else if (mainView === 'chat') content = user ? <ChatPage sub={id || ''} /> : <AuthPanel />;
+  // 🎨 logotip topshirig'i yakunlangan: eski havolalar 8-mavzuni ochadi
   else if (mainView === 'topshiriq')
-    content = signedIn ? <LogoTaskPage id={id || LOGO_TOPIC} /> : <AuthPanel />;
+    content = signedIn ? <LessonView key="m8" id="m8" /> : <AuthPanel />;
   else if (view === 'badges') content = <Badges />;
   // 🏆 Reyting endi kurs ichida (#course/<id>/ranking); eski #ranking havolalari o'sha yerga olib boradi
   else if (view === 'ranking')
@@ -547,7 +546,6 @@ function Profile() {
           Mavzular bo'yicha ballar kurs sahifasidagi mavzu kartochkalarida ko'rinadi. */}
       <div className="profile-layout is-basic">
         <div className="profile-side">
-          {u && <PremiumCard name={shown} />}
           <section className="panel profile-card">
             <h2>⚙️ {tr(lang, 'Shaxsiy ma’lumotlar', 'Personal details', 'Личные данные')}</h2>
             <form
@@ -594,6 +592,7 @@ function Profile() {
               <Button disabled={!u}>{t(lang, 'save')}</Button>
             </form>
           </section>
+          {u && <PremiumCard name={shown} />}
           <ChangePassword />
           <section className="panel profile-card">
             <PushToggle />

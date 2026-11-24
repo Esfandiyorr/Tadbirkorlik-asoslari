@@ -5,6 +5,7 @@ import { useApp } from '../provider';
 import { Button } from '../ui/button';
 import { useL } from './common';
 import { Chat, FileList } from '../services';
+import { Receipts } from '../receipt';
 import { sendOrderFile, servicesAct } from '../service-files';
 import { dueText, tr } from '@/lib/points';
 import {
@@ -519,6 +520,9 @@ function AdminChat({
               ✅ {L('To‘lov tasdiqlangan', 'Payment confirmed', 'Оплата подтверждена')} ·{' '}
               {dueText(o.payOk, lang).date}
             </b>
+          ) : null}
+          {o.payOk ? (
+            <Receipts o={o.uk + '/' + o.id} files={o.files.filter((f) => f.side === 'pay')} />
           ) : (
             <>
               <b>
@@ -533,6 +537,7 @@ function AdminChat({
                 : {formatSum(payable(o))}
               </b>
               {o.paidNote && <p className="muted">🧾 {o.paidNote}</p>}
+              <Receipts o={o.uk + '/' + o.id} files={o.files.filter((f) => f.side === 'pay')} />
               {product && (
                 <p className="muted">
                   🛍{' '}

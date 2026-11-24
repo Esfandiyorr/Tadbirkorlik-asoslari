@@ -11,7 +11,6 @@ import { TopicQuizAdmin } from './topic-quiz-admin';
 import { ContentAdmin } from './content-admin';
 import { AvatarLibraryAdmin } from './avatar-library-admin';
 import { VideoAdmin } from './video-admin';
-import { LogoTaskAdmin } from './logo-task-admin';
 import { PushAdmin } from './push-admin';
 import { AppAdmin } from './app-admin';
 import { LibraryAdmin } from './library-admin';
@@ -33,7 +32,6 @@ export type BoSection =
   | 'push'
   | 'promo'
   | 'video'
-  | 'logo'
   | 'app'
   | 'library'
   | 'premium'
@@ -104,20 +102,6 @@ export function BackOffice({
         'Mavzuga YouTube havolasini qo‘ying — talabalar videoni sayt ichidagi pleyerda ko‘radi (8-mavzuda alohida slaydda ham).',
         'Add a YouTube link to a topic — students watch it in the player on the site (in topic 8 also on its own slide).',
         'Добавьте ссылку YouTube к теме — студенты смотрят видео в плеере на сайте (в теме 8 — и на отдельном слайде).',
-      ),
-    },
-    {
-      id: 'logo',
-      icon: '🎨',
-      title: L(
-        'Logotip topshirig‘i (8-mavzu)',
-        'Logo assignment (topic 8)',
-        'Задание «Логотип» (тема 8)',
-      ),
-      text: L(
-        'Yuklaganlar ro‘yxati: har talabaga berilgan biznes, yuklangan logotip va ta’rif; 0–25 ball qo‘yasiz — u 8-mavzu baliga va reytingga qo‘shiladi.',
-        'The list of submissions: each student’s business, uploaded logo and description; give 0–25 points — they count towards topic 8 and the ranking.',
-        'Список работ: бизнес каждого студента, логотип и описание; 0–25 баллов идут в баллы темы 8 и рейтинг.',
       ),
     },
     {
@@ -296,7 +280,6 @@ export function BackOffice({
     else if (section === 'exam') body = <ExamAdmin />;
     else if (section === 'promo') body = <PromoAdmin />;
     else if (section === 'video') body = <VideoAdmin />;
-    else if (section === 'logo') body = <LogoTaskAdmin />;
     return (
       <section className="bo-section" aria-labelledby="bo-title" data-se-ui>
         <div className="bo-head">
@@ -329,7 +312,7 @@ export function BackOffice({
         {
           id: 'education',
           title: L('Ta’lim', 'Education', 'Обучение'),
-          ids: ['quiz', 'exam', 'video', 'logo', 'live', 'library', 'access', 'legacy'],
+          ids: ['quiz', 'exam', 'video', 'live', 'library', 'access', 'legacy'],
         },
         {
           id: 'students',

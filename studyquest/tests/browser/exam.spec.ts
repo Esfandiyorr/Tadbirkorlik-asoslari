@@ -221,3 +221,19 @@ test('Premium: buy a plan, pick one of 5 profile looks, stand out in the leaderb
     });
   await reset(page);
 });
+
+test('the logo assignment is closed: no upload page or grading tab, old links open topic 8', async ({
+  page,
+}) => {
+  await as(page, 'demo-student');
+  await page.goto('/#topshiriq/m8', { waitUntil: 'domcontentloaded' });
+  await expect(page.locator('.native-document')).toContainText('REKLAMA');
+  await expect(page.getByRole('button', { name: 'Logotip topshirig‘i' })).toHaveCount(0);
+  expect((await page.request.get('/api/task')).status()).toBe(404);
+  await as(page, 'demo-admin');
+  await page.goto('/#admin', { waitUntil: 'domcontentloaded' });
+  await expect(page.getByRole('button', { name: /Yakuniy test savollari/ }).first()).toBeVisible();
+  await expect(page.getByRole('button', { name: /Logotip topshirig/ })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: /Logotiplar/ })).toHaveCount(0);
+  await expect(page.getByText('Baholanmagan logotiplar')).toHaveCount(0);
+});

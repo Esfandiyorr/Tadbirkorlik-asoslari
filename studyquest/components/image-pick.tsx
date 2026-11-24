@@ -13,10 +13,13 @@ export function ImagePick({
   onChange,
   hint,
   max = 1200,
+  label,
 }: {
   value: Blob | null;
   onChange: (b: Blob | null) => void;
   hint?: string;
+  /** tugma yozuvi (odatda «🖼 Rasm biriktirish») */
+  label?: string;
   /** eng uzun tomoni (px) */
   max?: number;
 }) {
@@ -44,7 +47,7 @@ export function ImagePick({
         <span>
           {value
             ? L('Boshqa rasm tanlash', 'Choose another picture', 'Выбрать другую')
-            : L('🖼 Rasm biriktirish', '🖼 Attach a picture', '🖼 Прикрепить картинку')}
+            : label || L('🖼 Rasm biriktirish', '🖼 Attach a picture', '🖼 Прикрепить картинку')}
         </span>
         <input
           type="file"

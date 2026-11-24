@@ -12,6 +12,7 @@ import {
   FILE_TYPES,
   KEEP_DAYS,
   PREMIUM_DISCOUNT,
+  RECEIPT_EXT,
   PRODUCTS,
   SERVICE_KINDS,
   fileExt,
@@ -59,7 +60,7 @@ import { course } from '../seed';
    Fayllar bekor qilinganda darhol, yakunlangandan KEEP_DAYS kun keyin o'chiriladi. */
 
 type StoredFile = {
-  side: 'in' | 'out';
+  side: 'in' | 'out' | 'pay';
   name: string;
   ext: FileExt;
   size: number;
@@ -183,7 +184,7 @@ function files(s: Stored): OrderFile[] {
     .sort(([, a], [, b]) => (a.at || 0) - (b.at || 0))
     .map(([fid, f]) => ({
       id: fid,
-      side: f.side === 'out' ? 'out' : 'in',
+      side: f.side === 'out' ? 'out' : f.side === 'pay' ? 'pay' : 'in',
       name: f.name,
       ext: f.ext,
       size: f.size,
@@ -427,7 +428,14 @@ const userInput = z.discriminatedUnion('op', [
     })
     .strict(),
   z.object({ op: z.literal('remove'), id: z.string() }).strict(),
-  z.object({ op: z.literal('begin'), id: z.string(), ...fileBegin }).strict(),
+  z
+    .object({
+      op: z.literal('begin'),
+      id: z.string(),
+      ...fileBegin,
+      side: z.literal('pay').optional(),
+    })
+    .strict(),
   z.object({ op: z.literal('finish'), id: z.string(), fid: z.string() }).strict(),
   z.object({ op: z.literal('unfile'), id: z.string(), fid: z.string() }).strict(),
 ]);
@@ -578,8 +586,9 @@ export async function manageServices(a: Actor, raw: unknown, now = Date.now()) {
       [path + '/upd']: now,
     });
     await siteUpdate(patch);
+    const receipt = Object.values(s.files || {}).some((f) => f?.ready && f.side === 'pay');
     await notifyTeam(
-      '💳 To‘lov qilindi',
+      '💳 To‘lov qilindi' + (receipt ? ' · 🧾 chek bor' : ''),
       s.name +
         ' — ' +
         s.title +
@@ -795,16 +804,21 @@ function magicOk(ext: FileExt, b: Buffer) {
     return b[0] === 0x50 && b[1] === 0x4b && b[2] === 0x03 && b[3] === 0x04;
   if (ext === 'png') return b.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]));
   if (ext === 'jpg' || ext === 'jpeg') return b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff;
+  if (ext === 'webp')
+    return (
+      b.subarray(0, 4).toString('latin1') === 'RIFF' &&
+      b.subarray(8, 12).toString('latin1') === 'WEBP'
+    );
   return b.subarray(0, 8).equals(Buffer.from([0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1]));
 }
 
 type FileOp =
-  | { op: 'begin'; name: string; size: number }
+  | { op: 'begin'; name: string; size: number; side?: 'pay' }
   | { op: 'finish'; fid: string }
   | { op: 'unfile'; fid: string };
 type Who = 'me' | 'admin';
 /** Fayl amallari: begin (joy ochish) → bo'laklar (saveServiceChunk) → finish; unfile — o'chirish.
-    Buyurtmachi «in» (talablar, namuna), administrator «out» (tayyor ish) fayl yuklaydi. */
+    Buyurtmachi «in» (talablar, namuna) va «pay» (🧾 to'lov cheki), administrator «out» (tayyor ish) fayl yuklaydi. */
 async function fileOp(
   a: Actor,
   who: Who,
@@ -815,19 +829,31 @@ async function fileOp(
   now = Date.now(),
 ): Promise<{ fid: string; chunk: number; chunks: number } | { ok: true }> {
   const path = orderPath(uk, id);
-  const side = who === 'me' ? 'in' : 'out';
+  const sides: StoredFile['side'][] = who === 'me' ? ['in', 'pay'] : ['out'];
   const st = statusOf(s);
   if (v.op === 'begin') {
+    const side: StoredFile['side'] = who === 'me' ? (v.side === 'pay' ? 'pay' : 'in') : 'out';
     check(
-      who === 'admin' ? st !== 'cancel' : st === 'work',
+      who === 'admin'
+        ? st !== 'cancel'
+        : side === 'pay'
+          ? st !== 'cancel' && !s.payOk
+          : st === 'work',
       409,
-      'Bu buyurtmaga hozir fayl qo‘shib bo‘lmaydi.',
+      side === 'pay'
+        ? 'To‘lov tasdiqlangan — chek endi kerak emas.'
+        : 'Bu buyurtmaga hozir fayl qo‘shib bo‘lmaydi.',
     );
     const ext = fileExt(v.name);
     check(
       ext,
       400,
       'Bu turdagi fayl qabul qilinmaydi: PDF, Word, PowerPoint, Excel, ZIP yoki rasm.',
+    );
+    check(
+      side !== 'pay' || (RECEIPT_EXT as readonly string[]).includes(ext!),
+      400,
+      'Chek uchun rasm (PNG, JPG, WEBP) yoki PDF yuklang.',
     );
     check(v.size <= FILE_MAX[side], 413, `Fayl ${FILE_MAX[side] / 1024 / 1024} MB dan oshmasin.`);
     const list = Object.values(s.files || {}).filter((f) => f?.side === side && f.ready);
@@ -856,13 +882,15 @@ async function fileOp(
   check(f, 404, 'Fayl topilmadi.');
   if (v.op === 'unfile') {
     check(
-      who === 'admin' || (f!.side === side && isActive(st)),
+      who === 'admin' ||
+        (f!.side === 'in' && isActive(st)) ||
+        (f!.side === 'pay' && st !== 'cancel' && !s.payOk),
       403,
       'Bu faylni o‘chirib bo‘lmaydi.',
     );
     await siteUpdate({ [path + '/files/' + v.fid]: null, [dataPath(uk, v.fid)]: null });
   } else {
-    check(f!.side === side, 403, 'Bu faylni yuklab bo‘lmaydi.');
+    check(sides.includes(f!.side), 403, 'Bu faylni yuklab bo‘lmaydi.');
     check(!f!.ready, 409, 'Fayl allaqachon yuklangan.');
     const missing = Array.from({ length: f!.chunks }, (_, n) => n).filter((n) => !f!.got?.[n]);
     check(!missing.length, 400, 'Fayl to‘liq yuklanmadi — qaytadan urinib ko‘ring.');
@@ -893,7 +921,11 @@ export async function saveServiceChunk(
   if (role === 'me') check(uk === keyOf(a.id), 403, 'Bu buyurtmaga fayl yuklab bo‘lmaydi.');
   check(ID.test(fid), 400, 'Fayl topilmadi.');
   const f = s.files?.[fid];
-  check(f && f.side === (role === 'me' ? 'in' : 'out'), 404, 'Fayl topilmadi.');
+  check(
+    f && (role === 'me' ? f.side === 'in' || f.side === 'pay' : f.side === 'out'),
+    404,
+    'Fayl topilmadi.',
+  );
   check(!f!.ready, 409, 'Fayl allaqachon yuklangan.');
   check(Number.isInteger(n) && n >= 0 && n < f!.chunks, 400, 'Bo‘lak raqami noto‘g‘ri.');
   const expected = n < f!.chunks - 1 ? FILE_CHUNK : f!.size - FILE_CHUNK * (f!.chunks - 1);

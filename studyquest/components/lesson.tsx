@@ -11,7 +11,6 @@ import {
   BookOpen,
   ZoomOut,
   ChartNoAxesColumn,
-  Palette,
 } from 'lucide-react';
 import { useApp } from './provider';
 import { Button } from './ui/button';
@@ -32,7 +31,8 @@ import { NativeSurface } from './native-surface';
 import { ReadingTools } from './reading-tools';
 import { TopicVideoButton } from './topic-video';
 import { usePremium } from './premium';
-import { LOGO_TOPIC } from '@/lib/logo-task';
+/** 8-mavzu: 25 ball — o'qituvchi baholagan logotip topshirig'i (yakunlangan; ball talabaning yozuvida). */
+const LOGO_TOPIC = 'm8';
 import { CourseGate, PaidCourseGate, useCourseLocked, usePaidLocked } from './course-gate';
 /** Taqdimotning PDF nusxasi: to'liq havola yoki asl fayllar (public/legacy/fayllar). */
 const pdfHref = (pdf: string) => (pdf.startsWith('https://') ? pdf : '/legacy/' + pdf);
@@ -362,17 +362,6 @@ function OriginalLessonView({ id }: { id: string }) {
               <Download size={17} />
               <span>PDF</span>
             </a>
-          </Button>
-        )}
-        {id === LOGO_TOPIC && (
-          <Button
-            variant="outline"
-            className="reader-task-button"
-            aria-label={tr(lang, 'Logotip topshirig‘i', 'Logo assignment', 'Задание «Логотип»')}
-            onClick={() => navigate('topshiriq/' + id)}
-          >
-            <Palette size={17} />
-            <span>{tr(lang, 'Topshiriq', 'Assignment', 'Задание')}</span>
           </Button>
         )}
         {lesson.legacyFile && (

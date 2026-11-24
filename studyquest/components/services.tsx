@@ -25,6 +25,7 @@ import { Button } from './ui/button';
 import { navigate } from './dashboard';
 import { openBackOffice } from './backoffice';
 import { PremiumOffer } from './premium';
+import { ReceiptPick, Receipts, uploadReceipt } from './receipt';
 import { saveOrderFile, sendOrderFile, servicesAct } from './service-files';
 import { dueText, tr } from '@/lib/points';
 import {
@@ -1207,6 +1208,7 @@ function OrderCard({
   const L = (uz: string, en: string, ru: string) => tr(lang, uz, en, ru);
   const [busy, setBusy] = useState('');
   const [note, setNote] = useState('');
+  const [receipt, setReceipt] = useState<Blob | null>(null);
   const [fix, setFix] = useState('');
   const [mode, setMode] = useState<'' | 'fix' | 'accept'>('');
   const [rating, setRating] = useState(5);
@@ -1354,6 +1356,7 @@ function OrderCard({
                 {formatSum(pay)}
               </b>
               {o.paidNote && <small className="muted">🧾 {o.paidNote}</small>}
+              <Receipts o={o.uk + '/' + o.id} files={o.files.filter((f) => f.side === 'pay')} />
             </>
           ) : (
             <>
@@ -1368,6 +1371,7 @@ function OrderCard({
                     'Спросите в переписке ниже, как оплатить.',
                   )}
               </p>
+              <ReceiptPick value={receipt} onChange={setReceipt} />
               <label>
                 {L(
                   'Chek raqami yoki izoh (ixtiyoriy)',
@@ -1384,17 +1388,31 @@ function OrderCard({
               <Button
                 size="sm"
                 disabled={!!busy}
-                onClick={() =>
-                  void act(
-                    { op: 'paid', note: note.trim() },
-                    'paid',
-                    L(
-                      'Rahmat! To‘lovingiz tekshiriladi.',
-                      'Thank you! Your payment will be checked.',
-                      'Спасибо! Оплата будет проверена.',
-                    ),
+                onClick={async () => {
+                  // 🧾 avval chek rasmi yuklanadi, keyin «To'lov qildim»
+                  if (receipt) {
+                    setBusy('paid');
+                    try {
+                      await uploadReceipt(request, o.uk + '/' + o.id, o.id, receipt);
+                    } catch (e) {
+                      toast((e as Error).message);
+                      setBusy('');
+                      return;
+                    }
+                  }
+                  if (
+                    await act(
+                      { op: 'paid', note: note.trim() },
+                      'paid',
+                      L(
+                        'Rahmat! To‘lovingiz tekshiriladi.',
+                        'Thank you! Your payment will be checked.',
+                        'Спасибо! Оплата будет проверена.',
+                      ),
+                    )
                   )
-                }
+                    setReceipt(null);
+                }}
               >
                 💳 {L('To‘lov qildim', 'I paid', 'Я оплатил')}
               </Button>

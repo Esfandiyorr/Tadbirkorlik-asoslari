@@ -30,6 +30,8 @@ export async function sendOrderFile(
   ids: Record<string, string>,
   file: File,
   onProgress?: (x: number) => void,
+  /** begin amaliga qo'shimcha (masalan, {side: 'pay'} — to'lov cheki) */
+  extra?: Record<string, unknown>,
 ) {
   const scope = who === 'admin' ? 'admin' : 'me';
   const begun = await servicesAct<{ fid: string; chunk: number; chunks: number }>(request, scope, {
@@ -37,6 +39,7 @@ export async function sendOrderFile(
     ...ids,
     name: file.name,
     size: file.size,
+    ...extra,
   });
   try {
     for (let n = 0; n < begun.chunks; n++) {
@@ -57,8 +60,8 @@ export async function sendOrderFile(
   return servicesAct<unknown>(request, scope, { op: 'finish', ...ids, fid: begun.fid });
 }
 
-/** Faylni bo'laklab yuklab olib, qurilmaga saqlaydi. */
-export async function saveOrderFile(
+/** Faylni bo'laklab olib, bitta Blob qilib qaytaradi (chek rasmini ko'rsatish uchun ham). */
+export async function loadOrderFile(
   request: Req,
   o: string,
   f: OrderFile,
@@ -72,7 +75,17 @@ export async function saveOrderFile(
     parts.push(await r.arrayBuffer());
     onProgress?.((n + 1) / f.chunks);
   }
-  const url = URL.createObjectURL(new Blob(parts, { type: FILE_TYPES[f.ext].mime }));
+  return new Blob(parts, { type: FILE_TYPES[f.ext].mime });
+}
+
+/** Faylni bo'laklab yuklab olib, qurilmaga saqlaydi. */
+export async function saveOrderFile(
+  request: Req,
+  o: string,
+  f: OrderFile,
+  onProgress?: (x: number) => void,
+) {
+  const url = URL.createObjectURL(await loadOrderFile(request, o, f, onProgress));
   const a = document.createElement('a');
   a.href = url;
   a.download = f.name;

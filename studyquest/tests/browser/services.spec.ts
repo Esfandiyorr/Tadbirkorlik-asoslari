@@ -20,6 +20,11 @@ async function clearOrders(page: Page) {
 /** Bo'limni ochish/yopish (administrator sessiyasi kerak). */
 const show = (page: Page, shown: boolean) => svc(page, 'admin', { op: 'show', shown });
 const PDF = Buffer.from('%PDF-1.4\n% Pullik xizmatlar sinovi\n%%EOF\n');
+/** 1×1 PNG — to'lov cheki rasmi o'rnida */
+const RECEIPT = Buffer.from(
+  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
+  'base64',
+);
 
 test('an order shows «prepared with AI», reaches the administrator as a chat and gets the result back', async ({
   page,
@@ -82,6 +87,11 @@ test('an order shows «prepared with AI», reaches the administrator as a chat a
   await expect(order).toContainText('120 000 so‘m');
   // to'lov ishni to'xtatmaydi
   await expect(order.locator('.svc-pay')).toContainText('Click orqali');
+  // 🧾 chek rasmini yuklaydi (logotipni yuklashday — tanlanadi, kichik ko'rinishi chiqadi)
+  await order
+    .locator('.receipt-pick input[type="file"]')
+    .setInputFiles({ name: 'chek.png', mimeType: 'image/png', buffer: RECEIPT });
+  await expect(order.locator('.receipt-pick .image-pick-thumb img')).toBeVisible();
   await order.getByLabel(/Chek raqami/).fill('chek 777');
   await order.getByRole('button', { name: /To‘lov qildim/ }).click();
   await expect(order.locator('.svc-pay')).toContainText('To‘lov tekshirilmoqda');
@@ -103,6 +113,7 @@ test('an order shows «prepared with AI», reaches the administrator as a chat a
   await expect(lead).toContainText('talablar.pdf');
   await expect(chat.locator('.svc-chat-head')).toContainText('@ali_test');
   await expect(chat.locator('.svc-pay')).toContainText('chek 777');
+  await expect(chat.locator('.svc-pay .receipts img')).toBeVisible();
   await chat.getByLabel('Xabar').fill('Qaysi rangda bo‘lsin?');
   await chat.getByRole('button', { name: 'Yuborish', exact: true }).click();
   await expect(chat.locator('.svc-msgs')).toContainText('Qaysi rangda bo‘lsin?');

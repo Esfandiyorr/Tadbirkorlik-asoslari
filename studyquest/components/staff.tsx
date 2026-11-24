@@ -21,7 +21,6 @@ import { PlatformSettings } from './platform-settings';
 import { NativeSurface } from './native-surface';
 import { TopicAccessPanel } from './topic-access';
 import { BackOffice, openBackOffice, type BoSection } from './backoffice';
-import { LogoTaskAdmin } from './backoffice/logo-task-admin';
 import { StaffTasks } from './staff-tasks';
 import { AccountHelpAdmin } from './account-help';
 import { t, badgeLabel } from '@/lib/i18n';
@@ -287,7 +286,6 @@ export function Staff({
             : []),
           ['overview', L('Tahlil', 'Analytics', 'Аналитика')],
           ['access', L('Mavzular holati', 'Topic access', 'Доступ к темам')],
-          ['logo', L('🎨 Logotiplar', '🎨 Logos', '🎨 Логотипы')],
           ['courses', t(lang, 'courses')],
           ['lessons', L('Darslar', 'Lessons', 'Уроки')],
           ['quiz', L('Testlar', 'Quizzes', 'Тесты')],
@@ -348,7 +346,6 @@ export function Staff({
         </div>
       )}
       {tab === 'access' && <TopicAccessPanel />}
-      {tab === 'logo' && <LogoTaskAdmin />}
       {tab === 'academic' && <AcademicRoster />}
       {tab === 'accountHelp' && <AccountHelpAdmin />}
       {admin && tab === 'platform' && <PlatformSettings />}

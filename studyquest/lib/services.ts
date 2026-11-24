@@ -391,9 +391,15 @@ export const formatSum = (n: number) =>
 /** Vercel bitta so'rovda 4,5 MB dan ortiq qabul qilmaydi — fayl 2,5 MB lik bo'laklarga bo'linib yuklanadi va
     yuklab olishda brauzerda qayta yig'iladi. */
 export const FILE_CHUNK = 2.5 * 1024 * 1024;
-/** talaba biriktiradigan fayl (namuna, talablar) va jamoa yuklaydigan tayyor ish */
-export const FILE_MAX = { in: 10 * 1024 * 1024, out: 30 * 1024 * 1024 } as const;
-export const FILES_PER_ORDER = { in: 3, out: 6 } as const;
+/** talaba biriktiradigan fayl (namuna, talablar), jamoa yuklaydigan tayyor ish va 🧾 to'lov cheki (rasm yoki PDF) */
+export const FILE_MAX = {
+  in: 10 * 1024 * 1024,
+  out: 30 * 1024 * 1024,
+  pay: 5 * 1024 * 1024,
+} as const;
+export const FILES_PER_ORDER = { in: 3, out: 6, pay: 3 } as const;
+/** chek uchun qabul qilinadigan turlar */
+export const RECEIPT_EXT = ['png', 'jpg', 'jpeg', 'webp', 'pdf'] as const;
 /** tayyor ish topshirilgandan keyin fayllar shuncha kun saqlanadi */
 export const KEEP_DAYS = 90;
 
@@ -415,6 +421,7 @@ export const FILE_TYPES = {
   png: { mime: 'image/png', icon: '🖼' },
   jpg: { mime: 'image/jpeg', icon: '🖼' },
   jpeg: { mime: 'image/jpeg', icon: '🖼' },
+  webp: { mime: 'image/webp', icon: '🖼' },
 } as const;
 export type FileExt = keyof typeof FILE_TYPES;
 export const FILE_ACCEPT = Object.keys(FILE_TYPES)
@@ -430,10 +437,10 @@ export function fileSize(n: number) {
   return (Math.round((n / 1024 / 1024) * 10) / 10).toString().replace('.', ',') + ' MB';
 }
 
-/** in — buyurtmachi biriktirgan, out — administrator tayyorlagan natija. */
+/** in — buyurtmachi biriktirgan, out — administrator tayyorlagan natija, pay — buyurtmachining to'lov cheki. */
 export type OrderFile = {
   id: string;
-  side: 'in' | 'out';
+  side: 'in' | 'out' | 'pay';
   name: string;
   ext: FileExt;
   size: number;
