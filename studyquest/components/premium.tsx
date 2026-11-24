@@ -235,6 +235,54 @@ function MarkEditor({ current, onClose }: { current: string | null; onClose: () 
   );
 }
 
+/** 💎 Obuna bo'lmaganlarga doimiy karta: «Obuna bo'ling va quyidagi xizmatlardan foydalaning» — imkoniyatlar ro'yxati,
+    bosilsa obuna oynasi ochiladi. Kompyuterda chap menyuning pastida, telefonda bosh sahifada (className bilan). */
+export function PremiumSideCard({ className = '' }: { className?: string }) {
+  const { lang, data } = useApp();
+  const L = (uz: string, en: string, ru: string) => tr(lang, uz, en, ru);
+  const { premium } = usePremium();
+  const [offer, setOffer] = useState(false);
+  const role = data?.user?.role;
+  if (!data?.user || role === 'admin' || role === 'teacher' || !premium || premium.state.active)
+    return null;
+  return (
+    <>
+      <section
+        className={'premium-side ' + className}
+        aria-label={L('Premium obuna', 'Premium subscription', 'Подписка Premium')}
+        onClick={() => setOffer(true)}
+      >
+        <div className="premium-side-head">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/premium-belgi.webp" alt="" width={56} height={56} />
+          <div>
+            <b>{L('Obuna bo‘ling', 'Get Premium', 'Оформите подписку')}</b>
+            <small>
+              {L(
+                'va quyidagi xizmatlardan foydalaning:',
+                'and enjoy these extras:',
+                'и пользуйтесь дополнительно:',
+              )}
+            </small>
+          </div>
+        </div>
+        <PremiumPerks compact />
+        <Button
+          size="sm"
+          className="premium-side-btn"
+          onClick={(e) => {
+            e.stopPropagation();
+            setOffer(true);
+          }}
+        >
+          {L('Obuna bo‘lish', 'Subscribe', 'Подписаться')}
+        </Button>
+      </section>
+      {offer && <PremiumOffer info={premium.info} onClose={() => setOffer(false)} />}
+    </>
+  );
+}
+
 /** «💎 Obuna bo'lish» oynasi: nimalar ochiladi, narx va qanday to'lash. */
 export function PremiumOffer({
   info,

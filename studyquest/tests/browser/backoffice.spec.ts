@@ -141,9 +141,13 @@ test('the administrator fills the question bank, schedules daily games and creat
   await as(page, 'demo-student');
   await page.goto('/#home', { waitUntil: 'domcontentloaded' });
   await page.reload({ waitUntil: 'domcontentloaded' });
-  const slide = page.locator('.sidebar-news .news-live');
-  await expect(slide).toContainText('JONLI TEST');
-  await expect(slide).toContainText(own.t);
+  // (yon menyuda jonli test e'loni yo'q — u bosh sahifadagi ✉️ e'lonlar ro'yxatida va bildirishnomada)
+  await expect(page.locator('.sidebar-news .news-live')).toHaveCount(0);
+  await page.locator('.news-chip').click();
+  const live = page.locator('.news-list-item.is-live');
+  await expect(live).toContainText('Jonli test');
+  await expect(live).toContainText(own.t);
+  await page.keyboard.press('Escape');
   await expect(page.locator('.kh-pop')).toHaveCount(0);
 
   // ⛔ To'xtatish.

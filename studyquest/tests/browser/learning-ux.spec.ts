@@ -132,6 +132,8 @@ test('on a phone the app shows the essentials: topics, courses and paid services
     /Mavzular/,
     /Kurslar/,
   ]);
+  // obuna bo'lmagan talabaga — «Obuna bo'ling» kartasi (telefonda bosh sahifada)
+  await expect(page.locator('.premium-side.is-home')).toContainText('Obuna bo‘ling');
   await expect(page.locator('.stats-grid')).toBeHidden();
   await expect(page.locator('.dashboard-aside')).toBeHidden();
   await expect(page.locator('.app-footer')).toBeHidden();

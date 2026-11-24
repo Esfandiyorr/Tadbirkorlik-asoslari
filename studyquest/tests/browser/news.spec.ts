@@ -213,12 +213,15 @@ test('students see a small live quiz card twenty minutes before the start and ma
   await card.getByRole('button', { name: 'Qatnashmayman' }).click();
   await expect(card).toBeHidden();
   await page.reload({ waitUntil: 'domcontentloaded' });
-  await expect(page.locator('.sidebar-news .news-live')).toContainText('Lobbi ochiq');
+  // yon menyuda jonli test e'loni yo'q (bildirishnoma va eslatma kartasi yetarli)
+  await expect(page.locator('.sidebar-news .news-live')).toHaveCount(0);
   await expect(card).toBeHidden();
   await expect(big).toHaveCount(0); // katta e'lon — faqat bir marta
-  // Fikrini o'zgartirsa — yon menyudagi e'lonlar oynasidan kiradi.
+  // Fikrini o'zgartirsa — bosh sahifadagi ✉️ e'lonlar ro'yxatidan kiradi.
+  await page.goto('/#home', { waitUntil: 'domcontentloaded' });
+  await page.locator('.news-chip').click();
   await page
-    .locator('.sidebar-news')
+    .locator('.news-list-item.is-live')
     .getByRole('link', { name: /O‘yinga kirish/ })
     .click();
   await expect.poll(() => new URL(page.url()).hash).toBe('#arena/play/live');
@@ -238,7 +241,7 @@ test('teachers close the card too, and a later game only shows its time', async 
   await card.getByRole('button', { name: 'Yopish' }).click();
   await expect(card).toBeHidden();
   await page.reload({ waitUntil: 'domcontentloaded' });
-  await expect(page.locator('.sidebar-news .news-live')).toBeVisible();
+  await expect(page.locator('.sidebar-news .news-live')).toHaveCount(0);
   await expect(card).toBeHidden();
   await expect(big).toHaveCount(0);
 
@@ -246,10 +249,7 @@ test('teachers close the card too, and a later game only shows its time', async 
   await as(later, 'demo-student');
   await withLive(later, 120);
   await later.goto('/#home', { waitUntil: 'domcontentloaded' });
-  const slide = later.locator('.sidebar-news .news-live');
-  await expect(slide).toContainText('JONLI TEST');
-  await expect(slide).toContainText(/bugun|ertaga/);
-  await expect(slide).toContainText('boshlanishiga');
+  await expect(later.locator('.sidebar-news .news-live')).toHaveCount(0);
   await expect(later.locator('.kh-pop')).toHaveCount(0);
   // 2 soatdan keyingi o'yin ham tuzilgan zahoti katta e'londa chiqadi (kichik kartochka — 20 daqiqa qolganda)
   // (kechqurun 2 soatdan keyingi o'yin ertangi kunga o'tadi)

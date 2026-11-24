@@ -9,7 +9,6 @@ import type { Lang } from '@/lib/types';
 import { FRESH_MS, PROMO_KIND, type PromoItem } from '@/lib/promo';
 import { liveNewsId } from '@/lib/live-quiz';
 import { ImagePick } from './image-pick';
-import { PremiumOffer, PremiumPerks, usePremium } from './premium';
 import { SitePicture, openSiteImageEditor } from './site-content';
 import { visualPath } from '@/lib/site-visuals';
 
@@ -303,89 +302,17 @@ export function NewsBox({ className = '' }: { className?: string }) {
   const { lang, data } = useApp();
   const L = (uz: string, en: string, ru: string) => tr(lang, uz, en, ru);
   const { data: d, now } = useNews();
-  const g = d?.live && d.live.end > now() ? d.live : null;
-  useTick(!!g && g.start - now() < 86400000);
+  // ⚡ jonli test bu yerda ko'rsatilmaydi — u haqida bildirishnoma (push) va boshlanishidan oldin kichik eslatma
+  // boradi; 💎 obuna taklifi — alohida kartada (PremiumSideCard)
   const [index, setIndex] = useState(0),
     [hover, setHover] = useState(false),
     [paused, setPaused] = useState(false),
-    [reading, setReading] = useState<NewsItem | null>(null),
-    [offer, setOffer] = useState(false);
-  const { premium } = usePremium();
+    [reading, setReading] = useState<NewsItem | null>(null);
   const slides: Slide[] = [];
-  if (g) {
-    const n = now(),
-      st = liveState(g, n);
-    slides.push({
-      key: 'live-' + g.d,
-      node: (
-        <div className={'news-slide news-live is-' + st}>
-          <span className="news-kicker">
-            <i className="news-ping" aria-hidden="true" />
-            {g.type === 'yz' ? '⌨️' : '⚡'} {gameName(g, lang).toUpperCase()}
-          </span>
-          <b>
-            {st === 'live'
-              ? L('Hozir ketmoqda!', 'On now!', 'Идёт сейчас!')
-              : st === 'lobby'
-                ? L(
-                    'Lobbi ochiq — qo‘shiling!',
-                    'Lobby open — join now!',
-                    'Лобби открыто — входите!',
-                  )
-                : when(g.start, lang, n)}
-          </b>
-          <small>
-            {st === 'wait'
-              ? (g.type === 'yz'
-                  ? L('Yozuv poygasi', 'Typing race', 'Гонка печати')
-                  : (g.nq || 10) + ' ' + L('ta savol', 'questions', 'вопросов')) +
-                (g.start - n < 86400000
-                  ? ' · ' +
-                    L('boshlanishiga', 'starts in', 'до старта') +
-                    ' ' +
-                    left(g.start - n, lang)
-                  : '')
-              : st === 'lobby'
-                ? L('Boshlanishiga', 'Starts in', 'До старта') + ' ' + left(g.start - n, lang)
-                : L('G‘oliblarga reyting balli', 'Rating points for winners', 'Баллы победителям')}
-          </small>
-          {st !== 'wait' && (
-            <a className="news-cta" href={'#' + gamePath(g)}>
-              {st === 'live'
-                ? '👀 ' + L('O‘yinni ochish', 'Open the game', 'Открыть игру')
-                : '🎮 ' + L('O‘yinga kirish', 'Join the game', 'Войти в игру')}
-            </a>
-          )}
-        </div>
-      ),
-    });
-  }
   for (const item of d?.news || [])
     slides.push({
       key: item.id,
       node: <NewsSlide item={item} now={now()} onOpen={() => setReading(item)} />,
-    });
-  // 💎 Premium obuna: nimalar ochilishi (obunasiz foydalanuvchiga; o'qituvchi va administratorga — yo'q)
-  const staff = data?.user?.role === 'admin' || data?.user?.role === 'teacher';
-  if (!staff && !premium?.state.active)
-    slides.push({
-      key: 'premium',
-      node: (
-        <div className="news-slide news-premium">
-          <span className="news-kicker">💎 PREMIUM</span>
-          <b>
-            {L(
-              'Obuna bo‘ling — ko‘proq imkoniyat',
-              'Get Premium — do more',
-              'Подписка — больше возможностей',
-            )}
-          </b>
-          <PremiumPerks compact />
-          <button type="button" className="news-cta" onClick={() => setOffer(true)}>
-            💎 {L('Obuna bo‘lish', 'Get Premium', 'Оформить')}
-          </button>
-        </div>
-      ),
     });
   if (!slides.length)
     slides.push({
@@ -395,9 +322,9 @@ export function NewsBox({ className = '' }: { className?: string }) {
           <span className="news-kicker">📢 {L('E’LONLAR', 'NEWS', 'ОБЪЯВЛЕНИЯ')}</span>
           <p>
             {L(
-              'Jonli test vaqti va yangiliklar shu yerda chiqadi.',
-              'Live quiz times and news appear here.',
-              'Здесь появятся время живого теста и новости.',
+              'Yangiliklar va e’lonlar shu yerda chiqadi.',
+              'News and announcements appear here.',
+              'Здесь появятся новости и объявления.',
             )}
           </p>
         </div>
@@ -498,7 +425,6 @@ export function NewsBox({ className = '' }: { className?: string }) {
           onClose={() => setReading(null)}
         />
       )}
-      {offer && <PremiumOffer info={premium?.info} onClose={() => setOffer(false)} />}
     </section>
   );
 }

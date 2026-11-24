@@ -34,7 +34,7 @@ import { SiteVisual } from './site-content';
 import { visualPath } from '@/lib/site-visuals';
 import { useAcademicBoard } from './avatars';
 import { HomeBanner } from './home-banner';
-import { SubscriberMark } from './premium';
+import { PremiumSideCard, SubscriberMark } from './premium';
 import { Leaderboard } from './leaderboard';
 import { CourseGate, PaidCourseGate } from './course-gate';
 import { CourseLessons } from './course-lessons';
@@ -348,6 +348,8 @@ function LearnerHome() {
             </motion.section>
           )}
           <QuickLinks chat={chat} />
+          {/* 💎 telefonda obuna taklifi shu yerda (kompyuterda — chap menyuda) */}
+          <PremiumSideCard className="is-home" />
           <PushInvite />
           <section className="stats-grid">
             {hasAcademic && university ? (

@@ -193,14 +193,13 @@ test('Premium: shown in the news box with its perks; any amount and a receipt; o
     await browser.newContext({ baseURL: test.info().project.use.baseURL })
   ).newPage();
   await as(student, 'demo-student');
-  // obunasi yo'q: o'ng tomondagi e'lonlar qutisida Premium — nimalar ochilishi bilan
+  // obunasi yo'q: chap menyu pastida doimiy «Obuna bo'ling» kartasi — nimalar ochilishi bilan
   await student.goto('/#home', { waitUntil: 'domcontentloaded' });
-  const news = student.locator('.news-box').first();
-  const dots = news.locator('.news-dots button');
-  if (await dots.count()) await dots.last().click();
-  const slide = news.locator('.news-premium');
+  const slide = student.locator('.sidebar .premium-side');
   await expect(slide).toContainText('Obuna bo‘ling');
+  await expect(slide).toContainText('quyidagi xizmatlardan foydalaning');
   await expect(slide.locator('.premium-perks li')).toHaveCount(5);
+  await expect(student.locator('.premium-side.is-home')).toBeHidden();
   await slide.getByRole('button', { name: /Obuna bo‘lish/ }).click();
   await expect(student.getByRole('dialog')).toContainText('Profil bezagi');
   await student.keyboard.press('Escape');
@@ -284,14 +283,14 @@ test('Premium: shown in the news box with its perks; any amount and a receipt; o
   await student.goto('/#course/tad-asoslari/ranking', { waitUntil: 'domcontentloaded' });
   await expect(student.locator('.rk-row.me')).toHaveClass(/pm-olov/);
   await expect(student.locator('.rk-row.me .pm-chip')).toHaveText('🔥');
-  // obunachiga e'lonlar qutisida Premium taklifi chiqmaydi
+  // obunachiga «Obuna bo'ling» kartasi chiqmaydi
   await student.setViewportSize({ width: 390, height: 844 });
   await student.goto('/#home', { waitUntil: 'domcontentloaded' });
   const homeMark = student
     .locator('.home-banner h1')
     .getByRole('img', { name: 'Faol Premium obuna' });
   await expect(homeMark).toBeInViewport();
-  await expect(student.locator('.news-premium')).toHaveCount(0);
+  await expect(student.locator('.premium-side')).toHaveCount(0);
   // tozalash: obunani olib tashlash
   const me = await (await page.request.get('/api/platform?view=premiumAdmin')).json();
   for (const g of me.grants as { uid: string }[])

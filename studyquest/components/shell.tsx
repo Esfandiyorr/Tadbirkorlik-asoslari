@@ -42,7 +42,7 @@ import { ChatPage } from './chat-page';
 import { ChangePassword } from './change-password';
 import { Library } from './library';
 import { CertificatePage } from './exam';
-import { PremiumCard, SubscriberMark, usePremium } from './premium';
+import { PremiumCard, PremiumSideCard, SubscriberMark, usePremium } from './premium';
 import { Services } from './services';
 import { isPlayApp } from '@/lib/play-app';
 import { AccountDelete } from './account-delete';
@@ -289,6 +289,8 @@ export function StudyQuest() {
         </nav>
         <NewsBox className="sidebar-news" />
         <div className="sidebar-bottom">
+          {/* 💎 obuna bo'lmaganlarga: nimalar ochilishi va «Obuna bo'lish» */}
+          <PremiumSideCard className="is-sidebar" />
           <PromoBox className="sidebar-promo" />
           <div className="sidebar-settings">
             <div className="lang-seg" role="group" aria-label="Til / Language">
