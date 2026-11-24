@@ -336,23 +336,6 @@
 .continue-hero-points b {
   font-size: 16px;
 }
-.continue-hero-points ul {
-  list-style: none;
-  margin: 6px 0 0;
-  padding: 0;
-  display: grid;
-  gap: 4px;
-}
-.continue-hero-points li {
-  font-size: 14px;
-  color: #f1e8ff;
-}
-.continue-hero-points em {
-  font-style: normal;
-  font-weight: 800;
-  color: #fde68a;
-  margin-left: 4px;
-}
 .continue-hero .points-ring b {
   color: #fff;
 }
@@ -5340,6 +5323,67 @@ button.rk-slot:has(.av-empty)::after {
 .hero-avatar:focus-visible .hero-avatar-swap {
   opacity: 1;
 }
+.hero-avatar.is-compact {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--soft-violet);
+  color: var(--text);
+  box-shadow: none;
+}
+.hero-avatar.is-compact:hover {
+  transform: none;
+  border-color: var(--violet);
+}
+.hero-avatar.is-compact:focus-visible {
+  outline: 2px solid var(--violet);
+}
+.hero-avatar.is-compact .hero-avatar-stage {
+  width: 24px;
+  height: 24px;
+  margin: 0;
+  align-self: center;
+  border: 0;
+  background: transparent;
+}
+.hero-avatar.is-compact .hero-avatar-empty svg {
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  background: transparent;
+  color: var(--text);
+}
+.hero-avatar.is-compact .hero-avatar-label {
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  text-align: start;
+}
+.hero-avatar.is-compact .hero-avatar-label small {
+  color: var(--muted);
+}
+.hero-avatar.is-compact.has {
+  width: 44px;
+  height: 44px;
+  padding: 3px;
+}
+.hero-avatar.is-compact.has .hero-avatar-stage {
+  width: 100%;
+  height: 100%;
+}
+.hero-avatar.is-compact .hero-avatar-swap {
+  display: none;
+}
+@media (min-width: 641px) {
+  .hero-avatar.is-compact.is-mobile-only {
+    display: none;
+  }
+}
 /* admin */
 .avatar-admin {
   padding: 20px 22px 22px;
@@ -5878,93 +5922,64 @@ button.rk-slot:has(.av-empty)::after {
   outline: 2px solid #fff;
   outline-offset: 2px;
 }
-.home-news {
-  display: none;
+/* Bosh sahifadagi qotirilgan e’lonlar tugmasi. */
+:root {
+  --news-corner-bottom: calc(16px + env(safe-area-inset-bottom));
+  --news-corner-right: max(16px, env(safe-area-inset-right));
 }
-/* bosh sahifa (telefon): e'lonlar — joriy mavzu yonida kichik tugma */
-.hero-tag-row {
-  width: 100%;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-  max-width: 100%;
+@media (max-width: 760px) {
+  :root {
+    --news-corner-bottom: calc(80px + env(safe-area-inset-bottom));
+  }
 }
 .news-chip {
-  display: none;
-  align-items: center;
-  gap: 6px;
-  min-width: 0;
-  max-width: 100%;
-  padding: 6px 10px;
-  border: 1px solid #fde68a80;
-  border-radius: 999px;
-  background: #ffffff1f;
-  color: #fff;
-  font: inherit;
-  font-size: 12.5px;
-  font-weight: 700;
+  position: fixed;
+  right: var(--news-corner-right);
+  bottom: var(--news-corner-bottom);
+  z-index: 55;
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 5px 18px #2216442b;
   cursor: pointer;
 }
-.news-chip:focus-visible {
-  outline: 2px solid #fde68a;
-  outline-offset: 2px;
-}
-.news-chip-text {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  animation: news-in 0.45s ease;
+.news-chip.has-new {
+  border-color: #6d28d9;
+  background: #6d28d9;
+  color: #fff;
 }
 .news-chip-env {
   display: grid;
-  flex: none;
   place-items: center;
-  width: 26px;
-  height: 26px;
-  border-radius: 8px;
-  background: #fff;
-  color: #6d28d9;
-}
-.news-chip.has-new .news-chip-env {
-  animation: news-env 2.4s ease-in-out infinite;
-}
-@keyframes news-env {
-  0%,
-  70%,
-  100% {
-    transform: none;
-  }
-  76% {
-    transform: rotate(-12deg);
-  }
-  82% {
-    transform: rotate(10deg);
-  }
-  88% {
-    transform: rotate(-6deg);
-  }
 }
 .news-chip-count {
+  position: absolute;
+  top: -4px;
+  right: -4px;
   display: grid;
-  flex: none;
   place-items: center;
   min-width: 20px;
   height: 20px;
-  margin-left: -10px;
-  margin-top: -14px;
-  padding: 0 5px;
-  border: 2px solid #6d28d9;
+  padding: 0 4px;
+  border: 2px solid var(--surface);
   border-radius: 999px;
-  background: #a78bfa;
+  background: #5f6178;
   color: #fff;
-  font-size: 11px;
+  font-size: 10px;
   font-style: normal;
   font-weight: 800;
 }
 .news-chip-count.is-new {
-  background: #ef4444;
+  background: #b91c1c;
+}
+body:has(.news-chip) .kh-pop {
+  bottom: calc(var(--news-corner-bottom) + 56px);
 }
 .news-list {
   gap: 10px;
@@ -6022,17 +6037,6 @@ button.rk-slot:has(.av-empty)::after {
 }
 .news-list-item p {
   margin: 0;
-}
-@media (max-width: 760px) {
-  .news-chip {
-    display: inline-flex;
-  }
-  .home-news {
-    display: grid;
-    aspect-ratio: auto;
-    min-height: 150px;
-    margin: 0 0 16px;
-  }
 }
 /* ---------- 🛍 2-e'lon oynasi (yon menyu pastida): mahsulot, kurs, grant reklamasi ---------- */
 .promo-box {
@@ -6238,15 +6242,6 @@ button.promo-open:hover b {
 }
 .promo-empty p {
   color: #78716c;
-}
-.home-promo {
-  display: none;
-}
-@media (max-width: 760px) {
-  .home-promo {
-    display: grid;
-    margin: 0 0 16px;
-  }
 }
 .promo-manage {
   display: grid;
@@ -6542,6 +6537,14 @@ button.promo-open:hover b {
   padding: 18px 20px 20px;
   border-radius: 22px;
 }
+.modal-backdrop.news-inbox-backdrop {
+  place-items: end;
+  padding: 12px var(--news-corner-right) var(--news-corner-bottom) 12px;
+}
+.news-inbox-backdrop .news-list {
+  width: min(400px, 100%);
+  max-height: min(65dvh, calc(100dvh - var(--news-corner-bottom) - 12px));
+}
 .news-reader header {
   display: flex;
   align-items: center;
@@ -6803,7 +6806,6 @@ body:has(.focus-learning) .kh-pop {
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .news-chip-env,
   .news-box,
   .news-box::before,
   .news-ping::after,
@@ -12520,13 +12522,6 @@ html {
   position: relative;
   z-index: 1;
   font-size: 15px;
-}
-.quick-link small {
-  position: relative;
-  z-index: 1;
-  color: var(--muted);
-  font-size: 12.5px;
-  line-height: 1.35;
 }
 .quick-link.is-courses {
   --ql: #d1fae5;

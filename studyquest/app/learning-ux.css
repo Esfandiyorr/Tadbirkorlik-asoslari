@@ -413,9 +413,6 @@
   .home-heading {
     margin-bottom: 14px;
   }
-  .home-heading > div > p {
-    display: none;
-  }
   .welcome-hero.continue-hero {
     min-height: 0;
     padding: 18px;
@@ -448,18 +445,6 @@
     width: 54px !important;
     height: 54px !important;
     flex-shrink: 0;
-  }
-  .continue-hero-points ul {
-    display: none;
-  }
-  .profile-mobile-avatar {
-    display: block;
-    margin-bottom: 14px;
-  }
-  .profile-mobile-avatar .hero-avatar {
-    width: 100%;
-    min-height: 110px;
-    max-height: 170px;
   }
   .course-banner > .course-art {
     display: none;

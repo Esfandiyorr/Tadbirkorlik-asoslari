@@ -697,9 +697,16 @@ function AvatarWays({ board }: { board: AcademicBoard }) {
   );
 }
 
-/** Bosh sahifadagi avatar kartochkasi (mavzu rasmi o'rnida). Bosilsa — kutubxona ochiladi.
-   Avatar tanlangan bo'lsa — faqat qahramonning o'zi (yozuvsiz, kattaroq); almashtirish uchun ustiga bosiladi. */
-export function HeroAvatar({ board }: { board: AcademicBoard }) {
+/** Bosh sahifadan avatar tanlash yoki almashtirish. */
+export function HeroAvatar({
+  board,
+  compact = false,
+  mobileOnly = false,
+}: {
+  board: AcademicBoard;
+  compact?: boolean;
+  mobileOnly?: boolean;
+}) {
   const { lang } = useApp();
   const L = (uz: string, en: string, ru: string) => tr(lang, uz, en, ru);
   const [open, setOpen] = useState(false);
@@ -709,7 +716,13 @@ export function HeroAvatar({ board }: { board: AcademicBoard }) {
     <>
       <button
         type="button"
-        className={'hero-avatar' + (id ? ' has' : '')}
+        className={
+          'hero-avatar' +
+          (id ? ' has' : '') +
+          (compact ? ' is-compact' : '') +
+          (mobileOnly ? ' is-mobile-only' : '')
+        }
+        aria-haspopup="dialog"
         onClick={() => setOpen(true)}
         aria-label={
           id
@@ -738,35 +751,9 @@ export function HeroAvatar({ board }: { board: AcademicBoard }) {
             </span>
             <span className="hero-avatar-label">
               <b>{L('Avatar qo‘yish', 'Set an avatar', 'Поставить аватар')}</b>
-              <small>
-                {me?.can
-                  ? me.via === 'premium'
-                    ? L('💎 Obunangiz bor!', '💎 You have Premium!', '💎 У вас подписка!')
-                    : me.via === 'pass'
-                      ? L(
-                          '💳 Avatar huquqingiz bor!',
-                          '💳 You have an avatar pass!',
-                          '💳 У вас есть право на аватар!',
-                        )
-                      : me.via === 'allow'
-                        ? L(
-                            'Administrator ruxsat bergan 🎉',
-                            'Allowed by the administrator 🎉',
-                            'Разрешено администратором 🎉',
-                          )
-                        : L('Siz top-10 dasiz! 🎉', 'You are in the top 10! 🎉', 'Вы в топ-10! 🎉')
-                  : me?.lost
-                    ? L('📉 Avatar bo‘shatildi', '📉 Avatar freed', '📉 Аватар освобождён')
-                    : L(
-                        'Rasmlar va shartlarni ko‘rish',
-                        'See the pictures and rules',
-                        'Картинки и условия',
-                      ) +
-                      (me?.place
-                        ? ' · ' +
-                          L(`hozir ${me.place}-o‘rin`, `now #${me.place}`, `сейчас ${me.place}-е`)
-                        : '')}
-              </small>
+              {me?.lost && (
+                <small>{L('Avatar bo‘shatildi', 'Avatar freed', 'Аватар освобождён')}</small>
+              )}
             </span>
           </>
         )}

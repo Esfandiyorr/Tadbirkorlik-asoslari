@@ -23,25 +23,14 @@ import { Button } from './ui/button';
 import { TopicArt, CourseArt } from './topic-art';
 import { PushInvite } from './push-toggle';
 import { HeroAvatar, useAcademicBoard } from './avatars';
-import { NewsBox, NewsChip } from './announcements';
-import { PromoBox } from './promo';
 import { Leaderboard } from './leaderboard';
 import { CourseGate, PaidCourseGate } from './course-gate';
 import { CourseLessons } from './course-lessons';
 import { ExamPrep } from './exam';
 import { AccessChip, PointsRing, PointsBreakdown } from './points-ui';
-import { t, dateLabel } from '@/lib/i18n';
+import { t } from '@/lib/i18n';
 import { isPlayApp } from '@/lib/play-app';
-import {
-  accessOf,
-  courseTotals,
-  dueText,
-  durationText,
-  num,
-  pointHints,
-  topicPoints,
-  tr,
-} from '@/lib/points';
+import { accessOf, courseTotals, dueText, durationText, num, topicPoints, tr } from '@/lib/points';
 import type { Course, Data, Lang, Lesson, Progress } from '@/lib/types';
 
 const seenCount = (p: Progress) => Math.max(p.seen.length, p.legacySeen || 0);
@@ -136,51 +125,23 @@ function QuickLinks() {
   // 💼 Play Market ilovasida pullik xizmatlar ko'rsatilmaydi (lib/play-app.ts)
   const [play, setPlay] = useState(false);
   useEffect(() => setPlay(isPlayApp()), []);
-  const items: [string, string, [string, string, string], [string, string, string]][] = [
-    [
-      'courses',
-      '📚',
-      ['Mavzular', 'Topics', 'Темы'],
-      ['Fanni ketma-ket o‘rganish', 'Study the course step by step', 'Изучать курс по порядку'],
-    ],
-    // vaqtincha yopiq bo'lsa (administrator ochmaguncha) ham ko'rsatilmaydi
-    ...(play || !data?.servicesShown
-      ? []
-      : [
-          [
-            'services',
-            '💼',
-            ['Pullik xizmatlar', 'Paid services', 'Платные услуги'],
-            [
-              'Xizmatni tanlang va buyurtma yuboring',
-              'Choose a service and send an order',
-              'Выберите услугу и отправьте заказ',
-            ],
-          ] as [string, string, [string, string, string], [string, string, string]],
-        ]),
-    [
-      'library',
-      '📖',
-      ['Kutubxona', 'Library', 'Библиотека'],
-      ['Kitob, qo‘llanma va namunalar', 'Books, guides and templates', 'Книги, пособия и шаблоны'],
-    ],
-    [
-      'arena',
-      '🎮',
-      ['O‘yin maydoni', 'Game arena', 'Игровая арена'],
-      ['Jonli test va bellashuvlar', 'Live quiz and contests', 'Живой тест и соревнования'],
-    ],
+  const items = [
+    ['courses', '📚', t(lang, 'courses')],
+    ...(!play && data?.servicesShown
+      ? [['services', '💼', tr(lang, 'Pullik xizmatlar', 'Paid services', 'Платные услуги')]]
+      : []),
+    ['library', '📖', t(lang, 'library')],
+    ['arena', '🎮', t(lang, 'arena')],
   ];
   return (
     <nav
       className="quick-links"
       aria-label={tr(lang, 'Tezkor o‘tish', 'Quick links', 'Быстрые ссылки')}
     >
-      {items.map(([id, icon, name, hint]) => (
+      {items.map(([id, icon, name]) => (
         <a key={id} href={'#' + id} className={'quick-link is-' + id}>
           <span aria-hidden="true">{icon}</span>
-          <b>{tr(lang, ...name)}</b>
-          <small>{tr(lang, ...hint)}</small>
+          <b>{name}</b>
         </a>
       ))}
     </nav>
@@ -204,9 +165,9 @@ function LearnerHome() {
     totals = courseTotals(d),
     lessons = sortedLessons(d);
   const active = lessons.filter((l) => accessOf(d, l.id)?.state === 'score');
-  // Talabada mavzu rasmi o'rnida avatar (top-10 yoki administrator ruxsati bilan tanlanadi).
-  const avatarHome = !staff && university && hasAcademic && u?.role === 'student',
+  const avatarHome = u?.role === 'student',
     board = useAcademicBoard(avatarHome);
+  const avatar = avatarHome && !board.loading ? board.avatars.me : null;
   const progressFor = (l: Lesson) => {
     const p = d.progress?.find((x) => x.lessonId === l.id);
     return (
@@ -223,37 +184,13 @@ function LearnerHome() {
   return (
     <>
       <div className="page-heading home-heading">
-        <div>
-          <span className="eyebrow">
-            📅 {dateLabel(lang)} ·{' '}
-            {tr(
-              lang,
-              'Tadbirkorlik asoslari',
-              'Fundamentals of Entrepreneurship',
-              'Основы предпринимательства',
-            )}
-          </span>
-          <h1>
-            {hello}, {name.split(' ')[0]} <span className="wave">👋</span>
-          </h1>
-          <p>
-            {tr(
-              lang,
-              'Har kuni kichik qadam — katta natija sari. Bugun nimadan boshlaymiz?',
-              'Small steps every day lead to big results. Where shall we start today?',
-              'Маленькие шаги каждый день ведут к большим результатам. С чего начнём?',
-            )}
-          </p>
-        </div>
+        <h1>
+          {hello}, {name.split(' ')[0]}
+        </h1>
+        {avatar && (
+          <HeroAvatar board={board} compact mobileOnly={Boolean(avatar.avatar && lesson)} />
+        )}
       </div>
-      {/* Telefonda yon menyu yashirin: ikkala e'lon oynasi — joriy mavzu yonidagi ✉️ tugmada (mavzu bo'lmasa —
-          oynalar). Yangi e'lon saytga kirganda katta oynada chiqadi. */}
-      {!lesson && (
-        <>
-          <NewsBox className="home-news" />
-          <PromoBox className="home-promo" />
-        </>
-      )}
       <PushInvite />
       <CourseGate compact />
       <div className="dashboard-grid">
@@ -264,26 +201,21 @@ function LearnerHome() {
               animate={{ opacity: 1, y: 0 }}
               className="welcome-hero continue-hero"
             >
-              {avatarHome ? (
+              {avatar?.avatar ? (
                 <HeroAvatar board={board} />
               ) : (
                 <TopicArt id={lesson.id} number={lesson.order + 1} />
               )}
               <div className="continue-hero-body">
-                <div className="hero-tag-row">
-                  <span className="hero-tag">
-                    <Sparkles size={14} />
-                    {history?.status === 'started'
-                      ? tr(lang, 'Davom eting', 'Keep going', 'Продолжайте')
-                      : tr(lang, 'Joriy mavzu', 'Current topic', 'Текущая тема')}
-                  </span>
-                  <NewsChip className="home-news-chip" />
-                </div>
+                <span className="hero-tag">
+                  <Sparkles size={14} />
+                  {tr(lang, 'Joriy mavzu', 'Current topic', 'Текущая тема')}
+                </span>
                 <h2>
                   {lesson.order + 1}-{tr(lang, 'mavzu', 'topic', 'тема')}: {lesson.title}
                 </h2>
                 <div className="continue-hero-meta">
-                  <AccessChip access={access} lang={lang} />
+                  <AccessChip access={access} lang={lang} showCountdown={false} />
                   {access?.state === 'score' && access.due && (
                     <span className="hero-due">
                       <Clock3 size={14} /> {dueText(access.due, lang).date}{' '}
@@ -304,32 +236,16 @@ function LearnerHome() {
                       size={76}
                       label={tr(lang, 'Mavzu bali', 'Topic points', 'Баллы темы')}
                     />
-                    <div>
-                      <b>
-                        {pts.remaining > 0
-                          ? tr(
-                              lang,
-                              `Yana ${num(pts.remaining)} ball olishingiz mumkin`,
-                              `${num(pts.remaining)} more points available`,
-                              `Можно получить ещё ${num(pts.remaining)} баллов`,
-                            )
-                          : tr(
-                              lang,
-                              'To‘liq 100 ball! 🎉',
-                              'Full 100 points! 🎉',
-                              'Полные 100 баллов! 🎉',
-                            )}
-                      </b>
-                      <ul>
-                        {pointHints(history, lang)
-                          .slice(0, 2)
-                          .map((h) => (
-                            <li key={h.key}>
-                              {h.text} <em>+{num(h.points)}</em>
-                            </li>
-                          ))}
-                      </ul>
-                    </div>
+                    <b>
+                      {pts.remaining > 0
+                        ? tr(
+                            lang,
+                            `Yana ${num(pts.remaining)} ball`,
+                            `${num(pts.remaining)} points left`,
+                            `Ещё ${num(pts.remaining)} балла`,
+                          )
+                        : tr(lang, '100 ball', '100 points', '100 баллов')}
+                    </b>
                   </div>
                 ) : (
                   <ProgressBar value={progressFor(lesson) * 100} />
@@ -426,9 +342,9 @@ function LearnerHome() {
                   <p>
                     {tr(
                       lang,
-                      'Hozircha ball beriladigan mavzu yo‘q. O‘qituvchi yangi mavzuni ochganda shu yerda chiqadi. Bu orada o‘qilgan mavzularni takrorlang yoki o‘yinlarda bilimingizni sinang.',
-                      'No topic is earning points right now. When the teacher opens a new one it appears here. Meanwhile, revise topics or test yourself in the games.',
-                      'Сейчас нет тем с баллами. Когда преподаватель откроет новую, она появится здесь. А пока повторите темы или проверьте себя в играх.',
+                      'Hozircha ball beriladigan mavzu yo‘q.',
+                      'No topic is earning points right now.',
+                      'Сейчас нет тем с баллами.',
                     )}
                   </p>
                   <div className="row-actions">
@@ -492,11 +408,6 @@ function LearnerHome() {
         </div>
         <aside className="dashboard-aside">
           <section className="profile-summary panel">
-            {avatarHome && (
-              <div className="profile-mobile-avatar">
-                <HeroAvatar board={board} />
-              </div>
-            )}
             <div className="profile-avatar">
               {name
                 .split(' ')

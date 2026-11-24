@@ -26,7 +26,7 @@ import {
   BriefcaseBusiness,
 } from 'lucide-react';
 import { Provider, useApp } from './provider';
-import { LiveGate, NewsBox, NewsPopup } from './announcements';
+import { LiveGate, NewsBox, NewsInbox, NewsPopup } from './announcements';
 import { PromoBox } from './promo';
 import { Dashboard, CourseList, Badges, achievementsOf, navigate } from './dashboard';
 import { courseTotals, durationText, num, tr } from '@/lib/points';
@@ -449,6 +449,7 @@ export function StudyQuest() {
           </a>
         ))}
       </nav>
+      {view === 'home' && <NewsInbox />}
     </div>
   );
 }

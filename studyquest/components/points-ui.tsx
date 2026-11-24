@@ -4,7 +4,15 @@ import type { Lang, LessonAccess, ReadingHistory } from '@/lib/types';
 import { dueText, num, pointHints, topicPoints, tr } from '@/lib/points';
 
 /** 🟢 Ball beriladi (muddat bilan) · 📖 O'qish rejimi · 🔒 Yopiq */
-export function AccessChip({ access, lang }: { access?: LessonAccess; lang: Lang }) {
+export function AccessChip({
+  access,
+  lang,
+  showCountdown = true,
+}: {
+  access?: LessonAccess;
+  lang: Lang;
+  showCountdown?: boolean;
+}) {
   if (!access) return null;
   if (access.state === 'locked')
     return (
@@ -25,7 +33,7 @@ export function AccessChip({ access, lang }: { access?: LessonAccess; lang: Lang
     <span className={'access-chip score' + (due?.urgent ? ' urgent' : '')}>
       <span className="live-dot" />
       {tr(lang, 'Ball beriladi', 'Earning points', 'Начисляются баллы')}
-      {due && (
+      {due && showCountdown && (
         <>
           {' · '}
           <Clock3 size={13} />

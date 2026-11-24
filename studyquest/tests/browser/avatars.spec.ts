@@ -17,10 +17,15 @@ test('a top-ten student picks an avatar from the home card and sees it in the ra
   page,
 }) => {
   await reset(page);
+  const originalViewport = page.viewportSize()!;
+  await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/#home', { waitUntil: 'domcontentloaded' });
   const card = page.locator('.hero-avatar:visible');
   // Avatar yo'q: joy bo'sh (soya ham emas) — «Avatar qo'yish»; bosilsa rasmlar ochiladi.
   await expect(card).toContainText('Avatar qo‘yish');
+  await expect(
+    page.locator('.home-heading').getByRole('button', { name: 'Avatar qo‘yish' }),
+  ).toBeInViewport();
   await expect(card.locator('.hero-avatar-empty')).toBeVisible();
   await expect(card.locator('.av-figure')).toHaveCount(0);
   await card.click();
@@ -45,7 +50,9 @@ test('a top-ten student picks an avatar from the home card and sees it in the ra
   await expect(card).toHaveAttribute('aria-label', /Mario — almashtirish/);
   await expect(card.locator('.hero-avatar-label')).toHaveCount(0);
   await expect(card.locator('img')).toHaveAttribute('src', '/avatars/mario.webp');
+  await expect(page.getByRole('button', { name: 'Avatar qo‘yish', exact: true })).toHaveCount(0);
 
+  await page.setViewportSize(originalViewport);
   await page.goto('/#ranking', { waitUntil: 'domcontentloaded' });
   const mine = page.locator('.rk-list > li[aria-current="true"]');
   await expect(mine.locator('.rk-slot img')).toHaveAttribute('src', '/avatars/mario.webp');
