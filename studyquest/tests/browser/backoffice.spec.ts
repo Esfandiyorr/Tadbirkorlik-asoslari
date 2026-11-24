@@ -465,7 +465,12 @@ test('catalog pictures and home stickers can be changed in the shared image edit
     await student.goto('/#services', { waitUntil: 'domcontentloaded' });
     const artwork = student.locator('[data-se-visual="/visuals/services/taqdimot"]');
     await expect(artwork.locator('img')).toHaveAttribute('src', /\/api\/site\/img\//);
-    expect((await artwork.locator('..').locator('..').boundingBox())!.height).toBeLessThan(180);
+    // katalog kartasi: rasm bir xil nisbatda (16:10), nomi va «Buyurtma berish» tugmasi ko'rinadi, karta ixcham
+    const art = (await artwork.boundingBox())!;
+    expect(art.width / art.height).toBeCloseTo(1.6, 1);
+    const card = artwork.locator('..').locator('..');
+    expect((await card.boundingBox())!.height).toBeLessThan(260);
+    await expect(card.locator('.svc-card-go')).toBeVisible();
 
     await page.goto('/#admin/services', { waitUntil: 'domcontentloaded' });
     await page.getByRole('tab', { name: /Yo‘nalishlar/ }).click();

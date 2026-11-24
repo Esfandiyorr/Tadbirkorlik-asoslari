@@ -24,7 +24,7 @@ test('a top-ten student picks an avatar from the home card and sees it in the ra
   // Avatar yo'q: joy bo'sh (soya ham emas) — «Avatar qo'yish»; bosilsa rasmlar ochiladi.
   await expect(card).toContainText('Avatar qo‘yish');
   await expect(
-    page.locator('.home-heading').getByRole('button', { name: 'Avatar qo‘yish' }),
+    page.locator('.home-banner').getByRole('button', { name: 'Avatar qo‘yish' }),
   ).toBeInViewport();
   await expect(card.locator('.hero-avatar-empty')).toBeVisible();
   await expect(card.locator('.av-figure')).toHaveCount(0);

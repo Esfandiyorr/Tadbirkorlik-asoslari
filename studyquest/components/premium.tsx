@@ -1,7 +1,16 @@
 'use client';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Crown, X } from 'lucide-react';
+import {
+  BookOpen,
+  Clapperboard,
+  Crown,
+  LibraryBig,
+  Palette,
+  UserRound,
+  X,
+  type LucideIcon,
+} from 'lucide-react';
 import { useApp } from './provider';
 import { Button } from './ui/button';
 import { dueText, tr } from '@/lib/points';
@@ -233,68 +242,65 @@ export function PremiumCard({ name }: { name: string }) {
 export function PremiumPerks({ compact = false }: { compact?: boolean }) {
   const { lang } = useApp();
   const L = (uz: string, en: string, ru: string) => tr(lang, uz, en, ru);
-  if (compact)
-    // e'lonlar qutisi uchun qisqa ro'yxat
-    return (
-      <ul className="premium-perks is-compact">
-        <li>
-          🎨 {L('Profil bezagi (5 xil)', 'Profile style (5 kinds)', 'Оформление профиля (5 видов)')}
-        </li>
-        <li>🎭 {L('Avatar — top-10 siz ham', 'An avatar without top 10', 'Аватар без топ-10')}</li>
-        <li>📚 {L('Kutubxonaning 💎 manbalari', '💎 library items', '💎 материалы библиотеки')}</li>
-        <li>🎬 {L('Videolarni yuklab olish', 'Video downloads', 'Скачивание видео')}</li>
-        <li>
-          📖{' '}
-          {L(
-            'Kurs darslari (talaba bo‘lmasangiz ham)',
-            'Course lessons for non-students',
-            'Уроки курса для не-студентов',
-          )}
-        </li>
-      </ul>
-    );
+  const items: [LucideIcon, string, string][] = [
+    [
+      Palette,
+      L('Profil bezagi (5 xil)', 'Profile style (5 kinds)', 'Оформление профиля (5 видов)'),
+      L(
+        'Profil bezagi — 5 xildan tanlaysiz, reytingda ismingiz ajralib turadi',
+        'A profile style — pick one of 5, your name stands out in the leaderboard',
+        'Оформление профиля — 5 вариантов, ваше имя выделяется в рейтинге',
+      ),
+    ],
+    [
+      UserRound,
+      L('Avatar — top-10 siz ham', 'An avatar without top 10', 'Аватар без топ-10'),
+      L(
+        'Avatar — top-10 ga kirmasangiz ham (obuna davomida)',
+        'An avatar — even outside the top 10 (while subscribed)',
+        'Аватар — даже вне топ-10 (пока действует подписка)',
+      ),
+    ],
+    [
+      LibraryBig,
+      L('Kutubxonaning 💎 manbalari', '💎 library items', '💎 материалы библиотеки'),
+      L(
+        'Kutubxonadagi 💎 belgili kitob, qo‘llanma va namunalar',
+        'Books, guides and templates marked 💎 in the library',
+        'Книги, пособия и шаблоны со значком 💎 в библиотеке',
+      ),
+    ],
+    [
+      BookOpen,
+      L(
+        'Kurs darslari (talaba bo‘lmasangiz ham)',
+        'Course lessons for non-students',
+        'Уроки курса для не-студентов',
+      ),
+      L(
+        '«Tadbirkorlik asoslari» kursining barcha ochiq darslari (talaba bo‘lmaganlar uchun)',
+        'All open lessons of the “Fundamentals of Entrepreneurship” course (for non-students)',
+        'Все открытые уроки курса «Основы предпринимательства» (для не-студентов)',
+      ),
+    ],
+    [
+      Clapperboard,
+      L('Videolarni yuklab olish', 'Video downloads', 'Скачивание видео'),
+      L(
+        'Video darslarni yuklab olib, internetsiz ko‘rish',
+        'Download video lessons to watch offline',
+        'Скачивание видеоуроков для просмотра без сети',
+      ),
+    ],
+  ];
+  // compact — e'lonlar qutisi uchun qisqa ro'yxat
   return (
     <ul className={'premium-perks' + (compact ? ' is-compact' : '')}>
-      <li>
-        🎨{' '}
-        {L(
-          'Profil bezagi — 5 xildan tanlaysiz, reytingda ismingiz ajralib turadi',
-          'A profile style — pick one of 5, your name stands out in the leaderboard',
-          'Оформление профиля — 5 вариантов, ваше имя выделяется в рейтинге',
-        )}
-      </li>
-      <li>
-        🎭{' '}
-        {L(
-          'Avatar — top-10 ga kirmasangiz ham (obuna davomida)',
-          'An avatar — even outside the top 10 (while subscribed)',
-          'Аватар — даже вне топ-10 (пока действует подписка)',
-        )}
-      </li>
-      <li>
-        📚{' '}
-        {L(
-          'Kutubxonadagi 💎 belgili kitob, qo‘llanma va namunalar',
-          'Books, guides and templates marked 💎 in the library',
-          'Книги, пособия и шаблоны со значком 💎 в библиотеке',
-        )}
-      </li>
-      <li>
-        📖{' '}
-        {L(
-          '«Tadbirkorlik asoslari» kursining barcha ochiq darslari (talaba bo‘lmaganlar uchun)',
-          'All open lessons of the “Fundamentals of Entrepreneurship” course (for non-students)',
-          'Все открытые уроки курса «Основы предпринимательства» (для не-студентов)',
-        )}
-      </li>
-      <li>
-        🎬{' '}
-        {L(
-          'Video darslarni yuklab olib, internetsiz ko‘rish',
-          'Download video lessons to watch offline',
-          'Скачивание видеоуроков для просмотра без сети',
-        )}
-      </li>
+      {items.map(([Icon, short, full]) => (
+        <li key={short}>
+          <Icon size={compact ? 13 : 16} aria-hidden="true" /> {compact ? short : full}
+        </li>
+      ))}
     </ul>
   );
 }

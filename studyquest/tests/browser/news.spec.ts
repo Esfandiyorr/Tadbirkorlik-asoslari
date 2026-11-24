@@ -252,7 +252,8 @@ test('teachers close the card too, and a later game only shows its time', async 
   await expect(slide).toContainText('boshlanishiga');
   await expect(later.locator('.kh-pop')).toHaveCount(0);
   // 2 soatdan keyingi o'yin ham tuzilgan zahoti katta e'londa chiqadi (kichik kartochka — 20 daqiqa qolganda)
-  const bigLater = later.getByRole('dialog', { name: /Jonli test — bugun/ });
+  // (kechqurun 2 soatdan keyingi o'yin ertangi kunga o'tadi)
+  const bigLater = later.getByRole('dialog', { name: /Jonli test — (bugun|ertaga)/ });
   await expect(bigLater).toContainText('Boshlanishiga');
   await expect(bigLater.getByRole('button', { name: /O‘yinga kirish/ })).toHaveCount(0);
 });
@@ -415,7 +416,7 @@ test('on phones announcements stay above the bottom navigation while scrolling',
   ).newPage();
   await as(phone, 'demo-student');
   await phone.goto('/#home', { waitUntil: 'domcontentloaded' });
-  const hero = phone.locator('.continue-hero');
+  const hero = phone.locator('.home-banner');
   await expect(hero).toBeVisible();
   // E’lonlar va takliflar bitta qotirilgan tugmada.
   await expect(phone.locator('.home-news')).toHaveCount(0);

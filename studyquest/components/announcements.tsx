@@ -145,8 +145,8 @@ export function left(ms: number, lang: Lang) {
 export function liveState(g: LiveGame, now: number) {
   return now < g.open ? 'wait' : now < g.start ? 'lobby' : 'live';
 }
-const gamePath = (g: LiveGame) => 'arena/play/' + (g.type === 'yz' ? 'yozuv' : 'live');
-const gameName = (g: LiveGame, lang: Lang) =>
+export const gamePath = (g: LiveGame) => 'arena/play/' + (g.type === 'yz' ? 'yozuv' : 'live');
+export const gameName = (g: LiveGame, lang: Lang) =>
   g.type === 'yz'
     ? tr(lang, 'Yozuv marafoni', 'Typing race', 'Марафон печати')
     : tr(lang, 'Jonli test', 'Live quiz', 'Живой тест');
@@ -731,7 +731,7 @@ const localSeen = (): string[] => {
 };
 /** E'lonni shu brauzerda «o'qildi» deb belgilaydi va ochiq katta oynaga xabar beradi. */
 /** Jonli o'yinga kim kira oladi: o'qituvchi va har qanday talaba; Yozuv marafoni (yz) — faqat guruh talabalari. */
-function canJoinLive(u: { role: string; learnerType?: string } | undefined, g: LiveGame) {
+export function canJoinLive(u: { role: string; learnerType?: string } | undefined, g: LiveGame) {
   if (u?.role === 'teacher') return true;
   if (u?.role !== 'student') return false;
   return g.type !== 'yz' || u.learnerType !== 'independent';

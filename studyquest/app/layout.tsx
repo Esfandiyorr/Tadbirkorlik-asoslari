@@ -3,6 +3,7 @@ import { Provider } from '@/components/provider';
 import './globals.css';
 import './platform.css';
 import './learning-ux.css';
+import './unistay-ui.css';
 import './auth-login.css';
 export const metadata: Metadata = {
   title: 'Unistay',

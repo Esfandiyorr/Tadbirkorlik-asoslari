@@ -15,7 +15,14 @@ import {
   Target,
   Gamepad2,
   MessageSquare,
-  Sparkles,
+  Award,
+  BookOpenCheck,
+  BriefcaseBusiness,
+  GraduationCap,
+  LibraryBig,
+  Lightbulb,
+  Timer,
+  type LucideIcon,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useApp } from './provider';
@@ -24,7 +31,8 @@ import { TopicArt, CourseArt } from './topic-art';
 import { PushInvite } from './push-toggle';
 import { SiteVisual } from './site-content';
 import { visualPath } from '@/lib/site-visuals';
-import { HeroAvatar, useAcademicBoard } from './avatars';
+import { useAcademicBoard } from './avatars';
+import { HomeBanner } from './home-banner';
 import { Leaderboard } from './leaderboard';
 import { CourseGate, PaidCourseGate } from './course-gate';
 import { CourseLessons } from './course-lessons';
@@ -121,29 +129,88 @@ export function Dashboard() {
   return <LearnerHome />;
 }
 
-/** Bosh sahifadagi tezkor o'tishlar: asosiy bo'limlar bitta bosishda. */
-function QuickLinks() {
+/** Bosh sahifadagi bo'lim kartalari: Kurslar, O'yinlar, Kitoblar, Pullik xizmatlar, Chat — nomi, bitta ikonka va
+    amal. Administrator «Sayt rasmlari»da ikonka o'rniga rasm qo'yishi mumkin (SiteVisual). */
+function QuickLinks({ chat }: { chat: boolean }) {
   const { lang, data } = useApp();
   // 💼 Play Market ilovasida pullik xizmatlar ko'rsatilmaydi (lib/play-app.ts)
   const [play, setPlay] = useState(false);
   useEffect(() => setPlay(isPlayApp()), []);
-  const items = [
-    ['courses', '📚', t(lang, 'courses')],
+  const L = (uz: string, en: string, ru: string) => tr(lang, uz, en, ru);
+  const n = data?.courses.length || 0;
+  const items: {
+    id: string;
+    icon: LucideIcon;
+    emoji: string;
+    name: string;
+    hint: string;
+    go: string;
+  }[] = [
+    {
+      id: 'courses',
+      icon: BookOpen,
+      emoji: '📚',
+      name: L('Kurslar', 'Courses', 'Курсы'),
+      hint: L(`${n} ta kurs`, `${n} courses`, `Курсов: ${n}`),
+      go: L('Davom etish', 'Continue', 'Продолжить'),
+    },
+    {
+      id: 'arena',
+      icon: Gamepad2,
+      emoji: '🎮',
+      name: L('O‘yinlar', 'Games', 'Игры'),
+      hint: L('Jonli test va bellashuv', 'Live quiz and duels', 'Живой тест и дуэли'),
+      go: L('O‘ynash', 'Play', 'Играть'),
+    },
+    {
+      id: 'library',
+      icon: LibraryBig,
+      emoji: '📖',
+      name: L('Kitoblar', 'Books', 'Книги'),
+      hint: L('Qo‘llanma va namunalar', 'Guides and templates', 'Пособия и шаблоны'),
+      go: L('Ochish', 'Open', 'Открыть'),
+    },
     ...(!play && data?.servicesShown
-      ? [['services', '💼', tr(lang, 'Pullik xizmatlar', 'Paid services', 'Платные услуги')]]
+      ? [
+          {
+            id: 'services',
+            icon: BriefcaseBusiness,
+            emoji: '💼',
+            name: L('Pullik xizmatlar', 'Paid services', 'Платные услуги'),
+            hint: L(
+              'Taqdimot, dizayn, tarjima',
+              'Slides, design, translation',
+              'Слайды, дизайн, перевод',
+            ),
+            go: L('Buyurtma berish', 'Order', 'Заказать'),
+          },
+        ]
       : []),
-    ['library', '📖', t(lang, 'library')],
-    ['arena', '🎮', t(lang, 'arena')],
+    ...(chat
+      ? [
+          {
+            id: 'chat',
+            icon: MessageSquare,
+            emoji: '💬',
+            name: L('Chat', 'Chat', 'Чат'),
+            hint: L('Guruhdoshlar bilan', 'With classmates', 'С одногруппниками'),
+            go: L('Yozish', 'Write', 'Написать'),
+          },
+        ]
+      : []),
   ];
   return (
-    <nav
-      className="quick-links"
-      aria-label={tr(lang, 'Tezkor o‘tish', 'Quick links', 'Быстрые ссылки')}
-    >
-      {items.map(([id, icon, name]) => (
-        <a key={id} href={'#' + id} className={'quick-link is-' + id}>
-          <SiteVisual imageKey={visualPath('home', id)} icon={icon} />
-          <b>{name}</b>
+    <nav className="quick-links home-sections" aria-label={L('Bo‘limlar', 'Sections', 'Разделы')}>
+      {items.map((x) => (
+        <a key={x.id} href={'#' + x.id} className={'quick-link home-section is-' + x.id}>
+          <SiteVisual className="hs-icon" imageKey={visualPath('home', x.id)} icon={x.emoji}>
+            <x.icon size={22} strokeWidth={2} />
+          </SiteVisual>
+          <b>{x.name}</b>
+          <small>{x.hint}</small>
+          <span className="hs-go">
+            {x.go} <ChevronRight size={15} aria-hidden="true" />
+          </span>
         </a>
       ))}
     </nav>
@@ -169,7 +236,6 @@ function LearnerHome() {
   const active = lessons.filter((l) => accessOf(d, l.id)?.state === 'score');
   const avatarHome = u?.role === 'student',
     board = useAcademicBoard(avatarHome);
-  const avatar = avatarHome && !board.loading ? board.avatars.me : null;
   const progressFor = (l: Lesson) => {
     const p = d.progress?.find((x) => x.lessonId === l.id);
     return (
@@ -183,17 +249,16 @@ function LearnerHome() {
       : hour < 18
         ? tr(lang, 'Xayrli kun', 'Good afternoon', 'Добрый день')
         : tr(lang, 'Xayrli kech', 'Good evening', 'Добрый вечер');
+  const chat = staff || university;
   return (
     <>
-      <div className="page-heading home-heading">
-        <h1>
-          {hello}, {name.split(' ')[0]}
-        </h1>
-        {/* 🎭 avatar tanlanmagan bo'lsa — sarlavha yonida kichik taklif; tanlangan bo'lsa u asosiy kartochkada katta turadi
-            (telefonda ham) */}
-        {avatar && !(avatar.avatar && lesson) && <HeroAvatar board={board} compact />}
-      </div>
-      <PushInvite />
+      <HomeBanner
+        name={hello + ', ' + name.split(' ')[0]}
+        board={board}
+        avatarSpot={avatarHome}
+        lessons={lessons}
+        open={open}
+      />
       <CourseGate compact />
       <div className="dashboard-grid">
         <div className="dashboard-main">
@@ -201,41 +266,33 @@ function LearnerHome() {
             <motion.section
               initial={reduce ? false : { opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              className="welcome-hero continue-hero"
+              className="home-course"
             >
-              {avatar?.avatar ? (
-                <HeroAvatar board={board} />
-              ) : (
-                <TopicArt id={lesson.id} number={lesson.order + 1} />
-              )}
-              <div className="continue-hero-body">
-                <span className="hero-tag">
-                  <Sparkles size={14} />
+              <TopicArt id={lesson.id} compact />
+              <div className="hc-body">
+                <span className="hc-kicker">
+                  <BookOpen size={14} aria-hidden="true" />
                   {tr(lang, 'Joriy mavzu', 'Current topic', 'Текущая тема')}
                 </span>
                 <h2>
                   {lesson.order + 1}-{tr(lang, 'mavzu', 'topic', 'тема')}: {lesson.title}
                 </h2>
-                <div className="continue-hero-meta">
+                <div className="hc-meta">
                   <AccessChip access={access} lang={lang} showCountdown={false} />
                   {access?.state === 'score' && access.due && (
-                    <span className="hero-due">
-                      <Clock3 size={14} /> {dueText(access.due, lang).date}{' '}
+                    <span className="hc-due">
+                      <Clock3 size={14} aria-hidden="true" /> {dueText(access.due, lang).date}{' '}
                       {tr(lang, 'gacha', '', 'до')}
                     </span>
                   )}
                 </div>
-                <Button className="hero-button" onClick={() => open(lesson)}>
-                  <Play size={17} fill="currentColor" />
-                  {history?.status === 'started'
-                    ? tr(lang, 'Davom ettirish', 'Continue', 'Продолжить')
-                    : tr(lang, 'Boshlash', 'Start', 'Начать')}
-                </Button>
+              </div>
+              <div className="hc-side">
                 {hasAcademic ? (
-                  <div className="continue-hero-points">
+                  <div className="hc-points">
                     <PointsRing
                       value={pts.total}
-                      size={76}
+                      size={58}
                       label={tr(lang, 'Mavzu bali', 'Topic points', 'Баллы темы')}
                     />
                     <b>
@@ -252,10 +309,17 @@ function LearnerHome() {
                 ) : (
                   <ProgressBar value={progressFor(lesson) * 100} />
                 )}
+                <Button className="hero-button" onClick={() => open(lesson)}>
+                  <Play size={17} fill="currentColor" />
+                  {history?.status === 'started'
+                    ? tr(lang, 'Davom ettirish', 'Continue', 'Продолжить')
+                    : tr(lang, 'Boshlash', 'Start', 'Начать')}
+                </Button>
               </div>
             </motion.section>
           )}
-          <QuickLinks />
+          <QuickLinks chat={chat} />
+          <PushInvite />
           <section className="stats-grid">
             {hasAcademic && university ? (
               <div className="stat-card">
@@ -263,7 +327,9 @@ function LearnerHome() {
                   className="stat-emoji"
                   imageKey={visualPath('home', 'points')}
                   icon="🏅"
-                />
+                >
+                  <Award size={22} />
+                </SiteVisual>
                 <div>
                   <small>{tr(lang, 'Umumiy ball', 'Total points', 'Общий балл')}</small>
                   <strong>{num(u?.academicPoints ?? totals.points)}</strong>
@@ -271,11 +337,9 @@ function LearnerHome() {
               </div>
             ) : null}
             <div className="stat-card">
-              <SiteVisual
-                className="stat-emoji"
-                imageKey={visualPath('home', 'reading')}
-                icon="📖"
-              />
+              <SiteVisual className="stat-emoji" imageKey={visualPath('home', 'reading')} icon="📖">
+                <BookOpenCheck size={22} />
+              </SiteVisual>
               <div>
                 <small>{tr(lang, 'O‘qilgan mavzular', 'Topics read', 'Прочитано тем')}</small>
                 <strong>
@@ -286,11 +350,9 @@ function LearnerHome() {
             </div>
             {hasAcademic && (
               <div className="stat-card">
-                <SiteVisual
-                  className="stat-emoji"
-                  imageKey={visualPath('home', 'time')}
-                  icon="⏱️"
-                />
+                <SiteVisual className="stat-emoji" imageKey={visualPath('home', 'time')} icon="⏱️">
+                  <Timer size={22} />
+                </SiteVisual>
                 <div>
                   <small>{tr(lang, 'O‘qish vaqti', 'Reading time', 'Время чтения')}</small>
                   <strong className="stat-text">{durationText(totals.seconds, lang)}</strong>
@@ -303,7 +365,9 @@ function LearnerHome() {
                   className="stat-emoji"
                   imageKey={visualPath('home', 'scoring')}
                   icon="🎯"
-                />
+                >
+                  <Target size={22} />
+                </SiteVisual>
                 <div>
                   <small>
                     {tr(lang, 'Ball beriladigan', 'Earning points now', 'Сейчас с баллами')}
@@ -320,13 +384,8 @@ function LearnerHome() {
             <section>
               <div className="section-heading">
                 <h2>
-                  🎯{' '}
-                  {tr(
-                    lang,
-                    'Bu hafta ball beradigan mavzular',
-                    'Topics earning points this week',
-                    'Темы с баллами на этой неделе',
-                  )}
+                  <Target size={19} aria-hidden="true" />
+                  {tr(lang, 'Ball beradigan mavzular', 'Topics earning points', 'Темы с баллами')}
                 </h2>
               </div>
               {active.length ? (
@@ -345,7 +404,8 @@ function LearnerHome() {
                           </b>
                           {due && (
                             <small className={due.urgent ? 'urgent' : ''}>
-                              ⏳ {due.date} {tr(lang, 'gacha', '', 'до')} · {due.left}
+                              <Clock3 size={13} aria-hidden="true" /> {due.date}{' '}
+                              {tr(lang, 'gacha', '', 'до')} · {due.left}
                             </small>
                           )}
                         </span>
@@ -356,7 +416,9 @@ function LearnerHome() {
                 </div>
               ) : (
                 <div className="soft-empty panel">
-                  <span>📚</span>
+                  <span>
+                    <BookOpen size={26} aria-hidden="true" />
+                  </span>
                   <p>
                     {tr(
                       lang,
@@ -379,7 +441,10 @@ function LearnerHome() {
           )}
           <section>
             <div className="section-heading">
-              <h2>📚 {tr(lang, 'Mening fanim', 'My course', 'Мой курс')}</h2>
+              <h2>
+                <GraduationCap size={19} aria-hidden="true" />
+                {tr(lang, 'Mening kurslarim', 'My courses', 'Мои курсы')}
+              </h2>
               <button onClick={() => navigate('courses')}>
                 {tr(lang, 'Barcha mavzular', 'All topics', 'Все темы')}
                 <ChevronRight size={15} />
@@ -451,14 +516,6 @@ function LearnerHome() {
                   unit="%"
                   label={tr(lang, 'Kurs o‘zlashtirilishi', 'Course progress', 'Прогресс курса')}
                 />
-                <small className="ring-caption">
-                  {tr(
-                    lang,
-                    'Fan bo‘yicha o‘zlashtirish, %',
-                    'Course mastery, %',
-                    'Освоение курса, %',
-                  )}
-                </small>
               </>
             )}
             <div className="profile-quick">
@@ -480,7 +537,9 @@ function LearnerHome() {
           </section>
           <AchievementsPreview />
           <div className="study-tip">
-            <span>💡</span>
+            <span>
+              <Lightbulb size={20} aria-hidden="true" />
+            </span>
             <p>
               {tr(
                 lang,

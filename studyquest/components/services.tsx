@@ -10,15 +10,29 @@ import {
 } from 'react';
 import { createPortal } from 'react-dom';
 import {
+  BarChart3,
+  Bot,
+  CreditCard,
   Download,
   ExternalLink,
+  FileCheck2,
+  Gem,
+  Globe,
   Lightbulb,
+  LockKeyhole,
+  Package,
+  Palette,
   Paperclip,
+  PencilLine,
+  Plus,
   Search,
   Send,
   Settings2,
+  ShoppingCart,
+  Star,
   Trash2,
   X,
+  type LucideIcon,
 } from 'lucide-react';
 import { useApp } from './provider';
 import { Button } from './ui/button';
@@ -70,9 +84,9 @@ const IDEA_KEY = 'sq-svc-idea';
 type Tab = 'order' | 'mine';
 const TABS: Tab[] = ['order', 'mine'];
 
-const STEPS: [string, Tri, Tri][] = [
+const STEPS: [LucideIcon, Tri, Tri][] = [
   [
-    '📝',
+    PencilLine,
     ['Buyurtma bering', 'Place an order', 'Оформите заказ'],
     [
       'Nima kerakligini va muddatni yozing, kerak bo‘lsa fayl biriktiring. Narx so‘ralmaydi.',
@@ -81,7 +95,7 @@ const STEPS: [string, Tri, Tri][] = [
     ],
   ],
   [
-    '🤖',
+    Bot,
     ['Sun’iy intellekt tayyorlaydi', 'Prepared with AI', 'Готовится с помощью ИИ'],
     [
       'Buyurtmangiz sun’iy intellekt yordamida tayyorlanadi. Savol bo‘lsa, yozishmada so‘raymiz.',
@@ -90,7 +104,7 @@ const STEPS: [string, Tri, Tri][] = [
     ],
   ],
   [
-    '📥',
+    FileCheck2,
     ['Natijani oling', 'Get the result', 'Получите результат'],
     [
       'Tayyor ish havolasi keladi — ishni ko‘rib chiqasiz, kerak bo‘lsa tuzatish so‘raysiz.',
@@ -99,7 +113,7 @@ const STEPS: [string, Tri, Tri][] = [
     ],
   ],
   [
-    '💳',
+    CreditCard,
     ['To‘lov — keyin', 'Pay afterwards', 'Оплата — потом'],
     [
       'Istalgan summani karta orqali to‘lab, chek skrinshotini yuklaysiz — administrator qabul qilgach fayllarni yuklab olasiz.',
@@ -108,7 +122,7 @@ const STEPS: [string, Tri, Tri][] = [
     ],
   ],
   [
-    '⭐',
+    Star,
     ['Qabul va baho', 'Accept and rate', 'Приёмка и оценка'],
     [
       'Natija yoqsa, qabul qilib baho qo‘yasiz.',
@@ -214,18 +228,19 @@ export function Services({ sub = '' }: { sub?: string }) {
       (!group || k.group === group) &&
       (!needle || (tr(lang, ...k.name) + ' ' + tr(lang, ...k.text)).toLowerCase().includes(needle)),
   );
-  const tabs: [Tab, string, string, number][] = [
-    ['order', '🛒', L('Buyurtma berish', 'Order', 'Заказать'), 0],
-    ['mine', '📦', L('Buyurtmalarim', 'My orders', 'Мои заказы'), openOrders],
+  const tabs: [Tab, LucideIcon, string, number][] = [
+    ['order', ShoppingCart, L('Buyurtma berish', 'Order', 'Заказать'), 0],
+    ['mine', Package, L('Buyurtmalarim', 'My orders', 'Мои заказы'), openOrders],
   ];
   return (
     <>
       <header className="page-heading svc-hero">
         <div className="svc-hero-text">
           <span className="eyebrow">
-            🤖 {L('SUN’IY INTELLEKT YORDAMIDA', 'WITH THE HELP OF AI', 'С ПОМОЩЬЮ ИИ')}
+            <Bot size={14} aria-hidden="true" />{' '}
+            {L('SUN’IY INTELLEKT YORDAMIDA', 'WITH THE HELP OF AI', 'С ПОМОЩЬЮ ИИ')}
           </span>
-          <h1>💼 {L('Pullik xizmatlar', 'Paid services', 'Платные услуги')}</h1>
+          <h1>{L('Pullik xizmatlar', 'Paid services', 'Платные услуги')}</h1>
           <p>
             {L(
               'Nima kerakligini yozing — taqdimot, biznes-reja, dizayn, tarjima va boshqa ishlar sun’iy intellekt yordamida tayyorlanib, shu yerga keladi.',
@@ -253,7 +268,8 @@ export function Services({ sub = '' }: { sub?: string }) {
           </ul>
           <div className="page-heading-side">
             <Button onClick={() => (waiting ? setSoon([]) : go('order'))}>
-              ➕ {L('Buyurtma berish', 'Place an order', 'Сделать заказ')}
+              <Plus size={16} aria-hidden="true" />{' '}
+              {L('Buyurtma berish', 'Place an order', 'Сделать заказ')}
             </Button>
             {admin && (
               <Button
@@ -270,10 +286,18 @@ export function Services({ sub = '' }: { sub?: string }) {
           </div>
         </div>
         <div className="svc-hero-art" aria-hidden="true">
-          <span>📊</span>
-          <span>🎨</span>
-          <span>🌐</span>
-          <span>🤖</span>
+          <span>
+            <BarChart3 size={34} />
+          </span>
+          <span>
+            <Palette size={34} />
+          </span>
+          <span>
+            <Globe size={34} />
+          </span>
+          <span>
+            <Bot size={34} />
+          </span>
         </div>
       </header>
 
@@ -373,7 +397,9 @@ export function Services({ sub = '' }: { sub?: string }) {
       {view?.signedIn && !admin && !trial && (
         // 💎 Premium haqida qisqa: nimalar ochiladi
         <div className="svc-premium">
-          <span aria-hidden="true">💎</span>
+          <span aria-hidden="true">
+            <Gem size={18} />
+          </span>
           <p>
             {L(
               'Premium obuna: profil bezagi, avatar, kutubxonadagi 💎 manbalar va video darslarni yuklab olish — istalgan summada.',
@@ -398,14 +424,14 @@ export function Services({ sub = '' }: { sub?: string }) {
         </p>
       )}
       <nav className="mk-tabs" aria-label={L('Bo‘limlar', 'Sections', 'Разделы')}>
-        {tabs.map(([id, icon, name, n]) => (
+        {tabs.map(([id, Icon, name, n]) => (
           <a
             key={id}
             href={'#services' + (id === 'order' ? '' : '/' + id)}
             className={tab === id ? 'on' : ''}
             aria-current={tab === id ? 'page' : undefined}
           >
-            <span aria-hidden="true">{icon}</span> {name}
+            <Icon size={16} aria-hidden="true" /> {name}
             {!!n && <em>{n}</em>}
           </a>
         ))}
@@ -435,9 +461,9 @@ export function Services({ sub = '' }: { sub?: string }) {
                           'Выберите услугу и опишите задачу.',
                         )
                       : L(
-                          'Kartani bosing — nima kerakligini va summani yozasiz, buyurtmangiz sun’iy intellekt yordamida tayyorlanadi.',
-                          'Tap a card — describe what you need and your budget; your order is prepared with the help of AI.',
-                          'Нажмите на карточку — опишите, что нужно, и бюджет; заказ подготовят с помощью ИИ.',
+                          'Xizmatni tanlang va nima kerakligini yozing — narx so‘ralmaydi.',
+                          'Choose a service and describe what you need — no price is asked.',
+                          'Выберите услугу и опишите задачу — цену не спрашиваем.',
                         )}
                 </p>
               </div>
@@ -565,13 +591,16 @@ export function Services({ sub = '' }: { sub?: string }) {
       {view && tab === 'mine' && (
         <section className="svc-mine" aria-labelledby="svc-mine-h">
           <h2 id="svc-mine-h" className="svc-h2">
-            📦 {L('Mening buyurtmalarim', 'My orders', 'Мои заказы')}
+            <Package size={20} aria-hidden="true" />{' '}
+            {L('Mening buyurtmalarim', 'My orders', 'Мои заказы')}
           </h2>
           {!view.signedIn ? (
             <SignInNote />
           ) : !orders.length ? (
             <div className="mk-empty">
-              <span aria-hidden="true">🛒</span>
+              <span aria-hidden="true">
+                <ShoppingCart size={30} />
+              </span>
               <b>{L('Hali buyurtma bermagansiz', 'No orders yet', 'Заказов пока нет')}</b>
               <p className="muted">
                 {L(
@@ -581,7 +610,8 @@ export function Services({ sub = '' }: { sub?: string }) {
                 )}
               </p>
               <Button onClick={() => (waiting ? setSoon([]) : go('order'))}>
-                ➕ {L('Buyurtma berish', 'Place an order', 'Сделать заказ')}
+                <Plus size={16} aria-hidden="true" />{' '}
+                {L('Buyurtma berish', 'Place an order', 'Сделать заказ')}
               </Button>
             </div>
           ) : (
@@ -643,7 +673,9 @@ function SignInNote() {
   const { lang, setLogin } = useApp();
   return (
     <div className="mk-empty">
-      <span aria-hidden="true">🔐</span>
+      <span aria-hidden="true">
+        <LockKeyhole size={30} />
+      </span>
       <b>{tr(lang, 'Hisobingizga kiring', 'Please sign in', 'Войдите в аккаунт')}</b>
       <Button onClick={() => setLogin(true)}>{tr(lang, 'Kirish', 'Sign in', 'Войти')}</Button>
     </div>
@@ -659,10 +691,10 @@ function HowItWorks({ trial }: { trial: boolean }) {
         {L('Qanday ishlaydi?', 'How it works', 'Как это работает')}
       </h2>
       <ol className="svc-steps">
-        {STEPS.map(([icon, name, text], i) => (
+        {STEPS.map(([Icon, name, text], i) => (
           <li key={i}>
             <span className="svc-step-n" aria-hidden="true">
-              {icon}
+              <Icon size={22} />
               <em>{i + 1}</em>
             </span>
             <b>{tr(lang, ...name)}</b>

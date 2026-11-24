@@ -11,7 +11,7 @@ test('responsive dashboard, search, theme and three interface languages', async 
   page.on('pageerror', (e) => errors.push(e.message));
   await login(page.request, 'student');
   await page.goto('/', { waitUntil: 'domcontentloaded' });
-  await expect(page.locator('.welcome-hero')).toBeVisible();
+  await expect(page.locator('.home-banner')).toBeVisible();
   await page.screenshot({ path: 'tests/artifacts/student-desktop.png', fullPage: true });
   await page.selectOption('.language-switch', 'ru');
   await expect(page.locator('html')).toHaveAttribute('lang', 'ru');
