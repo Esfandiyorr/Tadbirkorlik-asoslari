@@ -93,18 +93,18 @@ const STEPS: [string, Tri, Tri][] = [
     '📥',
     ['Natijani oling', 'Get the result', 'Получите результат'],
     [
-      'Tayyor ish shu yerga keladi — yuklab olasiz, kerak bo‘lsa tuzatish so‘raysiz.',
-      'The finished work arrives here — download it or ask for changes.',
-      'Готовая работа придёт сюда — скачайте её или попросите правки.',
+      'Tayyor ish havolasi keladi — ishni ko‘rib chiqasiz, kerak bo‘lsa tuzatish so‘raysiz.',
+      'A link to the finished work arrives — view it and ask for changes if needed.',
+      'Придёт ссылка на готовую работу — посмотрите её и при необходимости попросите правки.',
     ],
   ],
   [
     '💳',
     ['To‘lov — keyin', 'Pay afterwards', 'Оплата — потом'],
     [
-      'Ish tayyor bo‘lgach istalgan summani karta orqali to‘laysiz va chek skrinshotini yuklaysiz.',
-      'When the work is ready, pay any amount by card and upload a screenshot of the receipt.',
-      'Когда работа готова, оплатите любую сумму на карту и загрузите скриншот чека.',
+      'Istalgan summani karta orqali to‘lab, chek skrinshotini yuklaysiz — administrator qabul qilgach fayllarni yuklab olasiz.',
+      'Pay any amount by card and upload a receipt screenshot — once the administrator accepts it, you download the files.',
+      'Оплатите любую сумму на карту и загрузите скриншот чека — после подтверждения администратором скачаете файлы.',
     ],
   ],
   [
@@ -675,9 +675,9 @@ function HowItWorks({ trial }: { trial: boolean }) {
                   )
                 : trial && i === 3
                   ? L(
-                      `Sinov tarifi: ish tayyor bo‘lgach ${formatSum(TRIAL_PRICE)} to‘laysiz va chek skrinshotini yuklaysiz.`,
-                      `Trial tariff: when the work is ready, pay ${formatSum(TRIAL_PRICE)} and upload a receipt screenshot.`,
-                      `Пробный тариф: когда работа готова, оплатите ${formatSum(TRIAL_PRICE)} и загрузите скриншот чека.`,
+                      `Sinov tarifi: ${formatSum(TRIAL_PRICE)} to‘lab, chek skrinshotini yuklaysiz — qabul qilingach fayllarni yuklab olasiz.`,
+                      `Trial tariff: pay ${formatSum(TRIAL_PRICE)} and upload a receipt screenshot — once accepted, you download the files.`,
+                      `Пробный тариф: оплатите ${formatSum(TRIAL_PRICE)} и загрузите скриншот чека — после подтверждения скачаете файлы.`,
                     )
                   : tr(lang, ...text)}
             </small>
@@ -1513,13 +1513,26 @@ function OrderCard({
       )}
 
       {(outs.length > 0 || o.link) && (
-        <div className="svc-result">
+        <div className={'svc-result' + (o.dl ? '' : ' is-locked')}>
           <b>📥 {L('Natija', 'Result', 'Результат')}</b>
-          {!!outs.length && <FileList files={outs} o={o.uk + '/' + o.id} />}
           {o.link && (
             <a className="svc-link" href={o.link} target="_blank" rel="noopener noreferrer">
-              <ExternalLink size={15} /> {L('Havolani ochish', 'Open the link', 'Открыть ссылку')}
+              <ExternalLink size={15} />{' '}
+              {o.dl
+                ? L('Havolani ochish', 'Open the link', 'Открыть ссылку')
+                : L('👁 Ishni ko‘rish', '👁 View the work', '👁 Посмотреть работу')}
             </a>
+          )}
+          {!!outs.length && <FileList files={outs} o={o.uk + '/' + o.id} locked={!o.dl} />}
+          {!o.dl && (
+            <small className="svc-lock-note">
+              🔒{' '}
+              {L(
+                'Ishni havola orqali ko‘rib chiqing. Fayllarni yuklab olish to‘lov qabul qilingach ochiladi.',
+                'View the work via the link. Downloading the files opens once your payment is accepted.',
+                'Посмотрите работу по ссылке. Скачивание файлов откроется после подтверждения оплаты.',
+              )}
+            </small>
           )}
           {o.status === 'done' && (
             <small className="muted">
@@ -1750,10 +1763,13 @@ export function FileList({
   files,
   o,
   remove,
+  locked = false,
 }: {
   files: OrderFile[];
   o: string;
   remove?: (f: OrderFile) => Promise<void>;
+  /** 🔒 to'lovgacha: fayl nomi ko'rinadi, yuklab olish yopiq */
+  locked?: boolean;
 }) {
   const { lang, request, toast } = useApp();
   const L = (uz: string, en: string, ru: string) => tr(lang, uz, en, ru);
@@ -1791,9 +1807,20 @@ export function FileList({
             {FILE_TYPES[f.ext].icon} {f.name}
             <small> · {fileSize(f.size)}</small>
           </span>
-          <Button size="sm" variant="outline" disabled={!!state[f.id]} onClick={() => void get(f)}>
-            <Download size={14} /> {state[f.id] || L('Yuklab olish', 'Download', 'Скачать')}
-          </Button>
+          {locked ? (
+            <span className="svc-file-lock">
+              🔒 {L('To‘lovdan keyin', 'After payment', 'После оплаты')}
+            </span>
+          ) : (
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={!!state[f.id]}
+              onClick={() => void get(f)}
+            >
+              <Download size={14} /> {state[f.id] || L('Yuklab olish', 'Download', 'Скачать')}
+            </Button>
+          )}
           {remove && (
             <Button
               size="sm"

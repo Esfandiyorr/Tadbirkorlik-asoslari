@@ -197,7 +197,10 @@ it('the whole path: order (no price) → «prepared with AI» → chat → resul
   await adminServices(admin, { op: 'status', uk, id, status: 'review' }, NOW + 3000);
   mine = (await servicesView(ali, NOW)).orders!;
   expect(mine[0]).toMatchObject({ status: 'review', deliveredAt: NOW + 3000 });
-  expect((await serviceChunk(ali, uk + '/' + id, out, 0)).bytes.equals(result)).toBe(true);
+  // 🔒 to'lovgacha buyurtmachi ishni faqat havola orqali ko'radi: tayyor fayl yuklanmaydi (administratorga ochiq)
+  expect(mine[0].dl).toBeUndefined();
+  await expect(serviceChunk(ali, uk + '/' + id, out, 0)).rejects.toThrow('to‘lov qabul qilingach');
+  expect((await serviceChunk(admin, uk + '/' + id, out, 0)).bytes.equals(result)).toBe(true);
   // endi to'lov: istalgan summa + chek; natija yuborilgach buyurtmachi o'zi bekor qila olmaydi
   await expect(manageServices(ali, { op: 'paid', id, amount: 500, note: '' })).rejects.toThrow();
   // ✖ administrator chekni qabul qilmasa: chek va summa olib tashlanadi, ish o'z joyida, chek qayta so'raladi
@@ -236,7 +239,17 @@ it('the whole path: order (no price) → «prepared with AI» → chat → resul
   });
   expect(mine[0].payOk).toBeUndefined();
   await adminServices(admin, { op: 'confirm', uk, id }, NOW + 5000);
-  expect((await servicesView(ali, NOW)).orders![0].payOk).toBe(NOW + 5000);
+  expect((await servicesView(ali, NOW)).orders![0]).toMatchObject({ payOk: NOW + 5000, dl: true });
+  // 📥 to'lov qabul qilindi — yuklab olish ochildi; administrator xohlasa yopib, qayta ocha oladi
+  expect((await serviceChunk(ali, uk + '/' + id, out, 0)).bytes.equals(result)).toBe(true);
+  await adminServices(admin, { op: 'download', uk, id, open: false });
+  expect((await servicesView(ali, NOW)).orders![0].dl).toBeUndefined();
+  await expect(serviceChunk(ali, uk + '/' + id, out, 0)).rejects.toThrow('to‘lov');
+  await expect(adminServices(ali, { op: 'download', uk, id, open: true })).rejects.toThrow(
+    'Administrator',
+  );
+  await adminServices(admin, { op: 'download', uk, id, open: true });
+  expect((await serviceChunk(ali, uk + '/' + id, out, 0)).bytes.equals(result)).toBe(true);
   await expect(
     manageServices(ali, { op: 'begin', id, name: 'chek2.png', size: 12, side: 'pay' }),
   ).rejects.toThrow('tasdiqlangan');

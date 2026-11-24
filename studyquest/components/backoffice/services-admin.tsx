@@ -603,14 +603,24 @@ function AdminChat({
                       void act(
                         { op: 'confirm' },
                         'confirm',
-                        L('To‘lov qabul qilindi.', 'Payment accepted.', 'Оплата принята.'),
+                        product
+                          ? L('To‘lov qabul qilindi.', 'Payment accepted.', 'Оплата принята.')
+                          : L(
+                              'To‘lov qabul qilindi — mijozga yuklab olish ochildi.',
+                              'Payment accepted — download opened for the client.',
+                              'Оплата принята — заказчику открыто скачивание.',
+                            ),
                       )
                     }
                   >
                     ✅{' '}
                     {product
                       ? L('Qabul qilish — ochish', 'Accept — unlock', 'Принять — открыть')
-                      : L('Qabul qilish', 'Accept', 'Принять')}
+                      : L(
+                          'Qabul qilish — yuklashni ochish',
+                          'Accept — open download',
+                          'Принять — открыть скачивание',
+                        )}
                   </Button>
                 )}
                 <Button
@@ -781,6 +791,59 @@ function AdminChat({
             <a className="svc-link" href={o.link} target="_blank" rel="noopener noreferrer">
               <ExternalLink size={14} /> {o.link}
             </a>
+          )}
+          <small className="muted">
+            👁{' '}
+            {L(
+              'Mijoz to‘lovgacha ishni faqat shu havola orqali ko‘radi — Google Drive, Canva va h.k.da «faqat ko‘rish» huquqi bilan ulashing. Fayllar to‘lov qabul qilingach yuklab olinadi.',
+              'Before paying, the client only views the work via this link — share it as “view only” in Google Drive, Canva, etc. Files can be downloaded once the payment is accepted.',
+              'До оплаты заказчик видит работу только по этой ссылке — поделитесь ею в Google Drive, Canva и т. п. с правом «только просмотр». Файлы можно скачать после подтверждения оплаты.',
+            )}
+          </small>
+          {!!outs.length && (
+            <div className={'svc-dl-state' + (o.dl ? ' is-open' : '')}>
+              <span>
+                {o.dl
+                  ? '📥 ' +
+                    L(
+                      'Mijoz fayllarni yuklab ola oladi',
+                      'The client can download the files',
+                      'Заказчик может скачать файлы',
+                    )
+                  : '🔒 ' +
+                    L(
+                      'Yuklab olish yopiq — to‘lov qabul qilingach ochiladi',
+                      'Download is closed — it opens when the payment is accepted',
+                      'Скачивание закрыто — откроется после подтверждения оплаты',
+                    )}
+              </span>
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={busyNow}
+                onClick={() =>
+                  void act(
+                    { op: 'download', open: !o.dl },
+                    'download',
+                    o.dl
+                      ? L(
+                          '🔒 Yuklab olish yopildi.',
+                          '🔒 Download closed.',
+                          '🔒 Скачивание закрыто.',
+                        )
+                      : L(
+                          '📥 Yuklab olish ochildi — mijozga bildirishnoma ketdi.',
+                          '📥 Download opened — the client was notified.',
+                          '📥 Скачивание открыто — заказчик уведомлён.',
+                        ),
+                  )
+                }
+              >
+                {o.dl
+                  ? L('🔒 Yuklashni yopish', '🔒 Close download', '🔒 Закрыть скачивание')
+                  : L('📥 Yuklashni ochish', '📥 Open download', '📥 Открыть скачивание')}
+              </Button>
+            </div>
           )}
           {o.status !== 'done' && (
             <div className="svc-row">

@@ -14311,3 +14311,37 @@ html {
   width: 26px;
   height: 26px;
 }
+
+/* 🔒 pullik xizmat natijasi: to'lovgacha faqat havola orqali ko'rish, fayllar to'lovdan keyin */
+.svc-result.is-locked .svc-link {
+  font-weight: 700;
+}
+.svc-lock-note {
+  display: block;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: var(--soft-violet);
+  color: var(--text);
+  font-size: 13px;
+}
+.svc-file-lock {
+  flex: none;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 600;
+}
+.svc-dl-state {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+  font-size: 13.5px;
+}
+.svc-dl-state.is-open {
+  border-style: solid;
+  border-color: color-mix(in srgb, #16a34a 45%, var(--border));
+}

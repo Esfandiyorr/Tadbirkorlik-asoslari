@@ -99,6 +99,8 @@ type Stored = {
   granted?: number;
   /** 💎 Premium qancha kunga ochilgan */
   days?: number;
+  /** 📥 natija fayllarini yuklab olish: administrator ochgan/yopgan (yo'q bo'lsa — to'lov qabul qilinganda ochiq) */
+  dlOpen?: boolean;
   deliveredAt?: number;
   doneAt?: number;
   reason?: string;
@@ -125,6 +127,9 @@ const kindName = (kind: string) => serviceKind(kind)?.name[0] || kind;
 /** Eski yozuvlar (new/quoted/open/assigned/paid) ham «tayyorlanmoqda» bo'lib ko'rinadi. */
 const statusOf = (s: Stored): ServiceStatus =>
   s.status === 'review' || s.status === 'done' || s.status === 'cancel' ? s.status : 'work';
+/** 📥 Natija fayllarini buyurtmachi yuklab ola oladimi: to'lovgacha faqat havola orqali ko'radi, to'lov qabul
+    qilingach (yoki administrator «Yuklashni ochish»ni bossa) yuklab oladi. */
+const canDownload = (s: Stored) => s.dlOpen ?? !!s.payOk;
 
 /* ---------- 📖 o'qish ---------- */
 type Marks = Record<string, Record<string, number>>;
@@ -260,6 +265,7 @@ function toOrder(uk: string, id: string, s: Stored): ServiceOrder {
     ...(s.payOk ? { payOk: s.payOk } : {}),
     ...(s.granted ? { granted: s.granted } : {}),
     ...(s.days ? { days: s.days } : {}),
+    ...(canDownload(s) ? { dl: true } : {}),
     ...(s.deliveredAt ? { deliveredAt: s.deliveredAt } : {}),
     ...(s.doneAt ? { doneAt: s.doneAt } : {}),
     ...(s.reason ? { reason: s.reason } : {}),
@@ -803,6 +809,8 @@ const adminInput = z.discriminatedUnion('op', [
     })
     .strict(),
   z.object({ op: z.literal('link'), uk: ukField, id: z.string(), link: linkField }).strict(),
+  // 📥 natija fayllarini yuklab olishni ochish yoki yopish
+  z.object({ op: z.literal('download'), uk: ukField, id: z.string(), open: z.boolean() }).strict(),
   z.object({ op: z.literal('cancel'), uk: ukField, id: z.string(), reason: text(3, 300) }).strict(),
   z.object({ op: z.literal('msg'), uk: ukField, id: z.string(), text: text(1, 1000) }).strict(),
   z.object({ op: z.literal('remove'), uk: ukField, id: z.string() }).strict(),
@@ -901,9 +909,13 @@ export async function adminServices(a: Actor, raw: unknown, now = Date.now()) {
   if (v.op === 'confirm' && s.trial) {
     await editOrder(path, (current) => {
       check(hasTrialDebt(current), 409, 'Bu buyurtmada tasdiqlanadigan sinov qarzi yo‘q.');
-      return { ...current, payOk: now, paidAt: current.paidAt || now, upd: now };
+      return { ...current, payOk: now, paidAt: current.paidAt || now, dlOpen: true, upd: now };
     });
-    await notify([s.uid], '✅ Sinov qarzi to‘landi', s.title + ' · ' + formatSum(TRIAL_PRICE));
+    await notify(
+      [s.uid],
+      '✅ Sinov qarzi to‘landi',
+      s.title + ' · ' + formatSum(TRIAL_PRICE) + ' — natijani yuklab olish ochildi.',
+    );
   } else if (v.op === 'confirm') {
     check(st !== 'cancel', 409, 'Buyurtma bekor qilingan.');
     check(!s.payOk, 409, 'To‘lov allaqachon tasdiqlangan.');
@@ -911,6 +923,8 @@ export async function adminServices(a: Actor, raw: unknown, now = Date.now()) {
       [path + '/payOk']: now,
       [path + '/paidAt']: s.paidAt || now,
       [path + '/upd']: now,
+      // 📥 to'lov qabul qilindi — tayyor ish fayllarini yuklab olish ochiladi
+      ...(!isProduct(s.kind) ? { [path + '/dlOpen']: true } : {}),
     });
     const by = (a.name || a.id).slice(0, 60);
     if (isProduct(s.kind) && !s.granted) {
@@ -930,7 +944,9 @@ export async function adminServices(a: Actor, raw: unknown, now = Date.now()) {
       isProduct(s.kind) && !s.granted
         ? '✅ ' + PRODUCTS[s.kind].name[0] + ' — ochildi'
         : '✅ To‘lov tasdiqlandi',
-      s.title + (s.budget ? ' · ' + formatSum(s.budget) : ''),
+      s.title +
+        (s.budget ? ' · ' + formatSum(s.budget) : '') +
+        (isProduct(s.kind) ? '' : ' — natijani yuklab olish ochildi.'),
       s.kind === 'yakuniy-test' ? '/#course/' + course.id + '/exam' : undefined,
     );
   } else if (v.op === 'status') {
@@ -956,11 +972,24 @@ export async function adminServices(a: Actor, raw: unknown, now = Date.now()) {
       };
     });
     if (v.status === 'review')
-      await notify([s.uid], '📥 Buyurtmangiz tayyor', s.title + ' — yuklab oling va tekshiring.');
+      await notify(
+        [s.uid],
+        '📥 Buyurtmangiz tayyor',
+        s.title +
+          (canDownload(s)
+            ? ' — yuklab oling va tekshiring.'
+            : ' — havola orqali ko‘ring; yuklab olish to‘lovdan keyin ochiladi.'),
+      );
     if (v.status === 'done') await notify([s.uid], '✅ Buyurtma yakunlandi', s.title);
   } else if (v.op === 'link') {
     Object.assign(patch, { [path + '/link']: v.link || null, [path + '/upd']: now });
     await siteUpdate(patch);
+  } else if (v.op === 'download') {
+    check(!isProduct(s.kind), 400, 'Bu buyurtmada yuklanadigan natija yo‘q.');
+    Object.assign(patch, { [path + '/dlOpen']: v.open, [path + '/upd']: now });
+    await siteUpdate(patch);
+    if (v.open)
+      await notify([s.uid], '📥 Yuklab olish ochildi', s.title + ' — tayyor ishni yuklab oling.');
   } else if (v.op === 'reject') {
     check(st !== 'cancel', 409, 'Buyurtma bekor qilingan.');
     check(!s.payOk, 409, 'To‘lov allaqachon tasdiqlangan.');
@@ -1177,6 +1206,12 @@ export async function serviceChunk(a: Actor, o: string, fid: string, n: number) 
   check(ID.test(fid) && Number.isInteger(n) && n >= 0 && n < 64, 404, 'Fayl topilmadi.');
   const f = s!.files?.[fid];
   check(f?.ready && n < f.chunks, 404, 'Fayl topilmadi.');
+  // 🔒 tayyor ish fayli: buyurtmachiga to'lov qabul qilingach (administrator ochgach) beriladi
+  if (f!.side === 'out' && !canDownload(s!) && !(await isAdminActor(a)))
+    throw new ApiError(
+      403,
+      'Yuklab olish to‘lov qabul qilingach ochiladi. Hozircha ishni havola orqali ko‘ring.',
+    );
   const data = await siteGet<string>(dataPath(uk!, fid) + '/' + n);
   check(typeof data === 'string', 404, 'Fayl topilmadi.');
   return { bytes: Buffer.from(data!, 'base64'), mime: FILE_TYPES[f!.ext].mime };

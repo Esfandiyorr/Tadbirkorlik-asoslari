@@ -53,7 +53,11 @@ For Firebase-backed development, copy `.env.example` to `.env.local`, supply you
     and up to 3 attachments of 10 MB — **no price is asked** (cards show only the usual timing). Course papers, theses, essays and articles are **assistance only** (outline,
     sources, editing, formatting) — the student writes the text.
   - **📦 My orders** — the 🤖 «being prepared» status with a progress line (Order → In progress → Result → Accept),
-    **payment only after the result is sent**: the card number (payment instructions), «How much did you pay?» (any
+    **the result as a view-only link until payment**: the administrator uploads the files and adds a link («👁 View
+    the work» — share it as view-only in Google Drive, Canva, …); result files show 🔒 «After payment» and the server
+    refuses their chunks (`serviceChunk`) until the payment is accepted (`dlOpen ?? payOk`; «✅ Accept — open
+    download» sets `dlOpen`, and the chat has «📥 Open / 🔒 Close download» — `op: 'download'`); **payment only after
+    the result is sent**: the card number (payment instructions), «How much did you pay?» (any
     amount from 1 000 so'm), a **🧾 receipt screenshot** (chosen and shrunk like the old logo upload, stored as the
     order's private «pay» file) and «📤 Send the receipt»; the administrator accepts it in the chat. Also the chat
     with the administrator, the result to download, «Needs changes» (back to work) or acceptance with a 1–5 star

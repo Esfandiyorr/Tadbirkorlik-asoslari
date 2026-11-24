@@ -490,6 +490,9 @@ export type ServiceOrder = {
   granted?: number;
   /** 💎 Premium qancha kunga ochilgan */
   days?: number;
+  /** 📥 tayyor ish fayllarini yuklab olish ochiq (to'lov qabul qilingan yoki administrator ochgan); yo'q bo'lsa —
+      buyurtmachi ishni faqat havola orqali ko'radi */
+  dl?: true;
   deliveredAt?: number;
   doneAt?: number;
   /** bekor qilish sababi */

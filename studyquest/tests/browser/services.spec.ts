@@ -3,7 +3,8 @@ import { test, expect, type Page } from '@playwright/test';
 /* 💼 Pullik xizmatlar: ishga tushguncha foydalanuvchi «🚀 Tez orada» oynasida taklif yuboradi («Adminga xabar»ga
    tushadi); ishga tushgach buyurtma beradi → buyurtmasida «🤖 Sun'iy intellekt yordamida tayyorlanmoqda», buyurtma esa
    administratorga yozishma bo'lib keladi (Sayt boshqaruvi → Pullik xizmatlar → 💬 Buyurtmalar) → administrator savol
-   beradi, natijani yuklab «📤 Mijozga yuborish»ni bosadi → buyurtmachi istalgan summani to'lab chek skrinshotini
+   beradi, natijani yuklab, ko'rish havolasini qo'yib «📤 Mijozga yuborish»ni bosadi → buyurtmachi ishni havola orqali
+   ko'radi (fayl to'lovgacha qulf) → istalgan summani to'lab chek skrinshotini
    yuklaydi (narx belgilanmaydi, to'lov ish bajarilgach) → administrator chekni qabul qiladi → buyurtmachi yuklab
    oladi, tuzatish so'raydi yoki qabul qilib baho qo'yadi. Ijrochi talabalar bo'limi yo'q. Play Market ilovasida bo'lim yo'q.
    Administrator bo'limni vaqtincha yopishi mumkin (sozlama yo'q bo'lsa — yopiq). */
@@ -115,6 +116,11 @@ test('an order shows «prepared with AI», reaches the administrator as a chat a
     .locator('.svc-deliver input[type="file"]')
     .setInputFiles({ name: 'natija.pdf', mimeType: 'application/pdf', buffer: PDF });
   await expect(chat.locator('.svc-deliver .svc-files')).toContainText('natija.pdf');
+  // 👁 ko'rish uchun havola (to'lovgacha mijoz ishni faqat shu orqali ko'radi)
+  await chat.getByLabel('Natija havolasi').fill('https://example.com/natija-korish');
+  await chat.locator('.svc-deliver').getByRole('button', { name: 'Saqlash', exact: true }).click();
+  await expect(chat.locator('.svc-deliver .svc-link')).toContainText('natija-korish');
+  await expect(chat.locator('.svc-dl-state')).toContainText('Yuklab olish yopiq');
   await send.click();
   await expect(chat.locator('.svc-status')).toHaveText(/Tayyor — tekshiring/);
   await expect(chat.locator('.svc-pay')).toContainText('chek yuklaydi');
@@ -123,6 +129,15 @@ test('an order shows «prepared with AI», reaches the administrator as a chat a
   await student.reload({ waitUntil: 'domcontentloaded' });
   await expect(order.locator('.svc-status')).toHaveText(/Tayyor — tekshiring/);
   await expect(order.locator('.svc-ai')).toHaveCount(0);
+  // 🔒 to'lovgacha: ishni havola orqali ko'radi, fayl yuklab olinmaydi
+  const result = order.locator('.svc-result');
+  await expect(result.getByRole('link', { name: /Ishni ko‘rish/ })).toHaveAttribute(
+    'href',
+    'https://example.com/natija-korish',
+  );
+  await expect(result.getByRole('button', { name: /Yuklab olish/ })).toHaveCount(0);
+  await expect(result.locator('.svc-file-lock')).toContainText('To‘lovdan keyin');
+  await expect(result.locator('.svc-lock-note')).toContainText('to‘lov qabul qilingach ochiladi');
   const pay = order.locator('.svc-pay');
   await expect(pay).toContainText('Click orqali');
   const sendPay = pay.getByRole('button', { name: /Chekni yuborish/ });
@@ -146,13 +161,15 @@ test('an order shows «prepared with AI», reaches the administrator as a chat a
   await expect(chat.locator('.svc-pay')).toContainText('120 000 so‘m');
   await expect(chat.locator('.svc-pay')).toContainText('chek 777');
   await expect(chat.locator('.svc-pay .receipts img')).toBeVisible();
-  await chat.getByRole('button', { name: /Qabul qilish$/ }).click();
+  await chat.getByRole('button', { name: /Qabul qilish — yuklashni ochish/ }).click();
   await expect(chat.locator('.svc-pay')).toContainText('To‘lov qabul qilingan');
+  await expect(chat.locator('.svc-dl-state')).toContainText('yuklab ola oladi');
 
   // buyurtmachi: to'lov qabul qilingan; savolni va natijani ko'radi, yuklab oladi, tuzatish so'raydi
   await student.reload({ waitUntil: 'domcontentloaded' });
   await expect(order.locator('.svc-pay')).toContainText('To‘lov qabul qilindi: 120 000 so‘m');
   await expect(order.locator('.svc-msgs')).toContainText('Qaysi rangda bo‘lsin?');
+  await expect(result.locator('.svc-lock-note')).toHaveCount(0);
   const download = student.waitForEvent('download');
   await order
     .locator('.svc-result')
