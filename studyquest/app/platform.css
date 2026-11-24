@@ -11048,47 +11048,6 @@ button.danger,
 }
 
 /* 💬 Administrator: buyurtmalar — chapda ro'yxat, o'ngda yozishma (telefonda navbat bilan) */
-.svc-inbox {
-  display: grid;
-  grid-template-columns: minmax(260px, 340px) minmax(0, 1fr);
-  gap: 14px;
-  align-items: start;
-}
-.svc-inbox-list {
-  display: grid;
-  gap: 6px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  max-height: 78vh;
-  overflow-y: auto;
-}
-.svc-thread {
-  width: 100%;
-  display: grid;
-  grid-template-columns: 40px minmax(0, 1fr) auto;
-  gap: 10px;
-  align-items: center;
-  padding: 10px;
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  background: var(--surface);
-  color: inherit;
-  text-align: left;
-  cursor: pointer;
-}
-.svc-thread:hover {
-  border-color: var(--c1, #a78bfa);
-}
-.svc-thread:focus-visible {
-  outline: 3px solid #c4b5fd;
-  outline-offset: 1px;
-}
-.svc-thread.is-on {
-  border-color: var(--c1, #7c3aed);
-  background: var(--surface-soft);
-  box-shadow: inset 4px 0 0 var(--c1, #7c3aed);
-}
 .svc-thread-ava {
   width: 40px;
   height: 40px;
@@ -11098,68 +11057,6 @@ button.danger,
   border-radius: 50%;
   background: linear-gradient(135deg, var(--c1, #7c3aed), var(--c2, #c084fc));
   font-size: 19px;
-}
-.svc-thread-main {
-  display: grid;
-  gap: 2px;
-  min-width: 0;
-}
-.svc-thread-top {
-  display: flex;
-  justify-content: space-between;
-  gap: 8px;
-}
-.svc-thread-top b {
-  overflow: hidden;
-  font-weight: 650;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.svc-thread.is-unread .svc-thread-top b {
-  font-weight: 800;
-}
-.svc-thread-top small {
-  color: var(--muted);
-  font-size: 12px;
-  white-space: nowrap;
-}
-.svc-thread-kind,
-.svc-thread-last {
-  overflow: hidden;
-  font-size: 13px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.svc-thread-kind {
-  color: var(--c1, #6d28d9);
-  font-weight: 600;
-}
-.dark .svc-thread-kind {
-  color: var(--c2, #c4b5fd);
-}
-.svc-thread-last {
-  color: var(--muted);
-}
-.svc-thread-flags {
-  display: grid;
-  justify-items: center;
-  gap: 4px;
-}
-.svc-thread-flags em {
-  font-size: 14px;
-  font-style: normal;
-}
-.svc-thread-flags i {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: #7c3aed;
-}
-.svc-inbox-empty {
-  padding: 40px 20px;
-  border: 1px dashed var(--border);
-  border-radius: 16px;
-  text-align: center;
 }
 .svc-chat {
   display: grid;
@@ -11203,16 +11100,6 @@ button.danger,
   margin-top: 8px;
 }
 @media (max-width: 899px) {
-  .svc-inbox {
-    grid-template-columns: 1fr;
-  }
-  .svc-inbox.has-open .svc-inbox-list,
-  .svc-inbox:not(.has-open) .svc-inbox-empty {
-    display: none;
-  }
-  .svc-inbox-list {
-    max-height: none;
-  }
   .svc-chat-back {
     display: grid;
   }

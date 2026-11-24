@@ -721,3 +721,429 @@
     gap: 10px;
   }
 }
+
+/* ---------- 💼 Sayt boshqaruvi → Pullik xizmatlar → Buyurtmalar: rangli kartalar, dumaloq filtrlar, jadval ---------- */
+.svc-orders {
+  display: grid;
+  gap: 16px;
+}
+.svc-dash-tiles {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.svc-dash-tile {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto auto;
+  align-items: center;
+  column-gap: 14px;
+  width: 100%;
+  min-height: 92px;
+  padding: 14px 18px;
+  border: 0;
+  border-radius: 16px;
+  background: var(--tile);
+  color: #fff;
+  text-align: left;
+  cursor: pointer;
+  overflow: hidden;
+  box-shadow: 0 12px 24px -16px var(--tile);
+  transition:
+    transform 0.15s,
+    box-shadow 0.15s;
+}
+.svc-dash-tile:hover {
+  transform: translateY(-2px);
+}
+.svc-dash-tile.is-on {
+  outline: 3px solid color-mix(in srgb, var(--tile) 45%, #fff);
+  outline-offset: 2px;
+}
+.svc-dash-tile > svg {
+  grid-row: 1 / 3;
+  opacity: 0.95;
+}
+.svc-dash-tile b {
+  font-size: 28px;
+  line-height: 1.1;
+  font-weight: 800;
+}
+.svc-dash-tile span {
+  font-size: 13.5px;
+  font-weight: 650;
+  opacity: 0.95;
+}
+.svc-dash-tile.is-orange {
+  --tile: #f97316;
+}
+.svc-dash-tile.is-violet {
+  --tile: #8b5cf6;
+}
+.svc-dash-tile.is-pink {
+  --tile: #ec4899;
+}
+.svc-dash-tile.is-teal {
+  --tile: #0d9488;
+}
+.svc-orders .svc-admin-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 12px;
+}
+.svc-round-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 4px;
+  flex: 1 1 520px;
+}
+.svc-round {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  min-width: 74px;
+  padding: 2px 4px;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+}
+.svc-round-ic {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1.5px solid var(--border);
+  border-radius: 50%;
+  background: var(--surface);
+  color: #6d28d9;
+  box-shadow: var(--shadow);
+  transition:
+    background 0.15s,
+    color 0.15s,
+    border-color 0.15s;
+}
+.dark .svc-round-ic {
+  color: #c4b5fd;
+}
+.svc-round small {
+  font-size: 11.5px;
+  font-weight: 600;
+  line-height: 1.2;
+  text-align: center;
+}
+.svc-round small em {
+  font-style: normal;
+  color: var(--text);
+  font-weight: 750;
+}
+.svc-round:hover .svc-round-ic {
+  border-color: #c4b5fd;
+}
+.svc-round.is-on .svc-round-ic {
+  border-color: #6d28d9;
+  background: #6d28d9;
+  color: #fff;
+}
+.svc-round.is-on small {
+  color: #6d28d9;
+}
+.dark .svc-round.is-on small {
+  color: #c4b5fd;
+}
+.bo-section .svc-table-search,
+.svc-table-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex: 0 1 260px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--muted);
+}
+.bo-section .svc-table-search input,
+.svc-table-search input {
+  flex: 1;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0;
+  background: none !important;
+  box-shadow: none !important;
+  min-width: 0;
+  min-height: 40px;
+  border: 0;
+  outline: 0;
+  background: none;
+  color: var(--text);
+}
+.svc-table-card {
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.svc-table-search:focus-within {
+  outline: 2px solid #b08be7;
+  outline-offset: 1px;
+}
+.bo-section .svc-table-search input:focus-visible {
+  outline: 0;
+}
+.svc-table-title {
+  margin: 0;
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--border);
+  background: color-mix(in srgb, #38bdf8 14%, var(--surface));
+  color: #0369a1;
+  font-size: 14px;
+  font-weight: 700;
+}
+.dark .svc-table-title {
+  color: #7dd3fc;
+}
+.svc-table-wrap {
+  overflow-x: auto;
+}
+.svc-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+}
+.svc-table th {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  font-size: 12.5px;
+  font-weight: 750;
+  text-align: left;
+  white-space: nowrap;
+}
+.svc-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+.svc-table tbody tr {
+  cursor: pointer;
+  transition: background 0.12s;
+}
+.svc-table tbody tr:hover,
+.svc-table tbody tr:focus-visible,
+.svc-table tbody tr.is-on {
+  background: var(--soft-violet);
+  outline: 0;
+}
+.svc-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+.svc-table tr.is-unread .svc-td-who b {
+  color: #6d28d9;
+}
+.dark .svc-table tr.is-unread .svc-td-who b {
+  color: #c4b5fd;
+}
+.svc-td-n {
+  width: 36px;
+  color: var(--muted);
+}
+.svc-td-who b {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+.svc-td-who small {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+}
+.svc-td-title {
+  max-width: 260px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.svc-td-title small {
+  display: block;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 12px;
+  text-overflow: ellipsis;
+}
+.svc-td-kind,
+.svc-td-date,
+.svc-td-sum,
+.svc-thread-flags {
+  white-space: nowrap;
+}
+.svc-table .svc-thread-flags.is-check {
+  color: #be185d;
+  font-weight: 700;
+}
+.svc-dot {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #f97316;
+}
+.svc-chip {
+  display: inline-block;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: var(--soft-violet);
+  color: #6d28d9;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.svc-chip.is-review {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+.svc-chip.is-done {
+  background: #dcfce7;
+  color: #15803d;
+}
+.svc-chip.is-cancel {
+  background: #f1f5f9;
+  color: #64748b;
+}
+.dark .svc-chip {
+  background: #30234c;
+  color: #ddd6fe;
+}
+/* buyurtma: o'ngda chiqadigan panel */
+.svc-drawer {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: flex;
+  justify-content: flex-end;
+}
+.svc-drawer-scrim {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: #1e1b4b59;
+  cursor: pointer;
+}
+.svc-drawer-panel {
+  position: relative;
+  width: min(680px, 94vw);
+  height: 100%;
+  overflow-y: auto;
+  padding: 14px;
+  background: var(--page);
+  box-shadow: -20px 0 40px -20px #1e1b4b80;
+  animation: svc-drawer-in 0.2s ease-out;
+}
+.svc-drawer .svc-chat-back {
+  display: grid;
+}
+@keyframes svc-drawer-in {
+  from {
+    transform: translateX(40px);
+    opacity: 0;
+  }
+}
+@media (max-width: 900px) {
+  .svc-dash-tiles {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 760px) {
+  /* telefonda buyurtma butun ekranda — ro'yxat yashirinadi */
+  .svc-orders.has-open > :not(.svc-drawer) {
+    display: none;
+  }
+  .svc-drawer {
+    position: static;
+    display: block;
+  }
+  .svc-drawer-scrim {
+    display: none;
+  }
+  .svc-drawer-panel {
+    width: 100%;
+    height: auto;
+    padding: 0;
+    background: none;
+    box-shadow: none;
+    animation: none;
+  }
+  .svc-dash-tile {
+    min-height: 76px;
+    padding: 12px 14px;
+  }
+  .svc-dash-tile b {
+    font-size: 24px;
+  }
+  .svc-round {
+    min-width: 64px;
+  }
+  .svc-table-search {
+    flex: 1 1 100%;
+  }
+  /* jadval qatorlari — kartochka ko'rinishida */
+  .svc-table thead {
+    display: none;
+  }
+  .svc-table,
+  .svc-table tbody {
+    display: block;
+  }
+  .svc-table tbody tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 4px 10px;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .svc-table td {
+    padding: 0;
+    border: 0;
+  }
+  .svc-td-n {
+    display: none;
+  }
+  .svc-td-who {
+    grid-column: 1;
+  }
+  .svc-td-status {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+  }
+  .svc-td-kind,
+  .svc-td-title {
+    grid-column: 1 / -1;
+    max-width: none;
+    font-size: 13px;
+  }
+  .svc-td-date {
+    color: var(--muted);
+    font-size: 12px;
+  }
+  .svc-td-date {
+    grid-column: 1;
+  }
+  .svc-thread-flags,
+  .svc-td-sum {
+    grid-column: 2;
+    justify-self: end;
+    font-size: 12.5px;
+  }
+  .svc-table td.is-empty {
+    display: none;
+  }
+}

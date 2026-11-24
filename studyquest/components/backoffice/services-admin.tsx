@@ -1,6 +1,20 @@
 'use client';
 import { useCallback, useEffect, useState, type CSSProperties } from 'react';
-import { ArrowLeft, ExternalLink, RefreshCw, Upload } from 'lucide-react';
+import {
+  ArrowLeft,
+  Bot,
+  CircleCheck,
+  CircleX,
+  ClipboardList,
+  ExternalLink,
+  MessageCircle,
+  Receipt,
+  RefreshCw,
+  Search,
+  Send,
+  Upload,
+  type LucideIcon,
+} from 'lucide-react';
 import { useApp } from '../provider';
 import { Button } from '../ui/button';
 import { useL } from './common';
@@ -37,7 +51,7 @@ import {
    • 🗂 Yo'nalishlar — katalog (odatdagi narx, muddat, yopish);
    • ⚙️ To'lov yo'riqnomasi — buyurtmachiga ko'rinadigan matn. */
 type Tab = 'chats' | 'catalog' | 'settings';
-type Filter = 'todo' | 'work' | 'review' | 'done' | 'cancel' | 'all';
+type Filter = 'todo' | 'work' | 'review' | 'pay' | 'done' | 'cancel' | 'all';
 
 const lastFrom = (o: AdminOrder) => o.msgs[o.msgs.length - 1]?.from;
 /** Javob kutayotgan buyurtma: yangi (hali yozilmagan) yoki oxirgi xabar buyurtmachidan. */
@@ -48,14 +62,29 @@ const unread = (o: AdminOrder) =>
 /** Buyurtmachi «To'lov qildim» degan, lekin hali tasdiqlanmagan. */
 const payCheck = (o: AdminOrder) => o.status !== 'cancel' && !!o.paidAt && !o.payOk;
 const needsMe = (o: AdminOrder) => unread(o) || payCheck(o);
-const FILTERS: [Filter, Tri, (o: AdminOrder) => boolean][] = [
-  ['todo', ['Javob kutmoqda', 'Needs reply', 'Ждут ответа'], needsMe],
-  ['work', ['Tayyorlanmoqda', 'In progress', 'Готовятся'], (o) => o.status === 'work'],
-  ['review', ['Yuborilgan', 'Delivered', 'Отправлены'], (o) => o.status === 'review'],
-  ['done', ['Yakunlangan', 'Completed', 'Завершённые'], (o) => o.status === 'done'],
-  ['cancel', ['Bekor', 'Cancelled', 'Отменённые'], (o) => o.status === 'cancel'],
-  ['all', ['Hammasi', 'All', 'Все'], () => true],
+const FILTERS: [Filter, Tri, (o: AdminOrder) => boolean, LucideIcon][] = [
+  ['all', ['Hammasi', 'All', 'Все'], () => true, ClipboardList],
+  ['todo', ['Javob kutmoqda', 'Needs reply', 'Ждут ответа'], needsMe, MessageCircle],
+  ['work', ['Tayyorlanmoqda', 'In progress', 'Готовятся'], (o) => o.status === 'work', Bot],
+  ['review', ['Yuborilgan', 'Delivered', 'Отправлены'], (o) => o.status === 'review', Send],
+  ['pay', ['Chek keldi', 'Receipts', 'Чеки'], payCheck, Receipt],
+  ['done', ['Yakunlangan', 'Completed', 'Завершённые'], (o) => o.status === 'done', CircleCheck],
+  ['cancel', ['Bekor', 'Cancelled', 'Отменённые'], (o) => o.status === 'cancel', CircleX],
 ];
+/** Tepadagi rangli kartalar (bosilsa — jadval shu bo'yicha saralanadi). */
+const TILES: [Filter, string][] = [
+  ['todo', 'orange'],
+  ['work', 'violet'],
+  ['pay', 'pink'],
+  ['done', 'teal'],
+];
+/** Jadvaldagi qisqa holat nomi. */
+const SHORT_STATUS: Record<AdminOrder['status'], Tri> = {
+  work: ['Tayyorlanmoqda', 'In progress', 'Готовится'],
+  review: ['Yuborilgan', 'Delivered', 'Отправлен'],
+  done: ['Yakunlangan', 'Completed', 'Завершён'],
+  cancel: ['Bekor', 'Cancelled', 'Отменён'],
+};
 const kindTitle = (lang: Parameters<typeof tr>[0], id: string) => {
   const k = serviceKind(id);
   return k ? k.icon + ' ' + tr(lang, ...k.name) : id;
@@ -254,24 +283,6 @@ export function ServicesAdmin() {
           </Button>
         )}
       </div>
-      <ul className="mk-tiles is-admin">
-        <li className="is-violet">
-          <small>{L('Javob kutmoqda', 'Needs reply', 'Ждут ответа')}</small>
-          <b>{todo}</b>
-        </li>
-        <li className="is-blue">
-          <small>{L('Tayyorlanmoqda', 'In progress', 'Готовятся')}</small>
-          <b>{view.orders.filter((o) => o.status === 'work').length}</b>
-        </li>
-        <li className="is-amber">
-          <small>{L('To‘lovni tekshirish', 'Payments to check', 'Проверить оплату')}</small>
-          <b>{view.orders.filter(payCheck).length}</b>
-        </li>
-        <li className="is-green">
-          <small>{L('Yakunlangan', 'Completed', 'Завершено')}</small>
-          <b>{view.orders.filter((o) => o.status === 'done').length}</b>
-        </li>
-      </ul>
       <div className="bo-subtabs" role="tablist">
         {(
           [
@@ -304,7 +315,8 @@ export function ServicesAdmin() {
   );
 }
 
-/** 💬 Buyurtmalar: chapda ro'yxat, o'ngda tanlangan buyurtma bilan yozishma (telefonda — navbat bilan). */
+/** 💬 Buyurtmalar: tepada rangli hisob kartalari va dumaloq filtr tugmalari, ostida jadval; qator bosilsa buyurtma
+    yon panelda (telefonda — butun ekran) ochiladi: yozishma, to'lov, natijani yuborish. */
 function Inbox({
   view,
   reload,
@@ -331,112 +343,193 @@ function Inbox({
           .includes(needle)),
   );
   const current = view.orders.find((o) => keyOf(o) === openKey);
+  const count = (f: Filter) => view.orders.filter(FILTERS.find(([x]) => x === f)![2]).length;
+  // Esc — buyurtma oynasini yopish
+  useEffect(() => {
+    if (!openKey) return;
+    const on = (e: KeyboardEvent) => e.key === 'Escape' && setOpenKey('');
+    window.addEventListener('keydown', on);
+    return () => window.removeEventListener('keydown', on);
+  }, [openKey]);
+  const payCell = (o: AdminOrder) =>
+    o.status === 'cancel'
+      ? '—'
+      : o.payOk
+        ? '✅ ' + L('Qabul qilingan', 'Accepted', 'Принят')
+        : o.paidAt
+          ? '💳 ' + L('Chek keldi', 'Receipt sent', 'Чек пришёл')
+          : o.deliveredAt || o.status !== 'work'
+            ? L('Kutilmoqda', 'Waiting', 'Ожидается')
+            : '—';
   return (
-    <>
+    <div className={'svc-orders' + (current ? ' has-open' : '')}>
+      <ul className="svc-dash-tiles">
+        {TILES.map(([f, tone]) => {
+          const [, name, , Icon] = FILTERS.find(([x]) => x === f)!;
+          return (
+            <li key={f}>
+              <button
+                type="button"
+                className={'svc-dash-tile is-' + tone + (filter === f ? ' is-on' : '')}
+                aria-pressed={filter === f}
+                onClick={() => setFilter(f)}
+              >
+                <Icon size={30} aria-hidden="true" />
+                <b>{count(f)}</b>
+                <span>{tr(lang, ...name)}</span>
+              </button>
+            </li>
+          );
+        })}
+      </ul>
       <div className="svc-admin-tools">
-        <div className="lib-kinds" role="group" aria-label={L('Holat', 'Status', 'Статус')}>
-          {FILTERS.map(([f, name, fn]) => (
-            <button key={f} className={filter === f ? 'on' : ''} onClick={() => setFilter(f)}>
-              {tr(lang, ...name)} <em>{view.orders.filter(fn).length}</em>
+        <div className="svc-round-filters" role="group" aria-label={L('Holat', 'Status', 'Статус')}>
+          {FILTERS.map(([f, name, , Icon]) => (
+            <button
+              key={f}
+              type="button"
+              className={'svc-round' + (filter === f ? ' is-on' : '')}
+              aria-pressed={filter === f}
+              onClick={() => setFilter(f)}
+            >
+              <span className="svc-round-ic" aria-hidden="true">
+                <Icon size={18} />
+              </span>
+              <small>
+                {tr(lang, ...name)} <em>{count(f)}</em>
+              </small>
             </button>
           ))}
         </div>
-        <input
-          className="input"
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-          placeholder={L('Ism, guruh yoki mavzu', 'Name, group or topic', 'Имя, группа или тема')}
-          aria-label={L('Buyurtmalardan qidirish', 'Search orders', 'Поиск заказов')}
-        />
+        <label className="svc-table-search">
+          <Search size={16} aria-hidden="true" />
+          <input
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder={L('Ism, guruh yoki mavzu', 'Name, group or topic', 'Имя, группа или тема')}
+            aria-label={L('Buyurtmalardan qidirish', 'Search orders', 'Поиск заказов')}
+          />
+        </label>
         <Button size="sm" variant="outline" onClick={() => void reload()}>
           <RefreshCw size={14} /> {L('Yangilash', 'Refresh', 'Обновить')}
         </Button>
       </div>
-      <div className={'svc-inbox' + (current ? ' has-open' : '')}>
-        <ul className="svc-inbox-list" aria-label={L('Buyurtmalar', 'Orders', 'Заказы')}>
-          {!list.length && (
-            <li className="muted svc-empty">
-              {L(
-                'Bu yerda hozircha buyurtma yo‘q.',
-                'No orders here yet.',
-                'Здесь пока нет заказов.',
-              )}
-            </li>
-          )}
-          {list.map((o) => {
-            const k = serviceKind(o.kind);
-            const last = o.msgs[o.msgs.length - 1];
-            const [icon] = STATUS_LABEL[o.status];
-            return (
-              <li key={keyOf(o)}>
-                <button
-                  type="button"
-                  className={
-                    'svc-thread' +
-                    (keyOf(o) === openKey ? ' is-on' : '') +
-                    (unread(o) ? ' is-unread' : '')
-                  }
-                  aria-current={keyOf(o) === openKey ? 'true' : undefined}
-                  style={(k ? { '--c1': k.tone[0], '--c2': k.tone[1] } : {}) as CSSProperties}
-                  onClick={() => setOpenKey(keyOf(o))}
-                >
-                  <span className="svc-thread-ava" aria-hidden="true">
-                    {k?.icon || '✨'}
-                  </span>
-                  <span className="svc-thread-main">
-                    <span className="svc-thread-top">
-                      <b>{o.name}</b>
-                      <small>{dueText(o.upd, lang).date}</small>
-                    </span>
-                    <span className="svc-thread-kind">
-                      {kindTitle(lang, o.kind)} · {o.title}
-                    </span>
-                    <span className="svc-thread-last">
-                      {icon}{' '}
-                      {last
-                        ? (last.from === 'team' ? L('Siz: ', 'You: ', 'Вы: ') : '') + last.text
-                        : o.text}
-                    </span>
-                  </span>
-                  {(unread(o) || payCheck(o)) && (
-                    <span className="svc-thread-flags">
-                      {payCheck(o) && (
-                        <em
-                          title={L('To‘lovni tekshiring', 'Check the payment', 'Проверьте оплату')}
-                        >
-                          💳
-                        </em>
+      <section className="svc-table-card" aria-labelledby="svc-table-h">
+        <h3 id="svc-table-h" className="svc-table-title">
+          {tr(lang, ...FILTERS.find(([x]) => x === filter)![1])} · {list.length}
+        </h3>
+        {list.length ? (
+          <div className="svc-table-wrap">
+            <table className="svc-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>{L('Mijoz', 'Client', 'Клиент')}</th>
+                  <th>{L('Xizmat', 'Service', 'Услуга')}</th>
+                  <th>{L('Mavzu', 'Topic', 'Тема')}</th>
+                  <th>{L('Sana', 'Date', 'Дата')}</th>
+                  <th>{L('Holat', 'Status', 'Статус')}</th>
+                  <th>{L('To‘lov', 'Payment', 'Оплата')}</th>
+                  <th>{L('Summa', 'Amount', 'Сумма')}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {list.map((o, i) => (
+                  <tr
+                    key={keyOf(o)}
+                    className={
+                      'svc-thread' +
+                      (keyOf(o) === openKey ? ' is-on' : '') +
+                      (unread(o) ? ' is-unread' : '')
+                    }
+                    tabIndex={0}
+                    aria-label={o.name + ' — ' + o.title}
+                    onClick={() => setOpenKey(keyOf(o))}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        setOpenKey(keyOf(o));
+                      }
+                    }}
+                  >
+                    <td className="svc-td-n">{i + 1}</td>
+                    <td className="svc-td-who">
+                      <b>
+                        {unread(o) && (
+                          <i
+                            className="svc-dot"
+                            aria-label={L('Javob kutmoqda', 'Needs reply', 'Ждёт ответа')}
+                          />
+                        )}
+                        {o.name}
+                      </b>
+                      <small>{o.group || o.email || ''}</small>
+                    </td>
+                    <td className="svc-td-kind">{kindTitle(lang, o.kind)}</td>
+                    <td className="svc-td-title">
+                      {o.title}
+                      {!!o.msgs.length && (
+                        <small>
+                          {(o.msgs[o.msgs.length - 1].from === 'team'
+                            ? L('Siz: ', 'You: ', 'Вы: ')
+                            : '') + o.msgs[o.msgs.length - 1].text}
+                        </small>
                       )}
-                      {unread(o) && (
-                        <i aria-label={L('Javob kutmoqda', 'Needs reply', 'Ждёт ответа')} />
-                      )}
-                    </span>
-                  )}
-                </button>
-              </li>
-            );
-          })}
-        </ul>
-        {current ? (
-          <AdminChat
-            key={keyOf(current)}
-            order={current}
-            reload={reload}
-            onView={onView}
-            onBack={() => setOpenKey('')}
-          />
-        ) : (
-          <div className="svc-inbox-empty muted">
-            💬{' '}
-            {L(
-              'Buyurtmani tanlang — buyurtmachi nima yozgani va yozishma shu yerda ochiladi.',
-              'Pick an order — what the client wrote and the chat open here.',
-              'Выберите заказ — здесь откроется, что написал заказчик, и переписка.',
-            )}
+                    </td>
+                    <td className="svc-td-date">{dueText(o.at, lang).date}</td>
+                    <td className="svc-td-status">
+                      <span className={'svc-chip is-' + o.status}>
+                        {tr(lang, ...SHORT_STATUS[o.status])}
+                      </span>
+                    </td>
+                    <td
+                      className={
+                        'svc-thread-flags' +
+                        (payCheck(o) ? ' is-check' : '') +
+                        (payCell(o) === '—' ? ' is-empty' : '')
+                      }
+                    >
+                      {payCell(o)}
+                    </td>
+                    <td className={'svc-td-sum' + (o.budget > 0 ? '' : ' is-empty')}>
+                      {o.budget > 0 ? formatSum(o.budget) : '—'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
+        ) : (
+          <p className="muted svc-empty">
+            {L(
+              'Bu yerda hozircha buyurtma yo‘q.',
+              'No orders here yet.',
+              'Здесь пока нет заказов.',
+            )}
+          </p>
         )}
-      </div>
-    </>
+      </section>
+      {current && (
+        // 📂 buyurtma: yon panelda (telefonda — butun ekran) yozishma va barcha amallar
+        <div className="svc-drawer">
+          <button
+            type="button"
+            className="svc-drawer-scrim"
+            aria-label={L('Yopish', 'Close', 'Закрыть')}
+            onClick={() => setOpenKey('')}
+          />
+          <div className="svc-drawer-panel">
+            <AdminChat
+              key={keyOf(current)}
+              order={current}
+              reload={reload}
+              onView={onView}
+              onBack={() => setOpenKey('')}
+            />
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
 
