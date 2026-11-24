@@ -125,12 +125,23 @@ test('taken avatars are locked, places 11+ only browse, and students can suggest
   await expect(dialog).toBeHidden();
 });
 
-test('the administrator allows students and frees avatars', async ({ page }) => {
+test('the administrator chooses an avatar without a subscription and manages student avatars', async ({
+  page,
+}) => {
   await reset(page);
   await page.request.post('/api/platform', {
     data: { action: 'avatarPick', input: { avatar: 'po' } },
   });
   await as(page, 'demo-admin');
+  await page.goto('/#home', { waitUntil: 'domcontentloaded' });
+  await page.getByRole('button', { name: 'Avatar qo‘yish', exact: true }).click();
+  const library = page.getByRole('dialog', { name: /Avatarlar kutubxonasi/ });
+  await library.getByRole('button', { name: /Po — tanlash/ }).click();
+  await library.getByRole('button', { name: 'Shu avatarni qo‘yish' }).click();
+  await expect(library).toBeHidden();
+  await page.reload({ waitUntil: 'domcontentloaded' });
+  await expect(page.locator('.hero-avatar:visible img')).toHaveAttribute('src', '/avatars/po.webp');
+  await expect(page.locator('.home-heading .subscriber-mark')).toHaveCount(0);
   // «Boshqaruv» → 🛠 Sayt boshqaruvi → «🎭 Avatarlar» kartochkasi
   await page.goto('/#admin', { waitUntil: 'domcontentloaded' });
   await page.locator('.bo-card-btn').filter({ hasText: 'Avatarlar' }).click();
@@ -142,6 +153,9 @@ test('the administrator allows students and frees avatars', async ({ page }) => 
   await expect(panel.locator('.avatar-admin-allow')).toContainText('top-10 — ruxsat shart emas');
   await po.getByRole('button', { name: /Bo‘shatish/ }).click();
   await expect(po).toContainText('Bo‘sh');
+  await page.request.post('/api/platform', {
+    data: { action: 'avatarPick', input: { avatar: null } },
+  });
 });
 
 test('places 11+ see why the avatar was freed and the ways to get one: Premium or buying it', async ({

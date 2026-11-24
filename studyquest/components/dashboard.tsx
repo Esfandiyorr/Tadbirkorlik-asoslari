@@ -25,6 +25,7 @@ import { PushInvite } from './push-toggle';
 import { SiteVisual } from './site-content';
 import { visualPath } from '@/lib/site-visuals';
 import { HeroAvatar, useAcademicBoard } from './avatars';
+import { SubscriberMark } from './premium';
 import { Leaderboard } from './leaderboard';
 import { CourseGate, PaidCourseGate } from './course-gate';
 import { CourseLessons } from './course-lessons';
@@ -118,7 +119,7 @@ export function currentLesson(d: Data) {
 export function Dashboard() {
   const { data, legacy } = useApp();
   if (!data?.user && !legacy) return <GuestHome />;
-  return <LearnerHome />;
+  return <LearnerHome key={data?.user?.id || legacy?.id} />;
 }
 
 /** Bosh sahifadagi tezkor o'tishlar: asosiy bo'limlar bitta bosishda. */
@@ -167,7 +168,7 @@ function LearnerHome() {
     totals = courseTotals(d),
     lessons = sortedLessons(d);
   const active = lessons.filter((l) => accessOf(d, l.id)?.state === 'score');
-  const avatarHome = u?.role === 'student',
+  const avatarHome = u?.role === 'student' || u?.role === 'admin',
     board = useAcademicBoard(avatarHome);
   const avatar = avatarHome && !board.loading ? board.avatars.me : null;
   const progressFor = (l: Lesson) => {
@@ -187,7 +188,8 @@ function LearnerHome() {
     <>
       <div className="page-heading home-heading">
         <h1>
-          {hello}, {name.split(' ')[0]}
+          {hello}, {avatar?.premium && <SubscriberMark />}
+          {name.split(' ')[0]}
         </h1>
         {/* 🎭 avatar tanlanmagan bo'lsa — sarlavha yonida kichik taklif; tanlangan bo'lsa u asosiy kartochkada katta turadi
             (telefonda ham) */}
@@ -433,7 +435,10 @@ function LearnerHome() {
                 .slice(0, 2)
                 .join('')}
             </div>
-            <h3>{name}</h3>
+            <h3>
+              {avatar?.premium && <SubscriberMark />}
+              {name}
+            </h3>
             <p>
               {staff
                 ? u?.role === 'admin'

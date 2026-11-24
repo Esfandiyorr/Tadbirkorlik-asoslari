@@ -9991,6 +9991,21 @@ button.danger,
 }
 
 /* 💎 Obuna */
+.subscriber-mark {
+  display: inline-grid;
+  place-items: center;
+  width: 0.85em;
+  height: 0.85em;
+  margin-inline-end: 0.25em;
+  vertical-align: 0.01em;
+  border-radius: 0.25em;
+  background: #ede9fe;
+  color: #6d28d9;
+}
+.subscriber-mark svg {
+  width: 0.62em;
+  height: 0.62em;
+}
 .premium-badge {
   display: inline-flex;
   align-items: center;
