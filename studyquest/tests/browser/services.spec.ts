@@ -329,12 +329,15 @@ test('the administrator closes the section for a while: users lose it, the admin
   await expect(student.locator('.quick-link.is-services')).toHaveCount(0);
   await expect(student.locator('.sidebar nav a[href="#services"]')).toHaveCount(0);
   await expect(student.locator('.bottom-nav a[href="#services"]')).toHaveCount(0);
-  // eski havola yoki bildirishnoma orqali kelsa — «vaqtincha yopiq» xabari
-  await student.goto('/#services/mine', { waitUntil: 'domcontentloaded' });
+  // eski havola orqali kelsa — «vaqtincha yopiq» xabari
+  await student.goto('/#services', { waitUntil: 'domcontentloaded' });
   await expect(
     student.getByRole('heading', { name: 'Pullik xizmatlar vaqtincha yopiq', level: 1 }),
   ).toBeVisible();
   await expect(student.locator('.svc-grid')).toHaveCount(0);
+  // o'z buyurtmalari (bildirishnoma, yakuniy test va Premium xaridi) — bo'lim yopiq bo'lsa ham ochiladi
+  await student.goto('/#services/mine', { waitUntil: 'domcontentloaded' });
+  await expect(student.getByRole('heading', { name: /Mening buyurtmalarim/ })).toBeVisible();
   // server ham qabul qilmaydi
   const refused = await svc(student, 'me', {
     op: 'order',

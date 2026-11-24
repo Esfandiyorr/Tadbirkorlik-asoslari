@@ -44,7 +44,9 @@ For Firebase-backed development, copy `.env.example` to `.env.local`, supply you
 - **💼 Paid services** (`lib/services.ts`, `lib/server/services.ts`, `app/api/services`, `components/services.tsx`):
   replaces the old AI presentation section (`#slides` now opens it). A user orders work and the administrator
   prepares it; the order shows **«🤖 Sun'iy intellekt yordamida tayyorlanmoqda»** (being prepared with the help of
-  AI). Tabs (`#services`, `#services/mine`; the old `#services/board` and `#services/work` links open the catalog):
+  AI). Tabs (`#services`, `#services/mine`; the old `#services/board` and `#services/work` links open the catalog;
+  «My orders» opens for a signed-in user even while the section is closed, and `#admin/services` opens the
+  administrator's inbox directly):
   - **🛒 Order** — a catalog of 13 colourful direction cards (presentation, course paper, graduation thesis, essay,
     article, book publishing, business plan, website, design, translation, documents, video, other) with group
     filters, search and how many people used each service. An order has a topic, details, **the amount the user

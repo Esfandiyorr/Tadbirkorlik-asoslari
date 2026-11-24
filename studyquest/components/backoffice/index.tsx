@@ -42,9 +42,16 @@ export type BoSection =
   | 'exam';
 const KEY = 'sq-bo-section';
 
-export function BackOffice({ openTab }: { openTab: (tab: string) => void }) {
+export function BackOffice({
+  openTab,
+  initialSection,
+}: {
+  openTab: (tab: string) => void;
+  initialSection?: BoSection;
+}) {
   const L = useL();
   const [section, setSection] = useState<BoSection | null>(() => {
+    if (initialSection) return initialSection;
     if (typeof window === 'undefined') return null;
     try {
       return (sessionStorage.getItem(KEY) as BoSection) || null;

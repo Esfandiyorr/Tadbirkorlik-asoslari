@@ -20,7 +20,7 @@ import { AcademicRoster } from './academic-roster';
 import { PlatformSettings } from './platform-settings';
 import { NativeSurface } from './native-surface';
 import { TopicAccessPanel } from './topic-access';
-import { BackOffice, openBackOffice } from './backoffice';
+import { BackOffice, openBackOffice, type BoSection } from './backoffice';
 import { LogoTaskAdmin } from './backoffice/logo-task-admin';
 import { StaffTasks } from './staff-tasks';
 import { AccountHelpAdmin } from './account-help';
@@ -34,7 +34,13 @@ const blankQuestion = (): Question => ({
   answer: '',
   explanation: '',
 });
-export function Staff({ admin = false }: { admin?: boolean }) {
+export function Staff({
+  admin = false,
+  initialSection,
+}: {
+  admin?: boolean;
+  initialSection?: BoSection;
+}) {
   const { data, lang, call, toast, request, refresh } = useApp();
   type Reports = Data & { allProgress?: Progress[]; allAttempts?: Attempt[] };
   const [report, setReport] = useState<{ base: Data | null; value: Reports; at: number } | null>(
@@ -346,7 +352,9 @@ export function Staff({ admin = false }: { admin?: boolean }) {
       {tab === 'academic' && <AcademicRoster />}
       {tab === 'accountHelp' && <AccountHelpAdmin />}
       {admin && tab === 'platform' && <PlatformSettings />}
-      {admin && tab === 'site' && <BackOffice key={boRevision} openTab={setTab} />}
+      {admin && tab === 'site' && (
+        <BackOffice initialSection={initialSection} key={boRevision} openTab={setTab} />
+      )}
       {tab === 'legacy' && (
         <section className="panel">
           <NativeSurface

@@ -152,9 +152,9 @@ function QuickLinks() {
             '💼',
             ['Pullik xizmatlar', 'Paid services', 'Платные услуги'],
             [
-              'Vazifa bering yoki ish qilib pul ishlang',
-              'Post a task or earn by doing one',
-              'Дайте задачу или заработайте',
+              'Xizmatni tanlang va buyurtma yuboring',
+              'Choose a service and send an order',
+              'Выберите услугу и отправьте заказ',
             ],
           ] as [string, string, [string, string, string], [string, string, string]],
         ]),
