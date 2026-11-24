@@ -1,6 +1,6 @@
 /* 💎 Obunachi profilining bezagi: reytingda (va profilda) ismi va avatari boshqalardan ajralib turadi. Obunachi
-   5 xildan birini tanlaydi (Profil → 💎 Premium); tanlamasa — «Oltin toj». Saqlanadi: site/premiumLook/<foydalanuvchi>.
-   Ko'rinishi — app/platform.css «.pm-<id>». */
+   12 xildan birini tanlaydi (Profil → 💎 Premium); tanlamasa — «Oltin toj». Saqlanadi: site/premiumLook/<foydalanuvchi>.
+   Ko'rinishi — app/platform.css (dastlabki 5 tasi) va app/unistay-ui.css (qolganlari) «.pm-<id>». */
 export type Tri = [string, string, string];
 export const LOOKS = [
   {
@@ -40,6 +40,68 @@ export const LOOKS = [
     icon: '🔥',
     name: ['Olovli', 'Fire', 'Огонь'] as Tri,
     text: ['Olovrang hoshiya va ism', 'A fiery frame and name', 'Огненная рамка и имя'] as Tri,
+  },
+  {
+    id: 'zumrad',
+    icon: '🍀',
+    name: ['Zumrad', 'Emerald', 'Изумруд'] as Tri,
+    text: [
+      'TerDU yashili va oltin chiziq',
+      'TerDU green with a gold stripe',
+      'Зелёный TerDU и золотая полоса',
+    ] as Tri,
+  },
+  {
+    id: 'gul',
+    icon: '🌸',
+    name: ['Sakura', 'Sakura', 'Сакура'] as Tri,
+    text: [
+      'Pushti gulbarglar va nafis ism',
+      'Pink petals and a graceful name',
+      'Розовые лепестки и изящное имя',
+    ] as Tri,
+  },
+  {
+    id: 'okean',
+    icon: '🌊',
+    name: ['Okean', 'Ocean', 'Океан'] as Tri,
+    text: [
+      'Ko‘k-firuza to‘lqin ranglari',
+      'Teal and blue ocean waves',
+      'Бирюзово-синие волны',
+    ] as Tri,
+  },
+  {
+    id: 'tun',
+    icon: '🌌',
+    name: ['Yulduzli tun', 'Starry night', 'Звёздная ночь'] as Tri,
+    text: [
+      'To‘q osmon va miltillovchi yulduzlar',
+      'A dark sky with twinkling stars',
+      'Тёмное небо и мерцающие звёзды',
+    ] as Tri,
+  },
+  {
+    id: 'neon',
+    icon: '⚡',
+    name: ['Neon', 'Neon', 'Неон'] as Tri,
+    text: ['Yonib turgan neon hoshiya', 'A glowing neon frame', 'Светящаяся неоновая рамка'] as Tri,
+  },
+  {
+    id: 'shafaq',
+    icon: '🌅',
+    name: ['Shafaq', 'Sunset', 'Закат'] as Tri,
+    text: [
+      'Qizg‘ish-binafsha shafaq rangida',
+      'In warm sunset colours',
+      'В тёплых красках заката',
+    ] as Tri,
+  },
+  {
+    id: 'qor',
+    icon: '❄️',
+    name: ['Qorli', 'Snowy', 'Снежный'] as Tri,
+    text: ['Oppoq qor parchalari', 'Soft white snowflakes', 'Мягкие белые снежинки'] as Tri,
   },
 ] as const;
 export type LookId = (typeof LOOKS)[number]['id'];

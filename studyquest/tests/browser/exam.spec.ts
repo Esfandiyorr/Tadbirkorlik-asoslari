@@ -276,7 +276,7 @@ test('Premium: shown in the news box with its perks; any amount and a receipt; o
   await expect(editor).toBeHidden();
   await expect(profileMark).toHaveAttribute('src', '/premium-belgi.webp');
   const looks = card.getByRole('radio');
-  await expect(looks).toHaveCount(5);
+  await expect(looks).toHaveCount(12);
   await expect(looks.first()).toHaveAttribute('aria-checked', 'true');
   await card.getByRole('radio', { name: /Olovli/ }).click();
   await expect(card.getByRole('radio', { name: /Olovli/ })).toHaveAttribute('aria-checked', 'true');
