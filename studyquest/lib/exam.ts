@@ -67,8 +67,8 @@ export type ExamAdminView = {
     items: (ExamQuestion & { id: string })[];
   })[];
   total: number;
-  /** bo'limi ochiq foydalanuvchilar soni va berilgan sertifikatlar */
-  buyers: number;
+  /** bo'limi ochiq foydalanuvchilar (yangilari oldin) va berilgan sertifikatlar soni */
+  buyers: { uid: string; name: string; at: number }[];
   certs: number;
 };
 

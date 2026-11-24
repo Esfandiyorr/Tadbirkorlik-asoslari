@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
-import { Crown, Save, Trash2 } from 'lucide-react';
+import { Crown, Trash2 } from 'lucide-react';
 import { useApp } from '../provider';
 import { Button } from '../ui/button';
 import { dueText } from '@/lib/points';
@@ -15,15 +15,10 @@ export function PremiumAdmin() {
   const L = useL();
   const { lang, request } = useApp();
   const { data, error, busy, act } = useAdminView<PremiumAdminView>('premiumAdmin', 'premiumAdmin');
-  const [info, setInfo] = useState({ price: '', how: '' });
   const [students, setStudents] = useState<Student[]>([]),
     [q, setQ] = useState(''),
     [pick, setPick] = useState<Student | null>(null),
     [days, setDays] = useState(30);
-  const saved = data?.info;
-  useEffect(() => {
-    if (saved) setInfo({ price: saved.price, how: saved.how });
-  }, [saved]);
   useEffect(() => {
     let live = true;
     // TerDU talabalari (reyting) + talaba bo'lmaganlar: kursga ruxsat so'raganlar va ruxsat berilganlar (email bilan)
@@ -61,14 +56,6 @@ export function PremiumAdmin() {
   }, [q, students]);
   if (error) return <p className="error-state">{error}</p>;
   if (!data) return <div className="skeleton h-64" />;
-  const saveInfo = (e: FormEvent) => {
-    e.preventDefault();
-    void act(
-      { op: 'info', price: info.price.trim(), how: info.how.trim() },
-      'info',
-      '💾 ' + L('Saqlandi', 'Saved', 'Сохранено'),
-    ).catch(() => {});
-  };
   const grant = async (e: FormEvent) => {
     e.preventDefault();
     if (!pick) return;
@@ -152,45 +139,16 @@ export function PremiumAdmin() {
             )}
           </p>
         </form>
-        <form className="bo-form" onSubmit={saveInfo}>
-          <h3>
-            🏷 {L('Narx va to‘lov yo‘riqnomasi', 'Price and how to pay', 'Цена и как оплатить')}
-          </h3>
-          <label>
-            {L('Narx (talabaga ko‘rinadi)', 'Price (shown to students)', 'Цена (видна студентам)')}
-            <input
-              className="input"
-              maxLength={80}
-              value={info.price}
-              onChange={(e) => setInfo({ ...info, price: e.target.value })}
-              placeholder={L(
-                'Masalan: 25 000 so‘m / oy',
-                'E.g. 25 000 so‘m / month',
-                'Например: 25 000 сум / месяц',
-              )}
-            />
-          </label>
-          <label>
-            {L('Qanday to‘lanadi', 'How to pay', 'Как оплатить')}
-            <textarea
-              className="input"
-              rows={4}
-              maxLength={600}
-              value={info.how}
-              onChange={(e) => setInfo({ ...info, how: e.target.value })}
-              placeholder={L(
-                'Masalan: Click yoki Payme orqali … kartaga o‘tkazing va chekni «Adminga xabar»ga yuboring. Obuna 1 soat ichida yoqiladi.',
-                'E.g. pay by Click or Payme to card … and send the receipt in “Message the admin”.',
-                'Например: переведите через Click или Payme на карту … и отправьте чек в «Написать админу».',
-              )}
-            />
-          </label>
-          <div className="bo-actions">
-            <Button type="submit" disabled={!!busy}>
-              <Save size={15} /> {L('Saqlash', 'Save', 'Сохранить')}
-            </Button>
-          </div>
-        </form>
+        <div className="bo-form">
+          <h3>🏷 {L('Narx va to‘lov', 'Price and payment', 'Цена и оплата')}</h3>
+          <p className="muted">
+            {L(
+              'Obuna endi saytning o‘zida sotiladi: oylik va yillik tarif (narxi — «Pullik xizmatlar → ⚙️ To‘lov yo‘riqnomasi»). Obunachi «To‘lov qildim» desa, «Pullik xizmatlar → 💬 Buyurtmalar»da «To‘lovni tasdiqlash»ni bosasiz — obuna o‘zi yoqiladi (muddat mavjudiga qo‘shiladi). Bu yerdan qo‘lda ham berish mumkin.',
+              'Premium is now sold on the site itself: monthly and yearly plans (prices under “Paid services → ⚙️ Payment instructions”). When a subscriber presses “I paid”, press “Confirm payment” in “Paid services → 💬 Orders” — Premium turns on by itself (added to the current period). You can still grant it by hand here.',
+              'Подписка продаётся на самом сайте: месячный и годовой тариф (цены — «Платные услуги → ⚙️ Инструкция по оплате»). Когда подписчик нажмёт «Я оплатил», подтвердите оплату в «Платные услуги → 💬 Заказы» — подписка включится сама. Здесь можно выдать её и вручную.',
+            )}
+          </p>
+        </div>
       </div>
       <div className="bo-card">
         <h3>

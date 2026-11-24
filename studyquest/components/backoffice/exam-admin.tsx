@@ -121,7 +121,7 @@ export function ExamAdmin() {
         </li>
         <li className="is-blue">
           <small>{L('Bo‘limi ochiq', 'Have access', 'С доступом')}</small>
-          <b>{view.buyers}</b>
+          <b>{view.buyers.length}</b>
         </li>
         <li className="is-green">
           <small>{L('Berilgan sertifikatlar', 'Certificates', 'Сертификатов')}</small>
@@ -141,6 +141,40 @@ export function ExamAdmin() {
           'Раздел продаётся в «Платных услугах» (цена — в «Инструкции по оплате»). После подтверждения оплаты он откроется сам. Пока вопросов нет, студенты видят «Вопросы скоро появятся».',
         )}
       </p>
+      {!!view.buyers.length && (
+        <details className="exa-buyers">
+          <summary>
+            🔓 {L('Bo‘limi ochiq foydalanuvchilar', 'Users with access', 'Пользователи с доступом')}{' '}
+            ({view.buyers.length})
+          </summary>
+          <ul>
+            {view.buyers.map((b) => (
+              <li key={b.uid}>
+                <span>{b.name}</span>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={busy}
+                  onClick={() => {
+                    if (
+                      window.confirm(
+                        L(
+                          `${b.name} uchun bo‘lim yopilsinmi? (masalan, pul qaytarilgan bo‘lsa)`,
+                          `Close the section for ${b.name}? (e.g. after a refund)`,
+                          `Закрыть раздел для ${b.name}? (например, после возврата)`,
+                        ),
+                      )
+                    )
+                      void act({ op: 'revoke', uid: b.uid });
+                  }}
+                >
+                  ✖ {L('Yopish', 'Revoke', 'Закрыть')}
+                </Button>
+              </li>
+            ))}
+          </ul>
+        </details>
+      )}
       <div className="exa-topics" role="tablist" aria-label={L('Mavzular', 'Topics', 'Темы')}>
         {view.topics.map((t) => (
           <button

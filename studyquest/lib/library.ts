@@ -52,4 +52,6 @@ export type PremiumState = {
   /** shu vaqtgacha (0 — yo'q) */
   until: number;
   staff: boolean;
+  /** 💎 tanlangan profil bezagi (lib/premium-look.ts) */
+  look?: string;
 };

@@ -8,6 +8,8 @@ import { navigate } from './dashboard';
 import { dueText, tr } from '@/lib/points';
 import type { PremiumInfo, PremiumState } from '@/lib/library';
 import { isPlayApp } from '@/lib/play-app';
+import { LOOKS, lookOf } from '@/lib/premium-look';
+import { ProductBuy } from './product-buy';
 
 /* 💎 Obuna (premium): holatini o'qish, «obuna bo'lish» oynasi va kichik belgi. Obunani hozircha administrator beradi
    (lib/server/premium.ts) — oynada narx va to'lov yo'riqnomasi ko'rsatiladi. */
@@ -92,19 +94,11 @@ export function PremiumOffer({
         </h2>
         <ul>
           <li>
-            📖{' '}
+            🎨{' '}
             {L(
-              '«Tadbirkorlik asoslari» kursining barcha ochiq darslari (talaba bo‘lmaganlar uchun)',
-              'All open lessons of the “Fundamentals of Entrepreneurship” course (for non-students)',
-              'Все открытые уроки курса «Основы предпринимательства» (для не-студентов)',
-            )}
-          </li>
-          <li>
-            📚{' '}
-            {L(
-              'Kutubxonadagi 💎 belgili kitob, qo‘llanma va namunalar',
-              'Books, guides and templates marked 💎 in the library',
-              'Книги, пособия и шаблоны со значком 💎 в библиотеке',
+              'Profil bezagi — 5 xildan tanlaysiz, reytingda ismingiz ajralib turadi',
+              'A profile style — pick one of 5, your name stands out in the leaderboard',
+              'Оформление профиля — 5 вариантов, ваше имя выделяется в рейтинге',
             )}
           </li>
           <li>
@@ -116,62 +110,167 @@ export function PremiumOffer({
             )}
           </li>
           <li>
-            🚀{' '}
+            💼{' '}
             {L(
-              'Yangi pullik imkoniyatlar qo‘shilganda — birinchilardan bo‘lib',
-              'First access to new premium features',
-              'Первый доступ к новым платным возможностям',
+              'Barcha pullik xizmatlarga 50 % chegirma — yakuniy testga tayyorgarlik ham',
+              '50% off all paid services — including the final exam preparation',
+              'Скидка 50 % на все платные услуги — и на подготовку к итоговому тесту',
+            )}
+          </li>
+          <li>
+            📚{' '}
+            {L(
+              'Kutubxonadagi 💎 belgili kitob, qo‘llanma va namunalar',
+              'Books, guides and templates marked 💎 in the library',
+              'Книги, пособия и шаблоны со значком 💎 в библиотеке',
+            )}
+          </li>
+          <li>
+            📖{' '}
+            {L(
+              '«Tadbirkorlik asoslari» kursining barcha ochiq darslari (talaba bo‘lmaganlar uchun)',
+              'All open lessons of the “Fundamentals of Entrepreneurship” course (for non-students)',
+              'Все открытые уроки курса «Основы предпринимательства» (для не-студентов)',
+            )}
+          </li>
+          <li>
+            🎬{' '}
+            {L(
+              'Video darslarni yuklab olib, internetsiz ko‘rish',
+              'Download video lessons to watch offline',
+              'Скачивание видеоуроков для просмотра без сети',
             )}
           </li>
         </ul>
-        {play ? (
-          <p className="premium-offer-how">
-            {L(
-              'Bu imkoniyatlar obunachilar uchun. Obunangiz bo‘lsa, shu hisob bilan kirganingizda hammasi o‘zi ochiladi.',
-              'These features are for subscribers. If you have Premium, everything opens once you sign in with that account.',
-              'Эти возможности доступны подписчикам. Если у вас есть подписка, всё откроется после входа в этот аккаунт.',
-            )}
-          </p>
+        {signedIn ? (
+          <div className="premium-plans">
+            <section>
+              <b>{L('1 oy', '1 month', '1 месяц')}</b>
+              <ProductBuy product="premium-oy" compact />
+            </section>
+            <section className="is-best">
+              <b>
+                {L('1 yil', '1 year', '1 год')} <em>{L('arzonroq', 'better value', 'выгоднее')}</em>
+              </b>
+              <ProductBuy product="premium-yil" compact />
+            </section>
+          </div>
         ) : (
-          <>
-            {info?.price && (
-              <p className="premium-offer-price">
-                <b>{info.price}</b>
-              </p>
-            )}
+          play && (
             <p className="premium-offer-how">
-              {info?.how ||
-                L(
-                  'Obuna bo‘lish uchun administratorga yozing — u to‘lov usulini aytadi va obunani yoqib beradi.',
-                  'To subscribe, write to the administrator — they will explain how to pay and turn Premium on.',
-                  'Чтобы оформить подписку, напишите администратору — он объяснит оплату и включит подписку.',
-                )}
+              {L(
+                'Bu imkoniyatlar obunachilar uchun. Obunangiz bo‘lsa, shu hisob bilan kirganingizda hammasi o‘zi ochiladi.',
+                'These features are for subscribers. If you have Premium, everything opens once you sign in with that account.',
+                'Эти возможности доступны подписчикам. Если у вас есть подписка, всё откроется после входа в этот аккаунт.',
+              )}
             </p>
-          </>
+          )
         )}
         <div className="premium-offer-actions">
-          {(!play || !signedIn) && (
+          {!signedIn && (
             <Button
               onClick={() => {
                 onClose();
-                navigate(signedIn ? 'chat/admin' : 'login');
+                navigate('login');
               }}
             >
-              {signedIn
-                ? L(
-                    'Administratorga yozish',
-                    'Write to the administrator',
-                    'Написать администратору',
-                  )
-                : L('Kirish', 'Sign in', 'Войти')}
+              {L('Kirish', 'Sign in', 'Войти')}
             </Button>
           )}
           <Button variant="outline" onClick={onClose}>
-            {play ? L('Tushunarli', 'OK', 'Понятно') : L('Keyinroq', 'Later', 'Позже')}
+            {L('Yopish', 'Close', 'Закрыть')}
           </Button>
         </div>
       </section>
     </div>,
     document.body,
+  );
+}
+
+/** 💎 Profil sahifasidagi Premium kartasi: obunachi — bezagini tanlaydi (5 xil); obunasi yo'q — taklif. */
+export function PremiumCard({ name }: { name: string }) {
+  const { lang, call, toast } = useApp();
+  const L = (uz: string, en: string, ru: string) => tr(lang, uz, en, ru);
+  const { premium, reload } = usePremium();
+  const [offer, setOffer] = useState(false);
+  const [busy, setBusy] = useState('');
+  if (!premium || premium.state.staff) return null;
+  const st = premium.state;
+  return (
+    <section className="panel profile-card premium-card" aria-labelledby="premium-card-h">
+      <h2 id="premium-card-h">
+        💎 Premium{' '}
+        {st.active && st.until ? (
+          <small className="muted">
+            · {L('gacha', 'until', 'до')} {dueText(st.until, lang, Date.now()).date}
+          </small>
+        ) : null}
+      </h2>
+      {st.active ? (
+        <>
+          <p className="muted">
+            {L(
+              'Profil bezagini tanlang — reytingda ismingiz shunday ko‘rinadi.',
+              'Pick your profile style — this is how your name looks in the leaderboard.',
+              'Выберите оформление — так ваше имя выглядит в рейтинге.',
+            )}
+          </p>
+          <ul className="pm-looks ranking-list rk-list" role="radiogroup">
+            {LOOKS.map((l) => {
+              const on = lookOf(st.look).id === l.id;
+              return (
+                <li key={l.id} className={'rk-row pm pm-' + l.id + (on ? ' is-on' : '')}>
+                  <button
+                    type="button"
+                    role="radio"
+                    aria-checked={on}
+                    disabled={!!busy}
+                    onClick={async () => {
+                      setBusy(l.id);
+                      try {
+                        await call('premiumLook', { look: l.id });
+                        await reload();
+                        toast(L('💎 Bezak saqlandi', '💎 Style saved', '💎 Оформление сохранено'));
+                      } catch (e) {
+                        toast((e as Error).message);
+                      } finally {
+                        setBusy('');
+                      }
+                    }}
+                  >
+                    <span className="rk-who">
+                      <b>
+                        <span className="rk-name">{name}</span>
+                        <span className="pm-chip">{l.icon}</span>
+                      </b>
+                      <small>
+                        {tr(lang, ...l.name)} — {tr(lang, ...l.text)}
+                      </small>
+                    </span>
+                    <span className="pm-look-check" aria-hidden="true">
+                      {on ? '✓' : ''}
+                    </span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </>
+      ) : (
+        <>
+          <p>
+            {L(
+              'Oyiga 5 000 so‘m: profil bezagi, avatar, barcha pullik xizmatlarga 50 % chegirma va boshqalar.',
+              '5 000 so‘m a month: a profile style, an avatar, 50% off all paid services and more.',
+              '5 000 сум в месяц: оформление профиля, аватар, скидка 50 % на все платные услуги и другое.',
+            )}
+          </p>
+          <Button onClick={() => setOffer(true)}>
+            💎 {L('Obuna bo‘lish', 'Get Premium', 'Оформить подписку')}
+          </Button>
+        </>
+      )}
+      {offer && <PremiumOffer info={premium.info} onClose={() => setOffer(false)} />}
+    </section>
   );
 }

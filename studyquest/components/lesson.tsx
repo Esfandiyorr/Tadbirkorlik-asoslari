@@ -31,6 +31,7 @@ import {
 import { NativeSurface } from './native-surface';
 import { ReadingTools } from './reading-tools';
 import { TopicVideoButton } from './topic-video';
+import { usePremium } from './premium';
 import { LOGO_TOPIC } from '@/lib/logo-task';
 import { CourseGate, PaidCourseGate, useCourseLocked, usePaidLocked } from './course-gate';
 /** Taqdimotning PDF nusxasi: to'liq havola yoki asl fayllar (public/legacy/fayllar). */
@@ -118,6 +119,7 @@ function LessonPlanView({ lesson }: { lesson: LessonType }) {
   );
 }
 function OriginalLessonView({ id }: { id: string }) {
+  const { premium } = usePremium();
   const { data, lang, dark, call, toast, request } = useApp(),
     mainLocked = useCourseLocked(),
     meta = data!.lessons.find((x) => x.id === id),
@@ -336,7 +338,12 @@ function OriginalLessonView({ id }: { id: string }) {
           id={id}
           localVideo={lesson.legacyVideo}
           title={lesson.title}
-          download={data?.user?.role === 'teacher' || data?.user?.role === 'admin'}
+          // 🎬 videoni yuklab olish: o'qituvchi, administrator va 💎 obunachi
+          download={
+            data?.user?.role === 'teacher' ||
+            data?.user?.role === 'admin' ||
+            !!premium?.state.active
+          }
         />
         {lesson.legacyPdf && (data?.user?.role === 'teacher' || data?.user?.role === 'admin') && (
           // 📥 O'qituvchi va administrator taqdimotning PDF nusxasini bir bosishda yuklab oladi.

@@ -1,6 +1,15 @@
 import { beforeAll, beforeEach, expect, it } from 'vitest';
 import type { Actor } from '../lib/types';
-import { managePremium, premiumAdmin, premiumState, premiumView } from '../lib/server/premium';
+import {
+  grantPremium,
+  managePremium,
+  premiumAdmin,
+  premiumState,
+  premiumView,
+  setPremiumLook,
+} from '../lib/server/premium';
+import { avatarView, readAvatars } from '../lib/server/avatars';
+import { BUILTIN_AVATARS } from '../lib/avatars';
 import { manageLibraryItems, readLibrary } from '../lib/server/library';
 import { readImage, resetSiteMemory } from '../lib/server/site-content';
 
@@ -52,6 +61,7 @@ it('the administrator gives, extends and removes Premium; staff always have it',
   });
   expect(await premiumState(ali, now)).toEqual({
     active: true,
+    look: 'oltin',
     until: now + 30 * DAY,
     staff: false,
   });
@@ -135,4 +145,25 @@ it('the library hides the link of a premium resource from people without Premium
   await manageLibraryItems(admin, { op: 'remove', id: free.id! });
   expect(await readImage(key)).toBeNull();
   expect((await readLibrary(true)).map((x) => x.id)).toEqual([pro.id]);
+});
+
+it('a subscriber picks one of 5 profile looks; the leaderboard shows it only while Premium is active', async () => {
+  const now = Date.UTC(2026, 10, 24, 9, 0);
+  await expect(setPremiumLook(ali, 'olov', now)).rejects.toThrow('Premium');
+  await grantPremium(ali.id, 'Ali Valiyev', 'AP-223', 30, 'test', now);
+  expect((await premiumState(ali, now)).look).toBe('oltin'); // tanlanmagan — «Oltin toj»
+  await expect(setPremiumLook(ali, 'yoq', now)).rejects.toThrow('bezak');
+  await setPremiumLook(ali, 'olov', now);
+  expect((await premiumState(ali, now)).look).toBe('olov');
+  const board = [
+    { id: ali.id, name: 'Ali Valiyev', classId: 'AP-223', academicPoints: 90 },
+    { id: 'legacy_vali', name: 'Vali Karimov', classId: 'AP-223', academicPoints: 80 },
+  ];
+  let rows = avatarView(board, await readAvatars(now), undefined, BUILTIN_AVATARS, now).leaderboard;
+  expect(rows.map((r) => (r as { pm?: string }).pm)).toEqual(['olov', undefined]);
+  // obuna tugagach — bezak ko'rinmaydi
+  const later = now + 31 * DAY;
+  rows = avatarView(board, await readAvatars(later), undefined, BUILTIN_AVATARS, later).leaderboard;
+  expect(rows.map((r) => (r as { pm?: string }).pm)).toEqual([undefined, undefined]);
+  expect((await premiumState(ali, later)).look).toBeUndefined();
 });

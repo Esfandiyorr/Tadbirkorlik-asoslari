@@ -207,7 +207,7 @@ test('guests see the guide and catalog; the Play Market app has no paid services
   await expect(soon.getByRole('button', { name: 'Kirib taklif yuborish' })).toBeVisible();
   await soon.getByRole('button', { name: 'Keyinroq' }).click();
   await expect(page.locator('.svc-steps li')).toHaveCount(5);
-  await expect(page.locator('.svc-card').first()).toContainText('Tez orada');
+  await expect(page.locator('.svc-card:not(.is-product)').first()).toContainText('Tez orada');
   // eski AI taqdimot havolasi ham shu bo'limga olib keladi
   await as(page, 'demo-student');
   await page.goto('/#slides', { waitUntil: 'domcontentloaded' });
@@ -302,7 +302,9 @@ test('before the launch a student sees «Launching soon» and sends a suggestion
   await student.reload({ waitUntil: 'domcontentloaded' });
   await expect(student.locator('.svc-soon')).toHaveCount(0);
   await student.locator('.mk-tabs a[href="#services"]').click();
-  await expect(student.locator('.svc-card').first()).toContainText('Buyurtma berish');
+  await expect(student.locator('.svc-card:not(.is-product)').first()).toContainText(
+    'Buyurtma berish',
+  );
   await student.context().close();
   // asl holiga qaytarish
   page.once('dialog', (d) => void d.accept());

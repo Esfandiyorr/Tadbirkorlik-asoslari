@@ -12,7 +12,8 @@ import {
 import { administrator, ApiError, check } from './auth';
 import { demo, legacyDb } from './repository';
 import { siteGet, siteUpdate } from './site-content';
-import { activePremium } from './premium';
+import { activePremium, premiumLooks } from './premium';
+import { DEFAULT_LOOK, isLook } from '../premium-look';
 
 /* 🎭 Avatarlar (mukofot): bitta avatar bir vaqtda faqat bitta talabada bo'ladi. Avatar olish huquqi:
      🏆 umumiy reytingda 1–10-o'rin, ✅ administrator ruxsati, 💎 obuna (premium) yoki 💳 sotib olingan muddat.
@@ -38,6 +39,8 @@ export type AvatarStore = {
   gone?: Record<string, Gone>;
   orders?: Record<string, AvatarOrder>;
   shop?: AvatarShop;
+  /** 💎 obunachilar tanlagan profil bezagi: foydalanuvchi kaliti → bezak */
+  looks?: Record<string, string>;
 };
 export type BoardRow = { id: string; name: string; classId: string; academicPoints: number };
 
@@ -63,7 +66,7 @@ function normalizeShop(raw: Partial<AvatarShop> | null): AvatarShop {
 }
 
 export async function readAvatars(now = Date.now()): Promise<AvatarStore> {
-  const [base, premium, passes, gone, orders, shop] = await Promise.all([
+  const [base, premium, passes, gone, orders, shop, looks] = await Promise.all([
     demo()
       ? Promise.resolve({ own: { ...memory.own }, allow: { ...memory.allow } })
       : legacyDb()
@@ -75,6 +78,7 @@ export async function readAvatars(now = Date.now()): Promise<AvatarStore> {
     siteGet<Record<string, Gone>>('avatarGone').catch(() => null),
     siteGet<Record<string, AvatarOrder>>('avatarOrders').catch(() => null),
     siteGet<Partial<AvatarShop>>('avatarShop').catch(() => null),
+    premiumLooks().catch(() => ({})),
   ]);
   const pass: Record<string, number> = {};
   for (const p of Object.values(passes || {}))
@@ -95,6 +99,7 @@ export async function readAvatars(now = Date.now()): Promise<AvatarStore> {
     ),
     orders: byStudent(orders),
     shop: normalizeShop(shop),
+    looks,
   };
 }
 
@@ -160,7 +165,15 @@ export function avatarView(
   const shop = store.shop || AVATAR_SHOP_DEFAULT;
   const place = me ? board.findIndex((r) => r.id === me) + 1 : 0;
   return {
-    leaderboard: board.map((r) => (byOwner[r.id] ? { ...r, avatar: byOwner[r.id] } : r)),
+    // 💎 obunachi qatori ajralib turadi (tanlagan bezagi bilan)
+    leaderboard: board.map((r) => {
+      const look = store.looks?.[keyOf(r.id)];
+      return {
+        ...r,
+        ...(byOwner[r.id] ? { avatar: byOwner[r.id] } : {}),
+        ...(premium(r.id) ? { pm: isLook(look) ? look : DEFAULT_LOOK } : {}),
+      };
+    }),
     avatars: {
       owners,
       catalog: catalog.filter((a) => !a.off),

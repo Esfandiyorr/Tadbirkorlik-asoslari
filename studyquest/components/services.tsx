@@ -24,6 +24,7 @@ import { useApp } from './provider';
 import { Button } from './ui/button';
 import { navigate } from './dashboard';
 import { openBackOffice } from './backoffice';
+import { PremiumOffer } from './premium';
 import { saveOrderFile, sendOrderFile, servicesAct } from './service-files';
 import { dueText, tr } from '@/lib/points';
 import {
@@ -158,6 +159,7 @@ export function Services({ sub = '' }: { sub?: string }) {
   // «tez orada» oynasi: null — yopiq, massiv — oldindan belgilangan yo'nalishlar
   const [soon, setSoon] = useState<string[] | null>(null);
   const [sent, setSent] = useState(false);
+  const [premiumOffer, setPremiumOffer] = useState(false);
   const [group, setGroup] = useState<ServiceGroup | ''>('');
   const [q, setQ] = useState('');
   const shown = useRef(false);
@@ -313,6 +315,31 @@ export function Services({ sub = '' }: { sub?: string }) {
         </p>
       )}
 
+      {view?.signedIn && !admin && (
+        // 💎 obunachilarga barcha xizmatlar yarim narxda
+        <div className={'svc-premium' + (view.discount ? ' is-on' : '')}>
+          <span aria-hidden="true">💎</span>
+          <p>
+            {view.discount
+              ? L(
+                  `Siz Premium obunachisiz: barcha xizmatlar ${view.discount} % arzon.`,
+                  `You have Premium: all services are ${view.discount}% off.`,
+                  `У вас подписка: все услуги дешевле на ${view.discount}%.`,
+                )
+              : L(
+                  `Premium obunachilarga barcha xizmatlar 50 % arzon — oyiga ${formatSum(view.products['premium-oy'])}.`,
+                  `Premium subscribers get 50% off all services — ${formatSum(view.products['premium-oy'])} a month.`,
+                  `Подписчикам все услуги на 50 % дешевле — ${formatSum(view.products['premium-oy'])} в месяц.`,
+                )}
+          </p>
+          {!view.discount && (
+            <Button size="sm" onClick={() => setPremiumOffer(true)}>
+              {L('Batafsil', 'Learn more', 'Подробнее')}
+            </Button>
+          )}
+        </div>
+      )}
+      {premiumOffer && <PremiumOffer info={null} onClose={() => setPremiumOffer(false)} />}
       <nav className="mk-tabs" aria-label={L('Bo‘limlar', 'Sections', 'Разделы')}>
         {tabs.map(([id, icon, name, n]) => (
           <a

@@ -60,7 +60,7 @@ import {
 } from '@/lib/server/push';
 import { avatarLibrary, manageLibrary } from '@/lib/server/avatar-library';
 import { manageLibraryItems, readLibrary } from '@/lib/server/library';
-import { managePremium, premiumAdmin, premiumView } from '@/lib/server/premium';
+import { managePremium, premiumAdmin, premiumView, setPremiumLook } from '@/lib/server/premium';
 import { servicesShown } from '@/lib/server/services';
 import {
   appAdmin,
@@ -653,6 +653,12 @@ export async function POST(req: NextRequest) {
     }
     if (p.action === 'premiumAdmin') {
       return NextResponse.json(await managePremium(await actor(req, true), p.input));
+    }
+    if (p.action === 'premiumLook') {
+      // 💎 obunachi profil bezagini tanlaydi
+      return NextResponse.json(
+        await setPremiumLook(await actor(req, true), (p.input as { look?: string })?.look),
+      );
     }
     if (p.action === 'courseAccessAdmin') {
       const a = await actor(req, true),

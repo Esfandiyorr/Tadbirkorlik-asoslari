@@ -322,7 +322,7 @@ export function BackOffice({ openTab }: { openTab: (tab: string) => void }) {
         {
           id: 'education',
           title: L('Ta’lim', 'Education', 'Обучение'),
-          ids: ['quiz', 'video', 'logo', 'live', 'library', 'access', 'legacy'],
+          ids: ['quiz', 'exam', 'video', 'logo', 'live', 'library', 'access', 'legacy'],
         },
         {
           id: 'students',

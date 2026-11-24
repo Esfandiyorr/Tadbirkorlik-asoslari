@@ -14236,3 +14236,235 @@ html {
   background: none;
   cursor: pointer;
 }
+
+/* 💎 Premium: obuna rejalari, profil kartasi va obunachi qatorining 5 xil bezagi (lib/premium-look.ts) */
+.premium-plans {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+  width: 100%;
+  text-align: left;
+}
+.premium-plans section {
+  display: grid;
+  gap: 8px;
+}
+.premium-plans section > b em {
+  margin-left: 6px;
+  padding: 2px 8px;
+  border-radius: 99px;
+  background: #dcfce7;
+  color: #166534;
+  font-size: 12px;
+  font-style: normal;
+}
+.svc-premium {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 12px;
+  padding: 10px 14px;
+  border: 1px solid #ddd6fe;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #f5f3ff, #fdf4ff);
+}
+.dark .svc-premium {
+  border-color: #4c1d95;
+  background: linear-gradient(135deg, #1e1638, #2a1438);
+}
+.svc-premium > span {
+  font-size: 22px;
+}
+.svc-premium p {
+  flex: 1 1 220px;
+  margin: 0;
+  font-weight: 600;
+}
+.premium-card .pm-looks {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.pm-looks > li {
+  padding: 0;
+}
+.pm-looks button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 0;
+  background: none;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.pm-looks small {
+  display: block;
+  color: var(--muted);
+  font-size: 12.5px;
+}
+.pm-look-check {
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #7c3aed;
+  color: #fff;
+  font-weight: 800;
+}
+.pm-looks li:not(.is-on) .pm-look-check {
+  background: transparent;
+  border: 2px solid var(--border);
+}
+.pm-chip {
+  display: inline-grid;
+  margin-left: 6px;
+  place-items: center;
+  font-size: 15px;
+  line-height: 1;
+}
+/* umumiy: obunachi qatori */
+.rk-row.pm {
+  position: relative;
+  border-radius: 14px;
+}
+/* 1. 👑 Oltin toj */
+.rk-row.pm-oltin {
+  border: 1.5px solid #e5b93a;
+  background: linear-gradient(90deg, #fff8e1, #fffdf5);
+  box-shadow: inset 4px 0 0 #d4a017;
+}
+.dark .rk-row.pm-oltin {
+  background: linear-gradient(90deg, #2c2410, #1c1c2e);
+}
+.rk-row.pm-oltin .rk-name {
+  color: #a16207;
+  font-weight: 800;
+}
+.dark .rk-row.pm-oltin .rk-name {
+  color: #fcd34d;
+}
+.rk-row.pm-oltin .rk-slot {
+  box-shadow: 0 0 0 3px #e5b93a;
+  border-radius: 50%;
+}
+/* 2. 🌈 Kamalak */
+.rk-row.pm-kamalak {
+  border: 1.5px solid transparent;
+  background:
+    linear-gradient(var(--surface), var(--surface)) padding-box,
+    linear-gradient(90deg, #ef4444, #f59e0b, #22c55e, #3b82f6, #a855f7) border-box;
+}
+.rk-row.pm-kamalak .rk-name {
+  background: linear-gradient(90deg, #ef4444, #f59e0b, #22c55e, #3b82f6, #a855f7, #ef4444);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-weight: 800;
+  animation: pm-shift 4s linear infinite;
+}
+/* 3. ✨ Binafsha nur */
+.rk-row.pm-nur {
+  border: 1.5px solid #a78bfa;
+  background: var(--soft-violet);
+  box-shadow: 0 0 0 0 #8b5cf680;
+  animation: pm-glow 2.6s ease-in-out infinite;
+}
+.rk-row.pm-nur .rk-name {
+  color: #6d28d9;
+  font-weight: 800;
+}
+.dark .rk-row.pm-nur .rk-name {
+  color: #c4b5fd;
+}
+/* 4. 💎 Olmos */
+.rk-row.pm-olmos {
+  overflow: hidden;
+  border: 1.5px solid #7dd3fc;
+  background: linear-gradient(120deg, #ecfeff, #eff6ff 45%, #f8fafc);
+}
+.dark .rk-row.pm-olmos {
+  background: linear-gradient(120deg, #0c2a33, #111c33 45%, #1c1c2e);
+}
+.rk-row.pm-olmos::after {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 -40%;
+  width: 30%;
+  background: linear-gradient(100deg, transparent, #ffffff99, transparent);
+  animation: pm-sweep 3.2s ease-in-out infinite;
+  pointer-events: none;
+}
+.rk-row.pm-olmos .rk-name {
+  color: #0369a1;
+  font-weight: 800;
+}
+.dark .rk-row.pm-olmos .rk-name {
+  color: #7dd3fc;
+}
+/* 5. 🔥 Olovli */
+.rk-row.pm-olov {
+  border: 1.5px solid transparent;
+  background:
+    linear-gradient(90deg, #fff7ed, #fffbeb) padding-box,
+    linear-gradient(90deg, #dc2626, #f97316, #facc15) border-box;
+}
+.dark .rk-row.pm-olov {
+  background:
+    linear-gradient(90deg, #2a1608, #1c1c2e) padding-box,
+    linear-gradient(90deg, #dc2626, #f97316, #facc15) border-box;
+}
+.rk-row.pm-olov .rk-name {
+  background: linear-gradient(90deg, #dc2626, #f97316, #eab308);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-weight: 800;
+}
+@keyframes pm-shift {
+  to {
+    background-position: 200% center;
+  }
+}
+@keyframes pm-glow {
+  50% {
+    box-shadow: 0 0 18px 2px #8b5cf666;
+  }
+}
+@keyframes pm-sweep {
+  0% {
+    left: -40%;
+  }
+  60%,
+  100% {
+    left: 120%;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rk-row.pm-kamalak .rk-name,
+  .rk-row.pm-nur,
+  .rk-row.pm-olmos::after {
+    animation: none;
+  }
+}
+.exa-buyers ul {
+  display: grid;
+  gap: 6px;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.exa-buyers li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}

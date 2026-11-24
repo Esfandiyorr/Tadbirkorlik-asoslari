@@ -2,7 +2,8 @@ import 'server-only';
 import { z } from 'zod';
 import type { Actor } from '../types';
 import type { PremiumInfo, PremiumState } from '../library';
-import { administrator } from './auth';
+import { administrator, check } from './auth';
+import { DEFAULT_LOOK, isLook } from '../premium-look';
 import { siteGet, siteUpdate } from './site-content';
 
 /* 💎 Obuna (premium): pullik imkoniyatlar (kurs darslari — talaba bo'lmaganlarga, kutubxonadagi 💎 manbalar, avatar) uchun.
@@ -33,9 +34,29 @@ const staff = (a: Pick<Actor, 'role'>) => a.role === 'admin' || a.role === 'teac
 /** Foydalanuvchining obunasi (o'qituvchi va administratorga hamma narsa ochiq). */
 export async function premiumState(a: Actor, now = Date.now()): Promise<PremiumState> {
   if (staff(a)) return { active: true, until: 0, staff: true };
-  const g = await siteGet<Grant>('premium/' + keyOf(a.id));
+  const [g, look] = await Promise.all([
+    siteGet<Grant>('premium/' + keyOf(a.id)),
+    siteGet<string>('premiumLook/' + keyOf(a.id)).catch(() => null),
+  ]);
   const until = Number(g?.until) || 0;
-  return { active: until > now, until: until > now ? until : 0, staff: false };
+  return {
+    active: until > now,
+    until: until > now ? until : 0,
+    staff: false,
+    ...(until > now ? { look: isLook(look) ? look : DEFAULT_LOOK } : {}),
+  };
+}
+/** 💎 Obunachi profil bezagini tanlaydi (obuna amalda bo'lishi kerak). */
+export async function setPremiumLook(a: Actor, look: unknown, now = Date.now()) {
+  check(isLook(look), 400, 'Bunday bezak yo‘q.');
+  const st = await premiumState(a, now);
+  check(st.active && !st.staff, 403, 'Profil bezagi — Premium obunachilar uchun.');
+  await siteUpdate({ ['premiumLook/' + keyOf(a.id)]: look });
+  return premiumView(a, now);
+}
+/** Obunachilar tanlagan bezaklar: foydalanuvchi kaliti → bezak (reyting uchun). */
+export async function premiumLooks(): Promise<Record<string, string>> {
+  return (await siteGet<Record<string, string>>('premiumLook')) || {};
 }
 /** Talaba sahifalari uchun: obuna holati va narx/to'lov yo'riqnomasi. */
 export async function premiumView(a: Actor, now = Date.now()) {

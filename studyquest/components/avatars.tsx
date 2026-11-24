@@ -32,6 +32,8 @@ export type BoardEntry = {
   /** shu hafta (dushanbadan, Toshkent) to'plangan ball */
   week?: number;
   avatar?: string;
+  /** 💎 obunachi profil bezagi (lib/premium-look.ts) */
+  pm?: string;
 };
 export type AvatarMe = {
   place: number;

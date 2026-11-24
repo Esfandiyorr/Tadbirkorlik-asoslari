@@ -100,7 +100,13 @@ export async function hasExamAccess(a: Actor | null) {
   return (await accessOf(a)).access;
 }
 /** Bo'limni ochish: to'lov tasdiqlanganda (lib/server/services.ts) yoki administrator qo'lda. */
-export async function grantExamAccess(uid: string, name: string, by: string, via: string, now = Date.now()) {
+export async function grantExamAccess(
+  uid: string,
+  name: string,
+  by: string,
+  via: string,
+  now = Date.now(),
+) {
   await siteUpdate({
     ['examAccess/' + keyOf(uid)]: {
       uid,
@@ -192,7 +198,7 @@ export async function examAdmin(a: Actor): Promise<ExamAdminView> {
   administrator(a);
   const [bank, access, certs] = await Promise.all([
     readBank(),
-    siteGet<Record<string, unknown>>('examAccess'),
+    siteGet<Record<string, { uid?: string; name?: string; at?: number }>>('examAccess'),
     siteGet<Record<string, unknown>>('examCerts'),
   ]);
   const list = topics().map((t) => ({
@@ -203,7 +209,10 @@ export async function examAdmin(a: Actor): Promise<ExamAdminView> {
   return {
     topics: list,
     total: list.reduce((n, t) => n + t.count, 0),
-    buyers: Object.keys(access || {}).length,
+    buyers: Object.values(access || {})
+      .filter((x) => x?.uid && x.at)
+      .map((x) => ({ uid: x.uid!, name: x.name || x.uid!, at: x.at! }))
+      .sort((x, y) => y.at - x.at),
     certs: Object.keys(certs || {}).length,
   };
 }
@@ -235,7 +244,11 @@ const userInput = z.discriminatedUnion('op', [
     })
     .strict(),
   z
-    .object({ op: z.literal('answer'), id: z.string().max(30), choice: z.number().int().min(0).max(5) })
+    .object({
+      op: z.literal('answer'),
+      id: z.string().max(30),
+      choice: z.number().int().min(0).max(5),
+    })
     .strict(),
   z
     .object({
@@ -380,12 +393,18 @@ const adminInput = z.discriminatedUnion('op', [
     .strict(),
   z.object({ op: z.literal('remove'), topic: z.string().max(8), id: z.string().max(30) }).strict(),
   z.object({ op: z.literal('clear'), topic: z.string().max(8) }).strict(),
+  z.object({ op: z.literal('revoke'), uid: z.string().min(1).max(140) }).strict(),
 ]);
 
 /** Administrator: savollarni matndan yuklash (qo'shish yoki almashtirish), bitta savolni yoki mavzuni tozalash. */
 export async function examAdminAct(a: Actor, raw: unknown, now = Date.now()) {
   administrator(a);
   const v = adminInput.parse(raw);
+  if (v.op === 'revoke') {
+    // bo'lim huquqini olib tashlash (masalan, pul qaytarilganda); natijalar va sertifikatlar qoladi
+    await siteUpdate({ ['examAccess/' + keyOf(v.uid)]: null });
+    return { admin: await examAdmin(a) };
+  }
   check(
     topics().some((t) => t.id === v.topic),
     404,

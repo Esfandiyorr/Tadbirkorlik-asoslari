@@ -74,10 +74,29 @@ For Firebase-backed development, copy `.env.example` to `.env.local`, supply you
     and changes notify the administrator by push; replies, confirmed payments and results notify the client. The
     privacy policy says that order texts and files may be processed with AI tools. The section is hidden inside the
     Play Store app (`/?src=play`): Google Play does not allow steering to external payments.
-- **Premium** (`lib/server/premium.ts`): until a payment provider is connected the administrator grants a timed
-  subscription by hand and writes the price and payment instructions. Inside the Play Store app (`/?src=play`) the
-  offer shows no price or payment instructions (`lib/play-app.ts`) — Google Play does not allow steering to external
-  payment for digital goods.
+- **💎 Premium** (`lib/server/premium.ts`, `components/premium.tsx`, `lib/premium-look.ts`): sold on the site as
+  ready-made products in «Paid services» — **monthly 5 000 so'm (30 days)** and **yearly 45 000 so'm (365 days)**
+  (prices editable under Paid services → ⚙️ Payment instructions). The user presses «Buy» → «I paid»; when the
+  administrator confirms the payment in the orders inbox, Premium turns on by itself (added on top of the current
+  period); the administrator can still grant it by hand. Subscribers get: a **profile look** — one of 5 (👑 Golden
+  crown, 🌈 Rainbow, ✨ Violet glow, 💎 Diamond, 🔥 Fire; Profile → 💎 Premium), shown on their leaderboard row while
+  Premium is active; an avatar; **50 % off all paid services** (custom orders and the final exam preparation, not
+  Premium itself); 💎 library items; the course for non-students; video lesson downloads. Inside the Play Store app
+  (`/?src=play`) the offer shows no price or payment (`lib/play-app.ts`).
+- **🎯 Final exam preparation** (`lib/exam.ts`, `lib/server/exam.ts`, `app/api/exam`, `components/exam.tsx`): a tab
+  inside the main course (`#course/<id>/exam`) with **450 questions — 30 for each of the 15 topics** that the
+  administrator uploads in **Site manager → 🎯 Final exam questions** (paste from Word or a .txt: numbered
+  «1. … A) … *» / «Javob: B» or HEMIS «++++ ==== #»; preview, replace, delete; re-uploading the same text updates
+  instead of duplicating). The section is a paid service (**10 000 so'm**, 5 000 for Premium): bought from the tab or
+  the catalog card and opened automatically when the administrator confirms the payment (the administrator can also
+  revoke it). Inside: practice by topic, mixed practice (30), «work on mistakes» — each answer is checked at once
+  and stored per question; a timed **final exam** (3 questions from every topic, 60 minutes, graded at the end on the
+  server, resumable after a reload). **60 % or more gives a certificate** (`#sertifikat/<id>`): name, group,
+  course, score, date, teacher and a QR code that leads to a public verification page; printable as an A4 PDF.
+  Teachers and administrators always have access. Until questions are uploaded the section shows «coming soon» and
+  is not on sale. Storage (server-only RTDB): `site/examQ/<topic>`, `site/examAccess/<user>`,
+  `site/examStats/<user>/<question>`, `site/examRuns/<user>/<run>`, `site/examCerts/<id>`; account deletion removes
+  them.
 - **Course access** (`lib/server/course-access.ts`, `components/course-gate.tsx`, per course — see also the paid
   restaurant course below): Google accounts are asked «Talabamisiz?» when the course starts (students who sign up with
   their name are asked on the sign-in page — see **Sign-in page** below): **«Ha, talabaman»** → the user picks their

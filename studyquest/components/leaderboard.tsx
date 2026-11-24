@@ -10,6 +10,7 @@ import {
   type BoardEntry,
 } from './avatars';
 import { num, tr } from '@/lib/points';
+import { lookOf } from '@/lib/premium-look';
 
 type Entry = BoardEntry;
 type Period = 'day' | 'week' | 'all';
@@ -272,7 +273,11 @@ export function Leaderboard({ embedded = false }: { embedded?: boolean }) {
               <li
                 key={r.id}
                 className={
-                  'rk-row ' + (i < 10 ? 'rk-c' + (i + 1) : 'plain') + (r.id === myId ? ' me' : '')
+                  'rk-row ' +
+                  (i < 10 ? 'rk-c' + (i + 1) : 'plain') +
+                  (r.id === myId ? ' me' : '') +
+                  // 💎 obunachi — tanlagan bezagi bilan
+                  (r.pm ? ' pm pm-' + r.pm : '')
                 }
                 aria-current={r.id === myId ? 'true' : undefined}
               >
@@ -280,6 +285,11 @@ export function Leaderboard({ embedded = false }: { embedded?: boolean }) {
                 <span className="rk-who">
                   <b>
                     <span className="rk-name">{r.name}</span>
+                    {r.pm && (
+                      <span className="pm-chip" title="Premium">
+                        {lookOf(r.pm).icon}
+                      </span>
+                    )}
                     {r.id === myId && <em>{L('Siz', 'You', 'Вы')}</em>}
                   </b>
                   <small>{r.classId}</small>

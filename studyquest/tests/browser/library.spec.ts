@@ -88,7 +88,7 @@ test('the administrator fills the library; premium resources open only with Prem
   await locked.click();
   const offer = student.getByRole('dialog', { name: /Obuna bilan ko‘proq imkoniyat/ });
   await expect(offer).toBeVisible();
-  await offer.getByRole('button', { name: 'Keyinroq' }).click();
+  await offer.locator('.premium-offer-actions').getByRole('button', { name: 'Yopish' }).click();
   // qidiruv va tur bo'yicha saralash
   await student.getByLabel('Kutubxonadan qidirish').fill('moliyaviy');
   await expect(cards).toHaveCount(1);
@@ -146,23 +146,23 @@ test('inside the Play Market app the offer shows no price or payment instruction
   });
   expect(added.ok()).toBe(true);
   await as(page, 'demo-student');
-  // brauzerda: narx va to'lov yo'riqnomasi ko'rinadi
+  // brauzerda: oylik va yillik tarif narxi va «Sotib olish»
   await page.goto('/#library', { waitUntil: 'domcontentloaded' });
   const locked = page.locator('.lib-card').filter({ hasText: 'Play sinovi namunasi' });
   await locked.click();
   const offer = page.getByRole('dialog', { name: /Obuna bilan ko‘proq imkoniyat/ });
-  await expect(offer).toContainText('25 000 so‘m / oy');
-  await expect(offer).toContainText('Click orqali');
-  await expect(offer.getByRole('button', { name: 'Administratorga yozish' })).toBeVisible();
-  await offer.getByRole('button', { name: 'Keyinroq' }).click();
+  await expect(offer.locator('.premium-plans')).toContainText('5 000 so‘m');
+  await expect(offer.locator('.premium-plans')).toContainText('45 000 so‘m');
+  await expect(offer.getByRole('button', { name: /Sotib olish/ })).toHaveCount(2);
+  await offer.locator('.premium-offer-actions').getByRole('button', { name: 'Yopish' }).click();
   // Play Market ilovasi saytni /?src=play bilan ochadi — narx ham, to'lov yo'riqnomasi ham yo'q (Google qoidasi)
   await page.goto('/?src=play#library', { waitUntil: 'domcontentloaded' });
   await locked.click();
-  await expect(offer).toContainText('Bu imkoniyatlar obunachilar uchun');
-  await expect(offer).not.toContainText('25 000');
+  await expect(offer).toContainText('saytda (www.tadbirkorlik-asoslari.uz) ochiladi');
+  await expect(offer).not.toContainText('5 000');
   await expect(offer).not.toContainText('Click orqali');
-  await expect(offer.getByRole('button', { name: 'Administratorga yozish' })).toHaveCount(0);
-  await offer.getByRole('button', { name: 'Tushunarli' }).click();
+  await expect(offer.getByRole('button', { name: /Sotib olish/ })).toHaveCount(0);
+  await offer.locator('.premium-offer-actions').getByRole('button', { name: 'Yopish' }).click();
   // belgi shu oynada saqlanadi: ilova ichida boshqa bo'limga o'tilganda ham
   await page.goto('/#home', { waitUntil: 'domcontentloaded' });
   expect(await page.evaluate(() => sessionStorage.getItem('sq-play'))).toBe('1');

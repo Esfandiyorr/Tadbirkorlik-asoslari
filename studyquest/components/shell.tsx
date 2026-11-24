@@ -43,6 +43,7 @@ import { ChatPage } from './chat-page';
 import { ChangePassword } from './change-password';
 import { Library } from './library';
 import { CertificatePage } from './exam';
+import { PremiumCard } from './premium';
 import { Services } from './services';
 import { isPlayApp } from '@/lib/play-app';
 import { AccountDelete } from './account-delete';
@@ -545,6 +546,7 @@ function Profile() {
           Mavzular bo'yicha ballar kurs sahifasidagi mavzu kartochkalarida ko'rinadi. */}
       <div className="profile-layout is-basic">
         <div className="profile-side">
+          {u && <PremiumCard name={shown} />}
           <section className="panel profile-card">
             <h2>⚙️ {tr(lang, 'Shaxsiy ma’lumotlar', 'Personal details', 'Личные данные')}</h2>
             <form
