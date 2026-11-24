@@ -122,13 +122,10 @@
 }
 .hb-name .subscriber-mark {
   flex: none;
-  width: 1em;
-  height: 1em;
+  width: 1.3em;
+  height: 1.3em;
   margin: 0;
-  border: 1px solid #ffffff55;
-  border-radius: 50%;
-  background: #ffffff24;
-  color: #e9d5ff;
+  vertical-align: middle;
 }
 .hb-plans {
   max-width: 520px;

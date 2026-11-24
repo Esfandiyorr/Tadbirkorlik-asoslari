@@ -9991,20 +9991,20 @@ button.danger,
 }
 
 /* 💎 Obuna */
+/* TerDU Premium belgisi — ism oldida (rasm, foni shaffof) */
 .subscriber-mark {
-  display: inline-grid;
-  place-items: center;
-  width: 0.85em;
-  height: 0.85em;
+  display: inline-block;
+  width: 1.15em;
+  height: 1.15em;
   margin-inline-end: 0.25em;
-  vertical-align: 0.01em;
-  border-radius: 0.25em;
-  background: #ede9fe;
-  color: #6d28d9;
+  vertical-align: -0.2em;
 }
-.subscriber-mark svg {
-  width: 0.62em;
-  height: 0.62em;
+.subscriber-mark img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 1px 2px #0000002e);
 }
 .premium-badge {
   display: inline-flex;

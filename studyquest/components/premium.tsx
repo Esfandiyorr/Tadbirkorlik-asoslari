@@ -5,7 +5,6 @@ import {
   BookOpen,
   Clapperboard,
   Crown,
-  Gem,
   LibraryBig,
   Palette,
   UserRound,
@@ -62,7 +61,9 @@ export function SubscriberMark() {
   const label = tr(lang, 'Faol Premium obuna', 'Active Premium subscription', 'Активная подписка');
   return (
     <span className="subscriber-mark" role="img" aria-label={label} title={label}>
-      <Gem aria-hidden="true" />
+      {/* TerDU Premium belgisi (public/premium-belgi.webp, foni shaffof) */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="/premium-belgi.webp" alt="" width={256} height={256} draggable={false} />
     </span>
   );
 }
