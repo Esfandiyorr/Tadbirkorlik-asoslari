@@ -42,6 +42,7 @@ import { NativeSurface } from './native-surface';
 import { ChatPage } from './chat-page';
 import { ChangePassword } from './change-password';
 import { Library } from './library';
+import { CertificatePage } from './exam';
 import { Services } from './services';
 import { isPlayApp } from '@/lib/play-app';
 import { AccountDelete } from './account-delete';
@@ -186,6 +187,8 @@ export function StudyQuest() {
       <AuthPanel />
     );
   else if (mainView === 'library') content = <Library />;
+  // 🎓 yakuniy test sertifikati — QR-kod shu sahifaga olib keladi (hamma uchun ochiq)
+  else if (mainView === 'sertifikat') content = <CertificatePage id={id || ''} />;
   // eski #slides (AI taqdimot) havolalari ham shu bo'limga olib keladi
   else if ((mainView === 'services' || mainView === 'slides') && !play)
     // vaqtincha yopiq bo'lim: talabaga — xabar (eski havola va bildirishnomalar uchun), administratorga — bo'limning o'zi

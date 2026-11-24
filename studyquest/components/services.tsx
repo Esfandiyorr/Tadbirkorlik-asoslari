@@ -36,9 +36,12 @@ import {
   KEEP_DAYS,
   SERVICE_GROUPS,
   STATUS_LABEL,
+  PRODUCTS,
   fileSize,
   formatSum,
   isActive,
+  isProduct,
+  payable,
   serviceKind,
   type OrderFile,
   type ServiceCard,
@@ -379,6 +382,52 @@ export function Services({ sub = '' }: { sub?: string }) {
               </p>
             )}
             <ul className="svc-grid">
+              {(!group || group === 'study') && !needle && (
+                // 🎯 tayyor mahsulot: yakuniy testga tayyorgarlik (narxi belgilangan, kurs ichida ochiladi)
+                <li>
+                  <a
+                    className="svc-card is-product"
+                    href={'#course/' + (data?.courses?.[0]?.id || '') + '/exam'}
+                    style={
+                      {
+                        '--c1': PRODUCTS['yakuniy-test'].tone[0],
+                        '--c2': PRODUCTS['yakuniy-test'].tone[1],
+                      } as CSSProperties
+                    }
+                  >
+                    <span className="svc-card-tag">
+                      {tr(lang, ...SERVICE_GROUPS.study)} · 🛍 {L('Tayyor', 'Ready-made', 'Готово')}
+                    </span>
+                    <b className="svc-card-name">{tr(lang, ...PRODUCTS['yakuniy-test'].name)}</b>
+                    <small className="svc-card-text">
+                      {tr(lang, ...PRODUCTS['yakuniy-test'].text)}
+                    </small>
+                    <span className="svc-card-meta">
+                      <em>
+                        💰{' '}
+                        {view.discount ? (
+                          <>
+                            <s>{formatSum(view.products['yakuniy-test'])}</s>{' '}
+                            {formatSum(
+                              payable({
+                                budget: view.products['yakuniy-test'],
+                                discount: view.discount,
+                              }),
+                            )}
+                          </>
+                        ) : (
+                          formatSum(view.products['yakuniy-test'])
+                        )}
+                      </em>
+                      <em>💎 {L('obunachiga −50 %', '−50% with Premium', '−50 % подписчикам')}</em>
+                    </span>
+                    <span className="svc-card-go">{L('Ko‘rish', 'Open', 'Открыть')} →</span>
+                    <span className="svc-card-art" aria-hidden="true">
+                      🎯
+                    </span>
+                  </a>
+                </li>
+              )}
               {list.map((k, i) => (
                 <li key={k.id} style={{ animationDelay: Math.min(i, 12) * 45 + 'ms' }}>
                   <button
@@ -487,6 +536,7 @@ export function Services({ sub = '' }: { sub?: string }) {
       {pick && (
         <OrderForm
           card={pick}
+          discount={view?.discount || 0}
           onClose={() => setPick(null)}
           onDone={(v) => {
             setView(v);
@@ -826,10 +876,13 @@ function SoonModal({
 /* ---------- 📝 buyurtma berish ---------- */
 function OrderForm({
   card,
+  discount,
   onClose,
   onDone,
 }: {
   card: ServiceCard;
+  /** obunachi chegirmasi (%) */
+  discount: number;
   onClose: () => void;
   onDone: (v: ServicesView) => void;
 }) {
@@ -1009,6 +1062,16 @@ function OrderForm({
                     'Укажите сумму, соответствующую объёму работы.',
                   )}
           </small>
+          {!!discount && budgetOk && (
+            <small className="svc-discount">
+              💎{' '}
+              {L(
+                `Premium chegirmasi −${discount} %: siz ${formatSum(payable({ budget, discount }))} to‘laysiz`,
+                `Premium discount −${discount}%: you pay ${formatSum(payable({ budget, discount }))}`,
+                `Скидка подписчика −${discount}%: вы платите ${formatSum(payable({ budget, discount }))}`,
+              )}
+            </small>
+          )}
         </label>
         <div className="svc-form-row">
           <label>
@@ -1113,7 +1176,7 @@ function OrderCard({
   how: string;
   onView: (v: ServicesView) => void;
 }) {
-  const { lang, request, toast } = useApp();
+  const { lang, request, toast, data } = useApp();
   const L = (uz: string, en: string, ru: string) => tr(lang, uz, en, ru);
   const [busy, setBusy] = useState('');
   const [note, setNote] = useState('');
@@ -1155,6 +1218,18 @@ function OrderCard({
   const step = stepOf(o.status);
   const ins = o.files.filter((f) => f.side === 'in'),
     outs = o.files.filter((f) => f.side === 'out');
+  // 🛍 mahsulot (yakuniy test, Premium): tayyorlanmaydi — to'lov tasdiqlanishi bilan o'zi ochiladi
+  const product = isProduct(o.kind);
+  const [sIcon, sName]: [string, Tri] = !product
+    ? [icon, name]
+    : o.status === 'done'
+      ? ['✅', ['Ochildi', 'Unlocked', 'Открыто']]
+      : o.status === 'cancel'
+        ? [icon, name]
+        : o.paidAt
+          ? ['🔎', ['To‘lov tekshirilmoqda', 'Checking payment', 'Проверка оплаты']]
+          : ['💳', ['To‘lov kutilmoqda', 'Awaiting payment', 'Ожидает оплаты']];
+  const pay = payable(o);
   return (
     <article className={'panel svc-order is-' + o.status} style={toneOf(o.kind)}>
       <header>
@@ -1165,10 +1240,10 @@ function OrderCard({
           <h3>{o.title}</h3>
         </div>
         <span className={'svc-status is-' + o.status}>
-          {icon} {tr(lang, ...name)}
+          {sIcon} {tr(lang, ...sName)}
         </span>
       </header>
-      {o.status !== 'cancel' && (
+      {o.status !== 'cancel' && !product && (
         <ol className="svc-track" aria-label={L('Bosqichlar', 'Stages', 'Этапы')}>
           {TRACK_NAME.map((n, i) => (
             <li key={i} className={i < step ? 'done' : i === step ? 'now' : ''}>
@@ -1179,7 +1254,13 @@ function OrderCard({
       )}
       <p className="svc-order-meta">
         <span>
-          💰 <b>{formatSum(o.budget)}</b>
+          💰 <b>{formatSum(pay)}</b>
+          {!!o.discount && (
+            <>
+              {' '}
+              <s className="muted">{formatSum(o.budget)}</s> 💎 −{o.discount} %
+            </>
+          )}
         </span>
         {o.due && (
           <span>
@@ -1188,7 +1269,23 @@ function OrderCard({
         )}
       </p>
 
-      {o.status === 'work' && (
+      {product && o.status === 'done' && (
+        <p className="svc-note mk-paid">
+          ✅{' '}
+          {o.kind === 'yakuniy-test' ? (
+            <a href={'#course/' + (data?.courses?.[0]?.id || '') + '/exam'}>
+              {L(
+                'Bo‘lim ochildi — yakuniy testga tayyorgarlikka o‘tish →',
+                'Unlocked — go to the final exam preparation →',
+                'Открыто — перейти к подготовке к итоговому тесту →',
+              )}
+            </a>
+          ) : (
+            L('Premium obuna faollashdi.', 'Premium is active.', 'Подписка активирована.')
+          )}
+        </p>
+      )}
+      {o.status === 'work' && !product && (
         <div className="svc-ai" role="status">
           <span className="svc-ai-icon" aria-hidden="true">
             🤖
@@ -1216,25 +1313,25 @@ function OrderCard({
           </div>
         </div>
       )}
-      {o.status !== 'cancel' && o.budget > 0 && (
+      {o.status !== 'cancel' && o.budget > 0 && !(product && o.status === 'done') && (
         <div className={'svc-pay' + (o.payOk ? ' is-ok' : '')}>
           {o.payOk ? (
             <b>
               ✅ {L('To‘lov tasdiqlangan', 'Payment confirmed', 'Оплата подтверждена')}:{' '}
-              {formatSum(o.budget)}
+              {formatSum(pay)}
             </b>
           ) : o.paidAt ? (
             <>
               <b>
                 🔎 {L('To‘lov tekshirilmoqda', 'Checking payment', 'Оплата проверяется')}:{' '}
-                {formatSum(o.budget)}
+                {formatSum(pay)}
               </b>
               {o.paidNote && <small className="muted">🧾 {o.paidNote}</small>}
             </>
           ) : (
             <>
               <b>
-                💳 {L('To‘lov', 'Payment', 'Оплата')}: {formatSum(o.budget)}
+                💳 {L('To‘lov', 'Payment', 'Оплата')}: {formatSum(pay)}
               </b>
               <p className="svc-pay-how">
                 {how ||
@@ -1443,23 +1540,26 @@ function OrderCard({
             }
           />
         )}
-        {isActive(o.status) && o.status !== 'review' && ins.length < FILES_PER_ORDER.in && (
-          <label className="svc-attach-btn is-small">
-            <Paperclip size={15} />
-            {busy === 'attach'
-              ? L('Yuklanmoqda…', 'Uploading…', 'Загрузка…')
-              : L('Fayl qo‘shish', 'Add a file', 'Добавить файл')}
-            <input
-              type="file"
-              accept={FILE_ACCEPT}
-              disabled={!!busy}
-              onChange={(e) => {
-                void attach(e.target.files);
-                e.target.value = '';
-              }}
-            />
-          </label>
-        )}
+        {isActive(o.status) &&
+          !product &&
+          o.status !== 'review' &&
+          ins.length < FILES_PER_ORDER.in && (
+            <label className="svc-attach-btn is-small">
+              <Paperclip size={15} />
+              {busy === 'attach'
+                ? L('Yuklanmoqda…', 'Uploading…', 'Загрузка…')
+                : L('Fayl qo‘shish', 'Add a file', 'Добавить файл')}
+              <input
+                type="file"
+                accept={FILE_ACCEPT}
+                disabled={!!busy}
+                onChange={(e) => {
+                  void attach(e.target.files);
+                  e.target.value = '';
+                }}
+              />
+            </label>
+          )}
       </details>
       {o.status !== 'cancel' && (
         <Chat

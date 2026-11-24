@@ -18,6 +18,7 @@ import { LibraryAdmin } from './library-admin';
 import { PremiumAdmin } from './premium-admin';
 import { CourseAccessAdmin } from './course-access-admin';
 import { ServicesAdmin } from './services-admin';
+import { ExamAdmin } from './exam-admin';
 import { startEditMode } from '../site-content';
 
 /* 🛠 Sayt boshqaruvi (administrator): saytdagi matn, rasm, avatar, test va jonli testni dasturchiga yozmasdan
@@ -37,7 +38,8 @@ export type BoSection =
   | 'library'
   | 'premium'
   | 'courseAccess'
-  | 'services';
+  | 'services'
+  | 'exam';
 const KEY = 'sq-bo-section';
 
 export function BackOffice({ openTab }: { openTab: (tab: string) => void }) {
@@ -182,6 +184,16 @@ export function BackOffice({ openTab }: { openTab: (tab: string) => void }) {
       ),
     },
     {
+      id: 'exam',
+      icon: '🎯',
+      title: L('Yakuniy test savollari', 'Final exam questions', 'Вопросы итогового теста'),
+      text: L(
+        '«Yakuniy testga tayyorgarlik» bo‘limi: 15 mavzuga 30 tadan savol yuklash (Word’dan nusxa yoki .txt), ko‘rish va o‘chirish. Bo‘lim pullik xizmat sifatida sotiladi; yakuniy sinovdan o‘tganlarga sertifikat.',
+        '“Final exam preparation”: upload 30 questions for each of the 15 topics (paste from Word or a .txt), view and delete them. Sold as a paid service; a certificate for passing the final exam.',
+        '«Подготовка к итоговому тесту»: загрузка 30 вопросов на каждую из 15 тем (из Word или .txt), просмотр и удаление. Продаётся как платная услуга; сертификат за сдачу итогового теста.',
+      ),
+    },
+    {
       id: 'courseAccess',
       icon: '🔑',
       title: L('Kursga ruxsat', 'Course access', 'Доступ к курсу'),
@@ -274,6 +286,7 @@ export function BackOffice({ openTab }: { openTab: (tab: string) => void }) {
     else if (section === 'premium') body = <PremiumAdmin />;
     else if (section === 'courseAccess') body = <CourseAccessAdmin />;
     else if (section === 'services') body = <ServicesAdmin />;
+    else if (section === 'exam') body = <ExamAdmin />;
     else if (section === 'promo') body = <PromoAdmin />;
     else if (section === 'video') body = <VideoAdmin />;
     else if (section === 'logo') body = <LogoTaskAdmin />;

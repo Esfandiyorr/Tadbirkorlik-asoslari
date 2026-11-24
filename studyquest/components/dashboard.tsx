@@ -28,6 +28,7 @@ import { PromoBox } from './promo';
 import { Leaderboard } from './leaderboard';
 import { CourseGate, PaidCourseGate } from './course-gate';
 import { CourseLessons } from './course-lessons';
+import { ExamPrep } from './exam';
 import { AccessChip, PointsRing, PointsBreakdown } from './points-ui';
 import { t, dateLabel } from '@/lib/i18n';
 import { isPlayApp } from '@/lib/play-app';
@@ -765,7 +766,7 @@ export function CourseList({
 }: {
   search?: string;
   courseId?: string;
-  /** kurs ichidagi bo'lim: (bo'sh) — mavzular, 'ranking' — reyting */
+  /** kurs ichidagi bo'lim: (bo'sh) — mavzular, 'ranking' — reyting, 'exam' — yakuniy testga tayyorgarlik */
   sub?: string;
 }) {
   const { data, lang } = useApp(),
@@ -780,7 +781,8 @@ export function CourseList({
     totals = courseTotals(d, courseId),
     hasAcademic = !!u?.readingHistory,
     university = u?.learnerType !== 'independent',
-    ranking = sub === 'ranking';
+    ranking = sub === 'ranking',
+    exam = sub === 'exam' && !course?.extra;
   if (!courseId) {
     return (
       <>
@@ -948,8 +950,8 @@ export function CourseList({
       <div className="course-tabs" role="tablist" aria-label={course.title}>
         <button
           role="tab"
-          aria-selected={!ranking}
-          className={!ranking ? 'on' : ''}
+          aria-selected={!ranking && !exam}
+          className={!ranking && !exam ? 'on' : ''}
           onClick={() => navigate('course/' + course.id)}
         >
           <BookOpen size={17} />
@@ -967,8 +969,22 @@ export function CourseList({
             {t(lang, 'ranking')}
           </button>
         )}
+        {!course.extra && (
+          // 🎯 yakuniy testga tayyorgarlik (pullik xizmat) — asosiy fanning 15 mavzusi bo'yicha
+          <button
+            role="tab"
+            aria-selected={exam}
+            className={exam ? 'on' : ''}
+            onClick={() => navigate('course/' + course.id + '/exam')}
+          >
+            <Target size={17} />
+            {tr(lang, 'Yakuniy test', 'Final exam', 'Итоговый тест')}
+          </button>
+        )}
       </div>
-      {ranking ? (
+      {exam ? (
+        <ExamPrep courseId={course.id} />
+      ) : ranking ? (
         u ? (
           <Leaderboard embedded />
         ) : (

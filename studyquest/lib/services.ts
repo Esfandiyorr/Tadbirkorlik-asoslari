@@ -271,7 +271,80 @@ export const SERVICE_KINDS: ServiceKind[] = [
     ],
   },
 ];
-export const serviceKind = (id: string) => SERVICE_KINDS.find((k) => k.id === id);
+export const serviceKind = (id: string) =>
+  SERVICE_KINDS.find((k) => k.id === id) || (isProduct(id) ? PRODUCTS[id] : undefined);
+
+/* ---------- 🛍 tayyor mahsulotlar: narxi belgilangan, to'lov tasdiqlanishi bilan o'zi ochiladi ---------- */
+export type ProductId = 'yakuniy-test' | 'premium-oy' | 'premium-yil';
+export type Product = ServiceKind & {
+  id: ProductId;
+  /** odatdagi narx (so'm); administrator «To'lov yo'riqnomasi» bo'limida o'zgartira oladi */
+  price: number;
+  /** obunachilarga 50 % chegirma beriladimi */
+  discount: boolean;
+  /** obuna muddati (kun) */
+  days?: number;
+};
+export const PRODUCTS: Record<ProductId, Product> = {
+  'yakuniy-test': {
+    id: 'yakuniy-test',
+    icon: '🎯',
+    art: '🎯',
+    group: 'study',
+    tone: ['#b91c1c', '#f87171'],
+    name: ['Yakuniy testga tayyorgarlik', 'Final exam preparation', 'Подготовка к итоговому тесту'],
+    text: [
+      '«Tadbirkorlik asoslari»: 15 mavzu bo‘yicha 450 ta test, xatolar tahlili va yakuniy sinov — o‘tganlarga sertifikat',
+      '“Fundamentals of Entrepreneurship”: 450 questions on 15 topics, mistake review and a final exam with a certificate',
+      '«Основы предпринимательства»: 450 вопросов по 15 темам, разбор ошибок и итоговый тест с сертификатом',
+    ],
+    hint: ['', '', ''],
+    price: 10000,
+    discount: true,
+  },
+  'premium-oy': {
+    id: 'premium-oy',
+    icon: '💎',
+    art: '💎',
+    group: 'study',
+    tone: ['#7c3aed', '#c084fc'],
+    name: ['Premium obuna · 1 oy', 'Premium · 1 month', 'Подписка · 1 месяц'],
+    text: [
+      'Profil bezagi, avatar, barcha pullik xizmatlarga 50 % chegirma',
+      'Profile style, avatar, 50% off all paid services',
+      'Оформление профиля, аватар, скидка 50 % на все платные услуги',
+    ],
+    hint: ['', '', ''],
+    price: 5000,
+    discount: false,
+    days: 30,
+  },
+  'premium-yil': {
+    id: 'premium-yil',
+    icon: '💎',
+    art: '💎',
+    group: 'study',
+    tone: ['#6d28d9', '#a78bfa'],
+    name: ['Premium obuna · 1 yil', 'Premium · 1 year', 'Подписка · 1 год'],
+    text: [
+      'Oylikdan arzonroq: 12 oy bir to‘lovda',
+      'Cheaper than monthly: 12 months in one payment',
+      'Дешевле помесячной: 12 месяцев одним платежом',
+    ],
+    hint: ['', '', ''],
+    price: 45000,
+    discount: false,
+    days: 365,
+  },
+};
+export function isProduct(id: string): id is ProductId {
+  return Object.prototype.hasOwnProperty.call(PRODUCTS, id);
+}
+/** Obunachilarga barcha pullik xizmatlar (Premium'ning o'zidan tashqari) — 50 % arzon. */
+export const PREMIUM_DISCOUNT = 50;
+/** To'lanadigan summa: buyurtmadagi summa chegirmadan keyin. */
+export const payable = (o: { budget: number; discount?: number }) =>
+  Math.round((o.budget * (100 - (o.discount || 0))) / 100);
 
 /** Administrator yo'nalish uchun yozadigan narx («50 000 so'mdan») va muddat («3–5 kun»), yoki yo'nalishni yopadi. */
 export type ServiceSetting = { price?: string; days?: string; off?: boolean };
@@ -382,8 +455,10 @@ export type ServiceOrder = {
   kind: string;
   title: string;
   text: string;
-  /** buyurtmachi to'lay oladigan summa (so'm) */
+  /** buyurtmachi to'lay oladigan summa (so'm; mahsulotda — narxi) */
   budget: number;
+  /** obunachi chegirmasi (%) — to'lanadigan summa: payable() */
+  discount?: number;
   /** talaba xohlagan muddat (YYYY-MM-DD) */
   due?: string;
   /** telefon yoki Telegram (faqat buyurtmachi va administratorga) */
@@ -428,6 +503,10 @@ export type ServicesView = {
   fans: number;
   /** bajarilgan buyurtmalar soni */
   done: number;
+  /** tayyor mahsulotlar narxi (yakuniy test, Premium) */
+  products: Record<ProductId, number>;
+  /** ko'rayotgan foydalanuvchiga chegirma (%) — Premium obunachiga 50 */
+  discount: number;
   signedIn: boolean;
   /** to'lov yo'riqnomasi (faqat kirgan foydalanuvchiga) */
   how?: string;
@@ -442,6 +521,7 @@ export type ServicesAdminView = {
   fans: number;
   how: string;
   orders: AdminOrder[];
+  products: Record<ProductId, number>;
   /** saqlangan fayllarning umumiy hajmi */
   used: number;
 };

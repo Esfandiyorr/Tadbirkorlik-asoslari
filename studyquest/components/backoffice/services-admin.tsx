@@ -12,10 +12,14 @@ import {
   FILE_MAX,
   FILES_PER_ORDER,
   STATUS_LABEL,
+  PRODUCTS,
   fileSize,
   formatSum,
   isActive,
+  isProduct,
+  payable,
   serviceKind,
+  type ProductId,
   type AdminOrder,
   type ServicesAdminView,
   type Tri,
@@ -462,6 +466,8 @@ function AdminChat({
   const ins = o.files.filter((f) => f.side === 'in'),
     outs = o.files.filter((f) => f.side === 'out');
   const ready = outs.length > 0 || !!o.link;
+  // 🛍 mahsulot (yakuniy test, Premium): to'lov tasdiqlanishi bilan o'zi ochiladi — natija yuklanmaydi
+  const product = isProduct(o.kind);
   const busyNow = !!busy;
   return (
     <article
@@ -494,7 +500,13 @@ function AdminChat({
       <p className="svc-order-meta">
         <span>{kindTitle(lang, o.kind)}</span>
         <span>
-          💰 <b>{formatSum(o.budget)}</b>
+          💰 <b>{formatSum(payable(o))}</b>
+          {!!o.discount && (
+            <>
+              {' '}
+              <s className="muted">{formatSum(o.budget)}</s> 💎 −{o.discount} %
+            </>
+          )}
         </span>
         {o.due && <span>📅 {o.due}</span>}
         <span>🕐 {dueText(o.at, lang).date}</span>
@@ -518,9 +530,25 @@ function AdminChat({
                       'Заказчик сообщил об оплате — проверьте',
                     )
                   : L('To‘lov hali qilinmagan', 'Not paid yet', 'Ещё не оплачено')}
-                : {formatSum(o.budget)}
+                : {formatSum(payable(o))}
               </b>
               {o.paidNote && <p className="muted">🧾 {o.paidNote}</p>}
+              {product && (
+                <p className="muted">
+                  🛍{' '}
+                  {o.kind === 'yakuniy-test'
+                    ? L(
+                        'Tasdiqlashingiz bilan unga «Yakuniy testga tayyorgarlik» bo‘limi o‘zi ochiladi.',
+                        'Confirming opens the “Final exam preparation” section for them automatically.',
+                        'После подтверждения раздел «Подготовка к итоговому тесту» откроется сам.',
+                      )
+                    : L(
+                        `Tasdiqlashingiz bilan Premium obuna ${PRODUCTS[o.kind as ProductId].days} kunga o‘zi yoqiladi.`,
+                        `Confirming turns Premium on for ${PRODUCTS[o.kind as ProductId].days} days automatically.`,
+                        `После подтверждения подписка включится на ${PRODUCTS[o.kind as ProductId].days} дн.`,
+                      )}
+                </p>
+              )}
               <div className="svc-row">
                 <Button
                   size="sm"
@@ -559,7 +587,7 @@ function AdminChat({
         }
       />
 
-      {o.status !== 'cancel' && (
+      {o.status !== 'cancel' && !product && (
         <div className="svc-deliver">
           <b className="svc-sub">
             📥{' '}
@@ -838,6 +866,15 @@ function Settings({
   const L = useL();
   const { request, toast } = useApp();
   const [how, setHow] = useState(view.how);
+  const [prices, setPrices] = useState<Record<ProductId, string>>(
+    () =>
+      Object.fromEntries(
+        (Object.keys(PRODUCTS) as ProductId[]).map((id) => [
+          id,
+          String(view.products?.[id] ?? PRODUCTS[id].price),
+        ]),
+      ) as Record<ProductId, string>,
+  );
   const [busy, setBusy] = useState(false);
   async function save(input: Record<string, unknown>) {
     setBusy(true);
@@ -853,6 +890,45 @@ function Settings({
   }
   return (
     <div className="svc-pay-admin">
+      <form
+        className="svc-prices"
+        onSubmit={(e) => {
+          e.preventDefault();
+          void save({
+            op: 'prices',
+            products: Object.fromEntries(
+              Object.entries(prices).map(([id, v]) => [id, Number(v.replace(/\D/g, '')) || 0]),
+            ),
+          });
+        }}
+      >
+        <b>
+          🛍 {L('Tayyor mahsulotlar narxi (so‘m)', 'Product prices (so‘m)', 'Цены продуктов (сум)')}
+        </b>
+        {(Object.keys(PRODUCTS) as ProductId[]).map((id) => (
+          <label key={id}>
+            {PRODUCTS[id].icon} {PRODUCTS[id].name[0]}
+            <input
+              className="input"
+              inputMode="numeric"
+              value={prices[id]}
+              onChange={(e) =>
+                setPrices({ ...prices, [id]: e.target.value.replace(/\D/g, '').slice(0, 9) })
+              }
+            />
+          </label>
+        ))}
+        <small className="muted">
+          {L(
+            'Premium obunachilarga yakuniy test va barcha pullik xizmatlar 50 % arzon (Premium’ning o‘zidan tashqari).',
+            'Premium subscribers get 50% off the final exam and all paid services (not Premium itself).',
+            'Подписчикам — скидка 50 % на итоговый тест и все платные услуги (кроме самой подписки).',
+          )}
+        </small>
+        <Button type="submit" disabled={busy}>
+          {L('Narxlarni saqlash', 'Save prices', 'Сохранить цены')}
+        </Button>
+      </form>
       <form
         onSubmit={(e) => {
           e.preventDefault();

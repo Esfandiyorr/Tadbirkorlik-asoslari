@@ -216,6 +216,8 @@ const catalog = {
     ...(t.mode ? { mode: t.mode, modeAt: t.modeAt } : {}),
   })),
   teacherH: config.teacherH,
+  // 🎓 Sertifikatdagi fan o'qituvchisi (yakuniy testdan o'tganlarga)
+  teacherName: String(config.teacherName || ''),
   // 🎓 Ro'yxatdan o'tishdagi «Guruhingiz» tanlovi (talaba ro'yxatda yo'q guruhni o'zi ham yoza oladi).
   groups: (config.groups || []).map(String),
   databaseURL: config.fbWeb.databaseURL || config.firebase.url,

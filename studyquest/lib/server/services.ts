@@ -11,11 +11,16 @@ import {
   FILES_PER_ORDER,
   FILE_TYPES,
   KEEP_DAYS,
+  PREMIUM_DISCOUNT,
+  PRODUCTS,
   SERVICE_KINDS,
   fileExt,
   formatSum,
   isActive,
+  isProduct,
+  payable,
   serviceKind,
+  type ProductId,
   type AdminOrder,
   type FileExt,
   type OrderFile,
@@ -32,11 +37,15 @@ import { repository } from './repository';
 import { siteGet, siteUpdate } from './site-content';
 import { sendPush } from './push';
 import { supportAct } from './support';
+import { grantPremium, premiumState } from './premium';
+import { grantExamAccess } from './exam';
+import { course } from '../seed';
 
 /* 💼 Pullik xizmatlar. Asl bazaning site/ bo'limida (brauzerlar tegolmaydi, faqat server):
      serviceInfo                        = {how, open, shown} — to'lov yo'riqnomasi; bo'lim ishga tushganmi;
                                            bo'lim menyuda ko'rinadimi (yo'q bo'lsa — vaqtincha yopiq)
      serviceCatalog/<yo'nalish>         = {price, days, off} — tavsiya narx, muddat, yopiq/ochiq
+     serviceProducts/<mahsulot>         = narx (so'm) — yakuniy test va Premium (lib/services.ts PRODUCTS)
      serviceOrders/<buyurtmachi>/<id>   = buyurtma: matn, summa, holat, to'lov, yozishma, fayllar
      serviceFiles/<buyurtmachi>/<fayl>/<n> = faylning n-bo'lagi (base64, ≤ 2,5 MB)
      serviceStats/<yo'nalish>/<foydalanuvchi>    — shu xizmatga buyurtma bergan (kartadagi «N kishi foydalandi»)
@@ -44,7 +53,10 @@ import { supportAct } from './support';
    Buyurtma yo'li: work (buyurtma administratorga yozishma bo'lib keldi; foydalanuvchida «🤖 Sun'iy intellekt yordamida
    tayyorlanmoqda») → review (administrator natijani yubordi) → done (foydalanuvchi qabul qildi va baho qo'ydi);
    istalgan paytda cancel. To'lov holatni to'xtatmaydi: paidAt — foydalanuvchi «To'lov qildim» dedi, payOk —
-   administrator tasdiqladi. Fayllar bekor qilinganda darhol, yakunlangandan KEEP_DAYS kun keyin o'chiriladi. */
+   administrator tasdiqladi. Premium obunachiga chegirma (discount, %) buyurtma paytida yoziladi.
+   🛍 Mahsulot (yakuniy test, Premium) — narxi belgilangan buyurtma: administrator to'lovni tasdiqlashi bilan o'zi
+   ochiladi (bo'lim yoki obuna) va buyurtma yakunlanadi. Mahsulot sotib olish bo'lim yopiq bo'lsa ham ishlaydi.
+   Fayllar bekor qilinganda darhol, yakunlangandan KEEP_DAYS kun keyin o'chiriladi. */
 
 type StoredFile = {
   side: 'in' | 'out';
@@ -67,6 +79,7 @@ type Stored = {
   title: string;
   text: string;
   budget?: number;
+  discount?: number;
   due?: string;
   contact?: string;
   /** eski yozuvlarda: new/quoted (jamoa narx aytgan davr), open/assigned/paid (ijrochilar bozori davri) */
@@ -147,6 +160,22 @@ async function readInfo() {
 async function readAll() {
   return ((await siteGet<All>('serviceOrders')) || {}) as All;
 }
+/** Mahsulotlar narxi (administrator o'zgartirgan bo'lsa — o'sha). */
+async function readProducts(): Promise<Record<ProductId, number>> {
+  const set = (await siteGet<Record<string, number>>('serviceProducts')) || {};
+  return Object.fromEntries(
+    Object.values(PRODUCTS).map((x) => {
+      const v = Math.round(Number(set[x.id]));
+      return [x.id, Number.isFinite(v) && v >= 1000 && v <= BUDGET_MAX ? v : x.price];
+    }),
+  ) as Record<ProductId, number>;
+}
+/** Obunachi chegirmasi (%): Premium faol bo'lsa (o'qituvchi va administratorga emas). */
+async function discountOf(a: Actor | null, now = Date.now()) {
+  if (!a) return 0;
+  const st = await premiumState(a, now).catch(() => null);
+  return st?.active && !st.staff ? PREMIUM_DISCOUNT : 0;
+}
 
 function files(s: Stored): OrderFile[] {
   return Object.entries(s.files || {})
@@ -183,6 +212,7 @@ function toOrder(uk: string, id: string, s: Stored): ServiceOrder {
     title: s.title,
     text: s.text,
     budget: Number(s.budget) || 0,
+    ...(s.discount ? { discount: s.discount } : {}),
     status: statusOf(s),
     at: s.at,
     upd: s.upd || s.at,
@@ -239,10 +269,12 @@ function sweep(all: All, now: number) {
 
 /** Foydalanuvchi (yoki mehmon): katalog, ko'rsatkichlar va o'z buyurtmalari. */
 export async function servicesView(a: Actor | null, now = Date.now()): Promise<ServicesView> {
-  const [{ catalog, people, fans }, info, all] = await Promise.all([
+  const [{ catalog, people, fans }, info, all, products, discount] = await Promise.all([
     readCatalog(false),
     readInfo(),
     readAll(),
+    readProducts(),
+    discountOf(a, now),
   ]);
   const patch = sweep(all, now);
   if (Object.keys(patch).length) await siteUpdate(patch);
@@ -253,7 +285,9 @@ export async function servicesView(a: Actor | null, now = Date.now()): Promise<S
     catalog,
     people,
     fans,
-    done: flat.filter((x) => statusOf(x.s) === 'done').length,
+    done: flat.filter((x) => statusOf(x.s) === 'done' && !isProduct(x.s.kind)).length,
+    products,
+    discount,
   };
   if (!a) return { ...head, signedIn: false };
   const me = keyOf(a.id);
@@ -267,10 +301,11 @@ export async function servicesView(a: Actor | null, now = Date.now()): Promise<S
 /** Administrator: hamma buyurtmalar (buyurtmachi ma'lumotlari bilan, oxirgi o'zgarish bo'yicha) va sozlamalar. */
 export async function servicesAdmin(a: Actor, now = Date.now()): Promise<ServicesAdminView> {
   administrator(a);
-  const [all, { catalog, people, fans }, { how, open, shown }] = await Promise.all([
+  const [all, { catalog, people, fans }, { how, open, shown }, products] = await Promise.all([
     readAll(),
     readCatalog(true),
     readInfo(),
+    readProducts(),
   ]);
   const patch = sweep(all, now);
   if (Object.keys(patch).length) await siteUpdate(patch);
@@ -286,7 +321,7 @@ export async function servicesAdmin(a: Actor, now = Date.now()): Promise<Service
     };
   });
   orders.sort((x, y) => y.upd - x.upd);
-  return { open, shown, catalog, people, fans, how, orders, used };
+  return { open, shown, catalog, people, fans, how, orders, products, used };
 }
 
 /* ---------- 🔔 bildirishnomalar (xatosi amalni to'xtatmaydi) ---------- */
@@ -378,6 +413,7 @@ const userInput = z.discriminatedUnion('op', [
       contact: z.string().trim().max(80).optional(),
     })
     .strict(),
+  z.object({ op: z.literal('buy'), product: z.string().max(40) }).strict(),
   z.object({ op: z.literal('paid'), id: z.string(), note: z.string().trim().max(200) }).strict(),
   z.object({ op: z.literal('cancel'), id: z.string() }).strict(),
   z.object({ op: z.literal('msg'), id: z.string(), text: text(1, 1000) }).strict(),
@@ -399,9 +435,59 @@ const userInput = z.discriminatedUnion('op', [
 /** Foydalanuvchi amallari: buyurtma berish, to'lov haqida xabar, yozishma, natijani qabul qilish yoki tuzatish so'rash. */
 export async function manageServices(a: Actor, raw: unknown, now = Date.now()) {
   const v = userInput.parse(raw);
-  await notClosed(a);
   const me = keyOf(a.id);
   const done = async () => ({ view: await servicesView(a, now) });
+  // 🛍 mahsulot (yakuniy test, Premium) bo'lim yopiq yoki ishga tushmagan bo'lsa ham sotib olinadi
+  const forProduct =
+    v.op === 'buy' ||
+    ('id' in v &&
+      typeof v.id === 'string' &&
+      isProduct((await siteGet<Stored>(orderPath(me, v.id)).catch(() => null))?.kind || ''));
+  if (!forProduct) await notClosed(a);
+
+  if (v.op === 'buy') {
+    check(isProduct(v.product), 404, 'Bunday xizmat yo‘q.');
+    const product = PRODUCTS[v.product as ProductId];
+    const mine = (await siteGet<Record<string, Stored>>('serviceOrders/' + me)) || {};
+    const open = Object.entries(mine).find(
+      ([id, s]) => ID.test(id) && s?.kind === product.id && statusOf(s) === 'work',
+    );
+    if (open) return { id: open[0], ...(await done()) };
+    if (product.id === 'yakuniy-test')
+      check(
+        !(await siteGet<{ at?: number }>('examAccess/' + me))?.at,
+        409,
+        'Bu bo‘lim sizda allaqachon ochiq.',
+      );
+    check(
+      Object.keys(mine).length < ORDERS_MAX,
+      429,
+      'Buyurtmalar ro‘yxati to‘ldi — eski tugaganlarini o‘chirib qo‘ying.',
+    );
+    const [prices, discount] = await Promise.all([readProducts(), discountOf(a, now)]);
+    const id = newId(now);
+    const order: Stored = {
+      uid: a.id,
+      name: (a.name || 'Foydalanuvchi').slice(0, 120),
+      ...(a.classId ? { group: String(a.classId).slice(0, 40) } : {}),
+      ...(a.email ? { email: a.email.slice(0, 120) } : {}),
+      role: a.role,
+      kind: product.id,
+      title: product.name[0],
+      text: product.text[0],
+      budget: prices[product.id],
+      ...(product.discount && discount ? { discount } : {}),
+      status: 'work',
+      at: now,
+      upd: now,
+    };
+    await siteUpdate({ [orderPath(me, id)]: order });
+    await notifyTeam(
+      '🛍 Xarid · ' + product.name[0],
+      order.name + ' · ' + formatSum(payable({ budget: order.budget!, discount: order.discount })),
+    );
+    return { id, ...(await done()) };
+  }
 
   if (v.op === 'idea') {
     // 💡 «tez orada» oynasidagi taklif: «Adminga xabar»ga tushadi va kartalardagi «N kishi kutmoqda» ni oshiradi
@@ -440,6 +526,7 @@ export async function manageServices(a: Actor, raw: unknown, now = Date.now()) {
       'Buyurtmalar ro‘yxati to‘ldi — eski tugaganlarini o‘chirib qo‘ying.',
     );
     const id = newId(now);
+    const discount = await discountOf(a, now);
     const order: Stored = {
       uid: a.id,
       name: (a.name || 'Foydalanuvchi').slice(0, 120),
@@ -450,6 +537,7 @@ export async function manageServices(a: Actor, raw: unknown, now = Date.now()) {
       title: v.title,
       text: v.text,
       budget: v.budget,
+      ...(discount ? { discount } : {}),
       ...(v.due ? { due: v.due } : {}),
       ...(v.contact ? { contact: v.contact } : {}),
       status: 'work',
@@ -464,7 +552,13 @@ export async function manageServices(a: Actor, raw: unknown, now = Date.now()) {
     // 🤖 buyurtma administratorga keladi: qaysi xizmat va nima yozilgan
     await notifyTeam(
       '🤖 Yangi buyurtma · ' + kindName(kind!.id),
-      order.name + ': ' + v.title + ' — ' + v.text.slice(0, 140) + ' · ' + formatSum(v.budget),
+      order.name +
+        ': ' +
+        v.title +
+        ' — ' +
+        v.text.slice(0, 140) +
+        ' · ' +
+        formatSum(payable({ budget: v.budget, discount })),
     );
     return { id, ...(await done()) };
   }
@@ -486,7 +580,12 @@ export async function manageServices(a: Actor, raw: unknown, now = Date.now()) {
     await siteUpdate(patch);
     await notifyTeam(
       '💳 To‘lov qilindi',
-      s.name + ' — ' + s.title + ' · ' + formatSum(s.budget || 0) + (v.note ? ' · ' + v.note : ''),
+      s.name +
+        ' — ' +
+        s.title +
+        ' · ' +
+        formatSum(payable({ budget: s.budget || 0, discount: s.discount })) +
+        (v.note ? ' · ' + v.note : ''),
     );
   } else if (v.op === 'cancel') {
     check(
@@ -564,6 +663,12 @@ const adminInput = z.discriminatedUnion('op', [
     })
     .strict(),
   z.object({ op: z.literal('info'), how: z.string().trim().max(1500) }).strict(),
+  z
+    .object({
+      op: z.literal('prices'),
+      products: z.record(z.string().max(40), z.number().int().min(1000).max(BUDGET_MAX)),
+    })
+    .strict(),
   z.object({ op: z.literal('launch'), open: z.boolean() }).strict(),
   z.object({ op: z.literal('show'), shown: z.boolean() }).strict(),
 ]);
@@ -595,6 +700,15 @@ export async function adminServices(a: Actor, raw: unknown, now = Date.now()) {
     await siteUpdate({ 'serviceInfo/shown': v.shown || null });
     return done();
   }
+  if (v.op === 'prices') {
+    const set = Object.fromEntries(
+      Object.entries(v.products)
+        .filter(([id]) => isProduct(id))
+        .map(([id, n]) => ['serviceProducts/' + id, n]),
+    );
+    if (Object.keys(set).length) await siteUpdate(set);
+    return done();
+  }
   if (v.op === 'info') {
     await siteUpdate({ 'serviceInfo/how': v.how || null });
     return done();
@@ -611,8 +725,21 @@ export async function adminServices(a: Actor, raw: unknown, now = Date.now()) {
       [path + '/paidAt']: s.paidAt || now,
       [path + '/upd']: now,
     });
+    const by = (a.name || a.id).slice(0, 60);
+    if (isProduct(s.kind)) {
+      // 🛍 mahsulot o'zi ochiladi: yakuniy test bo'limi yoki Premium obuna (muddati mavjudiga qo'shiladi)
+      const product = PRODUCTS[s.kind];
+      if (product.days) await grantPremium(s.uid, s.name, s.group || '', product.days, by, now);
+      else await grantExamAccess(s.uid, s.name, by, 'order:' + v.id, now);
+      Object.assign(patch, { [path + '/status']: 'done', [path + '/doneAt']: now });
+    }
     await siteUpdate(patch);
-    await notify([s.uid], '✅ To‘lov tasdiqlandi', s.title + ' · ' + formatSum(s.budget || 0));
+    await notify(
+      [s.uid],
+      isProduct(s.kind) ? '✅ ' + PRODUCTS[s.kind].name[0] + ' — ochildi' : '✅ To‘lov tasdiqlandi',
+      s.title + ' · ' + formatSum(payable({ budget: s.budget || 0, discount: s.discount })),
+      s.kind === 'yakuniy-test' ? '/#course/' + course.id + '/exam' : undefined,
+    );
   } else if (v.op === 'status') {
     check(st !== 'cancel', 409, 'Buyurtma bekor qilingan.');
     if (v.status !== 'work')
