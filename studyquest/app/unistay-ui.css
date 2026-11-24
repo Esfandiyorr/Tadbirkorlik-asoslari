@@ -1143,3 +1143,55 @@
     display: none;
   }
 }
+
+/* ---------- 📱 telefon va ilova: faqat asosiylari — mavzular, kurslar, pullik xizmatlar ----------
+   O'yinlar, kitoblar, chat, yutuqlar ☰ menyuda qoladi; statistika, o'ng ustun va pastki yozuv telefonda yashiriladi. */
+@media (max-width: 760px) {
+  .quick-links.home-sections {
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
+    gap: 8px;
+  }
+  .home-sections .quick-link.is-extra {
+    display: none;
+  }
+  .home-sections .quick-link,
+  .home-sections .quick-link:last-child:nth-child(odd) {
+    grid-column: auto;
+    grid-template-rows: auto auto;
+    justify-items: center;
+    gap: 2px;
+    min-height: 0;
+    padding: 12px 6px 10px;
+    text-align: center;
+  }
+  .home-sections .quick-link > span.hs-icon {
+    margin: 0 0 4px;
+  }
+  .home-sections .quick-link small,
+  .home-sections .quick-link > span.hs-go {
+    display: none;
+  }
+  .home-sections .quick-link b {
+    font-size: 13px;
+    line-height: 1.25;
+  }
+  .stats-grid,
+  .dashboard-aside,
+  .app-footer {
+    display: none !important;
+  }
+  /* kurslar ro'yxati va fan sahifasi ixcham: katta muqovasiz */
+  .course-grid .course-card .course-hero-art,
+  .course-banner > .course-hero-art {
+    display: none;
+  }
+  /* fan sahifasidagi holat izohlari (ball beriladi / o'qish rejimi / yopiq) — telefonda ortiqcha */
+  .course-banner .legend {
+    display: none;
+  }
+  .course-grid {
+    gap: 10px;
+  }
+}

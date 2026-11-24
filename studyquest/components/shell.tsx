@@ -24,6 +24,7 @@ import {
   LogIn,
   LibraryBig,
   BriefcaseBusiness,
+  ListChecks,
 } from 'lucide-react';
 import { Provider, useApp } from './provider';
 import { LiveGate, NewsBox, NewsInbox, NewsPopup } from './announcements';
@@ -143,7 +144,10 @@ export function StudyQuest() {
     mainView = view.split('/')[0],
     id = view.split('/')[1],
     // 💼 Pullik xizmatlar: Play Market ilovasida yo'q (Google qoidasi); administrator ochmaguncha — vaqtincha yopiq
-    services = !play && !!data.servicesShown;
+    services = !play && !!data.servicesShown,
+    // 📚 asosiy fan (Tadbirkorlik asoslari) — pastki menyudagi «Mavzular»
+    mainCourse = data.courses?.[0]?.id,
+    onMainCourse = !!mainCourse && mainView === 'course' && id === mainCourse;
   const nav: { id: string; key: Key; icon: typeof BookOpen }[] = [
     { id: 'home', key: 'home', icon: LayoutDashboard },
     { id: 'courses', key: 'courses', icon: BookOpen },
@@ -424,33 +428,51 @@ export function StudyQuest() {
           <span>{t(lang, 'tagline')}</span>
         </footer>
       </div>
+      {/* 📱 Pastki menyu — telefonda asosiylari: mavzular, kurslar, pullik xizmatlar (qolgani ☰ menyuda) */}
       <nav className="bottom-nav" aria-label={t(lang, 'menu')}>
         {[
-          { id: 'home', label: t(lang, 'navHome'), icon: LayoutDashboard },
-          { id: 'courses', label: t(lang, 'courses'), icon: BookOpen },
-          { id: 'arena', label: t(lang, 'navArena'), icon: Gamepad2 },
-          { id: 'library', label: t(lang, 'navLibrary'), icon: LibraryBig },
-          ...(services
-            ? [{ id: 'services', label: t(lang, 'navServices'), icon: BriefcaseBusiness }]
+          { id: 'home', href: 'home', label: t(lang, 'navHome'), icon: LayoutDashboard },
+          ...(mainCourse
+            ? [
+                {
+                  id: 'topics',
+                  href: 'course/' + mainCourse,
+                  label: tr(lang, 'Mavzular', 'Topics', 'Темы'),
+                  icon: ListChecks,
+                },
+              ]
             : []),
-          ...(nav.some((n) => n.id === 'chat')
-            ? [{ id: 'chat', label: t(lang, 'navChat'), icon: MessageSquare }]
-            : signedIn
-              ? [{ id: 'profile', label: t(lang, 'profile'), icon: User }]
-              : [{ id: 'login', label: t(lang, 'login'), icon: LogIn }]),
-        ].map((n) => (
-          <a
-            key={n.id}
-            href={'#' + n.id}
-            className={
-              mainView === n.id || (n.id === 'courses' && mainView === 'course') ? 'active' : ''
-            }
-            aria-current={mainView === n.id ? 'page' : undefined}
-          >
-            <n.icon size={22} />
-            <span>{n.label}</span>
-          </a>
-        ))}
+          { id: 'courses', href: 'courses', label: t(lang, 'courses'), icon: BookOpen },
+          services
+            ? {
+                id: 'services',
+                href: 'services',
+                label: t(lang, 'navServices'),
+                icon: BriefcaseBusiness,
+              }
+            : { id: 'arena', href: 'arena', label: t(lang, 'navArena'), icon: Gamepad2 },
+          signedIn
+            ? { id: 'profile', href: 'profile', label: t(lang, 'profile'), icon: User }
+            : { id: 'login', href: 'login', label: t(lang, 'login'), icon: LogIn },
+        ].map((n) => {
+          const on =
+            n.id === 'topics'
+              ? onMainCourse
+              : n.id === 'courses'
+                ? mainView === 'courses' || (mainView === 'course' && !onMainCourse)
+                : mainView === n.id;
+          return (
+            <a
+              key={n.id}
+              href={'#' + n.href}
+              className={on ? 'active' : ''}
+              aria-current={on ? 'page' : undefined}
+            >
+              <n.icon size={22} />
+              <span>{n.label}</span>
+            </a>
+          );
+        })}
       </nav>
       {view === 'home' && <NewsInbox />}
     </div>

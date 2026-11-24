@@ -22,6 +22,7 @@ import {
   LibraryBig,
   Lightbulb,
   Timer,
+  ListChecks,
   type LucideIcon,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -139,6 +140,9 @@ function QuickLinks({ chat }: { chat: boolean }) {
   useEffect(() => setPlay(isPlayApp()), []);
   const L = (uz: string, en: string, ru: string) => tr(lang, uz, en, ru);
   const n = data?.courses.length || 0;
+  const main = data?.courses[0]?.id;
+  const topics = data && main ? sortedLessons(data, main).length : 0;
+  // telefonda faqat asosiylari (Mavzular, Kurslar, Pullik xizmatlar); qolganlari — «extra» (☰ menyuda bor)
   const items: {
     id: string;
     icon: LucideIcon;
@@ -146,7 +150,22 @@ function QuickLinks({ chat }: { chat: boolean }) {
     name: string;
     hint: string;
     go: string;
+    href?: string;
+    extra?: boolean;
   }[] = [
+    ...(main
+      ? [
+          {
+            id: 'topics',
+            href: 'course/' + main,
+            icon: ListChecks,
+            emoji: '📝',
+            name: L('Mavzular', 'Topics', 'Темы'),
+            hint: L(`${topics} ta mavzu`, `${topics} topics`, `Тем: ${topics}`),
+            go: L('O‘qish', 'Study', 'Учиться'),
+          },
+        ]
+      : []),
     {
       id: 'courses',
       icon: BookOpen,
@@ -162,6 +181,7 @@ function QuickLinks({ chat }: { chat: boolean }) {
       name: L('O‘yinlar', 'Games', 'Игры'),
       hint: L('Jonli test va bellashuv', 'Live quiz and duels', 'Живой тест и дуэли'),
       go: L('O‘ynash', 'Play', 'Играть'),
+      extra: true,
     },
     {
       id: 'library',
@@ -170,6 +190,7 @@ function QuickLinks({ chat }: { chat: boolean }) {
       name: L('Kitoblar', 'Books', 'Книги'),
       hint: L('Qo‘llanma va namunalar', 'Guides and templates', 'Пособия и шаблоны'),
       go: L('Ochish', 'Open', 'Открыть'),
+      extra: true,
     },
     ...(!play && data?.servicesShown
       ? [
@@ -196,6 +217,7 @@ function QuickLinks({ chat }: { chat: boolean }) {
             name: L('Chat', 'Chat', 'Чат'),
             hint: L('Guruhdoshlar bilan', 'With classmates', 'С одногруппниками'),
             go: L('Yozish', 'Write', 'Написать'),
+            extra: true,
           },
         ]
       : []),
@@ -203,7 +225,11 @@ function QuickLinks({ chat }: { chat: boolean }) {
   return (
     <nav className="quick-links home-sections" aria-label={L('Bo‘limlar', 'Sections', 'Разделы')}>
       {items.map((x) => (
-        <a key={x.id} href={'#' + x.id} className={'quick-link home-section is-' + x.id}>
+        <a
+          key={x.id}
+          href={'#' + (x.href || x.id)}
+          className={'quick-link home-section is-' + x.id + (x.extra ? ' is-extra' : '')}
+        >
           <SiteVisual className="hs-icon" imageKey={visualPath('home', x.id)} icon={x.emoji}>
             <x.icon size={22} strokeWidth={2} />
           </SiteVisual>

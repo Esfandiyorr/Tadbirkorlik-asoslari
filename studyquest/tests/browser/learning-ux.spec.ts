@@ -76,6 +76,7 @@ test('the home banner shows the date, the name and today’s plans; the current 
   await expect(course).toContainText('Joriy mavzu');
   await expect(course.locator('.hero-button')).toHaveText(/Davom ettirish|Boshlash/);
   await expect(page.locator('.home-sections .quick-link')).toHaveText([
+    /Mavzular/,
     /Kurslar/,
     /O‘yinlar/,
     /Kitoblar/,
@@ -114,4 +115,38 @@ test('the home banner shows the date, the name and today’s plans; the current 
   await expect(plan).toHaveCount(1);
   await expect(plan).toContainText('Jonli test');
   await expect(plan.locator('em')).toHaveText(/\d\d:\d\d da/);
+});
+
+/* 📱 Telefonda (va ilovada) asosiylari: pastki menyu — Asosiy, Mavzular, Kurslar, Xizmatlar/O'yinlar, Profil;
+   bosh sahifada faqat Mavzular, Kurslar (va Pullik xizmatlar) kartalari; statistika va o'ng ustun yo'q. */
+test('on a phone the app shows the essentials: topics, courses and paid services', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.request.post('/api/auth/demo', { data: { id: 'demo-student' } });
+  await page.goto('/#home');
+  const nav = page.locator('.bottom-nav a');
+  // pullik xizmatlar yopiq (demo) — o'rnida O'yinlar
+  await expect(nav).toHaveText(['Asosiy', 'Mavzular', 'Kurslar', 'O‘yinlar', 'Profil']);
+  await expect(page.locator('.home-sections .quick-link:visible')).toHaveText([
+    /Mavzular/,
+    /Kurslar/,
+  ]);
+  await expect(page.locator('.stats-grid')).toBeHidden();
+  await expect(page.locator('.dashboard-aside')).toBeHidden();
+  await expect(page.locator('.app-footer')).toBeHidden();
+  // birinchi ekranda: ism, rejalar, joriy mavzu tugmasi va asosiy kartalar
+  await expect(page.locator('.home-banner .hb-plans')).toBeInViewport();
+  await expect(page.locator('.home-course .hero-button')).toBeInViewport();
+  await expect(page.locator('.home-sections .quick-link.is-topics')).toBeInViewport();
+  // «Mavzular» — asosiy fan mavzulari
+  await nav.filter({ hasText: 'Mavzular' }).click();
+  await expect.poll(() => new URL(page.url()).hash).toBe('#course/tad-asoslari');
+  await expect(nav.filter({ hasText: 'Mavzular' })).toHaveAttribute('aria-current', 'page');
+  await expect(page.locator('.course-banner .legend')).toBeHidden();
+  await expect(page.locator('.lesson-card').first()).toBeVisible();
+  // ☰ menyuda qolganlari ham bor
+  await page.getByRole('button', { name: 'Menyu' }).click();
+  await expect(page.locator('.sidebar nav')).toContainText('Kutubxona');
+  await expect(page.locator('.sidebar nav')).toContainText('Talabalar chati');
 });
