@@ -143,6 +143,8 @@ test('the administrator fills the question bank, schedules daily games and creat
   await page.reload({ waitUntil: 'domcontentloaded' });
   // (yon menyuda jonli test e'loni yo'q — u bosh sahifadagi ✉️ e'lonlar ro'yxatida va bildirishnomada)
   await expect(page.locator('.sidebar-news .news-live')).toHaveCount(0);
+  // tuzilgan o'yin haqida bir martalik katta e'lon chiqadi — yopiladi
+  await page.getByRole('button', { name: /Tushunarli/ }).click();
   await page.locator('.news-chip').click();
   const live = page.locator('.news-list-item.is-live');
   await expect(live).toContainText('Jonli test');

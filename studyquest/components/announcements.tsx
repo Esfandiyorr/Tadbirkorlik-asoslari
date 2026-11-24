@@ -314,6 +314,8 @@ export function NewsBox({ className = '' }: { className?: string }) {
       key: item.id,
       node: <NewsSlide item={item} now={now()} onOpen={() => setReading(item)} />,
     });
+  // e'lon yo'q — talabaga bo'sh quti ko'rsatilmaydi (joyini obuna kartasi oladi); administrator «+» uchun ko'radi
+  const hidden = !slides.length && data?.user?.role !== 'admin';
   if (!slides.length)
     slides.push({
       key: 'empty',
@@ -337,6 +339,7 @@ export function NewsBox({ className = '' }: { className?: string }) {
     const t = setInterval(() => setIndex((i) => (i + 1) % count), ROTATE_MS);
     return () => clearInterval(t);
   }, [count, hover, paused, reading]);
+  if (hidden) return null;
   return (
     <section
       className={'news-box ' + className}

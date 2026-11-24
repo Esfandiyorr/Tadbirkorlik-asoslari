@@ -391,6 +391,7 @@
   line-height: 1.35;
 }
 .home-sections .quick-link > span.hs-go {
+  white-space: nowrap;
   display: inline-flex;
   align-items: center;
   gap: 2px;

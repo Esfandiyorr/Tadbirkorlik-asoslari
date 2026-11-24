@@ -268,11 +268,13 @@ test('the administrator fills the second box with offers and students see them u
     ).newPage();
     await as(p, 'demo-student');
     await p.goto('/#home', { waitUntil: 'domcontentloaded' });
-    await expect(p.locator('.sidebar-news')).toBeVisible();
+    await expect(p.locator('.home-banner')).toBeVisible();
     return p;
   };
-  // Bo'sh 2-e'lon oynasini talaba ko'rmaydi; «Joriy mavzu» bloki endi yon menyuda yo'q.
+  // Bo'sh e'lon oynalarini talaba ko'rmaydi (joyida «Obuna bo'ling» kartasi); «Joriy mavzu» bloki yon menyuda yo'q.
   const s1 = await student();
+  await expect(s1.locator('.sidebar .premium-side')).toBeVisible();
+  await expect(s1.locator('.sidebar-news')).toHaveCount(0);
   await expect(s1.locator('.sidebar-promo')).toHaveCount(0);
   await expect(s1.locator('.sidebar-current')).toHaveCount(0);
   await s1.context().close();
@@ -331,7 +333,7 @@ test('the administrator fills the second box with offers and students see them u
   await big.getByRole('button', { name: 'Yopish' }).click();
   await expect(s2.locator('.news-pop')).toHaveCount(0);
   await s2.reload({ waitUntil: 'domcontentloaded' });
-  await expect(s2.locator('.sidebar-news')).toBeVisible();
+  await expect(s2.locator('.sidebar-promo')).toBeVisible();
   await s2.waitForTimeout(1500);
   await expect(s2.locator('.news-pop')).toHaveCount(0);
 
