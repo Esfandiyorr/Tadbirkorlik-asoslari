@@ -419,14 +419,17 @@
   .welcome-hero.continue-hero {
     min-height: 0;
     padding: 18px;
-    display: block;
+    display: flex;
+    flex-direction: column;
   }
   .continue-hero > .topic-art {
     display: none;
   }
-  /* 🎭 telefonda ham avatar asosiy kartochkada — katta, butun kenglikda (profil qismida takrorlanmaydi) */
+  /* 🎭 telefonda ham avatar asosiy kartochkada — katta, butun kenglikda (profil qismida takrorlanmaydi);
+     «Davom ettirish» birinchi ekranda ko'rinsin deb avatar mavzu va tugmadan keyin turadi */
   .continue-hero > .hero-avatar {
-    margin-bottom: 16px;
+    order: 2;
+    margin-top: 16px;
   }
   .continue-hero > .hero-avatar.has .hero-avatar-stage {
     height: min(300px, 62vw);
