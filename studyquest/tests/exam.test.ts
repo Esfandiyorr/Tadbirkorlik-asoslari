@@ -282,3 +282,58 @@ it('practice records mistakes; the final exam is graded at the end and a pass gi
   // sertifikat yozuvi bazada, natijalar foydalanuvchi bo'yicha
   expect(await siteGet('examCerts/' + pass.cert)).toBeTruthy();
 });
+
+it('«I paid» opens the product at once; the administrator later confirms or blocks a payment that never came', async () => {
+  await examAdminAct(admin, { op: 'import', topic: 'm1', text: block(1, 3), replace: false });
+  // yakuniy test: «To'lov qildim» — darhol ochiladi
+  const { id } = (await manageServices(ali, { op: 'buy', product: 'yakuniy-test' }, NOW)) as {
+    id: string;
+  };
+  await manageServices(ali, { op: 'paid', id, note: '' }, NOW + 1000);
+  let order = (await servicesView(ali, NOW)).orders!.find((o) => o.id === id)!;
+  expect(order).toMatchObject({ status: 'done', granted: NOW + 1000, paidAt: NOW + 1000 });
+  expect(order.payOk).toBeUndefined();
+  expect((await examView(ali, NOW)).access).toBe(true);
+  // Premium ham darhol; administrator tasdiqlasa muddat ikki marta qo'shilmaydi
+  const p = (await manageServices(vali, { op: 'buy', product: 'premium-oy' }, NOW)) as {
+    id: string;
+  };
+  await manageServices(vali, { op: 'paid', id: p.id, note: '' }, NOW);
+  expect((await premiumState(vali, NOW)).until).toBe(NOW + 30 * 86400000);
+  await adminServices(admin, { op: 'confirm', uk: keyOf(vali.id), id: p.id }, NOW + 5000);
+  expect((await premiumState(vali, NOW)).until).toBe(NOW + 30 * 86400000);
+  // ⛔ ali to'lamagan: administrator bloklaydi — bo'lim yopiladi, buyurtma bekor, pullik xizmatlar yopiq
+  await expect(
+    adminServices(admin, { op: 'ban', uk: keyOf(vali.id), id: p.id, account: false }),
+  ).rejects.toThrow('tasdiqlangan');
+  const r = (await adminServices(
+    admin,
+    { op: 'ban', uk: keyOf(ali.id), id, account: true },
+    NOW + 9000,
+  )) as { admin: { bans: { uid: string; account?: boolean; title?: string }[] } };
+  expect(r.admin.bans).toMatchObject([
+    { uid: ali.id, account: true, title: 'Yakuniy testga tayyorgarlik' },
+  ]);
+  expect((await examView(ali, NOW)).access).toBe(false);
+  order = (await servicesView(ali, NOW)).orders!.find((o) => o.id === id)!;
+  expect(order).toMatchObject({ status: 'cancel', reason: 'To‘lov topilmadi' });
+  expect((await servicesView(ali, NOW)).banned).toBe(true);
+  await expect(manageServices(ali, { op: 'buy', product: 'yakuniy-test' })).rejects.toThrow(
+    'yopilgan',
+  );
+  await expect(manageServices(ali, { op: 'buy', product: 'premium-oy' })).rejects.toThrow(
+    'yopilgan',
+  );
+  // blokdan chiqarish — yana sotib ola oladi
+  await adminServices(admin, { op: 'unban', uk: keyOf(ali.id) });
+  expect((await servicesView(ali, NOW)).banned).toBeUndefined();
+  await manageServices(ali, { op: 'buy', product: 'yakuniy-test' }, NOW + 10000);
+  // Premium'ni bloklash — obuna butunlay olinadi
+  const p2 = (await manageServices(ali, { op: 'buy', product: 'premium-yil' }, NOW)) as {
+    id: string;
+  };
+  await manageServices(ali, { op: 'paid', id: p2.id, note: '' }, NOW);
+  expect((await premiumState(ali, NOW)).active).toBe(true);
+  await adminServices(admin, { op: 'ban', uk: keyOf(ali.id), id: p2.id, account: false });
+  expect((await premiumState(ali, NOW)).active).toBe(false);
+});

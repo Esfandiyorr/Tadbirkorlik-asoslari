@@ -341,6 +341,16 @@ export function Services({ sub = '' }: { sub?: string }) {
         </div>
       )}
       {premiumOffer && <PremiumOffer info={null} onClose={() => setPremiumOffer(false)} />}
+      {view?.banned && (
+        <p className="svc-soon svc-banned" role="alert">
+          ⛔{' '}
+          {L(
+            'Sizga pullik xizmatlar yopilgan: «To‘lov qildim» degan to‘lovingiz topilmadi. Savol bo‘lsa, «Talabalar chati → Adminga xabar» orqali yozing.',
+            'Paid services are closed for you: the payment you reported was not found. If you have questions, write via “Chat → Message the admin”.',
+            'Платные услуги для вас закрыты: заявленная оплата не найдена. Вопросы — «Чат → Написать админу».',
+          )}
+        </p>
+      )}
       <nav className="mk-tabs" aria-label={L('Bo‘limlar', 'Sections', 'Разделы')}>
         {tabs.map(([id, icon, name, n]) => (
           <a
@@ -1352,9 +1362,16 @@ function OrderCard({
           ) : o.paidAt ? (
             <>
               <b>
-                🔎 {L('To‘lov tekshirilmoqda', 'Checking payment', 'Оплата проверяется')}:{' '}
+                ✅ {L('To‘lov qabul qilindi', 'Payment received', 'Оплата принята')}:{' '}
                 {formatSum(pay)}
               </b>
+              <small className="muted">
+                {L(
+                  'Administrator keyin tekshiradi. To‘lov topilmasa, buyurtma yopiladi va pullik xizmatlar bloklanadi.',
+                  'The administrator checks it later. If the payment is not found, the order is closed and paid services are blocked.',
+                  'Администратор проверит позже. Если оплата не найдётся, заказ закроется, а платные услуги будут заблокированы.',
+                )}
+              </small>
               {o.paidNote && <small className="muted">🧾 {o.paidNote}</small>}
               <Receipts o={o.uk + '/' + o.id} files={o.files.filter((f) => f.side === 'pay')} />
             </>

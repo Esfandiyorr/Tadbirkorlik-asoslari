@@ -79,9 +79,12 @@ For Firebase-backed development, copy `.env.example` to `.env.local`, supply you
     Play Store app (`/?src=play`): Google Play does not allow steering to external payments.
 - **💎 Premium** (`lib/server/premium.ts`, `components/premium.tsx`, `lib/premium-look.ts`): sold on the site as
   ready-made products in «Paid services» — **monthly 5 000 so'm (30 days)** and **yearly 45 000 so'm (365 days)**
-  (prices editable under Paid services → ⚙️ Payment instructions). The user presses «Buy» → «I paid»; when the
-  administrator confirms the payment in the orders inbox, Premium turns on by itself (added on top of the current
-  period); the administrator can still grant it by hand. Subscribers get: a **profile look** — one of 5 (👑 Golden
+  (prices editable under Paid services → ⚙️ Payment instructions). The user presses «Buy» → «I paid» (with an optional
+  receipt picture) and Premium turns on at once (added on top of the current period); the administrator later
+  confirms the payment or, if it never came, presses «⛔ Not paid — block»: Premium is taken back, the order is
+  cancelled, paid services are closed for that user (`site/serviceBans/<user>`; optionally site sign-in is blocked too)
+  and «⚙️ Payment instructions» lists the blocked users with «Unblock». The administrator can still grant Premium by
+  hand. Subscribers get: a **profile look** — one of 5 (👑 Golden
   crown, 🌈 Rainbow, ✨ Violet glow, 💎 Diamond, 🔥 Fire; Profile → 💎 Premium), shown on their leaderboard row while
   Premium is active; an avatar; **50 % off all paid services** (custom orders and the final exam preparation, not
   Premium itself); 💎 library items; the course for non-students; video lesson downloads. Inside the Play Store app
@@ -91,8 +94,8 @@ For Firebase-backed development, copy `.env.example` to `.env.local`, supply you
   administrator uploads in **Site manager → 🎯 Final exam questions** (paste from Word or a .txt: numbered
   «1. … A) … *» / «Javob: B» or HEMIS «++++ ==== #»; preview, replace, delete; re-uploading the same text updates
   instead of duplicating). The section is a paid service (**10 000 so'm**, 5 000 for Premium): bought from the tab or
-  the catalog card and opened automatically when the administrator confirms the payment (the administrator can also
-  revoke it). Inside: practice by topic, mixed practice (30), «work on mistakes» — each answer is checked at once
+  the catalog card and opened at once when the user presses «I paid»; the administrator later confirms the payment or
+  blocks the user (the section closes again); access can also be revoked by hand. Inside: practice by topic, mixed practice (30), «work on mistakes» — each answer is checked at once
   and stored per question; a timed **final exam** (3 questions from every topic, 60 minutes, graded at the end on the
   server, resumable after a reload). **60 % or more gives a certificate** (`#sertifikat/<id>`): name, group,
   course, score, date, teacher and a QR code that leads to a public verification page; printable as an A4 PDF.

@@ -478,6 +478,8 @@ export type ServiceOrder = {
   paidNote?: string;
   /** administrator to'lovni tasdiqlagan vaqt */
   payOk?: number;
+  /** 🛍 mahsulot ochilgan vaqt («To'lov qildim» bosilishi bilan — administrator keyin tekshiradi) */
+  granted?: number;
   deliveredAt?: number;
   doneAt?: number;
   /** bekor qilish sababi */
@@ -499,6 +501,16 @@ export type AdminOrder = ServiceOrder & {
   email?: string;
   role?: string;
 };
+/** ⛔ Pullik xizmatlardan blok: «To'lov qildim» dedi, lekin to'lov topilmadi. account — saytga kirish ham yopilgan. */
+export type ServiceBan = {
+  uk: string;
+  uid: string;
+  name: string;
+  at: number;
+  by: string;
+  account?: boolean;
+  title?: string;
+};
 export type ServicesView = {
   /** bo'lim ishga tushganmi; yo'q bo'lsa — «tez orada» oynasi va taklif yuborish, buyurtma qabul qilinmaydi */
   open: boolean;
@@ -514,6 +526,8 @@ export type ServicesView = {
   products: Record<ProductId, number>;
   /** ko'rayotgan foydalanuvchiga chegirma (%) — Premium obunachiga 50 */
   discount: number;
+  /** ⛔ to'lov topilmagani uchun pullik xizmatlar yopilgan */
+  banned?: boolean;
   signedIn: boolean;
   /** to'lov yo'riqnomasi (faqat kirgan foydalanuvchiga) */
   how?: string;
@@ -529,6 +543,8 @@ export type ServicesAdminView = {
   how: string;
   orders: AdminOrder[];
   products: Record<ProductId, number>;
+  /** ⛔ to'lovi topilmagani uchun bloklanganlar */
+  bans: ServiceBan[];
   /** saqlangan fayllarning umumiy hajmi */
   used: number;
 };

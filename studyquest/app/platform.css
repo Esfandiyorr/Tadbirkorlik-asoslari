@@ -14150,3 +14150,65 @@ html {
   color: inherit;
   cursor: pointer;
 }
+
+/* ⛔ To'lovi topilmaganlarni bloklash */
+.svc-ban-btn {
+  border-color: #fca5a5;
+  color: #b91c1c;
+}
+.dark .svc-ban-btn {
+  border-color: #7f1d1d;
+  color: #fca5a5;
+}
+.svc-ban-account {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+}
+.svc-banned {
+  border-color: #fca5a5;
+  background: #fef2f2;
+  color: #991b1b;
+}
+.dark .svc-banned {
+  border-color: #7f1d1d;
+  background: #2a1215;
+  color: #fecaca;
+}
+.pb-note.is-banned {
+  color: #b91c1c;
+  font-weight: 600;
+}
+.pb.is-done {
+  border-color: #86efac;
+  background: #f0fdf4;
+}
+.dark .pb.is-done {
+  border-color: #14532d;
+  background: #0d2416;
+}
+.svc-bans {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid #fecaca;
+  border-radius: 14px;
+}
+.svc-bans ul {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.svc-bans li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.svc-bans li > span {
+  display: grid;
+}

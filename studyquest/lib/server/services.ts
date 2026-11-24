@@ -28,17 +28,18 @@ import {
   type OrderMsg,
   type ServiceCard,
   type ServiceOrder,
+  type ServiceBan,
   type ServiceSetting,
   type ServiceStatus,
   type ServicesAdminView,
   type ServicesView,
 } from '../services';
 import { ApiError, administrator, check } from './auth';
-import { repository } from './repository';
+import { demo, legacyDb, repository } from './repository';
 import { siteGet, siteUpdate } from './site-content';
 import { sendPush } from './push';
 import { supportAct } from './support';
-import { grantPremium, premiumState } from './premium';
+import { grantPremium, premiumKey, premiumState } from './premium';
 import { grantExamAccess } from './exam';
 import { course } from '../seed';
 
@@ -55,8 +56,11 @@ import { course } from '../seed';
    tayyorlanmoqda») → review (administrator natijani yubordi) → done (foydalanuvchi qabul qildi va baho qo'ydi);
    istalgan paytda cancel. To'lov holatni to'xtatmaydi: paidAt — foydalanuvchi «To'lov qildim» dedi, payOk —
    administrator tasdiqladi. Premium obunachiga chegirma (discount, %) buyurtma paytida yoziladi.
-   🛍 Mahsulot (yakuniy test, Premium) — narxi belgilangan buyurtma: administrator to'lovni tasdiqlashi bilan o'zi
-   ochiladi (bo'lim yoki obuna) va buyurtma yakunlanadi. Mahsulot sotib olish bo'lim yopiq bo'lsa ham ishlaydi.
+   🛍 Mahsulot (yakuniy test, Premium) — narxi belgilangan buyurtma: «To'lov qildim» bosilishi bilan o'zi ochiladi
+   (bo'lim yoki obuna, granted) va buyurtma yakunlanadi; administrator keyin tekshiradi: to'lov kelgan bo'lsa
+   tasdiqlaydi (payOk), kelmagan bo'lsa bloklaydi (ban): ochilgan narsa yopiladi, buyurtma bekor qilinadi,
+   serviceBans/<foydalanuvchi> yoziladi (pullik xizmatlar yopiladi), xohlasa saytga kirish ham bloklanadi.
+   Mahsulot sotib olish bo'lim yopiq bo'lsa ham ishlaydi.
    Fayllar bekor qilinganda darhol, yakunlangandan KEEP_DAYS kun keyin o'chiriladi. */
 
 type StoredFile = {
@@ -90,6 +94,7 @@ type Stored = {
   paidAt?: number;
   paidNote?: string;
   payOk?: number;
+  granted?: number;
   deliveredAt?: number;
   doneAt?: number;
   reason?: string;
@@ -171,6 +176,42 @@ async function readProducts(): Promise<Record<ProductId, number>> {
     }),
   ) as Record<ProductId, number>;
 }
+/** 🛍 Mahsulotni ochish: yakuniy test bo'limi yoki Premium (muddati mavjudiga qo'shiladi). */
+async function fulfil(s: Stored, id: string, by: string, now: number) {
+  const product = PRODUCTS[s.kind as ProductId];
+  if (product.days) await grantPremium(s.uid, s.name, s.group || '', product.days, by, now);
+  else await grantExamAccess(s.uid, s.name, by, 'order:' + id, now);
+}
+/** ⛔ To'lov topilmadi: ochilgan mahsulot yopiladi (yakuniy test — shu buyurtma ochgan bo'lsa; Premium — butunlay). */
+async function revoke(s: Stored, id: string) {
+  if (!isProduct(s.kind)) return;
+  if (PRODUCTS[s.kind].days) await siteUpdate({ ['premium/' + premiumKey(s.uid)]: null });
+  else {
+    const access = await siteGet<{ via?: string }>('examAccess/' + keyOf(s.uid));
+    if (access?.via === 'order:' + id) await siteUpdate({ ['examAccess/' + keyOf(s.uid)]: null });
+  }
+}
+/** 🔒 Saytga kirishni bloklash yoki ochish: TerDU talabasi — asl yozuvidagi holat, boshqalar — hisob belgisi. */
+async function blockAccount(uid: string, blocked: boolean) {
+  if (uid.startsWith('legacy_')) {
+    if (demo()) return; // demo muhit jonli talabalar bazasiga tegmaydi
+    await legacyDb()
+      .ref('students/' + uid.slice(7) + '/status')
+      .transaction((v: string | null) =>
+        v === null ? v : blocked ? 'blocked' : v === 'blocked' ? 'ok' : v,
+      );
+    return;
+  }
+  const repo = await repository();
+  await repo.transaction(async (tx) => {
+    const u = await tx.get('users', uid);
+    if (u) tx.set('users', uid, { ...u, blocked });
+  });
+}
+async function readBans() {
+  return (await siteGet<Record<string, Omit<ServiceBan, 'uk'>>>('serviceBans')) || {};
+}
+
 /** Obunachi chegirmasi (%): Premium faol bo'lsa (o'qituvchi va administratorga emas). */
 async function discountOf(a: Actor | null, now = Date.now()) {
   if (!a) return 0;
@@ -222,6 +263,7 @@ function toOrder(uk: string, id: string, s: Stored): ServiceOrder {
     ...(s.paidAt ? { paidAt: s.paidAt } : {}),
     ...(s.paidNote ? { paidNote: s.paidNote } : {}),
     ...(s.payOk ? { payOk: s.payOk } : {}),
+    ...(s.granted ? { granted: s.granted } : {}),
     ...(s.deliveredAt ? { deliveredAt: s.deliveredAt } : {}),
     ...(s.doneAt ? { doneAt: s.doneAt } : {}),
     ...(s.reason ? { reason: s.reason } : {}),
@@ -296,7 +338,8 @@ export async function servicesView(a: Actor | null, now = Date.now()): Promise<S
     .filter((x) => x.uk === me)
     .map((x) => toOrder(x.uk, x.id, x.s))
     .sort((x, y) => y.at - x.at);
-  return { ...head, signedIn: true, how: info.how, orders };
+  const banned = !!(await siteGet<{ at?: number }>('serviceBans/' + me))?.at;
+  return { ...head, signedIn: true, how: info.how, orders, ...(banned ? { banned } : {}) };
 }
 
 /** Administrator: hamma buyurtmalar (buyurtmachi ma'lumotlari bilan, oxirgi o'zgarish bo'yicha) va sozlamalar. */
@@ -322,7 +365,11 @@ export async function servicesAdmin(a: Actor, now = Date.now()): Promise<Service
     };
   });
   orders.sort((x, y) => y.upd - x.upd);
-  return { open, shown, catalog, people, fans, how, orders, products, used };
+  const bans: ServiceBan[] = Object.entries(await readBans())
+    .filter(([uk, b]) => UK.test(uk) && b?.uid)
+    .map(([uk, b]) => ({ uk, ...b }))
+    .sort((x, y) => y.at - x.at);
+  return { open, shown, catalog, people, fans, how, orders, products, bans, used };
 }
 
 /* ---------- 🔔 bildirishnomalar (xatosi amalni to'xtatmaydi) ---------- */
@@ -452,6 +499,12 @@ export async function manageServices(a: Actor, raw: unknown, now = Date.now()) {
       typeof v.id === 'string' &&
       isProduct((await siteGet<Stored>(orderPath(me, v.id)).catch(() => null))?.kind || ''));
   if (!forProduct) await notClosed(a);
+  // ⛔ to'lovi topilmagan foydalanuvchiga pullik xizmatlar yopiq
+  check(
+    !(await siteGet<{ at?: number }>('serviceBans/' + me))?.at,
+    403,
+    'Sizga pullik xizmatlar yopilgan: to‘lovingiz topilmadi. Savol bo‘lsa, «Adminga xabar» orqali yozing.',
+  );
 
   if (v.op === 'buy') {
     check(isProduct(v.product), 404, 'Bunday xizmat yo‘q.');
@@ -585,10 +638,19 @@ export async function manageServices(a: Actor, raw: unknown, now = Date.now()) {
       [path + '/paidNote']: v.note || null,
       [path + '/upd']: now,
     });
+    // 🛍 mahsulot «To'lov qildim» bilan darhol ochiladi — administrator keyin tekshiradi (tasdiqlaydi yoki bloklaydi)
+    if (isProduct(s.kind) && !s.granted) {
+      await fulfil(s, v.id, 'to‘lov qildim', now);
+      Object.assign(patch, {
+        [path + '/granted']: now,
+        [path + '/status']: 'done',
+        [path + '/doneAt']: now,
+      });
+    }
     await siteUpdate(patch);
     const receipt = Object.values(s.files || {}).some((f) => f?.ready && f.side === 'pay');
     await notifyTeam(
-      '💳 To‘lov qilindi' + (receipt ? ' · 🧾 chek bor' : ''),
+      '💳 To‘lov qildim — tekshiring' + (receipt ? ' · 🧾 chek bor' : ''),
       s.name +
         ' — ' +
         s.title +
@@ -647,6 +709,8 @@ export async function manageServices(a: Actor, raw: unknown, now = Date.now()) {
 
 const adminInput = z.discriminatedUnion('op', [
   z.object({ op: z.literal('confirm'), uk: ukField, id: z.string() }).strict(),
+  z.object({ op: z.literal('ban'), uk: ukField, id: z.string(), account: z.boolean() }).strict(),
+  z.object({ op: z.literal('unban'), uk: ukField }).strict(),
   z
     .object({
       op: z.literal('status'),
@@ -722,10 +786,46 @@ export async function adminServices(a: Actor, raw: unknown, now = Date.now()) {
     await siteUpdate({ 'serviceInfo/how': v.how || null });
     return done();
   }
+  if (v.op === 'unban') {
+    const ban = (await readBans())[v.uk];
+    check(ban, 404, 'Bunday blok yo‘q.');
+    await siteUpdate({ ['serviceBans/' + v.uk]: null });
+    if (ban!.account) await blockAccount(ban!.uid, false);
+    await notify([ban!.uid], '✅ Blok olib tashlandi', 'Pullik xizmatlar sizga yana ochiq.');
+    return done();
+  }
   const s = await load(v.uk, v.id);
   const st = statusOf(s);
   const path = orderPath(v.uk, v.id);
   const patch: Record<string, unknown> = {};
+  if (v.op === 'ban') {
+    // ⛔ «To'lov qildim» dedi, lekin to'lov topilmadi: ochilgan narsa yopiladi, buyurtma bekor, foydalanuvchi bloklanadi
+    check(!s.payOk, 409, 'To‘lov tasdiqlangan — bloklab bo‘lmaydi.');
+    await revoke(s, v.id);
+    dropFiles(patch, v.uk, v.id, s);
+    Object.assign(patch, {
+      [path + '/status']: 'cancel',
+      [path + '/reason']: 'To‘lov topilmadi',
+      [path + '/granted']: null,
+      [path + '/upd']: now,
+      ['serviceBans/' + v.uk]: {
+        uid: s.uid,
+        name: s.name,
+        at: now,
+        by: (a.name || a.id).slice(0, 60),
+        title: s.title.slice(0, 120),
+        ...(v.account ? { account: true } : {}),
+      },
+    });
+    await siteUpdate(patch);
+    if (v.account) await blockAccount(s.uid, true);
+    await notify(
+      [s.uid],
+      '⛔ To‘lov topilmadi',
+      s.title + ' — yopildi. Pullik xizmatlar sizga yopiq; savol bo‘lsa, administratorga yozing.',
+    );
+    return done();
+  }
   if (v.op === 'confirm') {
     check(st !== 'cancel', 409, 'Buyurtma bekor qilingan.');
     check(!s.payOk, 409, 'To‘lov allaqachon tasdiqlangan.');
@@ -735,17 +835,21 @@ export async function adminServices(a: Actor, raw: unknown, now = Date.now()) {
       [path + '/upd']: now,
     });
     const by = (a.name || a.id).slice(0, 60);
-    if (isProduct(s.kind)) {
-      // 🛍 mahsulot o'zi ochiladi: yakuniy test bo'limi yoki Premium obuna (muddati mavjudiga qo'shiladi)
-      const product = PRODUCTS[s.kind];
-      if (product.days) await grantPremium(s.uid, s.name, s.group || '', product.days, by, now);
-      else await grantExamAccess(s.uid, s.name, by, 'order:' + v.id, now);
-      Object.assign(patch, { [path + '/status']: 'done', [path + '/doneAt']: now });
+    if (isProduct(s.kind) && !s.granted) {
+      // 🛍 hali ochilmagan mahsulot (administrator «To'lov qildim»siz tasdiqladi) — endi ochiladi
+      await fulfil(s, v.id, by, now);
+      Object.assign(patch, {
+        [path + '/granted']: now,
+        [path + '/status']: 'done',
+        [path + '/doneAt']: now,
+      });
     }
     await siteUpdate(patch);
     await notify(
       [s.uid],
-      isProduct(s.kind) ? '✅ ' + PRODUCTS[s.kind].name[0] + ' — ochildi' : '✅ To‘lov tasdiqlandi',
+      isProduct(s.kind) && !s.granted
+        ? '✅ ' + PRODUCTS[s.kind].name[0] + ' — ochildi'
+        : '✅ To‘lov tasdiqlandi',
       s.title + ' · ' + formatSum(payable({ budget: s.budget || 0, discount: s.discount })),
       s.kind === 'yakuniy-test' ? '/#course/' + course.id + '/exam' : undefined,
     );

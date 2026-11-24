@@ -88,9 +88,14 @@ test('final exam prep: upload questions, buy the section, practise, pass the fin
   await locked.getByRole('button', { name: /Sotib olish/ }).click();
   await locked.getByLabel(/Chek raqami/).fill('chek 555');
   await locked.getByRole('button', { name: /To‘lov qildim/ }).click();
-  await expect(locked).toContainText('To‘lov tekshirilmoqda');
+  // «To'lov qildim» — bo'lim darhol ochiladi (administrator keyin tekshiradi)
+  await expect(locked.locator('.pb.is-done')).toContainText(
+    'Yakuniy testga tayyorgarlik — ochildi!',
+  );
+  await locked.getByRole('button', { name: /Davom etish/ }).click();
+  await expect(student.locator('.ex-tiles')).toContainText('0/9');
 
-  // administrator yozishmada to'lovni tasdiqlaydi — bo'lim o'zi ochiladi
+  // administrator yozishmada to'lovni tekshirib tasdiqlaydi
   await page.goto('/#services', { waitUntil: 'domcontentloaded' });
   await page.reload({ waitUntil: 'domcontentloaded' });
   await page.getByRole('button', { name: 'Boshqarish' }).click();
@@ -100,9 +105,10 @@ test('final exam prep: upload questions, buy the section, practise, pass the fin
   await thread.click();
   const chat = page.locator('.svc-chat');
   await expect(chat).toContainText('chek 555');
-  await expect(chat).toContainText('o‘zi ochiladi');
+  await expect(chat).toContainText('bosilishi bilan unga ochildi');
   await expect(chat.locator('.svc-deliver')).toHaveCount(0);
-  await chat.getByRole('button', { name: /To‘lovni tasdiqlash/ }).click();
+  await expect(chat.getByRole('button', { name: /To‘lanmagan — bloklash/ })).toBeVisible();
+  await chat.getByRole('button', { name: /To‘lov keldi — tasdiqlash/ }).click();
   await expect(chat.locator('.svc-pay')).toContainText('To‘lov tasdiqlangan');
 
   // talaba: bo'lim ochiq — 1-mavzu bo'yicha mashq
@@ -195,7 +201,7 @@ test('Premium: buy a plan, pick one of 5 profile looks, stand out in the leaderb
   );
   await month.getByRole('button', { name: /Sotib olish/ }).click();
   await month.getByRole('button', { name: /To‘lov qildim/ }).click();
-  await expect(month).toContainText('To‘lov tekshirilmoqda');
+  await expect(month).toContainText('ochildi!');
   await confirmAll(page, 'premium-oy');
 
   // obunachi: 5 xil bezakdan birini tanlaydi
@@ -236,4 +242,52 @@ test('the logo assignment is closed: no upload page or grading tab, old links op
   await expect(page.getByRole('button', { name: /Logotip topshirig/ })).toHaveCount(0);
   await expect(page.getByRole('button', { name: /Logotiplar/ })).toHaveCount(0);
   await expect(page.getByText('Baholanmagan logotiplar')).toHaveCount(0);
+});
+
+test('a payment that never came: the administrator blocks — the section closes and paid services are refused', async ({
+  page,
+  browser,
+}) => {
+  test.setTimeout(120_000);
+  await as(page, 'demo-admin');
+  await reset(page);
+  await exam(page, 'admin', { op: 'import', topic: 'm1', text: block(1, 2), replace: true });
+  const student = await (
+    await browser.newContext({ baseURL: test.info().project.use.baseURL })
+  ).newPage();
+  await as(student, 'demo-student');
+  await student.goto('/#course/tad-asoslari/exam', { waitUntil: 'domcontentloaded' });
+  const locked = student.locator('.ex-locked');
+  await locked.getByRole('button', { name: /Sotib olish/ }).click();
+  await locked.getByRole('button', { name: /To‘lov qildim/ }).click();
+  await locked.getByRole('button', { name: /Davom etish/ }).click();
+  await expect(student.locator('.ex-actions')).toBeVisible();
+  // administrator: to'lov kelmagan — bloklaydi
+  await page.goto('/#admin/services', { waitUntil: 'domcontentloaded' });
+  await page.locator('.svc-thread').filter({ hasText: 'Yakuniy testga tayyorgarlik' }).click();
+  const chat = page.locator('.svc-chat');
+  page.once('dialog', (d) => void d.accept());
+  await chat.getByRole('button', { name: /To‘lanmagan — bloklash/ }).click();
+  await expect(chat.locator('.svc-status')).toContainText('Bekor');
+  // talabada: bo'lim yana yopiq, sotib olish o'rniga — blok haqida xabar
+  await student.reload({ waitUntil: 'domcontentloaded' });
+  await expect(student.locator('.ex-locked .pb-note.is-banned')).toContainText(
+    'Sizga pullik xizmatlar yopilgan',
+  );
+  await student.goto('/#services/mine', { waitUntil: 'domcontentloaded' });
+  await expect(student.locator('.svc-banned')).toBeVisible();
+  // administrator «To'lov yo'riqnomasi» bo'limida blokdan chiqaradi
+  await page.reload({ waitUntil: 'domcontentloaded' });
+  await page.getByRole('tab', { name: /To‘lov yo‘riqnomasi/ }).click();
+  const bans = page.locator('.svc-bans');
+  await expect(bans).toContainText('Yakuniy testga tayyorgarlik');
+  page.once('dialog', (d) => void d.accept());
+  await bans.getByRole('button', { name: 'Blokdan chiqarish' }).click();
+  await expect(bans).toHaveCount(0);
+  await student.goto('/#course/tad-asoslari/exam', { waitUntil: 'domcontentloaded' });
+  await expect(
+    student.locator('.ex-locked').getByRole('button', { name: /Sotib olish/ }),
+  ).toBeVisible();
+  await student.context().close();
+  await reset(page);
 });

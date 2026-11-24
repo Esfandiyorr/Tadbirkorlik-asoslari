@@ -419,6 +419,7 @@ function AdminChat({
   const [busy, setBusy] = useState('');
   const [link, setLink] = useState(o.link || '');
   const [progress, setProgress] = useState('');
+  const [banAccount, setBanAccount] = useState(false);
   const [icon, name] = STATUS_LABEL[o.status];
   const k = serviceKind(o.kind);
   async function act(input: Record<string, unknown>, key: string, done?: string) {
@@ -541,16 +542,16 @@ function AdminChat({
               {product && (
                 <p className="muted">
                   🛍{' '}
-                  {o.kind === 'yakuniy-test'
+                  {o.granted
                     ? L(
-                        'Tasdiqlashingiz bilan unga «Yakuniy testga tayyorgarlik» bo‘limi o‘zi ochiladi.',
-                        'Confirming opens the “Final exam preparation” section for them automatically.',
-                        'После подтверждения раздел «Подготовка к итоговому тесту» откроется сам.',
+                        '«To‘lov qildim» bosilishi bilan unga ochildi. To‘lov kelgan bo‘lsa — tasdiqlang; kelmagan bo‘lsa — bloklang: ochilgani yopiladi.',
+                        'It was unlocked when they pressed “I paid”. Confirm if the money arrived; otherwise block — the unlock is taken back.',
+                        'Открыто после нажатия «Я оплатил». Подтвердите, если деньги пришли; иначе заблокируйте — доступ будет отозван.',
                       )
                     : L(
-                        `Tasdiqlashingiz bilan Premium obuna ${PRODUCTS[o.kind as ProductId].days} kunga o‘zi yoqiladi.`,
-                        `Confirming turns Premium on for ${PRODUCTS[o.kind as ProductId].days} days automatically.`,
-                        `После подтверждения подписка включится на ${PRODUCTS[o.kind as ProductId].days} дн.`,
+                        '«To‘lov qildim» bosilishi bilan (yoki siz tasdiqlaganingizda) o‘zi ochiladi.',
+                        'It unlocks when they press “I paid” (or when you confirm).',
+                        'Откроется после «Я оплатил» (или после вашего подтверждения).',
                       )}
                 </p>
               )}
@@ -567,9 +568,58 @@ function AdminChat({
                     )
                   }
                 >
-                  ✅ {L('To‘lovni tasdiqlash', 'Confirm payment', 'Подтвердить оплату')}
+                  ✅{' '}
+                  {o.paidAt
+                    ? L(
+                        'To‘lov keldi — tasdiqlash',
+                        'Money arrived — confirm',
+                        'Оплата пришла — подтвердить',
+                      )
+                    : L('To‘landi deb belgilash', 'Mark as paid', 'Отметить оплату')}
                 </Button>
+                {o.paidAt && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="svc-ban-btn"
+                    disabled={busyNow}
+                    onClick={() => {
+                      if (
+                        window.confirm(
+                          L(
+                            `${o.name} bloklansinmi? Ochilgan xizmat yopiladi, buyurtma bekor qilinadi va unga pullik xizmatlar yopiladi${banAccount ? ', saytga ham kira olmaydi' : ''}.`,
+                            `Block ${o.name}? The unlocked service is closed, the order cancelled and paid services closed for them${banAccount ? ', and they cannot sign in to the site' : ''}.`,
+                            `Заблокировать ${o.name}? Открытая услуга закроется, заказ отменится, платные услуги станут недоступны${banAccount ? ', и вход на сайт будет закрыт' : ''}.`,
+                          ),
+                        )
+                      )
+                        void act(
+                          { op: 'ban', account: banAccount },
+                          'ban',
+                          '⛔ ' + L('Bloklandi.', 'Blocked.', 'Заблокирован.'),
+                        );
+                    }}
+                  >
+                    ⛔{' '}
+                    {L('To‘lanmagan — bloklash', 'Not paid — block', 'Не оплачено — заблокировать')}
+                  </Button>
+                )}
               </div>
+              {o.paidAt && (
+                <label className="svc-ban-account">
+                  <input
+                    type="checkbox"
+                    checked={banAccount}
+                    onChange={(e) => setBanAccount(e.target.checked)}
+                  />
+                  🔒{' '}
+                  {L(
+                    'Bloklaganda saytga kirishni ham yopish',
+                    'Also block signing in to the site',
+                    'Также закрыть вход на сайт',
+                  )}
+                </label>
+              )}
             </>
           )}
         </div>
@@ -895,6 +945,58 @@ function Settings({
   }
   return (
     <div className="svc-pay-admin">
+      {!!view.bans.length && (
+        <section className="svc-bans" aria-label={L('Bloklanganlar', 'Blocked', 'Заблокированные')}>
+          <b>
+            ⛔{' '}
+            {L(
+              'Bloklanganlar (to‘lov topilmagan)',
+              'Blocked (payment not found)',
+              'Заблокированные (оплата не найдена)',
+            )}
+          </b>
+          <ul>
+            {view.bans.map((b) => (
+              <li key={b.uk}>
+                <span>
+                  <b>{b.name}</b>
+                  <small className="muted">
+                    {b.title ? b.title + ' · ' : ''}
+                    {new Date(b.at).toLocaleDateString('ru-RU')}
+                    {b.account
+                      ? ' · 🔒 ' +
+                        L(
+                          'saytga kirish ham yopiq',
+                          'site sign-in blocked too',
+                          'вход на сайт тоже закрыт',
+                        )
+                      : ''}
+                  </small>
+                </span>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={busy}
+                  onClick={() => {
+                    if (
+                      window.confirm(
+                        L(
+                          `${b.name} blokdan chiqarilsinmi?`,
+                          `Unblock ${b.name}?`,
+                          `Разблокировать ${b.name}?`,
+                        ),
+                      )
+                    )
+                      void save({ op: 'unban', uk: b.uk });
+                  }}
+                >
+                  {L('Blokdan chiqarish', 'Unblock', 'Разблокировать')}
+                </Button>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
       <form
         className="svc-prices"
         onSubmit={(e) => {

@@ -94,7 +94,7 @@ test('an order shows «prepared with AI», reaches the administrator as a chat a
   await expect(order.locator('.receipt-pick .image-pick-thumb img')).toBeVisible();
   await order.getByLabel(/Chek raqami/).fill('chek 777');
   await order.getByRole('button', { name: /To‘lov qildim/ }).click();
-  await expect(order.locator('.svc-pay')).toContainText('To‘lov tekshirilmoqda');
+  await expect(order.locator('.svc-pay')).toContainText('To‘lov qabul qilindi');
   await expect(order.locator('.svc-ai')).toBeVisible();
 
   // administrator: buyurtma yozishma bo'lib kelgan — qaysi xizmat, nima yozilgan, fayl, aloqa, to'lov
@@ -117,7 +117,7 @@ test('an order shows «prepared with AI», reaches the administrator as a chat a
   await chat.getByLabel('Xabar').fill('Qaysi rangda bo‘lsin?');
   await chat.getByRole('button', { name: 'Yuborish', exact: true }).click();
   await expect(chat.locator('.svc-msgs')).toContainText('Qaysi rangda bo‘lsin?');
-  await chat.getByRole('button', { name: /To‘lovni tasdiqlash/ }).click();
+  await chat.getByRole('button', { name: /To‘lov keldi — tasdiqlash/ }).click();
   await expect(chat.locator('.svc-pay')).toContainText('To‘lov tasdiqlangan');
   const send = chat.getByRole('button', { name: /Mijozga yuborish/ });
   await expect(send).toBeDisabled();

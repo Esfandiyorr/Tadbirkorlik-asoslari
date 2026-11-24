@@ -18,13 +18,17 @@ import {
 /* 🛍 Tayyor mahsulotni sotib olish (yakuniy test bo'limi, Premium obuna): narx (obunachiga chegirma bilan) →
    «Sotib olish» → to'lov yo'riqnomasi va «To'lov qildim» → administrator tasdiqlashi bilan o'zi ochiladi.
    Buyurtma «Pullik xizmatlar»da saqlanadi (lib/server/services.ts, op: 'buy'), administratorga yozishma bo'lib boradi.
+   «To'lov qildim» bosilishi bilan mahsulot darhol ochiladi; administrator keyin tekshiradi (to'lov topilmasa — blok).
    Play Market ilovasida narx va to'lov ko'rsatilmaydi (Google qoidasi). */
 export function ProductBuy({
   product,
   compact = false,
+  onDone,
 }: {
   product: ProductId;
   compact?: boolean;
+  /** «To'lov qildim»dan keyin (mahsulot ochilgach) — sahifani yangilash; berilmasa — sahifa qayta yuklanadi */
+  onDone?: () => void;
 }) {
   const { lang, request, toast, data, setLogin } = useApp();
   const L = (uz: string, en: string, ru: string) => tr(lang, uz, en, ru);
@@ -33,6 +37,7 @@ export function ProductBuy({
   const [note, setNote] = useState('');
   const [receipt, setReceipt] = useState<Blob | null>(null);
   const [play, setPlay] = useState(false);
+  const [opened, setOpened] = useState(false);
   const signedIn = !!data?.user;
   useEffect(() => setPlay(isPlayApp()), []);
   const load = useCallback(async () => {
@@ -68,12 +73,43 @@ export function ProductBuy({
       const r = await servicesAct<{ view: ServicesView }>(request, 'me', input);
       setView(r.view);
       if (done) toast(done);
+      return r.view;
     } catch (e) {
       toast((e as Error).message);
+      return null;
     } finally {
       setBusy('');
     }
   }
+  if (opened)
+    return (
+      <div className={'pb is-done' + (compact ? ' is-compact' : '')} role="status">
+        <b>
+          ✅ {tr(lang, ...p.name)} — {L('ochildi!', 'unlocked!', 'открыто!')}
+        </b>
+        <small>
+          {L(
+            'Administrator to‘lovni keyin tekshiradi. To‘lov topilmasa, xizmat yopiladi va pullik xizmatlar bloklanadi.',
+            'The administrator checks the payment later. If it is not found, the service is closed and paid services are blocked.',
+            'Администратор проверит оплату позже. Если оплата не найдётся, услуга закроется, а платные услуги будут заблокированы.',
+          )}
+        </small>
+        <Button onClick={() => (onDone ? onDone() : location.reload())}>
+          {L('Davom etish', 'Continue', 'Продолжить')} →
+        </Button>
+      </div>
+    );
+  if (view.banned)
+    return (
+      <p className="pb-note is-banned" role="status">
+        ⛔{' '}
+        {L(
+          'Sizga pullik xizmatlar yopilgan: oldingi to‘lovingiz topilmadi. Savol bo‘lsa, «Adminga xabar» orqali yozing.',
+          'Paid services are closed for you: your earlier payment was not found. Write via “Message the admin” if you have questions.',
+          'Платные услуги для вас закрыты: предыдущая оплата не найдена. Вопросы — через «Написать админу».',
+        )}
+      </p>
+    );
   const priceLine = (
     <p className="pb-price">
       {discount ? (
@@ -180,16 +216,12 @@ export function ProductBuy({
                 return;
               }
             }
-            await act(
-              { op: 'paid', id: order.id, note: note.trim() },
-              'paid',
-              L(
-                'Rahmat! To‘lov tasdiqlangach o‘zi ochiladi.',
-                'Thank you! It opens once the payment is confirmed.',
-                'Спасибо! Откроется после подтверждения оплаты.',
-              ),
-            );
-            setReceipt(null);
+            const v = await act({ op: 'paid', id: order.id, note: note.trim() }, 'paid');
+            if (v) {
+              setReceipt(null);
+              // 🛍 «To'lov qildim» bilan mahsulot darhol ochildi
+              if (v.orders?.some((o) => o.id === order.id && o.granted)) setOpened(true);
+            }
           }}
         >
           💳 {L('To‘lov qildim', 'I paid', 'Я оплатил')}
