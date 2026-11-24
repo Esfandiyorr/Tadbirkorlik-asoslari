@@ -513,8 +513,8 @@ function Profile() {
           <div className="profile-avatar">{initials}</div>
           <div>
             <h2>
-              {premium?.active && !premium.staff && <SubscriberMark />}
               {shown}
+              {premium?.active && !premium.staff && <SubscriberMark />}
             </h2>
             <p>
               {roleLabel(lang, u?.role || 'student', u?.learnerType)}

@@ -7,6 +7,7 @@ import {
   premiumState,
   premiumView,
   setPremiumLook,
+  setPremiumMark,
 } from '../lib/server/premium';
 import { avatarView, readAvatars } from '../lib/server/avatars';
 import { BUILTIN_AVATARS } from '../lib/avatars';
@@ -171,4 +172,35 @@ it('a subscriber picks one of 5 profile looks; the leaderboard shows it only whi
   rows = avatarView(board, await readAvatars(later), undefined, BUILTIN_AVATARS, later).leaderboard;
   expect(rows.map((r) => (r as { pm?: string }).pm)).toEqual([undefined, undefined]);
   expect((await premiumState(ali, later)).look).toBeUndefined();
+});
+
+it('a subscriber puts their own badge after the name (only while Premium); the original comes back on reset', async () => {
+  const now = Date.UTC(2026, 10, 25, 9, 0);
+  // obunasiz — yo'q
+  await expect(setPremiumMark(ali, PNG.toString('base64'), now)).rejects.toThrow('Premium');
+  await managePremium(
+    admin,
+    { op: 'grant', uid: 'legacy_ali', name: 'Ali Valiyev', group: 'AP-223', days: 30 },
+    now,
+  );
+  expect((await premiumView(ali, now)).mark).toBeUndefined();
+  // noto'g'ri yoki juda katta rasm — yo'q
+  await expect(setPremiumMark(ali, 'not base64!', now)).rejects.toThrow();
+  await expect(setPremiumMark(ali, Buffer.from('salom').toString('base64'), now)).rejects.toThrow(
+    'PNG',
+  );
+  await expect(
+    setPremiumMark(ali, Buffer.alloc(400 * 1024, 1).toString('base64'), now),
+  ).rejects.toThrow('300 KB');
+  const v = await setPremiumMark(ali, PNG.toString('base64'), now);
+  expect(v.mark).toMatch(/^\/api\/site\/img\/pm-[0-9a-f]{20}\?v=/);
+  const key = v.mark!.split('/').pop()!.split('?')[0];
+  expect((await readImage(key))!.bytes.equals(PNG)).toBe(true);
+  // obuna tugasa — belgi ham ko'rinmaydi
+  expect((await premiumView(ali, now + 31 * DAY)).mark).toBeUndefined();
+  // asl belgiga qaytarish
+  expect((await setPremiumMark(ali, null, now)).mark).toBeUndefined();
+  expect(await readImage(key)).toBeNull();
+  // o'qituvchi va administratorga kerak emas
+  await expect(setPremiumMark(admin, PNG.toString('base64'), now)).rejects.toThrow('Premium');
 });

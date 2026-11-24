@@ -502,8 +502,8 @@ function LearnerHome() {
                 .join('')}
             </div>
             <h3>
-              {avatar?.premium && <SubscriberMark />}
               {name}
+              {avatar?.premium && <SubscriberMark />}
             </h3>
             <p>
               {staff

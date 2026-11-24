@@ -60,7 +60,13 @@ import {
 } from '@/lib/server/push';
 import { avatarLibrary, manageLibrary } from '@/lib/server/avatar-library';
 import { manageLibraryItems, readLibrary } from '@/lib/server/library';
-import { managePremium, premiumAdmin, premiumView, setPremiumLook } from '@/lib/server/premium';
+import {
+  managePremium,
+  premiumAdmin,
+  premiumView,
+  setPremiumLook,
+  setPremiumMark,
+} from '@/lib/server/premium';
 import { servicesShown } from '@/lib/server/services';
 import {
   appAdmin,
@@ -652,6 +658,12 @@ export async function POST(req: NextRequest) {
     }
     if (p.action === 'premiumAdmin') {
       return NextResponse.json(await managePremium(await actor(req, true), p.input));
+    }
+    if (p.action === 'premiumMark') {
+      // 🏅 obunachi ism yonidagi belgisini o'z rasmiga almashtiradi (yoki asl belgiga qaytaradi)
+      return NextResponse.json(
+        await setPremiumMark(await actor(req, true), (p.input as { img?: unknown })?.img ?? null),
+      );
     }
     if (p.action === 'premiumLook') {
       // 💎 obunachi profil bezagini tanlaydi

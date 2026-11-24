@@ -258,6 +258,24 @@ test('Premium: shown in the news box with its perks; any amount and a receipt; o
   // obunachi: 5 xil bezakdan birini tanlaydi
   await student.reload({ waitUntil: 'domcontentloaded' });
   await expect(profileMark).toBeVisible();
+  // 🏅 belgi ismdan keyin; bosib telefondan o'z rasmini qo'yadi, keyin asl belgiga qaytaradi
+  await expect(student.locator('.profile-hero-id h2')).toHaveText(/Madina/);
+  expect(
+    await student.locator('.profile-hero-id h2').evaluate((h) => h.lastElementChild?.className),
+  ).toContain('subscriber-mark');
+  await expect(profileMark).toHaveAttribute('src', '/premium-belgi.webp');
+  await student.locator('.profile-hero-id .subscriber-mark').click();
+  const editor = student.getByRole('dialog', { name: 'Premium belgingiz' });
+  await editor
+    .locator('input[type="file"]')
+    .setInputFiles({ name: 'belgi.png', mimeType: 'image/png', buffer: RECEIPT });
+  await editor.getByRole('button', { name: 'Saqlash' }).click();
+  await expect(editor).toBeHidden();
+  await expect(profileMark).toHaveAttribute('src', /\/api\/site\/img\/pm-[0-9a-f]+\?v=/);
+  await student.locator('.profile-hero-id .subscriber-mark').click();
+  await editor.getByRole('button', { name: 'Asl belgiga qaytarish' }).click();
+  await expect(editor).toBeHidden();
+  await expect(profileMark).toHaveAttribute('src', '/premium-belgi.webp');
   const looks = card.getByRole('radio');
   await expect(looks).toHaveCount(5);
   await expect(looks.first()).toHaveAttribute('aria-checked', 'true');

@@ -9996,8 +9996,54 @@ button.danger,
   display: inline-block;
   width: 1.15em;
   height: 1.15em;
-  margin-inline-end: 0.25em;
+  margin-inline-start: 0.3em;
   vertical-align: -0.2em;
+}
+/* bosiladigan belgi (o'z rasmini qo'yish) */
+.subscriber-mark.is-editable {
+  padding: 0;
+  border: 0;
+  border-radius: 0.2em;
+  background: none;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+.subscriber-mark.is-editable:hover {
+  transform: scale(1.12);
+}
+.subscriber-mark.is-editable:focus-visible {
+  outline: 2px solid #a78bfa;
+  outline-offset: 2px;
+}
+.mark-editor {
+  position: relative;
+  display: grid;
+  gap: 12px;
+  width: min(420px, 94vw);
+  padding: 22px;
+}
+.mark-editor h2 {
+  margin: 0;
+  font-size: 19px;
+}
+.mark-editor p {
+  margin: 0;
+  font-size: 14px;
+}
+.mark-editor-now {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.mark-editor-now img {
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+}
+.mark-editor-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 .subscriber-mark img {
   display: block;

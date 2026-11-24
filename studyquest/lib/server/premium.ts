@@ -1,10 +1,11 @@
 import 'server-only';
+import { createHash } from 'node:crypto';
 import { z } from 'zod';
 import type { Actor } from '../types';
 import type { PremiumInfo, PremiumState } from '../library';
 import { administrator, check } from './auth';
 import { DEFAULT_LOOK, isLook } from '../premium-look';
-import { siteGet, siteUpdate } from './site-content';
+import { siteGet, siteUpdate, storeBlob } from './site-content';
 
 /* 💎 Obuna (premium): pullik imkoniyatlar (kurs darslari — talaba bo'lmaganlarga, kutubxonadagi 💎 manbalar, avatar) uchun.
    To'lov tizimi ulanguncha obunani administrator qo'lda beradi: talaba ko'rsatilgan usulda to'laydi, administrator
@@ -64,9 +65,47 @@ export async function premiumLooks(): Promise<Record<string, string>> {
   return (await siteGet<Record<string, string>>('premiumLook')) || {};
 }
 /** Talaba sahifalari uchun: obuna holati va narx/to'lov yo'riqnomasi. */
+/* 🏅 Obunachining o'z Premium belgisi: ism yonidagi belgini bosib telefonidan rasm yuklaydi (faqat o'ziga ko'rinadi).
+   Rasm site/blob/pm-<xesh> da, yozuv site/premiumMark/<foydalanuvchi> = {k, v}; manzil /api/site/img/pm-…?v=… */
+const MARK_MAX = 300 * 1024;
+const markBlobKey = (uid: string) =>
+  'pm-' + createHash('sha256').update(uid).digest('hex').slice(0, 20);
+type MarkRecord = { k: string; v: string };
+async function premiumMark(a: Actor) {
+  const m = await siteGet<MarkRecord>('premiumMark/' + keyOf(a.id)).catch(() => null);
+  return m?.k && m.v ? '/api/site/img/' + m.k + '?v=' + m.v : undefined;
+}
+/** Obunachi belgisini almashtiradi (img — rasmning base64 matni) yoki asl TerDU belgisiga qaytaradi (null). */
+export async function setPremiumMark(a: Actor, img: unknown, now = Date.now()) {
+  const st = await premiumState(a, now);
+  check(st.active && !st.staff, 403, 'O‘z belgingizni qo‘yish — Premium obunachilar uchun.');
+  const key = keyOf(a.id),
+    k = markBlobKey(a.id);
+  if (img === null) {
+    await siteUpdate({ ['premiumMark/' + key]: null, ['blob/' + k]: null });
+    return premiumView(a, now);
+  }
+  check(typeof img === 'string' && /^[A-Za-z0-9+/]+=*$/.test(img), 400, 'Rasm topilmadi.');
+  const bytes = Buffer.from(img as string, 'base64');
+  check(bytes.length <= MARK_MAX, 413, 'Belgi rasmi 300 KB dan oshmasin.');
+  const { v } = await storeBlob(k, bytes, now);
+  await siteUpdate({ ['premiumMark/' + key]: { k, v } });
+  return premiumView(a, now);
+}
+/** Hisob o'chirilganda: belgi yozuvi va rasmi. */
+export function forgetPremiumMark(uid: string) {
+  return { ['premiumMark/' + keyOf(uid)]: null, ['blob/' + markBlobKey(uid)]: null } as Record<
+    string,
+    unknown
+  >;
+}
 export async function premiumView(a: Actor, now = Date.now()) {
-  const [state, info] = await Promise.all([premiumState(a, now), premiumInfo()]);
-  return { state, info, now };
+  const [state, info, mark] = await Promise.all([
+    premiumState(a, now),
+    premiumInfo(),
+    premiumMark(a),
+  ]);
+  return { state, info, now, ...(state.active && !state.staff && mark ? { mark } : {}) };
 }
 
 const terms = (g: Grant) =>

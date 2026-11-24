@@ -134,8 +134,8 @@ export function HomeBanner({
           <CalendarClock size={15} aria-hidden="true" /> {todayLabel(lang, n)}
         </p>
         <h1 className="hb-name">
-          {premium && <SubscriberMark />}
           <span>{name}</span>
+          {premium && <SubscriberMark />}
         </h1>
         <div className="hb-plans">
           <h2>{tr(lang, 'Bugungi rejalar', 'Today’s plans', 'Планы на сегодня')}</h2>

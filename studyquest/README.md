@@ -97,7 +97,10 @@ For Firebase-backed development, copy `.env.example` to `.env.local`, supply you
   users with «Unblock». The administrator can still grant Premium by hand. Subscribers get: a **profile look** — one
   of 5 (👑 Golden crown, 🌈 Rainbow, ✨ Violet glow, 💎 Diamond, 🔥 Fire; Profile → 💎 Premium), shown on their
   leaderboard row while Premium is active; an avatar; 💎 library items; the course for non-students; video lesson
-  downloads. Inside the Play Store app (`/?src=play`) the offer shows no payment (`lib/play-app.ts`).
+  downloads. Active subscribers have the TerDU **Premium badge after their name** (`public/premium-belgi.webp`,
+  `SubscriberMark`); clicking it lets them upload their own picture from the phone (shrunk to 256 px, ≤ 300 KB, stored
+  as `site/blob/pm-<hash>` with `site/premiumMark/<user>`; only they see it) or return to the original. Inside the
+  Play Store app (`/?src=play`) the offer shows no payment (`lib/play-app.ts`).
 - **🎯 Final exam preparation** (`lib/exam.ts`, `lib/server/exam.ts`, `app/api/exam`, `components/exam.tsx`): a tab
   inside the main course (`#course/<id>/exam`) with **450 questions — 30 for each of the 15 topics** that the
   administrator uploads in **Site manager → 🎯 Final exam questions** (paste from Word or a .txt: numbered

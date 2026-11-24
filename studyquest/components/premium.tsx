@@ -1,5 +1,5 @@
 'use client';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import {
   BookOpen,
@@ -18,11 +18,46 @@ import type { PremiumInfo, PremiumState } from '@/lib/library';
 import { isPlayApp } from '@/lib/play-app';
 import { LOOKS, lookOf } from '@/lib/premium-look';
 import { ProductBuy } from './product-buy';
+import { ImagePick } from './image-pick';
 
 /* 💎 Obuna (premium): holatini o'qish, «obuna bo'lish» oynasi va kichik belgi. Obunani hozircha administrator beradi
    (lib/server/premium.ts) — oynada narx va to'lov yo'riqnomasi ko'rsatiladi. */
 
-export type PremiumData = { state: PremiumState; info: PremiumInfo; now: number };
+export type PremiumData = {
+  state: PremiumState;
+  info: PremiumInfo;
+  now: number;
+  /** 🏅 obunachi o'zi yuklagan belgi rasmi (yo'q bo'lsa — asl TerDU belgisi) */
+  mark?: string;
+};
+
+/* 🏅 Ism yonidagi Premium belgisi: hamma joyda bitta holat (bosh sahifa, profil) — bir marta o'qiladi. */
+const MARK_DEFAULT = '/premium-belgi.webp';
+let myMark: { uid: string; src: string | null } | null = null;
+let markLoading = false;
+const markListeners = new Set<() => void>();
+function setMyMark(uid: string, src: string | null) {
+  myMark = { uid, src };
+  markListeners.forEach((f) => f());
+}
+function useMyMark() {
+  const { data, request } = useApp();
+  const uid = data?.user?.id || '';
+  const [, rerender] = useReducer((x: number) => x + 1, 0);
+  useEffect(() => {
+    markListeners.add(rerender);
+    if (uid && myMark?.uid !== uid && !markLoading) {
+      markLoading = true;
+      request('/api/platform?view=premium')
+        .then((r) => (r.ok ? (r.json() as Promise<PremiumData>) : null))
+        .then((v) => setMyMark(uid, v?.mark || null))
+        .catch(() => {})
+        .finally(() => (markLoading = false));
+    }
+    return () => void markListeners.delete(rerender);
+  }, [uid, request]);
+  return myMark?.uid === uid ? myMark.src : null;
+}
 
 /** Kirgan foydalanuvchining obuna holati (mehmonda — null). */
 export function usePremium() {
@@ -33,9 +68,13 @@ export function usePremium() {
     if (!signedIn) return setPremium(null);
     try {
       const r = await request('/api/platform?view=premium');
-      if (r.ok) setPremium(await r.json());
+      if (r.ok) {
+        const v = (await r.json()) as PremiumData;
+        setPremium(v);
+        if (data?.user?.id) setMyMark(data.user.id, v.mark || null);
+      }
     } catch {}
-  }, [signedIn, request]);
+  }, [signedIn, request, data?.user?.id]);
   useEffect(() => {
     void load();
   }, [load]);
@@ -56,15 +95,143 @@ export function PremiumBadge({ state }: { state: PremiumState | null | undefined
   );
 }
 
-export function SubscriberMark() {
+/** 🏅 Faol obunachining belgisi — ismdan keyin. Bosilsa: o'z rasmini (telefondan) qo'yish yoki asl belgiga qaytish. */
+export function SubscriberMark({ editable = true }: { editable?: boolean }) {
   const { lang } = useApp();
-  const label = tr(lang, 'Faol Premium obuna', 'Active Premium subscription', 'Активная подписка');
+  const L = (uz: string, en: string, ru: string) => tr(lang, uz, en, ru);
+  const label = L('Faol Premium obuna', 'Active Premium subscription', 'Активная подписка');
+  const mark = useMyMark();
+  const [open, setOpen] = useState(false);
+  const img = (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img src={mark || MARK_DEFAULT} alt={label} width={256} height={256} draggable={false} />
+  );
+  if (!editable)
+    return (
+      <span className="subscriber-mark" title={label}>
+        {img}
+      </span>
+    );
   return (
-    <span className="subscriber-mark" role="img" aria-label={label} title={label}>
-      {/* TerDU Premium belgisi (public/premium-belgi.webp, foni shaffof) */}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/premium-belgi.webp" alt="" width={256} height={256} draggable={false} />
-    </span>
+    <>
+      <button
+        type="button"
+        className="subscriber-mark is-editable"
+        title={L('Belgini almashtirish', 'Change the badge', 'Сменить значок')}
+        aria-haspopup="dialog"
+        onClick={(e) => {
+          e.stopPropagation();
+          setOpen(true);
+        }}
+      >
+        {img}
+      </button>
+      {open && <MarkEditor current={mark} onClose={() => setOpen(false)} />}
+    </>
+  );
+}
+
+/** Belgini almashtirish oynasi: telefondan rasm (256 px gacha kichraytiriladi) yoki asl TerDU belgisi. */
+function MarkEditor({ current, onClose }: { current: string | null; onClose: () => void }) {
+  const { lang, call, toast, data } = useApp();
+  const L = (uz: string, en: string, ru: string) => tr(lang, uz, en, ru);
+  const [pick, setPick] = useState<Blob | null>(null);
+  const [busy, setBusy] = useState(false);
+  const closeRef = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    closeRef.current?.focus();
+    const key = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
+    window.addEventListener('keydown', key);
+    return () => window.removeEventListener('keydown', key);
+  }, [onClose]);
+  async function save(img: string | null) {
+    setBusy(true);
+    try {
+      const v = (await call('premiumMark', { img })) as PremiumData;
+      if (data?.user?.id) setMyMark(data.user.id, v.mark || null);
+      toast(
+        img
+          ? L('🏅 Belgingiz saqlandi', '🏅 Your badge is saved', '🏅 Значок сохранён')
+          : L('Asl belgi qaytarildi', 'The original badge is back', 'Возвращён исходный значок'),
+      );
+      onClose();
+    } catch (e) {
+      toast((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  }
+  async function upload() {
+    if (!pick) return;
+    const base64 = await new Promise<string>((resolve, reject) => {
+      const r = new FileReader();
+      r.onload = () => resolve(String(r.result).split(',')[1] || '');
+      r.onerror = () =>
+        reject(new Error(L('Rasm o‘qilmadi', 'Could not read', 'Не удалось прочитать')));
+      r.readAsDataURL(pick);
+    });
+    await save(base64);
+  }
+  return createPortal(
+    <div className="modal-backdrop" onClick={(e) => e.target === e.currentTarget && onClose()}>
+      <section
+        className="panel mark-editor"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="mark-editor-h"
+      >
+        <button
+          ref={closeRef}
+          type="button"
+          className="av-close"
+          aria-label={L('Yopish', 'Close', 'Закрыть')}
+          onClick={onClose}
+        >
+          <X size={20} />
+        </button>
+        <h2 id="mark-editor-h">
+          {L('Premium belgingiz', 'Your Premium badge', 'Ваш значок Premium')}
+        </h2>
+        <p className="muted">
+          {L(
+            'Ismingizdan keyin turadigan belgi. Telefoningizdan istalgan rasmni yuklab qo‘yishingiz mumkin — uni faqat o‘zingiz ko‘rasiz.',
+            'The badge after your name. Upload any picture from your phone — only you see it.',
+            'Значок после вашего имени. Загрузите любую картинку с телефона — её видите только вы.',
+          )}
+        </p>
+        <div className="mark-editor-now">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={current || MARK_DEFAULT} alt="" />
+          <small>
+            {current
+              ? L('Sizning belgingiz', 'Your badge', 'Ваш значок')
+              : L('Asl belgi', 'Original badge', 'Исходный значок')}
+          </small>
+        </div>
+        <ImagePick
+          value={pick}
+          onChange={setPick}
+          max={256}
+          label={L('📷 Telefondan rasm tanlash', '📷 Choose a picture', '📷 Выбрать картинку')}
+          hint={L(
+            'Kvadrat rasm (masalan, logotip yoki stiker) yaxshi ko‘rinadi.',
+            'A square picture (a logo or a sticker) looks best.',
+            'Лучше всего — квадратная картинка (логотип или стикер).',
+          )}
+        />
+        <div className="mark-editor-actions">
+          <Button disabled={!pick || busy} onClick={() => void upload()}>
+            {L('Saqlash', 'Save', 'Сохранить')}
+          </Button>
+          {current && (
+            <Button variant="outline" disabled={busy} onClick={() => void save(null)}>
+              {L('Asl belgiga qaytarish', 'Back to the original', 'Вернуть исходный')}
+            </Button>
+          )}
+        </div>
+      </section>
+    </div>,
+    document.body,
   );
 }
 

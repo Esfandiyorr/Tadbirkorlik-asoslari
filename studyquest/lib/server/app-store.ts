@@ -9,6 +9,7 @@ import { extraCourses } from '../seed';
 import { SERVICE_KINDS } from '../services';
 import { forgetServiceUser } from './services';
 import { forgetExamUser } from './exam';
+import { forgetPremiumMark } from './premium';
 import { pushPreferenceKey } from './push';
 
 /* 📱 Play Market (Google Play) talablari uchun server qismi.
@@ -155,6 +156,8 @@ async function eraseAccount(by: Actor, r: DeleteRequest, read: Read, update: Upd
   Object.assign(site, await forgetExamUser(key));
   // 💎 obuna bezagi
   site['premiumLook/' + key] = null;
+  // 🏅 o'z Premium belgisi (rasmi bilan)
+  Object.assign(site, forgetPremiumMark(r.uid));
   // 💳 pullik kurslar bo'yicha ruxsat va so'rovlar
   for (const c of extraCourses.filter((x) => x.paid)) {
     site['courseAccess_' + c.id + '/' + key] = null;
