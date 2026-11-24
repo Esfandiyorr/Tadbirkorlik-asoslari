@@ -190,7 +190,7 @@ test('places 11+ see why the avatar was freed and the ways to get one: Premium o
   await ways.getByRole('button', { name: 'Obuna', exact: true }).click();
   const offer = page.getByRole('dialog', { name: /Obuna bilan/ });
   await expect(offer).toContainText('Avatar — top-10 ga kirmasangiz ham');
-  await offer.getByRole('button', { name: 'Keyinroq' }).click();
+  await offer.locator('.premium-offer-actions').getByRole('button', { name: 'Yopish' }).click();
   // 💳 sotib olish: yo'riqnoma → «To'lov qildim» so'rovi → kutilmoqda → bekor qilish
   await ways.getByRole('button', { name: 'Sotib olish' }).click();
   await expect(ways.locator('.av-buy')).toContainText('Click orqali 8600');

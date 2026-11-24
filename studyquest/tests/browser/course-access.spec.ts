@@ -138,7 +138,7 @@ test('starting the course asks «Are you a student?»: students enrol with their
   await gate.getByRole('button', { name: 'Obuna bo‘lish' }).click();
   const offer = page.getByRole('dialog');
   await expect(offer).toContainText('kursining barcha ochiq darslari');
-  await offer.getByRole('button', { name: 'Keyinroq' }).click();
+  await offer.locator('.premium-offer-actions').getByRole('button', { name: 'Yopish' }).click();
   await expect(offer).toHaveCount(0);
   await gate.getByRole('button', { name: 'Ruxsat so‘rash' }).click();
   await gate.getByLabel(/Izoh/).fill('Kursni ko‘rib chiqmoqchiman');

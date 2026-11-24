@@ -202,7 +202,12 @@ export function PremiumCard({ name }: { name: string }) {
         💎 Premium{' '}
         {st.active && st.until ? (
           <small className="muted">
-            · {L('gacha', 'until', 'до')} {dueText(st.until, lang, Date.now()).date}
+            ·{' '}
+            {L(
+              dueText(st.until, lang, Date.now()).date + ' gacha',
+              'until ' + dueText(st.until, lang, Date.now()).date,
+              'до ' + dueText(st.until, lang, Date.now()).date,
+            )}
           </small>
         ) : null}
       </h2>

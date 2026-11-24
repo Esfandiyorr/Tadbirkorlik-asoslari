@@ -14330,10 +14330,49 @@ html {
   font-size: 15px;
   line-height: 1;
 }
-/* umumiy: obunachi qatori */
+/* umumiy: obunachi qatori — och fon ustida matn to'q (top-10 qatorlarining oq matni o'rniga) */
 .rk-row.pm {
   position: relative;
   border-radius: 14px;
+  color: var(--text);
+}
+.rk-row.pm .rk-who,
+.rk-row.pm .rk-score {
+  text-shadow: none;
+}
+.rk-row.pm .rk-rank {
+  color: inherit;
+  opacity: 0.6;
+  text-shadow: none;
+}
+.rk-list .rk-row.pm .rk-who small,
+.rk-list .rk-row.pm .rk-score small,
+.pm-looks .rk-row.pm small {
+  color: var(--muted);
+  opacity: 1;
+}
+.rk-row.pm .rk-who em {
+  background: var(--soft-violet);
+  color: #6d28d9;
+}
+.dark .rk-row.pm .rk-who em {
+  color: #c4b5fd;
+}
+/* profildagi tanlov: qator ko'rinishi, lekin ustun tor — matn o'raladi */
+.pm-looks > li.rk-row {
+  display: block;
+  min-height: 0;
+  padding: 0;
+}
+.pm-looks .rk-who b {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+}
+.pm-looks .rk-name {
+  overflow: visible;
+  white-space: normal;
 }
 /* 1. 👑 Oltin toj */
 .rk-row.pm-oltin {

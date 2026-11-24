@@ -834,11 +834,13 @@ export function CertificatePage({ id }: { id: string }) {
     );
   if (!cert) return <div className="skeleton" style={{ height: 420 }} />;
   const url = SITE + '#sertifikat/' + cert.id;
-  const date = new Date(cert.at).toLocaleDateString('uz-UZ', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  });
+  // 24.11.2026 (Toshkent vaqti)
+  const date = new Date(cert.at + 5 * 3600000)
+    .toISOString()
+    .slice(0, 10)
+    .split('-')
+    .reverse()
+    .join('.');
   return (
     <>
       <div className="cert-toolbar">
