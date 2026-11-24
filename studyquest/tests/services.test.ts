@@ -43,7 +43,7 @@ const PDF = Buffer.from('%PDF-1.4\n% sinov fayli\n');
 const DAY = 86400000;
 const NOW = Date.UTC(2026, 10, 15, 9, 0);
 
-async function order(a: Actor, now = NOW, kind = 'taqdimot', budget = 150000) {
+async function order(a: Actor, now = NOW, kind = 'taqdimot') {
   const r = await manageServices(
     a,
     {
@@ -51,7 +51,6 @@ async function order(a: Actor, now = NOW, kind = 'taqdimot', budget = 150000) {
       kind,
       title: 'Marketing asoslari',
       text: '12 slayd, o‘zbek tilida, oxirida savollar bo‘lsin',
-      budget,
       due: '2026-12-01',
       contact: '@ali',
     },
@@ -82,19 +81,19 @@ it('a temporarily closed section refuses users but not the administrator', async
   await expect(manageServices(ali, { op: 'idea', kinds: ['taqdimot'], text: '' })).rejects.toThrow(
     'vaqtincha yopiq',
   );
-  await expect(saveServiceChunk(ali, 'me', 'x/y', 'z', 0, Buffer.from('a'))).rejects.toThrow(
-    'vaqtincha yopiq',
-  );
   // administrator yopiq bo'limda ham ishlaydi va uni ochadi
   await adminServices(admin, { op: 'launch', open: true });
   await order(admin, NOW);
   await adminServices(admin, { op: 'show', shown: true });
   expect((await servicesAdmin(admin)).shown).toBe(true);
   expect(await servicesShown()).toBe(true);
-  await order(ali, NOW + 1);
+  const id = await order(ali, NOW + 1);
   await adminServices(admin, { op: 'show', shown: false });
   expect(await siteGet('serviceInfo/shown')).toBeNull();
   await expect(order(ali, NOW + 2)).rejects.toThrow('vaqtincha yopiq');
+  await expect(
+    saveServiceChunk(ali, 'me', keyOf(ali.id) + '/' + id, 'z', 0, Buffer.from('a')),
+  ).rejects.toThrow('vaqtincha yopiq');
 });
 
 it('a guest sees the catalog and figures; the administrator sets hints and closes a direction', async () => {
@@ -103,6 +102,7 @@ it('a guest sees the catalog and figures; the administrator sets hints and close
   expect(guest.orders).toBeUndefined();
   expect(guest.how).toBeUndefined();
   expect(guest.catalog.map((k) => k.id)).toEqual(SERVICE_KINDS.map((k) => k.id));
+  // narx belgilanmaydi: eski mijoz yuborgan narx saqlanmaydi, faqat muddat
   await adminServices(admin, {
     op: 'catalog',
     kind: 'taqdimot',
@@ -110,15 +110,15 @@ it('a guest sees the catalog and figures; the administrator sets hints and close
     days: '2–3 kun',
     off: false,
   });
-  await adminServices(admin, { op: 'catalog', kind: 'video', price: '', days: '', off: true });
+  await adminServices(admin, { op: 'catalog', kind: 'video', days: '', off: true });
   await adminServices(admin, { op: 'info', how: 'Click orqali 8600 … kartaga o‘tkazing' });
   const view = await servicesView(ali);
-  expect(view.catalog.find((k) => k.id === 'taqdimot')).toMatchObject({ price: '50 000 so‘mdan' });
+  const card = view.catalog.find((k) => k.id === 'taqdimot')!;
+  expect(card).toMatchObject({ days: '2–3 kun' });
+  expect('price' in card).toBe(false);
   expect(view.catalog.some((k) => k.id === 'video')).toBe(false);
   expect(view).toMatchObject({ how: expect.stringContaining('Click'), orders: [] });
   await expect(order(ali, NOW, 'video')).rejects.toThrow('yopiq');
-  // summa chegaradan kichik bo'lmasin
-  await expect(order(ali, NOW, 'taqdimot', 1000)).rejects.toThrow();
   await expect(adminServices(ali, { op: 'info', how: 'x' })).rejects.toThrow('Administrator');
   // ijrochilar bozori olib tashlangan: ularning amallari endi qabul qilinmaydi
   await expect(
@@ -133,13 +133,14 @@ it('a guest sees the catalog and figures; the administrator sets hints and close
   await expect(adminServices(admin, { op: 'fee', fee: 10 })).rejects.toThrow();
 });
 
-it('the whole path: order → «prepared with AI» → chat → paid → result sent → changes → accepted', async () => {
+it('the whole path: order (no price) → «prepared with AI» → chat → result sent → paid with a receipt → changes → accepted', async () => {
   const id = await order(ali);
   const uk = keyOf(ali.id);
   const need = await upload(ali, 'me', uk, id);
   // buyurtmachida — «tayyorlanmoqda» (sun'iy intellekt yozuvi), boshqalar buyurtmani ko'rmaydi
   let mine = (await servicesView(ali, NOW)).orders!;
-  expect(mine[0]).toMatchObject({ id, status: 'work', budget: 150000, contact: '@ali' });
+  // narx so'ralmaydi — to'lov natija yuborilgandan keyin
+  expect(mine[0]).toMatchObject({ id, status: 'work', budget: 0, contact: '@ali' });
   expect((await servicesView(vali, NOW)).orders).toEqual([]);
   await expect(serviceChunk(vali, uk + '/' + id, need, 0)).rejects.toThrow('topilmadi');
   // administratorga keladi: kim, qaysi xizmat, nima yozgani, fayli
@@ -180,21 +181,10 @@ it('the whole path: order → «prepared with AI» → chat → paid → result 
   await manageServices(ali, { op: 'finish', id, fid: rb.fid });
   expect((await serviceChunk(admin, uk + '/' + id, rb.fid, 0)).bytes.equals(PNG)).toBe(true);
   await expect(serviceChunk(vali, uk + '/' + id, rb.fid, 0)).rejects.toThrow('topilmadi');
-  // to'lov ishni to'xtatmaydi; to'lagandan keyin buyurtmachi o'zi bekor qila olmaydi
-  await manageServices(ali, { op: 'paid', id, note: 'chek 12345' }, NOW + 3000);
-  expect(
-    (await servicesAdmin(admin, NOW)).orders[0].files.filter((f) => f.side === 'pay'),
-  ).toMatchObject([{ name: 'chek.png', ext: 'png' }]);
-  await expect(manageServices(ali, { op: 'cancel', id })).rejects.toThrow('administrator');
-  mine = (await servicesView(ali, NOW)).orders!;
-  expect(mine[0]).toMatchObject({ status: 'work', paidAt: NOW + 3000, paidNote: 'chek 12345' });
-  expect(mine[0].payOk).toBeUndefined();
-  await adminServices(admin, { op: 'confirm', uk, id }, NOW + 4000);
-  await expect(
-    manageServices(ali, { op: 'begin', id, name: 'chek2.png', size: 12, side: 'pay' }),
-  ).rejects.toThrow('tasdiqlangan');
-  await expect(adminServices(admin, { op: 'confirm', uk, id })).rejects.toThrow('allaqachon');
-  await expect(manageServices(ali, { op: 'paid', id, note: '' })).rejects.toThrow('allaqachon');
+  // 💳 to'lov ish bajarilgach ochiladi
+  await expect(manageServices(ali, { op: 'paid', id, amount: 150000, note: '' })).rejects.toThrow(
+    'natija yuborilgach',
+  );
   // natijasiz yuborib bo'lmaydi; fayl yuklangach — «Mijozga yuborish»
   await expect(adminServices(admin, { op: 'status', uk, id, status: 'review' })).rejects.toThrow(
     'tayyor ish',
@@ -204,10 +194,34 @@ it('the whole path: order → «prepared with AI» → chat → paid → result 
   );
   const result = Buffer.concat([PDF, Buffer.from('natija')]);
   const out = await upload(admin, 'admin', uk, id, result);
-  await adminServices(admin, { op: 'status', uk, id, status: 'review' }, NOW + 5000);
+  await adminServices(admin, { op: 'status', uk, id, status: 'review' }, NOW + 3000);
   mine = (await servicesView(ali, NOW)).orders!;
-  expect(mine[0]).toMatchObject({ status: 'review', payOk: NOW + 4000, deliveredAt: NOW + 5000 });
+  expect(mine[0]).toMatchObject({ status: 'review', deliveredAt: NOW + 3000 });
   expect((await serviceChunk(ali, uk + '/' + id, out, 0)).bytes.equals(result)).toBe(true);
+  // endi to'lov: istalgan summa + chek; natija yuborilgach buyurtmachi o'zi bekor qila olmaydi
+  await expect(manageServices(ali, { op: 'paid', id, amount: 500, note: '' })).rejects.toThrow();
+  await manageServices(ali, { op: 'paid', id, amount: 150000, note: 'chek 12345' }, NOW + 4000);
+  expect(
+    (await servicesAdmin(admin, NOW)).orders[0].files.filter((f) => f.side === 'pay'),
+  ).toMatchObject([{ name: 'chek.png', ext: 'png' }]);
+  await expect(manageServices(ali, { op: 'cancel', id })).rejects.toThrow('administrator');
+  mine = (await servicesView(ali, NOW)).orders!;
+  expect(mine[0]).toMatchObject({
+    status: 'review',
+    budget: 150000,
+    paidAt: NOW + 4000,
+    paidNote: 'chek 12345',
+  });
+  expect(mine[0].payOk).toBeUndefined();
+  await adminServices(admin, { op: 'confirm', uk, id }, NOW + 5000);
+  expect((await servicesView(ali, NOW)).orders![0].payOk).toBe(NOW + 5000);
+  await expect(
+    manageServices(ali, { op: 'begin', id, name: 'chek2.png', size: 12, side: 'pay' }),
+  ).rejects.toThrow('tasdiqlangan');
+  await expect(adminServices(admin, { op: 'confirm', uk, id })).rejects.toThrow('allaqachon');
+  await expect(manageServices(ali, { op: 'paid', id, amount: 150000, note: '' })).rejects.toThrow(
+    'allaqachon',
+  );
   // tuzatish → yana tayyorlanmoqda → qayta yuborish → qabul va baho
   await manageServices(ali, { op: 'revise', id, text: '3-slaydni o‘zgartiring' }, NOW + 6000);
   expect((await servicesView(ali, NOW)).orders![0].status).toBe('work');

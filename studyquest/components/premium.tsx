@@ -4,7 +4,6 @@ import { createPortal } from 'react-dom';
 import { Crown, X } from 'lucide-react';
 import { useApp } from './provider';
 import { Button } from './ui/button';
-import { navigate } from './dashboard';
 import { dueText, tr } from '@/lib/points';
 import type { PremiumInfo, PremiumState } from '@/lib/library';
 import { isPlayApp } from '@/lib/play-app';
@@ -92,68 +91,17 @@ export function PremiumOffer({
         <h2 id="premium-h">
           {L('Obuna bilan ko‘proq imkoniyat', 'More with Premium', 'Больше с подпиской')}
         </h2>
-        <ul>
-          <li>
-            🎨{' '}
-            {L(
-              'Profil bezagi — 5 xildan tanlaysiz, reytingda ismingiz ajralib turadi',
-              'A profile style — pick one of 5, your name stands out in the leaderboard',
-              'Оформление профиля — 5 вариантов, ваше имя выделяется в рейтинге',
-            )}
-          </li>
-          <li>
-            🎭{' '}
-            {L(
-              'Avatar — top-10 ga kirmasangiz ham (obuna davomida)',
-              'An avatar — even outside the top 10 (while subscribed)',
-              'Аватар — даже вне топ-10 (пока действует подписка)',
-            )}
-          </li>
-          <li>
-            💼{' '}
-            {L(
-              'Barcha pullik xizmatlarga 50 % chegirma — yakuniy testga tayyorgarlik ham',
-              '50% off all paid services — including the final exam preparation',
-              'Скидка 50 % на все платные услуги — и на подготовку к итоговому тесту',
-            )}
-          </li>
-          <li>
-            📚{' '}
-            {L(
-              'Kutubxonadagi 💎 belgili kitob, qo‘llanma va namunalar',
-              'Books, guides and templates marked 💎 in the library',
-              'Книги, пособия и шаблоны со значком 💎 в библиотеке',
-            )}
-          </li>
-          <li>
-            📖{' '}
-            {L(
-              '«Tadbirkorlik asoslari» kursining barcha ochiq darslari (talaba bo‘lmaganlar uchun)',
-              'All open lessons of the “Fundamentals of Entrepreneurship” course (for non-students)',
-              'Все открытые уроки курса «Основы предпринимательства» (для не-студентов)',
-            )}
-          </li>
-          <li>
-            🎬{' '}
-            {L(
-              'Video darslarni yuklab olib, internetsiz ko‘rish',
-              'Download video lessons to watch offline',
-              'Скачивание видеоуроков для просмотра без сети',
-            )}
-          </li>
-        </ul>
+        <PremiumPerks />
         {signedIn ? (
           <div className="premium-plans">
-            <section>
-              <b>{L('1 oy', '1 month', '1 месяц')}</b>
-              <ProductBuy product="premium-oy" compact />
-            </section>
-            <section className="is-best">
-              <b>
-                {L('1 yil', '1 year', '1 год')} <em>{L('arzonroq', 'better value', 'выгоднее')}</em>
-              </b>
-              <ProductBuy product="premium-yil" compact />
-            </section>
+            <ProductBuy product="premium" />
+            <small className="muted">
+              {L(
+                'Narx belgilanmagan: istalgan summani to‘laysiz. Administrator chekni qabul qilib, obunani muddati bilan (1 oy yoki 1 yil) o‘zi ochadi.',
+                'No fixed price: pay any amount. The administrator accepts the receipt and turns Premium on for a period (1 month or 1 year).',
+                'Цена не фиксирована: оплатите любую сумму. Администратор примет чек и включит подписку на срок (1 месяц или 1 год).',
+              )}
+            </small>
           </div>
         ) : (
           play && (
@@ -171,7 +119,7 @@ export function PremiumOffer({
             <Button
               onClick={() => {
                 onClose();
-                navigate('login');
+                location.hash = 'login';
               }}
             >
               {L('Kirish', 'Sign in', 'Войти')}
@@ -265,11 +213,12 @@ export function PremiumCard({ name }: { name: string }) {
         <>
           <p>
             {L(
-              'Oyiga 5 000 so‘m: profil bezagi, avatar, barcha pullik xizmatlarga 50 % chegirma va boshqalar.',
-              '5 000 so‘m a month: a profile style, an avatar, 50% off all paid services and more.',
-              '5 000 сум в месяц: оформление профиля, аватар, скидка 50 % на все платные услуги и другое.',
+              'Obuna bo‘lganlarga quyidagilar ochiladi:',
+              'Premium opens the following:',
+              'С подпиской открывается:',
             )}
           </p>
+          <PremiumPerks />
           <Button onClick={() => setOffer(true)}>
             💎 {L('Obuna bo‘lish', 'Get Premium', 'Оформить подписку')}
           </Button>
@@ -277,5 +226,75 @@ export function PremiumCard({ name }: { name: string }) {
       )}
       {offer && <PremiumOffer info={premium.info} onClose={() => setOffer(false)} />}
     </section>
+  );
+}
+
+/** 💎 Obuna bo'lganlarga nimalar ochiladi (taklif oynasi, profil va e'lonlar qutisida). */
+export function PremiumPerks({ compact = false }: { compact?: boolean }) {
+  const { lang } = useApp();
+  const L = (uz: string, en: string, ru: string) => tr(lang, uz, en, ru);
+  if (compact)
+    // e'lonlar qutisi uchun qisqa ro'yxat
+    return (
+      <ul className="premium-perks is-compact">
+        <li>
+          🎨 {L('Profil bezagi (5 xil)', 'Profile style (5 kinds)', 'Оформление профиля (5 видов)')}
+        </li>
+        <li>🎭 {L('Avatar — top-10 siz ham', 'An avatar without top 10', 'Аватар без топ-10')}</li>
+        <li>📚 {L('Kutubxonaning 💎 manbalari', '💎 library items', '💎 материалы библиотеки')}</li>
+        <li>🎬 {L('Videolarni yuklab olish', 'Video downloads', 'Скачивание видео')}</li>
+        <li>
+          📖{' '}
+          {L(
+            'Kurs darslari (talaba bo‘lmasangiz ham)',
+            'Course lessons for non-students',
+            'Уроки курса для не-студентов',
+          )}
+        </li>
+      </ul>
+    );
+  return (
+    <ul className={'premium-perks' + (compact ? ' is-compact' : '')}>
+      <li>
+        🎨{' '}
+        {L(
+          'Profil bezagi — 5 xildan tanlaysiz, reytingda ismingiz ajralib turadi',
+          'A profile style — pick one of 5, your name stands out in the leaderboard',
+          'Оформление профиля — 5 вариантов, ваше имя выделяется в рейтинге',
+        )}
+      </li>
+      <li>
+        🎭{' '}
+        {L(
+          'Avatar — top-10 ga kirmasangiz ham (obuna davomida)',
+          'An avatar — even outside the top 10 (while subscribed)',
+          'Аватар — даже вне топ-10 (пока действует подписка)',
+        )}
+      </li>
+      <li>
+        📚{' '}
+        {L(
+          'Kutubxonadagi 💎 belgili kitob, qo‘llanma va namunalar',
+          'Books, guides and templates marked 💎 in the library',
+          'Книги, пособия и шаблоны со значком 💎 в библиотеке',
+        )}
+      </li>
+      <li>
+        📖{' '}
+        {L(
+          '«Tadbirkorlik asoslari» kursining barcha ochiq darslari (talaba bo‘lmaganlar uchun)',
+          'All open lessons of the “Fundamentals of Entrepreneurship” course (for non-students)',
+          'Все открытые уроки курса «Основы предпринимательства» (для не-студентов)',
+        )}
+      </li>
+      <li>
+        🎬{' '}
+        {L(
+          'Video darslarni yuklab olib, internetsiz ko‘rish',
+          'Download video lessons to watch offline',
+          'Скачивание видеоуроков для просмотра без сети',
+        )}
+      </li>
+    </ul>
   );
 }

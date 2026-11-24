@@ -18,7 +18,7 @@ import {
   formatSum,
   isActive,
   isProduct,
-  payable,
+  PREMIUM_TERMS,
   serviceKind,
   type ProductId,
   type AdminOrder,
@@ -470,6 +470,8 @@ function AdminChat({
   const ready = outs.length > 0 || !!o.link;
   // 🛍 mahsulot (yakuniy test, Premium): to'lov tasdiqlanishi bilan o'zi ochiladi — natija yuklanmaydi
   const product = isProduct(o.kind);
+  const premium =
+    product && !!PRODUCTS[o.kind as ProductId].premium && !PRODUCTS[o.kind as ProductId].days;
   const busyNow = !!busy;
   return (
     <article
@@ -501,15 +503,11 @@ function AdminChat({
       </header>
       <p className="svc-order-meta">
         <span>{kindTitle(lang, o.kind)}</span>
-        <span>
-          💰 <b>{formatSum(payable(o))}</b>
-          {!!o.discount && (
-            <>
-              {' '}
-              <s className="muted">{formatSum(o.budget)}</s> 💎 −{o.discount} %
-            </>
-          )}
-        </span>
+        {o.budget > 0 && (
+          <span>
+            💰 {L('To‘lagan', 'Paid', 'Оплатил')}: <b>{formatSum(o.budget)}</b>
+          </span>
+        )}
         {o.due && <span>📅 {o.due}</span>}
         <span>🕐 {dueText(o.at, lang).date}</span>
       </p>
@@ -517,110 +515,127 @@ function AdminChat({
       {o.status !== 'cancel' && (
         <div className={'svc-pay is-admin' + (o.payOk ? ' is-ok' : '')}>
           {o.payOk ? (
-            <b>
-              ✅ {L('To‘lov tasdiqlangan', 'Payment confirmed', 'Оплата подтверждена')} ·{' '}
-              {dueText(o.payOk, lang).date}
-            </b>
-          ) : null}
-          {o.payOk ? (
-            <Receipts o={o.uk + '/' + o.id} files={o.files.filter((f) => f.side === 'pay')} />
-          ) : (
             <>
               <b>
-                💳{' '}
-                {o.paidAt
-                  ? L(
-                      'Buyurtmachi «To‘lov qildim» dedi — tekshiring',
-                      'The client says they paid — check it',
-                      'Заказчик сообщил об оплате — проверьте',
-                    )
-                  : L('To‘lov hali qilinmagan', 'Not paid yet', 'Ещё не оплачено')}
-                : {formatSum(payable(o))}
+                ✅ {L('To‘lov qabul qilingan', 'Payment accepted', 'Оплата принята')}
+                {o.budget ? ': ' + formatSum(o.budget) : ''} · {dueText(o.payOk, lang).date}
               </b>
-              {o.paidNote && <p className="muted">🧾 {o.paidNote}</p>}
               <Receipts o={o.uk + '/' + o.id} files={o.files.filter((f) => f.side === 'pay')} />
-              {product && (
-                <p className="muted">
-                  🛍{' '}
-                  {o.granted
-                    ? L(
-                        '«To‘lov qildim» bosilishi bilan unga ochildi. To‘lov kelgan bo‘lsa — tasdiqlang; kelmagan bo‘lsa — bloklang: ochilgani yopiladi.',
-                        'It was unlocked when they pressed “I paid”. Confirm if the money arrived; otherwise block — the unlock is taken back.',
-                        'Открыто после нажатия «Я оплатил». Подтвердите, если деньги пришли; иначе заблокируйте — доступ будет отозван.',
-                      )
-                    : L(
-                        '«To‘lov qildim» bosilishi bilan (yoki siz tasdiqlaganingizda) o‘zi ochiladi.',
-                        'It unlocks when they press “I paid” (or when you confirm).',
-                        'Откроется после «Я оплатил» (или после вашего подтверждения).',
-                      )}
-                </p>
-              )}
+            </>
+          ) : o.paidAt ? (
+            <>
+              <b>
+                🧾{' '}
+                {L(
+                  'Chek keldi — tekshiring',
+                  'A receipt arrived — check it',
+                  'Пришёл чек — проверьте',
+                )}
+                : {formatSum(o.budget)}
+              </b>
+              {o.paidNote && <p className="muted">💬 {o.paidNote}</p>}
+              <Receipts o={o.uk + '/' + o.id} files={o.files.filter((f) => f.side === 'pay')} />
               <div className="svc-row">
-                <Button
-                  size="sm"
-                  variant={o.paidAt ? 'default' : 'outline'}
-                  disabled={busyNow}
-                  onClick={() =>
-                    void act(
-                      { op: 'confirm' },
-                      'confirm',
-                      L('To‘lov tasdiqlandi.', 'Payment confirmed.', 'Оплата подтверждена.'),
-                    )
-                  }
-                >
-                  ✅{' '}
-                  {o.paidAt
-                    ? L(
-                        'To‘lov keldi — tasdiqlash',
-                        'Money arrived — confirm',
-                        'Оплата пришла — подтвердить',
-                      )
-                    : L('To‘landi deb belgilash', 'Mark as paid', 'Отметить оплату')}
-                </Button>
-                {o.paidAt && (
+                {premium ? (
+                  // 💎 Premium: muddatni shu yerda tanlaysiz — obuna o'zi yoqiladi
+                  PREMIUM_TERMS.map((days) => (
+                    <Button
+                      key={days}
+                      size="sm"
+                      disabled={busyNow}
+                      onClick={() =>
+                        void act(
+                          { op: 'confirm', days },
+                          'confirm',
+                          L('💎 Premium yoqildi.', '💎 Premium is on.', '💎 Подписка включена.'),
+                        )
+                      }
+                    >
+                      ✅{' '}
+                      {days >= 365
+                        ? L('1 yilga ochish', 'Open for 1 year', 'Открыть на 1 год')
+                        : L('1 oyga ochish', 'Open for 1 month', 'Открыть на 1 месяц')}
+                    </Button>
+                  ))
+                ) : (
                   <Button
                     size="sm"
-                    variant="outline"
-                    className="svc-ban-btn"
                     disabled={busyNow}
-                    onClick={() => {
-                      if (
-                        window.confirm(
-                          L(
-                            `${o.name} bloklansinmi? Ochilgan xizmat yopiladi, buyurtma bekor qilinadi va unga pullik xizmatlar yopiladi${banAccount ? ', saytga ham kira olmaydi' : ''}.`,
-                            `Block ${o.name}? The unlocked service is closed, the order cancelled and paid services closed for them${banAccount ? ', and they cannot sign in to the site' : ''}.`,
-                            `Заблокировать ${o.name}? Открытая услуга закроется, заказ отменится, платные услуги станут недоступны${banAccount ? ', и вход на сайт будет закрыт' : ''}.`,
-                          ),
-                        )
+                    onClick={() =>
+                      void act(
+                        { op: 'confirm' },
+                        'confirm',
+                        L('To‘lov qabul qilindi.', 'Payment accepted.', 'Оплата принята.'),
                       )
-                        void act(
-                          { op: 'ban', account: banAccount },
-                          'ban',
-                          '⛔ ' + L('Bloklandi.', 'Blocked.', 'Заблокирован.'),
-                        );
-                    }}
+                    }
                   >
-                    ⛔{' '}
-                    {L('To‘lanmagan — bloklash', 'Not paid — block', 'Не оплачено — заблокировать')}
+                    ✅{' '}
+                    {product
+                      ? L('Qabul qilish — ochish', 'Accept — unlock', 'Принять — открыть')
+                      : L('Qabul qilish', 'Accept', 'Принять')}
                   </Button>
                 )}
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="svc-ban-btn"
+                  disabled={busyNow}
+                  onClick={() => {
+                    if (
+                      window.confirm(
+                        L(
+                          `${o.name}ning cheki rad etilsinmi? Buyurtma bekor qilinadi va unga pullik xizmatlar yopiladi${banAccount ? ', saytga ham kira olmaydi' : ''}.`,
+                          `Reject ${o.name}'s receipt? The order is cancelled and paid services closed for them${banAccount ? ', and they cannot sign in to the site' : ''}.`,
+                          `Отклонить чек ${o.name}? Заказ отменится, платные услуги станут недоступны${banAccount ? ', и вход на сайт будет закрыт' : ''}.`,
+                        ),
+                      )
+                    )
+                      void act(
+                        { op: 'ban', account: banAccount },
+                        'ban',
+                        '⛔ ' +
+                          L(
+                            'Rad etildi va bloklandi.',
+                            'Rejected and blocked.',
+                            'Отклонено и заблокировано.',
+                          ),
+                      );
+                  }}
+                >
+                  ⛔ {L('Soxta chek — bloklash', 'Fake receipt — block', 'Поддельный чек — блок')}
+                </Button>
               </div>
-              {o.paidAt && (
-                <label className="svc-ban-account">
-                  <input
-                    type="checkbox"
-                    checked={banAccount}
-                    onChange={(e) => setBanAccount(e.target.checked)}
-                  />
-                  🔒{' '}
-                  {L(
-                    'Bloklaganda saytga kirishni ham yopish',
-                    'Also block signing in to the site',
-                    'Также закрыть вход на сайт',
-                  )}
-                </label>
-              )}
+              <label className="svc-ban-account">
+                <input
+                  type="checkbox"
+                  checked={banAccount}
+                  onChange={(e) => setBanAccount(e.target.checked)}
+                />
+                🔒{' '}
+                {L(
+                  'Bloklaganda saytga kirishni ham yopish',
+                  'Also block signing in to the site',
+                  'Также закрыть вход на сайт',
+                )}
+              </label>
             </>
+          ) : (
+            <p className="muted">
+              💳{' '}
+              {product
+                ? L('Chek hali yuborilmagan.', 'No receipt yet.', 'Чек ещё не отправлен.')
+                : o.deliveredAt || o.status !== 'work'
+                  ? L(
+                      'Natija yuborilgan — buyurtmachi to‘lov qilib chek yuklaydi.',
+                      'Result sent — the client will pay and upload a receipt.',
+                      'Результат отправлен — заказчик оплатит и загрузит чек.',
+                    )
+                  : L(
+                      'To‘lov natija yuborilgach ochiladi (narx so‘ralmaydi).',
+                      'Payment opens after you send the result (no price asked).',
+                      'Оплата откроется после отправки результата (цена не запрашивается).',
+                    )}
+            </p>
           )}
         </div>
       )}
@@ -835,9 +850,7 @@ function Catalog({
   const L = useL();
   const { lang, request, toast } = useApp();
   const [rows, setRows] = useState(() =>
-    Object.fromEntries(
-      view.catalog.map((k) => [k.id, { price: k.price || '', days: k.days || '', off: !!k.off }]),
-    ),
+    Object.fromEntries(view.catalog.map((k) => [k.id, { days: k.days || '', off: !!k.off }])),
   );
   const [busy, setBusy] = useState('');
   async function save(kind: string) {
@@ -860,9 +873,9 @@ function Catalog({
     <>
       <p className="muted">
         {L(
-          'Odatdagi narx va muddat katalog kartasida va vazifa berish oynasida maslahat sifatida ko‘rinadi («50 000 so‘mdan», «2–3 kun»). Summani talabaning o‘zi yozadi. «Yopiq» yo‘nalish talabalarga ko‘rinmaydi.',
-          'The usual price and timing appear on the card and as a hint in the task form (“from 50 000 so‘m”, “2–3 days”). Students set the amount themselves. “Closed” directions are hidden.',
-          'Обычная цена и срок видны на карточке и как подсказка в форме задачи («от 50 000 сум», «2–3 дня»). Сумму студент пишет сам. «Закрыто» — направление скрыто.',
+          'Narx belgilanmaydi: ish bajarilgach mijoz istalgan summani to‘laydi. Odatdagi muddat katalog kartasida ko‘rinadi («2–3 kun»). «Yopiq» yo‘nalish talabalarga ko‘rinmaydi.',
+          'No prices: after the work is done the client pays any amount. The usual timing shows on the card (“2–3 days”). “Closed” directions are hidden.',
+          'Цены не задаются: после выполнения клиент платит любую сумму. Обычный срок виден на карточке («2–3 дня»). «Закрыто» — направление скрыто.',
         )}
       </p>
       <ul className="svc-cat-admin">
@@ -876,14 +889,6 @@ function Catalog({
                   👥 {k.used} · 🙋 {k.wants}
                 </small>
               </b>
-              <input
-                className="input"
-                maxLength={60}
-                value={r.price}
-                onChange={(e) => setRows({ ...rows, [k.id]: { ...r, price: e.target.value } })}
-                placeholder={L('Narx (masalan 50 000 so‘mdan)', 'Price', 'Цена')}
-                aria-label={L('Narx', 'Price', 'Цена') + ': ' + tr(lang, ...k.name)}
-              />
               <input
                 className="input"
                 maxLength={40}
@@ -921,15 +926,6 @@ function Settings({
   const L = useL();
   const { request, toast } = useApp();
   const [how, setHow] = useState(view.how);
-  const [prices, setPrices] = useState<Record<ProductId, string>>(
-    () =>
-      Object.fromEntries(
-        (Object.keys(PRODUCTS) as ProductId[]).map((id) => [
-          id,
-          String(view.products?.[id] ?? PRODUCTS[id].price),
-        ]),
-      ) as Record<ProductId, string>,
-  );
   const [busy, setBusy] = useState(false);
   async function save(input: Record<string, unknown>) {
     setBusy(true);
@@ -998,45 +994,6 @@ function Settings({
         </section>
       )}
       <form
-        className="svc-prices"
-        onSubmit={(e) => {
-          e.preventDefault();
-          void save({
-            op: 'prices',
-            products: Object.fromEntries(
-              Object.entries(prices).map(([id, v]) => [id, Number(v.replace(/\D/g, '')) || 0]),
-            ),
-          });
-        }}
-      >
-        <b>
-          🛍 {L('Tayyor mahsulotlar narxi (so‘m)', 'Product prices (so‘m)', 'Цены продуктов (сум)')}
-        </b>
-        {(Object.keys(PRODUCTS) as ProductId[]).map((id) => (
-          <label key={id}>
-            {PRODUCTS[id].icon} {PRODUCTS[id].name[0]}
-            <input
-              className="input"
-              inputMode="numeric"
-              value={prices[id]}
-              onChange={(e) =>
-                setPrices({ ...prices, [id]: e.target.value.replace(/\D/g, '').slice(0, 9) })
-              }
-            />
-          </label>
-        ))}
-        <small className="muted">
-          {L(
-            'Premium obunachilarga yakuniy test va barcha pullik xizmatlar 50 % arzon (Premium’ning o‘zidan tashqari).',
-            'Premium subscribers get 50% off the final exam and all paid services (not Premium itself).',
-            'Подписчикам — скидка 50 % на итоговый тест и все платные услуги (кроме самой подписки).',
-          )}
-        </small>
-        <Button type="submit" disabled={busy}>
-          {L('Narxlarni saqlash', 'Save prices', 'Сохранить цены')}
-        </Button>
-      </form>
-      <form
         onSubmit={(e) => {
           e.preventDefault();
           void save({ op: 'info', how: how.trim() });
@@ -1044,9 +1001,9 @@ function Settings({
       >
         <label>
           {L(
-            'To‘lov yo‘riqnomasi (buyurtmachiga buyurtma sahifasida ko‘rinadi)',
-            'Payment instructions (shown to the client on the order page)',
-            'Инструкция по оплате (видна заказчику на странице заказа)',
+            'To‘lov yo‘riqnomasi — karta raqami (Premium, yakuniy test va pullik xizmatlar to‘lovida ko‘rinadi)',
+            'Payment instructions — the card number (shown when paying for Premium, the final exam and services)',
+            'Инструкция по оплате — номер карты (видна при оплате подписки, итогового теста и услуг)',
           )}
           <textarea
             className="input"
@@ -1067,9 +1024,9 @@ function Settings({
       </form>
       <small className="muted">
         {L(
-          'Buyurtmachi to‘lab «To‘lov qildim» deydi, siz buyurtma yozishmasida «To‘lovni tasdiqlash»ni bosasiz. To‘lov ishni to‘xtatmaydi — natijani qachon yuborishni o‘zingiz hal qilasiz. Play Market ilovasida bu bo‘lim ko‘rinmaydi (Google qoidasi) — buyurtmalar saytda beriladi.',
-          'The client pays and presses “I paid”; you press “Confirm payment” in the order chat. Payment does not block the work — you decide when to send the result. This section is hidden in the Play Market app (Google rules) — orders are placed on the website.',
-          'Заказчик оплачивает и нажимает «Я оплатил», вы нажимаете «Подтвердить оплату» в переписке. Оплата не блокирует работу — когда отправить результат, решаете вы. В приложении Play Market раздел скрыт (правила Google) — заказы делаются на сайте.',
+          'Narx belgilanmaydi: foydalanuvchi istalgan summani kartaga to‘lab, chek skrinshotini yuklaydi. Siz yozishmada chekni ko‘rib «Qabul qilish»ni bosasiz — Premium (1 oy yoki 1 yil) va yakuniy test o‘zi ochiladi. Oddiy xizmatda to‘lov natija yuborilgach so‘raladi. Play Market ilovasida bu bo‘lim ko‘rinmaydi (Google qoidasi).',
+          'No fixed prices: users pay any amount to the card and upload a screenshot of the receipt. You check it in the chat and press “Accept” — Premium (1 month or 1 year) and the final exam open by themselves. For services, payment is requested after you send the result. Hidden in the Play Market app (Google rules).',
+          'Цены не фиксированы: пользователь платит любую сумму на карту и загружает скриншот чека. Вы проверяете его в переписке и нажимаете «Принять» — подписка (1 месяц или 1 год) и итоговый тест откроются сами. За услуги оплата запрашивается после отправки результата. В приложении Play Market раздел скрыт (правила Google).',
         )}
       </small>
     </div>

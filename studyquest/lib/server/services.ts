@@ -11,7 +11,7 @@ import {
   FILES_PER_ORDER,
   FILE_TYPES,
   KEEP_DAYS,
-  PREMIUM_DISCOUNT,
+  PAY_MIN,
   RECEIPT_EXT,
   PRODUCTS,
   SERVICE_KINDS,
@@ -19,7 +19,6 @@ import {
   formatSum,
   isActive,
   isProduct,
-  payable,
   serviceKind,
   type ProductId,
   type AdminOrder,
@@ -39,14 +38,14 @@ import { demo, legacyDb, repository } from './repository';
 import { siteGet, siteUpdate } from './site-content';
 import { sendPush } from './push';
 import { supportAct } from './support';
-import { grantPremium, premiumKey, premiumState } from './premium';
+import { grantPremium, premiumInfo, premiumKey } from './premium';
 import { grantExamAccess } from './exam';
 import { course } from '../seed';
 
 /* 💼 Pullik xizmatlar. Asl bazaning site/ bo'limida (brauzerlar tegolmaydi, faqat server):
      serviceInfo                        = {how, open, shown} — to'lov yo'riqnomasi; bo'lim ishga tushganmi;
                                            bo'lim menyuda ko'rinadimi (yo'q bo'lsa — vaqtincha yopiq)
-     serviceCatalog/<yo'nalish>         = {price, days, off} — tavsiya narx, muddat, yopiq/ochiq
+     serviceCatalog/<yo'nalish>         = {days, off} — odatdagi muddat, yopiq/ochiq (narx belgilanmaydi)
      serviceProducts/<mahsulot>         = narx (so'm) — yakuniy test va Premium (lib/services.ts PRODUCTS)
      serviceOrders/<buyurtmachi>/<id>   = buyurtma: matn, summa, holat, to'lov, yozishma, fayllar
      serviceFiles/<buyurtmachi>/<fayl>/<n> = faylning n-bo'lagi (base64, ≤ 2,5 MB)
@@ -55,7 +54,8 @@ import { course } from '../seed';
    Buyurtma yo'li: work (buyurtma administratorga yozishma bo'lib keldi; foydalanuvchida «🤖 Sun'iy intellekt yordamida
    tayyorlanmoqda») → review (administrator natijani yubordi) → done (foydalanuvchi qabul qildi va baho qo'ydi);
    istalgan paytda cancel. To'lov holatni to'xtatmaydi: paidAt — foydalanuvchi «To'lov qildim» dedi, payOk —
-   administrator tasdiqladi. Premium obunachiga chegirma (discount, %) buyurtma paytida yoziladi.
+   administrator tasdiqladi. Narx belgilanmaydi: foydalanuvchi qancha to'lagan bo'lsa, shuni yozib (budget) chek
+   skrinshotini yuklaydi; oddiy xizmatda to'lov natija yuborilgandan keyin ochiladi.
    🛍 Mahsulot (yakuniy test, Premium) — narxi belgilangan buyurtma: «To'lov qildim» bosilishi bilan o'zi ochiladi
    (bo'lim yoki obuna, granted) va buyurtma yakunlanadi; administrator keyin tekshiradi: to'lov kelgan bo'lsa
    tasdiqlaydi (payOk), kelmagan bo'lsa bloklaydi (ban): ochilgan narsa yopiladi, buyurtma bekor qilinadi,
@@ -84,7 +84,6 @@ type Stored = {
   title: string;
   text: string;
   budget?: number;
-  discount?: number;
   due?: string;
   contact?: string;
   /** eski yozuvlarda: new/quoted (jamoa narx aytgan davr), open/assigned/paid (ijrochilar bozori davri) */
@@ -147,7 +146,6 @@ async function readCatalog(all: boolean) {
       ...k,
       used: used.per[k.id] || 0,
       wants: wants.per[k.id] || 0,
-      ...(s.price ? { price: String(s.price) } : {}),
       ...(s.days ? { days: String(s.days) } : {}),
       ...(s.off ? { off: true } : {}),
     };
@@ -166,26 +164,17 @@ async function readInfo() {
 async function readAll() {
   return ((await siteGet<All>('serviceOrders')) || {}) as All;
 }
-/** Mahsulotlar narxi (administrator o'zgartirgan bo'lsa — o'sha). */
-async function readProducts(): Promise<Record<ProductId, number>> {
-  const set = (await siteGet<Record<string, number>>('serviceProducts')) || {};
-  return Object.fromEntries(
-    Object.values(PRODUCTS).map((x) => {
-      const v = Math.round(Number(set[x.id]));
-      return [x.id, Number.isFinite(v) && v >= 1000 && v <= BUDGET_MAX ? v : x.price];
-    }),
-  ) as Record<ProductId, number>;
-}
-/** 🛍 Mahsulotni ochish: yakuniy test bo'limi yoki Premium (muddati mavjudiga qo'shiladi). */
-async function fulfil(s: Stored, id: string, by: string, now: number) {
+/** 🛍 Mahsulotni ochish: yakuniy test bo'limi yoki Premium (muddati — administrator tanlagani, mavjudiga qo'shiladi). */
+async function fulfil(s: Stored, id: string, by: string, now: number, days?: number) {
   const product = PRODUCTS[s.kind as ProductId];
-  if (product.days) await grantPremium(s.uid, s.name, s.group || '', product.days, by, now);
+  if (product.premium)
+    await grantPremium(s.uid, s.name, s.group || '', product.days || days || 30, by, now);
   else await grantExamAccess(s.uid, s.name, by, 'order:' + id, now);
 }
 /** ⛔ To'lov topilmadi: ochilgan mahsulot yopiladi (yakuniy test — shu buyurtma ochgan bo'lsa; Premium — butunlay). */
 async function revoke(s: Stored, id: string) {
   if (!isProduct(s.kind)) return;
-  if (PRODUCTS[s.kind].days) await siteUpdate({ ['premium/' + premiumKey(s.uid)]: null });
+  if (PRODUCTS[s.kind].premium) await siteUpdate({ ['premium/' + premiumKey(s.uid)]: null });
   else {
     const access = await siteGet<{ via?: string }>('examAccess/' + keyOf(s.uid));
     if (access?.via === 'order:' + id) await siteUpdate({ ['examAccess/' + keyOf(s.uid)]: null });
@@ -210,13 +199,6 @@ async function blockAccount(uid: string, blocked: boolean) {
 }
 async function readBans() {
   return (await siteGet<Record<string, Omit<ServiceBan, 'uk'>>>('serviceBans')) || {};
-}
-
-/** Obunachi chegirmasi (%): Premium faol bo'lsa (o'qituvchi va administratorga emas). */
-async function discountOf(a: Actor | null, now = Date.now()) {
-  if (!a) return 0;
-  const st = await premiumState(a, now).catch(() => null);
-  return st?.active && !st.staff ? PREMIUM_DISCOUNT : 0;
 }
 
 function files(s: Stored): OrderFile[] {
@@ -254,7 +236,6 @@ function toOrder(uk: string, id: string, s: Stored): ServiceOrder {
     title: s.title,
     text: s.text,
     budget: Number(s.budget) || 0,
-    ...(s.discount ? { discount: s.discount } : {}),
     status: statusOf(s),
     at: s.at,
     upd: s.upd || s.at,
@@ -312,12 +293,10 @@ function sweep(all: All, now: number) {
 
 /** Foydalanuvchi (yoki mehmon): katalog, ko'rsatkichlar va o'z buyurtmalari. */
 export async function servicesView(a: Actor | null, now = Date.now()): Promise<ServicesView> {
-  const [{ catalog, people, fans }, info, all, products, discount] = await Promise.all([
+  const [{ catalog, people, fans }, info, all] = await Promise.all([
     readCatalog(false),
     readInfo(),
     readAll(),
-    readProducts(),
-    discountOf(a, now),
   ]);
   const patch = sweep(all, now);
   if (Object.keys(patch).length) await siteUpdate(patch);
@@ -329,8 +308,6 @@ export async function servicesView(a: Actor | null, now = Date.now()): Promise<S
     people,
     fans,
     done: flat.filter((x) => statusOf(x.s) === 'done' && !isProduct(x.s.kind)).length,
-    products,
-    discount,
   };
   if (!a) return { ...head, signedIn: false };
   const me = keyOf(a.id);
@@ -339,17 +316,18 @@ export async function servicesView(a: Actor | null, now = Date.now()): Promise<S
     .map((x) => toOrder(x.uk, x.id, x.s))
     .sort((x, y) => y.at - x.at);
   const banned = !!(await siteGet<{ at?: number }>('serviceBans/' + me))?.at;
-  return { ...head, signedIn: true, how: info.how, orders, ...(banned ? { banned } : {}) };
+  // to'lov yo'riqnomasi (karta): «Pullik xizmatlar» bo'limidagi, bo'lmasa — oldingi «Obuna» bo'limidagi matn
+  const how = info.how || (await premiumInfo().catch(() => ({ how: '' }))).how;
+  return { ...head, signedIn: true, how, orders, ...(banned ? { banned } : {}) };
 }
 
 /** Administrator: hamma buyurtmalar (buyurtmachi ma'lumotlari bilan, oxirgi o'zgarish bo'yicha) va sozlamalar. */
 export async function servicesAdmin(a: Actor, now = Date.now()): Promise<ServicesAdminView> {
   administrator(a);
-  const [all, { catalog, people, fans }, { how, open, shown }, products] = await Promise.all([
+  const [all, { catalog, people, fans }, { how, open, shown }] = await Promise.all([
     readAll(),
     readCatalog(true),
     readInfo(),
-    readProducts(),
   ]);
   const patch = sweep(all, now);
   if (Object.keys(patch).length) await siteUpdate(patch);
@@ -369,7 +347,7 @@ export async function servicesAdmin(a: Actor, now = Date.now()): Promise<Service
     .filter(([uk, b]) => UK.test(uk) && b?.uid)
     .map(([uk, b]) => ({ uk, ...b }))
     .sort((x, y) => y.at - x.at);
-  return { open, shown, catalog, people, fans, how, orders, products, bans, used };
+  return { open, shown, catalog, people, fans, how, orders, bans, used };
 }
 
 /* ---------- 🔔 bildirishnomalar (xatosi amalni to'xtatmaydi) ---------- */
@@ -456,13 +434,21 @@ const userInput = z.discriminatedUnion('op', [
       kind: z.string().max(40),
       title: text(3, 160),
       text: text(10, 3000),
-      budget: z.number().int().min(BUDGET_MIN).max(BUDGET_MAX),
+      // eski ilova versiyalari uchun (endi so'ralmaydi)
+      budget: z.number().int().min(BUDGET_MIN).max(BUDGET_MAX).optional(),
       due: day.optional(),
       contact: z.string().trim().max(80).optional(),
     })
     .strict(),
   z.object({ op: z.literal('buy'), product: z.string().max(40) }).strict(),
-  z.object({ op: z.literal('paid'), id: z.string(), note: z.string().trim().max(200) }).strict(),
+  z
+    .object({
+      op: z.literal('paid'),
+      id: z.string(),
+      amount: z.number().int().min(PAY_MIN).max(BUDGET_MAX),
+      note: z.string().trim().max(200),
+    })
+    .strict(),
   z.object({ op: z.literal('cancel'), id: z.string() }).strict(),
   z.object({ op: z.literal('msg'), id: z.string(), text: text(1, 1000) }).strict(),
   z.object({ op: z.literal('revise'), id: z.string(), text: text(3, 1000) }).strict(),
@@ -507,7 +493,7 @@ export async function manageServices(a: Actor, raw: unknown, now = Date.now()) {
   );
 
   if (v.op === 'buy') {
-    check(isProduct(v.product), 404, 'Bunday xizmat yo‘q.');
+    check(isProduct(v.product) && !PRODUCTS[v.product].legacy, 404, 'Bunday xizmat yo‘q.');
     const product = PRODUCTS[v.product as ProductId];
     const mine = (await siteGet<Record<string, Stored>>('serviceOrders/' + me)) || {};
     const open = Object.entries(mine).find(
@@ -525,7 +511,6 @@ export async function manageServices(a: Actor, raw: unknown, now = Date.now()) {
       429,
       'Buyurtmalar ro‘yxati to‘ldi — eski tugaganlarini o‘chirib qo‘ying.',
     );
-    const [prices, discount] = await Promise.all([readProducts(), discountOf(a, now)]);
     const id = newId(now);
     const order: Stored = {
       uid: a.id,
@@ -536,17 +521,12 @@ export async function manageServices(a: Actor, raw: unknown, now = Date.now()) {
       kind: product.id,
       title: product.name[0],
       text: product.text[0],
-      budget: prices[product.id],
-      ...(product.discount && discount ? { discount } : {}),
+      budget: 0,
       status: 'work',
       at: now,
       upd: now,
     };
     await siteUpdate({ [orderPath(me, id)]: order });
-    await notifyTeam(
-      '🛍 Xarid · ' + product.name[0],
-      order.name + ' · ' + formatSum(payable({ budget: order.budget!, discount: order.discount })),
-    );
     return { id, ...(await done()) };
   }
 
@@ -587,7 +567,6 @@ export async function manageServices(a: Actor, raw: unknown, now = Date.now()) {
       'Buyurtmalar ro‘yxati to‘ldi — eski tugaganlarini o‘chirib qo‘ying.',
     );
     const id = newId(now);
-    const discount = await discountOf(a, now);
     const order: Stored = {
       uid: a.id,
       name: (a.name || 'Foydalanuvchi').slice(0, 120),
@@ -597,8 +576,8 @@ export async function manageServices(a: Actor, raw: unknown, now = Date.now()) {
       kind: kind!.id,
       title: v.title,
       text: v.text,
-      budget: v.budget,
-      ...(discount ? { discount } : {}),
+      // narx so'ralmaydi: to'lov natija yuborilgandan keyin, istalgan summada
+      budget: 0,
       ...(v.due ? { due: v.due } : {}),
       ...(v.contact ? { contact: v.contact } : {}),
       status: 'work',
@@ -613,13 +592,7 @@ export async function manageServices(a: Actor, raw: unknown, now = Date.now()) {
     // 🤖 buyurtma administratorga keladi: qaysi xizmat va nima yozilgan
     await notifyTeam(
       '🤖 Yangi buyurtma · ' + kindName(kind!.id),
-      order.name +
-        ': ' +
-        v.title +
-        ' — ' +
-        v.text.slice(0, 140) +
-        ' · ' +
-        formatSum(payable({ budget: v.budget, discount })),
+      order.name + ': ' + v.title + ' — ' + v.text.slice(0, 140),
     );
     return { id, ...(await done()) };
   }
@@ -631,32 +604,29 @@ export async function manageServices(a: Actor, raw: unknown, now = Date.now()) {
   const path = orderPath(me, v.id);
   const patch: Record<string, unknown> = {};
   if (v.op === 'paid') {
+    // 💳 istalgan summa + chek skrinshoti; administrator chekni qabul qilishi bilan mahsulot ochiladi
     check(st !== 'cancel', 409, 'Buyurtma bekor qilingan.');
     check(!s.payOk, 409, 'To‘lov allaqachon tasdiqlangan.');
+    check(
+      isProduct(s.kind) ? st === 'work' : !!s.deliveredAt || st === 'review' || st === 'done',
+      409,
+      'To‘lov ish bajarilgach (natija yuborilgach) ochiladi.',
+    );
+    check(
+      Object.values(s.files || {}).some((f) => f?.ready && f.side === 'pay'),
+      400,
+      'Avval chek skrinshotini yuklang.',
+    );
     Object.assign(patch, {
       [path + '/paidAt']: now,
       [path + '/paidNote']: v.note || null,
+      [path + '/budget']: v.amount,
       [path + '/upd']: now,
     });
-    // 🛍 mahsulot «To'lov qildim» bilan darhol ochiladi — administrator keyin tekshiradi (tasdiqlaydi yoki bloklaydi)
-    if (isProduct(s.kind) && !s.granted) {
-      await fulfil(s, v.id, 'to‘lov qildim', now);
-      Object.assign(patch, {
-        [path + '/granted']: now,
-        [path + '/status']: 'done',
-        [path + '/doneAt']: now,
-      });
-    }
     await siteUpdate(patch);
-    const receipt = Object.values(s.files || {}).some((f) => f?.ready && f.side === 'pay');
     await notifyTeam(
-      '💳 To‘lov qildim — tekshiring' + (receipt ? ' · 🧾 chek bor' : ''),
-      s.name +
-        ' — ' +
-        s.title +
-        ' · ' +
-        formatSum(payable({ budget: s.budget || 0, discount: s.discount })) +
-        (v.note ? ' · ' + v.note : ''),
+      '🧾 Chek keldi — qabul qiling',
+      s.name + ' — ' + s.title + ' · ' + formatSum(v.amount) + (v.note ? ' · ' + v.note : ''),
     );
   } else if (v.op === 'cancel') {
     check(
@@ -708,7 +678,15 @@ export async function manageServices(a: Actor, raw: unknown, now = Date.now()) {
 }
 
 const adminInput = z.discriminatedUnion('op', [
-  z.object({ op: z.literal('confirm'), uk: ukField, id: z.string() }).strict(),
+  z
+    .object({
+      op: z.literal('confirm'),
+      uk: ukField,
+      id: z.string(),
+      // 💎 Premium: necha kunga ochiladi (1 oy, 1 yil …)
+      days: z.number().int().min(1).max(730).optional(),
+    })
+    .strict(),
   z.object({ op: z.literal('ban'), uk: ukField, id: z.string(), account: z.boolean() }).strict(),
   z.object({ op: z.literal('unban'), uk: ukField }).strict(),
   z
@@ -730,18 +708,13 @@ const adminInput = z.discriminatedUnion('op', [
     .object({
       op: z.literal('catalog'),
       kind: z.string().max(40),
-      price: z.string().trim().max(60),
+      // narx belgilanmaydi (istalgan summa) — eski mijozlar yuborsa e'tiborsiz qoldiriladi
+      price: z.string().trim().max(60).optional(),
       days: z.string().trim().max(40),
       off: z.boolean(),
     })
     .strict(),
   z.object({ op: z.literal('info'), how: z.string().trim().max(1500) }).strict(),
-  z
-    .object({
-      op: z.literal('prices'),
-      products: z.record(z.string().max(40), z.number().int().min(1000).max(BUDGET_MAX)),
-    })
-    .strict(),
   z.object({ op: z.literal('launch'), open: z.boolean() }).strict(),
   z.object({ op: z.literal('show'), shown: z.boolean() }).strict(),
 ]);
@@ -755,9 +728,8 @@ export async function adminServices(a: Actor, raw: unknown, now = Date.now()) {
     check(serviceKind(v.kind), 404, 'Yo‘nalish topilmadi.');
     await siteUpdate({
       ['serviceCatalog/' + v.kind]:
-        v.price || v.days || v.off
+        v.days || v.off
           ? {
-              ...(v.price ? { price: v.price } : {}),
               ...(v.days ? { days: v.days } : {}),
               ...(v.off ? { off: true } : {}),
             }
@@ -771,15 +743,6 @@ export async function adminServices(a: Actor, raw: unknown, now = Date.now()) {
   }
   if (v.op === 'show') {
     await siteUpdate({ 'serviceInfo/shown': v.shown || null });
-    return done();
-  }
-  if (v.op === 'prices') {
-    const set = Object.fromEntries(
-      Object.entries(v.products)
-        .filter(([id]) => isProduct(id))
-        .map(([id, n]) => ['serviceProducts/' + id, n]),
-    );
-    if (Object.keys(set).length) await siteUpdate(set);
     return done();
   }
   if (v.op === 'info') {
@@ -836,8 +799,8 @@ export async function adminServices(a: Actor, raw: unknown, now = Date.now()) {
     });
     const by = (a.name || a.id).slice(0, 60);
     if (isProduct(s.kind) && !s.granted) {
-      // 🛍 hali ochilmagan mahsulot (administrator «To'lov qildim»siz tasdiqladi) — endi ochiladi
-      await fulfil(s, v.id, by, now);
+      // 🛍 chek qabul qilindi — mahsulot o'zi ochiladi (Premium — tanlangan muddatga)
+      await fulfil(s, v.id, by, now, v.days);
       Object.assign(patch, {
         [path + '/granted']: now,
         [path + '/status']: 'done',
@@ -850,7 +813,7 @@ export async function adminServices(a: Actor, raw: unknown, now = Date.now()) {
       isProduct(s.kind) && !s.granted
         ? '✅ ' + PRODUCTS[s.kind].name[0] + ' — ochildi'
         : '✅ To‘lov tasdiqlandi',
-      s.title + ' · ' + formatSum(payable({ budget: s.budget || 0, discount: s.discount })),
+      s.title + (s.budget ? ' · ' + formatSum(s.budget) : ''),
       s.kind === 'yakuniy-test' ? '/#course/' + course.id + '/exam' : undefined,
     );
   } else if (v.op === 'status') {
@@ -1019,9 +982,10 @@ export async function saveServiceChunk(
 ) {
   const role: Who = who === true || who === 'admin' ? 'admin' : 'me';
   if (role === 'admin') administrator(a);
-  else await notClosed(a);
   const [uk, id] = o.split('/');
   const s = await load(uk || '', id || '');
+  // 🛍 mahsulot chekini bo'lim yopiq bo'lsa ham yuklash mumkin
+  if (role === 'me' && !isProduct(s.kind)) await notClosed(a);
   if (role === 'me') check(uk === keyOf(a.id), 403, 'Bu buyurtmaga fayl yuklab bo‘lmaydi.');
   check(ID.test(fid), 400, 'Fayl topilmadi.');
   const f = s.files?.[fid];

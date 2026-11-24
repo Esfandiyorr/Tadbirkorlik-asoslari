@@ -1,9 +1,9 @@
-import { test, expect, type Page } from '@playwright/test';
+import { test, expect, type Locator, type Page } from '@playwright/test';
 
-/* 🎯 Yakuniy testga tayyorgarlik: administrator savollarni yuklaydi → talaba bo'limni sotib oladi (pullik xizmat) →
-   administrator to'lovni tasdiqlaydi → bo'lim ochiladi → mashq (javob darhol tekshiriladi) → yakuniy sinov → 60 % va
-   undan ko'p — QR-kodli sertifikat. 💎 Premium ham shu yo'l bilan sotiladi: obunachi profil bezagini tanlaydi va
-   reytingda ajralib turadi; yakuniy test unga yarim narxda. */
+/* 🎯 Yakuniy testga tayyorgarlik: administrator savollarni yuklaydi → talaba istalgan summani kartaga to'lab chek
+   skrinshotini yuklaydi (narx belgilanmagan) → administrator chekni qabul qiladi → bo'lim o'zi ochiladi → mashq
+   (javob darhol tekshiriladi) → yakuniy sinov → 60 % va undan ko'p — QR-kodli sertifikat. 💎 Premium ham shu yo'l
+   bilan: administrator 1 oy yoki 1 yilga ochadi, obunachi profil bezagini tanlaydi va reytingda ajralib turadi. */
 async function as(page: Page, id: string) {
   await page.request.post('/api/auth/demo', { data: { id } });
 }
@@ -17,6 +17,23 @@ const block = (topic: number, n: number) =>
     { length: n },
     (_, i) => `${i + 1}. ${topic}-mavzu, ${i + 1}-savol?\nA) Yo‘q\n*B) Ha, to‘g‘ri\nC) Bilmayman`,
   ).join('\n\n');
+/** 1×1 PNG — to'lov cheki skrinshoti o'rnida */
+const RECEIPT = Buffer.from(
+  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
+  'base64',
+);
+/** Sodda to'lov formasi: summa → chek skrinshoti → «Chekni yuborish». */
+async function payForm(box: Locator, amount: string, note = '') {
+  const send = box.getByRole('button', { name: /Chekni yuborish/ });
+  await expect(send).toBeDisabled();
+  await box.getByLabel(/Qancha to‘ladingiz/).fill(amount);
+  await box
+    .locator('.receipt-pick input[type="file"]')
+    .setInputFiles({ name: 'chek.png', mimeType: 'image/png', buffer: RECEIPT });
+  await expect(box.locator('.receipt-pick .image-pick-thumb img')).toBeVisible();
+  if (note) await box.getByLabel('Izoh').fill(note);
+  await send.click();
+}
 async function reset(page: Page) {
   for (let t = 1; t <= 15; t++) await exam(page, 'admin', { op: 'clear', topic: 'm' + t });
   const ex = await (await page.request.get('/api/exam?admin=1')).json();
@@ -26,13 +43,6 @@ async function reset(page: Page) {
   for (const o of v.orders as { uk: string; id: string }[])
     await svc(page, 'admin', { op: 'remove', uk: o.uk, id: o.id });
 }
-async function confirmAll(page: Page, kind: string) {
-  const v = await (await page.request.get('/api/services?admin=1')).json();
-  for (const o of v.orders as { uk: string; id: string; kind: string; payOk?: number }[])
-    if (o.kind === kind && !o.payOk)
-      expect((await svc(page, 'admin', { op: 'confirm', uk: o.uk, id: o.id })).ok()).toBe(true);
-}
-
 test('final exam prep: upload questions, buy the section, practise, pass the final exam and get a certificate', async ({
   page,
   browser,
@@ -52,7 +62,7 @@ test('final exam prep: upload questions, buy the section, practise, pass the fin
     'true',
   );
   await expect(student.locator('.ex-locked')).toContainText('Testlar tez orada yuklanadi');
-  await expect(student.getByRole('button', { name: /Sotib olish/ })).toHaveCount(0);
+  await expect(student.getByRole('button', { name: /Chekni yuborish/ })).toHaveCount(0);
 
   // administrator: Sayt boshqaruvi → 🎯 Yakuniy test savollari — matnni qo'yib saqlaydi
   await page.goto('/#admin', { waitUntil: 'domcontentloaded' });
@@ -80,22 +90,18 @@ test('final exam prep: upload questions, buy the section, practise, pass the fin
       ).ok(),
     ).toBe(true);
 
-  // talaba: bo'lim yopiq — nima borligi va narxi (10 000 so'm), sotib oladi va to'laydi
+  // talaba: bo'lim yopiq — nima borligi; narx belgilanmagan: karta, istalgan summa, chek skrinshoti
   await student.reload({ waitUntil: 'domcontentloaded' });
   const locked = student.locator('.ex-locked');
   await expect(locked).toContainText('450 ta test');
-  await expect(locked.locator('.pb-price')).toContainText('10 000 so‘m');
-  await locked.getByRole('button', { name: /Sotib olish/ }).click();
-  await locked.getByLabel(/Chek raqami/).fill('chek 555');
-  await locked.getByRole('button', { name: /To‘lov qildim/ }).click();
-  // «To'lov qildim» — bo'lim darhol ochiladi (administrator keyin tekshiradi)
-  await expect(locked.locator('.pb.is-done')).toContainText(
-    'Yakuniy testga tayyorgarlik — ochildi!',
-  );
-  await locked.getByRole('button', { name: /Davom etish/ }).click();
-  await expect(student.locator('.ex-tiles')).toContainText('0/9');
+  await expect(locked).toContainText('Karta orqali to‘lang');
+  await expect(locked.locator('.pb-price')).toHaveCount(0);
+  await payForm(locked, '10000', 'chek 555');
+  // administrator qabul qilguncha kutadi
+  await expect(locked.locator('.pb.is-wait')).toContainText('Chekingiz yuborildi: 10 000 so‘m');
+  await expect(locked.locator('.pb.is-wait .receipts img')).toBeVisible();
 
-  // administrator yozishmada to'lovni tekshirib tasdiqlaydi
+  // administrator yozishmada chekni ko'rib qabul qiladi — bo'lim o'zi ochiladi
   await page.goto('/#services', { waitUntil: 'domcontentloaded' });
   await page.reload({ waitUntil: 'domcontentloaded' });
   await page.getByRole('button', { name: 'Boshqarish' }).click();
@@ -104,12 +110,13 @@ test('final exam prep: upload questions, buy the section, practise, pass the fin
   await expect(thread.locator('.svc-thread-flags')).toContainText('💳');
   await thread.click();
   const chat = page.locator('.svc-chat');
-  await expect(chat).toContainText('chek 555');
-  await expect(chat).toContainText('bosilishi bilan unga ochildi');
+  await expect(chat.locator('.svc-pay')).toContainText('Chek keldi — tekshiring: 10 000 so‘m');
+  await expect(chat.locator('.svc-pay')).toContainText('chek 555');
+  await expect(chat.locator('.svc-pay .receipts img')).toBeVisible();
   await expect(chat.locator('.svc-deliver')).toHaveCount(0);
-  await expect(chat.getByRole('button', { name: /To‘lanmagan — bloklash/ })).toBeVisible();
-  await chat.getByRole('button', { name: /To‘lov keldi — tasdiqlash/ }).click();
-  await expect(chat.locator('.svc-pay')).toContainText('To‘lov tasdiqlangan');
+  await expect(chat.getByRole('button', { name: /Soxta chek — bloklash/ })).toBeVisible();
+  await chat.getByRole('button', { name: /Qabul qilish — ochish/ }).click();
+  await expect(chat.locator('.svc-pay')).toContainText('To‘lov qabul qilingan');
 
   // talaba: bo'lim ochiq — 1-mavzu bo'yicha mashq
   await student.reload({ waitUntil: 'domcontentloaded' });
@@ -174,7 +181,7 @@ test('final exam prep: upload questions, buy the section, practise, pass the fin
   await reset(page);
 });
 
-test('Premium: buy a plan, pick one of 5 profile looks, stand out in the leaderboard and get 50 % off', async ({
+test('Premium: shown in the news box with its perks; any amount and a receipt, the administrator opens it for 1 month or 1 year; pick one of 5 looks', async ({
   page,
   browser,
 }) => {
@@ -186,23 +193,37 @@ test('Premium: buy a plan, pick one of 5 profile looks, stand out in the leaderb
     await browser.newContext({ baseURL: test.info().project.use.baseURL })
   ).newPage();
   await as(student, 'demo-student');
-  // obunasi yo'q: profilda taklif, rejalar — 5 000 so'm/oy va yillik
+  // obunasi yo'q: o'ng tomondagi e'lonlar qutisida Premium — nimalar ochilishi bilan
+  await student.goto('/#home', { waitUntil: 'domcontentloaded' });
+  const news = student.locator('.news-box').first();
+  const dots = news.locator('.news-dots button');
+  if (await dots.count()) await dots.last().click();
+  const slide = news.locator('.news-premium');
+  await expect(slide).toContainText('Obuna bo‘ling');
+  await expect(slide.locator('.premium-perks li')).toHaveCount(5);
+  await slide.getByRole('button', { name: /Obuna bo‘lish/ }).click();
+  await expect(student.getByRole('dialog')).toContainText('Profil bezagi');
+  await student.keyboard.press('Escape');
+  // profilda ham: obuna bo'lganlarga nimalar ochiladi
   await student.goto('/#profile', { waitUntil: 'domcontentloaded' });
   const card = student.locator('.premium-card');
-  await expect(card).toContainText('Oyiga 5 000 so‘m');
+  await expect(card).toContainText('Obuna bo‘lganlarga quyidagilar ochiladi');
+  await expect(card).toContainText('Profil bezagi');
   await card.getByRole('button', { name: /Obuna bo‘lish/ }).click();
   const offer = student.getByRole('dialog');
-  await expect(offer).toContainText('Profil bezagi');
-  await expect(offer).toContainText('50 % chegirma');
-  const month = offer.locator('.premium-plans section').first();
-  await expect(month.locator('.pb-price')).toContainText('5 000 so‘m');
-  await expect(offer.locator('.premium-plans section').nth(1).locator('.pb-price')).toContainText(
-    '45 000 so‘m',
-  );
-  await month.getByRole('button', { name: /Sotib olish/ }).click();
-  await month.getByRole('button', { name: /To‘lov qildim/ }).click();
-  await expect(month).toContainText('ochildi!');
-  await confirmAll(page, 'premium-oy');
+  await expect(offer).toContainText('Kutubxonadagi 💎');
+  await expect(offer).not.toContainText('chegirma');
+  const plans = offer.locator('.premium-plans');
+  await expect(plans).not.toContainText('5 000 so‘m');
+  await payForm(plans, '5000');
+  await expect(plans).toContainText('Chekingiz yuborildi: 5 000 so‘m');
+  // administrator: muddatni tanlab ochadi (1 oy yoki 1 yil)
+  await page.goto('/#admin/services', { waitUntil: 'domcontentloaded' });
+  await page.locator('.svc-thread').filter({ hasText: 'Premium' }).click();
+  const chat = page.locator('.svc-chat');
+  await expect(chat.getByRole('button', { name: /1 yilga ochish/ })).toBeVisible();
+  await chat.getByRole('button', { name: /1 oyga ochish/ }).click();
+  await expect(chat.locator('.svc-pay')).toContainText('To‘lov qabul qilingan');
 
   // obunachi: 5 xil bezakdan birini tanlaydi
   await student.reload({ waitUntil: 'domcontentloaded' });
@@ -214,10 +235,9 @@ test('Premium: buy a plan, pick one of 5 profile looks, stand out in the leaderb
   await student.goto('/#course/tad-asoslari/ranking', { waitUntil: 'domcontentloaded' });
   await expect(student.locator('.rk-row.me')).toHaveClass(/pm-olov/);
   await expect(student.locator('.rk-row.me .pm-chip')).toHaveText('🔥');
-  // yakuniy test — yarim narxda
-  await student.goto('/#course/tad-asoslari/exam', { waitUntil: 'domcontentloaded' });
-  await expect(student.locator('.pb-price')).toContainText('5 000 so‘m');
-  await expect(student.locator('.pb-price s')).toHaveText('10 000 so‘m');
+  // obunachiga e'lonlar qutisida Premium taklifi chiqmaydi
+  await student.goto('/#home', { waitUntil: 'domcontentloaded' });
+  await expect(student.locator('.news-premium')).toHaveCount(0);
   await student.context().close();
   // tozalash: obunani olib tashlash
   const me = await (await page.request.get('/api/platform?view=premiumAdmin')).json();
@@ -244,7 +264,7 @@ test('the logo assignment is closed: no upload page or grading tab, old links op
   await expect(page.getByText('Baholanmagan logotiplar')).toHaveCount(0);
 });
 
-test('a payment that never came: the administrator blocks — the section closes and paid services are refused', async ({
+test('a fake receipt: the administrator rejects and blocks — the section stays closed and paid services are refused', async ({
   page,
   browser,
 }) => {
@@ -258,16 +278,14 @@ test('a payment that never came: the administrator blocks — the section closes
   await as(student, 'demo-student');
   await student.goto('/#course/tad-asoslari/exam', { waitUntil: 'domcontentloaded' });
   const locked = student.locator('.ex-locked');
-  await locked.getByRole('button', { name: /Sotib olish/ }).click();
-  await locked.getByRole('button', { name: /To‘lov qildim/ }).click();
-  await locked.getByRole('button', { name: /Davom etish/ }).click();
-  await expect(student.locator('.ex-actions')).toBeVisible();
-  // administrator: to'lov kelmagan — bloklaydi
+  await payForm(locked, '10000');
+  await expect(locked.locator('.pb.is-wait')).toBeVisible();
+  // administrator: chek soxta (to'lov kelmagan) — rad etib bloklaydi
   await page.goto('/#admin/services', { waitUntil: 'domcontentloaded' });
   await page.locator('.svc-thread').filter({ hasText: 'Yakuniy testga tayyorgarlik' }).click();
   const chat = page.locator('.svc-chat');
   page.once('dialog', (d) => void d.accept());
-  await chat.getByRole('button', { name: /To‘lanmagan — bloklash/ }).click();
+  await chat.getByRole('button', { name: /Soxta chek — bloklash/ }).click();
   await expect(chat.locator('.svc-status')).toContainText('Bekor');
   // talabada: bo'lim yana yopiq, sotib olish o'rniga — blok haqida xabar
   await student.reload({ waitUntil: 'domcontentloaded' });
@@ -286,7 +304,7 @@ test('a payment that never came: the administrator blocks — the section closes
   await expect(bans).toHaveCount(0);
   await student.goto('/#course/tad-asoslari/exam', { waitUntil: 'domcontentloaded' });
   await expect(
-    student.locator('.ex-locked').getByRole('button', { name: /Sotib olish/ }),
+    student.locator('.ex-locked').getByRole('button', { name: /Chekni yuborish/ }),
   ).toBeVisible();
   await student.context().close();
   await reset(page);

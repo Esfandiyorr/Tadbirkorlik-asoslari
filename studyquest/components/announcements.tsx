@@ -9,6 +9,7 @@ import type { Lang } from '@/lib/types';
 import { FRESH_MS, PROMO_KIND, type PromoItem } from '@/lib/promo';
 import { liveNewsId } from '@/lib/live-quiz';
 import { ImagePick } from './image-pick';
+import { PremiumOffer, PremiumPerks, usePremium } from './premium';
 
 /* 📢 E'lonlar oynasi (yon menyuda «Talabalar chati» ostida, har 10 soniyada almashadi) va ⚡ jonli test oynasi.
    Matni uzun e'lon ustiga bosilsa — to'liq matn alohida oynada ochiladi.
@@ -299,7 +300,9 @@ export function NewsBox({ className = '' }: { className?: string }) {
   const [index, setIndex] = useState(0),
     [hover, setHover] = useState(false),
     [paused, setPaused] = useState(false),
-    [reading, setReading] = useState<NewsItem | null>(null);
+    [reading, setReading] = useState<NewsItem | null>(null),
+    [offer, setOffer] = useState(false);
+  const { premium } = usePremium();
   const slides: Slide[] = [];
   if (g) {
     const n = now(),
@@ -353,6 +356,28 @@ export function NewsBox({ className = '' }: { className?: string }) {
     slides.push({
       key: item.id,
       node: <NewsSlide item={item} now={now()} onOpen={() => setReading(item)} />,
+    });
+  // 💎 Premium obuna: nimalar ochilishi (obunasiz foydalanuvchiga; o'qituvchi va administratorga — yo'q)
+  const staff = data?.user?.role === 'admin' || data?.user?.role === 'teacher';
+  if (!staff && !premium?.state.active)
+    slides.push({
+      key: 'premium',
+      node: (
+        <div className="news-slide news-premium">
+          <span className="news-kicker">💎 PREMIUM</span>
+          <b>
+            {L(
+              'Obuna bo‘ling — ko‘proq imkoniyat',
+              'Get Premium — do more',
+              'Подписка — больше возможностей',
+            )}
+          </b>
+          <PremiumPerks compact />
+          <button type="button" className="news-cta" onClick={() => setOffer(true)}>
+            💎 {L('Obuna bo‘lish', 'Get Premium', 'Оформить')}
+          </button>
+        </div>
+      ),
     });
   if (!slides.length)
     slides.push({
@@ -464,6 +489,7 @@ export function NewsBox({ className = '' }: { className?: string }) {
           onClose={() => setReading(null)}
         />
       )}
+      {offer && <PremiumOffer info={premium?.info} onClose={() => setOffer(false)} />}
     </section>
   );
 }

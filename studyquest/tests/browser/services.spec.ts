@@ -3,8 +3,9 @@ import { test, expect, type Page } from '@playwright/test';
 /* 💼 Pullik xizmatlar: ishga tushguncha foydalanuvchi «🚀 Tez orada» oynasida taklif yuboradi («Adminga xabar»ga
    tushadi); ishga tushgach buyurtma beradi → buyurtmasida «🤖 Sun'iy intellekt yordamida tayyorlanmoqda», buyurtma esa
    administratorga yozishma bo'lib keladi (Sayt boshqaruvi → Pullik xizmatlar → 💬 Buyurtmalar) → administrator savol
-   beradi, to'lovni tasdiqlaydi, natijani yuklab «📤 Mijozga yuborish»ni bosadi → buyurtmachi yuklab oladi, tuzatish
-   so'raydi yoki qabul qilib baho qo'yadi. Ijrochi talabalar bo'limi yo'q. Play Market ilovasida bo'lim yo'q.
+   beradi, natijani yuklab «📤 Mijozga yuborish»ni bosadi → buyurtmachi istalgan summani to'lab chek skrinshotini
+   yuklaydi (narx belgilanmaydi, to'lov ish bajarilgach) → administrator chekni qabul qiladi → buyurtmachi yuklab
+   oladi, tuzatish so'raydi yoki qabul qilib baho qo'yadi. Ijrochi talabalar bo'limi yo'q. Play Market ilovasida bo'lim yo'q.
    Administrator bo'limni vaqtincha yopishi mumkin (sozlama yo'q bo'lsa — yopiq). */
 async function as(page: Page, id: string) {
   await page.request.post('/api/auth/demo', { data: { id } });
@@ -37,7 +38,7 @@ test('an order shows «prepared with AI», reaches the administrator as a chat a
     { op: 'show', shown: true },
     { op: 'launch', open: true },
     { op: 'info', how: 'Click orqali 8600 … kartaga o‘tkazing' },
-    { op: 'catalog', kind: 'taqdimot', price: '50 000 so‘mdan', days: '2–3 kun', off: false },
+    { op: 'catalog', kind: 'taqdimot', days: '2–3 kun', off: false },
   ])
     expect((await svc(page, 'admin', input)).ok()).toBe(true);
 
@@ -60,16 +61,17 @@ test('an order shows «prepared with AI», reaches the administrator as a chat a
   const cards = student.locator('.svc-card');
   await expect(cards.filter({ hasText: 'Kurs ishi' })).toContainText('Yordam');
   const slides = cards.filter({ has: student.getByText('Taqdimot', { exact: true }) });
-  await expect(slides).toContainText('50 000 so‘mdan');
+  // narx belgilanmaydi — kartada faqat odatdagi muddat
+  await expect(slides).toContainText('2–3 kun');
+  await expect(slides).not.toContainText('so‘m');
   await slides.click();
   const form = student.getByRole('dialog', { name: /Taqdimot/ });
-  await form.getByLabel('Mavzu yoki ish nomi').fill('Kichik biznesda marketing');
-  await form.getByLabel(/Nima kerak/).fill('12 slayd, o‘zbek tilida, oxirida 3 ta savol bo‘lsin');
-  await expect(form).toContainText('Odatdagi narx: 50 000 so‘mdan');
   const post = form.getByRole('button', { name: /Buyurtma berish/ });
   await expect(post).toBeDisabled();
-  await form.getByLabel(/Qancha to‘lay olasiz/).fill('120000');
-  await expect(form.getByLabel(/Qancha to‘lay olasiz/)).toHaveValue('120 000');
+  await form.getByLabel('Mavzu yoki ish nomi').fill('Kichik biznesda marketing');
+  await form.getByLabel(/Nima kerak/).fill('12 slayd, o‘zbek tilida, oxirida 3 ta savol bo‘lsin');
+  await expect(form).toContainText('Narx so‘ralmaydi');
+  await expect(form.getByLabel(/Qancha to‘lay olasiz/)).toHaveCount(0);
   await form.getByLabel('Qachongacha kerak?').fill('2030-12-01');
   await form.getByLabel(/Telefon yoki Telegram/).fill('@ali_test');
   await form
@@ -84,27 +86,18 @@ test('an order shows «prepared with AI», reaches the administrator as a chat a
     /Sun’iy intellekt yordamida tayyorlanmoqda/,
   );
   await expect(order.locator('.svc-ai')).toContainText('Sun’iy intellekt yordamida tayyorlanmoqda');
-  await expect(order).toContainText('120 000 so‘m');
-  // to'lov ishni to'xtatmaydi
-  await expect(order.locator('.svc-pay')).toContainText('Click orqali');
-  // 🧾 chek rasmini yuklaydi (logotipni yuklashday — tanlanadi, kichik ko'rinishi chiqadi)
-  await order
-    .locator('.receipt-pick input[type="file"]')
-    .setInputFiles({ name: 'chek.png', mimeType: 'image/png', buffer: RECEIPT });
-  await expect(order.locator('.receipt-pick .image-pick-thumb img')).toBeVisible();
-  await order.getByLabel(/Chek raqami/).fill('chek 777');
-  await order.getByRole('button', { name: /To‘lov qildim/ }).click();
-  await expect(order.locator('.svc-pay')).toContainText('To‘lov qabul qilindi');
-  await expect(order.locator('.svc-ai')).toBeVisible();
+  // 💳 to'lov ish bajarilgach ochiladi — hozircha faqat eslatma
+  await expect(order.locator('.svc-note')).toContainText('To‘lov ish bajarilgach ochiladi');
+  await expect(order.locator('.svc-pay')).toHaveCount(0);
 
-  // administrator: buyurtma yozishma bo'lib kelgan — qaysi xizmat, nima yozilgan, fayl, aloqa, to'lov
+  // administrator: buyurtma yozishma bo'lib kelgan — qaysi xizmat, nima yozilgan, fayl, aloqa
   await page.goto('/#services', { waitUntil: 'domcontentloaded' });
   await page.getByRole('button', { name: 'Boshqarish' }).click();
   await expect.poll(() => new URL(page.url()).hash).toBe('#admin');
   const thread = page.locator('.svc-thread').filter({ hasText: 'Kichik biznesda marketing' });
   await expect(thread).toHaveClass(/is-unread/);
   await expect(thread).toContainText('Taqdimot');
-  await expect(thread.locator('.svc-thread-flags')).toContainText('💳');
+  await expect(thread).not.toContainText('💳');
   await thread.click();
   const chat = page.locator('.svc-chat');
   const lead = chat.locator('.svc-msgs li.is-lead');
@@ -112,13 +105,10 @@ test('an order shows «prepared with AI», reaches the administrator as a chat a
   await expect(lead).toContainText('12 slayd, o‘zbek tilida');
   await expect(lead).toContainText('talablar.pdf');
   await expect(chat.locator('.svc-chat-head')).toContainText('@ali_test');
-  await expect(chat.locator('.svc-pay')).toContainText('chek 777');
-  await expect(chat.locator('.svc-pay .receipts img')).toBeVisible();
+  await expect(chat.locator('.svc-pay')).toContainText('natija yuborilgach ochiladi');
   await chat.getByLabel('Xabar').fill('Qaysi rangda bo‘lsin?');
   await chat.getByRole('button', { name: 'Yuborish', exact: true }).click();
   await expect(chat.locator('.svc-msgs')).toContainText('Qaysi rangda bo‘lsin?');
-  await chat.getByRole('button', { name: /To‘lov keldi — tasdiqlash/ }).click();
-  await expect(chat.locator('.svc-pay')).toContainText('To‘lov tasdiqlangan');
   const send = chat.getByRole('button', { name: /Mijozga yuborish/ });
   await expect(send).toBeDisabled();
   await chat
@@ -127,12 +117,41 @@ test('an order shows «prepared with AI», reaches the administrator as a chat a
   await expect(chat.locator('.svc-deliver .svc-files')).toContainText('natija.pdf');
   await send.click();
   await expect(chat.locator('.svc-status')).toHaveText(/Tayyor — tekshiring/);
+  await expect(chat.locator('.svc-pay')).toContainText('chek yuklaydi');
 
-  // buyurtmachi: savolni va natijani ko'radi, yuklab oladi, tuzatish so'raydi
+  // buyurtmachi: natija keldi → istalgan summani kartaga to'lab, chek skrinshotini yuklaydi
   await student.reload({ waitUntil: 'domcontentloaded' });
   await expect(order.locator('.svc-status')).toHaveText(/Tayyor — tekshiring/);
   await expect(order.locator('.svc-ai')).toHaveCount(0);
-  await expect(order.locator('.svc-pay')).toContainText('To‘lov tasdiqlangan');
+  const pay = order.locator('.svc-pay');
+  await expect(pay).toContainText('Click orqali');
+  const sendPay = pay.getByRole('button', { name: /Chekni yuborish/ });
+  await expect(sendPay).toBeDisabled();
+  await pay.getByLabel(/Qancha to‘ladingiz/).fill('120000');
+  await expect(pay.getByLabel(/Qancha to‘ladingiz/)).toHaveValue('120 000');
+  await expect(sendPay).toBeDisabled();
+  // 🧾 chek rasmini yuklaydi (tanlanadi, kichik ko'rinishi chiqadi)
+  await pay
+    .locator('.receipt-pick input[type="file"]')
+    .setInputFiles({ name: 'chek.png', mimeType: 'image/png', buffer: RECEIPT });
+  await expect(pay.locator('.receipt-pick .image-pick-thumb img')).toBeVisible();
+  await pay.getByLabel('Izoh').fill('chek 777');
+  await sendPay.click();
+  await expect(pay).toContainText('Chekingiz yuborildi: 120 000 so‘m');
+
+  // administrator chekni ko'rib qabul qiladi
+  await page.reload({ waitUntil: 'domcontentloaded' });
+  await expect(thread.locator('.svc-thread-flags')).toContainText('💳');
+  await thread.click();
+  await expect(chat.locator('.svc-pay')).toContainText('120 000 so‘m');
+  await expect(chat.locator('.svc-pay')).toContainText('chek 777');
+  await expect(chat.locator('.svc-pay .receipts img')).toBeVisible();
+  await chat.getByRole('button', { name: /Qabul qilish$/ }).click();
+  await expect(chat.locator('.svc-pay')).toContainText('To‘lov qabul qilingan');
+
+  // buyurtmachi: to'lov qabul qilingan; savolni va natijani ko'radi, yuklab oladi, tuzatish so'raydi
+  await student.reload({ waitUntil: 'domcontentloaded' });
+  await expect(order.locator('.svc-pay')).toContainText('To‘lov qabul qilindi: 120 000 so‘m');
   await expect(order.locator('.svc-msgs')).toContainText('Qaysi rangda bo‘lsin?');
   const download = student.waitForEvent('download');
   await order
@@ -199,7 +218,7 @@ test('an order shows «prepared with AI», reaches the administrator as a chat a
   for (const input of [
     { op: 'info', how: '' },
     { op: 'launch', open: false },
-    { op: 'catalog', kind: 'taqdimot', price: '', days: '', off: false },
+    { op: 'catalog', kind: 'taqdimot', days: '', off: false },
     { op: 'show', shown: false },
   ])
     await svc(page, 'admin', input);
@@ -283,7 +302,6 @@ test('before the launch a student sees «Launching soon» and sends a suggestion
     kind: 'taqdimot',
     title: 'Sinov',
     text: 'Sinov buyurtmasining matni',
-    budget: 50000,
   });
   expect(refused.status()).toBe(409);
   // qayta kirganda oyna o'zi chiqmaydi (taklif yuborilgan), lekin tugma bilan ochiladi
@@ -355,7 +373,6 @@ test('the administrator closes the section for a while: users lose it, the admin
     kind: 'taqdimot',
     title: 'Sinov',
     text: 'Sinov buyurtmasining matni',
-    budget: 50000,
   });
   expect(refused.status()).toBe(403);
   expect((await refused.json()).error).toContain('vaqtincha yopiq');

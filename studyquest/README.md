@@ -49,15 +49,15 @@ For Firebase-backed development, copy `.env.example` to `.env.local`, supply you
   administrator's inbox directly):
   - **🛒 Order** — a catalog of 13 colourful direction cards (presentation, course paper, graduation thesis, essay,
     article, book publishing, business plan, website, design, translation, documents, video, other) with group
-    filters, search and how many people used each service. An order has a topic, details, **the amount the user
-    can pay** (5 000 – 50 000 000 so'm; the administrator's usual price is shown as a hint), wanted date, contact
-    and up to 3 attachments of 10 MB. Course papers, theses, essays and articles are **assistance only** (outline,
+    filters, search and how many people used each service. An order has a topic, details, wanted date, contact
+    and up to 3 attachments of 10 MB — **no price is asked** (cards show only the usual timing). Course papers, theses, essays and articles are **assistance only** (outline,
     sources, editing, formatting) — the student writes the text.
   - **📦 My orders** — the 🤖 «being prepared» status with a progress line (Order → In progress → Result → Accept),
-    payment instructions with a **🧾 receipt picture** (chosen and shrunk like the old logo upload, stored as
-    the order's private «pay» file) and **«I paid»** with a receipt note (payment does not block the work; the administrator
-    confirms it), the chat with the administrator, the result to download, «Needs changes» (back to work) or
-    acceptance with a 1–5 star rating and review. The client can cancel only before paying or receiving a result.
+    **payment only after the result is sent**: the card number (payment instructions), «How much did you pay?» (any
+    amount from 1 000 so'm), a **🧾 receipt screenshot** (chosen and shrunk like the old logo upload, stored as the
+    order's private «pay» file) and «📤 Send the receipt»; the administrator accepts it in the chat. Also the chat
+    with the administrator, the result to download, «Needs changes» (back to work) or acceptance with a 1–5 star
+    rating and review. The client can cancel only before receiving a result.
   - **Admin → 🛠 Site manager → 💼 Paid services → 💬 Orders** — a Telegram-like inbox: on the left every order
     (client, service, last message; a dot when the client wrote last or the order is new, 💳 when a payment
     waits for confirmation; filters «Needs reply», «In progress», «Delivered», «Completed», «Cancelled», search),
@@ -77,25 +77,25 @@ For Firebase-backed development, copy `.env.example` to `.env.local`, supply you
     and changes notify the administrator by push; replies, confirmed payments and results notify the client. The
     privacy policy says that order texts and files may be processed with AI tools. The section is hidden inside the
     Play Store app (`/?src=play`): Google Play does not allow steering to external payments.
-- **💎 Premium** (`lib/server/premium.ts`, `components/premium.tsx`, `lib/premium-look.ts`): sold on the site as
-  ready-made products in «Paid services» — **monthly 5 000 so'm (30 days)** and **yearly 45 000 so'm (365 days)**
-  (prices editable under Paid services → ⚙️ Payment instructions). The user presses «Buy» → «I paid» (with an optional
-  receipt picture) and Premium turns on at once (added on top of the current period); the administrator later
-  confirms the payment or, if it never came, presses «⛔ Not paid — block»: Premium is taken back, the order is
-  cancelled, paid services are closed for that user (`site/serviceBans/<user>`; optionally site sign-in is blocked too)
-  and «⚙️ Payment instructions» lists the blocked users with «Unblock». The administrator can still grant Premium by
-  hand. Subscribers get: a **profile look** — one of 5 (👑 Golden
-  crown, 🌈 Rainbow, ✨ Violet glow, 💎 Diamond, 🔥 Fire; Profile → 💎 Premium), shown on their leaderboard row while
-  Premium is active; an avatar; **50 % off all paid services** (custom orders and the final exam preparation, not
-  Premium itself); 💎 library items; the course for non-students; video lesson downloads. Inside the Play Store app
-  (`/?src=play`) the offer shows no price or payment (`lib/play-app.ts`).
+- **💎 Premium** (`lib/server/premium.ts`, `components/premium.tsx`, `lib/premium-look.ts`): **no fixed price**.
+  The offer (Profile → 💎 Premium, the 💎 slide in the announcements box on the right for users without Premium, 💎
+  library items) lists what subscribers get and a simple form (`components/product-buy.tsx`): the card number from
+  ⚙️ Payment instructions → «How much did you pay?» (any amount) → a receipt screenshot → «📤 Send the receipt». The
+  order waits in «Paid services» chat; the administrator checks the receipt and presses «✅ Open for 1 month» or
+  «✅ Open for 1 year» — Premium turns on by itself (added on top of the current period). For a fake receipt
+  «⛔ Fake receipt — block»: the order is cancelled, paid services are closed for that user
+  (`site/serviceBans/<user>`; optionally site sign-in is blocked too) and «⚙️ Payment instructions» lists the blocked
+  users with «Unblock». The administrator can still grant Premium by hand. Subscribers get: a **profile look** — one
+  of 5 (👑 Golden crown, 🌈 Rainbow, ✨ Violet glow, 💎 Diamond, 🔥 Fire; Profile → 💎 Premium), shown on their
+  leaderboard row while Premium is active; an avatar; 💎 library items; the course for non-students; video lesson
+  downloads. Inside the Play Store app (`/?src=play`) the offer shows no payment (`lib/play-app.ts`).
 - **🎯 Final exam preparation** (`lib/exam.ts`, `lib/server/exam.ts`, `app/api/exam`, `components/exam.tsx`): a tab
   inside the main course (`#course/<id>/exam`) with **450 questions — 30 for each of the 15 topics** that the
   administrator uploads in **Site manager → 🎯 Final exam questions** (paste from Word or a .txt: numbered
   «1. … A) … *» / «Javob: B» or HEMIS «++++ ==== #»; preview, replace, delete; re-uploading the same text updates
-  instead of duplicating). The section is a paid service (**10 000 so'm**, 5 000 for Premium): bought from the tab or
-  the catalog card and opened at once when the user presses «I paid»; the administrator later confirms the payment or
-  blocks the user (the section closes again); access can also be revoked by hand. Inside: practice by topic, mixed practice (30), «work on mistakes» — each answer is checked at once
+  instead of duplicating). The section is a paid service with **no fixed price**: on the tab the user pays any amount to the card,
+  uploads a receipt screenshot and presses «📤 Send the receipt»; it opens by itself when the administrator presses
+  «✅ Accept — unlock» in the order chat (or «⛔ Fake receipt — block»); access can also be revoked by hand. Inside: practice by topic, mixed practice (30), «work on mistakes» — each answer is checked at once
   and stored per question; a timed **final exam** (3 questions from every topic, 60 minutes, graded at the end on the
   server, resumable after a reload). **60 % or more gives a certificate** (`#sertifikat/<id>`): name, group,
   course, score, date, teacher and a QR code that leads to a public verification page; printable as an A4 PDF.

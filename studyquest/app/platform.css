@@ -14212,3 +14212,39 @@ html {
 .svc-bans li > span {
   display: grid;
 }
+
+/* 💎 Obuna bo'lganlarga nimalar ochiladi (taklif, profil va e'lonlar qutisi) */
+.premium-perks {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  line-height: 1.45;
+}
+.premium-perks.is-compact {
+  gap: 1px;
+  font-size: 12.5px;
+  line-height: 1.35;
+}
+.news-premium b {
+  font-size: 15px;
+  line-height: 1.25;
+}
+/* 💳 sodda to'lov: karta → summa → chek */
+.pb-steps {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding-left: 20px;
+}
+.pb-steps li {
+  display: grid;
+  gap: 6px;
+}
+.pb-steps label {
+  display: grid;
+  gap: 6px;
+  color: inherit;
+  font-size: inherit;
+}

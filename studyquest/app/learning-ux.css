@@ -421,9 +421,18 @@
     padding: 18px;
     display: block;
   }
-  .continue-hero > .hero-avatar,
   .continue-hero > .topic-art {
     display: none;
+  }
+  /* 🎭 telefonda ham avatar asosiy kartochkada — katta, butun kenglikda (profil qismida takrorlanmaydi) */
+  .continue-hero > .hero-avatar {
+    margin-bottom: 16px;
+  }
+  .continue-hero > .hero-avatar.has .hero-avatar-stage {
+    height: min(300px, 62vw);
+  }
+  .continue-hero > .hero-avatar.has .hero-avatar-stage .av-figure {
+    max-height: min(300px, 62vw);
   }
   .continue-hero-body {
     padding: 0;
@@ -452,15 +461,7 @@
   .continue-hero-points ul {
     display: none;
   }
-  .profile-mobile-avatar {
-    display: block;
-    margin-bottom: 14px;
-  }
-  .profile-mobile-avatar .hero-avatar {
-    width: 100%;
-    min-height: 110px;
-    max-height: 170px;
-  }
+
   .course-banner > .course-art {
     display: none;
   }

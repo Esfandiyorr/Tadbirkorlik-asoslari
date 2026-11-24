@@ -194,7 +194,7 @@ export function ExamPrep({ courseId }: { courseId: string }) {
           </ul>
           {view.total ? (
             view.signedIn ? (
-              <ProductBuy product="yakuniy-test" onDone={() => void load()} />
+              <ProductBuy product="yakuniy-test" />
             ) : (
               <Button onClick={() => setLogin(true)}>{L('Kirish', 'Sign in', 'Войти')}</Button>
             )

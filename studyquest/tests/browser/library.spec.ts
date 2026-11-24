@@ -146,22 +146,23 @@ test('inside the Play Market app the offer shows no price or payment instruction
   });
   expect(added.ok()).toBe(true);
   await as(page, 'demo-student');
-  // brauzerda: oylik va yillik tarif narxi va «Sotib olish»
+  // brauzerda: narx belgilanmagan — karta (to'lov yo'riqnomasi), istalgan summa va chek skrinshoti
   await page.goto('/#library', { waitUntil: 'domcontentloaded' });
   const locked = page.locator('.lib-card').filter({ hasText: 'Play sinovi namunasi' });
   await locked.click();
   const offer = page.getByRole('dialog', { name: /Obuna bilan ko‘proq imkoniyat/ });
-  await expect(offer.locator('.premium-plans')).toContainText('5 000 so‘m');
-  await expect(offer.locator('.premium-plans')).toContainText('45 000 so‘m');
-  await expect(offer.getByRole('button', { name: /Sotib olish/ })).toHaveCount(2);
+  await expect(offer.locator('.premium-plans')).toContainText('Click orqali');
+  await expect(offer.locator('.premium-plans')).toContainText('Qancha to‘ladingiz');
+  await expect(offer.locator('.premium-plans')).not.toContainText('so‘m / oy');
+  await expect(offer.getByRole('button', { name: /Chekni yuborish/ })).toHaveCount(1);
   await offer.locator('.premium-offer-actions').getByRole('button', { name: 'Yopish' }).click();
   // Play Market ilovasi saytni /?src=play bilan ochadi — narx ham, to'lov yo'riqnomasi ham yo'q (Google qoidasi)
   await page.goto('/?src=play#library', { waitUntil: 'domcontentloaded' });
   await locked.click();
   await expect(offer).toContainText('saytda (www.tadbirkorlik-asoslari.uz) ochiladi');
-  await expect(offer).not.toContainText('5 000');
+  await expect(offer).not.toContainText('Qancha to‘ladingiz');
   await expect(offer).not.toContainText('Click orqali');
-  await expect(offer.getByRole('button', { name: /Sotib olish/ })).toHaveCount(0);
+  await expect(offer.getByRole('button', { name: /Chekni yuborish/ })).toHaveCount(0);
   await offer.locator('.premium-offer-actions').getByRole('button', { name: 'Yopish' }).click();
   // belgi shu oynada saqlanadi: ilova ichida boshqa bo'limga o'tilganda ham
   await page.goto('/#home', { waitUntil: 'domcontentloaded' });
