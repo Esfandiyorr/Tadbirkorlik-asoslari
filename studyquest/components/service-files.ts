@@ -21,57 +21,46 @@ export async function servicesAct<T>(request: Req, scope: 'me' | 'admin', input:
   );
 }
 
-/** Faylni vazifaga yuklash. who: me — buyurtmachi (talablar), worker — ijrochi (natija), admin — administrator.
-    o — «<buyurtmachi>/<vazifa>»; ids — begin/finish uchun vazifa kaliti ({id} yoki {uk, id}). */
+/** Bitta faylni yuklash. Bir xil fid bilan yuborilgan takroriy so‘rov qolgan bo‘laklardan davom etadi. */
 export async function sendOrderFile(
   request: Req,
-  who: 'me' | 'worker' | 'admin',
-  o: string,
-  ids: Record<string, string>,
+  scope: 'me' | 'admin',
+  { uk, id }: { uk: string; id: string },
+  fid: string,
   file: File,
-  onProgress?: (x: number) => void,
 ) {
-  const scope = who === 'admin' ? 'admin' : 'me';
-  const op = (x: 'begin' | 'finish' | 'unfile') => (who === 'worker' ? 'w' + x : x);
-  const begun = await servicesAct<{ fid: string; chunk: number; chunks: number }>(request, scope, {
-    op: op('begin'),
-    ...ids,
-    name: file.name,
-    size: file.size,
-  });
-  try {
-    for (let n = 0; n < begun.chunks; n++) {
-      const form = new FormData();
-      form.append('scope', who);
-      form.append('o', o);
-      form.append('fid', begun.fid);
-      form.append('n', String(n));
-      form.append('file', file.slice(n * begun.chunk, (n + 1) * begun.chunk), 'part');
-      await json(await request('/api/services', { method: 'POST', body: form }));
-      onProgress?.((n + 1) / begun.chunks);
-    }
-  } catch (e) {
-    // chala qolgan yuklashni olib tashlash (aks holda bir kundan keyin o'zi tozalanadi)
-    await servicesAct(request, scope, { op: op('unfile'), ...ids, fid: begun.fid }).catch(() => {});
-    throw e;
+  const ids = scope === 'admin' ? { uk, id } : { id };
+  const { chunk, missing } = await servicesAct<{ chunk: number; missing: number[] }>(
+    request,
+    scope,
+    {
+      op: 'begin',
+      ...ids,
+      fid,
+      name: file.name,
+      size: file.size,
+    },
+  );
+  for (const n of missing) {
+    const form = new FormData();
+    form.append('scope', scope);
+    form.append('o', uk + '/' + id);
+    form.append('fid', fid);
+    form.append('n', String(n));
+    form.append('file', file.slice(n * chunk, (n + 1) * chunk), 'part');
+    await json(await request('/api/services', { method: 'POST', body: form }));
   }
-  return servicesAct<unknown>(request, scope, { op: op('finish'), ...ids, fid: begun.fid });
+  await servicesAct(request, scope, { op: 'finish', ...ids, fid });
 }
 
 /** Faylni bo'laklab yuklab olib, qurilmaga saqlaydi. */
-export async function saveOrderFile(
-  request: Req,
-  o: string,
-  f: OrderFile,
-  onProgress?: (x: number) => void,
-) {
+export async function saveOrderFile(request: Req, o: string, f: OrderFile) {
   const parts: ArrayBuffer[] = [];
   for (let n = 0; n < f.chunks; n++) {
     const q = new URLSearchParams({ o, f: f.id, n: String(n) });
     const r = await request('/api/services/file?' + q.toString());
     if (!r.ok) await json(r);
     parts.push(await r.arrayBuffer());
-    onProgress?.((n + 1) / f.chunks);
   }
   const url = URL.createObjectURL(new Blob(parts, { type: FILE_TYPES[f.ext].mime }));
   const a = document.createElement('a');

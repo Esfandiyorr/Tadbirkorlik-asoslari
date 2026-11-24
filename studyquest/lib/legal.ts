@@ -6,6 +6,7 @@ export type LegalLang = 'uz' | 'ru' | 'en';
 export const LEGAL_LANGS: LegalLang[] = ['uz', 'ru', 'en'];
 export const legalLang = (v: unknown): LegalLang => (v === 'ru' || v === 'en' ? v : 'uz');
 export const LEGAL_UPDATED = '2026-11-16';
+const PRIVACY_UPDATED = '2026-11-24';
 export const APP_NAME = 'Unistay';
 
 /** p — ro'yxatdan oldingi matn, ul — ro'yxat, note — ro'yxatdan keyingi izoh */
@@ -37,7 +38,7 @@ export function privacyDoc(l: LegalLang, w: Who): LegalDoc {
     return {
       title: 'Политика конфиденциальности',
       lead: `Эта политика объясняет, какие данные собирает учебная платформа «${APP_NAME}» (сайт и приложение для Android), зачем они нужны и как их удалить.`,
-      updated: 'Обновлено: ' + LEGAL_UPDATED,
+      updated: 'Обновлено: ' + PRIVACY_UPDATED,
       sections: [
         {
           h: '1. Кто отвечает за данные',
@@ -54,8 +55,8 @@ export function privacyDoc(l: LegalLang, w: Who): LegalDoc {
             'Содержимое, которое вы создаёте: сообщения в чате группы и в переписке с администратором, загруженные работы (например, логотип для задания), выбранный аватар.',
             'Личные заметки и закладки: сохраняются в вашем аккаунте; локальные черновики и настройки чтения — в браузере. Категории уведомлений сохраняются для аккаунта. Запрос помощи со входом содержит указанные вами имя, группу, контакт и сообщение; их видят преподаватели и администратор.',
             'Игры и живой тест: участие, ответы и результаты.',
-            'Платные услуги и подписка: текст задачи, сумма, которую вы готовы заплатить, желаемый срок, телефон или Telegram (если указали), приложенные файлы и готовый результат, переписка по задаче, отметка «Я оплатил» с вашим комментарием (например, номер чека), ваша оценка и отзыв, а также срок действия подписки. Задача без контактов и файлов видна на бирже исполнителям под сокращённым именем (например, «Али В.») с группой; файлы и переписку видят только утверждённый исполнитель и администратор. Файлы удаляются через 90 дней после сдачи работы или сразу при отмене; задачу можно удалить самому.',
-            'Если вы исполнитель: описание о себе, направления, отклики на задачи, выполненные работы, оценки и выплаты, а также реквизиты для выплат (карта или телефон) — их видит только администратор. Заказчики видят ваше сокращённое имя, число работ и рейтинг. Выйти из исполнителей можно в любой момент.',
+            'Платные услуги: выбранная услуга, описание заказа, приложенные файлы и ответ администратора. Заказ доступен вам и администратору. Файлы доступны для скачивания до 90 дней после завершения заказа. Данные о подписке включают срок её действия.',
+            'В старых заказах могут сохраняться переписка, оценки и записи об оплате. Удаление аккаунта также удаляет данные о прошлых откликах и реквизитах для выплат.',
             'Доступ к курсу: если вы запросили доступ к курсу (в том числе к платному) — имя, email, время запроса и ваш комментарий, например номер чека (их видит только администратор).',
             'Покупка аватара: время запроса «Я оплатил», ваш комментарий (например, номер чека) и срок действия права на аватар.',
             'Уведомления: если вы включили уведомления — технический адрес вашего браузера или устройства (push-подписка), чтобы доставлять сообщения.',
@@ -116,7 +117,7 @@ export function privacyDoc(l: LegalLang, w: Who): LegalDoc {
     return {
       title: 'Privacy Policy',
       lead: `This policy explains what data the “${APP_NAME}” learning platform (website and Android app) collects, why it is needed and how to delete it.`,
-      updated: 'Updated: ' + LEGAL_UPDATED,
+      updated: 'Updated: ' + PRIVACY_UPDATED,
       sections: [
         {
           h: '1. Who is responsible',
@@ -133,8 +134,8 @@ export function privacyDoc(l: LegalLang, w: Who): LegalDoc {
             'Content you create: messages in the group chat and in the conversation with the administrator, uploaded work (for example a logo for an assignment), your chosen avatar.',
             'Private notes and bookmarks are saved to your account; local drafts and reading preferences stay in your browser. Notification category choices are stored for your account. Sign-in help requests include the name, group, contact and message you submit; teachers and administrators can see these requests.',
             'Games and the live quiz: participation, answers and results.',
-            'Paid services and Premium: the task text, the amount you are ready to pay, the wanted date, a phone number or Telegram (if you add one), files you attach and the delivered result, the task conversation, your “I paid” note (for example a receipt number), your rating and review, and the period of your Premium. Without contacts and files, a task is shown on the board to workers under a shortened name (for example “Ali V.”) with your group; files and the conversation are seen only by the approved worker and the administrator. Files are deleted 90 days after delivery or at once if the task is cancelled; you can delete a task yourself.',
-            'If you are a worker: your description, directions, applications, completed jobs, ratings and payouts, and your payout details (card or phone) — seen only by the administrator. Clients see your shortened name, number of jobs and rating. You can stop being a worker at any time.',
+            'Paid services: the chosen service, request description, attachments and the administrator’s reply. You and the administrator can see your order. Files can be downloaded for up to 90 days after completion. Subscription data includes when Premium expires.',
+            'Earlier orders may contain past conversations, ratings and payment records. Account deletion also removes previous applications and payout details.',
             'Course access: if you request access to a course (including a paid one) — your name, email, the time of the request and your note, for example a receipt number (seen only by the administrator).',
             'Avatar purchase: the time of your “I paid” request, your note (for example a receipt number) and how long your avatar right lasts.',
             'Notifications: if you turn notifications on — the technical address of your browser or device (push subscription) used to deliver messages.',
@@ -194,7 +195,7 @@ export function privacyDoc(l: LegalLang, w: Who): LegalDoc {
   return {
     title: 'Maxfiylik siyosati',
     lead: `Ushbu siyosat «${APP_NAME}» o‘quv platformasi (sayt va Android ilovasi) qanday ma’lumot yig‘ishi, nima uchun kerakligi va uni qanday o‘chirish mumkinligini tushuntiradi.`,
-    updated: 'Yangilangan: ' + LEGAL_UPDATED,
+    updated: 'Yangilangan: ' + PRIVACY_UPDATED,
     sections: [
       {
         h: '1. Ma’lumotlar uchun kim javobgar',
@@ -211,8 +212,8 @@ export function privacyDoc(l: LegalLang, w: Who): LegalDoc {
           'Siz yaratgan kontent: guruh chatidagi va administrator bilan yozishmadagi xabarlar, yuklagan ishlaringiz (masalan, topshiriq uchun logotip), tanlagan avataringiz.',
           'Shaxsiy qaydlar va belgilangan slaydlar hisobingizga saqlanadi; mahalliy qoralama va o‘qish sozlamalari brauzerda qoladi. Bildirishnoma bo‘yicha tanlovlar hisobga saqlanadi. Kirish bo‘yicha yordam so‘rovida siz yozgan ism, guruh, aloqa va xabar bo‘ladi; ularni o‘qituvchi va administrator ko‘radi.',
           'O‘yinlar va jonli test: ishtirok, javoblar va natijalar.',
-          'Pullik xizmatlar va obuna: vazifa matni, to‘lay oladigan summangiz, kerakli sana, telefon yoki Telegram (yozsangiz), siz biriktirgan fayllar va topshirilgan natija, vazifa bo‘yicha yozishma, «To‘lov qildim» izohingiz (masalan, chek raqami), bahoyingiz va fikringiz hamda obunangiz muddati. Vazifa aloqa ma’lumotlari va fayllarsiz, qisqartirilgan ism (masalan, «Ali V.») va guruh bilan ijrochilarga e’londa ko‘rinadi; fayllar va yozishmani faqat tasdiqlangan ijrochi va administrator ko‘radi. Fayllar ish topshirilgandan 90 kun keyin yoki bekor qilinganda darhol o‘chiriladi; vazifani o‘zingiz ham o‘chira olasiz.',
-          'Ijrochi bo‘lsangiz: o‘zingiz haqingizdagi matn, yo‘nalishlar, arizalaringiz, bajargan ishlar, baholar va o‘tkazilgan pullar hamda pul o‘tkazish ma’lumoti (karta yoki telefon) — uni faqat administrator ko‘radi. Buyurtmachilar qisqartirilgan ismingiz, ishlar soni va reytingingizni ko‘radi. Ijrochilikdan istalgan vaqtda chiqishingiz mumkin.',
+          'Pullik xizmatlar bo‘yicha tanlangan xizmat, buyurtma matni, biriktirilgan fayllar va admin javobi saqlanadi. Buyurtmani siz va admin ko‘rasiz. Fayllarni buyurtma yakunlanganidan keyin 90 kungacha yuklab olish mumkin. Obuna bo‘yicha uning tugash muddati saqlanadi.',
+          'Eski buyurtmalarda yozishmalar, baholar va to‘lov yozuvlari saqlangan bo‘lishi mumkin. Hisob o‘chirilganda avvalgi arizalar va pul o‘tkazish ma’lumotlari ham olib tashlanadi.',
           'Kursga ruxsat: kursga (jumladan pullik kursga) ruxsat so‘rasangiz — ismingiz, emailingiz, so‘rov vaqti va izohingiz, masalan chek raqami (faqat administrator ko‘radi).',
           'Avatar sotib olish: «To‘lov qildim» so‘rovi vaqti, izohingiz (masalan, chek raqami) va avatar huquqi muddati.',
           'Bildirishnomalar: yoqqan bo‘lsangiz — xabar yetkazish uchun brauzeringiz yoki qurilmangizning texnik manzili (push obunasi).',

@@ -188,12 +188,22 @@ export function StudyQuest() {
   else if (mainView === 'library') content = <Library />;
   // eski #slides (AI taqdimot) havolalari ham shu bo'limga olib keladi
   else if ((mainView === 'services' || mainView === 'slides') && !play)
-    // vaqtincha yopiq bo'lim: talabaga — xabar (eski havola va bildirishnomalar uchun), administratorga — bo'limning o'zi
-    content = services || role === 'admin' ? <Services sub={id || ''} /> : <ServicesClosed />;
+    content =
+      services || role === 'admin' || (id === 'mine' && signedIn) ? (
+        <Services key={user?.id || legacy?.id || 'guest'} sub={id || ''} />
+      ) : (
+        <ServicesClosed />
+      );
   else if (mainView === 'arena') content = <Games sub={view.split('/').slice(1).join('/')} />;
   else if (view === 'teacher')
     content = role === 'teacher' || role === 'admin' ? <Staff /> : <AuthPanel />;
-  else if (view === 'admin') content = role === 'admin' ? <Staff admin /> : <AuthPanel />;
+  else if (view === 'admin' || view === 'admin/services')
+    content =
+      role === 'admin' ? (
+        <Staff admin key={view} initialSection={id === 'services' ? 'services' : undefined} />
+      ) : (
+        <AuthPanel />
+      );
   else if (view === 'app')
     content = <InstallApp prompt={install} onInstalled={() => setInstall(null)} />;
   else if (view === 'profile')
@@ -443,7 +453,6 @@ function ServicesClosed() {
   const { lang } = useApp();
   return (
     <section className="panel soft-empty services-closed" role="status">
-      <span aria-hidden="true">💼</span>
       <h1>
         {tr(
           lang,
@@ -452,14 +461,6 @@ function ServicesClosed() {
           'Платные услуги временно закрыты',
         )}
       </h1>
-      <p>
-        {tr(
-          lang,
-          'Bo‘lim qayta ochilganda menyuda yana paydo bo‘ladi. Savollar bo‘lsa — «Talabalar chati → Adminga xabar».',
-          'The section will reappear in the menu when it reopens. Questions — “Chat → Message the admin”.',
-          'Раздел снова появится в меню, когда откроется. Вопросы — «Чат → Сообщение администратору».',
-        )}
-      </p>
       <Button onClick={() => navigate('home')}>
         {tr(lang, 'Bosh sahifaga', 'Go home', 'На главную')}
       </Button>

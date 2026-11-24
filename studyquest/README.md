@@ -41,41 +41,14 @@ For Firebase-backed development, copy `.env.example` to `.env.local`, supply you
   the course page (`#course/<id>/ranking`; the old `#ranking` link still opens it).
 - **Library** (`lib/server/library.ts`): the administrator adds books, guides, articles, videos, laws and templates as
   links with an optional cover; 💎 items hide their link from people without Premium.
-- **💼 Paid services — student marketplace** (`lib/services.ts`, `lib/server/services.ts`, `app/api/services`,
-  `components/services.tsx`): replaces the old AI presentation section (`#slides` now opens it). Students post tasks
-  for each other and earn money; the administrator holds the money in between. Tabs (`#services`, `#services/board`,
-  `#services/mine`, `#services/work`):
-  - **🛒 Order** — a catalog of 13 colourful direction cards (presentation, course paper, graduation thesis, essay,
-    article, book publishing, business plan, website, design, translation, documents, video, other) with group
-    filters, search and how many people used each service. A task has a topic, details, **the amount the student
-    can pay** (5 000 – 50 000 000 so'm; the administrator's usual price is shown as a hint), wanted date, contact
-    and up to 3 attachments of 10 MB. Course papers, theses, essays and articles are **assistance only** (outline,
-    sources, editing, formatting) — the student writes the text.
-  - **📋 Tasks** — the board of open tasks (no contact or files; the client's name is shortened to «Ali V.»).
-    Workers say **«🙋 I'll do it»** with an optional note and see the amount they get (budget minus the platform
-    fee). Workers whose skills match a new task get a push notification.
-  - **📦 My orders** — applicants with their jobs and rating; after the administrator approves a worker the client
-    pays (payment instructions + «I paid» with a receipt note), the administrator confirms the payment and the work
-    starts; the client downloads the result, asks for changes or accepts it with a 1–5 star rating and review.
-  - **💸 Earn / My jobs** — signing up as a worker (skills, about, payout card/phone seen only by the administrator,
-    rules incl. «assistance only» for academic work) and a dashboard: earned, awaiting payout, jobs done, rating,
-    active jobs (client files, chat, upload up to 6 result files of 30 MB or a link, «Deliver»), applications and
-    finished jobs with payout status.
-  - **Admin → 🛠 Site manager → 💼 Paid services**: launch toggle, totals (active tasks, workers, owed to workers,
-    paid out), tasks with a «Needs action» filter (applications to approve, payments to confirm, payouts due),
-    approve/replace the worker, confirm payment, status overrides, cancel with a reason, delete, files and chat;
-    **payout** form (defaults to budget minus the fee) — the administrator transfers the money and marks it paid;
-    workers list with payout details and suspend/restore; directions (usual price, timing, closed); payment
-    instructions and platform fee (0–50 %).
-    Until the administrator presses **🚀 Launch** (`site/serviceInfo/open`), students see a «🚀 Launching soon» window:
-    they tick the services they need and write a suggestion, which arrives in «Message the admin» as a 💡 idea, and can
-    already sign up as workers; tasks are refused (the administrator can still post test tasks). Storage (server-only
-    RTDB): `site/serviceOrders/<user>/<id>`, `site/serviceWorkers/<user>`, files in 2.5 MB base64 parts in
-    `site/serviceFiles/<user>/<file>/<n>` (Vercel's 4.5 MB request limit, joined in the browser on download),
-    `site/serviceStats|serviceInterest/<kind>/<user>` for the counters. Files of cancelled tasks are deleted at once and
-    results 90 days after completion; account deletion removes the user's tasks, files, counters, worker profile and
-    applications. Status changes send push notifications. The section is hidden inside the Play Store app
-    (`/?src=play`): Google Play does not allow steering to external payments.
+- **Paid services** (`lib/server/services.ts`, `components/services.tsx`): choose a service at `#services`,
+  describe the request and optionally attach up to three files of 10 MB each. The request goes to
+  **Admin → Site manager → Paid services** after the attachments finish uploading. The administrator
+  sends a reply with text, an optional link or up to six files of 30 MB each. The customer can open it
+  in **My orders** (`#services/mine`) and receives a push notification if enabled. The administrator
+  can close intake and change the catalog, prices and turnaround hints. Earlier orders remain
+  accessible to their owners and the administrator. The section is hidden inside the Play Store app
+  (`/?src=play`).
 - **Premium** (`lib/server/premium.ts`): until a payment provider is connected the administrator grants a timed
   subscription by hand and writes the price and payment instructions. Inside the Play Store app (`/?src=play`) the
   offer shows no price or payment instructions (`lib/play-app.ts`) — Google Play does not allow steering to external
@@ -200,7 +173,7 @@ This implementation is ready for a configured staging review. Real Firebase sign
 - Original learning content remains Uzbek. Interface navigation and key learning flows support three languages; teacher-created content and the small practice activities retain their authored language.
 - Uploads currently support PDF, PNG, and JPEG up to 4 MiB. Uploaded files download through an authorized API; original PDFs/video remain in their existing presentation viewer.
 - Practice mini-games are local exercises and award no points. Live multiplayer Quiz Battle uses the existing arena rather than a new matchmaking service. Top Student badges are teacher-approved.
-- Payments, subscriptions, marketplace checkout, push delivery, arbitrary file formats, and offline lesson synchronization are future integrations. No billing or purchases are simulated.
+- Online checkout for service orders, arbitrary file formats, and offline lesson synchronization are future integrations. No billing or purchases are simulated.
 - Original static lesson files remain publicly addressable, as on the existing website. Future paid materials should use the protected API and Storage, rather than public legacy HTML files.
 
 In managed environments that proxy HTTP, run local browser checks with

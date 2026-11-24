@@ -40,9 +40,16 @@ export type BoSection =
   | 'services';
 const KEY = 'sq-bo-section';
 
-export function BackOffice({ openTab }: { openTab: (tab: string) => void }) {
+export function BackOffice({
+  openTab,
+  initialSection,
+}: {
+  openTab: (tab: string) => void;
+  initialSection?: BoSection;
+}) {
   const L = useL();
   const [section, setSection] = useState<BoSection | null>(() => {
+    if (initialSection) return initialSection;
     if (typeof window === 'undefined') return null;
     try {
       return (sessionStorage.getItem(KEY) as BoSection) || null;
@@ -176,9 +183,9 @@ export function BackOffice({ openTab }: { openTab: (tab: string) => void }) {
       icon: '💼',
       title: L('Pullik xizmatlar', 'Paid services', 'Платные услуги'),
       text: L(
-        'Talabalar ish bozori: arizalardan ijrochini tasdiqlash, to‘lovni tasdiqlash, ish nazorati va ijrochilarga pul o‘tkazish. Ijrochilar, yo‘nalishlar, to‘lov yo‘riqnomasi va platforma ulushi.',
-        'Student marketplace: approve a worker from the applications, confirm payment, oversee the work and pay workers. Workers, directions, payment instructions and platform fee.',
-        'Биржа студентов: утверждение исполнителя, подтверждение оплаты, контроль работы и выплаты исполнителям. Исполнители, направления, инструкция по оплате и комиссия.',
+        'Kelgan buyurtmalarni ko‘ring, javob va tayyor fayllarni yuboring.',
+        'Review incoming orders and send replies and completed files.',
+        'Просматривайте поступившие заказы и отправляйте ответы и готовые файлы.',
       ),
     },
     {

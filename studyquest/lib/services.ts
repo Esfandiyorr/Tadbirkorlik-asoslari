@@ -1,27 +1,9 @@
-/* 💼 Pullik xizmatlar: talaba kerakli ishini yozib buyurtma beradi, jamoa narx aytadi, talaba to'laydi, jamoa ishni
-   tayyorlab yuklaydi, talaba shu yerdan yuklab oladi. Server — lib/server/services.ts. Brauzer va server uchun umumiy
-   turlar, yo'nalishlar katalogi va fayl qoidalari shu yerda. */
-
 export type Tri = [string, string, string];
-
-/** Katalogdagi guruh (kartadagi kichik yorliq va saralash tugmalari). */
-export const SERVICE_GROUPS = {
-  study: ['O‘qish', 'Study', 'Учёба'],
-  create: ['Ijod', 'Creative', 'Творчество'],
-  tech: ['Texnologiya', 'Tech', 'Технологии'],
-  business: ['Biznes', 'Business', 'Бизнес'],
-} satisfies Record<string, Tri>;
-export type ServiceGroup = keyof typeof SERVICE_GROUPS;
 
 /** Yo'nalish. help — ilmiy ish: jamoa yozib bermaydi, yordam beradi (reja, manbalar, tahrir, rasmiylashtirish). */
 export type ServiceKind = {
   id: string;
   icon: string;
-  /** katalog kartasidagi katta rasm (emoji) */
-  art: string;
-  group: ServiceGroup;
-  /** kartaning rang o'tishi: [to'q (matn ostida), och] */
-  tone: [string, string];
   name: Tri;
   text: Tri;
   /** buyurtma shaklidagi «Nima kerak?» maydoni uchun misol */
@@ -33,9 +15,6 @@ export const SERVICE_KINDS: ServiceKind[] = [
   {
     id: 'taqdimot',
     icon: '🎞',
-    art: '📊',
-    group: 'study',
-    tone: ['#c2410c', '#fb923c'],
     name: ['Taqdimot', 'Presentation', 'Презентация'],
     text: [
       'Mavzuingiz bo‘yicha chiroyli dizayndagi PowerPoint taqdimot',
@@ -51,9 +30,6 @@ export const SERVICE_KINDS: ServiceKind[] = [
   {
     id: 'kurs-ishi',
     icon: '📘',
-    art: '📘',
-    group: 'study',
-    tone: ['#1d4ed8', '#60a5fa'],
     name: ['Kurs ishi', 'Course paper', 'Курсовая работа'],
     text: [
       'Reja, manbalar, tahrir, GOST bo‘yicha rasmiylashtirish va antiplagiat tekshiruvi',
@@ -70,9 +46,6 @@ export const SERVICE_KINDS: ServiceKind[] = [
   {
     id: 'bmi',
     icon: '🎓',
-    art: '🎓',
-    group: 'study',
-    tone: ['#6d28d9', '#c084fc'],
     name: ['BMI (bitiruv malakaviy ishi)', 'Graduation thesis', 'ВКР (выпускная работа)'],
     text: [
       'Reja va tuzilma, manbalar, ilmiy tahrir, rasmiylashtirish, himoya taqdimoti',
@@ -89,9 +62,6 @@ export const SERVICE_KINDS: ServiceKind[] = [
   {
     id: 'referat',
     icon: '📄',
-    art: '📝',
-    group: 'study',
-    tone: ['#0f766e', '#2dd4bf'],
     name: ['Referat va mustaqil ish', 'Essay and assignment', 'Реферат и самостоятельная'],
     text: [
       'Reja, adabiyotlar ro‘yxati, tahrir va to‘g‘ri rasmiylashtirish',
@@ -108,9 +78,6 @@ export const SERVICE_KINDS: ServiceKind[] = [
   {
     id: 'maqola',
     icon: '📰',
-    art: '🔬',
-    group: 'study',
-    tone: ['#0369a1', '#38bdf8'],
     name: ['Ilmiy maqola', 'Research article', 'Научная статья'],
     text: [
       'Tahrir, annotatsiya va tarjima, jurnal talablariga moslab rasmiylashtirish',
@@ -127,9 +94,6 @@ export const SERVICE_KINDS: ServiceKind[] = [
   {
     id: 'kitob',
     icon: '📚',
-    art: '📚',
-    group: 'create',
-    tone: ['#be185d', '#f472b6'],
     name: ['Kitob chiqarish', 'Book publishing', 'Издание книги'],
     text: [
       'Sahifalash, muqova dizayni, tahrir va nashrga (bosmaxonaga) tayyorlash',
@@ -145,9 +109,6 @@ export const SERVICE_KINDS: ServiceKind[] = [
   {
     id: 'biznes-reja',
     icon: '💼',
-    art: '💼',
-    group: 'business',
-    tone: ['#15803d', '#4ade80'],
     name: ['Biznes-reja', 'Business plan', 'Бизнес-план'],
     text: [
       'G‘oyangiz uchun hisob-kitobli biznes-reja: bozor, xarajat, daromad',
@@ -163,9 +124,6 @@ export const SERVICE_KINDS: ServiceKind[] = [
   {
     id: 'sayt',
     icon: '🌐',
-    art: '🌐',
-    group: 'tech',
-    tone: ['#4338ca', '#818cf8'],
     name: ['Sayt yaratish', 'Website', 'Создание сайта'],
     text: [
       'Vizitka sayt, portfolio yoki kichik onlayn do‘kon',
@@ -181,9 +139,6 @@ export const SERVICE_KINDS: ServiceKind[] = [
   {
     id: 'dizayn',
     icon: '🎨',
-    art: '🎨',
-    group: 'create',
-    tone: ['#a21caf', '#e879f9'],
     name: ['Dizayn', 'Design', 'Дизайн'],
     text: [
       'Logotip, banner, poster, vizitka va ijtimoiy tarmoq uchun rasmlar',
@@ -199,9 +154,6 @@ export const SERVICE_KINDS: ServiceKind[] = [
   {
     id: 'tarjima',
     icon: '🌍',
-    art: '🌍',
-    group: 'study',
-    tone: ['#0e7490', '#22d3ee'],
     name: ['Tarjima', 'Translation', 'Перевод'],
     text: [
       'O‘zbek, rus va ingliz tillari o‘rtasida matn va hujjat tarjimasi',
@@ -217,9 +169,6 @@ export const SERVICE_KINDS: ServiceKind[] = [
   {
     id: 'hujjat',
     icon: '📝',
-    art: '🗂️',
-    group: 'business',
-    tone: ['#b45309', '#fbbf24'],
     name: ['Hujjat va rasmiylashtirish', 'Documents and formatting', 'Документы и оформление'],
     text: [
       'Word va Excel’da matnni tartiblash, jadval, rezyume, ariza va xatlar',
@@ -235,9 +184,6 @@ export const SERVICE_KINDS: ServiceKind[] = [
   {
     id: 'video',
     icon: '🎬',
-    art: '🎬',
-    group: 'create',
-    tone: ['#be123c', '#fb7185'],
     name: ['Video montaj', 'Video editing', 'Видеомонтаж'],
     text: [
       'Taqdimot videosi, reklama roligi, subtitr va musiqa qo‘shish',
@@ -253,9 +199,6 @@ export const SERVICE_KINDS: ServiceKind[] = [
   {
     id: 'boshqa',
     icon: '✨',
-    art: '🚀',
-    group: 'business',
-    tone: ['#334155', '#94a3b8'],
     name: ['Boshqa xizmat', 'Something else', 'Другая услуга'],
     text: [
       'Ro‘yxatda yo‘q ishni yozing — imkoni bo‘lsa, tayyorlab beramiz',
@@ -271,59 +214,18 @@ export const SERVICE_KINDS: ServiceKind[] = [
 ];
 export const serviceKind = (id: string) => SERVICE_KINDS.find((k) => k.id === id);
 
-/** Administrator yo'nalish uchun yozadigan narx («50 000 so'mdan») va muddat («3–5 kun»), yoki yo'nalishni yopadi. */
+/** Xizmatning katalogdagi narxi, muddati va mavjudligi. */
 export type ServiceSetting = { price?: string; days?: string; off?: boolean };
-/** Katalogdagi yo'nalish: asosiy ma'lumot + administrator sozlamasi + nechta odam foydalangani / kutayotgani. */
-export type ServiceCard = ServiceKind &
-  ServiceSetting & {
-    /** shu xizmatga buyurtma bergan foydalanuvchilar soni */
-    used: number;
-    /** «tez orada» paytida shu xizmatni kutayotganini bildirganlar soni */
-    wants: number;
-  };
+export type ServiceCard = ServiceKind & ServiceSetting;
 
-/** Buyurtma holati. */
-export const SERVICE_STATUSES = [
-  'open',
-  'assigned',
-  'paid',
-  'work',
-  'review',
-  'done',
-  'cancel',
-] as const;
-export type ServiceStatus = (typeof SERVICE_STATUSES)[number];
-/** Vazifa yo'li: e'lon (ijrochilar ariza beradi) → administrator ijrochini tasdiqlaydi → buyurtmachi to'laydi →
-    administrator to'lovni tasdiqlaydi → ijrochi bajaradi → buyurtmachi tekshirib qabul qiladi (baho) → administrator
-    ijrochiga pulini o'tkazadi. */
-export const STATUS_LABEL: Record<ServiceStatus, [string, Tri]> = {
-  open: ['📣', ['Ijrochi qidirilmoqda', 'Looking for a worker', 'Ищем исполнителя']],
-  assigned: ['💳', ['To‘lov kutilmoqda', 'Awaiting payment', 'Ожидает оплаты']],
-  paid: ['🔎', ['To‘lov tekshirilmoqda', 'Checking payment', 'Проверка оплаты']],
-  work: ['🛠', ['Bajarilmoqda', 'In progress', 'В работе']],
-  review: ['👀', ['Tekshirish kerak', 'Ready for review', 'Нужна проверка']],
-  done: ['✅', ['Yakunlandi', 'Completed', 'Завершён']],
-  cancel: ['✖', ['Bekor qilingan', 'Cancelled', 'Отменён']],
-};
-/** Vazifa hali tugamagan (buyurtmachi bir vaqtda ko'pi bilan ACTIVE_MAX tasini ochiq tutadi). */
-export const isActive = (s: ServiceStatus) => s !== 'done' && s !== 'cancel';
-export const ACTIVE_MAX = 5;
-/** Buyurtmachi yozadigan summa (so'm). */
-export const BUDGET_MIN = 5000;
-export const BUDGET_MAX = 50_000_000;
-/** 150000 → «150 000 so'm». */
-export const formatSum = (n: number) =>
-  Math.round(n)
-    .toString()
-    .replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' so‘m';
-/** «Ali Valiyev» → «Ali V.» (vazifalar e'lonida va ijrochilar ro'yxatida to'liq ism ko'rsatilmaydi). */
-export function maskName(name: string) {
-  const [first, ...rest] = String(name || '')
-    .trim()
-    .split(/\s+/);
-  const last = rest.find(Boolean);
-  return (first || 'Talaba') + (last ? ' ' + last[0].toUpperCase() + '.' : '');
-}
+export const STATUS_LABEL = {
+  new: ['Yuborildi', 'Received', 'Получен'],
+  work: ['Tayyorlanmoqda', 'In progress', 'В работе'],
+  done: ['Javob tayyor', 'Reply ready', 'Ответ готов'],
+  cancel: ['Bekor qilindi', 'Cancelled', 'Отменён'],
+} satisfies Record<string, Tri>;
+export type ServiceStatus = keyof typeof STATUS_LABEL;
+export const isActive = (s: ServiceStatus) => s === 'new' || s === 'work';
 
 /* ---------- 📎 fayllar ---------- */
 /** Vercel bitta so'rovda 4,5 MB dan ortiq qabul qilmaydi — fayl 2,5 MB lik bo'laklarga bo'linib yuklanadi va
@@ -360,7 +262,7 @@ export const FILE_ACCEPT = Object.keys(FILE_TYPES)
   .join(',');
 export const fileExt = (name: string): FileExt | null => {
   const ext = /\.([a-z0-9]+)$/i.exec(name.trim())?.[1]?.toLowerCase();
-  return ext && ext in FILE_TYPES ? (ext as FileExt) : null;
+  return ext && Object.hasOwn(FILE_TYPES, ext) ? (ext as FileExt) : null;
 };
 /** 3 456 789 → «3,3 MB». */
 export function fileSize(n: number) {
@@ -376,144 +278,51 @@ export type OrderFile = {
   ext: FileExt;
   size: number;
   chunks: number;
-  at: number;
+  ready: boolean;
 };
 export type OrderMsg = {
   id: string;
-  /** user — buyurtmachi, worker — ijrochi, team — administrator */
   from: 'user' | 'worker' | 'team';
   text: string;
   at: number;
 };
-/** «Men qilaman» degan ijrochi. */
-export type Applicant = {
-  uk: string;
-  name: string;
-  note?: string;
-  at: number;
-  jobs: number;
-  rating: number | null;
-};
 
 export type ServiceOrder = {
   id: string;
-  /** buyurtmachi (foydalanuvchi kaliti) */
   uk: string;
   kind: string;
   title: string;
   text: string;
-  /** buyurtmachi to'lay oladigan summa (so'm) */
-  budget: number;
-  /** talaba xohlagan muddat (YYYY-MM-DD) */
-  due?: string;
-  /** telefon yoki Telegram (faqat buyurtmachi va administratorga) */
-  contact?: string;
   status: ServiceStatus;
   at: number;
   upd: number;
-  /** ariza bergan ijrochilar */
-  apps: Applicant[];
-  /** administrator tasdiqlagan ijrochi */
-  worker?: { uk: string; name: string; jobs: number; rating: number | null };
-  paidAt?: number;
-  paidNote?: string;
-  deliveredAt?: number;
-  doneAt?: number;
-  /** bekor qilish sababi */
-  reason?: string;
-  /** natija havolasi (katta fayl, sayt manzili, Google Drive …) */
+  reply?: string;
   link?: string;
-  /** fayllar muddati o'tib o'chirilgan */
+  reason?: string;
   expired?: boolean;
-  /** buyurtmachining bahosi (1–5) va fikri */
-  rating?: number;
-  review?: string;
-  /** administrator ijrochiga o'tkazgan pul */
-  payout?: { amount: number; at: number; note?: string };
   files: OrderFile[];
   msgs: OrderMsg[];
 };
-/** Administrator ko'radigan vazifa: buyurtmachi ma'lumotlari bilan. */
+
 export type AdminOrder = ServiceOrder & {
   name: string;
   group?: string;
-  email?: string;
-  role?: string;
-};
-/** Vazifalar e'loni (ijrochilar ko'radi): buyurtmachining to'liq ismi, aloqasi va fayllari ko'rinmaydi. */
-export type BoardTask = {
-  id: string;
-  uk: string;
-  kind: string;
-  title: string;
-  text: string;
-  budget: number;
+  /** Avvalgi buyurtmalardagi ma’lumotlar. */
+  budget?: number;
+  paidNote?: string;
+  contact?: string;
   due?: string;
-  at: number;
-  /** nechta ijrochi ariza bergan */
-  apps: number;
-  /** men ariza berganmanmi (va izohim) */
-  applied?: { note?: string; at: number };
-  /** bu mening vazifam */
-  own?: boolean;
-  by: string;
-  group?: string;
 };
-/** Ijrochi (ishlaydigan talaba). pay — pul o'tkazish uchun ma'lumot: faqat o'ziga va administratorga. */
-export type WorkerProfile = {
-  uk: string;
-  name: string;
-  group?: string;
-  about: string;
-  skills: string[];
-  at: number;
-  status: 'active' | 'blocked';
-  jobs: number;
-  rating: number | null;
-  /** o'tkazib berilgan jami summa */
-  earned: number;
-  /** qabul qilingan, lekin hali o'tkazilmagan */
-  pending: number;
-  pay?: string;
-};
-/** Eng faol ijrochilar (sahifadagi ro'yxat). */
-export type TopWorker = { name: string; jobs: number; rating: number | null; skills: string[] };
 
 export type ServicesView = {
-  /** bo'lim ishga tushganmi; yo'q bo'lsa — «tez orada» oynasi va taklif yuborish, buyurtma qabul qilinmaydi */
-  open: boolean;
-  /** 🔒 bo'lim menyuda ko'rinadimi; yo'q bo'lsa — vaqtincha yopiq (faqat administrator ko'radi) */
   shown: boolean;
   catalog: ServiceCard[];
-  /** xizmatlardan foydalangan / kutayotgan odamlar soni (har biri bir marta sanaladi) */
-  people: number;
-  fans: number;
-  /** platforma ulushi (%): ijrochi summaning qolganini oladi */
-  fee: number;
-  stats: { tasks: number; workers: number; done: number };
-  top: TopWorker[];
   signedIn: boolean;
-  /** to'lov yo'riqnomasi (faqat kirgan foydalanuvchiga) */
-  how?: string;
-  /** mening vazifalarim (buyurtmachi sifatida) */
   orders?: ServiceOrder[];
-  /** ochiq vazifalar e'loni */
-  board?: BoardTask[];
-  /** ijrochi profilim (yo'q bo'lsa — null) */
-  me?: WorkerProfile | null;
-  /** ijrochi sifatidagi ishlarim (menga tasdiqlangan vazifalar) */
-  jobs?: ServiceOrder[];
 };
+
 export type ServicesAdminView = {
-  open: boolean;
   shown: boolean;
-  fee: number;
   catalog: ServiceCard[];
-  people: number;
-  fans: number;
-  how: string;
   orders: AdminOrder[];
-  workers: WorkerProfile[];
-  /** saqlangan fayllarning umumiy hajmi */
-  used: number;
 };

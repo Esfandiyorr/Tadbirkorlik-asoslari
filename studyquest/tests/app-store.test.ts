@@ -12,7 +12,7 @@ import {
   requestDeletion,
 } from '../lib/server/app-store';
 import { adminServices, manageServices } from '../lib/server/services';
-import { resetSiteMemory, siteGet } from '../lib/server/site-content';
+import { resetSiteMemory, siteGet, siteUpdate } from '../lib/server/site-content';
 import {
   subscribePush,
   pushSubs,
@@ -134,18 +134,20 @@ it('a student asks to delete the account, may cancel, and the administrator eras
   };
   await subscribePush(ali, dev);
   await adminServices(admin, { op: 'show', shown: true });
-  await adminServices(admin, { op: 'launch', open: true });
   await manageServices(
     ali,
     {
-      op: 'order',
+      op: 'draft',
+      id: 'testorder1',
       kind: 'taqdimot',
-      title: 'Sinov',
       text: 'Sinov buyurtmasining matni',
-      budget: 50000,
+      files: [],
     },
     now,
   );
+  await manageServices(ali, { op: 'submit', id: 'testorder1' }, now);
+  // Old marketplace records are still removed on account deletion.
+  await siteUpdate({ 'serviceStats/taqdimot/legacy_ali': now });
   expect(await siteGet('serviceOrders/legacy_ali')).toBeTruthy();
   expect(await siteGet('serviceStats/taqdimot/legacy_ali')).toBeTruthy();
   expect((await appAdmin(admin)).requests.map((r) => r.uid)).toEqual(['legacy_ali', 'legacy_vali']);

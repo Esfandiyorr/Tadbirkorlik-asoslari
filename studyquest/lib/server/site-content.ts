@@ -49,6 +49,33 @@ export async function siteUpdate(o: Record<string, unknown>) {
   await legacyDb().ref('site').update(o);
 }
 
+export async function siteTransaction<T>(path: string, change: (current: T | null) => T | null) {
+  if (demo()) {
+    const { parent, key } = walk(path, true);
+    const value = change(structuredClone((parent![key] as T | undefined) ?? null));
+    if (value === null) delete parent![key];
+    else parent![key] = structuredClone(value);
+    return value;
+  }
+  let rejected: unknown;
+  const result = await legacyDb()
+    .ref('site/' + path)
+    .transaction(
+      (current: T | null) => {
+        try {
+          return change(current);
+        } catch (e) {
+          rejected = e;
+          return undefined;
+        }
+      },
+      undefined,
+      false,
+    );
+  if (rejected) throw rejected;
+  return result.snapshot.val() as T | null;
+}
+
 /* ---------- 📝 Mavzu testlari ---------- */
 
 export type TopicQuestion = { q: string; a?: string[]; c?: number; o?: string[]; e?: string };
