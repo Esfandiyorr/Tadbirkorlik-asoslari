@@ -45,7 +45,7 @@ export type AvatarMe = {
   premium?: boolean;
   /** 💳 sotib olingan muddat tugash vaqti */
   pass?: number | null;
-  via?: 'top' | 'allow' | 'premium' | 'pass' | null;
+  via?: 'top' | 'allow' | 'premium' | 'pass' | 'admin' | null;
   /** huquq tugagani uchun bo'shatilgan avatar (bir marta ko'rsatiladi) */
   lost?: { a: string; at: number } | null;
   /** «to'lov qildim» so'rovi yuborilgan vaqt */
@@ -129,6 +129,8 @@ export const avatarName = (id: string, lang: Lang) => {
 /** Talaba holatiga qarab izoh: nega tanlay oladi yoki ololmaydi. */
 function eligibility(me: AvatarMe | null, lang: Lang) {
   if (!me) return '';
+  if (me.via === 'admin')
+    return tr(lang, 'Avatar tanlang.', 'Choose an avatar.', 'Выберите аватар.');
   if (me.can && (me.via === 'premium' || me.via === 'pass'))
     return me.via === 'premium'
       ? tr(
@@ -348,10 +350,14 @@ export function AvatarPicker({ board, onClose }: { board: AcademicBoard; onClose
             </span>
             <div className="av-detail-body">
               <h3>{avatarName(sel, lang)}</h3>
-              <b className="av-detail-h">
-                📜 {L('Avatar qo‘yish shartlari', 'Avatar rules', 'Условия аватара')}
-              </b>
-              <AvatarRules lang={lang} />
+              {me?.via !== 'admin' && (
+                <>
+                  <b className="av-detail-h">
+                    📜 {L('Avatar qo‘yish shartlari', 'Avatar rules', 'Условия аватара')}
+                  </b>
+                  <AvatarRules lang={lang} />
+                </>
+              )}
               {me ? (
                 <p className={'av-detail-status' + (me.can ? ' ok' : '')}>
                   {eligibility(me, lang)}
@@ -384,7 +390,7 @@ export function AvatarPicker({ board, onClose }: { board: AcademicBoard; onClose
         ) : (
           <ul className="av-grid">
             {(board.avatars.catalog || avatarList()).map(({ id }) => {
-              const owner = owners[id],
+              const owner = me?.via === 'admin' ? undefined : owners[id],
                 mine = me?.avatar === id,
                 taken = !!owner && !mine;
               const state = mine ? 'mine' : taken ? 'taken' : me?.can ? 'free' : 'locked';
@@ -419,7 +425,7 @@ export function AvatarPicker({ board, onClose }: { board: AcademicBoard; onClose
                       ) : taken ? (
                         <>
                           <Lock size={12} /> {L('Band', 'Taken', 'Занят')}
-                          {names[owner] ? ' · ' + names[owner] : ''}
+                          {owner && names[owner] ? ' · ' + names[owner] : ''}
                         </>
                       ) : me?.can ? (
                         <>

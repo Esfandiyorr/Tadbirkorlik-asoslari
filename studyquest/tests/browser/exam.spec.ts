@@ -207,7 +207,11 @@ test('Premium: shown in the news box with its perks; any amount and a receipt; o
   // profilda ham: obuna bo'lganlarga nimalar ochiladi
   await student.goto('/#profile', { waitUntil: 'domcontentloaded' });
   const card = student.locator('.premium-card');
+  const profileMark = student
+    .locator('.profile-hero-id')
+    .getByRole('img', { name: 'Faol Premium obuna' });
   await expect(card).toContainText('Obuna bo‘lganlarga quyidagilar ochiladi');
+  await expect(profileMark).toHaveCount(0);
   await expect(card).toContainText('Profil bezagi');
   await card.getByRole('button', { name: /Obuna bo‘lish/ }).click();
   const offer = student.getByRole('dialog');
@@ -253,6 +257,7 @@ test('Premium: shown in the news box with its perks; any amount and a receipt; o
 
   // obunachi: 5 xil bezakdan birini tanlaydi
   await student.reload({ waitUntil: 'domcontentloaded' });
+  await expect(profileMark).toBeVisible();
   const looks = card.getByRole('radio');
   await expect(looks).toHaveCount(5);
   await expect(looks.first()).toHaveAttribute('aria-checked', 'true');
@@ -262,15 +267,23 @@ test('Premium: shown in the news box with its perks; any amount and a receipt; o
   await expect(student.locator('.rk-row.me')).toHaveClass(/pm-olov/);
   await expect(student.locator('.rk-row.me .pm-chip')).toHaveText('🔥');
   // obunachiga e'lonlar qutisida Premium taklifi chiqmaydi
+  await student.setViewportSize({ width: 390, height: 844 });
   await student.goto('/#home', { waitUntil: 'domcontentloaded' });
+  const homeMark = student
+    .locator('.home-banner h1')
+    .getByRole('img', { name: 'Faol Premium obuna' });
+  await expect(homeMark).toBeInViewport();
   await expect(student.locator('.news-premium')).toHaveCount(0);
-  await student.context().close();
   // tozalash: obunani olib tashlash
   const me = await (await page.request.get('/api/platform?view=premiumAdmin')).json();
   for (const g of me.grants as { uid: string }[])
     await page.request.post('/api/platform', {
       data: { action: 'premiumAdmin', input: { op: 'revoke', uid: g.uid } },
     });
+  await student.reload({ waitUntil: 'domcontentloaded' });
+  await expect(student.locator('.hero-avatar:visible')).toBeVisible();
+  await expect(homeMark).toHaveCount(0);
+  await student.context().close();
   await reset(page);
 });
 

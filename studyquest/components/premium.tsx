@@ -5,6 +5,7 @@ import {
   BookOpen,
   Clapperboard,
   Crown,
+  Gem,
   LibraryBig,
   Palette,
   UserRound,
@@ -52,6 +53,16 @@ export function PremiumBadge({ state }: { state: PremiumState | null | undefined
         ? tr(lang, 'Hammasi ochiq', 'Full access', 'Полный доступ')
         : tr(lang, 'Obuna', 'Premium', 'Подписка') +
           (state.until ? ' · ' + dueText(state.until, lang, Date.now()).date : '')}
+    </span>
+  );
+}
+
+export function SubscriberMark() {
+  const { lang } = useApp();
+  const label = tr(lang, 'Faol Premium obuna', 'Active Premium subscription', 'Активная подписка');
+  return (
+    <span className="subscriber-mark" role="img" aria-label={label} title={label}>
+      <Gem aria-hidden="true" />
     </span>
   );
 }
@@ -145,10 +156,13 @@ export function PremiumOffer({
 }
 
 /** 💎 Profil sahifasidagi Premium kartasi: obunachi — bezagini tanlaydi (5 xil); obunasi yo'q — taklif. */
-export function PremiumCard({ name }: { name: string }) {
+export function PremiumCard({
+  name,
+  premium,
+  reload,
+}: { name: string } & ReturnType<typeof usePremium>) {
   const { lang, call, toast } = useApp();
   const L = (uz: string, en: string, ru: string) => tr(lang, uz, en, ru);
-  const { premium, reload } = usePremium();
   const [offer, setOffer] = useState(false);
   const [busy, setBusy] = useState('');
   if (!premium || premium.state.staff) return null;

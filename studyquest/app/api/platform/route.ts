@@ -21,8 +21,8 @@ import { demoTopicAccess, setTopicMode, topicAccessList } from '@/lib/server/top
 import { Platform } from '@/lib/server/platform';
 import { Academic, academicRecord } from '@/lib/server/academic';
 import {
+  accountAvatarView,
   avatarAdminView,
-  avatarView,
   manageAvatars,
   orderAvatar,
   pickAvatar,
@@ -245,10 +245,9 @@ export async function GET(req: NextRequest) {
       // 🔄 huquqi tugaganlarning (top-10 dan tushgan, obuna/sotib olingan muddati tugagan) avatari bo'shatiladi
       const avatars = await releaseStale(board, stored, catalog).catch(() => stored);
       // Reyting qatorlarida amaldagi avatar; talabaga — o'rni va avatar tanlash huquqi; kutubxona ro'yxati.
-      return NextResponse.json(
-        avatarView(board, avatars, a.role === 'student' ? a.id : undefined, catalog),
-        { headers: { 'Cache-Control': 'no-store' } },
-      );
+      return NextResponse.json(await accountAvatarView(a, board, avatars, catalog), {
+        headers: { 'Cache-Control': 'no-store' },
+      });
     }
     if (req.nextUrl.searchParams.get('view') === 'liveAdmin') {
       return NextResponse.json(await liveAdmin(await actor(req, true)), {

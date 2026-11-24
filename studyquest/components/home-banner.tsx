@@ -1,9 +1,9 @@
 'use client';
-import { CalendarClock, ClipboardCheck, Gem, Keyboard, Radio } from 'lucide-react';
+import { CalendarClock, ClipboardCheck, Keyboard, Radio } from 'lucide-react';
 import { useApp } from './provider';
 import { HeroAvatar, type AcademicBoard } from './avatars';
 import { canJoinLive, gameName, gamePath, useNews, type LiveGame } from './announcements';
-import { usePremium } from './premium';
+import { SubscriberMark } from './premium';
 import { accessOf, topicPoints, tr } from '@/lib/points';
 import type { Data, Lang, Lesson } from '@/lib/types';
 
@@ -110,6 +110,7 @@ export function HomeBanner({
   name,
   board,
   avatarSpot,
+  premium,
   lessons,
   open,
 }: {
@@ -117,15 +118,15 @@ export function HomeBanner({
   board: AcademicBoard;
   /** avatar joyi (faqat talabaga) */
   avatarSpot: boolean;
+  /** faol Premium obunachi — ism oldida Premium belgisi */
+  premium: boolean;
   lessons: Lesson[];
   open: (l: Lesson) => void;
 }) {
   const { data, lang } = useApp();
   const { data: news, now } = useNews();
-  const { premium } = usePremium();
   const n = now();
   const plans = todayPlans(data!, lessons, news?.live || null, lang, open, n);
-  const gem = !!premium?.state.active && !premium.state.staff;
   return (
     <section className={'home-banner' + (avatarSpot ? ' has-avatar-spot' : '')}>
       <div className="hb-main">
@@ -133,15 +134,7 @@ export function HomeBanner({
           <CalendarClock size={15} aria-hidden="true" /> {todayLabel(lang, n)}
         </p>
         <h1 className="hb-name">
-          {gem && (
-            <span
-              className="hb-gem"
-              role="img"
-              aria-label={tr(lang, 'Premium obunachi', 'Premium member', 'Подписчик Premium')}
-            >
-              <Gem size={16} />
-            </span>
-          )}
+          {premium && <SubscriberMark />}
           <span>{name}</span>
         </h1>
         <div className="hb-plans">

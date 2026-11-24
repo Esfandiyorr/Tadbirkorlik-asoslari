@@ -1,6 +1,8 @@
 import { beforeAll, beforeEach, expect, it } from 'vitest';
 import type { Actor } from '../lib/types';
+import { BUILTIN_AVATARS } from '../lib/avatars';
 import { FINAL, parseQuestions } from '../lib/exam';
+import { pickAvatar } from '../lib/server/avatars';
 import { examAct, examAdmin, examAdminAct, examCert, examView, keyOf } from '../lib/server/exam';
 import {
   adminServices,
@@ -173,6 +175,11 @@ it('Premium: any amount and a receipt; the administrator opens it for 1 month or
   await expect(manageServices(vali, { op: 'buy', product: 'premium-oy' })).rejects.toThrow('yo‘q');
   const id = await pay(vali, 'premium', 3000);
   expect((await premiumState(vali, NOW)).active).toBe(false);
+  await expect(pickAvatar(vali, [], { avatar: 'joy' }, BUILTIN_AVATARS, NOW)).rejects.toMatchObject(
+    {
+      status: 403,
+    },
+  );
   // «💎 Obuna» sahifasida: chek yuborganlar ro'yxati
   let pm = await premiumAdmin(admin, NOW);
   expect(pm.pending).toMatchObject([
@@ -183,6 +190,8 @@ it('Premium: any amount and a receipt; the administrator opens it for 1 month or
   const st = await premiumState(vali, NOW);
   expect(st.active).toBe(true);
   expect(st.until).toBe(NOW + 365 * 86400000);
+  const view = await pickAvatar(vali, [], { avatar: 'joy' }, BUILTIN_AVATARS, NOW);
+  expect(view.avatars.me).toMatchObject({ place: 0, via: 'premium', premium: true, avatar: 'joy' });
   expect((await servicesView(vali, NOW)).orders!.find((o) => o.id === id)!.days).toBe(365);
   // ikkinchi chek — 1 oy, muddat ustiga qo'shiladi
   const id2 = await pay(vali, 'premium', 5000, NOW + 1000);

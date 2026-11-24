@@ -120,12 +120,11 @@
   font-weight: 800;
   overflow-wrap: anywhere;
 }
-.hb-gem {
+.hb-name .subscriber-mark {
   flex: none;
-  display: grid;
-  place-items: center;
-  width: 30px;
-  height: 30px;
+  width: 1em;
+  height: 1em;
+  margin: 0;
   border: 1px solid #ffffff55;
   border-radius: 50%;
   background: #ffffff24;

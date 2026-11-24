@@ -139,6 +139,7 @@ async function eraseAccount(by: Actor, r: DeleteRequest, read: Read, update: Upd
     ['avatarPass/' + key]: null,
     ['avatarOrders/' + key]: null,
     ['avatarGone/' + key]: null,
+    ['adminAvatar/' + key]: null,
     // 💼 pullik xizmatlar: buyurtmalar va ularning fayllari
     ['serviceOrders/' + key]: null,
     ['serviceFiles/' + key]: null,

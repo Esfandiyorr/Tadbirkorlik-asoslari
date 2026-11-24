@@ -33,6 +33,7 @@ import { SiteVisual } from './site-content';
 import { visualPath } from '@/lib/site-visuals';
 import { useAcademicBoard } from './avatars';
 import { HomeBanner } from './home-banner';
+import { SubscriberMark } from './premium';
 import { Leaderboard } from './leaderboard';
 import { CourseGate, PaidCourseGate } from './course-gate';
 import { CourseLessons } from './course-lessons';
@@ -126,7 +127,7 @@ export function currentLesson(d: Data) {
 export function Dashboard() {
   const { data, legacy } = useApp();
   if (!data?.user && !legacy) return <GuestHome />;
-  return <LearnerHome />;
+  return <LearnerHome key={data?.user?.id || legacy?.id} />;
 }
 
 /** Bosh sahifadagi bo'lim kartalari: Kurslar, O'yinlar, Kitoblar, Pullik xizmatlar, Chat — nomi, bitta ikonka va
@@ -234,8 +235,9 @@ function LearnerHome() {
     totals = courseTotals(d),
     lessons = sortedLessons(d);
   const active = lessons.filter((l) => accessOf(d, l.id)?.state === 'score');
-  const avatarHome = u?.role === 'student',
+  const avatarHome = u?.role === 'student' || u?.role === 'admin',
     board = useAcademicBoard(avatarHome);
+  const avatar = avatarHome && !board.loading ? board.avatars.me : null;
   const progressFor = (l: Lesson) => {
     const p = d.progress?.find((x) => x.lessonId === l.id);
     return (
@@ -256,6 +258,7 @@ function LearnerHome() {
         name={hello + ', ' + name.split(' ')[0]}
         board={board}
         avatarSpot={avatarHome}
+        premium={!!avatar?.premium}
         lessons={lessons}
         open={open}
       />
@@ -498,7 +501,10 @@ function LearnerHome() {
                 .slice(0, 2)
                 .join('')}
             </div>
-            <h3>{name}</h3>
+            <h3>
+              {avatar?.premium && <SubscriberMark />}
+              {name}
+            </h3>
             <p>
               {staff
                 ? u?.role === 'admin'

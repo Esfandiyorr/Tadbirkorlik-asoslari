@@ -41,7 +41,7 @@ import { ChatPage } from './chat-page';
 import { ChangePassword } from './change-password';
 import { Library } from './library';
 import { CertificatePage } from './exam';
-import { PremiumCard } from './premium';
+import { PremiumCard, SubscriberMark, usePremium } from './premium';
 import { Services } from './services';
 import { isPlayApp } from '@/lib/play-app';
 import { AccountDelete } from './account-delete';
@@ -482,6 +482,8 @@ function Profile() {
     [name, setName] = useState(u?.name || legacy?.name || ''),
     [visible, setVisible] = useState(u?.leaderboardVisible !== false),
     [advanced, setAdvanced] = useState(false);
+  const subscription = usePremium();
+  const premium = subscription.premium?.state;
   const totals = courseTotals(data!),
     awards = achievementsOf(data!),
     earned = awards.filter((a) => a.value >= a.goal).length,
@@ -510,7 +512,10 @@ function Profile() {
         <div className="profile-hero-id">
           <div className="profile-avatar">{initials}</div>
           <div>
-            <h2>{shown}</h2>
+            <h2>
+              {premium?.active && !premium.staff && <SubscriberMark />}
+              {shown}
+            </h2>
             <p>
               {roleLabel(lang, u?.role || 'student', u?.learnerType)}
               {group ? ' · ' + group : ''}
@@ -597,7 +602,7 @@ function Profile() {
               <Button disabled={!u}>{t(lang, 'save')}</Button>
             </form>
           </section>
-          {u && <PremiumCard name={shown} />}
+          {u && <PremiumCard name={shown} {...subscription} />}
           <ChangePassword />
           <section className="panel profile-card">
             <PushToggle />

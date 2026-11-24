@@ -54,6 +54,7 @@ const DAY = 86400000;
 /** «Avataringiz bo'shatildi» xabari shuncha vaqt ko'rinadi (yangi avatar tanlaganda darhol yo'qoladi). */
 const GONE_SHOWN = 14 * DAY;
 const keyOf = (id: string) => id.replace(/[^A-Za-z0-9_-]/g, '_').slice(0, 120);
+const adminAvatarPath = (id: string) => 'adminAvatar/' + keyOf(id);
 
 function normalizeShop(raw: Partial<AvatarShop> | null): AvatarShop {
   const d = Math.round(Number(raw?.days));
@@ -206,9 +207,38 @@ export function avatarView(
   };
 }
 
+/** Administrator o'z avatarini tanlaydi, talabalar uchun ajratilgan avatarlar band bo'lmaydi. */
+export async function accountAvatarView(
+  a: Actor,
+  board: BoardRow[],
+  store: AvatarStore,
+  catalog: AvatarItem[],
+  now = Date.now(),
+) {
+  const view = avatarView(board, store, a.role === 'teacher' ? undefined : a.id, catalog, now);
+  const me = view.avatars.me;
+  if (a.role !== 'admin' || !me) return view;
+  const selected = await siteGet<string>(adminAvatarPath(a.id));
+  return {
+    ...view,
+    avatars: {
+      ...view.avatars,
+      me: {
+        ...me,
+        can: true,
+        premium: false,
+        via: 'admin' as const,
+        avatar: view.avatars.catalog.some(({ id }) => id === selected) ? selected : null,
+        lost: null,
+        canBuy: false,
+      },
+    },
+  };
+}
+
 const pickInput = z.object({ avatar: z.string().regex(AVATAR_ID).nullable() }).strict();
 
-/** Talaba avatar tanlaydi (yoki null — olib tashlaydi). Egallash tranzaksiya bilan: ikkitasi bir vaqtda ololmaydi. */
+/** Avatar tanlash yoki olib tashlash. Talabalar avatarni tranzaksiya bilan band qiladi. */
 export async function pickAvatar(
   a: Actor,
   board: BoardRow[],
@@ -216,13 +246,21 @@ export async function pickAvatar(
   catalog: AvatarItem[],
   now = Date.now(),
 ) {
-  check(a.role === 'student', 403, 'Avatarni faqat talabalar tanlaydi.');
+  check(
+    a.role === 'student' || a.role === 'admin',
+    403,
+    'Avatarni talaba yoki administrator tanlay oladi.',
+  );
   const { avatar } = pickInput.parse(raw);
   check(
     !avatar || catalog.some((x) => x.id === avatar && !x.off),
     404,
     'Bu avatar kutubxonada yo‘q.',
   );
+  if (a.role === 'admin') {
+    await siteUpdate({ [adminAvatarPath(a.id)]: avatar });
+    return accountAvatarView(a, board, await readAvatars(now), catalog, now);
+  }
   const store = await releaseStale(board, await readAvatars(now), catalog, now);
   const { eligible } = rules(board, store, catalog, now);
   check(
