@@ -7,7 +7,7 @@ import { Button } from '../ui/button';
 import { Receipts } from '../receipt';
 import { servicesAct } from '../service-files';
 import { PREMIUM_TERMS, formatSum, termText } from '@/lib/services';
-import { TERM_CHOICES, VERIFY_TERMS } from '@/lib/premium-plans';
+import { TERM_CHOICES, planName } from '@/lib/premium-plans';
 import { useAdminView, useL } from './common';
 import type { PremiumAdminView } from '@/lib/server/premium';
 
@@ -233,23 +233,23 @@ export function PremiumAdmin() {
       <ol className="pa-how">
         <li>
           {L(
-            'Talaba «Obuna bo‘lish»ni bosadi va kartaga istalgan summani to‘laydi (narx ixtiyoriy).',
-            'A student taps “Subscribe” and pays any amount to the card (no fixed price).',
-            'Студент нажимает «Подписаться» и оплачивает на карту любую сумму.',
+            'Talaba «Obuna bo‘lish»ni bosadi, 1 oy yoki 1 yilni tanlaydi va kartaga istalgan summani to‘laydi (narx ixtiyoriy).',
+            'A student taps “Subscribe”, picks 1 month or 1 year and pays any amount to the card.',
+            'Студент нажимает «Подписаться», выбирает 1 месяц или 1 год и оплачивает любую сумму.',
           )}
         </li>
         <li>
           {L(
-            '«To‘lov qildim» → summa va to‘lov vaqti yoki chek → «Yuborish». Obuna darhol (1 oyga) ochiladi.',
-            '“I have paid” → amount and payment time or receipt → “Send”. Premium opens at once (for 1 month).',
-            '«Я оплатил» → сумма и время или чек → «Отправить». Подписка открывается сразу (на 1 месяц).',
+            '«To‘lov qildim» → summa va to‘lov vaqti yoki chek → «Yuborish». Obuna darhol tanlagan muddatiga ochiladi.',
+            '“I have paid” → amount and payment time or receipt → “Send”. Premium opens at once for the chosen period.',
+            '«Я оплатил» → сумма и время или чек → «Отправить». Подписка открывается сразу на выбранный срок.',
           )}
         </li>
         <li>
           {L(
-            'Siz pastda tekshirasiz: summaga qarab «✅ 1 oy» yoki «✅ 1 yil», to‘lov topilmasa — «Chiqarib tashlash».',
-            'You check below: by the amount “✅ 1 month” or “✅ 1 year”; no payment — “Remove”.',
-            'Вы проверяете ниже: по сумме «✅ 1 месяц» или «✅ 1 год»; нет оплаты — «Убрать».',
+            'Siz pastda tekshirasiz: «To‘lov keldi» yoki to‘lov topilmasa — «Chiqarib tashlash».',
+            'You check below: “Payment received”, or “Remove” if there is no payment.',
+            'Вы проверяете ниже: «Оплата пришла» или, если оплаты нет, «Убрать».',
           )}
         </li>
       </ol>
@@ -272,7 +272,10 @@ export function PremiumAdmin() {
                   <b>{c.name}</b>
                   {c.group && <small>{c.group}</small>}
                   <span className="pa-chips">
-                    <em className="pa-chip is-plan">💳 {formatSum(c.amount)}</em>
+                    <em className="pa-chip is-plan">
+                      💎 {planName(c.days, lang) || termText(c.days, lang)} · 💳{' '}
+                      {formatSum(c.amount)}
+                    </em>
                     {c.paidAt && (
                       <em className="pa-chip">
                         🕒 {L('To‘lov vaqti', 'Paid at', 'Оплата')}: {date(c.paidAt, true)}
@@ -285,26 +288,22 @@ export function PremiumAdmin() {
                   </span>
                 </div>
                 <span className="pa-btns">
-                  {VERIFY_TERMS.map((d) => (
-                    <Button
-                      key={d}
-                      size="sm"
-                      disabled={!!busy}
-                      onClick={() =>
-                        void run(
-                          { op: 'verify', uid: c.uid, id: c.id, days: d },
-                          'ok' + c.id + d,
-                          '✅ ' +
-                            c.name +
-                            ': ' +
-                            termText(d, lang) +
-                            L('lik obuna tasdiqlandi', ' Premium confirmed', ' — подтверждено'),
-                        )
-                      }
-                    >
-                      ✅ {termText(d, lang)}
-                    </Button>
-                  ))}
+                  <Button
+                    size="sm"
+                    disabled={!!busy}
+                    onClick={() =>
+                      void run(
+                        { op: 'verify', uid: c.uid, id: c.id },
+                        'ok' + c.id,
+                        '✅ ' +
+                          c.name +
+                          ': ' +
+                          L('to‘lov tasdiqlandi', 'payment confirmed', 'оплата подтверждена'),
+                      )
+                    }
+                  >
+                    ✅ {L('To‘lov keldi', 'Payment received', 'Оплата пришла')}
+                  </Button>
                   <Button
                     size="sm"
                     variant="outline"

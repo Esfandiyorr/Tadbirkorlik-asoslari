@@ -208,7 +208,7 @@ it('a subscriber puts their own badge after the name (only while Premium); the o
   await expect(setPremiumMark(admin, PNG.toString('base64'), now)).rejects.toThrow('Premium');
 });
 
-it('a student pays any amount and subscribes by themselves: Premium opens at once for a month; the administrator confirms it for 1 month or 1 year, changes the term or removes', async () => {
+it('a student picks 1 month or 1 year and pays any amount: Premium opens at once for that period; the administrator confirms, changes the term or removes', async () => {
   const now = Date.UTC(2026, 10, 25, 9, 0);
   const vali = who('legacy_vali');
   await managePremium(
@@ -228,39 +228,57 @@ it('a student pays any amount and subscribes by themselves: Premium opens at onc
     how: 'Click yoki Payme orqali',
   });
   // summa shart (kamida 1 000); to'lov vaqti yoki chek shart; vaqt oxirgi 3 kun ichida
-  await expect(subscribe(ali, { paidAt: now }, now)).rejects.toThrow();
-  await expect(subscribe(ali, { amount: 500, paidAt: now }, now)).rejects.toThrow();
-  await expect(subscribe(ali, { amount: 20000 }, now)).rejects.toMatchObject({ status: 400 });
-  await expect(subscribe(ali, { amount: 20000, paidAt: now - 4 * DAY }, now)).rejects.toMatchObject(
-    { status: 400 },
-  );
-  await expect(subscribe(ali, { amount: 20000, paidAt: now + DAY }, now)).rejects.toMatchObject({
+  await expect(subscribe(ali, { plan: 'oy', paidAt: now }, now)).rejects.toThrow();
+  await expect(subscribe(ali, { amount: 20000, paidAt: now }, now)).rejects.toThrow(); // muddat shart
+  await expect(
+    subscribe(ali, { plan: 'hafta', amount: 20000, paidAt: now }, now),
+  ).rejects.toThrow();
+  await expect(subscribe(ali, { plan: 'oy', amount: 500, paidAt: now }, now)).rejects.toThrow();
+  await expect(subscribe(ali, { plan: 'oy', amount: 20000 }, now)).rejects.toMatchObject({
     status: 400,
   });
   await expect(
-    subscribe(ali, { amount: 20000, receipt: Buffer.from('salom').toString('base64') }, now),
+    subscribe(ali, { plan: 'oy', amount: 20000, paidAt: now - 4 * DAY }, now),
   ).rejects.toMatchObject({ status: 400 });
   await expect(
-    subscribe(who('tc', 'teacher'), { amount: 20000, paidAt: now }, now),
+    subscribe(ali, { plan: 'oy', amount: 20000, paidAt: now + DAY }, now),
+  ).rejects.toMatchObject({
+    status: 400,
+  });
+  await expect(
+    subscribe(
+      ali,
+      { plan: 'oy', amount: 20000, receipt: Buffer.from('salom').toString('base64') },
+      now,
+    ),
+  ).rejects.toMatchObject({ status: 400 });
+  await expect(
+    subscribe(who('tc', 'teacher'), { plan: 'oy', amount: 20000, paidAt: now }, now),
   ).rejects.toMatchObject({ status: 400 });
 
-  // ✅ istalgan summa + to'lov vaqti — obuna darhol 1 oyga ochiladi
-  let me = await subscribe(ali, { amount: 20000, paidAt: now - 600000 }, now);
+  // ✅ 1 oy + istalgan summa + to'lov vaqti — obuna darhol 1 oyga ochiladi
+  let me = await subscribe(ali, { plan: 'oy', amount: 20000, paidAt: now - 600000 }, now);
   expect(me.state).toMatchObject({ active: true, until: now + 30 * DAY });
   expect(me.claim).toMatchObject({ amount: 20000, days: 30, status: 'new' });
   // tekshirilmagan to'lov turganda ikkinchisi yo'q (bepul muddat to'plab bo'lmaydi)
-  await expect(subscribe(ali, { amount: 5000, paidAt: now }, now + 1000)).rejects.toMatchObject({
+  await expect(
+    subscribe(ali, { plan: 'oy', amount: 5000, paidAt: now }, now + 1000),
+  ).rejects.toMatchObject({
     status: 409,
   });
-  // chek bilan (vaqtsiz)
-  me = await subscribe(vali, { amount: 100000, receipt: PNG.toString('base64') }, now + 2000);
-  expect(me.state.until).toBe(now + 2000 + 30 * DAY);
+  // 1 yil + chek bilan (vaqtsiz) — darhol 1 yilga
+  me = await subscribe(
+    vali,
+    { plan: 'yil', amount: 100000, receipt: PNG.toString('base64') },
+    now + 2000,
+  );
+  expect(me.state.until).toBe(now + 2000 + 365 * DAY);
 
   // administrator: yangi obunalar (eng yangisi birinchi), chek rasmi faqat unga
   let v = await premiumAdmin(admin, now + 3000);
-  expect(v.fresh.map((c) => [c.uid, c.amount, !!c.receipt, !!c.paidAt])).toEqual([
-    ['legacy_vali', 100000, true, false],
-    ['legacy_ali', 20000, false, true],
+  expect(v.fresh.map((c) => [c.uid, c.days, c.amount, !!c.receipt, !!c.paidAt])).toEqual([
+    ['legacy_vali', 365, 100000, true, false],
+    ['legacy_ali', 30, 20000, false, true],
   ]);
   const valiClaim = v.fresh[0];
   expect((await premiumReceipt(admin, 'legacy_vali', valiClaim.id)).bytes.equals(PNG)).toBe(true);
@@ -270,15 +288,15 @@ it('a student pays any amount and subscribes by themselves: Premium opens at onc
   const aliGrant = v.grants.find((g) => g.uid === 'legacy_ali')!;
   expect(aliGrant).toMatchObject({ since: now, term: 30, paid: 20000, claim: { status: 'new' } });
 
-  // ✅ summaga qarab: Ali — 1 oy, Vali — 1 yil (boshlangan kunidan)
+  // ✅ «To'lov keldi»: talaba tanlagan muddat o'zgarmaydi
   v = await managePremium(
     admin,
-    { op: 'verify', uid: 'legacy_ali', id: aliGrant.claim!.id, days: 30 },
+    { op: 'verify', uid: 'legacy_ali', id: aliGrant.claim!.id },
     now + 4000,
   );
   v = await managePremium(
     admin,
-    { op: 'verify', uid: 'legacy_vali', id: valiClaim.id, days: 365 },
+    { op: 'verify', uid: 'legacy_vali', id: valiClaim.id },
     now + 5000,
   );
   expect(v.fresh).toEqual([]);
@@ -305,7 +323,7 @@ it('a student pays any amount and subscribes by themselves: Premium opens at onc
     managePremium(admin, { op: 'term', uid: 'legacy_ali', days: 30 }, now + 40 * DAY),
   ).rejects.toMatchObject({ status: 400 });
   // tasdiqlangach yana to'lasa — 1 oy ustiga qo'shiladi, boshlanishi o'zgarmaydi
-  me = await subscribe(ali, { amount: 15000, paidAt: now + 6 * DAY }, now + 6 * DAY);
+  me = await subscribe(ali, { plan: 'oy', amount: 15000, paidAt: now + 6 * DAY }, now + 6 * DAY);
   expect(me.state.until).toBe(now + 395 * DAY);
   expect(
     (await premiumAdmin(admin, now + 6 * DAY)).grants.find((g) => g.uid === 'legacy_ali'),
@@ -318,12 +336,12 @@ it('a student pays any amount and subscribes by themselves: Premium opens at onc
   expect((await premiumState(vali, now + 7 * DAY)).active).toBe(false);
   expect(await premiumView(vali, now + 7 * DAY)).toMatchObject({ blocked: true });
   await expect(
-    subscribe(vali, { amount: 5000, paidAt: now + 7 * DAY }, now + 7 * DAY),
+    subscribe(vali, { plan: 'oy', amount: 5000, paidAt: now + 7 * DAY }, now + 7 * DAY),
   ).rejects.toMatchObject({ status: 403 });
   // blokdan chiqarilsa — yana o'zi obuna bo'la oladi
   v = await managePremium(admin, { op: 'unblock', key: 'legacy_vali' }, now + 8 * DAY);
   expect(v.blocked).toEqual([]);
-  me = await subscribe(vali, { amount: 5000, paidAt: now + 8 * DAY }, now + 8 * DAY);
+  me = await subscribe(vali, { plan: 'oy', amount: 5000, paidAt: now + 8 * DAY }, now + 8 * DAY);
   expect(me.state.active).toBe(true);
   v = await managePremium(admin, { op: 'remove', uid: 'legacy_vali' }, now + 9 * DAY);
   expect((await premiumView(vali, now + 9 * DAY)).claim?.status).toBe('removed');

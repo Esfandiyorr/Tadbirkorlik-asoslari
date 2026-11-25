@@ -6,13 +6,13 @@ import { Button } from './ui/button';
 import { ReceiptPick } from './receipt';
 import { tr } from '@/lib/points';
 import { BUDGET_MAX, PAY_MIN } from '@/lib/services';
-import type { MyClaim } from '@/lib/premium-plans';
+import { PLANS, type MyClaim, type PlanId } from '@/lib/premium-plans';
 import type { PremiumInfo, PremiumState } from '@/lib/library';
 
-/* 💎 O'zi obuna bo'lish (lib/server/premium.ts → subscribe). Narx ixtiyoriy: 1) karta raqami — istalgan summani
-   to'laydi va «To'lov qildim»ni bosadi; 2) qancha to'laganini, to'lov qilingan aniq vaqtni yozadi yoki chek rasmini
-   yuklaydi → «Yuborish». Obuna shu zahoti ochiladi, administrator keyin tekshiradi va muddatni (1 oy, 1 yil) tanlaydi;
-   to'lov topilmasa — chiqarib tashlaydi. */
+/* 💎 O'zi obuna bo'lish (lib/server/premium.ts → subscribe). 1) muddat (1 oy yoki 1 yil) va karta raqami — narx
+   ixtiyoriy, istalgan summani to'laydi va «To'lov qildim»ni bosadi; 2) qancha to'laganini, to'lov qilingan aniq vaqtni
+   yozadi yoki chek rasmini yuklaydi → «Yuborish». Obuna shu zahoti tanlangan muddatga ochiladi, administrator keyin
+   tekshiradi; to'lov topilmasa — chiqarib tashlaydi. */
 
 export const PREMIUM_CHANGED = 'sq-premium-changed';
 type View = {
@@ -40,6 +40,7 @@ export function PremiumSubscribe({ onDone }: { onDone?: () => void }) {
   const L = (uz: string, en: string, ru: string) => tr(lang, uz, en, ru);
   const [view, setView] = useState<View | null>(null);
   const [step, setStep] = useState<'pay' | 'confirm'>('pay');
+  const [plan, setPlan] = useState<PlanId>('oy');
   const [amount, setAmount] = useState('');
   const [time, setTime] = useState('');
   const [receipt, setReceipt] = useState<Blob | null>(null);
@@ -101,7 +102,7 @@ export function PremiumSubscribe({ onDone }: { onDone?: () => void }) {
     setBusy(true);
     setErr('');
     try {
-      const body: Record<string, unknown> = { op: 'subscribe', amount: sum };
+      const body: Record<string, unknown> = { op: 'subscribe', plan, amount: sum };
       if (paidAt > 0) body.paidAt = paidAt;
       if (receipt) body.receipt = await toBase64(receipt);
       const r = await request('/api/premium', {
@@ -142,6 +143,24 @@ export function PremiumSubscribe({ onDone }: { onDone?: () => void }) {
       )}
       {step === 'pay' ? (
         <>
+          <div
+            className="ps-plans"
+            role="radiogroup"
+            aria-label={L('Obuna muddati', 'Subscription period', 'Срок подписки')}
+          >
+            {PLANS.map((p) => (
+              <button
+                key={p.id}
+                type="button"
+                role="radio"
+                aria-checked={plan === p.id}
+                className={'ps-plan' + (plan === p.id ? ' is-on' : '')}
+                onClick={() => setPlan(p.id)}
+              >
+                {tr(lang, p.name[0], p.name[1], p.name[2])}
+              </button>
+            ))}
+          </div>
           <p className="ps-lead">
             {L(
               'Narx ixtiyoriy: istalgan summani to‘lang.',
@@ -203,6 +222,10 @@ export function PremiumSubscribe({ onDone }: { onDone?: () => void }) {
         </>
       ) : (
         <>
+          <p className="ps-chosen">
+            💎 {L('Obuna', 'Premium', 'Подписка')}:{' '}
+            <b>{tr(lang, ...PLANS.find((p) => p.id === plan)!.name)}</b>
+          </p>
           <label className="ps-field">
             <span>
               💳{' '}
@@ -265,9 +288,9 @@ export function PremiumSubscribe({ onDone }: { onDone?: () => void }) {
           </div>
           <small className="muted">
             {L(
-              'Obuna darhol ochiladi. Administrator to‘lovni tekshirib, muddatini belgilaydi; to‘lov topilmasa, obuna yopiladi.',
-              'Premium opens at once. The administrator checks the payment and sets the period; if it is not found, Premium is closed.',
-              'Подписка откроется сразу. Администратор проверит оплату и установит срок; если оплаты нет, подписка закроется.',
+              'Obuna darhol ochiladi. Administrator to‘lovni tekshiradi: to‘lov topilmasa, obuna yopiladi.',
+              'Premium opens at once. The administrator checks the payment: if it is not found, Premium is closed.',
+              'Подписка откроется сразу. Администратор проверит оплату: если её нет, подписка закроется.',
             )}
           </small>
         </>

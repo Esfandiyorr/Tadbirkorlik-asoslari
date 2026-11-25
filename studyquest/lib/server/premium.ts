@@ -5,7 +5,7 @@ import type { Actor } from '../types';
 import type { PremiumInfo, PremiumState } from '../library';
 import { administrator, check } from './auth';
 import { DEFAULT_LOOK, isLook } from '../premium-look';
-import { DEFAULT_DAYS, type ClaimStatus, type MyClaim } from '../premium-plans';
+import { PLANS, type ClaimStatus, type MyClaim } from '../premium-plans';
 import { imageType, siteGet, siteTransaction, siteUpdate, storeBlob } from './site-content';
 import { BUDGET_MAX, PAY_MIN } from '../services';
 
@@ -16,10 +16,11 @@ import { BUDGET_MAX, PAY_MIN } from '../services';
    ochilish: qachon, necha kunga, qancha to'langan (chek qabul qilinganda) va kim ochgan.
    site/premiumInfo = {card, holder, how, price} — karta va yo'riqnoma (talabaga ko'rsatiladi). Narx ixtiyoriy.
 
-   🛒 O'zi obuna bo'lish (talaba): «Obuna bo'lish» → karta → istalgan summani to'laydi → «To'lov qildim» → qancha
-   to'lagani va to'lov vaqti YOKI chek rasmi → «Yuborish». Obuna shu zahoti DEFAULT_DAYS (1 oy) ga ochiladi; to'lov site/premiumClaims/<foydalanuvchi>/<id>
+   🛒 O'zi obuna bo'lish (talaba): «Obuna bo'lish» → muddat (1 oy / 1 yil) va karta → istalgan summani to'laydi →
+   «To'lov qildim» → qancha to'lagani va to'lov vaqti YOKI chek rasmi → «Yuborish». Obuna shu zahoti tanlangan
+   muddatga ochiladi; to'lov site/premiumClaims/<foydalanuvchi>/<id>
    ga «tekshirilmagan» (new) bo'lib yoziladi, administratorga bildirishnoma boradi. Administrator «💎 Obuna»da
-   summaga qarab «✅ 1 oy» yoki «✅ 1 yil» deb tasdiqlaydi (ok, muddat boshlangan kunidan) yoki chiqarib tashlaydi (removed): obuna yopiladi va o'zi qayta obuna bo'la olmaydi
+   «To'lov keldi» deb tasdiqlaydi (ok; kerak bo'lsa muddatni boshlangan kunidan o'zgartiradi) yoki chiqarib tashlaydi (removed): obuna yopiladi va o'zi qayta obuna bo'la olmaydi
    (site/premiumBlock/<foydalanuvchi>) — faqat administrator ochadi. Tekshirilmagan to'lovi bor foydalanuvchi
    ikkinchisini yubora olmaydi (bepul muddat to'plab bo'lmaydi). Chek rasmi site/premiumReceipts/<…>/<id> da —
    faqat administrator ko'radi (/api/premium?receipt=…). */
@@ -169,6 +170,8 @@ export async function premiumView(a: Actor, now = Date.now()) {
 
 const subscribeInput = z
   .object({
+    /** muddat: 1 oy yoki 1 yil */
+    plan: z.enum(['oy', 'yil']),
     /** to'lagan summasi (so'm) — narx ixtiyoriy */
     amount: z.number().int().min(PAY_MIN).max(BUDGET_MAX),
     /** to'lov vaqti (ms) */
@@ -205,6 +208,7 @@ export async function subscribe(a: Actor, raw: unknown, now = Date.now()) {
     check(type, 400, 'Chek uchun PNG, JPG yoki WEBP rasm yuklang.');
   }
   const key = keyOf(a.id);
+  const plan = PLANS.find((x) => x.id === p.plan)!;
   check(
     !(await siteGet<Block>('premiumBlock/' + key))?.at,
     403,
@@ -218,7 +222,7 @@ export async function subscribe(a: Actor, raw: unknown, now = Date.now()) {
     uid: a.id,
     name,
     group,
-    days: DEFAULT_DAYS,
+    days: plan.days,
     amount: p.amount,
     ...(p.paidAt !== undefined ? { paidAt: p.paidAt } : {}),
     ...(bytes ? { receipt: true as const } : {}),
@@ -238,12 +242,14 @@ export async function subscribe(a: Actor, raw: unknown, now = Date.now()) {
   });
   check(!problem, 409, problem);
   if (bytes) await siteUpdate({ ['premiumReceipts/' + key + '/' + id]: { t: type, d: p.receipt } });
-  await grantPremium(a.id, name, group, DEFAULT_DAYS, 'O‘zi (to‘lov)', now, claim.amount);
+  await grantPremium(a.id, name, group, plan.days, 'O‘zi (to‘lov)', now, claim.amount);
   await notify(
     (s) => s.role === 'admin',
     '💎 Yangi obuna',
     name +
       (group ? ' (' + group + ')' : '') +
+      ' · ' +
+      plan.name[0] +
       ' · ' +
       p.amount.toLocaleString('ru-RU').replace(/\u00a0/g, ' ') +
       ' so‘m — to‘lovni tekshiring',

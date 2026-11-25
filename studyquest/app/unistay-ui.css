@@ -1803,3 +1803,32 @@
     width: 100%;
   }
 }
+/* 💎 obuna muddati: 1 oy / 1 yil (talaba tanlaydi, narx ixtiyoriy) */
+.ps-plans {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.ps-plan {
+  min-height: 52px;
+  border-radius: 14px;
+  border: 2px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: 1.05rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition:
+    border-color 0.15s,
+    background 0.15s;
+}
+.ps-plan.is-on {
+  border-color: var(--violet);
+  background: var(--soft-violet);
+  color: var(--violet);
+}
+.ps-chosen {
+  margin: 0;
+  font-size: 0.95rem;
+}
