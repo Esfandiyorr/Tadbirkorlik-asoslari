@@ -14,6 +14,24 @@ export type LegacyStudentUpdate = {
 };
 export const REOPEN_WINDOW = 3 * 86400000;
 
+/** ⚡ Jonli test sovrini umumiy ballga (students/<id>/total) — server o'yinni yakunlaganda bir marta qo'shadi.
+    Avval sovrin faqat talaba keyinroq mavzu sahifasini ochib, dvigatel ballni qayta saqlaganda qo'shilardi: faqat
+    arenada o'ynab, mavzu ochmagan g'olibning bali reytingga yetmay qolardi. Dvigatel keyin ballni kahoot/res dagi
+    sovrinlar bilan o'zi ham hisoblaydi — natija bir xil, ikki marta qo'shilmaydi. Kunlik reyting uchun: bugun hali
+    ball yozilmagan bo'lsa kun boshidagi ball (d0) — sovringacha bo'lgan ball. undefined — yozuv o'zgarmaydi. */
+export function applyLivePrize(value: any, points: number, now: number) {
+  if (!value?.name || value.status !== 'ok' || value.learnerType === 'independent' || !(points > 0))
+    return undefined;
+  const total = Math.max(0, Number(value.total) || 0);
+  const today = new Date(now + 18000000).toISOString().slice(0, 10);
+  if (value.dd !== today) {
+    value.dd = today;
+    value.d0 = Math.round(total * 10) / 10;
+  }
+  value.total = Math.round((total + points) * 10) / 10;
+  return value;
+}
+
 export function applyLegacyUpdate(
   value: any,
   u: LegacyStudentUpdate,

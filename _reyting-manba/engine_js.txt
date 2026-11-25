@@ -4743,7 +4743,7 @@ function jget(u){ return fetch(u).then(function(r){ return r.ok?r.json():null; }
    boshlanishi; eski yozuvlarda — at o'yin tugagandan keyin) ishlatiladi; aks holda u avvalgi o'yinniki: uning sovrinlari
    ham hisoblanadi, hozirgi o'yin esa xom ma'lumotdan alohida hisoblanadi (oldin u umuman hisobga olinmay qolardi).
    res.r = {sid: [o'rin, ochko, ishtirokchilar]} — talaba o'z natijasini ko'rishi uchun. */
-var KH_P={}, KH_AT=0, KH_W=null, KH_G=[];
+var KH_P={}, KH_AT=0, KH_W=null, KH_G=[], KH_OK=false;   /* KH_OK — sovrinlar bazadan muvaffaqiyatli o'qildi */
 function khResOk(e,r){ return !!(r&&e&&(r.st!=null?+r.st===+e.start:+r.at>=+e.end-60000)); }
 function khRows(sc){ var o={}; (sc.rows||[]).forEach(function(x){ o[x.sid]=[x.rank,Math.round(+x.s||0),sc.n]; }); return o; }
 function khTotals(cb){
@@ -4753,7 +4753,11 @@ function khTotals(cb){
   if(KH_W){ KH_W.push(cb); return; }
   KH_W=[cb];
   function fin(){ KH_AT=Date.now(); var w=KH_W; KH_W=null; w.forEach(function(f){ try{ f(); }catch(e){} }); }
-  Promise.all([jget(BASE+"/kahoot/res.json"),jget(BASE+"/kahoot/idx.json")]).then(function(v){
+  /* o'qib bo'lmasa (tarmoq/qoida) avvalgi sovrinlar o'zgarmaydi — aks holda umumiy ball nolga tushib ketardi */
+  function jok(u){ return fetch(u).then(function(r){ return r.ok?r.json().then(function(x){ return {ok:true,v:x}; }):{ok:false}; }).catch(function(){ return {ok:false}; }); }
+  Promise.all([jok(BASE+"/kahoot/res.json"),jok(BASE+"/kahoot/idx.json")]).then(function(w){
+    if(!w[0].ok||!w[1].ok){ fin(); return; }
+    var v=[w[0].v,w[1].v];
     var res=v[0]||{}, idx=v[1]||{}, now=Date.now(), cache=lget("terdu_kh2",{})||{}, tot={}, need=[], G=[];
     function add(pz){ for(var s in (pz||{})) tot[s]=(tot[s]||0)+(+pz[s]||0); }
     /* arxivdagi va kalitdagi hozirgi o'yinga tegishli bo'lmagan (avvalgi) natijalar */
@@ -4767,11 +4771,13 @@ function khTotals(cb){
       var r=res[d], ck=d+"@"+e.start, c=cache[ck];
       if(khResOk(e,r)){ add(r.prizes); G.push({d:d,st:+e.start,ty:e.type||"",pz:r.prizes||{},r:r.r||(c&&c.r)||null,top:r.top||[],valid:r.valid,n:r.n,ck:ck}); return; }
       if(c){ add(c.p); G.push({d:d,st:+e.start,ty:e.type||"",pz:c.p||{},r:c.r||null,valid:c.v,n:c.n,ck:ck}); return; }
-      need.push(d);
+      /* natijani server o'yin tugashi bilan yozadi va g'oliblar baliga qo'shadi; 10 daqiqada ham yozilmagan bo'lsagina
+         dvigatel o'zi hisoblaydi (aks holda sovrin ikki marta qo'shilib qolishi mumkin edi) */
+      if(+e.end<now-600000) need.push(d);
     });
     need.sort().reverse(); need=need.slice(0,20);
     (function next(i){
-      if(i>=need.length){ lset("terdu_kh2",cache); KH_P=tot; KH_G=G; fin(); return; }
+      if(i>=need.length){ lset("terdu_kh2",cache); KH_P=tot; KH_G=G; KH_OK=true; fin(); return; }
       var d=need[i], e=idx[d];
       jget(BASE+"/kahoot/games/"+d+".json").then(function(g){
         if(g&&g.meta&&+g.meta.start===+e.start){
@@ -4788,6 +4794,7 @@ function khTotals(cb){
 function khMine(){
   if(!S||independent(S)) return;
   khTotals(function(){
+    if(!KH_OK) return;
     var v=+KH_P[S.id]||0, L=[];
     KH_G.forEach(function(x){
       var me=x.r&&x.r[S.id], pz=+(x.pz||{})[S.id]||0;
@@ -4797,7 +4804,8 @@ function khMine(){
     L.sort(function(a,b){ return (b.st||0)-(a.st||0)||(a.d<b.d?1:-1); });
     var ch=v!==(+P.kh||0)||JSON.stringify(L)!==JSON.stringify(P.khL||[]);
     P.kh=v; P.khL=L.slice(0,30);
-    if(ch){ recalc(); lsetP(); chipUpdate(); var me=document.getElementById("rtMe"); if(me&&me.innerHTML) renderMe(); }
+    /* yangi sovrin darhol bazaga ham: avval faqat keyingi slayd/test saqlanganda yetib borardi — reytingda ko'rinmasdi */
+    if(ch){ recalc(); lsetP(); chipUpdate(); if(cloudOn&&S) cloudSave(); var me=document.getElementById("rtMe"); if(me&&me.innerHTML) renderMe(); }
   });
 }
 function khMineHtml(){

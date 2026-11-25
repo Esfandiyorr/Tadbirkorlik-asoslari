@@ -3,6 +3,7 @@ import { z } from 'zod';
 import type { Actor } from '../types';
 import { administrator, check } from './auth';
 import { demo, legacyDb } from './repository';
+import { applyLivePrize } from './legacy-student';
 import {
   LIVE_MIN,
   LIVE_SECTIONS,
@@ -40,6 +41,8 @@ interface Store {
   game(d: string): Promise<Game | null>;
   patch(o: Patch): Promise<void>;
   setCfg(c: LiveCfg): Promise<void>;
+  /** Sovrinlarni talabalarning umumiy baliga bir marta qo'shish (key — o'yin: sana@boshlanish). */
+  credit(key: string, prizes: Record<string, number>, now: number): Promise<void>;
 }
 const WINDOW = 31 * 86400000; // yakunlash va natijalar uchun so'nggi ~bir oy
 
@@ -52,9 +55,15 @@ export const demoKahoot = ((
       idx: Record<string, IdxEntry>;
       games: Record<string, Game>;
       res: Record<string, ResEntry>;
+      /** sovrin berilgan o'yinlar (asl bazada — site/liveCredit) */
+      credit?: Record<string, { p: Record<string, number>; at: number }>;
+      /** sinovlar uchun asl students/* nusxasi */
+      students?: Record<string, any>;
     };
   }
 ).__sqKahoot ??= { cfg: null, bank: {}, idx: {}, games: {}, res: {} });
+/** Sovrin faqat asl bazadagi talaba yozuviga (mehmon va guruhsiz hisoblar reytingda yo'q). */
+const studentId = (sid: string) => /^[a-zA-Z0-9_-]{1,100}$/.test(sid) && !/^(guest|usr)_/.test(sid);
 
 function applyPatch(root: Record<string, unknown>, o: Patch) {
   for (const [path, value] of Object.entries(o)) {
@@ -87,6 +96,15 @@ const memoryStore: Store = {
   async setCfg(c) {
     demoKahoot.cfg = structuredClone(c);
   },
+  async credit(key, prizes, now) {
+    const done = (demoKahoot.credit ??= {});
+    if (done[key]) return;
+    done[key] = { p: structuredClone(prizes), at: now };
+    for (const [sid, pts] of Object.entries(prizes)) {
+      const v = studentId(sid) ? demoKahoot.students?.[sid] : undefined;
+      if (v) applyLivePrize(v, +pts, now);
+    }
+  },
 };
 const rtdbStore: Store = {
   async load(now) {
@@ -117,6 +135,25 @@ const rtdbStore: Store = {
   },
   async setCfg(c) {
     await legacyDb().ref('kahoot/cfg').set(c);
+  },
+  async credit(key, prizes, now) {
+    const db = legacyDb();
+    // o'yin uchun bir marta: qayd (site/liveCredit — faqat server yozadi) avval band qilinadi
+    const claim = await db
+      .ref('site/liveCredit/' + key)
+      .transaction((cur) => (cur ? undefined : { p: prizes, at: now }));
+    if (!claim.committed) return;
+    await Promise.all(
+      Object.entries(prizes)
+        .filter(([sid, pts]) => studentId(sid) && +pts > 0)
+        .map(([sid, pts]) =>
+          db
+            .ref('students/' + sid)
+            // bo'sh kesh bilan birinchi chaqiruvda null — server qiymati bilan qayta chaqiriladi, yozuv yaratilmaydi
+            .transaction((v) => (v === null ? null : applyLivePrize(v, +pts, now)))
+            .catch(() => {}),
+        ),
+    );
   },
 };
 const store = () => (demo() ? memoryStore : rtdbStore);
@@ -177,6 +214,9 @@ async function finalize(s: Store, st: State, now: number) {
     };
     await s.patch(o);
     for (const k in o) st.res[k.slice(4)] = o[k] as ResEntry;
+    // g'oliblar bali darhol umumiy reytingga (talaba mavzu sahifasini ochishini kutmasdan)
+    if (r.valid && Object.keys(r.prizes).length)
+      await s.credit(d + '@' + +g.meta.start, r.prizes, now);
   }
 }
 
@@ -584,7 +624,20 @@ export async function manageLive(
 }
 
 /** Jadval o'z-o'zidan to'lib tursin: sayt ochilganda (6 soatda ko'pi bilan bir marta) — avval o'qituvchi paneli
-    ochilgandagina to'ldirilar edi. Qulf: site/locks/liveAuto (faqat server yozadi). */
+    ochilgandagina to'ldirilar edi. Qulf: site/locks/liveAuto = {at, next} (faqat server yozadi). Navbatdagi o'yin
+    tugashi bilan (6 soat kutmasdan) yana ishlaydi — natija yakunlanib, g'oliblar bali reytingga darhol qo'shiladi. */
+const SIX_HOURS = 6 * 3600000;
+export function liveDue(cur: unknown) {
+  if (typeof cur === 'number') return cur + SIX_HOURS; // eski qulf: oxirgi ishlagan vaqt
+  const next = Number((cur as { next?: unknown } | null)?.next);
+  return Number.isFinite(next) ? next : 0;
+}
+export function liveNext(idx: Record<string, IdxEntry>, now: number) {
+  const ends = Object.values(idx)
+    .filter((e) => e && !e.x && +(e.end ?? 0) > now)
+    .map((e) => +(e.end ?? 0) + 10000);
+  return Math.min(now + SIX_HOURS, ...ends);
+}
 let minChecked = false;
 export async function liveTopUp(now = Date.now(), rnd: () => number = Math.random) {
   if (demo()) return;
@@ -593,10 +646,12 @@ export async function liveTopUp(now = Date.now(), rnd: () => number = Math.rando
     minChecked = true;
     await lowerMin(rtdbStore, await rtdbStore.load(now), now).catch(() => (minChecked = false));
   }
-  const lock = await legacyDb()
-    .ref('site/locks/liveAuto')
-    .transaction((cur) => (Number(cur) > now - 6 * 3600000 ? undefined : now));
+  const ref = legacyDb().ref('site/locks/liveAuto');
+  const lock = await ref.transaction((cur) =>
+    liveDue(cur) > now ? undefined : { at: now, next: now + SIX_HOURS },
+  );
   if (!lock.committed) return;
   const st = await rtdbStore.load(now);
   await auto(rtdbStore, st, now, rnd);
+  await ref.set({ at: now, next: liveNext(st.idx, now) });
 }

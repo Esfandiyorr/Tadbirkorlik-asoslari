@@ -12,7 +12,8 @@ import {
   scoreRace,
   type Game,
 } from '../lib/live-quiz';
-import { demoKahoot, liveAdmin, manageLive } from '../lib/server/live-admin';
+import { demoKahoot, liveAdmin, liveDue, liveNext, manageLive } from '../lib/server/live-admin';
+import { applyLivePrize } from '../lib/server/legacy-student';
 import { liveGame } from '../lib/server/news';
 
 /* ⚡ Sayt boshqaruvi → Jonli test: server asl o'qituvchi panelidagi (engine_js.txt) bilan aynan bir xil ma'lumot
@@ -52,7 +53,15 @@ beforeAll(() => {
   process.env.STUDYQUEST_DEMO = 'true';
 });
 beforeEach(() => {
-  Object.assign(demoKahoot, { cfg: null, bank: {}, idx: {}, games: {}, res: {} });
+  Object.assign(demoKahoot, {
+    cfg: null,
+    bank: {},
+    idx: {},
+    games: {},
+    res: {},
+    credit: {},
+    students: {},
+  });
 });
 const admin = { id: 'owner', role: 'admin', name: 'Admin' } as unknown as Actor;
 const teacher = { id: 'tc', role: 'teacher', name: 'Ustoz' } as unknown as Actor;
@@ -376,7 +385,32 @@ it('finalizes finished games so prizes reach the rating, keeping an earlier resu
   demoKahoot.games[d] = g;
   demoKahoot.idx[d] = { start: g.meta.start, open: g.meta.open, end: g.meta.end, nq: 4, qsec: 15 };
   demoKahoot.res[d] = { n: 3, valid: false, prizes: {}, top: [], r: {}, st: 123, ty: null, at: 1 };
+  // asl bazadagi talabalar: g'oliblar (s0–s2), mustaqil o'quvchi (s3) va sovrinsiz qatnashchi (s4)
+  const rec = (total: number, extra = {}) => ({
+    name: 'Talaba',
+    surname: 'X',
+    status: 'ok',
+    total,
+    dd: '2026-11-01',
+    d0: total - 3,
+    ...extra,
+  });
+  demoKahoot.students = {
+    s0: rec(50),
+    s1: rec(60.5, { dd: khDay(now), d0: 58 }),
+    s2: rec(40),
+    s3: rec(0, { learnerType: 'independent' }),
+    s4: rec(70),
+  };
   const v = await liveAdmin(admin, now);
+  // ⚡ g'oliblar bali darhol umumiy reytingga (talaba mavzu sahifasini ochishini kutmasdan)
+  expect(demoKahoot.students.s0).toMatchObject({ total: 55, dd: khDay(now), d0: 50 });
+  expect(demoKahoot.students.s1).toMatchObject({ total: 64.5, dd: khDay(now), d0: 58 });
+  expect(demoKahoot.students.s2).toMatchObject({ total: 43 });
+  expect(demoKahoot.students.s4).toMatchObject({ total: 70, dd: '2026-11-01' });
+  expect(demoKahoot.credit![d + '@' + g.meta.start]).toMatchObject({
+    p: { s0: 5, s1: 4, s2: 3 },
+  });
   expect(demoKahoot.res[d]).toMatchObject({
     n: 8,
     valid: true,
@@ -399,6 +433,40 @@ it('finalizes finished games so prizes reach the rating, keeping an earlier resu
   const before = JSON.stringify(demoKahoot.res);
   await liveAdmin(admin, now + 1000);
   expect(JSON.stringify(demoKahoot.res)).toBe(before);
+  expect(demoKahoot.students.s0.total).toBe(55); // sovrin ikki marta qo'shilmaydi
+});
+
+it('adds a live prize only to approved university students and marks the day start', () => {
+  const at = Date.UTC(2026, 10, 6, 15, 0); // 20:00 Toshkent
+  const base = { name: 'Ali', surname: 'V', status: 'ok', total: 80.3, dd: '2026-11-05', d0: 79 };
+  expect(applyLivePrize({ ...base }, 5, at)).toMatchObject({
+    total: 85.3,
+    dd: '2026-11-06',
+    d0: 80.3,
+  });
+  // bugun ball olgan bo'lsa kun boshi o'zgarmaydi
+  expect(applyLivePrize({ ...base, dd: '2026-11-06' }, 3, at)).toMatchObject({
+    total: 83.3,
+    d0: 79,
+  });
+  expect(applyLivePrize({ ...base, status: 'pending' }, 5, at)).toBeUndefined();
+  expect(applyLivePrize({ ...base, learnerType: 'independent' }, 5, at)).toBeUndefined();
+  expect(applyLivePrize({ ...base }, 0, at)).toBeUndefined();
+  expect(applyLivePrize(null, 5, at)).toBeUndefined();
+});
+
+it('runs the live upkeep again right after the next game ends, not six hours later', () => {
+  const at = Date.UTC(2026, 10, 6, 10, 0);
+  expect(liveDue(at - 3600000)).toBe(at + 5 * 3600000); // eski qulf: oxirgi ishlagan vaqt
+  expect(liveDue({ at, next: at + 60000 })).toBe(at + 60000);
+  expect(liveDue(null)).toBe(0);
+  const idx = {
+    a: { start: at + 3600000, end: at + 3900000 },
+    b: { start: at - 7200000, end: at - 6900000 }, // tugagan
+    c: { start: at + 1800000, end: at + 2000000, x: 1 }, // bekor qilingan
+  };
+  expect(liveNext(idx, at)).toBe(at + 3900000 + 10000);
+  expect(liveNext({}, at)).toBe(at + 6 * 3600000);
 });
 
 it('edits, deletes and toggles the typing marathon', async () => {
