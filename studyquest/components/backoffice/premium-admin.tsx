@@ -1,17 +1,82 @@
 'use client';
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
-import { Crown } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { Crown, X } from 'lucide-react';
 import { useApp } from '../provider';
 import { Button } from '../ui/button';
 import { Receipts } from '../receipt';
 import { servicesAct } from '../service-files';
 import { PREMIUM_TERMS, formatSum, termText } from '@/lib/services';
+import { PLANS, TERM_CHOICES } from '@/lib/premium-plans';
 import { useAdminView, useL } from './common';
-import type { PremiumAdminView } from '@/lib/server/premium';
+import type { PremiumAdminView, PremiumClaimView } from '@/lib/server/premium';
 
-/* 💎 Sayt boshqaruvi → Obuna: 🧾 chek yuborganlar (1 oy yoki 1 yilga qabul qilish, qabul qilmaslik), 👥 obunachilar —
-   qancha muddatga va qancha to'lagani (har bir ochilish tarixi bilan), obunani bekor qilish va qo'lda obuna berish. */
+/* 💎 Sayt boshqaruvi → Obuna. Talaba o'zi obuna bo'ladi (karta → «To'lov qildim» → vaqt yoki chek) va obuna darhol
+   ochiladi. Bu yerda: 🆕 yangi obunalar — to'lovni tekshirib «To'lov keldi» yoki «Chiqarib tashlash» (o'zi qayta
+   obuna bo'la olmaydi); 👥 obunachilar — muddatni o'zgartirish (masalan 1 oy → 1 yil, boshlangan kunidan) yoki
+   chiqarib tashlash; ➕ qo'lda obuna berish; 💳 karta va narxlar; ⛔ yopilganlar. */
 type Student = { id: string; name: string; classId?: string };
+type Grant = PremiumAdminView['grants'][number];
+
+const date = (t: number, time = false) =>
+  new Intl.DateTimeFormat('ru-RU', {
+    timeZone: 'Asia/Tashkent',
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    ...(time ? { hour: '2-digit', minute: '2-digit' } : {}),
+  }).format(t);
+
+/** 🧾 Chek rasmi (faqat administrator) — bosilganda katta oynada. */
+function ReceiptButton({ uid, id }: { uid: string; id: string }) {
+  const L = useL();
+  const { request, toast } = useApp();
+  const [url, setUrl] = useState('');
+  useEffect(() => () => void (url && URL.revokeObjectURL(url)), [url]);
+  useEffect(() => {
+    if (!url) return;
+    const key = (e: KeyboardEvent) => e.key === 'Escape' && setUrl('');
+    window.addEventListener('keydown', key);
+    return () => window.removeEventListener('keydown', key);
+  }, [url]);
+  const open = async () => {
+    try {
+      const r = await request('/api/premium?receipt=' + encodeURIComponent(uid) + '/' + id);
+      if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || 'Chek topilmadi.');
+      setUrl(URL.createObjectURL(await r.blob()));
+    } catch (e) {
+      toast((e as Error).message);
+    }
+  };
+  return (
+    <>
+      <button type="button" className="pa-chip is-link" onClick={() => void open()}>
+        🧾 {L('Chekni ko‘rish', 'View receipt', 'Посмотреть чек')}
+      </button>
+      {url &&
+        createPortal(
+          <div
+            className="modal-backdrop"
+            onClick={(e) => e.target === e.currentTarget && setUrl('')}
+          >
+            <section className="panel pa-receipt" role="dialog" aria-modal="true">
+              <button
+                type="button"
+                className="av-close"
+                aria-label={L('Yopish', 'Close', 'Закрыть')}
+                onClick={() => setUrl('')}
+              >
+                <X size={20} />
+              </button>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={url} alt={L('To‘lov cheki', 'Payment receipt', 'Чек оплаты')} />
+            </section>
+          </div>,
+          document.body,
+        )}
+    </>
+  );
+}
 
 export function PremiumAdmin() {
   const L = useL();
@@ -24,7 +89,26 @@ export function PremiumAdmin() {
   const [students, setStudents] = useState<Student[]>([]),
     [q, setQ] = useState(''),
     [pick, setPick] = useState<Student | null>(null),
-    [days, setDays] = useState(30);
+    [days, setDays] = useState(30),
+    [find, setFind] = useState(''),
+    [terms, setTerms] = useState<Record<string, number>>({});
+  const [card, setCard] = useState<{
+    card: string;
+    holder: string;
+    month: string;
+    year: string;
+    how: string;
+  } | null>(null);
+  useEffect(() => {
+    if (data && !card)
+      setCard({
+        card: data.info.card,
+        holder: data.info.holder,
+        month: data.info.month ? String(data.info.month) : '',
+        year: data.info.year ? String(data.info.year) : '',
+        how: data.info.how,
+      });
+  }, [data, card]);
   useEffect(() => {
     let live = true;
     // TerDU talabalari (reyting) + talaba bo'lmaganlar: kursga ruxsat so'raganlar va ruxsat berilganlar (email bilan)
@@ -42,11 +126,7 @@ export function PremiumAdmin() {
       const seen = new Set<string>();
       const others = [...(access.requests || []), ...(access.grants || [])]
         .filter((x) => !seen.has(x.uid) && !!seen.add(x.uid))
-        .map((x) => ({
-          id: x.uid,
-          name: x.name,
-          classId: x.email || '',
-        }));
+        .map((x) => ({ id: x.uid, name: x.name, classId: x.email || '' }));
       setStudents([...(board.leaderboard || []), ...others]);
     });
     return () => {
@@ -62,9 +142,67 @@ export function PremiumAdmin() {
   }, [q, students]);
   if (error) return <p className="error-state">{error}</p>;
   if (!data) return <div className="skeleton h-64" />;
-  /** 🧾 chekni qabul qilish (muddat bilan) yoki qabul qilmaslik — «Pullik xizmatlar» buyurtmasi orqali */
+
+  const planName = (c: PremiumClaimView) => {
+    const p = PLANS.find((x) => x.id === c.plan);
+    return p ? (lang === 'en' ? p.name[1] : lang === 'ru' ? p.name[2] : p.name[0]) : '';
+  };
+  const run = (input: Record<string, unknown>, key: string, done: string) =>
+    act(input, key, done).catch(() => {});
+  const remove = (uid: string, name: string) => {
+    if (
+      !window.confirm(
+        L(
+          name +
+            ' obunadan chiqarilsinmi?\n\nObuna darhol yopiladi va u o‘zi qayta obuna bo‘la olmaydi (faqat siz ochasiz).',
+          'Remove ' +
+            name +
+            ' from Premium?\n\nIt closes at once and they cannot subscribe again by themselves.',
+          'Убрать ' +
+            name +
+            ' из подписки?\n\nПодписка закроется сразу, сам подписаться снова не сможет.',
+        ),
+      )
+    )
+      return;
+    void run(
+      { op: 'remove', uid },
+      'rm' + uid,
+      '✖ ' + name + ': ' + L('obunadan chiqarildi', 'removed', 'удалён из подписки'),
+    );
+  };
+  const grant = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!pick) return;
+    try {
+      await act(
+        { op: 'grant', uid: pick.id, name: pick.name, group: pick.classId || '', days },
+        'grant',
+        '💎 ' + L('Obuna berildi', 'Premium granted', 'Подписка выдана'),
+      );
+      setPick(null);
+      setQ('');
+    } catch {}
+  };
+  const saveCard = (e: FormEvent) => {
+    e.preventDefault();
+    if (!card) return;
+    void run(
+      {
+        op: 'info',
+        card: card.card,
+        holder: card.holder,
+        month: Number(card.month.replace(/\D/g, '')) || 0,
+        year: Number(card.year.replace(/\D/g, '')) || 0,
+        how: card.how,
+      },
+      'info',
+      L('Saqlandi', 'Saved', 'Сохранено'),
+    );
+  };
+  /** 🧾 eski tartib: «Pullik xizmatlar» buyurtmasi orqali kelgan chekni qabul qilish yoki qilmaslik */
   const decide = async (
-    o: { uk: string; id: string; name: string },
+    o: { uk: string; id: string },
     input: Record<string, unknown>,
     done: string,
   ) => {
@@ -79,58 +217,139 @@ export function PremiumAdmin() {
       setDoing('');
     }
   };
-  // sana yili bilan (1 yillik obunada «24.11.2027»), Toshkent vaqti
-  const date = (t: number) =>
-    new Intl.DateTimeFormat('ru-RU', {
-      timeZone: 'Asia/Tashkent',
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-    }).format(t);
-  const grant = async (e: FormEvent) => {
-    e.preventDefault();
-    if (!pick) return;
-    try {
-      await act(
-        { op: 'grant', uid: pick.id, name: pick.name, group: pick.classId || '', days },
-        'grant',
-        '💎 ' + L('Obuna berildi', 'Premium granted', 'Подписка выдана'),
-      );
-      setPick(null);
-      setQ('');
-    } catch {}
-  };
-  return (
-    <div className="bo-live">
-      <div className="bo-status">
-        <span className={'bo-pill ' + (data.active ? 'on' : 'off')}>
-          <Crown size={13} /> {data.active}
-        </span>
-        <span>
-          {L(
-            'ta foydalanuvchida obuna amalda',
-            'users have Premium now',
-            'пользователей с активной подпиской',
-          )}
-          {data.paid > 0 &&
-            ' · ' +
-              L('jami to‘langan', 'paid in total', 'всего оплачено') +
-              ': ' +
-              formatSum(data.paid)}
-          {data.pending.length > 0 &&
-            ' · 🧾 ' +
-              data.pending.length +
-              ' ' +
-              L('ta chek kutmoqda', 'receipts waiting', 'чеков ждут')}
-        </span>
-      </div>
+  const list = data.grants.filter((g) =>
+    (g.name + ' ' + g.group).toLowerCase().includes(find.trim().toLowerCase()),
+  );
+  const money = (n: number) => (n > 0 ? formatSum(n) : '');
 
-      <div className="bo-card pm-admin-pending">
+  return (
+    <div className="bo-live pa">
+      <div className="pa-stats">
+        <div className="pa-stat">
+          <Crown size={18} />
+          <b>{data.active}</b>
+          <span>{L('faol obunachi', 'active', 'активных')}</span>
+        </div>
+        <div className={'pa-stat' + (data.fresh.length ? ' is-new' : '')}>
+          <span aria-hidden="true">🆕</span>
+          <b>{data.fresh.length}</b>
+          <span>{L('tekshirilmagan to‘lov', 'to check', 'на проверке')}</span>
+        </div>
+        <div className="pa-stat">
+          <span aria-hidden="true">💳</span>
+          <b>{data.paid > 0 ? formatSum(data.paid) : '0'}</b>
+          <span>{L('jami to‘langan', 'paid in total', 'всего оплачено')}</span>
+        </div>
+      </div>
+      <ol className="pa-how">
+        <li>
+          {L(
+            'Talaba «Obuna bo‘lish»ni bosadi, kartani ko‘rib to‘laydi.',
+            'A student taps “Subscribe” and pays to the card.',
+            'Студент нажимает «Подписаться» и оплачивает на карту.',
+          )}
+        </li>
+        <li>
+          {L(
+            '«To‘lov qildim» → to‘lov vaqti yoki chek → «Yuborish». Obuna darhol ochiladi.',
+            '“I have paid” → payment time or receipt → “Send”. Premium opens at once.',
+            '«Я оплатил» → время или чек → «Отправить». Подписка открывается сразу.',
+          )}
+        </li>
+        <li>
+          {L(
+            'Siz pastda tekshirasiz: «To‘lov keldi» yoki «Chiqarib tashlash».',
+            'You check below: “Payment received” or “Remove”.',
+            'Вы проверяете ниже: «Оплата пришла» или «Убрать».',
+          )}
+        </li>
+      </ol>
+
+      <section className="bo-card pa-fresh">
         <h3>
-          🧾 {L('Chek yuborganlar — qabul qiling', 'Receipts to check', 'Присланные чеки')} (
-          {data.pending.length})
+          🆕{' '}
+          {L(
+            'Yangi obunalar — to‘lovni tekshiring',
+            'New subscriptions — check the payment',
+            'Новые подписки — проверьте оплату',
+          )}{' '}
+          ({data.fresh.length})
         </h3>
-        {data.pending.length ? (
+        {data.fresh.length ? (
+          <ul className="pa-list">
+            {data.fresh.map((c) => (
+              <li key={c.uid + c.id}>
+                <div className="pa-who">
+                  <b>{c.name}</b>
+                  {c.group && <small>{c.group}</small>}
+                  <span className="pa-chips">
+                    <em className="pa-chip is-plan">
+                      💎 {planName(c)}
+                      {money(c.amount) && ' · ' + money(c.amount)}
+                    </em>
+                    {c.paidAt && (
+                      <em className="pa-chip">
+                        🕒 {L('To‘lov vaqti', 'Paid at', 'Оплата')}: {date(c.paidAt, true)}
+                      </em>
+                    )}
+                    {c.receipt && <ReceiptButton uid={c.uid} id={c.id} />}
+                    <em className="pa-chip is-muted">
+                      {L('Yuborgan', 'Sent', 'Отправлено')}: {date(c.at, true)}
+                    </em>
+                  </span>
+                </div>
+                <span className="pa-btns">
+                  <Button
+                    size="sm"
+                    disabled={!!busy}
+                    onClick={() =>
+                      void run(
+                        { op: 'verify', uid: c.uid, id: c.id },
+                        'ok' + c.id,
+                        '✅ ' +
+                          c.name +
+                          ': ' +
+                          L('to‘lov tasdiqlandi', 'payment confirmed', 'оплата подтверждена'),
+                      )
+                    }
+                  >
+                    ✅ {L('To‘lov keldi', 'Payment received', 'Оплата пришла')}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="pa-danger"
+                    disabled={!!busy}
+                    onClick={() => remove(c.uid, c.name)}
+                  >
+                    ✖ {L('Chiqarib tashlash', 'Remove', 'Убрать')}
+                  </Button>
+                </span>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="muted">
+            {L(
+              'Hozircha yangi obuna yo‘q. Talaba obuna bo‘lsa, shu yerda chiqadi (telefoningizga bildirishnoma ham keladi).',
+              'No new subscriptions. When a student subscribes, it appears here (you also get a notification).',
+              'Новых подписок нет. Когда студент подпишется, он появится здесь (придёт уведомление).',
+            )}
+          </p>
+        )}
+      </section>
+
+      {data.pending.length > 0 && (
+        <section className="bo-card pm-admin-pending">
+          <h3>
+            🧾{' '}
+            {L(
+              'Eski tartibda yuborilgan cheklar',
+              'Receipts sent the old way',
+              'Чеки по старой схеме',
+            )}{' '}
+            ({data.pending.length})
+          </h3>
           <ul className="bo-list pm-admin-list">
             {data.pending.map((o) => (
               <li key={o.uk + o.id}>
@@ -146,55 +365,36 @@ export function PremiumAdmin() {
                   <Receipts o={o.uk + '/' + o.id} files={o.files.filter((f) => f.side === 'pay')} />
                 </div>
                 <span className="pm-admin-btns">
-                  {PREMIUM_TERMS.map((days) => (
+                  {PREMIUM_TERMS.map((d) => (
                     <Button
-                      key={days}
+                      key={d}
                       size="sm"
                       disabled={!!doing}
                       onClick={() =>
                         void decide(
                           o,
-                          { op: 'confirm', days },
+                          { op: 'confirm', days: d },
                           '💎 ' +
                             o.name +
                             ': ' +
-                            L('obuna ochildi', 'Premium is on', 'подписка открыта') +
-                            ' (' +
-                            termText(days, lang) +
-                            ')',
+                            L('obuna ochildi', 'Premium is on', 'подписка открыта'),
                         )
                       }
                     >
-                      ✅ {termText(days, lang)}
-                      {L('ga qabul qilish', ' — accept', ' — принять')}
+                      ✅ {termText(d, lang)}
                     </Button>
                   ))}
                   <Button
                     size="sm"
                     variant="outline"
                     disabled={!!doing}
-                    onClick={() => {
-                      const why = window.prompt(
-                        L(
-                          o.name +
-                            'ning cheki qabul qilinmasinmi? Sababini yozing (ixtiyoriy) — foydalanuvchiga boradi.',
-                          'Reject ' +
-                            o.name +
-                            '’s receipt? Write a reason (optional) — the user gets it.',
-                          'Не принимать чек ' + o.name + '? Укажите причину (необязательно).',
-                        ),
-                        '',
-                      );
-                      if (why === null) return;
+                    onClick={() =>
                       void decide(
                         o,
-                        {
-                          op: 'reject',
-                          ...(why.trim() ? { reason: why.trim().slice(0, 300) } : {}),
-                        },
+                        { op: 'reject' },
                         '✖ ' + L('Chek qabul qilinmadi', 'Receipt rejected', 'Чек отклонён'),
-                      );
-                    }}
+                      )
+                    }
                   >
                     ✖ {L('Qabul qilmaslik', 'Reject', 'Не принимать')}
                   </Button>
@@ -202,21 +402,206 @@ export function PremiumAdmin() {
               </li>
             ))}
           </ul>
-        ) : (
-          <p className="muted">
-            {L(
-              'Hozircha yangi chek yo‘q. Foydalanuvchi istalgan summani to‘lab chek yuborsa, shu yerda chiqadi — 1 oy yoki 1 yilga qabul qilasiz, obuna o‘zi yoqiladi.',
-              'No new receipts. When a user pays any amount and sends a receipt it appears here — accept it for 1 month or 1 year and Premium turns on by itself.',
-              'Новых чеков нет. Когда пользователь оплатит любую сумму и пришлёт чек, он появится здесь — примите на 1 месяц или 1 год, подписка включится сама.',
-            )}
-          </p>
-        )}
-      </div>
-      <div className="bo-grid">
-        <form className="bo-form" onSubmit={(e) => void grant(e)}>
+        </section>
+      )}
+
+      <section className="bo-card">
+        <div className="pa-head">
           <h3>
-            💎 {L('Talabaga obuna berish', 'Give Premium to a student', 'Выдать подписку студенту')}
+            👥 {L('Obunachilar', 'Subscribers', 'Подписчики')} ({data.grants.length})
           </h3>
+          <input
+            className="input pa-find"
+            value={find}
+            onChange={(e) => setFind(e.target.value)}
+            placeholder={L(
+              'Ism yoki guruh bo‘yicha qidirish',
+              'Search by name or group',
+              'Поиск по имени или группе',
+            )}
+            aria-label={L('Obunachini qidirish', 'Search subscribers', 'Поиск подписчика')}
+          />
+        </div>
+        <ul className="pa-list pa-subs">
+          {list.map((g: Grant) => {
+            const on = g.until > data.now;
+            const pickTerm = terms[g.uid] ?? (TERM_CHOICES.includes(g.term as never) ? g.term : 0);
+            return (
+              <li key={g.uid} className={on ? '' : 'is-off'}>
+                <div className="pa-who">
+                  <b>{g.name}</b>
+                  {g.group && <small>{g.group}</small>}
+                  <span className="pa-chips">
+                    <em className={'pa-chip ' + (on ? 'is-on' : 'is-off')}>
+                      {on
+                        ? '✅ ' +
+                          L('Faol', 'Active', 'Активна') +
+                          ' · ' +
+                          date(g.until) +
+                          L(' gacha', '', '')
+                        : '⌛ ' +
+                          L('Muddati tugagan', 'Expired', 'Истекла') +
+                          ' · ' +
+                          date(g.until)}
+                    </em>
+                    <em className="pa-chip">
+                      📅 {L('Boshlangan', 'Started', 'Начало')}: {date(g.since)} ·{' '}
+                      {termText(g.term, lang)}
+                    </em>
+                    <em className={'pa-chip' + (g.paid > 0 ? ' is-sum' : '')}>
+                      💳{' '}
+                      {g.paid > 0
+                        ? formatSum(g.paid)
+                        : L('qo‘lda berilgan', 'given by hand', 'выдано вручную')}
+                    </em>
+                    {g.claim?.status === 'new' && (
+                      <em className="pa-chip is-new">
+                        🆕 {L('to‘lovi tekshirilmagan', 'not checked', 'не проверено')}
+                      </em>
+                    )}
+                  </span>
+                </div>
+                <span className="pa-btns">
+                  <label className="pa-term">
+                    <span>{L('Muddat', 'Period', 'Срок')}</span>
+                    <select
+                      className="input"
+                      value={pickTerm}
+                      onChange={(e) => setTerms({ ...terms, [g.uid]: +e.target.value })}
+                      aria-label={
+                        L('Obuna muddati', 'Subscription period', 'Срок подписки') + ': ' + g.name
+                      }
+                    >
+                      {!pickTerm && <option value={0}>{termText(g.term, lang)}</option>}
+                      {TERM_CHOICES.map((d) => (
+                        <option key={d} value={d}>
+                          {termText(d, lang)}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <Button
+                    size="sm"
+                    disabled={!!busy || !pickTerm || pickTerm === g.term}
+                    onClick={() =>
+                      void run(
+                        { op: 'term', uid: g.uid, days: pickTerm },
+                        'tm' + g.uid,
+                        '💎 ' +
+                          g.name +
+                          ': ' +
+                          termText(pickTerm, lang) +
+                          L('lik obuna', ' Premium', ' подписка'),
+                      )
+                    }
+                  >
+                    {L('Saqlash', 'Save', 'Сохранить')}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="pa-danger"
+                    disabled={!!busy}
+                    onClick={() => remove(g.uid, g.name)}
+                    aria-label={L('Chiqarib tashlash', 'Remove', 'Убрать') + ': ' + g.name}
+                  >
+                    ✖
+                  </Button>
+                </span>
+              </li>
+            );
+          })}
+          {!list.length && (
+            <li className="muted">
+              {L('Obunachi topilmadi.', 'No subscribers found.', 'Подписчики не найдены.')}
+            </li>
+          )}
+        </ul>
+        <p className="bo-hint">
+          {L(
+            'Muddat obuna boshlangan kundan hisoblanadi: masalan, 1 oylik obunani «1 yil» qilib saqlasangiz, u boshlangan kunidan 1 yilgacha amal qiladi.',
+            'The period counts from the start date: e.g. switching a 1-month subscription to “1 year” makes it last a year from its start.',
+            'Срок считается от даты начала: например, 1 месяц → «1 год» — подписка действует год с начала.',
+          )}
+        </p>
+      </section>
+
+      <div className="bo-grid">
+        <form className="bo-form" onSubmit={saveCard}>
+          <h3>💳 {L('Karta va narxlar', 'Card and prices', 'Карта и цены')}</h3>
+          {card && (
+            <>
+              <label>
+                {L('Karta raqami', 'Card number', 'Номер карты')}
+                <input
+                  className="input"
+                  inputMode="numeric"
+                  value={card.card}
+                  maxLength={40}
+                  onChange={(e) => setCard({ ...card, card: e.target.value })}
+                  placeholder="8600 0000 0000 0000"
+                />
+              </label>
+              <label>
+                {L('Karta egasi', 'Card holder', 'Владелец карты')}
+                <input
+                  className="input"
+                  value={card.holder}
+                  maxLength={80}
+                  onChange={(e) => setCard({ ...card, holder: e.target.value })}
+                />
+              </label>
+              <div className="pa-prices">
+                <label>
+                  {L('1 oy narxi (so‘m)', '1 month price', 'Цена 1 месяц')}
+                  <input
+                    className="input"
+                    inputMode="numeric"
+                    value={card.month}
+                    onChange={(e) => setCard({ ...card, month: e.target.value.replace(/\D/g, '') })}
+                    placeholder="15000"
+                  />
+                </label>
+                <label>
+                  {L('1 yil narxi (so‘m)', '1 year price', 'Цена 1 год')}
+                  <input
+                    className="input"
+                    inputMode="numeric"
+                    value={card.year}
+                    onChange={(e) => setCard({ ...card, year: e.target.value.replace(/\D/g, '') })}
+                    placeholder="120000"
+                  />
+                </label>
+              </div>
+              <label>
+                {L(
+                  'Qo‘shimcha izoh (ixtiyoriy)',
+                  'Extra note (optional)',
+                  'Примечание (необязательно)',
+                )}
+                <textarea
+                  className="input"
+                  rows={2}
+                  maxLength={600}
+                  value={card.how}
+                  onChange={(e) => setCard({ ...card, how: e.target.value })}
+                  placeholder={L(
+                    'Masalan: Click yoki Payme orqali',
+                    'E.g. via Click or Payme',
+                    'Например: через Click или Payme',
+                  )}
+                />
+              </label>
+              <div className="bo-actions">
+                <Button type="submit" disabled={!!busy}>
+                  {L('Saqlash', 'Save', 'Сохранить')}
+                </Button>
+              </div>
+            </>
+          )}
+        </form>
+        <form className="bo-form" onSubmit={(e) => void grant(e)}>
+          <h3>➕ {L('Qo‘lda obuna berish', 'Give Premium by hand', 'Выдать подписку вручную')}</h3>
           <label>
             {L('Talabani toping', 'Find the student', 'Найдите студента')}
             <input
@@ -248,9 +633,9 @@ export function PremiumAdmin() {
           <label>
             {L('Muddat', 'Period', 'Срок')}
             <select className="input" value={days} onChange={(e) => setDays(+e.target.value)}>
-              {[7, 30, 90, 180, 365].map((d) => (
+              {[7, ...TERM_CHOICES].map((d) => (
                 <option key={d} value={d}>
-                  {d} {L('kun', 'days', 'дней')}
+                  {termText(d, lang)}
                 </option>
               ))}
             </select>
@@ -262,112 +647,58 @@ export function PremiumAdmin() {
           </div>
           <p className="bo-hint">
             {L(
-              'Talabada obuna bo‘lsa, yangi muddat uning ustiga qo‘shiladi.',
-              'If the student already has Premium, the new period is added on top.',
-              'Если подписка уже есть, новый срок прибавляется к текущему.',
+              'Obunasi bo‘lsa, yangi muddat ustiga qo‘shiladi. Yopilgan bo‘lsa, blok ham olinadi.',
+              'If they already have Premium, the period is added. A block is lifted too.',
+              'Если подписка есть, срок прибавляется. Блокировка снимается.',
             )}
           </p>
         </form>
-        <div className="bo-form">
-          <h3>💳 {L('To‘lov qanday', 'How payment works', 'Как проходит оплата')}</h3>
+      </div>
+
+      {data.blocked.length > 0 && (
+        <section className="bo-card">
+          <h3>
+            ⛔ {L('Obunadan chiqarilganlar', 'Removed from Premium', 'Удалённые из подписки')} (
+            {data.blocked.length})
+          </h3>
           <p className="muted">
             {L(
-              'Narx belgilanmagan: foydalanuvchi istalgan summani kartaga to‘lab (karta raqami — «Pullik xizmatlar → ⚙️ To‘lov yo‘riqnomasi»), chek skrinshotini yuboradi. Chek yuqorida chiqadi — 1 oy yoki 1 yilga qabul qilasiz (muddat mavjudiga qo‘shiladi) yoki qabul qilmaysiz. Soxta chekni «Pullik xizmatlar» yozishmasida bloklash mumkin.',
-              'No fixed price: the user pays any amount to the card (number under “Paid services → ⚙️ Payment instructions”) and sends a receipt screenshot. It appears above — accept it for 1 month or 1 year (added to the current period) or reject it. A fake receipt can be blocked in the “Paid services” chat.',
-              'Цена не задана: пользователь оплачивает любую сумму на карту («Платные услуги → ⚙️ Инструкция по оплате») и присылает скриншот чека. Он появится выше — примите на 1 месяц или 1 год (срок прибавляется) или отклоните. Поддельный чек можно заблокировать в переписке «Платные услуги».',
+              'Ular o‘zi qayta obuna bo‘la olmaydi. Blokdan chiqarsangiz, yana o‘zi obuna bo‘la oladi.',
+              'They cannot subscribe by themselves. Unblock to let them subscribe again.',
+              'Сами подписаться не могут. Разблокируйте, чтобы разрешить.',
             )}
           </p>
-        </div>
-      </div>
-      <div className="bo-card">
-        <h3>
-          👥 {L('Obunachilar', 'Subscribers', 'Подписчики')} ({data.grants.length})
-        </h3>
-        <ul className="bo-list pm-admin-list pm-admin-subs">
-          {data.grants.map((g) => {
-            const on = g.until > data.now;
-            return (
-              <li key={g.uid} className={on ? '' : 'is-off'}>
-                <div className="pm-admin-who">
-                  <b>{g.name}</b>
-                  {g.group && <small>{g.group}</small>}
-                  <span className="pm-admin-chips">
-                    <em className={on ? 'is-on' : 'is-off'}>
-                      {on
-                        ? '📅 ' + date(g.until) + L(' gacha', ' — until', ' — до')
-                        : '⌛ ' + L('muddati tugagan', 'expired', 'срок истёк')}
-                    </em>
-                    {g.days > 0 && (
-                      <em>
-                        ⏳ {L('Muddat', 'Period', 'Срок')}:{' '}
-                        {g.hist.map((t) => termText(t.days, lang)).join(' + ')}
-                      </em>
-                    )}
-                    <em className={g.paid > 0 ? 'is-sum' : ''}>
-                      💳 {L('To‘lagan', 'Paid', 'Оплатил')}:{' '}
-                      {g.paid > 0
-                        ? formatSum(g.paid)
-                        : L('qo‘lda berilgan', 'given by hand', 'выдано вручную')}
-                    </em>
-                  </span>
-                  {g.hist.length > 0 && (
-                    <details className="pm-admin-hist">
-                      <summary>
-                        {L('Tarix', 'History', 'История')} ({g.hist.length})
-                      </summary>
-                      <ol>
-                        {g.hist.map((t, i) => (
-                          <li key={i}>
-                            {date(t.at)} · {termText(t.days, lang)} ·{' '}
-                            {t.amount ? formatSum(t.amount) : L('qo‘lda', 'by hand', 'вручную')}
-                            {t.by && <small> · {t.by}</small>}
-                          </li>
-                        ))}
-                      </ol>
-                    </details>
-                  )}
+          <ul className="pa-list">
+            {data.blocked.map((b) => (
+              <li key={b.key}>
+                <div className="pa-who">
+                  <b>{b.name}</b>
+                  <small>
+                    {date(b.at)}
+                    {b.by && ' · ' + b.by}
+                  </small>
                 </div>
-                <span className="pm-admin-btns">
+                <span className="pa-btns">
                   <Button
                     size="sm"
                     variant="outline"
                     disabled={!!busy}
-                    aria-label={
-                      L('Obunani bekor qilish', 'Remove Premium', 'Отменить подписку') +
-                      ': ' +
-                      g.name
-                    }
-                    onClick={() => {
-                      if (
-                        !window.confirm(
-                          L(
-                            g.name + 'ning obunasi bekor qilinsinmi? Obuna darhol yopiladi.',
-                            'Remove ' + g.name + '’s Premium? It closes at once.',
-                            'Отменить подписку ' + g.name + '? Она закроется сразу.',
-                          ),
-                        )
+                    onClick={() =>
+                      void run(
+                        { op: 'unblock', key: b.key },
+                        'ub' + b.key,
+                        L('Blokdan chiqarildi', 'Unblocked', 'Разблокирован'),
                       )
-                        return;
-                      void act(
-                        { op: 'revoke', uid: g.uid },
-                        'rv' + g.uid,
-                        L('Obuna bekor qilindi', 'Premium removed', 'Подписка отменена'),
-                      ).catch(() => {});
-                    }}
+                    }
                   >
-                    ✖ {L('Bekor qilish', 'Remove', 'Отменить')}
+                    {L('Blokdan chiqarish', 'Unblock', 'Разблокировать')}
                   </Button>
                 </span>
               </li>
-            );
-          })}
-          {!data.grants.length && (
-            <li className="muted">
-              {L('Hozircha obunachi yo‘q.', 'No subscribers yet.', 'Подписчиков пока нет.')}
-            </li>
-          )}
-        </ul>
-      </div>
+            ))}
+          </ul>
+        </section>
+      )}
     </div>
   );
 }

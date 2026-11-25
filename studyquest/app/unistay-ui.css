@@ -1498,3 +1498,355 @@
     animation: none;
   }
 }
+
+/* 💎 O'zi obuna bo'lish oynasi (components/premium-subscribe.tsx): tarif → karta → «To'lov qildim» → vaqt yoki chek */
+.premium-plans:has(.ps) {
+  display: block;
+}
+.ps {
+  display: grid;
+  gap: 12px;
+  width: 100%;
+  text-align: left;
+}
+.ps-skeleton {
+  height: 220px;
+  border-radius: 16px;
+}
+.ps-plans {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.ps-plan {
+  display: grid;
+  gap: 2px;
+  justify-items: center;
+  padding: 12px 8px;
+  border-radius: 14px;
+  border: 2px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+  transition:
+    border-color 0.15s,
+    background 0.15s;
+}
+.ps-plan b {
+  font-size: 1.05rem;
+}
+.ps-plan span {
+  color: var(--muted);
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+.ps-plan.is-on {
+  border-color: var(--violet);
+  background: var(--soft-violet);
+}
+.ps-plan.is-on span {
+  color: var(--violet);
+}
+.ps-card {
+  display: grid;
+  gap: 6px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  color: #fff;
+  background: linear-gradient(135deg, #6d28d9, #8b5cf6 60%, #a78bfa);
+  box-shadow: 0 10px 24px -14px #6d28d9;
+}
+.ps-card small {
+  opacity: 0.9;
+  font-weight: 600;
+}
+.ps-card-no {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.ps-card-no b {
+  font-size: 1.3rem;
+  letter-spacing: 0.06em;
+  font-variant-numeric: tabular-nums;
+}
+.ps-copy {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  border: 0;
+  background: #ffffff2e;
+  color: #fff;
+  cursor: pointer;
+}
+.ps-holder {
+  font-weight: 600;
+  opacity: 0.95;
+}
+.ps-sum {
+  margin-top: 2px;
+  font-size: 0.95rem;
+}
+.ps-sum b {
+  font-size: 1.05rem;
+}
+.ps-how {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  white-space: pre-line;
+  opacity: 0.95;
+}
+.ps-main {
+  width: 100%;
+  min-height: 46px;
+  font-size: 1rem;
+}
+.ps-lead {
+  margin: 0;
+  line-height: 1.5;
+}
+.ps-field {
+  display: grid;
+  gap: 6px;
+  font-weight: 700;
+  font-size: 0.92rem;
+}
+.ps-or {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--muted);
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+.ps-or::before,
+.ps-or::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+.ps-actions {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 10px;
+}
+.ps-note {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #dcfce7;
+  color: #166534;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+.ps-note.is-bad {
+  background: #fee2e2;
+  color: #991b1b;
+}
+.ps-done {
+  display: grid;
+  gap: 4px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: #dcfce7;
+  color: #166534;
+}
+.dark .ps-note,
+.dark .ps-done {
+  background: #14532d;
+  color: #dcfce7;
+}
+.dark .ps-note.is-bad {
+  background: #7f1d1d;
+  color: #fee2e2;
+}
+
+/* 💎 Sayt boshqaruvi → Obuna (components/backoffice/premium-admin.tsx) */
+.pa-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+.pa-stat {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  column-gap: 10px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--violet);
+}
+.pa-stat b {
+  font-size: 1.35rem;
+  color: var(--text);
+}
+.pa-stat span:last-child {
+  grid-column: 1 / -1;
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+.pa-stat.is-new {
+  border-color: #f59e0b;
+  background: color-mix(in srgb, #f59e0b 10%, var(--surface));
+}
+.pa-how {
+  margin: 0;
+  padding: 12px 14px 12px 32px;
+  border-radius: 14px;
+  background: var(--soft-violet);
+  display: grid;
+  gap: 4px;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+.pa-fresh {
+  border-color: color-mix(in srgb, #f59e0b 45%, var(--border)) !important;
+}
+.pa-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+.pa-list > li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--surface-soft);
+}
+.pa-list > li.is-off {
+  opacity: 0.7;
+}
+.pa-who {
+  display: grid;
+  gap: 4px;
+  flex: 1 1 280px;
+  min-width: 0;
+}
+.pa-who small {
+  color: var(--muted);
+}
+.pa-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.pa-chip {
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 12.5px;
+  font-style: normal;
+  font-weight: 600;
+}
+.pa-chip.is-plan {
+  border-color: color-mix(in srgb, var(--violet) 45%, var(--border));
+  color: var(--violet);
+}
+.pa-chip.is-on {
+  border-color: color-mix(in srgb, #16a34a 45%, var(--border));
+  color: #15803d;
+}
+.pa-chip.is-off,
+.pa-chip.is-muted {
+  color: var(--muted);
+}
+.pa-chip.is-sum {
+  color: #15803d;
+}
+.pa-chip.is-new {
+  border-color: #f59e0b;
+  color: #b45309;
+}
+.pa-chip.is-link {
+  cursor: pointer;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 700;
+  border-color: color-mix(in srgb, var(--violet) 45%, var(--border));
+  color: var(--violet);
+}
+.dark .pa-chip.is-on,
+.dark .pa-chip.is-sum {
+  color: #4ade80;
+}
+.pa-btns {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 8px;
+}
+.pa-term {
+  display: grid;
+  gap: 2px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--muted);
+}
+.pa-term select {
+  min-width: 96px;
+  height: 34px;
+  padding: 0 8px;
+}
+.pa-danger {
+  color: #b91c1c !important;
+  border-color: #fecaca !important;
+}
+.pa-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.pa-head h3 {
+  margin: 0;
+}
+.pa-find {
+  max-width: 280px;
+}
+.pa-prices {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.pa-receipt {
+  max-width: min(560px, 94vw);
+  padding: 14px;
+}
+.pa-receipt img {
+  display: block;
+  max-width: 100%;
+  max-height: 80vh;
+  margin: 0 auto;
+  border-radius: 12px;
+}
+@media (max-width: 640px) {
+  .pa-stats {
+    grid-template-columns: 1fr;
+  }
+  .pa-find {
+    max-width: none;
+    width: 100%;
+  }
+  .pa-btns {
+    width: 100%;
+  }
+}

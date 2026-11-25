@@ -181,7 +181,7 @@ test('final exam prep: upload questions, buy the section, practise, pass the fin
   await reset(page);
 });
 
-test('Premium: shown in the news box with its perks; any amount and a receipt; on the Premium admin page the administrator rejects or accepts it for 1 month or 1 year and sees the period and amount; pick one of 5 looks', async ({
+test('Premium: a student subscribes by themselves (card → «I have paid» → time or receipt) and it opens at once; the administrator verifies, changes 1 year ↔ 1 month, removes and unblocks; pick one of the looks', async ({
   page,
   browser,
 }) => {
@@ -193,6 +193,21 @@ test('Premium: shown in the news box with its perks; any amount and a receipt; o
     await browser.newContext({ baseURL: test.info().project.use.baseURL })
   ).newPage();
   await as(student, 'demo-student');
+  // 💳 administrator karta va narxlarni yozgan
+  const premiumAct = (input: Record<string, unknown>) =>
+    page.request.post('/api/platform', { data: { action: 'premiumAdmin', input } });
+  expect(
+    (
+      await premiumAct({
+        op: 'info',
+        card: '8600 1234 5678 9012',
+        holder: 'I. Sayfiddinov',
+        month: 15000,
+        year: 120000,
+        how: 'Click yoki Payme orqali',
+      })
+    ).ok(),
+  ).toBe(true);
   // obunasi yo'q: chap menyu pastida doimiy «Obuna bo'ling» kartasi — nimalar ochilishi bilan
   await student.goto('/#home', { waitUntil: 'domcontentloaded' });
   const slide = student.locator('.sidebar .premium-side');
@@ -217,42 +232,51 @@ test('Premium: shown in the news box with its perks; any amount and a receipt; o
   await expect(offer).toContainText('Kutubxonadagi 💎');
   await expect(offer).not.toContainText('chegirma');
   const plans = offer.locator('.premium-plans');
-  await expect(plans).not.toContainText('5 000 so‘m');
-  await payForm(plans, '1000');
-  await expect(plans).toContainText('Chekingiz yuborildi: 1 000 so‘m');
-  // administrator: Sayt boshqaruvi → 💎 Obuna — chek yuborganlar (summa, chek): qabul qilish yoki qilmaslik
+  // 1) tarif va karta: 1 oy — 15 000, 1 yil — 120 000; karta raqami nusxalanadi
+  await expect(plans.locator('.ps-card')).toContainText('8600 1234 5678 9012');
+  await expect(plans.locator('.ps-card')).toContainText('I. Sayfiddinov');
+  await expect(plans.getByRole('radio', { name: /1 oy/ })).toContainText('15 000 so‘m');
+  await plans.getByRole('radio', { name: /1 yil/ }).click();
+  await expect(plans.locator('.ps-sum')).toContainText('120 000 so‘m');
+  // 2) «To'lov qildim» → to'lov vaqti (hozirgi vaqt yozilgan) yoki chek → «Yuborish»
+  await plans.getByRole('button', { name: /To‘lov qildim/ }).click();
+  await expect(plans.getByLabel(/To‘lov qilingan vaqt/)).not.toHaveValue('');
+  await plans.getByLabel(/To‘lov qilingan vaqt/).fill('');
+  await expect(plans.getByRole('button', { name: /Yuborish/ })).toBeDisabled();
+  await plans.getByRole('button', { name: /Orqaga/ }).click();
+  await plans.getByRole('button', { name: /To‘lov qildim/ }).click();
+  await plans.getByRole('button', { name: /Yuborish/ }).click();
+  // 3) obuna darhol ochiladi
+  await expect(student.getByText('💎 Obuna ochildi! Rahmat.')).toBeVisible();
+  await expect(profileMark).toBeVisible();
+  // administrator: Sayt boshqaruvi → 💎 Obuna — yangi obuna, to'lov vaqti bilan: «To'lov keldi»
   await page.goto('/#admin', { waitUntil: 'domcontentloaded' });
   await page
     .getByRole('button', { name: /Obuna \(pullik imkoniyatlar\)/ })
     .first()
     .click();
-  const pending = page.locator('.pm-admin-pending .pm-admin-list > li');
-  await expect(pending).toHaveCount(1);
-  await expect(pending).toContainText('1 000 so‘m');
-  await expect(pending.locator('.receipts img')).toBeVisible();
-  await expect(pending.getByRole('button', { name: /1 yilga qabul qilish/ })).toBeVisible();
-  page.once('dialog', (d) => void d.accept('summa kam'));
-  await pending.getByRole('button', { name: /Qabul qilmaslik/ }).click();
-  await expect(pending).toHaveCount(0);
-  // foydalanuvchi: sababini ko'radi va yangi chek yuboradi
-  await student.reload({ waitUntil: 'domcontentloaded' });
-  await card.getByRole('button', { name: /Obuna bo‘lish/ }).click();
-  await expect(plans.locator('.pb-note.is-rejected')).toContainText(
-    'Chek qabul qilinmadi: summa kam',
-  );
-  await payForm(plans, '5000');
-  await expect(plans).toContainText('Chekingiz yuborildi: 5 000 so‘m');
-  // administrator 1 oyga qabul qiladi — obuna o'zi yoqiladi; ro'yxatda muddat va to'langan summa
-  await page.reload({ waitUntil: 'domcontentloaded' });
-  await expect(pending).toHaveCount(1);
-  await pending.getByRole('button', { name: /1 oyga qabul qilish/ }).click();
-  await expect(pending).toHaveCount(0);
-  const sub = page.locator('.pm-admin-subs > li').first();
-  await expect(sub).toContainText('Muddat: 1 oy');
-  await expect(sub).toContainText('To‘lagan: 5 000 so‘m');
-  await expect(sub).toContainText('gacha');
-  await expect(page.locator('.bo-status')).toContainText('jami to‘langan: 5 000 so‘m');
-  await expect(sub.getByRole('button', { name: /Obunani bekor qilish/ })).toBeVisible();
+  await expect(page.locator('.pa-stats')).toContainText('tekshirilmagan');
+  const fresh = page.locator('.pa-fresh .pa-list > li');
+  await expect(fresh).toHaveCount(1);
+  await expect(fresh).toContainText('Madina Ergasheva');
+  await expect(fresh).toContainText('1 yil · 120 000 so‘m');
+  await expect(fresh).toContainText('To‘lov vaqti');
+  await fresh.getByRole('button', { name: /To‘lov keldi/ }).click();
+  await expect(fresh).toHaveCount(0);
+  const sub = page.locator('.pa-subs > li').filter({ hasText: 'Madina' });
+  await expect(sub).toContainText('Faol');
+  await expect(sub).toContainText('Boshlangan');
+  await expect(sub).toContainText('· 1 yil');
+  await expect(sub).toContainText('120 000 so‘m');
+  await expect(page.locator('.pa-stats')).toContainText('120 000 so‘m');
+  // ⏳ muddatni o'zgartirish (boshlangan kunidan): 1 yil → 1 oy → yana 1 yil
+  const term = sub.getByLabel(/Obuna muddati/);
+  await term.selectOption('30');
+  await sub.getByRole('button', { name: 'Saqlash' }).click();
+  await expect(sub).toContainText('· 1 oy');
+  await term.selectOption('365');
+  await sub.getByRole('button', { name: 'Saqlash' }).click();
+  await expect(sub).toContainText('· 1 yil');
 
   // obunachi: 5 xil bezakdan birini tanlaydi
   await student.reload({ waitUntil: 'domcontentloaded' });
@@ -291,12 +315,48 @@ test('Premium: shown in the news box with its perks; any amount and a receipt; o
     .getByRole('img', { name: 'Faol Premium obuna' });
   await expect(homeMark).toBeInViewport();
   await expect(student.locator('.premium-side')).toHaveCount(0);
-  // tozalash: obunani olib tashlash
+  // ✖ noqonuniy obuna: administrator chiqarib tashlaydi — obuna yopiladi, o'zi qayta obuna bo'la olmaydi
+  await page.reload({ waitUntil: 'domcontentloaded' });
+  page.once('dialog', (d) => void d.accept());
+  await sub.getByRole('button', { name: /Chiqarib tashlash: Madina/ }).click();
+  await expect(sub).toHaveCount(0);
+  const removed = page.locator('.bo-card').filter({ hasText: 'Obunadan chiqarilganlar' });
+  await expect(removed).toContainText('Madina Ergasheva');
+  await student.reload({ waitUntil: 'domcontentloaded' });
+  await expect(homeMark).toHaveCount(0);
+  await student
+    .locator('.premium-side.is-home')
+    .getByRole('button', { name: /Obuna bo‘lish/ })
+    .click();
+  await expect(student.getByRole('dialog')).toContainText('Obunangizni administrator yopgan');
+  await student.keyboard.press('Escape');
+  // blokdan chiqariladi — endi chek bilan obuna bo'ladi; administrator chekni ko'radi
+  await removed.getByRole('button', { name: 'Blokdan chiqarish' }).click();
+  await expect(removed).toHaveCount(0);
+  await student.reload({ waitUntil: 'domcontentloaded' });
+  await student
+    .locator('.premium-side.is-home')
+    .getByRole('button', { name: /Obuna bo‘lish/ })
+    .click();
+  const again = student.getByRole('dialog').locator('.premium-plans');
+  await again.getByRole('button', { name: /To‘lov qildim/ }).click();
+  await again.getByLabel(/To‘lov qilingan vaqt/).fill('');
+  await again
+    .locator('.receipt-pick input[type="file"]')
+    .setInputFiles({ name: 'chek.png', mimeType: 'image/png', buffer: RECEIPT });
+  await again.getByRole('button', { name: /Yuborish/ }).click();
+  await expect(student.getByText('💎 Obuna ochildi! Rahmat.')).toBeVisible();
+  await page.reload({ waitUntil: 'domcontentloaded' });
+  await expect(fresh).toHaveCount(1);
+  await expect(fresh).toContainText('1 oy · 15 000 so‘m');
+  await expect(fresh).not.toContainText('To‘lov vaqti');
+  await fresh.getByRole('button', { name: /Chekni ko‘rish/ }).click();
+  await expect(page.getByRole('dialog').getByRole('img', { name: 'To‘lov cheki' })).toBeVisible();
+  await page.keyboard.press('Escape');
+  // tozalash: obunani olib tashlash, karta va narxlarni o'chirish
   const me = await (await page.request.get('/api/platform?view=premiumAdmin')).json();
-  for (const g of me.grants as { uid: string }[])
-    await page.request.post('/api/platform', {
-      data: { action: 'premiumAdmin', input: { op: 'revoke', uid: g.uid } },
-    });
+  for (const g of me.grants as { uid: string }[]) await premiumAct({ op: 'revoke', uid: g.uid });
+  await premiumAct({ op: 'info', card: '', holder: '', month: 0, year: 0, how: '' });
   await student.reload({ waitUntil: 'domcontentloaded' });
   await expect(student.locator('.hero-avatar:visible')).toBeVisible();
   await expect(homeMark).toHaveCount(0);

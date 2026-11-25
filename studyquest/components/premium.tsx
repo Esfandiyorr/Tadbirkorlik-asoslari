@@ -17,11 +17,12 @@ import { dueText, tr } from '@/lib/points';
 import type { PremiumInfo, PremiumState } from '@/lib/library';
 import { isPlayApp } from '@/lib/play-app';
 import { LOOKS, lookOf } from '@/lib/premium-look';
-import { ProductBuy } from './product-buy';
+import { PREMIUM_CHANGED, PremiumSubscribe } from './premium-subscribe';
 import { ImagePick } from './image-pick';
 
-/* 💎 Obuna (premium): holatini o'qish, «obuna bo'lish» oynasi va kichik belgi. Obunani hozircha administrator beradi
-   (lib/server/premium.ts) — oynada narx va to'lov yo'riqnomasi ko'rsatiladi. */
+/* 💎 Obuna (premium): holatini o'qish, «obuna bo'lish» oynasi va kichik belgi. Talaba o'zi obuna bo'ladi
+   (components/premium-subscribe.tsx): karta → «To'lov qildim» → vaqt yoki chek → obuna darhol ochiladi;
+   administrator «💎 Obuna»da tekshiradi (lib/server/premium.ts). */
 
 export type PremiumData = {
   state: PremiumState;
@@ -77,6 +78,10 @@ export function usePremium() {
   }, [signedIn, request, data?.user?.id]);
   useEffect(() => {
     void load();
+    // boshqa joyda obuna bo'linsa (obuna oynasi) — hamma joyda yangilanadi
+    const again = () => void load();
+    window.addEventListener(PREMIUM_CHANGED, again);
+    return () => window.removeEventListener(PREMIUM_CHANGED, again);
   }, [load]);
   return { premium, reload: load };
 }
@@ -328,17 +333,18 @@ export function PremiumOffer({
           {L('Obuna bilan ko‘proq imkoniyat', 'More with Premium', 'Больше с подпиской')}
         </h2>
         <PremiumPerks />
-        {signedIn ? (
+        {signedIn && !play ? (
           <div className="premium-plans">
-            <ProductBuy product="premium" />
-            <small className="muted">
-              {L(
-                'Narx belgilanmagan: istalgan summani to‘laysiz. Administrator chekni qabul qilib, obunani muddati bilan (1 oy yoki 1 yil) o‘zi ochadi.',
-                'No fixed price: pay any amount. The administrator accepts the receipt and turns Premium on for a period (1 month or 1 year).',
-                'Цена не фиксирована: оплатите любую сумму. Администратор примет чек и включит подписку на срок (1 месяц или 1 год).',
-              )}
-            </small>
+            <PremiumSubscribe />
           </div>
+        ) : signedIn ? (
+          <p className="premium-offer-how">
+            {L(
+              'Obuna saytda (www.tadbirkorlik-asoslari.uz) ochiladi. Ochilgach, shu hisob bilan ilovada ham ishlaydi.',
+              'Premium is bought on the website (www.tadbirkorlik-asoslari.uz). Then it works in the app with this account too.',
+              'Подписка оформляется на сайте (www.tadbirkorlik-asoslari.uz). Затем работает и в приложении с этим аккаунтом.',
+            )}
+          </p>
         ) : (
           play && (
             <p className="premium-offer-how">

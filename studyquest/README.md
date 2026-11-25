@@ -88,20 +88,24 @@ For Firebase-backed development, copy `.env.example` to `.env.local`, supply you
     and changes notify the administrator by push; replies, confirmed payments and results notify the client. The
     privacy policy says that order texts and files may be processed with AI tools. The section is hidden inside the
     Play Store app (`/?src=play`): Google Play does not allow steering to external payments.
-- **💎 Premium** (`lib/server/premium.ts`, `components/premium.tsx`, `lib/premium-look.ts`): **no fixed price**.
-  The offer (Profile → 💎 Premium, the 💎 slide in the announcements box on the right for users without Premium, 💎
-  library items) lists what subscribers get and a simple form (`components/product-buy.tsx`): the card number from
-  ⚙️ Payment instructions → «How much did you pay?» (any amount) → a receipt screenshot → «📤 Send the receipt». The
-  receipt appears in **Site manager → 💎 Premium → «🧾 Receipts to check»** (name, group, amount, note, receipt
-  picture; `premiumPending()` reads the open Premium orders) and in the «Paid services» chat: «✅ Accept for 1 month» /
-  «✅ Accept for 1 year» turns Premium on by itself (added on top of the current period); «✖ Reject» (`op: 'reject'`,
-  optional reason) closes the order without blocking — the user sees the reason and may send a new receipt (for a
-  custom service only the receipt and amount are removed). The same page lists **subscribers with their period and
-  how much they paid**: every opening is kept in `site/premium/<user>.hist` ({at, days, amount?, by}; hand-given
-  periods have no amount), with «⏳ Period: 1 year + 1 month», «💳 Paid: …», the end date, a history list and
-  «✖ Remove». For a fake receipt «⛔ Fake receipt — block» in the chat: the order is cancelled, paid services are closed for that user
-  (`site/serviceBans/<user>`; optionally site sign-in is blocked too) and «⚙️ Payment instructions» lists the blocked
-  users with «Unblock». The administrator can still grant Premium by hand. Subscribers get: a **profile look** — one
+- **💎 Premium** (`lib/server/premium.ts`, `app/api/premium`, `components/premium-subscribe.tsx`,
+  `components/backoffice/premium-admin.tsx`, `lib/premium-plans.ts`, `lib/premium-look.ts`): **students subscribe by
+  themselves and Premium opens at once.** The offer (Profile → 💎 Premium, the «Get Premium» card, 💎 library items)
+  lists the perks, then: choose **1 month or 1 year** (prices and the card number/holder are set under **Site manager →
+  💎 Premium → 💳 Card and prices**, `site/premiumInfo`) → pay to the shown card (copy button) → **«✅ I have paid»** →
+  the exact payment time (pre-filled with now) **or** a receipt picture → **«📤 Send»** (`POST /api/premium`
+  `{op: 'subscribe', plan, paidAt?, receipt?}`). The period is added at once (on top of an active one) and the payment
+  is stored as unchecked in `site/premiumClaims/<user>/<id>` (receipt pictures in `site/premiumReceipts/…`, shown only
+  to the administrator via `GET /api/premium?receipt=<uid>/<id>`); the administrator gets a push notification. A
+  user with an unchecked payment cannot send another (no free periods by repeated clicks); payment times must be
+  within the last 3 days. The admin page shows **🆕 New subscriptions — check the payment** («✅ Payment received» or
+  «✖ Remove»), **👥 Subscribers** (active until, started, period, paid) with a **period selector** that sets the
+  period from the start date (`op: 'term'`, e.g. 1 month → 1 year; the start is `since`, rebuilt from the history for
+  old records) and «✖ Remove». Removing closes Premium at once, marks unchecked payments as removed and blocks
+  self-subscription (`site/premiumBlock/<user>`, listed under «⛔ Removed» with «Unblock»; a hand grant lifts it too).
+  Receipts sent the old way (a «Paid services» Premium order, `premiumPending()`) still appear for accepting or
+  rejecting. Every opening is kept in `site/premium/<user>.hist` ({at, days, amount?, by}).
+  The administrator can still grant Premium by hand. Subscribers get: a **profile look** — one
   of 5 (👑 Golden crown, 🌈 Rainbow, ✨ Violet glow, 💎 Diamond, 🔥 Fire; Profile → 💎 Premium), shown on their
   leaderboard row while Premium is active; an avatar; 💎 library items; the course for non-students; video lesson
   downloads. Active subscribers have the TerDU **Premium badge after their name** (`public/premium-belgi.webp`,

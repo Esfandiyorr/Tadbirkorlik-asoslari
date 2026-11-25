@@ -41,10 +41,16 @@ export const LIBRARY_KIND: Record<LibraryKind, { icon: string; name: [string, st
 
 /* 💎 Obuna (premium) — umumiy turlar (server qismi — lib/server/premium.ts). */
 export type PremiumInfo = {
-  /** narx matni, masalan «25 000 so'm / oy» */
+  /** narx matni, masalan «25 000 so'm / oy» (eski yozuvlar) */
   price: string;
-  /** qanday to'lash (talabaga ko'rsatiladi) */
+  /** qo'shimcha yo'riqnoma (talabaga ko'rsatiladi) */
   how: string;
+  /** 💳 karta raqami va egasi — «Obuna bo'lish» oynasida ko'rsatiladi */
+  card: string;
+  holder: string;
+  /** narxlar (so'm): 1 oy va 1 yil; 0 — belgilanmagan */
+  month: number;
+  year: number;
 };
 export type PremiumState = {
   /** obuna amalda (o'qituvchi va administratorda doim) */
