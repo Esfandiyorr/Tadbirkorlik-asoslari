@@ -41,6 +41,13 @@ For Firebase-backed development, copy `.env.example` to `.env.local`, supply you
   the course page (`#course/<id>/ranking`; the old `#ranking` link still opens it).
 - **Library** (`lib/server/library.ts`): the administrator adds books, guides, articles, videos, laws and templates as
   links with an optional cover; 💎 items hide their link from people without Premium.
+- **🏁 Team race** (`/poyga`; `lib/server/race.ts`, `app/api/race`, `components/race-game.tsx`): an open page —
+  students follow the link without signing in, type a name and pick «Yashil» or «Binafsha» team. A teacher or the
+  administrator sees «Yangi o‘yin / Boshlash / To‘xtatish». Each game draws 30 questions (3 from each of topics 1–10,
+  options shuffled) from `lib/race-questions.json` (regenerate with `node scripts/race-questions.mjs`; topic 4 comes
+  from the crossword, topic 5 is handwritten). The server checks answers: a right answer gives 10 points within 4 s,
+  one less every 2 s after, at least 4. Two cars at the top move by each team's average points (members who answered);
+  the first to 100 wins, or the leader when the 6 minutes run out.
 - **💼 Paid services** (`lib/services.ts`, `lib/server/services.ts`, `app/api/services`, `components/services.tsx`):
   replaces the old AI presentation section (`#slides` now opens it). A user orders work and the administrator
   prepares it; the order shows **«🤖 Sun'iy intellekt yordamida tayyorlanmoqda»** (being prepared with the help of

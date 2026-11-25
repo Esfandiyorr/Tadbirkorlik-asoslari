@@ -1,0 +1,1766 @@
+[
+ {
+  "t": 5,
+  "q": "Taqdimotga ko‘ra soliq nima?",
+  "a": [
+   "Davlat byudjetiga to‘lanadigan majburiy va qaytarilmas to‘lov",
+   "Faqat qoidabuzarlik uchun olinadigan jarima",
+   "Bankka to‘lanadigan kredit foizi",
+   "Ixtiyoriy xayriya badali"
+  ],
+  "c": 0,
+  "e": "Soliq — davlat byudjetiga to‘lanadigan majburiy va qaytarilmas to‘lov."
+ },
+ {
+  "t": 5,
+  "q": "Narxni belgilashda to‘g‘ri tartib qaysi?",
+  "a": [
+   "Avval narx, keyin soliq qayerdan chiqishini o‘ylash",
+   "Tannarx + soliq + boshqa xarajat + foyda = narx",
+   "Raqobatchi narxidan 10 % arzon qilish",
+   "Tannarx + foyda = narx, soliq keyin topiladi"
+  ],
+  "c": 1,
+  "e": "Soliq oldindan hisoblanib, narxga xarajat sifatida kiritiladi."
+ },
+ {
+  "t": 5,
+  "q": "Aylanma solig‘i nimadan hisoblanadi?",
+  "a": [
+   "Sof foydadan",
+   "Xodimlar ish haqidan",
+   "Tushumdan (yalpi aylanmadan)",
+   "Mol-mulk qiymatidan"
+  ],
+  "c": 2,
+  "e": "Soddalashtirilgan tartibda baza — tushum, xarajat hisobga olinmaydi."
+ },
+ {
+  "t": 5,
+  "q": "Oylik tushum 60 000 000 so‘m, aylanma solig‘i stavkasi 4 %. Soliq qancha?",
+  "a": [
+   "600 000 so‘m",
+   "1 200 000 so‘m",
+   "6 000 000 so‘m",
+   "2 400 000 so‘m"
+  ],
+  "c": 3,
+  "e": "60 000 000 × 4 % = 2 400 000 so‘m."
+ },
+ {
+  "t": 5,
+  "q": "QQSning amaldagi asosiy stavkasi taqdimotda qancha deb berilgan?",
+  "a": [
+   "12 %",
+   "15 %",
+   "4 %",
+   "20 %"
+  ],
+  "c": 0,
+  "e": "QQS asosiy stavkasi — 12 %."
+ },
+ {
+  "t": 5,
+  "q": "Sotuvdagi QQS 1 200 000, xomashyo xaridi QQSi 700 000 so‘m. Byudjetga qancha QQS to‘lanadi?",
+  "a": [
+   "1 900 000 so‘m",
+   "500 000 so‘m",
+   "1 200 000 so‘m",
+   "700 000 so‘m"
+  ],
+  "c": 1,
+  "e": "Hisoblangan QQS − hisobga olinadigan QQS: 1 200 000 − 700 000 = 500 000."
+ },
+ {
+  "t": 5,
+  "q": "Foyda solig‘ining asosiy stavkasi qancha?",
+  "a": [
+   "12 %",
+   "4 %",
+   "15 %",
+   "25 %"
+  ],
+  "c": 2,
+  "e": "Foyda solig‘i — sof foydadan, asosiy stavka 15 %."
+ },
+ {
+  "t": 5,
+  "q": "Umumiy tizimda hujjat bilan tasdiqlanmagan xarajat nima bo‘ladi?",
+  "a": [
+   "Ikki barobar hisobga olinadi",
+   "Faqat yil oxirida hisobga olinadi",
+   "Avtomatik QQSga aylanadi",
+   "Soliqni kamaytirmaydi"
+  ],
+  "c": 3,
+  "e": "Xarajat faqat hujjat bilan tasdiqlansa chegiriladi."
+ },
+ {
+  "t": 5,
+  "q": "Yillik aylanma belgilangan chegaradan oshsa nima bo‘ladi?",
+  "a": [
+   "Majburiy ravishda umumiy tizimga o‘tiladi",
+   "Soliq butunlay bekor qilinadi",
+   "Faoliyat to‘xtatiladi",
+   "Hech narsa o‘zgarmaydi"
+  ],
+  "c": 0,
+  "e": "Chegaradan oshganda umumiy tizimga o‘tish majburiy."
+ },
+ {
+  "t": 5,
+  "q": "Soddalashtirilgan tartibning asosiy kamchiligi qaysi?",
+  "a": [
+   "Hisobot juda murakkab",
+   "Xarajat hisobga olinmaydi — zarar ko‘rilsa ham soliq to‘lanadi",
+   "QQS ikki marta to‘lanadi",
+   "Malakali buxgalter majburiy"
+  ],
+  "c": 1,
+  "e": "Baza — tushum, shuning uchun zarar bo‘lsa ham aylanma solig‘i bor."
+ },
+ {
+  "t": 5,
+  "q": "JShDS nima va u qanday to‘lanadi?",
+  "a": [
+   "Korxona mol-mulkiga solinadigan soliq",
+   "Suvdan foydalanish uchun to‘lov",
+   "Xodim ish haqidan ushlab qolinib byudjetga o‘tkaziladigan daromad solig‘i",
+   "Eksport uchun bojxona to‘lovi"
+  ],
+  "c": 2,
+  "e": "JShDS — jismoniy shaxslardan olinadigan daromad solig‘i, asosiy stavka 12 %."
+ },
+ {
+  "t": 5,
+  "q": "my.soliq.uz shaxsiy kabinetiga qanday kiriladi?",
+  "a": [
+   "Faqat soliq idorasiga borib",
+   "Telefon raqami va SMS orqali",
+   "Bank kartasi bilan",
+   "E-IMZO (ERI kaliti) yoki OneID orqali"
+  ],
+  "c": 3,
+  "e": "Kabinetga E-IMZO kaliti yoki OneID orqali, STIR bilan kiriladi."
+ },
+ {
+  "t": 1,
+  "q": "Qonundagi ta'rifga ko'ra tadbirkorlikning to'rt ustuni qaysi qatorda to'g'ri berilgan?",
+  "a": [
+   "Litsenziya, soliq imtiyozi, omborxona va yetkazib berish tarmog'i",
+   "Oliy ma'lumot, ish tajribasi, tanishlar va davlat buyurtmasi",
+   "Kapital, ijara shartnomasi, reklama va buxgalteriya hisoboti",
+   "Tashabbus, tavakkalchilik, qiymat yaratish va muntazam daromad"
+  ],
+  "c": 3,
+  "e": "Ta'rifning to'rt ustuni: tashabbus, tavakkalchilik, qiymat yaratish, daromad."
+ },
+ {
+  "t": 1,
+  "q": "\"Pulim yo'q, shuning uchun biznes ocholmayman\" degan fikr matnda nega xato deb baholanadi?",
+  "a": [
+   "Pul ketma-ketlikda birinchi emas, uchinchi qadam bo'lgani uchun",
+   "Hech bir biznes umuman mablag' talab qilmaydigan ish bo'lgani uchun",
+   "Bank krediti hech qanday shartsiz hammaga ochiq bo'lgani uchun",
+   "Davlat har bir yoshga tekin boshlang'ich kapital ajratgani uchun"
+  ],
+  "c": 0,
+  "e": "To'g'ri ketma-ketlik: muammoni topish → yechimni sinash → o'sish uchun pul jalb qilish."
+ },
+ {
+  "t": 1,
+  "q": "Mahalladagi bitta oshxonani startapga aylantiradigan o'zgarish qaysi javobda ko'rsatilgan?",
+  "a": [
+   "Ijara shartnomasini uzaytirib, zalni zamonaviy uslubda bezatish",
+   "Yangi jihoz sotib olib, taomlar assortimentini biroz ko'paytirish",
+   "Xodimlar sonini oshirib, ish vaqtini yarim tungacha uzaytirish",
+   "Yuzlab oshxonani bitta ilovaga ulab, miqyosni keskin kengaytirish"
+  ],
+  "c": 3,
+  "e": "Bitta oshxona — sinalgan model. Yuzlab oshxonani bitta platformaga ulash — masshtablanish."
+ },
+ {
+  "t": 1,
+  "q": "Startap bilan kichik biznesni ajratishda qaysi mezon hal qiluvchi ahamiyatga ega?",
+  "a": [
+   "Ofis maydoni va undagi xodimlar uchun ajratilgan joylar soni",
+   "Mahsulot narxi va sotuvda qo'llaniladigan chegirmalar miqdori",
+   "Ta'sischining yoshi va uning egallagan oliy ma'lumot darajasi",
+   "O'sish sur'ati va miqyos — milliy yoki global darajaga chiqishi"
+  ],
+  "c": 3,
+  "e": "Startapning asosiy belgisi — masshtablanish, ya'ni tez va katta o'sishga mo'ljallanganlik."
+ },
+ {
+  "t": 1,
+  "q": "Ijtimoiy tadbirkorlik xayriyadan qaysi jihati bilan tubdan farq qiladi?",
+  "a": [
+   "O'zi daromad topib, muammoni barqaror hal qilishda davom etadi",
+   "Mijozi bo'lmagani sababli bozorni umuman o'rganib o'tirmaydi",
+   "Faqat homiylardan yig'ilgan mablag' hisobiga ishlab turadi",
+   "Soliq to'lamaydi va hech qanday hisobot topshirmasdan ishlaydi"
+  ],
+  "c": 0,
+  "e": "Xayriya mablag' tugaganda to'xtaydi, ijtimoiy tadbirkorlik esa o'z daromadi bilan davom etadi."
+ },
+ {
+  "t": 1,
+  "q": "Oilaviy tadbirkorlikning kuchli tomoni emas, aynan zaif tomoni qaysi javobda berilgan?",
+  "a": [
+   "Qiyin paytda oila jamg'armasi zaxira bo'lib xizmat qilishi",
+   "Ishonch yuqoriligi sababli nazorat xarajatining juda pastligi",
+   "Hunarning avloddan avlodga o'tib, saqlanib qolish imkoniyati",
+   "Oilaviy va ishchi munosabatlarning bir-biriga aralashib ketishi"
+  ],
+  "c": 3,
+  "e": "Rollar aralashganda nizolar ham biznesga, ham oilaga zarar yetkazadi."
+ },
+ {
+  "t": 1,
+  "q": "Bekat misolidagi ikki kishi bir xil holatni ko'rdi. Ikkinchisining farqi nimada edi?",
+  "a": [
+   "U o'sha joydan butunlay boshqa yo'l bilan o'tishni tanladi",
+   "U hokimiyatga shikoyat xatini birinchi bo'lib yozib topshirdi",
+   "U bekat qurilishi uchun kerakli mablag'ni tezda to'play oldi",
+   "U aynan shu manzarada to'lovga tayyor ehtiyojni ko'ra oldi"
+  ],
+  "c": 3,
+  "e": "Tadbirkorlik tafakkuri — bir xil holatdan imkoniyat ko'ra bilish qobiliyati."
+ },
+ {
+  "t": 1,
+  "q": "Muammoni baholash filtrlaridan qaysi biri aynan \"to'lov qobiliyati\"ni tekshiradi?",
+  "a": [
+   "Mahsulot qadog'i va rangi mijozga yoqish-yoqmasligini",
+   "Mijozda shu muammoni hal qilish uchun puli bor-yo'qligini",
+   "Muammoning bir yil ichida necha marta takrorlanishini",
+   "Bozorda nechta raqobatchi firma faoliyat yuritayotganini"
+  ],
+  "c": 1,
+  "e": "Muammo bor, lekin mijozda pul yo'q bo'lsa — biznes bo'lmaydi."
+ },
+ {
+  "t": 1,
+  "q": "\"Mijoz\" bo'g'ini qaysi javobda to'g'ri, ya'ni aniq va o'lchanadigan qilib ta'riflangan?",
+  "a": [
+   "Internetdan muntazam foydalanadigan butun aholi qatlamlari",
+   "Mamlakatimizdagi barcha yoshlar hamda ularning ota-onalari",
+   "Yotoqxonada yashab, kir yuvish navbatini kutayotgan talabalar",
+   "Bu yangi xizmatga qiziqishi mumkin bo'lgan har qanday odamlar"
+  ],
+  "c": 2,
+  "e": "\"Hamma\" — mijoz emas. Mijoz aniq, o'lchanadigan guruh bo'lishi shart."
+ },
+ {
+  "t": 1,
+  "q": "\"Talaba tushligi\" misolida daromad manbai sifatida aynan nima ko'rsatilgan?",
+  "a": [
+   "Oshxona egasidan olinadigan bir martalik ijara to'lovi",
+   "Talabalardan yig'ib olinadigan yillik a'zolik badali puli",
+   "Har bir buyurtmadan olinadigan 10 foizlik komissiya to'lovi",
+   "Universitet byudjetidan ajratiladigan doimiy subsidiya puli"
+  ],
+  "c": 2,
+  "e": "Monetizatsiya modeli: har bir buyurtmadan 10% komissiya."
+ },
+ {
+  "t": 1,
+  "q": "Yosh tadbirkorlarning eng ko'p uchraydigan xatosi matnda qanday izohlanadi?",
+  "a": [
+   "Mahsulotga oshiq bo'lib, bozorda sinamasdan uzoq ishlab chiqish",
+   "Kichik hajmda boshlab, avval arzon sinovdan o'tkazib ko'rish",
+   "Mijoz bilan suhbatlashib, uning fikrini ortiqcha hisobga olish",
+   "Tannarxni hisoblab chiqib, keyin narx belgilashga o'tib olish"
+  ],
+  "c": 0,
+  "e": "\"Mahsulotga oshiq bo'lish\" — oylab yaratib, keyin mijoz yo'qligini bilish."
+ },
+ {
+  "t": 1,
+  "q": "Biznesni boshlashning to'g'ri ketma-ketligi qaysi javobda keltirilgan?",
+  "a": [
+   "Katta kredit olish → mahsulot yaratish → mijoz qidirib ko'rish",
+   "Muammoni topish → yechimni sinash → o'sish uchun pul jalb qilish",
+   "Ofis ijaraga olish → jihoz sotib olish → g'oya o'ylab topish",
+   "Reklama berish → do'kon ochish → muammoni keyin izlab ko'rish"
+  ],
+  "c": 1,
+  "e": "Pul — birinchi emas, uchinchi qadam. Avval muammo, keyin sinov."
+ },
+ {
+  "t": 1,
+  "q": "Statistikaga ko'ra kichik biznesning yalpi ichki mahsulotdagi ulushi qanday?",
+  "a": [
+   "Barcha ishlab chiqarishning to'rtdan uch qismi — 78,0 foizni tashkil etadi",
+   "Yalpi ichki mahsulotning uchdan bir qismi — 33,5 foizni tashkil etadi",
+   "Yaratilgan har ikki so'mdan bittasi — ya'ni 50,5 foizni tashkil etadi",
+   "Mamlakat iqtisodiyotining beshdan bir qismi — 20,5 foizni tashkil etadi"
+  ],
+  "c": 2,
+  "e": "518,7 trln so'm — mamlakatda yaratilgan har ikki so'mdan bittasi kichik biznesniki."
+ },
+ {
+  "t": 1,
+  "q": "Dayson changyutgichi haqidagi fakt talabani qanday xulosaga olib keladi?",
+  "a": [
+   "Sifatli mahsulotni birinchi urinishdayoq yaratish mumkinligiga",
+   "Yangi mahsulotni faqat yirik zavodda ishlab chiqarsa bo'lishiga",
+   "Ixtiro qilish uchun avvalo katta investor topish shartligiga",
+   "5127 marta urinish — mag'lubiyat emas, foydali axborot ekaniga"
+  ],
+  "c": 3,
+  "e": "5127 prototip — muvaffaqiyatsizlik mag'lubiyat emas, axborot ekanining isboti."
+ },
+ {
+  "t": 1,
+  "q": "Nike belgisi, Airbnb va Spanx tarixidan chiqadigan umumiy xulosa nima?",
+  "a": [
+   "Har qanday biznesni faqat chet elda boshlash maqsadga muvofiqligi",
+   "Muvaffaqiyat faqat mashhur universitet diplomiga bog'liq ekanligi",
+   "Yirik kapitalsiz ham hal qilinmagan muammodan boshlash mumkinligi",
+   "Logotip va reklamaga eng katta mablag' sarflash zarur ekanligi"
+  ],
+  "c": 2,
+  "e": "Ularning hech biri katta pul bilan boshlamagan — hammasi hal qilinmagan muammodan boshlangan."
+ },
+ {
+  "t": 2,
+  "q": "Mijoz: \"Internet do'koningiz sekin ekan\", dedi. Suhbatda ma'lum bo'ldi: u buyurtmani 2 daqiqada tugatishi kerak, aks holda bolasini maktabdan olib ketishga ulgurmaydi. Muammoning 3-qatlami — yashirin sabab qaysi?",
+  "a": [
+   "Sayt sahifalari tezroq ochilishini talab qilish",
+   "Buyurtmani ikki daqiqada rasmiylashtira olish",
+   "Bolasini maktabdan o'z vaqtida olib keta olish",
+   "Boshqa do'kondan arzonroq narxda xarid qilish"
+  ],
+  "c": 2,
+  "e": "1-qatlam — shikoyat (sayt sekin), 2-qatlam — asl ehtiyoj (2 daqiqada buyurtma), 3-qatlam — yashirin sabab, ya'ni nega bu unga muhim (bolani o'z vaqtida olib ketish)."
+ },
+ {
+  "t": 2,
+  "q": "Qaysi dalil muammo \"vitamin\" emas, balki \"dori\" darajasida ekanini eng ishonchli ko'rsatadi?",
+  "a": [
+   "Mijoz g'oyani eshitib, albatta ishlatishini aytdi",
+   "So'rovnomada ko'pchilik muammoni muhim deb baholadi",
+   "Muammo ijtimoiy tarmoqlarda ko'p muhokama qilinadi",
+   "Mijoz uni hal qilishga allaqachon pul sarflayapti"
+  ],
+  "c": 3,
+  "e": "Og'riqning eng kuchli belgisi — harakat: mijoz muammoni hal qilish uchun allaqachon vaqt yoki pul sarflayapti. Va'da, baho va muhokama esa faqat so'z."
+ },
+ {
+  "t": 2,
+  "q": "Termizdagi yagona nusxa ko'chirish markazi faqat 9:00–17:00 da ishlaydi, talabalar esa topshiriqlarni kechqurun tayyorlaydi. Bu bozordagi qaysi bo'shliq?",
+  "a": [
+   "Vaqt va qulaylik bo'shlig'i",
+   "Sifat va servis bo'shlig'i",
+   "Geografik joylashuv bo'shlig'i",
+   "Texnologik jarayon bo'shlig'i"
+  ],
+  "c": 0,
+  "e": "Xizmat bor va sifati yomon emas — muammo uning faqat noqulay vaqtda ishlashida. Bu vaqt va qulaylik bo'shlig'i."
+ },
+ {
+  "t": 2,
+  "q": "Yetkazib berish xizmati g'oyasi uchun qaysi reja \"skeytbord\" qoidasiga mos keladi?",
+  "a": [
+   "Avval to'lov tizimini, keyin xarita va kuryer bo'limini yasash",
+   "1-haftadanoq buyurtmani Telegram orqali qo'lda qabul qilish",
+   "Barcha ekranlarni tayyorlab, mijozga faqat oxirida ko'rsatish",
+   "Bir oy davomida logotip va dizaynni mukammal holga keltirish"
+  ],
+  "c": 1,
+  "e": "Skeytbord qoidasi: har bir qadamda mijoz foydalana oladigan va fikr bildira oladigan eng oddiy yechim bo'ladi. Qismlarni alohida yasash (g'ildirak → kuzov) — noto'g'ri yo'l."
+ },
+ {
+  "t": 2,
+  "q": "Gipotezangiz tayyor: \"TTJ talabalarining ko'pchiligi haftasiga 2 martadan ko'p tushlikni o'tkazib yuboradi\". Uni tasdiqlash uchun qaysi usul eng mos?",
+  "a": [
+   "Kuzatish — 5–10 ta vaziyatni jimgina yozib borish",
+   "Chuqur suhbat — 10–20 kishi bilan sababni ochish",
+   "So'rovnoma — 50–100 kishida ulushni o'lchab ko'rish",
+   "Fikrlar shturmi — jamoada o'nlab yechim to'plash"
+  ],
+  "c": 2,
+  "e": "\"Ko'pchilik\" degan da'vo — ulush haqida. Tayyor gipotezani ko'p odamda raqam bilan tekshirish aynan so'rovnomaning vazifasi."
+ },
+ {
+  "t": 2,
+  "q": "Qaysi savol \"Mom Test\" qoidalariga to'liq mos keladi?",
+  "a": [
+   "Tushlik uchun botdan foydalanish sizga qulay bo'lardi-a?",
+   "Oxirgi marta tushlikka ulgurmaganingizda nima qildingiz?",
+   "Agar bot bo'lsa, oyiga qancha to'lashga tayyor bo'lasiz?",
+   "Yangi tushlik botimiz g'oyasi sizga qanchalik yoqib qoldi?"
+  ],
+  "c": 1,
+  "e": "Mom Test: g'oya haqida emas, mijozning o'tmishdagi real harakati haqida so'rang. Qolganlari — yetaklovchi, xayoliy pul va maqtov so'rovchi savollar."
+ },
+ {
+  "t": 2,
+  "q": "So'rovnomadagi qaysi savol \"ikki savol bittada\" xatosiga misol bo'ladi?",
+  "a": [
+   "Oxirgi 7 kunda navbatda necha marta turdingiz?",
+   "Xizmat tez va arzon bo'lsa, u sizga yoqadimi?",
+   "Hozir tushlik muammosini qanday hal qilyapsiz?",
+   "Navbatda uzoq turish sizni juda charchatadi-a?"
+  ],
+  "c": 1,
+  "e": "Bitta savolda ikki xil narsa (tezlik va narx) so'ralsa, \"ha\" javobi qaysi biriga tegishli ekani noma'lum qoladi. D variant esa boshqa xato — yetaklovchi savol."
+ },
+ {
+  "t": 2,
+  "q": "12 nafar do'stingizdan 11 tasi so'rovnomada \"ha, foydalanardim\" deb javob berdi. Bu natijaning asosiy kamchiligi nima?",
+  "a": [
+   "Savollar soni tavsiya etilgan 8–10 tadan kam bo'lgani",
+   "Ochiq savollarning ulushi 30 foizdan oshib ketgani",
+   "Javoblar Google Forms orqali bepul onlayn yig'ilgani",
+   "Namuna kichik, faqat do'stlardan va javob xayoliy"
+  ],
+  "c": 3,
+  "e": "12 ta javob juda kam (kamida 50–100 kerak), do'stlar sizni xafa qilmaslikka harakat qiladi, \"foydalanardim\" esa real harakat emas, balki taxmin."
+ },
+ {
+  "t": 2,
+  "q": "SCAMPER bo'yicha \"oshxonaning o'zi yo'q, faqat buyurtma boti\" g'oyasi qaysi harfga mos keladi?",
+  "a": [
+   "S — almashtirish (substitute)",
+   "C — ikki narsani birlashtirish",
+   "E — olib tashlash (eliminate)",
+   "M — o'zgartirish, kattalashtirish"
+  ],
+  "c": 2,
+  "e": "Mavjud modeldan bitta qismni (oshxonaning o'zini) olib tashlash — E, eliminate. \"Oshxona + yetkazib berish\" esa C bo'lardi."
+ },
+ {
+  "t": 2,
+  "q": "\"6-3-5\" usulida to'liq sessiya (har bir varaq hamma qatnashchidan o'tguncha) nechta g'oya beradi va qancha davom etadi?",
+  "a": [
+   "108 ta g'oya, jami 30 daqiqada",
+   "90 ta g'oya, jami 30 daqiqada",
+   "108 ta g'oya, jami 60 daqiqada",
+   "18 ta g'oya, jami 5 daqiqada"
+  ],
+  "c": 0,
+  "e": "6 kishi × 3 g'oya = har turda 18 ta; varaqlar 6 marta aylanadi: 18 × 6 = 108 ta g'oya, 6 × 5 = 30 daqiqa."
+ },
+ {
+  "t": 2,
+  "q": "Quyidagilardan qaysi biri fakt ham, gipoteza ham emas, balki insayt hisoblanadi?",
+  "a": [
+   "10 talabadan 7 tasi tushlikni 20 daqiqadan ko'p kutgan",
+   "Oldindan buyurtma bo'lsa, kamida 30% undan foydalanadi",
+   "Tushlik boti g'oyasi uchun ICE ball 504 ga teng chiqdi",
+   "Talaba uchun asosiy muammo ovqatning o'zi emas, vaqt"
+  ],
+  "c": 3,
+  "e": "Fakt — kuzatilgan raqam; insayt — faktdan chiqqan yangi tushuncha (muammo vaqtda); gipoteza — tekshiriladigan bashorat (30% foydalanadi)."
+ },
+ {
+  "t": 2,
+  "q": "ICE ball: A g'oya — I=9, C=4, E=3; B g'oya — I=6, C=7, E=8. Qaysi javob to'g'ri hisoblangan?",
+  "a": [
+   "A birinchi: ta'siri eng yuqori, bali 108 ga teng",
+   "B birinchi: bali 336, A ning bali esa atigi 108",
+   "B birinchi: yig'indisi 21, A niki esa atigi 16",
+   "Teng: ikkala g'oyaning bali ham 300 atrofida"
+  ],
+  "c": 1,
+  "e": "ICE — ko'paytma, yig'indi emas: A = 9×4×3 = 108, B = 6×7×8 = 336. Yuqori ta'sirning o'zi ustunlik bermaydi."
+ },
+ {
+  "t": 2,
+  "q": "Qaysi qiymat taklifi 4 ta tekshiruvdan (aniq, og'riqli, farqli, o'lchanadigan) o'tadi?",
+  "a": [
+   "TTJ talabasining tushlik navbatida 30 daqiqa yo'qotishini buyurtma boti bilan hal qilamiz",
+   "Talabalar uchun zamonaviy, qulay va sifatli ovqat buyurtma qilish platformasini yaratib beramiz",
+   "Hamma uchun eng arzon va eng tez tushlikni har kuni uyga yetkazib beradigan yangi xizmat ochamiz",
+   "Oshxonadagi barcha muammolarni sun'iy intellekt va eng yangi texnologiyalar yordamida hal qilamiz"
+  ],
+  "c": 0,
+  "e": "Faqat A da aniq mijoz (TTJ talabasi), og'riq (30 daqiqa), yechim va o'lchanadigan natija bor. \"Zamonaviy, qulay, eng yangi\" — bo'sh so'zlar, \"hamma\" esa mijoz emas."
+ },
+ {
+  "t": 2,
+  "q": "Zappos asoschisi do'kondagi poyabzal rasmini saytga qo'ygan va buyurtma kelsa o'sha do'kondan sotib olib jo'natgan. Mijozlar buni oddiy onlayn do'kon deb o'ylagan. Bu qaysi MVP turi?",
+  "a": [
+   "Konsyerj MVP (hamma ish ochiq, qo'lda)",
+   "Oldindan buyurtma (pre-order) sinovi",
+   "\"Sehrgar Oz\" (ortida yashirin odam)",
+   "Raqamli maket (bosiladigan rasmlar)"
+  ],
+  "c": 2,
+  "e": "Mijoz tizimni avtomatik do'kon deb o'ylagan, ortida esa odam qo'lda ishlagan — bu \"Sehrgar Oz\". Konsyerj MVPda esa mijoz ishni odam bajarayotganini biladi."
+ },
+ {
+  "t": 2,
+  "q": "Bot 50 talabaga yuborildi, mezon — 30% (15 ta) buyurtma. Natija: talabalardan 4 tasi buyurtma berdi, lekin bot haqida eshitgan o'qituvchilardan 18 tasi o'zi buyurtma so'radi. To'g'ri qaror qaysi?",
+  "a": [
+   "Pivot: talab boshqa segmentda bor — gipotezani o'zgartirish",
+   "Davom etish: jami buyurtmalar soni 15 tadan oshib ketdi",
+   "To'xtatish: talabalar orasida mezonning yarmiga ham yetmadi",
+   "Kengaytirish: botni to'liq ilovaga aylantirib, reklama berish"
+  ],
+  "c": 0,
+  "e": "Talabalar uchun gipoteza tasdiqlanmadi, lekin boshqa segmentda (o'qituvchilar) real talab paydo bo'ldi — bu pivot: gipotezani yangi segmentga moslab qayta sinash."
+ },
+ {
+  "t": 3,
+  "q": "Mahsulotni bozorda dastlabki sinovdan o'tkazish bosqichida qaysi manba eng mos keladi?",
+  "a": [
+   "Garovga ko'chmas mulk qo'yilgan uzoq muddatli bank krediti",
+   "O'z jamg'armasi va mijozdan olingan oldindan to'lov puli",
+   "Ulush evaziga jalb qilingan yirik venchur investitsiyasi",
+   "Uskuna sotib olish uchun tuzilgan moliyaviy lizing shartnomasi"
+  ],
+  "c": 1,
+  "e": "Sinov bosqichida xavf yuqori, summa esa kichik bo'lishi kerak — bu yerda qarz emas, o'z puli ishlaydi."
+ },
+ {
+  "t": 3,
+  "q": "Kreditning investordan olingan mablag'ga nisbatan asosiy afzalligi nimada?",
+  "a": [
+   "Kredit foizi biznes daromadiga qarab o'zgarib turadi",
+   "Kredit uchun garov ham, kafillik ham talab qilinmaydi",
+   "Biznes ulushi va qaror qabul qilish huquqi sizda qoladi",
+   "Kredit hech qanday holatda qaytarilmaydigan mablag'dir"
+  ],
+  "c": 2,
+  "e": "Qarz qaytariladi, ammo biznesning egaligi va nazorati tadbirkorda saqlanib qoladi."
+ },
+ {
+  "t": 3,
+  "q": "Biznes krediti bilan iste'mol krediti o'rtasidagi eng muhim farq qaysi?",
+  "a": [
+   "Biznes krediti maqsadli beriladi va biznes daromadidan qaytariladi",
+   "Iste'mol krediti naqd pulda, biznes krediti esa kartada beriladi",
+   "Biznes kreditida shartnoma tuzilmaydi, iste'molda esa tuziladi",
+   "Iste'mol krediti bo'yicha foiz to'lovi umuman hisoblanmay qoladi"
+  ],
+  "c": 0,
+  "e": "Maqsad va qaytarish manbai — ikkala kreditni ajratib turuvchi asosiy mezon."
+ },
+ {
+  "t": 3,
+  "q": "Nima uchun biznesni iste'mol krediti hisobiga boshlash xavfli hisoblanadi?",
+  "a": [
+   "Bank iste'mol krediti uchun hech qanday hujjat talab qilmaydi",
+   "Iste'mol krediti faqat davlat korxonasi xodimlariga beriladi",
+   "Iste'mol kreditida imtiyozli davr har doim majburiy bo'ladi",
+   "Muddati qisqa, foizi qimmat, javobgarlik esa shaxsan sizda"
+  ],
+  "c": 3,
+  "e": "Biznes daromad keltirmasa ham, to'lov shaxsiy cho'ntakdan chiqadi — bu oilaviy byudjetga zarba."
+ },
+ {
+  "t": 3,
+  "q": "Garov (ta'minot) bank uchun qanday vazifani bajaradi?",
+  "a": [
+   "Tadbirkorni soliq to'lovlaridan butunlay ozod qilib qo'yadi",
+   "Kredit qaytmasa undiriladi va bankning xavfini kamaytiradi",
+   "Kredit summasini avtomatik ravishda ikki barobar oshiradi",
+   "Shartnoma davomida foiz stavkasini nolgacha pasaytiradi"
+  ],
+  "c": 1,
+  "e": "Aynan shu sababli garovli kredit odatda arzonroq va kattaroq summada beriladi."
+ },
+ {
+  "t": 3,
+  "q": "Kafil (kafillik beruvchi) qanday javobgarlikni o'z zimmasiga oladi?",
+  "a": [
+   "Faqat garovga qo'yilgan mulkni baholash bilan shug'ullanadi",
+   "Faqat kredit rasmiylashtirilishida guvoh sifatida qatnashadi",
+   "Qarzdor to'lay olmasa, majburiyat kafil zimmasiga o'tadi",
+   "Har oy kredit foizining yarmini bank hisobiga o'tkazadi"
+  ],
+  "c": 2,
+  "e": "Kafillik — guvohlik emas, qonuniy majburiyat; u kafilning kredit tarixiga ham ta'sir qiladi."
+ },
+ {
+  "t": 3,
+  "q": "Imtiyozli davr (grace period) nimani anglatadi?",
+  "a": [
+   "Asosiy qarz to'lovi kechiktirilib, odatda faqat foiz to'lanadi",
+   "Bank kredit bo'yicha foizlarni butunlay hisobdan chiqaradi",
+   "Shartnoma imzolanmasdan pul beriladigan sinov muddati bo'ladi",
+   "Tadbirkor soliq va bojxona to'lovlaridan ozod etilgan bo'ladi"
+  ],
+  "c": 0,
+  "e": "Imtiyozli davrda asosiy qarz to'xtatiladi, foiz esa odatda to'lanaveradi."
+ },
+ {
+  "t": 3,
+  "q": "Imtiyozli davrning asosiy kamchiligi nimada?",
+  "a": [
+   "Imtiyozli davrda daromad olish qonunan taqiqlab qo'yiladi",
+   "Kredit summasi bank tomonidan bir tomonlama kamaytiriladi",
+   "Imtiyozli davr tugagach foiz stavkasi ikki barobar oshadi",
+   "Muddat cho'zilgani sababli jami foiz to'lovi ko'proq bo'ladi"
+  ],
+  "c": 3,
+  "e": "Oylik yuk yengillashadi, lekin pul uzoqroq ushlanadi va umumiy to'lov ortadi."
+ },
+ {
+  "t": 3,
+  "q": "Annuitet to'lov jadvalining differensial jadvaldan farqi nimada?",
+  "a": [
+   "To'lov faqat kredit muddati tugagach bir marta amalga oshiriladi",
+   "Har oylik to'lov bir xil bo'lib, boshida foiz ulushi kattaroq",
+   "Har oylik to'lov summasi vaqt o'tgan sari doimiy oshib boradi",
+   "Foiz butunlay hisoblanmaydi, faqat asosiy qarz bo'lib to'lanadi"
+  ],
+  "c": 1,
+  "e": "Differensialda to'lov boshida katta bo'lib, keyin kamayadi va jami foiz kamroq chiqadi."
+ },
+ {
+  "t": 3,
+  "q": "\"Samarali foiz stavkasi\" ko'rsatkichi nimani ifodalaydi?",
+  "a": [
+   "Markaziy bank belgilagan qayta moliyalash stavkasi miqdorini",
+   "Shartnomada yozilgan yillik stavkaning eng past ko'rsatkichini",
+   "Bankning joriy yildagi o'rtacha sof foydasi darajasi hajmini",
+   "Barcha komissiya va to'lovlar bilan kreditning real qiymatini"
+  ],
+  "c": 3,
+  "e": "Shuning uchun bankdan doim \"to'liq (samarali) stavka necha foiz?\" deb so'rash kerak."
+ },
+ {
+  "t": 3,
+  "q": "Tadbirkorda \"foyda bor, lekin pul yo'q\" holati nimadan kelib chiqadi?",
+  "a": [
+   "Tovar qarzga sotilgan, pul esa hali hisobga tushib ulgurmagan",
+   "Soliq organi korxona hisobvarag'ini vaqtincha bloklab qo'ygan",
+   "Bank kredit shartnomasidagi foiz stavkasini oshirib yuborgan",
+   "Mahsulot tannarxi noto'g'ri, ya'ni juda past hisoblab chiqilgan"
+  ],
+  "c": 0,
+  "e": "Foyda — hisobdagi ko'rsatkich, pul oqimi esa kassadagi real pul harakati."
+ },
+ {
+  "t": 3,
+  "q": "Pul oqimi tahlilida kredit to'lovi bo'yicha xavfsiz me'yor qaysi?",
+  "a": [
+   "Oylik to'lov oylik tushumning kamida 80 foizini tashkil etsin",
+   "Oylik to'lov mahsulot tannarxi summasiga to'liq teng bo'lsin",
+   "Oylik to'lov yillik sof foydaning yarmiga barobar bo'lib qolsin",
+   "Oylik to'lov sof pul oqimining 30–40 foizidan oshib ketmasin"
+  ],
+  "c": 3,
+  "e": "Qolgan qism kutilmagan xarajat va mavsumiy tushkunlik uchun zaxira bo'lib qoladi."
+ },
+ {
+  "t": 3,
+  "q": "Kredit olishdan oldin qilinadigan eng to'g'ri qadam qaysi?",
+  "a": [
+   "Bir vaqtning o'zida bir necha bankka ariza qoldirib chiqish",
+   "Mahsulotni kichik sinovdan o'tkazib, pul oqimini rejalashtirish",
+   "Eng katta summani so'rab, keyin sarflash yo'nalishini o'ylash",
+   "Butun shaxsiy mulkni garovga qo'yib, zaxira qoldirmay ishlash"
+  ],
+  "c": 1,
+  "e": "Kredit sinovdan o'tgan modelni kengaytirish uchun olinadi, model qidirish uchun emas."
+ },
+ {
+  "t": 3,
+  "q": "Quyidagi manbalardan qaysi biri qaytarilmaydigan mablag' hisoblanadi?",
+  "a": [
+   "Mikromoliya tashkilotidan olingan qisqa muddatli mikroqarz",
+   "Aylanma mablag'ni to'ldirish uchun ochilgan bank overdrafti",
+   "Tanlov asosida beriladigan grant yoki davlat subsidiyasi",
+   "Uskuna uchun rasmiylashtirilgan moliyaviy lizing shartnomasi"
+  ],
+  "c": 2,
+  "e": "Grant qaytarilmaydi, ammo maqsadli sarflanadi va hisobot talab qiladi."
+ },
+ {
+  "t": 3,
+  "q": "Kredit shartnomasini imzolashdan oldin albatta aniqlash kerak bo'lgan shart qaysi?",
+  "a": [
+   "Bank filialining ish vaqti va navbatning o'rtacha uzunligi",
+   "Bankning boshqa mijozlariga bergan kreditlari umumiy hajmi",
+   "Bank xodimlarining soni va ularning kasbiy malaka darajasi",
+   "Muddatidan oldin to'lash sharti, jarimalar va samarali stavka"
+  ],
+  "c": 3,
+  "e": "Aynan shu uch band keyinchalik eng ko'p nizo va kutilmagan xarajat keltirib chiqaradi."
+ },
+ {
+  "t": 4,
+  "q": "Krossvord: Litsenziyadan yengilroq, ammo majburiy bo'lgan ikkinchi turdagi ruxsat berish hujjati",
+  "a": [
+   "Ruxsatnoma",
+   "Ta’sischi",
+   "YaTT",
+   "Litsenziya"
+  ],
+  "c": 0,
+  "e": "To‘g‘ri javob: Ruxsatnoma"
+ },
+ {
+  "t": 4,
+  "q": "Krossvord: Korxonani tashkil etuvchi va ustav fondiga hissa qo'shuvchi shaxs",
+  "a": [
+   "Manzil",
+   "Ta’sischi",
+   "Kooperativ",
+   "Firma"
+  ],
+  "c": 1,
+  "e": "To‘g‘ri javob: Ta’sischi"
+ },
+ {
+  "t": 4,
+  "q": "Krossvord: Ma'muriy huquqbuzarlik uchun qo'llaniladigan pul undiruvi",
+  "a": [
+   "Musodara",
+   "Ustav",
+   "Jarima",
+   "Oilaviy"
+  ],
+  "c": 2,
+  "e": "To‘g‘ri javob: Jarima"
+ },
+ {
+  "t": 4,
+  "q": "Krossvord: Davlat byudjetiga to'lanadigan majburiy to'lov",
+  "a": [
+   "Jarima",
+   "Bildirishnoma",
+   "E-IMZO",
+   "Soliq"
+  ],
+  "c": 3,
+  "e": "To‘g‘ri javob: Soliq"
+ },
+ {
+  "t": 4,
+  "q": "Krossvord: Korxona rasman joylashgan joy — yuridik …",
+  "a": [
+   "Manzil",
+   "Ulush",
+   "Ruxsatnoma",
+   "YaTT"
+  ],
+  "c": 0,
+  "e": "To‘g‘ri javob: Manzil"
+ },
+ {
+  "t": 4,
+  "q": "Krossvord: Davlat ro'yxatidan o'tkazilganlikni tasdiqlovchi rasmiy hujjat",
+  "a": [
+   "Mas’uliyat",
+   "Guvohnoma",
+   "Soliq",
+   "Kooperativ"
+  ],
+  "c": 1,
+  "e": "To‘g‘ri javob: Guvohnoma"
+ },
+ {
+  "t": 4,
+  "q": "Krossvord: Yuridik shaxs tashkil etmagan tadbirkor (qisqartma)",
+  "a": [
+   "Ustav",
+   "Ta’sischi",
+   "YaTT",
+   "Musodara"
+  ],
+  "c": 2,
+  "e": "To‘g‘ri javob: YaTT"
+ },
+ {
+  "t": 4,
+  "q": "Krossvord: MChJning asosiy ta'sis hujjati",
+  "a": [
+   "E-IMZO",
+   "Manzil",
+   "Bildirishnoma",
+   "Ustav"
+  ],
+  "c": 3,
+  "e": "To‘g‘ri javob: Ustav"
+ },
+ {
+  "t": 4,
+  "q": "Krossvord: Biznesni onlayn ro'yxatdan o'tkazish uchun yagona davlat portali (…uz)",
+  "a": [
+   "Birdarcha",
+   "Ustav",
+   "Ulush",
+   "Ruxsatnoma"
+  ],
+  "c": 0,
+  "e": "To‘g‘ri javob: Birdarcha"
+ },
+ {
+  "t": 4,
+  "q": "Krossvord: A'zolarining mehnati va mulkiy hissasi asosida birgalikda faoliyat yurituvchi tashkilot",
+  "a": [
+   "Litsenziya",
+   "Kooperativ",
+   "Mas’uliyat",
+   "Soliq"
+  ],
+  "c": 1,
+  "e": "To‘g‘ri javob: Kooperativ"
+ },
+ {
+  "t": 4,
+  "q": "Krossvord: Ruxsat olmasdan, faqat vakolatli organni xabardor qilish orqali faoliyatni boshlash tartibi",
+  "a": [
+   "Ta’sischi",
+   "Firma",
+   "Bildirishnoma",
+   "YaTT"
+  ],
+  "c": 2,
+  "e": "To‘g‘ri javob: Bildirishnoma"
+ },
+ {
+  "t": 4,
+  "q": "Krossvord: Alohida faoliyat turlari uchun davlat organi beradigan maxsus ruxsat hujjati",
+  "a": [
+   "Kooperativ",
+   "Oilaviy",
+   "Manzil",
+   "Litsenziya"
+  ],
+  "c": 3,
+  "e": "To‘g‘ri javob: Litsenziya"
+ },
+ {
+  "t": 4,
+  "q": "Krossvord: Noqonuniy faoliyatdan olingan daromad va mol-mulkni davlat foydasiga olib qo'yish",
+  "a": [
+   "Musodara",
+   "Jarima",
+   "Ustav",
+   "Ulush"
+  ],
+  "c": 0,
+  "e": "To‘g‘ri javob: Musodara"
+ },
+ {
+  "t": 4,
+  "q": "Krossvord: MChJ ta'sischisining ustav fondidagi hissasi",
+  "a": [
+   "Guvohnoma",
+   "Ulush",
+   "Bildirishnoma",
+   "Mas’uliyat"
+  ],
+  "c": 1,
+  "e": "To‘g‘ri javob: Ulush"
+ },
+ {
+  "t": 4,
+  "q": "Krossvord: Korxonaning takrorlanmas rasmiy nomi — … nomi",
+  "a": [
+   "Ulush",
+   "Birdarcha",
+   "Firma",
+   "Ta’sischi"
+  ],
+  "c": 2,
+  "e": "To‘g‘ri javob: Firma"
+ },
+ {
+  "t": 4,
+  "q": "Krossvord: Onlayn hujjatlarni imzolash uchun ishlatiladigan elektron raqamli imzo kaliti",
+  "a": [
+   "Manzil",
+   "Litsenziya",
+   "Oilaviy",
+   "E-IMZO"
+  ],
+  "c": 3,
+  "e": "To‘g‘ri javob: E-IMZO"
+ },
+ {
+  "t": 4,
+  "q": "Krossvord: MChJ nomidagi \"cheklangan\" so'zi aynan shu tushunchaga tegishli",
+  "a": [
+   "Mas’uliyat",
+   "Firma",
+   "Jarima",
+   "Ustav"
+  ],
+  "c": 0,
+  "e": "To‘g‘ri javob: Mas’uliyat"
+ },
+ {
+  "t": 4,
+  "q": "Krossvord: A'zolari bir oila a'zolaridan iborat bo'lgan korxona turi",
+  "a": [
+   "Ruxsatnoma",
+   "Oilaviy",
+   "Guvohnoma",
+   "Bildirishnoma"
+  ],
+  "c": 1,
+  "e": "To‘g‘ri javob: Oilaviy"
+ },
+ {
+  "t": 6,
+  "q": "Kafe egasi o'ziga savol berdi: «Shu yetkazib beruvchi ertaga ishlamay qo'ysa, biznesim necha kun yashaydi?» U Canvasning qaysi blokini tekshiryapti?",
+  "a": [
+   "Asosiy hamkorlar blokini: tashqi tomonga qaramlik darajasini",
+   "Asosiy resurslar blokini: o'zidagi bino va uskuna zaxirasini",
+   "Kanallar blokini: mahsulot mijozga qaysi yo'l bilan borishini",
+   "Xarajatlar blokini: oylik doimiy to'lovlar qancha bo'lishini"
+  ],
+  "c": 0,
+  "e": "Bu savol hamkorga qaramlikni o'lchaydi. Javob «bir necha kun» bo'lsa, zaxira hamkor topish kerak."
+ },
+ {
+  "t": 6,
+  "q": "Blockbuster 2000-yilda Netflixni 50 mln dollarga sotib olishdan bosh tortdi, 2010-yilda esa bankrot bo'ldi. Bu holatdan chiqadigan asosiy saboq qaysi?",
+  "a": [
+   "Raqib pul olish tartibini o'zgartirsa, do'konlar ko'pligi qutqarmaydi",
+   "Kino ijarasida do'konlar soni ko'p bo'lsa, raqobatda albatta yutiladi",
+   "Yirik kompaniya kichik raqibni e'tiborsiz qoldirsa, bozor saqlanadi",
+   "Kechikish jarimasi qancha baland bo'lsa, mijozlar shuncha sodiq bo'ladi"
+  ],
+  "c": 0,
+  "e": "Mahsulot bir xil edi (kino ko'rish); Netflix obuna va jarimasiz modeli bilan yutdi — yutgan narsa model edi."
+ },
+ {
+  "t": 6,
+  "q": "Kodak 1975-yilda birinchi raqamli kamerani yaratgan, ammo 2012-yilda bankrot bo'lgan. Buning asosiy sababi qaysi javobda ko'rsatilgan?",
+  "a": [
+   "Foyda plyonka va qog'ozdan kelardi, kompaniya modelini o'zgartirmadi",
+   "Raqamli kamera patentlanmagan edi, uni raqiblar bepul ko'chirib oldi",
+   "Fotoapparat narxi tushib ketdi, Kodak esa o'z narxini tushirmay qoldi",
+   "Kompaniya reklama byudjetini qisqartirdi, mijozlar brendni unutdilar"
+  ],
+  "c": 0,
+  "e": "Ixtiro Kodakda bor edi, lekin daromad plyonkadan kelgani uchun model eskicha qoldi."
+ },
+ {
+  "t": 6,
+  "q": "Qiymat taklifi kanvasidagi «og'riq qoldiruvchi» (pain reliever) qaysi javobda to'g'ri tavsiflangan?",
+  "a": [
+   "Mijozning aniq noqulayligini kamaytiradigan taklifimiz xususiyati",
+   "Mijoz bajarmoqchi bo'lgan ish yoki hal qilmoqchi bo'lgan vazifasi",
+   "Mijoz kutmagan, lekin olganda quvonadigan qo'shimcha foyda turi",
+   "Raqobatchi mahsulotidagi kamchiliklar ro'yxati va ularning soni"
+  ],
+  "c": 0,
+  "e": "Og'riq qoldiruvchi qiymat xaritasida turadi va mijoz profilidagi aniq og'riqqa javob beradi (masalan, termo-sumka → ovqat sovimaydi)."
+ },
+ {
+  "t": 6,
+  "q": "Kristensen tadqiqotida ertalab sutli kokteyl oluvchilar uni «uzoq yo'lda zerikmaslik va tushlikkacha to'q yurish» uchun sotib olishgan. Bu mijoz profilining qaysi elementi?",
+  "a": [
+   "Mijoz vazifasi: u kokteylni muayyan ishni bajarish uchun «yollaydi»",
+   "Mijoz og'rig'i: u kokteyl narxining balandligidan norozi bo'lib yuradi",
+   "Foyda yaratuvchi: kafe kokteyl bilan birga sovg'a ham qo'shib beradi",
+   "Mahsulot xususiyati: kokteyl qalin bo'lgani uchun uzoq ichiladigan"
+  ],
+  "c": 0,
+  "e": "Bu «jobs to be done» g'oyasi: mijoz mahsulotni ma'lum ishni bajarish uchun «yollaydi». Raqiblar — banan, donut va radio edi."
+ },
+ {
+  "t": 6,
+  "q": "Obuna 60 000 so'm/oy, yalpi marja 50%, oylik churn 5%, bitta mijozni jalb qilish (CAC) 200 000 so'm. Qaysi xulosa to'g'ri?",
+  "a": [
+   "LTV 600 000 so'm, LTV/CAC = 3 — chegarada, lekin sog'lom model",
+   "LTV 1 200 000 so'm, LTV/CAC = 6 — reklamani tez oshirish mumkin",
+   "LTV 300 000 so'm, LTV/CAC = 1,5 — har mijozdan zarar ko'riladi",
+   "LTV 60 000 so'm, LTV/CAC = 0,3 — model umuman pul keltirmaydi"
+  ],
+  "c": 0,
+  "e": "LTV = 60 000 × 0,5 ÷ 0,05 = 600 000 so'm; 600 000 ÷ 200 000 = 3 — amaliyotdagi «≥ 3» chegarasida."
+ },
+ {
+  "t": 6,
+  "q": "Oylik churn 10% bo'lsa, mijoz kompaniyada o'rtacha necha oy qoladi va bu nimani anglatadi?",
+  "a": [
+   "O'rtacha 10 oy: ushlab qolishni yaxshilash LTV ni bevosita oshiradi",
+   "O'rtacha 100 oy: mijozlar deyarli ketmaydi, ushlab qolish shart emas",
+   "O'rtacha 1 oy: obuna modeli bunday biznesda umuman ishlay olmaydi",
+   "O'rtacha 12 oy: churn faqat yillik obunada hisobga olinadigan son"
+  ],
+  "c": 0,
+  "e": "Mijozning o'rtacha «umri» ≈ 1 ÷ churn = 1 ÷ 0,10 = 10 oy. Churn kamaysa, LTV o'sadi."
+ },
+ {
+  "t": 6,
+  "q": "MoviePass oyiga 9,95 $ ga har kuni kino ko'rishni taklif qildi va har bir chipta uchun kinoteatrga to'liq narx to'ladi. Model nega yiqildi?",
+  "a": [
+   "Har faol mijoz zarar keltirdi: o'sish zararni ko'paytirib bordi",
+   "Obunachilar kam bo'ldi: reklama byudjeti yetarli bo'lmagan edi",
+   "Kinoteatrlar hamkorlikdan chiqdi: shartnoma muddati tugab qoldi",
+   "Narx juda baland edi: mijozlar arzonroq raqibga o'tib ketishdi"
+  ],
+  "c": 0,
+  "e": "Birlik iqtisodiyoti manfiy edi: bir chipta narxi oylik to'lovdan qimmat. Bunday modelni reklama bilan kengaytirish zararni oshiradi."
+ },
+ {
+  "t": 6,
+  "q": "McDonald's restoranlarining taxminan 95% i franshiza asosida ishlaydi. Bu model franchayzerga qaysi asosiy afzallikni beradi?",
+  "a": [
+   "Tarmoq hamkorlar kapitali hisobiga kengayadi, xavf ham bo'linadi",
+   "Har bir restoranning butun foydasi faqat franchayzerga tushadi",
+   "Standartlarga rioya qilish talabi butun tarmoqda bekor bo'ladi",
+   "Restoranlarga xodim yollash va o'qitish zarurati yo'q bo'ladi"
+  ],
+  "c": 0,
+  "e": "Franchayzi o'z puli bilan restoran ochadi, franchayzer esa kirish to'lovi va royalti oladi — tarmoq tez va kam xavf bilan o'sadi."
+ },
+ {
+  "t": 6,
+  "q": "Airbnb 2009-yilda Nyu-Yorkdagi uy egalariga e'lonlari uchun bepul professional fotosuratchi yubordi. Bu qaysi muammoni hal qilishga qaratilgan edi?",
+  "a": [
+   "«Tovuq-tuxum»: taklif tomonini jozibali qilib, talabni jalb qilish",
+   "Xarajat: suratlar uchun kompaniya sotuvchilardan haq olib qolardi",
+   "Huquqiy: shahar qonuni har bir e'londa rasmiy surat talab qilardi",
+   "Logistika: mehmonlarni uygacha yetkazish yo'li noma'lum bo'lgan"
+  ],
+  "c": 0,
+  "e": "Platforma boshida ikkala tomonni ham jalb qilishi kerak; sifatli e'lonlar mehmonlarni, mehmonlar esa yangi uy egalarini olib keldi."
+ },
+ {
+  "t": 6,
+  "q": "IT kompaniya bankka hisob-kitob dasturini sotmoqda: kelishuv 6 oy davom etdi, 5 nafar mutaxassis qaror qildi, to'lov 30 kundan keyin. Bu qaysi modelga xos?",
+  "a": [
+   "B2B: bitim yirik, qaror jamoaviy va kechiktirilgan to'lov odatiy",
+   "B2C: mijoz oddiy xaridor, qaror tez va his-tuyg'uga asoslangan",
+   "Franshiza: bank dasturiy brendni olib, royalti to'lab boradi",
+   "Platforma: kompaniya bank va mijozlarni bog'lab, komissiya oladi"
+  ],
+  "c": 0,
+  "e": "B2B belgilari: mijoz — tashkilot, bitim katta, qaror uzoq va jamoaviy, shartnoma va keyinroq to'lov."
+ },
+ {
+  "t": 6,
+  "q": "Apple iPhone'ni yuqori marja bilan sotadi, App Store'dagi ko'p ilovalar esa bepul yoki arzon. Bu qaysi andozaga yaqin?",
+  "a": [
+   "Teskari «ustara-tig'»: foyda qurilmadan, qo'shimchalar arzon",
+   "Klassik «ustara-tig'»: qurilma arzon, foyda almashma qismdan",
+   "Franshiza: brend boshqa ishlab chiqaruvchilarga ijaraga beriladi",
+   "Freemium: qurilma bepul, pullik obuna esa asosiy daromad beradi"
+  ],
+  "c": 0,
+  "e": "Klassikda foyda tig'dan (Gillette), teskarisida qimmat qurilmadan keladi, qo'shimchalar esa uning qiymatini oshiradi."
+ },
+ {
+  "t": 6,
+  "q": "Lean Canvasda Osterwalder canvasidagi «Asosiy hamkorlar» bloki o'rniga qaysi blok qo'yilgan va nega?",
+  "a": [
+   "«Muammo»: startap avval hal qilinadigan muammoni isbotlashi kerak",
+   "«Yechim»: startap avval mahsulot texnologiyasini yozishi kerak",
+   "«Kanallar»: startap avval mijozga yetish yo'lini topishi kerak",
+   "«Xarajat»: startap avval qancha pul kerakligini bilishi kerak"
+  ],
+  "c": 0,
+  "e": "Lean Canvasda: hamkorlar → muammo, faoliyat → yechim, resurslar → asosiy ko'rsatkichlar, munosabat → adolatsiz ustunlik."
+ },
+ {
+  "t": 6,
+  "q": "St. Gallen universiteti tadqiqotiga ko'ra, yangi biznes-modellarning taxminan 90% i nimadan iborat bo'lib chiqqan?",
+  "a": [
+   "Mavjud 55 ta andozani yangi sohaga ko'chirish yoki birlashtirishdan",
+   "Butunlay yangi, ilgari hech qayerda uchramagan g'oyalardan iborat",
+   "Yirik korporatsiyalar laboratoriyasida yaratilgan texnologiyalardan",
+   "Davlat dasturlari va grantlar asosida ishlab chiqilgan loyihalardan"
+  ],
+  "c": 0,
+  "e": "Model ixtiro qilish shart emas — mavjud andozalarning to'g'ri kombinatsiyasini topish kerak."
+ },
+ {
+  "t": 7,
+  "q": "Kompaniya qimmat CRM dasturini sotib oldi, lekin 3 oydan keyin bazada mijozlar haqida deyarli hech narsa yo'q. Bu holat CRM ning qaysi qismi e'tiborsiz qolganini ko'rsatadi?",
+  "a": [
+   "Jarayon va odamlar: xodimlar har bir aloqani yozib borishga o'rgatilmagan",
+   "Texnologiya: dastur juda arzon tanlangani uchun ma'lumot saqlanmay qolgan",
+   "Strategiya: kompaniya juda ko'p mijoz segmentini birdaniga nishonga olgan",
+   "Infratuzilma: serverda joy tugagani sababli yangi yozuvlar qabul qilinmagan"
+  ],
+  "c": 0,
+  "e": "CRM = strategiya + jarayon + texnologiya. Dastur bor, lekin yozib borish tartibi va odati bo'lmasa, baza bo'sh qoladi."
+ },
+ {
+  "t": 7,
+  "q": "Tizim «avval oyiga 3 marta kelgan, lekin oxirgi 60 kunda xarid qilmagan mijozlar» ro'yxatini tuzib berdi. Bu qaysi turdagi CRM ning vazifasi?",
+  "a": [
+   "Analitik CRM — yig'ilgan ma'lumotni tahlil qilib, guruhlarni ajratadi",
+   "Operatsion CRM — kundalik sotuv va xizmat ishlarini avtomatlashtiradi",
+   "Hamkorlik CRM — bo'limlar o'rtasida mijoz ma'lumotini bo'lishib beradi",
+   "Bulutli CRM — ma'lumotni kompaniya serverida emas, internetda saqlaydi"
+  ],
+  "c": 0,
+  "e": "Ro'yxat ma'lumotni tahlil qilish natijasi — bu analitik CRM. Operatsion CRM keyin shu ro'yxatga xabar yuborishi mumkin."
+ },
+ {
+  "t": 7,
+  "q": "Mijoz Telegram'da shikoyat yozdi. Xizmat bo'limi uni hal qilguncha sotuv bo'limi bu mijozga yangi taklif yuborishni avtomatik to'xtatdi. Bu qaysi CRM imkoniyatiga misol?",
+  "a": [
+   "Hamkorlik CRM: bo'limlar bir mijozni bir xil ma'lumot bilan ko'radi",
+   "Analitik CRM: shikoyatlar soni bo'yicha mijozlar reytingi tuziladi",
+   "Operatsion CRM: shikoyat yozgan mijozga chegirma avtomatik beriladi",
+   "Ommaviy CRM: barcha mijozlarga bir vaqtda bir xil xabar yuboriladi"
+  ],
+  "c": 0,
+  "e": "Ma'lumotni bo'limlar va kanallar o'rtasida bo'lishish — hamkorlik (kollaborativ) CRM ning vazifasi."
+ },
+ {
+  "t": 7,
+  "q": "Voronka: 200 lid → 120 saralangan → 100 ga taklif yuborildi → 8 ta bitim. Rahbar birinchi navbatda qaysi bosqichni tuzatishi kerak?",
+  "a": [
+   "Taklifdan bitimga o'tishni: 100 ta taklifdan atigi 8 tasi bitim bo'ldi",
+   "Liddan saralashga o'tishni: 200 ta liddan 120 tasi saralangan bo'ldi",
+   "Saralashdan taklifga o'tishni: 120 tadan 100 tasiga taklif yuborildi",
+   "Reklama qamrovini: lidlar soni 200 tadan ancha ko'p bo'lishi kerak edi"
+  ],
+  "c": 0,
+  "e": "Konversiyalar: 60% → 83% → 8%. Eng katta yo'qotish — taklifdan bitimgacha. Masalan, taklifdan keyin qo'ng'iroq qilish qoidasi kerak."
+ },
+ {
+  "t": 7,
+  "q": "Mijoz ilgari oyiga 4 marta kelib, katta summada xarid qilardi, lekin 70 kundan beri kelmagan. RFM bo'yicha u qaysi guruhda va unga nima qilish kerak?",
+  "a": [
+   "«Xavf ostida»: shaxsiy qo'ng'iroq qilib, qaytish taklifini berish kerak",
+   "«Chempion»: unga yangi mahsulotni birinchi bo'lib taklif qilish kerak",
+   "«Yangi»: unga xush kelibsiz xati va 2-xarid bonusini yuborish kerak",
+   "«Uxlab qolgan»: unga hech qanday mablag' sarflamaslik maqsadga muvofiq"
+  ],
+  "c": 0,
+  "e": "F va M yuqori, R past — bu «xavf ostida»gi qimmatli mijoz. Unga bitta shaxsiy qo'ng'iroq ommaviy reklamadan samaraliroq."
+ },
+ {
+  "t": 7,
+  "q": "Biznesda LTV = 900 000 so'm, CAC = 450 000 so'm. Ushbu nisbat haqida qaysi xulosa to'g'ri?",
+  "a": [
+   "Nisbat 2 ga teng — jalb qilish qimmat, model hali to'liq sog'lom emas",
+   "Nisbat 3 dan katta — reklamani bemalol ikki barobar oshirsa bo'ladi",
+   "Nisbat 1 dan kichik — har bir yangi mijoz faqat zarar keltirib turadi",
+   "Nisbat ahamiyatsiz — sog'lom biznesda faqat LTV ning o'zi o'lchanadi"
+  ],
+  "c": 0,
+  "e": "900 000 ÷ 450 000 = 2. Odatiy mezon LTV ÷ CAC ≥ 3; 2 bo'lsa, CAC ni pasaytirish yoki LTV ni oshirish kerak."
+ },
+ {
+  "t": 7,
+  "q": "NPS hisoblanganda 7–8 ball bergan mijozlar bilan nima qilinadi?",
+  "a": [
+   "Betaraf hisoblanadi: formulaga kirmaydi, lekin umumiy sonda qoladi",
+   "Targ'ibotchilar qatoriga qo'shiladi, chunki ular yaxshi baho bergan",
+   "Tanqidchilar qatoriga qo'shiladi, chunki ular 10 ball qo'ymagan",
+   "Yarim vazn bilan hisoblanadi: har biri 0,5 ta targ'ibotchiga teng"
+  ],
+  "c": 0,
+  "e": "NPS = targ'ibotchilar % − tanqidchilar %. Betaraflar ayirilmaydi ham, qo'shilmaydi ham, lekin foizlar umumiy songa nisbatan olinadi."
+ },
+ {
+  "t": 7,
+  "q": "Harvard Business Review va Bain & Company tadqiqotlariga tayangan holda qaysi fikr to'g'ri?",
+  "a": [
+   "Ushlab qolishni 5% oshirish foydani 25–95% ko'paytirishi mumkin",
+   "Yangi mijoz topish eskisini saqlashdan 5–25 barobar arzon turadi",
+   "Ushlab qolishni 5% oshirish foydaga sezilarli ta'sir ko'rsatmaydi",
+   "Yangi va eski mijozni jalb qilish xarajati deyarli bir xil bo'ladi"
+  ],
+  "c": 0,
+  "e": "Bain (F. Reyxxeld): retention +5% → foyda +25–95%. HBR: yangi mijoz eskisini saqlashdan 5–25 barobar qimmat."
+ },
+ {
+  "t": 7,
+  "q": "Quyidagilardan qaysi biri CRM dagi trigger (avtomatik qoida) ga misol bo'ladi?",
+  "a": [
+   "Mijoz 30 kun xarid qilmasa, unga avtomatik shaxsiy taklif yuboriladi",
+   "Har dushanba barcha mijozlarga bir xil reklama xabari qo'lda yuboriladi",
+   "Menejer esiga tushganda mijozga qo'ng'iroq qilib, holini so'rab turadi",
+   "Yangi mahsulot rasmlari har hafta Instagram sahifasiga joylab boriladi"
+  ],
+  "c": 0,
+  "e": "Trigger — «agar hodisa yuz bersa, unda amal bajariladi» qoidasi. Qolganlari qo'lda yoki hodisaga bog'liq bo'lmagan ishlar."
+ },
+ {
+  "t": 7,
+  "q": "Mijoz ertalab Instagram'da, kechqurun telefon orqali murojaat qildi va operator uning ertalabki savolini so'ramasdan bildi. Bu qaysi tamoyil?",
+  "a": [
+   "Omnikanal: barcha kanallar bitta kartochka va bitta tarixga yig'iladi",
+   "Ko'p kanallilik: har bir kanal alohida xodim va alohida bazada ishlaydi",
+   "Segmentatsiya: mijozlar kanallar bo'yicha alohida guruhlarga bo'linadi",
+   "Avtomatlashtirish: bot qo'ng'iroqlarga operator o'rniga javob beradi"
+  ],
+  "c": 0,
+  "e": "Omnikanal yondashuvda mijoz qaysi kanaldan yozmasin, uning tarixi bitta joyda — muammoni qaytadan tushuntirish shart emas."
+ },
+ {
+  "t": 7,
+  "q": "O'zbekistonda mijozlarning shaxsiy ma'lumotlarini yig'ish, rozilik olish va saqlash asosan qaysi hujjat bilan tartibga solinadi?",
+  "a": [
+   "«Shaxsga doir ma'lumotlar to'g'risida»gi Qonun (2019-yil)",
+   "«Elektron tijorat to'g'risida»gi Qonun (2015-yil tahriri)",
+   "«Reklama to'g'risida»gi Qonun (1998-yildagi asosiy matn)",
+   "Fuqarolik kodeksining mulk huquqiga oid umumiy qoidalari"
+  ],
+  "c": 0,
+  "e": "2019-yil 2-iyuldagi O'RQ-547-son «Shaxsga doir ma'lumotlar to'g'risida»gi Qonun rozilik, maqsad, himoya va saqlash talablarini belgilaydi."
+ },
+ {
+  "t": 7,
+  "q": "Mini-CRM jadvalida F ustunida oxirgi xarid sanasi turibdi. =TODAY()-F2 formulasi nimani hisoblaydi?",
+  "a": [
+   "Mijoz oxirgi marta xarid qilganidan beri necha kun o'tganini",
+   "Mijoz bazaga qo'shilganidan beri necha kun o'tganini ko'rsatadi",
+   "Keyingi rejalashtirilgan qo'ng'iroqqacha necha kun qolganini",
+   "Mijozning jami xaridlari summasini kunlarga bo'lib hisoblaydi"
+  ],
+  "c": 0,
+  "e": "Bugungi sanadan oxirgi xarid sanasi ayiriladi — natija kunlarda. 60 dan katta bo'lsa, mijoz «xavf ostida» bo'lishi mumkin."
+ },
+ {
+  "t": 7,
+  "q": "1999-yilda tashkil topgan Salesforce CRM bozorini nimasi bilan o'zgartirdi?",
+  "a": [
+   "CRM ni o'rnatishsiz, internet orqali obuna xizmati (SaaS) qilib berdi",
+   "Dunyodagi birinchi kontakt menejeri — ACT! dasturini yaratib chiqardi",
+   "CRM ni butunlay bepul va ochiq kodli dastur sifatida tarqata boshladi",
+   "Faqat yirik banklar uchun mo'ljallangan server dasturini ishlab chiqdi"
+  ],
+  "c": 0,
+  "e": "Salesforce (Mark Benioff) CRM ni bulutli obuna xizmati sifatida taklif qilgan kashshoflardan. ACT! esa 1987-yilda boshqa mualliflar tomonidan yaratilgan."
+ },
+ {
+  "t": 7,
+  "q": "Go'zallik saloni «xavf ostidagi» 120 mijozga shaxsiy xabar yubordi va ulardan 36 tasi qaytdi. Bu natija haqida qaysi xulosa to'g'ri?",
+  "a": [
+   "Qaytarish konversiyasi 30% — reklamasiz qo'shimcha tushum olindi",
+   "Qaytarish konversiyasi 36% — chegirma haddan ziyod katta bo'lgan",
+   "Qaytarish konversiyasi 3% — kampaniyani to'xtatish kerak bo'ladi",
+   "Qaytgan mijozlar soni CAC ga teng — foyda umuman o'zgarmay qolgan"
+  ],
+  "c": 0,
+  "e": "36 ÷ 120 = 30%. Eski mijozlar reklamaga sarf qilmasdan qaytdi — ushlab qolish yangisini topishdan arzon."
+ },
+ {
+  "t": 8,
+  "q": "Qurilish do'koni reklamasi uchun qaysi sarlavha «odamlar parma emas, teshik sotib oladi» qoidasiga eng mos keladi?",
+  "a": [
+   "«Devorga javonni 10 daqiqada o'zingiz osasiz — chang va shovqinsiz»",
+   "«Parma quvvati 800 Vt, aylanish tezligi esa daqiqasiga 3000 marta»",
+   "«Do'konimizda 40 dan ortiq turdagi parma va boshqa asboblar bor»",
+   "«Yangi parmalar keldi: Germaniya, Xitoy va Turkiyada tayyorlangan»"
+  ],
+  "c": 0,
+  "e": "Mijoz natija (osilgan javon, tez va toza ish) sotib oladi. Quvvat, turlar soni va ishlab chiqaruvchi — xususiyatlar."
+ },
+ {
+  "t": 8,
+  "q": "Shahar ko'chasidagi banner haydovchiga 2–3 soniya ko'rinadi. Qaysi yondashuv to'g'ri?",
+  "a": [
+   "Bitta kuchli rasm hamda 5–7 so'zli bitta aniq va'da beriladi",
+   "Narxlar jadvali va mahsulotning barcha xususiyatlari yoziladi",
+   "Sayt, telefon, Telegram va Instagram manzillari birga beriladi",
+   "Kichik shriftda kompaniyaning to'liq tarixi hikoya qilinadi"
+  ],
+  "c": 0,
+  "e": "Qisqa vaqtda faqat 1-tizim ishlaydi: bitta rasm, bitta g'oya, kam so'z. Jadval va tarix 2-tizim uchun."
+ },
+ {
+  "t": 8,
+  "q": "Qaysi jumla USP (noyob savdo taklifi) ga eng yaxshi misol bo'ladi?",
+  "a": [
+   "«Ishlaydigan talabalar uchun kechki 20:00 da 45 daqiqalik onlayn darslar»",
+   "«Bizda eng sifatli ta'lim, eng tajribali o'qituvchilar va eng qulay narx»",
+   "«Ingliz tili kurslarimiz 2015-yildan beri Termiz shahrida faoliyat yuritadi»",
+   "«Kursga yoziling va hayotingizni o'zgartiring — siz bunga albatta loyiqsiz»"
+  ],
+  "c": 0,
+  "e": "USP — aniq mijoz uchun raqobatchilar bermaydigan bitta aniq foyda. «Eng sifatli, eng arzon» — hamma aytadigan umumiy gap."
+ },
+ {
+  "t": 8,
+  "q": "Avis kompaniyasining «Biz 2-raqammiz. Shuning uchun ko'proq harakat qilamiz» kampaniyasi nimani ko'rsatadi?",
+  "a": [
+   "Zaif tomonni halol tan olib, uni mijoz uchun foydaga aylantirish mumkin",
+   "Reklamada raqobatchining nomini tez-tez tilga olish savdoni pasaytiradi",
+   "Bozorda faqat birinchi o'rindagi kompaniya foydali ishlay olishi mumkin",
+   "Narxni raqobatchidan arzon qilish har doim eng kuchli pozitsiya bo'ladi"
+  ],
+  "c": 0,
+  "e": "Avis ikkinchi o'rinni yashirmadi, aksincha «shuning uchun ko'proq tirishamiz» deb mijozga foyda va'da qildi — pozitsiyalashning klassik namunasi."
+ },
+ {
+  "t": 8,
+  "q": "Mehmonxona sochiqlari tajribasida qaysi yozuv mehmonlarni sochiqni qayta ishlatishga ko'proq undadi?",
+  "a": [
+   "«Mehmonlarimizning ko'pchiligi sochiqni qayta ishlatadi»",
+   "«Tabiatni asrang — sochiqni qayta ishlatishni unutmang»",
+   "«Sochiqni qayta ishlatsangiz, suv va kukun tejaladi»",
+   "«Toza sochiq kerak bo'lsa, uni polga tashlab qo'ying»"
+  ],
+  "c": 0,
+  "e": "Goldstayn, Chaldini va Griskevichus (2008): «ko'pchilik shunday qiladi» (ijtimoiy isbot) — 44,1%, tabiatga chaqiriq — 35,1%."
+ },
+ {
+  "t": 8,
+  "q": "The Economist tajribasida hech kim tanlamagan «faqat bosma — $125» varianti qanday rol o'ynadi?",
+  "a": [
+   "U «bosma+onlayn — $125» variantini juda foydali qilib ko'rsatdi",
+   "U jurnal tahririyatiga ko'proq bosma nusxa sotishga yordam berdi",
+   "U «faqat onlayn — $59» variantini eng ishonchli qilib ko'rsatdi",
+   "U obunachilarni narxlarni sinchiklab solishtirishdan qaytardi"
+  ],
+  "c": 0,
+  "e": "Aldovchi (decoy) variant: u bilan 84% bosma+onlaynni tanladi, usiz — atigi 32%. Variantning vazifasi — boshqasini arzon ko'rsatish."
+ },
+ {
+  "t": 8,
+  "q": "Murabbo tajribasidan (24 xil va 6 xil) kichik biznes uchun qaysi xulosa to'g'ri?",
+  "a": [
+   "Kamroq, aniq tanlov xaridni oshiradi — 3 tagacha asosiy variant bering",
+   "Tanlov qancha ko'p bo'lsa, mijoz shuncha tezroq va oson qaror qiladi",
+   "Ta'tib ko'rish stoli xaridga hech qanday ta'sir qilmasligi isbotlangan",
+   "Ko'p xil mahsulot qo'yilsa, ularning hammasi teng sotila boshlaydi"
+  ],
+  "c": 0,
+  "e": "24 xilda xaridorlar 3%, 6 xilda 30% bo'ldi. Ortiqcha tanlov qarorni keyinga qoldiradi."
+ },
+ {
+  "t": 8,
+  "q": "Mahsulot marjasi 25%. Reklama ROAS i 3 ga teng bo'ldi. Bu haqda qaysi xulosa to'g'ri?",
+  "a": [
+   "Zararsiz ROAS 4 ga teng, demak reklama sotuvga qaramay zarar keltiryapti",
+   "ROAS 1 dan katta bo'lgani uchun reklama har doim foyda keltirgan bo'ladi",
+   "Zararsiz ROAS 0,25 ga teng, demak reklama juda katta foyda keltiryapti",
+   "Marja ROAS ga hech qanday ta'sir qilmaydi, faqat tushumga qarash kerak"
+  ],
+  "c": 0,
+  "e": "Zararsiz ROAS = 1 ÷ 0,25 = 4. ROAS 3 < 4 — har 100 so'm reklamaga 300 so'm tushum, lekin atigi 75 so'm foyda."
+ },
+ {
+  "t": 8,
+  "q": "Telegram postini A/B testdan o'tkazmoqchisiz. Qaysi reja to'g'ri?",
+  "a": [
+   "Faqat sarlavhani o'zgartirib, ikki guruhda buyurtmalar sonini solishtirish",
+   "Sarlavha, rasm va narxni birdaniga o'zgartirib, layklar sonini solishtirish",
+   "A variantni dushanba, B ni bayramda chiqarib, ko'rishlar sonini solishtirish",
+   "Har variantni 20 kishiga ko'rsatib, jamoaning fikri bo'yicha g'olib tanlash"
+  ],
+  "c": 0,
+  "e": "A/B test: bitta o'zgarish, tasodifiy teng guruhlar, yetarli odam va oldindan tanlangan ko'rsatkich (buyurtma)."
+ },
+ {
+  "t": 8,
+  "q": "Logotip yaxshi ekanini tekshirishning qaysi usuli dars qoidalariga mos?",
+  "a": [
+   "Uni oq-qora qilib, ilova belgisi o'lchamigacha kichraytirib ko'rish",
+   "Unga iloji boricha ko'p rang, soya va yaltiroq effektlar qo'shish",
+   "Unga mashhur brendning belgisini olib, nomini o'zgartirib qo'yish",
+   "Uni faqat katta ekranda, rangli va to'liq o'lchamda tekshirib ko'rish"
+  ],
+  "c": 0,
+  "e": "Yaxshi logotip moslashuvchan: oq-qorada va 16 piksel o'lchamda ham taniladi. Ko'p effekt eskiradi, ko'chirish esa qonunbuzarlik."
+ },
+ {
+  "t": 8,
+  "q": "FedEx logotipidagi E va x harflari orasidagi bo'sh joyda nima yashiringan?",
+  "a": [
+   "Tezlik va aniqlikni bildiruvchi o'q belgisi",
+   "Kompaniya asoschisining ismining bosh harfi",
+   "Yer sharini bildiruvchi kichkina aylana shakl",
+   "Yuk tashiydigan samolyotning kichik qanoti"
+  ],
+  "c": 0,
+  "e": "1994-yilda Lindon Lider yaratgan logotipda bo'sh joy (negative space) o'qni hosil qiladi — oldinga harakat va tezlik ramzi."
+ },
+ {
+  "t": 8,
+  "q": "Onlayn do'konda har safar sahifa yangilanganda «Aksiya tugashiga 10:00 daqiqa qoldi» taymeri qaytadan boshlanadi. Bu nima?",
+  "a": [
+   "Qorong'i pattern — soxta tanqislik bilan mijozni aldash",
+   "Ijtimoiy isbot — boshqa xaridorlar fikrini halol ko'rsatish",
+   "Langar narx — birinchi ko'rilgan narx bilan solishtirish",
+   "Freyming — bir xil faktni ijobiy so'zlar bilan aytib berish"
+  ],
+  "c": 0,
+  "e": "Taymer rost emas — bu yolg'on tanqislik, qorong'i pattern. Iste'molchini chalg'itadigan reklama qonun bilan taqiqlanadi."
+ },
+ {
+  "t": 8,
+  "q": "Kuryerlik xizmati uchun qaysi yondashuv mijoz tajribasini eng yaxshi qiladi?",
+  "a": [
+   "«3 kunda» deb va'da berib, imkon bo'lsa 2 kunda yetkazib berish",
+   "«1 kunda» deb va'da berib, odatdagidek 3 kunda yetkazib berish",
+   "Yetkazish muddatini umuman aytmay, mijozni kutib turishga qo'yish",
+   "Muddatni faqat to'lov qilingandan keyingina mijozga ma'lum qilish"
+  ],
+  "c": 0,
+  "e": "Kam va'da — ko'p bajar: kutilgandan yaxshi natija mamnunlik beradi, buzilgan va'da esa shikoyat keltiradi (cho'qqi va yakun qoidasi)."
+ },
+ {
+  "t": 8,
+  "q": "Dollar Shave Club'ning taxminan $4 500 ga tushgan videosi nega 48 soatda 12 000 buyurtma keltirdi?",
+  "a": [
+   "Hazil va aniq foyda birga berildi: arzon ustara uyga yetkaziladi",
+   "Video televizorda eng qimmat vaqtda ko'p marta ko'rsatib turildi",
+   "Unda dunyoga mashhur aktyorlar va sportchilar suratga tushgan edi",
+   "Videoda mahsulot narxi va tarkibi umuman aytilmay yashirilgan edi"
+  ],
+  "c": 0,
+  "e": "Asoschining o'zi suratga tushgan kulgili video aniq USP berdi: oyiga bir necha dollarga sifatli ustara, uyga yetkazib. G'oya byudjetdan kuchli chiqdi."
+ },
+ {
+  "t": 9,
+  "q": "«Lift pitch» (60 soniyalik taqdimot)ning asosiy maqsadi nima?",
+  "a": [
+   "Loyihaning barcha jihatlarini qisqa vaqtda to'liq tushuntirib berish",
+   "Tinglovchida qiziqish uyg'otib, keyingi suhbatga yo'l ochib berish",
+   "Tinglovchini shu zahotiyoq kelishuv hujjatini imzolashga ko'ndirish",
+   "Loyiha narxini oldindan aytib, muzokarani tezroq yakunlab qo'yish"
+  ],
+  "c": 1,
+  "e": "60 soniyada hamma narsani aytib bo'lmaydi. Maqsad — tinglovchida «yana ayting-chi» degan qiziqish uyg'otish va keyingi uchrashuvga yo'l ochish."
+ },
+ {
+  "t": 9,
+  "q": "Taqdimotni odatda qaysi mazmundan boshlash tavsiya etiladi?",
+  "a": [
+   "Mijoz duch kelayotgan muammo va uni ko'rsatuvchi bitta real misol",
+   "Jamoa a'zolarining ma'lumoti, tajribasi va oldingi yutuqlari haqida",
+   "Moliyaviy prognoz, kutilayotgan foyda va qoplanish muddati haqida",
+   "Mahsulotning texnik tuzilishi va ishlab chiqarish jarayoni haqida"
+  ],
+  "c": 0,
+  "e": "Tinglovchi avval «bu nega kerak?» degan savolga javob kutadi. Shuning uchun taqdimot muammo bilan boshlanadi, yechim va raqamlar keyin keladi."
+ },
+ {
+  "t": 9,
+  "q": "Mijoz bilan suhbatda haqiqatni eng yaxshi ko'rsatadigan savol qaysi?",
+  "a": [
+   "Bunday mahsulot chiqsa, sizga yoqishiga umid qilsam bo'ladimi?",
+   "Mening g'oyam sizningcha qanchalik zo'r ekanligini ayting-chi?",
+   "Bu muammoga oxirgi marta qachon duch keldingiz, nima qildingiz?",
+   "Agar mahsulotim chiqsa, uni albatta sotib olish niyatingiz bormi?"
+  ],
+  "c": 2,
+  "e": "Odamlar kelajak haqida xushmuomalalik bilan «ha» deydi. Ilgari nima qilgani haqidagi savol esa haqiqiy xatti-harakatni ko'rsatadi."
+ },
+ {
+  "t": 9,
+  "q": "Quyidagi muammo bayonlaridan qaysi biri eng aniq va tekshirib ko'rishga yaroqli?",
+  "a": [
+   "Odamlar hozirgi paytda sifatli mahsulotni topishda qiynalib yuribdi",
+   "Bozorda yaxshi xizmat yetishmaydi, shuning uchun yangi biznes kerak",
+   "Yoshlarning ko'pchiligi vaqtini bekorga o'tkazadi va tejashni istaydi",
+   "Termizlik oilalar qishda mevani qimmat oladi yoki isrof qilishadi"
+  ],
+  "c": 3,
+  "e": "Aniq bayonda kim (termizlik oilalar), qachon (qishda) va qanday qiyinchilik bor. Shu bois uni suhbat va so'rovnoma bilan tekshirish mumkin. Qolganlari juda umumiy."
+ },
+ {
+  "t": 9,
+  "q": "Mahsulot narxi 50 000 so'm, birlik uchun o'zgaruvchan xarajat 35 000, oylik doimiy xarajat 3 000 000 so'm. Zararsiz miqdor qancha?",
+  "a": [
+   "150 dona",
+   "200 dona",
+   "250 dona",
+   "300 dona"
+  ],
+  "c": 1,
+  "e": "Birlik foydasi = 50 000 − 35 000 = 15 000. Zararsiz miqdor = 3 000 000 ÷ 15 000 = 200 dona."
+ },
+ {
+  "t": 9,
+  "q": "Birlik foydasi 16 000 so'm, doimiy xarajat oyiga 4 000 000 so'm. Oyiga 300 dona sotilsa, sof natija qanday bo'ladi?",
+  "a": [
+   "800 000 so'm foyda",
+   "1 600 000 so'm foyda",
+   "800 000 so'm zarar",
+   "1 200 000 so'm zarar"
+  ],
+  "c": 0,
+  "e": "Foyda = 300 × 16 000 = 4 800 000. Doimiy xarajat 4 000 000 ayrilsa, sof natija +800 000 so'm."
+ },
+ {
+  "t": 9,
+  "q": "Qaysi hisob «pastdan yuqoriga» bozor baholashiga misol bo'ladi?",
+  "a": [
+   "Aholi 36 million, 1 foizi sotib olsa ham katta bozor bo'ladi, deb hisoblash",
+   "Boshqa mamlakatdagi shunga o'xshash bozor hajmini bizga ko'chirib qo'yish",
+   "Soha bo'yicha umumiy hisobotdagi raqamning yarmini o'z bozorimiz deb olish",
+   "2 000 kishiga yetaman, 5 foizi sotib oladi, har biri 40 000 so'm to'laydi"
+  ],
+  "c": 3,
+  "e": "Pastdan yuqoriga hisob — o'zim yeta oladigan mijozlardan boshlanadi: 2 000 × 5% × 40 000 = 4 000 000 so'm. Aholi sonidan foiz olish esa asossiz va xavfli."
+ },
+ {
+  "t": 9,
+  "q": "UVP (noyob taklif) nimani bildiradi?",
+  "a": [
+   "Mahsulotni ishlab chiqarish narxini hisoblab chiqish usulini",
+   "Mijozlarning tez-tez beradigan savollari ro'yxatini tuzishni",
+   "Mijoz nega aynan sizni tanlashini bildiruvchi bitta sababni",
+   "Sotuvdan so'ng mijozga beriladigan kafolat shartlari to'plamini"
+  ],
+  "c": 2,
+  "e": "UVP — mijoz raqobatchilarni emas, aynan sizni nega tanlashi haqidagi bitta aniq jumla. Masalan: «Termiz mevasidan, qandsiz, uyga yetkaziladi»."
+ },
+ {
+  "t": 9,
+  "q": "MVP (minimal hayotga layoqatli mahsulot) nima uchun yasaladi?",
+  "a": [
+   "Ko'p xarajat qilib, bozorga mukammal to'liq mahsulotni chiqarish uchun",
+   "G'oyani katta pul sarflamay, eng oddiy variantda mijozda sinash uchun",
+   "Raqobatchilarni ogohlantirib, bozordan chiqib ketishga undash uchun",
+   "Soliq va rasmiylashtirish talablaridan vaqtincha chetda qolish uchun"
+  ],
+  "c": 1,
+  "e": "MVP — g'oya ishlayotganini kichik xarajat bilan tekshirish uchun eng oddiy variant. Kam pul yo'qotib, tez o'rganish imkonini beradi."
+ },
+ {
+  "t": 9,
+  "q": "Bank tadbirkorning biznes taqdimotida eng avvalo qaysi savolga javob izlaydi?",
+  "a": [
+   "Kreditni qaytarish uchun oylik pul tushumi va to'lov manbai bormi?",
+   "Loyiha jamiyatda eng ko'p e'tibor qozonadigan g'oya hisoblanadimi?",
+   "Tadbirkor kelajakda necha xodim yollashni rejalashtirib turibdi?",
+   "Mahsulotning logotipi va qadog'i qanchalik chiroyli tayyorlangan?"
+  ],
+  "c": 0,
+  "e": "Bank o'z pulini qaytarib olishni istaydi. Shuning uchun u oylik tushum, to'lov manbai va kafolatga qaraydi, g'oyaning jozibasiga emas."
+ },
+ {
+  "t": 9,
+  "q": "Mas'uliyati cheklangan jamiyat (MChJ) ishtirokchisi jamiyat qarzlari uchun odatda nima bilan javob beradi?",
+  "a": [
+   "Butun shaxsiy mol-mulki va oilasining mol-mulki bilan birga",
+   "Faqat rais bo'lgan ishtirokchining shaxsiy mol-mulki bilan",
+   "Hech narsa bilan: jamiyat yopilsa, qarz bekor bo'lib ketadi",
+   "Jamiyatga kiritgan o'z ulushi doirasidagi pul mablag'i bilan"
+  ],
+  "c": 3,
+  "e": "MChJ alohida yuridik shaxs. Uning ishtirokchisi odatda kiritgan ulushi doirasida javob beradi. YaTT egasi esa o'z mol-mulki bilan javob berishi mumkin. Aniq shartlarni lex.uz dan tekshiring."
+ },
+ {
+  "t": 9,
+  "q": "Kredit olishdan oldin tadbirkor o'ziga qaysi savolni berishi eng to'g'ri?",
+  "a": [
+   "Boshqa tadbirkorlar ham kredit olgan, menga ham shu foiz mosmi?",
+   "Kredit pulini qaysi do'kondan olsam, uskuna tezroq yetib keladi?",
+   "Sotuv past bo'lib qolsa ham, oylik to'lovni qayerdan to'layman?",
+   "Kredit berishga bank rozi bo'lishi uchun nechta hujjat kerak?"
+  ],
+  "c": 2,
+  "e": "Kredit daromad kamayganda ham to'lanadi. Shu sababli avval eng yomon holatda to'lov manbaini aniqlash kerak, hujjat yoki foiz masalasi keyin keladi."
+ },
+ {
+  "t": 9,
+  "q": "Investor «Raqobatchilaringiz kim?» deb so'radi. Qaysi javob eng kuchli?",
+  "a": [
+   "Bizda raqobatchi yo'q, bunday mahsulotni hali hech kim qilmagan",
+   "Mijoz hozir ikki joydan oladi; farqimiz — mahalliy va qandsiz",
+   "Raqobatchilar ko'p, lekin ancha zaif, shuning uchun qo'rqmaymiz",
+   "Bu savolga hozir aniq javob bermayman, keyinroq ko'rib chiqamiz"
+  ],
+  "c": 1,
+  "e": "Kuchli javob raqobatchilarni nomlaydi va farqni qisqa aytadi. «Raqobatchi yo'q» bozor o'rganilmaganini bildiradi, «ular zaif» esa asossiz ishonch."
+ },
+ {
+  "t": 9,
+  "q": "MVP sinovida 40 ta oiladan faqat 2 tasi sotib oldi, lekin ko'plari «to'plam sifatida kerak» dedi. Eng to'g'ri qaror qaysi?",
+  "a": [
+   "Mijozlar so'ziga tayanib, mahsulot shaklini o'zgartirib, yana sinash",
+   "Natijaga qaramay, rejalashtirilgan uskunani zudlik bilan sotib olish",
+   "Sinov noto'g'ri o'tgan deb hisoblab, mezonni pastroq qilib belgilash",
+   "Darhol g'oyadan voz kechib, butunlay boshqa sohada yangi biznes ochish"
+  ],
+  "c": 0,
+  "e": "Past natija va mijozlar fikri — o'zgartirish (pivot) uchun ma'lumot. Bitta narsani (mahsulot shaklini) o'zgartirib qayta sinash kerak. Mezonni natijadan keyin o'zgartirish o'zini aldashdir."
+ },
+ {
+  "t": 9,
+  "q": "Quyidagilardan qaysi biri investor uchun eng kuchli isbot hisoblanadi?",
+  "a": [
+   "Ijtimoiy tarmoqdagi postga kelgan yuzlab layk va yaxshi izohlar",
+   "Do'stlar va qarindoshlarning «g'oyang juda yaxshi» degan fikri",
+   "Mahsulotga birinchi bo'lib pul to'lagan va qaytgan mijozlar",
+   "Bozor hajmi bo'yicha katta, lekin manbasiz hisobotdagi raqam"
+  ],
+  "c": 2,
+  "e": "Pul to'lagan va qaytgan mijoz — haqiqiy talab belgisi. Layk, maqtov va manbasiz raqam xatti-harakatni emas, xushmuomalalikni ko'rsatadi."
+ },
+ {
+  "t": 10,
+  "q": "Mijoz bilan ehtiyojni aniqlash bosqichida sotuvchi eng avvalo nima qilishi kerak?",
+  "a": [
+   "Mahsulotning barcha afzalliklarini darhol tez sanab chiqishi kerak",
+   "Ochiq savollar berib, mijozni gapirtirib, diqqat bilan tinglashi",
+   "Mijozga narxni aytib, chegirma borligini avvaldan ma'lum qilishi",
+   "Mijozning gapini bo'lib, asosiy fikrni o'zi tezroq aytib qo'yishi"
+  ],
+  "c": 1,
+  "e": "Ehtiyoj bosqichining maqsadi — mijoz nimani va nega xohlashini bilish. Buning uchun ochiq savollar beriladi va mijoz gapiradi, sotuvchi tinglaydi."
+ },
+ {
+  "t": 10,
+  "q": "«Tort kech kelsa, mehmonlar oldida nima bo'ladi?» savoli SPIN ning qaysi turiga kiradi?",
+  "a": [
+   "S — vaziyat savoli, chunki u hozirgi holatni aniqlashga qaratilgan",
+   "P — muammo savoli, chunki u mijozdagi qiyinchilikni ochib beradi",
+   "I — oqibat savoli, chunki u muammoning jiddiyligini ko'rsatadi",
+   "N — foyda savoli, chunki u yechimning afzalligini ochib beradi"
+  ],
+  "c": 2,
+  "e": "Oqibat (Implication) savoli muammo hal qilinmasa nima bo'lishini ko'rsatadi va mijozga muammo qanchalik jiddiyligini his qildiradi."
+ },
+ {
+  "t": 10,
+  "q": "«Tort yetkazishdan 6 soat oldin pishiriladi» — bu FAB formulasining qaysi qismi?",
+  "a": [
+   "F — xususiyat: u mahsulotning o'ziga xos jihatini oddiy aytadi",
+   "A — afzallik: u mahsulotni boshqalardan ustun qilib ko'rsatadi",
+   "B — foyda: u mijoz nima olishini to'g'ridan-to'g'ri tushuntiradi",
+   "Bu FAB ga kirmaydi, chunki bu gapda mijoz haqida hech narsa yo'q"
+  ],
+  "c": 0,
+  "e": "Bu gap — mahsulotning xususiyati (Feature). Uni afzallik («yangi va yumshoq») va foydaga («mehmonlar oldida xotirjamlik») aylantirish kerak."
+ },
+ {
+  "t": 10,
+  "q": "Mijoz «Qimmat ekan» dedi. Eng to'g'ri javob qaysi?",
+  "a": [
+   "Yo'q, bu arzon, boshqa joylarda narx bundan ancha yuqoriroq turadi",
+   "Narxni darhol tushirib, mijoz xohlagan summaga rozi bo'lib qo'ying",
+   "Unda boshqa joydan oling, bizning narxni o'zgartirishimiz shart emas",
+   "Nimaga nisbatan qimmat? Byudjetingiz qancha? Soddasini ko'rsataymi?"
+  ],
+  "c": 3,
+  "e": "Mijozning e'tirozi ko'pincha savol: u nimani solishtiryapti va byudjeti qancha? Aniqlashtirib, soddaroq variant taklif qilinadi. Bahslashish yoki darhol narx tushirish noto'g'ri."
+ },
+ {
+  "t": 10,
+  "q": "Oyiga 80 ta so'rov keldi, 20 tasi buyurtma berdi. Konversiya qancha?",
+  "a": [
+   "20%",
+   "25%",
+   "30%",
+   "40%"
+  ],
+  "c": 1,
+  "e": "Konversiya = buyurtmalar ÷ so'rovlar × 100 = 20 ÷ 80 × 100 = 25%."
+ },
+ {
+  "t": 10,
+  "q": "Oyiga 40 ta buyurtma bo'ldi, o'rtacha chek 180 000 so'm. Oylik tushum qancha?",
+  "a": [
+   "4 500 000 so'm",
+   "5 400 000 so'm",
+   "6 800 000 so'm",
+   "7 200 000 so'm"
+  ],
+  "c": 3,
+  "e": "Tushum = buyurtmalar soni × o'rtacha chek = 40 × 180 000 = 7 200 000 so'm."
+ },
+ {
+  "t": 10,
+  "q": "100 so'rovdan 20 ta buyurtma, o'rtacha chek 250 000. Qaysi o'zgarish tushumni ko'proq oshiradi?",
+  "a": [
+   "Konversiyani 25% gacha ko'tarish: tushum 1 250 000 so'mga oshadi",
+   "O'rtacha chekni 10% ga ko'tarish: tushum 500 000 so'mga oshadi",
+   "So'rovlar sonini 5% ga ko'paytirish: tushum 250 000 so'mga oshadi",
+   "Narxni 5% ga tushirish: tushum o'zgarmaydi, buyurtma ko'payadi"
+  ],
+  "c": 0,
+  "e": "25% konversiyada 100 × 25% × 250 000 = 6 250 000 (+1 250 000). Boshqa variantlar: chek +10% → +500 000, so'rov +5% → +250 000. Mavjud so'rovlarni yo'qotmaslik eng foydali."
+ },
+ {
+  "t": 10,
+  "q": "Mijoz tort buyurtma qildi, sotuvchi unga shamlar va shirinlik qutisini ham taklif qildi. Bu nima deyiladi?",
+  "a": [
+   "Upsell — o'sha mahsulotning kattaroq variantini taklif qilish usuli",
+   "Qayta xarid — mijozning avval olgan mahsulotini yana buyurtma qilishi",
+   "Cross-sell — asosiy mahsulotga mos qo'shimcha mahsulot taklif qilish",
+   "Chegirma — narxni vaqtincha tushirib, mijozni xarid qilishga undash"
+  ],
+  "c": 2,
+  "e": "Cross-sell — sotib olinayotgan mahsulotga mos boshqa mahsulotni taklif qilish. Upsell esa o'sha mahsulotning kattaroq yoki yaxshiroq variantini taklif qilishdir."
+ },
+ {
+  "t": 10,
+  "q": "50 ta javobdan 30 tasi tavsiya qiluvchi, 12 tasi betaraf, 8 tasi tanqidchi. NPS qancha?",
+  "a": [
+   "32",
+   "44",
+   "52",
+   "60"
+  ],
+  "c": 1,
+  "e": "Tavsiya qiluvchilar 30 ÷ 50 = 60%, tanqidchilar 8 ÷ 50 = 16%. NPS = 60 − 16 = 44."
+ },
+ {
+  "t": 10,
+  "q": "60 ta mijozdan 21 tasi qayta xarid qildi. Qayta xarid ulushi qancha?",
+  "a": [
+   "35%",
+   "21%",
+   "40%",
+   "65%"
+  ],
+  "c": 0,
+  "e": "Qayta xarid ulushi = 21 ÷ 60 × 100 = 35%."
+ },
+ {
+  "t": 10,
+  "q": "Quyidagilardan qaysi biri mijoz xarid qilishga tayyor ekanining belgisi hisoblanadi?",
+  "a": [
+   "U jim turadi va hech savol bermay, telefoniga qarab o'tiraveradi",
+   "U har gapda narxni boshqa joyniki bilan solishtirib, tortishadi",
+   "U «keyinroq yozaman» deb, suhbatni tezda tugatishga urinib ko'radi",
+   "U yetkazish muddati va to'lov usuli haqida aniq so'ray boshlaydi"
+  ],
+  "c": 3,
+  "e": "Muddat va to'lov kabi amaliy savollar — mijoz qaror qabul qilishga yaqinlashgani belgisi. Bunda sotuvchi xulosa qilib, keyingi qadamni taklif qilishi kerak."
+ },
+ {
+  "t": 10,
+  "q": "B2B savdoning oddiy xaridorga sotuvdan (B2C) asosiy farqi nimada?",
+  "a": [
+   "B2B da narx umuman muhim emas, faqat mahsulot rangi hal qiladi",
+   "B2B da mijoz doim naqd to'laydi va hech qanday hujjat so'ramaydi",
+   "B2B da qaror bir necha kishi bilan kelishiladi, shartnoma tuziladi",
+   "B2B da sotuvchi mijoz bilan gaplashmaydi, faqat reklama sotadi"
+  ],
+  "c": 2,
+  "e": "Korxonalar bilan savdoda qaror odatda bir necha kishi (egasi, buxgalter, xaridchi) bilan kelishiladi, shartnoma va to'lov muddati aniq belgilanadi, jarayon uzoqroq davom etadi."
+ },
+ {
+  "t": 10,
+  "q": "Mijoz g'azab bilan shikoyat yozdi. Sotuvchining birinchi harakati qanday bo'lishi kerak?",
+  "a": [
+   "Xatoga mijozning o'zi sababchi ekanini birinchi bo'lib tushuntirishi",
+   "Gapini tinglab, noqulaylikni tan olib, so'ng yechim taklif qilishi",
+   "Javob bermay turib, mijoz o'zi tinchlanguncha bir necha kun kutishi",
+   "Darhol chegirma va'da qilib, nima bo'lganini so'rab ham o'tirmasligi"
+  ],
+  "c": 1,
+  "e": "G'azablangan mijozga avval his-tuyg'uni tan olish va tinglash kerak, shundan keyin aniq yechim beriladi. Ayblash, kuttirish yoki so'ramasdan chegirma berish muammoni hal qilmaydi."
+ },
+ {
+  "t": 10,
+  "q": "Mijoz muloyimlik bilan «Yo'q, olmayman» dedi. Eng to'g'ri harakat qaysi?",
+  "a": [
+   "Sababini muloyim so'rab, keyin yozishga ruxsat so'rash va rahmat aytish",
+   "Mijozni ko'ndirish uchun «oxirgi dona qoldi» deb shoshilinchlik yaratish",
+   "Narxni yarmiga tushirib, mijoz fikrini o'zgartirishga qayta urinib ko'rish",
+   "Suhbatni indamay tugatib, mijozni jadvaldan butunlay o'chirib tashlash"
+  ],
+  "c": 0,
+  "e": "Mijozning «yo'q»i bugungi qaror, abadiy emas. Sababini bilish va keyin aloqa qilishga ruxsat so'rash kelajakdagi sotuvga eshik ochadi. Soxta shoshilinchlik ishonchni yo'qotadi."
+ },
+ {
+  "t": 10,
+  "q": "Nima uchun har bir so'rovni manbasi, qadami va keyingi aloqa sanasi bilan jadvalga yozib borish kerak?",
+  "a": [
+   "Soliq idoralariga ko'rsatish uchun, boshqa foydasi umuman yo'q",
+   "Mijozga yuborish uchun, chunki jadvalni mijoz ham ko'rishi shart",
+   "Faqat xodimlar sonini hisoblash va ish haqini belgilash uchun",
+   "Hech kim esdan chiqmasligi va yaxshi manba ko'rinib turishi uchun"
+  ],
+  "c": 3,
+  "e": "Jadval kim bilan qachon gaplashishni eslatadi, qaysi manbadan ko'proq mijoz kelayotganini ko'rsatadi va mijoz qaysi qadamda to'xtab qolayotganini aniqlashga yordam beradi."
+ }
+]
