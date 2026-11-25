@@ -5,20 +5,21 @@ import type { Actor } from '../types';
 import type { PremiumInfo, PremiumState } from '../library';
 import { administrator, check } from './auth';
 import { DEFAULT_LOOK, isLook } from '../premium-look';
-import { PLANS, type ClaimStatus, type MyClaim, type PlanId } from '../premium-plans';
+import { DEFAULT_DAYS, type ClaimStatus, type MyClaim } from '../premium-plans';
 import { imageType, siteGet, siteTransaction, siteUpdate, storeBlob } from './site-content';
+import { BUDGET_MAX, PAY_MIN } from '../services';
 
 /* 💎 Obuna (premium): pullik imkoniyatlar (kurs darslari — talaba bo'lmaganlarga, kutubxonadagi 💎 manbalar, avatar) uchun.
    To'lov tizimi ulanguncha obunani administrator qo'lda beradi: talaba ko'rsatilgan usulda to'laydi, administrator
    «Sayt boshqaruvi → 💎 Obuna»da muddatini belgilaydi. Keyin to'lov tizimi (Click, Payme …) ulanganda u ham shu
    yozuvni yangilaydi: site/premium/<foydalanuvchi> = {uid, name, group, until, at, by, hist}; hist — har bir
    ochilish: qachon, necha kunga, qancha to'langan (chek qabul qilinganda) va kim ochgan.
-   site/premiumInfo = {card, holder, month, year, how, price} — karta, narxlar va yo'riqnoma (talabaga ko'rsatiladi).
+   site/premiumInfo = {card, holder, how, price} — karta va yo'riqnoma (talabaga ko'rsatiladi). Narx ixtiyoriy.
 
-   🛒 O'zi obuna bo'lish (talaba): «Obuna bo'lish» → tarif (1 oy / 1 yil) va karta → to'laydi → «To'lov qildim» →
-   to'lov vaqti YOKI chek rasmi → «Yuborish». Obuna shu zahoti ochiladi; to'lov site/premiumClaims/<foydalanuvchi>/<id>
+   🛒 O'zi obuna bo'lish (talaba): «Obuna bo'lish» → karta → istalgan summani to'laydi → «To'lov qildim» → qancha
+   to'lagani va to'lov vaqti YOKI chek rasmi → «Yuborish». Obuna shu zahoti DEFAULT_DAYS (1 oy) ga ochiladi; to'lov site/premiumClaims/<foydalanuvchi>/<id>
    ga «tekshirilmagan» (new) bo'lib yoziladi, administratorga bildirishnoma boradi. Administrator «💎 Obuna»da
-   tasdiqlaydi (ok) yoki chiqarib tashlaydi (removed): obuna yopiladi va o'zi qayta obuna bo'la olmaydi
+   summaga qarab «✅ 1 oy» yoki «✅ 1 yil» deb tasdiqlaydi (ok, muddat boshlangan kunidan) yoki chiqarib tashlaydi (removed): obuna yopiladi va o'zi qayta obuna bo'la olmaydi
    (site/premiumBlock/<foydalanuvchi>) — faqat administrator ochadi. Tekshirilmagan to'lovi bor foydalanuvchi
    ikkinchisini yubora olmaydi (bepul muddat to'plab bo'lmaydi). Chek rasmi site/premiumReceipts/<…>/<id> da —
    faqat administrator ko'radi (/api/premium?receipt=…). */
@@ -41,9 +42,9 @@ type Claim = {
   uid: string;
   name: string;
   group: string;
-  plan: PlanId;
+  /** ochilgan muddat (kun) */
   days: number;
-  /** tarif narxi (so'm), belgilanmagan bo'lsa 0 */
+  /** talaba to'lagan summa (so'm) */
   amount: number;
   /** talaba yozgan to'lov vaqti */
   paidAt?: number;
@@ -64,14 +65,11 @@ export const premiumKey = keyOf;
 
 function normalizeInfo(raw: Partial<PremiumInfo> | null): PremiumInfo {
   const s = (v: unknown, n: number) => (typeof v === 'string' ? v.trim().slice(0, n) : '');
-  const n = (v: unknown) => (Number.isFinite(Number(v)) ? Math.max(0, Math.round(Number(v))) : 0);
   return {
     price: s(raw?.price, 80),
     how: s(raw?.how, 600),
     card: s(raw?.card, 40),
     holder: s(raw?.holder, 80),
-    month: n(raw?.month),
-    year: n(raw?.year),
   };
 }
 export async function premiumInfo(): Promise<PremiumInfo> {
@@ -157,7 +155,7 @@ export async function premiumView(a: Actor, now = Date.now()) {
     .filter((c) => c?.id)
     .sort((x, y) => y.at - x.at)[0];
   const claim: MyClaim | undefined = last
-    ? { id: last.id, plan: last.plan, days: last.days, at: last.at, status: last.status }
+    ? { id: last.id, amount: last.amount || 0, days: last.days, at: last.at, status: last.status }
     : undefined;
   return {
     state,
@@ -171,7 +169,8 @@ export async function premiumView(a: Actor, now = Date.now()) {
 
 const subscribeInput = z
   .object({
-    plan: z.enum(['oy', 'yil']),
+    /** to'lagan summasi (so'm) — narx ixtiyoriy */
+    amount: z.number().int().min(PAY_MIN).max(BUDGET_MAX),
     /** to'lov vaqti (ms) */
     paidAt: z.number().int().positive().optional(),
     /** chek rasmi (base64) */
@@ -211,8 +210,6 @@ export async function subscribe(a: Actor, raw: unknown, now = Date.now()) {
     403,
     'Obunangizni administrator yopgan: to‘lovingiz topilmagan. Savol bo‘lsa, «Adminga xabar» orqali yozing.',
   );
-  const plan = PLANS.find((x) => x.id === p.plan)!;
-  const info = await premiumInfo();
   const id = now.toString(36) + randomBytes(3).toString('hex');
   const name = (a.name || 'Foydalanuvchi').slice(0, 120),
     group = String(a.classId || '').slice(0, 40);
@@ -221,9 +218,8 @@ export async function subscribe(a: Actor, raw: unknown, now = Date.now()) {
     uid: a.id,
     name,
     group,
-    plan: plan.id,
-    days: plan.days,
-    amount: (plan.id === 'yil' ? info.year : info.month) || 0,
+    days: DEFAULT_DAYS,
+    amount: p.amount,
     ...(p.paidAt !== undefined ? { paidAt: p.paidAt } : {}),
     ...(bytes ? { receipt: true as const } : {}),
     at: now,
@@ -242,11 +238,15 @@ export async function subscribe(a: Actor, raw: unknown, now = Date.now()) {
   });
   check(!problem, 409, problem);
   if (bytes) await siteUpdate({ ['premiumReceipts/' + key + '/' + id]: { t: type, d: p.receipt } });
-  await grantPremium(a.id, name, group, plan.days, 'O‘zi (to‘lov)', now, claim.amount);
+  await grantPremium(a.id, name, group, DEFAULT_DAYS, 'O‘zi (to‘lov)', now, claim.amount);
   await notify(
     (s) => s.role === 'admin',
     '💎 Yangi obuna',
-    name + (group ? ' (' + group + ')' : '') + ' · ' + plan.name[0] + ' — to‘lovni tekshiring',
+    name +
+      (group ? ' (' + group + ')' : '') +
+      ' · ' +
+      p.amount.toLocaleString('ru-RU').replace(/\u00a0/g, ' ') +
+      ' so‘m — to‘lovni tekshiring',
     '/#admin',
   );
   return premiumView(a, now);
@@ -297,7 +297,6 @@ const claimView = (c: Claim) => ({
   uid: c.uid,
   name: c.name,
   group: c.group || '',
-  plan: c.plan,
   days: c.days,
   amount: c.amount || 0,
   ...(c.paidAt ? { paidAt: c.paidAt } : {}),
@@ -387,7 +386,13 @@ const input = z.discriminatedUnion('op', [
     })
     .strict(),
   z
-    .object({ op: z.literal('verify'), uid: z.string().min(1).max(140), id: z.string().max(40) })
+    .object({
+      op: z.literal('verify'),
+      uid: z.string().min(1).max(140),
+      id: z.string().max(40),
+      /** tasdiqlash bilan birga muddat (boshlangan kunidan): 30 — 1 oy, 365 — 1 yil */
+      days: z.number().int().min(1).max(730).optional(),
+    })
     .strict(),
   z
     .object({
@@ -404,8 +409,6 @@ const input = z.discriminatedUnion('op', [
       how: z.string().trim().max(600),
       card: z.string().trim().max(40).optional(),
       holder: z.string().trim().max(80).optional(),
-      month: z.number().int().min(0).max(100_000_000).optional(),
-      year: z.number().int().min(0).max(100_000_000).optional(),
     })
     .strict(),
 ]);
@@ -424,8 +427,6 @@ export async function managePremium(a: Actor, raw: unknown, now = Date.now()) {
         ...(p.price !== undefined ? { price: p.price } : {}),
         ...(p.card !== undefined ? { card: p.card } : {}),
         ...(p.holder !== undefined ? { holder: p.holder } : {}),
-        ...(p.month !== undefined ? { month: p.month } : {}),
-        ...(p.year !== undefined ? { year: p.year } : {}),
       }),
     });
   } else if (p.op === 'revoke' || p.op === 'remove') {
@@ -457,11 +458,24 @@ export async function managePremium(a: Actor, raw: unknown, now = Date.now()) {
     const c = await siteGet<Claim>('premiumClaims/' + key + '/' + p.id);
     check(c?.id, 404, 'To‘lov topilmadi.');
     check(c!.status === 'new', 409, 'Bu to‘lov allaqachon ko‘rib chiqilgan.');
-    await siteUpdate({
+    const o: Record<string, unknown> = {
       ['premiumClaims/' + key + '/' + p.id + '/status']: 'ok',
       ['premiumClaims/' + key + '/' + p.id + '/decidedAt']: now,
       ['premiumClaims/' + key + '/' + p.id + '/by']: by,
-    });
+    };
+    if (p.days) {
+      const g = await siteGet<Grant>('premium/' + key);
+      check(g?.uid, 404, 'Obunachi topilmadi — obunasi bekor qilingan.');
+      const since = sinceOf(g!);
+      check(
+        since + p.days * DAY > now,
+        400,
+        'Bu muddat allaqachon tugagan. Kattaroq muddat tanlang.',
+      );
+      o['premium/' + key] = { ...g, until: since + p.days * DAY, since, at: now, by };
+      o['premiumClaims/' + key + '/' + p.id + '/days'] = p.days;
+    }
+    await siteUpdate(o);
   } else if (p.op === 'term') {
     const key = keyOf(p.uid);
     const g = await siteGet<Grant>('premium/' + key);

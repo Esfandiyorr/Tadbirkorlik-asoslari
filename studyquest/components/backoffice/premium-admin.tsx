@@ -7,9 +7,9 @@ import { Button } from '../ui/button';
 import { Receipts } from '../receipt';
 import { servicesAct } from '../service-files';
 import { PREMIUM_TERMS, formatSum, termText } from '@/lib/services';
-import { PLANS, TERM_CHOICES } from '@/lib/premium-plans';
+import { TERM_CHOICES, VERIFY_TERMS } from '@/lib/premium-plans';
 import { useAdminView, useL } from './common';
-import type { PremiumAdminView, PremiumClaimView } from '@/lib/server/premium';
+import type { PremiumAdminView } from '@/lib/server/premium';
 
 /* 💎 Sayt boshqaruvi → Obuna. Talaba o'zi obuna bo'ladi (karta → «To'lov qildim» → vaqt yoki chek) va obuna darhol
    ochiladi. Bu yerda: 🆕 yangi obunalar — to'lovni tekshirib «To'lov keldi» yoki «Chiqarib tashlash» (o'zi qayta
@@ -95,8 +95,6 @@ export function PremiumAdmin() {
   const [card, setCard] = useState<{
     card: string;
     holder: string;
-    month: string;
-    year: string;
     how: string;
   } | null>(null);
   useEffect(() => {
@@ -104,8 +102,6 @@ export function PremiumAdmin() {
       setCard({
         card: data.info.card,
         holder: data.info.holder,
-        month: data.info.month ? String(data.info.month) : '',
-        year: data.info.year ? String(data.info.year) : '',
         how: data.info.how,
       });
   }, [data, card]);
@@ -143,10 +139,6 @@ export function PremiumAdmin() {
   if (error) return <p className="error-state">{error}</p>;
   if (!data) return <div className="skeleton h-64" />;
 
-  const planName = (c: PremiumClaimView) => {
-    const p = PLANS.find((x) => x.id === c.plan);
-    return p ? (lang === 'en' ? p.name[1] : lang === 'ru' ? p.name[2] : p.name[0]) : '';
-  };
   const run = (input: Record<string, unknown>, key: string, done: string) =>
     act(input, key, done).catch(() => {});
   const remove = (uid: string, name: string) => {
@@ -192,8 +184,6 @@ export function PremiumAdmin() {
         op: 'info',
         card: card.card,
         holder: card.holder,
-        month: Number(card.month.replace(/\D/g, '')) || 0,
-        year: Number(card.year.replace(/\D/g, '')) || 0,
         how: card.how,
       },
       'info',
@@ -220,7 +210,6 @@ export function PremiumAdmin() {
   const list = data.grants.filter((g) =>
     (g.name + ' ' + g.group).toLowerCase().includes(find.trim().toLowerCase()),
   );
-  const money = (n: number) => (n > 0 ? formatSum(n) : '');
 
   return (
     <div className="bo-live pa">
@@ -244,23 +233,23 @@ export function PremiumAdmin() {
       <ol className="pa-how">
         <li>
           {L(
-            'Talaba «Obuna bo‘lish»ni bosadi, kartani ko‘rib to‘laydi.',
-            'A student taps “Subscribe” and pays to the card.',
-            'Студент нажимает «Подписаться» и оплачивает на карту.',
+            'Talaba «Obuna bo‘lish»ni bosadi va kartaga istalgan summani to‘laydi (narx ixtiyoriy).',
+            'A student taps “Subscribe” and pays any amount to the card (no fixed price).',
+            'Студент нажимает «Подписаться» и оплачивает на карту любую сумму.',
           )}
         </li>
         <li>
           {L(
-            '«To‘lov qildim» → to‘lov vaqti yoki chek → «Yuborish». Obuna darhol ochiladi.',
-            '“I have paid” → payment time or receipt → “Send”. Premium opens at once.',
-            '«Я оплатил» → время или чек → «Отправить». Подписка открывается сразу.',
+            '«To‘lov qildim» → summa va to‘lov vaqti yoki chek → «Yuborish». Obuna darhol (1 oyga) ochiladi.',
+            '“I have paid” → amount and payment time or receipt → “Send”. Premium opens at once (for 1 month).',
+            '«Я оплатил» → сумма и время или чек → «Отправить». Подписка открывается сразу (на 1 месяц).',
           )}
         </li>
         <li>
           {L(
-            'Siz pastda tekshirasiz: «To‘lov keldi» yoki «Chiqarib tashlash».',
-            'You check below: “Payment received” or “Remove”.',
-            'Вы проверяете ниже: «Оплата пришла» или «Убрать».',
+            'Siz pastda tekshirasiz: summaga qarab «✅ 1 oy» yoki «✅ 1 yil», to‘lov topilmasa — «Chiqarib tashlash».',
+            'You check below: by the amount “✅ 1 month” or “✅ 1 year”; no payment — “Remove”.',
+            'Вы проверяете ниже: по сумме «✅ 1 месяц» или «✅ 1 год»; нет оплаты — «Убрать».',
           )}
         </li>
       </ol>
@@ -283,10 +272,7 @@ export function PremiumAdmin() {
                   <b>{c.name}</b>
                   {c.group && <small>{c.group}</small>}
                   <span className="pa-chips">
-                    <em className="pa-chip is-plan">
-                      💎 {planName(c)}
-                      {money(c.amount) && ' · ' + money(c.amount)}
-                    </em>
+                    <em className="pa-chip is-plan">💳 {formatSum(c.amount)}</em>
                     {c.paidAt && (
                       <em className="pa-chip">
                         🕒 {L('To‘lov vaqti', 'Paid at', 'Оплата')}: {date(c.paidAt, true)}
@@ -299,22 +285,26 @@ export function PremiumAdmin() {
                   </span>
                 </div>
                 <span className="pa-btns">
-                  <Button
-                    size="sm"
-                    disabled={!!busy}
-                    onClick={() =>
-                      void run(
-                        { op: 'verify', uid: c.uid, id: c.id },
-                        'ok' + c.id,
-                        '✅ ' +
-                          c.name +
-                          ': ' +
-                          L('to‘lov tasdiqlandi', 'payment confirmed', 'оплата подтверждена'),
-                      )
-                    }
-                  >
-                    ✅ {L('To‘lov keldi', 'Payment received', 'Оплата пришла')}
-                  </Button>
+                  {VERIFY_TERMS.map((d) => (
+                    <Button
+                      key={d}
+                      size="sm"
+                      disabled={!!busy}
+                      onClick={() =>
+                        void run(
+                          { op: 'verify', uid: c.uid, id: c.id, days: d },
+                          'ok' + c.id + d,
+                          '✅ ' +
+                            c.name +
+                            ': ' +
+                            termText(d, lang) +
+                            L('lik obuna tasdiqlandi', ' Premium confirmed', ' — подтверждено'),
+                        )
+                      }
+                    >
+                      ✅ {termText(d, lang)}
+                    </Button>
+                  ))}
                   <Button
                     size="sm"
                     variant="outline"
@@ -528,7 +518,7 @@ export function PremiumAdmin() {
 
       <div className="bo-grid">
         <form className="bo-form" onSubmit={saveCard}>
-          <h3>💳 {L('Karta va narxlar', 'Card and prices', 'Карта и цены')}</h3>
+          <h3>💳 {L('Karta (narx ixtiyoriy)', 'Card (any amount)', 'Карта (любая сумма)')}</h3>
           {card && (
             <>
               <label>
@@ -551,28 +541,6 @@ export function PremiumAdmin() {
                   onChange={(e) => setCard({ ...card, holder: e.target.value })}
                 />
               </label>
-              <div className="pa-prices">
-                <label>
-                  {L('1 oy narxi (so‘m)', '1 month price', 'Цена 1 месяц')}
-                  <input
-                    className="input"
-                    inputMode="numeric"
-                    value={card.month}
-                    onChange={(e) => setCard({ ...card, month: e.target.value.replace(/\D/g, '') })}
-                    placeholder="15000"
-                  />
-                </label>
-                <label>
-                  {L('1 yil narxi (so‘m)', '1 year price', 'Цена 1 год')}
-                  <input
-                    className="input"
-                    inputMode="numeric"
-                    value={card.year}
-                    onChange={(e) => setCard({ ...card, year: e.target.value.replace(/\D/g, '') })}
-                    placeholder="120000"
-                  />
-                </label>
-              </div>
               <label>
                 {L(
                   'Qo‘shimcha izoh (ixtiyoriy)',

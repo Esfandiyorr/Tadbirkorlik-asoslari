@@ -1499,7 +1499,7 @@
   }
 }
 
-/* 💎 O'zi obuna bo'lish oynasi (components/premium-subscribe.tsx): tarif → karta → «To'lov qildim» → vaqt yoki chek */
+/* 💎 O'zi obuna bo'lish oynasi (components/premium-subscribe.tsx): karta (narx ixtiyoriy) → «To'lov qildim» → summa, vaqt yoki chek */
 .premium-plans:has(.ps) {
   display: block;
 }
@@ -1512,41 +1512,6 @@
 .ps-skeleton {
   height: 220px;
   border-radius: 16px;
-}
-.ps-plans {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-.ps-plan {
-  display: grid;
-  gap: 2px;
-  justify-items: center;
-  padding: 12px 8px;
-  border-radius: 14px;
-  border: 2px solid var(--border);
-  background: var(--surface);
-  color: var(--text);
-  font: inherit;
-  cursor: pointer;
-  transition:
-    border-color 0.15s,
-    background 0.15s;
-}
-.ps-plan b {
-  font-size: 1.05rem;
-}
-.ps-plan span {
-  color: var(--muted);
-  font-weight: 700;
-  font-size: 0.9rem;
-}
-.ps-plan.is-on {
-  border-color: var(--violet);
-  background: var(--soft-violet);
-}
-.ps-plan.is-on span {
-  color: var(--violet);
 }
 .ps-card {
   display: grid;
@@ -1585,13 +1550,6 @@
 .ps-holder {
   font-weight: 600;
   opacity: 0.95;
-}
-.ps-sum {
-  margin-top: 2px;
-  font-size: 0.95rem;
-}
-.ps-sum b {
-  font-size: 1.05rem;
 }
 .ps-how {
   margin: 0;
@@ -1821,11 +1779,6 @@
 }
 .pa-find {
   max-width: 280px;
-}
-.pa-prices {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
 }
 .pa-receipt {
   max-width: min(560px, 94vw);

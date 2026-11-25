@@ -181,7 +181,7 @@ test('final exam prep: upload questions, buy the section, practise, pass the fin
   await reset(page);
 });
 
-test('Premium: a student subscribes by themselves (card → «I have paid» → time or receipt) and it opens at once; the administrator verifies, changes 1 year ↔ 1 month, removes and unblocks; pick one of the looks', async ({
+test('Premium: a student pays any amount and subscribes by themselves (card → «I have paid» → amount, time or receipt) and it opens at once; the administrator confirms 1 month or 1 year, changes the term, removes and unblocks; pick one of the looks', async ({
   page,
   browser,
 }) => {
@@ -202,8 +202,6 @@ test('Premium: a student subscribes by themselves (card → «I have paid» → 
         op: 'info',
         card: '8600 1234 5678 9012',
         holder: 'I. Sayfiddinov',
-        month: 15000,
-        year: 120000,
         how: 'Click yoki Payme orqali',
       })
     ).ok(),
@@ -232,20 +230,23 @@ test('Premium: a student subscribes by themselves (card → «I have paid» → 
   await expect(offer).toContainText('Kutubxonadagi 💎');
   await expect(offer).not.toContainText('chegirma');
   const plans = offer.locator('.premium-plans');
-  // 1) tarif va karta: 1 oy — 15 000, 1 yil — 120 000; karta raqami nusxalanadi
+  // 1) karta (nusxalash tugmasi bilan); narx ixtiyoriy — tarif tanlanmaydi
   await expect(plans.locator('.ps-card')).toContainText('8600 1234 5678 9012');
   await expect(plans.locator('.ps-card')).toContainText('I. Sayfiddinov');
-  await expect(plans.getByRole('radio', { name: /1 oy/ })).toContainText('15 000 so‘m');
-  await plans.getByRole('radio', { name: /1 yil/ }).click();
-  await expect(plans.locator('.ps-sum')).toContainText('120 000 so‘m');
-  // 2) «To'lov qildim» → to'lov vaqti (hozirgi vaqt yozilgan) yoki chek → «Yuborish»
+  await expect(plans).toContainText('Narx ixtiyoriy');
+  await expect(plans.getByRole('radio')).toHaveCount(0);
+  // 2) «To'lov qildim» → qancha to'lagani + to'lov vaqti (hozirgi vaqt yozilgan) yoki chek → «Yuborish»
   await plans.getByRole('button', { name: /To‘lov qildim/ }).click();
   await expect(plans.getByLabel(/To‘lov qilingan vaqt/)).not.toHaveValue('');
+  const send = plans.getByRole('button', { name: /Yuborish/ });
+  await expect(send).toBeDisabled(); // summa yozilmagan
+  await plans.getByLabel(/Qancha to‘ladingiz/).fill('20000');
+  await expect(plans.getByLabel(/Qancha to‘ladingiz/)).toHaveValue('20 000');
   await plans.getByLabel(/To‘lov qilingan vaqt/).fill('');
-  await expect(plans.getByRole('button', { name: /Yuborish/ })).toBeDisabled();
+  await expect(send).toBeDisabled(); // na vaqt, na chek
   await plans.getByRole('button', { name: /Orqaga/ }).click();
   await plans.getByRole('button', { name: /To‘lov qildim/ }).click();
-  await plans.getByRole('button', { name: /Yuborish/ }).click();
+  await send.click();
   // 3) obuna darhol ochiladi
   await expect(student.getByText('💎 Obuna ochildi! Rahmat.')).toBeVisible();
   await expect(profileMark).toBeVisible();
@@ -259,16 +260,18 @@ test('Premium: a student subscribes by themselves (card → «I have paid» → 
   const fresh = page.locator('.pa-fresh .pa-list > li');
   await expect(fresh).toHaveCount(1);
   await expect(fresh).toContainText('Madina Ergasheva');
-  await expect(fresh).toContainText('1 yil · 120 000 so‘m');
+  await expect(fresh).toContainText('20 000 so‘m');
   await expect(fresh).toContainText('To‘lov vaqti');
-  await fresh.getByRole('button', { name: /To‘lov keldi/ }).click();
+  // summaga qarab muddatni tanlab tasdiqlaydi: «✅ 1 yil»
+  await expect(fresh.getByRole('button', { name: /1 oy/ })).toBeVisible();
+  await fresh.getByRole('button', { name: /1 yil/ }).click();
   await expect(fresh).toHaveCount(0);
   const sub = page.locator('.pa-subs > li').filter({ hasText: 'Madina' });
   await expect(sub).toContainText('Faol');
   await expect(sub).toContainText('Boshlangan');
   await expect(sub).toContainText('· 1 yil');
-  await expect(sub).toContainText('120 000 so‘m');
-  await expect(page.locator('.pa-stats')).toContainText('120 000 so‘m');
+  await expect(sub).toContainText('20 000 so‘m');
+  await expect(page.locator('.pa-stats')).toContainText('20 000 so‘m');
   // ⏳ muddatni o'zgartirish (boshlangan kunidan): 1 yil → 1 oy → yana 1 yil
   const term = sub.getByLabel(/Obuna muddati/);
   await term.selectOption('30');
@@ -340,6 +343,7 @@ test('Premium: a student subscribes by themselves (card → «I have paid» → 
     .click();
   const again = student.getByRole('dialog').locator('.premium-plans');
   await again.getByRole('button', { name: /To‘lov qildim/ }).click();
+  await again.getByLabel(/Qancha to‘ladingiz/).fill('5000');
   await again.getByLabel(/To‘lov qilingan vaqt/).fill('');
   await again
     .locator('.receipt-pick input[type="file"]')
@@ -348,7 +352,7 @@ test('Premium: a student subscribes by themselves (card → «I have paid» → 
   await expect(student.getByText('💎 Obuna ochildi! Rahmat.')).toBeVisible();
   await page.reload({ waitUntil: 'domcontentloaded' });
   await expect(fresh).toHaveCount(1);
-  await expect(fresh).toContainText('1 oy · 15 000 so‘m');
+  await expect(fresh).toContainText('5 000 so‘m');
   await expect(fresh).not.toContainText('To‘lov vaqti');
   await fresh.getByRole('button', { name: /Chekni ko‘rish/ }).click();
   await expect(page.getByRole('dialog').getByRole('img', { name: 'To‘lov cheki' })).toBeVisible();
@@ -356,7 +360,7 @@ test('Premium: a student subscribes by themselves (card → «I have paid» → 
   // tozalash: obunani olib tashlash, karta va narxlarni o'chirish
   const me = await (await page.request.get('/api/platform?view=premiumAdmin')).json();
   for (const g of me.grants as { uid: string }[]) await premiumAct({ op: 'revoke', uid: g.uid });
-  await premiumAct({ op: 'info', card: '', holder: '', month: 0, year: 0, how: '' });
+  await premiumAct({ op: 'info', card: '', holder: '', how: '' });
   await student.reload({ waitUntil: 'domcontentloaded' });
   await expect(student.locator('.hero-avatar:visible')).toBeVisible();
   await expect(homeMark).toHaveCount(0);

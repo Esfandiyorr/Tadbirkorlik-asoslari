@@ -5,13 +5,14 @@ import { useApp } from './provider';
 import { Button } from './ui/button';
 import { ReceiptPick } from './receipt';
 import { tr } from '@/lib/points';
-import { formatSum } from '@/lib/services';
-import { PLANS, type MyClaim, type PlanId } from '@/lib/premium-plans';
+import { BUDGET_MAX, PAY_MIN } from '@/lib/services';
+import type { MyClaim } from '@/lib/premium-plans';
 import type { PremiumInfo, PremiumState } from '@/lib/library';
 
-/* 💎 O'zi obuna bo'lish (lib/server/premium.ts → subscribe): 1) tarif (1 oy / 1 yil) va karta raqami; 2) to'laydi va
-   «To'lov qildim»ni bosadi; 3) to'lov qilingan aniq vaqtni yozadi yoki chek rasmini yuklaydi → «Yuborish». Obuna shu
-   zahoti ochiladi, administrator keyin tekshiradi (to'lov topilmasa — chiqarib tashlaydi). */
+/* 💎 O'zi obuna bo'lish (lib/server/premium.ts → subscribe). Narx ixtiyoriy: 1) karta raqami — istalgan summani
+   to'laydi va «To'lov qildim»ni bosadi; 2) qancha to'laganini, to'lov qilingan aniq vaqtni yozadi yoki chek rasmini
+   yuklaydi → «Yuborish». Obuna shu zahoti ochiladi, administrator keyin tekshiradi va muddatni (1 oy, 1 yil) tanlaydi;
+   to'lov topilmasa — chiqarib tashlaydi. */
 
 export const PREMIUM_CHANGED = 'sq-premium-changed';
 type View = {
@@ -39,7 +40,7 @@ export function PremiumSubscribe({ onDone }: { onDone?: () => void }) {
   const L = (uz: string, en: string, ru: string) => tr(lang, uz, en, ru);
   const [view, setView] = useState<View | null>(null);
   const [step, setStep] = useState<'pay' | 'confirm'>('pay');
-  const [plan, setPlan] = useState<PlanId>('oy');
+  const [amount, setAmount] = useState('');
   const [time, setTime] = useState('');
   const [receipt, setReceipt] = useState<Blob | null>(null);
   const [busy, setBusy] = useState(false);
@@ -92,16 +93,15 @@ export function PremiumSubscribe({ onDone }: { onDone?: () => void }) {
     );
 
   const info = view.info;
-  const chosen = PLANS.find((p) => p.id === plan)!;
-  const price = plan === 'yil' ? info.year : info.month;
+  const sum = Number(amount.replace(/\D/g, '')) || 0;
   const paidAt = time ? new Date(time).getTime() : 0;
-  const ready = !!receipt || paidAt > 0;
+  const ready = sum >= PAY_MIN && sum <= BUDGET_MAX && (!!receipt || paidAt > 0);
 
   async function send() {
     setBusy(true);
     setErr('');
     try {
-      const body: Record<string, unknown> = { op: 'subscribe', plan };
+      const body: Record<string, unknown> = { op: 'subscribe', amount: sum };
       if (paidAt > 0) body.paidAt = paidAt;
       if (receipt) body.receipt = await toBase64(receipt);
       const r = await request('/api/premium', {
@@ -142,24 +142,13 @@ export function PremiumSubscribe({ onDone }: { onDone?: () => void }) {
       )}
       {step === 'pay' ? (
         <>
-          <div className="ps-plans" role="radiogroup" aria-label={L('Tarif', 'Plan', 'Тариф')}>
-            {PLANS.map((p) => {
-              const cost = p.id === 'yil' ? info.year : info.month;
-              return (
-                <button
-                  key={p.id}
-                  type="button"
-                  role="radio"
-                  aria-checked={plan === p.id}
-                  className={'ps-plan' + (plan === p.id ? ' is-on' : '')}
-                  onClick={() => setPlan(p.id)}
-                >
-                  <b>{tr(lang, ...p.name)}</b>
-                  {cost > 0 && <span>{formatSum(cost)}</span>}
-                </button>
-              );
-            })}
-          </div>
+          <p className="ps-lead">
+            {L(
+              'Narx ixtiyoriy: istalgan summani to‘lang.',
+              'No fixed price: pay any amount you like.',
+              'Цена не фиксирована: оплатите любую сумму.',
+            )}
+          </p>
           <div className="ps-card">
             <small>💳 {L('Shu kartaga to‘lang', 'Pay to this card', 'Оплатите на карту')}</small>
             {info.card ? (
@@ -199,11 +188,6 @@ export function PremiumSubscribe({ onDone }: { onDone?: () => void }) {
                   )}
               </p>
             )}
-            {price > 0 && (
-              <span className="ps-sum">
-                {L('To‘lov summasi', 'Amount', 'Сумма')}: <b>{formatSum(price)}</b>
-              </span>
-            )}
             {info.card && info.how && <p className="ps-how">{info.how}</p>}
           </div>
           <Button
@@ -219,16 +203,37 @@ export function PremiumSubscribe({ onDone }: { onDone?: () => void }) {
         </>
       ) : (
         <>
+          <label className="ps-field">
+            <span>
+              💳{' '}
+              {L(
+                'Qancha to‘ladingiz? (so‘m)',
+                'How much did you pay? (so‘m)',
+                'Сколько вы оплатили? (сум)',
+              )}
+            </span>
+            <input
+              className="input"
+              inputMode="numeric"
+              value={amount}
+              placeholder="10 000"
+              onChange={(e) =>
+                setAmount(
+                  e.target.value
+                    .replace(/\D/g, '')
+                    .replace(/^0+/, '')
+                    .slice(0, 9)
+                    .replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+                )
+              }
+            />
+          </label>
           <p className="ps-lead">
             {L(
               'To‘lov qilingan aniq vaqtni yozing yoki chek rasmini yuklang — ikkalasidan bittasi yetarli.',
               'Enter the exact time of the payment or upload the receipt — one of them is enough.',
               'Укажите точное время оплаты или загрузите чек — достаточно одного.',
-            )}{' '}
-            <b>
-              {tr(lang, ...chosen.name)}
-              {price > 0 ? ' · ' + formatSum(price) : ''}
-            </b>
+            )}
           </p>
           <label className="ps-field">
             <span>🕒 {L('To‘lov qilingan vaqt', 'Payment time', 'Время оплаты')}</span>
@@ -260,9 +265,9 @@ export function PremiumSubscribe({ onDone }: { onDone?: () => void }) {
           </div>
           <small className="muted">
             {L(
-              'Obuna darhol ochiladi. Administrator to‘lovni tekshiradi: to‘lov topilmasa, obuna yopiladi.',
-              'Premium opens at once. The administrator checks the payment: if it is not found, Premium is closed.',
-              'Подписка откроется сразу. Администратор проверит оплату: если её нет, подписка закроется.',
+              'Obuna darhol ochiladi. Administrator to‘lovni tekshirib, muddatini belgilaydi; to‘lov topilmasa, obuna yopiladi.',
+              'Premium opens at once. The administrator checks the payment and sets the period; if it is not found, Premium is closed.',
+              'Подписка откроется сразу. Администратор проверит оплату и установит срок; если оплаты нет, подписка закроется.',
             )}
           </small>
         </>

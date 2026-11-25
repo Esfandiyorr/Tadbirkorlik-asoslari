@@ -89,18 +89,20 @@ For Firebase-backed development, copy `.env.example` to `.env.local`, supply you
     privacy policy says that order texts and files may be processed with AI tools. The section is hidden inside the
     Play Store app (`/?src=play`): Google Play does not allow steering to external payments.
 - **💎 Premium** (`lib/server/premium.ts`, `app/api/premium`, `components/premium-subscribe.tsx`,
-  `components/backoffice/premium-admin.tsx`, `lib/premium-plans.ts`, `lib/premium-look.ts`): **students subscribe by
-  themselves and Premium opens at once.** The offer (Profile → 💎 Premium, the «Get Premium» card, 💎 library items)
-  lists the perks, then: choose **1 month or 1 year** (prices and the card number/holder are set under **Site manager →
-  💎 Premium → 💳 Card and prices**, `site/premiumInfo`) → pay to the shown card (copy button) → **«✅ I have paid»** →
-  the exact payment time (pre-filled with now) **or** a receipt picture → **«📤 Send»** (`POST /api/premium`
-  `{op: 'subscribe', plan, paidAt?, receipt?}`). The period is added at once (on top of an active one) and the payment
-  is stored as unchecked in `site/premiumClaims/<user>/<id>` (receipt pictures in `site/premiumReceipts/…`, shown only
-  to the administrator via `GET /api/premium?receipt=<uid>/<id>`); the administrator gets a push notification. A
-  user with an unchecked payment cannot send another (no free periods by repeated clicks); payment times must be
-  within the last 3 days. The admin page shows **🆕 New subscriptions — check the payment** («✅ Payment received» or
-  «✖ Remove»), **👥 Subscribers** (active until, started, period, paid) with a **period selector** that sets the
-  period from the start date (`op: 'term'`, e.g. 1 month → 1 year; the start is `since`, rebuilt from the history for
+  `components/backoffice/premium-admin.tsx`, `lib/premium-plans.ts`, `lib/premium-look.ts`): **no fixed price — students
+  pay any amount and subscribe by themselves; Premium opens at once.** The offer (Profile → 💎 Premium, the «Get
+  Premium» card, 💎 library items) lists the perks and the card (number with a copy button, holder, optional note —
+  **Site manager → 💎 Premium → 💳 Card**, `site/premiumInfo`; without a card the «Paid services» payment instructions
+  are shown) → **«✅ I have paid»** → «How much did you pay?» (at least 1 000 so‘m) and the exact payment time
+  (pre-filled with now) **or** a receipt picture → **«📤 Send»** (`POST /api/premium` `{op: 'subscribe', amount,
+  paidAt?, receipt?}`). Premium opens at once for 1 month (`DEFAULT_DAYS`, added on top of an active period) and the
+  payment is stored as unchecked in `site/premiumClaims/<user>/<id>` (receipt pictures in `site/premiumReceipts/…`,
+  shown only to the administrator via `GET /api/premium?receipt=<uid>/<id>`); the administrator gets a push
+  notification. A user with an unchecked payment cannot send another (no free periods by repeated clicks); payment
+  times must be within the last 3 days. The admin page shows **🆕 New subscriptions — check the payment** (amount,
+  time or receipt) with **«✅ 1 month» / «✅ 1 year»** (confirms and sets the period from the start date,
+  `op: 'verify', days`) or «✖ Remove», and **👥 Subscribers** (active until, started, period, paid) with a **period
+  selector** (`op: 'term'`, e.g. 1 month → 1 year from the start; the start is `since`, rebuilt from the history for
   old records) and «✖ Remove». Removing closes Premium at once, marks unchecked payments as removed and blocks
   self-subscription (`site/premiumBlock/<user>`, listed under «⛔ Removed» with «Unblock»; a hand grant lifts it too).
   Receipts sent the old way (a «Paid services» Premium order, `premiumPending()`) still appear for accepting or

@@ -48,9 +48,6 @@ export type PremiumInfo = {
   /** 💳 karta raqami va egasi — «Obuna bo'lish» oynasida ko'rsatiladi */
   card: string;
   holder: string;
-  /** narxlar (so'm): 1 oy va 1 yil; 0 — belgilanmagan */
-  month: number;
-  year: number;
 };
 export type PremiumState = {
   /** obuna amalda (o'qituvchi va administratorda doim) */
