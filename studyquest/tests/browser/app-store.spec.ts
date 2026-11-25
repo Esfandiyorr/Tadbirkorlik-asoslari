@@ -124,8 +124,9 @@ test('a student reports a chat message and the administrator sees it in the inbo
   await form.getByRole('button', { name: 'Yuborish' }).click();
   await expect(page.getByText(/Shikoyat yuborildi/)).toBeVisible();
   await as(page, 'demo-admin');
-  await page.goto('/#home', { waitUntil: 'domcontentloaded' });
-  await page.reload({ waitUntil: 'domcontentloaded' });
+  // hisob almashgach sahifa kerakli bo'limda qaytadan yuklanadi (faqat # o'zgarsa, sekin kompyuterda eski holat
+  // bilan bosh sahifa qolib ketishi mumkin edi)
   await page.goto('/#chat/admin', { waitUntil: 'domcontentloaded' });
+  await page.reload({ waitUntil: 'domcontentloaded' });
   await expect(page.locator('main').first()).toContainText('SHIKOYAT');
 });
