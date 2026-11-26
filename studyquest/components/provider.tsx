@@ -29,6 +29,10 @@ type Context = {
   setDark: (v: boolean) => void;
   loading: boolean;
   error: string;
+  /** har safar sahifa ma'lumoti olinmay qolganda oshadi (kirish oynasi haqiqiy sababni ko'rsatishi uchun) */
+  errorSeq: number;
+  /** kirish oynasi qayta urinayotganda: talaba tizimidan kelgan seans yana qabul qilinsin */
+  retrySession: () => void;
   refresh: () => Promise<void>;
   call: <T = any>(action: string, input: unknown) => Promise<T>;
   request: (url: string, init?: RequestInit) => Promise<Response>;
@@ -55,6 +59,7 @@ export function Provider({
     [dark, setDarkness] = useState(false),
     [loading, setLoading] = useState(true),
     [error, setError] = useState(''),
+    [errorSeq, setErrorSeq] = useState(0),
     [message, setMessage] = useState(''),
     [legacy, setLegacy] = useState<Legacy | null>(null),
     [login, setLogin] = useState(false),
@@ -150,6 +155,7 @@ export function Provider({
       } catch {}
       if (version !== refreshVersion.current) return;
       setError(e instanceof Error ? e.message : 'Ulanishda xatolik');
+      setErrorSeq((n) => n + 1);
     } finally {
       if (version === refreshVersion.current) setLoading(false);
     }
@@ -346,6 +352,8 @@ export function Provider({
         setDark,
         loading,
         error,
+        errorSeq,
+        retrySession: () => (receivedSession.current = ''),
         refresh,
         call,
         request,

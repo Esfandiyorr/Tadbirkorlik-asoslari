@@ -54,7 +54,18 @@ const groupOk = (g: string) => /^[\p{L}\p{N}][\p{L}\p{N} ._/-]{1,39}$/u.test(g.t
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 export function AuthPanel({ onClose }: { onClose?: () => void }) {
-  const { data, lang, setLang, refresh, demoLogin, toast, useEmailMode } = useApp();
+  const {
+    data,
+    lang,
+    setLang,
+    refresh,
+    demoLogin,
+    toast,
+    useEmailMode,
+    error: appError,
+    errorSeq,
+    retrySession,
+  } = useApp();
   const L = (uz: string, en: string, ru: string) => tr(lang, uz, en, ru);
   const demo = data?.mode === 'demo';
   const legacy = useLegacyAuth();
@@ -71,6 +82,8 @@ export function AuthPanel({ onClose }: { onClose?: () => void }) {
     [busy, setBusy] = useState(''),
     [pending, setPending] = useState<{ name: string; group: string; fresh: boolean } | null>(null);
   const entering = useRef<ReturnType<typeof setTimeout> | null>(null);
+  /** kirish boshlangandagi xato hisoblagichi: undan keyin server rad etsa — sababi darhol ko'rsatiladi */
+  const enterSeq = useRef<number | null>(null);
   useEffect(() => {
     window.scrollTo(0, 0);
     setError('');
@@ -106,11 +119,24 @@ export function AuthPanel({ onClose }: { onClose?: () => void }) {
         'Служба входа не загрузилась. Проверьте интернет и повторите.',
       ),
     })[kind];
+  // server seansni qabul qilmadi (hisob, seans yoki platforma yopiq) — 25 soniya kutmasdan aniq sababi
+  useEffect(() => {
+    if (enterSeq.current === null || errorSeq <= enterSeq.current) return;
+    enterSeq.current = null;
+    if (entering.current) clearTimeout(entering.current);
+    setBusy('');
+    setError(
+      L('Kirish tasdiqlanmadi', 'Sign-in was not confirmed', 'Вход не подтверждён') +
+        (appError ? ': ' + appError : '.'),
+    );
+  }, [errorSeq, appError, L]);
   /** Hisob tasdiqlangan — provider sessiyani qabul qilgach sahifa o‘zi yopiladi. */
   function enter() {
     setBusy(L('Kirilmoqda…', 'Signing in…', 'Входим…'));
+    enterSeq.current = errorSeq;
     if (entering.current) clearTimeout(entering.current);
     entering.current = setTimeout(() => {
+      enterSeq.current = null;
       setBusy('');
       setError(
         L(
@@ -157,6 +183,8 @@ export function AuthPanel({ onClose }: { onClose?: () => void }) {
     e.preventDefault();
     if (busy) return;
     setError('');
+    // qayta urinish: talaba tizimi yuboradigan seans yana qabul qilinsin (sahifani yangilash shart emas)
+    retrySession();
     const text = full.trim().replace(/\s+/g, ' ');
     if (text.includes('@')) return emailLogin(text);
     const parts = text.split(' ');
