@@ -2,7 +2,9 @@
 import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import {
+  BadgeCheck,
   BookOpen,
+  ChevronRight,
   Clapperboard,
   Crown,
   LibraryBig,
@@ -31,6 +33,15 @@ export type PremiumData = {
   /** 🏅 obunachi o'zi yuklagan belgi rasmi (yo'q bo'lsa — asl TerDU belgisi) */
   mark?: string;
 };
+
+/** Obuna tugash sanasi — yili bilan («26.11.2027»), Toshkent vaqti: 1 yillik obunada yil muhim. */
+const untilDate = (t: number) =>
+  new Intl.DateTimeFormat('ru-RU', {
+    timeZone: 'Asia/Tashkent',
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  }).format(t);
 
 /* 🏅 Ism yonidagi Premium belgisi: hamma joyda bitta holat (bosh sahifa, profil) — bir marta o'qiladi. */
 const MARK_DEFAULT = '/premium-belgi.webp';
@@ -247,9 +258,61 @@ export function PremiumSideCard({ className = '' }: { className?: string }) {
   const L = (uz: string, en: string, ru: string) => tr(lang, uz, en, ru);
   const { premium } = usePremium();
   const [offer, setOffer] = useState(false);
+  const [mine, setMine] = useState(false);
   const role = data?.user?.role;
-  if (!data?.user || role === 'admin' || role === 'teacher' || !premium || premium.state.active)
-    return null;
+  if (!data?.user || role === 'admin' || role === 'teacher' || !premium) return null;
+  // 💎 obunachi: chap menyuda «Premium faol» va imkoniyatlari qayerda (bosh sahifada ko'rsatilmaydi)
+  if (premium.state.active) {
+    if (className.includes('is-home')) return null;
+    const until = premium.state.until;
+    return (
+      <>
+        <section
+          className={'premium-side is-active ' + className}
+          aria-label={L('Premium obuna', 'Premium subscription', 'Подписка Premium')}
+          onClick={() => setMine(true)}
+        >
+          <div className="premium-side-head">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/premium-belgi.webp" alt="" width={48} height={48} />
+            <div>
+              <b>{L('Premium faol', 'Premium is on', 'Premium активен')}</b>
+              {until > 0 && (
+                <small>
+                  {L(
+                    untilDate(until) + ' gacha',
+                    'until ' + untilDate(until),
+                    'до ' + untilDate(until),
+                  )}
+                </small>
+              )}
+            </div>
+          </div>
+          <Button
+            size="sm"
+            className="premium-side-btn"
+            onClick={(e) => {
+              e.stopPropagation();
+              setMine(true);
+            }}
+          >
+            {L('Imkoniyatlarim', 'My Premium perks', 'Мои возможности')}
+          </Button>
+        </section>
+        {mine && (
+          <PremiumMine
+            until={until}
+            onClose={() => setMine(false)}
+            onExtend={() => {
+              setMine(false);
+              setOffer(true);
+            }}
+          />
+        )}
+        {offer && <PremiumOffer info={premium.info} onClose={() => setOffer(false)} />}
+      </>
+    );
+  }
   return (
     <>
       <section
@@ -474,19 +537,109 @@ export function PremiumCard({
   );
 }
 
-/** 💎 Obuna bo'lganlarga nimalar ochiladi (taklif oynasi, profil va e'lonlar qutisida). */
-export function PremiumPerks({ compact = false }: { compact?: boolean }) {
+/** 💎 Obunachining imkoniyatlari: har biri qayerda ochilishi bilan (chap menyudagi «Imkoniyatlarim»). */
+function PremiumMine({
+  until,
+  onClose,
+  onExtend,
+}: {
+  until: number;
+  onClose: () => void;
+  onExtend: () => void;
+}) {
   const { lang } = useApp();
   const L = (uz: string, en: string, ru: string) => tr(lang, uz, en, ru);
-  const items: [LucideIcon, string, string][] = [
+  const closeRef = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    closeRef.current?.focus();
+    const key = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
+    window.addEventListener('keydown', key);
+    return () => window.removeEventListener('keydown', key);
+  }, [onClose]);
+  return createPortal(
+    <div className="modal-backdrop" onClick={(e) => e.target === e.currentTarget && onClose()}>
+      <section
+        className="panel premium-offer premium-mine"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="premium-mine-h"
+      >
+        <button
+          ref={closeRef}
+          type="button"
+          className="av-close"
+          aria-label={L('Yopish', 'Close', 'Закрыть')}
+          onClick={onClose}
+        >
+          <X size={20} />
+        </button>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          className="premium-mine-badge"
+          src="/premium-belgi.webp"
+          alt=""
+          width={64}
+          height={64}
+        />
+        <h2 id="premium-mine-h">
+          {L('Premium imkoniyatlaringiz', 'Your Premium perks', 'Ваши возможности Premium')}
+        </h2>
+        {until > 0 && (
+          <p className="muted">
+            {L(
+              'Obunangiz ' + untilDate(until) + ' gacha amal qiladi.',
+              'Your Premium is active until ' + untilDate(until) + '.',
+              'Подписка действует до ' + untilDate(until) + '.',
+            )}
+          </p>
+        )}
+        <PremiumPerks links onGo={onClose} />
+        <div className="premium-offer-actions">
+          <Button variant="outline" onClick={onExtend}>
+            💎 {L('Obunani uzaytirish', 'Extend Premium', 'Продлить подписку')}
+          </Button>
+          <Button onClick={onClose}>{L('Yopish', 'Close', 'Закрыть')}</Button>
+        </div>
+      </section>
+    </div>,
+    document.body,
+  );
+}
+
+/** 💎 Obuna bo'lganlarga nimalar ochiladi (taklif oynasi, profil, chap menyu). links — obunachiga: har biri qayerda. */
+export function PremiumPerks({
+  compact = false,
+  links = false,
+  onGo,
+}: {
+  compact?: boolean;
+  links?: boolean;
+  onGo?: () => void;
+}) {
+  const { lang } = useApp();
+  const L = (uz: string, en: string, ru: string) => tr(lang, uz, en, ru);
+  const items: [LucideIcon, string, string, string, string][] = [
     [
       Palette,
-      L('Profil bezagi (5 xil)', 'Profile style (5 kinds)', 'Оформление профиля (5 видов)'),
+      L('Profil bezagi (12 xil)', 'Profile style (12 kinds)', 'Оформление профиля (12 видов)'),
       L(
-        'Profil bezagi — 5 xildan tanlaysiz, reytingda ismingiz ajralib turadi',
-        'A profile style — pick one of 5, your name stands out in the leaderboard',
-        'Оформление профиля — 5 вариантов, ваше имя выделяется в рейтинге',
+        'Profil bezagi — 12 xildan tanlaysiz, reytingda ismingiz ajralib turadi',
+        'A profile style — pick one of 12, your name stands out in the leaderboard',
+        'Оформление профиля — 12 вариантов, ваше имя выделяется в рейтинге',
       ),
+      '#profile',
+      L('Profil → 💎 Premium', 'Profile → 💎 Premium', 'Профиль → 💎 Premium'),
+    ],
+    [
+      BadgeCheck,
+      L('Ism yonida Premium belgisi', 'Premium badge by your name', 'Значок Premium у имени'),
+      L(
+        'Ismingiz yonida Premium belgisi — ustiga bosib o‘z rasmingizni qo‘yasiz',
+        'A Premium badge by your name — tap it to put your own picture',
+        'Значок Premium у имени — нажмите, чтобы поставить свою картинку',
+      ),
+      '#profile',
+      L('Profildagi belgini bosing', 'Tap the badge in Profile', 'Нажмите значок в профиле'),
     ],
     [
       UserRound,
@@ -496,6 +649,8 @@ export function PremiumPerks({ compact = false }: { compact?: boolean }) {
         'An avatar — even outside the top 10 (while subscribed)',
         'Аватар — даже вне топ-10 (пока действует подписка)',
       ),
+      '#home',
+      L('Bosh sahifa → «Avatar qo‘yish»', 'Home → “Set avatar”', 'Главная → «Аватар»'),
     ],
     [
       LibraryBig,
@@ -505,6 +660,8 @@ export function PremiumPerks({ compact = false }: { compact?: boolean }) {
         'Books, guides and templates marked 💎 in the library',
         'Книги, пособия и шаблоны со значком 💎 в библиотеке',
       ),
+      '#library',
+      L('Kutubxona', 'Library', 'Библиотека'),
     ],
     [
       BookOpen,
@@ -518,6 +675,8 @@ export function PremiumPerks({ compact = false }: { compact?: boolean }) {
         'All open lessons of the “Fundamentals of Entrepreneurship” course (for non-students)',
         'Все открытые уроки курса «Основы предпринимательства» (для не-студентов)',
       ),
+      '#courses',
+      L('Kurslar', 'Courses', 'Курсы'),
     ],
     [
       Clapperboard,
@@ -527,9 +686,29 @@ export function PremiumPerks({ compact = false }: { compact?: boolean }) {
         'Download video lessons to watch offline',
         'Скачивание видеоуроков для просмотра без сети',
       ),
+      '#courses',
+      L('Mavzudagi video → «Yuklab olish»', 'Topic video → “Download”', 'Видео темы → «Скачать»'),
     ],
   ];
-  // compact — e'lonlar qutisi uchun qisqa ro'yxat
+  // links — obunachiga: har bir imkoniyat qayerda ochilishi (bosilsa o'sha bo'limga o'tadi)
+  if (links)
+    return (
+      <ul className="premium-perks is-links">
+        {items.map(([Icon, short, full, href, where]) => (
+          <li key={short}>
+            <a href={href} onClick={() => onGo?.()}>
+              <Icon size={18} aria-hidden="true" />
+              <span>
+                <b>{full}</b>
+                <small>{where}</small>
+              </span>
+              <ChevronRight size={16} aria-hidden="true" />
+            </a>
+          </li>
+        ))}
+      </ul>
+    );
+  // compact — chap menyudagi karta uchun qisqa ro'yxat
   return (
     <ul className={'premium-perks' + (compact ? ' is-compact' : '')}>
       {items.map(([Icon, short, full]) => (

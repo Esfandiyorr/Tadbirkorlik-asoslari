@@ -1832,3 +1832,68 @@
   margin: 0;
   font-size: 0.95rem;
 }
+/* 💎 obunachi: chap menyuda «Premium faol» va «Imkoniyatlarim» oynasi (har imkoniyat qayerda ochilishi bilan) */
+.premium-side.is-active {
+  border-color: #c4b5fd;
+  background: linear-gradient(160deg, #f5f3ff, #ede9fe 70%, #ddd6fe);
+  color: #2e1065;
+}
+.premium-side.is-active .premium-side-head small {
+  color: #5b21b6;
+}
+.dark .premium-side.is-active {
+  border-color: #5b21b6;
+  background: linear-gradient(160deg, #1e1538, #2e1065);
+  color: #ede9fe;
+}
+.dark .premium-side.is-active .premium-side-head small {
+  color: #c4b5fd;
+}
+.premium-mine-badge {
+  display: block;
+  margin: 0 auto 4px;
+  object-fit: contain;
+}
+.premium-perks.is-links {
+  display: grid;
+  gap: 8px;
+  margin: 8px 0 4px;
+  padding: 0;
+  list-style: none;
+  text-align: left;
+}
+.premium-perks.is-links a {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--surface-soft);
+  color: var(--text);
+  text-decoration: none;
+  transition:
+    border-color 0.15s,
+    background 0.15s;
+}
+.premium-perks.is-links a:hover {
+  border-color: var(--violet);
+  background: var(--soft-violet);
+}
+.premium-perks.is-links a > svg:first-child {
+  color: var(--violet);
+}
+.premium-perks.is-links b {
+  display: block;
+  font-size: 0.92rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+.premium-perks.is-links small {
+  display: block;
+  margin-top: 2px;
+  color: var(--violet);
+  font-weight: 700;
+  font-size: 0.78rem;
+}

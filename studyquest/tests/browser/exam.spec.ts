@@ -211,7 +211,7 @@ test('Premium: a student picks 1 month or 1 year, pays any amount (card → «I 
   const slide = student.locator('.sidebar .premium-side');
   await expect(slide).toContainText('Obuna bo‘ling');
   await expect(slide).toContainText('quyidagi xizmatlardan foydalaning');
-  await expect(slide.locator('.premium-perks li')).toHaveCount(5);
+  await expect(slide.locator('.premium-perks li')).toHaveCount(6);
   await expect(student.locator('.premium-side.is-home')).toBeHidden();
   await slide.getByRole('button', { name: /Obuna bo‘lish/ }).click();
   await expect(student.getByRole('dialog')).toContainText('Profil bezagi');
@@ -317,7 +317,21 @@ test('Premium: a student picks 1 month or 1 year, pays any amount (card → «I 
     .locator('.home-banner h1')
     .getByRole('img', { name: 'Faol Premium obuna' });
   await expect(homeMark).toBeInViewport();
-  await expect(student.locator('.premium-side')).toHaveCount(0);
+  await expect(student.locator('.premium-side:not(.is-active)')).toHaveCount(0);
+  // obunachiga chap menyuda «Premium faol» va «Imkoniyatlarim»: har imkoniyat qayerda ochilishi
+  await student.setViewportSize({ width: 1280, height: 860 });
+  const active = student.locator('.sidebar .premium-side.is-active');
+  await expect(active).toContainText('Premium faol');
+  await expect(active).toContainText('gacha');
+  await active.getByRole('button', { name: 'Imkoniyatlarim' }).click();
+  const perks = student.getByRole('dialog', { name: 'Premium imkoniyatlaringiz' });
+  await expect(perks.locator('.premium-perks.is-links li')).toHaveCount(6);
+  await expect(perks).toContainText('Profil → 💎 Premium');
+  await perks.getByRole('link', { name: /Kutubxonadagi 💎/ }).click();
+  await expect(perks).toBeHidden();
+  await expect.poll(() => new URL(student.url()).hash).toBe('#library');
+  await student.setViewportSize({ width: 390, height: 844 });
+  await student.goto('/#home', { waitUntil: 'domcontentloaded' });
   // ✖ noqonuniy obuna: administrator chiqarib tashlaydi — obuna yopiladi, o'zi qayta obuna bo'la olmaydi
   await page.reload({ waitUntil: 'domcontentloaded' });
   page.once('dialog', (d) => void d.accept());
