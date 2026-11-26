@@ -24,7 +24,6 @@ import {
   LogIn,
   LibraryBig,
   BriefcaseBusiness,
-  ListChecks,
 } from 'lucide-react';
 import { Provider, useApp } from './provider';
 import { LiveGate, NewsBox, NewsInbox, NewsPopup } from './announcements';
@@ -144,10 +143,7 @@ export function StudyQuest() {
     mainView = view.split('/')[0],
     id = view.split('/')[1],
     // 💼 Pullik xizmatlar: Play Market ilovasida yo'q (Google qoidasi); administrator ochmaguncha — vaqtincha yopiq
-    services = !play && !!data.servicesShown,
-    // 📚 asosiy fan (Tadbirkorlik asoslari) — pastki menyudagi «Mavzular»
-    mainCourse = data.courses?.[0]?.id,
-    onMainCourse = !!mainCourse && mainView === 'course' && id === mainCourse;
+    services = !play && !!data.servicesShown;
   const nav: { id: string; key: Key; icon: typeof BookOpen }[] = [
     { id: 'home', key: 'home', icon: LayoutDashboard },
     { id: 'courses', key: 'courses', icon: BookOpen },
@@ -430,21 +426,13 @@ export function StudyQuest() {
           <span>{t(lang, 'tagline')}</span>
         </footer>
       </div>
-      {/* 📱 Pastki menyu — telefonda asosiylari: mavzular, kurslar, pullik xizmatlar (qolgani ☰ menyuda) */}
+      {/* 📱 Pastki menyu — telefonda asosiylari: kurslar (mavzulari bilan), kutubxona, pullik xizmatlar
+          (qolgani ☰ menyuda). Kurs sahifasidagi «← Kurslar» va bosh sahifadagi «Joriy mavzu» mavzularga olib boradi. */}
       <nav className="bottom-nav" aria-label={t(lang, 'menu')}>
         {[
           { id: 'home', href: 'home', label: t(lang, 'navHome'), icon: LayoutDashboard },
-          ...(mainCourse
-            ? [
-                {
-                  id: 'topics',
-                  href: 'course/' + mainCourse,
-                  label: tr(lang, 'Mavzular', 'Topics', 'Темы'),
-                  icon: ListChecks,
-                },
-              ]
-            : []),
           { id: 'courses', href: 'courses', label: t(lang, 'courses'), icon: BookOpen },
+          { id: 'library', href: 'library', label: t(lang, 'library'), icon: LibraryBig },
           services
             ? {
                 id: 'services',
@@ -458,11 +446,9 @@ export function StudyQuest() {
             : { id: 'login', href: 'login', label: t(lang, 'login'), icon: LogIn },
         ].map((n) => {
           const on =
-            n.id === 'topics'
-              ? onMainCourse
-              : n.id === 'courses'
-                ? mainView === 'courses' || (mainView === 'course' && !onMainCourse)
-                : mainView === n.id;
+            n.id === 'courses'
+              ? mainView === 'courses' || mainView === 'course'
+              : mainView === n.id;
           return (
             <a
               key={n.id}

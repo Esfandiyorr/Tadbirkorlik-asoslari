@@ -117,7 +117,7 @@ test('the home banner shows the date, the name and today’s plans; the current 
   await expect(plan.locator('em')).toHaveText(/\d\d:\d\d da/);
 });
 
-/* 📱 Telefonda (va ilovada) asosiylari: pastki menyu — Asosiy, Mavzular, Kurslar, Xizmatlar/O'yinlar, Profil;
+/* 📱 Telefonda (va ilovada) asosiylari: pastki menyu — Asosiy, Kurslar, Kutubxona, Xizmatlar/O'yinlar, Profil;
    bosh sahifada faqat Mavzular, Kurslar (va Pullik xizmatlar) kartalari; statistika va o'ng ustun yo'q. */
 test('on a phone the app shows the essentials: topics, courses and paid services', async ({
   page,
@@ -127,7 +127,7 @@ test('on a phone the app shows the essentials: topics, courses and paid services
   await page.goto('/#home');
   const nav = page.locator('.bottom-nav a');
   // pullik xizmatlar yopiq (demo) — o'rnida O'yinlar
-  await expect(nav).toHaveText(['Asosiy', 'Mavzular', 'Kurslar', 'O‘yinlar', 'Profil']);
+  await expect(nav).toHaveText(['Asosiy', 'Kurslar', 'Kutubxona', 'O‘yinlar', 'Profil']);
   await expect(page.locator('.home-sections .quick-link:visible')).toHaveText([
     /Mavzular/,
     /Kurslar/,
@@ -141,12 +141,16 @@ test('on a phone the app shows the essentials: topics, courses and paid services
   await expect(page.locator('.home-banner .hb-plans')).toBeInViewport();
   await expect(page.locator('.home-course .hero-button')).toBeInViewport();
   await expect(page.locator('.home-sections .quick-link.is-topics')).toBeInViewport();
-  // «Mavzular» — asosiy fan mavzulari
-  await nav.filter({ hasText: 'Mavzular' }).click();
+  // «Mavzular» kartasi — asosiy fan mavzulari; pastki menyuda «Kurslar» belgilangan
+  await page.locator('.home-sections .quick-link.is-topics').click();
   await expect.poll(() => new URL(page.url()).hash).toBe('#course/tad-asoslari');
-  await expect(nav.filter({ hasText: 'Mavzular' })).toHaveAttribute('aria-current', 'page');
+  await expect(nav.filter({ hasText: 'Kurslar' })).toHaveAttribute('aria-current', 'page');
   await expect(page.locator('.course-banner .legend')).toBeHidden();
   await expect(page.locator('.lesson-card').first()).toBeVisible();
+  // «Kutubxona» — pastki menyudan
+  await nav.filter({ hasText: 'Kutubxona' }).click();
+  await expect.poll(() => new URL(page.url()).hash).toBe('#library');
+  await expect(nav.filter({ hasText: 'Kutubxona' })).toHaveAttribute('aria-current', 'page');
   // ☰ menyuda qolganlari ham bor
   await page.getByRole('button', { name: 'Menyu' }).click();
   await expect(page.locator('.sidebar nav')).toContainText('Kutubxona');
