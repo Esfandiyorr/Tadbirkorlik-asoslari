@@ -9,7 +9,7 @@ export const dynamic = 'force-dynamic';
 /* 💎 Obuna (lib/server/premium.ts).
    GET                  — mening obunam: holat, karta va narxlar, oxirgi to'lovim
    GET ?receipt=<uid>/<id> — chek rasmi (faqat administrator)
-   POST {op:'subscribe', plan, paidAt?, receipt?} — o'zi obuna bo'lish: obuna darhol ochiladi */
+   POST {op:'subscribe', plan, amount, paidAt?, receipt?} — to'lovni tekshiruvga yuborish */
 const headers = { 'Cache-Control': 'private, no-store' };
 
 export async function GET(req: NextRequest) {

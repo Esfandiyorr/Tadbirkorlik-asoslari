@@ -14,7 +14,7 @@ import {
 import { avatarView, readAvatars } from '../lib/server/avatars';
 import { BUILTIN_AVATARS } from '../lib/avatars';
 import { manageLibraryItems, readLibrary } from '../lib/server/library';
-import { readImage, resetSiteMemory } from '../lib/server/site-content';
+import { readImage, resetSiteMemory, siteUpdate } from '../lib/server/site-content';
 
 /* 💎 Obuna va 📚 kutubxona: kim nimani ocha oladi. */
 beforeAll(() => {
@@ -208,7 +208,7 @@ it('a subscriber puts their own badge after the name (only while Premium); the o
   await expect(setPremiumMark(admin, PNG.toString('base64'), now)).rejects.toThrow('Premium');
 });
 
-it('a student picks 1 month or 1 year and pays any amount: Premium opens at once for that period; the administrator confirms, changes the term or removes', async () => {
+it('a student picks 1 month or 1 year and pays any amount: Premium opens only after the administrator confirms payment', async () => {
   const now = Date.UTC(2026, 10, 25, 9, 0);
   const vali = who('legacy_vali');
   await managePremium(
@@ -256,9 +256,9 @@ it('a student picks 1 month or 1 year and pays any amount: Premium opens at once
     subscribe(who('tc', 'teacher'), { plan: 'oy', amount: 20000, paidAt: now }, now),
   ).rejects.toMatchObject({ status: 400 });
 
-  // ✅ 1 oy + istalgan summa + to'lov vaqti — obuna darhol 1 oyga ochiladi
+  // Ariza yuborilgach obuna tasdiqni kutadi.
   let me = await subscribe(ali, { plan: 'oy', amount: 20000, paidAt: now - 600000 }, now);
-  expect(me.state).toMatchObject({ active: true, until: now + 30 * DAY });
+  expect(me.state).toMatchObject({ active: false, until: 0 });
   expect(me.claim).toMatchObject({ amount: 20000, days: 30, status: 'new' });
   // tekshirilmagan to'lov turganda ikkinchisi yo'q (bepul muddat to'plab bo'lmaydi)
   await expect(
@@ -266,13 +266,13 @@ it('a student picks 1 month or 1 year and pays any amount: Premium opens at once
   ).rejects.toMatchObject({
     status: 409,
   });
-  // 1 yil + chek bilan (vaqtsiz) — darhol 1 yilga
+  // 1 yil + chek bilan (vaqtsiz) — to‘lov tekshiruvda
   me = await subscribe(
     vali,
     { plan: 'yil', amount: 100000, receipt: PNG.toString('base64') },
     now + 2000,
   );
-  expect(me.state.until).toBe(now + 2000 + 365 * DAY);
+  expect(me.state.until).toBe(0);
 
   // administrator: yangi obunalar (eng yangisi birinchi), chek rasmi faqat unga
   let v = await premiumAdmin(admin, now + 3000);
@@ -285,15 +285,12 @@ it('a student picks 1 month or 1 year and pays any amount: Premium opens at once
   await expect(premiumReceipt(ali, 'legacy_vali', valiClaim.id)).rejects.toMatchObject({
     status: 403,
   });
-  const aliGrant = v.grants.find((g) => g.uid === 'legacy_ali')!;
-  expect(aliGrant).toMatchObject({ since: now, term: 30, paid: 20000, claim: { status: 'new' } });
+  const aliClaim = v.fresh[1];
+  expect(v.grants).toEqual([]);
+  expect(v.paid).toBe(0);
 
   // ✅ «To'lov keldi»: talaba tanlagan muddat o'zgarmaydi
-  v = await managePremium(
-    admin,
-    { op: 'verify', uid: 'legacy_ali', id: aliGrant.claim!.id },
-    now + 4000,
-  );
+  v = await managePremium(admin, { op: 'verify', uid: 'legacy_ali', id: aliClaim.id }, now + 4000);
   v = await managePremium(
     admin,
     { op: 'verify', uid: 'legacy_vali', id: valiClaim.id },
@@ -301,21 +298,23 @@ it('a student picks 1 month or 1 year and pays any amount: Premium opens at once
   );
   expect(v.fresh).toEqual([]);
   expect(v.grants.find((g) => g.uid === 'legacy_vali')).toMatchObject({
-    since: now + 2000,
-    until: now + 2000 + 365 * DAY,
+    since: now + 5000,
+    until: now + 5000 + 365 * DAY,
     term: 365,
   });
-  expect(v.grants.find((g) => g.uid === 'legacy_ali')).toMatchObject({ until: now + 30 * DAY });
+  expect(v.grants.find((g) => g.uid === 'legacy_ali')).toMatchObject({
+    until: now + 4000 + 30 * DAY,
+  });
   await expect(
-    managePremium(admin, { op: 'verify', uid: 'legacy_ali', id: aliGrant.claim!.id }, now),
+    managePremium(admin, { op: 'verify', uid: 'legacy_ali', id: aliClaim.id }, now),
   ).rejects.toMatchObject({ status: 409 });
   expect((await premiumView(ali, now + 4000)).claim?.status).toBe('ok');
 
   // 🔁 1 oylik obunani 1 yillikka o'zgartirish — boshlangan kunidan hisoblanadi
   v = await managePremium(admin, { op: 'term', uid: 'legacy_ali', days: 365 }, now + 5 * DAY);
   expect(v.grants.find((g) => g.uid === 'legacy_ali')).toMatchObject({
-    since: now,
-    until: now + 365 * DAY,
+    since: now + 4000,
+    until: now + 4000 + 365 * DAY,
     term: 365,
   });
   // tugab bo'lgan muddatni tanlab bo'lmaydi
@@ -324,10 +323,23 @@ it('a student picks 1 month or 1 year and pays any amount: Premium opens at once
   ).rejects.toMatchObject({ status: 400 });
   // tasdiqlangach yana to'lasa — 1 oy ustiga qo'shiladi, boshlanishi o'zgarmaydi
   me = await subscribe(ali, { plan: 'oy', amount: 15000, paidAt: now + 6 * DAY }, now + 6 * DAY);
-  expect(me.state.until).toBe(now + 395 * DAY);
+  expect(me.state.until).toBe(now + 4000 + 365 * DAY);
+  const approval = { op: 'verify', uid: ali.id, id: me.claim!.id };
+  const approvals = await Promise.allSettled([
+    managePremium(admin, approval, now + 6 * DAY),
+    managePremium(admin, approval, now + 6 * DAY),
+  ]);
+  expect(approvals.filter((result) => result.status === 'fulfilled')).toHaveLength(1);
   expect(
-    (await premiumAdmin(admin, now + 6 * DAY)).grants.find((g) => g.uid === 'legacy_ali'),
-  ).toMatchObject({ since: now, paid: 35000 });
+    (await premiumAdmin(admin, now + 6 * DAY)).grants.find((g) => g.uid === ali.id),
+  ).toMatchObject({ since: now + 4000, until: now + 4000 + 395 * DAY, paid: 35000 });
+
+  me = await subscribe(ali, { plan: 'oy', amount: 5000, paidAt: now + 7 * DAY }, now + 7 * DAY);
+  await managePremium(admin, { op: 'reject', uid: ali.id, id: me.claim!.id }, now + 7 * DAY);
+  expect(await premiumView(ali, now + 7 * DAY)).toMatchObject({
+    state: { active: true, until: now + 4000 + 395 * DAY },
+    claim: { status: 'removed' },
+  });
 
   // ✖ noqonuniy obuna: chiqarib tashlanadi va o'zi qayta obuna bo'la olmaydi
   v = await managePremium(admin, { op: 'remove', uid: 'legacy_vali' }, now + 7 * DAY);
@@ -342,7 +354,7 @@ it('a student picks 1 month or 1 year and pays any amount: Premium opens at once
   v = await managePremium(admin, { op: 'unblock', key: 'legacy_vali' }, now + 8 * DAY);
   expect(v.blocked).toEqual([]);
   me = await subscribe(vali, { plan: 'oy', amount: 5000, paidAt: now + 8 * DAY }, now + 8 * DAY);
-  expect(me.state.active).toBe(true);
+  expect(me.state.active).toBe(false);
   v = await managePremium(admin, { op: 'remove', uid: 'legacy_vali' }, now + 9 * DAY);
   expect((await premiumView(vali, now + 9 * DAY)).claim?.status).toBe('removed');
   // administrator qo'lda ochsa — blok olinadi
@@ -356,4 +368,28 @@ it('a student picks 1 month or 1 year and pays any amount: Premium opens at once
   await expect(
     managePremium(ali, { op: 'term', uid: 'legacy_ali', days: 365 }, now),
   ).rejects.toMatchObject({ status: 403 });
+});
+
+it('withholds an old unverified renewal without removing an approved subscription', async () => {
+  const now = Date.UTC(2026, 10, 25);
+  await grantPremium(ali.id, ali.name, '', 30, 'Administrator', now);
+  const submitted = now + DAY;
+  const id = 'legacyclaim01';
+  await grantPremium(ali.id, ali.name, '', 365, 'O‘zi (to‘lov)', submitted, 60000);
+  await siteUpdate({
+    ['premiumClaims/' + ali.id + '/' + id]: {
+      id,
+      uid: ali.id,
+      name: ali.name,
+      group: '',
+      status: 'new',
+      days: 365,
+      amount: 60000,
+      at: submitted,
+    },
+  });
+  expect(await premiumState(ali, submitted)).toMatchObject({ active: true, until: now + 30 * DAY });
+  const approved = now + 2 * DAY;
+  await managePremium(admin, { op: 'verify', uid: ali.id, id }, approved);
+  expect(await premiumState(ali, approved)).toMatchObject({ active: true, until: now + 395 * DAY });
 });

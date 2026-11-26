@@ -11,10 +11,6 @@ import { TERM_CHOICES, planName } from '@/lib/premium-plans';
 import { useAdminView, useL } from './common';
 import type { PremiumAdminView } from '@/lib/server/premium';
 
-/* 💎 Sayt boshqaruvi → Obuna. Talaba o'zi obuna bo'ladi (karta → «To'lov qildim» → vaqt yoki chek) va obuna darhol
-   ochiladi. Bu yerda: 🆕 yangi obunalar — to'lovni tekshirib «To'lov keldi» yoki «Chiqarib tashlash» (o'zi qayta
-   obuna bo'la olmaydi); 👥 obunachilar — muddatni o'zgartirish (masalan 1 oy → 1 yil, boshlangan kunidan) yoki
-   chiqarib tashlash; ➕ qo'lda obuna berish; 💳 karta va narxlar; ⛔ yopilganlar. */
 type Student = { id: string; name: string; classId?: string };
 type Grant = PremiumAdminView['grants'][number];
 
@@ -240,16 +236,16 @@ export function PremiumAdmin() {
         </li>
         <li>
           {L(
-            '«To‘lov qildim» → summa va to‘lov vaqti yoki chek → «Yuborish». Obuna darhol tanlagan muddatiga ochiladi.',
-            '“I have paid” → amount and payment time or receipt → “Send”. Premium opens at once for the chosen period.',
-            '«Я оплатил» → сумма и время или чек → «Отправить». Подписка открывается сразу на выбранный срок.',
+            '«To‘lov qildim» → summa va to‘lov vaqti yoki chek → «Yuborish». To‘lov tekshiruvga yuboriladi.',
+            '“I have paid” → amount and payment time or receipt → “Send”. The payment is submitted for review.',
+            '«Я оплатил» → сумма и время или чек → «Отправить». Оплата отправляется на проверку.',
           )}
         </li>
         <li>
           {L(
-            'Siz pastda tekshirasiz: «To‘lov keldi» yoki to‘lov topilmasa — «Chiqarib tashlash».',
-            'You check below: “Payment received”, or “Remove” if there is no payment.',
-            'Вы проверяете ниже: «Оплата пришла» или, если оплаты нет, «Убрать».',
+            '«To‘lov keldi»ni bossangiz, obuna faollashadi yoki uzayadi. To‘lov topilmasa, «Rad etish»ni bosing.',
+            '“Payment received” starts or extends Premium. If the payment is missing, choose “Reject payment”.',
+            '«Оплата пришла» активирует или продлевает подписку. Если оплаты нет, нажмите «Отклонить оплату».',
           )}
         </li>
       </ol>
@@ -258,9 +254,9 @@ export function PremiumAdmin() {
         <h3>
           🆕{' '}
           {L(
-            'Yangi obunalar — to‘lovni tekshiring',
-            'New subscriptions — check the payment',
-            'Новые подписки — проверьте оплату',
+            'Tasdiqlash kutilayotgan to‘lovlar',
+            'Payments awaiting approval',
+            'Оплаты, ожидающие подтверждения',
           )}{' '}
           ({data.fresh.length})
         </h3>
@@ -309,9 +305,15 @@ export function PremiumAdmin() {
                     variant="outline"
                     className="pa-danger"
                     disabled={!!busy}
-                    onClick={() => remove(c.uid, c.name)}
+                    onClick={() =>
+                      void run(
+                        { op: 'reject', uid: c.uid, id: c.id },
+                        'reject' + c.id,
+                        L('To‘lov rad etildi.', 'Payment rejected.', 'Оплата отклонена.'),
+                      )
+                    }
                   >
-                    ✖ {L('Chiqarib tashlash', 'Remove', 'Убрать')}
+                    ✖ {L('Rad etish', 'Reject payment', 'Отклонить оплату')}
                   </Button>
                 </span>
               </li>
@@ -320,9 +322,9 @@ export function PremiumAdmin() {
         ) : (
           <p className="muted">
             {L(
-              'Hozircha yangi obuna yo‘q. Talaba obuna bo‘lsa, shu yerda chiqadi (telefoningizga bildirishnoma ham keladi).',
-              'No new subscriptions. When a student subscribes, it appears here (you also get a notification).',
-              'Новых подписок нет. Когда студент подпишется, он появится здесь (придёт уведомление).',
+              'Tekshiruvda to‘lov yo‘q.',
+              'No payments awaiting review.',
+              'Нет оплат, ожидающих проверки.',
             )}
           </p>
         )}

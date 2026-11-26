@@ -23,7 +23,7 @@ import { PREMIUM_CHANGED, PremiumSubscribe } from './premium-subscribe';
 import { ImagePick } from './image-pick';
 
 /* 💎 Obuna (premium): holatini o'qish, «obuna bo'lish» oynasi va kichik belgi. Talaba o'zi obuna bo'ladi
-   (components/premium-subscribe.tsx): karta → «To'lov qildim» → vaqt yoki chek → obuna darhol ochiladi;
+   (components/premium-subscribe.tsx): karta → «To'lov qildim» → vaqt yoki chek → obuna administrator tasdiqlagach ochiladi;
    administrator «💎 Obuna»da tekshiradi (lib/server/premium.ts). */
 
 export type PremiumData = {
