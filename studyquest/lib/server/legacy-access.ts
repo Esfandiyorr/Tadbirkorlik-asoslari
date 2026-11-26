@@ -65,10 +65,8 @@ export function canReadLegacy(
   );
 }
 export async function legacyAccess(a: Actor, l: Lesson) {
-  if (a.role !== 'student') return;
-  // 🔑 talaba bo'lmaganlar (email/Google, mustaqil o'quvchi) — faqat 💎 obuna yoki administrator ruxsati bilan
-  await requireCourse(a);
-  if (demo() || !l.legacyFile) return;
+  const account = await requireCourse(a);
+  if (account.role !== 'student' || demo() || !l.legacyFile) return;
   const topic = catalog.topics.find((x) => x.id === l.id);
   check(topic, 404, 'Asl dars topilmadi');
   const grant = (
@@ -85,12 +83,12 @@ export async function legacyAccess(a: Actor, l: Lesson) {
     : null;
   const reader = actual
     ? {
-        ...a,
+        ...account,
         classId: actual.group || '',
         learnerType:
           actual.learnerType === 'independent' ? ('independent' as const) : ('university' as const),
       }
-    : a;
+    : account;
   check(canReadLegacy(topic!, grant, reader), 403, 'Bu dars hali siz uchun ochilmagan.');
 }
 

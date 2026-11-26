@@ -57,8 +57,11 @@ it('reopens by default and ignores the previous temporary closure flag', async (
   vi.stubEnv('PLATFORM_MAINTENANCE', 'false');
   vi.stubEnv('PLATFORM_ADMIN_ONLY', 'true');
   expect(adminOnly()).toBe(false);
+  expect((await proxy(new NextRequest('https://example.test/legacy/mavzu-1.html'))).status).toBe(
+    403,
+  );
   expect(
-    (await proxy(new NextRequest('https://example.test/legacy/mavzu-1.html'))).headers.get(
+    (await proxy(new NextRequest('https://example.test/legacy/rt-engine.js'))).headers.get(
       'x-middleware-next',
     ),
   ).toBe('1');

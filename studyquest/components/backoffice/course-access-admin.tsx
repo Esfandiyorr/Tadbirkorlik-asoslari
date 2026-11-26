@@ -8,10 +8,6 @@ import { useAdminView, useL } from './common';
 import type { CourseAccessAdminView } from '@/lib/server/course-access';
 import { MAIN_COURSE_ID } from '@/lib/course-access';
 
-/* 🔑 Sayt boshqaruvi → Kursga ruxsat. TerDU talabalari (talaba bo'limi, ustoz tasdiqlagan) kursga avvalgidek kiradi.
-   Talaba bo'lmaganlar (email/Google, mustaqil o'quvchi) — faqat 💎 obuna yoki shu yerdagi ruxsat bilan. Bu yerda:
-   «Ruxsat so'rash» so'rovlari, email bo'yicha ruxsat berish (o'zingiz dars o'tadigan, lekin email bilan
-   ro'yxatdan o'tganlar uchun ham), ruxsatlar ro'yxati va umumiy sozlama (vaqtincha hammaga ochish). */
 export function CourseAccessAdmin() {
   const L = useL();
   const { data } = useApp();
@@ -72,103 +68,16 @@ function MainCourseAccess() {
   return (
     <div className="bo-live bo-course-access">
       <div className="bo-status">
-        <span className={'bo-pill ' + (data.gate.off ? 'off' : 'on')}>
-          <KeyRound size={13} />{' '}
-          {data.gate.off
-            ? L('Hammaga ochiq', 'Open to all', 'Открыт всем')
-            : L('Yoqilgan', 'On', 'Включено')}
-        </span>
-        <span>
-          {data.gate.off
-            ? L(
-                'Kurs hozir hamma ro‘yxatdan o‘tganlarga ochiq (obuna va ruxsat tekshirilmayapti).',
-                'The course is currently open to everyone who registers (no Premium or permission check).',
-                'Курс сейчас открыт всем зарегистрированным (подписка и разрешение не проверяются).',
-              )
-            : L(
-                'TerDU talabalari kursga avvalgidek kiradi. Talaba bo‘lmaganlar — faqat 💎 obuna yoki shu yerdagi ruxsat bilan.',
-                'TerSU students enter the course as before. Everyone else — only with 💎 Premium or permission given here.',
-                'Студенты ТерГУ входят как раньше. Остальные — только с 💎 подпиской или разрешением отсюда.',
-              )}
-        </span>
-        <Button
-          size="sm"
-          variant="outline"
-          disabled={!!busy}
-          onClick={() =>
-            void act(
-              { op: 'gate', off: !data.gate.off },
-              'gate',
-              data.gate.off
-                ? '🔒 ' +
-                    L(
-                      'Kurs yana faqat obuna/ruxsat bilan',
-                      'Course gated again',
-                      'Курс снова по подписке/разрешению',
-                    )
-                : '🟢 ' +
-                    L('Kurs hammaga ochildi', 'Course opened to everyone', 'Курс открыт всем'),
-            ).catch(() => {})
-          }
-        >
-          {data.gate.off
-            ? L(
-                '🔒 Faqat obuna/ruxsat bilan',
-                '🔒 Premium/permission only',
-                '🔒 Только подписка/разрешение',
-              )
-            : L(
-                '🟢 Vaqtincha hammaga ochish',
-                '🟢 Open to everyone for now',
-                '🟢 Временно открыть всем',
-              )}
-        </Button>
-      </div>
-
-      <div className="bo-status bo-students">
-        <span className={'bo-pill ' + (data.gate.students ? 'on' : 'off')}>
-          🎓{' '}
-          {data.gate.students
-            ? L('Darhol ochiladi', 'Opens at once', 'Открывается сразу')
-            : L('Tasdiqlash bilan', 'After approval', 'После одобрения')}
+        <span className="bo-pill on">
+          <KeyRound size={13} /> {L('Kirish cheklangan', 'Access restricted', 'Доступ ограничен')}
         </span>
         <span>
           {L(
-            'Ro‘yxatdan o‘tishda «Talabamisiz?» so‘ralmaydi — kursni boshlaganda so‘raladi: «Ha» degan foydalanuvchi guruhini yozib kursga yoziladi va shu ro‘yxatga 🎓 belgisi bilan tushadi.',
-            'Registration no longer asks “Are you a student?” — it is asked when the course starts: students enter their group and appear in this list marked 🎓.',
-            'При регистрации больше не спрашивают «Вы студент?» — вопрос задаётся при начале курса: студент указывает группу и попадает в этот список со значком 🎓.',
+            'Guruhi biriktirilgan talabalar kursga bevosita kiradi. Boshqa foydalanuvchilarning so‘rovlarini shu yerda tasdiqlang.',
+            'Students with an assigned group can enter directly. Approve requests from other users here.',
+            'Студенты с назначенной группой входят сразу. Здесь можно одобрять запросы других пользователей.',
           )}
         </span>
-        <Button
-          size="sm"
-          variant="outline"
-          disabled={!!busy}
-          onClick={() =>
-            void act(
-              { op: 'students', on: !data.gate.students },
-              'students',
-              data.gate.students
-                ? L(
-                    'Talabalar endi tasdiqlash bilan kiradi',
-                    'Students now need approval',
-                    'Студентам теперь нужно одобрение',
-                  )
-                : L(
-                    'Talabalarga kurs darhol ochiladi',
-                    'The course now opens for students at once',
-                    'Курс теперь открывается студентам сразу',
-                  ),
-            ).catch(() => {})
-          }
-        >
-          {data.gate.students
-            ? L('🔒 Tasdiqlab kiritish', '🔒 Require approval', '🔒 Требовать одобрения')
-            : L(
-                '🎓 Talabalarga darhol ochish',
-                '🎓 Open for students at once',
-                '🎓 Открывать студентам сразу',
-              )}
-        </Button>
       </div>
 
       <div className="bo-card">
@@ -277,16 +186,16 @@ function MainCourseAccess() {
           <ul>
             <li>
               {L(
-                '🎓 TerDU talabasi — «Ha, TerDU talabasiman» bo‘limida guruhi bilan ro‘yxatdan o‘tadi, siz «Talabalar va baholar»da tasdiqlaysiz: darslar, ballar va reyting ochiladi (obunasiz).',
-                '🎓 TerSU student — registers with their group under “Yes, I study at TerSU”; you approve in “Students and grades”: lessons, points and ranking open (no Premium needed).',
-                '🎓 Студент ТерГУ — регистрируется с группой в разделе «Да, я студент ТерГУ», вы подтверждаете в «Студенты и оценки»: открываются уроки, баллы и рейтинг (без подписки).',
+                '🎓 TerDU talabasi — «Ha, TerDU talabasiman» bo‘limida guruhi bilan ro‘yxatdan o‘tadi, siz «Talabalar va baholar»da tasdiqlaysiz: darslar, ballar va reyting ochiladi.',
+                '🎓 TerSU student — registers with their group under “Yes, I study at TerSU”; you approve in “Students and grades”: lessons, points and ranking open.',
+                '🎓 Студент ТерГУ — регистрируется с группой в разделе «Да, я студент ТерГУ», вы подтверждаете в «Студенты и оценки»: открываются уроки, баллы и рейтинг.',
               )}
             </li>
             <li>
               {L(
-                '🌍 Boshqalar — email yoki Google bilan ro‘yxatdan o‘tadi; sayt ochiq, kurs darslari — 💎 obuna yoki ruxsat bilan.',
-                '🌍 Everyone else — registers with email or Google; the site is open, course lessons need 💎 Premium or permission.',
-                '🌍 Остальные — регистрация через email или Google; сайт открыт, уроки курса — по 💎 подписке или разрешению.',
+                '🌍 Boshqa foydalanuvchilar hisobga kirib, kurs uchun ruxsat so‘raydi.',
+                '🌍 Other users sign in and request access to the course.',
+                '🌍 Остальные пользователи входят в аккаунт и запрашивают доступ к курсу.',
               )}
             </li>
           </ul>

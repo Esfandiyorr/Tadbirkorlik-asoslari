@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { topicVideos, videoTopics } from '@/lib/server/videos';
 import { actor, staff } from '@/lib/server/auth';
-import { requirePaidCourse } from '@/lib/server/course-access';
+import { MAIN_COURSE, requireCourse, requirePaidCourse } from '@/lib/server/course-access';
 import { failure } from '@/lib/server/http';
 
 export const runtime = 'nodejs';
@@ -11,9 +11,11 @@ export const dynamic = 'force-dynamic';
 export async function GET(req: NextRequest) {
   const t = req.nextUrl.searchParams.get('t') || '';
   const topic = videoTopics().find((x) => x.id === t);
+  const main = topic?.courseId === MAIN_COURSE;
   try {
-    if (topic?.paid || topic?.closed) {
+    if (topic && (main || topic.paid || topic.closed)) {
       const a = await actor(req, true);
+      if (main) await requireCourse(a);
       if (topic.closed) staff(a);
       if (topic.paid) await requirePaidCourse(a, topic.courseId);
     }
@@ -23,7 +25,7 @@ export async function GET(req: NextRequest) {
       {
         headers: {
           'Cache-Control':
-            topic?.paid || topic?.closed
+            main || topic?.paid || topic?.closed
               ? 'private, no-store'
               : 'public, max-age=0, s-maxage=30, stale-while-revalidate=300',
         },

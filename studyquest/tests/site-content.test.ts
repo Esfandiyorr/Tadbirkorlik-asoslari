@@ -10,6 +10,7 @@ import {
   topicQuiz,
   topicQuizList,
 } from '../lib/server/site-content';
+import { issueLessonAccess, lessonAccessCookie } from '../lib/server/course-assets';
 import { GET as quizScript } from '../app/api/site/quiz/route';
 
 /* 🛠 Sayt boshqaruvi → 📝 Mavzu testlari: faqat administrator, savollar soni o'zgarmaydi, xavfli HTML o'tmaydi,
@@ -24,7 +25,13 @@ const original = JSON.parse(
   fs.readFileSync(path.join(__dirname, '../public/legacy/quiz/m6.json'), 'utf8'),
 ).questions as { q: string; a?: string[]; c?: number; o?: string[]; e?: string }[];
 const script = async (t: string) =>
-  (await quizScript(new NextRequest('http://localhost/api/site/quiz?t=' + t))).text();
+  (
+    await quizScript(
+      new NextRequest('http://localhost/api/site/quiz?t=' + t, {
+        headers: { cookie: lessonAccessCookie(t) + '=' + issueLessonAccess(t) },
+      }),
+    )
+  ).text();
 
 it('extracts the original questions from the presentation at build time', () => {
   expect(original).toHaveLength(20);

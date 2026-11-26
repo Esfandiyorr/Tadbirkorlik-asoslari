@@ -9,7 +9,7 @@ import { PLANS, type ClaimStatus, type MyClaim } from '../premium-plans';
 import { imageType, siteGet, siteTransaction, siteUpdate, storeBlob } from './site-content';
 import { BUDGET_MAX, PAY_MIN } from '../services';
 
-/* 💎 Obuna (premium): pullik imkoniyatlar (kurs darslari — talaba bo'lmaganlarga, kutubxonadagi 💎 manbalar, avatar) uchun.
+/* 💎 Obuna (premium): pullik imkoniyatlar (kutubxonadagi 💎 manbalar, avatar) uchun.
    To'lov tizimi ulanguncha obunani administrator qo'lda beradi: talaba ko'rsatilgan usulda to'laydi, administrator
    «Sayt boshqaruvi → 💎 Obuna»da muddatini belgilaydi. Keyin to'lov tizimi (Click, Payme …) ulanganda u ham shu
    yozuvni yangilaydi: site/premium/<foydalanuvchi> = {uid, name, group, until, at, by, hist}; hist — har bir

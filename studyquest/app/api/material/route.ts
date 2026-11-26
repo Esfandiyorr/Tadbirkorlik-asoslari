@@ -3,6 +3,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { actor, check } from '@/lib/server/auth';
 import { repository, bucket, demo } from '@/lib/server/repository';
+import { MAIN_COURSE, requireCourse } from '@/lib/server/course-access';
 import { Platform } from '@/lib/server/platform';
 import { failure } from '@/lib/server/http';
 export async function GET(req: NextRequest) {
@@ -13,6 +14,7 @@ export async function GET(req: NextRequest) {
     const db = await repository(),
       file = await db.get('presentations', id);
     check(file, 404, 'Fayl topilmadi');
+    if (file!.courseId === MAIN_COURSE) await requireCourse(a);
     await new Platform(db).requireCourse(a, file!.courseId);
     const bytes = demo()
       ? await fs.readFile(path.join(process.cwd(), '.studyquest-demo/uploads', id))

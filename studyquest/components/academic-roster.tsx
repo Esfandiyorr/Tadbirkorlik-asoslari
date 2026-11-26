@@ -280,10 +280,18 @@ export function AcademicRoster() {
                   <td>
                     <select
                       aria-label={L('Holat', 'Status', 'Статус') + ' ' + u.name}
-                      // ✅ O'qituvchi tasdig'i yo'q: hisob o'zi faollashadi; bu yerda faqat bloklash/qaytarish
-                      value={u.legacyStatus === 'blocked' ? 'blocked' : 'ok'}
+                      value={
+                        u.legacyStatus === 'ok' || u.legacyStatus === 'blocked'
+                          ? u.legacyStatus
+                          : 'pending'
+                      }
                       onChange={(e) => save({ id: u.legacyId, status: e.target.value })}
                     >
+                      {u.legacyStatus !== 'ok' && u.legacyStatus !== 'blocked' && (
+                        <option value="pending" disabled>
+                          {L('Tasdiq kutilmoqda', 'Awaiting approval', 'Ожидает подтверждения')}
+                        </option>
+                      )}
                       <option value="ok">{L('Faol', 'Active', 'Активен')}</option>
                       <option value="blocked">{L('Bloklangan', 'Blocked', 'Заблокирован')}</option>
                     </select>

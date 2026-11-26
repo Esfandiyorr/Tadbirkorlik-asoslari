@@ -211,7 +211,7 @@ test('Premium: a student submits payment, the administrator approves it, and the
   const slide = student.locator('.sidebar .premium-side');
   await expect(slide).toContainText('Obuna bo‘ling');
   await expect(slide).toContainText('quyidagi xizmatlardan foydalaning');
-  await expect(slide.locator('.premium-perks li')).toHaveCount(6);
+  await expect(slide.locator('.premium-perks li')).toHaveCount(5);
   await expect(student.locator('.premium-side.is-home')).toBeHidden();
   await slide.getByRole('button', { name: /Obuna bo‘lish/ }).click();
   await expect(student.getByRole('dialog')).toContainText('Profil bezagi');
@@ -326,7 +326,7 @@ test('Premium: a student submits payment, the administrator approves it, and the
   await expect(active).toContainText('gacha');
   await active.getByRole('button', { name: 'Imkoniyatlarim' }).click();
   const perks = student.getByRole('dialog', { name: 'Premium imkoniyatlaringiz' });
-  await expect(perks.locator('.premium-perks.is-links li')).toHaveCount(6);
+  await expect(perks.locator('.premium-perks.is-links li')).toHaveCount(5);
   await expect(perks).toContainText('Profil → 💎 Premium');
   await perks.getByRole('link', { name: /Kutubxonadagi 💎/ }).click();
   await expect(perks).toBeHidden();

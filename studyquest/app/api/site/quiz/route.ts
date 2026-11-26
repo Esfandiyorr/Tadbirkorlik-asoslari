@@ -1,4 +1,5 @@
 import { NextRequest } from 'next/server';
+import { isMainLesson, lessonAccessCookie, validLessonAccess } from '@/lib/server/course-assets';
 import { quizTopics, topicQuiz } from '@/lib/server/site-content';
 import { topicVideos } from '@/lib/server/videos';
 
@@ -12,6 +13,9 @@ export const dynamic = 'force-dynamic';
    📺 «Mavzu videolari»da qo'yilgan YouTube videolari — window.SQ_VIDEO (taqdimotdagi video slaydi o'qiydi). */
 export async function GET(req: NextRequest) {
   const t = req.nextUrl.searchParams.get('t') || '';
+  const restricted = isMainLesson(t);
+  if (restricted && !validLessonAccess(t, req.cookies.get(lessonAccessCookie(t))?.value))
+    return new Response('', { status: 403, headers: { 'Cache-Control': 'private, no-store' } });
   let body = '/* asl savollar */';
   const topic = quizTopics().find((x) => x.id === t);
   if (topic?.count)
@@ -37,8 +41,9 @@ export async function GET(req: NextRequest) {
   return new Response(body, {
     headers: {
       'Content-Type': 'application/javascript; charset=utf-8',
-      // Talabalar o'zgarishni ~1 daqiqada ko'radi; baza har bir mintaqada daqiqasiga ko'pi bilan bir marta o'qiladi.
-      'Cache-Control': 'public, max-age=0, s-maxage=30, stale-while-revalidate=300',
+      'Cache-Control': restricted
+        ? 'private, no-store'
+        : 'public, max-age=0, s-maxage=30, stale-while-revalidate=300',
     },
   });
 }

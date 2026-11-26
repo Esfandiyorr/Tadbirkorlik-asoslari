@@ -6,7 +6,7 @@ import { sitePolicy } from '@/lib/server/site-policy';
 import { activateStudent } from '@/lib/server/student-activate';
 import { failure } from '@/lib/server/http';
 export const runtime = 'nodejs';
-/** Talaba hisobi o'qituvchi tasdig'isiz faollashadi (lib/server/student-activate.ts). */
+/** Talaba hisobining tasdiq holatini tekshirish (lib/server/student-activate.ts). */
 export async function POST(req: NextRequest) {
   try {
     sameOrigin(req);

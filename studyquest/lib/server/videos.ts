@@ -10,7 +10,7 @@ import { siteGet, siteUpdate } from './site-content';
 /* 📺 Mavzu videolari: administrator «Sayt boshqaruvi → 📺 Mavzu videolari»da mavzuga YouTube havolasini qo'yadi.
    Asl bazada site/videos/<mavzu>/<kalit> = {id, t, s, at, by} — brauzerlar bu bo'limga tegolmaydi. Talabalarga:
    taqdimot <head> idagi /api/site/quiz skripti (window.SQ_VIDEO — 8-mavzudagi video slaydi uchun) va dars sahifasidagi
-   «📺 Video» tugmasi (/api/site/video?t=<mavzu>). Ikkalasi ham CDN keshida — baza daqiqasiga ko'pi bilan bir marta o'qiladi. */
+   «📺 Video» tugmasi (/api/site/video?t=<mavzu>). Kursga kirish huquqi dars videosini olishdan oldin tekshiriladi. */
 
 type Stored = { id: string; t?: string; s?: number; at: number; by?: string };
 const MAX = 6;

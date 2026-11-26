@@ -8,65 +8,25 @@ import type {
   CourseShop,
   PaidCourseState,
 } from '../course-access';
-import { course as mainCourse, demoUsers, extraCourses } from '../seed';
+import { course as mainCourse, extraCourses } from '../seed';
 import { administrator, ApiError, check } from './auth';
 import { authAdmin, demo, repository } from './repository';
 import { siteGet, siteUpdate } from './site-content';
-import { premiumState } from './premium';
-
-/* 🔑 Kursga kirish. Kurs darslari:
-   • TerDU talabalariga — o'qituvchi tasdiqlagan asl talaba hisobi (legacy_<id>, «university») bilan ochiq (avvalgidek);
-   • o'qituvchi va administratorga — doim ochiq;
-   • qolganlarga (email/Google bilan ro'yxatdan o'tganlar, «mustaqil o'quvchi» hisoblari) — faqat 💎 obuna bo'lsa yoki
-     administrator ruxsat bergan bo'lsa.
-   Bazada (brauzerlar tegolmaydigan site/* bo'limida):
-     site/courseAccess/<foydalanuvchi>   = {uid, name, email?, at, by}      — administrator bergan ruxsat;
-     site/courseRequests/<foydalanuvchi> = {uid, name, email?, at, note?}   — «ruxsat so'rash» (administrator ko'radi);
-     site/courseGate = {off, students}                                     — off=true: kurs hammaga ochiq (vaqtincha);
-                                                                             students=true: «Talabaman» deb guruhi bilan
-                                                                             yozilganlarga kurs darhol ochiladi.
-   🎓 Ro'yxatdan o'tishda «Talabamisiz?» so'ralmaydi: foydalanuvchi kursni boshlaganda so'raladi — «Ha» desa guruhini
-   yozib kursga yoziladi (so'rov {group} bilan; o'qituvchi/administrator tasdiqlaydi yoki students=true bo'lsa — darhol).
-   Ruxsat foydalanuvchi id si (legacy_<id> yoki uid) yoki uning kirish hisobi (Firebase uid) bo'yicha beriladi —
-   administrator emailni yozib bersa, server uni uid ga aylantiradi. */
-
+// Asosiy kurs: tasdiqlangan guruhli hisoblar, xodimlar va administrator ruxsat berganlar.
 export const COURSE_LOCKED =
-  'Kurs darslari obunachilar va administrator ruxsat bergan foydalanuvchilar uchun ochiq.';
+  'Kurs guruhi biriktirilgan talabalar uchun ochiq. Kirish uchun administratordan ruxsat so‘rang.';
 const keyOf = (id: string) => id.replace(/[^A-Za-z0-9_-]/g, '_').slice(0, 120);
-const DEMO = new Set(demoUsers.map((u) => u.id));
 
-/** TerDU talabasi: o'qituvchi tasdiqlagan asl talaba hisobi (demo talabasi ham shunday hisoblanadi). */
-export function terduStudent(a: Pick<Actor, 'id' | 'learnerType'>) {
-  return a.learnerType === 'university' && (a.id.startsWith('legacy_') || DEMO.has(a.id));
-}
-
-/* Umumiy sozlama 30 soniya xotirada (har sahifa ochilganda bazaga bormaslik uchun). */
-type Gate = { off: boolean; students: boolean };
-const mem = ((
-  globalThis as { __sqCourseGate?: { c: (Gate & { at: number }) | null } }
-).__sqCourseGate ??= { c: null });
-export function forgetCourseGate() {
-  mem.c = null;
-}
-export async function courseGate(): Promise<Gate> {
-  const c = mem.c;
-  if (c && Date.now() - c.at < 30000) return { off: c.off, students: c.students };
-  let off = false,
-    students = true;
-  try {
-    const v = await siteGet<{ off?: boolean; students?: boolean }>('courseGate');
-    off = v?.off === true;
-    // ✅ sukut bo'yicha yoqiq: «Talabaman» deb guruhi bilan yozilganga kurs darhol ochiladi (o'chirilsa — tasdiq)
-    students = v?.students !== false;
-  } catch {}
-  mem.c = { off, students, at: Date.now() };
-  return { off, students };
+/** Guruh so‘rov matnidan emas, tizim tasdiqlagan talaba hisobidan olinadi. */
+export function groupedStudent(a: Pick<Actor, 'classId' | 'learnerType'>) {
+  const group = typeof a.classId === 'string' ? a.classId.trim().toLowerCase() : '';
+  return a.learnerType === 'university' && !!group && group !== 'mustaqil';
 }
 
 async function grantOf(a: Pick<Actor, 'id' | 'uid'>, base = 'courseAccess') {
   const ids = [...new Set([a.id, a.uid].filter(Boolean))];
   const found = await Promise.all(ids.map((id) => siteGet<CourseGrant>(base + '/' + keyOf(id))));
-  return found.find((g, i) => g && g.uid === ids[i]) || null;
+  return found.find((g, i) => g?.uid === ids[i] && g.by !== 'student') || null;
 }
 
 /* ---------- 💳 pullik kurslar (masalan, restoran kursi) ----------
@@ -144,19 +104,14 @@ export async function requirePaidCourse(a: Actor, course: string) {
   throw new ApiError(403, PAID_LOCKED);
 }
 
-/** Foydalanuvchi kurs darslariga kira oladimi va nima sababdan (obuna, ruxsat, talaba …). */
-export async function courseEntry(a: Actor, now = Date.now()): Promise<CourseEntry> {
+export async function courseEntry(a: Actor): Promise<CourseEntry> {
   if (a.role !== 'student') return { ok: true, via: 'staff' };
-  if (terduStudent(a)) return { ok: true, via: 'student' };
-  const [gate, grant, premium, request] = await Promise.all([
-    courseGate(),
+  if (groupedStudent(a)) return { ok: true, via: 'student' };
+  const [grant, request] = await Promise.all([
     grantOf(a),
-    premiumState(a, now),
     siteGet<CourseRequest>('courseRequests/' + keyOf(a.id)),
   ]);
   if (grant) return { ok: true, via: 'grant' };
-  if (premium.active) return { ok: true, via: 'premium', until: premium.until };
-  if (gate.off) return { ok: true, via: 'open' };
   const mine = request?.uid === a.id;
   return {
     ok: false,
@@ -164,15 +119,18 @@ export async function courseEntry(a: Actor, now = Date.now()): Promise<CourseEnt
     ...(mine && request!.group ? { group: request!.group } : {}),
   };
 }
-/** Server tekshiruvi: dars ochilishidan oldin. */
-export async function requireCourse(a: Actor) {
-  if (a.role !== 'student' || terduStudent(a)) return;
-  if ((await courseEntry(a)).ok) return;
-  // Tejamkor (readOnly) so'rovda Firestore'dagi o'qituvchi roli ko'rinmaydi — rad etishdan oldin bir marta tekshiriladi
+
+/** Read-only auth includes legacy groups. Other group assignments and staff roles are stored in Firestore. */
+export async function requireCourse(a: Actor): Promise<Actor> {
+  if ((await courseEntry(a)).ok) return a;
   const stored = await repository()
     .then((r) => r.get('users', a.id))
     .catch(() => null);
-  if (stored?.role === 'teacher' || stored?.role === 'admin') return;
+  if (stored && !stored.blocked) {
+    if (stored.role === 'teacher' || stored.role === 'admin') return { ...a, role: stored.role };
+    const group = { classId: stored.classId, learnerType: stored.learnerType };
+    if (!a.id.startsWith('legacy_') && groupedStudent(group)) return { ...a, ...group };
+  }
   throw new ApiError(403, COURSE_LOCKED);
 }
 
@@ -197,23 +155,8 @@ export async function requestCourseAccess(a: Actor, raw: unknown, now = Date.now
     .parse(raw ?? {});
   const w = where(v.course);
   check(!v.group || !w.paid, 400, 'Guruh bilan faqat asosiy kursga yoziladi.');
-  const entry = w.paid ? await paidEntry(a, w.course) : await courseEntry(a, now);
+  const entry = w.paid ? await paidEntry(a, w.course) : await courseEntry(a);
   if (entry.ok) return entry;
-  if (v.group && (await courseGate()).students) {
-    // administrator «talabalarga darhol ochish»ni yoqqan — kurs shu zahoti ochiladi
-    await siteUpdate({
-      [w.grants + '/' + keyOf(a.id)]: {
-        uid: a.id,
-        name: a.name.slice(0, 120),
-        ...(a.email ? { email: a.email.slice(0, 120) } : {}),
-        group: v.group,
-        at: now,
-        by: 'student',
-      } satisfies CourseGrant,
-      [w.requests + '/' + keyOf(a.id)]: null,
-    });
-    return { ok: true, via: 'grant' } satisfies CourseEntry;
-  }
   const all = (await siteGet<Record<string, unknown>>(w.requests)) || {};
   check(
     Object.keys(all).length < MAX_REQUESTS || !!all[keyOf(a.id)],
@@ -240,10 +183,9 @@ export async function cancelCourseRequest(a: Actor, course?: string) {
 export async function courseAccessAdmin(a: Actor, course?: string) {
   administrator(a);
   const w = where(course);
-  const [grants, requests, gate, shop] = await Promise.all([
+  const [grants, requests, shop] = await Promise.all([
     siteGet<Record<string, CourseGrant>>(w.grants),
     siteGet<Record<string, CourseRequest>>(w.requests),
-    siteGet<{ off?: boolean; students?: boolean }>('courseGate'),
     w.paid ? courseShop(w.course) : Promise.resolve(null),
   ]);
   const valid = <T extends { uid?: unknown; at?: unknown }>(x: T | null | undefined): x is T =>
@@ -256,9 +198,8 @@ export async function courseAccessAdmin(a: Actor, course?: string) {
       ...extraCourses.filter((c) => c.paid).map((c) => ({ id: c.id, title: c.title, paid: true })),
     ],
     shop,
-    gate: { off: gate?.off === true, students: gate?.students !== false },
     grants: Object.values(grants || {})
-      .filter(valid)
+      .filter((g) => valid(g) && g.by !== 'student')
       .sort((x, y) => y.at - x.at),
     requests: Object.values(requests || {})
       .filter(valid)
@@ -302,9 +243,6 @@ const input = z.discriminatedUnion('op', [
       how: z.string().trim().max(600),
     })
     .strict(),
-  z.object({ op: z.literal('gate'), off: z.boolean() }).strict(),
-  // 🎓 «Talabaman» deb guruhi bilan yozilganlarga kursni darhol ochish (aks holda — so'rov, tasdiqlash kerak)
-  z.object({ op: z.literal('students'), on: z.boolean() }).strict(),
 ]);
 type FindUser = (email: string) => Promise<{ uid: string; name: string; email: string } | null>;
 const findDefault: FindUser = async (email) => {
@@ -315,7 +253,7 @@ const findDefault: FindUser = async (email) => {
     return null;
   }
 };
-/** Administrator: so'rovni tasdiqlash/rad etish, email bo'yicha ruxsat berish, ruxsatni olish, umumiy sozlama. */
+/** Administrator: so'rovni tasdiqlash/rad etish, email bo'yicha ruxsat berish, ruxsatni olish. */
 export async function manageCourseAccess(
   a: Actor,
   raw: unknown,
@@ -324,14 +262,6 @@ export async function manageCourseAccess(
 ) {
   administrator(a);
   const p = input.parse(raw);
-  if (p.op === 'gate' || p.op === 'students') {
-    await siteUpdate(
-      // students: sukut bo'yicha yoqiq, shuning uchun o'chirilgani aniq false bilan saqlanadi
-      p.op === 'gate' ? { 'courseGate/off': p.off } : { 'courseGate/students': p.on },
-    );
-    mem.c = null;
-    return courseAccessAdmin(a);
-  }
   const w = where(p.course);
   if (p.op === 'shop') {
     check(w.paid, 400, 'Narx faqat pullik kurs uchun.');

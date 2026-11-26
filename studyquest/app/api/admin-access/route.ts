@@ -8,6 +8,7 @@ import {
 import { authAdmin, configured } from '@/lib/server/repository';
 import { ApiError, check, sameOrigin } from '@/lib/server/auth';
 import { failure } from '@/lib/server/http';
+import { isLessonAccessCookie } from '@/lib/server/course-assets';
 import { sitePolicy } from '@/lib/server/site-policy';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -67,6 +68,8 @@ export async function DELETE(req: NextRequest) {
       path: '/',
       maxAge: 0,
     });
+    for (const { name } of req.cookies.getAll())
+      if (isLessonAccessCookie(name)) response.cookies.delete(name);
     return response;
   } catch (error) {
     return failure(error);

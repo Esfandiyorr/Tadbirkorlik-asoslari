@@ -29,9 +29,8 @@ import { AccountHelpForm } from './account-help';
      talaba tizimi qiladi (yashirin oyna — /legacy/index.html, scripts/legacy-credentials.mjs): parollar, egalik va
      1111 qoidasi o‘zgarmaydi, bu sahifa faqat maydonlarni to‘ldirib «Kirish»ni bosadi.
    • «Ro‘yxatdan o‘tish» → ism-familiya yoki Google. Ism-familiya bilan bo‘lsa «Talabamisiz?» so‘raladi: talaba
-     guruhini tanlaydi yoki yozadi, talaba bo‘lmasa — «Mustaqil» guruhida; ikkalasi ham ball oladi va
-     reytingda qatnashadi; hisob o‘qituvchi tasdig‘isiz darhol faollashadi (/api/student-activate). Google bilan
-     kirganlarga «Talabamisiz?» bosh sahifadagi kurs oynasida so‘raladi (components/course-gate.tsx).
+     guruhini tanlaydi yoki yozadi. Administrator yoki o‘qituvchi hisobni tasdiqlaydi. Mustaqil o‘quvchilar
+     va Google orqali kirganlar asosiy kursni ochish uchun ruxsat so‘raydi.
    • Maydonga email yozilsa — avvalgi email hisobiga kiradi (email + parol). */
 
 type Step = 'login' | 'register' | 'student' | 'group' | 'pending' | 'guest' | 'help';
@@ -49,7 +48,6 @@ type LegacyWindow = Window & {
 const LEGACY_LOGIN = '/legacy/index.html?studyquest=login&sqEmbed=login';
 const GROUPS: string[] = (catalog as { groups?: string[] }).groups || [];
 /** Talaba bo'lmaganlar ham oddiy hisob bilan ball to'playdi va reytingda qatnashadi — shu guruh nomi bilan. */
-const NON_STUDENT_GROUP = 'Mustaqil';
 const groupOk = (g: string) => /^[\p{L}\p{N}][\p{L}\p{N} ._/-]{1,39}$/u.test(g.trim());
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
@@ -509,9 +507,9 @@ export function AuthPanel({ onClose }: { onClose?: () => void }) {
             <b>{L('Ha, talabaman', 'Yes, I am a student', 'Да, я студент')}</b>
             <small>
               {L(
-                'Guruhingizni tanlaysiz — darslar, ballar va reyting darhol ochiladi.',
-                'You choose your group — lessons, points and ranking open at once.',
-                'Вы выбираете группу — уроки, баллы и рейтинг откроются сразу.',
+                'Guruhingizni ko‘rsatasiz. Hisob tasdiqlangach, kursga kirasiz.',
+                'Enter your group. You can access the course once your account is approved.',
+                'Укажите группу. Курс откроется после подтверждения аккаунта.',
               )}
             </small>
           </button>
@@ -519,16 +517,16 @@ export function AuthPanel({ onClose }: { onClose?: () => void }) {
             type="button"
             className="la-answer"
             disabled={!!busy}
-            onClick={() => register('university', NON_STUDENT_GROUP)}
+            onClick={() => register('independent', '')}
           >
             <span aria-hidden="true">🌍</span>
             <b>{L('Yo‘q, talaba emasman', 'No, I am not a student', 'Нет, я не студент')}</b>
             <small>
               {busy ||
                 L(
-                  '«Mustaqil» guruhida ball to‘playsiz, umumiy va haftalik reytingda qatnashasiz.',
-                  'You earn points in the “Mustaqil” group and take part in the overall and weekly ranking.',
-                  'Вы набираете баллы в группе «Mustaqil» и участвуете в общем и недельном рейтинге.',
+                  'Mustaqil hisob ochasiz. Kursga kirish uchun administratordan ruxsat so‘raysiz.',
+                  'Create an independent account and ask the administrator for course access.',
+                  'Создайте самостоятельный аккаунт и запросите доступ у администратора.',
                 )}
             </small>
           </button>
@@ -617,9 +615,9 @@ export function AuthPanel({ onClose }: { onClose?: () => void }) {
         </p>
         <p className="la-muted">
           {L(
-            'Internet sekin bo‘lishi mumkin. Sayt shu yerda o‘zi ochiladi yoki birozdan keyin qayta kiring.',
-            'The internet may be slow. The site opens here by itself, or log in again in a moment.',
-            'Возможно, медленный интернет. Сайт откроется здесь сам, или войдите снова чуть позже.',
+            'Hisobingiz tasdiqlanishi kutilmoqda. O‘qituvchi yoki administrator tasdiqlagach, qayta kiring.',
+            'Your account is awaiting approval. Sign in again once your teacher or administrator approves it.',
+            'Аккаунт ожидает подтверждения. Войдите снова, когда преподаватель или администратор подтвердит его.',
           )}
         </p>
         {pending.fresh && (
@@ -909,14 +907,8 @@ function useLegacyAuth() {
           ? 'network'
           : 'wrong',
   });
-  /** Kirdi: «kutilmoqda» hisob server tomonidan faollashguncha (o‘qituvchi tasdig‘i yo‘q) biroz kutiladi. */
-  const done = async (w: LegacyWindow): Promise<Outcome> => {
-    let s = w.RT?.student() || {};
-    for (let i = 0; i < 120 && s.status !== 'ok' && s.status !== 'blocked'; i++) {
-      if (s.learnerType === 'independent') break;
-      await sleep(100);
-      s = w.RT?.student() || {};
-    }
+  const done = (w: LegacyWindow): Outcome => {
+    const s = w.RT?.student() || {};
     return {
       ok: true,
       status: s.status || 'pending',

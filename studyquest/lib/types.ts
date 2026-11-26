@@ -164,7 +164,7 @@ export type Data = {
   serviceMessage?: string;
   user?: User;
   lessonAccess?: Record<string, LessonAccess>;
-  /** 🔑 kursga kirish (talaba bo'lmaganlar uchun: obuna yoki administrator ruxsati) — lib/server/course-access.ts */
+  /** 🔑 kursga kirish (talaba bo'lmaganlar uchun: administrator ruxsati) — lib/server/course-access.ts */
   course?: CourseEntry;
   /** 💼 «Pullik xizmatlar» bo'limi menyuda ko'rinadimi (yo'q — vaqtincha yopiq) — lib/server/services.ts */
   servicesShown?: boolean;

@@ -402,7 +402,7 @@ export function Services({ sub = '' }: { sub?: string }) {
           </span>
           <p>
             {L(
-              'Premium obuna: profil bezagi, avatar, kutubxonadagi 💎 manbalar va video darslarni yuklab olish — istalgan summada.',
+              'Premium obuna: profil bezagi, avatar, kutubxonadagi 💎 manbalar va ruxsat berilgan darslar videolarini yuklab olish — istalgan summada.',
               'Premium: a profile style, an avatar, 💎 library items and video downloads — pay any amount.',
               'Подписка: оформление профиля, аватар, 💎 материалы библиотеки и скачивание видео — любая сумма.',
             )}

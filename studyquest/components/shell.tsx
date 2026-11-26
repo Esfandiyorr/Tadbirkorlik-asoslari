@@ -157,12 +157,11 @@ export function StudyQuest() {
   let content;
   if (view === 'login') content = <AuthPanel />;
   else if (mainView === 'lesson')
-    content =
-      user || data.mode === 'legacy' ? (
-        <LessonView key={id + (user?.id || legacy?.id || '')} id={id} />
-      ) : (
-        <AuthPanel />
-      );
+    content = user ? (
+      <LessonView key={id + (user?.id || legacy?.id || '')} id={id} />
+    ) : (
+      <AuthPanel />
+    );
   else if (mainView === 'quiz')
     content = user ? <QuizView key={id + user.id} id={id} /> : <AuthPanel />;
   else if (mainView === 'course' || mainView === 'courses')
@@ -217,7 +216,7 @@ export function StudyQuest() {
     content = signedIn ? <Profile key={user?.id || legacy?.id} /> : <AuthPanel />;
   else content = <Dashboard />;
   if (content.type === AuthPanel) return content;
-  if (mainView === 'lesson' && (user || data.mode === 'legacy'))
+  if (mainView === 'lesson' && user)
     return (
       <main className="focus-learning">
         <ConnectionNotice />

@@ -65,10 +65,12 @@ export function TopicQuizAdmin() {
     setCurrent(t.id);
     setDraft(null);
     try {
-      const [orig, mine] = await Promise.all([
-        fetch('/legacy/quiz/' + t.id + '.json').then((r) => r.json()),
-        request('/api/platform?view=topicQuizzes&t=' + t.id).then((r) => r.json()),
-      ]);
+      const mineResponse = await request('/api/platform?view=topicQuizzes&t=' + t.id);
+      const mine = await mineResponse.json();
+      if (!mineResponse.ok) throw new Error(mine.error || 'Test topilmadi.');
+      const origResponse = await fetch('/legacy/quiz/' + t.id + '.json');
+      if (!origResponse.ok) throw new Error('Asl savollarni yuklab bo‘lmadi.');
+      const orig = await origResponse.json();
       const base = (orig.questions || []) as Question[],
         list = ((mine.saved?.q as Question[]) || base).map((x) => ({ ...x, e: x.e || '' }));
       setOriginal(base);

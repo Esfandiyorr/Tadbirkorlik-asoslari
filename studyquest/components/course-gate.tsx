@@ -1,86 +1,66 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { CreditCard, Crown, GraduationCap, Hand, Lock } from 'lucide-react';
+import { CreditCard, GraduationCap, Hand, Lock } from 'lucide-react';
 import { useApp } from './provider';
 import { Button } from './ui/button';
 import { navigate } from './dashboard';
-import { PremiumOffer, usePremium } from './premium';
 import { dueText, tr } from '@/lib/points';
 import { isPlayApp } from '@/lib/play-app';
-import catalog from '@/lib/catalog.generated.json';
 
-/** 🎓 Guruhlar ro'yxati (config.json «groups»); ro'yxatda yo'q guruhni talaba o'zi yozadi. */
-const GROUPS: string[] = (catalog as { groups?: string[] }).groups || [];
-
-/* 🔑 Kursga kirish oynasi (server: lib/server/course-access.ts). Ro'yxatdan o'tishda «Talabamisiz?» so'ralmaydi —
-   kursni boshlaganda shu oynada so'raladi:
-   • «Ha, talabaman» → guruhini yozib kursga yoziladi (o'qituvchi/administrator «Sayt boshqaruvi → 🔑 Kursga ruxsat»da
-     tasdiqlaydi; administrator «talabalarga darhol ochish»ni yoqqan bo'lsa — kurs shu zahoti ochiladi);
-   • «Yo'q» → 💎 obuna yoki «Ruxsat so'rash».
-   Avvalgi talaba hisobi (ism + kod) borlar uchun — talaba bo'limi orqali kirish havolasi. */
-
-/** Kirgan foydalanuvchi uchun kurs yopiqmi (obuna ham, ruxsat ham yo'q). */
 export function useCourseLocked() {
   const { data } = useApp();
   return !!data?.user && data.course?.ok === false;
 }
 
 export function CourseGate({ compact }: { compact?: boolean }) {
-  return useCourseLocked() ? <CourseGateCard compact={compact} /> : null;
+  const { data, lang } = useApp();
+  const locked = useCourseLocked();
+  if (locked) return <CourseGateCard compact={compact} />;
+  if (data?.user || compact) return null;
+  return (
+    <section className="panel course-gate">
+      <span className="course-gate-lock" aria-hidden="true">
+        <Lock size={26} />
+      </span>
+      <div className="course-gate-body">
+        <h2>{tr(lang, 'Kursga kirish', 'Course access', 'Доступ к курсу')}</h2>
+        <p>
+          {tr(
+            lang,
+            'Darslarni ochish yoki ruxsat so‘rash uchun hisobingizga kiring.',
+            'Sign in to open lessons or request access.',
+            'Войдите, чтобы открыть уроки или запросить доступ.',
+          )}
+        </p>
+        <Button onClick={() => navigate('login')}>{tr(lang, 'Kirish', 'Sign in', 'Войти')}</Button>
+      </div>
+    </section>
+  );
 }
 
 function CourseGateCard({ compact }: { compact?: boolean }) {
   const { data, lang, request, toast, logout, refresh } = useApp();
   const L = (uz: string, en: string, ru: string) => tr(lang, uz, en, ru);
-  const { premium } = usePremium();
-  const [pending, setPending] = useState<number | null>(data?.course?.pending || null),
-    [group, setGroup] = useState(data?.course?.group || ''),
-    // 🎓 «Talabamisiz?»: ask — savol, student — guruh bilan yozilish, other — obuna yoki ruxsat so'rash
-    [step, setStep] = useState<'ask' | 'student' | 'other'>('ask'),
-    [note, setNote] = useState(''),
-    [asking, setAsking] = useState(false),
-    [offer, setOffer] = useState(false),
-    [busy, setBusy] = useState(false);
-  const [pendingGroup, setPendingGroup] = useState(data?.course?.group || '');
-  useEffect(() => setPending(data?.course?.pending || null), [data?.course?.pending]);
-  useEffect(() => setPendingGroup(data?.course?.group || ''), [data?.course?.group]);
-  async function act(op: 'request' | 'cancel', input: Record<string, string> = {}) {
+  const [note, setNote] = useState('');
+  const [asking, setAsking] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const pending = data?.course?.pending;
+  async function act(op: 'request' | 'cancel') {
     setBusy(true);
     try {
       const r = await request('/api/platform', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action: 'courseRequest', input: { op, ...input } }),
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'courseRequest',
+          input: { op, ...(op === 'request' && note.trim() ? { note: note.trim() } : {}) },
         }),
-        v = await r.json();
+      });
+      const v = await r.json();
       if (!r.ok) throw new Error(v.error || v.issues?.[0]?.message || 'Xatolik');
-      if (v.ok) {
-        toast('✅ ' + L('Kurs ochiq!', 'The course is open!', 'Курс открыт!'));
-        await refresh();
-        return;
-      }
-      setPending(v.pending || null);
-      setPendingGroup(v.group || '');
       setAsking(false);
       setNote('');
       await refresh();
-      toast(
-        op === 'cancel'
-          ? L('So‘rov bekor qilindi.', 'Request cancelled.', 'Запрос отменён.')
-          : input.group
-            ? '🎓 ' +
-              L(
-                'Kursga yozildingiz! O‘qituvchi tasdiqlashi bilan darslar ochiladi.',
-                'You are enrolled! Lessons open as soon as the teacher approves.',
-                'Вы записаны на курс! Уроки откроются после подтверждения преподавателем.',
-              )
-            : '🙋 ' +
-              L(
-                'So‘rov yuborildi. Administrator ruxsat berishi bilan darslar ochiladi.',
-                'Request sent. Lessons open as soon as the administrator approves.',
-                'Запрос отправлен. Уроки откроются, как только администратор разрешит.',
-              ),
-      );
     } catch (e) {
       toast((e as Error).message);
     } finally {
@@ -94,152 +74,56 @@ function CourseGateCard({ compact }: { compact?: boolean }) {
     await logout();
     navigate('login');
   }
-  const groupOk = /^[\p{L}\p{N}][\p{L}\p{N} ._/-]{1,39}$/u.test(group.trim());
-  const heading = pending
-    ? pendingGroup
-      ? L('Kursga yozildingiz', 'You are enrolled', 'Вы записаны на курс')
-      : L('So‘rov yuborilgan', 'Request sent', 'Запрос отправлен')
-    : step === 'ask'
-      ? L('Kursni boshlaymizmi? 🚀', 'Ready to start the course? 🚀', 'Начнём курс? 🚀')
-      : step === 'student'
-        ? L('Guruhingiz bilan yoziling', 'Enrol with your group', 'Запишитесь со своей группой')
-        : L(
-            'Kurs darslari obunachilar uchun',
-            'Course lessons are for subscribers',
-            'Уроки курса — для подписчиков',
-          );
   return (
-    <section
-      className={'panel course-gate' + (compact ? ' is-compact' : '')}
-      aria-labelledby="course-gate-h"
-    >
+    <section className={'panel course-gate' + (compact ? ' is-compact' : '')}>
       <span className="course-gate-lock" aria-hidden="true">
-        {step !== 'other' && !pending ? <GraduationCap size={26} /> : <Lock size={26} />}
+        <Lock size={26} />
       </span>
       <div className="course-gate-body">
-        <h2 id="course-gate-h">{heading}</h2>
+        <h2>
+          {pending
+            ? L('So‘rov yuborilgan', 'Request sent', 'Запрос отправлен')
+            : L(
+                'Kursga kirish uchun ruxsat kerak',
+                'Course access requires approval',
+                'Для доступа нужно разрешение',
+              )}
+        </h2>
         {pending ? (
           <div className="course-gate-pending" role="status">
             <span>
-              ⏳{' '}
-              {pendingGroup
-                ? L(
-                    `🎓 Guruh: ${pendingGroup} · ${dueText(pending, lang, Date.now()).date}. O‘qituvchi tasdiqlashi bilan darslar ochiladi.`,
-                    `🎓 Group: ${pendingGroup} · ${dueText(pending, lang, Date.now()).date}. Lessons open once the teacher approves.`,
-                    `🎓 Группа: ${pendingGroup} · ${dueText(pending, lang, Date.now()).date}. Уроки откроются после подтверждения преподавателем.`,
-                  )
-                : L(
-                    `Ruxsat so‘ralgan (${dueText(pending, lang, Date.now()).date}). Administrator ko‘rib chiqmoqda.`,
-                    `Access requested (${dueText(pending, lang, Date.now()).date}). The administrator is reviewing it.`,
-                    `Доступ запрошен (${dueText(pending, lang, Date.now()).date}). Администратор рассматривает запрос.`,
-                  )}
+              {L(
+                'Administrator so‘rovni tasdiqlagach, darslar ochiladi.',
+                'Lessons open once the administrator approves your request.',
+                'Уроки откроются после одобрения запроса администратором.',
+              )}
             </span>
+            <Button size="sm" variant="outline" disabled={busy} onClick={() => void refresh()}>
+              {L('Holatni tekshirish', 'Check status', 'Проверить статус')}
+            </Button>
             <Button size="sm" variant="ghost" disabled={busy} onClick={() => void act('cancel')}>
-              {L('Bekor qilish', 'Cancel', 'Отменить')}
+              {L('So‘rovni bekor qilish', 'Cancel request', 'Отменить запрос')}
             </Button>
           </div>
-        ) : step === 'ask' ? (
-          <div className="course-gate-kind" role="group" aria-labelledby="course-gate-q">
-            <p id="course-gate-q" className="course-gate-q">
-              {L('Talabamisiz?', 'Are you a student?', 'Вы студент?')}
-            </p>
-            <button type="button" className="auth-kind-card" onClick={() => setStep('student')}>
-              <span className="auth-kind-ico" aria-hidden="true">
-                🎓
-              </span>
-              <span className="auth-kind-text">
-                <b>{L('Ha, talabaman', 'Yes, I am a student', 'Да, я студент')}</b>
-                <small>
-                  {L(
-                    'Guruhingizni yozasiz va kursga yozilasiz — o‘qituvchi tasdiqlashi bilan darslar, ballar va reyting ochiladi.',
-                    'Enter your group and enrol — lessons, points and ranking open once the teacher approves.',
-                    'Укажите группу и запишитесь — уроки, баллы и рейтинг откроются после подтверждения преподавателем.',
-                  )}
-                </small>
-              </span>
-            </button>
-            <button type="button" className="auth-kind-card" onClick={() => setStep('other')}>
-              <span className="auth-kind-ico" aria-hidden="true">
-                🌍
-              </span>
-              <span className="auth-kind-text">
-                <b>{L('Yo‘q, talaba emasman', 'No, I am not a student', 'Нет, я не студент')}</b>
-                <small>
-                  {L(
-                    'Darslar 💎 obuna bilan yoki administrator ruxsati bilan ochiladi.',
-                    'Lessons open with 💎 Premium or with the administrator’s permission.',
-                    'Уроки открываются с 💎 подпиской или по разрешению администратора.',
-                  )}
-                </small>
-              </span>
-            </button>
-          </div>
-        ) : step === 'student' ? (
-          <form
-            className="course-gate-ask"
-            onSubmit={(e) => {
-              e.preventDefault();
-              if (groupOk) void act('request', { group: group.trim() });
-            }}
-          >
-            <label>
-              {L('Guruhingizni tanlang', 'Choose your group', 'Выберите группу')}
-              <select
-                className="input"
-                value={GROUPS.includes(group) ? group : ''}
-                onChange={(e) => setGroup(e.target.value)}
-              >
-                <option value="">{L('— tanlang —', '— choose —', '— выберите —')}</option>
-                {GROUPS.map((g) => (
-                  <option key={g} value={g}>
-                    {g}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label>
-              {L('yoki o‘zingiz yozing', 'or type it yourself', 'или введите сами')}
-              <input
-                className="input course-gate-group"
-                maxLength={40}
-                value={GROUPS.includes(group) ? '' : group}
-                onChange={(e) => setGroup(e.target.value)}
-                placeholder={L('Masalan: Yes-123', 'E.g. Yes-123', 'Например: Yes-123')}
-              />
-            </label>
-            <div className="course-gate-actions">
-              <Button type="submit" disabled={busy || !groupOk}>
-                <GraduationCap size={16} /> {L('Kursga yozilish', 'Enrol', 'Записаться')}
-              </Button>
-              <Button type="button" variant="ghost" onClick={() => setStep('ask')}>
-                {L('Orqaga', 'Back', 'Назад')}
-              </Button>
-            </div>
-          </form>
         ) : asking ? (
           <form
             className="course-gate-ask"
             onSubmit={(e) => {
               e.preventDefault();
-              void act('request', note.trim() ? { note: note.trim() } : {});
+              void act('request');
             }}
           >
             <label>
               {L(
-                'Izoh (ixtiyoriy): kimsiz, qaysi tashkilotdan',
-                'Note (optional): who you are, your organisation',
-                'Комментарий (необязательно): кто вы, организация',
+                'Izoh (ixtiyoriy) — o‘zingiz haqingizda yoki guruhingizni yozing',
+                'Optional note — tell us about yourself or enter your group',
+                'Комментарий по желанию — расскажите о себе или укажите группу',
               )}
               <input
                 className="input"
                 maxLength={300}
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
-                placeholder={L(
-                  'Masalan: o‘qituvchiman, kursni ko‘rib chiqmoqchiman',
-                  'E.g. I am a teacher and want to review the course',
-                  'Например: я преподаватель, хочу посмотреть курс',
-                )}
               />
             </label>
             <div className="course-gate-actions">
@@ -255,20 +139,14 @@ function CourseGateCard({ compact }: { compact?: boolean }) {
           <>
             <p>
               {L(
-                'Darslarni ochish uchun 💎 obuna bo‘ling yoki administratordan ruxsat so‘rang.',
-                'Get 💎 Premium or ask the administrator for access to open the lessons.',
-                'Оформите 💎 подписку или попросите доступ у администратора.',
+                'Kurs guruhi biriktirilgan talabalar uchun ochiq. Darslarga kirish uchun administratordan ruxsat so‘rang.',
+                'The course is open to students with an assigned group. Ask the administrator for permission to access the lessons.',
+                'Курс открыт для студентов с назначенной группой. Для доступа к урокам запросите разрешение администратора.',
               )}
             </p>
             <div className="course-gate-actions">
-              <Button onClick={() => setOffer(true)}>
-                <Crown size={16} /> {L('Obuna bo‘lish', 'Get Premium', 'Оформить подписку')}
-              </Button>
-              <Button variant="outline" onClick={() => setAsking(true)}>
+              <Button onClick={() => setAsking(true)}>
                 <Hand size={16} /> {L('Ruxsat so‘rash', 'Request access', 'Запросить доступ')}
-              </Button>
-              <Button variant="ghost" onClick={() => setStep('ask')}>
-                {L('Orqaga', 'Back', 'Назад')}
               </Button>
             </div>
           </>
@@ -276,13 +154,12 @@ function CourseGateCard({ compact }: { compact?: boolean }) {
         <button type="button" className="course-gate-student" onClick={() => void asStudent()}>
           <GraduationCap size={15} aria-hidden="true" />
           {L(
-            'Avvalgi talaba hisobingiz (ism va kod) bormi? Talaba bo‘limi orqali kiring',
-            'Have an earlier student account (name and code)? Sign in through the student section',
-            'Есть прежний аккаунт студента (имя и код)? Войдите через раздел студента',
+            'Guruhi biriktirilgan talaba hisobingiz bilan kiring',
+            'Sign in with your student account associated with a group',
+            'Войдите в свой студенческий аккаунт с назначенной группой',
           )}
         </button>
       </div>
-      {offer && <PremiumOffer info={premium?.info} onClose={() => setOffer(false)} />}
     </section>
   );
 }

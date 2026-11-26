@@ -74,10 +74,11 @@ it('protects paid video URLs with course access and never puts them in public qu
   expect(await (await quizScript(req('r4'))).text()).not.toContain(id);
 });
 
-it('keeps existing main-course videos public and cacheable', async () => {
+it('limits main-course videos to authorised users without a shared cache', async () => {
   await manageVideos(admin, { op: 'add', t: 'm8', url: 'https://youtu.be/' + id });
-  const response = await GET(req('m8'));
+  expect((await GET(req('m8'))).status).toBe(401);
+  const response = await GET(req('m8', 'demo-student'));
   expect(response.status).toBe(200);
-  expect(response.headers.get('cache-control')).toContain('s-maxage=30');
+  expect(response.headers.get('cache-control')).toBe('private, no-store');
   expect((await response.json()).videos[0].id).toBe(id);
 });
