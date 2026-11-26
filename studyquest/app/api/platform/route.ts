@@ -10,6 +10,8 @@ import {
   cancelCourseRequest,
   courseAccessAdmin,
   courseEntry,
+  courseShop,
+  MAIN_COURSE,
   manageCourseAccess,
   paidView,
   requestCourseAccess,
@@ -460,6 +462,7 @@ export async function GET(req: NextRequest) {
         mode,
         // 💳 pullik kurslar: mehmonga narx ko'rinadi, darslar — kirib, ruxsat olgach
         paid: await paidView().catch(() => ({})),
+        courseShop: await courseShop(MAIN_COURSE),
         servicesShown: await servicesShown().catch(() => false),
       });
     const a = await actor(req);
@@ -555,6 +558,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({
       ...state,
       mode,
+      courseShop: await courseShop(MAIN_COURSE),
       ...(a.role === 'admin'
         ? { legacyMigration: await (await repository()).get('migrations', 'legacy-v1') }
         : {}),
@@ -607,7 +611,10 @@ export async function GET(req: NextRequest) {
           await withCourse(a, limited as { course?: unknown; lessonAccess?: unknown }).catch(
             () => {},
           );
-        return NextResponse.json(limited, { headers: { 'Cache-Control': 'no-store' } });
+        return NextResponse.json(
+          { ...limited, courseShop: await courseShop(MAIN_COURSE) },
+          { headers: { 'Cache-Control': 'no-store' } },
+        );
       } catch (authError) {
         return failure(authError);
       }

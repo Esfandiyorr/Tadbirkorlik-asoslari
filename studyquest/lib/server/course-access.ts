@@ -58,7 +58,7 @@ function normalizeShop(raw: Partial<CourseShop> | null): CourseShop {
   const s = (v: unknown, n: number) => (typeof v === 'string' ? v.trim().slice(0, n) : '');
   return { price: s(raw?.price, 80), how: s(raw?.how, 600) };
 }
-async function courseShop(course: string): Promise<CourseShop> {
+export async function courseShop(course: string): Promise<CourseShop> {
   const c = shopMem.get(course);
   if (c && Date.now() - c.at < 30000) return c.v;
   let v: CourseShop = { price: '', how: '' };
@@ -186,7 +186,7 @@ export async function courseAccessAdmin(a: Actor, course?: string) {
   const [grants, requests, shop] = await Promise.all([
     siteGet<Record<string, CourseGrant>>(w.grants),
     siteGet<Record<string, CourseRequest>>(w.requests),
-    w.paid ? courseShop(w.course) : Promise.resolve(null),
+    courseShop(w.course),
   ]);
   const valid = <T extends { uid?: unknown; at?: unknown }>(x: T | null | undefined): x is T =>
     !!x && typeof x.uid === 'string' && typeof x.at === 'number';
@@ -264,7 +264,6 @@ export async function manageCourseAccess(
   const p = input.parse(raw);
   const w = where(p.course);
   if (p.op === 'shop') {
-    check(w.paid, 400, 'Narx faqat pullik kurs uchun.');
     await siteUpdate({ ['courseShop/' + w.course]: normalizeShop(p) });
     shopMem.delete(w.course);
     return courseAccessAdmin(a, w.course);

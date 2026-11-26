@@ -3,6 +3,7 @@ import type { Actor, Lesson } from '../lib/types';
 import {
   courseAccessAdmin,
   courseEntry,
+  courseShop,
   manageCourseAccess,
   requestCourseAccess,
   cancelCourseRequest,
@@ -257,9 +258,22 @@ it('a paid course opens only for the administrator and the participants he appro
   await expect(
     manageCourseAccess(teacherA, { op: 'revoke', uid: email.id, course: 'restoran' }),
   ).rejects.toMatchObject({ status: 403 });
-  await expect(
-    manageCourseAccess(admin, { op: 'shop', course: 'tad-asoslari', price: '1', how: '' }),
-  ).rejects.toMatchObject({ status: 400 });
+});
+
+it('the administrator sets a separate main-course price while students with a group retain access', async () => {
+  const shop = { price: '179 000 so‘m', how: 'Click orqali to‘lang.' };
+  const price = { op: 'shop', course: MAIN_COURSE, ...shop };
+  await expect(manageCourseAccess(email, price)).rejects.toMatchObject({ status: 403 });
+  expect((await manageCourseAccess(admin, price)).shop).toEqual(shop);
+  expect(await courseShop(MAIN_COURSE)).toEqual(shop);
+  expect(await courseEntry(student)).toEqual({ ok: true, via: 'student' });
+  expect(await courseEntry(email)).toEqual({ ok: false, pending: null });
+  await requestCourseAccess(email, { note: 'Chek № 123' }, now);
+  await manageCourseAccess(admin, { op: 'approve', uid: email.id }, now);
+  expect(await courseEntry(email)).toEqual({ ok: true, via: 'grant' });
+  expect((await paidView()).restoran.price).not.toBe(shop.price);
+  await manageCourseAccess(admin, { ...price, price: '', how: '' });
+  expect(await courseShop(MAIN_COURSE)).toEqual({ price: '', how: '' });
 });
 
 it('the client constant for the main course matches the catalog', () => {

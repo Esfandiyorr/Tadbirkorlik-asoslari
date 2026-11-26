@@ -6,6 +6,19 @@ import { Button } from './ui/button';
 import { navigate } from './dashboard';
 import { dueText, tr } from '@/lib/points';
 import { isPlayApp } from '@/lib/play-app';
+import type { CourseShop } from '@/lib/course-access';
+
+function CoursePrice({ shop }: { shop?: CourseShop }) {
+  const [show, setShow] = useState(false);
+  useEffect(() => setShow(!isPlayApp()), []);
+  if (!show || (!shop?.price && !shop?.how)) return null;
+  return (
+    <div className="paid-gate-price">
+      {shop.price && <b>{shop.price}</b>}
+      {shop.how && <p>{shop.how}</p>}
+    </div>
+  );
+}
 
 export function useCourseLocked() {
   const { data } = useApp();
@@ -32,6 +45,7 @@ export function CourseGate({ compact }: { compact?: boolean }) {
             'Войдите, чтобы открыть уроки или запросить доступ.',
           )}
         </p>
+        <CoursePrice shop={data?.courseShop} />
         <Button onClick={() => navigate('login')}>{tr(lang, 'Kirish', 'Sign in', 'Войти')}</Button>
       </div>
     </section>
@@ -89,6 +103,7 @@ function CourseGateCard({ compact }: { compact?: boolean }) {
                 'Для доступа нужно разрешение',
               )}
         </h2>
+        <CoursePrice shop={data?.courseShop} />
         {pending ? (
           <div className="course-gate-pending" role="status">
             <span>
@@ -254,12 +269,7 @@ function PaidCourseCard({ courseId, compact }: { courseId: string; compact?: boo
             `Уроки курса «${course?.title || ''}» открыты только участникам, которых одобрил администратор. Оплатите или отправьте запрос.`,
           )}
         </p>
-        {!play && (state?.price || state?.how) && (
-          <div className="paid-gate-price">
-            {state?.price && <b>{state.price}</b>}
-            {state?.how && <p>{state.how}</p>}
-          </div>
-        )}
+        <CoursePrice shop={state} />
         {!signedIn ? (
           <div className="course-gate-actions">
             <Button onClick={() => navigate('login')}>

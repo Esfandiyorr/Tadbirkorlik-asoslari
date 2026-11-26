@@ -212,3 +212,39 @@ test('course files require a signed lesson access cookie and are cleared at sign
   await page.request.delete('/api/admin-access');
   expect((await page.request.get(directLesson)).status()).toBe(403);
 });
+
+test('the administrator publishes the main-course price and grouped students can still open lessons', async ({
+  page,
+  browser,
+  baseURL,
+}) => {
+  await as(page, 'demo-admin');
+  await page.goto('/#admin', { waitUntil: 'domcontentloaded' });
+  await page.locator('.bo-card-btn').filter({ hasText: 'Kursga ruxsat' }).click();
+  const panel = page.locator('.bo-course-access');
+  const price = '179 000 so‘m';
+  const how = 'Click orqali to‘lang, chek raqamini so‘rovda yozing.';
+  await panel.getByLabel(/Kurs narxi/).fill(price);
+  await panel.getByLabel('Qanday to‘lanadi').fill(how);
+  await panel.getByRole('button', { name: 'Saqlash', exact: true }).click();
+  await expect(page.locator('.toast')).toContainText('Saqlandi');
+  const visitor = await browser.newPage({ baseURL });
+  try {
+    await visitor.goto('/#course/tad-asoslari', { waitUntil: 'domcontentloaded' });
+    await expect(visitor.locator('.course-gate .paid-gate-price')).toContainText(price);
+    await expect(visitor.locator('.course-gate .paid-gate-price')).toContainText(how);
+    await as(visitor, 'demo-student');
+    await visitor.reload();
+    await expect(visitor.locator('.course-gate')).toHaveCount(0);
+    await visitor.goto('/#lesson/m1');
+    await expect(visitor.locator('.native-viewer')).toBeVisible();
+  } finally {
+    await visitor.close();
+    await page.request.post('/api/platform', {
+      data: {
+        action: 'courseAccessAdmin',
+        input: { op: 'shop', course: 'tad-asoslari', price: '', how: '' },
+      },
+    });
+  }
+});

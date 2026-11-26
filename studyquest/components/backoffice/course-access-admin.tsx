@@ -139,9 +139,9 @@ function MainCourseAccess() {
         </ul>
         <p className="bo-hint">
           {L(
-            'Pul to‘laganlarga «💎 Obuna» bo‘limida obuna bering — ular ham shu ro‘yxatdan topiladi. Bepul ruxsat esa muddatsiz: bekor qilmaguningizcha amal qiladi.',
-            'Give paying users Premium in the “💎 Premium” section — they can be found there too. Free access has no end date: it lasts until you remove it.',
-            'Оплатившим выдайте подписку в разделе «💎 Подписка» — их можно найти и там. Бесплатный доступ бессрочный — действует, пока вы его не отмените.',
+            'To‘lovni tekshirgach, shu ro‘yxatdan kursga ruxsat bering. Ruxsat bekor qilinmaguncha amal qiladi.',
+            'Once you verify payment, grant access from this list. Access lasts until you revoke it.',
+            'После проверки оплаты выдайте доступ из этого списка. Доступ действует до отмены.',
           )}
         </p>
       </div>
@@ -181,25 +181,7 @@ function MainCourseAccess() {
                 )}
           </p>
         </form>
-        <div className="bo-form bo-course-explain">
-          <h3>🎓 {L('Kim qanday kiradi', 'Who gets in and how', 'Кто и как входит')}</h3>
-          <ul>
-            <li>
-              {L(
-                '🎓 TerDU talabasi — «Ha, TerDU talabasiman» bo‘limida guruhi bilan ro‘yxatdan o‘tadi, siz «Talabalar va baholar»da tasdiqlaysiz: darslar, ballar va reyting ochiladi.',
-                '🎓 TerSU student — registers with their group under “Yes, I study at TerSU”; you approve in “Students and grades”: lessons, points and ranking open.',
-                '🎓 Студент ТерГУ — регистрируется с группой в разделе «Да, я студент ТерГУ», вы подтверждаете в «Студенты и оценки»: открываются уроки, баллы и рейтинг.',
-              )}
-            </li>
-            <li>
-              {L(
-                '🌍 Boshqa foydalanuvchilar hisobga kirib, kurs uchun ruxsat so‘raydi.',
-                '🌍 Other users sign in and request access to the course.',
-                '🌍 Остальные пользователи входят в аккаунт и запрашивают доступ к курсу.',
-              )}
-            </li>
-          </ul>
-        </div>
+        <CourseShopForm view={data} busy={busy} act={act} />
       </div>
 
       <div className="bo-card">
@@ -266,6 +248,77 @@ function MainCourseAccess() {
   );
 }
 
+function CourseShopForm({
+  view,
+  busy,
+  act,
+}: {
+  view: CourseAccessAdminView;
+  busy: string;
+  act: (input: unknown, key: string, done: string) => Promise<CourseAccessAdminView>;
+}) {
+  const L = useL();
+  const price = view.shop?.price ?? '';
+  const how = view.shop?.how ?? '';
+  const [shop, setShop] = useState({ price, how });
+  useEffect(() => setShop({ price, how }), [price, how]);
+  return (
+    <form
+      className="bo-form"
+      onSubmit={(e: FormEvent) => {
+        e.preventDefault();
+        void act(
+          { op: 'shop', course: view.course, price: shop.price.trim(), how: shop.how.trim() },
+          'shop',
+          '💾 ' + L('Saqlandi', 'Saved', 'Сохранено'),
+        ).catch(() => {});
+      }}
+    >
+      <h3>🏷 {L('Narx va to‘lov yo‘riqnomasi', 'Price and how to pay', 'Цена и оплата')}</h3>
+      <label>
+        {view.course === MAIN_COURSE_ID
+          ? L(
+              'Kurs narxi (boshqa foydalanuvchilar uchun)',
+              'Price for other users',
+              'Цена для остальных пользователей',
+            )
+          : L(
+              'Kurs narxi (hammaga ko‘rinadi)',
+              'Course price (shown to everyone)',
+              'Цена курса (видна всем)',
+            )}
+        <input
+          className="input"
+          maxLength={80}
+          value={shop.price}
+          onChange={(e) => setShop({ ...shop, price: e.target.value })}
+          placeholder={L('Masalan: 450 000 so‘m', 'E.g. 450 000 so‘m', 'Например: 450 000 сум')}
+        />
+      </label>
+      <label>
+        {L('Qanday to‘lanadi', 'How to pay', 'Как оплатить')}
+        <textarea
+          className="input"
+          rows={4}
+          maxLength={600}
+          value={shop.how}
+          onChange={(e) => setShop({ ...shop, how: e.target.value })}
+          placeholder={L(
+            'Masalan: Click yoki Payme orqali … kartaga o‘tkazing, so‘ng ruxsat so‘rovida chek raqamini yozing.',
+            'E.g. pay by Click or Payme to card …, then add the receipt number to your access request.',
+            'Например: переведите через Click или Payme на карту …, затем укажите номер чека в запросе на доступ.',
+          )}
+        />
+      </label>
+      <div className="bo-actions">
+        <Button type="submit" disabled={!!busy}>
+          <Save size={15} /> {L('Saqlash', 'Save', 'Сохранить')}
+        </Button>
+      </div>
+    </form>
+  );
+}
+
 /** 💳 Pullik kurs: narx va to'lov yo'riqnomasi, qatnashish so'rovlari, email yoki reyting bo'yicha ruxsat, ruxsatlar. */
 function PaidCourseAccess({ course }: { course: string }) {
   const L = useL();
@@ -275,13 +328,8 @@ function PaidCourseAccess({ course }: { course: string }) {
     'courseAccessAdmin',
   );
   const [email, setEmail] = useState(''),
-    [shop, setShop] = useState({ price: '', how: '' }),
     [students, setStudents] = useState<{ id: string; name: string; classId?: string }[]>([]),
     [q, setQ] = useState('');
-  const saved = data?.shop;
-  useEffect(() => {
-    if (saved) setShop({ price: saved.price, how: saved.how });
-  }, [saved]);
   useEffect(() => {
     let live = true;
     request('/api/platform?view=academic')
@@ -454,53 +502,7 @@ function PaidCourseAccess({ course }: { course: string }) {
                 )}
           </p>
         </form>
-        <form
-          className="bo-form"
-          onSubmit={(e: FormEvent) => {
-            e.preventDefault();
-            void act(
-              { op: 'shop', course, price: shop.price.trim(), how: shop.how.trim() },
-              'shop',
-              '💾 ' + L('Saqlandi', 'Saved', 'Сохранено'),
-            ).catch(() => {});
-          }}
-        >
-          <h3>🏷 {L('Narx va to‘lov yo‘riqnomasi', 'Price and how to pay', 'Цена и оплата')}</h3>
-          <label>
-            {L(
-              'Kurs narxi (hammaga ko‘rinadi)',
-              'Course price (shown to everyone)',
-              'Цена курса (видна всем)',
-            )}
-            <input
-              className="input"
-              maxLength={80}
-              value={shop.price}
-              onChange={(e) => setShop({ ...shop, price: e.target.value })}
-              placeholder={L('Masalan: 450 000 so‘m', 'E.g. 450 000 so‘m', 'Например: 450 000 сум')}
-            />
-          </label>
-          <label>
-            {L('Qanday to‘lanadi', 'How to pay', 'Как оплатить')}
-            <textarea
-              className="input"
-              rows={4}
-              maxLength={600}
-              value={shop.how}
-              onChange={(e) => setShop({ ...shop, how: e.target.value })}
-              placeholder={L(
-                'Masalan: Click yoki Payme orqali … kartaga o‘tkazing, so‘ng «Qatnashish uchun so‘rov» tugmasini bosib chek raqamini yozing.',
-                'E.g. pay by Click or Payme to card …, then press “Request to join” and add the receipt number.',
-                'Например: переведите через Click или Payme на карту …, затем нажмите «Запрос на участие» и укажите номер чека.',
-              )}
-            />
-          </label>
-          <div className="bo-actions">
-            <Button type="submit" disabled={!!busy}>
-              <Save size={15} /> {L('Saqlash', 'Save', 'Сохранить')}
-            </Button>
-          </div>
-        </form>
+        <CourseShopForm view={data} busy={busy} act={act} />
       </div>
 
       <div className="bo-card">
