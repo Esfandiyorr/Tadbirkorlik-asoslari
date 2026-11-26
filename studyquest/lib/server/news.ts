@@ -32,7 +32,8 @@ export type LiveGame = {
   open: number;
   start: number;
   end: number;
-  type: 'quiz' | 'yz';
+  /** race — 🏁 jamoaviy poyga (jonli test o'rnida, /poyga) */
+  type: 'quiz' | 'yz' | 'race';
   nq?: number;
   qsec?: number;
   note?: string;
@@ -93,6 +94,16 @@ export function nextGame(
 }
 
 export async function liveGame(now = Date.now()): Promise<LiveGame | null> {
+  // 🏁 jonli test o'rniga rejalashtirilgan jamoaviy poyga — qaysi biri oldin bo'lsa, o'sha
+  const [quiz, race] = await Promise.all([
+    quizGame(now),
+    import('./race').then((m) => m.raceLive(now)).catch(() => null),
+  ]);
+  if (!race) return quiz;
+  if (!quiz) return race;
+  return race.start <= quiz.start ? race : quiz;
+}
+async function quizGame(now: number): Promise<LiveGame | null> {
   // Demo/sinov: «Sayt boshqaruvi → Jonli test»da tuzilgan xotiradagi jadval (jonli bazaga ulanmaydi).
   if (demo())
     return nextGame(

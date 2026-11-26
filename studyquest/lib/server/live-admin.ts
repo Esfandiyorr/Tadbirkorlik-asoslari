@@ -426,6 +426,12 @@ function view(st: State, now: number, msg: string) {
   };
 }
 
+/** 🏁 Jadvaldagi bitta o'yin yozuvi (poyga uni almashtirishi uchun): idx/<kun> yoki null. */
+export async function liveEntry(d: string, now = Date.now()) {
+  const st = await store().load(now);
+  return st.idx[d] || null;
+}
+
 /** Administrator panelni ochganda: holat + (asl paneldagidek) tugagan o'yinlarni yakunlash va jadvalni to'ldirish. */
 export async function liveAdmin(a: Actor, now = Date.now(), rnd: () => number = Math.random) {
   administrator(a);

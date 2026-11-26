@@ -38,7 +38,7 @@ const sectionName = (tp: string, lang: Lang) => {
 export function LiveAdmin() {
   const { lang } = useApp();
   const L = useL();
-  const { data, error, busy, act } = useAdminView<LiveAdminView>('liveAdmin', 'liveAdmin');
+  const { data, error, busy, act, load } = useAdminView<LiveAdminView>('liveAdmin', 'liveAdmin');
   const [tab, setTab] = useState<'plan' | 'create' | 'bank' | 'results'>('plan');
   if (error) return <p className="error-state">{error}</p>;
   if (!data) return <div className="skeleton h-64" />;
@@ -100,7 +100,7 @@ export function LiveAdmin() {
           </button>
         ))}
       </div>
-      {tab === 'plan' && <Plan data={data} busy={busy} act={act} />}
+      {tab === 'plan' && <Plan data={data} busy={busy} act={act} reload={load} />}
       {tab === 'create' && <Create data={data} busy={busy} act={act} done={() => setTab('plan')} />}
       {tab === 'bank' && <Bank data={data} busy={busy} act={act} />}
       {tab === 'results' && <Results data={data} />}
@@ -111,9 +111,47 @@ export function LiveAdmin() {
 type Act = (input: unknown, key: string, done?: string, quiet?: boolean) => Promise<LiveAdminView>;
 type Props = { data: LiveAdminView; busy: string; act: Act };
 
-function Plan({ data, busy, act }: Props) {
-  const { lang } = useApp();
+function Plan({ data, busy, act, reload }: Props & { reload: () => Promise<void> }) {
+  const { lang, request, toast } = useApp();
   const L = useL();
+  const [racing, setRacing] = useState('');
+  /** 🏁 Jonli test o'rniga jamoaviy poyga: o'yin bekor qilinadi, o'sha vaqtga avtomatik jamoali poyga rejalashtiriladi
+      (e'lonlar, bildirishnomalar va «Bugungi rejalar» poygani ko'rsatadi; vaqti kelganda o'zi boshlanadi). */
+  const toRace = async (g: LiveAdminView['games'][number]) => {
+    if (
+      !window.confirm(
+        L(
+          `${khHM(g.start)} dagi jonli test bekor qilinib, o‘rniga jamoaviy poyga qo‘yilsinmi?\n\nPoyga o‘sha vaqtda o‘zi boshlanadi; kirganlar 2–5 kishilik jamoalarga avtomatik bo‘linadi.`,
+          `Cancel the ${khHM(g.start)} live quiz and put a team race instead?\n\nThe race starts by itself at that time; players are split into teams of 2–5.`,
+          `Отменить живой тест в ${khHM(g.start)} и поставить командную гонку?\n\nГонка начнётся сама; игроки делятся на команды по 2–5.`,
+        ),
+      )
+    )
+      return;
+    setRacing(g.d);
+    try {
+      const r = await request('/api/race', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ op: 'replaceLive', d: g.d }),
+      });
+      const v = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(v.error || 'Xatolik');
+      await reload();
+      toast(
+        '🏁 ' +
+          L(
+            `Jonli test o‘rniga jamoaviy poyga qo‘yildi (${khHM(g.start)})`,
+            `A team race replaces the live quiz (${khHM(g.start)})`,
+            `Вместо живого теста — командная гонка (${khHM(g.start)})`,
+          ),
+      );
+    } catch (e) {
+      toast((e as Error).message);
+    } finally {
+      setRacing('');
+    }
+  };
   const [cfg, setCfg] = useState(data.cfg);
   const counts = useMemo(() => {
     const c: Record<string, number> = {};
@@ -360,6 +398,16 @@ function Plan({ data, busy, act }: Props) {
                         ⏰ {L('Vaqtini o‘zgartirish', 'Change time', 'Изменить время')}
                       </Button>
                     ))}
+                  {g.type === 'quiz' && g.state !== 'live' && (
+                    <Button
+                      size="sm"
+                      className="bo-live-race"
+                      disabled={!!racing}
+                      onClick={() => void toRace(g)}
+                    >
+                      🏁 {L('Poyga bilan almashtirish', 'Replace with a race', 'Заменить гонкой')}
+                    </Button>
+                  )}
                   <Button
                     size="sm"
                     variant="outline"

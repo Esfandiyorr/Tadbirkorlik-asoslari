@@ -521,3 +521,116 @@
     animation: none;
   }
 }
+
+/* avtomatik jamoalar, rejalashtirilgan boshlanish, ko'p jamoa */
+.race-timer.is-soon {
+  background: #16a34a;
+}
+.race-track.is-many {
+  gap: 4px;
+}
+.race-track.is-many .race-road {
+  height: 46px;
+}
+.race-track.is-many .race-car-pos {
+  top: 4px;
+  width: 70px;
+}
+.race-track.is-many .race-car {
+  width: 70px;
+  height: 34px;
+}
+.race-track.is-many .race-lane-label {
+  font-size: 0.74rem;
+  padding-bottom: 1px;
+}
+.race-road-empty {
+  display: grid;
+  place-items: center;
+  height: 70px;
+  color: #e5e7eb;
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-align: center;
+  padding: 0 28px 0 12px;
+}
+.race-auto {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  margin: 12px 0 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+.race-auto input {
+  margin-top: 3px;
+  width: 18px;
+  height: 18px;
+  accent-color: #16a34a;
+}
+.race-join-btn {
+  width: 100%;
+  min-height: 52px;
+  font-size: 1.05rem;
+}
+.race-plan {
+  margin: 0 0 10px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: #dcfce7;
+  color: #166534 !important;
+  font-weight: 600;
+}
+.race-joined {
+  margin-top: 14px;
+  border: 1px solid var(--race-line);
+  border-radius: 16px;
+  padding: 10px 12px;
+}
+.race-joined h3 {
+  margin: 0 0 8px;
+  font-size: 0.95rem;
+  display: flex;
+  justify-content: space-between;
+}
+.race-joined h3 span {
+  color: var(--race-muted);
+}
+.race-joined ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-height: 220px;
+  overflow: auto;
+}
+.race-joined li {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--race-bg);
+  border: 1px solid var(--race-line);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+.race-joined li.is-me {
+  border-color: #16a34a;
+  background: #dcfce7;
+  color: #166534;
+}
+.race-myteam {
+  color: var(--team);
+  border: 1px solid var(--team);
+  border-radius: 999px;
+  padding: 2px 9px;
+  font-size: 0.78rem;
+}
+@media (max-width: 640px) {
+  .race-q-head {
+    flex-wrap: wrap;
+  }
+}
+.race-road.race-road-empty {
+  background: #374151;
+}

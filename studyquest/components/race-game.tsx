@@ -1,14 +1,16 @@
 'use client';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useApp } from './provider';
-import type { RaceView, Team } from '@/lib/server/race';
+import type { RaceView, TeamStat } from '@/lib/server/race';
 
-/* 🏁 Jamoaviy poyga sahifasi (/poyga). Tepada ikki mashina: har biri o'z jamoasi faol a'zolarining o'rtacha
-   bali bilan marraga qarab yuradi. Talaba ismini yozib jamoani tanlaydi, o'qituvchi «Boshlash»ni bosgach
-   savollar chiqadi: to'g'ri va tez javob — ko'proq ball. O'qituvchi/administrator boshqaruv tugmalarini ko'radi.
-   O'yinchi kaliti (pid) brauzerda saqlanadi: sahifa yangilansa ham o'yin davom etadi. */
+/* 🏁 Jamoaviy poyga sahifasi (/poyga). Tepada har jamoaning mashinasi: faol a'zolarining o'rtacha bali bilan marraga
+   qarab yuradi. Avtomatik o'yinda talaba faqat ismini yozadi — poyga boshlanganda server hammani 2–5 kishilik
+   jamoalarga bo'ladi; «o'zlari tanlaydi» o'yinida ikki jamoadan birini tanlaydi. O'qituvchi «Boshlash»ni bosadi yoki
+   rejalashtirilgan poyga (jonli test o'rnida) vaqti kelganda o'zi boshlanadi. Savollar chiqadi: to'g'ri va tez
+   javob — ko'proq ball. O'qituvchi/administrator boshqaruv tugmalarini ko'radi. O'yinchi kaliti (pid) brauzerda
+   saqlanadi: sahifa yangilansa ham o'yin davom etadi. */
 
-type Saved = { gid?: string; pid?: string; name?: string; team?: Team };
+type Saved = { gid?: string; pid?: string; name?: string };
 type Feedback = {
   qi: number;
   choice: number;
@@ -18,7 +20,8 @@ type Feedback = {
   right: number;
   explain: string;
 };
-type Shown = NonNullable<NonNullable<RaceView['me']>['question']>;
+type Me = NonNullable<Extract<RaceView, { id: string }>['me']>;
+type Shown = NonNullable<Me['question']>;
 
 const KEY = 'sq-race';
 const read = (): Saved => {
@@ -35,9 +38,25 @@ const write = (s: Saved) => {
 };
 const mmss = (ms: number) => {
   const s = Math.max(0, Math.ceil(ms / 1000));
-  return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  return (
+    (h ? h + ':' + String(m).padStart(2, '0') : String(m)) + ':' + String(s % 60).padStart(2, '0')
+  );
 };
+const hm = (t: number) =>
+  new Intl.DateTimeFormat('ru-RU', {
+    timeZone: 'Asia/Tashkent',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(t);
 const LETTERS = ['A', 'B', 'C', 'D', 'E', 'F'];
+/** «o'zlari tanlaydi» o'yinining ikki jamoasi (server: teamInfo('a'|'b')) */
+const PICK = [
+  { key: 'a', name: 'Yashil jamoa', color: '#16a34a' },
+  { key: 'b', name: 'Binafsha jamoa', color: '#7c3aed' },
+];
+const meOf = (v: RaceView | null) => (v && 'me' in v ? v.me : undefined);
 
 function Car({ color, moving }: { color: string; moving: boolean }) {
   return (
@@ -63,33 +82,52 @@ function Car({ color, moving }: { color: string; moving: boolean }) {
   );
 }
 
-function Track({ view, myTeam }: { view: RaceView; myTeam?: Team }) {
-  const teams = view.teams;
+function Track({ view, myTeam }: { view: RaceView; myTeam?: string }) {
   const running = view.status === 'run';
+  const winner = 'winner' in view ? view.winner : undefined;
+  // avtomatik o'yinda jamoalar boshlanganda tuziladi — ungacha bo'sh yo'l
+  const lanes: TeamStat[] = view.teams.length
+    ? view.teams
+    : view.auto
+      ? []
+      : PICK.map((p) => ({ ...p, members: [], active: 0, avg: 0, progress: 0 }));
+  if (!lanes.length)
+    return (
+      <section className="race-track is-empty" aria-label="Poyga yo‘li">
+        <div className="race-road race-road-empty">
+          <i className="race-finish" />
+          <span>🏁 Jamoalar poyga boshlanganda avtomatik tuziladi — har jamoada 2–5 kishi</span>
+        </div>
+      </section>
+    );
   return (
-    <section className="race-track" aria-label="Poyga yo‘li">
-      {(['a', 'b'] as Team[]).map((t) => {
-        const s = teams?.[t];
-        const p = s?.progress || 0;
-        const win = view.status === 'done' && view.winner === t;
+    <section
+      className={'race-track' + (lanes.length > 4 ? ' is-many' : '')}
+      aria-label="Poyga yo‘li"
+    >
+      {lanes.map((s) => {
+        const p = s.progress || 0;
+        const win = view.status === 'done' && winner === s.key;
         return (
           <div
-            key={t}
-            className={'race-lane' + (myTeam === t ? ' is-mine' : '') + (win ? ' is-winner' : '')}
-            style={{ ['--team' as string]: s?.color || (t === 'a' ? '#16a34a' : '#7c3aed') }}
+            key={s.key}
+            className={
+              'race-lane' + (myTeam === s.key ? ' is-mine' : '') + (win ? ' is-winner' : '')
+            }
+            style={{ ['--team' as string]: s.color }}
           >
             <div className="race-lane-label">
-              <b>{s?.name || (t === 'a' ? 'Yashil jamoa' : 'Binafsha jamoa')}</b>
+              <b>{s.name}</b>
               <span>
-                {s ? `${s.avg} / ${view.target} ball` : '—'} · {s?.members.length || 0} kishi
-                {myTeam === t && <em className="race-here"> · siz shu yerdasiz</em>}
+                {s.avg} / {view.target} ball · {s.members.length} kishi
+                {myTeam === s.key && <em className="race-here"> · siz shu yerdasiz</em>}
               </span>
             </div>
             <div className="race-road">
               <i className="race-start" />
               <i className="race-finish" />
               <div className="race-car-pos" style={{ left: `calc((100% - 84px) * ${p / 100})` }}>
-                <Car color={s?.color || '#999'} moving={running && p < 100} />
+                <Car color={s.color} moving={running && p < 100} />
                 {win && <em className="race-cup">🏆</em>}
               </div>
             </div>
@@ -109,6 +147,7 @@ export function RaceGame() {
   const [name, setName] = useState('');
   const [err, setErr] = useState('');
   const [busy, setBusy] = useState(false);
+  const [autoTeams, setAutoTeams] = useState(true);
   const [feedback, setFeedback] = useState<Feedback | null>(null);
   /** javobdan keyin bir lahza eski savol (rangli) ko'rinib turadi */
   const [held, setHeld] = useState<Shown | null>(null);
@@ -127,9 +166,8 @@ export function RaceGame() {
       offset.current = v.now - Date.now();
       setView(v);
       const s = savedRef.current;
-      // o'qituvchi yangi o'yin ochgan bo'lsa eski o'yinchi kaliti endi yaroqsiz (ism va jamoa esda qoladi)
-      if (s.pid && v.status !== 'none' && 'id' in v && v.id !== s.gid)
-        remember({ name: s.name, team: s.team });
+      // o'qituvchi yangi o'yin ochgan bo'lsa eski o'yinchi kaliti endi yaroqsiz (ism esda qoladi)
+      if (s.pid && 'id' in v && v.id !== s.gid) remember({ name: s.name });
     },
     [remember],
   );
@@ -154,6 +192,7 @@ export function RaceGame() {
 
   // holatni so'rab turish: poyga ketayotganda tez-tez, kutish va natijada siyrakroq
   const status = view?.status;
+  const plan = view && 'plan' in view ? view.plan : undefined;
   useEffect(() => {
     let stop = false,
       timer: ReturnType<typeof setTimeout>;
@@ -161,19 +200,21 @@ export function RaceGame() {
       await load();
       if (stop) return;
       const hidden = typeof document !== 'undefined' && document.hidden;
-      timer = setTimeout(loop, hidden ? 6000 : status === 'run' ? 1500 : 2500);
+      // rejalashtirilgan boshlanishga yaqin — tezroq (poyga o'z vaqtida ochilsin)
+      const soon = status === 'lobby' && plan && plan - (Date.now() + offset.current) < 15000;
+      timer = setTimeout(loop, hidden ? 6000 : status === 'run' || soon ? 1500 : 2500);
     };
     loop();
     return () => {
       stop = true;
       clearTimeout(timer);
     };
-  }, [load, status, saved.pid]);
+  }, [load, status, plan, saved.pid]);
   useEffect(() => {
-    if (status !== 'run') return;
+    if (status !== 'run' && !(status === 'lobby' && plan)) return;
     const t = setInterval(() => tick((x) => x + 1), 500);
     return () => clearInterval(t);
-  }, [status]);
+  }, [status, plan]);
   useEffect(() => () => void (holdTimer.current && clearTimeout(holdTimer.current)), []);
 
   const post = async (body: object, asHost = false) => {
@@ -188,7 +229,7 @@ export function RaceGame() {
     return v;
   };
 
-  const join = async (team: Team) => {
+  const join = async (team?: string) => {
     const n = name.replace(/\s+/g, ' ').trim();
     if (n.length < 2) {
       setErr('Avval ismingizni yozing (kamida 2 harf).');
@@ -201,10 +242,10 @@ export function RaceGame() {
       const v = await post({
         op: 'join',
         name: n,
-        team,
+        ...(team ? { team } : {}),
         ...(s.pid && view && 'id' in view && s.gid === view.id ? { pid: s.pid } : {}),
       });
-      remember({ gid: v.view.id, pid: v.pid, name: n, team });
+      remember({ gid: v.view.id, pid: v.pid, name: n });
       accept(v.view);
     } catch (e) {
       setErr(e instanceof Error ? e.message : 'Xatolik');
@@ -249,7 +290,7 @@ export function RaceGame() {
     setBusy(true);
     setErr('');
     try {
-      const v = await post({ op }, true);
+      const v = await post(op === 'new' ? { op, auto: autoTeams } : { op }, true);
       accept(v.view);
     } catch (e) {
       setErr(e instanceof Error ? e.message : 'Xatolik');
@@ -259,11 +300,15 @@ export function RaceGame() {
   };
 
   const now = Date.now() + offset.current;
-  const me = view && 'me' in view ? view.me : undefined;
-  const teams = view?.teams;
-  const left = view?.status === 'run' && view.ends ? view.ends - now : 0;
+  const me = meOf(view);
+  const teams = view?.teams || [];
+  const auto = view?.auto ?? true;
+  const joined = view?.joined || [];
+  const left = view?.status === 'run' && 'ends' in view && view.ends ? view.ends - now : 0;
+  const toStart = view?.status === 'lobby' && plan ? plan - now : 0;
   const q = held || me?.question;
   const link = typeof location !== 'undefined' ? location.origin + '/poyga' : '/poyga';
+  const myTeam = me?.t || undefined;
 
   let body: React.ReactNode;
   if (!view) body = <p className="race-wait">Yuklanmoqda…</p>;
@@ -284,6 +329,17 @@ export function RaceGame() {
             Havolani nusxalash
           </button>
         </div>
+        <label className="race-auto">
+          <input
+            type="checkbox"
+            checked={autoTeams}
+            onChange={(e) => setAutoTeams(e.target.checked)}
+          />
+          <span>
+            Jamoalarga avtomatik bo‘lish (har jamoada 2–5 kishi; o‘chirilsa — talabalar 2 jamoadan
+            birini o‘zi tanlaydi)
+          </span>
+        </label>
         <div className="race-host-actions">
           <button className="race-btn" disabled={busy} onClick={() => hostOp('new')}>
             Yangi o‘yin
@@ -293,7 +349,7 @@ export function RaceGame() {
             disabled={busy || view.status !== 'lobby'}
             onClick={() => hostOp('start')}
           >
-            Boshlash
+            {plan ? 'Hozir boshlash' : 'Boshlash'}
           </button>
           <button
             className="race-btn stop"
@@ -305,25 +361,46 @@ export function RaceGame() {
         </div>
         <p className="race-note">
           {view.status === 'none'
-            ? '«Yangi o‘yin»ni bosing — talabalar havola orqali kirib jamoasini tanlaydi.'
+            ? '«Yangi o‘yin»ni bosing — talabalar havola orqali kiradi.'
             : view.status === 'lobby'
-              ? `Kutish xonasi: ${(teams?.a.members.length || 0) + (teams?.b.members.length || 0)} kishi qo‘shildi. Hamma kirgach «Boshlash»ni bosing.`
+              ? `Kutish xonasi: ${joined.length} kishi qo‘shildi. ` +
+                (plan
+                  ? `Poyga ${hm(plan)} da o‘zi boshlanadi (jonli test o‘rnida).`
+                  : 'Hamma kirgach «Boshlash»ni bosing.') +
+                (auto ? ' Boshlanganda jamoalarga avtomatik bo‘linadi.' : '')
               : view.status === 'run'
-                ? `Poyga ketyapti · ${view.total} ta savol · marra — o‘rtacha ${view.target} ball.`
-                : 'Poyga tugadi. Yana o‘ynash uchun «Yangi o‘yin»ni bosing.'}
+                ? `Poyga ketyapti · ${teams.length} ta jamoa · ${view.total} ta savol · marra — o‘rtacha ${view.target} ball.`
+                : 'empty' in view && view.empty
+                  ? 'Poygaga hech kim qo‘shilmadi. Yana o‘ynash uchun «Yangi o‘yin»ni bosing.'
+                  : 'Poyga tugadi. Yana o‘ynash uchun «Yangi o‘yin»ni bosing.'}
         </p>
-        <Teams view={view} />
+        {view.status === 'lobby' && auto ? <Joined list={joined} /> : <Teams view={view} />}
       </div>
     );
   } else if (view.status === 'done') {
-    body = <Finish view={view} me={me} />;
+    body =
+      'empty' in view && view.empty ? (
+        <div className="race-card race-lobby">
+          <h2>Poyga bo‘lmadi</h2>
+          <p>Hech kim qo‘shilmadi. Keyingi poygani o‘qituvchi ochadi — sahifa o‘zi yangilanadi.</p>
+        </div>
+      ) : (
+        <Finish view={view} me={me} />
+      );
   } else if (!me) {
     body = (
       <div className="race-card race-join">
         <h2>Poygaga qo‘shiling</h2>
         <p>
-          Ismingizni yozing va jamoangizni tanlang. Eng tez va to‘g‘ri javob bergan jamoa yutadi!
+          {auto
+            ? 'Ismingizni yozib qo‘shiling. Poyga boshlanganda hamma 2–5 kishilik jamoalarga avtomatik bo‘linadi. Eng tez va to‘g‘ri javob bergan jamoa yutadi!'
+            : 'Ismingizni yozing va jamoangizni tanlang. Eng tez va to‘g‘ri javob bergan jamoa yutadi!'}
         </p>
+        {plan && view.status === 'lobby' && (
+          <p className="race-plan">
+            ⏰ Poyga <b>{hm(plan)}</b> da o‘zi boshlanadi
+          </p>
+        )}
         <label className="race-field">
           <span>Ismingiz</span>
           <input
@@ -334,34 +411,54 @@ export function RaceGame() {
             autoComplete="name"
           />
         </label>
-        <div className="race-team-pick">
-          {(['a', 'b'] as Team[]).map((t) => (
-            <button
-              key={t}
-              className="race-team-btn"
-              style={{
-                ['--team' as string]: teams?.[t].color || (t === 'a' ? '#16a34a' : '#7c3aed'),
-              }}
-              disabled={busy}
-              onClick={() => join(t)}
-            >
-              <Car color={teams?.[t].color || (t === 'a' ? '#16a34a' : '#7c3aed')} moving={false} />
-              <b>{teams?.[t].name || (t === 'a' ? 'Yashil jamoa' : 'Binafsha jamoa')}</b>
-              <span>{teams?.[t].members.length || 0} kishi</span>
-            </button>
-          ))}
-        </div>
+        {auto ? (
+          <button className="race-btn go race-join-btn" disabled={busy} onClick={() => join()}>
+            🏁 Poygaga qo‘shilish
+          </button>
+        ) : (
+          <div className="race-team-pick">
+            {PICK.map((t) => (
+              <button
+                key={t.key}
+                className="race-team-btn"
+                style={{ ['--team' as string]: t.color }}
+                disabled={busy}
+                onClick={() => join(t.key)}
+              >
+                <Car color={t.color} moving={false} />
+                <b>{t.name}</b>
+                <span>{teams.find((x) => x.key === t.key)?.members.length || 0} kishi</span>
+              </button>
+            ))}
+          </div>
+        )}
         {view.status === 'run' && (
           <p className="race-note">Poyga boshlangan — qo‘shilsangiz darhol savollar chiqadi.</p>
         )}
       </div>
     );
   } else if (view.status === 'lobby' || view.status === 'none') {
-    const other: Team = me.t === 'a' ? 'b' : 'a';
-    body = (
+    body = auto ? (
+      <div className="race-card race-lobby">
+        <h2>✅ Siz ro‘yxatdasiz, {me.n}!</h2>
+        <p>
+          {plan
+            ? `Poyga ${hm(plan)} da o‘zi boshlanadi. `
+            : 'O‘qituvchi poygani boshlashini kuting. '}
+          Boshlanganda jamoangiz avtomatik tuziladi va savollar shu yerda chiqadi.
+        </p>
+        <ul className="race-rules">
+          <li>Har jamoada 2–5 kishi, jamoalar soni qo‘shilganlar soniga qarab.</li>
+          <li>Savollar 1–10-mavzulardan, aralash tartibda.</li>
+          <li>To‘g‘ri javob — 4 dan 10 gacha ball: qancha tez bo‘lsa, shuncha ko‘p.</li>
+          <li>Jamoa mashinasi a’zolarining o‘rtacha bali bilan yuradi.</li>
+        </ul>
+        <Joined list={joined} />
+      </div>
+    ) : (
       <div className="race-card race-lobby">
         <h2>
-          Siz <span style={{ color: teams?.[me.t].color }}>{teams?.[me.t].name}</span>dasiz
+          Siz <span style={{ color: me.team?.color }}>{me.team?.name}</span>dasiz
         </h2>
         <p>O‘qituvchi poygani boshlashini kuting. Savollar shu yerda o‘zi chiqadi.</p>
         <ul className="race-rules">
@@ -369,9 +466,16 @@ export function RaceGame() {
           <li>To‘g‘ri javob — 4 dan 10 gacha ball: qancha tez bo‘lsa, shuncha ko‘p.</li>
           <li>Jamoa mashinasi a’zolarining o‘rtacha bali bilan yuradi.</li>
         </ul>
-        <button className="race-btn ghost" disabled={busy} onClick={() => join(other)}>
-          {teams?.[other].name}ga o‘tish
-        </button>
+        {PICK.filter((t) => t.key !== me.t).map((t) => (
+          <button
+            key={t.key}
+            className="race-btn ghost"
+            disabled={busy}
+            onClick={() => join(t.key)}
+          >
+            {t.name}ga o‘tish
+          </button>
+        ))}
         <Teams view={view} />
       </div>
     );
@@ -384,6 +488,11 @@ export function RaceGame() {
           <span>
             {q.qi + 1} / {view.total}
           </span>
+          {me.team && (
+            <span className="race-myteam" style={{ ['--team' as string]: me.team.color }}>
+              {me.team.name}
+            </span>
+          )}
           <span className="race-mine">{me.p} ball</span>
         </div>
         <h2>{q.q}</h2>
@@ -430,12 +539,17 @@ export function RaceGame() {
     <div className="race-page">
       <header className="race-top">
         <a href="/" className="race-brand" aria-label="Unistay bosh sahifasi">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/unistay-logo.svg" alt="" width={28} height={28} />
           <span>Unistay</span>
         </a>
         <h1>Jamoaviy poyga</h1>
         {view?.status === 'run' ? (
           <span className={'race-timer' + (left < 30000 ? ' is-low' : '')}>⏱ {mmss(left)}</span>
+        ) : toStart > 0 ? (
+          <span className="race-timer is-soon" title="Boshlanishiga">
+            ⏰ {mmss(toStart)}
+          </span>
         ) : (
           <span className="race-timer is-idle">
             {view?.status === 'lobby'
@@ -446,7 +560,7 @@ export function RaceGame() {
           </span>
         )}
       </header>
-      {view && <Track view={view} myTeam={me?.t} />}
+      {view && <Track view={view} myTeam={myTeam} />}
       {err && (
         <p className="race-err" role="alert">
           {err}
@@ -457,19 +571,44 @@ export function RaceGame() {
   );
 }
 
+function Joined({ list }: { list: { n: string; me?: true }[] }) {
+  return (
+    <div className="race-joined">
+      <h3>
+        Qo‘shilganlar <span>{list.length}</span>
+      </h3>
+      {list.length ? (
+        <ol>
+          {list.slice(0, 120).map((m, i) => (
+            <li key={i} className={m.me ? 'is-me' : ''}>
+              {m.n}
+            </li>
+          ))}
+        </ol>
+      ) : (
+        <p className="race-note race-empty">Hali hech kim yo‘q</p>
+      )}
+    </div>
+  );
+}
+
 function Teams({ view }: { view: RaceView }) {
-  const teams = view.teams;
-  if (!teams) return null;
+  const teams = view.teams.length
+    ? view.teams
+    : view.auto
+      ? []
+      : PICK.map((p) => ({ ...p, members: [], active: 0, avg: 0, progress: 0 }));
+  if (!teams.length) return null;
   return (
     <div className="race-teams">
-      {(['a', 'b'] as Team[]).map((t) => (
-        <div key={t} className="race-team-list" style={{ ['--team' as string]: teams[t].color }}>
+      {teams.map((t) => (
+        <div key={t.key} className="race-team-list" style={{ ['--team' as string]: t.color }}>
           <h3>
-            {teams[t].name} <span>{teams[t].members.length}</span>
+            {t.name} <span>{t.members.length}</span>
           </h3>
-          {teams[t].members.length ? (
+          {t.members.length ? (
             <ol>
-              {teams[t].members.slice(0, 40).map((m, i) => (
+              {t.members.slice(0, 40).map((m, i) => (
                 <li key={i} className={m.me ? 'is-me' : ''}>
                   <span>{m.n}</span>
                   {view.status !== 'lobby' && <b>{m.p}</b>}
@@ -485,51 +624,50 @@ function Teams({ view }: { view: RaceView }) {
   );
 }
 
-function Finish({ view, me }: { view: RaceView; me?: RaceView['me'] }) {
-  const teams = view.teams!;
-  const w = view.winner;
+function Finish({ view, me }: { view: RaceView; me?: Me }) {
+  const teams = view.teams;
+  const w = 'winner' in view ? view.winner : undefined;
+  const win = teams.find((t) => t.key === w);
   return (
     <div className="race-card race-finish-card">
       <div className="race-cupbig" aria-hidden>
         🏆
       </div>
       <h2>
-        {w === 'tie' || !w ? (
-          'Durang! Ikkala jamoa teng keldi'
+        {!win ? (
+          'Durang! Jamoalar teng keldi'
         ) : (
           <>
-            <span style={{ color: teams[w].color }}>{teams[w].name}</span> yutdi!
+            <span style={{ color: win.color }}>{win.name}</span> yutdi!
           </>
         )}
       </h2>
       {me && (
         <p>
           Sizning natijangiz: <b>{me.p} ball</b> · {me.r} ta to‘g‘ri javob
-          {w && w !== 'tie'
-            ? me.t === w
-              ? ' — jamoangiz g‘olib!'
-              : ' — keyingi safar albatta!'
-            : ''}
+          {win ? (me.t === win.key ? ' — jamoangiz g‘olib!' : ' — keyingi safar albatta!') : ''}
         </p>
       )}
       <div className="race-teams">
-        {(['a', 'b'] as Team[]).map((t) => (
-          <div key={t} className="race-team-list" style={{ ['--team' as string]: teams[t].color }}>
-            <h3>
-              {teams[t].name} <span>{teams[t].avg} o‘rtacha</span>
-            </h3>
-            <ol>
-              {teams[t].members.slice(0, 5).map((m, i) => (
-                <li key={i} className={m.me ? 'is-me' : ''}>
-                  <span>
-                    {['🥇', '🥈', '🥉'][i] || i + 1 + '.'} {m.n}
-                  </span>
-                  <b>{m.p}</b>
-                </li>
-              ))}
-            </ol>
-          </div>
-        ))}
+        {[...teams]
+          .sort((x, y) => y.avg - x.avg)
+          .map((t) => (
+            <div key={t.key} className="race-team-list" style={{ ['--team' as string]: t.color }}>
+              <h3>
+                {t.name} <span>{t.avg} o‘rtacha</span>
+              </h3>
+              <ol>
+                {t.members.slice(0, 5).map((m, i) => (
+                  <li key={i} className={m.me ? 'is-me' : ''}>
+                    <span>
+                      {['🥇', '🥈', '🥉'][i] || i + 1 + '.'} {m.n}
+                    </span>
+                    <b>{m.p}</b>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          ))}
       </div>
       <p className="race-note">Yangi poygani o‘qituvchi ochadi — sahifa o‘zi yangilanadi.</p>
     </div>

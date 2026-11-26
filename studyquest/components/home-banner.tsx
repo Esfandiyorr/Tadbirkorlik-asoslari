@@ -1,5 +1,5 @@
 'use client';
-import { CalendarClock, ClipboardCheck, Keyboard, Radio } from 'lucide-react';
+import { CalendarClock, ClipboardCheck, Flag, Keyboard, Radio } from 'lucide-react';
 import { useApp } from './provider';
 import { HeroAvatar, type AcademicBoard } from './avatars';
 import { canJoinLive, gameName, gamePath, useNews, type LiveGame } from './announcements';
@@ -14,7 +14,9 @@ import type { Data, Lang, Lesson } from '@/lib/types';
 
 const TZ = 18000000; // Toshkent: UTC+5
 const navigate = (view: string) => {
-  location.hash = view;
+  // 🏁 poyga — alohida sahifa (/poyga)
+  if (view.startsWith('/')) location.href = view;
+  else location.hash = view;
 };
 const dayOf = (t: number) => new Date(t + TZ).toISOString().slice(0, 10);
 const clock = (t: number) => {
@@ -49,7 +51,7 @@ export function todayLabel(lang: Lang, now = Date.now()) {
 export type Plan = {
   key: string;
   at: number;
-  kind: 'topic' | 'quiz' | 'yz';
+  kind: 'topic' | 'quiz' | 'yz' | 'race';
   title: string;
   /** «23:59 gacha» yoki «15:00 da» */
   when: string;
@@ -104,7 +106,7 @@ export function todayPlans(
   return plans.sort((x, y) => x.at - y.at);
 }
 
-const PLAN_ICON = { topic: ClipboardCheck, quiz: Radio, yz: Keyboard } as const;
+const PLAN_ICON = { topic: ClipboardCheck, quiz: Radio, yz: Keyboard, race: Flag } as const;
 
 export function HomeBanner({
   name,

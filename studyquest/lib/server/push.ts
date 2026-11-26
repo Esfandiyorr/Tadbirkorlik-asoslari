@@ -591,6 +591,13 @@ export const LIVE_ANNOUNCE_MS = 14 * 3600000;
 const hm = (ms: number) => new Date(ms + 18000000).toISOString().slice(11, 16);
 const tDay = (ms: number) => new Date(ms + 18000000).toISOString().slice(0, 10);
 export function liveReminderText(g: LiveGame): PushPayload {
+  if (g.type === 'race')
+    return {
+      t: '🏁 Jamoaviy poyga ' + hm(g.start) + ' da boshlanadi',
+      b: 'Bugungi jonli test o‘rniga — jamoaviy poyga! Havolani oching va ismingizni yozing: jamoalarga avtomatik bo‘linasiz (2–5 kishidan). Savollar 1–10-mavzulardan.',
+      u: '/poyga',
+      g: 'sq-live',
+    };
   const yz = g.type === 'yz';
   return {
     t: (yz ? '⌨️ Yozuv marafoni ' : '⚡ Jonli test ') + hm(g.start) + ' da boshlanadi',
@@ -607,6 +614,21 @@ export function liveReminderText(g: LiveGame): PushPayload {
 }
 export function liveAnnounceText(g: LiveGame, now: number, remindMin = 0): PushPayload {
   const yz = g.type === 'yz';
+  const day0 =
+    tDay(g.start) === tDay(now)
+      ? 'Bugun'
+      : tDay(g.start) === tDay(now + 86400000)
+        ? 'Ertaga'
+        : tDay(g.start).slice(8, 10) + '.' + tDay(g.start).slice(5, 7) + ' kuni';
+  if (g.type === 'race')
+    return {
+      t: '🏁 ' + day0 + ' ' + hm(g.start) + ' da jamoaviy poyga',
+      b:
+        'Jonli test o‘rniga — jamoaviy poyga: kirganlar avtomatik jamoalarga bo‘linadi (2–5 kishidan), eng tez va to‘g‘ri javob bergan jamoa yutadi.' +
+        (remindMin ? ' Boshlanishidan ' + remindMin + ' daqiqa oldin yana eslatamiz.' : ''),
+      u: '/poyga',
+      g: 'sq-live-new',
+    };
   const day =
     tDay(g.start) === tDay(now)
       ? 'Bugun'

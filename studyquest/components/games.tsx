@@ -517,9 +517,9 @@ export function Games({ sub = '' }: { sub?: string }) {
           <b>🏁 {L('Jamoaviy poyga', 'Team race', 'Командная гонка')}</b>
           <span>
             {L(
-              'Ikki jamoa — ikki mashina: 1–10-mavzulardan aralash savollar, tez va to‘g‘ri javob bergan jamoaning mashinasi marraga birinchi yetadi. O‘qituvchi «Yangi o‘yin» va «Boshlash»ni bosadi, talabalar havola bilan qo‘shiladi.',
-              'Two teams, two cars: mixed questions from topics 1–10; the team that answers fast and right reaches the finish first. The teacher presses “New game” and “Start”, students join by link.',
-              'Две команды — две машины: вопросы по темам 1–10; команда, отвечающая быстрее и верно, первой приходит к финишу. Преподаватель нажимает «Новая игра» и «Старт», студенты входят по ссылке.',
+              'Har jamoaga bitta mashina: kirganlar 2–5 kishilik jamoalarga avtomatik bo‘linadi, savollar 1–10-mavzulardan. Tez va to‘g‘ri javob bergan jamoaning mashinasi marraga birinchi yetadi.',
+              'One car per team: players are split into teams of 2–5 automatically, questions come from topics 1–10. The team that answers fast and right reaches the finish first.',
+              'Одна машина на команду: игроки автоматически делятся на команды по 2–5, вопросы по темам 1–10. Команда, отвечающая быстро и верно, первой приходит к финишу.',
             )}
           </span>
           <span className="arena-feature-go">

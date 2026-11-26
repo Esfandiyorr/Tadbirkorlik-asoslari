@@ -34,7 +34,8 @@ export type LiveGame = {
   open: number;
   start: number;
   end: number;
-  type: 'quiz' | 'yz';
+  /** race — 🏁 jamoaviy poyga (jonli test o'rnida, /poyga) */
+  type: 'quiz' | 'yz' | 'race';
   nq?: number;
   qsec?: number;
   note?: string;
@@ -46,7 +47,9 @@ export const GATE_MS = 20 * 60000;
 /** E'lonlar oynalari (1- va 2-oyna) shuncha vaqtda almashadi. */
 export const ROTATE_MS = 10000;
 const navigate = (view: string) => {
-  location.hash = view;
+  // 🏁 poyga — alohida sahifa (/poyga), qolganlari — sayt ichidagi bo'lim (#…)
+  if (view.startsWith('/')) location.href = view;
+  else location.hash = view;
 };
 
 // Bitta umumiy holat: yon menyudagi oyna va jonli test oynasi bitta so'rovdan foydalanadi.
@@ -144,11 +147,17 @@ export function left(ms: number, lang: Lang) {
 export function liveState(g: LiveGame, now: number) {
   return now < g.open ? 'wait' : now < g.start ? 'lobby' : 'live';
 }
-export const gamePath = (g: LiveGame) => 'arena/play/' + (g.type === 'yz' ? 'yozuv' : 'live');
+export const gamePath = (g: LiveGame) =>
+  g.type === 'race' ? '/poyga' : 'arena/play/' + (g.type === 'yz' ? 'yozuv' : 'live');
+/** Havola: poyga — /poyga, qolganlari — #arena/… */
+export const gameHref = (g: LiveGame) => (g.type === 'race' ? '/poyga' : '#' + gamePath(g));
+export const gameIcon = (g: LiveGame) => (g.type === 'yz' ? '⌨️' : g.type === 'race' ? '🏁' : '⚡');
 export const gameName = (g: LiveGame, lang: Lang) =>
   g.type === 'yz'
     ? tr(lang, 'Yozuv marafoni', 'Typing race', 'Марафон печати')
-    : tr(lang, 'Jonli test', 'Live quiz', 'Живой тест');
+    : g.type === 'race'
+      ? tr(lang, 'Jamoaviy poyga', 'Team race', 'Командная гонка')
+      : tr(lang, 'Jonli test', 'Live quiz', 'Живой тест');
 
 type Slide = { key: string; node: React.ReactNode };
 
@@ -572,7 +581,7 @@ function NewsList({
         {g && (
           <article className={'news-list-item is-live' + (isNew(liveNewsId(g)) ? ' is-new' : '')}>
             <h3>
-              {g.type === 'yz' ? '⌨️' : '⚡'} {gameName(g, lang)} · {when(g.start, lang, now)}
+              {gameIcon(g)} {gameName(g, lang)} · {when(g.start, lang, now)}
             </h3>
             <p>
               {st === 'live'
@@ -582,7 +591,7 @@ function NewsList({
                   : L('Boshlanishiga', 'Starts in', 'До старта') + ' ' + left(g.start - now, lang)}
             </p>
             {st !== 'wait' && (
-              <a className="news-reader-cta" href={'#' + gamePath(g)} onClick={onClose}>
+              <a className="news-reader-cta" href={gameHref(g)} onClick={onClose}>
                 🎮 {L('O‘yinga kirish', 'Join the game', 'Войти в игру')}
               </a>
             )}
@@ -663,6 +672,7 @@ const localSeen = (): string[] => {
 export function canJoinLive(u: { role: string; learnerType?: string } | undefined, g: LiveGame) {
   if (u?.role === 'teacher') return true;
   if (u?.role !== 'student') return false;
+  // 🏁 poyga va jonli test — hamma talabaga; Yozuv marafoni — faqat guruh talabalariga
   return g.type !== 'yz' || u.learnerType !== 'independent';
 }
 
@@ -778,7 +788,8 @@ export function NewsPopup() {
     const g = item.live,
       n = now(),
       st = liveState(g, n),
-      yz = g.type === 'yz';
+      yz = g.type === 'yz',
+      race = g.type === 'race';
     const go = () => {
       void markRead(item.id);
       navigate(gamePath(g));
@@ -797,7 +808,9 @@ export function NewsPopup() {
               <i className="news-ping" aria-hidden="true" />
               {yz
                 ? '⌨️ ' + L('YOZUV MARAFONI', 'TYPING RACE', 'МАРАФОН ПЕЧАТИ')
-                : '⚡ ' + L('JONLI TEST', 'LIVE QUIZ', 'ЖИВОЙ ТЕСТ')}
+                : race
+                  ? '🏁 ' + L('JAMOAVIY POYGA', 'TEAM RACE', 'КОМАНДНАЯ ГОНКА')
+                  : '⚡ ' + L('JONLI TEST', 'LIVE QUIZ', 'ЖИВОЙ ТЕСТ')}
               {queue.length > 1 && <em>1 / {queue.length}</em>}
             </span>
             <button
@@ -811,7 +824,7 @@ export function NewsPopup() {
             </button>
           </header>
           <div className="news-pop-live-ic" aria-hidden="true">
-            {yz ? '⌨️' : '🎮'}
+            {yz ? '⌨️' : race ? '🏁' : '🎮'}
           </div>
           <h2 id="news-pop-h">
             {st === 'live'
@@ -832,7 +845,26 @@ export function NewsPopup() {
                 )}
           </p>
           <ul className="news-pop-facts">
-            {yz ? (
+            {race ? (
+              <>
+                <li>
+                  👥{' '}
+                  {L(
+                    'Jamoalarga avtomatik bo‘linadi: 2–5 kishidan',
+                    'Automatic teams of 2–5',
+                    'Автоматические команды по 2–5',
+                  )}
+                </li>
+                <li>
+                  ❓{' '}
+                  {L(
+                    '1–10-mavzulardan savollar',
+                    'Questions from topics 1–10',
+                    'Вопросы по темам 1–10',
+                  )}
+                </li>
+              </>
+            ) : yz ? (
               <li>🏆 {L('1–3-o‘rinlarga ball', 'Points for places 1–3', 'Баллы за 1–3 места')}</li>
             ) : (
               <>
@@ -1003,14 +1035,23 @@ export function LiveGate() {
   }, []);
   if (!g || !on || (!student && !staff) || hash.startsWith('#arena') || closed === g.d) return null;
   const st = liveState(g, n),
-    yz = g.type === 'yz';
-  const head = yz
+    yz = g.type === 'yz',
+    race = g.type === 'race';
+  const head = race
     ? st === 'live'
-      ? L('Yozuv marafoni ketmoqda!', 'The typing race is on!', 'Марафон печати идёт!')
-      : L('Yozuv marafoni bor!', 'There is a typing race!', 'Скоро марафон печати!')
-    : st === 'live'
-      ? L('Jonli test ketmoqda!', 'The live quiz is on!', 'Живой тест идёт!')
-      : L('Jonli test bor!', 'There is a live quiz!', 'Скоро живой тест!');
+      ? L('Jamoaviy poyga ketmoqda!', 'The team race is on!', 'Командная гонка идёт!')
+      : L(
+          'Bugun jonli test o‘rniga — jamoaviy poyga!',
+          'Today: a team race instead of the live quiz!',
+          'Сегодня вместо живого теста — командная гонка!',
+        )
+    : yz
+      ? st === 'live'
+        ? L('Yozuv marafoni ketmoqda!', 'The typing race is on!', 'Марафон печати идёт!')
+        : L('Yozuv marafoni bor!', 'There is a typing race!', 'Скоро марафон печати!')
+      : st === 'live'
+        ? L('Jonli test ketmoqda!', 'The live quiz is on!', 'Живой тест идёт!')
+        : L('Jonli test bor!', 'There is a live quiz!', 'Скоро живой тест!');
   const sub =
     st === 'wait'
       ? L(
@@ -1043,30 +1084,35 @@ export function LiveGate() {
         <X size={16} />
       </button>
       <div className="kh-pop-ic" aria-hidden="true">
-        {yz ? (st === 'live' ? '🏃' : '⌨️') : st === 'live' ? '🎮' : '⚡'}
+        {race ? '🏁' : yz ? (st === 'live' ? '🏃' : '⌨️') : st === 'live' ? '🎮' : '⚡'}
       </div>
       <div className="kh-pop-body">
         <h2 id="kh-pop-h">{head}</h2>
         <p>{sub}</p>
         <p className="kh-pop-meta">
           {st !== 'live' && <b>⏱ {left(g.start - n, lang)}</b>}
-          {yz
-            ? ' 🏆 ' + L('1–3-o‘rinlarga ball', 'points for places 1–3', 'баллы за 1–3 места')
-            : ' ' +
-              (g.nq || 10) +
-              ' ' +
-              L('ta savol', 'questions', 'вопросов') +
-              ' · 🏆 ' +
-              L('reyting balli', 'rating points', 'баллы рейтинга')}
+          {race
+            ? ' 👥 ' +
+              L('jamoalar avtomatik: 2–5 kishidan', 'automatic teams of 2–5', 'автокоманды по 2–5')
+            : yz
+              ? ' 🏆 ' + L('1–3-o‘rinlarga ball', 'points for places 1–3', 'баллы за 1–3 места')
+              : ' ' +
+                (g.nq || 10) +
+                ' ' +
+                L('ta savol', 'questions', 'вопросов') +
+                ' · 🏆 ' +
+                L('reyting balli', 'rating points', 'баллы рейтинга')}
         </p>
         {g.note && <p className="kh-pop-note">{g.note}</p>}
         <div className="kh-pop-actions">
           <Button size="sm" className="kh-pop-btn" onClick={() => navigate(gamePath(g))}>
             {st === 'live'
               ? '👀 ' + L('O‘yinni ochish', 'Open the game', 'Открыть игру')
-              : yz
-                ? '⌨️ ' + L('Poygaga kirish', 'Enter the race', 'Войти в гонку')
-                : '🎮 ' + L('O‘yinga kirish', 'Enter the game', 'Войти в игру')}
+              : race
+                ? '🏁 ' + L('Poygaga kirish', 'Join the race', 'Войти в гонку')
+                : yz
+                  ? '⌨️ ' + L('Poygaga kirish', 'Enter the race', 'Войти в гонку')
+                  : '🎮 ' + L('O‘yinga kirish', 'Enter the game', 'Войти в игру')}
           </Button>
           <button type="button" className="kh-pop-later" onClick={close}>
             {L('Qatnashmayman', 'Not now', 'Не сейчас')}
