@@ -1897,3 +1897,12 @@
   font-weight: 700;
   font-size: 0.78rem;
 }
+/* 🏁 Arena: «Jamoaviy poyga» kartasi (/poyga) — jamoa ranglari: yashil va binafsha */
+.arena-feature-race {
+  color: #fff;
+  text-decoration: none;
+  background:
+    radial-gradient(circle at 88% 12%, #fde04788, transparent 34%),
+    linear-gradient(120deg, #15803d, #16a34a 35%, #7c3aed);
+  box-shadow: 0 20px 40px -26px #15803d;
+}

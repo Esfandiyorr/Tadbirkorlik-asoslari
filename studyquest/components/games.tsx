@@ -508,6 +508,33 @@ export function Games({ sub = '' }: { sub?: string }) {
         </Button>
       </div>
       {me && <ArenaOnline me={me} />}
+      {/* 🏁 Jamoaviy poyga (/poyga): ikki jamoa, ikki mashina, 1–10-mavzulardan savollar; o'qituvchi boshqaradi */}
+      <a className="arena-feature arena-feature-race" href="/poyga">
+        <span className="arena-feature-text">
+          <span className="arena-feature-new">
+            {L('JAMOAVIY O‘YIN', 'TEAM GAME', 'КОМАНДНАЯ ИГРА')}
+          </span>
+          <b>🏁 {L('Jamoaviy poyga', 'Team race', 'Командная гонка')}</b>
+          <span>
+            {L(
+              'Ikki jamoa — ikki mashina: 1–10-mavzulardan aralash savollar, tez va to‘g‘ri javob bergan jamoaning mashinasi marraga birinchi yetadi. O‘qituvchi «Yangi o‘yin» va «Boshlash»ni bosadi, talabalar havola bilan qo‘shiladi.',
+              'Two teams, two cars: mixed questions from topics 1–10; the team that answers fast and right reaches the finish first. The teacher presses “New game” and “Start”, students join by link.',
+              'Две команды — две машины: вопросы по темам 1–10; команда, отвечающая быстрее и верно, первой приходит к финишу. Преподаватель нажимает «Новая игра» и «Старт», студенты входят по ссылке.',
+            )}
+          </span>
+          <span className="arena-feature-go">
+            ▶ {L('Poygaga kirish', 'Join the race', 'Войти в гонку')}
+          </span>
+        </span>
+        <span className="arena-feature-art" aria-hidden="true">
+          <i>🏎️</i>
+          <i>🚗</i>
+          <i>🏁</i>
+          <i>⚡</i>
+          <i>🏆</i>
+          <i>🧠</i>
+        </span>
+      </a>
       <button className="arena-feature arena-feature-biz" onClick={() => navigate('arena/biznes')}>
         <span className="arena-feature-text">
           <span className="arena-feature-new">{L('YANGI O‘YIN', 'NEW GAME', 'НОВАЯ ИГРА')}</span>

@@ -22,6 +22,10 @@ test('the game page shows every original arena game as its own card', async ({ p
   ])
     expect(names).toContain(name);
   await expect(page.locator('.arena-feature-biz')).toContainText('Biznes');
+  // 🏁 jamoaviy poyga — Arenadan ochiladi (/poyga)
+  const race = page.locator('a.arena-feature-race');
+  await expect(race).toContainText('Jamoaviy poyga');
+  await expect(race).toHaveAttribute('href', '/poyga');
   await expect(page.locator('.arena-feature-brand')).toContainText('Brendni top');
   // Each card opens its own game inside the page.
   await cards.filter({ hasText: 'Krossvord yasash' }).click();
