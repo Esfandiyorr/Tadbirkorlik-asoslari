@@ -1,5 +1,6 @@
 import { failure } from '@/lib/server/http';
 import { recordStaffActivity } from '@/lib/server/staff-activity';
+import { decidePayment, paymentReview } from '@/lib/server/payment-review';
 import { NextRequest, NextResponse, after } from 'next/server';
 import { z } from 'zod';
 import { actor, ApiError, check, sameOrigin, staff, administrator } from '@/lib/server/auth';
@@ -324,6 +325,11 @@ export async function GET(req: NextRequest) {
     }
     if (req.nextUrl.searchParams.get('view') === 'premiumAdmin') {
       return NextResponse.json(await premiumAdmin(await actor(req, true)), {
+        headers: { 'Cache-Control': 'private, no-store' },
+      });
+    }
+    if (req.nextUrl.searchParams.get('view') === 'paymentReview') {
+      return NextResponse.json(await paymentReview(await actor(req)), {
         headers: { 'Cache-Control': 'private, no-store' },
       });
     }
@@ -684,6 +690,13 @@ export async function POST(req: NextRequest) {
     }
     if (p.action === 'premiumAdmin') {
       return NextResponse.json(await managePremium(await actor(req, true), p.input));
+    }
+    if (p.action === 'paymentReview') {
+      const a = await actor(req);
+      await decidePayment(a, p.input);
+      return NextResponse.json(await paymentReview(a), {
+        headers: { 'Cache-Control': 'private, no-store' },
+      });
     }
     if (p.action === 'premiumMark') {
       // 🏅 obunachi ism yonidagi belgisini o'z rasmiga almashtiradi (yoki asl belgiga qaytaradi)

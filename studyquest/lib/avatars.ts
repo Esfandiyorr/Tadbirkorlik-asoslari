@@ -58,4 +58,14 @@ export const AVATAR_ID = /^[a-z][a-z0-9-]{1,39}$/;
 export type AvatarShop = { on: boolean; price: string; days: number; how: string };
 export const AVATAR_SHOP_DEFAULT: AvatarShop = { on: true, price: '', days: 30, how: '' };
 /** «To'lov qildim — avatarni oching» so'rovi. */
-export type AvatarOrder = { uid: string; name: string; group: string; at: number; note?: string };
+export type AvatarOrder = {
+  uid: string;
+  name: string;
+  group: string;
+  at: number;
+  note?: string;
+  id?: string;
+  price?: string;
+  days?: number;
+};
+export const avatarOrderId = (o: AvatarOrder) => o.id || o.at.toString(36);

@@ -1,10 +1,9 @@
 'use client';
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
-import { createPortal } from 'react-dom';
-import { Crown, X } from 'lucide-react';
+import { Crown } from 'lucide-react';
 import { useApp } from '../provider';
 import { Button } from '../ui/button';
-import { Receipts } from '../receipt';
+import { ReceiptPreviewButton, Receipts } from '../receipt';
 import { servicesAct } from '../service-files';
 import { PREMIUM_TERMS, formatSum, termText } from '@/lib/services';
 import { TERM_CHOICES, planName } from '@/lib/premium-plans';
@@ -22,57 +21,6 @@ const date = (t: number, time = false) =>
     year: 'numeric',
     ...(time ? { hour: '2-digit', minute: '2-digit' } : {}),
   }).format(t);
-
-/** 🧾 Chek rasmi (faqat administrator) — bosilganda katta oynada. */
-function ReceiptButton({ uid, id }: { uid: string; id: string }) {
-  const L = useL();
-  const { request, toast } = useApp();
-  const [url, setUrl] = useState('');
-  useEffect(() => () => void (url && URL.revokeObjectURL(url)), [url]);
-  useEffect(() => {
-    if (!url) return;
-    const key = (e: KeyboardEvent) => e.key === 'Escape' && setUrl('');
-    window.addEventListener('keydown', key);
-    return () => window.removeEventListener('keydown', key);
-  }, [url]);
-  const open = async () => {
-    try {
-      const r = await request('/api/premium?receipt=' + encodeURIComponent(uid) + '/' + id);
-      if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || 'Chek topilmadi.');
-      setUrl(URL.createObjectURL(await r.blob()));
-    } catch (e) {
-      toast((e as Error).message);
-    }
-  };
-  return (
-    <>
-      <button type="button" className="pa-chip is-link" onClick={() => void open()}>
-        🧾 {L('Chekni ko‘rish', 'View receipt', 'Посмотреть чек')}
-      </button>
-      {url &&
-        createPortal(
-          <div
-            className="modal-backdrop"
-            onClick={(e) => e.target === e.currentTarget && setUrl('')}
-          >
-            <section className="panel pa-receipt" role="dialog" aria-modal="true">
-              <button
-                type="button"
-                className="av-close"
-                aria-label={L('Yopish', 'Close', 'Закрыть')}
-                onClick={() => setUrl('')}
-              >
-                <X size={20} />
-              </button>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={url} alt={L('To‘lov cheki', 'Payment receipt', 'Чек оплаты')} />
-            </section>
-          </div>,
-          document.body,
-        )}
-    </>
-  );
-}
 
 export function PremiumAdmin() {
   const L = useL();
@@ -188,13 +136,18 @@ export function PremiumAdmin() {
   };
   /** 🧾 eski tartib: «Pullik xizmatlar» buyurtmasi orqali kelgan chekni qabul qilish yoki qilmaslik */
   const decide = async (
-    o: { uk: string; id: string },
+    o: { uk: string; id: string; paidAt?: number },
     input: Record<string, unknown>,
     done: string,
   ) => {
     setDoing(o.id);
     try {
-      await servicesAct(request, 'admin', { ...input, uk: o.uk, id: o.id });
+      await servicesAct(request, 'admin', {
+        ...input,
+        uk: o.uk,
+        id: o.id,
+        expectedPaidAt: o.paidAt,
+      });
       await load();
       toast(done);
     } catch (e) {
@@ -277,7 +230,11 @@ export function PremiumAdmin() {
                         🕒 {L('To‘lov vaqti', 'Paid at', 'Оплата')}: {date(c.paidAt, true)}
                       </em>
                     )}
-                    {c.receipt && <ReceiptButton uid={c.uid} id={c.id} />}
+                    {c.receipt && (
+                      <ReceiptPreviewButton
+                        src={'/api/premium?receipt=' + encodeURIComponent(c.uid + '/' + c.id)}
+                      />
+                    )}
                     <em className="pa-chip is-muted">
                       {L('Yuborgan', 'Sent', 'Отправлено')}: {date(c.at, true)}
                     </em>

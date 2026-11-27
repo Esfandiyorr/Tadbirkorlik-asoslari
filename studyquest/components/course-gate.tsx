@@ -1,22 +1,164 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { CreditCard, GraduationCap, Hand, Lock } from 'lucide-react';
+import { CreditCard, GraduationCap, Hand, Lock, ReceiptText } from 'lucide-react';
 import { useApp } from './provider';
 import { Button } from './ui/button';
 import { navigate } from './dashboard';
+import { ReceiptPick } from './receipt';
 import { dueText, tr } from '@/lib/points';
 import { isPlayApp } from '@/lib/play-app';
-import type { CourseShop } from '@/lib/course-access';
+import {
+  COURSE_RECEIPT_MAX,
+  MAIN_COURSE_ID,
+  type CourseEntry,
+  type CourseShop,
+} from '@/lib/course-access';
+import { formatSum, priceAmount } from '@/lib/services';
 
-function CoursePrice({ shop }: { shop?: CourseShop }) {
+function useCoursePayments() {
   const [show, setShow] = useState(false);
   useEffect(() => setShow(!isPlayApp()), []);
-  if (!show || (!shop?.price && !shop?.how)) return null;
+  return show;
+}
+
+function CoursePrice({ shop }: { shop?: CourseShop }) {
+  if (!shop?.price && !shop?.how) return null;
+  const amount = priceAmount(shop.price);
   return (
     <div className="paid-gate-price">
-      {shop.price && <b>{shop.price}</b>}
+      {shop.price && <b>{amount === undefined ? shop.price : formatSum(amount)}</b>}
       {shop.how && <p>{shop.how}</p>}
     </div>
+  );
+}
+
+function CourseCheckout({ course, entry }: { course: string; entry?: CourseEntry }) {
+  const { lang, request, refresh, toast } = useApp();
+  const L = (uz: string, en: string, ru: string) => tr(lang, uz, en, ru);
+  const [open, setOpen] = useState(false);
+  const [receipt, setReceipt] = useState<Blob | null>(null);
+  const [note, setNote] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+
+  async function send() {
+    if (!receipt || busy) return;
+    if (receipt.size > COURSE_RECEIPT_MAX) {
+      setError(
+        L(
+          'Chek rasmi 1 MB gacha bo‘lsin.',
+          'Choose a receipt up to 1 MB.',
+          'Загрузите чек размером до 1 МБ.',
+        ),
+      );
+      return;
+    }
+    setBusy(true);
+    setError('');
+    try {
+      const form = new FormData();
+      form.set('course', course);
+      form.set('receipt', receipt, 'chek');
+      form.set('note', note);
+      const r = await request('/api/course-payment', { method: 'POST', body: form });
+      const result = await r.json();
+      if (!r.ok) throw new Error(result.error || 'Xatolik');
+      if (result.receiptSubmitted)
+        toast(
+          L(
+            'Chek tekshiruvga yuborildi.',
+            'Receipt submitted for review.',
+            'Чек отправлен на проверку.',
+          ),
+        );
+      setOpen(false);
+      setReceipt(null);
+      setNote('');
+      await refresh();
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  if (entry?.receiptSubmitted)
+    return (
+      <div className="course-gate-pending">
+        <span role="status">
+          {L(
+            'Chek yuborildi. Administrator to‘lovni tasdiqlagach, darslar ochiladi.',
+            'Receipt submitted. Lessons open after the administrator confirms the payment.',
+            'Чек отправлен. Уроки откроются после подтверждения оплаты администратором.',
+          )}
+        </span>
+        <Button size="sm" variant="outline" onClick={() => void refresh()}>
+          {L('Holatni tekshirish', 'Check status', 'Проверить статус')}
+        </Button>
+      </div>
+    );
+
+  if (!open)
+    return (
+      <>
+        {entry?.receiptRejected && (
+          <p role="status">
+            {L(
+              'Chek qabul qilinmadi. To‘lov ma’lumotlarini tekshirib, chekni qayta yuborishingiz mumkin.',
+              'The receipt was not accepted. Check the payment details and resubmit the receipt.',
+              'Чек не принят. Проверьте данные оплаты и отправьте чек снова.',
+            )}
+          </p>
+        )}
+        <div className="course-gate-actions">
+          <Button onClick={() => setOpen(true)}>
+            <ReceiptText size={16} /> {L('To‘lov qildim', 'I paid', 'Я оплатил')}
+          </Button>
+        </div>
+      </>
+    );
+
+  return (
+    <form
+      className="course-gate-ask"
+      onSubmit={(e) => {
+        e.preventDefault();
+        void send();
+      }}
+    >
+      <ReceiptPick
+        value={receipt}
+        accept="image/png,image/jpeg,image/webp"
+        onChange={(value) => {
+          setReceipt(value);
+          setError('');
+        }}
+      />
+      <label>
+        {L('Izoh (ixtiyoriy)', 'Note (optional)', 'Комментарий (необязательно)')}
+        <input
+          className="input"
+          maxLength={300}
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
+        />
+      </label>
+      {error && (
+        <p className="form-error" role="alert">
+          {error}
+        </p>
+      )}
+      <div className="course-gate-actions">
+        <Button type="submit" disabled={!receipt || busy}>
+          {busy
+            ? L('Yuborilmoqda…', 'Submitting…', 'Отправляем…')
+            : L('Chekni yuborish', 'Submit receipt', 'Отправить чек')}
+        </Button>
+        <Button type="button" variant="ghost" disabled={busy} onClick={() => setOpen(false)}>
+          {L('Orqaga', 'Back', 'Назад')}
+        </Button>
+      </div>
+    </form>
   );
 }
 
@@ -28,7 +170,8 @@ export function useCourseLocked() {
 export function CourseGate({ compact }: { compact?: boolean }) {
   const { data, lang } = useApp();
   const locked = useCourseLocked();
-  if (locked) return <CourseGateCard compact={compact} />;
+  const showPayments = useCoursePayments();
+  if (locked) return <CourseGateCard compact={compact} showPayments={showPayments} />;
   if (data?.user || compact) return null;
   return (
     <section className="panel course-gate">
@@ -45,20 +188,22 @@ export function CourseGate({ compact }: { compact?: boolean }) {
             'Войдите, чтобы открыть уроки или запросить доступ.',
           )}
         </p>
-        <CoursePrice shop={data?.courseShop} />
+        {showPayments && <CoursePrice shop={data?.courseShop} />}
         <Button onClick={() => navigate('login')}>{tr(lang, 'Kirish', 'Sign in', 'Войти')}</Button>
       </div>
     </section>
   );
 }
 
-function CourseGateCard({ compact }: { compact?: boolean }) {
+function CourseGateCard({ compact, showPayments }: { compact?: boolean; showPayments: boolean }) {
   const { data, lang, request, toast, logout, refresh } = useApp();
   const L = (uz: string, en: string, ru: string) => tr(lang, uz, en, ru);
   const [note, setNote] = useState('');
   const [asking, setAsking] = useState(false);
   const [busy, setBusy] = useState(false);
-  const pending = data?.course?.pending;
+  const entry = data?.course;
+  const pending = entry?.pending;
+  const pay = showPayments && !!(data?.courseShop?.price || data?.courseShop?.how);
   async function act(op: 'request' | 'cancel') {
     setBusy(true);
     try {
@@ -103,8 +248,10 @@ function CourseGateCard({ compact }: { compact?: boolean }) {
                 'Для доступа нужно разрешение',
               )}
         </h2>
-        <CoursePrice shop={data?.courseShop} />
-        {pending ? (
+        {showPayments && <CoursePrice shop={data?.courseShop} />}
+        {pay || entry?.receiptSubmitted ? (
+          <CourseCheckout course={MAIN_COURSE_ID} entry={entry} />
+        ) : pending ? (
           <div className="course-gate-pending" role="status">
             <span>
               {L(
@@ -179,9 +326,7 @@ function CourseGateCard({ compact }: { compact?: boolean }) {
   );
 }
 
-/* 💳 Pullik kurs (masalan, restoran kursi): kurs hammaga ko'rinadi, darslarini faqat administrator va u ruxsat bergan
-   qatnashchilar ochadi. Bu oynada — narx va to'lov yo'riqnomasi (Play Market ilovasida ko'rsatilmaydi), «qatnashish
-   uchun so'rov» (administrator «Sayt boshqaruvi → 🔑 Kursga ruxsat»da kurs tanlab ko'radi) va mehmonga «Kirish». */
+/* Pullik kurslar darslari administrator tasdiqlaganidan keyin ochiladi. */
 
 /** Pullik kurs foydalanuvchi uchun yopiqmi (pullik bo'lmasa yoki ruxsat bo'lsa — false). */
 export function usePaidLocked(courseId?: string) {
@@ -205,10 +350,10 @@ function PaidCourseCard({ courseId, compact }: { courseId: string; compact?: boo
   const [pending, setPending] = useState<number | null>(state?.pending || null),
     [note, setNote] = useState(''),
     [asking, setAsking] = useState(false),
-    [busy, setBusy] = useState(false),
-    [play, setPlay] = useState(false);
+    [busy, setBusy] = useState(false);
+  const showPayments = useCoursePayments();
+  const pay = showPayments && !!(state?.price || state?.how);
   useEffect(() => setPending(state?.pending || null), [state?.pending]);
-  useEffect(() => setPlay(isPlayApp()), []);
   async function act(op: 'request' | 'cancel') {
     setBusy(true);
     try {
@@ -264,12 +409,12 @@ function PaidCourseCard({ courseId, compact }: { courseId: string; compact?: boo
         </h2>
         <p>
           {L(
-            `«${course?.title || ''}» darslariga faqat administrator ruxsat bergan qatnashchilar kiradi. Qatnashish uchun to‘lov qiling yoki so‘rov yuboring.`,
-            `Only participants approved by the administrator can open the lessons of “${course?.title || ''}”. Pay or send a request to join.`,
-            `Уроки курса «${course?.title || ''}» открыты только участникам, которых одобрил администратор. Оплатите или отправьте запрос.`,
+            `«${course?.title || ''}» darslariga faqat administrator tasdiqlagan qatnashchilar kiradi.`,
+            `Only participants approved by the administrator can open the lessons of “${course?.title || ''}”.`,
+            `Уроки курса «${course?.title || ''}» открыты только участникам, которых одобрил администратор.`,
           )}
         </p>
-        <CoursePrice shop={state} />
+        {showPayments && <CoursePrice shop={state} />}
         {!signedIn ? (
           <div className="course-gate-actions">
             <Button onClick={() => navigate('login')}>
@@ -280,6 +425,8 @@ function PaidCourseCard({ courseId, compact }: { courseId: string; compact?: boo
               )}
             </Button>
           </div>
+        ) : pay || state?.receiptSubmitted ? (
+          <CourseCheckout key={courseId} course={courseId} entry={state} />
         ) : pending ? (
           <div className="course-gate-pending" role="status">
             <span>
@@ -330,7 +477,7 @@ function PaidCourseCard({ courseId, compact }: { courseId: string; compact?: boo
               <Hand size={16} />{' '}
               {L('Qatnashish uchun so‘rov', 'Request to join', 'Запрос на участие')}
             </Button>
-            {!play && (
+            {showPayments && (
               <Button variant="outline" onClick={() => navigate('chat/admin')}>
                 {L(
                   'Administratorga yozish',

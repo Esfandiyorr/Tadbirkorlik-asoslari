@@ -394,6 +394,16 @@ export const formatSum = (n: number) =>
     .toString()
     .replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' so‘m';
 
+/** Narx matni aniq so‘m summasi bo‘lsa, saralash uchun songa aylantiradi. */
+export function priceAmount(price?: string): number | undefined {
+  const match = price
+    ?.trim()
+    .match(/^(\d+|\d{1,3}(?:[ \u00a0\u202f]+\d{3})+)(?:\s*(?:so['‘’ʻʼ]?m|uzs|сум))?$/iu);
+  if (!match) return;
+  const amount = Number(match[1].replace(/\s/g, ''));
+  if (Number.isSafeInteger(amount)) return amount;
+}
+
 /* ---------- 📎 fayllar ---------- */
 /** Vercel bitta so'rovda 4,5 MB dan ortiq qabul qilmaydi — fayl 2,5 MB lik bo'laklarga bo'linib yuklanadi va
     yuklab olishda brauzerda qayta yig'iladi. */

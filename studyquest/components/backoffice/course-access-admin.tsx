@@ -6,7 +6,8 @@ import { Button } from '../ui/button';
 import { dueText } from '@/lib/points';
 import { useAdminView, useL } from './common';
 import type { CourseAccessAdminView } from '@/lib/server/course-access';
-import { MAIN_COURSE_ID } from '@/lib/course-access';
+import { courseReceiptUrl, MAIN_COURSE_ID } from '@/lib/course-access';
+import { ReceiptPreviewButton } from '../receipt';
 
 export function CourseAccessAdmin() {
   const L = useL();
@@ -17,6 +18,13 @@ export function CourseAccessAdmin() {
   const current = courses.find((c) => c.id === course) || courses[0];
   return (
     <>
+      <div className="bo-actions">
+        <Button size="sm" variant="outline" asChild>
+          <a href="#admin/payments">
+            {L('To‘lovlar bo‘limini ochish', 'Open payments', 'Открыть платежи')}
+          </a>
+        </Button>
+      </div>
       {courses.length > 1 && (
         <div className="bo-course-tabs" role="tablist" aria-label={L('Kurs', 'Course', 'Курс')}>
           {courses.map((c) => (
@@ -97,6 +105,9 @@ function MainCourseAccess() {
                   {[r.email, dueText(r.at, lang, now).date].filter(Boolean).join(' · ')}
                 </small>
                 {r.note && <small className="bo-note">💬 {r.note}</small>}
+                {r.payment && (
+                  <ReceiptPreviewButton src={courseReceiptUrl(data.course, r.uid, r.payment.id)} />
+                )}
               </div>
               <span className="bo-row-btns">
                 <Button
@@ -105,7 +116,7 @@ function MainCourseAccess() {
                   aria-label={L('Ruxsat berish', 'Grant access', 'Разрешить') + ': ' + r.name}
                   onClick={() =>
                     void act(
-                      { op: 'approve', uid: r.uid },
+                      { op: 'approve', uid: r.uid, paymentId: r.payment?.id ?? null },
                       'ap' + r.uid,
                       '✅ ' + L('Ruxsat berildi', 'Access granted', 'Доступ выдан'),
                     ).catch(() => {})
@@ -120,7 +131,7 @@ function MainCourseAccess() {
                   aria-label={L('Rad etish', 'Decline', 'Отклонить') + ': ' + r.name}
                   onClick={() =>
                     void act(
-                      { op: 'reject', uid: r.uid },
+                      { op: 'reject', uid: r.uid, paymentId: r.payment?.id ?? null },
                       'rj' + r.uid,
                       L('So‘rov rad etildi', 'Request declined', 'Запрос отклонён'),
                     ).catch(() => {})
@@ -304,9 +315,9 @@ function CourseShopForm({
           value={shop.how}
           onChange={(e) => setShop({ ...shop, how: e.target.value })}
           placeholder={L(
-            'Masalan: Click yoki Payme orqali … kartaga o‘tkazing, so‘ng ruxsat so‘rovida chek raqamini yozing.',
-            'E.g. pay by Click or Payme to card …, then add the receipt number to your access request.',
-            'Например: переведите через Click или Payme на карту …, затем укажите номер чека в запросе на доступ.',
+            'Masalan: Click yoki Payme orqali … kartaga o‘tkazing, so‘ng kurs sahifasida chekni yuklang.',
+            'E.g. pay by Click or Payme to card …, then upload the receipt on the course page.',
+            'Например: переведите через Click или Payme на карту …, затем загрузите чек на странице курса.',
           )}
         />
       </label>
@@ -379,6 +390,9 @@ function PaidCourseAccess({ course }: { course: string }) {
                   {[r.email, dueText(r.at, lang, now).date].filter(Boolean).join(' · ')}
                 </small>
                 {r.note && <small className="bo-note">💬 {r.note}</small>}
+                {r.payment && (
+                  <ReceiptPreviewButton src={courseReceiptUrl(data.course, r.uid, r.payment.id)} />
+                )}
               </div>
               <span className="bo-row-btns">
                 <Button
@@ -386,9 +400,11 @@ function PaidCourseAccess({ course }: { course: string }) {
                   disabled={!!busy}
                   aria-label={L('Ruxsat berish', 'Grant access', 'Разрешить') + ': ' + r.name}
                   onClick={() =>
-                    void act({ op: 'approve', uid: r.uid, course }, 'ap' + r.uid, done).catch(
-                      () => {},
-                    )
+                    void act(
+                      { op: 'approve', uid: r.uid, course, paymentId: r.payment?.id ?? null },
+                      'ap' + r.uid,
+                      done,
+                    ).catch(() => {})
                   }
                 >
                   <Check size={14} /> {L('Ruxsat', 'Allow', 'Разрешить')}
@@ -400,7 +416,7 @@ function PaidCourseAccess({ course }: { course: string }) {
                   aria-label={L('Rad etish', 'Decline', 'Отклонить') + ': ' + r.name}
                   onClick={() =>
                     void act(
-                      { op: 'reject', uid: r.uid, course },
+                      { op: 'reject', uid: r.uid, course, paymentId: r.payment?.id ?? null },
                       'rj' + r.uid,
                       L('So‘rov rad etildi', 'Request declined', 'Запрос отклонён'),
                     ).catch(() => {})

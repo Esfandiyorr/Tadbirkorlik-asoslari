@@ -6,6 +6,8 @@ export type CourseEntry = {
   via?: CourseVia;
   /** «ruxsat so'rash» yuborilgan vaqt (administrator hali ko'rmagan) */
   pending?: number | null;
+  receiptSubmitted?: true;
+  receiptRejected?: true;
   /** 🎓 «Talabaman» deb guruhi bilan yozilgan bo'lsa — guruh (o'qituvchi tasdiqlashini kutmoqda) */
   group?: string;
 };
@@ -26,6 +28,7 @@ export type CourseRequest = {
   group?: string;
   at: number;
   note?: string;
+  payment?: { id: string; price: string };
 };
 /** 💳 Pullik kurs: narx va to'lov yo'riqnomasi (administrator «🔑 Kursga ruxsat» bo'limida yozadi). */
 export type CourseShop = { price: string; how: string };
@@ -33,3 +36,6 @@ export type CourseShop = { price: string; how: string };
 export type PaidCourseState = CourseEntry & CourseShop;
 /** Asosiy fan («Tadbirkorlik asoslari») — kursga ruxsat bo'limidagi birinchi yorliq. */
 export const MAIN_COURSE_ID = 'tad-asoslari';
+export const COURSE_RECEIPT_MAX = 1024 * 1024;
+export const courseReceiptUrl = (course: string, uid: string, id: string) =>
+  '/api/course-payment?' + new URLSearchParams({ course, uid, id });

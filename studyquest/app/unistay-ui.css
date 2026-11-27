@@ -1791,6 +1791,16 @@
   margin: 0 auto;
   border-radius: 12px;
 }
+.receipt-preview {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  padding-top: 44px;
+  max-height: 94vh;
+}
+.receipt-preview::backdrop {
+  background: rgb(10 8 24 / 72%);
+}
 @media (max-width: 640px) {
   .pa-stats {
     grid-template-columns: 1fr;

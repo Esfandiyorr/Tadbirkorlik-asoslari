@@ -31,6 +31,7 @@ export type Grant = {
   at: number;
   by: string;
   hist?: PremiumTerm[];
+  servicePayments?: Record<string, true>;
   /** joriy (uzluksiz) obuna boshlangan vaqt — «muddatni o'zgartirish» shundan hisoblanadi */
   since?: number;
 };
@@ -350,6 +351,20 @@ const claimView = (c: Claim) => ({
   ...(c.by ? { by: c.by } : {}),
 });
 export type PremiumClaimView = ReturnType<typeof claimView>;
+
+function paymentClaims(raw: PremiumRecords['premiumClaims'] | null) {
+  return Object.values(raw || {})
+    .flatMap((m) => Object.values(m || {}))
+    .filter((c) => c?.id && c.uid)
+    .map(claimView)
+    .sort((x, y) => y.at - x.at);
+}
+
+export async function listPremiumPayments(a: Actor) {
+  administrator(a);
+  return paymentClaims(await siteGet<PremiumRecords['premiumClaims']>('premiumClaims'));
+}
+
 /** Administrator: yangi (tekshirilmagan) obunalar, obunachilar (boshlanishi, tugashi, to'lovlar tarixi bilan),
     yopilganlar va «Pullik xizmatlar» orqali kelgan eski cheklar. */
 export async function premiumAdmin(a: Actor, now = Date.now()) {
@@ -362,11 +377,7 @@ export async function premiumAdmin(a: Actor, now = Date.now()) {
     siteGet<Record<string, Record<string, Claim>>>('premiumClaims'),
     siteGet<Record<string, Block>>('premiumBlock'),
   ]);
-  const claims = Object.values(claimsRaw || {})
-    .flatMap((m) => Object.values(m || {}))
-    .filter((c) => c?.id && c.uid)
-    .map(claimView)
-    .sort((x, y) => y.at - x.at);
+  const claims = paymentClaims(claimsRaw);
   const lastClaim = new Map<string, PremiumClaimView>();
   for (const c of claims) if (!lastClaim.has(c.uid)) lastClaim.set(c.uid, c);
   const grants = Object.entries(raw || {})
@@ -460,6 +471,68 @@ const input = z.discriminatedUnion('op', [
     })
     .strict(),
 ]);
+/** Chek bo‘yicha qaror va obuna muddati bir tranzaksiyada saqlanadi. */
+export async function reviewPremiumClaim(
+  a: Actor,
+  p: Extract<z.infer<typeof input>, { op: 'verify' | 'reject' }>,
+  now = Date.now(),
+) {
+  administrator(a);
+  const by = (a.name || a.id).slice(0, 60);
+  const key = keyOf(p.uid);
+  check(/^[a-z0-9]{6,30}$/.test(p.id), 400, 'To‘lov topilmadi.');
+  // Qaror va obuna bir tranzaksiyada saqlanadi, hatto ikki admin bir vaqtda bossa ham.
+  let problem = 404;
+  await siteTransaction<PremiumRecords>('', (site) => {
+    const claims = site?.premiumClaims?.[key];
+    const c = claims?.[p.id];
+    problem = c?.uid !== p.uid ? 404 : c.status !== 'new' ? 409 : 0;
+    if (!site || !claims || !c || problem) return site;
+    if (p.op === 'verify' && site.premiumBlock?.[key]?.at) {
+      problem = 403;
+      return site;
+    }
+    const grant = approvedGrant(site.premium?.[key] || null, claims);
+    const days = p.op === 'verify' ? (p.days ?? c.days) : c.days;
+    claims[p.id] = {
+      ...c,
+      days,
+      status: p.op === 'verify' ? 'ok' : 'removed',
+      decidedAt: now,
+      by,
+    };
+    if (p.op === 'verify') {
+      (site.premium ??= {})[key] = extendGrant(
+        grant,
+        c.uid,
+        c.name,
+        c.group,
+        days,
+        by,
+        now,
+        c.amount,
+      );
+    } else if (!c.requiresApproval && site.premium) {
+      if (grant) site.premium[key] = grant;
+      else delete site.premium[key];
+    }
+    return site;
+  });
+  check(problem !== 403, 403, 'Avval foydalanuvchini blokdan chiqaring.');
+  check(
+    !problem,
+    problem,
+    problem === 404 ? 'To‘lov topilmadi.' : 'Bu to‘lov allaqachon ko‘rib chiqilgan.',
+  );
+  await notify(
+    (s) => s.uid === p.uid,
+    p.op === 'verify' ? '💎 To‘lov tasdiqlandi' : '💎 To‘lov tasdiqlanmadi',
+    p.op === 'verify'
+      ? 'Premium obunangiz faollashtirildi.'
+      : 'Savol bo‘lsa, «Adminga xabar» orqali yozing.',
+  );
+}
+
 /** Administrator: obuna berish (muddat mavjud obunaga qo'shiladi), tasdiqlash, muddatni o'zgartirish, chiqarib
     tashlash (xohlasa — o'zi qayta obuna bo'la olmasin), blokdan chiqarish, karta va narxlarni saqlash. */
 export async function managePremium(a: Actor, raw: unknown, now = Date.now()) {
@@ -506,58 +579,7 @@ export async function managePremium(a: Actor, raw: unknown, now = Date.now()) {
         'To‘lovingiz topilmadi. Savol bo‘lsa, «Adminga xabar» orqali yozing.',
       );
   } else if (p.op === 'verify' || p.op === 'reject') {
-    const key = keyOf(p.uid);
-    check(/^[a-z0-9]{6,30}$/.test(p.id), 400, 'To‘lov topilmadi.');
-    // Qaror va obuna bir tranzaksiyada saqlanadi, hatto ikki admin bir vaqtda bossa ham.
-    let problem = 404;
-    await siteTransaction<PremiumRecords>('', (site) => {
-      const claims = site?.premiumClaims?.[key];
-      const c = claims?.[p.id];
-      problem = !c ? 404 : c.status !== 'new' ? 409 : 0;
-      if (!site || !claims || !c || problem) return site;
-      if (p.op === 'verify' && site.premiumBlock?.[key]?.at) {
-        problem = 403;
-        return site;
-      }
-      const grant = approvedGrant(site.premium?.[key] || null, claims);
-      const days = p.op === 'verify' ? (p.days ?? c.days) : c.days;
-      claims[p.id] = {
-        ...c,
-        days,
-        status: p.op === 'verify' ? 'ok' : 'removed',
-        decidedAt: now,
-        by,
-      };
-      if (p.op === 'verify') {
-        (site.premium ??= {})[key] = extendGrant(
-          grant,
-          c.uid,
-          c.name,
-          c.group,
-          days,
-          by,
-          now,
-          c.amount,
-        );
-      } else if (!c.requiresApproval && site.premium) {
-        if (grant) site.premium[key] = grant;
-        else delete site.premium[key];
-      }
-      return site;
-    });
-    check(problem !== 403, 403, 'Avval foydalanuvchini blokdan chiqaring.');
-    check(
-      !problem,
-      problem,
-      problem === 404 ? 'To‘lov topilmadi.' : 'Bu to‘lov allaqachon ko‘rib chiqilgan.',
-    );
-    await notify(
-      (s) => s.uid === p.uid,
-      p.op === 'verify' ? '💎 To‘lov tasdiqlandi' : '💎 To‘lov tasdiqlanmadi',
-      p.op === 'verify'
-        ? 'Premium obunangiz faollashtirildi.'
-        : 'Savol bo‘lsa, «Adminga xabar» orqali yozing.',
-    );
+    await reviewPremiumClaim(a, p, now);
   } else if (p.op === 'term') {
     const key = keyOf(p.uid);
     const g = await siteGet<Grant>('premium/' + key);
@@ -592,10 +614,14 @@ export async function grantPremium(
   by: string,
   now = Date.now(),
   amount = 0,
+  serviceOrder?: string,
 ) {
-  return siteTransaction<Grant>('premium/' + keyOf(uid), (cur) =>
-    extendGrant(cur, uid, name, group, days, by, now, amount),
-  );
+  return siteTransaction<Grant>('premium/' + keyOf(uid), (cur) => {
+    if (serviceOrder && cur?.servicePayments?.[serviceOrder] === true) return cur;
+    const next = extendGrant(cur, uid, name, group, days, by, now, amount);
+    if (serviceOrder) next.servicePayments = { ...next.servicePayments, [serviceOrder]: true };
+    return next;
+  });
 }
 
 function extendGrant(
@@ -625,6 +651,7 @@ function extendGrant(
     by: by.slice(0, 60),
     // tarix saqlanadi (muddati tugab, qayta obuna bo'lsa ham)
     hist: [...(cur ? terms(cur) : []), term].slice(-HIST_MAX),
+    ...(cur?.servicePayments ? { servicePayments: cur.servicePayments } : {}),
     // uzluksiz obuna boshlanishi: amaldagi obuna uzaytirilsa — o'zgarmaydi
     since: active && cur ? sinceOf(cur) : now,
   };

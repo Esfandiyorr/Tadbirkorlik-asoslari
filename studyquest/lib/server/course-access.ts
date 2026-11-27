@@ -1,17 +1,19 @@
 import 'server-only';
+import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
 import type { Actor } from '../types';
-import type {
-  CourseEntry,
-  CourseGrant,
-  CourseRequest,
-  CourseShop,
-  PaidCourseState,
+import {
+  COURSE_RECEIPT_MAX,
+  type CourseEntry,
+  type CourseGrant,
+  type CourseRequest,
+  type CourseShop,
+  type PaidCourseState,
 } from '../course-access';
 import { course as mainCourse, extraCourses } from '../seed';
 import { administrator, ApiError, check } from './auth';
 import { authAdmin, demo, repository } from './repository';
-import { siteGet, siteUpdate } from './site-content';
+import { imageType, siteGet, siteTransaction, siteUpdate } from './site-content';
 // Asosiy kurs: tasdiqlangan guruhli hisoblar, xodimlar va administrator ruxsat berganlar.
 export const COURSE_LOCKED =
   'Kurs guruhi biriktirilgan talabalar uchun ochiq. Kirish uchun administratordan ruxsat so‘rang.';
@@ -23,16 +25,11 @@ export function groupedStudent(a: Pick<Actor, 'classId' | 'learnerType'>) {
   return a.learnerType === 'university' && !!group && group !== 'mustaqil';
 }
 
-async function grantOf(a: Pick<Actor, 'id' | 'uid'>, base = 'courseAccess') {
-  const ids = [...new Set([a.id, a.uid].filter(Boolean))];
-  const found = await Promise.all(ids.map((id) => siteGet<CourseGrant>(base + '/' + keyOf(id))));
-  return found.find((g, i) => g?.uid === ids[i] && g.by !== 'student') || null;
-}
-
 /* ---------- 💳 pullik kurslar (masalan, restoran kursi) ----------
    Kurs hammaga ko'rinadi, darslarini faqat ADMINISTRATOR va u ruxsat bergan foydalanuvchilar ochadi (o'qituvchi ham
    ruxsat bilan). Har kursning yozuvlari alohida:
-     site/courseAccess_<kurs>/<foydalanuvchi>   — ruxsat;  site/courseRequests_<kurs>/<foydalanuvchi> — so'rov;
+     site/courseAccess_<kurs>/<foydalanuvchi>   — eski ruxsatlar;
+     site/courseRequests_<kurs>/<foydalanuvchi> — so‘rov, to‘lov tarixi va yangi ruxsat;
      site/courseShop/<kurs> = {price, how}      — narx va to'lov yo'riqnomasi (talabaga ko'rsatiladi). */
 export const MAIN_COURSE = mainCourse.id; // = MAIN_COURSE_ID (lib/course-access.ts)
 export const PAID_LOCKED =
@@ -51,6 +48,73 @@ function where(course?: string) {
     paid: true,
   };
 }
+type CourseTable = ReturnType<typeof where>;
+type CoursePaymentRequest = CourseRequest & { payment: NonNullable<CourseRequest['payment']> };
+type ReviewedCoursePayment = CoursePaymentRequest & {
+  status: 'approved' | 'rejected';
+  decidedAt: number;
+};
+type Admission = {
+  request?: CourseRequest;
+  grant?: CourseGrant;
+  reviews?: Record<string, ReviewedCoursePayment>;
+};
+type StoredAdmission = Admission | CourseRequest;
+
+// Eski so‘rovlar bitta yozuv edi. Yangi yozuvda qaror va ruxsat birga o‘zgaradi.
+function admission(raw?: StoredAdmission | null): Admission {
+  return raw && 'uid' in raw ? { request: raw } : raw || {};
+}
+const admissionPath = (w: CourseTable, uid: string) => w.requests + '/' + keyOf(uid);
+const accepted = (g: CourseGrant | null | undefined, uid: string) =>
+  g?.uid === uid && g.by !== 'student';
+
+const accessCourses = [
+  { id: MAIN_COURSE, title: mainCourse.title, paid: false },
+  ...extraCourses.filter((c) => c.paid).map((c) => ({ id: c.id, title: c.title, paid: true })),
+];
+const receiptPath = (course: string, uid: string, id: string) =>
+  'courseReceipts/' + course + '/' + keyOf(uid) + '/' + id;
+const hasPayment = (r: CourseRequest | undefined | null): r is CoursePaymentRequest =>
+  !!r?.uid && typeof r.at === 'number' && !!r.payment?.id;
+
+function requestEntry(state: Admission, uid: string): CourseEntry {
+  if (accepted(state.grant, uid)) return { ok: true, via: 'grant' };
+  const { request } = state;
+  if (request?.uid !== uid) {
+    const last = Object.values(state.reviews || {}).reduce<ReviewedCoursePayment | null>(
+      (latest, review) => (!latest || review.decidedAt > latest.decidedAt ? review : latest),
+      null,
+    );
+    return {
+      ok: false,
+      pending: null,
+      ...(last?.status === 'rejected' ? { receiptRejected: true } : {}),
+    };
+  }
+  return {
+    ok: false,
+    pending: Number(request.at) || null,
+    ...(request.group ? { group: request.group } : {}),
+    ...(hasPayment(request) ? { receiptSubmitted: true } : {}),
+  };
+}
+
+async function accessEntry(a: Actor, w: CourseTable): Promise<CourseEntry> {
+  const ids = a.uid && a.uid !== a.id ? [a.id, a.uid] : [a.id];
+  const records = await Promise.all(
+    ids.map(async (uid) => {
+      const [legacyGrant, raw] = await Promise.all([
+        siteGet<CourseGrant>(w.grants + '/' + keyOf(uid)),
+        siteGet<StoredAdmission>(admissionPath(w, uid)),
+      ]);
+      return { granted: accepted(legacyGrant, uid), entry: requestEntry(admission(raw), uid) };
+    }),
+  );
+  if (records.some((r) => r.granted || r.entry.ok)) return { ok: true, via: 'grant' };
+  return records[0].entry;
+}
+
 const shopMem = ((
   globalThis as { __sqCourseShop?: Map<string, { v: CourseShop; at: number }> }
 ).__sqCourseShop ??= new Map());
@@ -71,13 +135,7 @@ export async function courseShop(course: string): Promise<CourseShop> {
 /** Foydalanuvchi pullik kursga kira oladimi: administrator — doim; qolganlar — faqat ruxsat bilan. */
 export async function paidEntry(a: Actor, course: string): Promise<CourseEntry> {
   if (a.role === 'admin') return { ok: true, via: 'staff' };
-  const w = where(course);
-  const [grant, request] = await Promise.all([
-    grantOf(a, w.grants),
-    siteGet<CourseRequest>(w.requests + '/' + keyOf(a.id)),
-  ]);
-  if (grant) return { ok: true, via: 'grant' };
-  return { ok: false, pending: request?.uid === a.id ? Number(request.at) || null : null };
+  return accessEntry(a, where(course));
 }
 /** Barcha pullik kurslar bo'yicha holat va narx (mehmonga — faqat narx, «kira olmaydi»). */
 export async function paidView(a?: Actor): Promise<Record<string, PaidCourseState>> {
@@ -107,17 +165,7 @@ export async function requirePaidCourse(a: Actor, course: string) {
 export async function courseEntry(a: Actor): Promise<CourseEntry> {
   if (a.role !== 'student') return { ok: true, via: 'staff' };
   if (groupedStudent(a)) return { ok: true, via: 'student' };
-  const [grant, request] = await Promise.all([
-    grantOf(a),
-    siteGet<CourseRequest>('courseRequests/' + keyOf(a.id)),
-  ]);
-  if (grant) return { ok: true, via: 'grant' };
-  const mine = request?.uid === a.id;
-  return {
-    ok: false,
-    pending: mine ? Number(request!.at) || null : null,
-    ...(mine && request!.group ? { group: request!.group } : {}),
-  };
+  return accessEntry(a, where());
 }
 
 /** Read-only auth includes legacy groups. Other group assignments and staff roles are stored in Firestore. */
@@ -135,6 +183,23 @@ export async function requireCourse(a: Actor): Promise<Actor> {
 }
 
 const MAX_REQUESTS = 1000;
+async function checkRequestSpace(w: CourseTable, key: string) {
+  const all = (await siteGet<Record<string, StoredAdmission>>(w.requests)) || {};
+  check(
+    !!admission(all[key]).request ||
+      Object.values(all).filter((r) => admission(r).request).length < MAX_REQUESTS,
+    429,
+    'So‘rovlar juda ko‘p. Birozdan keyin urinib ko‘ring yoki administratorga yozing.',
+  );
+}
+function requestRecord(a: Actor, at: number): CourseRequest {
+  return {
+    uid: a.id,
+    name: (a.name || 'Foydalanuvchi').slice(0, 120),
+    ...(a.email ? { email: a.email.slice(0, 120) } : {}),
+    at,
+  };
+}
 /** Foydalanuvchi: «Kursga ruxsat so'rash» (administrator «Sayt boshqaruvi → 🔑 Kursga ruxsat»da ko'radi). */
 export async function requestCourseAccess(a: Actor, raw: unknown, now = Date.now()) {
   const v = z
@@ -156,54 +221,138 @@ export async function requestCourseAccess(a: Actor, raw: unknown, now = Date.now
   const w = where(v.course);
   check(!v.group || !w.paid, 400, 'Guruh bilan faqat asosiy kursga yoziladi.');
   const entry = w.paid ? await paidEntry(a, w.course) : await courseEntry(a);
-  if (entry.ok) return entry;
-  const all = (await siteGet<Record<string, unknown>>(w.requests)) || {};
-  check(
-    Object.keys(all).length < MAX_REQUESTS || !!all[keyOf(a.id)],
-    429,
-    'So‘rovlar juda ko‘p. Birozdan keyin urinib ko‘ring yoki administratorga yozing.',
-  );
+  if (entry.ok || entry.receiptSubmitted) return entry;
+  const key = keyOf(a.id);
+  await checkRequestSpace(w, key);
   const rec: CourseRequest = {
-    uid: a.id,
-    name: a.name.slice(0, 120),
-    ...(a.email ? { email: a.email.slice(0, 120) } : {}),
+    ...requestRecord(a, now),
     ...(v.group ? { group: v.group } : {}),
-    at: now,
     ...(v.note ? { note: v.note } : {}),
   };
-  await siteUpdate({ [w.requests + '/' + keyOf(a.id)]: rec });
-  return { ok: false, pending: now, ...(v.group ? { group: v.group } : {}) } satisfies CourseEntry;
+  const saved = await siteTransaction<StoredAdmission>(admissionPath(w, a.id), (raw) => {
+    const current = admission(raw);
+    if (accepted(current.grant, a.id) || hasPayment(current.request)) return current;
+    return { ...current, request: rec };
+  });
+  return requestEntry(admission(saved), a.id);
 }
 export async function cancelCourseRequest(a: Actor, course?: string) {
-  await siteUpdate({ [where(course).requests + '/' + keyOf(a.id)]: null });
-  return { ok: false, pending: null } satisfies CourseEntry;
+  const saved = await siteTransaction<StoredAdmission>(
+    admissionPath(where(course), a.id),
+    (raw) => {
+      const { request, ...state } = admission(raw);
+      if (hasPayment(request)) return { ...state, request };
+      return state.grant || state.reviews ? state : null;
+    },
+  );
+  return requestEntry(admission(saved), a.id);
+}
+
+const coursePaymentInput = z.object({
+  course: z.string().min(1).max(40),
+  note: z.string().trim().max(300),
+});
+/** Chek shaxsiy yo‘lda saqlanadi. So‘rovga faqat chek kaliti va yuborish paytidagi narx yoziladi. */
+export async function submitCoursePayment(
+  a: Actor,
+  raw: unknown,
+  bytes: Buffer,
+  now = Date.now(),
+): Promise<CourseEntry> {
+  const { course, note } = coursePaymentInput.parse(raw);
+  const w = where(course);
+  check(
+    bytes.length > 0 && bytes.length <= COURSE_RECEIPT_MAX,
+    413,
+    'Chek rasmi 1 MB gacha bo‘lsin.',
+  );
+  const type = imageType(bytes);
+  check(type && type !== 'image/gif', 400, 'Chek uchun PNG, JPG yoki WEBP rasm yuklang.');
+  const [shop, entry] = await Promise.all([
+    courseShop(w.course),
+    w.paid ? paidEntry(a, w.course) : courseEntry(a),
+  ]);
+  if (entry.ok || entry.receiptSubmitted) return entry;
+  check(shop.price || shop.how, 409, 'Kurs uchun to‘lov yo‘riqnomasi sozlanmagan.');
+  const key = keyOf(a.id);
+  await checkRequestSpace(w, key);
+  const id = randomUUID().replace(/-/g, '');
+  const receipt = receiptPath(w.course, a.id, id);
+  const rec: CoursePaymentRequest = {
+    ...requestRecord(a, now),
+    ...(note ? { note } : {}),
+    payment: { id, price: shop.price },
+  };
+  await siteUpdate({ [receipt]: { t: type, d: bytes.toString('base64') } });
+  const saved = await siteTransaction<StoredAdmission>(admissionPath(w, a.id), (raw) => {
+    const current = admission(raw);
+    const previous = current.request?.uid === a.id ? current.request : null;
+    if (accepted(current.grant, a.id) || hasPayment(previous)) return current;
+    return {
+      ...current,
+      request: {
+        ...rec,
+        ...(!note && previous?.note ? { note: previous.note } : {}),
+        ...(previous?.group ? { group: previous.group } : {}),
+      },
+    };
+  });
+  const state = admission(saved);
+  if (state.request?.payment?.id !== id) await siteUpdate({ [receipt]: null });
+  return requestEntry(state, a.id);
+}
+
+export async function courseReceipt(a: Actor, course: string, uid: string, id: string) {
+  administrator(a);
+  const w = where(course);
+  check(/^[A-Za-z0-9_-]{1,140}$/.test(uid) && /^[a-f0-9]{32}$/.test(id), 400, 'Chek topilmadi.');
+  const r = await siteGet<{ t: string; d: string }>(receiptPath(w.course, uid, id));
+  check(r?.d && r.t, 404, 'Chek topilmadi.');
+  return { type: r!.t, bytes: Buffer.from(r!.d, 'base64') };
+}
+
+export async function listCoursePayments(a: Actor) {
+  administrator(a);
+  const groups = await Promise.all(
+    accessCourses.map(async ({ id: course, title }) => {
+      const raw = await siteGet<Record<string, StoredAdmission>>(where(course).requests);
+      return Object.values(raw || {}).flatMap((record) => {
+        const { request, reviews } = admission(record);
+        const pending = hasPayment(request) ? [{ ...request, status: 'pending' as const }] : [];
+        const reviewed = Object.values(reviews || {}).filter(hasPayment);
+        return [...pending, ...reviewed].map((r) => ({ ...r, course, title }));
+      });
+    }),
+  );
+  return groups.flat();
 }
 
 /* ---------- 🛠 administrator bo'limi ---------- */
 export async function courseAccessAdmin(a: Actor, course?: string) {
   administrator(a);
   const w = where(course);
-  const [grants, requests, shop] = await Promise.all([
+  const [grants, raw, shop] = await Promise.all([
     siteGet<Record<string, CourseGrant>>(w.grants),
-    siteGet<Record<string, CourseRequest>>(w.requests),
+    siteGet<Record<string, StoredAdmission>>(w.requests),
     courseShop(w.course),
   ]);
+  const allGrants = { ...grants };
+  const requests = Object.entries(raw || {}).map(([key, record]) => {
+    const state = admission(record);
+    if (state.grant) allGrants[key] = state.grant;
+    return state.request;
+  });
   const valid = <T extends { uid?: unknown; at?: unknown }>(x: T | null | undefined): x is T =>
     !!x && typeof x.uid === 'string' && typeof x.at === 'number';
   return {
     course: w.course,
     paid: w.paid,
-    courses: [
-      { id: MAIN_COURSE, title: mainCourse.title, paid: false },
-      ...extraCourses.filter((c) => c.paid).map((c) => ({ id: c.id, title: c.title, paid: true })),
-    ],
+    courses: accessCourses,
     shop,
-    grants: Object.values(grants || {})
+    grants: Object.values(allGrants)
       .filter((g) => valid(g) && g.by !== 'student')
       .sort((x, y) => y.at - x.at),
-    requests: Object.values(requests || {})
-      .filter(valid)
-      .sort((x, y) => x.at - y.at),
+    requests: requests.filter(valid).sort((x, y) => x.at - y.at),
     email: !demo(),
   };
 }
@@ -211,9 +360,14 @@ export type CourseAccessAdminView = Awaited<ReturnType<typeof courseAccessAdmin>
 
 const uid = z.string().min(1).max(140);
 const courseId = z.string().max(40).optional();
+const paymentId = z
+  .string()
+  .regex(/^[a-f0-9]{32}$/)
+  .nullable()
+  .optional();
 const input = z.discriminatedUnion('op', [
-  z.object({ op: z.literal('approve'), uid, course: courseId }).strict(),
-  z.object({ op: z.literal('reject'), uid, course: courseId }).strict(),
+  z.object({ op: z.literal('approve'), uid, course: courseId, paymentId }).strict(),
+  z.object({ op: z.literal('reject'), uid, course: courseId, paymentId }).strict(),
   z.object({ op: z.literal('revoke'), uid, course: courseId }).strict(),
   z
     .object({
@@ -253,6 +407,64 @@ const findDefault: FindUser = async (email) => {
     return null;
   }
 };
+
+/** Qaror, alohida to‘lov tarixi va darsga ruxsat birga saqlanadi. */
+export async function reviewCourseRequest(
+  a: Actor,
+  p: { op: 'approve' | 'reject'; uid: string; course?: string; paymentId?: string | null },
+  now = Date.now(),
+) {
+  administrator(a);
+  const w = where(p.course);
+  let problem = 404;
+  await siteTransaction<StoredAdmission>(admissionPath(w, p.uid), (raw) => {
+    const { request, ...state } = admission(raw);
+    if (request?.uid !== p.uid) {
+      problem = 404;
+      return raw;
+    }
+    if (p.paymentId !== undefined && (request.payment?.id ?? null) !== p.paymentId) {
+      problem = 409;
+      return raw;
+    }
+    problem = 0;
+    if (hasPayment(request)) {
+      state.reviews = {
+        ...state.reviews,
+        [request.payment.id]: {
+          ...request,
+          status: p.op === 'approve' ? 'approved' : 'rejected',
+          decidedAt: now,
+        },
+      };
+    }
+    if (p.op === 'approve')
+      state.grant = {
+        uid: request.uid,
+        name: request.name,
+        ...(request.email ? { email: request.email } : {}),
+        ...(request.group ? { group: request.group } : {}),
+        at: now,
+        by: a.uid,
+      };
+    return state.grant || state.reviews ? state : null;
+  });
+  check(
+    !problem,
+    problem,
+    problem === 409
+      ? 'So‘rov yangilangan. Ro‘yxatni yangilang.'
+      : 'So‘rov topilmadi yoki ko‘rib chiqilgan.',
+  );
+}
+
+async function grantCourseManually(w: CourseTable, grant: CourseGrant) {
+  await siteTransaction<StoredAdmission>(admissionPath(w, grant.uid), (raw) => {
+    const { request, ...state } = admission(raw);
+    return { ...state, grant, ...(hasPayment(request) ? { request } : {}) };
+  });
+}
+
 /** Administrator: so'rovni tasdiqlash/rad etish, email bo'yicha ruxsat berish, ruxsatni olish. */
 export async function manageCourseAccess(
   a: Actor,
@@ -269,19 +481,14 @@ export async function manageCourseAccess(
     return courseAccessAdmin(a, w.course);
   }
   if (p.op === 'revoke') {
-    await siteUpdate({ [w.grants + '/' + keyOf(p.uid)]: null });
+    await siteUpdate({
+      [w.grants + '/' + keyOf(p.uid)]: null,
+      [admissionPath(w, p.uid) + '/grant']: null,
+    });
     return courseAccessAdmin(a, w.course);
   }
   if (p.op === 'grantUser') {
-    await siteUpdate({
-      [w.grants + '/' + keyOf(p.uid)]: {
-        uid: p.uid,
-        name: p.name,
-        at: now,
-        by: a.uid,
-      } satisfies CourseGrant,
-      [w.requests + '/' + keyOf(p.uid)]: null,
-    });
+    await grantCourseManually(w, { uid: p.uid, name: p.name, at: now, by: a.uid });
     return courseAccessAdmin(a, w.course);
   }
   if (p.op === 'grant') {
@@ -292,35 +499,15 @@ export async function manageCourseAccess(
       404,
       'Bu email bilan ro‘yxatdan o‘tgan foydalanuvchi topilmadi. Avval u saytda ro‘yxatdan o‘tsin.',
     );
-    await siteUpdate({
-      [w.grants + '/' + keyOf(u!.uid)]: {
-        uid: u!.uid,
-        name: u!.name.slice(0, 120),
-        email: u!.email.slice(0, 120),
-        at: now,
-        by: a.uid,
-      } satisfies CourseGrant,
-      [w.requests + '/' + keyOf(u!.uid)]: null,
+    await grantCourseManually(w, {
+      uid: u!.uid,
+      name: u!.name.slice(0, 120),
+      email: u!.email.slice(0, 120),
+      at: now,
+      by: a.uid,
     });
     return courseAccessAdmin(a, w.course);
   }
-  const key = keyOf(p.uid);
-  const r = await siteGet<CourseRequest>(w.requests + '/' + key);
-  check(r && r.uid === p.uid, 404, 'So‘rov topilmadi (bekor qilingan bo‘lishi mumkin).');
-  await siteUpdate({
-    [w.requests + '/' + key]: null,
-    ...(p.op === 'approve'
-      ? {
-          [w.grants + '/' + key]: {
-            uid: r!.uid,
-            name: r!.name,
-            ...(r!.email ? { email: r!.email } : {}),
-            ...(r!.group ? { group: r!.group } : {}),
-            at: now,
-            by: a.uid,
-          } satisfies CourseGrant,
-        }
-      : {}),
-  });
+  await reviewCourseRequest(a, p, now);
   return courseAccessAdmin(a, w.course);
 }

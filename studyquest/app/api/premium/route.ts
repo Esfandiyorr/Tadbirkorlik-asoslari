@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
     const receipt = req.nextUrl.searchParams.get('receipt');
     if (receipt) {
       const [uid, id] = receipt.split('/');
-      const r = await premiumReceipt(await actor(req, true), uid || '', id || '');
+      const r = await premiumReceipt(await actor(req), uid || '', id || '');
       return new NextResponse(new Uint8Array(r.bytes), {
         headers: { ...headers, 'Content-Type': r.type, 'X-Content-Type-Options': 'nosniff' },
       });

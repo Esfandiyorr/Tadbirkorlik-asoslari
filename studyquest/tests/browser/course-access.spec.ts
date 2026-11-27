@@ -187,7 +187,7 @@ test('the administrator can approve and revoke course access', async ({ page }) 
   await row.getByRole('button', { name: 'Ruxsat berish: Dilnoza Karimova' }).click();
   await expect(sec).toContainText('Yangi so‘rov yo‘q.');
   await expect(sec.getByRole('button', { name: 'Ruxsatni olish: Dilnoza Karimova' })).toBeVisible();
-  expect(sent).toEqual([{ op: 'approve', uid: 'uidX' }]);
+  expect(sent).toEqual([{ op: 'approve', uid: 'uidX', paymentId: null }]);
 });
 
 test('course files require a signed lesson access cookie and are cleared at sign-out', async ({

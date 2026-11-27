@@ -4,7 +4,13 @@ import { Check, CreditCard, Save, Search, ShieldCheck, Trash2, Unlock, X } from 
 import { useApp } from './provider';
 import { Button } from './ui/button';
 import { AvatarFigure, avatarName, setAvatarCatalog } from './avatars';
-import { AVATAR_TOP, type AvatarItem, type AvatarOrder, type AvatarShop } from '@/lib/avatars';
+import {
+  avatarOrderId,
+  AVATAR_TOP,
+  type AvatarItem,
+  type AvatarOrder,
+  type AvatarShop,
+} from '@/lib/avatars';
 import { dueText, tr } from '@/lib/points';
 
 type Person = { id: string; name: string; classId: string; place: number };
@@ -201,12 +207,17 @@ export function AvatarAdmin() {
                         }
                         onClick={() =>
                           void act(
-                            { op: 'grantPass', student: o.uid, days },
+                            {
+                              op: 'grantPass',
+                              student: o.uid,
+                              days: o.days || days,
+                              orderId: avatarOrderId(o),
+                            },
                             'gp' + o.uid,
                             L(
-                              `✅ ${o.name}: avatar ${days} kunga ochildi`,
-                              `✅ ${o.name}: avatar unlocked for ${days} days`,
-                              `✅ ${o.name}: аватар открыт на ${days} дн.`,
+                              `✅ ${o.name}: avatar ${o.days || days} kunga ochildi`,
+                              `✅ ${o.name}: avatar unlocked for ${o.days || days} days`,
+                              `✅ ${o.name}: аватар открыт на ${o.days || days} дн.`,
                             ),
                           )
                         }
@@ -220,7 +231,7 @@ export function AvatarAdmin() {
                         aria-label={L('Rad etish', 'Decline', 'Отклонить') + ': ' + o.name}
                         onClick={() =>
                           void act(
-                            { op: 'rejectOrder', student: o.uid },
+                            { op: 'rejectOrder', student: o.uid, orderId: avatarOrderId(o) },
                             'ro' + o.uid,
                             L('So‘rov rad etildi', 'Request declined', 'Запрос отклонён'),
                           )

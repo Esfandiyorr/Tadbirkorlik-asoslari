@@ -5,7 +5,7 @@ import type { Actor } from '../types';
 import { administrator, check } from './auth';
 import { authAdmin, demo, legacyDb, repository } from './repository';
 import { siteGet, siteUpdate } from './site-content';
-import { extraCourses } from '../seed';
+import { course, extraCourses } from '../seed';
 import { SERVICE_KINDS } from '../services';
 import { forgetServiceUser } from './services';
 import { forgetExamUser } from './exam';
@@ -137,6 +137,7 @@ async function eraseAccount(by: Actor, r: DeleteRequest, read: Read, update: Upd
     ['premium/' + key]: null,
     ['courseAccess/' + key]: null,
     ['courseRequests/' + key]: null,
+    ['courseReceipts/' + course.id + '/' + key]: null,
     ['avatarPass/' + key]: null,
     ['avatarOrders/' + key]: null,
     ['avatarGone/' + key]: null,
@@ -162,6 +163,7 @@ async function eraseAccount(by: Actor, r: DeleteRequest, read: Read, update: Upd
   for (const c of extraCourses.filter((x) => x.paid)) {
     site['courseAccess_' + c.id + '/' + key] = null;
     site['courseRequests_' + c.id + '/' + key] = null;
+    site['courseReceipts/' + c.id + '/' + key] = null;
   }
   const subs = (await siteGet<Record<string, { uid?: string }>>('push/subs')) || {};
   for (const [k, s] of Object.entries(subs)) if (s?.uid === r.uid) site['push/subs/' + k] = null;

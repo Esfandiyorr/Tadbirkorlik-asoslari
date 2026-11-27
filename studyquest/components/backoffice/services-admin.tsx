@@ -559,6 +559,9 @@ function AdminChat({
         uk: o.uk,
         id: o.id,
         ...input,
+        ...((input.op === 'confirm' || input.op === 'reject') && o.paidAt
+          ? { expectedPaidAt: o.paidAt }
+          : {}),
       });
       onView(r.admin);
       if (done) toast(done);

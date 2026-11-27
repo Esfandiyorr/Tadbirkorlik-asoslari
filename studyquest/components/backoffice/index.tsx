@@ -15,6 +15,7 @@ import { PushAdmin } from './push-admin';
 import { AppAdmin } from './app-admin';
 import { LibraryAdmin } from './library-admin';
 import { PremiumAdmin } from './premium-admin';
+import { PaymentsAdmin } from './payments-admin';
 import { CourseAccessAdmin } from './course-access-admin';
 import { ServicesAdmin } from './services-admin';
 import { ExamAdmin } from './exam-admin';
@@ -35,6 +36,7 @@ export type BoSection =
   | 'app'
   | 'library'
   | 'premium'
+  | 'payments'
   | 'courseAccess'
   | 'services'
   | 'exam';
@@ -72,6 +74,16 @@ export function BackOffice({
     action?: () => void;
     actionLabel?: string;
   }[] = [
+    {
+      id: 'payments',
+      icon: '💳',
+      title: L('To‘lovlar', 'Payments', 'Платежи'),
+      text: L(
+        'Obuna, kurs, avatar va xizmat to‘lovlarini tekshiring. Chekni ko‘ring, tasdiqlang yoki rad eting.',
+        'Review subscription, course, avatar and service payments. Open receipts, approve or reject.',
+        'Проверяйте оплату подписок, курсов, аватаров и услуг. Просматривайте чеки, подтверждайте или отклоняйте платежи.',
+      ),
+    },
     {
       id: 'content',
       icon: '✏️',
@@ -275,6 +287,7 @@ export function BackOffice({
     else if (section === 'app') body = <AppAdmin />;
     else if (section === 'library') body = <LibraryAdmin />;
     else if (section === 'premium') body = <PremiumAdmin />;
+    else if (section === 'payments') body = <PaymentsAdmin />;
     else if (section === 'courseAccess') body = <CourseAccessAdmin />;
     else if (section === 'services') body = <ServicesAdmin />;
     else if (section === 'exam') body = <ExamAdmin />;
@@ -322,7 +335,7 @@ export function BackOffice({
         {
           id: 'site',
           title: L('Sayt va xizmatlar', 'Site and services', 'Сайт и услуги'),
-          ids: ['content', 'news', 'push', 'promo', 'app', 'services', 'platform'],
+          ids: ['payments', 'content', 'news', 'push', 'promo', 'app', 'services', 'platform'],
         },
       ].map((group) => (
         <section className="bo-category" key={group.id} aria-labelledby={'bo-' + group.id}>

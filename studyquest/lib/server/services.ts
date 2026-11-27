@@ -57,9 +57,9 @@ import { course } from '../seed';
    istalgan paytda cancel. To'lov holatni to'xtatmaydi: paidAt — foydalanuvchi «To'lov qildim» dedi, payOk —
    administrator tasdiqladi. Narx belgilanmaydi: foydalanuvchi qancha to'lagan bo'lsa, shuni yozib (budget) chek
    skrinshotini yuklaydi; oddiy xizmatda to'lov natija yuborilgandan keyin ochiladi.
-   🛍 Mahsulot (yakuniy test, Premium) — narxi belgilangan buyurtma: «To'lov qildim» bosilishi bilan o'zi ochiladi
-   (bo'lim yoki obuna, granted) va buyurtma yakunlanadi; administrator keyin tekshiradi: to'lov kelgan bo'lsa
-   tasdiqlaydi (payOk), kelmagan bo'lsa bloklaydi (ban): ochilgan narsa yopiladi, buyurtma bekor qilinadi,
+   🛍 Mahsulot (yakuniy test, Premium): «To‘lov qildim» bosilgach, to‘lov tekshiruvga tushadi. Administrator
+   to‘lovni tasdiqlagach (payOk), mahsulot ochiladi (granted) va buyurtma yakunlanadi.
+   To‘lov topilmasa, administrator buyurtmani rad etishi yoki bloklashi (ban) mumkin. Blokda buyurtma bekor qilinadi,
    serviceBans/<foydalanuvchi> yoziladi (pullik xizmatlar yopiladi), xohlasa saytga kirish ham bloklanadi.
    Mahsulot sotib olish bo'lim yopiq bo'lsa ham ishlaydi.
    Fayllar bekor qilinganda darhol, yakunlangandan KEEP_DAYS kun keyin o'chiriladi. */
@@ -73,6 +73,7 @@ type StoredFile = {
   at: number;
   by?: string;
   ready?: boolean;
+  discarded?: true;
   got?: Record<string, number>;
 };
 type Stored = {
@@ -96,6 +97,8 @@ type Stored = {
   paidAt?: number;
   paidNote?: string;
   payOk?: number;
+  approving?: { at: number; by: string; days: number };
+  rejectedPayments?: { at: number; amount: number; note?: string; reason?: string }[];
   granted?: number;
   /** 💎 Premium qancha kunga ochilgan */
   days?: number;
@@ -112,7 +115,6 @@ type Stored = {
   msgs?: Record<string, { from: 'user' | 'worker' | 'team'; text: string; at: number }>;
 };
 type All = Record<string, Record<string, Stored>>;
-
 const DAY = 86400000;
 const STALE_MS = DAY;
 const ID = /^[a-z0-9]{6,40}$/;
@@ -178,12 +180,20 @@ async function readInfo() {
 async function readAll() {
   return ((await siteGet<All>('serviceOrders')) || {}) as All;
 }
-/** 🛍 Mahsulotni ochish: yakuniy test bo'limi yoki Premium (muddati — administrator tanlagani, mavjudiga qo'shiladi). */
-async function fulfil(s: Stored, id: string, by: string, now: number, days: number) {
+async function fulfil(s: Stored, id: string, approval: NonNullable<Stored['approving']>) {
   const product = PRODUCTS[s.kind as ProductId];
   if (product.premium)
-    await grantPremium(s.uid, s.name, s.group || '', days, by, now, Number(s.budget) || 0);
-  else await grantExamAccess(s.uid, s.name, by, 'order:' + id, now);
+    await grantPremium(
+      s.uid,
+      s.name,
+      s.group || '',
+      approval.days,
+      approval.by,
+      approval.at,
+      Number(s.budget) || 0,
+      id,
+    );
+  else await grantExamAccess(s.uid, s.name, approval.by, 'order:' + id, approval.at);
 }
 /** 💎 Premium muddati: eski tarif — o'z muddati, yangisi — administrator tanlagani (bo'lmasa 1 oy). */
 const premiumDays = (kind: string, days?: number) =>
@@ -220,7 +230,7 @@ async function readBans() {
 
 function files(s: Stored): OrderFile[] {
   return Object.entries(s.files || {})
-    .filter(([fid, f]) => ID.test(fid) && f?.ready && f.ext in FILE_TYPES)
+    .filter(([fid, f]) => ID.test(fid) && f?.ready && !f.discarded && f.ext in FILE_TYPES)
     .sort(([, a], [, b]) => (a.at || 0) - (b.at || 0))
     .map(([fid, f]) => ({
       id: fid,
@@ -298,7 +308,7 @@ function sweep(all: All, now: number) {
       const old =
         st === 'cancel' || (st === 'done' && (s.doneAt || s.upd || 0) + KEEP_DAYS * DAY < now);
       for (const [fid, f] of Object.entries(s.files))
-        if (old || (!f?.ready && now - (f?.at || 0) > STALE_MS)) {
+        if (old || f?.discarded || (!f?.ready && now - (f?.at || 0) > STALE_MS)) {
           patch[orderPath(uk, id) + '/files/' + fid] = null;
           patch[dataPath(uk, fid)] = null;
           delete s.files[fid];
@@ -371,6 +381,42 @@ export async function premiumPending(): Promise<AdminOrder[]> {
     )
     .map(({ uk, id, s }) => toAdmin(uk, id, s))
     .sort((x, y) => (x.paidAt || 0) - (y.paidAt || 0));
+}
+
+export async function listServicePayments(a: Actor) {
+  administrator(a);
+  return flatten(await readAll()).flatMap(({ uk, id, s }) => {
+    const { kind, name, group, email, title } = s;
+    const days = s.days || s.approving?.days;
+    const base = { uk, id, kind, name, group, email, title, days };
+    const history = (Array.isArray(s.rejectedPayments) ? s.rejectedPayments : []).map((p) => ({
+      ...base,
+      ...p,
+      status: 'rejected' as const,
+      approving: false,
+      receipts: [] as OrderFile[],
+    }));
+    const at = s.paidAt || s.payOk || s.approving?.at;
+    if (!at) return history;
+    const status: 'approved' | 'rejected' | 'pending' = s.payOk
+      ? 'approved'
+      : statusOf(s) === 'cancel'
+        ? 'rejected'
+        : 'pending';
+    return [
+      {
+        ...base,
+        at,
+        status,
+        amount: Number(s.budget) || 0,
+        note: s.paidNote,
+        approving: !!s.approving,
+        reason: status === 'rejected' ? s.reason : undefined,
+        receipts: files(s).filter((f) => f.side === 'pay'),
+      },
+      ...history,
+    ];
+  });
 }
 
 /** Administrator: hamma buyurtmalar (buyurtmachi ma'lumotlari bilan, oxirgi o'zgarish bo'yicha) va sozlamalar. */
@@ -684,6 +730,7 @@ export async function manageServices(a: Actor, raw: unknown, now = Date.now()) {
       const now_st = statusOf(current);
       check(now_st !== 'cancel', 409, 'Buyurtma bekor qilingan.');
       check(!current.payOk, 409, 'To‘lov allaqachon tasdiqlangan.');
+      check(!current.approving, 409, 'To‘lov tasdiqlanmoqda.');
       check(
         isProduct(current.kind)
           ? now_st === 'work'
@@ -700,7 +747,9 @@ export async function manageServices(a: Actor, raw: unknown, now = Date.now()) {
         'Sinov tarifi: ' + formatSum(TRIAL_PRICE) + ' to‘lang.',
       );
       check(
-        Object.values(current.files || {}).some((f) => f?.ready && f.side === 'pay'),
+        Object.values(current.files || {}).some(
+          (f) => f?.ready && !f.discarded && f.side === 'pay',
+        ),
         400,
         'Avval chek skrinshotini yuklang.',
       );
@@ -723,6 +772,7 @@ export async function manageServices(a: Actor, raw: unknown, now = Date.now()) {
         statusOf(current) === 'work' &&
           !current.paidAt &&
           !current.payOk &&
+          !current.approving &&
           !current.deliveredAt &&
           !current.trialChargedAt,
         409,
@@ -765,6 +815,7 @@ export async function manageServices(a: Actor, raw: unknown, now = Date.now()) {
 
 async function removeOrder(uk: string, id: string, admin: boolean) {
   const removed = await editOrder(orderPath(uk, id), (s) => {
+    check(!s.approving, 409, 'To‘lov tasdiqlanmoqda.');
     check(
       (admin && !s.trial) || !isActive(statusOf(s)),
       409,
@@ -779,26 +830,31 @@ async function removeOrder(uk: string, id: string, admin: boolean) {
     );
 }
 
+const reviewedOrder = {
+  uk: ukField,
+  id: z.string(),
+  expectedPaidAt: z.number().int().positive().optional(),
+};
+const confirmPaymentInput = z
+  .object({
+    op: z.literal('confirm'),
+    ...reviewedOrder,
+    days: z.number().int().min(1).max(730).optional(),
+  })
+  .strict();
+const rejectPaymentInput = z
+  .object({
+    op: z.literal('reject'),
+    ...reviewedOrder,
+    reason: z.string().trim().max(300).optional(),
+  })
+  .strict();
+type ReviewInput = z.infer<typeof confirmPaymentInput> | z.infer<typeof rejectPaymentInput>;
+
 const adminInput = z.discriminatedUnion('op', [
-  z
-    .object({
-      op: z.literal('confirm'),
-      uk: ukField,
-      id: z.string(),
-      // 💎 Premium: necha kunga ochiladi (1 oy, 1 yil …)
-      days: z.number().int().min(1).max(730).optional(),
-    })
-    .strict(),
+  confirmPaymentInput,
   z.object({ op: z.literal('ban'), uk: ukField, id: z.string(), account: z.boolean() }).strict(),
-  // ✖ chek qabul qilinmadi (bloklamasdan): mahsulot buyurtmasi bekor bo'ladi, oddiy xizmatda chek qayta so'raladi
-  z
-    .object({
-      op: z.literal('reject'),
-      uk: ukField,
-      id: z.string(),
-      reason: z.string().trim().max(300).optional(),
-    })
-    .strict(),
+  rejectPaymentInput,
   z.object({ op: z.literal('unban'), uk: ukField }).strict(),
   z
     .object({
@@ -831,6 +887,126 @@ const adminInput = z.discriminatedUnion('op', [
   z.object({ op: z.literal('launch'), open: z.boolean(), trial: z.boolean().optional() }).strict(),
   z.object({ op: z.literal('show'), shown: z.boolean() }).strict(),
 ]);
+
+function finishPayment(s: Stored, paid: number, now: number): Stored {
+  return {
+    ...s,
+    payOk: paid,
+    paidAt: s.paidAt || paid,
+    upd: now,
+    ...(!isProduct(s.kind) ? { dlOpen: true } : {}),
+  };
+}
+
+/** Ikkala boshqaruv bo‘limida bir xil qaror ishlatiladi. */
+export async function reviewServicePayment(a: Actor, v: ReviewInput, now = Date.now()) {
+  administrator(a);
+  check(UK.test(v.uk) && ID.test(v.id), 400, 'Buyurtma topilmadi.');
+  const path = orderPath(v.uk, v.id);
+  const approvalFor = (s: Stored) =>
+    s.approving || {
+      at: now,
+      by: (a.name || a.id).slice(0, 60),
+      days: premiumDays(s.kind, v.op === 'confirm' ? v.days : undefined),
+    };
+  const why =
+    v.op === 'reject' && v.reason ? 'Chek qabul qilinmadi: ' + v.reason : 'Chek qabul qilinmadi';
+  const before = await editOrder(path, (s) => {
+    check(statusOf(s) !== 'cancel', 409, 'Buyurtma bekor qilingan.');
+    check(!s.payOk, 409, 'To‘lov allaqachon tasdiqlangan.');
+    if (v.expectedPaidAt !== undefined)
+      check(
+        (s.paidAt || s.approving?.at) === v.expectedPaidAt,
+        409,
+        'Chek yangilangan. Ro‘yxatni yangilang.',
+      );
+    if (v.op === 'confirm') {
+      if (s.trial) check(hasTrialDebt(s), 409, 'Bu buyurtmada tasdiqlanadigan sinov qarzi yo‘q.');
+      if (isProduct(s.kind) && !s.granted) {
+        return { ...s, approving: approvalFor(s) };
+      }
+      return finishPayment(s, now, now);
+    }
+    check(!s.approving, 409, 'Boshlangan tasdiqlashni yakunlang.');
+    check(s.paidAt, 409, 'Chek hali yuborilmagan.');
+    const product = isProduct(s.kind);
+    const marked = { ...s.files };
+    for (const [id, f] of Object.entries(marked))
+      if (f && (product || f.side === 'pay')) marked[id] = { ...f, discarded: true };
+    if (product) return { ...s, files: marked, status: 'cancel', reason: why, upd: now };
+    const { paidAt, paidNote, ...rest } = s;
+    const recent = Array.isArray(s.rejectedPayments) ? s.rejectedPayments : [];
+    const rejected = {
+      at: paidAt!,
+      amount: Number(s.budget) || 0,
+      ...(paidNote ? { note: paidNote } : {}),
+      ...(v.reason ? { reason: v.reason } : {}),
+    };
+    const msgs = { ...s.msgs };
+    if (Object.keys(msgs).length < MSGS_MAX)
+      msgs[msgId(now)] = { from: 'team', text: '✖ ' + why, at: now };
+    return {
+      ...rest,
+      budget: s.trial ? TRIAL_PRICE : 0,
+      files: marked,
+      msgs,
+      rejectedPayments: [...recent, rejected].slice(-30),
+      upd: now,
+    };
+  });
+
+  const product = isProduct(before.kind) ? PRODUCTS[before.kind] : null;
+  const url = before.kind === 'yakuniy-test' ? '/#course/' + course.id + '/exam' : undefined;
+  if (v.op === 'reject') {
+    // Metama’lumot avval yopiladi. Agar fayl ombori vaqtincha ishlamasa, sweep fayllarni keyin ham o‘chiradi.
+    const patch: Record<string, unknown> = {};
+    for (const [fid, f] of Object.entries(before.files || {})) {
+      if (!product && f?.side !== 'pay') continue;
+      patch[path + '/files/' + fid] = null;
+      patch[dataPath(v.uk, fid)] = null;
+    }
+    if (Object.keys(patch).length) await siteUpdate(patch).catch(() => {});
+    await notify(
+      [before.uid],
+      '✖ Chek qabul qilinmadi',
+      before.title +
+        (v.reason ? ': ' + v.reason : '') +
+        ' — to‘lovni tekshirib, chekni qayta yuboring yoki administratorga yozing.',
+      url,
+    );
+    return;
+  }
+  if (product && !before.granted) {
+    // Qayta urinish birinchi qarordagi muddatdan foydalanadi. Obunani bir buyurtma faqat bir marta uzaytiradi.
+    const approval = approvalFor(before);
+    await fulfil(before, v.id, approval);
+    await editOrder(path, (s) => {
+      check(!s.payOk, 409, 'To‘lov allaqachon tasdiqlangan.');
+      const { approving: _, ...order } = s;
+      return {
+        ...finishPayment(order, approval.at, now),
+        granted: approval.at,
+        status: 'done',
+        doneAt: now,
+        ...(product.premium ? { days: approval.days } : {}),
+      };
+    });
+  }
+  await notify(
+    [before.uid],
+    before.trial
+      ? '✅ Sinov qarzi to‘landi'
+      : product && !before.granted
+        ? '✅ ' + product.name[0] + ' — ochildi'
+        : '✅ To‘lov tasdiqlandi',
+    before.title +
+      (before.trial || before.budget
+        ? ' · ' + formatSum(before.trial ? TRIAL_PRICE : before.budget!)
+        : '') +
+      (product ? '' : ' — natijani yuklab olish ochildi.'),
+    url,
+  );
+}
 
 /** Administrator amallari: yozishma, natijani yuklash va yuborish, to'lovni tasdiqlash, bekor qilish, sozlamalar. */
 export async function adminServices(a: Actor, raw: unknown, now = Date.now()) {
@@ -874,15 +1050,21 @@ export async function adminServices(a: Actor, raw: unknown, now = Date.now()) {
     await notify([ban!.uid], '✅ Blok olib tashlandi', 'Pullik xizmatlar sizga yana ochiq.');
     return done();
   }
+  if (v.op === 'confirm' || v.op === 'reject') {
+    await reviewServicePayment(a, v, now);
+    return done();
+  }
   const s = await load(v.uk, v.id);
-  const st = statusOf(s);
   const path = orderPath(v.uk, v.id);
   const patch: Record<string, unknown> = {};
   if (v.op === 'ban') {
     // ⛔ «To'lov qildim» dedi, lekin to'lov topilmadi: ochilgan narsa yopiladi, buyurtma bekor, foydalanuvchi bloklanadi
-    check(!s.payOk, 409, 'To‘lov tasdiqlangan — bloklab bo‘lmaydi.');
-    await revoke(s, v.id);
-    dropFiles(patch, v.uk, v.id, s);
+    const before = await editOrder(path, (current) => {
+      check(!current.payOk && !current.approving, 409, 'To‘lov tasdiqlangan yoki tasdiqlanmoqda.');
+      return { ...current, status: 'cancel', reason: 'To‘lov topilmadi', upd: now };
+    });
+    await revoke(before, v.id);
+    dropFiles(patch, v.uk, v.id, before);
     Object.assign(patch, {
       [path + '/status']: 'cancel',
       [path + '/reason']: 'To‘lov topilmadi',
@@ -906,50 +1088,7 @@ export async function adminServices(a: Actor, raw: unknown, now = Date.now()) {
     );
     return done();
   }
-  if (v.op === 'confirm' && s.trial) {
-    await editOrder(path, (current) => {
-      check(hasTrialDebt(current), 409, 'Bu buyurtmada tasdiqlanadigan sinov qarzi yo‘q.');
-      return { ...current, payOk: now, paidAt: current.paidAt || now, dlOpen: true, upd: now };
-    });
-    await notify(
-      [s.uid],
-      '✅ Sinov qarzi to‘landi',
-      s.title + ' · ' + formatSum(TRIAL_PRICE) + ' — natijani yuklab olish ochildi.',
-    );
-  } else if (v.op === 'confirm') {
-    check(st !== 'cancel', 409, 'Buyurtma bekor qilingan.');
-    check(!s.payOk, 409, 'To‘lov allaqachon tasdiqlangan.');
-    Object.assign(patch, {
-      [path + '/payOk']: now,
-      [path + '/paidAt']: s.paidAt || now,
-      [path + '/upd']: now,
-      // 📥 to'lov qabul qilindi — tayyor ish fayllarini yuklab olish ochiladi
-      ...(!isProduct(s.kind) ? { [path + '/dlOpen']: true } : {}),
-    });
-    const by = (a.name || a.id).slice(0, 60);
-    if (isProduct(s.kind) && !s.granted) {
-      // 🛍 chek qabul qilindi — mahsulot o'zi ochiladi (Premium — tanlangan muddatga)
-      const days = premiumDays(s.kind, v.days);
-      await fulfil(s, v.id, by, now, days);
-      Object.assign(patch, {
-        [path + '/granted']: now,
-        [path + '/status']: 'done',
-        [path + '/doneAt']: now,
-        ...(PRODUCTS[s.kind].premium ? { [path + '/days']: days } : {}),
-      });
-    }
-    await siteUpdate(patch);
-    await notify(
-      [s.uid],
-      isProduct(s.kind) && !s.granted
-        ? '✅ ' + PRODUCTS[s.kind].name[0] + ' — ochildi'
-        : '✅ To‘lov tasdiqlandi',
-      s.title +
-        (s.budget ? ' · ' + formatSum(s.budget) : '') +
-        (isProduct(s.kind) ? '' : ' — natijani yuklab olish ochildi.'),
-      s.kind === 'yakuniy-test' ? '/#course/' + course.id + '/exam' : undefined,
-    );
-  } else if (v.op === 'status') {
+  if (v.op === 'status') {
     await editOrder(path, (current) => {
       check(statusOf(current) !== 'cancel', 409, 'Buyurtma bekor qilingan.');
       if (v.status !== 'work')
@@ -990,47 +1129,10 @@ export async function adminServices(a: Actor, raw: unknown, now = Date.now()) {
     await siteUpdate(patch);
     if (v.open)
       await notify([s.uid], '📥 Yuklab olish ochildi', s.title + ' — tayyor ishni yuklab oling.');
-  } else if (v.op === 'reject') {
-    check(st !== 'cancel', 409, 'Buyurtma bekor qilingan.');
-    check(!s.payOk, 409, 'To‘lov allaqachon tasdiqlangan.');
-    check(!!s.paidAt, 409, 'Chek hali yuborilmagan.');
-    const why = 'Chek qabul qilinmadi' + (v.reason ? ': ' + v.reason : '');
-    if (isProduct(s.kind)) {
-      // 🛍 buyurtma yopiladi — foydalanuvchi xohlasa yangi chek bilan qayta yuboradi
-      dropFiles(patch, v.uk, v.id, s);
-      Object.assign(patch, {
-        [path + '/status']: 'cancel',
-        [path + '/reason']: why,
-        [path + '/upd']: now,
-      });
-    } else {
-      // oddiy xizmat: ish topshirilgan — faqat chek va summa olib tashlanadi, to'lov qayta so'raladi
-      for (const [fid, f] of Object.entries(s.files || {}))
-        if (f?.side === 'pay') {
-          patch[path + '/files/' + fid] = null;
-          patch[dataPath(v.uk, fid)] = null;
-        }
-      if (Object.keys(s.msgs || {}).length < MSGS_MAX)
-        addMsg(patch, v.uk, v.id, s, 'team', '✖ ' + why, now);
-      Object.assign(patch, {
-        [path + '/paidAt']: null,
-        [path + '/paidNote']: null,
-        [path + '/budget']: s.trial ? TRIAL_PRICE : 0,
-        [path + '/upd']: now,
-      });
-    }
-    await siteUpdate(patch);
-    await notify(
-      [s.uid],
-      '✖ Chek qabul qilinmadi',
-      s.title +
-        (v.reason ? ': ' + v.reason : '') +
-        ' — to‘lovni tekshirib, chekni qayta yuboring yoki administratorga yozing.',
-      s.kind === 'yakuniy-test' ? '/#course/' + course.id + '/exam' : undefined,
-    );
   } else if (v.op === 'cancel') {
     await editOrder(path, (current) => {
       check(statusOf(current) !== 'cancel', 409, 'Buyurtma allaqachon bekor qilingan.');
+      check(!current.approving, 409, 'To‘lov tasdiqlanmoqda.');
       check(
         !current.trialChargedAt,
         409,
@@ -1094,7 +1196,7 @@ async function fileOp(
       who === 'admin'
         ? st !== 'cancel'
         : side === 'pay'
-          ? st !== 'cancel' && !s.payOk
+          ? st !== 'cancel' && !s.payOk && !s.approving
           : st === 'work',
       409,
       side === 'pay'
@@ -1113,7 +1215,9 @@ async function fileOp(
       'Chek uchun rasm (PNG, JPG, WEBP) yoki PDF yuklang.',
     );
     check(v.size <= FILE_MAX[side], 413, `Fayl ${FILE_MAX[side] / 1024 / 1024} MB dan oshmasin.`);
-    const list = Object.values(s.files || {}).filter((f) => f?.side === side && f.ready);
+    const list = Object.values(s.files || {}).filter(
+      (f) => f?.side === side && f.ready && !f.discarded,
+    );
     check(
       list.length < FILES_PER_ORDER[side],
       409,
@@ -1136,12 +1240,12 @@ async function fileOp(
   }
   check(ID.test(v.fid), 400, 'Fayl topilmadi.');
   const f = s.files?.[v.fid];
-  check(f, 404, 'Fayl topilmadi.');
+  check(f && !f.discarded, 404, 'Fayl topilmadi.');
   if (v.op === 'unfile') {
     check(
       who === 'admin' ||
         (f!.side === 'in' && isActive(st)) ||
-        (f!.side === 'pay' && st !== 'cancel' && !s.payOk),
+        (f!.side === 'pay' && st !== 'cancel' && !s.payOk && !s.approving),
       403,
       'Bu faylni o‘chirib bo‘lmaydi.',
     );
@@ -1180,7 +1284,7 @@ export async function saveServiceChunk(
   check(ID.test(fid), 400, 'Fayl topilmadi.');
   const f = s.files?.[fid];
   check(
-    f && (role === 'me' ? f.side === 'in' || f.side === 'pay' : f.side === 'out'),
+    f && !f.discarded && (role === 'me' ? f.side === 'in' || f.side === 'pay' : f.side === 'out'),
     404,
     'Fayl topilmadi.',
   );
@@ -1205,7 +1309,7 @@ export async function serviceChunk(a: Actor, o: string, fid: string, n: number) 
   if (!allowed) throw new ApiError(404, 'Fayl topilmadi.');
   check(ID.test(fid) && Number.isInteger(n) && n >= 0 && n < 64, 404, 'Fayl topilmadi.');
   const f = s!.files?.[fid];
-  check(f?.ready && n < f.chunks, 404, 'Fayl topilmadi.');
+  check(f?.ready && !f.discarded && n < f.chunks, 404, 'Fayl topilmadi.');
   // 🔒 tayyor ish fayli: buyurtmachiga to'lov qabul qilingach (administrator ochgach) beriladi
   if (f!.side === 'out' && !canDownload(s!) && !(await isAdminActor(a)))
     throw new ApiError(
