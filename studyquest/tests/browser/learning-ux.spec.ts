@@ -19,8 +19,8 @@ for (const width of [320, 390])
     await page.setViewportSize({ width, height: 844 });
     await page.request.post('/api/auth/demo', { data: { id: 'demo-student' } });
     await page.goto('/#home');
-    // «Joriy mavzu» kartasi yo'q — «Mavzular» kartasi birinchi ekranda, pastki menyudan yuqorida
-    const action = page.locator('.home-sections .quick-link.is-topics');
+    // «Joriy mavzu» kartasi yo'q — «Kurslar» kartasi birinchi ekranda, pastki menyudan yuqorida
+    const action = page.locator('.home-sections .quick-link.is-courses');
     await expect(action).toBeVisible();
     const button = (await action.boundingBox())!,
       nav = (await page.locator('.bottom-nav').boundingBox())!;
@@ -80,8 +80,8 @@ test('the home banner shows the date, the name and the reminders the administrat
   await expect(page.locator('.dashboard-main .course-gate')).toHaveCount(0);
   // avatar tanlanmagan — banner o'ng tomonida «Avatar qo'yish»
   await expect(banner.getByRole('button', { name: 'Avatar qo‘yish' })).toBeVisible();
+  // bitta «Kurslar» kartasi (ikkinchisi — takror edi)
   await expect(page.locator('.home-sections .quick-link')).toHaveText([
-    /Mavzular/,
     /Kurslar/,
     /O‘yinlar/,
     /Kitoblar/,
@@ -173,7 +173,7 @@ test('the home banner shows the date, the name and the reminders the administrat
 });
 
 /* 📱 Telefonda (va ilovada) asosiylari: pastki menyu — Asosiy, Kurslar, Kutubxona, Xizmatlar/O'yinlar, Profil;
-   bosh sahifada faqat Mavzular, Kurslar (va Pullik xizmatlar) kartalari; statistika va o'ng ustun yo'q. */
+   bosh sahifada faqat Kurslar (va Pullik xizmatlar) kartalari; statistika va o'ng ustun yo'q. */
 test('on a phone the app shows the essentials: topics, courses and paid services', async ({
   page,
 }) => {
@@ -184,8 +184,7 @@ test('on a phone the app shows the essentials: topics, courses and paid services
   // pullik xizmatlar yopiq (demo) — o'rnida O'yinlar
   await expect(nav).toHaveText(['Asosiy', 'Kurslar', 'Kutubxona', 'O‘yinlar', 'Profil']);
   await expect(page.locator('.home-sections .quick-link:visible')).toHaveText([
-    /Mavzular/,
-    /Kurslar/,
+    /Kurslar.*15 ta mavzu/,
   ]);
   // obuna bo'lmagan talabaga — «Obuna bo'ling» kartasi (telefonda bosh sahifada)
   await expect(page.locator('.premium-side.is-home')).toContainText('Obuna bo‘ling');
@@ -194,9 +193,9 @@ test('on a phone the app shows the essentials: topics, courses and paid services
   await expect(page.locator('.app-footer')).toBeHidden();
   // birinchi ekranda: ism, eslatmalar va asosiy kartalar
   await expect(page.locator('.home-banner .hb-reminders')).toBeInViewport();
-  await expect(page.locator('.home-sections .quick-link.is-topics')).toBeInViewport();
-  // «Mavzular» kartasi — asosiy fan mavzulari; pastki menyuda «Kurslar» belgilangan
-  await page.locator('.home-sections .quick-link.is-topics').click();
+  await expect(page.locator('.home-sections .quick-link.is-courses')).toBeInViewport();
+  // «Kurslar» kartasi — asosiy fan mavzulari; pastki menyuda «Kurslar» belgilangan
+  await page.locator('.home-sections .quick-link.is-courses').click();
   await expect.poll(() => new URL(page.url()).hash).toBe('#course/tad-asoslari');
   await expect(nav.filter({ hasText: 'Kurslar' })).toHaveAttribute('aria-current', 'page');
   await expect(page.locator('.course-banner .legend')).toBeHidden();

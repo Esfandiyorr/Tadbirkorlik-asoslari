@@ -254,7 +254,11 @@ export function PushInvite() {
       setHidden(false);
     }
   }, []);
-  const student = data?.user?.role === 'student' && data.user.learnerType !== 'independent';
+  // 🎚 jonli o'yinlar yopilgan talabaga «Jonli testni o'tkazib yubormang» taklifi kerak emas
+  const student =
+    data?.user?.role === 'student' &&
+    data.user.learnerType !== 'independent' &&
+    !data.user.closed?.includes('live');
   if (!signedIn || !student || hidden || (state !== 'off' && state !== 'ios')) return null;
   const later = () => {
     try {

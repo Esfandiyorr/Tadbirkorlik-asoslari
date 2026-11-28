@@ -22,7 +22,6 @@ import {
   LibraryBig,
   Lightbulb,
   Timer,
-  ListChecks,
   type LucideIcon,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -125,7 +124,7 @@ function QuickLinks({ chat }: { chat: boolean }) {
   const n = data?.courses.length || 0;
   const main = data?.courses[0]?.id;
   const topics = data && main ? sortedLessons(data, main).length : 0;
-  // telefonda faqat asosiylari (Mavzular, Kurslar, Pullik xizmatlar); qolganlari — «extra» (☰ menyuda bor)
+  // telefonda faqat asosiylari (Kurslar, Pullik xizmatlar); qolganlari — «extra» (☰ menyuda bor)
   const items: {
     id: string;
     icon: LucideIcon;
@@ -136,27 +135,25 @@ function QuickLinks({ chat }: { chat: boolean }) {
     href?: string;
     extra?: boolean;
   }[] = [
-    ...(main
-      ? [
-          {
-            id: 'topics',
-            href: 'course/' + main,
-            icon: ListChecks,
-            emoji: '📝',
-            name: L('Mavzular', 'Topics', 'Темы'),
-            hint: L(`${topics} ta mavzu`, `${topics} topics`, `Тем: ${topics}`),
-            go: L('O‘qish', 'Study', 'Учиться'),
-          },
-        ]
-      : []),
-    {
-      id: 'courses',
-      icon: BookOpen,
-      emoji: '📚',
-      name: L('Kurslar', 'Courses', 'Курсы'),
-      hint: L(`${n} ta kurs`, `${n} courses`, `Курсов: ${n}`),
-      go: L('Davom etish', 'Continue', 'Продолжить'),
-    },
+    // 📚 bitta «Kurslar» kartasi: asosiy fan mavzulariga to'g'ri olib boradi (barcha kurslar ro'yxati — menyuda)
+    main
+      ? {
+          id: 'courses',
+          href: 'course/' + main,
+          icon: BookOpen,
+          emoji: '📚',
+          name: L('Kurslar', 'Courses', 'Курсы'),
+          hint: L(`${topics} ta mavzu`, `${topics} topics`, `Тем: ${topics}`),
+          go: L('O‘qish', 'Study', 'Учиться'),
+        }
+      : {
+          id: 'courses',
+          icon: BookOpen,
+          emoji: '📚',
+          name: L('Kurslar', 'Courses', 'Курсы'),
+          hint: L(`${n} ta kurs`, `${n} courses`, `Курсов: ${n}`),
+          go: L('Davom etish', 'Continue', 'Продолжить'),
+        },
     {
       id: 'arena',
       icon: Gamepad2,
@@ -208,7 +205,6 @@ function QuickLinks({ chat }: { chat: boolean }) {
   // 🎚 guruh yoki talabaga yopilgan bo'limlar bosh sahifada ham ko'rinmaydi
   const shut = data?.user?.closed || [];
   const feature: Record<string, Feature> = {
-    topics: 'lessons',
     courses: 'lessons',
     arena: 'arena',
     library: 'library',
