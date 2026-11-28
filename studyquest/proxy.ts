@@ -44,10 +44,23 @@ export async function proxy(req: NextRequest) {
   }
   const topic = lessonAssetTopic(path) || lessonAssetTopic(image);
   if (!topic) return NextResponse.next();
-  if (!owner && !validLessonAccess(topic, req.cookies.get(lessonAccessCookie(topic))?.value))
+  if (!owner && !validLessonAccess(topic, req.cookies.get(lessonAccessCookie(topic))?.value)) {
+    // Eski (nusxalangan) dars havolasi brauzerda to'g'ridan-to'g'ri ochilsa — saytdagi o'sha darsga: ruxsati bo'lsa
+    // dars ochiladi, bo'lmasa kurs sahifasi ruxsat so'rashni tushuntiradi. Sayt ichidagi oyna (iframe), PDF va video
+    // avvalgidek faqat ruxsat bilan.
+    const dest = req.headers.get('sec-fetch-dest');
+    const page =
+      path.endsWith('.html') &&
+      (dest === 'document' || (!dest && (req.headers.get('accept') || '').includes('text/html')));
+    if (page && req.method === 'GET')
+      return NextResponse.redirect(new URL('/#lesson/' + topic, req.url), {
+        status: 307,
+        headers: privateHeaders,
+      });
     return new NextResponse('Darsga ruxsat talab qilinadi.', {
       status: 403,
       headers: privateHeaders,
     });
+  }
   return NextResponse.next({ headers: privateHeaders });
 }

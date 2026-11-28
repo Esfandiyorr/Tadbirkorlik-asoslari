@@ -199,6 +199,11 @@ test('course files require a signed lesson access cookie and are cleared at sign
   expect((await page.request.get(directLesson)).status()).toBe(403);
   expect((await page.request.get(pdf)).status()).toBe(403);
   expect((await page.request.get(quiz)).status()).toBe(403);
+  // eski (nusxalangan) dars havolasi brauzerda ochilsa — fayl berilmaydi, saytdagi o'sha darsga o'tadi
+  await page.goto(directLesson, { waitUntil: 'domcontentloaded' });
+  await expect.poll(() => new URL(page.url()).pathname).toBe('/');
+  await expect.poll(() => new URL(page.url()).hash).toBe('#lesson/m1');
+  expect((await page.request.get(pdf)).status()).toBe(403);
   await as(page, 'demo-student');
   expect((await page.request.get(directLesson)).status()).toBe(403);
   const entry = await page.request.get('/api/platform?view=legacyLesson&lesson=m1');
