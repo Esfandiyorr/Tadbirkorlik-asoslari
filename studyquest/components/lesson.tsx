@@ -504,6 +504,8 @@ function OriginalLessonView({ id }: { id: string }) {
                 lesson.legacyFile +
                 '?sqEmbed=lesson' +
                 (data?.mode === 'demo' ? '&sqDemo=1' : '') +
+                // 🎚 test va ball yopilgan talaba — taqdimot 📖 o'qish rejimida (ball berilmaydi)
+                (data?.user?.closed?.includes('tests') ? '&sqRead=1' : '') +
                 '#' +
                 (initialPosition.current + 1)
               }

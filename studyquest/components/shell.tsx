@@ -51,6 +51,46 @@ import { ConnectionNotice } from './connection-notice';
 import { Button } from './ui/button';
 import { t, roleLabel, type Key } from '@/lib/i18n';
 import type { Lang } from '@/lib/types';
+import { CLOSED_TEXT, FEATURE_INFO, type Feature } from '@/lib/student-limits';
+
+/* 🎚 «Talabalar bilan ishlash» → «Bo'limlar»: menyu bandi va sahifa qaysi bo'limga tegishli. Yopilgani menyuda
+   ko'rinmaydi, havola bilan ochilsa — «Bu bo'lim siz uchun yopilgan». */
+const NAV_FEATURE: Record<string, Feature> = {
+  courses: 'lessons',
+  arena: 'arena',
+  library: 'library',
+  services: 'services',
+  badges: 'badges',
+  chat: 'chat',
+};
+function viewFeature(view: string): Feature | null {
+  const parts = view.split('/'),
+    main = parts[0],
+    sub = parts.slice(1).join('/');
+  if (main === 'lesson' || main === 'quiz' || main === 'topshiriq') return 'lessons';
+  if (view === 'ranking' || (main === 'course' && parts[2] === 'ranking')) return 'ranking';
+  if (main === 'arena') return /^(live|play\/(live|yozuv))$/.test(sub) ? 'live' : 'arena';
+  if (main === 'library') return 'library';
+  if (main === 'services' || main === 'slides') return 'services';
+  if (main === 'badges') return 'badges';
+  if (main === 'chat') return 'chat';
+  return null;
+}
+function FeatureClosed({ f, lang }: { f: Feature; lang: Lang }) {
+  const i = FEATURE_INFO[f];
+  return (
+    <section className="panel feature-closed" role="status">
+      <span aria-hidden="true">🔒</span>
+      <h1>
+        {i.icon} {tr(lang, i.uz, i.en, i.ru)}
+      </h1>
+      <p>{tr(lang, CLOSED_TEXT.uz, CLOSED_TEXT.en, CLOSED_TEXT.ru)}</p>
+      <Button asChild>
+        <a href="#home">{tr(lang, 'Bosh sahifa', 'Home', 'Главная')}</a>
+      </Button>
+    </section>
+  );
+}
 export function StudyQuest() {
   const {
       data,
@@ -143,19 +183,25 @@ export function StudyQuest() {
     mainView = view.split('/')[0],
     id = view.split('/')[1],
     // 💼 Pullik xizmatlar: Play Market ilovasida yo'q (Google qoidasi); administrator ochmaguncha — vaqtincha yopiq
-    services = !play && !!data.servicesShown;
-  const nav: { id: string; key: Key; icon: typeof BookOpen }[] = [
-    { id: 'home', key: 'home', icon: LayoutDashboard },
-    { id: 'courses', key: 'courses', icon: BookOpen },
-    { id: 'arena', key: 'arena', icon: Gamepad2 },
-    { id: 'library', key: 'library', icon: LibraryBig },
-    ...(services ? [{ id: 'services', key: 'services' as Key, icon: BriefcaseBusiness }] : []),
-    { id: 'badges', key: 'badges', icon: Medal },
-    ...(user ? [{ id: 'chat', key: 'chat' as Key, icon: MessageSquare }] : []),
-  ];
+    services = !play && !!data.servicesShown && !user?.closed?.includes('services'),
+    closed = user?.closed || [],
+    open = (id: string) => !NAV_FEATURE[id] || !closed.includes(NAV_FEATURE[id]);
+  const nav: { id: string; key: Key; icon: typeof BookOpen }[] = (
+    [
+      { id: 'home', key: 'home', icon: LayoutDashboard },
+      { id: 'courses', key: 'courses', icon: BookOpen },
+      { id: 'arena', key: 'arena', icon: Gamepad2 },
+      { id: 'library', key: 'library', icon: LibraryBig },
+      ...(services ? [{ id: 'services', key: 'services' as Key, icon: BriefcaseBusiness }] : []),
+      { id: 'badges', key: 'badges', icon: Medal },
+      ...(user ? [{ id: 'chat', key: 'chat' as Key, icon: MessageSquare }] : []),
+    ] as { id: string; key: Key; icon: typeof BookOpen }[]
+  ).filter((n) => open(n.id));
   const signedIn = !!user || !!legacy;
+  const shut = viewFeature(view);
   let content;
   if (view === 'login') content = <AuthPanel />;
+  else if (shut && closed.includes(shut)) content = <FeatureClosed f={shut} lang={lang} />;
   else if (mainView === 'lesson')
     content = user ? (
       <LessonView key={id + (user?.id || legacy?.id || '')} id={id} />
@@ -450,23 +496,25 @@ export function StudyQuest() {
           signedIn
             ? { id: 'profile', href: 'profile', label: t(lang, 'profile'), icon: User }
             : { id: 'login', href: 'login', label: t(lang, 'login'), icon: LogIn },
-        ].map((n) => {
-          const on =
-            n.id === 'courses'
-              ? mainView === 'courses' || mainView === 'course'
-              : mainView === n.id;
-          return (
-            <a
-              key={n.id}
-              href={'#' + n.href}
-              className={on ? 'active' : ''}
-              aria-current={on ? 'page' : undefined}
-            >
-              <n.icon size={22} />
-              <span>{n.label}</span>
-            </a>
-          );
-        })}
+        ]
+          .filter((n) => open(n.id))
+          .map((n) => {
+            const on =
+              n.id === 'courses'
+                ? mainView === 'courses' || mainView === 'course'
+                : mainView === n.id;
+            return (
+              <a
+                key={n.id}
+                href={'#' + n.href}
+                className={on ? 'active' : ''}
+                aria-current={on ? 'page' : undefined}
+              >
+                <n.icon size={22} />
+                <span>{n.label}</span>
+              </a>
+            );
+          })}
       </nav>
       {view === 'home' && <NewsInbox />}
     </div>

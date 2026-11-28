@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { actor, check, sameOrigin } from '@/lib/server/auth';
+import { requireFeature } from '@/lib/server/student-limits';
 import { failure } from '@/lib/server/http';
 import { supportAct, supportList } from '@/lib/server/support';
 export const runtime = 'nodejs';
@@ -29,6 +30,8 @@ export async function POST(req: NextRequest) {
       .strict()
       .parse(JSON.parse(body));
     const a = await actor(req, p.action === 'send');
+    // 🎚 guruh yoki talabaga «Adminga xabar» yopilgan bo'lsa — yangi xabar yuborilmaydi
+    if (p.action === 'send') await requireFeature(a, 'chat');
     return NextResponse.json(await supportAct(a, p.action, p.input));
   } catch (e) {
     return failure(e);

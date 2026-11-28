@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import { useApp } from './provider';
 import { Button } from './ui/button';
-import { AcademicRoster } from './academic-roster';
+import { StudentsHub } from './students-hub';
 import { PlatformSettings } from './platform-settings';
 import { NativeSurface } from './native-surface';
 import { TopicAccessPanel } from './topic-access';
@@ -290,7 +290,7 @@ export function Staff({
           ['lessons', L('Darslar', 'Lessons', 'Уроки')],
           ['quiz', L('Testlar', 'Quizzes', 'Тесты')],
           ['students', L('O‘quvchilar', 'Learners', 'Ученики')],
-          ['academic', L('Talabalar va baholar', 'Academic records', 'Студенты и оценки')],
+          ['academic', L('👥 Talabalar bilan ishlash', '👥 Students', '👥 Работа со студентами')],
           ['accountHelp', L('Kirish yordami', 'Sign-in help', 'Помощь со входом')],
           ['legacy', L('Kursni boshqarish', 'Course controls', 'Управление предметом')],
           ...(admin ? [['platform', L('Platforma', 'Platform', 'Платформа')]] : []),
@@ -346,7 +346,7 @@ export function Staff({
         </div>
       )}
       {tab === 'access' && <TopicAccessPanel />}
-      {tab === 'academic' && <AcademicRoster />}
+      {tab === 'academic' && <StudentsHub />}
       {tab === 'accountHelp' && <AccountHelpAdmin />}
       {admin && tab === 'platform' && <PlatformSettings />}
       {admin && tab === 'site' && (

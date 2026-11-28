@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { actor, check, sameOrigin } from '@/lib/server/auth';
 import { failure } from '@/lib/server/http';
+import { requireFeature } from '@/lib/server/student-limits';
 import { HOST_OPS, raceAct, raceView } from '@/lib/server/race';
 
 export const runtime = 'nodejs';
@@ -35,6 +36,9 @@ export async function POST(req: NextRequest) {
     }
     // har bir javobda hisobni tekshirmaslik uchun: faqat boshqaruv amallarida kim ekanini aniqlaymiz
     const a = HOST_OPS.includes(String(body?.op)) ? await actor(req) : null;
+    // 🎚 kirgan talabaga jonli o'yinlar yopilgan bo'lsa — poygaga qo'shilmaydi
+    if (body?.op === 'join' && req.headers.has('authorization'))
+      await requireFeature(await actor(req, true), 'live');
     return NextResponse.json(await raceAct(a, body), { headers });
   } catch (e) {
     return failure(e);

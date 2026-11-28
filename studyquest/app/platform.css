@@ -14353,3 +14353,220 @@ html {
   border-style: solid;
   border-color: color-mix(in srgb, #16a34a 45%, var(--border));
 }
+
+/* 👥 «Talabalar bilan ishlash» (components/students-hub.tsx) */
+.students-hub {
+  display: grid;
+  gap: 14px;
+}
+.hub-mode,
+.hub-presets,
+.hub-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: end;
+}
+.hub-pick {
+  display: grid;
+  gap: 4px;
+  max-width: 420px;
+  font-weight: 600;
+  font-size: 13.5px;
+}
+.hub-tabs {
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--border);
+}
+.hub-tabs button {
+  flex: none;
+  padding: 9px 14px;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  background: none;
+  color: var(--muted);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.hub-tabs button.is-on {
+  color: var(--violet);
+  border-bottom-color: var(--violet);
+}
+.hub-block {
+  display: grid;
+  gap: 12px;
+}
+.hub-features {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.hub-features li {
+  display: grid;
+  gap: 2px;
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface-soft);
+}
+.students-hub .hub-features label {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  color: var(--text);
+  align-items: center;
+  gap: 10px;
+}
+.students-hub .hub-features label > span {
+  flex: 1 1 180px;
+  font-weight: 600;
+}
+.hub-features input[type='checkbox'] {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--violet);
+}
+.hub-features select {
+  max-width: 240px;
+}
+.hub-features small {
+  color: var(--muted);
+  font-size: 12.5px;
+}
+.students-hub .is-open,
+.students-hub .is-closed {
+  font-style: normal;
+  font-size: 12.5px;
+  font-weight: 700;
+  padding: 2px 9px;
+  border-radius: 99px;
+  white-space: nowrap;
+}
+.students-hub .is-open {
+  color: #11795a;
+  background: #def7ec;
+}
+.students-hub .is-closed {
+  color: #a3243b;
+  background: #fde7ea;
+}
+.hub-table table {
+  min-width: 620px;
+}
+.hub-link {
+  border: 0;
+  background: none;
+  padding: 0;
+  color: var(--violet);
+  font: inherit;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+}
+.hub-link:hover {
+  text-decoration: underline;
+}
+.hub-premium {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+.hub-premium select {
+  max-width: 110px;
+}
+.hub-student {
+  display: grid;
+  gap: 12px;
+  justify-items: start;
+}
+.hub-student > * {
+  width: 100%;
+}
+.hub-student > button {
+  width: auto;
+}
+.hub-student-head h3 {
+  margin: 0;
+  font-size: 21px;
+}
+.hub-student-head p {
+  margin: 2px 0 0;
+  color: var(--muted);
+}
+.hub-card {
+  display: grid;
+  gap: 10px;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+}
+.hub-card h4 {
+  margin: 0;
+  font-size: 16px;
+}
+.hub-row label {
+  display: grid;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.hub-courses {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.hub-courses li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+.hub-courses li > span {
+  flex: 1 1 220px;
+  font-weight: 600;
+}
+.students-hub .hub-check {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  align-items: center;
+  color: var(--text);
+}
+.hub-check input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--violet);
+}
+/* 🔒 talabaga yopilgan bo'lim */
+.feature-closed {
+  max-width: 520px;
+  margin: 40px auto;
+  padding: 36px 24px;
+  text-align: center;
+  display: grid;
+  gap: 10px;
+  justify-items: center;
+}
+.feature-closed > span {
+  font-size: 44px;
+}
+.feature-closed h1 {
+  margin: 0;
+  font-size: 22px;
+}
+.feature-closed p {
+  margin: 0;
+  color: var(--muted);
+}
+.pa-links {
+  flex-wrap: wrap;
+}

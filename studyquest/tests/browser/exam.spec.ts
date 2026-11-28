@@ -253,34 +253,44 @@ test('Premium: a student submits payment, the administrator approves it, and the
   await expect(student.getByText('💎 To‘lov tekshiruvga yuborildi.')).toBeVisible();
   await expect(plans.getByRole('status')).toContainText('To‘lov tekshiruvda');
   await expect(profileMark).toHaveCount(0);
-  // administrator: Sayt boshqaruvi → 💎 Obuna — yangi obuna, to'lov vaqti bilan: «To'lov keldi»
-  await page.goto('/#admin', { waitUntil: 'domcontentloaded' });
-  await page
-    .getByRole('button', { name: /Obuna \(pullik imkoniyatlar\)/ })
-    .first()
-    .click();
-  await expect(page.locator('.pa-stats')).toContainText('tekshirilmagan');
-  const fresh = page.locator('.pa-fresh .pa-list > li');
+  // administrator: 💳 To'lovlar — yangi obuna to'lovi, to'lov vaqti bilan: «Tasdiqlash»
+  await page.goto('/#admin/payments', { waitUntil: 'domcontentloaded' });
+  const fresh = page
+    .locator('.payment-review-row')
+    .filter({ hasText: 'Madina Ergasheva' })
+    .filter({ hasText: 'Obuna' });
   await expect(fresh).toHaveCount(1);
-  await expect(fresh).toContainText('Madina Ergasheva');
-  await expect(fresh).toContainText('1 yil · 💳 20 000 so‘m');
-  await expect(fresh).toContainText('To‘lov vaqti');
-  await fresh.getByRole('button', { name: /To‘lov keldi/ }).click();
+  await expect(fresh).toContainText('20 000');
+  await expect(fresh).toContainText('To‘langan vaqti');
+  await fresh.getByRole('button', { name: /Tasdiqlash/ }).click();
   await expect(fresh).toHaveCount(0);
-  const sub = page.locator('.pa-subs > li').filter({ hasText: 'Madina' });
-  await expect(sub).toContainText('Faol');
-  await expect(sub).toContainText('Boshlangan');
-  await expect(sub).toContainText('· 1 yil');
-  await expect(sub).toContainText('20 000 so‘m');
+  // 💎 Obuna sozlamalari: faqat karta va umumiy son (cheklar va obunachilar boshqa joyda)
+  await page.getByRole('button', { name: 'Sayt boshqaruvi', exact: true }).click();
+  await page.locator('.bo-card-btn').filter({ hasText: 'Obuna sozlamalari' }).click();
   await expect(page.locator('.pa-stats')).toContainText('20 000 so‘m');
+  await expect(page.getByText('Qo‘lda obuna berish')).toHaveCount(0);
+  // 👥 Talabalar bilan ishlash → talaba → 💎 Obuna: boshlangan, qancha to'lagan, muddatni o'zgartirish
+  await page.getByRole('button', { name: /Obunachilar \(Talabalar bilan ishlash\)/ }).click();
+  await page.getByRole('button', { name: /Talaba bilan/ }).click();
+  await page.getByLabel('Talabani qidirish').fill('Madina');
+  await page.locator('.hub-table').getByRole('button', { name: 'Madina Ergasheva' }).click();
+  const sub = page
+    .locator('.hub-card')
+    .filter({ has: page.locator('h4', { hasText: /^💎 Obuna$/ }) });
+  await expect(sub).toContainText('gacha');
+  await expect(sub).toContainText('boshlangan');
+  await expect(sub).toContainText('20 000 so‘m');
+  const until = async () =>
+    (await sub.locator('.hub-premium > span').first().innerText()).split(' · ')[0];
+  const year = await until();
   // ⏳ muddatni o'zgartirish (boshlangan kunidan): 1 yil → 1 oy → yana 1 yil
-  const term = sub.getByLabel(/Obuna muddati/);
+  const term = sub.getByLabel(/obuna muddati/);
   await term.selectOption('30');
-  await sub.getByRole('button', { name: 'Saqlash' }).click();
-  await expect(sub).toContainText('· 1 oy');
+  await sub.getByRole('button', { name: 'Muddatni shunday qilish' }).click();
+  await expect.poll(until).not.toBe(year);
   await term.selectOption('365');
-  await sub.getByRole('button', { name: 'Saqlash' }).click();
-  await expect(sub).toContainText('· 1 yil');
+  await sub.getByRole('button', { name: 'Muddatni shunday qilish' }).click();
+  await expect.poll(until).toBe(year);
 
   // obunachi: 5 xil bezakdan birini tanlaydi
   await student.reload({ waitUntil: 'domcontentloaded' });
@@ -335,11 +345,13 @@ test('Premium: a student submits payment, the administrator approves it, and the
   await student.goto('/#home', { waitUntil: 'domcontentloaded' });
   // ✖ noqonuniy obuna: administrator chiqarib tashlaydi — obuna yopiladi, o'zi qayta obuna bo'la olmaydi
   await page.reload({ waitUntil: 'domcontentloaded' });
+  await page.getByRole('button', { name: '👥 Talabalar bilan ishlash', exact: true }).click();
+  await page.getByRole('button', { name: /Talaba bilan/ }).click();
+  await page.getByLabel('Talabani qidirish').fill('Madina');
+  await page.locator('.hub-table').getByRole('button', { name: 'Madina Ergasheva' }).click();
   page.once('dialog', (d) => void d.accept());
-  await sub.getByRole('button', { name: /Chiqarib tashlash: Madina/ }).click();
-  await expect(sub).toHaveCount(0);
-  const removed = page.locator('.bo-card').filter({ hasText: 'Obunadan chiqarilganlar' });
-  await expect(removed).toContainText('Madina Ergasheva');
+  await sub.getByRole('button', { name: /Chiqarib tashlash/ }).click();
+  await expect(sub).toContainText('chiqarilgan');
   await student.reload({ waitUntil: 'domcontentloaded' });
   await expect(homeMark).toHaveCount(0);
   await student
@@ -349,8 +361,8 @@ test('Premium: a student submits payment, the administrator approves it, and the
   await expect(student.getByRole('dialog')).toContainText('Obunangizni administrator yopgan');
   await student.keyboard.press('Escape');
   // blokdan chiqariladi — endi chek bilan obuna bo'ladi; administrator chekni ko'radi
-  await removed.getByRole('button', { name: 'Blokdan chiqarish' }).click();
-  await expect(removed).toHaveCount(0);
+  await sub.getByRole('button', { name: 'Blokdan chiqarish' }).click();
+  await expect(sub).toContainText('Obuna yo‘q');
   await student.reload({ waitUntil: 'domcontentloaded' });
   await student
     .locator('.premium-side.is-home')
@@ -365,10 +377,16 @@ test('Premium: a student submits payment, the administrator approves it, and the
     .setInputFiles({ name: 'chek.png', mimeType: 'image/png', buffer: RECEIPT });
   await again.getByRole('button', { name: /Yuborish/ }).click();
   await expect(student.getByText('💎 To‘lov tekshiruvga yuborildi.')).toBeVisible();
-  await page.reload({ waitUntil: 'domcontentloaded' });
+  await page.goto('/#admin', { waitUntil: 'domcontentloaded' });
+  await expect(
+    page.getByRole('button', { name: '🛠 Sayt boshqaruvi', exact: true }),
+  ).toHaveAttribute('aria-pressed', 'true');
+  await page.goto('/#admin/payments', { waitUntil: 'domcontentloaded' });
   await expect(fresh).toHaveCount(1);
-  await expect(fresh).toContainText('1 oy · 💳 5 000 so‘m');
-  await expect(fresh).not.toContainText('To‘lov vaqti');
+  await expect(fresh).toContainText('5 000');
+  await expect(fresh).not.toContainText('To‘langan vaqti');
+  // sahifa ma'lumoti yangilanib bo'lsin (aks holda chek oynasi ochilishi bilan ro'yxat qayta chiziladi)
+  await page.waitForLoadState('networkidle');
   await fresh.getByRole('button', { name: /Chekni ko‘rish/ }).click();
   await expect(page.getByRole('dialog').getByRole('img', { name: 'To‘lov cheki' })).toBeVisible();
   await page.keyboard.press('Escape');

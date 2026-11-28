@@ -1,6 +1,6 @@
 'use client';
-import { useEffect, useMemo, useState, type FormEvent } from 'react';
-import { Check, KeyRound, Save, Trash2, X } from 'lucide-react';
+import { useEffect, useState, type FormEvent } from 'react';
+import { Check, KeyRound, Save, X } from 'lucide-react';
 import { useApp } from '../provider';
 import { Button } from '../ui/button';
 import { dueText } from '@/lib/points';
@@ -9,7 +9,7 @@ import type { CourseAccessAdminView } from '@/lib/server/course-access';
 import { courseReceiptUrl, MAIN_COURSE_ID } from '@/lib/course-access';
 import { ReceiptPreviewButton } from '../receipt';
 
-export function CourseAccessAdmin() {
+export function CourseAccessAdmin({ openTab }: { openTab?: (tab: string) => void }) {
   const L = useL();
   const { data } = useApp();
   // asosiy fan va pullik fanlar (restoran kursi …): har biri bo'yicha kim qatnasha oladi — alohida
@@ -43,15 +43,42 @@ export function CourseAccessAdmin() {
         </div>
       )}
       {current?.paid ? (
-        <PaidCourseAccess key={current.id} course={current.id} />
+        <PaidCourseAccess key={current.id} course={current.id} openTab={openTab} />
       ) : (
-        <MainCourseAccess />
+        <MainCourseAccess openTab={openTab} />
       )}
     </>
   );
 }
 
-function MainCourseAccess() {
+type OpenTab = { openTab?: (tab: string) => void };
+/** Kimga ruxsat berilgani va ruxsatni olish — «Talabalar bilan ishlash» bo'limida (bitta funksiya — bitta joyda). */
+function GrantsSummary({ count, openTab }: { count: number } & OpenTab) {
+  const L = useL();
+  return (
+    <div className="bo-card">
+      <h3>
+        ✅ {L('Ruxsat berilganlar', 'Access granted', 'С доступом')} ({count})
+      </h3>
+      <p className="bo-hint">
+        {L(
+          'Har bir talaba va foydalanuvchining kursga ruxsatini «👥 Talabalar bilan ishlash» bo‘limida ko‘rasiz, berasiz yoki olib tashlaysiz.',
+          'See, grant or remove each person’s course access under “👥 Working with students”.',
+          'Доступ каждого к курсу смотрите, выдавайте и снимайте в «👥 Работе со студентами».',
+        )}
+      </p>
+      {openTab && (
+        <div className="bo-actions">
+          <Button size="sm" variant="outline" onClick={() => openTab('academic')}>
+            👥 {L('Talabalar bilan ishlash', 'Working with students', 'Работа со студентами')}
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function MainCourseAccess({ openTab }: OpenTab) {
   const L = useL();
   const { lang } = useApp();
   const { data, error, busy, act } = useAdminView<CourseAccessAdminView>(
@@ -195,66 +222,7 @@ function MainCourseAccess() {
         <CourseShopForm view={data} busy={busy} act={act} />
       </div>
 
-      <div className="bo-card">
-        <h3>
-          ✅ {L('Ruxsat berilganlar', 'Access granted', 'С доступом')} ({data.grants.length})
-        </h3>
-        <ul className="bo-list bo-app-requests">
-          {data.grants.map((g) => (
-            <li key={g.uid}>
-              <div>
-                <b>
-                  {g.name}
-                  {g.group && <em className="bo-group">🎓 {g.group}</em>}
-                </b>
-                <small>
-                  {[g.email, L('berilgan: ', 'since ', 'с ') + dueText(g.at, lang, now).date]
-                    .filter(Boolean)
-                    .join(' · ')}
-                </small>
-              </div>
-              <span className="bo-row-btns">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  disabled={!!busy}
-                  aria-label={
-                    L('Ruxsatni olish', 'Remove access', 'Отозвать доступ') + ': ' + g.name
-                  }
-                  onClick={() => {
-                    if (
-                      !confirm(
-                        L(
-                          `${g.name} · Tadbirkorlik asoslari: kurs ruxsati olib tashlansinmi?`,
-                          `${g.name} · Entrepreneurship: remove course access?`,
-                          `${g.name} · Предпринимательство: отозвать доступ?`,
-                        ),
-                      )
-                    )
-                      return;
-                    void act(
-                      { op: 'revoke', uid: g.uid },
-                      'rv' + g.uid,
-                      L('Ruxsat olib tashlandi', 'Access removed', 'Доступ отозван'),
-                    ).catch(() => {});
-                  }}
-                >
-                  <Trash2 size={14} />
-                </Button>
-              </span>
-            </li>
-          ))}
-          {!data.grants.length && (
-            <li className="muted">
-              {L(
-                'Hozircha hech kimga ruxsat berilmagan.',
-                'Nobody has access yet.',
-                'Пока никому не выдан доступ.',
-              )}
-            </li>
-          )}
-        </ul>
-      </div>
+      <GrantsSummary count={data.grants.length} openTab={openTab} />
     </div>
   );
 }
@@ -331,37 +299,17 @@ function CourseShopForm({
 }
 
 /** 💳 Pullik kurs: narx va to'lov yo'riqnomasi, qatnashish so'rovlari, email yoki reyting bo'yicha ruxsat, ruxsatlar. */
-function PaidCourseAccess({ course }: { course: string }) {
+function PaidCourseAccess({ course, openTab }: { course: string } & OpenTab) {
   const L = useL();
-  const { lang, request } = useApp();
+  const { lang } = useApp();
   const { data, error, busy, act } = useAdminView<CourseAccessAdminView>(
     'courseAccessAdmin&course=' + encodeURIComponent(course),
     'courseAccessAdmin',
   );
-  const [email, setEmail] = useState(''),
-    [students, setStudents] = useState<{ id: string; name: string; classId?: string }[]>([]),
-    [q, setQ] = useState('');
-  useEffect(() => {
-    let live = true;
-    request('/api/platform?view=academic')
-      .then((r) => (r.ok ? r.json() : { leaderboard: [] }))
-      .then((v) => live && setStudents(v.leaderboard || []))
-      .catch(() => {});
-    return () => {
-      live = false;
-    };
-  }, [request]);
-  const found = useMemo(() => {
-    const n = q.trim().toLowerCase();
-    if (n.length < 2) return [];
-    return students
-      .filter((s) => (s.name + ' ' + (s.classId || '')).toLowerCase().includes(n))
-      .slice(0, 8);
-  }, [q, students]);
+  const [email, setEmail] = useState('');
   if (error) return <p className="error-state">{error}</p>;
   if (!data) return <div className="skeleton h-64" />;
   const now = Date.now();
-  const has = new Set(data.grants.map((g) => g.uid));
   const done = '✅ ' + L('Ruxsat berildi', 'Access granted', 'Доступ выдан');
   return (
     <div className="bo-live bo-course-access is-paid">
@@ -462,57 +410,15 @@ function PaidCourseAccess({ course }: { course: string }) {
               <Check size={15} /> {L('Email bo‘yicha', 'By email', 'По email')}
             </Button>
           </div>
-          <label>
-            {L(
-              'Yoki TerDU talabasini toping',
-              'Or find a TerSU student',
-              'Или найдите студента ТерГУ',
-            )}
-            <input
-              className="input"
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-              placeholder={L('Ism yoki guruh', 'Name or group', 'Имя или группа')}
-            />
-          </label>
-          {!!found.length && (
-            <ul className="bo-pick">
-              {found.map((st) => (
-                <li key={st.id}>
-                  <button
-                    type="button"
-                    disabled={!!busy || has.has(st.id)}
-                    onClick={() =>
-                      void act(
-                        { op: 'grantUser', uid: st.id, name: st.name, course },
-                        'gu' + st.id,
-                        done,
-                      )
-                        .then(() => setQ(''))
-                        .catch(() => {})
-                    }
-                  >
-                    <b>{st.name}</b>
-                    <small>
-                      {(st.classId || '') +
-                        (has.has(st.id)
-                          ? ' · ' + L('ruxsati bor', 'has access', 'есть доступ')
-                          : '')}
-                    </small>
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
           <p className="bo-hint">
             {data.email
               ? L(
-                  'Qatnashchi avval saytda ro‘yxatdan o‘tsin, keyin emailini yozing. TerDU talabalarini ism yoki guruh bo‘yicha toping.',
-                  'The participant registers on the site first, then enter their email. Find TerSU students by name or group.',
-                  'Участник сначала регистрируется на сайте, затем введите его email. Студентов ТерГУ ищите по имени или группе.',
+                  'Qatnashchi avval saytda ro‘yxatdan o‘tsin, keyin emailini yozing. TerDU talabasiga ruxsat — «Talabalar bilan ishlash» bo‘limida.',
+                  'The participant registers on the site first, then enter their email. TerSU students get access under “Working with students”.',
+                  'Участник сначала регистрируется на сайте, затем введите его email. Студентам ТерГУ доступ — в «Работе со студентами».',
                 )
               : L(
-                  'Demo rejimida email bo‘yicha qidirib bo‘lmaydi — so‘rovlar yoki talabalar ro‘yxatidan foydalaning.',
+                  'Demo rejimida email bo‘yicha qidirib bo‘lmaydi — so‘rovlardan yoki «Talabalar bilan ishlash» bo‘limidan foydalaning.',
                   'Email lookup is unavailable in demo mode — use requests or the student list.',
                   'В демо-режиме поиск по email недоступен — используйте запросы или список студентов.',
                 )}
@@ -521,64 +427,7 @@ function PaidCourseAccess({ course }: { course: string }) {
         <CourseShopForm view={data} busy={busy} act={act} />
       </div>
 
-      <div className="bo-card">
-        <h3>
-          ✅ {L('Qatnasha oladiganlar', 'Participants', 'Участники')} ({data.grants.length})
-        </h3>
-        <ul className="bo-list bo-app-requests">
-          {data.grants.map((g) => (
-            <li key={g.uid}>
-              <div>
-                <b>{g.name}</b>
-                <small>
-                  {[g.email, L('berilgan: ', 'since ', 'с ') + dueText(g.at, lang, now).date]
-                    .filter(Boolean)
-                    .join(' · ')}
-                </small>
-              </div>
-              <span className="bo-row-btns">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  disabled={!!busy}
-                  aria-label={
-                    L('Ruxsatni olish', 'Remove access', 'Отозвать доступ') + ': ' + g.name
-                  }
-                  onClick={() => {
-                    const title = data.courses.find((c) => c.id === course)?.title || course;
-                    if (
-                      !confirm(
-                        L(
-                          `${g.name} · ${title}: kurs ruxsati olib tashlansinmi?`,
-                          `${g.name} · ${title}: remove course access?`,
-                          `${g.name} · ${title}: отозвать доступ?`,
-                        ),
-                      )
-                    )
-                      return;
-                    void act(
-                      { op: 'revoke', uid: g.uid, course },
-                      'rv' + g.uid,
-                      L('Ruxsat olib tashlandi', 'Access removed', 'Доступ отозван'),
-                    ).catch(() => {});
-                  }}
-                >
-                  <Trash2 size={14} />
-                </Button>
-              </span>
-            </li>
-          ))}
-          {!data.grants.length && (
-            <li className="muted">
-              {L(
-                'Hozircha hech kimga ruxsat berilmagan — darslarni faqat siz ochasiz.',
-                'Nobody has access yet — only you can open the lessons.',
-                'Пока ни у кого нет доступа — уроки открываете только вы.',
-              )}
-            </li>
-          )}
-        </ul>
-      </div>
+      <GrantsSummary count={data.grants.length} openTab={openTab} />
     </div>
   );
 }

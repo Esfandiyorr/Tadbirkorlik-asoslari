@@ -136,7 +136,7 @@ test('a student asks to join, the administrator approves in «Kursga ruxsat» an
   const row = sec.locator('.bo-list li').filter({ hasText: 'Ofitsiant, «Sharq» restorani' });
   await row.getByRole('button', { name: /^Ruxsat berish:/ }).click();
   await expect(sec).toContainText('Yangi so‘rov yo‘q.');
-  await expect(sec.getByRole('button', { name: /^Ruxsatni olish:/ })).toHaveCount(1);
+  await expect(sec).toContainText('Ruxsat berilganlar (1)');
 
   // talaba endi darsni ochadi
   await as(page, 'demo-student');

@@ -669,9 +669,14 @@ const localSeen = (): string[] => {
 };
 /** E'lonni shu brauzerda «o'qildi» deb belgilaydi va ochiq katta oynaga xabar beradi. */
 /** Jonli o'yinga kim kira oladi: o'qituvchi va har qanday talaba; Yozuv marafoni (yz) — faqat guruh talabalari. */
-export function canJoinLive(u: { role: string; learnerType?: string } | undefined, g: LiveGame) {
+export function canJoinLive(
+  u: { role: string; learnerType?: string; closed?: readonly string[] } | undefined,
+  g: LiveGame,
+) {
   if (u?.role === 'teacher') return true;
   if (u?.role !== 'student') return false;
+  // 🎚 guruh yoki talabaga jonli o'yinlar yopilgan — taklif va eslatma ko'rsatilmaydi
+  if (u.closed?.includes('live')) return false;
   // 🏁 poyga va jonli test — hamma talabaga; Yozuv marafoni — faqat guruh talabalariga
   return g.type !== 'yz' || u.learnerType !== 'independent';
 }

@@ -1,6 +1,6 @@
 'use client';
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
-import { Check, CreditCard, Save, Search, ShieldCheck, Trash2, Unlock, X } from 'lucide-react';
+import { Check, CreditCard, Save, Trash2, Unlock, X } from 'lucide-react';
 import { useApp } from './provider';
 import { Button } from './ui/button';
 import { AvatarFigure, avatarName, setAvatarCatalog } from './avatars';
@@ -32,7 +32,6 @@ export function AvatarAdmin() {
   const L = (uz: string, en: string, ru: string) => tr(lang, uz, en, ru);
   const [view, setView] = useState<View | null>(null),
     [error, setError] = useState(''),
-    [query, setQuery] = useState(''),
     [busy, setBusy] = useState(''),
     [shop, setShop] = useState<AvatarShop>({ on: true, price: '', days: 30, how: '' }),
     [days, setDays] = useState(30);
@@ -77,28 +76,6 @@ export function AvatarAdmin() {
       setBusy('');
     }
   }
-  const allow = (p: Person, on: boolean) =>
-    act(
-      { op: 'allow', student: p.id, allow: on },
-      'allow' + p.id,
-      on
-        ? L(
-            `✅ ${p.name}ga avatar ruxsati berildi`,
-            `✅ ${p.name} may now choose an avatar`,
-            `✅ ${p.name}: аватар разрешён`,
-          )
-        : L(
-            `${p.name}dan avatar ruxsati olindi`,
-            `Avatar permission removed for ${p.name}`,
-            `${p.name}: разрешение снято`,
-          ),
-    );
-  const q = query.trim().toLocaleLowerCase();
-  const found = q
-    ? (view?.students || [])
-        .filter((s) => (s.name + ' ' + s.classId).toLocaleLowerCase().includes(q))
-        .slice(0, 8)
-    : [];
   return (
     <section className="panel avatar-admin">
       <div className="section-heading">
@@ -368,99 +345,15 @@ export function AvatarAdmin() {
               </Button>
             </form>
           </div>
-          <div className="avatar-admin-allow">
-            <h3>
-              <ShieldCheck size={18} />{' '}
-              {L('Ruxsat berilgan talabalar', 'Students with permission', 'Студенты с разрешением')}{' '}
-              <span className="muted">({view.allowed.length})</span>
-            </h3>
-            {view.allowed.length ? (
-              <ul>
-                {view.allowed.map((p) => (
-                  <li key={p.id}>
-                    <span>
-                      <b>{p.name}</b>
-                      <small>
-                        {p.classId}
-                        {p.place
-                          ? ' · ' + L(`${p.place}-o‘rin`, `#${p.place}`, `${p.place}-е`)
-                          : ''}
-                      </small>
-                    </span>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      disabled={!!busy}
-                      onClick={() => void allow(p, false)}
-                    >
-                      {L('Ruxsatni olish', 'Remove', 'Снять')}
-                    </Button>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="muted">
-                {L(
-                  'Hozircha hech kimga alohida ruxsat berilmagan.',
-                  'No extra permissions yet.',
-                  'Отдельных разрешений пока нет.',
-                )}
-              </p>
-            )}
-            <label className="avatar-admin-search">
-              <Search size={16} />
-              <input
-                className="input"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder={L(
-                  'Talabani qidiring: ism yoki guruh',
-                  'Find a student: name or group',
-                  'Найти студента: имя или группа',
-                )}
-                aria-label={L('Talabani qidirish', 'Find a student', 'Найти студента')}
-              />
-            </label>
-            {!!found.length && (
-              <ul>
-                {found.map((p) => (
-                  <li key={p.id}>
-                    <span>
-                      <b>{p.name}</b>
-                      <small>
-                        {p.classId} · {L(`${p.place}-o‘rin`, `#${p.place}`, `${p.place}-е`)}
-                      </small>
-                    </span>
-                    {p.place <= AVATAR_TOP ? (
-                      <small className="ok">
-                        {L(
-                          'top-10 — ruxsat shart emas',
-                          'top 10 — no permission needed',
-                          'топ-10 — разрешение не нужно',
-                        )}
-                      </small>
-                    ) : p.allowed ? (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        disabled={!!busy}
-                        onClick={() => void allow(p, false)}
-                      >
-                        {L('Ruxsatni olish', 'Remove', 'Снять')}
-                      </Button>
-                    ) : (
-                      <Button size="sm" disabled={!!busy} onClick={() => void allow(p, true)}>
-                        {L('Ruxsat berish', 'Allow', 'Разрешить')}
-                      </Button>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            )}
-            {q && !found.length && (
-              <p className="muted">{L('Topilmadi.', 'Nothing found.', 'Не найдено.')}</p>
-            )}
-          </div>
+          <p className="muted avatar-admin-allow">
+            🎭{' '}
+            {L(
+              'Alohida talabaga avatar tanlashga ruxsat — «👥 Talabalar bilan ishlash» bo‘limida (talabani tanlang → «Avatar»).',
+              'Avatar permission for a single student is under “👥 Working with students” (pick the student → “Avatar”).',
+              'Разрешение на аватар отдельному студенту — в «👥 Работе со студентами» (выберите студента → «Аватар»).',
+            )}{' '}
+            ({view.allowed.length} {L('ta ruxsat berilgan', 'allowed', 'с разрешением')})
+          </p>
         </>
       )}
     </section>

@@ -136,7 +136,9 @@ export function academicRecord(id: string, s: Row) {
       .join(' ')
       .slice(0, 200),
     classId: s.learnerType === 'independent' ? '' : String(s.group || '').slice(0, 100),
-    learnerType: s.learnerType === 'independent' ? 'independent' : 'university',
+    learnerType: (s.learnerType === 'independent' ? 'independent' : 'university') as
+      | 'independent'
+      | 'university',
     legacyStatus: ['ok', 'blocked'].includes(s.status) ? s.status : 'pending',
     academicPoints: number(s.total),
     academicTopics: topics,

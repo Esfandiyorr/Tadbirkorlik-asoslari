@@ -223,7 +223,11 @@ export function RaceGame() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
     };
-    const r = asHost ? await request('/api/race', init) : await fetch('/api/race', init);
+    // kirgan foydalanuvchi qo'shilganda server bo'limlar cheklovini tekshiradi
+    const r =
+      asHost || (data?.user && (body as { op?: string }).op === 'join')
+        ? await request('/api/race', init)
+        : await fetch('/api/race', init);
     const v = await r.json().catch(() => ({}));
     if (!r.ok) throw new Error(v.error || 'Ulanishda xatolik');
     return v;
@@ -387,6 +391,14 @@ export function RaceGame() {
       ) : (
         <Finish view={view} me={me} />
       );
+  } else if (!me && data?.user?.role === 'student' && data.user.closed?.includes('live')) {
+    // 🎚 «Talabalar bilan ishlash»: guruh yoki talabaga jonli o'yinlar yopilgan
+    body = (
+      <div className="race-card race-lobby" role="status">
+        <h2>🔒 Poyga siz uchun yopilgan</h2>
+        <p>Bu bo‘lim siz uchun yopilgan. Savol bo‘lsa, o‘qituvchingizga murojaat qiling.</p>
+      </div>
+    );
   } else if (!me) {
     body = (
       <div className="race-card race-join">

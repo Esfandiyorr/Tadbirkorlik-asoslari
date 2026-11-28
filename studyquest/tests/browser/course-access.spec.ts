@@ -186,7 +186,9 @@ test('the administrator can approve and revoke course access', async ({ page }) 
   await expect(row.locator('.bo-group')).toHaveText('🎓 AP-223');
   await row.getByRole('button', { name: 'Ruxsat berish: Dilnoza Karimova' }).click();
   await expect(sec).toContainText('Yangi so‘rov yo‘q.');
-  await expect(sec.getByRole('button', { name: 'Ruxsatni olish: Dilnoza Karimova' })).toBeVisible();
+  // ruxsat berilganlar soni; har biri bilan ishlash — «Talabalar bilan ishlash» bo'limida
+  await expect(sec).toContainText('Ruxsat berilganlar (1)');
+  await expect(sec).toContainText('Talabalar bilan ishlash');
   expect(sent).toEqual([{ op: 'approve', uid: 'uidX', paymentId: null }]);
 });
 

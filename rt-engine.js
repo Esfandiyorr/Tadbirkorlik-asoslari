@@ -4355,9 +4355,12 @@ function accDue(ts){
   return T(d.getUTCDate()+"-"+["yanvar","fevral","mart","aprel","may","iyun","iyul","avgust","sentabr","oktabr","noyabr","dekabr"][m]+", yakshanba 23:59",
     "Sunday, "+d.getUTCDate()+" "+["January","February","March","April","May","June","July","August","September","October","November","December"][m]+", 23:59");
 }
+/* 🎚 sayt «Talabalar bilan ishlash»: talabaga «Mavzu testlari va ball» yopilgan (?sqRead=1) — ball beradigan mavzu ham
+   📖 o'qish rejimida ochiladi (taqdimot o'qiladi, test ishlanadi, ball berilmaydi) */
+var SQ_READ=typeof location!=="undefined"&&/[?&]sqRead=1(&|$)/.test(location.search);
 /* talaba uchun hozir ball beradigan ochilish vaqti (bo'lmasa 0) */
 function accLiveAt(x,st){
-  if(independent(st)) return 0;
+  if(SQ_READ||independent(st)) return 0;
   var md=accMode(x); if(md) return md.m==="open"&&accLive(md.t)?md.t:0;
   var a=accRec(x);
   if(!a.lim) return accLive(a.at)?a.at:0;
@@ -4376,7 +4379,7 @@ function accAllRead(x,a){
 function accState(x,st){
   if(!x||!x.open) return "";
   var md=accMode(x);
-  if(md) return md.m==="lock"?"":md.m==="open"&&!independent(st)&&accLive(md.t)?"score":"read";
+  if(md) return md.m==="lock"?"":md.m==="open"&&!SQ_READ&&!independent(st)&&accLive(md.t)?"score":"read";
   if(independent(st)) return accState(x,null)?"read":"";
   if(accLiveAt(x,st)) return "score";
   var a=accRec(x), own=!a.lim||!!(st&&((st.id&&a.s[st.id])||(st.group&&a.g[gkey(st.group)])));

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { actor, check, sameOrigin } from '@/lib/server/auth';
+import { requireFeature } from '@/lib/server/student-limits';
 import { failure } from '@/lib/server/http';
 import { premiumReceipt, premiumView, subscribe } from '@/lib/server/premium';
 
@@ -35,7 +36,10 @@ export async function POST(req: NextRequest) {
     check(text.length < 1_700_000, 413, 'Chek rasmi 1 MB dan oshmasin.');
     const { op, ...rest } = JSON.parse(text || '{}') as { op?: string };
     check(op === 'subscribe', 400, 'So‘rov noto‘g‘ri.');
-    return NextResponse.json(await subscribe(await actor(req, true), rest), { headers });
+    const a = await actor(req, true);
+    // 🎚 guruh yoki talabaga «Obuna bo'lish» yopilgan bo'lsa
+    await requireFeature(a, 'premium');
+    return NextResponse.json(await subscribe(a, rest), { headers });
   } catch (e) {
     return failure(e);
   }

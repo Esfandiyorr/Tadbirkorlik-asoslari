@@ -149,8 +149,8 @@ test('the administrator chooses an avatar without a subscription and manages stu
   const po = panel.locator('.avatar-admin-grid li').filter({ hasText: 'Po' });
   await expect(po).toContainText('Madina Ergasheva');
   await expect(po).toContainText('1-o‘rin');
-  await panel.getByLabel('Talabani qidirish').fill('Madina');
-  await expect(panel.locator('.avatar-admin-allow')).toContainText('top-10 — ruxsat shart emas');
+  // alohida talabaga ruxsat — «Talabalar bilan ishlash» bo'limida (bitta funksiya — bitta joyda)
+  await expect(panel.locator('.avatar-admin-allow')).toContainText('Talabalar bilan ishlash');
   await po.getByRole('button', { name: /Bo‘shatish/ }).click();
   await expect(po).toContainText('Bo‘sh');
   await page.request.post('/api/platform', {

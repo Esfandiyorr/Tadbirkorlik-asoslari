@@ -6,6 +6,9 @@ import { z } from 'zod';
 import { actor, ApiError, check, sameOrigin, staff, administrator } from '@/lib/server/auth';
 import { repository, demo, configured, legacyDb } from '@/lib/server/repository';
 import { legacyAccess, lessonAccessStates } from '@/lib/server/legacy-access';
+import { closedFor, manageLimits, requireFeature } from '@/lib/server/student-limits';
+import { studentsHubView } from '@/lib/server/students-hub';
+import { limitLessonAccess } from '@/lib/student-limits';
 import { applyLegacyUpdate } from '@/lib/server/legacy-student';
 import {
   cancelCourseRequest,
@@ -25,7 +28,7 @@ import {
   lessonAccessLifetime,
 } from '@/lib/server/course-assets';
 import type { CourseEntry } from '@/lib/course-access';
-import type { Actor } from '@/lib/types';
+import type { Actor, LessonAccess, User } from '@/lib/types';
 import { demoTopicAccess, setTopicMode, topicAccessList } from '@/lib/server/topic-access';
 import { Platform } from '@/lib/server/platform';
 import { Academic, academicRecord } from '@/lib/server/academic';
@@ -120,6 +123,36 @@ async function withCourse(a: Actor, target: { course?: unknown; lessonAccess?: u
       )?.val(),
       { id: a.id, group: a.classId, independent: course.via !== 'student' },
     );
+}
+/** 🎚 «Talabalar bilan ishlash» → «Bo'limlar»: talabaga yopilgan bo'limlar va shunga ko'ra mavzular holati
+    (taqdimot yopiq — mavzu yopiq; test yopiq — ball beriladigan mavzu 📖 o'qish rejimida). */
+async function withLimits(a: Actor, target: { lessonAccess?: unknown; user?: unknown }) {
+  if (a.role !== 'student') return;
+  const group = (target.user as { classId?: string } | undefined)?.classId;
+  const closed = await closedFor(a, group || a.classId);
+  if (!closed.length) return;
+  if (target.user && typeof target.user === 'object')
+    (target.user as { closed?: unknown }).closed = closed;
+  if (target.lessonAccess)
+    target.lessonAccess = limitLessonAccess(
+      target.lessonAccess as Record<string, LessonAccess>,
+      closed,
+    );
+}
+/** Demo: «Talabalar bilan ishlash» uchun namunaviy talabalar (jonli bazaga ulanmaydi). */
+async function demoRoster(): Promise<User[]> {
+  return ((await (await repository()).list('users')) as User[])
+    .filter((u) => u.role === 'student')
+    .map((u) => ({
+      ...u,
+      legacyId: u.id,
+      legacyStatus: (u as { blocked?: boolean }).blocked ? 'blocked' : 'ok',
+      learnerType: u.learnerType || 'university',
+      academicPoints: u.academicPoints || 0,
+      manualMarks: {},
+      academicTopics: {},
+      readingHistory: {},
+    }));
 }
 async function deletedStudentIds() {
   if (demo()) return new Set<string>();
@@ -297,6 +330,8 @@ export async function GET(req: NextRequest) {
     if (req.nextUrl.searchParams.get('view') === 'library') {
       // 📚 Kutubxona: hamma ko'radi; 💎 manbalarning havolasi faqat obunachiga (mehmon — obunasiz)
       const a = await actor(req, true).catch(() => null);
+      // 🎚 guruh yoki talabaga kutubxona yopilgan bo'lsa
+      if (a) await requireFeature(a, 'library');
       const p = a ? await premiumView(a) : null;
       return NextResponse.json(
         {
@@ -377,6 +412,8 @@ export async function GET(req: NextRequest) {
     // remain available without a Firestore profile or an XP write.
     if (req.nextUrl.searchParams.get('view') === 'legacyLesson') {
       const a = await actor(req, true);
+      // 🎚 guruh yoki talabaga taqdimotlar yopilgan bo'lsa — dars ochilmaydi
+      await requireFeature(a, 'lessons');
       const wanted = req.nextUrl.searchParams.get('lesson');
       // 📚 Qo'shimcha fan (restoran kursi): yopiq bo'lsa, faqat o'qituvchi va administrator ochadi.
       const extra = extraLessons.find((l) => l.id === wanted);
@@ -478,7 +515,19 @@ export async function GET(req: NextRequest) {
         users: demo() ? [] : await new Academic(await repository()).roster(a),
       });
     }
+    if (req.nextUrl.searchParams.get('view') === 'studentsHub') {
+      // 👥 «Talabalar bilan ishlash»: talabalar, bo'limlar, baholar, obuna, kurs va avatar ruxsati bitta ko'rinishda
+      staff(a);
+      const roster = demo()
+        ? await demoRoster()
+        : await new Academic(await repository()).roster(a).catch(() => []);
+      return NextResponse.json(await studentsHubView(a, roster), {
+        headers: { 'Cache-Control': 'private, no-store' },
+      });
+    }
     if (req.nextUrl.searchParams.get('view') === 'leaderboard') {
+      // 🏆 guruh yoki talabaga «Reyting» yopilgan bo'lsa — ko'rsatilmaydi
+      if ((await closedFor(a)).includes('ranking')) return NextResponse.json({ leaderboard: [] });
       const [leaderboard, deleted] = await Promise.all([
         service.leaderboard(
           a,
@@ -557,6 +606,7 @@ export async function GET(req: NextRequest) {
     if (demo() && a.role === 'student' && state.user)
       Object.assign(state, demoAcademic(state.user as { id: string }));
     await withCourse(a, state as { course?: unknown; lessonAccess?: unknown });
+    await withLimits(a, state as { lessonAccess?: unknown; user?: unknown });
     // 💳 pullik kurslar (restoran kursi): kira oladimi, so'rov holati, narx
     (state as { paid?: unknown }).paid = await paidView(a).catch(() => ({}));
     // 💼 pullik xizmatlar vaqtincha yopiq bo'lsa — menyuda ko'rinmaydi
@@ -613,10 +663,14 @@ export async function GET(req: NextRequest) {
               );
           }
         }
-        if (a && limited.user)
+        if (a && limited.user) {
           await withCourse(a, limited as { course?: unknown; lessonAccess?: unknown }).catch(
             () => {},
           );
+          await withLimits(a, limited as { lessonAccess?: unknown; user?: unknown }).catch(
+            () => {},
+          );
+        }
         return NextResponse.json(
           { ...limited, courseShop: await courseShop(MAIN_COURSE) },
           { headers: { 'Cache-Control': 'no-store' } },
@@ -809,6 +863,18 @@ export async function POST(req: NextRequest) {
         (after_.state === 'open' || (after_.state === 'read' && before.state === 'lock'))
       )
         after(() => topicPush(after_).catch(() => {}));
+      return NextResponse.json(r);
+    }
+    if (p.action === 'studentLimits') {
+      // 🎚 guruh yoki talabaga bo'limlarni ochish/yopish (o'qituvchi yoki administrator)
+      const a = await actor(req, true);
+      const r = await manageLimits(a, p.input);
+      const input = (p.input || {}) as { scope?: string; key?: string; op?: string };
+      await recordStaffActivity(
+        a,
+        'limits:' + (input.op || 'set'),
+        (input.scope === 'g' ? 'guruh ' : 'talaba ') + String(input.key || '').slice(0, 80),
+      ).catch(() => {});
       return NextResponse.json(r);
     }
     if (p.action === 'legacyChangePassword') {

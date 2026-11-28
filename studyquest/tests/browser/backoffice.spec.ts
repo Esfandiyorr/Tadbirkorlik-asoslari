@@ -45,7 +45,7 @@ test('the site manager opens with clear cards and leads to every admin task', as
     'Avatarlar',
     'E’lonlar',
     'Mavzular holati',
-    'Talabalar va baholar',
+    'Talabalar bilan ishlash',
   ])
     await expect(hub.locator('.bo-card-btn').filter({ hasText: name })).toBeVisible();
   // Kartochka ichki bo'limni ochadi, «← Sayt boshqaruvi» qaytaradi.

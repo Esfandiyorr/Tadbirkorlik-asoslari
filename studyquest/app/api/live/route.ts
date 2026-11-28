@@ -1,6 +1,7 @@
 import { randomBytes } from 'node:crypto';
 import { NextRequest, NextResponse } from 'next/server';
 import { actor, check, sameOrigin } from '@/lib/server/auth';
+import { requireFeature } from '@/lib/server/student-limits';
 import { failure } from '@/lib/server/http';
 import { sitePolicy } from '@/lib/server/site-policy';
 import { demo, configured } from '@/lib/server/repository';
@@ -20,13 +21,17 @@ const headers = {
   'Cache-Control': 'private, no-store',
   Vary: 'Cookie, Authorization, X-Legacy-Student',
 };
-async function identity(req: NextRequest) {
+async function identity(req: NextRequest, write = false) {
   if (
     req.headers.has('authorization') ||
     req.headers.has('x-legacy-student') ||
     (demo() && req.cookies.has('sq-demo'))
-  )
-    return accountPlayer(await actor(req, false, { allowPendingLegacy: true }));
+  ) {
+    const a = await actor(req, false, { allowPendingLegacy: true });
+    // 🎚 «Talabalar bilan ishlash»: guruh yoki talabaga jonli test yopilgan bo'lsa — qatnasha olmaydi
+    if (write) await requireFeature(a, 'live');
+    return accountPlayer(a);
+  }
   return guestPlayer(req.cookies.get(guestCookie)?.value || '');
 }
 async function publicAccess(req: NextRequest) {
@@ -92,7 +97,7 @@ export async function POST(req: NextRequest) {
     const text = await req.text();
     check(text.length <= 3000, 413, 'So‘rov juda katta.');
     return NextResponse.json(
-      { value: await writeLive(await identity(req), JSON.parse(text)), now: Date.now() },
+      { value: await writeLive(await identity(req, true), JSON.parse(text)), now: Date.now() },
       { headers },
     );
   } catch (e) {

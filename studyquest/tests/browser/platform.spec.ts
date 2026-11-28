@@ -666,7 +666,7 @@ test('class reports load only on request or for CSV and are reused between tabs'
   });
   await page.goto('/#admin');
   await expect(
-    page.getByRole('button', { name: 'Talabalar va baholar', exact: true }),
+    page.getByRole('button', { name: '👥 Talabalar bilan ishlash', exact: true }),
   ).toBeVisible();
   await page.waitForLoadState('networkidle');
   expect(reports).toBe(0);

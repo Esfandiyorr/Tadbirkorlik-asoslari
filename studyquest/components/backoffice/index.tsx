@@ -131,9 +131,9 @@ export function BackOffice({
       icon: '🎭',
       title: L('Avatarlar', 'Avatars', 'Аватары'),
       text: L(
-        'Yangi avatar rasmini yuklash, nomini o‘zgartirish, yashirish; kimga ruxsat berilgani.',
-        'Upload new avatar pictures, rename or hide them; who may choose one.',
-        'Загрузка новых аватаров, переименование, скрытие; кому разрешено.',
+        'Yangi avatar rasmini yuklash, nomini o‘zgartirish, yashirish; kimda qaysi avatar, sotib olish narxi va so‘rovlari.',
+        'Upload new avatar pictures, rename or hide them; who has which avatar, the price and purchase requests.',
+        'Загрузка новых аватаров, переименование, скрытие; у кого какой аватар, цена и заявки на покупку.',
       ),
     },
     {
@@ -201,23 +201,19 @@ export function BackOffice({
       icon: '🔑',
       title: L('Kursga ruxsat', 'Course access', 'Доступ к курсу'),
       text: L(
-        'Har bir kurs bo‘yicha kim qatnasha oladi: so‘rovlar, email yoki talaba bo‘yicha ruxsat, ruxsatlar ro‘yxati. Pullik kurs (restoran) — faqat siz ruxsat berganlarga; narx va to‘lov yo‘riqnomasi.',
-        'Who may take each course: requests, access by email or student, the list of grants. A paid course (restaurant) opens only for those you approve; price and payment instructions.',
-        'Кто может проходить каждый курс: запросы, доступ по email или студенту, список. Платный курс (ресторан) — только одобренным вами; цена и инструкция по оплате.',
+        'Kursga qatnashish so‘rovlari, email bo‘yicha ruxsat, narx va to‘lov yo‘riqnomasi. Har bir talabaning ruxsati — 👥 talabalar bo‘limida.',
+        'Requests to join, access by email, price and payment instructions. Giving or removing a student’s access — under “Working with students”.',
+        'Запросы на участие, доступ по email, цена и инструкция по оплате. Доступ студенту — в «Работе со студентами».',
       ),
     },
     {
       id: 'premium',
       icon: '💎',
-      title: L(
-        'Obuna (pullik imkoniyatlar)',
-        'Premium (paid features)',
-        'Подписка (платные функции)',
-      ),
+      title: L('Obuna sozlamalari', 'Premium settings', 'Настройки подписки'),
       text: L(
-        'Chek yuborganlarni qabul qilish (1 oy yoki 1 yil) yoki qabul qilmaslik; obunachilar — qancha muddatga va qancha to‘lagani; obunani qo‘lda berish yoki bekor qilish.',
-        'Accept receipts (1 month or 1 year) or reject them; subscribers with their period and how much they paid; give or remove Premium by hand.',
-        'Принять чеки (1 месяц или 1 год) или отклонить; подписчики — срок и сколько оплатили; выдать или отменить подписку вручную.',
+        'Obuna uchun karta va izoh, faol obunachilar soni. Cheklar — «To‘lovlar»da, kimda obuna borligi — 👥 talabalar bo‘limida.',
+        'The card and note for Premium, number of subscribers. Receipts are under “Payments”, subscribers under “Working with students”.',
+        'Карта и примечание для подписки, число подписчиков. Чеки — в «Платежах», подписчики — в «Работе со студентами».',
       ),
     },
     {
@@ -244,11 +240,11 @@ export function BackOffice({
     {
       id: 'academic',
       icon: '👥',
-      title: L('Talabalar va baholar', 'Students and grades', 'Студенты и оценки'),
+      title: L('Talabalar bilan ishlash', 'Working with students', 'Работа со студентами'),
       text: L(
-        'Talabalar ro‘yxati, ballar, parolni tiklash, guruhlar.',
-        'Student list, points, password resets, groups.',
-        'Список студентов, баллы, сброс пароля, группы.',
+        'Guruh yoki bitta talaba: bo‘limlarni ochish va yopish, kunlik mavzuga baho (reytingga 10 ballgacha), obuna kimda bor va bekor qilish, kurslarga kirish, avatar, holat, parol.',
+        'A group or one student: open and close sections, daily topic grades (up to 10 points), who has Premium and cancelling it, course access, avatar, status, password.',
+        'Группа или один студент: открытие и закрытие разделов, оценки за тему дня (до 10 баллов), у кого подписка и её отмена, доступ к курсу, аватар, статус, пароль.',
       ),
       tab: 'academic',
     },
@@ -286,9 +282,10 @@ export function BackOffice({
     else if (section === 'push') body = <PushAdmin />;
     else if (section === 'app') body = <AppAdmin />;
     else if (section === 'library') body = <LibraryAdmin />;
-    else if (section === 'premium') body = <PremiumAdmin />;
+    else if (section === 'premium')
+      body = <PremiumAdmin openTab={openTab} openSection={setSection} />;
     else if (section === 'payments') body = <PaymentsAdmin />;
-    else if (section === 'courseAccess') body = <CourseAccessAdmin />;
+    else if (section === 'courseAccess') body = <CourseAccessAdmin openTab={openTab} />;
     else if (section === 'services') body = <ServicesAdmin />;
     else if (section === 'exam') body = <ExamAdmin />;
     else if (section === 'promo') body = <PromoAdmin />;

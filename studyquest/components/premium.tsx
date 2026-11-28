@@ -17,6 +17,7 @@ import { Button } from './ui/button';
 import { dueText, tr } from '@/lib/points';
 import type { PremiumInfo, PremiumState } from '@/lib/library';
 import { isPlayApp } from '@/lib/play-app';
+import { CLOSED_TEXT, isClosed } from '@/lib/student-limits';
 import { LOOKS, lookOf } from '@/lib/premium-look';
 import { PREMIUM_CHANGED, PremiumSubscribe } from './premium-subscribe';
 import { ImagePick } from './image-pick';
@@ -260,6 +261,8 @@ export function PremiumSideCard({ className = '' }: { className?: string }) {
   const [mine, setMine] = useState(false);
   const role = data?.user?.role;
   if (!data?.user || role === 'admin' || role === 'teacher' || !premium) return null;
+  // 🎚 «Obuna bo'lish» yopilgan talabaga obuna taklifi ko'rsatilmaydi (faol obuna bo'lsa — ko'rinadi)
+  if (!premium.state.active && isClosed(data.user, 'premium')) return null;
   // 💎 obunachi: chap menyuda «Premium faol» va imkoniyatlari qayerda (bosh sahifada ko'rsatilmaydi)
   if (premium.state.active) {
     if (className.includes('is-home')) return null;
@@ -395,7 +398,11 @@ export function PremiumOffer({
           {L('Obuna bilan ko‘proq imkoniyat', 'More with Premium', 'Больше с подпиской')}
         </h2>
         <PremiumPerks />
-        {signedIn && !play ? (
+        {signedIn && isClosed(data?.user, 'premium') ? (
+          <p className="premium-offer-how" role="status">
+            🔒 {L(CLOSED_TEXT.uz, CLOSED_TEXT.en, CLOSED_TEXT.ru)}
+          </p>
+        ) : signedIn && !play ? (
           <div className="premium-plans">
             <PremiumSubscribe />
           </div>

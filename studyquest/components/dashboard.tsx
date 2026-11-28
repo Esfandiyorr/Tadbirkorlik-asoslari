@@ -44,6 +44,7 @@ import { t } from '@/lib/i18n';
 import { isPlayApp } from '@/lib/play-app';
 import { accessOf, courseTotals, dueText, durationText, num, topicPoints, tr } from '@/lib/points';
 import type { Course, Data, Lang, Lesson, Progress } from '@/lib/types';
+import type { Feature } from '@/lib/student-limits';
 
 const seenCount = (p: Progress) => Math.max(p.seen.length, p.legacySeen || 0);
 export const navigate = (view: string) => {
@@ -222,24 +223,36 @@ function QuickLinks({ chat }: { chat: boolean }) {
         ]
       : []),
   ];
+  // 🎚 guruh yoki talabaga yopilgan bo'limlar bosh sahifada ham ko'rinmaydi
+  const shut = data?.user?.closed || [];
+  const feature: Record<string, Feature> = {
+    topics: 'lessons',
+    courses: 'lessons',
+    arena: 'arena',
+    library: 'library',
+    services: 'services',
+    chat: 'chat',
+  };
   return (
     <nav className="quick-links home-sections" aria-label={L('Bo‘limlar', 'Sections', 'Разделы')}>
-      {items.map((x) => (
-        <a
-          key={x.id}
-          href={'#' + (x.href || x.id)}
-          className={'quick-link home-section is-' + x.id + (x.extra ? ' is-extra' : '')}
-        >
-          <SiteVisual className="hs-icon" imageKey={visualPath('home', x.id)} icon={x.emoji}>
-            <x.icon size={22} strokeWidth={2} />
-          </SiteVisual>
-          <b>{x.name}</b>
-          <small>{x.hint}</small>
-          <span className="hs-go">
-            {x.go} <ChevronRight size={15} aria-hidden="true" />
-          </span>
-        </a>
-      ))}
+      {items
+        .filter((x) => !shut.includes(feature[x.id]))
+        .map((x) => (
+          <a
+            key={x.id}
+            href={'#' + (x.href || x.id)}
+            className={'quick-link home-section is-' + x.id + (x.extra ? ' is-extra' : '')}
+          >
+            <SiteVisual className="hs-icon" imageKey={visualPath('home', x.id)} icon={x.emoji}>
+              <x.icon size={22} strokeWidth={2} />
+            </SiteVisual>
+            <b>{x.name}</b>
+            <small>{x.hint}</small>
+            <span className="hs-go">
+              {x.go} <ChevronRight size={15} aria-hidden="true" />
+            </span>
+          </a>
+        ))}
     </nav>
   );
 }
@@ -553,15 +566,19 @@ function LearnerHome() {
               </>
             )}
             <div className="profile-quick">
-              <button onClick={() => navigate('ranking')}>
-                <Trophy size={18} />
-                {t(lang, 'ranking')}
-              </button>
-              <button onClick={() => navigate('badges')}>
-                <Target size={18} />
-                {t(lang, 'badges')}
-              </button>
-              {(staff || university) && (
+              {!u?.closed?.includes('ranking') && (
+                <button onClick={() => navigate('ranking')}>
+                  <Trophy size={18} />
+                  {t(lang, 'ranking')}
+                </button>
+              )}
+              {!u?.closed?.includes('badges') && (
+                <button onClick={() => navigate('badges')}>
+                  <Target size={18} />
+                  {t(lang, 'badges')}
+                </button>
+              )}
+              {(staff || university) && !u?.closed?.includes('chat') && (
                 <button onClick={() => navigate('chat')}>
                   <MessageSquare size={18} />
                   {tr(lang, 'Chat', 'Chat', 'Чат')}
@@ -979,7 +996,7 @@ export function CourseList({
           <BookOpen size={17} />
           {tr(lang, 'Mavzular', 'Topics', 'Темы')}
         </button>
-        {!course.extra && (
+        {!course.extra && !data?.user?.closed?.includes('ranking') && (
           // 🏆 reyting — asosiy fanniki; qo'shimcha fanda (restoran kursi) hozircha ball va reyting yo'q
           <button
             role="tab"

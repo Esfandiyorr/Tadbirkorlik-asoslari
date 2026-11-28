@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ApiError, actor, check, sameOrigin } from '@/lib/server/auth';
+import { requireFeature } from '@/lib/server/student-limits';
 import { failure } from '@/lib/server/http';
 import { FILE_CHUNK } from '@/lib/services';
 import {
@@ -69,7 +70,10 @@ export async function POST(req: NextRequest) {
     const p = JSON.parse(body || '{}') as { scope?: string; input?: unknown };
     if (p.scope === 'admin')
       return NextResponse.json(await adminServices(await actor(req), p.input), { headers });
-    return NextResponse.json(await manageServices(await actor(req, true), p.input), { headers });
+    const a = await actor(req, true);
+    // 🎚 guruh yoki talabaga «Pullik xizmatlar» yopilgan bo'lsa — buyurtma berib bo'lmaydi
+    await requireFeature(a, 'services');
+    return NextResponse.json(await manageServices(a, p.input), { headers });
   } catch (e) {
     return failure(e);
   }

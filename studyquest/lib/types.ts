@@ -40,6 +40,8 @@ export type User = Actor & {
   manualMarks?: Record<string, number>;
   /** 🔁 testga ikkinchi urinish berilgan mavzular → berilgan vaqt */
   reopened?: Record<string, number>;
+  /** 🎚 guruh yoki talabaga yopilgan bo'limlar («Talabalar bilan ishlash» → «Bo'limlar», lib/student-limits.ts) */
+  closed?: import('./student-limits').Feature[];
   xp: number;
   streak: number;
   lastStudyDay?: string;
