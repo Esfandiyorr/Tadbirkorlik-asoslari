@@ -52,6 +52,12 @@ export async function siteUpdate(o: Record<string, unknown>) {
 
 export async function siteTransaction<T>(path: string, change: (current: T | null) => T | null) {
   if (demo()) {
+    if (!path) {
+      const value = change(structuredClone(memory) as T);
+      resetSiteMemory();
+      Object.assign(memory, value);
+      return value;
+    }
     const { parent, key } = walk(path, true);
     const value = change(structuredClone((parent![key] as T | undefined) ?? null));
     if (value === null) delete parent![key];
@@ -60,7 +66,7 @@ export async function siteTransaction<T>(path: string, change: (current: T | nul
   }
   let rejected: unknown;
   const result = await legacyDb()
-    .ref('site/' + path)
+    .ref(path ? 'site/' + path : 'site')
     .transaction(
       (current: T | null) => {
         try {

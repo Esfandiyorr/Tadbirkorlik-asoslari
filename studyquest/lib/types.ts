@@ -1,4 +1,4 @@
-import type { CourseEntry, PaidCourseState } from './course-access';
+import type { CourseEntry, CourseShop, PaidCourseState } from './course-access';
 export type Role = 'student' | 'teacher' | 'admin';
 export type Lang = 'uz' | 'en' | 'ru';
 export type ReadingHistory = {
@@ -164,8 +164,9 @@ export type Data = {
   serviceMessage?: string;
   user?: User;
   lessonAccess?: Record<string, LessonAccess>;
-  /** 🔑 kursga kirish (talaba bo'lmaganlar uchun: obuna yoki administrator ruxsati) — lib/server/course-access.ts */
+  /** 🔑 kursga kirish (talaba bo'lmaganlar uchun: administrator ruxsati) — lib/server/course-access.ts */
   course?: CourseEntry;
+  courseShop?: CourseShop;
   /** 💼 «Pullik xizmatlar» bo'limi menyuda ko'rinadimi (yo'q — vaqtincha yopiq) — lib/server/services.ts */
   servicesShown?: boolean;
   /** 💳 pullik kurslar (fan id → kira oladimi, so'rov holati, narx) — lib/server/course-access.ts paidView */

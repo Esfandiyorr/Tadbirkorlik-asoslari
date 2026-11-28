@@ -1,5 +1,6 @@
 import { failure } from '@/lib/server/http';
 import { recordStaffActivity } from '@/lib/server/staff-activity';
+import { decidePayment, paymentReview } from '@/lib/server/payment-review';
 import { NextRequest, NextResponse, after } from 'next/server';
 import { z } from 'zod';
 import { actor, ApiError, check, sameOrigin, staff, administrator } from '@/lib/server/auth';
@@ -10,12 +11,20 @@ import {
   cancelCourseRequest,
   courseAccessAdmin,
   courseEntry,
+  courseShop,
+  MAIN_COURSE,
   manageCourseAccess,
   paidView,
   requestCourseAccess,
   requirePaidCourse,
-  terduStudent,
 } from '@/lib/server/course-access';
+import {
+  isMainLesson,
+  issueLessonAccess,
+  lessonAccessCookie,
+  lessonAccessLifetime,
+} from '@/lib/server/course-assets';
+import type { CourseEntry } from '@/lib/course-access';
 import type { Actor } from '@/lib/types';
 import { demoTopicAccess, setTopicMode, topicAccessList } from '@/lib/server/topic-access';
 import { Platform } from '@/lib/server/platform';
@@ -91,13 +100,10 @@ import {
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
-/* 🔑 Talaba bo'lmaganlar (email/Google, mustaqil o'quvchi): kursga kirish holati va mavzular holati. Obuna yoki
-   administrator ruxsati bo'lmasa — hamma mavzu 🔒 (ekranda «obuna bo'ling / ruxsat so'rang» oynasi chiqadi). */
 async function withCourse(a: Actor, target: { course?: unknown; lessonAccess?: unknown }) {
   if (a.role !== 'student') return;
-  const course = await courseEntry(a);
+  const course: CourseEntry = await courseEntry(a).catch(() => ({ ok: false, pending: null }));
   target.course = course;
-  if (terduStudent(a)) return;
   if (!course.ok) {
     target.lessonAccess = Object.fromEntries(
       catalog.topics.map((t: { id: string }) => [t.id, { state: 'locked' }]),
@@ -112,7 +118,7 @@ async function withCourse(a: Actor, target: { course?: unknown; lessonAccess?: u
           .get()
           .catch(() => null)
       )?.val(),
-      { id: a.id, group: '', independent: true },
+      { id: a.id, group: a.classId, independent: course.via !== 'student' },
     );
 }
 async function deletedStudentIds() {
@@ -183,6 +189,19 @@ async function academicBoard() {
       }))
       .sort((a, b) => b.academicPoints - a.academicPoints || a.name.localeCompare(b.name));
   return new Academic(await repository()).publicBoard();
+}
+function lessonResponse(content: unknown, topic: string) {
+  const response = NextResponse.json(content, {
+    headers: { 'Cache-Control': 'private, no-store' },
+  });
+  response.cookies.set(lessonAccessCookie(topic), issueLessonAccess(topic), {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    path: '/',
+    maxAge: lessonAccessLifetime,
+  });
+  return response;
 }
 export async function GET(req: NextRequest) {
   try {
@@ -264,8 +283,12 @@ export async function GET(req: NextRequest) {
       const a = await actor(req, true);
       administrator(a);
       const t = req.nextUrl.searchParams.get('t');
+      if (t) {
+        check(isMainLesson(t), 404, 'Mavzu topilmadi.');
+        return lessonResponse({ saved: await topicQuiz(t) }, t);
+      }
       return NextResponse.json(
-        t ? { saved: await topicQuiz(t) } : { topics: await topicQuizList() },
+        { topics: await topicQuizList() },
         {
           headers: { 'Cache-Control': 'private, no-store' },
         },
@@ -302,6 +325,11 @@ export async function GET(req: NextRequest) {
     }
     if (req.nextUrl.searchParams.get('view') === 'premiumAdmin') {
       return NextResponse.json(await premiumAdmin(await actor(req, true)), {
+        headers: { 'Cache-Control': 'private, no-store' },
+      });
+    }
+    if (req.nextUrl.searchParams.get('view') === 'paymentReview') {
+      return NextResponse.json(await paymentReview(await actor(req)), {
         headers: { 'Cache-Control': 'private, no-store' },
       });
     }
@@ -379,7 +407,7 @@ export async function GET(req: NextRequest) {
       const lesson = lessons.find((l) => l.id === wanted);
       check(lesson?.legacyFile, 404, 'Asl dars topilmadi');
       await legacyAccess(a, lesson!);
-      return NextResponse.json(lesson);
+      return lessonResponse(lesson, lesson!.id);
     }
     // Asl taqdimotdan chiqqanda: faqat talabaning asl bazadagi akademik yozuvi (Firestore'siz, kvota sarflanmaydi).
     if (req.nextUrl.searchParams.get('view') === 'me') {
@@ -440,6 +468,7 @@ export async function GET(req: NextRequest) {
         mode,
         // 💳 pullik kurslar: mehmonga narx ko'rinadi, darslar — kirib, ruxsat olgach
         paid: await paidView().catch(() => ({})),
+        courseShop: await courseShop(MAIN_COURSE),
         servicesShown: await servicesShown().catch(() => false),
       });
     const a = await actor(req);
@@ -527,8 +556,7 @@ export async function GET(req: NextRequest) {
     }
     if (demo() && a.role === 'student' && state.user)
       Object.assign(state, demoAcademic(state.user as { id: string }));
-    // baza vaqtincha javob bermasa ham sahifa ochilsin — darsni server baribir tekshiradi (legacyAccess)
-    await withCourse(a, state as { course?: unknown; lessonAccess?: unknown }).catch(() => {});
+    await withCourse(a, state as { course?: unknown; lessonAccess?: unknown });
     // 💳 pullik kurslar (restoran kursi): kira oladimi, so'rov holati, narx
     (state as { paid?: unknown }).paid = await paidView(a).catch(() => ({}));
     // 💼 pullik xizmatlar vaqtincha yopiq bo'lsa — menyuda ko'rinmaydi
@@ -536,6 +564,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({
       ...state,
       mode,
+      courseShop: await courseShop(MAIN_COURSE),
       ...(a.role === 'admin'
         ? { legacyMigration: await (await repository()).get('migrations', 'legacy-v1') }
         : {}),
@@ -588,7 +617,10 @@ export async function GET(req: NextRequest) {
           await withCourse(a, limited as { course?: unknown; lessonAccess?: unknown }).catch(
             () => {},
           );
-        return NextResponse.json(limited, { headers: { 'Cache-Control': 'no-store' } });
+        return NextResponse.json(
+          { ...limited, courseShop: await courseShop(MAIN_COURSE) },
+          { headers: { 'Cache-Control': 'no-store' } },
+        );
       } catch (authError) {
         return failure(authError);
       }
@@ -658,6 +690,13 @@ export async function POST(req: NextRequest) {
     }
     if (p.action === 'premiumAdmin') {
       return NextResponse.json(await managePremium(await actor(req, true), p.input));
+    }
+    if (p.action === 'paymentReview') {
+      const a = await actor(req);
+      await decidePayment(a, p.input);
+      return NextResponse.json(await paymentReview(a), {
+        headers: { 'Cache-Control': 'private, no-store' },
+      });
     }
     if (p.action === 'premiumMark') {
       // 🏅 obunachi ism yonidagi belgisini o'z rasmiga almashtiradi (yoki asl belgiga qaytaradi)

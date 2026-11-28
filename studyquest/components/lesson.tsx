@@ -125,7 +125,7 @@ function OriginalLessonView({ id }: { id: string }) {
     meta = data!.lessons.find((x) => x.id === id),
     extraCourse = !!data!.courses.find((c) => c.id === meta?.courseId)?.extra,
     paidLocked = usePaidLocked(meta?.courseId),
-    // 🔑 asosiy fan — obuna/ruxsat (talaba bo'lmaganlarga); 💳 pullik fan — administrator ruxsati
+    // Asosiy va pullik kurslarda kirish shartlari alohida tekshiriladi.
     courseLocked = (mainLocked && !extraCourse) || paidLocked,
     [detail, setDetail] = useState<LessonType | null>(null),
     [index, setIndex] = useState(0),
@@ -162,10 +162,6 @@ function OriginalLessonView({ id }: { id: string }) {
     if (!meta || courseLocked || loaded.current === id) return;
     loaded.current = id;
     setError('');
-    if (legacyMode) {
-      setDetail(meta);
-      return;
-    }
     let alive = true;
     (async () => {
       try {
@@ -196,7 +192,33 @@ function OriginalLessonView({ id }: { id: string }) {
       alive = false;
       loaded.current = '';
     };
-  }, [id, meta?.id, legacyMode, data?.limited, courseLocked, call, request]);
+  }, [id, meta?.id, data?.limited, courseLocked, call, request]);
+  const refreshLessonAccess = !!detail?.legacyFile && !extraCourse && !courseLocked;
+  useEffect(() => {
+    if (!refreshLessonAccess) return;
+    // Dars ochiq turganda fayllar uchun berilgan ruxsat muddatini yangilash.
+    const interval = setInterval(
+      () => {
+        void request('/api/platform?view=legacyLesson&lesson=' + encodeURIComponent(id))
+          .then((response) => {
+            if (response.status === 401 || response.status === 403) {
+              setDetail(null);
+              setError(
+                tr(
+                  lang,
+                  'Darsga ruxsat talab qilinadi.',
+                  'Lesson access is required.',
+                  'Требуется доступ к уроку.',
+                ),
+              );
+            }
+          })
+          .catch(() => {});
+      },
+      10 * 60 * 1000,
+    );
+    return () => clearInterval(interval);
+  }, [id, lang, refreshLessonAccess, request]);
   useEffect(() => {
     const handle = (e: MessageEvent) => {
       if (
@@ -277,7 +299,7 @@ function OriginalLessonView({ id }: { id: string }) {
         <Button onClick={() => navigate('courses')}>{t(lang, 'courses')}</Button>
       </div>
     );
-  // 🔑 talaba bo'lmagan foydalanuvchida obuna ham, ruxsat ham yo'q — dars o'rniga «obuna bo'ling / ruxsat so'rang»
+  // Ruxsat bo‘lmasa dars o‘rnida so‘rov oynasini ko‘rsatish.
   if (courseLocked)
     return (
       <section className="focus-reader course-gate-page" aria-label={meta.title}>

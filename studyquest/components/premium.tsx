@@ -3,7 +3,6 @@ import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import {
   BadgeCheck,
-  BookOpen,
   ChevronRight,
   Clapperboard,
   Crown,
@@ -23,7 +22,7 @@ import { PREMIUM_CHANGED, PremiumSubscribe } from './premium-subscribe';
 import { ImagePick } from './image-pick';
 
 /* 💎 Obuna (premium): holatini o'qish, «obuna bo'lish» oynasi va kichik belgi. Talaba o'zi obuna bo'ladi
-   (components/premium-subscribe.tsx): karta → «To'lov qildim» → vaqt yoki chek → obuna darhol ochiladi;
+   (components/premium-subscribe.tsx): karta → «To'lov qildim» → vaqt yoki chek → obuna administrator tasdiqlagach ochiladi;
    administrator «💎 Obuna»da tekshiradi (lib/server/premium.ts). */
 
 export type PremiumData = {
@@ -664,27 +663,12 @@ export function PremiumPerks({
       L('Kutubxona', 'Library', 'Библиотека'),
     ],
     [
-      BookOpen,
-      L(
-        'Kurs darslari (talaba bo‘lmasangiz ham)',
-        'Course lessons for non-students',
-        'Уроки курса для не-студентов',
-      ),
-      L(
-        '«Tadbirkorlik asoslari» kursining barcha ochiq darslari (talaba bo‘lmaganlar uchun)',
-        'All open lessons of the “Fundamentals of Entrepreneurship” course (for non-students)',
-        'Все открытые уроки курса «Основы предпринимательства» (для не-студентов)',
-      ),
-      '#courses',
-      L('Kurslar', 'Courses', 'Курсы'),
-    ],
-    [
       Clapperboard,
       L('Videolarni yuklab olish', 'Video downloads', 'Скачивание видео'),
       L(
-        'Video darslarni yuklab olib, internetsiz ko‘rish',
-        'Download video lessons to watch offline',
-        'Скачивание видеоуроков для просмотра без сети',
+        'Ruxsatingiz bor darslarning videolarini yuklab olib, internetsiz ko‘rish',
+        'Download videos from lessons you can access and watch offline',
+        'Скачивайте видео доступных вам уроков для просмотра без сети',
       ),
       '#courses',
       L('Mavzudagi video → «Yuklab olish»', 'Topic video → “Download”', 'Видео темы → «Скачать»'),

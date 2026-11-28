@@ -9,11 +9,6 @@ import { BUDGET_MAX, PAY_MIN } from '@/lib/services';
 import { PLANS, type MyClaim, type PlanId } from '@/lib/premium-plans';
 import type { PremiumInfo, PremiumState } from '@/lib/library';
 
-/* 💎 O'zi obuna bo'lish (lib/server/premium.ts → subscribe). 1) muddat (1 oy yoki 1 yil) va karta raqami — narx
-   ixtiyoriy, istalgan summani to'laydi va «To'lov qildim»ni bosadi; 2) qancha to'laganini, to'lov qilingan aniq vaqtni
-   yozadi yoki chek rasmini yuklaydi → «Yuborish». Obuna shu zahoti tanlangan muddatga ochiladi, administrator keyin
-   tekshiradi; to'lov topilmasa — chiqarib tashlaydi. */
-
 export const PREMIUM_CHANGED = 'sq-premium-changed';
 type View = {
   state: PremiumState;
@@ -76,20 +71,24 @@ export function PremiumSubscribe({ onDone }: { onDone?: () => void }) {
         )}
       </p>
     );
-  if (view.state.active && view.claim?.status === 'new')
+  if (view.claim?.status === 'new')
     return (
       <div className="ps-done" role="status">
-        <b>
-          ✅ {L('Obunangiz ochiq', 'Premium is on', 'Подписка открыта')} — {date(view.state.until)}
-          {L(' gacha', '', '')}
-        </b>
+        <b>{L('To‘lov tekshiruvda', 'Payment under review', 'Оплата на проверке')}</b>
         <small>
           {L(
-            'To‘lovingiz tekshirilmoqda. Tasdiqlangach yana uzaytirishingiz mumkin.',
-            'Your payment is being checked. You can extend again after it is confirmed.',
-            'Оплата проверяется. После подтверждения можно продлить снова.',
+            'Administrator tasdiqlagach, obuna faollashadi yoki uzayadi.',
+            'Your subscription will start or extend once the administrator confirms payment.',
+            'Подписка начнётся или продлится после подтверждения оплаты администратором.',
           )}
         </small>
+        {view.state.active && (
+          <small>
+            {L('Amaldagi obuna', 'Current subscription', 'Текущая подписка')} —{' '}
+            {date(view.state.until)}
+            {L(' gacha', '', '')}
+          </small>
+        )}
       </div>
     );
 
@@ -119,7 +118,11 @@ export function PremiumSubscribe({ onDone }: { onDone?: () => void }) {
       void refresh();
       toast(
         '💎 ' +
-          L('Obuna ochildi! Rahmat.', 'Premium is on! Thank you.', 'Подписка открыта! Спасибо.'),
+          L(
+            'To‘lov tekshiruvga yuborildi.',
+            'Payment submitted for review.',
+            'Оплата отправлена на проверку.',
+          ),
       );
       onDone?.();
     } catch (e) {
@@ -131,6 +134,15 @@ export function PremiumSubscribe({ onDone }: { onDone?: () => void }) {
 
   return (
     <div className="ps">
+      {view.claim?.status === 'removed' && (
+        <p className="ps-note is-bad" role="status">
+          {L(
+            'Oxirgi to‘lov tasdiqlanmadi.',
+            'Your last payment was declined.',
+            'Последняя оплата не подтверждена.',
+          )}
+        </p>
+      )}
       {view.state.active && (
         <p className="ps-note" role="status">
           ✅ {L('Obunangiz ochiq', 'Premium is on', 'Подписка открыта')} — {date(view.state.until)}
@@ -288,9 +300,9 @@ export function PremiumSubscribe({ onDone }: { onDone?: () => void }) {
           </div>
           <small className="muted">
             {L(
-              'Obuna darhol ochiladi. Administrator to‘lovni tekshiradi: to‘lov topilmasa, obuna yopiladi.',
-              'Premium opens at once. The administrator checks the payment: if it is not found, Premium is closed.',
-              'Подписка откроется сразу. Администратор проверит оплату: если её нет, подписка закроется.',
+              'Administrator to‘lovni tasdiqlagach, obuna faollashadi yoki uzayadi.',
+              'Premium starts or extends after the administrator confirms payment.',
+              'Подписка начнётся или продлится после подтверждения оплаты администратором.',
             )}
           </small>
         </>

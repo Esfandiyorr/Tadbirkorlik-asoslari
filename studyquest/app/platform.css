@@ -12280,7 +12280,7 @@ html {
 .course-gate-kind .auth-kind-card + .auth-kind-card {
   margin-top: 0;
 }
-.course-gate-ask label {
+.course-gate-ask > label {
   display: grid;
   gap: 6px;
   font-size: 13px;
@@ -12942,6 +12942,66 @@ html {
   border-color: var(--violet);
   background: var(--soft-violet);
   color: #6d28d9;
+}
+
+.payment-review-filters {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 161px), 1fr));
+}
+.payment-review-head,
+.payment-review-labels,
+.payment-review-actions,
+.payment-review-receipts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.payment-review-head {
+  justify-content: space-between;
+}
+.payment-review-list {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.payment-review-row {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+}
+.payment-review-who,
+.payment-review-money {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.payment-review-money {
+  justify-items: end;
+  text-align: right;
+}
+.payment-review-pending {
+  background: var(--soft-violet);
+  color: var(--text);
+}
+.payment-review-actions {
+  justify-content: flex-end;
+}
+.payment-review-actions select {
+  width: auto;
+}
+@media (max-width: 640px) {
+  .payment-review-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .payment-review-money {
+    justify-items: start;
+    text-align: left;
+  }
+  .payment-review-actions {
+    justify-content: flex-start;
+  }
 }
 .dark .bo-course-tabs button.on {
   color: #c4b5fd;

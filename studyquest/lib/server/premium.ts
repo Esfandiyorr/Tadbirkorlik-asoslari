@@ -9,7 +9,7 @@ import { PLANS, type ClaimStatus, type MyClaim } from '../premium-plans';
 import { imageType, siteGet, siteTransaction, siteUpdate, storeBlob } from './site-content';
 import { BUDGET_MAX, PAY_MIN } from '../services';
 
-/* 💎 Obuna (premium): pullik imkoniyatlar (kurs darslari — talaba bo'lmaganlarga, kutubxonadagi 💎 manbalar, avatar) uchun.
+/* 💎 Obuna (premium): pullik imkoniyatlar (kutubxonadagi 💎 manbalar, avatar) uchun.
    To'lov tizimi ulanguncha obunani administrator qo'lda beradi: talaba ko'rsatilgan usulda to'laydi, administrator
    «Sayt boshqaruvi → 💎 Obuna»da muddatini belgilaydi. Keyin to'lov tizimi (Click, Payme …) ulanganda u ham shu
    yozuvni yangilaydi: site/premium/<foydalanuvchi> = {uid, name, group, until, at, by, hist}; hist — har bir
@@ -17,13 +17,9 @@ import { BUDGET_MAX, PAY_MIN } from '../services';
    site/premiumInfo = {card, holder, how, price} — karta va yo'riqnoma (talabaga ko'rsatiladi). Narx ixtiyoriy.
 
    🛒 O'zi obuna bo'lish (talaba): «Obuna bo'lish» → muddat (1 oy / 1 yil) va karta → istalgan summani to'laydi →
-   «To'lov qildim» → qancha to'lagani va to'lov vaqti YOKI chek rasmi → «Yuborish». Obuna shu zahoti tanlangan
-   muddatga ochiladi; to'lov site/premiumClaims/<foydalanuvchi>/<id>
-   ga «tekshirilmagan» (new) bo'lib yoziladi, administratorga bildirishnoma boradi. Administrator «💎 Obuna»da
-   «To'lov keldi» deb tasdiqlaydi (ok; kerak bo'lsa muddatni boshlangan kunidan o'zgartiradi) yoki chiqarib tashlaydi (removed): obuna yopiladi va o'zi qayta obuna bo'la olmaydi
-   (site/premiumBlock/<foydalanuvchi>) — faqat administrator ochadi. Tekshirilmagan to'lovi bor foydalanuvchi
-   ikkinchisini yubora olmaydi (bepul muddat to'plab bo'lmaydi). Chek rasmi site/premiumReceipts/<…>/<id> da —
-   faqat administrator ko'radi (/api/premium?receipt=…). */
+   «To'lov qildim» → summa va to'lov vaqti yoki chek → «Yuborish». To'lov tekshiruvga tushadi va
+   administrator «To'lov keldi»ni bosgach obuna ochiladi yoki uzayadi. Bir vaqtda bitta to'lov tekshiriladi.
+   Chekni faqat administrator ko'radi (/api/premium?receipt=…). */
 
 /** 💳 Obunaning bir ochilishi: chek qabul qilinganda — to'langan summa bilan, qo'lda berilganda — summasiz. */
 export type PremiumTerm = { at: number; days: number; amount?: number; by: string };
@@ -35,6 +31,7 @@ export type Grant = {
   at: number;
   by: string;
   hist?: PremiumTerm[];
+  servicePayments?: Record<string, true>;
   /** joriy (uzluksiz) obuna boshlangan vaqt — «muddatni o'zgartirish» shundan hisoblanadi */
   since?: number;
 };
@@ -43,7 +40,7 @@ type Claim = {
   uid: string;
   name: string;
   group: string;
-  /** ochilgan muddat (kun) */
+  /** so‘ralgan yoki tasdiqlangan muddat (kun) */
   days: number;
   /** talaba to'lagan summa (so'm) */
   amount: number;
@@ -53,10 +50,17 @@ type Claim = {
   receipt?: true;
   at: number;
   status: ClaimStatus;
+  /** Eski to‘lovlarda muddat yuborish paytida berilgan. */
+  requiresApproval?: true;
   decidedAt?: number;
   by?: string;
 };
 type Block = { at: number; by: string; name: string };
+type PremiumRecords = {
+  premium?: Record<string, Grant>;
+  premiumClaims?: Record<string, Record<string, Claim>>;
+  premiumBlock?: Record<string, Block>;
+};
 const DAY = 86400000;
 const RECEIPT_MAX = 1_200_000;
 const CLAIMS_MAX = 60;
@@ -80,11 +84,12 @@ const staff = (a: Pick<Actor, 'role'>) => a.role === 'admin' || a.role === 'teac
 /** Foydalanuvchining obunasi (o'qituvchi va administratorga hamma narsa ochiq). */
 export async function premiumState(a: Actor, now = Date.now()): Promise<PremiumState> {
   if (staff(a)) return { active: true, until: 0, staff: true };
-  const [g, look] = await Promise.all([
+  const [grant, look, claims] = await Promise.all([
     siteGet<Grant>('premium/' + keyOf(a.id)),
     siteGet<string>('premiumLook/' + keyOf(a.id)).catch(() => null),
+    siteGet<Record<string, Claim>>('premiumClaims/' + keyOf(a.id)),
   ]);
-  const until = Number(g?.until) || 0;
+  const until = Number(approvedGrant(grant, claims)?.until) || 0;
   return {
     active: until > now,
     until: until > now ? until : 0,
@@ -184,7 +189,7 @@ const subscribeInput = z
       .optional(),
   })
   .strict();
-/** 🛒 Talaba o'zi obuna bo'ladi: to'lov vaqti yoki chek bilan — obuna darhol ochiladi, administrator keyin tekshiradi. */
+/** Talaba to‘lov ma’lumotini administratorga tekshirish uchun yuboradi. */
 export async function subscribe(a: Actor, raw: unknown, now = Date.now()) {
   const p = subscribeInput.parse(raw);
   check(!staff(a), 400, 'O‘qituvchi va administratorda obuna doim ochiq.');
@@ -228,24 +233,26 @@ export async function subscribe(a: Actor, raw: unknown, now = Date.now()) {
     ...(bytes ? { receipt: true as const } : {}),
     at: now,
     status: 'new',
+    requiresApproval: true,
   };
   // bir vaqtda bitta tekshirilmagan to'lov (ikki marta bosilsa ham — tranzaksiya)
+  const receiptPath = 'premiumReceipts/' + key + '/' + id;
+  if (bytes) await siteUpdate({ [receiptPath]: { t: type, d: p.receipt } });
   let problem = '';
   await siteTransaction<Record<string, Claim>>('premiumClaims/' + key, (cur) => {
     const list = Object.values(cur || {}).filter((c) => c?.id);
     problem = list.some((c) => c.status === 'new')
-      ? 'Oldingi to‘lovingiz hali tekshirilmoqda — obunangiz ochiq. Administrator tasdiqlagach yana uzaytirishingiz mumkin.'
+      ? 'Oldingi to‘lovingiz hali tekshirilmoqda. Javobni kuting.'
       : list.length >= CLAIMS_MAX
         ? 'To‘lovlar ro‘yxati to‘ldi. «Adminga xabar» orqali yozing.'
         : '';
     return problem ? cur : { ...(cur || {}), [id]: claim };
   });
+  if (problem && bytes) await siteUpdate({ [receiptPath]: null });
   check(!problem, 409, problem);
-  if (bytes) await siteUpdate({ ['premiumReceipts/' + key + '/' + id]: { t: type, d: p.receipt } });
-  await grantPremium(a.id, name, group, plan.days, 'O‘zi (to‘lov)', now, claim.amount);
   await notify(
     (s) => s.role === 'admin',
-    '💎 Yangi obuna',
+    '💎 Obuna uchun yangi to‘lov',
     name +
       (group ? ' (' + group + ')' : '') +
       ' · ' +
@@ -298,6 +305,37 @@ export function sinceOf(g: Grant) {
   }
   return since || Math.max(0, Number(g.until) - 30 * DAY);
 }
+/** Eski, hali tasdiqlanmagan to‘lov bergan muddatni Premium hisobidan chiqaradi. */
+function approvedGrant(grant: Grant | null, claims: Record<string, Claim> | null): Grant | null {
+  if (!grant) return null;
+  const pending = Object.values(claims || {}).find(
+    (c) => c?.status === 'new' && !c.requiresApproval,
+  );
+  if (!pending) return grant;
+  const hist = terms(grant);
+  const index = hist.findIndex((term) => term.at === pending.at && term.by === 'O‘zi (to‘lov)');
+  if (index < 0) return grant;
+  const current = hist.filter((term) => term.at >= sinceOf(grant));
+  const approved = current.filter((term) => term !== hist[index]);
+  const untilFor = (list: PremiumTerm[]) =>
+    list.reduce((until, term) => Math.max(until, term.at) + term.days * DAY, 0);
+  if (current.length && !approved.length) {
+    return index
+      ? {
+          ...grant,
+          hist: hist.slice(0, index),
+          until: Math.min(pending.at, untilFor(hist.slice(0, index))),
+          since: 0,
+        }
+      : null;
+  }
+  return {
+    ...grant,
+    until: grant.until - (untilFor(current) - untilFor(approved)),
+    since: approved[0]?.at || sinceOf(grant),
+    hist: hist.filter((_, i) => i !== index),
+  };
+}
 const claimView = (c: Claim) => ({
   id: c.id,
   uid: c.uid,
@@ -313,6 +351,20 @@ const claimView = (c: Claim) => ({
   ...(c.by ? { by: c.by } : {}),
 });
 export type PremiumClaimView = ReturnType<typeof claimView>;
+
+function paymentClaims(raw: PremiumRecords['premiumClaims'] | null) {
+  return Object.values(raw || {})
+    .flatMap((m) => Object.values(m || {}))
+    .filter((c) => c?.id && c.uid)
+    .map(claimView)
+    .sort((x, y) => y.at - x.at);
+}
+
+export async function listPremiumPayments(a: Actor) {
+  administrator(a);
+  return paymentClaims(await siteGet<PremiumRecords['premiumClaims']>('premiumClaims'));
+}
+
 /** Administrator: yangi (tekshirilmagan) obunalar, obunachilar (boshlanishi, tugashi, to'lovlar tarixi bilan),
     yopilganlar va «Pullik xizmatlar» orqali kelgan eski cheklar. */
 export async function premiumAdmin(a: Actor, now = Date.now()) {
@@ -325,14 +377,12 @@ export async function premiumAdmin(a: Actor, now = Date.now()) {
     siteGet<Record<string, Record<string, Claim>>>('premiumClaims'),
     siteGet<Record<string, Block>>('premiumBlock'),
   ]);
-  const claims = Object.values(claimsRaw || {})
-    .flatMap((m) => Object.values(m || {}))
-    .filter((c) => c?.id && c.uid)
-    .map(claimView)
-    .sort((x, y) => y.at - x.at);
+  const claims = paymentClaims(claimsRaw);
   const lastClaim = new Map<string, PremiumClaimView>();
   for (const c of claims) if (!lastClaim.has(c.uid)) lastClaim.set(c.uid, c);
-  const grants = Object.values(raw || {})
+  const grants = Object.entries(raw || {})
+    .map(([key, g]) => approvedGrant(g, claimsRaw?.[key] || null))
+    .filter((g): g is Grant => g !== null)
     .filter((g) => g && typeof g.uid === 'string' && Number(g.until) > 0)
     .map((g) => {
       const hist = terms(g);
@@ -361,7 +411,7 @@ export async function premiumAdmin(a: Actor, now = Date.now()) {
   const fresh = claims.filter((c) => c.status === 'new');
   return {
     info,
-    /** 🆕 o'zi obuna bo'lgan, to'lovi hali tekshirilmagan */
+    /** Tasdiqlash kutilayotgan to‘lovlar. */
     fresh,
     grants,
     blocked,
@@ -396,9 +446,12 @@ const input = z.discriminatedUnion('op', [
       op: z.literal('verify'),
       uid: z.string().min(1).max(140),
       id: z.string().max(40),
-      /** tasdiqlash bilan birga muddat (boshlangan kunidan): 30 — 1 oy, 365 — 1 yil */
+      /** tasdiqlanadigan muddat (kun) */
       days: z.number().int().min(1).max(730).optional(),
     })
+    .strict(),
+  z
+    .object({ op: z.literal('reject'), uid: z.string().min(1).max(140), id: z.string().max(40) })
     .strict(),
   z
     .object({
@@ -418,6 +471,68 @@ const input = z.discriminatedUnion('op', [
     })
     .strict(),
 ]);
+/** Chek bo‘yicha qaror va obuna muddati bir tranzaksiyada saqlanadi. */
+export async function reviewPremiumClaim(
+  a: Actor,
+  p: Extract<z.infer<typeof input>, { op: 'verify' | 'reject' }>,
+  now = Date.now(),
+) {
+  administrator(a);
+  const by = (a.name || a.id).slice(0, 60);
+  const key = keyOf(p.uid);
+  check(/^[a-z0-9]{6,30}$/.test(p.id), 400, 'To‘lov topilmadi.');
+  // Qaror va obuna bir tranzaksiyada saqlanadi, hatto ikki admin bir vaqtda bossa ham.
+  let problem = 404;
+  await siteTransaction<PremiumRecords>('', (site) => {
+    const claims = site?.premiumClaims?.[key];
+    const c = claims?.[p.id];
+    problem = c?.uid !== p.uid ? 404 : c.status !== 'new' ? 409 : 0;
+    if (!site || !claims || !c || problem) return site;
+    if (p.op === 'verify' && site.premiumBlock?.[key]?.at) {
+      problem = 403;
+      return site;
+    }
+    const grant = approvedGrant(site.premium?.[key] || null, claims);
+    const days = p.op === 'verify' ? (p.days ?? c.days) : c.days;
+    claims[p.id] = {
+      ...c,
+      days,
+      status: p.op === 'verify' ? 'ok' : 'removed',
+      decidedAt: now,
+      by,
+    };
+    if (p.op === 'verify') {
+      (site.premium ??= {})[key] = extendGrant(
+        grant,
+        c.uid,
+        c.name,
+        c.group,
+        days,
+        by,
+        now,
+        c.amount,
+      );
+    } else if (!c.requiresApproval && site.premium) {
+      if (grant) site.premium[key] = grant;
+      else delete site.premium[key];
+    }
+    return site;
+  });
+  check(problem !== 403, 403, 'Avval foydalanuvchini blokdan chiqaring.');
+  check(
+    !problem,
+    problem,
+    problem === 404 ? 'To‘lov topilmadi.' : 'Bu to‘lov allaqachon ko‘rib chiqilgan.',
+  );
+  await notify(
+    (s) => s.uid === p.uid,
+    p.op === 'verify' ? '💎 To‘lov tasdiqlandi' : '💎 To‘lov tasdiqlanmadi',
+    p.op === 'verify'
+      ? 'Premium obunangiz faollashtirildi.'
+      : 'Savol bo‘lsa, «Adminga xabar» orqali yozing.',
+  );
+}
+
 /** Administrator: obuna berish (muddat mavjud obunaga qo'shiladi), tasdiqlash, muddatni o'zgartirish, chiqarib
     tashlash (xohlasa — o'zi qayta obuna bo'la olmasin), blokdan chiqarish, karta va narxlarni saqlash. */
 export async function managePremium(a: Actor, raw: unknown, now = Date.now()) {
@@ -451,7 +566,11 @@ export async function managePremium(a: Actor, raw: unknown, now = Date.now()) {
           ['premiumClaims/' + key + '/' + c.id + '/by']: by,
         });
     if (p.op === 'remove' && p.block !== false)
-      o['premiumBlock/' + key] = { at: now, by, name: (g?.name || p.uid).slice(0, 120) };
+      o['premiumBlock/' + key] = {
+        at: now,
+        by,
+        name: (g?.name || Object.values(claims || {})[0]?.name || p.uid).slice(0, 120),
+      };
     await siteUpdate(o);
     if (p.op === 'remove')
       await notify(
@@ -459,29 +578,8 @@ export async function managePremium(a: Actor, raw: unknown, now = Date.now()) {
         '💎 Obuna yopildi',
         'To‘lovingiz topilmadi. Savol bo‘lsa, «Adminga xabar» orqali yozing.',
       );
-  } else if (p.op === 'verify') {
-    const key = keyOf(p.uid);
-    const c = await siteGet<Claim>('premiumClaims/' + key + '/' + p.id);
-    check(c?.id, 404, 'To‘lov topilmadi.');
-    check(c!.status === 'new', 409, 'Bu to‘lov allaqachon ko‘rib chiqilgan.');
-    const o: Record<string, unknown> = {
-      ['premiumClaims/' + key + '/' + p.id + '/status']: 'ok',
-      ['premiumClaims/' + key + '/' + p.id + '/decidedAt']: now,
-      ['premiumClaims/' + key + '/' + p.id + '/by']: by,
-    };
-    if (p.days) {
-      const g = await siteGet<Grant>('premium/' + key);
-      check(g?.uid, 404, 'Obunachi topilmadi — obunasi bekor qilingan.');
-      const since = sinceOf(g!);
-      check(
-        since + p.days * DAY > now,
-        400,
-        'Bu muddat allaqachon tugagan. Kattaroq muddat tanlang.',
-      );
-      o['premium/' + key] = { ...g, until: since + p.days * DAY, since, at: now, by };
-      o['premiumClaims/' + key + '/' + p.id + '/days'] = p.days;
-    }
-    await siteUpdate(o);
+  } else if (p.op === 'verify' || p.op === 'reject') {
+    await reviewPremiumClaim(a, p, now);
   } else if (p.op === 'term') {
     const key = keyOf(p.uid);
     const g = await siteGet<Grant>('premium/' + key);
@@ -516,9 +614,26 @@ export async function grantPremium(
   by: string,
   now = Date.now(),
   amount = 0,
+  serviceOrder?: string,
 ) {
-  const key = keyOf(uid),
-    cur = await siteGet<Grant>('premium/' + key);
+  return siteTransaction<Grant>('premium/' + keyOf(uid), (cur) => {
+    if (serviceOrder && cur?.servicePayments?.[serviceOrder] === true) return cur;
+    const next = extendGrant(cur, uid, name, group, days, by, now, amount);
+    if (serviceOrder) next.servicePayments = { ...next.servicePayments, [serviceOrder]: true };
+    return next;
+  });
+}
+
+function extendGrant(
+  cur: Grant | null,
+  uid: string,
+  name: string,
+  group: string,
+  days: number,
+  by: string,
+  now: number,
+  amount: number,
+): Grant {
   const active = Number(cur?.until) > now;
   const from = Math.max(now, Number(cur?.until) || 0);
   const term: PremiumTerm = {
@@ -527,7 +642,7 @@ export async function grantPremium(
     ...(amount > 0 ? { amount } : {}),
     by: by.slice(0, 60),
   };
-  const g: Grant = {
+  return {
     uid,
     name: name.slice(0, 120),
     group: group.slice(0, 40),
@@ -536,16 +651,21 @@ export async function grantPremium(
     by: by.slice(0, 60),
     // tarix saqlanadi (muddati tugab, qayta obuna bo'lsa ham)
     hist: [...(cur ? terms(cur) : []), term].slice(-HIST_MAX),
+    ...(cur?.servicePayments ? { servicePayments: cur.servicePayments } : {}),
     // uzluksiz obuna boshlanishi: amaldagi obuna uzaytirilsa — o'zgarmaydi
     since: active && cur ? sinceOf(cur) : now,
   };
-  await siteUpdate({ ['premium/' + key]: g });
-  return g;
 }
 /** Barcha amaldagi obunalar: foydalanuvchi id → tugash vaqti (avatar huquqi uchun). */
 export async function activePremium(now = Date.now()) {
-  const raw = (await siteGet<Record<string, Grant>>('premium')) || {};
+  const [raw, claims] = await Promise.all([
+    siteGet<Record<string, Grant>>('premium'),
+    siteGet<NonNullable<PremiumRecords['premiumClaims']>>('premiumClaims'),
+  ]);
   const out: Record<string, number> = {};
-  for (const g of Object.values(raw)) if (g?.uid && Number(g.until) > now) out[g.uid] = g.until;
+  for (const [key, row] of Object.entries(raw || {})) {
+    const g = approvedGrant(row, claims?.[key] || null);
+    if (g?.uid && Number(g.until) > now) out[g.uid] = g.until;
+  }
   return out;
 }

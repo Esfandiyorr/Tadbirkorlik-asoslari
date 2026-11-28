@@ -1,9 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
 
-/* 🔑 Ism-familiya bilan ro'yxatdan o'tishda «Talabamisiz?» kirish sahifasida so'raladi; Google bilan kirganlarga —
-   kursni boshlaganda: talaba guruhini tanlab yoki yozib kursga yoziladi, qolganlar kurs darslarini faqat 💎 obuna yoki
-   administrator ruxsati bilan ochadi. Demo muhitda faqat talaba/o'qituvchi/administrator hisoblari bor, shuning
-   uchun «talaba bo'lmagan» holat server javobini o'zgartirib ko'rsatiladi (server qoidasi — unit testlarda). */
 async function as(page: Page, id: string) {
   await page.request.post('/api/auth/demo', { data: { id } });
 }
@@ -91,7 +87,7 @@ test('the sign-in page: name and password, three languages, sign-up with «Are y
   await expect.poll(() => new URL(page.url()).hash).toBe('#courses');
 });
 
-test('starting the course asks «Are you a student?»: students enrol with their group, others see Premium or ask', async ({
+test('someone without an assigned group requests approval and can check the result', async ({
   page,
 }) => {
   await as(page, 'demo-student');
@@ -129,78 +125,42 @@ test('starting the course asks «Are you a student?»: students enrol with their
   await page.goto('/#courses', { waitUntil: 'domcontentloaded' });
   await page.locator('.course-card').first().click();
   const gate = page.locator('.course-gate');
-  await expect(gate.getByRole('heading')).toHaveText('Kursni boshlaymizmi? 🚀');
-  await expect(gate.locator('.course-gate-q')).toHaveText('Talabamisiz?');
+  await expect(gate.getByRole('heading')).toHaveText('Kursga kirish uchun ruxsat kerak');
   await expect(page.locator('.course-learning-list')).toBeVisible();
-  // «Yo'q» → 💎 obuna yoki ruxsat so'rash
-  await gate.getByRole('button', { name: /Yo‘q, talaba emasman/ }).click();
-  await expect(gate.getByRole('heading')).toHaveText('Kurs darslari obunachilar uchun');
-  await gate.getByRole('button', { name: 'Obuna bo‘lish' }).click();
-  const offer = page.getByRole('dialog');
-  await expect(offer).toContainText('kursining barcha ochiq darslari');
-  await offer.locator('.premium-offer-actions').getByRole('button', { name: 'Yopish' }).click();
-  await expect(offer).toHaveCount(0);
   await gate.getByRole('button', { name: 'Ruxsat so‘rash' }).click();
   await gate.getByLabel(/Izoh/).fill('Kursni ko‘rib chiqmoqchiman');
   await gate.getByRole('button', { name: 'So‘rov yuborish' }).click();
-  await expect(gate.locator('.course-gate-pending')).toContainText('Ruxsat so‘ralgan');
+  await expect(gate.getByRole('heading')).toHaveText('So‘rov yuborilgan');
   expect(asked).toEqual([{ op: 'request', note: 'Kursni ko‘rib chiqmoqchiman' }]);
-  await gate.getByRole('button', { name: 'Bekor qilish' }).click();
+  await gate.getByRole('button', { name: 'So‘rovni bekor qilish' }).click();
   await expect(gate.getByRole('button', { name: 'Ruxsat so‘rash' })).toBeVisible();
-  // «Ha, talabaman» → guruh bilan kursga yozilish
-  await gate.getByRole('button', { name: 'Orqaga' }).click();
-  await gate.getByRole('button', { name: /Ha, talabaman/ }).click();
-  const enrol = gate.getByRole('button', { name: 'Kursga yozilish' });
-  await expect(enrol).toBeDisabled();
-  // guruh ro'yxatdan tanlanadi yoki qo'lda yoziladi (namuna xira: «Masalan: Yes-123»)
-  const typed = gate.getByLabel('yoki o‘zingiz yozing');
-  await expect(typed).toHaveAttribute('placeholder', 'Masalan: Yes-123');
-  await typed.fill('Maxsus-1');
-  await expect(enrol).toBeEnabled();
-  await gate.getByLabel('Guruhingizni tanlang').selectOption('AP-223');
-  await expect(typed).toHaveValue('');
-  await enrol.click();
-  await expect(gate.getByRole('heading')).toHaveText('Kursga yozildingiz');
-  await expect(gate.locator('.course-gate-pending')).toContainText('Guruh: AP-223');
-  expect(asked.at(-1)).toEqual({ op: 'request', group: 'AP-223' });
-  // dars sahifasi ochilmaydi — o'rniga shu oyna
   await page.goto('/#lesson/m1', { waitUntil: 'domcontentloaded' });
   await expect(page.locator('.course-gate-page .course-gate')).toBeVisible();
   await expect(page.locator('.native-viewer')).toHaveCount(0);
+  await gate.getByRole('button', { name: 'Ruxsat so‘rash' }).click();
+  await gate.getByRole('button', { name: 'So‘rov yuborish' }).click();
+  await expect(gate.getByRole('heading')).toHaveText('So‘rov yuborilgan');
+  course = { ok: true, via: 'grant' };
+  await gate.getByRole('button', { name: 'Holatni tekshirish' }).click();
+  await expect(gate).toHaveCount(0);
+  await expect(page.locator('.native-viewer')).toBeVisible();
   await page.setViewportSize({ width: 360, height: 760 });
   await noScroll(page);
 });
 
-test('the administrator approves access requests and can open the course to everyone', async ({
-  page,
-}) => {
+test('the administrator can approve and revoke course access', async ({ page }) => {
   await as(page, 'demo-admin');
   await page.goto('/#admin', { waitUntil: 'domcontentloaded' });
   await page.locator('.bo-card-btn').filter({ hasText: 'Kursga ruxsat' }).click();
   const sec = page.locator('.bo-course-access');
-  const pill = sec.locator('.bo-status').first().locator('.bo-pill');
-  await expect(pill).toContainText('Yoqilgan');
-  // 🎓 guruh bilan yozilgan talabalarga kursni darhol ochish — yoqish va qaytarish
-  const students = sec.locator('.bo-students .bo-pill');
-  // sukut bo'yicha talabalarga kurs darhol ochiladi; administrator tasdiqni qayta yoqishi mumkin
-  await expect(students).toContainText('Darhol ochiladi');
-  await sec.getByRole('button', { name: '🔒 Tasdiqlab kiritish' }).click();
-  await expect(students).toContainText('Tasdiqlash bilan');
-  await sec.getByRole('button', { name: '🎓 Talabalarga darhol ochish' }).click();
-  await expect(students).toContainText('Darhol ochiladi');
+  await expect(sec.locator('.bo-status .bo-pill')).toContainText('Kirish cheklangan');
   await expect(sec).toContainText('Yangi so‘rov yo‘q.');
-  // demo rejimida email bo'yicha qidiruv yo'q
   await expect(sec.getByLabel('Email')).toBeDisabled();
-  await sec.getByRole('button', { name: '🟢 Vaqtincha hammaga ochish' }).click();
-  await expect(pill).toContainText('Hammaga ochiq');
-  await sec.getByRole('button', { name: '🔒 Faqat obuna/ruxsat bilan' }).click();
-  await expect(pill).toContainText('Yoqilgan');
 
   // so'rovlar ro'yxati (talaba bo'lmagan foydalanuvchi so'ragan holat)
   const at = Date.now() - 3600000;
   const request = { uid: 'uidX', name: 'Dilnoza Karimova', email: 'dilnoza@example.com', at };
   const view = (grants: unknown[], requests: unknown[]) => ({
-    gate: { off: false },
     grants,
     requests,
     email: false,
@@ -227,5 +187,64 @@ test('the administrator approves access requests and can open the course to ever
   await row.getByRole('button', { name: 'Ruxsat berish: Dilnoza Karimova' }).click();
   await expect(sec).toContainText('Yangi so‘rov yo‘q.');
   await expect(sec.getByRole('button', { name: 'Ruxsatni olish: Dilnoza Karimova' })).toBeVisible();
-  expect(sent).toEqual([{ op: 'approve', uid: 'uidX' }]);
+  expect(sent).toEqual([{ op: 'approve', uid: 'uidX', paymentId: null }]);
+});
+
+test('course files require a signed lesson access cookie and are cleared at sign-out', async ({
+  page,
+}) => {
+  const directLesson = '/legacy/mavzu-1.html';
+  const pdf = '/legacy/fayllar/M1-mavzu.pdf';
+  const quiz = '/api/site/quiz?t=m1';
+  expect((await page.request.get(directLesson)).status()).toBe(403);
+  expect((await page.request.get(pdf)).status()).toBe(403);
+  expect((await page.request.get(quiz)).status()).toBe(403);
+  await as(page, 'demo-student');
+  expect((await page.request.get(directLesson)).status()).toBe(403);
+  const entry = await page.request.get('/api/platform?view=legacyLesson&lesson=m1');
+  expect(entry.status()).toBe(200);
+  const opened = await page.request.get(directLesson);
+  expect(opened.status()).toBe(200);
+  expect(opened.headers()['cache-control']).toContain('no-store');
+  expect((await page.request.get(pdf)).status()).toBe(200);
+  expect((await page.request.get(quiz)).status()).toBe(200);
+  expect((await page.request.get('/legacy/mavzu-2.html')).status()).toBe(403);
+  await page.request.delete('/api/admin-access');
+  expect((await page.request.get(directLesson)).status()).toBe(403);
+});
+
+test('the administrator publishes the main-course price and grouped students can still open lessons', async ({
+  page,
+  browser,
+  baseURL,
+}) => {
+  await as(page, 'demo-admin');
+  await page.goto('/#admin', { waitUntil: 'domcontentloaded' });
+  await page.locator('.bo-card-btn').filter({ hasText: 'Kursga ruxsat' }).click();
+  const panel = page.locator('.bo-course-access');
+  const price = '179 000 so‘m';
+  const how = 'Click orqali to‘lang, chek raqamini so‘rovda yozing.';
+  await panel.getByLabel(/Kurs narxi/).fill(price);
+  await panel.getByLabel('Qanday to‘lanadi').fill(how);
+  await panel.getByRole('button', { name: 'Saqlash', exact: true }).click();
+  await expect(page.locator('.toast')).toContainText('Saqlandi');
+  const visitor = await browser.newPage({ baseURL });
+  try {
+    await visitor.goto('/#course/tad-asoslari', { waitUntil: 'domcontentloaded' });
+    await expect(visitor.locator('.course-gate .paid-gate-price')).toContainText(price);
+    await expect(visitor.locator('.course-gate .paid-gate-price')).toContainText(how);
+    await as(visitor, 'demo-student');
+    await visitor.reload();
+    await expect(visitor.locator('.course-gate')).toHaveCount(0);
+    await visitor.goto('/#lesson/m1');
+    await expect(visitor.locator('.native-viewer')).toBeVisible();
+  } finally {
+    await visitor.close();
+    await page.request.post('/api/platform', {
+      data: {
+        action: 'courseAccessAdmin',
+        input: { op: 'shop', course: 'tad-asoslari', price: '', how: '' },
+      },
+    });
+  }
 });

@@ -118,7 +118,7 @@ biror bo'lim yopiq qolsa, ilova rad etilishi mumkin:
 
 1. Saytda talaba sifatida ro'yxatdan o'ting (masalan, ism: `Google`, familiya: `Tekshiruvchi`, guruh: istalgan)
    va administrator sifatida hisobni **tasdiqlang**.
-2. Unga **💎 obuna** bering (Sayt boshqaruvi → 💎 Obuna) — kurs darslari va 💎 manbalar ochiladi.
+2. Unga **💎 obuna** bering (Sayt boshqaruvi → 💎 Obuna) — 💎 manbalar ochiladi. Asosiy kurs guruhi biriktirilgan va tasdiqlangan talabaga ochiq.
 3. **🔑 Kursga ruxsat → pullik kurs (Restoran) yorlig'i** → shu talabaga ruxsat bering — pullik kurs ham ochiladi.
 4. Login va parolni «App access» bo'limiga yozing (`play-console-javoblari.md` dagi izoh bilan).
 

@@ -6,12 +6,9 @@ import { Button } from '../ui/button';
 import { dueText } from '@/lib/points';
 import { useAdminView, useL } from './common';
 import type { CourseAccessAdminView } from '@/lib/server/course-access';
-import { MAIN_COURSE_ID } from '@/lib/course-access';
+import { courseReceiptUrl, MAIN_COURSE_ID } from '@/lib/course-access';
+import { ReceiptPreviewButton } from '../receipt';
 
-/* 🔑 Sayt boshqaruvi → Kursga ruxsat. TerDU talabalari (talaba bo'limi, ustoz tasdiqlagan) kursga avvalgidek kiradi.
-   Talaba bo'lmaganlar (email/Google, mustaqil o'quvchi) — faqat 💎 obuna yoki shu yerdagi ruxsat bilan. Bu yerda:
-   «Ruxsat so'rash» so'rovlari, email bo'yicha ruxsat berish (o'zingiz dars o'tadigan, lekin email bilan
-   ro'yxatdan o'tganlar uchun ham), ruxsatlar ro'yxati va umumiy sozlama (vaqtincha hammaga ochish). */
 export function CourseAccessAdmin() {
   const L = useL();
   const { data } = useApp();
@@ -21,6 +18,13 @@ export function CourseAccessAdmin() {
   const current = courses.find((c) => c.id === course) || courses[0];
   return (
     <>
+      <div className="bo-actions">
+        <Button size="sm" variant="outline" asChild>
+          <a href="#admin/payments">
+            {L('To‘lovlar bo‘limini ochish', 'Open payments', 'Открыть платежи')}
+          </a>
+        </Button>
+      </div>
       {courses.length > 1 && (
         <div className="bo-course-tabs" role="tablist" aria-label={L('Kurs', 'Course', 'Курс')}>
           {courses.map((c) => (
@@ -72,103 +76,16 @@ function MainCourseAccess() {
   return (
     <div className="bo-live bo-course-access">
       <div className="bo-status">
-        <span className={'bo-pill ' + (data.gate.off ? 'off' : 'on')}>
-          <KeyRound size={13} />{' '}
-          {data.gate.off
-            ? L('Hammaga ochiq', 'Open to all', 'Открыт всем')
-            : L('Yoqilgan', 'On', 'Включено')}
-        </span>
-        <span>
-          {data.gate.off
-            ? L(
-                'Kurs hozir hamma ro‘yxatdan o‘tganlarga ochiq (obuna va ruxsat tekshirilmayapti).',
-                'The course is currently open to everyone who registers (no Premium or permission check).',
-                'Курс сейчас открыт всем зарегистрированным (подписка и разрешение не проверяются).',
-              )
-            : L(
-                'TerDU talabalari kursga avvalgidek kiradi. Talaba bo‘lmaganlar — faqat 💎 obuna yoki shu yerdagi ruxsat bilan.',
-                'TerSU students enter the course as before. Everyone else — only with 💎 Premium or permission given here.',
-                'Студенты ТерГУ входят как раньше. Остальные — только с 💎 подпиской или разрешением отсюда.',
-              )}
-        </span>
-        <Button
-          size="sm"
-          variant="outline"
-          disabled={!!busy}
-          onClick={() =>
-            void act(
-              { op: 'gate', off: !data.gate.off },
-              'gate',
-              data.gate.off
-                ? '🔒 ' +
-                    L(
-                      'Kurs yana faqat obuna/ruxsat bilan',
-                      'Course gated again',
-                      'Курс снова по подписке/разрешению',
-                    )
-                : '🟢 ' +
-                    L('Kurs hammaga ochildi', 'Course opened to everyone', 'Курс открыт всем'),
-            ).catch(() => {})
-          }
-        >
-          {data.gate.off
-            ? L(
-                '🔒 Faqat obuna/ruxsat bilan',
-                '🔒 Premium/permission only',
-                '🔒 Только подписка/разрешение',
-              )
-            : L(
-                '🟢 Vaqtincha hammaga ochish',
-                '🟢 Open to everyone for now',
-                '🟢 Временно открыть всем',
-              )}
-        </Button>
-      </div>
-
-      <div className="bo-status bo-students">
-        <span className={'bo-pill ' + (data.gate.students ? 'on' : 'off')}>
-          🎓{' '}
-          {data.gate.students
-            ? L('Darhol ochiladi', 'Opens at once', 'Открывается сразу')
-            : L('Tasdiqlash bilan', 'After approval', 'После одобрения')}
+        <span className="bo-pill on">
+          <KeyRound size={13} /> {L('Kirish cheklangan', 'Access restricted', 'Доступ ограничен')}
         </span>
         <span>
           {L(
-            'Ro‘yxatdan o‘tishda «Talabamisiz?» so‘ralmaydi — kursni boshlaganda so‘raladi: «Ha» degan foydalanuvchi guruhini yozib kursga yoziladi va shu ro‘yxatga 🎓 belgisi bilan tushadi.',
-            'Registration no longer asks “Are you a student?” — it is asked when the course starts: students enter their group and appear in this list marked 🎓.',
-            'При регистрации больше не спрашивают «Вы студент?» — вопрос задаётся при начале курса: студент указывает группу и попадает в этот список со значком 🎓.',
+            'Guruhi biriktirilgan talabalar kursga bevosita kiradi. Boshqa foydalanuvchilarning so‘rovlarini shu yerda tasdiqlang.',
+            'Students with an assigned group can enter directly. Approve requests from other users here.',
+            'Студенты с назначенной группой входят сразу. Здесь можно одобрять запросы других пользователей.',
           )}
         </span>
-        <Button
-          size="sm"
-          variant="outline"
-          disabled={!!busy}
-          onClick={() =>
-            void act(
-              { op: 'students', on: !data.gate.students },
-              'students',
-              data.gate.students
-                ? L(
-                    'Talabalar endi tasdiqlash bilan kiradi',
-                    'Students now need approval',
-                    'Студентам теперь нужно одобрение',
-                  )
-                : L(
-                    'Talabalarga kurs darhol ochiladi',
-                    'The course now opens for students at once',
-                    'Курс теперь открывается студентам сразу',
-                  ),
-            ).catch(() => {})
-          }
-        >
-          {data.gate.students
-            ? L('🔒 Tasdiqlab kiritish', '🔒 Require approval', '🔒 Требовать одобрения')
-            : L(
-                '🎓 Talabalarga darhol ochish',
-                '🎓 Open for students at once',
-                '🎓 Открывать студентам сразу',
-              )}
-        </Button>
       </div>
 
       <div className="bo-card">
@@ -188,6 +105,9 @@ function MainCourseAccess() {
                   {[r.email, dueText(r.at, lang, now).date].filter(Boolean).join(' · ')}
                 </small>
                 {r.note && <small className="bo-note">💬 {r.note}</small>}
+                {r.payment && (
+                  <ReceiptPreviewButton src={courseReceiptUrl(data.course, r.uid, r.payment.id)} />
+                )}
               </div>
               <span className="bo-row-btns">
                 <Button
@@ -196,7 +116,7 @@ function MainCourseAccess() {
                   aria-label={L('Ruxsat berish', 'Grant access', 'Разрешить') + ': ' + r.name}
                   onClick={() =>
                     void act(
-                      { op: 'approve', uid: r.uid },
+                      { op: 'approve', uid: r.uid, paymentId: r.payment?.id ?? null },
                       'ap' + r.uid,
                       '✅ ' + L('Ruxsat berildi', 'Access granted', 'Доступ выдан'),
                     ).catch(() => {})
@@ -211,7 +131,7 @@ function MainCourseAccess() {
                   aria-label={L('Rad etish', 'Decline', 'Отклонить') + ': ' + r.name}
                   onClick={() =>
                     void act(
-                      { op: 'reject', uid: r.uid },
+                      { op: 'reject', uid: r.uid, paymentId: r.payment?.id ?? null },
                       'rj' + r.uid,
                       L('So‘rov rad etildi', 'Request declined', 'Запрос отклонён'),
                     ).catch(() => {})
@@ -230,9 +150,9 @@ function MainCourseAccess() {
         </ul>
         <p className="bo-hint">
           {L(
-            'Pul to‘laganlarga «💎 Obuna» bo‘limida obuna bering — ular ham shu ro‘yxatdan topiladi. Bepul ruxsat esa muddatsiz: bekor qilmaguningizcha amal qiladi.',
-            'Give paying users Premium in the “💎 Premium” section — they can be found there too. Free access has no end date: it lasts until you remove it.',
-            'Оплатившим выдайте подписку в разделе «💎 Подписка» — их можно найти и там. Бесплатный доступ бессрочный — действует, пока вы его не отмените.',
+            'To‘lovni tekshirgach, shu ro‘yxatdan kursga ruxsat bering. Ruxsat bekor qilinmaguncha amal qiladi.',
+            'Once you verify payment, grant access from this list. Access lasts until you revoke it.',
+            'После проверки оплаты выдайте доступ из этого списка. Доступ действует до отмены.',
           )}
         </p>
       </div>
@@ -272,25 +192,7 @@ function MainCourseAccess() {
                 )}
           </p>
         </form>
-        <div className="bo-form bo-course-explain">
-          <h3>🎓 {L('Kim qanday kiradi', 'Who gets in and how', 'Кто и как входит')}</h3>
-          <ul>
-            <li>
-              {L(
-                '🎓 TerDU talabasi — «Ha, TerDU talabasiman» bo‘limida guruhi bilan ro‘yxatdan o‘tadi, siz «Talabalar va baholar»da tasdiqlaysiz: darslar, ballar va reyting ochiladi (obunasiz).',
-                '🎓 TerSU student — registers with their group under “Yes, I study at TerSU”; you approve in “Students and grades”: lessons, points and ranking open (no Premium needed).',
-                '🎓 Студент ТерГУ — регистрируется с группой в разделе «Да, я студент ТерГУ», вы подтверждаете в «Студенты и оценки»: открываются уроки, баллы и рейтинг (без подписки).',
-              )}
-            </li>
-            <li>
-              {L(
-                '🌍 Boshqalar — email yoki Google bilan ro‘yxatdan o‘tadi; sayt ochiq, kurs darslari — 💎 obuna yoki ruxsat bilan.',
-                '🌍 Everyone else — registers with email or Google; the site is open, course lessons need 💎 Premium or permission.',
-                '🌍 Остальные — регистрация через email или Google; сайт открыт, уроки курса — по 💎 подписке или разрешению.',
-              )}
-            </li>
-          </ul>
-        </div>
+        <CourseShopForm view={data} busy={busy} act={act} />
       </div>
 
       <div className="bo-card">
@@ -357,6 +259,77 @@ function MainCourseAccess() {
   );
 }
 
+function CourseShopForm({
+  view,
+  busy,
+  act,
+}: {
+  view: CourseAccessAdminView;
+  busy: string;
+  act: (input: unknown, key: string, done: string) => Promise<CourseAccessAdminView>;
+}) {
+  const L = useL();
+  const price = view.shop?.price ?? '';
+  const how = view.shop?.how ?? '';
+  const [shop, setShop] = useState({ price, how });
+  useEffect(() => setShop({ price, how }), [price, how]);
+  return (
+    <form
+      className="bo-form"
+      onSubmit={(e: FormEvent) => {
+        e.preventDefault();
+        void act(
+          { op: 'shop', course: view.course, price: shop.price.trim(), how: shop.how.trim() },
+          'shop',
+          '💾 ' + L('Saqlandi', 'Saved', 'Сохранено'),
+        ).catch(() => {});
+      }}
+    >
+      <h3>🏷 {L('Narx va to‘lov yo‘riqnomasi', 'Price and how to pay', 'Цена и оплата')}</h3>
+      <label>
+        {view.course === MAIN_COURSE_ID
+          ? L(
+              'Kurs narxi (boshqa foydalanuvchilar uchun)',
+              'Price for other users',
+              'Цена для остальных пользователей',
+            )
+          : L(
+              'Kurs narxi (hammaga ko‘rinadi)',
+              'Course price (shown to everyone)',
+              'Цена курса (видна всем)',
+            )}
+        <input
+          className="input"
+          maxLength={80}
+          value={shop.price}
+          onChange={(e) => setShop({ ...shop, price: e.target.value })}
+          placeholder={L('Masalan: 450 000 so‘m', 'E.g. 450 000 so‘m', 'Например: 450 000 сум')}
+        />
+      </label>
+      <label>
+        {L('Qanday to‘lanadi', 'How to pay', 'Как оплатить')}
+        <textarea
+          className="input"
+          rows={4}
+          maxLength={600}
+          value={shop.how}
+          onChange={(e) => setShop({ ...shop, how: e.target.value })}
+          placeholder={L(
+            'Masalan: Click yoki Payme orqali … kartaga o‘tkazing, so‘ng kurs sahifasida chekni yuklang.',
+            'E.g. pay by Click or Payme to card …, then upload the receipt on the course page.',
+            'Например: переведите через Click или Payme на карту …, затем загрузите чек на странице курса.',
+          )}
+        />
+      </label>
+      <div className="bo-actions">
+        <Button type="submit" disabled={!!busy}>
+          <Save size={15} /> {L('Saqlash', 'Save', 'Сохранить')}
+        </Button>
+      </div>
+    </form>
+  );
+}
+
 /** 💳 Pullik kurs: narx va to'lov yo'riqnomasi, qatnashish so'rovlari, email yoki reyting bo'yicha ruxsat, ruxsatlar. */
 function PaidCourseAccess({ course }: { course: string }) {
   const L = useL();
@@ -366,13 +339,8 @@ function PaidCourseAccess({ course }: { course: string }) {
     'courseAccessAdmin',
   );
   const [email, setEmail] = useState(''),
-    [shop, setShop] = useState({ price: '', how: '' }),
     [students, setStudents] = useState<{ id: string; name: string; classId?: string }[]>([]),
     [q, setQ] = useState('');
-  const saved = data?.shop;
-  useEffect(() => {
-    if (saved) setShop({ price: saved.price, how: saved.how });
-  }, [saved]);
   useEffect(() => {
     let live = true;
     request('/api/platform?view=academic')
@@ -422,6 +390,9 @@ function PaidCourseAccess({ course }: { course: string }) {
                   {[r.email, dueText(r.at, lang, now).date].filter(Boolean).join(' · ')}
                 </small>
                 {r.note && <small className="bo-note">💬 {r.note}</small>}
+                {r.payment && (
+                  <ReceiptPreviewButton src={courseReceiptUrl(data.course, r.uid, r.payment.id)} />
+                )}
               </div>
               <span className="bo-row-btns">
                 <Button
@@ -429,9 +400,11 @@ function PaidCourseAccess({ course }: { course: string }) {
                   disabled={!!busy}
                   aria-label={L('Ruxsat berish', 'Grant access', 'Разрешить') + ': ' + r.name}
                   onClick={() =>
-                    void act({ op: 'approve', uid: r.uid, course }, 'ap' + r.uid, done).catch(
-                      () => {},
-                    )
+                    void act(
+                      { op: 'approve', uid: r.uid, course, paymentId: r.payment?.id ?? null },
+                      'ap' + r.uid,
+                      done,
+                    ).catch(() => {})
                   }
                 >
                   <Check size={14} /> {L('Ruxsat', 'Allow', 'Разрешить')}
@@ -443,7 +416,7 @@ function PaidCourseAccess({ course }: { course: string }) {
                   aria-label={L('Rad etish', 'Decline', 'Отклонить') + ': ' + r.name}
                   onClick={() =>
                     void act(
-                      { op: 'reject', uid: r.uid, course },
+                      { op: 'reject', uid: r.uid, course, paymentId: r.payment?.id ?? null },
                       'rj' + r.uid,
                       L('So‘rov rad etildi', 'Request declined', 'Запрос отклонён'),
                     ).catch(() => {})
@@ -545,53 +518,7 @@ function PaidCourseAccess({ course }: { course: string }) {
                 )}
           </p>
         </form>
-        <form
-          className="bo-form"
-          onSubmit={(e: FormEvent) => {
-            e.preventDefault();
-            void act(
-              { op: 'shop', course, price: shop.price.trim(), how: shop.how.trim() },
-              'shop',
-              '💾 ' + L('Saqlandi', 'Saved', 'Сохранено'),
-            ).catch(() => {});
-          }}
-        >
-          <h3>🏷 {L('Narx va to‘lov yo‘riqnomasi', 'Price and how to pay', 'Цена и оплата')}</h3>
-          <label>
-            {L(
-              'Kurs narxi (hammaga ko‘rinadi)',
-              'Course price (shown to everyone)',
-              'Цена курса (видна всем)',
-            )}
-            <input
-              className="input"
-              maxLength={80}
-              value={shop.price}
-              onChange={(e) => setShop({ ...shop, price: e.target.value })}
-              placeholder={L('Masalan: 450 000 so‘m', 'E.g. 450 000 so‘m', 'Например: 450 000 сум')}
-            />
-          </label>
-          <label>
-            {L('Qanday to‘lanadi', 'How to pay', 'Как оплатить')}
-            <textarea
-              className="input"
-              rows={4}
-              maxLength={600}
-              value={shop.how}
-              onChange={(e) => setShop({ ...shop, how: e.target.value })}
-              placeholder={L(
-                'Masalan: Click yoki Payme orqali … kartaga o‘tkazing, so‘ng «Qatnashish uchun so‘rov» tugmasini bosib chek raqamini yozing.',
-                'E.g. pay by Click or Payme to card …, then press “Request to join” and add the receipt number.',
-                'Например: переведите через Click или Payme на карту …, затем нажмите «Запрос на участие» и укажите номер чека.',
-              )}
-            />
-          </label>
-          <div className="bo-actions">
-            <Button type="submit" disabled={!!busy}>
-              <Save size={15} /> {L('Saqlash', 'Save', 'Сохранить')}
-            </Button>
-          </div>
-        </form>
+        <CourseShopForm view={data} busy={busy} act={act} />
       </div>
 
       <div className="bo-card">

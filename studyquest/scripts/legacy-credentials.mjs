@@ -4,17 +4,6 @@ export function adaptStudentRegistration(source) {
     'var cand=a.filter(function(x){ return nrm(x.name)===nrm(n)&&nrm(x.surname)===nrm(sn); });';
   // «Ism Familiya» ham, «Familiya Ism» ham bir xil hisobni topadi. Parol kaliti bazadagi tartib bilan
   // (h.name, h.surname) hisoblanadi — teskari yozilganda ham avvalgi kalit bilan mos keladi.
-  const activate = `/* ✅ «kutilmoqda» hisob egasi kirgan zahoti faollashadi */
-function sqActivate(cb){
-  if(!S||S.status==="ok"||S.status==="blocked"||independent(S)||!cloudOn){ cb(); return; }
-  saToken(true,function(t){
-    if(!t){ cb(); return; }
-    tmo(fetch("/api/student-activate",{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+t},body:JSON.stringify({id:S.id})}),9000)
-      .then(function(r){ return r.ok?r.json():null; })
-      .then(function(v){ if(v&&v.status==="ok"&&S){ S.status="ok"; lset(LS.stu,S); } cb(); },function(){ cb(); });
-  });
-}
-`;
   const namesAnyOrder =
     'var cand=a.filter(function(x){ return (nrm(x.name)===nrm(n)&&nrm(x.surname)===nrm(sn))||(nrm(x.name)===nrm(sn)&&nrm(x.surname)===nrm(n)); });';
   const choice = `
@@ -79,17 +68,6 @@ function sqActivate(cb){
     [
       'document.getElementById(reg?"rtGo":"lgGo").onclick=reg?doReg:doLog;',
       'if(reg){var defaultPassword=document.getElementById("rtB");defaultPassword.value="1111";defaultPassword.type="text";defaultPassword.readOnly=true;} document.getElementById(reg?"rtGo":"lgGo").onclick=reg?doReg:doLog;',
-    ],
-    // ✅ O'qituvchi tasdig'i yo'q: «kutilmoqda» hisobni egasi ro'yxatdan o'tgan yoki kirgan zahoti server faollashtiradi
-    // (/api/student-activate, lib/server/student-activate.ts); bloklangan hisob bloklanganicha qoladi.
-    ['function gate(opts){', activate + 'function gate(opts){'],
-    [
-      '    if(guest){ var w=document.getElementById("rtGate"); if(w) w.remove(); guestOff(); if(approved()) start(); else waitScreen(); }\n    else courseGate(function(){ if(approved()) start(); else waitScreen(); });',
-      '    sqActivate(function(){\n    if(guest){ var w=document.getElementById("rtGate"); if(w) w.remove(); guestOff(); if(approved()) start(); else waitScreen(); }\n    else courseGate(function(){ if(approved()) start(); else waitScreen(); });\n    });',
-    ],
-    [
-      'function waitScreen(){',
-      'function waitScreen(){\n  if(!window.SQ_ACT&&S&&S.status!=="ok"&&S.status!=="blocked"&&!independent(S)){ window.SQ_ACT=1; sqActivate(function(){ if(S&&S.status==="ok"){ var o=document.getElementById("rtWait"); if(o) o.remove(); start(); } else waitScreen(); }); return; }',
     ],
   ];
   for (const [before, after] of patches) {

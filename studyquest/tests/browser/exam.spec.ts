@@ -181,7 +181,7 @@ test('final exam prep: upload questions, buy the section, practise, pass the fin
   await reset(page);
 });
 
-test('Premium: a student picks 1 month or 1 year, pays any amount (card → «I have paid» → amount, time or receipt) and it opens at once; the administrator confirms, changes the term, removes and unblocks; pick one of the looks', async ({
+test('Premium: a student submits payment, the administrator approves it, and the student uses Premium perks', async ({
   page,
   browser,
 }) => {
@@ -211,7 +211,7 @@ test('Premium: a student picks 1 month or 1 year, pays any amount (card → «I 
   const slide = student.locator('.sidebar .premium-side');
   await expect(slide).toContainText('Obuna bo‘ling');
   await expect(slide).toContainText('quyidagi xizmatlardan foydalaning');
-  await expect(slide.locator('.premium-perks li')).toHaveCount(6);
+  await expect(slide.locator('.premium-perks li')).toHaveCount(5);
   await expect(student.locator('.premium-side.is-home')).toBeHidden();
   await slide.getByRole('button', { name: /Obuna bo‘lish/ }).click();
   await expect(student.getByRole('dialog')).toContainText('Profil bezagi');
@@ -249,9 +249,10 @@ test('Premium: a student picks 1 month or 1 year, pays any amount (card → «I 
   await plans.getByRole('button', { name: /Orqaga/ }).click();
   await plans.getByRole('button', { name: /To‘lov qildim/ }).click();
   await send.click();
-  // 3) obuna darhol ochiladi
-  await expect(student.getByText('💎 Obuna ochildi! Rahmat.')).toBeVisible();
-  await expect(profileMark).toBeVisible();
+  // 3) to‘lov tekshiruvga yuboriladi
+  await expect(student.getByText('💎 To‘lov tekshiruvga yuborildi.')).toBeVisible();
+  await expect(plans.getByRole('status')).toContainText('To‘lov tekshiruvda');
+  await expect(profileMark).toHaveCount(0);
   // administrator: Sayt boshqaruvi → 💎 Obuna — yangi obuna, to'lov vaqti bilan: «To'lov keldi»
   await page.goto('/#admin', { waitUntil: 'domcontentloaded' });
   await page
@@ -325,7 +326,7 @@ test('Premium: a student picks 1 month or 1 year, pays any amount (card → «I 
   await expect(active).toContainText('gacha');
   await active.getByRole('button', { name: 'Imkoniyatlarim' }).click();
   const perks = student.getByRole('dialog', { name: 'Premium imkoniyatlaringiz' });
-  await expect(perks.locator('.premium-perks.is-links li')).toHaveCount(6);
+  await expect(perks.locator('.premium-perks.is-links li')).toHaveCount(5);
   await expect(perks).toContainText('Profil → 💎 Premium');
   await perks.getByRole('link', { name: /Kutubxonadagi 💎/ }).click();
   await expect(perks).toBeHidden();
@@ -363,7 +364,7 @@ test('Premium: a student picks 1 month or 1 year, pays any amount (card → «I 
     .locator('.receipt-pick input[type="file"]')
     .setInputFiles({ name: 'chek.png', mimeType: 'image/png', buffer: RECEIPT });
   await again.getByRole('button', { name: /Yuborish/ }).click();
-  await expect(student.getByText('💎 Obuna ochildi! Rahmat.')).toBeVisible();
+  await expect(student.getByText('💎 To‘lov tekshiruvga yuborildi.')).toBeVisible();
   await page.reload({ waitUntil: 'domcontentloaded' });
   await expect(fresh).toHaveCount(1);
   await expect(fresh).toContainText('1 oy · 💳 5 000 so‘m');

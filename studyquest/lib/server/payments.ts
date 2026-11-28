@@ -7,7 +7,7 @@ import { grantAvatarPass } from './avatars';
 /* 💳 To'lov tizimi uchun YAGONA kirish nuqtasi. Hozircha to'lovni administrator qo'lda tasdiqlaydi
    («💎 Obuna» va «🎭 Avatarlar» bo'limlari). Click (yoki Payme) bilan shartnoma tuzilgach, ularning «to'lov
    bajarildi» xabari (webhook: /api/pay/click — imzo tekshirilgandan keyin) shu fulfilPayment ni chaqiradi:
-     • premium — 💎 obuna (kurs darslari, 💎 manbalar, avatar huquqi);
+     • premium — 💎 obuna (💎 manbalar, avatar huquqi);
      • avatar  — 🎭 avatar huquqi (top-10 ga kirmasa ham), muddati — «🎭 Avatarlar → Narx va muddat».
    Bir to'lov ikki marta kelsa (tarmoq qayta yuborsa) — ikkinchi marta hech narsa berilmaydi: site/payments/<ref>.
    Click ning maxfiy kaliti (secret key) faqat server muhitida (Vercel → Environment Variables) saqlanadi. */

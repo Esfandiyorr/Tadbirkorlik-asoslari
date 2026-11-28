@@ -14,6 +14,7 @@ export function ImagePick({
   hint,
   max = 1200,
   label,
+  accept = 'image/png,image/jpeg,image/webp,image/gif',
 }: {
   value: Blob | null;
   onChange: (b: Blob | null) => void;
@@ -22,6 +23,7 @@ export function ImagePick({
   label?: string;
   /** eng uzun tomoni (px) */
   max?: number;
+  accept?: string;
 }) {
   const { lang, toast } = useApp();
   const L = (uz: string, en: string, ru: string) => tr(lang, uz, en, ru);
@@ -51,7 +53,7 @@ export function ImagePick({
         </span>
         <input
           type="file"
-          accept="image/png,image/jpeg,image/webp,image/gif"
+          accept={accept}
           aria-label={L('Rasm', 'Picture', 'Картинка')}
           onChange={async (e) => {
             const f = e.target.files?.[0];

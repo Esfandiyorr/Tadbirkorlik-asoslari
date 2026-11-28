@@ -178,6 +178,9 @@ it('Premium and a bought pass let students outside the top ten hold an avatar wh
       at: now,
       note: 'Click 25 000',
       place: 12,
+      id: expect.stringMatching(/^[a-f0-9]{32}$/),
+      days: 30,
+      price: '',
     },
   ]);
   panel = await manageAvatars(

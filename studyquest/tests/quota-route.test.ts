@@ -1,4 +1,4 @@
-import { it, expect, vi, beforeEach } from 'vitest';
+import { it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { NextRequest } from 'next/server';
 import { demoUsers } from '../lib/seed';
 import { AVATAR_IDS } from '../lib/avatars';
@@ -36,6 +36,7 @@ import { GET, POST } from '../app/api/platform/route';
 
 beforeEach(() => {
   vi.resetAllMocks();
+  vi.stubEnv('PLATFORM_ACCESS_SECRET', 'lesson-test-key');
   mocks.list.mockRejectedValue({ code: 8 });
   mocks.actor.mockImplementation(async (_req, readOnly) => {
     if (!readOnly) throw { code: 8 };
@@ -51,6 +52,8 @@ beforeEach(() => {
     topics: { m1: { p: 75, b: 4, s: 12, t: 3000, q: 8 } },
   });
 });
+
+afterEach(() => vi.unstubAllEnvs());
 
 it('serves a safe public catalog when Firestore refuses reads', async () => {
   const response = await GET(new NextRequest('https://example.test/api/platform'));

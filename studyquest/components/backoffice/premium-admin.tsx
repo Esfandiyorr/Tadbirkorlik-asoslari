@@ -1,20 +1,15 @@
 'use client';
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
-import { createPortal } from 'react-dom';
-import { Crown, X } from 'lucide-react';
+import { Crown } from 'lucide-react';
 import { useApp } from '../provider';
 import { Button } from '../ui/button';
-import { Receipts } from '../receipt';
+import { ReceiptPreviewButton, Receipts } from '../receipt';
 import { servicesAct } from '../service-files';
 import { PREMIUM_TERMS, formatSum, termText } from '@/lib/services';
 import { TERM_CHOICES, planName } from '@/lib/premium-plans';
 import { useAdminView, useL } from './common';
 import type { PremiumAdminView } from '@/lib/server/premium';
 
-/* 💎 Sayt boshqaruvi → Obuna. Talaba o'zi obuna bo'ladi (karta → «To'lov qildim» → vaqt yoki chek) va obuna darhol
-   ochiladi. Bu yerda: 🆕 yangi obunalar — to'lovni tekshirib «To'lov keldi» yoki «Chiqarib tashlash» (o'zi qayta
-   obuna bo'la olmaydi); 👥 obunachilar — muddatni o'zgartirish (masalan 1 oy → 1 yil, boshlangan kunidan) yoki
-   chiqarib tashlash; ➕ qo'lda obuna berish; 💳 karta va narxlar; ⛔ yopilganlar. */
 type Student = { id: string; name: string; classId?: string };
 type Grant = PremiumAdminView['grants'][number];
 
@@ -26,57 +21,6 @@ const date = (t: number, time = false) =>
     year: 'numeric',
     ...(time ? { hour: '2-digit', minute: '2-digit' } : {}),
   }).format(t);
-
-/** 🧾 Chek rasmi (faqat administrator) — bosilganda katta oynada. */
-function ReceiptButton({ uid, id }: { uid: string; id: string }) {
-  const L = useL();
-  const { request, toast } = useApp();
-  const [url, setUrl] = useState('');
-  useEffect(() => () => void (url && URL.revokeObjectURL(url)), [url]);
-  useEffect(() => {
-    if (!url) return;
-    const key = (e: KeyboardEvent) => e.key === 'Escape' && setUrl('');
-    window.addEventListener('keydown', key);
-    return () => window.removeEventListener('keydown', key);
-  }, [url]);
-  const open = async () => {
-    try {
-      const r = await request('/api/premium?receipt=' + encodeURIComponent(uid) + '/' + id);
-      if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || 'Chek topilmadi.');
-      setUrl(URL.createObjectURL(await r.blob()));
-    } catch (e) {
-      toast((e as Error).message);
-    }
-  };
-  return (
-    <>
-      <button type="button" className="pa-chip is-link" onClick={() => void open()}>
-        🧾 {L('Chekni ko‘rish', 'View receipt', 'Посмотреть чек')}
-      </button>
-      {url &&
-        createPortal(
-          <div
-            className="modal-backdrop"
-            onClick={(e) => e.target === e.currentTarget && setUrl('')}
-          >
-            <section className="panel pa-receipt" role="dialog" aria-modal="true">
-              <button
-                type="button"
-                className="av-close"
-                aria-label={L('Yopish', 'Close', 'Закрыть')}
-                onClick={() => setUrl('')}
-              >
-                <X size={20} />
-              </button>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={url} alt={L('To‘lov cheki', 'Payment receipt', 'Чек оплаты')} />
-            </section>
-          </div>,
-          document.body,
-        )}
-    </>
-  );
-}
 
 export function PremiumAdmin() {
   const L = useL();
@@ -192,13 +136,18 @@ export function PremiumAdmin() {
   };
   /** 🧾 eski tartib: «Pullik xizmatlar» buyurtmasi orqali kelgan chekni qabul qilish yoki qilmaslik */
   const decide = async (
-    o: { uk: string; id: string },
+    o: { uk: string; id: string; paidAt?: number },
     input: Record<string, unknown>,
     done: string,
   ) => {
     setDoing(o.id);
     try {
-      await servicesAct(request, 'admin', { ...input, uk: o.uk, id: o.id });
+      await servicesAct(request, 'admin', {
+        ...input,
+        uk: o.uk,
+        id: o.id,
+        expectedPaidAt: o.paidAt,
+      });
       await load();
       toast(done);
     } catch (e) {
@@ -240,16 +189,16 @@ export function PremiumAdmin() {
         </li>
         <li>
           {L(
-            '«To‘lov qildim» → summa va to‘lov vaqti yoki chek → «Yuborish». Obuna darhol tanlagan muddatiga ochiladi.',
-            '“I have paid” → amount and payment time or receipt → “Send”. Premium opens at once for the chosen period.',
-            '«Я оплатил» → сумма и время или чек → «Отправить». Подписка открывается сразу на выбранный срок.',
+            '«To‘lov qildim» → summa va to‘lov vaqti yoki chek → «Yuborish». To‘lov tekshiruvga yuboriladi.',
+            '“I have paid” → amount and payment time or receipt → “Send”. The payment is submitted for review.',
+            '«Я оплатил» → сумма и время или чек → «Отправить». Оплата отправляется на проверку.',
           )}
         </li>
         <li>
           {L(
-            'Siz pastda tekshirasiz: «To‘lov keldi» yoki to‘lov topilmasa — «Chiqarib tashlash».',
-            'You check below: “Payment received”, or “Remove” if there is no payment.',
-            'Вы проверяете ниже: «Оплата пришла» или, если оплаты нет, «Убрать».',
+            '«To‘lov keldi»ni bossangiz, obuna faollashadi yoki uzayadi. To‘lov topilmasa, «Rad etish»ni bosing.',
+            '“Payment received” starts or extends Premium. If the payment is missing, choose “Reject payment”.',
+            '«Оплата пришла» активирует или продлевает подписку. Если оплаты нет, нажмите «Отклонить оплату».',
           )}
         </li>
       </ol>
@@ -258,9 +207,9 @@ export function PremiumAdmin() {
         <h3>
           🆕{' '}
           {L(
-            'Yangi obunalar — to‘lovni tekshiring',
-            'New subscriptions — check the payment',
-            'Новые подписки — проверьте оплату',
+            'Tasdiqlash kutilayotgan to‘lovlar',
+            'Payments awaiting approval',
+            'Оплаты, ожидающие подтверждения',
           )}{' '}
           ({data.fresh.length})
         </h3>
@@ -281,7 +230,11 @@ export function PremiumAdmin() {
                         🕒 {L('To‘lov vaqti', 'Paid at', 'Оплата')}: {date(c.paidAt, true)}
                       </em>
                     )}
-                    {c.receipt && <ReceiptButton uid={c.uid} id={c.id} />}
+                    {c.receipt && (
+                      <ReceiptPreviewButton
+                        src={'/api/premium?receipt=' + encodeURIComponent(c.uid + '/' + c.id)}
+                      />
+                    )}
                     <em className="pa-chip is-muted">
                       {L('Yuborgan', 'Sent', 'Отправлено')}: {date(c.at, true)}
                     </em>
@@ -309,9 +262,15 @@ export function PremiumAdmin() {
                     variant="outline"
                     className="pa-danger"
                     disabled={!!busy}
-                    onClick={() => remove(c.uid, c.name)}
+                    onClick={() =>
+                      void run(
+                        { op: 'reject', uid: c.uid, id: c.id },
+                        'reject' + c.id,
+                        L('To‘lov rad etildi.', 'Payment rejected.', 'Оплата отклонена.'),
+                      )
+                    }
                   >
-                    ✖ {L('Chiqarib tashlash', 'Remove', 'Убрать')}
+                    ✖ {L('Rad etish', 'Reject payment', 'Отклонить оплату')}
                   </Button>
                 </span>
               </li>
@@ -320,9 +279,9 @@ export function PremiumAdmin() {
         ) : (
           <p className="muted">
             {L(
-              'Hozircha yangi obuna yo‘q. Talaba obuna bo‘lsa, shu yerda chiqadi (telefoningizga bildirishnoma ham keladi).',
-              'No new subscriptions. When a student subscribes, it appears here (you also get a notification).',
-              'Новых подписок нет. Когда студент подпишется, он появится здесь (придёт уведомление).',
+              'Tekshiruvda to‘lov yo‘q.',
+              'No payments awaiting review.',
+              'Нет оплат, ожидающих проверки.',
             )}
           </p>
         )}

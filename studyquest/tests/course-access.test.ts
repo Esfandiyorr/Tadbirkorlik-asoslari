@@ -3,12 +3,12 @@ import type { Actor, Lesson } from '../lib/types';
 import {
   courseAccessAdmin,
   courseEntry,
-  forgetCourseGate,
+  courseShop,
   manageCourseAccess,
   requestCourseAccess,
   cancelCourseRequest,
   requireCourse,
-  terduStudent,
+  groupedStudent,
   paidEntry,
   paidView,
   requirePaidCourse,
@@ -17,16 +17,12 @@ import {
 import { MAIN_COURSE_ID } from '../lib/course-access';
 import { managePremium } from '../lib/server/premium';
 import { legacyAccess } from '../lib/server/legacy-access';
-import { resetSiteMemory } from '../lib/server/site-content';
+import { resetSiteMemory, siteUpdate } from '../lib/server/site-content';
 
-/* 🔑 Kursga kirish: TerDU talabalari — avvalgidek; talaba bo'lmaganlar — faqat 💎 obuna yoki administrator ruxsati. */
 beforeAll(() => {
   process.env.STUDYQUEST_DEMO = 'true';
 });
-beforeEach(() => {
-  resetSiteMemory();
-  forgetCourseGate();
-});
+beforeEach(() => resetSiteMemory());
 const who = (
   id: string,
   role = 'student',
@@ -44,29 +40,28 @@ const who = (
     ...extra,
   }) as unknown as Actor;
 const admin = who('owner', 'admin', 'university');
-const student = who('legacy_ali', 'student', 'university');
+const student = who('legacy_ali', 'student', 'university', { classId: 'AP-223' });
 const email = who('uidEmail1');
 const independent = who('legacy_mustaqil', 'student', 'independent', { uid: 'fbMustaqil' });
 const now = Date.UTC(2026, 10, 14, 9, 0);
 const lesson = { id: 'm1', courseId: 'c1', legacyFile: 'mavzu_1.html' } as unknown as Lesson;
 
-it('only teacher-approved TerDU student accounts count as students', () => {
-  expect(terduStudent(student)).toBe(true);
-  expect(terduStudent(who('demo-student', 'student', 'university'))).toBe(true);
-  expect(terduStudent(independent)).toBe(false);
-  // email bilan ro'yxatdan o'tgan hisobda «university» yozuvi bo'lsa ham — talaba hisoblanmaydi
-  expect(terduStudent(who('uidEmail2', 'student', 'university'))).toBe(false);
+it('only confirmed students with a group qualify for automatic course access', () => {
+  expect(groupedStudent(student)).toBe(true);
+  expect(groupedStudent({ ...student, classId: '  ' })).toBe(false);
+  expect(groupedStudent({ ...student, classId: ' Mustaqil ' })).toBe(false);
+  expect(groupedStudent({ ...independent, classId: 'AP-223' })).toBe(false);
 });
 
-it('students and staff always enter; everyone else needs Premium or permission', async () => {
-  expect(await courseEntry(student, now)).toEqual({ ok: true, via: 'student' });
-  expect(await courseEntry(who('tc', 'teacher'), now)).toEqual({ ok: true, via: 'staff' });
-  expect(await courseEntry(admin, now)).toEqual({ ok: true, via: 'staff' });
-  expect(await courseEntry(email, now)).toEqual({ ok: false, pending: null });
-  expect(await courseEntry(independent, now)).toEqual({ ok: false, pending: null });
+it('grouped students and staff enter; other users need administrator approval', async () => {
+  expect(await courseEntry(student)).toEqual({ ok: true, via: 'student' });
+  expect(await courseEntry(who('tc', 'teacher'))).toEqual({ ok: true, via: 'staff' });
+  expect(await courseEntry(admin)).toEqual({ ok: true, via: 'staff' });
+  expect(await courseEntry(email)).toEqual({ ok: false, pending: null });
+  expect(await courseEntry(independent)).toEqual({ ok: false, pending: null });
   await expect(requireCourse(email)).rejects.toMatchObject({ status: 403 });
   await expect(legacyAccess(email, lesson)).rejects.toMatchObject({ status: 403 });
-  await expect(requireCourse(student)).resolves.toBeUndefined();
+  await expect(requireCourse(student)).resolves.toEqual(student);
   await expect(legacyAccess(student, lesson)).resolves.toBeUndefined();
 });
 
@@ -76,7 +71,7 @@ it('a non-student asks for access, the administrator approves and can take it ba
     ok: false,
     pending: now,
   });
-  expect(await courseEntry(email, now)).toEqual({ ok: false, pending: now });
+  expect(await courseEntry(email)).toEqual({ ok: false, pending: now });
   // faqat administrator ko'radi va boshqaradi
   await expect(courseAccessAdmin(email)).rejects.toMatchObject({ status: 403 });
   await expect(manageCourseAccess(email, { op: 'approve', uid: email.id })).rejects.toMatchObject({
@@ -103,39 +98,36 @@ it('a non-student asks for access, the administrator approves and can take it ba
       by: 'owner',
     },
   ]);
-  expect(await courseEntry(email, now)).toEqual({ ok: true, via: 'grant' });
-  await expect(requireCourse(email)).resolves.toBeUndefined();
+  expect(await courseEntry(email)).toEqual({ ok: true, via: 'grant' });
+  await expect(requireCourse(email)).resolves.toEqual(email);
   // ochiq bo'lgach yana so'rash — hech narsa yozilmaydi
   expect(await requestCourseAccess(email, {}, now)).toEqual({ ok: true, via: 'grant' });
   expect((await courseAccessAdmin(admin)).requests).toEqual([]);
   v = await manageCourseAccess(admin, { op: 'revoke', uid: email.id });
   expect(v.grants).toEqual([]);
-  expect(await courseEntry(email, now)).toEqual({ ok: false, pending: null });
+  expect(await courseEntry(email)).toEqual({ ok: false, pending: null });
 });
 
 it('a declined or cancelled request disappears; unknown requests are refused', async () => {
   await requestCourseAccess(independent, {}, now);
-  expect(await courseEntry(independent, now)).toMatchObject({ pending: now });
+  expect(await courseEntry(independent)).toMatchObject({ pending: now });
   expect(await cancelCourseRequest(independent)).toEqual({ ok: false, pending: null });
   expect((await courseAccessAdmin(admin)).requests).toEqual([]);
   await requestCourseAccess(independent, {}, now);
   const v = await manageCourseAccess(admin, { op: 'reject', uid: independent.id });
   expect(v.requests).toEqual([]);
   expect(v.grants).toEqual([]);
-  expect(await courseEntry(independent, now)).toEqual({ ok: false, pending: null });
+  expect(await courseEntry(independent)).toEqual({ ok: false, pending: null });
   await expect(
     manageCourseAccess(admin, { op: 'approve', uid: independent.id }),
   ).rejects.toMatchObject({ status: 404 });
 });
 
-it('Premium opens the course while it lasts', async () => {
+it('Premium and the former public setting do not authorise a user without a group', async () => {
+  await siteUpdate({ courseGate: { off: true, students: true } });
   await managePremium(admin, { op: 'grant', uid: email.id, name: email.name, days: 30 }, now);
-  expect(await courseEntry(email, now)).toEqual({
-    ok: true,
-    via: 'premium',
-    until: now + 30 * 86400000,
-  });
-  expect(await courseEntry(email, now + 31 * 86400000)).toEqual({ ok: false, pending: null });
+  expect(await courseEntry(email)).toEqual({ ok: false, pending: null });
+  await expect(requireCourse(email)).rejects.toMatchObject({ status: 403 });
 });
 
 it('access given by email reaches the sign-in account, also behind a student-section id', async () => {
@@ -157,25 +149,26 @@ it('access given by email reaches the sign-in account, also behind a student-sec
   );
   expect(v.grants[0]).toMatchObject({ uid: 'fbMustaqil', email: 'mustaqil@example.com' });
   // asl hisob id si legacy_mustaqil, kirish hisobi (uid) — fbMustaqil
-  expect(await courseEntry(independent, now)).toEqual({ ok: true, via: 'grant' });
+  expect(await courseEntry(independent)).toEqual({ ok: true, via: 'grant' });
   // email bo'yicha qidiruv faqat jonli bazada — demo rejimida rad etiladi
   await expect(
     manageCourseAccess(admin, { op: 'grant', email: 'mustaqil@example.com' }, now),
   ).rejects.toMatchObject({ status: 409 });
 });
 
-it('the administrator can open the course to everyone for a while', async () => {
-  let v = await manageCourseAccess(admin, { op: 'gate', off: true });
-  expect(v.gate).toEqual({ off: true, students: true });
-  expect(await courseEntry(email, now)).toEqual({ ok: true, via: 'open' });
-  v = await manageCourseAccess(admin, { op: 'gate', off: false });
-  expect(v.gate).toEqual({ off: false, students: true });
-  expect(await courseEntry(email, now)).toEqual({ ok: false, pending: null });
-});
-
-/* 🎓 «Talabamisiz?» ro'yxatdan o'tishda emas, kursni boshlaganda so'raladi: «Ha» — guruh bilan yozilish. */
-it('with «open for students at once» turned off, a student enrols with a group and the administrator approves', async () => {
-  await manageCourseAccess(admin, { op: 'students', on: false });
+it('a group claimed in a request needs approval even when self-enrolment was previously enabled', async () => {
+  await siteUpdate({
+    courseGate: { students: true },
+    ['courseAccess/' + email.id]: {
+      uid: email.id,
+      name: email.name,
+      group: 'AP-223',
+      at: now,
+      by: 'student',
+    },
+  });
+  expect(await courseEntry(email)).toEqual({ ok: false, pending: null });
+  expect((await courseAccessAdmin(admin)).grants).toEqual([]);
   await expect(requestCourseAccess(email, { group: '!' }, now)).rejects.toThrow();
   await expect(requestCourseAccess(email, { group: 'A' }, now)).rejects.toThrow();
   await expect(
@@ -186,7 +179,7 @@ it('with «open for students at once» turned off, a student enrols with a group
     pending: now,
     group: 'AP-223',
   });
-  expect(await courseEntry(email, now)).toEqual({ ok: false, pending: now, group: 'AP-223' });
+  expect(await courseEntry(email)).toEqual({ ok: false, pending: now, group: 'AP-223' });
   let v = await courseAccessAdmin(admin);
   expect(v.requests).toEqual([
     {
@@ -199,42 +192,7 @@ it('with «open for students at once» turned off, a student enrols with a group
   ]);
   v = await manageCourseAccess(admin, { op: 'approve', uid: email.id }, now + 1000);
   expect(v.grants[0]).toMatchObject({ uid: 'uidEmail1', group: 'AP-223', by: 'owner' });
-  expect(await courseEntry(email, now)).toEqual({ ok: true, via: 'grant' });
-});
-
-it('with «open for students at once» the course opens right after entering the group', async () => {
-  await expect(manageCourseAccess(email, { op: 'students', on: true })).rejects.toMatchObject({
-    status: 403,
-  });
-  let v = await manageCourseAccess(admin, { op: 'students', on: true });
-  expect(v.gate).toEqual({ off: false, students: true });
-  // «gate» o'zgarsa ham talabalar sozlamasi saqlanadi
-  v = await manageCourseAccess(admin, { op: 'gate', off: false });
-  expect(v.gate).toEqual({ off: false, students: true });
-  // guruhsiz so'rov — avvalgidek administrator tasdig'ini kutadi
-  expect(await requestCourseAccess(independent, { note: 'Ish joyimdan' }, now)).toEqual({
-    ok: false,
-    pending: now,
-  });
-  expect(await requestCourseAccess(email, { group: 'AP-223' }, now)).toEqual({
-    ok: true,
-    via: 'grant',
-  });
-  v = await courseAccessAdmin(admin);
-  expect(v.grants).toEqual([
-    {
-      uid: 'uidEmail1',
-      name: 'Dilnoza Karimova',
-      email: 'uidEmail1@example.com',
-      group: 'AP-223',
-      at: now,
-      by: 'student',
-    },
-  ]);
-  expect(v.requests.map((r) => r.uid)).toEqual(['legacy_mustaqil']);
-  expect(await courseEntry(email, now)).toEqual({ ok: true, via: 'grant' });
-  v = await manageCourseAccess(admin, { op: 'students', on: false });
-  expect(v.gate).toEqual({ off: false, students: false });
+  expect(await courseEntry(email)).toEqual({ ok: true, via: 'grant' });
 });
 
 /* 💳 Pullik kurs (restoran): hammaga ko'rinadi, darslarni faqat administrator va u ruxsat berganlar ochadi. */
@@ -300,9 +258,22 @@ it('a paid course opens only for the administrator and the participants he appro
   await expect(
     manageCourseAccess(teacherA, { op: 'revoke', uid: email.id, course: 'restoran' }),
   ).rejects.toMatchObject({ status: 403 });
-  await expect(
-    manageCourseAccess(admin, { op: 'shop', course: 'tad-asoslari', price: '1', how: '' }),
-  ).rejects.toMatchObject({ status: 400 });
+});
+
+it('the administrator sets a separate main-course price while students with a group retain access', async () => {
+  const shop = { price: '179 000 so‘m', how: 'Click orqali to‘lang.' };
+  const price = { op: 'shop', course: MAIN_COURSE, ...shop };
+  await expect(manageCourseAccess(email, price)).rejects.toMatchObject({ status: 403 });
+  expect((await manageCourseAccess(admin, price)).shop).toEqual(shop);
+  expect(await courseShop(MAIN_COURSE)).toEqual(shop);
+  expect(await courseEntry(student)).toEqual({ ok: true, via: 'student' });
+  expect(await courseEntry(email)).toEqual({ ok: false, pending: null });
+  await requestCourseAccess(email, { note: 'Chek № 123' }, now);
+  await manageCourseAccess(admin, { op: 'approve', uid: email.id }, now);
+  expect(await courseEntry(email)).toEqual({ ok: true, via: 'grant' });
+  expect((await paidView()).restoran.price).not.toBe(shop.price);
+  await manageCourseAccess(admin, { ...price, price: '', how: '' });
+  expect(await courseShop(MAIN_COURSE)).toEqual({ price: '', how: '' });
 });
 
 it('the client constant for the main course matches the catalog', () => {
