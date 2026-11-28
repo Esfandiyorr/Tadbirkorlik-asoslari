@@ -25,7 +25,14 @@ export function adaptStudentRegistration(source) {
       if(password==="1111"&&cand.length===1){
         var candidate=cand[0];saToken(true,function(token){if(!token){cb(null);return;}
           fetch("/api/student-login",{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+token},body:JSON.stringify({id:candidate.id,name:n,surname:sn,password:"1111"})})
-          .then(function(response){if(!response.ok)throw 0;SEC=true;cb(candidate,"shared1111");}).catch(function(){cb(null);});
+          .then(function(response){
+            if(!response.ok)return response.json().catch(function(){return {};}).then(function(v){
+              cb(null);
+              /* 🔑 o'zi yangi parol qo'ygan talaba: 1111 endi ishlamaydi — serverning aniq xabari */
+              var m=v&&v.error;if(m&&/1111/.test(m))setTimeout(function(){var e=document.getElementById("lgErr");if(e){e.style.display="block";e.textContent=m;}},0);
+            });
+            SEC=true;cb(candidate,"shared1111");
+          }).catch(function(){cb(null);});
         });return;
       }
   `;

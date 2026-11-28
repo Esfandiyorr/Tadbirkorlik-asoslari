@@ -52,6 +52,13 @@ export async function sharedLogin(
       403,
       'Ism, familiya yoki kod noto‘g‘ri.',
     );
+    // 🔑 o'zi yangi parol qo'ygan talaba endi 1111 bilan kira olmaydi (administrator «1111 ga tiklash»
+    // qilsa — yana kiradi va darhol yangi parol qo'yadi: lib/server/student-password.ts)
+    check(
+      !(Number(student.ownPassword) > 0),
+      403,
+      'Siz o‘zingizga yangi parol qo‘ygansiz — 1111 endi ishlamaydi. O‘z parolingiz bilan kiring.',
+    );
     await write('owners/' + p.id + '/' + uid, 'shared1111:' + randomBytes(24).toString('hex'));
   }
   return { ok: true };

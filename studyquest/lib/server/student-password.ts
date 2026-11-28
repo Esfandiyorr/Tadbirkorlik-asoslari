@@ -71,6 +71,9 @@ async function credentialPatch(id: string, student: any, password: string) {
     ['students/' + id + '/authVersion']: initial ? 1 : 2,
     ['students/' + id + '/pwSalt']: salt,
     ['students/' + id + '/mustChangePassword']: initial,
+    // 🔑 o'z paroli qo'yildi — shundan keyin 1111 bilan kirib bo'lmaydi (lib/server/shared-login.ts)
+    ['students/' + id + '/ownPassword']: initial ? null : Date.now(),
+    ['students/' + id + '/allowInitialCode']: initial ? true : null,
     ['students/' + id + '/credentialSetupVersion']: credentialSetupVersion,
     ['students/' + id + '/updated']: Date.now(),
   };
@@ -98,6 +101,8 @@ export async function resetStudentPassword(
       ['owners/' + id]: null,
       ['students/' + id + '/mustChangePassword']: true,
       ['students/' + id + '/allowInitialCode']: true,
+      // 1111 yana ishlaydi; talaba kirgach, darhol yangi parol qo'yadi
+      ['students/' + id + '/ownPassword']: null,
       ['adminAudit/' + randomUUID()]: {
         action: 'enableSharedCode',
         studentId: id,
@@ -170,6 +175,29 @@ export async function changeStudentPassword(
     },
   });
   return { ok: true, reauthenticate: true };
+}
+/** 🔑 Talaba shu seansda 1111 bilan kirganmi (yoki paroli hali 1111mi) — unda «Parolni almashtiring» oynasi
+    majburiy chiqadi. 1111 bilan kirish seansi: owners/<id>/<uid> = 'shared1111:…'; ro'yxatdan o'tgandagi
+    boshlang'ich parol: kalit = 1111 ning asl kaliti. */
+export async function usesInitialCode(
+  id: string,
+  uid: string,
+  student: any,
+  read = readDefault,
+): Promise<boolean> {
+  if (!student || typeof student.name !== 'string' || typeof student.surname !== 'string')
+    return false;
+  const [owner, key] = await Promise.all([
+    read('owners/' + id + '/' + uid),
+    Number(student.authVersion) === 2 ? null : read('keys/' + id),
+  ]);
+  if (typeof owner === 'string' && owner.startsWith('shared1111:')) return true;
+  const stored = key || student.pk || '';
+  return (
+    Number(student.authVersion) !== 2 &&
+    typeof stored === 'string' &&
+    stored === originalPinKey(student.name, student.surname, '1111')
+  );
 }
 // Compatibility endpoint for previously deployed clients: never overwrite personal credentials.
 export async function initializeStudentPasswords(actor: Actor, io = { read: readDefault }) {

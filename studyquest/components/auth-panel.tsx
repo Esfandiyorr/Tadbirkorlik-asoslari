@@ -38,7 +38,7 @@ type Choice = { value: string; label: string };
 type Outcome =
   | { ok: true; status: string; learnerType: string; group: string }
   | { choose: Choice[]; split: number }
-  | { error: 'wrong' | 'blocked' | 'network' | 'exists' | 'service' };
+  | { error: 'wrong' | 'blocked' | 'network' | 'exists' | 'service' | 'changed' };
 type LegacyStudent = { status?: string; learnerType?: string; group?: string };
 type LegacyWindow = Window & {
   RT?: { auth: (mode: string) => void; student: () => LegacyStudent | null };
@@ -111,6 +111,11 @@ export function AuthPanel({ onClose }: { onClose?: () => void }) {
         'An account with this name already exists. Please log in.',
         'Аккаунт с таким именем уже есть. Войдите.',
       ),
+      changed: L(
+        'Siz o‘zingizga yangi parol qo‘ygansiz — 1111 endi ishlamaydi. O‘z parolingiz bilan kiring. Parolni unutgan bo‘lsangiz, «Kirishda yordam» orqali yozing.',
+        'You have set your own password — 1111 no longer works. Log in with your password. Forgot it? Write via “Sign-in help”.',
+        'Вы задали свой пароль — 1111 больше не работает. Войдите со своим паролем. Забыли — напишите через «Помощь со входом».',
+      ),
       service: L(
         'Kirish xizmati yuklanmadi. Internetni tekshirib, qayta urining.',
         'The sign-in service did not load. Check the internet and try again.',
@@ -166,9 +171,9 @@ export function AuthPanel({ onClose }: { onClose?: () => void }) {
       if (fresh)
         toast(
           L(
-            '🔑 Parolingiz: 1111. Profil bo‘limida o‘zingizga yangi parol qo‘ying.',
-            '🔑 Your password is 1111. Set your own password in Profile.',
-            '🔑 Ваш пароль: 1111. Задайте свой пароль в профиле.',
+            '🔑 Parolingiz hozircha 1111 — endi o‘zingizga yangi parol qo‘yasiz.',
+            '🔑 Your password is 1111 for now — set your own password next.',
+            '🔑 Пока ваш пароль 1111 — сейчас задайте свой.',
           ),
         );
       return enter();
@@ -624,9 +629,9 @@ export function AuthPanel({ onClose }: { onClose?: () => void }) {
           <p className="la-note">
             🔑{' '}
             {L(
-              'Ism familiyangiz va 1111 paroli bilan kirasiz. Keyin o‘zingiz yangi parol qo‘yasiz.',
-              'Log in with your name and the password 1111. Later you set your own password.',
-              'Входите с именем и паролем 1111. Потом вы зададите свой пароль.',
+              'Ism familiyangiz va 1111 paroli bilan kirasiz. Kirgach, darhol o‘zingizga yangi parol qo‘yasiz.',
+              'Log in with your name and the password 1111. Right after logging in you set your own password.',
+              'Входите с именем и паролем 1111. Сразу после входа вы зададите свой пароль.',
             )}
           </p>
         )}
@@ -649,9 +654,9 @@ export function AuthPanel({ onClose }: { onClose?: () => void }) {
           </li>
           <li>
             {L(
-              'Parol — o‘zingiz qo‘ygan parol yoki boshlang‘ich 1111.',
-              'Password — your own password or the starting 1111.',
-              'Пароль — ваш собственный или начальный 1111.',
+              'Parol — o‘zingiz qo‘ygan parol. Hali parol qo‘ymagan bo‘lsangiz — boshlang‘ich 1111: kirgach, darhol yangi parol qo‘yasiz va shundan keyin 1111 ishlamaydi.',
+              'Password — your own password. If you have not set one yet, use the starting 1111: after logging in you set a new password at once, and then 1111 stops working.',
+              'Пароль — ваш собственный. Если вы ещё не задали его — начальный 1111: после входа вы сразу задаёте новый пароль, и 1111 перестаёт работать.',
             )}
           </li>
           <li>
@@ -899,13 +904,15 @@ function useLegacyAuth() {
     if (input) input.value = value;
   };
   const classify = (text: string): Outcome => ({
-    error: /blok|block/i.test(text)
-      ? 'blocked'
-      : /mavjud|exists/i.test(text)
-        ? 'exists'
-        : /server|internet|ulan|connect/i.test(text)
-          ? 'network'
-          : 'wrong',
+    error: /1111 endi ishlamaydi/i.test(text)
+      ? 'changed'
+      : /blok|block/i.test(text)
+        ? 'blocked'
+        : /mavjud|exists/i.test(text)
+          ? 'exists'
+          : /server|internet|ulan|connect/i.test(text)
+            ? 'network'
+            : 'wrong',
   });
   const done = (w: LegacyWindow): Outcome => {
     const s = w.RT?.student() || {};

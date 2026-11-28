@@ -39,6 +39,7 @@ import { InstallApp } from './install-app';
 import { NativeSurface } from './native-surface';
 import { ChatPage } from './chat-page';
 import { ChangePassword } from './change-password';
+import { ForcePasswordChange } from './force-password';
 import { Library } from './library';
 import { CertificatePage } from './exam';
 import { PremiumCard, PremiumSideCard, SubscriberMark, usePremium } from './premium';
@@ -269,20 +270,28 @@ export function StudyQuest() {
     content = signedIn ? <Profile key={user?.id || legacy?.id} /> : <AuthPanel />;
   else content = <Dashboard />;
   if (content.type === AuthPanel) return content;
+  // 🔑 1111 bilan kirgan talaba avval yangi parol qo'yadi (boshqa oynalar chiqmaydi)
+  const popups =
+    user?.role === 'student' && user.id.startsWith('legacy_') && user.mustChangePassword ? (
+      <ForcePasswordChange />
+    ) : (
+      <>
+        <LiveGate />
+        <NewsPopup />
+      </>
+    );
   if (mainView === 'lesson' && user)
     return (
       <main className="focus-learning">
         <ConnectionNotice />
         {content}
-        <LiveGate />
-        <NewsPopup />
+        {popups}
       </main>
     );
   return (
     <div className="app-shell">
       <ConnectionNotice />
-      <LiveGate />
-      <NewsPopup />
+      {popups}
       {menu && (
         <button
           className="sidebar-scrim"

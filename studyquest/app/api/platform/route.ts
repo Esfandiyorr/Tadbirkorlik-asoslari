@@ -106,6 +106,7 @@ import {
   changeStudentPassword,
   initializeStudentPasswords,
   deleteStudent,
+  usesInitialCode,
 } from '@/lib/server/student-password';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -627,6 +628,10 @@ export async function GET(req: NextRequest) {
       ).val();
       if (record) {
         Object.assign(state.user, academicRecord(a.id.slice(7), record));
+        // 🔑 1111 bilan kirgan (yoki paroli hali 1111) — «Parolni almashtiring» oynasi majburiy chiqadi
+        (state.user as { mustChangePassword?: boolean }).mustChangePassword =
+          a.role === 'student' &&
+          (await usesInitialCode(a.id.slice(7), a.uid, record).catch(() => false));
         if (a.role === 'student')
           (state as { lessonAccess?: unknown }).lessonAccess = lessonAccessStates(
             (

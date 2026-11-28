@@ -14699,3 +14699,54 @@ html {
 .reminders-chips button:hover {
   background: #0000000f;
 }
+
+/* 🔑 1111 bilan kirgan talaba — majburiy «Parolni almashtiring» oynasi (components/force-password.tsx) */
+.force-password-backdrop {
+  z-index: 400;
+}
+.force-password {
+  display: grid;
+  gap: 12px;
+  width: min(440px, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px);
+  overflow: auto;
+  padding: 26px 24px 20px;
+}
+.force-password-ic {
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  border-radius: 16px;
+  background: var(--soft-violet);
+  color: var(--violet);
+}
+.force-password h2 {
+  margin: 0;
+  font-size: 22px;
+}
+.force-password p {
+  margin: 0;
+  line-height: 1.5;
+}
+.force-password label {
+  display: grid;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 600;
+}
+.force-password-error {
+  color: #b42318;
+  font-weight: 600;
+}
+.force-password-out {
+  justify-self: center;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  font: inherit;
+  font-size: 14px;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 6px;
+}

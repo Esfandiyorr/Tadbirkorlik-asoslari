@@ -1231,9 +1231,9 @@ function ResetPassword({
         </p>
         <p className="muted">
           {L(
-            'Ballar va bajarilgan ishlar saqlanadi. 1111 bilan kirishni yoqish shaxsiy kodni saqlaydi. Asosiy parolni almashtirish uchun kamida 8 belgili boshqa parol kiriting.',
-            'Points and completed work are kept. Enabling sign-in with 1111 keeps the personal code. To replace the main password, enter another one with at least 8 characters.',
-            'Баллы и работы сохраняются. Вход с кодом 1111 сохраняет личный код. Чтобы заменить основной пароль, введите другой — не короче 8 символов.',
+            'Ballar va bajarilgan ishlar saqlanadi. «1111» qoldirsangiz — talaba 1111 bilan kiradi va darhol o‘ziga yangi parol qo‘yadi (shundan keyin 1111 yana ishlamaydi). Yoki kamida 8 belgili yangi parolni o‘zingiz bering.',
+            'Points and completed work are kept. Keep “1111” and the student logs in with 1111 and immediately sets a new password (after that 1111 stops working again). Or give a new password of at least 8 characters yourself.',
+            'Баллы и работы сохраняются. Оставьте «1111» — студент войдёт с 1111 и сразу задаст новый пароль (после этого 1111 снова перестанет работать). Или задайте новый пароль от 8 символов сами.',
           )}
         </p>
         <label>

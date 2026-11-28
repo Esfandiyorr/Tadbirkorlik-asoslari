@@ -368,7 +368,9 @@ test('a slow guest response cannot replace a restored Google account', async ({ 
   await expect(page.locator('.header-profile')).toContainText('Test');
 });
 
-test('student changes the initial password in Profile and returns to sign-in', async ({ page }) => {
+test('a 1111 session must set a new password at once in a dialog that cannot be dismissed', async ({
+  page,
+}) => {
   await services(page);
   let authenticated = true,
     changed: unknown;
@@ -384,10 +386,71 @@ test('student changes the initial password in Profile and returns to sign-in', a
         : publicData,
     });
   });
+  await page.goto('/#home');
+  const dialog = page.getByRole('dialog', { name: 'Parolni almashtiring' });
+  await expect(dialog).toBeVisible();
+  await expect(dialog).toContainText('1111 bilan kirib bo‘lmaydi');
+  await page.screenshot({ path: 'tests/artifacts/auth-force-password.png' });
+  // yopib bo'lmaydi: Escape va orqa fon
+  await page.keyboard.press('Escape');
+  await page.mouse.click(5, 5);
+  await expect(dialog).toBeVisible();
+  await dialog.getByLabel('Yangi parol', { exact: true }).fill('Personal-Password-123');
+  await dialog.getByLabel('Yangi parolni takrorlang', { exact: true }).fill('mismatched-password');
+  await dialog.getByRole('button', { name: 'Yangi parolni saqlash' }).click();
+  await expect(dialog.getByRole('alert')).toContainText('mos kelmadi');
+  expect(changed).toBeUndefined();
+  await dialog
+    .getByLabel('Yangi parolni takrorlang', { exact: true })
+    .fill('Personal-Password-123');
+  await dialog.getByRole('button', { name: 'Yangi parolni saqlash' }).click();
+  await expect(page).toHaveURL(/#login$/);
+  await expect(page.locator('.toast')).toContainText('1111 endi ishlamaydi');
+  expect(changed).toEqual({
+    action: 'legacyChangePassword',
+    input: { currentPassword: '1111', newPassword: 'Personal-Password-123' },
+  });
+});
+
+test('after a student sets their own password, 1111 is refused with a clear reason', async ({
+  page,
+}) => {
+  await services(page);
+  await page.route('**/api/student-login', (route) =>
+    route.fulfill({
+      status: 403,
+      json: {
+        error:
+          'Siz o‘zingizga yangi parol qo‘ygansiz — 1111 endi ishlamaydi. O‘z parolingiz bilan kiring.',
+      },
+    }),
+  );
+  await page.route('**/api/platform*', (route) => route.fulfill({ json: publicData }));
+  await page.goto('/#login');
+  await legacyReady(page);
+  await signIn(page, student.name + ' ' + student.surname, '1111');
+  await expect(page.locator('.la-error')).toContainText('1111 endi ishlamaydi');
+  await expect(page.getByLabel('Ism familiya')).toBeVisible();
+});
+
+test('a student with an own password can still change it in Profile and returns to sign-in', async ({
+  page,
+}) => {
+  await services(page);
+  let authenticated = true,
+    changed: unknown;
+  await page.route('**/api/platform*', (route) => {
+    if (route.request().method() === 'POST') {
+      changed = route.request().postDataJSON();
+      authenticated = false;
+      return route.fulfill({ json: { ok: true, reauthenticate: true } });
+    }
+    return route.fulfill({ json: authenticated ? userData : publicData });
+  });
   await page.goto('/#profile');
+  await expect(page.getByRole('dialog', { name: 'Parolni almashtiring' })).toHaveCount(0);
   const form = page.locator('.password-editor');
-  await expect(form).toContainText('Boshlang‘ich parolingiz 1111');
-  await form.getByLabel('Joriy parol', { exact: true }).fill('1111');
+  await form.getByLabel('Joriy parol', { exact: true }).fill('Old-Password-123');
   await form.getByLabel('Yangi parol', { exact: true }).fill('Personal-Password-123');
   await form.getByLabel('Yangi parolni takrorlang', { exact: true }).fill('mismatched-password');
   await form.getByRole('button', { name: 'Parolni o‘zgartirish', exact: true }).click();
@@ -398,7 +461,7 @@ test('student changes the initial password in Profile and returns to sign-in', a
   await expect(page).toHaveURL(/#login$/);
   expect(changed).toEqual({
     action: 'legacyChangePassword',
-    input: { currentPassword: '1111', newPassword: 'Personal-Password-123' },
+    input: { currentPassword: 'Old-Password-123', newPassword: 'Personal-Password-123' },
   });
 });
 

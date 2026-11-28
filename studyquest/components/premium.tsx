@@ -82,6 +82,8 @@ export function usePremium() {
       const r = await request('/api/platform?view=premium');
       if (r.ok) {
         const v = (await r.json()) as PremiumData;
+        // kutilmagan javob (holatsiz) — sahifa buzilmasin
+        if (!v || typeof v !== 'object' || !v.state) return setPremium(null);
         setPremium(v);
         if (data?.user?.id) setMyMark(data.user.id, v.mark || null);
       }
