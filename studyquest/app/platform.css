@@ -14570,3 +14570,39 @@ html {
 .pa-links {
   flex-wrap: wrap;
 }
+
+/* 🔔 E'lonlar → bosh sahifadagi eslatmalar boshqaruvi */
+.reminders-admin {
+  display: grid;
+  gap: 12px;
+  margin-top: 18px;
+}
+.reminders-auto {
+  display: grid;
+  gap: 8px;
+}
+.reminders-auto label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.reminders-auto input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--violet);
+}
+.reminders-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.reminders-list li > div {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.reminders-list small {
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}

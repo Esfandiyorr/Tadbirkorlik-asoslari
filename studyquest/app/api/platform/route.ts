@@ -8,6 +8,8 @@ import { repository, demo, configured, legacyDb } from '@/lib/server/repository'
 import { legacyAccess, lessonAccessStates } from '@/lib/server/legacy-access';
 import { closedFor, manageLimits, requireFeature } from '@/lib/server/student-limits';
 import { studentsHubView } from '@/lib/server/students-hub';
+import { manageReminders, readReminders } from '@/lib/server/reminders';
+import { DEFAULT_REMINDERS } from '@/lib/reminders';
 import { limitLessonAccess } from '@/lib/student-limits';
 import { applyLegacyUpdate } from '@/lib/server/legacy-student';
 import {
@@ -270,10 +272,12 @@ export async function GET(req: NextRequest) {
     }
     if (req.nextUrl.searchParams.get('view') === 'news') {
       // 📢 E'lonlar oynasi va ⚡ keyingi jonli test — ochiq ma'lumot, qisqa muddat keshlanadi.
-      const [news, live, promo] = await Promise.all([
+      const [news, live, promo, reminders] = await Promise.all([
         readNews(),
         liveGame(),
         readPromo().catch(() => []),
+        // 🔔 bosh sahifadagi «Eslatmalar» (administrator yozganlari va avtomatik eslatmalar sozlamasi)
+        readReminders().catch(() => DEFAULT_REMINDERS),
       ]);
       // Jonli test jadvali o'z-o'zidan to'lib tursin (6 soatda ko'pi bilan bir marta, javobdan keyin).
       if (!demo()) after(() => liveTopUp().catch(() => {}));
@@ -282,9 +286,16 @@ export async function GET(req: NextRequest) {
       if (live && live.start - Date.now() < LIVE_ANNOUNCE_MS && live.start > Date.now())
         after(() => pushTick(Date.now(), live).catch(() => {}));
       return NextResponse.json(
-        { news, live, promo, now: Date.now() },
+        { news, live, promo, reminders, now: Date.now() },
         { headers: { 'Cache-Control': 'public, max-age=20, s-maxage=20' } },
       );
+    }
+    if (req.nextUrl.searchParams.get('view') === 'reminders') {
+      // 🔔 «Sayt boshqaruvi → 📢 E'lonlar»dagi eslatmalar boshqaruvi
+      administrator(await actor(req, true));
+      return NextResponse.json(await readReminders(), {
+        headers: { 'Cache-Control': 'private, no-store' },
+      });
     }
     if (req.nextUrl.searchParams.get('view') === 'newsSeen') {
       // 📣 qaysi katta e'lonlarni o'qigan — shaxsiy ma'lumot, keshlanmaydi
@@ -864,6 +875,10 @@ export async function POST(req: NextRequest) {
       )
         after(() => topicPush(after_).catch(() => {}));
       return NextResponse.json(r);
+    }
+    if (p.action === 'reminders') {
+      // 🔔 bosh sahifadagi eslatmalarni qo'shish, o'chirish, avtomatik eslatmalarni yoqish/o'chirish
+      return NextResponse.json(await manageReminders(await actor(req, true), p.input));
     }
     if (p.action === 'studentLimits') {
       // 🎚 guruh yoki talabaga bo'limlarni ochish/yopish (o'qituvchi yoki administrator)

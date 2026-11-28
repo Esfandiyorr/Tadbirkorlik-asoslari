@@ -165,7 +165,7 @@ test('the administrator replaces today’s live quiz with a race: it is announce
   await s.getByLabel('Ismingiz').fill('Madina');
   await s.getByRole('button', { name: /Poygaga qo‘shilish/ }).click();
   await expect(s.locator('.race-lobby')).toContainText(`${at.t} da o‘zi boshlanadi`);
-  // bosh sahifadagi «Bugungi rejalar»da ham poyga (agar bugun bo'lsa)
+  // bosh sahifadagi «Eslatmalar»da ham poyga (agar bugun bo'lsa)
   if (at.d === tashkent(Date.now()).d) {
     await s.goto('/#home', { waitUntil: 'domcontentloaded' });
     await expect(s.locator('.home-banner')).toContainText('Jamoaviy poyga');

@@ -479,7 +479,7 @@ export function StudyQuest() {
         </footer>
       </div>
       {/* 📱 Pastki menyu — telefonda asosiylari: kurslar (mavzulari bilan), kutubxona, pullik xizmatlar
-          (qolgani ☰ menyuda). Kurs sahifasidagi «← Kurslar» va bosh sahifadagi «Joriy mavzu» mavzularga olib boradi. */}
+          (qolgani ☰ menyuda). Kurs sahifasidagi «← Kurslar» va bosh sahifadagi «Mavzular» kartasi mavzularga olib boradi. */}
       <nav className="bottom-nav" aria-label={t(lang, 'menu')}>
         {[
           { id: 'home', href: 'home', label: t(lang, 'navHome'), icon: LayoutDashboard },

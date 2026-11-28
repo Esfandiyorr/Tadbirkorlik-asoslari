@@ -196,6 +196,84 @@
   color: #ede9fe;
   font-size: 14px;
 }
+/* 🔔 «Eslatmalar»: bir vaqtda bitta eslatma, bir necha soniyada almashadi (components/home-reminders.tsx) */
+.hb-reminders h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.hb-count {
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: #ffffff26;
+  font-size: 11px;
+  letter-spacing: 0;
+}
+.hb-reminders li[hidden] {
+  display: none;
+}
+.hb-reminders li.is-on {
+  animation: hb-reminder-in 0.35s ease;
+}
+@keyframes hb-reminder-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hb-reminders li.is-on {
+    animation: none;
+  }
+}
+.hb-note {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 38px;
+  padding: 6px 8px;
+  color: #fff;
+  font-size: 14px;
+}
+.hb-note svg {
+  flex: none;
+  color: #ddd6fe;
+}
+.hb-reminders .hb-plan-title {
+  white-space: normal;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+.hb-dots {
+  display: flex;
+  gap: 4px;
+  padding: 2px 8px 0;
+}
+.hb-dots button {
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  position: relative;
+}
+.hb-dots button::after {
+  content: '';
+  position: absolute;
+  inset: 8px;
+  border-radius: 999px;
+  background: #ffffff59;
+}
+.hb-dots button[aria-current='true']::after {
+  background: #fff;
+}
+.hb-dots button:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: -2px;
+  border-radius: 6px;
+}
 /* o'ngda — avatar (to'liq, cho'zilmaydi) yoki «Avatar qo'yish» */
 .hb-avatar {
   position: relative;
@@ -258,91 +336,6 @@
 .hb-avatar .hero-avatar-swap {
   top: 6px;
   right: 6px;
-}
-
-/* ---------- 📘 joriy mavzu kartasi (banner ostida) ---------- */
-.home-course {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 16px;
-  margin: 0 0 16px;
-  padding: 16px 18px;
-  border: 1px solid var(--border);
-  border-radius: 22px;
-  background: var(--surface);
-  box-shadow: var(--shadow);
-}
-.home-course > .topic-art {
-  width: 64px;
-  height: 64px;
-  min-height: 0;
-  border-radius: 16px;
-}
-.hc-body {
-  display: grid;
-  gap: 4px;
-  min-width: 0;
-}
-.hc-kicker {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  color: #6d28d9;
-  font-size: 12px;
-  font-weight: 750;
-  letter-spacing: 0.4px;
-  text-transform: uppercase;
-}
-.dark .hc-kicker {
-  color: #c4b5fd;
-}
-.home-course h2 {
-  margin: 0;
-  font-size: 18px;
-  line-height: 1.3;
-  letter-spacing: -0.2px;
-}
-.hc-meta {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 6px 12px;
-  color: var(--muted);
-  font-size: 13px;
-}
-.hc-due {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-}
-.hc-side {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-.hc-points {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.hc-points b {
-  max-width: 96px;
-  font-size: 13px;
-  line-height: 1.25;
-}
-.home-course .hero-button {
-  min-height: 46px !important;
-  padding: 0 20px !important;
-  border-radius: 14px;
-  background: #6d28d9 !important;
-  color: #fff !important;
-  font-size: 14.5px !important;
-  font-weight: 700;
-  box-shadow: 0 10px 20px -12px #6d28d9 !important;
-}
-.home-course .hero-button:hover {
-  background: #5b21b6 !important;
 }
 
 /* ---------- 🧭 bo'lim kartalari: Kurslar, O'yinlar, Kitoblar, Pullik xizmatlar, Chat ---------- */
@@ -675,30 +668,6 @@
     width: 170px;
     height: 170px;
     border-width: 26px;
-  }
-  .home-course {
-    grid-template-columns: auto minmax(0, 1fr);
-    gap: 12px;
-    padding: 14px;
-  }
-  .home-course > .topic-art {
-    width: 52px;
-    height: 52px;
-  }
-  .home-course h2 {
-    font-size: 16px;
-  }
-  .hc-side {
-    grid-column: 1 / -1;
-    justify-content: space-between;
-  }
-  .home-course .hero-button {
-    flex: none;
-    padding: 0 16px !important;
-    white-space: nowrap;
-  }
-  .hc-points b {
-    max-width: none;
   }
   .quick-links.home-sections {
     grid-template-columns: repeat(2, minmax(0, 1fr));

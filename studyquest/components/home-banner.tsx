@@ -1,16 +1,19 @@
 'use client';
-import { CalendarClock, ClipboardCheck, Flag, Keyboard, Radio } from 'lucide-react';
+import { CalendarClock } from 'lucide-react';
 import { useApp } from './provider';
 import { HeroAvatar, type AcademicBoard } from './avatars';
 import { canJoinLive, gameName, gamePath, useNews, type LiveGame } from './announcements';
 import { SubscriberMark } from './premium';
 import { accessOf, topicPoints, tr } from '@/lib/points';
+import { DEFAULT_REMINDERS, remindersFor, type Reminders } from '@/lib/reminders';
 import type { Data, Lang, Lesson } from '@/lib/types';
+import { followLink, HomeReminders, type ReminderCard } from './home-reminders';
 
 /* 🏠 Bosh sahifa banneri (binafsha gradient): chapda — bugungi sana (Toshkent vaqti) kichik yozuvda, talabaning ismi
-   katta yozuvda (faol Premium bo'lsa — oldida olmos) va «Bugungi rejalar»: bugun muddati tugaydigan ball beriladigan
-   mavzular va bugungi jonli o'yinlar, vaqti bo'yicha. O'ngda — talaba tanlagan avatar (cho'zilmaydi) yoki
-   «Avatar qo'yish» (avatarlar kutubxonasi ochiladi). */
+   katta yozuvda (faol Premium bo'lsa — oldida olmos) va «🔔 Eslatmalar» (bir nechta soniyada almashadi):
+   administrator yozgan qisqa eslatmalar hamda avtomatik — bugun muddati tugaydigan ball beriladigan mavzular va
+   bugungi jonli o'yin (qaysi biri chiqishini administrator «📢 E'lonlar»da tanlaydi). O'ngda — talaba tanlagan
+   avatar (cho'zilmaydi) yoki «Avatar qo'yish» (avatarlar kutubxonasi ochiladi). */
 
 const TZ = 18000000; // Toshkent: UTC+5
 const navigate = (view: string) => {
@@ -48,11 +51,8 @@ export function todayLabel(lang: Lang, now = Date.now()) {
   return WEEK[lang][d.getUTCDay()] + ', ' + date;
 }
 
-export type Plan = {
-  key: string;
-  at: number;
+export type Plan = ReminderCard & {
   kind: 'topic' | 'quiz' | 'yz' | 'race';
-  title: string;
   /** «23:59 gacha» yoki «15:00 da» */
   when: string;
   go: () => void;
@@ -106,7 +106,29 @@ export function todayPlans(
   return plans.sort((x, y) => x.at - y.at);
 }
 
-const PLAN_ICON = { topic: ClipboardCheck, quiz: Radio, yz: Keyboard, race: Flag } as const;
+/** «Eslatmalar»: avval avtomatik (vaqti bo'yicha), keyin administrator yozganlari (yangisi oldin). */
+export function homeReminders(
+  d: Data,
+  lessons: Lesson[],
+  live: LiveGame | null,
+  reminders: Reminders | null | undefined,
+  lang: Lang,
+  open: (l: Lesson) => void,
+  now = Date.now(),
+): ReminderCard[] {
+  const auto = (reminders || DEFAULT_REMINDERS).auto;
+  const plans = todayPlans(d, lessons, auto.live ? live : null, lang, open, now).filter(
+    (p) => auto.topics || p.kind !== 'topic',
+  );
+  const notes: ReminderCard[] = remindersFor(reminders, d.user?.classId, now).map((r) => ({
+    key: 'note-' + r.id,
+    at: r.at,
+    kind: 'note',
+    title: r.t,
+    ...(r.link ? { go: () => followLink(r.link!) } : {}),
+  }));
+  return [...plans, ...notes];
+}
 
 export function HomeBanner({
   name,
@@ -128,7 +150,7 @@ export function HomeBanner({
   const { data, lang } = useApp();
   const { data: news, now } = useNews();
   const n = now();
-  const plans = todayPlans(data!, lessons, news?.live || null, lang, open, n);
+  const items = homeReminders(data!, lessons, news?.live || null, news?.reminders, lang, open, n);
   return (
     <section className={'home-banner' + (avatarSpot ? ' has-avatar-spot' : '')}>
       <div className="hb-main">
@@ -139,34 +161,7 @@ export function HomeBanner({
           <span>{name}</span>
           {premium && <SubscriberMark />}
         </h1>
-        <div className="hb-plans">
-          <h2>{tr(lang, 'Bugungi rejalar', 'Today’s plans', 'Планы на сегодня')}</h2>
-          {plans.length ? (
-            <ul>
-              {plans.slice(0, 4).map((p) => {
-                const Icon = PLAN_ICON[p.kind];
-                return (
-                  <li key={p.key}>
-                    <button type="button" onClick={p.go}>
-                      <Icon size={16} aria-hidden="true" />
-                      <span className="hb-plan-title">{p.title}</span>
-                      <em>{p.when}</em>
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
-          ) : (
-            <p className="hb-empty">
-              {tr(
-                lang,
-                'Bugun rejalashtirilgan ish yo‘q',
-                'Nothing is planned for today',
-                'На сегодня ничего не запланировано',
-              )}
-            </p>
-          )}
-        </div>
+        <HomeReminders items={items} lang={lang} />
       </div>
       {avatarSpot && (
         <div className="hb-avatar">{board.loading ? null : <HeroAvatar board={board} />}</div>

@@ -6,6 +6,7 @@ import { useApp } from './provider';
 import { Button } from './ui/button';
 import { dueText, tr } from '@/lib/points';
 import type { Lang } from '@/lib/types';
+import type { Reminders } from '@/lib/reminders';
 import { FRESH_MS, PROMO_KIND, type PromoItem } from '@/lib/promo';
 import { liveNewsId } from '@/lib/live-quiz';
 import { ImagePick } from './image-pick';
@@ -40,7 +41,14 @@ export type LiveGame = {
   qsec?: number;
   note?: string;
 };
-type NewsData = { news: NewsItem[]; live: LiveGame | null; promo: PromoItem[]; now: number };
+type NewsData = {
+  news: NewsItem[];
+  live: LiveGame | null;
+  promo: PromoItem[];
+  /** 🔔 bosh sahifadagi «Eslatmalar» */
+  reminders?: Reminders;
+  now: number;
+};
 
 /** Boshlanishidan necha daqiqa oldin jonli test oynasi chiqadi (asl dvigatel: KH_GATE_MS). */
 export const GATE_MS = 20 * 60000;
@@ -70,7 +78,13 @@ async function load() {
     if (r.ok) {
       const v = (await r.json()) as NewsData;
       if (Number.isFinite(v.now)) skew = v.now - Date.now();
-      shared = { news: v.news || [], live: v.live || null, promo: v.promo || [], now: v.now };
+      shared = {
+        news: v.news || [],
+        live: v.live || null,
+        promo: v.promo || [],
+        reminders: v.reminders,
+        now: v.now,
+      };
       listeners.forEach((f) => f());
     }
   } catch {}

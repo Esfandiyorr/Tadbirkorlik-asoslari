@@ -19,6 +19,7 @@ import { PaymentsAdmin } from './payments-admin';
 import { CourseAccessAdmin } from './course-access-admin';
 import { ServicesAdmin } from './services-admin';
 import { ExamAdmin } from './exam-admin';
+import { RemindersAdmin } from './reminders-admin';
 import { startEditMode } from '../site-content';
 
 /* 🛠 Sayt boshqaruvi (administrator): saytdagi matn, rasm, avatar, test va jonli testni dasturchiga yozmasdan
@@ -141,9 +142,9 @@ export function BackOffice({
       icon: '📢',
       title: L('E’lonlar', 'Announcements', 'Объявления'),
       text: L(
-        'Yon menyudagi e’lonlar oynasi: yangi e’lon joylash yoki o‘chirish.',
-        'The announcements box in the side menu: post or remove announcements.',
-        'Блок объявлений в боковом меню: добавить или удалить объявление.',
+        'Yon menyudagi e’lonlar oynasi: yangi e’lon joylash yoki o‘chirish. Bosh sahifadagi «Eslatmalar»da nima chiqishi.',
+        'The announcements box in the side menu: post or remove announcements. What the home page “Reminders” show.',
+        'Блок объявлений в боковом меню: добавить или удалить объявление. Что показывают «Напоминания» на главной.',
       ),
     },
     {
@@ -278,7 +279,13 @@ export function BackOffice({
     else if (section === 'quiz') body = <TopicQuizAdmin />;
     else if (section === 'content') body = <ContentAdmin openSection={setSection} />;
     else if (section === 'avatars') body = <AvatarsSection />;
-    else if (section === 'news') body = <NewsAdmin openCourseControls={() => setSection('live')} />;
+    else if (section === 'news')
+      body = (
+        <>
+          <NewsAdmin openCourseControls={() => setSection('live')} />
+          <RemindersAdmin />
+        </>
+      );
     else if (section === 'push') body = <PushAdmin />;
     else if (section === 'app') body = <AppAdmin />;
     else if (section === 'library') body = <LibraryAdmin />;

@@ -121,7 +121,9 @@ test('someone without an assigned group requests approval and can check the resu
     await route.fulfill({ response, json: state });
   });
   await page.goto('/#home', { waitUntil: 'domcontentloaded' });
-  await expect(page.locator('.course-gate')).toBeVisible();
+  // bosh sahifada kursga ruxsat kartasi yo'q — u kurs sahifasida
+  await expect(page.locator('.home-banner')).toBeVisible();
+  await expect(page.locator('.course-gate')).toHaveCount(0);
   await page.goto('/#courses', { waitUntil: 'domcontentloaded' });
   await page.locator('.course-card').first().click();
   const gate = page.locator('.course-gate');

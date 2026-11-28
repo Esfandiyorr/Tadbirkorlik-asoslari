@@ -19,7 +19,8 @@ for (const width of [320, 390])
     await page.setViewportSize({ width, height: 844 });
     await page.request.post('/api/auth/demo', { data: { id: 'demo-student' } });
     await page.goto('/#home');
-    const action = page.locator('.home-course .hero-button');
+    // «Joriy mavzu» kartasi yo'q — «Mavzular» kartasi birinchi ekranda, pastki menyudan yuqorida
+    const action = page.locator('.home-sections .quick-link.is-topics');
     await expect(action).toBeVisible();
     const button = (await action.boundingBox())!,
       nav = (await page.locator('.bottom-nav').boundingBox())!;
@@ -55,12 +56,15 @@ test('lesson status filters and public lesson plans work without granting course
   expect((await page.request.get('/api/platform?view=legacyLesson&lesson=r5')).status()).toBe(403);
 });
 
-/* 🏠 Bosh sahifa banneri: bugungi sana (Toshkent), ism, «Bugungi rejalar» (bo'sh holat va bugungi jonli o'yin),
-   joriy mavzu alohida kartada, bo'lim kartalari. */
-test('the home banner shows the date, the name and today’s plans; the current topic has its own card', async ({
+/* 🏠 Bosh sahifa banneri: bugungi sana (Toshkent), ism va «🔔 Eslatmalar» — administrator yozganlari va avtomatik
+   (bugungi jonli o'yin), bir necha soniyada almashadi; «Joriy mavzu» va kursga ruxsat kartalari bosh sahifada yo'q. */
+test('the home banner shows the date, the name and the reminders the administrator controls', async ({
   page,
+  browser,
 }) => {
+  test.setTimeout(90_000);
   await page.request.post('/api/auth/demo', { data: { id: 'demo-student' } });
+  await page.route('**/api/platform?view=news', (route) => route.continue());
   await page.goto('/#home');
   const banner = page.locator('.home-banner');
   const today = new Intl.DateTimeFormat('en-GB', {
@@ -69,12 +73,13 @@ test('the home banner shows the date, the name and today’s plans; the current 
   }).format(Date.now());
   await expect(banner.locator('.hb-date')).toContainText(today + '-');
   await expect(banner.getByRole('heading', { level: 1 })).toContainText('Madina');
-  await expect(banner.locator('.hb-plans')).toContainText('Bugun rejalashtirilgan ish yo‘q');
+  const box = banner.locator('.hb-reminders');
+  await expect(box.getByRole('heading')).toContainText('Eslatmalar');
+  await expect(box).toContainText('Hozircha eslatma yo‘q');
+  await expect(page.locator('.home-course')).toHaveCount(0);
+  await expect(page.locator('.dashboard-main .course-gate')).toHaveCount(0);
   // avatar tanlanmagan — banner o'ng tomonida «Avatar qo'yish»
   await expect(banner.getByRole('button', { name: 'Avatar qo‘yish' })).toBeVisible();
-  const course = page.locator('.home-course');
-  await expect(course).toContainText('Joriy mavzu');
-  await expect(course.locator('.hero-button')).toHaveText(/Davom ettirish|Boshlash/);
   await expect(page.locator('.home-sections .quick-link')).toHaveText([
     /Mavzular/,
     /Kurslar/,
@@ -82,39 +87,87 @@ test('the home banner shows the date, the name and today’s plans; the current 
     /Kitoblar/,
     /Chat/,
   ]);
-  // bugungi jonli test (Toshkent kuni ichida) rejalarda vaqti bilan
-  const now = Date.now();
-  const tashkentHour = Number(
-    new Intl.DateTimeFormat('en-GB', {
-      timeZone: 'Asia/Tashkent',
-      hour: '2-digit',
-      hour12: false,
-    }).format(now),
-  );
-  test.skip(tashkentHour >= 23, 'Toshkentda kun tugayapti — bugungi o‘yinni qo‘yib bo‘lmaydi');
-  await page.route('**/api/platform?view=news', async (route) => {
-    const response = await route.fetch(),
-      body = await response.json();
-    body.live = {
-      d: 'demo-game',
-      open: now - 60000,
-      start: now + 30 * 60000,
-      end: now + 45 * 60000,
-      type: 'quiz',
-      nq: 5,
-      qsec: 15,
-    };
-    await route.fulfill({ response, json: body });
-  });
-  await page.reload();
-  await page
-    .getByRole('button', { name: 'Tushunarli' })
-    .click({ timeout: 10000 })
-    .catch(() => {});
-  const plan = page.locator('.hb-plans li');
-  await expect(plan).toHaveCount(1);
-  await expect(plan).toContainText('Jonli test');
-  await expect(plan.locator('em')).toHaveText(/\d\d:\d\d da/);
+
+  // administrator: Sayt boshqaruvi → 📢 E'lonlar → 🔔 eslatmalar (guruhga, havola bilan)
+  const admin = await (
+    await browser.newContext({ baseURL: test.info().project.use.baseURL })
+  ).newPage();
+  await admin.request.post('/api/auth/demo', { data: { id: 'demo-admin' } });
+  const remind = (input: Record<string, unknown>) =>
+    admin.request.post('/api/platform', { data: { action: 'reminders', input } });
+  try {
+    await admin.goto('/#admin', { waitUntil: 'domcontentloaded' });
+    await admin.locator('.bo-card-btn').filter({ hasText: 'E’lonlar' }).first().click();
+    const rem = admin.locator('.reminders-admin');
+    await expect(rem).toContainText('Hozircha o‘zingiz yozgan eslatma yo‘q.');
+    await rem.getByLabel(/Qisqa matn/).fill('Ertaga 9:00 da seminar');
+    await rem.getByLabel(/Havola/).fill('#courses');
+    await rem.getByLabel(/Faqat guruhga/).fill('AP-223');
+    await rem.getByRole('button', { name: 'Eslatma qo‘shish' }).click();
+    await expect(rem.locator('.reminders-list li')).toContainText('Ertaga 9:00 da seminar');
+    await expect(rem.locator('.reminders-list li')).toContainText('👥 AP-223');
+    // boshqa guruhga yozilgani bu talabaga chiqmaydi
+    await remind({ op: 'add', t: 'FIZ-123 uchun eslatma', group: 'FIZ-123' });
+
+    await page.reload();
+    await expect(box.locator('li')).toHaveCount(1);
+    await expect(box).toContainText('Ertaga 9:00 da seminar');
+    await expect(box).not.toContainText('FIZ-123');
+    await box.getByRole('button', { name: /Ertaga 9:00 da seminar/ }).click();
+    await expect.poll(() => new URL(page.url()).hash).toBe('#courses');
+
+    // bugungi jonli test (Toshkent kuni ichida) ham eslatma — ikkalasi almashib turadi
+    const now = Date.now();
+    const tashkentHour = Number(
+      new Intl.DateTimeFormat('en-GB', {
+        timeZone: 'Asia/Tashkent',
+        hour: '2-digit',
+        hour12: false,
+      }).format(now),
+    );
+    if (tashkentHour < 23) {
+      await page.unroute('**/api/platform?view=news');
+      await page.route('**/api/platform?view=news', async (route) => {
+        const response = await route.fetch(),
+          body = await response.json();
+        body.live = {
+          d: 'demo-game',
+          open: now - 60000,
+          start: now + 30 * 60000,
+          end: now + 45 * 60000,
+          type: 'quiz',
+          nq: 5,
+          qsec: 15,
+        };
+        await route.fulfill({ response, json: body });
+      });
+      await page.goto('/#home');
+      await page.reload();
+      await page
+        .getByRole('button', { name: 'Tushunarli' })
+        .click({ timeout: 10000 })
+        .catch(() => {});
+      await expect(box.locator('li')).toHaveCount(2);
+      await expect(box.locator('.hb-count')).toHaveText('1/2');
+      const live = box.locator('li').filter({ hasText: 'Jonli test' });
+      await expect(live.locator('em')).toHaveText(/\d\d:\d\d da/);
+      // bir necha soniyada keyingisi; nuqta bilan ham tanlanadi
+      await page.mouse.move(0, 0);
+      await expect(box.locator('.hb-count')).toHaveText('2/2', { timeout: 12000 });
+      await box.getByRole('button', { name: '1-eslatma' }).click();
+      await expect(box.locator('li.is-on')).toContainText('Jonli test');
+      // administrator avtomatik jonli o'yin eslatmasini o'chiradi
+      await remind({ op: 'auto', live: false });
+      await page.reload();
+      await expect(box.locator('li')).toHaveCount(1);
+      await expect(box).not.toContainText('Jonli test');
+    }
+  } finally {
+    const view = await (await admin.request.get('/api/platform?view=reminders')).json();
+    for (const r of view.items || []) await remind({ op: 'remove', id: r.id });
+    await remind({ op: 'auto', live: true, topics: true });
+    await admin.context().close();
+  }
 });
 
 /* 📱 Telefonda (va ilovada) asosiylari: pastki menyu — Asosiy, Kurslar, Kutubxona, Xizmatlar/O'yinlar, Profil;
@@ -137,9 +190,8 @@ test('on a phone the app shows the essentials: topics, courses and paid services
   await expect(page.locator('.stats-grid')).toBeHidden();
   await expect(page.locator('.dashboard-aside')).toBeHidden();
   await expect(page.locator('.app-footer')).toBeHidden();
-  // birinchi ekranda: ism, rejalar, joriy mavzu tugmasi va asosiy kartalar
-  await expect(page.locator('.home-banner .hb-plans')).toBeInViewport();
-  await expect(page.locator('.home-course .hero-button')).toBeInViewport();
+  // birinchi ekranda: ism, eslatmalar va asosiy kartalar
+  await expect(page.locator('.home-banner .hb-reminders')).toBeInViewport();
   await expect(page.locator('.home-sections .quick-link.is-topics')).toBeInViewport();
   // «Mavzular» kartasi — asosiy fan mavzulari; pastki menyuda «Kurslar» belgilangan
   await page.locator('.home-sections .quick-link.is-topics').click();

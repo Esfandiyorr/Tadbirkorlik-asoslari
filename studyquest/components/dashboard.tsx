@@ -1,5 +1,5 @@
 'use client';
-import { motion, useReducedMotion } from 'framer-motion';
+import { motion } from 'framer-motion';
 import {
   ArrowUpRight,
   ArrowLeft,
@@ -39,14 +39,13 @@ import { Leaderboard } from './leaderboard';
 import { CourseGate, PaidCourseGate } from './course-gate';
 import { CourseLessons } from './course-lessons';
 import { ExamPrep } from './exam';
-import { AccessChip, PointsRing, PointsBreakdown } from './points-ui';
+import { PointsRing, PointsBreakdown } from './points-ui';
 import { t } from '@/lib/i18n';
 import { isPlayApp } from '@/lib/play-app';
 import { accessOf, courseTotals, dueText, durationText, num, topicPoints, tr } from '@/lib/points';
-import type { Course, Data, Lang, Lesson, Progress } from '@/lib/types';
+import type { Course, Data, Lang, Lesson } from '@/lib/types';
 import type { Feature } from '@/lib/student-limits';
 
-const seenCount = (p: Progress) => Math.max(p.seen.length, p.legacySeen || 0);
 export const navigate = (view: string) => {
   location.hash = view;
 };
@@ -107,23 +106,6 @@ const sortedLessons = (d: Data, courseId = d.courses?.find((c) => !c.extra)?.id)
   d.lessons
     .filter((l) => !courseId || l.courseId === courseId)
     .sort((a, b) => a.order - b.order || a.id.localeCompare(b.id, undefined, { numeric: true }));
-
-/** Joriy mavzu: avval ball beriladigan va tugallanmagan, keyin boshlangan, keyin birinchi o'qilmagan. */
-export function currentLesson(d: Data) {
-  const h = d.user?.readingHistory || {},
-    list = sortedLessons(d),
-    open = (l: Lesson) => accessOf(d, l.id)?.state !== 'locked';
-  return (
-    list.find((l) => accessOf(d, l.id)?.state === 'score' && topicPoints(h[l.id]).total < 100) ||
-    list.find((l) => h[l.id]?.status === 'started' && open(l)) ||
-    [...(d.progress || [])]
-      .sort((a, b) => b.updatedAt - a.updatedAt)
-      .map((p) => list.find((l) => l.id === p.lessonId && !p.completed))
-      .find(Boolean) ||
-    list.find((l) => h[l.id]?.status !== 'read' && open(l)) ||
-    list[0]
-  );
-}
 
 /* ============================== BOSH SAHIFA ============================== */
 export function Dashboard() {
@@ -259,7 +241,6 @@ function QuickLinks({ chat }: { chat: boolean }) {
 
 function LearnerHome() {
   const { data, lang, legacy } = useApp(),
-    reduce = useReducedMotion(),
     open = useOpenLesson();
   const d = data!,
     u = d.user,
@@ -267,22 +248,12 @@ function LearnerHome() {
     hasAcademic = !!u?.readingHistory,
     university = u?.learnerType !== 'independent';
   const name = u?.name || legacy?.name || tr(lang, 'Bilim izlovchi', 'Learner', 'Ученик');
-  const lesson = currentLesson(d),
-    history = u?.readingHistory?.[lesson?.id || ''],
-    access = lesson ? accessOf(d, lesson.id) : undefined,
-    pts = topicPoints(history),
-    totals = courseTotals(d),
+  const totals = courseTotals(d),
     lessons = sortedLessons(d);
   const active = lessons.filter((l) => accessOf(d, l.id)?.state === 'score');
   const avatarHome = u?.role === 'student' || u?.role === 'admin',
     board = useAcademicBoard(avatarHome);
   const avatar = avatarHome && !board.loading ? board.avatars.me : null;
-  const progressFor = (l: Lesson) => {
-    const p = d.progress?.find((x) => x.lessonId === l.id);
-    return (
-      Math.max(p ? seenCount(p) : 0, u?.readingHistory?.[l.id]?.seenSlides || 0) / l.slideCount
-    );
-  };
   const hour = new Date(Date.now() + 18000000).getUTCHours();
   const hello =
     hour < 11
@@ -301,65 +272,8 @@ function LearnerHome() {
         lessons={lessons}
         open={open}
       />
-      <CourseGate compact />
       <div className="dashboard-grid">
         <div className="dashboard-main">
-          {lesson && (
-            <motion.section
-              initial={reduce ? false : { opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="home-course"
-            >
-              <TopicArt id={lesson.id} compact />
-              <div className="hc-body">
-                <span className="hc-kicker">
-                  <BookOpen size={14} aria-hidden="true" />
-                  {tr(lang, 'Joriy mavzu', 'Current topic', 'Текущая тема')}
-                </span>
-                <h2>
-                  {lesson.order + 1}-{tr(lang, 'mavzu', 'topic', 'тема')}: {lesson.title}
-                </h2>
-                <div className="hc-meta">
-                  <AccessChip access={access} lang={lang} showCountdown={false} />
-                  {access?.state === 'score' && access.due && (
-                    <span className="hc-due">
-                      <Clock3 size={14} aria-hidden="true" /> {dueText(access.due, lang).date}{' '}
-                      {tr(lang, 'gacha', '', 'до')}
-                    </span>
-                  )}
-                </div>
-              </div>
-              <div className="hc-side">
-                {hasAcademic ? (
-                  <div className="hc-points">
-                    <PointsRing
-                      value={pts.total}
-                      size={58}
-                      label={tr(lang, 'Mavzu bali', 'Topic points', 'Баллы темы')}
-                    />
-                    <b>
-                      {pts.remaining > 0
-                        ? tr(
-                            lang,
-                            `Yana ${num(pts.remaining)} ball`,
-                            `${num(pts.remaining)} points left`,
-                            `Ещё ${num(pts.remaining)} балла`,
-                          )
-                        : tr(lang, '100 ball', '100 points', '100 баллов')}
-                    </b>
-                  </div>
-                ) : (
-                  <ProgressBar value={progressFor(lesson) * 100} />
-                )}
-                <Button className="hero-button" onClick={() => open(lesson)}>
-                  <Play size={17} fill="currentColor" />
-                  {history?.status === 'started'
-                    ? tr(lang, 'Davom ettirish', 'Continue', 'Продолжить')
-                    : tr(lang, 'Boshlash', 'Start', 'Начать')}
-                </Button>
-              </div>
-            </motion.section>
-          )}
           <QuickLinks chat={chat} />
           {/* 💎 telefonda obuna taklifi shu yerda (kompyuterda — chap menyuda) */}
           <PremiumSideCard className="is-home" />
