@@ -14,6 +14,7 @@ import {
   type FeatureRule,
 } from '@/lib/student-limits';
 import type { HubStudent, StudentsHubView } from '@/lib/server/students-hub';
+import { RemindersAdmin } from './backoffice/reminders-admin';
 
 /* 👥 «Talabalar bilan ishlash» — guruh yoki bitta talaba bilan ishlashning yagona joyi:
    🎚 bo'limlarni ochish/yopish · 📝 amaliy baho (1–5 → reytingga ×2, ya'ni 10 ballgacha) va 🔁 testga ikkinchi urinish ·
@@ -21,7 +22,7 @@ import type { HubStudent, StudentsHubView } from '@/lib/server/students-hub';
    holat, guruh, parolni tiklash va hisobni o'chirish. Boshqa bo'limlarda bu amallar takrorlanmaydi. */
 
 type Mode = 'group' | 'student';
-type GroupTab = 'limits' | 'marks' | 'premium' | 'list';
+type GroupTab = 'limits' | 'marks' | 'premium' | 'notes' | 'list';
 const TERMS = [30, 90, 180, 365];
 const INDEPENDENT = '__independent__';
 
@@ -174,7 +175,10 @@ export function StudentsHub() {
                     ['limits', '🎚 ' + L('Bo‘limlar', 'Sections', 'Разделы')],
                     ['marks', '📝 ' + L('Baholar', 'Grades', 'Оценки')],
                     ...(view.admin
-                      ? [['premium', '💎 ' + L('Obuna', 'Premium', 'Подписка')] as const]
+                      ? ([
+                          ['premium', '💎 ' + L('Obuna', 'Premium', 'Подписка')],
+                          ['notes', '🔔 ' + L('Eslatma', 'Reminder', 'Напоминание')],
+                        ] as const)
                       : []),
                     ['list', '👤 ' + L('Talabalar', 'Students', 'Студенты')],
                   ] as const
@@ -205,6 +209,8 @@ export function StudentsHub() {
                 <GroupMarks ctx={ctx} members={members} />
               ) : tab === 'premium' && view.admin ? (
                 <GroupPremium ctx={ctx} members={members} />
+              ) : tab === 'notes' && view.admin && group !== INDEPENDENT ? (
+                <RemindersAdmin key={group} fixed={{ group }} />
               ) : (
                 <StudentTable ctx={ctx} rows={members} />
               )}
@@ -1072,6 +1078,19 @@ function StudentCard({
         <section className="hub-card">
           <h4>💎 {L('Obuna', 'Premium', 'Подписка')}</h4>
           <PremiumActions ctx={ctx} s={s} />
+        </section>
+      )}
+      {view.admin && (
+        <section className="hub-card">
+          <h4>🔔 {L('Eslatma', 'Reminder', 'Напоминание')}</h4>
+          <p className="muted">
+            {L(
+              'Faqat shu talabaning bosh sahifasidagi «Eslatmalar»da chiqadi.',
+              'Shown only in this student’s home page “Reminders”.',
+              'Показывается только в «Напоминаниях» на главной этого студента.',
+            )}
+          </p>
+          <RemindersAdmin fixed={{ user: { id: s.id, name: s.name } }} />
         </section>
       )}
       {view.admin && !!view.courses?.length && (

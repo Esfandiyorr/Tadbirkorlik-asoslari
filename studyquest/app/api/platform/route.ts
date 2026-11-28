@@ -8,7 +8,12 @@ import { repository, demo, configured, legacyDb } from '@/lib/server/repository'
 import { legacyAccess, lessonAccessStates } from '@/lib/server/legacy-access';
 import { closedFor, manageLimits, requireFeature } from '@/lib/server/student-limits';
 import { studentsHubView } from '@/lib/server/students-hub';
-import { manageReminders, readReminders } from '@/lib/server/reminders';
+import {
+  manageReminders,
+  publicReminders,
+  readReminders,
+  remindersForUser,
+} from '@/lib/server/reminders';
 import { DEFAULT_REMINDERS } from '@/lib/reminders';
 import { limitLessonAccess } from '@/lib/student-limits';
 import { applyLegacyUpdate } from '@/lib/server/legacy-student';
@@ -277,7 +282,8 @@ export async function GET(req: NextRequest) {
         liveGame(),
         readPromo().catch(() => []),
         // 🔔 bosh sahifadagi «Eslatmalar» (administrator yozganlari va avtomatik eslatmalar sozlamasi)
-        readReminders().catch(() => DEFAULT_REMINDERS),
+        // (faqat hammaga atalganlari — guruh va talabaga atalganlari foydalanuvchining o'z ma'lumotida)
+        publicReminders().catch(() => DEFAULT_REMINDERS),
       ]);
       // Jonli test jadvali o'z-o'zidan to'lib tursin (6 soatda ko'pi bilan bir marta, javobdan keyin).
       if (!demo()) after(() => liveTopUp().catch(() => {}));
@@ -296,6 +302,29 @@ export async function GET(req: NextRequest) {
       return NextResponse.json(await readReminders(), {
         headers: { 'Cache-Control': 'private, no-store' },
       });
+    }
+    if (req.nextUrl.searchParams.get('view') === 'reminderTargets') {
+      // 🔔 eslatma kimga: guruhlar va talabalar ro'yxati (administrator)
+      const a = await actor(req, true);
+      administrator(a);
+      const roster = demo()
+        ? await demoRoster()
+        : await new Academic(await repository()).roster(a).catch(() => []);
+      const count = new Map<string, number>();
+      for (const s of roster)
+        if (s.classId && s.learnerType !== 'independent')
+          count.set(s.classId, (count.get(s.classId) || 0) + 1);
+      return NextResponse.json(
+        {
+          groups: [...count.entries()]
+            .sort((x, y) => x[0].localeCompare(y[0]))
+            .map(([name, n]) => ({ name, n })),
+          students: roster
+            .map((s) => ({ id: s.id, name: s.name, group: s.classId || '' }))
+            .sort((x, y) => x.name.localeCompare(y.name)),
+        },
+        { headers: { 'Cache-Control': 'private, no-store' } },
+      );
     }
     if (req.nextUrl.searchParams.get('view') === 'newsSeen') {
       // 📣 qaysi katta e'lonlarni o'qigan — shaxsiy ma'lumot, keshlanmaydi
@@ -618,6 +647,11 @@ export async function GET(req: NextRequest) {
       Object.assign(state, demoAcademic(state.user as { id: string }));
     await withCourse(a, state as { course?: unknown; lessonAccess?: unknown });
     await withLimits(a, state as { lessonAccess?: unknown; user?: unknown });
+    // 🔔 shu foydalanuvchining guruhiga yoki o'ziga atalgan eslatmalar (hammaga atalganlari — view=news da)
+    (state as { reminders?: unknown }).reminders = await remindersForUser({
+      id: a.id,
+      group: (state.user as { classId?: string } | undefined)?.classId || a.classId,
+    }).catch(() => []);
     // 💳 pullik kurslar (restoran kursi): kira oladimi, so'rov holati, narx
     (state as { paid?: unknown }).paid = await paidView(a).catch(() => ({}));
     // 💼 pullik xizmatlar vaqtincha yopiq bo'lsa — menyuda ko'rinmaydi

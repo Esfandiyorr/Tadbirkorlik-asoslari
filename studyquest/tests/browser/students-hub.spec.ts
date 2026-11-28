@@ -166,3 +166,55 @@ test('grades, second attempts, status and Premium for a group in one place', asy
   const card = hub.locator('.academic-topic-card').filter({ hasText: /^3\./ });
   await expect(card).toContainText('berilgan:');
 });
+
+test('a personal reminder from the student card reaches only that student, never the public feed', async ({
+  page,
+  browser,
+}) => {
+  await as(page, 'demo-admin');
+  const remind = (input: Record<string, unknown>) =>
+    page.request.post('/api/platform', { data: { action: 'reminders', input } });
+  try {
+    await page.goto('/#admin', { waitUntil: 'domcontentloaded' });
+    await page.getByRole('button', { name: '👥 Talabalar bilan ishlash', exact: true }).click();
+    const hub = page.locator('.students-hub');
+    // guruhga — «🔔 Eslatma» tabidan
+    await hub.getByRole('tab', { name: /Eslatma/ }).click();
+    await expect(hub).toContainText('«AP-223» guruhiga eslatma');
+    await hub.getByLabel(/Qisqa matn/).fill('AP-223: juma kuni nazorat ishi');
+    await hub.getByRole('button', { name: 'Eslatma qo‘shish' }).click();
+    await expect(hub.locator('.reminders-list li')).toContainText('👥 AP-223');
+    // bitta talabaga — talaba kartasidan
+    await hub.getByRole('button', { name: /Talaba bilan/ }).click();
+    await hub.getByLabel('Talabani qidirish').fill('Madina');
+    await hub.locator('.hub-table').getByRole('button', { name: 'Madina Ergasheva' }).click();
+    const card = hub
+      .locator('.hub-card')
+      .filter({ has: page.locator('h4', { hasText: /^🔔 Eslatma$/ }) });
+    await card.getByLabel(/Qisqa matn/).fill('Madina, referatingizni yuboring');
+    await card.getByRole('button', { name: 'Eslatma qo‘shish' }).click();
+    await expect(card.locator('.reminders-list li')).toContainText('👤 Madina Ergasheva');
+    // ochiq ma'lumotda (e'lonlar) yo'q — faqat talabaning o'z ma'lumotida
+    const news = await (await page.request.get('/api/platform?view=news')).json();
+    expect(JSON.stringify(news)).not.toContain('referatingizni');
+    expect(JSON.stringify(news)).not.toContain('nazorat ishi');
+    const student = await (
+      await browser.newContext({ baseURL: test.info().project.use.baseURL })
+    ).newPage();
+    await as(student, 'demo-student');
+    const mine = await (await student.request.get('/api/platform')).json();
+    expect(mine.reminders.map((r: { t: string }) => r.t)).toEqual([
+      'Madina, referatingizni yuboring',
+      'AP-223: juma kuni nazorat ishi',
+    ]);
+    expect(JSON.stringify(mine.reminders)).not.toContain('users');
+    await student.goto('/#home', { waitUntil: 'domcontentloaded' });
+    const box = student.locator('.hb-reminders');
+    await expect(box).toContainText('referatingizni yuboring');
+    await expect(box).toContainText('nazorat ishi');
+    await student.context().close();
+  } finally {
+    const view = await (await page.request.get('/api/platform?view=reminders')).json();
+    for (const r of view.items || []) await remind({ op: 'remove', id: r.id });
+  }
+});

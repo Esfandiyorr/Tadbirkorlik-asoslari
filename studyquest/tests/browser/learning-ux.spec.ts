@@ -102,7 +102,9 @@ test('the home banner shows the date, the name and the reminders the administrat
     await expect(rem).toContainText('Hozircha o‘zingiz yozgan eslatma yo‘q.');
     await rem.getByLabel(/Qisqa matn/).fill('Ertaga 9:00 da seminar');
     await rem.getByLabel(/Havola/).fill('#courses');
-    await rem.getByLabel(/Faqat guruhga/).fill('AP-223');
+    // kimga: guruhlar ro'yxatidan belgilanadi
+    await rem.getByRole('radio', { name: /Guruhlarga/ }).check();
+    await rem.getByRole('checkbox', { name: /AP-223/ }).check();
     await rem.getByRole('button', { name: 'Eslatma qo‘shish' }).click();
     await expect(rem.locator('.reminders-list li')).toContainText('Ertaga 9:00 da seminar');
     await expect(rem.locator('.reminders-list li')).toContainText('👥 AP-223');

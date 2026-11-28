@@ -14606,3 +14606,96 @@ html {
   color: var(--muted);
   overflow-wrap: anywhere;
 }
+
+.reminders-admin.is-fixed {
+  margin-top: 0;
+  padding: 0;
+  border: 0;
+  box-shadow: none;
+  background: none;
+}
+.reminders-audience {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.reminders-audience legend {
+  margin-bottom: 6px;
+  font-size: 14px;
+  color: var(--muted);
+}
+.editor .reminders-audience label,
+.bo-form .reminders-audience label,
+.reminders-audience label {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  color: var(--text);
+  font-weight: 600;
+}
+.reminders-pick {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.reminders-pick label {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 11px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  font-weight: 600;
+  cursor: pointer;
+}
+.reminders-pick label.is-on {
+  border-color: var(--violet);
+  background: var(--soft-violet);
+}
+.reminders-pick small {
+  color: var(--muted);
+  font-weight: 500;
+}
+.reminders-users {
+  display: grid;
+  gap: 8px;
+}
+.reminders-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.reminders-chips li {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 6px 4px 11px;
+  border-radius: 999px;
+  background: var(--soft-violet);
+  font-weight: 600;
+  font-size: 13.5px;
+}
+.reminders-chips button {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+}
+.reminders-chips button:hover {
+  background: #0000000f;
+}

@@ -120,7 +120,12 @@ export function homeReminders(
   const plans = todayPlans(d, lessons, auto.live ? live : null, lang, open, now).filter(
     (p) => auto.topics || p.kind !== 'topic',
   );
-  const notes: ReminderCard[] = remindersFor(reminders, d.user?.classId, now).map((r) => ({
+  const who = { id: d.user?.id, group: d.user?.classId };
+  // hammaga atalganlari (e'lonlar bilan) va shu talabaning guruhiga yoki o'ziga atalganlari (shaxsiy ma'lumotda)
+  const mine = [...remindersFor(reminders?.items, who, now), ...remindersFor(d.reminders, who, now)]
+    .filter((r, i, all) => all.findIndex((x) => x.id === r.id) === i)
+    .sort((a, b) => b.at - a.at);
+  const notes: ReminderCard[] = mine.map((r) => ({
     key: 'note-' + r.id,
     at: r.at,
     kind: 'note',

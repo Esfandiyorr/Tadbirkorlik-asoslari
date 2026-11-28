@@ -152,6 +152,8 @@ export type Settings = {
 };
 export type Badge = { id: string; name: string; description: string; icon: string };
 export type Data = {
+  /** 🔔 shu foydalanuvchining guruhiga yoki o'ziga atalgan eslatmalar (lib/reminders.ts) */
+  reminders?: import('./reminders').Reminder[];
   adminOnly?: boolean;
   studentPasswordSetup?: { completed: boolean; students: number; completedAt?: number };
   legacyMigration?: { students: number; syncedAt: number } | null;
